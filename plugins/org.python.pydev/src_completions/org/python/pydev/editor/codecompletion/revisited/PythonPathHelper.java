@@ -429,6 +429,13 @@ public class PythonPathHelper implements IPythonPathHelper {
         return true;
     }
 
+    public void setPythonPath(List<String> newPythonpath) {
+        synchronized (pythonpath) {
+            pythonpath.clear();
+            pythonpath.addAll(newPythonpath);
+        }
+    }
+    
     /**
      * @param string with paths separated by |
      * @return

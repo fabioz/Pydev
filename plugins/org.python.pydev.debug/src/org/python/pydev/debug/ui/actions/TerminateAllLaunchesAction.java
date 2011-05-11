@@ -79,7 +79,6 @@ public class TerminateAllLaunchesAction extends PyAction implements IUpdate{
     }
 
     public void dispose() {
-        // TODO Auto-generated method stub
         
     }
 

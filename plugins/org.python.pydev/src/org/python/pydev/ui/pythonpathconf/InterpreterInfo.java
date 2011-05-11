@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.ISystemModulesManager;
@@ -66,7 +67,7 @@ public class InterpreterInfo implements IInterpreterInfo{
     }
     
     /**
-     * folders - they should be passed to the pythonpath
+     * Folders or zip files: they should be passed to the pythonpath
      */
     public final java.util.List<String> libs = new ArrayList<String>(); 
     
@@ -1358,4 +1359,34 @@ public class InterpreterInfo implements IInterpreterInfo{
 		this.predefinedCompletionsPath.remove(item);
 		this.clearBuiltinsCache();
 	}
+
+	
+	private IInterpreterInfoBuilder builder;
+	private final Object builderLock = new Object();
+	
+	
+	/**
+	 * Building so that the interpreter info is kept up to date.
+	 */
+    public void startBuilding() {
+        synchronized (builderLock) {
+            if(this.builder == null){
+                IInterpreterInfoBuilder builder = (IInterpreterInfoBuilder) ExtensionHelper.getParticipant(
+                        ExtensionHelper.PYDEV_INTERPRETER_INFO_BUILDER);
+                builder.setInfo(this);
+                this.builder = builder;
+            }
+        }
+    }
+
+    
+    
+    public void stopBuilding() {
+        synchronized (builderLock) {
+            if(this.builder != null){
+                this.builder.dispose();
+                this.builder = null;
+            }
+        }
+    }
 }

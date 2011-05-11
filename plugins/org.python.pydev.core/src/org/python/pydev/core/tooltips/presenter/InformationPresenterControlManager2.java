@@ -70,7 +70,7 @@ public class InformationPresenterControlManager2 extends AbstractHoverInformatio
      * @see org.python.pydev.core.tooltips.presenter.IInformationPresenterControlManager#setActivateEditorBinding(org.eclipse.jface.bindings.keys.KeySequence)
      */
     public void setActivateEditorBinding(KeySequence activateEditorBinding) {
-        // TODO Auto-generated method stub
+        
         
     }
 
@@ -78,7 +78,7 @@ public class InformationPresenterControlManager2 extends AbstractHoverInformatio
      * @see org.python.pydev.core.tooltips.presenter.IInformationPresenterControlManager#setInitiallyActiveShell(org.eclipse.swt.widgets.Shell)
      */
     public void setInitiallyActiveShell(Shell activeShell) {
-        // TODO Auto-generated method stub
+        
         
     }
 
@@ -86,7 +86,7 @@ public class InformationPresenterControlManager2 extends AbstractHoverInformatio
      * @see org.python.pydev.core.tooltips.presenter.IInformationPresenterControlManager#hideInformationControl(boolean, boolean)
      */
     public void hideInformationControl(boolean activateEditor, boolean restoreFocus) {
-        // TODO Auto-generated method stub
+        
         
     }
 

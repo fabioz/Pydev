@@ -31,10 +31,10 @@ final class ModulesManagerCache  {
     }
     
     /**
-     * Overriden so that if we do not find the key, we have the chance to create it.
+     * Overridden so that if we do not find the key, we have the chance to create it.
      */
     public AbstractModule getObj(ModulesKey key, ModulesManager modulesManager) {
-        synchronized (modulesManager.modulesKeys) {
+        synchronized (modulesManager.modulesKeysLock) {
             Tuple<ModulesKey, ModulesManager> keyTuple = new Tuple<ModulesKey, ModulesManager>(key, modulesManager);
             
             AbstractModule obj = internalCache.getObj(keyTuple);
@@ -48,14 +48,14 @@ final class ModulesManagerCache  {
     }
 
     public void remove(ModulesKey key, ModulesManager modulesManager) {
-        synchronized (modulesManager.modulesKeys) {
+        synchronized (modulesManager.modulesKeysLock) {
             Tuple<ModulesKey, ModulesManager> keyTuple = new Tuple<ModulesKey, ModulesManager>(key, modulesManager);
             internalCache.remove(keyTuple);
         }
     }
 
     public void add(ModulesKey key, AbstractModule n, ModulesManager modulesManager) {
-        synchronized (modulesManager.modulesKeys) {
+        synchronized (modulesManager.modulesKeysLock) {
             Tuple<ModulesKey, ModulesManager> keyTuple = new Tuple<ModulesKey, ModulesManager>(key, modulesManager);
             internalCache.add(keyTuple, n);
         }

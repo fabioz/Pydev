@@ -31,7 +31,7 @@ public class ModulesKey implements Comparable<ModulesKey>, Serializable{
     private static final long serialVersionUID = 2L;
     
     /**
-     * Then name is always needed!
+     * The name is always needed!
      */
     public String name;
     

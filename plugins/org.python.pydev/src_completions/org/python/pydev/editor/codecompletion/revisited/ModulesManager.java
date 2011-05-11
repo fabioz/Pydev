@@ -38,6 +38,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
@@ -76,8 +77,6 @@ public abstract class ModulesManager implements IModulesManager {
     
     private final static boolean DEBUG_TEMPORARY_MODULES = false;
 
-    private final static boolean DEBUG_IO = false;
-    
     private final static boolean DEBUG_ZIP = false;
 
     public ModulesManager() {
@@ -154,6 +153,7 @@ public abstract class ModulesManager implements IModulesManager {
      * It is sorted so that we can get things in a 'subtree' faster
      */
     protected final ModulesKeyTreeMap<ModulesKey, ModulesKey> modulesKeys = new ModulesKeyTreeMap<ModulesKey, ModulesKey>();
+    protected final Object modulesKeysLock = new Object();
 
     protected static final ModulesManagerCache cache = new ModulesManagerCache();
 
@@ -199,17 +199,20 @@ public abstract class ModulesManager implements IModulesManager {
             
         File modulesKeysFile = new File(workspaceMetadataFile, "modulesKeys");
         File pythonpatHelperFile = new File(workspaceMetadataFile, "pythonpath");
-        FastStringBuffer buf = new FastStringBuffer(this.modulesKeys.size()*50);
-        buf.append(MODULES_MANAGER_V1);
-        
-        for (Iterator<ModulesKey> iter = this.modulesKeys.keySet().iterator(); iter.hasNext();) {
-            ModulesKey next = iter.next();
-            buf.append(next.name);
-            if(next.file != null){
-                buf.append("|");
-                buf.append(next.file.toString());
+        FastStringBuffer buf;
+        synchronized (modulesKeysLock) {
+            buf = new FastStringBuffer(this.modulesKeys.size()*50);
+            buf.append(MODULES_MANAGER_V1);
+            
+            for (Iterator<ModulesKey> iter = this.modulesKeys.keySet().iterator(); iter.hasNext();) {
+                ModulesKey next = iter.next();
+                buf.append(next.name);
+                if(next.file != null){
+                    buf.append("|");
+                    buf.append(next.file.toString());
+                }
+                buf.append('\n');
             }
-            buf.append('\n');
         }
         REF.writeStrToFile(buf.toString(), modulesKeysFile);
         
@@ -287,14 +290,6 @@ public abstract class ModulesManager implements IModulesManager {
 
 
     /**
-     * @param modules The modules to set.
-     */
-    private void setModules(ModulesKeyTreeMap<ModulesKey, ModulesKey> keys) {
-        this.modulesKeys.clear();
-        this.modulesKeys.putAll(keys);
-    }
-
-    /**
      * @return Returns the modules.
      */
     protected Map<ModulesKey, AbstractModule> getModules() {
@@ -316,6 +311,49 @@ public abstract class ModulesManager implements IModulesManager {
         pythonPathHelper.setPythonPath(pythonpath);
         ModulesFoundStructure modulesFound = pythonPathHelper.getModulesFoundStructure(monitor);
 
+        ModulesKeyTreeMap<ModulesKey, ModulesKey> keys = buildKeysFromModulesFound(monitor, modulesFound);
+
+        synchronized (modulesKeysLock) {
+            //assign to instance variable
+            this.modulesKeys.clear();
+            this.modulesKeys.putAll(keys);
+        }
+
+    }
+    
+    
+    /**
+     * @return a tuple with the new keys to be added to the modules manager (i.e.: found in keysFound but not in the 
+     * modules manager) and the keys to be removed from the modules manager (i.e.: found in the modules manager but
+     * not in the keysFound) 
+     */
+    public Tuple<List<ModulesKey>, List<ModulesKey>> diffModules(ModulesKeyTreeMap<ModulesKey, ModulesKey> keysFound) {
+        ArrayList<ModulesKey> newKeys = new ArrayList<ModulesKey>();
+        ArrayList<ModulesKey> removedKeys = new ArrayList<ModulesKey>();
+        Iterator<ModulesKey> it = keysFound.keySet().iterator();
+        
+        synchronized (modulesKeysLock) {
+            while (it.hasNext()) {
+                ModulesKey next = it.next();
+                if (!modulesKeys.containsKey(next)) {
+                    newKeys.add(next);
+                }
+            }
+            
+            it = modulesKeys.keySet().iterator();
+            while (it.hasNext()) {
+                ModulesKey next = it.next();
+                if (!keysFound.containsKey(next)) {
+                    removedKeys.add(next);
+                }
+            }
+        }
+        
+        return new Tuple<List<ModulesKey>, List<ModulesKey>>(newKeys, removedKeys);
+    }
+
+
+    public ModulesKeyTreeMap<ModulesKey, ModulesKey> buildKeysFromModulesFound(IProgressMonitor monitor, ModulesFoundStructure modulesFound) {
         //now, on to actually filling the module keys
         ModulesKeyTreeMap<ModulesKey, ModulesKey> keys = new ModulesKeyTreeMap<ModulesKey, ModulesKey>();
         int j = 0;
@@ -328,7 +366,7 @@ public abstract class ModulesManager implements IModulesManager {
             File f = entry.getKey();
             String m = entry.getValue();
 
-            if (j % 15 == 0) {
+            if (j % 20 == 0) {
                 //no need to report all the time (that's pretty fast now)
                 buffer.clear();
                 monitor.setTaskName(buffer.append("Module resolved: ").append(m).toString());
@@ -376,10 +414,7 @@ public abstract class ModulesManager implements IModulesManager {
         }
 
         onChangePythonpath(keys);
-
-        //assign to instance variable
-        this.setModules(keys);
-
+        return keys;
     }
 
     /**
@@ -396,7 +431,7 @@ public abstract class ModulesManager implements IModulesManager {
      * @param key this is the key that should be removed
      */
     protected void doRemoveSingleModule(ModulesKey key) {
-        synchronized (modulesKeys) {
+        synchronized (modulesKeysLock) {
             if (DEBUG_BUILD) {
                 System.out.println("Removing module:" + key + " - " + this.getClass());
             }
@@ -438,7 +473,7 @@ public abstract class ModulesManager implements IModulesManager {
         if (DEBUG_BUILD) {
             System.out.println("Adding module:" + key + " - " + this.getClass());
         }
-        synchronized (modulesKeys) {
+        synchronized (modulesKeysLock) {
             this.modulesKeys.put(key, key);
             ModulesManager.cache.add(key, n, this);
         }
@@ -451,7 +486,7 @@ public abstract class ModulesManager implements IModulesManager {
      */
     public Set<String> getAllModuleNames(boolean addDependencies, String partStartingWithLowerCase) {
         Set<String> s = new HashSet<String>();
-        synchronized (modulesKeys) {
+        synchronized (modulesKeysLock) {
             for (ModulesKey key : this.modulesKeys.keySet()) {
                 if(key.hasPartStartingWith(partStartingWithLowerCase)){
                     s.add(key.name);
@@ -463,7 +498,7 @@ public abstract class ModulesManager implements IModulesManager {
 
     public SortedMap<ModulesKey, ModulesKey> getAllDirectModulesStartingWith(String strStartingWith) {
         if (strStartingWith.length() == 0) {
-            synchronized (modulesKeys) {
+            synchronized (modulesKeysLock) {
                 //we don't want it to be backed up by the same set (because it may be changed, so, we may get
                 //a java.util.ConcurrentModificationException on places that use it)
                 return new ModulesKeyTreeMap<ModulesKey, ModulesKey>(modulesKeys);
@@ -471,7 +506,7 @@ public abstract class ModulesManager implements IModulesManager {
         }
         ModulesKey startingWith = new ModulesKey(strStartingWith, null);
         ModulesKey endingWith = new ModulesKey(startingWith + "z", null);
-        synchronized (modulesKeys) {
+        synchronized (modulesKeysLock) {
             //we don't want it to be backed up by the same set (because it may be changed, so, we may get
             //a java.util.ConcurrentModificationException on places that use it)
             return new ModulesKeyTreeMap<ModulesKey, ModulesKey>(modulesKeys.subMap(startingWith, endingWith));
@@ -483,7 +518,7 @@ public abstract class ModulesManager implements IModulesManager {
     }
 
     public ModulesKey[] getOnlyDirectModules() {
-        synchronized (modulesKeys) {
+        synchronized (modulesKeysLock) {
             return (ModulesKey[]) this.modulesKeys.keySet().toArray(new ModulesKey[0]);
         }
     }
@@ -492,7 +527,9 @@ public abstract class ModulesManager implements IModulesManager {
      * Note: no dependencies at this point (so, just return the keys)
      */
     public int getSize(boolean addDependenciesSize) {
-        return this.modulesKeys.size();
+        synchronized (modulesKeysLock) {
+            return this.modulesKeys.size();
+        }
     }
 
     public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit) {
@@ -758,11 +795,13 @@ public abstract class ModulesManager implements IModulesManager {
 
     private ModulesKey createModulesKey(String name, File f) {
         ModulesKey newEntry = new ModulesKey(name, f);
-        Entry<ModulesKey, ModulesKey> oldEntry = this.modulesKeys.getEntry(newEntry);
-        if(oldEntry != null){
-            return oldEntry.getKey();
-        }else{
-            return newEntry;
+        synchronized (modulesKeysLock) {
+            Entry<ModulesKey, ModulesKey> oldEntry = this.modulesKeys.getEntry(newEntry);
+            if(oldEntry != null){
+                return oldEntry.getKey();
+            }else{
+                return newEntry;
+            }
         }
     }
 

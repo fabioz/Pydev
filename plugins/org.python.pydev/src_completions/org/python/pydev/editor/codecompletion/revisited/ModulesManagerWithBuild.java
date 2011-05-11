@@ -160,10 +160,10 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
         }
         
         List<ModulesKey> toRem = new ArrayList<ModulesKey>();
-        synchronized (modulesKeys) {
+        synchronized (modulesKeysLock) {
     
-            for (Iterator iter = modulesKeys.keySet().iterator(); iter.hasNext();) {
-                ModulesKey key = (ModulesKey) iter.next();
+            for (Iterator<ModulesKey> iter = modulesKeys.keySet().iterator(); iter.hasNext();) {
+                ModulesKey key = iter.next();
                 if (key.file != null && key.file.equals(file)) {
                     toRem.add(key);
                 }
@@ -185,7 +185,7 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
         String absolutePath = REF.getFileAbsolutePath(file);
         List<ModulesKey> toRem = new ArrayList<ModulesKey>();
         
-        synchronized (modulesKeys) {
+        synchronized (modulesKeysLock) {
 
             for (ModulesKey key : modulesKeys.keySet()) {
                 if (key.file != null && REF.getFileAbsolutePath(key.file).startsWith(absolutePath)) {
@@ -211,7 +211,7 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
 
             
         }else if (f != null){ //ok, remove the module that has a key with this file, as it can no longer be resolved
-            synchronized (modulesKeys) {
+            synchronized (modulesKeysLock) {
                 Set<ModulesKey> toRemove = new HashSet<ModulesKey>();
                 for (Iterator iter = modulesKeys.keySet().iterator(); iter.hasNext();) {
                     ModulesKey key = (ModulesKey) iter.next();

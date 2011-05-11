@@ -40,7 +40,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.actions.AnalyzeOnRequestSetter;
 import com.python.pydev.analysis.actions.AnalyzeOnRequestSetter.AnalyzeOnRequestAction;
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.builder.AnalysisBuilderRunnable;
 import com.python.pydev.analysis.builder.AnalysisRunner;
@@ -107,7 +107,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
         goToManual(TIME_FOR_ANALYSIS); //give it a bit more time...
         
         PythonNature nature = PythonNature.getPythonNature(mod1);
-        AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
+        AbstractAdditionalTokensInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
         //all modules are empty
         assertEquals(new HashSet<String>(), info.getAllModulesWithTokens());
         
@@ -153,7 +153,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
     }
 
 
-    private void checkSetValidContentsWithFooToken(AbstractAdditionalInterpreterInfo info) throws CoreException {
+    private void checkSetValidContentsWithFooToken(AbstractAdditionalTokensInfo info) throws CoreException {
         print("-------- Setting valid contents with some token -------------");
         resourcesAnalyzed.clear();
         synchronized(lock){
@@ -167,7 +167,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
         assertEquals(new HashSet<String>(Arrays.asList(new String[]{"pack1.pack2.mod1"})), info.getAllModulesWithTokens());
     }
     
-    private void checkRename(final AbstractAdditionalInterpreterInfo info) throws CoreException {
+    private void checkRename(final AbstractAdditionalTokensInfo info) throws CoreException {
         print("-------- Renaming and checking if tokens are OK -------------");
         resourcesAnalyzed.clear();
         synchronized(lock){
@@ -213,7 +213,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
                 }});
     }
 
-    private void checkSetValidContents(AbstractAdditionalInterpreterInfo info) throws CoreException {
+    private void checkSetValidContents(AbstractAdditionalTokensInfo info) throws CoreException {
         print("-------- Setting valid contents -------------");
         resourcesAnalyzed.clear();
         synchronized(lock){

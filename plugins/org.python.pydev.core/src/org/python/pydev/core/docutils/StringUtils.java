@@ -1212,15 +1212,26 @@ public final class StringUtils {
     }
 
 
+    private static final Object md5CacheLock = new Object();
+    private static final LRUCache<String, String> md5Cache = new LRUCache<String, String>(1000);
+    
     public static String md5(String str) {
-        try {
-            byte[] bytes = str.getBytes("UTF-8");
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            //MAX_RADIX because we'll generate the shorted string possible... (while still
-            //using only numbers 0-9 and letters a-z)
-            return new BigInteger(1, md.digest(bytes)).toString(Character.MAX_RADIX).toLowerCase();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        synchronized (md5CacheLock) {
+            String obj = md5Cache.getObj(str);
+            if(obj != null){
+                return obj;
+            }
+            try {
+                byte[] bytes = str.getBytes("UTF-8");
+                MessageDigest md = MessageDigest.getInstance("MD5");
+                //MAX_RADIX because we'll generate the shorted string possible... (while still
+                //using only numbers 0-9 and letters a-z)
+                String ret = new BigInteger(1, md.digest(bytes)).toString(Character.MAX_RADIX).toLowerCase();
+                md5Cache.add(str, ret);
+                return ret;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

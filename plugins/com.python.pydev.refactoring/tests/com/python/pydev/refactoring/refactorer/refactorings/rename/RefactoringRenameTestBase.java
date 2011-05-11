@@ -26,6 +26,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.Tuple;
@@ -46,7 +47,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.PyFileListing;
 import org.python.pydev.utils.PyFileListing.PyFileInfo;
 
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
 import com.python.pydev.refactoring.refactorer.RefactorerFindReferences;
@@ -109,8 +110,8 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
                 SourceModule mod = (SourceModule) AbstractModule.createModule(modName, f, natureRefactoring, 0);
                 
                 //also create the additional info so that it can be used for finds
-                AbstractAdditionalInterpreterInfo additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(natureRefactoring);
-                additionalInfo.addAstInfo(mod.getAst(), modName, natureRefactoring, false);
+                AbstractAdditionalTokensInfo additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(natureRefactoring);
+                additionalInfo.addAstInfo(mod.getAst(), new ModulesKey(modName, f), false);
             }
             
             RefactorerFindReferences.FORCED_RETURN = iFiles;

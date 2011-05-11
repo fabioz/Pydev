@@ -23,10 +23,12 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
@@ -35,8 +37,8 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.core.structure.FastStringBuffer;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.logging.DebugSettings;
+import org.python.pydev.parser.fastparser.FastDefinitionsParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -76,7 +78,7 @@ import org.python.pydev.plugin.PydevPlugin;
  * 
  * @author Fabio
  */
-public abstract class AbstractAdditionalInterpreterInfo {
+public abstract class AbstractAdditionalTokensInfo {
 
     /**
      * this is the number of initials that is used for indexing
@@ -173,7 +175,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     private static final int version = 2;
 
-    public AbstractAdditionalInterpreterInfo(){
+    public AbstractAdditionalTokensInfo(){
     }
     
     /**
@@ -264,25 +266,65 @@ public abstract class AbstractAdditionalInterpreterInfo {
         }
         return null;
     }
+    
+    
+    public List<IInfo> addAstInfo(ModulesKey key, boolean generateDelta) throws Exception {
+        boolean isZipModule = key instanceof ModulesKeyForZip;
+        ModulesKeyForZip modulesKeyForZip = null;
+        if(isZipModule){
+            modulesKeyForZip = (ModulesKeyForZip) key;
+        }
 
-    /**
-     * Adds information for a source module
-     * @param m the module we want to add to the info
-     */
-    public void addSourceModuleInfo(SourceModule m, IPythonNature nature, boolean generateDelta) {
-        addAstInfo(m.getAst(), m.getName(), nature, generateDelta);
+        Object doc;
+        if(isZipModule){
+            doc = REF.getCustomReturnFromZip(modulesKeyForZip.file, modulesKeyForZip.zipModulePath, null);
+            
+        }else{
+            doc = REF.getCustomReturnFromFile(key.file, true, null);
+        }
+        
+        char [] charArray;
+        if(doc instanceof IDocument){
+            IDocument document = (IDocument) doc;
+            charArray = document.get().toCharArray();
+            
+        }else if(doc instanceof FastStringBuffer){
+            FastStringBuffer fastStringBuffer = (FastStringBuffer) doc;
+            charArray = fastStringBuffer.toCharArray();
+            
+        }else if(doc instanceof String){
+            String str = (String) doc;
+            charArray = str.toCharArray();
+            
+        }else if(doc instanceof char[]){
+            charArray = (char[]) doc;
+            
+        }else{
+            throw new RuntimeException("Don't know how to handle: "+doc+" -- "+doc.getClass());
+        }
+        
+        SimpleNode node = FastDefinitionsParser.parse(charArray, key.file.getName());
+        if(node == null){
+            return null;
+        }
+        
+        return addAstInfo(node, key, generateDelta);
     }
 
-    
-    public List<IInfo> addAstInfo(SimpleNode node, String moduleName, IPythonNature nature, boolean generateDelta) {
+    /**
+     * Adds ast info information for a module.
+     * 
+     * @param m the module we want to add to the info
+     */
+    public List<IInfo> addAstInfo(SimpleNode node, ModulesKey key, boolean generateDelta) {
     	List <IInfo> createdInfos = new ArrayList<IInfo>();
-    	if(node == null || moduleName == null){
+    	if(node == null || key.name == null){
     		return createdInfos;
     	}
     	try {
 			Tuple<DefinitionsASTIteratorVisitor, Iterator<ASTEntry>> tup = getInnerEntriesForAST(node);
 			if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-			    Log.toLogFile(this, "Adding ast info to: "+moduleName);
+			    Log.toLogFile(this, "Adding ast info to: "+key.name);
 			}
 			
 			try {
@@ -292,7 +334,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
 			    
 			    synchronized (this.lock) {
 			        synchronized (ObjectsPool.lock) {
-                        moduleName = ObjectsPool.internUnsynched(moduleName);
+                        key.name = ObjectsPool.internUnsynched(key.name);
                         
     			        while (entries.hasNext()) {
     			            ASTEntry entry = entries.next();
@@ -303,7 +345,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
     			                    //no intern construct (locked in this loop)
     			                    ClassInfo info = new ClassInfo(
     			                            ObjectsPool.internUnsynched(((NameTok)((ClassDef)entry.node).name).id), 
-    			                            moduleName, 
+    			                            key.name, 
     			                            null, 
     			                            false
     			                    );
@@ -314,7 +356,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
     			                    //no intern construct (locked in this loop)
     			                    FuncInfo info2 = new FuncInfo(
     			                            ObjectsPool.internUnsynched(((NameTok)((FunctionDef) entry.node).name).id), 
-    			                            moduleName, 
+    			                            key.name, 
     			                            null,
     			                            false
     			                    );
@@ -323,7 +365,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
     			                    
     			                }else{
     			                    //it is an assign
-    			                	infoCreated = this.addAssignTargets(entry, moduleName, TOP_LEVEL, null, false);
+    			                	infoCreated = this.addAssignTargets(entry, key.name, TOP_LEVEL, null, false);
     			                	
     			                	
     			                	
@@ -340,7 +382,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
     			                        if(entry.node instanceof ClassDef){
     		                                ClassInfo info = new ClassInfo(
     		                                        ObjectsPool.internUnsynched(((NameTok)((ClassDef)entry.node).name).id), 
-    		                                        moduleName, 
+    		                                        key.name, 
     		                                        ObjectsPool.internUnsynched(pathToRoot.o1),
     		                                        false
     		                                );
@@ -351,7 +393,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
     		                                //FunctionDef
     		                                FuncInfo info2 = new FuncInfo(
     		                                        ObjectsPool.internUnsynched(((NameTok)((FunctionDef) entry.node).name).id), 
-    		                                        moduleName, 
+    		                                        key.name, 
     		                                        ObjectsPool.internUnsynched(pathToRoot.o1),
     		                                        false
     		                                );
@@ -364,7 +406,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
     			                    //it is an assign
     			                    Tuple<String,Boolean> pathToRoot = this.getPathToRoot(entry, true, false, tempStack);
     			                    if(pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0){
-    			                    	infoCreated = this.addAssignTargets(entry, moduleName, INNER, pathToRoot.o1, pathToRoot.o2);
+    			                    	infoCreated = this.addAssignTargets(entry, key.name, INNER, pathToRoot.o1, pathToRoot.o2);
     			                    }
     			                }
     			            }
@@ -645,7 +687,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * save the information contained for the given manager
      */
     public static void saveAdditionalSystemInfo(IInterpreterManager manager, String interpreter) {
-        AbstractAdditionalInterpreterInfo info;
+        AbstractAdditionalTokensInfo info;
 		try {
 			info = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager, interpreter);
 			info.save();
@@ -680,7 +722,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
             return new Tuple3(
                 this.topLevelInitialsToInfo, 
                 this.innerInitialsToInfo, 
-                AbstractAdditionalInterpreterInfo.version);
+                AbstractAdditionalTokensInfo.version);
         }
     }
     
@@ -721,7 +763,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
             Tuple3 readFromFile = (Tuple3) o;
             this.topLevelInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o1;
             this.innerInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o2;
-            if(AbstractAdditionalInterpreterInfo.version != (Integer)readFromFile.o3){
+            if(AbstractAdditionalTokensInfo.version != (Integer)readFromFile.o3){
                 throw new RuntimeException("I/O version doesn't match. Rebuilding internal info.");
             }
         }
@@ -767,6 +809,8 @@ public abstract class AbstractAdditionalInterpreterInfo {
             }
         }
     }
+
+
 
 
 

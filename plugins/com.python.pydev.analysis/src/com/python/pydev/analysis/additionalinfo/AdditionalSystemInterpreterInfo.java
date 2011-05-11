@@ -34,8 +34,8 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
     /**
      * holds system info (interpreter name points to system info)
      */
-    private static Map<Tuple<String, String>, AbstractAdditionalInterpreterInfo> additionalSystemInfo = 
-        new HashMap<Tuple<String, String>, AbstractAdditionalInterpreterInfo>();
+    private static Map<Tuple<String, String>, AbstractAdditionalTokensInfo> additionalSystemInfo = 
+        new HashMap<Tuple<String, String>, AbstractAdditionalTokensInfo>();
 
     public AdditionalSystemInterpreterInfo(IInterpreterManager manager, String interpreter) throws MisconfigurationException {
         super(false); //don't call init just right now...
@@ -108,7 +108,7 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
      * @throws MisconfigurationException 
      */
     public static boolean loadAdditionalSystemInfo(IInterpreterManager manager, String interpreter) throws MisconfigurationException {
-        AbstractAdditionalInterpreterInfo info = new AdditionalSystemInterpreterInfo(manager, interpreter);
+        AbstractAdditionalTokensInfo info = new AdditionalSystemInterpreterInfo(manager, interpreter);
         //when it is successfully loaded, it sets itself as the default (for its type)
         return info.load();
     }
@@ -118,9 +118,9 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
      * @return the additional info for the system
      * @throws MisconfigurationException 
      */
-    public static AbstractAdditionalInterpreterInfo getAdditionalSystemInfo(IInterpreterManager manager, String interpreter) throws MisconfigurationException {
+    public static AbstractAdditionalDependencyInfo getAdditionalSystemInfo(IInterpreterManager manager, String interpreter) throws MisconfigurationException {
         Tuple<String,String> key = new Tuple<String, String>(manager.getManagerRelatedName(), interpreter);
-        AbstractAdditionalInterpreterInfo info = additionalSystemInfo.get(key);
+        AbstractAdditionalDependencyInfo info = (AbstractAdditionalDependencyInfo) additionalSystemInfo.get(key);
         if(info == null){
             //temporary until it's loaded!
 			return new AdditionalSystemInterpreterInfo(manager, interpreter);
@@ -134,7 +134,7 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
      * @param additionalSystemInfoToSet the info to set
      */
     public static void setAdditionalSystemInfo(IInterpreterManager manager, String interpreter, 
-            AbstractAdditionalInterpreterInfo additionalSystemInfoToSet) {
+            AbstractAdditionalTokensInfo additionalSystemInfoToSet) {
         
         additionalSystemInfo.put(new Tuple<String, String>(manager.getManagerRelatedName(), interpreter), 
                 additionalSystemInfoToSet);

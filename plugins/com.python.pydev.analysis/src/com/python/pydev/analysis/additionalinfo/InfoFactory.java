@@ -170,7 +170,7 @@ public class InfoFactory {
 	        if(manager != null){
 	            String interpreter = memento.getString(TAG_MANAGER_INTERPRETER);
 	            
-	            AbstractAdditionalInterpreterInfo additionalInfo;
+	            AbstractAdditionalTokensInfo additionalInfo;
 				try {
 					additionalInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager, interpreter);
 				} catch (Exception e) {

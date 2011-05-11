@@ -14,7 +14,7 @@ import java.util.List;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
@@ -30,11 +30,14 @@ public class StuctureCreationTest extends AdditionalInfoTestsBase {
             // DEBUG_TESTS_BASE = true;
             StuctureCreationTest test = new StuctureCreationTest();
             test.setUp();
-            test.testSetup2();
+            test.testSetup();
+            test.tearDown();
+            test.setUp();
+            test.testSetup();
             test.tearDown();
             System.out.println("Finished");
 
-//            junit.textui.TestRunner.run(StuctureCreationTest.class);
+            junit.textui.TestRunner.run(StuctureCreationTest.class);
         } catch (Exception e) {
             e.printStackTrace();
         } catch (Error e) {
@@ -56,7 +59,7 @@ public class StuctureCreationTest extends AdditionalInfoTestsBase {
     // ------------------------------------------------------------------------------------------------- tests
     
     public void testSetup() {
-        AbstractAdditionalInterpreterInfo additionalSystemInfo;
+        AbstractAdditionalTokensInfo additionalSystemInfo;
         try{
             additionalSystemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
                     getInterpreterManager(), getInterpreterManager().getDefaultInterpreterInfo().getExecutableOrJar());
@@ -64,7 +67,7 @@ public class StuctureCreationTest extends AdditionalInfoTestsBase {
             throw new RuntimeException(e);
         }
         assertTrue(additionalSystemInfo.getAllTokens().size() > 0);
-        List<IInfo> tokensStartingWith = additionalSystemInfo.getTokensStartingWith("TestC", AbstractAdditionalInterpreterInfo.TOP_LEVEL);
+        List<IInfo> tokensStartingWith = additionalSystemInfo.getTokensStartingWith("TestC", AbstractAdditionalTokensInfo.TOP_LEVEL);
         assertIsIn("TestCase", "unittest", tokensStartingWith);
     }
 
@@ -74,9 +77,9 @@ public class StuctureCreationTest extends AdditionalInfoTestsBase {
     }
     
     public void testSetup2() throws Exception {
-        AbstractAdditionalInterpreterInfo additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
+        AbstractAdditionalTokensInfo additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
         assertTrue(additionalInfo.getAllTokens().size() > 0);
-        List<IInfo> tokensStartingWith = additionalInfo.getTokensStartingWith("MyInvalidClassInInvalidFil", AbstractAdditionalInterpreterInfo.TOP_LEVEL);
+        List<IInfo> tokensStartingWith = additionalInfo.getTokensStartingWith("MyInvalidClassInInvalidFil", AbstractAdditionalTokensInfo.TOP_LEVEL);
         assertEquals("Expecting no tokens. Found: "+tokensStartingWith, 0, tokensStartingWith.size());
     }
 

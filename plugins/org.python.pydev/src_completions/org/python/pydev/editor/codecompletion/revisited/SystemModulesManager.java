@@ -53,14 +53,6 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 public final class SystemModulesManager extends ModulesManagerWithBuild implements ISystemModulesManager{
 
     /**
-     * Version changed from 1.3.6 to 1.3.7 to force it to be reconstructed (because it was not being correctly saved).
-     * 
-     * Also changed from 1.4.1 to 1.4.2 (because of multiple interpreters: secondary interpreters had no info -- because
-     * they weren't actually needed)
-     */
-    private static final long serialVersionUID = 5L;
-    
-    /**
      * The system modules manager may have a nature if we create a SystemASTManager
      */
     private transient IPythonNature nature;
@@ -101,24 +93,27 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
 
     public IPythonNature getNature() {
         if(nature == null){
-            IInterpreterManager manager;
-            int interpreterType = this.info.getInterpreterType();
-            switch(interpreterType){
-                case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
-                    manager = PydevPlugin.getJythonInterpreterManager();
-                    break;
-                case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
-                    manager = PydevPlugin.getPythonInterpreterManager();
-                    break;
-                case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
-                    manager = PydevPlugin.getIronpythonInterpreterManager();
-                    break;
-                default:
-                    throw new RuntimeException("Don't know how to handle: "+interpreterType);
-            }
+            IInterpreterManager manager = getInterpreterManager();
             nature = new SystemPythonNature(manager, this.info);
         }
         return nature;
+    }
+
+    public IInterpreterManager getInterpreterManager() {
+        int interpreterType = this.info.getInterpreterType();
+        switch(interpreterType){
+            case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
+                return PydevPlugin.getJythonInterpreterManager();
+                
+            case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
+                return PydevPlugin.getPythonInterpreterManager();
+                
+            case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
+                return PydevPlugin.getIronpythonInterpreterManager();
+                
+            default:
+                throw new RuntimeException("Don't know how to handle: "+interpreterType);
+        }
     }
 
     public ISystemModulesManager getSystemModulesManager() {
@@ -392,11 +387,23 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
         this.deltaSaver = new DeltaSaver<ModulesKey>(this.getIoDirectory(), "v1_sys_astdelta", readFromFileMethod,toFileMethod);
 
     }
+    
 
     public File getIoDirectory() {
         final File workspaceMetadataFile = PydevPlugin.getWorkspaceMetadataFile(info.getExeAsFileSystemValidPath());
         return workspaceMetadataFile;
     }
-    
+
+    /**
+     * @param keysFound
+     */
+    public void updateKeysAndSave(ModulesKeyTreeMap<ModulesKey, ModulesKey> keysFound) {
+        synchronized (modulesKeysLock) {
+            modulesKeys.clear();
+            modulesKeys.putAll(keysFound);
+        }
+        this.save();
+    }
+
 
 }

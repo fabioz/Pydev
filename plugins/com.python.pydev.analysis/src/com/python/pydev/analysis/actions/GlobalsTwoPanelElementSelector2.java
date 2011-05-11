@@ -49,7 +49,7 @@ import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.model.ItemPointer;
 
 import com.python.pydev.analysis.AnalysisPlugin;
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
 import com.python.pydev.analysis.additionalinfo.InfoFactory;
@@ -69,7 +69,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
 
     private String title;
 
-    private List<AbstractAdditionalInterpreterInfo> additionalInfo;
+    private List<AbstractAdditionalTokensInfo> additionalInfo;
 
     private String selectedText;
 
@@ -247,7 +247,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
     /**
      * Sets the elements we should work on (must be set before open())
      */
-    public void setElements(List<AbstractAdditionalInterpreterInfo> additionalInfo){
+    public void setElements(List<AbstractAdditionalTokensInfo> additionalInfo){
         this.additionalInfo = additionalInfo;
     }
 
@@ -298,7 +298,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
                 progressMonitor.beginTask("Searching...",this.additionalInfo.size());
             }
             
-            for(AbstractAdditionalInterpreterInfo additionalInfo:this.additionalInfo){
+            for(AbstractAdditionalTokensInfo additionalInfo:this.additionalInfo){
                 if(progressMonitor != null){
                     if (progressMonitor.isCanceled()){
                         return;

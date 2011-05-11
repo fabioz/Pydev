@@ -8,12 +8,17 @@ package com.python.pydev.analysis.additionalinfo;
 
 import java.util.List;
 
+import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.DeltaSaver;
 import org.python.pydev.core.IDeltaProcessor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.ModulesKeyForZip;
+import org.python.pydev.core.REF;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.parser.fastparser.FastDefinitionsParser;
 import org.python.pydev.parser.jython.SimpleNode;
 
 /**
@@ -73,9 +78,8 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
     
 
     @Override
-    public List<IInfo> addAstInfo(SimpleNode node, String moduleName, IPythonNature nature,
-            boolean generateDelta) {
-        List<IInfo> addAstInfo = super.addAstInfo(node, moduleName, nature, generateDelta);
+    public List<IInfo> addAstInfo(SimpleNode node, ModulesKey key, boolean generateDelta) {
+        List<IInfo> addAstInfo = super.addAstInfo(node, key, generateDelta);
         if(generateDelta && addAstInfo.size() > 0){
             deltaSaver.addInsertCommand(addAstInfo);
         }

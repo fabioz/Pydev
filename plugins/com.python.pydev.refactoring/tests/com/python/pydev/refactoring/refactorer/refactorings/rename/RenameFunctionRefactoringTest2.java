@@ -12,7 +12,7 @@ import java.util.Map;
 
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
 import com.python.pydev.refactoring.wizards.IRefactorRenameProcess;
@@ -35,7 +35,7 @@ public class RenameFunctionRefactoringTest2 extends RefactoringRenameTestBase {
 
     public void testRename5() throws Exception {
         List<IInfo> toks = AdditionalProjectInterpreterInfo.getTokensEqualTo("RenameFunc2", natureRefactoring,
-                AbstractAdditionalInterpreterInfo.TOP_LEVEL | AbstractAdditionalInterpreterInfo.INNER);
+                AbstractAdditionalTokensInfo.TOP_LEVEL | AbstractAdditionalTokensInfo.INNER);
         assertEquals(3, toks.size());
                 
         Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamefunction2.renamefunc2", 3, 19);

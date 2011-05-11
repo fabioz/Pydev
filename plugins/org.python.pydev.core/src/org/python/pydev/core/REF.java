@@ -14,7 +14,6 @@ package org.python.pydev.core;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -151,13 +150,21 @@ public class REF {
 
     /**
      * @param file the file we want to read
-     * @return the contents of the fil as a string
+     * @return the contents of the file as a string
      */
     public static String getFileContents(File file) {
+        return (String) getFileContentsCustom(file, String.class);
+    }
+    
+    /**
+     * @param file the file we want to read
+     * @return the contents of the file as a string
+     */
+    public static Object getFileContentsCustom(File file, Class<? extends Object> returnType) {
         FileInputStream stream = null;
         try {
             stream = new FileInputStream(file);
-            return (String) getStreamContents(stream, null, null, String.class);
+            return getStreamContents(stream, null, null, returnType);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }finally{
@@ -669,7 +676,6 @@ public class REF {
      */
     @SuppressWarnings("deprecation")
     public static ITextFileBuffer getBufferFromPath(IPath path) {
-        //TODO: make this better for 3.3/ 3.2 (and check if behaviour is correct now)
         try{
             try{
                 
@@ -1095,6 +1101,14 @@ public class REF {
     private static final Map<File, Set<String>> alreadyReturned = new HashMap<File, Set<String>>();
     private static Object lockTempFiles = new Object();
     public static File getTempFileAt(File parentDir, String prefix) {
+        return getTempFileAt(parentDir, prefix, "");
+    }
+    
+    /**
+     * @param extension the extension (i.e.: ".py")
+     * @return
+     */
+    public static File getTempFileAt(File parentDir, String prefix, String extension) {
         synchronized (lockTempFiles) {
             Assert.isTrue(parentDir.isDirectory());
             Set<String> current = alreadyReturned.get(parentDir);
@@ -1104,9 +1118,10 @@ public class REF {
             }
             current.addAll(getFilesStartingWith(parentDir, prefix));
             
+            FastStringBuffer buf = new FastStringBuffer();
             
             for(long i=0;i<Long.MAX_VALUE;i++){
-                String v = prefix+i;
+                String v = buf.clear().append(prefix).append(i).append(extension).toString();
                 if(current.contains(v)){
                     continue;
                 }

@@ -48,4 +48,6 @@ public interface ISystemModulesManager extends IModulesManager {
     public abstract void save();
     
     public File getIoDirectory();
+
+    public abstract IInterpreterManager getInterpreterManager();
 }

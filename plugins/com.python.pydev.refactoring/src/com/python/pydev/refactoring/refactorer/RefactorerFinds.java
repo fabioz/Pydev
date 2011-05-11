@@ -18,11 +18,14 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
@@ -41,10 +44,11 @@ import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
-import com.python.pydev.analysis.additionalinfo.IInfo;
 import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
 
 public class RefactorerFinds {
+    
+    public static boolean DEBUG = false;
     
     private Refactorer refactorer;
 
@@ -52,18 +56,22 @@ public class RefactorerFinds {
         this.refactorer = refactorer;
     }
 
-    private void findParentDefinitions(IPythonNature nature, Definition d, List<Definition> definitions, 
+    private void findParentDefinitions(IPythonNature nature, IModule module, List<Definition> definitions, 
             List<String> withoutAstDefinitions, HierarchyNodeModel model, ICompletionCache completionCache) throws Exception {
         //ok, let's find the parents...
         for(exprType exp :model.ast.bases){
             String n = NodeUtils.getFullRepresentationString(exp);
             final int line = exp.beginLine;
             final int col = exp.beginColumn+n.length(); //the col must be the last char because it can be a dotted name
-            final Definition[] defs = (Definition[])d.module.findDefinition(
-                    CompletionStateFactory.getEmptyCompletionState(n, nature, completionCache), line, col, nature);
-            
-            if(defs.length > 0){
-                definitions.addAll(Arrays.asList(defs));
+            if(module != null){
+                final Definition[] defs = (Definition[])module.findDefinition(
+                        CompletionStateFactory.getEmptyCompletionState(n, nature, completionCache), line, col, nature);
+                
+                if(defs.length > 0){
+                    definitions.addAll(Arrays.asList(defs));
+                }else{
+                    withoutAstDefinitions.add(n);
+                }
             }else{
                 withoutAstDefinitions.add(n);
             }
@@ -83,7 +91,7 @@ public class RefactorerFinds {
             for (HierarchyNodeModel toFindOnRound : nextRound) {
                 List<Definition> definitions = new ArrayList<Definition>();
                 List<String> withoutAstDefinitions = new ArrayList<String>();
-                findParentDefinitions(nature, d, definitions, withoutAstDefinitions, toFindOnRound, completionCache);
+                findParentDefinitions(nature, toFindOnRound.module, definitions, withoutAstDefinitions, toFindOnRound, completionCache);
                 
                 request.communicateWork(StringUtils.format("Found: %s parents for: %s", definitions.size(), d.value));
                 
@@ -112,7 +120,8 @@ public class RefactorerFinds {
         }
     }
     
-    private void findChildren(RefactoringRequest request, HierarchyNodeModel initialModel, HashMap<HierarchyNodeModel, HierarchyNodeModel> allFound) {
+    private void findChildren(
+            RefactoringRequest request, HierarchyNodeModel initialModel, HashMap<HierarchyNodeModel, HierarchyNodeModel> allFound) {
         //and now the children...
         List<AbstractAdditionalDependencyInfo> infoForProject;
 		try {
@@ -166,13 +175,25 @@ public class RefactorerFinds {
         }
     }
     
-    private HashSet<SourceModule> findLikelyModulesWithChildren(RefactoringRequest request, HierarchyNodeModel model, List<AbstractAdditionalDependencyInfo> infoForProject) {
+    private HashSet<SourceModule> findLikelyModulesWithChildren(
+            RefactoringRequest request, HierarchyNodeModel model, List<AbstractAdditionalDependencyInfo> infoForProject) {
         //get the modules that are most likely to have that declaration.
         HashSet<SourceModule> modulesToAnalyze = new HashSet<SourceModule>();
         for (AbstractAdditionalDependencyInfo additionalInfo : infoForProject) {
-            List<IInfo> tokensEqualTo = additionalInfo.getTokensEqualTo(model.name, AdditionalProjectInterpreterInfo.COMPLETE_INDEX);
-            for (IInfo info : tokensEqualTo) {
-                String declaringModuleName = info.getDeclaringModuleName();
+            
+            IProgressMonitor monitor = request.getMonitor();
+            if(monitor == null){
+                monitor = new NullProgressMonitor();
+            }
+            List<ModulesKey> modules = additionalInfo.getModulesWithToken(model.name, monitor);
+            if(monitor.isCanceled()){
+                throw new OperationCanceledException();
+            }
+            
+            for (ModulesKey declaringModuleName : modules) {
+                if(DEBUG){
+                    System.out.println("findLikelyModulesWithChildren: "+declaringModuleName);
+                }
                 
                 IModule module = null;
                 
@@ -185,9 +206,9 @@ public class RefactorerFinds {
                 if(pythonNature == null){
                     pythonNature = request.nature;
                 }
-                module = pythonNature.getAstManager().getModule(declaringModuleName, pythonNature, false);
+                module = pythonNature.getAstManager().getModule(declaringModuleName.name, pythonNature, false);
                 if(module == null && pythonNature != request.nature){
-                    module = request.nature.getAstManager().getModule(declaringModuleName, request.nature, false);
+                    module = request.nature.getAstManager().getModule(declaringModuleName.name, request.nature, false);
                 }
                 
                 if(module instanceof SourceModule){

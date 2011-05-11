@@ -399,7 +399,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
     private static void getProjectsRecursively(IProject project, boolean referenced, HashSet<IProject> memo) {
         IProject[] projects = null;
         try {
-            if(!project.isOpen() || !project.exists() || memo.contains(projects)){
+            if(project == null || !project.isOpen() || !project.exists() || memo.contains(projects)){
                 return;
             }
             if(referenced){

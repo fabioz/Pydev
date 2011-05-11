@@ -93,11 +93,11 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
     }
 
     public static void saveAdditionalInfoForProject(IPythonNature nature) throws MisconfigurationException {
-        AbstractAdditionalInterpreterInfo info = getAdditionalInfoForProject(nature);
+        AbstractAdditionalTokensInfo info = getAdditionalInfoForProject(nature);
         info.save();
     }
 
-    public static List<AbstractAdditionalInterpreterInfo> getAdditionalInfo(IPythonNature nature) throws MisconfigurationException {
+    public static List<AbstractAdditionalTokensInfo> getAdditionalInfo(IPythonNature nature) throws MisconfigurationException {
         return getAdditionalInfo(nature, true, false);
     }
     
@@ -107,29 +107,29 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
      * @return all the additional info that is bounded with some nature (including related projects)
      * @throws MisconfigurationException 
      */
-    public static List<AbstractAdditionalInterpreterInfo> getAdditionalInfo(IPythonNature nature, boolean addSystemInfo,
+    public static List<AbstractAdditionalTokensInfo> getAdditionalInfo(IPythonNature nature, boolean addSystemInfo,
             boolean addReferencingProjects) throws MisconfigurationException {
         return getAdditionalInfoAndNature(nature, addSystemInfo, addReferencingProjects).o1;
     }
     
     
-    public static Tuple<List<AbstractAdditionalInterpreterInfo>, List<IPythonNature>> getAdditionalInfoAndNature(
+    public static Tuple<List<AbstractAdditionalTokensInfo>, List<IPythonNature>> getAdditionalInfoAndNature(
             IPythonNature nature, boolean addSystemInfo, boolean addReferencingProjects) throws MisconfigurationException {
         return getAdditionalInfoAndNature(nature, addSystemInfo, addReferencingProjects, true);
     }
     
     
-    public static Tuple<List<AbstractAdditionalInterpreterInfo>, List<IPythonNature>> getAdditionalInfoAndNature(
+    public static Tuple<List<AbstractAdditionalTokensInfo>, List<IPythonNature>> getAdditionalInfoAndNature(
             IPythonNature nature, boolean addSystemInfo, boolean addReferencingProjects, boolean addReferencedProjects) throws MisconfigurationException {
         
-        List<AbstractAdditionalInterpreterInfo> ret = new ArrayList<AbstractAdditionalInterpreterInfo>();
+        List<AbstractAdditionalTokensInfo> ret = new ArrayList<AbstractAdditionalTokensInfo>();
         List<IPythonNature> natures = new ArrayList<IPythonNature>();
         
         IProject project = nature.getProject();
         
         //get for the system info
         if(addSystemInfo){
-            AbstractAdditionalInterpreterInfo systemInfo;
+            AbstractAdditionalTokensInfo systemInfo;
             try {
                 systemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
                         PydevPlugin.getInterpreterManager(nature), nature.getProjectInterpreter().getExecutableOrJar());
@@ -143,7 +143,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
     
         //get for the current project
         if(project != null){
-            AbstractAdditionalInterpreterInfo additionalInfoForProject = getAdditionalInfoForProject(nature);
+            AbstractAdditionalTokensInfo additionalInfoForProject = getAdditionalInfoForProject(nature);
             if(additionalInfoForProject != null){
                 ret.add(additionalInfoForProject);
                 natures.add(nature);
@@ -177,7 +177,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
             }
             
         }
-        return new Tuple<List<AbstractAdditionalInterpreterInfo>, List<IPythonNature>>(ret, natures);
+        return new Tuple<List<AbstractAdditionalTokensInfo>, List<IPythonNature>>(ret, natures);
     }
 
     /**
@@ -220,8 +220,8 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
     //interfaces that iterate through all of them
     public static List<IInfo> getTokensEqualTo(String qualifier, IPythonNature nature, int getWhat) throws MisconfigurationException {
         ArrayList<IInfo> ret = new ArrayList<IInfo>();
-        List<AbstractAdditionalInterpreterInfo> additionalInfo = getAdditionalInfo(nature);
-        for (AbstractAdditionalInterpreterInfo info : additionalInfo) {
+        List<AbstractAdditionalTokensInfo> additionalInfo = getAdditionalInfo(nature);
+        for (AbstractAdditionalTokensInfo info : additionalInfo) {
             ret.addAll(info.getTokensEqualTo(qualifier, getWhat));
         }
         return ret;
@@ -229,8 +229,8 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
 
     public static List<IInfo> getTokensStartingWith(String qualifier, IPythonNature nature, int getWhat) throws MisconfigurationException {
         ArrayList<IInfo> ret = new ArrayList<IInfo>();
-        List<AbstractAdditionalInterpreterInfo> additionalInfo = getAdditionalInfo(nature);
-        for (AbstractAdditionalInterpreterInfo info : additionalInfo) {
+        List<AbstractAdditionalTokensInfo> additionalInfo = getAdditionalInfo(nature);
+        for (AbstractAdditionalTokensInfo info : additionalInfo) {
             ret.addAll(info.getTokensStartingWith(qualifier, getWhat));
         }
         return ret;
@@ -244,9 +244,12 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
      */
     public static List<AbstractAdditionalDependencyInfo> getAdditionalInfoForProjectAndReferencing(IPythonNature nature) throws MisconfigurationException {
         List<AbstractAdditionalDependencyInfo> ret = new ArrayList<AbstractAdditionalDependencyInfo>();
+        IProject project = nature.getProject();
+        if(project == null){
+            return ret;
+        }
         ret.add(getAdditionalInfoForProject(nature));
         
-        IProject project = nature.getProject();
         Set<IProject> referencingProjects = ProjectModulesManager.getReferencingProjects(project);
         for (IProject p : referencingProjects) {
             AbstractAdditionalDependencyInfo info2 = getAdditionalInfoForProject(PythonNature.getPythonNature(p));

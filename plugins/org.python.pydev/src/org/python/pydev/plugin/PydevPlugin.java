@@ -609,9 +609,13 @@ public class PydevPlugin extends AbstractUIPlugin  {
      */
     public static File getWorkspaceMetadataFile(String fileName) {
         if(location == null){
-            Bundle bundle = Platform.getBundle("org.python.pydev");
-            IPath path = Platform.getStateLocation( bundle );
-            location = path.toFile();
+            try {
+                Bundle bundle = Platform.getBundle("org.python.pydev");
+                IPath path = Platform.getStateLocation( bundle );
+                location = path.toFile();
+            } catch (Exception e) {
+                throw new RuntimeException("If running in tests, call: setTestPlatformStateLocation", e);
+            }
         }
         return new File(location, fileName);
     }
