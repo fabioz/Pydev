@@ -236,9 +236,6 @@ public class InterpreterInfo implements IInterpreterInfo{
         return true;
     }
 
-    public static InterpreterInfo fromString(String received) {
-        return fromString(received, true);
-    }
     
     /**
      * Format we receive should be:
@@ -310,7 +307,8 @@ public class InterpreterInfo implements IInterpreterInfo{
                     if(askUserInOutPath){
                         toAsk.add(trimmed);
                     }else{
-                        //is out by 'default'
+                        //Change 2.0.1: if not asked, it's included by default!
+                        selection.add(trimmed);
                     }
                     
                 }else if(trimmed.endsWith("INS_PATH")){
@@ -1175,6 +1173,13 @@ public class InterpreterInfo implements IInterpreterInfo{
         
         fillMapWithEnv(env, hashMap);
         fillMapWithEnv(envVariables, hashMap, keysThatShouldNotBeUpdated); //will override the keys already there unless they're in keysThatShouldNotBeUpdated
+        boolean userSpecifiedPythonHome = keysThatShouldNotBeUpdated != null && keysThatShouldNotBeUpdated.contains("PYTHONHOME");
+        
+        if(!userSpecifiedPythonHome){
+            //If the user didn't specify the PYTHONHOME variable, let's remove it as it's not really friendly when having multiple interpreters...
+            hashMap.remove("PYTHONHOME");
+        }
+        
         String[] ret = createEnvWithMap(hashMap);
         
         return ret;
@@ -1269,7 +1274,7 @@ public class InterpreterInfo implements IInterpreterInfo{
      * @return a new interpreter info that's a copy of the current interpreter info.
      */
     public InterpreterInfo makeCopy() {
-        return fromString(toString());
+        return fromString(toString(), false);
     }
 
     public void setName(String name) {
@@ -1363,6 +1368,8 @@ public class InterpreterInfo implements IInterpreterInfo{
 	
 	private IInterpreterInfoBuilder builder;
 	private final Object builderLock = new Object();
+
+    private volatile boolean loadFinished = true;
 	
 	
 	/**
@@ -1373,8 +1380,12 @@ public class InterpreterInfo implements IInterpreterInfo{
             if(this.builder == null){
                 IInterpreterInfoBuilder builder = (IInterpreterInfoBuilder) ExtensionHelper.getParticipant(
                         ExtensionHelper.PYDEV_INTERPRETER_INFO_BUILDER);
-                builder.setInfo(this);
-                this.builder = builder;
+                if(builder != null){
+                    builder.setInfo(this);
+                    this.builder = builder;
+                }else{
+                    Log.log("Could not get internal extension for: "+ExtensionHelper.PYDEV_INTERPRETER_INFO_BUILDER);
+                }
             }
         }
     }
@@ -1388,5 +1399,13 @@ public class InterpreterInfo implements IInterpreterInfo{
                 this.builder = null;
             }
         }
+    }
+
+    public void setLoadFinished(boolean b) {
+        this.loadFinished = b;
+    }
+    
+    public boolean getLoadFinished() {
+        return this.loadFinished;
     }
 }

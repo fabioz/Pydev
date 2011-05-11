@@ -38,7 +38,7 @@ public class IronpythonInterpreterManagerStub extends PythonInterpreterManagerSt
     @Override
     public IInterpreterInfo[] getInterpreterInfos() {
         String defaultInterpreter = getDefaultInterpreter();
-        InterpreterInfo info = (InterpreterInfo) this.createInterpreterInfo(defaultInterpreter, new NullProgressMonitor());
+        InterpreterInfo info = (InterpreterInfo) this.createInterpreterInfo(defaultInterpreter, new NullProgressMonitor(), false);
         if(!InterpreterInfo.isJythonExecutable(defaultInterpreter)){
             TestDependent.IRONPYTHON_EXE = info.executableOrJar;
         }
@@ -75,8 +75,8 @@ public class IronpythonInterpreterManagerStub extends PythonInterpreterManagerSt
     }
 
     @Override
-    public Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException, JDTNotAvailableException {
-        return IronpythonInterpreterManager.doCreateInterpreterInfo(executable, monitor);
+    public Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor, boolean askUser) throws CoreException, JDTNotAvailableException {
+        return IronpythonInterpreterManager.doCreateInterpreterInfo(executable, monitor, askUser);
     }
 
     

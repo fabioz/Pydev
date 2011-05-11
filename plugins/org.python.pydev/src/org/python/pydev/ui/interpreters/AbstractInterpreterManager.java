@@ -11,7 +11,6 @@
  */
 package org.python.pydev.ui.interpreters;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -67,7 +66,6 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      */
     protected Map<String, InterpreterInfo> exeToInfo = new HashMap<String, InterpreterInfo>();
     private IPreferenceStore prefs;
-    private IInterpreterInfo[] interpreterInfosFromPersistedString;
     
 
     //caches that are filled at runtime -------------------------------------------------------------------------------
@@ -188,7 +186,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     public void clearCaches() {
         builtinMod.clear();
         builtinCompletions.clear();
-        interpreterInfosFromPersistedString = null;
+        clearInterpretersFromPersistedString();
     }
 
     /**
@@ -219,6 +217,25 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * @return a message to show to the user when there is no configured interpreter
      */
     protected abstract String getNotConfiguredInterpreterMsg(); 
+    
+    private void clearInterpretersFromPersistedString(){
+        synchronized(lock){
+            if(interpreterInfosFromPersistedString != null){
+                for(IInterpreterInfo info: interpreterInfosFromPersistedString){
+                    try {
+                        info.stopBuilding();
+                    } catch (Throwable e) {
+                        Log.log(e);
+                    }
+                }
+                this.exeToInfo.clear();
+                interpreterInfosFromPersistedString = null;
+            }
+        }
+        
+    }
+
+    private IInterpreterInfo[] interpreterInfosFromPersistedString;
 
     public IInterpreterInfo[] getInterpreterInfos() {
         if(interpreterInfosFromPersistedString == null){
@@ -226,6 +243,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                 interpreterInfosFromPersistedString = getInterpretersFromPersistedString(getPersistedString());
                 this.exeToInfo.clear();
                 for(IInterpreterInfo info:interpreterInfosFromPersistedString){
+                    info.startBuilding();
                     exeToInfo.put(info.getExecutableOrJar(), (InterpreterInfo) info);
                 }
             }
@@ -245,12 +263,12 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * @throws CoreException 
      * @throws JDTNotAvailableException 
      */
-    protected abstract Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException, JDTNotAvailableException;
+    protected abstract Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor, boolean askUser) throws CoreException, JDTNotAvailableException;
     
     /**
      * Creates the information for the passed interpreter.
      */
-    public IInterpreterInfo createInterpreterInfo(String executable, IProgressMonitor monitor){
+    public IInterpreterInfo createInterpreterInfo(String executable, IProgressMonitor monitor, boolean askUser){
         
         monitor.worked(5);
         //ok, we have to get the info from the executable (and let's cache results for future use)...
@@ -258,7 +276,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         InterpreterInfo info;
         try {
 
-            tup = internalCreateInterpreterInfo(executable, monitor);
+            tup = internalCreateInterpreterInfo(executable, monitor, askUser);
             if(tup == null){
                 //Canceled (in the dialog that asks the user to choose the valid paths)
                 return null;
@@ -302,13 +320,13 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     /**
      * Creates the interpreter info from the output. Checks for errors.
      */
-    protected static InterpreterInfo createInfoFromOutput(IProgressMonitor monitor, Tuple<String, String> outTup) {
+    protected static InterpreterInfo createInfoFromOutput(IProgressMonitor monitor, Tuple<String, String> outTup, boolean askUser) {
         if(outTup.o1 == null || outTup.o1.trim().length() == 0){
             throw new RuntimeException(
                     "No output was in the standard output when trying to create the interpreter info.\n" +
                     "The error output contains:>>"+outTup.o2+"<<");
         }
-        InterpreterInfo info = InterpreterInfo.fromString(outTup.o1);
+        InterpreterInfo info = InterpreterInfo.fromString(outTup.o1, askUser);
         return info;
     }
 
@@ -356,7 +374,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                     //first, get it...
                     for (String string : strings) {
                         try {
-                            list.add(InterpreterInfo.fromString(string));
+                            list.add(InterpreterInfo.fromString(string, false));
                         } catch (Exception e) {
                             //ok, its format might have changed
                             String errMsg = "Interpreter storage changed.\r\n" +
@@ -381,33 +399,38 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                         } catch (Exception e) {
                             PydevPlugin.logInfo(new RuntimeException("Restoring info for: "+info.getExecutableOrJar(), e));
                             
-                            //if it does not work it (probably) means that the internal storage format changed among versions,
-                            //so, we have to recreate that info.
-                            final Display def = Display.getDefault();
-                            def.syncExec(new Runnable(){
-    
-                                public void run() {
-                                    Shell shell = def.getActiveShell();
-                                    ProgressMonitorDialog dialog = new AsynchronousProgressMonitorDialog(shell);
-                                    dialog.setBlockOnOpen(false);
-                                    try {
-                                        dialog.run(false, false, new IRunnableWithProgress(){
+                            info.setLoadFinished(false);
+                            try {
+                                //if it does not work it (probably) means that the internal storage format changed among versions,
+                                //so, we have to recreate that info.
+                                final Display def = Display.getDefault();
+                                def.syncExec(new Runnable(){
+   
+                                    public void run() {
+                                        Shell shell = def.getActiveShell();
+                                        ProgressMonitorDialog dialog = new AsynchronousProgressMonitorDialog(shell);
+                                        dialog.setBlockOnOpen(false);
+                                        try {
+                                            dialog.run(false, false, new IRunnableWithProgress(){
 
-                                            public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-                                                monitor.beginTask("Updating the interpreter info.", 100);
-                                                //ok, maybe its file-format changed... let's re-create it then.
-                                                info.restorePythonpath(monitor);
-                                                //after restoring it, let's save it.
-                                                info.getModulesManager().save();
-                                                monitor.done();
-                                            }}
-                                        );
-                                    } catch (Exception e) {
-                                        throw new RuntimeException(e);
+                                                public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+                                                    monitor.beginTask("Updating the interpreter info.", 100);
+                                                    //ok, maybe its file-format changed... let's re-create it then.
+                                                    info.restorePythonpath(monitor);
+                                                    //after restoring it, let's save it.
+                                                    info.getModulesManager().save();
+                                                    monitor.done();
+                                                }}
+                                            );
+                                        } catch (Exception e) {
+                                            throw new RuntimeException(e);
+                                        }
                                     }
-                                }
-                                
-                            });
+                                    
+                                });
+                            } finally {
+                                info.setLoadFinished(true);
+                            }
                             System.out.println("Finished restoring information for: "+info.executableOrJar+" at: "+
                                     info.getModulesManager().getIoDirectory());
                         }
@@ -474,7 +497,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         
         try {
             synchronized (this.lock) {
-                interpreterInfosFromPersistedString = null;
+                clearInterpretersFromPersistedString();
                 persistedString = s;
                 //After setting the preference, get the actual infos (will be recreated).
                 interpreterInfos = getInterpreterInfos();

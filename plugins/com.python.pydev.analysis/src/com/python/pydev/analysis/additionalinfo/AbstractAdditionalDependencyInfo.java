@@ -33,6 +33,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.ModulesKeyTreeMap;
+import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -218,6 +219,10 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         }
         
         if(hasNew || hasRemoved){
+            if(DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE){
+                Log.toLogFile(this, StringUtils.format("Additional info modules. Added: %s Removed: %s", 
+                        newKeys, removedKeys));
+            }
             save();
         }
     }

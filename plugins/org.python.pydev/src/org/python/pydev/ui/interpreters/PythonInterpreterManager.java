@@ -43,8 +43,8 @@ public class PythonInterpreterManager extends AbstractInterpreterManager{
     }
 
     @Override
-    public Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
-        return doCreateInterpreterInfo(executable, monitor);
+    public Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor, boolean askUser) throws CoreException {
+        return doCreateInterpreterInfo(executable, monitor, askUser);
     }
 
     /**
@@ -54,7 +54,7 @@ public class PythonInterpreterManager extends AbstractInterpreterManager{
      * @return the created interpreter info
      * @throws CoreException
      */
-    public static Tuple<InterpreterInfo,String> doCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
+    public static Tuple<InterpreterInfo,String> doCreateInterpreterInfo(String executable, IProgressMonitor monitor, boolean askUser) throws CoreException {
         boolean isJythonExecutable = InterpreterInfo.isJythonExecutable(executable);
         if(isJythonExecutable){
             throw new RuntimeException("A jar cannot be used in order to get the info for the python interpreter.");
@@ -63,7 +63,7 @@ public class PythonInterpreterManager extends AbstractInterpreterManager{
         File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
 
         Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutputWithInterpreter(executable, REF.getFileAbsolutePath(script), null, null, null, monitor);
-        InterpreterInfo info = createInfoFromOutput(monitor, outTup);
+        InterpreterInfo info = createInfoFromOutput(monitor, outTup, askUser);
         
         if(info == null){
             //cancelled

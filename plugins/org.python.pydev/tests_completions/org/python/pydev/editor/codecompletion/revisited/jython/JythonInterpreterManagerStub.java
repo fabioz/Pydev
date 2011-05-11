@@ -65,8 +65,8 @@ public class JythonInterpreterManagerStub extends PythonInterpreterManagerStub{
     }
 
     @Override
-    public Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException, JDTNotAvailableException {
-        return JythonInterpreterManager.doCreateInterpreterInfo(executable, monitor);
+    public Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor, boolean askUser) throws CoreException, JDTNotAvailableException {
+        return JythonInterpreterManager.doCreateInterpreterInfo(executable, monitor, askUser);
     }
 
     @Override

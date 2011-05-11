@@ -23,7 +23,6 @@ import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
-import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.ICallback;
 
@@ -94,7 +93,7 @@ public class JythonCodeCompletionTestsBase extends CodeCompletionTestsBase{
     protected void setInterpreterManager() {
         JythonInterpreterManager interpreterManager = new JythonInterpreterManager(this.getPreferences());
         
-        InterpreterInfo info = (InterpreterInfo) interpreterManager.createInterpreterInfo(TestDependent.JYTHON_JAR_LOCATION, new NullProgressMonitor());
+        InterpreterInfo info = (InterpreterInfo) interpreterManager.createInterpreterInfo(TestDependent.JYTHON_JAR_LOCATION, new NullProgressMonitor(), false);
         if(!info.executableOrJar.equals(TestDependent.JYTHON_JAR_LOCATION)){
             throw new RuntimeException("expected same");
         }

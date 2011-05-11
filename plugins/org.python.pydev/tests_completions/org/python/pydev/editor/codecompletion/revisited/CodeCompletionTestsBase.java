@@ -317,7 +317,7 @@ public class CodeCompletionTestsBase extends TestCase {
     protected void setInterpreterManager() {
         PythonInterpreterManager interpreterManager = new PythonInterpreterManager(this.getPreferences());
         
-        InterpreterInfo info = (InterpreterInfo) interpreterManager.createInterpreterInfo(TestDependent.PYTHON_EXE, new NullProgressMonitor());
+        InterpreterInfo info = (InterpreterInfo) interpreterManager.createInterpreterInfo(TestDependent.PYTHON_EXE, new NullProgressMonitor(), false);
         if(!InterpreterInfo.isJythonExecutable(info.getExecutableOrJar()) && !InterpreterInfo.isIronpythonExecutable(info.getExecutableOrJar())){
             TestDependent.PYTHON_EXE = info.executableOrJar;
         }

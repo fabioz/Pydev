@@ -72,7 +72,7 @@ public class SimpleRunner {
      * @return the system environment with the PYTHONPATH env variable added for a given project (if it is null, return it with the
      * default PYTHONPATH added).
      */
-    public String[] getEnvironment(IPythonNature pythonNature, IInterpreterInfo interpreter, IInterpreterManager manager) throws CoreException {
+    public static String[] getEnvironment(IPythonNature pythonNature, IInterpreterInfo interpreter, IInterpreterManager manager) throws CoreException {
         String[] env;
         
         if(pythonNature == null){ //no associated nature in the project... just get the default env

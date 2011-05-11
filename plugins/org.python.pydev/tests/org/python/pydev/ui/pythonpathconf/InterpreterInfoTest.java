@@ -62,22 +62,22 @@ public class InterpreterInfoTest extends TestCase {
         InterpreterInfo info8 = new InterpreterInfo("2.4", "C:\\bin\\Python24\\python.exe", l1, l2, l3);
         
         //without the version
-        String s = "EXECUTABLE:C:\\bin\\Python24\\python.exe|| c:\\bin\\python24\\lib\\lib-tkINS_PATH\n| c:\\bin\\python24OUT_PATH\n@\n$\n| __builtin__| __main__\n| _bisect\n";
+        String s = "EXECUTABLE:C:\\bin\\Python24\\python.exe|| c:\\bin\\python24\\lib\\lib-tkINS_PATH\n| \n@\n$\n| __builtin__| __main__\n| _bisect\n";
         assertEquals(info8, InterpreterInfo.fromString(s, false));
         
         //with the version 2.4
-        s = "Version2.4EXECUTABLE:C:\\bin\\Python24\\python.exe|| c:\\bin\\python24\\lib\\lib-tkINS_PATH\n| c:\\bin\\python24OUT_PATH\n@\n$\n| __builtin__| __main__\n| _bisect\n";
+        s = "Version2.4EXECUTABLE:C:\\bin\\Python24\\python.exe|| c:\\bin\\python24\\lib\\lib-tkINS_PATH\n| \n@\n$\n| __builtin__| __main__\n| _bisect\n";
         assertEquals(info8, InterpreterInfo.fromString(s, false));
         
         //with the version 2.5
-        s = "Version2.5EXECUTABLE:C:\\bin\\Python24\\python.exe|| c:\\bin\\python24\\lib\\lib-tkINS_PATH\n| c:\\bin\\python24OUT_PATH\n@\n$\n| __builtin__| __main__\n| _bisect\n";
+        s = "Version2.5EXECUTABLE:C:\\bin\\Python24\\python.exe|| c:\\bin\\python24\\lib\\lib-tkINS_PATH\n| \n@\n$\n| __builtin__| __main__\n| _bisect\n";
         assertEquals("Version2.5Executable:C:\\bin\\Python24\\python.exe|c:\\bin\\python24\\lib\\lib-tk@$|__builtin__|__main__|_bisect", 
                 InterpreterInfo.fromString(s, false).toString());
         
         assertEquals("Version2.5Executable:C:\\bin\\Python24\\python.exe|c:\\bin\\python24\\lib\\lib-tk@$|__builtin__|__main__|_bisect", 
                 InterpreterInfo.fromString(s, false).toString());
         
-        s = "Name:MyInterpreter:EndName:Version2.4EXECUTABLE:C:\\bin\\Python24\\python.exe|| c:\\bin\\python24\\lib\\lib-tkINS_PATH\n| c:\\bin\\python24OUT_PATH\n@\n$\n| __builtin__| __main__\n| _bisect\n";
+        s = "Name:MyInterpreter:EndName:Version2.4EXECUTABLE:C:\\bin\\Python24\\python.exe|| c:\\bin\\python24\\lib\\lib-tkINS_PATH\n| \n@\n$\n| __builtin__| __main__\n| _bisect\n";
         info8.setName("MyInterpreter");
         assertEquals(info8, InterpreterInfo.fromString(s, false));
         assertTrue(info8.toString().startsWith("Name:MyInterpreter:EndName:"));
@@ -115,19 +115,19 @@ public class InterpreterInfoTest extends TestCase {
         assertEquals(info6, info6);
         
         String toString1 = info.toString();
-        assertEquals(info, InterpreterInfo.fromString(toString1));
+        assertEquals(info, InterpreterInfo.fromString(toString1, false));
         
         String toString4 = info4.toString();
-        assertEquals(info4, InterpreterInfo.fromString(toString4));
+        assertEquals(info4, InterpreterInfo.fromString(toString4, false));
         
         String toString5 = info5.toString();
-        assertEquals(info5, InterpreterInfo.fromString(toString5));
+        assertEquals(info5, InterpreterInfo.fromString(toString5, false));
         
         String toString6 = info6.toString();
-        assertEquals(info6, InterpreterInfo.fromString(toString6));
+        assertEquals(info6, InterpreterInfo.fromString(toString6, false));
         
         String toString7 = info7.toString();
-        assertEquals(info7, InterpreterInfo.fromString(toString7));
+        assertEquals(info7, InterpreterInfo.fromString(toString7, false));
         
         List<String> l1 = new ArrayList<String>();
         l1.add("c:\\bin\\python24\\lib\\lib-tk");
@@ -140,7 +140,7 @@ public class InterpreterInfoTest extends TestCase {
         InterpreterInfo info8 = new InterpreterInfo("2.4","C:\\bin\\Python24\\python.exe", l1, l2, l3);
         
         String s = "EXECUTABLE:C:\\bin\\Python24\\python.exe|| c:\\bin\\python24\\lib\\lib-tk\n| c:\\bin\\python24\n@\n$\n| __builtin__| __main__\n| _bisect\n";
-        assertEquals(info8, InterpreterInfo.fromString(s));
+        assertEquals(info8, InterpreterInfo.fromString(s, false));
         
     }
     
@@ -161,7 +161,7 @@ public class InterpreterInfoTest extends TestCase {
 
         
         String string = info.toString();
-        InterpreterInfo newInfo = InterpreterInfo.fromString(string);
+        InterpreterInfo newInfo = InterpreterInfo.fromString(string, false);
         assertEquals(info.getStringSubstitutionVariables(), newInfo.getStringSubstitutionVariables());
         assertEquals(info, newInfo);
         assertEquals(newInfo, info);
@@ -171,7 +171,7 @@ public class InterpreterInfoTest extends TestCase {
         assertFalse(info.equals(newInfo));
         assertFalse(newInfo.equals(info));
         
-        assertEquals(newInfo, InterpreterInfo.fromString(newInfo.toString()));
+        assertEquals(newInfo, InterpreterInfo.fromString(newInfo.toString(), false));
     }
     
     public void testInfo4() throws Exception {

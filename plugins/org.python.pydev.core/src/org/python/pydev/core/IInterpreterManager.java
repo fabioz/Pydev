@@ -88,7 +88,7 @@ public interface IInterpreterManager {
      * @throws JDTNotAvailableException 
      * @throws CoreException 
      */
-    public IInterpreterInfo createInterpreterInfo(String executable, IProgressMonitor monitor);
+    public IInterpreterInfo createInterpreterInfo(String executable, IProgressMonitor monitor, boolean askUser);
     
     /**
      * @param persisted string previously persisted

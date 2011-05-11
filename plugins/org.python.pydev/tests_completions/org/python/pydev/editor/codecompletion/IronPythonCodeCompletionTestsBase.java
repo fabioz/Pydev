@@ -35,7 +35,7 @@ public class IronPythonCodeCompletionTestsBase extends CodeCompletionTestsBase{
     protected void setInterpreterManager() {
         IronpythonInterpreterManager interpreterManager = new IronpythonInterpreterManager(this.getPreferences());
         
-        InterpreterInfo info = (InterpreterInfo) interpreterManager.createInterpreterInfo(TestDependent.IRONPYTHON_EXE, new NullProgressMonitor());
+        InterpreterInfo info = (InterpreterInfo) interpreterManager.createInterpreterInfo(TestDependent.IRONPYTHON_EXE, new NullProgressMonitor(), false);
         if(!info.executableOrJar.equals(TestDependent.IRONPYTHON_EXE)){
             TestDependent.IRONPYTHON_EXE = info.executableOrJar;
         }

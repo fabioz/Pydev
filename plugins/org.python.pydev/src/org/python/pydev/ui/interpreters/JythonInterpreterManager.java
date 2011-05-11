@@ -46,8 +46,8 @@ public class JythonInterpreterManager extends AbstractInterpreterManager{
     }
 
     @Override
-    public Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException, JDTNotAvailableException {
-        return doCreateInterpreterInfo(executable, monitor);
+    public Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor, boolean askUser) throws CoreException, JDTNotAvailableException {
+        return doCreateInterpreterInfo(executable, monitor, askUser);
     }
 
     /**
@@ -59,7 +59,7 @@ public class JythonInterpreterManager extends AbstractInterpreterManager{
      * 
      * @throws CoreException
      */
-    public static Tuple<InterpreterInfo,String> doCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException, JDTNotAvailableException {
+    public static Tuple<InterpreterInfo,String> doCreateInterpreterInfo(String executable, IProgressMonitor monitor, boolean askUser) throws CoreException, JDTNotAvailableException {
         boolean isJythonExecutable = InterpreterInfo.isJythonExecutable(executable);
         
         if(!isJythonExecutable){
@@ -74,7 +74,7 @@ public class JythonInterpreterManager extends AbstractInterpreterManager{
         Tuple<String, String> outTup = new SimpleJythonRunner().runAndGetOutputWithJar(REF.getFileAbsolutePath(script), executable, null, null, null, monitor);
         String output = outTup.o1;
         
-        InterpreterInfo info = createInfoFromOutput(monitor, outTup);
+        InterpreterInfo info = createInfoFromOutput(monitor, outTup, askUser);
         if(info == null){
             //cancelled
             return null;

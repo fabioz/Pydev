@@ -64,7 +64,7 @@ public class PythonShell extends AbstractShell{
         
         String[] envp = null;
         try {
-            envp = new SimplePythonRunner().getEnvironment(null, interpreter, manager);
+            envp = SimpleRunner.getEnvironment(null, interpreter, manager);
         } catch (CoreException e) {
             Log.log(e);
         }

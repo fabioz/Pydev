@@ -53,7 +53,7 @@ public class JythonEclipseInterpreterManager implements IInterpreterManager {
         return null;
     }
 
-    public IInterpreterInfo createInterpreterInfo(String executable, IProgressMonitor monitor) {
+    public IInterpreterInfo createInterpreterInfo(String executable, IProgressMonitor monitor, boolean askUser) {
 
         return null;
     }

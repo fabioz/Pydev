@@ -529,7 +529,7 @@ public class AbstractWorkbenchTestCase extends TestCase{
      */
     protected static void createJythonInterpreterManager(NullProgressMonitor monitor) {
         IInterpreterManager iMan = PydevPlugin.getJythonInterpreterManager(true);
-        IInterpreterInfo interpreterInfo = iMan.createInterpreterInfo(TestDependent.JYTHON_JAR_LOCATION, monitor);
+        IInterpreterInfo interpreterInfo = iMan.createInterpreterInfo(TestDependent.JYTHON_JAR_LOCATION, monitor, false);
         iMan.setInfos(new IInterpreterInfo[]{interpreterInfo}, null, null);
     }
 
@@ -538,7 +538,7 @@ public class AbstractWorkbenchTestCase extends TestCase{
      */
     protected static void createPythonInterpreterManager(NullProgressMonitor monitor) {
         IInterpreterManager iMan = PydevPlugin.getPythonInterpreterManager(true);
-        IInterpreterInfo interpreterInfo = iMan.createInterpreterInfo(TestDependent.PYTHON_EXE, monitor);
+        IInterpreterInfo interpreterInfo = iMan.createInterpreterInfo(TestDependent.PYTHON_EXE, monitor, false);
         iMan.setInfos(new IInterpreterInfo[]{interpreterInfo}, null, null);
     }
     

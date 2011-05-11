@@ -32,4 +32,8 @@ public class DebugSettings {
      */
     public static volatile boolean DEBUG_CODE_COMPLETION = PyLoggingPreferencesPage.isToDebugCodeCompletion();
     
+    /**
+     * Debug the interpreter auto update?
+     */
+    public static boolean DEBUG_INTERPRETER_AUTO_UPDATE = PyLoggingPreferencesPage.isToDebugInterpreterAutoUpdate();
 }
