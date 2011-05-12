@@ -40,7 +40,7 @@ import org.python.pydev.ui.UIConstants;
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 import com.python.pydev.analysis.IAnalysisPreferences;
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
 import com.python.pydev.analysis.builder.AnalysisParserObserver;
@@ -163,15 +163,15 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         
         
         //2. check if it is some global class or method
-        List<AbstractAdditionalInterpreterInfo> additionalInfo;
+        List<AbstractAdditionalTokensInfo> additionalInfo;
 		try {
 			additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfo(nature);
 		} catch (MisconfigurationException e) {
 			return;
 		}
         FastStringBuffer tempBuf = new FastStringBuffer();
-        for (AbstractAdditionalInterpreterInfo info : additionalInfo) {
-            List<IInfo> tokensEqualTo = info.getTokensEqualTo(markerContents, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
+        for (AbstractAdditionalTokensInfo info : additionalInfo) {
+            List<IInfo> tokensEqualTo = info.getTokensEqualTo(markerContents, AbstractAdditionalTokensInfo.TOP_LEVEL);
             for (IInfo found : tokensEqualTo) {
                 //there always is a declaring module
                 String name = found.getName();

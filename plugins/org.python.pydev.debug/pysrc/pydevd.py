@@ -870,7 +870,10 @@ class PyDB:
             sys.modules['__main__'] = m
             m.__file__ = file
             globals = m.__dict__
-            globals['__builtins__'] = __builtins__
+            try:
+                globals['__builtins__'] = __builtins__
+            except NameError:
+                pass #Not there on Jython...
 
         if locals is None: 
             locals = globals        

@@ -53,7 +53,6 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ProjectMisconfiguredException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
@@ -562,14 +561,14 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                                 observer.notifyNatureRecreated(this, monitor);
                             } catch (Exception e) {
                                 //let's not fail because of other plugins
-                                PydevPlugin.log(e);
+                                Log.log(e);
                             }
                         }
                     }
                 }
             }
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(IStatus.INFO, "Expected IO issue (version changed or validation not ok): properly handled.", e);
             astManager = null;
         }
         
@@ -578,7 +577,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             try {
                 rebuildPath();
             } catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
     }
@@ -614,7 +613,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         if(completionsCacheDir == null){
         	return null;
         }
-		return new File(completionsCacheDir, "asthelper.completions");
+		return new File(completionsCacheDir, "v1_astmanager");
     }
 
     /**
@@ -827,11 +826,11 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         }
         
         if(astManager == null){
-            REF.writeToFile(null, astOutputFile);
+            return;
             
         }else{
             synchronized(astManager.getLock()){
-                REF.writeToFile(astManager, astOutputFile);
+                astManager.saveToFile(astOutputFile);
             }
         }
     }
@@ -1094,7 +1093,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             
             if(IPythonNature.DEFAULT_INTERPRETER.equals(projectInterpreterName)){
                 //if it's the default, let's translate it to the outside world 
-                ret = relatedInterpreterManager.getDefaultInterpreterInfo(null);
+                ret = relatedInterpreterManager.getDefaultInterpreterInfo();
             }else{
                 ret = relatedInterpreterManager.getInterpreterInfo(projectInterpreterName, null);
             }

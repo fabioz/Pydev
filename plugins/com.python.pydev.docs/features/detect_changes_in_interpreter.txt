@@ -1,0 +1,5 @@
+Interesting libraries to help:
+
+http://jpathwatch.wordpress.com/ (only on some systems: java 5, native approach)
+http://jpoller.sourceforge.net/ (seems to be only java, so, it may not scale)
+http://blogs.sun.com/thejavatutorials/entry/watching_a_directory_for_changes -- builtin java 7 (so, still not available)

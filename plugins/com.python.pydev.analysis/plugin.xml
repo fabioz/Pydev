@@ -46,6 +46,10 @@
    		<parser_observer class="com.python.pydev.analysis.builder.AnalysisParserObserver"/>
    </extension>
 
+   <extension point="org.python.pydev.pydev_interpreter_info_builder">
+  		<interpreter_info_builder_participant class="com.python.pydev.analysis.system_info_builder.InterpreterInfoBuilder"/>
+   </extension>
+
    <extension point="org.python.pydev.pydev_interpreter_observer">
   		<interpreter_observer class="com.python.pydev.analysis.additionalinfo.builders.InterpreterObserver"/>
    </extension>

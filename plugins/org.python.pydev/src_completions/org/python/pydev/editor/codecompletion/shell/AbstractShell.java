@@ -188,10 +188,15 @@ public abstract class AbstractShell {
 
 				for(Map<Integer,AbstractShell> val:shells.values()){
 					for(AbstractShell val2:val.values()){
-						val2.endIt();
+					    if(val2 != null){
+					        val2.endIt();
+					    }
 					}
 					IInterpreterManager[] interpreterManagers = PydevPlugin.getAllInterpreterManagers();
 					for (IInterpreterManager iInterpreterManager : interpreterManagers) {
+					    if(iInterpreterManager == null){
+					        continue; //Should happen only on testing...
+					    }
 						try {
 							IInterpreterInfo[] interpreterInfos = iInterpreterManager.getInterpreterInfos();
 							for (IInterpreterInfo iInterpreterInfo : interpreterInfos) {

@@ -6,7 +6,7 @@
  */
 package com.python.pydev.analysis.actions;
 
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
 
 /**
@@ -16,10 +16,10 @@ import com.python.pydev.analysis.additionalinfo.IInfo;
  */
 public class AdditionalInfoAndIInfo{
     
-    public final AbstractAdditionalInterpreterInfo additionalInfo;
+    public final AbstractAdditionalTokensInfo additionalInfo;
     public final IInfo info;
     
-    public AdditionalInfoAndIInfo(AbstractAdditionalInterpreterInfo additionalInfo, IInfo info) {
+    public AdditionalInfoAndIInfo(AbstractAdditionalTokensInfo additionalInfo, IInfo info) {
         this.additionalInfo = additionalInfo;
         this.info = info;
     }

@@ -13,7 +13,7 @@ import java.io.File;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
@@ -23,7 +23,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class IronpythonInterpreterManager extends AbstractInterpreterManager{
 
-    public IronpythonInterpreterManager(Preferences prefs) {
+    public IronpythonInterpreterManager(IPreferenceStore prefs) {
         super(prefs);
     }
 
@@ -41,8 +41,8 @@ public class IronpythonInterpreterManager extends AbstractInterpreterManager{
     }
 
     @Override
-    public Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
-        return doCreateInterpreterInfo(executable, monitor);
+    public Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor, boolean askUser) throws CoreException {
+        return doCreateInterpreterInfo(executable, monitor, askUser);
     }
 
     /**
@@ -52,7 +52,7 @@ public class IronpythonInterpreterManager extends AbstractInterpreterManager{
      * @return the created interpreter info
      * @throws CoreException
      */
-    public static Tuple<InterpreterInfo,String> doCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
+    public static Tuple<InterpreterInfo,String> doCreateInterpreterInfo(String executable, IProgressMonitor monitor, boolean askUser) throws CoreException {
         boolean isJythonExecutable = InterpreterInfo.isJythonExecutable(executable);
         if(isJythonExecutable){
             throw new RuntimeException("A jar cannot be used in order to get the info for the iron python interpreter.");
@@ -62,7 +62,7 @@ public class IronpythonInterpreterManager extends AbstractInterpreterManager{
 
         Tuple<String, String> outTup = new SimpleIronpythonRunner().runAndGetOutputWithInterpreter(
                 executable, REF.getFileAbsolutePath(script), null, null, null, monitor);
-        InterpreterInfo info = createInfoFromOutput(monitor, outTup);
+        InterpreterInfo info = createInfoFromOutput(monitor, outTup, askUser);
         
         if(info == null){
             //cancelled

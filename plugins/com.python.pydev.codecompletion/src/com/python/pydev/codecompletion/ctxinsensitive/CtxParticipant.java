@@ -33,7 +33,7 @@ import org.python.pydev.plugin.PydevPlugin;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
@@ -85,7 +85,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
     private void fillNatureCompletionsForConsole(IScriptConsoleViewer viewer, int requestOffset,
             List<ICompletionProposal> completions, String qual, boolean addAutoImport, int qlen, String lowerQual,
             IPythonNature nature, boolean getSystem) {
-        AbstractAdditionalInterpreterInfo additionalInfoForProject;
+        AbstractAdditionalTokensInfo additionalInfoForProject;
         
         if(getSystem){
             try {
@@ -105,7 +105,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
         }
         
         List<IInfo> tokensStartingWith = additionalInfoForProject.getTokensStartingWith(
-                qual, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
+                qual, AbstractAdditionalTokensInfo.TOP_LEVEL);
         
         FastStringBuffer realImportRep = new FastStringBuffer();
         FastStringBuffer displayString = new FastStringBuffer();
@@ -181,7 +181,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
             String initialModule = request.resolveModule();
         
             List<IInfo> tokensStartingWith = AdditionalProjectInterpreterInfo.getTokensStartingWith(qual, request.nature, 
-                    AbstractAdditionalInterpreterInfo.TOP_LEVEL);
+                    AbstractAdditionalTokensInfo.TOP_LEVEL);
             
             FastStringBuffer realImportRep = new FastStringBuffer();
             FastStringBuffer displayString = new FastStringBuffer();
@@ -272,7 +272,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
             
             List<IInfo> tokensStartingWith;
 			try {
-				tokensStartingWith = AdditionalProjectInterpreterInfo.getTokensStartingWith(qual, state.getNature(), AbstractAdditionalInterpreterInfo.INNER);
+				tokensStartingWith = AdditionalProjectInterpreterInfo.getTokensStartingWith(qual, state.getNature(), AbstractAdditionalTokensInfo.INNER);
 			} catch (MisconfigurationException e) {
 				PydevPlugin.log(e);
 				return ret;

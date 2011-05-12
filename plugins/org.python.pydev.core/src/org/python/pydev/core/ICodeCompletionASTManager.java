@@ -297,5 +297,10 @@ public interface ICodeCompletionASTManager {
      */
     public Tuple<IModule, String> findModule(String fromImportStr, String currentModule, ICompletionState state) throws CompletionRecursionException;
 
+    /**
+     * @param astOutputFile
+     */
+    public void saveToFile(File astOutputFile);
+
     
 }

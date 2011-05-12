@@ -6,17 +6,15 @@
  */
 package org.python.pydev.plugin.nature;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-
-import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure;
-
-import java.io.Serializable;
 import java.util.List;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure;
 
 /**
  * @author radim@kubacki.cz (Radim Kubacki)
  */
-public interface IPythonPathHelper extends Serializable {
+public interface IPythonPathHelper {
 
   /**
    * 

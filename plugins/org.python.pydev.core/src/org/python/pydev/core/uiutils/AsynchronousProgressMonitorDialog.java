@@ -134,8 +134,7 @@ public class AsynchronousProgressMonitorDialog extends ProgressMonitorDialog {
 				}
 			});
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.log(e);
 		}
 		System.out.println("Took " + ((System.currentTimeMillis()-l)));
 	}

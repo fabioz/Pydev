@@ -124,7 +124,7 @@ public class ParsedModel implements IOutlineModel {
                 ASTEntryWithChildren astThisOld = oldItem.getAstThis();
                 ASTEntryWithChildren astThisNew = newItem.getAstThis();
                 
-                if(astThisOld != null && astThisOld != null && 
+                if(astThisOld != null && astThisNew != null && 
                    astThisOld.node != null && astThisNew.node != null && 
                    astThisOld.node.getClass() != astThisNew.node.getClass()){
                     
@@ -178,6 +178,9 @@ public class ParsedModel implements IOutlineModel {
         if(sel.size() == 1) { // only sync the editing view if it is a single-selection
             Object firstElement = sel.getFirstElement();
             ASTEntryWithChildren p = ((ParsedItem)firstElement).getAstThis();
+            if(p == null){
+                return null;
+            }
             SimpleNode node = p.node;
             if(node instanceof ClassDef){
                 ClassDef def = (ClassDef) node;

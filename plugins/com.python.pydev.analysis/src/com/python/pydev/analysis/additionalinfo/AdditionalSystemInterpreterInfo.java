@@ -17,26 +17,25 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 
 
-public class AdditionalSystemInterpreterInfo extends AbstractAdditionalDependencyInfo{
+public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithBuild{
 
     private IInterpreterManager manager;
-    private String additionalInfoInterpreter;
+    private final String additionalInfoInterpreter;
     
     /**
      * holds system info (interpreter name points to system info)
      */
-    private static Map<Tuple<String, String>, AbstractAdditionalInterpreterInfo> additionalSystemInfo = 
-        new HashMap<Tuple<String, String>, AbstractAdditionalInterpreterInfo>();
+    private static Map<Tuple<String, String>, AbstractAdditionalTokensInfo> additionalSystemInfo = 
+        new HashMap<Tuple<String, String>, AbstractAdditionalTokensInfo>();
 
     public AdditionalSystemInterpreterInfo(IInterpreterManager manager, String interpreter) throws MisconfigurationException {
         super(false); //don't call init just right now...
@@ -53,11 +52,18 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalDependenc
         return additionalInfoInterpreter;
     }
     
+    private volatile File persistingFolderCache = null;
+    
     /**
      * @return the path to the folder we want to keep things on
      * @throws MisconfigurationException 
      */
-    protected File getPersistingFolder() throws MisconfigurationException {
+    protected File getPersistingFolder(){
+        if(persistingFolderCache != null){
+            //Only ask once (cached after that).
+            return persistingFolderCache;
+        }
+        
         File base;
         try {
             IPath stateLocation = AnalysisPlugin.getDefault().getStateLocation();
@@ -67,10 +73,15 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalDependenc
             PydevPlugin.log(IStatus.ERROR, "Error getting persisting folder", e, false);
             base = new File(".");
         }
-        File file = new File(base, getInterpreterRelatedName());
+        File file = new File(
+                base, 
+                manager.getManagerRelatedName() + "_"+ InterpreterInfo.getExeAsFileSystemValidPath(this.additionalInfoInterpreter)
+        );
+        
         if(!file.exists()){
             file.mkdirs();
         }
+        persistingFolderCache = file;
         return file;
     }
 
@@ -86,12 +97,6 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalDependenc
     
     
 
-    private String getInterpreterRelatedName() throws MisconfigurationException {
-        IInterpreterInfo info = manager.getInterpreterInfo(this.additionalInfoInterpreter, new NullProgressMonitor());
-        return manager.getManagerRelatedName() + "_"+ info.getExeAsFileSystemValidPath();
-    }
-
-
     @Override
     protected void setAsDefaultInfo() {
         AdditionalSystemInterpreterInfo.setAdditionalSystemInfo(manager, this.additionalInfoInterpreter, this);
@@ -103,7 +108,7 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalDependenc
      * @throws MisconfigurationException 
      */
     public static boolean loadAdditionalSystemInfo(IInterpreterManager manager, String interpreter) throws MisconfigurationException {
-        AbstractAdditionalInterpreterInfo info = new AdditionalSystemInterpreterInfo(manager, interpreter);
+        AbstractAdditionalTokensInfo info = new AdditionalSystemInterpreterInfo(manager, interpreter);
         //when it is successfully loaded, it sets itself as the default (for its type)
         return info.load();
     }
@@ -113,9 +118,9 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalDependenc
      * @return the additional info for the system
      * @throws MisconfigurationException 
      */
-    public static AbstractAdditionalInterpreterInfo getAdditionalSystemInfo(IInterpreterManager manager, String interpreter) throws MisconfigurationException {
+    public static AbstractAdditionalDependencyInfo getAdditionalSystemInfo(IInterpreterManager manager, String interpreter) throws MisconfigurationException {
         Tuple<String,String> key = new Tuple<String, String>(manager.getManagerRelatedName(), interpreter);
-        AbstractAdditionalInterpreterInfo info = additionalSystemInfo.get(key);
+        AbstractAdditionalDependencyInfo info = (AbstractAdditionalDependencyInfo) additionalSystemInfo.get(key);
         if(info == null){
             //temporary until it's loaded!
 			return new AdditionalSystemInterpreterInfo(manager, interpreter);
@@ -129,7 +134,7 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalDependenc
      * @param additionalSystemInfoToSet the info to set
      */
     public static void setAdditionalSystemInfo(IInterpreterManager manager, String interpreter, 
-            AbstractAdditionalInterpreterInfo additionalSystemInfoToSet) {
+            AbstractAdditionalTokensInfo additionalSystemInfoToSet) {
         
         additionalSystemInfo.put(new Tuple<String, String>(manager.getManagerRelatedName(), interpreter), 
                 additionalSystemInfoToSet);

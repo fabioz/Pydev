@@ -35,7 +35,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.utils.PyFileListing.PyFileInfo;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 
 public class NatureGroup extends ElementWithChildren {
@@ -117,8 +117,8 @@ public class NatureGroup extends ElementWithChildren {
         TreeSet<ModulesKey> inModulesManager = new TreeSet<ModulesKey>(Arrays.asList(onlyDirectModules));
         
         Set<String> allAdditionalInfoModuleNames = new TreeSet<String>();
-        Tuple<List<AbstractAdditionalInterpreterInfo>, List<IPythonNature>> additionalInfoAndNature = AdditionalProjectInterpreterInfo.getAdditionalInfoAndNature(nature, false, false, false);
-        AbstractAdditionalInterpreterInfo additionalProjectInfo;
+        Tuple<List<AbstractAdditionalTokensInfo>, List<IPythonNature>> additionalInfoAndNature = AdditionalProjectInterpreterInfo.getAdditionalInfoAndNature(nature, false, false, false);
+        AbstractAdditionalTokensInfo additionalProjectInfo;
         if(additionalInfoAndNature.o1.size() == 0){
             addChild(new LeafElement(this, "No additional infos found (1 expected) -- skipping other checks."));
             return;
@@ -208,7 +208,7 @@ public class NatureGroup extends ElementWithChildren {
         
         for(SourceModule mod:info.moduleNotInAdditionalInfo){
             addChild(new LeafElement(this, StringUtils.format("FIX: Adding to additional info: %s", mod.getName())));
-            additionalProjectInfo.addSourceModuleInfo(mod, info.nature, true);
+            additionalProjectInfo.addAstInfo(mod.getAst(), mod.getModulesKey(), true);
         }
         
     }

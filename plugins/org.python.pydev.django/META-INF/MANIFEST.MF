@@ -27,5 +27,4 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.customizations,
  org.eclipse.core.expressions
 Eclipse-LazyStart: true
-Bundle-ClassPath: pydev_django.jar,
- retroweaver-rt.jar
+Bundle-ClassPath: pydev_django.jar

@@ -12,7 +12,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -35,7 +34,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
     private SystemASTManager systemASTManager;
 
     public SystemPythonNature(IInterpreterManager manager) throws MisconfigurationException{
-        this(manager, manager.getDefaultInterpreterInfo(new NullProgressMonitor()));
+        this(manager, manager.getDefaultInterpreterInfo());
     }
     
     public SystemPythonNature(IInterpreterManager manager, IInterpreterInfo info){

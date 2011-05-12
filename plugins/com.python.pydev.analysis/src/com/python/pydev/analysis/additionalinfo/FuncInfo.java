@@ -9,31 +9,24 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
-import org.python.pydev.core.ObjectsPool;
-import org.python.pydev.parser.jython.ast.FunctionDef;
-import org.python.pydev.parser.jython.ast.NameTok;
 
 public class FuncInfo extends AbstractInfo{
     
-    private static final long serialVersionUID = 1L;
-
     /**
-     * the parameters for the function (may be mull)
+     * Changed for 2.1
      */
-    public String[] params;
+    private static final long serialVersionUID = 3L;
+
+
+    public FuncInfo(String defName, String moduleDeclared, String path) {
+        super(defName, moduleDeclared, path);
+    }
     
-    public static FuncInfo fromFunctionDef(FunctionDef def, String moduleDeclared, String path) {
-        FuncInfo info = fromFunctionDef(def, moduleDeclared);
-        info.path = path;
-        return info;
+    public FuncInfo(String defName, String moduleDeclared, String path, boolean doNotInternOnThisContstruct) {
+        super(defName, moduleDeclared, path, doNotInternOnThisContstruct);
     }
 
-    public static FuncInfo fromFunctionDef(FunctionDef def, String moduleDeclared) {
-        FuncInfo info = new FuncInfo();
-        info.name = ObjectsPool.intern(((NameTok)def.name).id);
-        info.moduleDeclared = moduleDeclared;
-        return info;
-    }
+
     
     public int getType() {
         return METHOD_WITH_IMPORT_TYPE;

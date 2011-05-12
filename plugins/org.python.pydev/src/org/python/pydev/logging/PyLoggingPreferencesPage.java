@@ -30,6 +30,9 @@ public class PyLoggingPreferencesPage  extends FieldEditorPreferencePage impleme
     public static final String DEBUG_ANALYSIS_REQUESTS = "DEBUG_ANALYSIS_REQUESTS";
     public static final boolean DEFAULT_DEBUG_ANALYSIS_REQUESTS = false;
     
+    public static final String DEBUG_INTERPRETER_AUTO_UPDATE = "DEBUG_INTERPRETER_UPDATE";
+    public static final boolean DEFAULT_DEBUG_INTERPRETER_AUTO_UPDATE = false;
+    
     
     public PyLoggingPreferencesPage() {
         super(GRID);
@@ -46,6 +49,9 @@ public class PyLoggingPreferencesPage  extends FieldEditorPreferencePage impleme
         
         addField(new BooleanFieldEditor(
                 DEBUG_ANALYSIS_REQUESTS, "Enable logging for analysis requests?", p));
+        
+        addField(new BooleanFieldEditor(
+                DEBUG_INTERPRETER_AUTO_UPDATE, "Enable logging for interpreter auto update?", p));
         
     }
 
@@ -68,11 +74,19 @@ public class PyLoggingPreferencesPage  extends FieldEditorPreferencePage impleme
     }
     
     
+    public static boolean isToDebugInterpreterAutoUpdate(){
+        if(PydevPlugin.getDefault() == null){//testing
+            return false;
+        }
+        return PydevPrefs.getPreferences().getBoolean(DEBUG_INTERPRETER_AUTO_UPDATE);
+    }
+    
     @Override
     public boolean performOk() {
         boolean ret = super.performOk();
         DebugSettings.DEBUG_CODE_COMPLETION = isToDebugCodeCompletion();
         DebugSettings.DEBUG_ANALYSIS_REQUESTS = isToDebugAnalysisRequests();
+        DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE = isToDebugInterpreterAutoUpdate();
         return ret;
     }
 

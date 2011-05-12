@@ -4,7 +4,6 @@ Bundle-Name: Pydev debug
 Bundle-SymbolicName: org.python.pydev.debug; singleton:=true
 Bundle-Version: 0.9.7.1
 Bundle-ClassPath: pydev-debug.jar,
- retroweaver-rt.jar,
  commons-logging-1.1.jar,
  ws-commons-util-1.0.2.jar,
  xmlrpc-client-3.1.jar,

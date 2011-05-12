@@ -31,6 +31,8 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISourceModule;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
@@ -1165,6 +1167,16 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         }
         
         return bootstrap;    
+    }
+
+    /**
+     * @return
+     */
+    public ModulesKey getModulesKey() {
+        if(zipFilePath != null && zipFilePath.length() > 0){
+            return new ModulesKeyForZip(name, file, zipFilePath, true);
+        }
+        return new ModulesKey(name, file);
     }
 
 }

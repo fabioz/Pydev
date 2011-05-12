@@ -25,6 +25,7 @@ import org.eclipse.search.ui.text.FileTextSearchScope;
 import org.eclipse.search.ui.text.TextSearchQueryProvider;
 import org.eclipse.search.ui.text.TextSearchQueryProvider.TextSearchInput;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
@@ -129,7 +130,7 @@ public class RefactorerFindReferences {
             }
             
             if (!status.isOK()){
-                PydevPlugin.log(status);
+                Log.log(status);
                 
                 if (status.getSeverity() == IStatus.ERROR) {
                     RunInUiThread.async(new Runnable() {

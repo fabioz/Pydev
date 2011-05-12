@@ -157,8 +157,9 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
             //try to load it from previous session
             IInterpreterManager interpreterManager = getInterpreterManager();
             try{
-                if(forceAdditionalInfoRecreation || !AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(interpreterManager, interpreterManager.getDefaultInterpreter())){
-                    observer.notifyDefaultPythonpathRestored(interpreterManager, interpreterManager.getDefaultInterpreter(), monitor);
+                String defaultInterpreter = interpreterManager.getDefaultInterpreterInfo().getExecutableOrJar();
+                if(forceAdditionalInfoRecreation || !AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(interpreterManager, defaultInterpreter)){
+                    observer.notifyDefaultPythonpathRestored(interpreterManager, defaultInterpreter, monitor);
                 }
             }catch(MisconfigurationException e){
                 throw new RuntimeException(e);

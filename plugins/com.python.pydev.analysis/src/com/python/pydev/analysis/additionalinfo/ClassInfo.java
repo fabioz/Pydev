@@ -9,29 +9,25 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
-import org.python.pydev.core.ObjectsPool;
-import org.python.pydev.parser.jython.ast.ClassDef;
-import org.python.pydev.parser.jython.ast.NameTok;
 
 
 public class ClassInfo extends AbstractInfo{
 
-    private static final long serialVersionUID = 1L;
+    /**
+     * Changed for 2.1
+     */
+    private static final long serialVersionUID = 3L;
 
-    public static ClassInfo fromClassDef(ClassDef def, String moduleDeclared, String path) {
-        ClassInfo info = fromClassDef(def, moduleDeclared);
-        info.path = path;
-        return info;
-        
+
+    public ClassInfo(String className, String moduleDeclared, String path) {
+        super(className, moduleDeclared, path);
     }
     
-    public static ClassInfo fromClassDef(ClassDef def, String moduleDeclared) {
-        ClassInfo info = new ClassInfo();
-        info.name = ObjectsPool.intern(((NameTok)def.name).id);
-        info.moduleDeclared = moduleDeclared;
-        return info;
+    public ClassInfo(String className, String moduleDeclared, String path, boolean doNotInternOnThisContstruct) {
+        super(className, moduleDeclared, path, doNotInternOnThisContstruct);
     }
 
+    
     public int getType() {
         return CLASS_WITH_IMPORT_TYPE;
     }

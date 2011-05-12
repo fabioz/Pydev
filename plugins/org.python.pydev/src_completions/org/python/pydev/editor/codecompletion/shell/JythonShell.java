@@ -20,7 +20,6 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleJythonRunner;
-import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.runners.SimpleRunner;
 
 public class JythonShell extends AbstractShell{
@@ -43,7 +42,7 @@ public class JythonShell extends AbstractShell{
         
         String[] envp = null;
         try {
-            envp = new SimplePythonRunner().getEnvironment(null, jythonJar, manager);
+            envp = SimpleRunner.getEnvironment(null, jythonJar, manager, true);
         } catch (CoreException e) {
             Log.log(e);
         }
