@@ -6,19 +6,15 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
+import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.DeltaSaver;
 import org.python.pydev.core.IDeltaProcessor;
-import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.ModulesKeyForZip;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.structure.FastStringBuffer;
-import org.python.pydev.parser.fastparser.FastDefinitionsParser;
 import org.python.pydev.parser.jython.SimpleNode;
 
 /**
@@ -169,7 +165,8 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
                 }
             }else if(data instanceof List){
                 //current way (saves a list of iinfo)
-                for(IInfo info : (List<IInfo>) data){
+                for(Iterator<IInfo> it = ((List<IInfo>) data).iterator();it.hasNext();){
+                    IInfo info = it.next();
                     if(info.getPath() == null || info.getPath().length() == 0){
                         this.add(info, TOP_LEVEL);
                         

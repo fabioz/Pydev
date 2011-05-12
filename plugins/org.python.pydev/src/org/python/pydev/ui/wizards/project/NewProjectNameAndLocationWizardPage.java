@@ -108,13 +108,12 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
 
     protected Button checkSrcFolder;
     protected Button projectAsSrcFolder;
+    protected Button noSrcFolder;
 
     // constants
     private static final int SIZING_TEXT_FIELD_WIDTH = 250;
 
     private static final String PYDEV_NEW_PROJECT_CREATE = "PYDEV_NEW_PROJECT_CREATE";
-    private static final int PYDEV_NEW_PROJECT_CREATE_SRC_FOLDER = 0; //also the default
-    private static final int PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER = 1;
 
     /**
      * Creates a new project creation wizard page.
@@ -150,6 +149,9 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
         projectAsSrcFolder = new Button(composite , SWT.RADIO);
         projectAsSrcFolder.setText("&Add project directory to the PYTHONPATH?");
         
+        noSrcFolder = new Button(composite , SWT.RADIO);
+        noSrcFolder.setText("Don't configure PYTHONPATH (to be done &manually later on)");
+        
         IPreferenceStore preferences = PydevPrefs.getPreferences();
         int srcFolderCreate = preferences.getInt(PYDEV_NEW_PROJECT_CREATE);
         switch (srcFolderCreate) {
@@ -157,6 +159,10 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
                 projectAsSrcFolder.setSelection(true);
                 break;
     
+            case PYDEV_NEW_PROJECT_NO_PYTHONPATH:
+                noSrcFolder.setSelection(true);
+                break;
+                
             default:
                 //default is src folder...
                 checkSrcFolder.setSelection(true);
@@ -169,8 +175,6 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
                     IPreferenceStore preferences = PydevPrefs.getPreferences();
                     if(checkSrcFolder.getSelection()){
                         preferences.setValue(PYDEV_NEW_PROJECT_CREATE, PYDEV_NEW_PROJECT_CREATE_SRC_FOLDER);
-                    }else{
-                        preferences.setValue(PYDEV_NEW_PROJECT_CREATE, PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER);
                     }
                 }
             }
@@ -186,10 +190,23 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
                     IPreferenceStore preferences = PydevPrefs.getPreferences();
                     if(projectAsSrcFolder.getSelection()){
                         preferences.setValue(PYDEV_NEW_PROJECT_CREATE, PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER);
-                    }else{
-                        preferences.setValue(PYDEV_NEW_PROJECT_CREATE, PYDEV_NEW_PROJECT_CREATE_SRC_FOLDER);
                     }
 
+                }
+            }
+            
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+        });
+        
+        noSrcFolder.addSelectionListener(new SelectionListener(){
+            
+            public void widgetSelected(SelectionEvent e) {
+                if(e.widget == noSrcFolder){
+                    IPreferenceStore preferences = PydevPrefs.getPreferences();
+                    if(noSrcFolder.getSelection()){
+                        preferences.setValue(PYDEV_NEW_PROJECT_CREATE, PYDEV_NEW_PROJECT_NO_PYTHONPATH);
+                    }
                 }
             }
             
@@ -568,13 +585,19 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
             projectNameField.setFocus();
     }
 
-    public boolean shouldCreatSourceFolder() {
+    public int getSourceFolderConfigurationStyle() {
         IPreferenceStore preferences = PydevPrefs.getPreferences();
         int srcFolderCreate = preferences.getInt(PYDEV_NEW_PROJECT_CREATE);
-        if(srcFolderCreate == PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER){
-            return false;
+        switch(srcFolderCreate){
+        
+            case PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER:
+                return PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER;
+            case PYDEV_NEW_PROJECT_NO_PYTHONPATH:
+                return PYDEV_NEW_PROJECT_NO_PYTHONPATH;
+            
+            default:
+                return PYDEV_NEW_PROJECT_CREATE_SRC_FOLDER;
         }
-        return true;
     }
 
     public void setProjectName(String projectName){

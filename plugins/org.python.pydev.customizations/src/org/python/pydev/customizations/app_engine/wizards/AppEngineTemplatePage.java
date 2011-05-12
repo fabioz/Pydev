@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
@@ -219,7 +219,7 @@ public class AppEngineTemplatePage extends WizardPage{
     /**
      * Called so that the initial structure is filled, given the source folder to fill.
      */
-    public void fillSourceFolder(IFolder sourceFolder){
+    public void fillSourceFolder(IContainer sourceFolder){
         if(lastTemplateChoice == null || lastTemplateChoice.equals(CHOOSE_ONE) || lastTemplateChoice.equals(EMPTY_PROJECT)){
             //Do nothing
         }else{

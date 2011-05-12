@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResourceStatus;
@@ -180,16 +179,24 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
         ICallback<List<IContainer>, IProject> getSourceFolderHandlesCallback = new ICallback<List<IContainer>, IProject>(){
         
             public List<IContainer> call(IProject projectHandle) {
-                if(projectPage.shouldCreatSourceFolder()){
-                    IFolder folder = projectHandle.getFolder("src");
-                    List<IContainer> ret = new ArrayList<IContainer>();
-                    ret.add(folder);
-                    return ret;
-                }else{
-                    //if the user hasn't selected to create a source folder, use the project itself for that.
-                    List<IContainer> ret = new ArrayList<IContainer>();
-                    ret.add(projectHandle);
-                    return ret;
+                final int sourceFolderConfigurationStyle = projectPage.getSourceFolderConfigurationStyle();
+                List<IContainer> ret = new ArrayList<IContainer>();
+                switch(sourceFolderConfigurationStyle){
+                
+                    case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER:
+                        //if the user hasn't selected to create a source folder, use the project itself for that.
+                        ret = new ArrayList<IContainer>();
+                        ret.add(projectHandle);
+                        return ret;
+                        
+                    case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_NO_PYTHONPATH:
+                        return new ArrayList<IContainer>();
+                    
+                    default:
+                        IContainer folder = projectHandle.getFolder("src");
+                        ret = new ArrayList<IContainer>();
+                        ret.add(folder);
+                        return ret;
                 }
             }
         };

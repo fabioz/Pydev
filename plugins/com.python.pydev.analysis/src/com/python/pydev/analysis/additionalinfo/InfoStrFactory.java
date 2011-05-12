@@ -36,7 +36,8 @@ public class InfoStrFactory {
         map.put(null, next);
         next++;
         
-        for (IInfo info: iInfo) {
+        for (Iterator<IInfo> it= iInfo.iterator();it.hasNext();) {
+            IInfo info = it.next();
             infos.append("&&");
             infos.append(info.getType());
             String name = info.getName();

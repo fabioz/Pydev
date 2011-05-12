@@ -233,11 +233,17 @@ public class DjangoSettingsPage extends WizardPage {
         String selection = engineCombo.getText();
         if(selection.endsWith("sqlite3")){
             String projectName = projectPage.getProjectName();
-            boolean shouldCreatSourceFolder = projectPage.shouldCreatSourceFolder();
             IPath base = projectPage.getLocationPath().append(projectName);
-            if(shouldCreatSourceFolder){
-                base = base.append("src");
+            int sourceFolderConfigurationStyle = projectPage.getSourceFolderConfigurationStyle();
+            
+            switch(sourceFolderConfigurationStyle){
+                case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER:
+                case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_NO_PYTHONPATH:
+                    break;
+                default:
+                    base = base.append("src");
             }
+
             nameText.setText(base.append("sqlite.db").toOSString());
         }
     }
