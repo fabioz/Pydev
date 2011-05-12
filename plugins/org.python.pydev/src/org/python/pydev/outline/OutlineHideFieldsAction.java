@@ -45,7 +45,7 @@ public class OutlineHideFieldsAction extends AbstractOutlineFilterAction {
 
                     ASTEntryWithChildren astThis = item.getAstThis();
                     if(astThis == null){
-                        return false;
+                        return true;
                     }
                     SimpleNode token = astThis.node;
 
