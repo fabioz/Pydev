@@ -3,8 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Parser Plug-in
 Bundle-SymbolicName: org.python.pydev.parser; singleton:=true
 Bundle-Version: 0.9.7.1
-Bundle-ClassPath: parser.jar,
- retroweaver-rt.jar
+Bundle-ClassPath: parser.jar
 Bundle-Activator: org.python.pydev.parser.ParserPlugin
 Bundle-Localization: plugin
 Require-Bundle: org.junit;bundle-version="[3.8.0,3.9.9]";resolution:=optional,

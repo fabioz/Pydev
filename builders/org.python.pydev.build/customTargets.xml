@@ -1,6 +1,8 @@
 <project name="Build specific targets and properties" default="noDefault">
 
     <property name="builder" location="." />
+	<!--
+	Retroweaver removed: now, PyDev is dependent upon java 1.5!
     <property name="retroweaver.home" location="${builder}/retroweaver" />
     <taskdef name="retroweaver" classname="com.rc.retroweaver.ant.RetroWeaverTask">
         <classpath>
@@ -8,6 +10,7 @@
             <pathelement location="${retroweaver.home}/release/retroweaver.jar" />
         </classpath>
     </taskdef>
+    -->
 
     <!-- ===================================================================== -->
     <!-- Run a given ${target} on all elements being built -->
@@ -180,9 +183,10 @@
         for i, path in enumerate(paths):
             cog.outl('<unzip src="${jar%s}.jar" dest="${jar%s}/out"><patternset><include name="**/*.*" /></patternset></unzip>' % (i,i))
         
-        cog.outl('<echo message="Running retroweaver on JAR contents" />')
-        for i, path in enumerate(paths):
-            cog.outl('<retroweaver srcdir="${jar%s}/out" verbose="false" destdir="${jar%s}/out" version="1.4" />' % (i,i))
+        #Removed retroweaver from build (PyDev now requires java 1.5)
+        #cog.outl('<echo message="Running retroweaver on JAR contents" />')
+        #for i, path in enumerate(paths):
+        #    cog.outl('<retroweaver srcdir="${jar%s}/out" verbose="false" destdir="${jar%s}/out" version="1.4" />' % (i,i))
 
         cog.outl('<echo message="Deleting original JARs" />')
         for i, path in enumerate(paths):
@@ -249,24 +253,6 @@
         <unzip src="${jar14}.jar" dest="${jar14}/out"><patternset><include name="**/*.*" /></patternset></unzip>
         <unzip src="${jar15}.jar" dest="${jar15}/out"><patternset><include name="**/*.*" /></patternset></unzip>
         <unzip src="${jar16}.jar" dest="${jar16}/out"><patternset><include name="**/*.*" /></patternset></unzip>
-        <echo message="Running retroweaver on JAR contents" />
-        <retroweaver srcdir="${jar0}/out" verbose="false" destdir="${jar0}/out" version="1.4" />
-        <retroweaver srcdir="${jar1}/out" verbose="false" destdir="${jar1}/out" version="1.4" />
-        <retroweaver srcdir="${jar2}/out" verbose="false" destdir="${jar2}/out" version="1.4" />
-        <retroweaver srcdir="${jar3}/out" verbose="false" destdir="${jar3}/out" version="1.4" />
-        <retroweaver srcdir="${jar4}/out" verbose="false" destdir="${jar4}/out" version="1.4" />
-        <retroweaver srcdir="${jar5}/out" verbose="false" destdir="${jar5}/out" version="1.4" />
-        <retroweaver srcdir="${jar6}/out" verbose="false" destdir="${jar6}/out" version="1.4" />
-        <retroweaver srcdir="${jar7}/out" verbose="false" destdir="${jar7}/out" version="1.4" />
-        <retroweaver srcdir="${jar8}/out" verbose="false" destdir="${jar8}/out" version="1.4" />
-        <retroweaver srcdir="${jar9}/out" verbose="false" destdir="${jar9}/out" version="1.4" />
-        <retroweaver srcdir="${jar10}/out" verbose="false" destdir="${jar10}/out" version="1.4" />
-        <retroweaver srcdir="${jar11}/out" verbose="false" destdir="${jar11}/out" version="1.4" />
-        <retroweaver srcdir="${jar12}/out" verbose="false" destdir="${jar12}/out" version="1.4" />
-        <retroweaver srcdir="${jar13}/out" verbose="false" destdir="${jar13}/out" version="1.4" />
-        <retroweaver srcdir="${jar14}/out" verbose="false" destdir="${jar14}/out" version="1.4" />
-        <retroweaver srcdir="${jar15}/out" verbose="false" destdir="${jar15}/out" version="1.4" />
-        <retroweaver srcdir="${jar16}/out" verbose="false" destdir="${jar16}/out" version="1.4" />
         <echo message="Deleting original JARs" />
         <delete file="${jar0}.jar" />
         <delete file="${jar1}.jar" />
