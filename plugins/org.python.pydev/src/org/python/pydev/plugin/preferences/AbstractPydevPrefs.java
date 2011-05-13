@@ -65,6 +65,9 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     public static final String AUTO_PAR = "AUTO_PAR";
     public static final boolean DEFAULT_AUTO_PAR = true;
     
+    public static final String AUTO_LINK = "AUTO_LINK";
+    public static final boolean DEFAULT_AUTO_LINK = false;
+    
     public static final String AUTO_INDENT_TO_PAR_LEVEL = "AUTO_INDENT_TO_PAR_LEVEL";
     public static final boolean DEFAULT_AUTO_INDENT_TO_PAR_LEVEL = true;
     
@@ -324,6 +327,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         //text
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, TAB_WIDTH));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_PAR));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_LINK));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_INDENT_TO_PAR_LEVEL));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, AUTO_INDENT_AFTER_PAR_WIDTH));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_DEDENT_ELSE));

@@ -114,4 +114,9 @@ public interface IIndentPrefs {
 	 * Should we close literals?
 	 */
 	public boolean getAutoLiterals();
+
+    /**
+     * Should we do the link on auto-close?
+     */
+    public boolean getAutoLink();
 }

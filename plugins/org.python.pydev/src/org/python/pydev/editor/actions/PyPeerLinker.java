@@ -153,37 +153,41 @@ public class PyPeerLinker {
                 return true; //it was handled (without the link)
             }
 
-            LinkedPositionGroup group = new LinkedPositionGroup();
-            group.addPosition(new LinkedPosition(doc, linkOffset, linkLen, LinkedPositionGroup.NO_STOP));
-
-            LinkedModeModel model = new LinkedModeModel();
-            model.addGroup(group);
-            model.forceInstall();
-
-            if (viewer == null) {
-                return true; //don't actually do the link.
+            if(prefs.getAutoLink()){
+                LinkedPositionGroup group = new LinkedPositionGroup();
+                group.addPosition(new LinkedPosition(doc, linkOffset, linkLen, LinkedPositionGroup.NO_STOP));
+    
+                LinkedModeModel model = new LinkedModeModel();
+                model.addGroup(group);
+                model.forceInstall();
+    
+                if (viewer == null) {
+                    return true; //don't actually do the link.
+                }
+    
+                LinkedModeUI ui = new EditorLinkedModeUI(model, viewer);
+                ui.setSimpleMode(true);
+                IExitPolicy policy = new IExitPolicy() {
+    
+                    public ExitFlags doExit(LinkedModeModel model, VerifyEvent event, int offset, int length) {
+                        //Yes, no special exit, if ' is entered again, let's do the needed treatment again instead of going 
+                        //to the end (only <return> goes to the end).
+                        //if (event.character == c) {
+                        //    return new ExitFlags(ILinkedModeListener.UPDATE_CARET, false);
+                        //}
+                        return null;
+                    }
+                };
+                ui.setExitPolicy(policy);
+                ui.setExitPosition(viewer, linkExitPos, 0, Integer.MAX_VALUE);
+                ui.setCyclingMode(LinkedModeUI.CYCLE_NEVER);
+                ui.enter();
+                IRegion newSelection = ui.getSelectedRegion();
+                viewer.setSelectedRange(newSelection.getOffset(), newSelection.getLength());
+            }else{
+                viewer.setSelectedRange(linkOffset, linkLen);
             }
 
-            LinkedModeUI ui = new EditorLinkedModeUI(model, viewer);
-            ui.setSimpleMode(true);
-            IExitPolicy policy = new IExitPolicy() {
-
-                public ExitFlags doExit(LinkedModeModel model, VerifyEvent event, int offset, int length) {
-                    //Yes, no special exit, if ' is entered again, let's do the needed treatment again instead of going 
-                    //to the end (only <return> goes to the end).
-                    //if (event.character == c) {
-                    //    return new ExitFlags(ILinkedModeListener.UPDATE_CARET, false);
-                    //}
-                    return null;
-                }
-            };
-            ui.setExitPolicy(policy);
-            ui.setExitPosition(viewer, linkExitPos, 0, Integer.MAX_VALUE);
-            ui.setCyclingMode(LinkedModeUI.CYCLE_NEVER);
-            ui.enter();
-
-            IRegion newSelection = ui.getSelectedRegion();
-            viewer.setSelectedRange(newSelection.getOffset(), newSelection.getLength());
 
         } catch (Exception e) {
             PydevPlugin.log(e);

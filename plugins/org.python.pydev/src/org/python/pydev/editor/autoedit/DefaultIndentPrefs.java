@@ -134,6 +134,10 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
         return getCache().getBoolean(PydevEditorPrefs.AUTO_PAR);
     }
     
+    public boolean getAutoLink() {
+        return getCache().getBoolean(PydevEditorPrefs.AUTO_LINK);
+    }
+    
     public boolean getIndentToParLevel() {
         return getCache().getBoolean(PydevEditorPrefs.AUTO_INDENT_TO_PAR_LEVEL);
     }
