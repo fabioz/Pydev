@@ -810,8 +810,8 @@ public abstract class ModulesManager implements IModulesManager {
      * Passes through all the compiled modules in memory and clears its tokens (so that
      * we restore them when needed).
      */
-    public void clearCache() {
-        ModulesManager.cache.internalCache.clear();
+    public static void clearCache() {
+        ModulesManager.cache.clear();
     }
 
     /** 

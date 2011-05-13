@@ -33,11 +33,6 @@ public interface ISystemModulesManager extends IModulesManager {
     public abstract IModule getModuleWithoutBuiltins(String name, IPythonNature nature, boolean dontSearchInit);
 
     /**
-     * Clears any internally kept caches for the modules manager.
-     */
-    void clearCache();
-
-    /**
      * Loads the system information from the disk.
      */
     public abstract void load() throws IOException;

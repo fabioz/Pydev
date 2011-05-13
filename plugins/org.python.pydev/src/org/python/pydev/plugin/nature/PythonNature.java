@@ -57,6 +57,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
+import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.plugin.PydevPlugin;
@@ -307,7 +308,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         	//call initialize always - let it do the control.
             init(null, null, null, new NullProgressMonitor(), null, null);
         }else{
-        	this.clearCaches();
+        	this.clearCaches(false);
         }
 
     }
@@ -621,7 +622,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * @throws CoreException 
      */
     public void rebuildPath() throws CoreException {
-        clearCaches();
+        clearCaches(true);
         String paths = this.pythonPathNature.getOnlyProjectPythonPathStr(true);
         synchronized(this.setParamsLock){
 		    this.rebuildJob.cancel();
@@ -774,7 +775,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * @throws CoreException 
      */
     public void setVersion(String version, String interpreter) throws CoreException{
-        clearCaches();
+        clearCaches(false);
         
         if(version != null){
             this.versionPropertyCache = version;
@@ -916,11 +917,14 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     
     // ------------------------------------------------------------------------------------------ LOCAL CACHES
-    public void clearCaches() {
+    public void clearCaches(boolean clearGlobalModulesCache) {
         this.interpreterType = null;
         this.versionPropertyCache = null;
         this.interpreterPropertyCache = null;
         this.pythonPathNature.clearCaches();
+        if(clearGlobalModulesCache){
+            ModulesManager.clearCache();
+        }
     }
     
     Integer interpreterType = null; //cache

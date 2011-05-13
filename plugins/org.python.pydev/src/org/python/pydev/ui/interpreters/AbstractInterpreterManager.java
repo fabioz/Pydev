@@ -633,7 +633,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                     if(!makeCompleteRebuild){
                     	//just notify that it changed
                         if(nature instanceof PythonNature){
-                            ((PythonNature) nature).clearCaches();
+                            ((PythonNature) nature).clearCaches(true);
                         }
                     	PythonNatureListenersManager.notifyPythonPathRebuilt(nature.getProject(), nature);
                     }else{
