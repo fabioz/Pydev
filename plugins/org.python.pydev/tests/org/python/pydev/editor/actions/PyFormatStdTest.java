@@ -32,7 +32,7 @@ public class PyFormatStdTest extends TestCase {
             PyFormatStdTest n = new PyFormatStdTest();
             n.setUp();
             DEBUG = true;
-            n.testNumber8();
+            n.testSimpleOperator5();
             n.tearDown();
             
             junit.textui.TestRunner.run(PyFormatStdTest.class);
@@ -1015,6 +1015,30 @@ public class PyFormatStdTest extends TestCase {
         String s = "" +
         " -1 - (-3)";
         checkFormatResults(s, s);
+    }
+    
+    public void testFormatError() throws Exception{
+        String s = "" +
+        "class Bar:\n" +
+        "    def Foo:\n" +
+        "        ra( )\n" +
+        "        a.Get(self, ra( )\n" +
+        "";
+        final PyFormatStd pyFormatStd = new PyFormatStd();
+        try {
+            pyFormatStd.formatStr(s, std, "\n", true);
+            fail("Expecting exception!");
+        } catch (Exception e) {
+        }
+        String expected = "" +
+        "class Bar:\n" +
+        "    def Foo:\n" +
+        "        ra()\n" +
+        "        a.Get(self, ra()\n" +
+        "";
+        
+        checkFormatResults(s, expected);
+
     }
     
 
