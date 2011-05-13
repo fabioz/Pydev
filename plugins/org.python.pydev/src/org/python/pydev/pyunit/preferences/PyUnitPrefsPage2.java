@@ -29,7 +29,7 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
     public static final int TEST_RUNNER_PY_TEST = 2;
     
     public static final String[][] ENTRY_NAMES_AND_VALUES = new String[][] {
-                         {"Pydev test runner", Integer.toString(TEST_RUNNER_PYDEV)},
+                         {"PyDev test runner", Integer.toString(TEST_RUNNER_PYDEV)},
                          {"Nose test runner", Integer.toString(TEST_RUNNER_NOSE)},
                          {"Py.test runner", Integer.toString(TEST_RUNNER_PY_TEST)},
                      };

@@ -9,19 +9,20 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
-import org.python.pydev.core.ObjectsPool;
 
 public class NameInfo extends AbstractInfo{
 
-    private static final long serialVersionUID = 1L;
+    /**
+     * Changed for 2.1
+     */
+    private static final long serialVersionUID = 3L;
 
-    public static NameInfo fromName(String name, String moduleDeclared, String path) {
-        NameInfo info = new NameInfo();
-        info.name = ObjectsPool.intern(name);
-        info.moduleDeclared = moduleDeclared;
-        info.path = path;
-        return info;
-        
+    public NameInfo(String name, String moduleDeclared, String path) {
+        super(name, moduleDeclared, path);
+    }
+    
+    public NameInfo(String name, String moduleDeclared, String path, boolean doNotInternOnThisContstruct) {
+        super(name, moduleDeclared, path, doNotInternOnThisContstruct);
     }
 
     public int getType() {

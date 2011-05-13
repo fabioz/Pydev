@@ -31,7 +31,6 @@ import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
@@ -39,6 +38,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.net.LocalHost;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
+import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.SocketUtil;
@@ -188,24 +188,24 @@ public abstract class AbstractShell {
 
 				for(Map<Integer,AbstractShell> val:shells.values()){
 					for(AbstractShell val2:val.values()){
-						val2.endIt();
+					    if(val2 != null){
+					        val2.endIt();
+					    }
 					}
 					IInterpreterManager[] interpreterManagers = PydevPlugin.getAllInterpreterManagers();
 					for (IInterpreterManager iInterpreterManager : interpreterManagers) {
+					    if(iInterpreterManager == null){
+					        continue; //Should happen only on testing...
+					    }
 						try {
-							IInterpreterInfo[] interpreterInfos = iInterpreterManager.getInterpreterInfos();
-							for (IInterpreterInfo iInterpreterInfo : interpreterInfos) {
-								ISystemModulesManager modulesManager = iInterpreterInfo.getModulesManager();
-								if(modulesManager != null){
-									modulesManager.clearCache();
-								}
-								iInterpreterManager.clearCaches();
-							}
+							iInterpreterManager.clearCaches();
 						} catch (Exception e) {
 							PydevPlugin.log(e);
 							ret += e.getMessage()+"\n";
 						}
 					}
+					//Clear the global modules cache!
+					ModulesManager.clearCache();
 				}
 			} catch (Exception e) {
 				PydevPlugin.log(e);

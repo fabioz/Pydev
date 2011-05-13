@@ -13,30 +13,28 @@ public final class Attribute extends exprType implements expr_contextType {
         this.ctx = ctx;
     }
 
-    public Attribute(exprType value, NameTokType attr, int ctx, SimpleNode parent) {
-        this(value, attr, ctx);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Attribute createCopy() {
-        Attribute temp = new Attribute(value!=null?(exprType)value.createCopy():null,
-        attr!=null?(NameTokType)attr.createCopy():null, ctx);
+        return createCopy(true);
+    }
+    public Attribute createCopy(boolean copyComments) {
+        Attribute temp = new Attribute(value!=null?(exprType)value.createCopy(copyComments):null,
+        attr!=null?(NameTokType)attr.createCopy(copyComments):null, ctx);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if(this.specialsBefore != null){
+        if(this.specialsBefore != null && copyComments){
             for(Object o:this.specialsBefore){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsBefore().add(commentType.createCopy());
+                    temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if(this.specialsAfter != null){
+        if(this.specialsAfter != null && copyComments){
             for(Object o:this.specialsAfter){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsAfter().add(commentType.createCopy());
+                    temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
             }
         }

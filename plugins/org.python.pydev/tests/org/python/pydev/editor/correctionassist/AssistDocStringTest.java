@@ -128,6 +128,15 @@ public class AssistDocStringTest extends TestCase {
         "    '''";
         check(expected, "def f( x, ):");
         
+        expected = "def f( x, ):\n" +
+        "    '''\n" +
+        "    \n" +
+        "    @param x:\n" +
+        "    @type x:\n" +
+        "    '''\n";
+        check(expected, "def f( x, ):\n" +
+        		"    pass\n");
+        
         
         expected = "def f( x y ):\r\n" +
         "    '''\r\n" +
@@ -188,13 +197,13 @@ public class AssistDocStringTest extends TestCase {
     }
     private void check(String expected, String initial, int proposals) throws BadLocationException {
         Document doc = new Document(initial);
-        PySelection ps = new PySelection(doc, 0, doc.getLength());
+        PySelection ps = new PySelection(doc, 0, 0);
         AssistDocString assist = new AssistDocString();
         List<ICompletionProposal> props = assist.getProps(ps, null, null, null, null, ps.getAbsoluteCursorOffset());
         assertEquals(proposals, props.size());
         if(props.size() > 0){
             props.get(0).apply(doc);
-            assertEquals(expected.replace("\r\n", "\n"), doc.get().replace("\r\n", "\n"));
+            assertEquals(StringUtils.replaceNewLines(expected, "\n"), StringUtils.replaceNewLines(doc.get(), "\n"));
         }
     }
     

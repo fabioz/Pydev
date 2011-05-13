@@ -9,7 +9,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModulesManager;
@@ -17,14 +16,11 @@ import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.parser.ErrorDescription;
 import org.python.pydev.parser.PyParser;
-import org.python.pydev.parser.fastparser.FastDefinitionsParser;
-import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.interpreters.IInterpreterObserver;
@@ -32,7 +28,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.JobProgressComunicator;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
 
@@ -54,20 +50,20 @@ public class InterpreterObserver implements IInterpreterObserver {
 	        try {
 	            final IInterpreterInfo interpreterInfo = manager.getInterpreterInfo(interpreter, new NullProgressMonitor());
 	            int grammarVersion = interpreterInfo.getGrammarVersion();
-	            AbstractAdditionalInterpreterInfo currInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager, interpreter);
+	            AbstractAdditionalTokensInfo currInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager, interpreter);
 	            if(currInfo != null){
 	                currInfo.clearAllInfo();
 	            }
 	            InterpreterInfo defaultInterpreterInfo = (InterpreterInfo) manager.getInterpreterInfo(interpreter, monitor);
 	            ISystemModulesManager m = defaultInterpreterInfo.getModulesManager();
-	            AbstractAdditionalInterpreterInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m, 
+	            AbstractAdditionalTokensInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m, 
 	                    "(system: " + manager.getManagerRelatedName() + " - " + interpreter + ")",
 	                    new AdditionalSystemInterpreterInfo(manager, interpreter), null, grammarVersion);
 	
 	            if (additionalSystemInfo != null) {
 	                //ok, set it and save it
 	                AdditionalSystemInterpreterInfo.setAdditionalSystemInfo(manager, interpreter, additionalSystemInfo);
-	                AbstractAdditionalInterpreterInfo.saveAdditionalSystemInfo(manager, interpreter);
+	                AbstractAdditionalTokensInfo.saveAdditionalSystemInfo(manager, interpreter);
 	            }
 	        } catch (Throwable e) {
 	            PydevPlugin.log(e);
@@ -84,7 +80,7 @@ public class InterpreterObserver implements IInterpreterObserver {
      */
     public void notifyInterpreterManagerRecreated(final IInterpreterManager iManager) {
         for(final IInterpreterInfo interpreterInfo:iManager.getInterpreterInfos()){
-            Job j = new Job("Pydev... Restoring indexes for: "+interpreterInfo.getNameForUI()) {
+            Job j = new Job("PyDev... Restoring indexes for: "+interpreterInfo.getNameForUI()) {
 
                 @Override
                 protected IStatus run(IProgressMonitor monitorArg) {
@@ -99,7 +95,7 @@ public class InterpreterObserver implements IInterpreterObserver {
 	                	
 		                    try {
 		                        JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(
-		                        		monitorArg, "Pydev... Restoring indexes for: "+interpreterInfo.getNameForUI(), 
+		                        		monitorArg, "PyDev... Restoring indexes for: "+interpreterInfo.getNameForUI(), 
 		                        		IProgressMonitor.UNKNOWN, this);
 		                        notifyDefaultPythonpathRestored(iManager, interpreterInfo.getExecutableOrJar(), jobProgressComunicator);
 		                        jobProgressComunicator.done();
@@ -127,8 +123,8 @@ public class InterpreterObserver implements IInterpreterObserver {
      * 
      * @return the info generated from the module manager
      */
-    private AbstractAdditionalInterpreterInfo restoreInfoForModuleManager(IProgressMonitor monitor, IModulesManager m, String additionalFeedback, 
-            AbstractAdditionalInterpreterInfo info, PythonNature nature, int grammarVersion) {
+    private AbstractAdditionalTokensInfo restoreInfoForModuleManager(IProgressMonitor monitor, IModulesManager m, String additionalFeedback, 
+            AbstractAdditionalTokensInfo info, PythonNature nature, int grammarVersion) {
         
         //TODO: Check if keeping a zip file open makes things faster...
         //Timer timer = new Timer();
@@ -175,42 +171,7 @@ public class InterpreterObserver implements IInterpreterObserver {
                         }
 
                         try {
-                            
-                            //the code below works with the default parser (that has much more info... and is much slower)
-                            Object doc;
-                            if(isZipModule){
-                                doc = REF.getCustomReturnFromZip(modulesKeyForZip.file, modulesKeyForZip.zipModulePath, null);
-                                
-                            }else{
-                                doc = REF.getCustomReturnFromFile(key.file, true, null);
-                            }
-                            
-                            char [] charArray;
-                            if(doc instanceof IDocument){
-                                IDocument document = (IDocument) doc;
-                                charArray = document.get().toCharArray();
-                                
-                            }else if(doc instanceof FastStringBuffer){
-                                FastStringBuffer fastStringBuffer = (FastStringBuffer) doc;
-                                charArray = fastStringBuffer.toCharArray();
-                                
-                            }else if(doc instanceof String){
-                                String str = (String) doc;
-                                charArray = str.toCharArray();
-                                
-                            }else if(doc instanceof char[]){
-                                charArray = (char[]) doc;
-                                
-                            }else{
-                                throw new RuntimeException("Don't know how to handle: "+doc+" -- "+doc.getClass());
-                            }
-                            
-                            SimpleNode node = FastDefinitionsParser.parse(charArray, key.file.getName());
-                            
-                            
-                            if (node != null) {
-                                info.addAstInfo(node, key.name, nature, false);
-                            }else{
+                            if (info.addAstInfo(key, false) == null) {
                                 String str = "Unable to generate ast -- using %s.\nError:%s";
                                 ErrorDescription errorDesc = null;
                                 throw new RuntimeException(StringUtils.format(str, 

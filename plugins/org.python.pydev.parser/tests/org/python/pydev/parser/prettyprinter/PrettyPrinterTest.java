@@ -25,7 +25,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testNewSetEndingWithComma();
+            test.testArgs3();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -3043,6 +3043,17 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         
         setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
         checkPrettyPrintEqual(s, s, expected);
+        
+    }
+    
+    public void testArgs3() throws Throwable {
+        String expected = "" +
+        "def test(arg,attribute,a=10,b=20,*args,**kwargs):\n"+
+        "    return Parent.test(arg,attribute,a=a,b=b,*args,**kwargs)\n" +
+        "";
+        
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7);
+        checkPrettyPrintEqual(expected, expected);
         
     }
     

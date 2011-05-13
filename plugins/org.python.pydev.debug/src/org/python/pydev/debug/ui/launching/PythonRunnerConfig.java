@@ -261,7 +261,7 @@ public class PythonRunnerConfig {
                 
                 //When it doesn't have the same type it means that we're trying to run as jython a python
                 //project (or vice-versa), so, we must get the interpreter from the interpreter manager!
-                return interpreterManager.getDefaultInterpreterInfo(null);
+                return interpreterManager.getDefaultInterpreterInfo();
             }
             
         }else{
@@ -408,7 +408,7 @@ public class PythonRunnerConfig {
         
         if(envp == null){
             //ok, the user has done nothing to the environment, just get all the default environment which has the pythonpath in it
-            envp = new SimplePythonRunner().getEnvironment(pythonNature, interpreterLocation, manager);
+            envp = SimpleRunner.getEnvironment(pythonNature, interpreterLocation, manager, false);
             
         }else{
             //ok, the user has done something to configure it, so, just add the pythonpath to the

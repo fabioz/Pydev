@@ -10,14 +10,12 @@
 package org.python.pydev.core;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.python.pydev.core.callbacks.ICallback;
-
 import junit.framework.TestCase;
+
+import org.python.pydev.core.callbacks.ICallback;
 
 public class DeltaSaverTest extends TestCase {
 
@@ -32,22 +30,9 @@ public class DeltaSaverTest extends TestCase {
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        new DeltaSaver<Object>(new File("."), "deltatest", getCallBack()).clearAll(); //leave no traces
+        new DeltaSaver<Object>(new File("."), "deltatest", null, null).clearAll(); //leave no traces
     }
 
-    private ICallback<Object, ObjectInputStream> getCallBack() {
-        return new ICallback<Object, ObjectInputStream>(){
-
-            public Object call(ObjectInputStream arg) {
-                try {
-                    return arg.readObject();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                } catch (ClassNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
-            }};
-    }
 
     public static class DeltaProcessor implements IDeltaProcessor<String>{
 
@@ -75,12 +60,12 @@ public class DeltaSaverTest extends TestCase {
     }
 
     public void testSaveRestore() throws Exception {
-        DeltaSaver<String> saver = new DeltaSaver<String>(new File("."), "deltatest", getCallBack());
+        DeltaSaver<String> saver = new DeltaSaver<String>(new File("."), "deltatest", getCallBackStr(), getToFileStr());
         saver.addInsertCommand("ins1");
         saver.addInsertCommand("ins2");
         saver.addDeleteCommand("ins1");
         
-        DeltaSaver<String> restorer = new DeltaSaver<String>(new File("."), "deltatest", getCallBack());
+        DeltaSaver<String> restorer = new DeltaSaver<String>(new File("."), "deltatest", getCallBackStr(), getToFileStr());
         assertEquals(3, restorer.availableDeltas());
         DeltaProcessor deltaProcessor = new DeltaProcessor();
         restorer.processDeltas(deltaProcessor);
@@ -88,7 +73,7 @@ public class DeltaSaverTest extends TestCase {
         assertEquals(1, deltaProcessor.state.size());
         assertEquals("ins2", deltaProcessor.state.get(0));
 
-        restorer = new DeltaSaver<String>(new File("."), "deltatest", getCallBack());
+        restorer = new DeltaSaver<String>(new File("."), "deltatest", getCallBackStr(), getToFileStr());
         assertEquals(0, restorer.availableDeltas());
         
     }
@@ -122,13 +107,47 @@ public class DeltaSaverTest extends TestCase {
 
     public void testSaveRestore3() throws Exception {
         //check if the order is correct
-        DeltaSaver<Integer> saver = new DeltaSaver<Integer>(new File("."), "deltatest", getCallBack());
+        DeltaSaver<Integer> saver = new DeltaSaver<Integer>(new File("."), "deltatest", getCallBack(), getToFile());
         for (int i = 0; i < 50; i++) {
             saver.addInsertCommand(i);
         }
-        DeltaSaver<Integer> restorer = new DeltaSaver<Integer>(new File("."), "deltatest", getCallBack());
+        DeltaSaver<Integer> restorer = new DeltaSaver<Integer>(new File("."), "deltatest", getCallBack(), getToFile());
         assertEquals(50, restorer.availableDeltas());
         restorer.processDeltas(new InsertDeltaProcessor());
     }
+
+    private ICallback<String, Integer> getToFile() {
+        return new ICallback<String, Integer>() {
+
+            public String call(Integer arg) {
+                return Integer.toString(arg);
+            }
+        };
+    }
+
+    private ICallback<Integer, String> getCallBack() {
+        return new ICallback<Integer, String>(){
+
+            public Integer call(String arg) {
+                return Integer.parseInt(arg);
+            }};
+    }
     
+    private ICallback<String, String> getToFileStr() {
+        return new ICallback<String, String>() {
+            
+            public String call(String arg) {
+                return arg;
+            }
+        };
+    }
+    
+    private ICallback<String, String> getCallBackStr() {
+        return new ICallback<String, String>(){
+            
+            public String call(String arg) {
+                return arg;
+            }};
+    }
+
 }

@@ -13,18 +13,16 @@ public final class Tuple extends exprType implements expr_contextType {
         this.endsWithComma = endsWithComma;
     }
 
-    public Tuple(exprType[] elts, int ctx, boolean endsWithComma, SimpleNode parent) {
-        this(elts, ctx, endsWithComma);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Tuple createCopy() {
+        return createCopy(true);
+    }
+    public Tuple createCopy(boolean copyComments) {
         exprType[] new0;
         if(this.elts != null){
         new0 = new exprType[this.elts.length];
         for(int i=0;i<this.elts.length;i++){
-            new0[i] = (exprType) (this.elts[i] != null? this.elts[i].createCopy():null);
+            new0[i] = (exprType) (this.elts[i] != null? this.elts[i].createCopy(copyComments):null);
         }
         }else{
             new0 = this.elts;
@@ -32,19 +30,19 @@ public final class Tuple extends exprType implements expr_contextType {
         Tuple temp = new Tuple(new0, ctx, endsWithComma);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if(this.specialsBefore != null){
+        if(this.specialsBefore != null && copyComments){
             for(Object o:this.specialsBefore){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsBefore().add(commentType.createCopy());
+                    temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if(this.specialsAfter != null){
+        if(this.specialsAfter != null && copyComments){
             for(Object o:this.specialsAfter){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsAfter().add(commentType.createCopy());
+                    temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
             }
         }

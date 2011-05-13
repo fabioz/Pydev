@@ -6,8 +6,8 @@ from pydevd_constants import Null
 #=======================================================================================================================
 # GetCoverageFiles
 #=======================================================================================================================
-def GetCoverageFiles(configuration, number_of_files):
-    base_dir = configuration.coverage_output_dir
+def GetCoverageFiles(coverage_output_dir, number_of_files):
+    base_dir = coverage_output_dir
     ret = []
     i = 0
     while len(ret) < number_of_files:
@@ -24,9 +24,21 @@ def GetCoverageFiles(configuration, number_of_files):
 # StartCoverageSupport
 #=======================================================================================================================
 def StartCoverageSupport(configuration):
+    return StartCoverageSupportFromParams(
+        configuration.coverage_output_dir, 
+        configuration.coverage_output_file, 
+        configuration.jobs, 
+        configuration.coverage_include, 
+    )
+    
+
+#=======================================================================================================================
+# StartCoverageSupportFromParams
+#=======================================================================================================================
+def StartCoverageSupportFromParams(coverage_output_dir, coverage_output_file, jobs, coverage_include):
     coverage_files = []
     coverage_instance = Null()
-    if configuration.coverage_output_dir or configuration.coverage_output_file:
+    if coverage_output_dir or coverage_output_file:
         try:
             import coverage #@UnresolvedImport
         except:
@@ -36,28 +48,28 @@ def StartCoverageSupport(configuration):
             
             import traceback;traceback.print_exc()
         else:
-            if configuration.coverage_output_dir:
-                if not os.path.exists(configuration.coverage_output_dir):
-                    sys.stderr.write('Error: directory for coverage output (%s) does not exist.\n' % (configuration.coverage_output_dir,))
+            if coverage_output_dir:
+                if not os.path.exists(coverage_output_dir):
+                    sys.stderr.write('Error: directory for coverage output (%s) does not exist.\n' % (coverage_output_dir,))
                     
-                elif not os.path.isdir(configuration.coverage_output_dir):
-                    sys.stderr.write('Error: expected (%s) to be a directory.\n' % (configuration.coverage_output_dir,))
+                elif not os.path.isdir(coverage_output_dir):
+                    sys.stderr.write('Error: expected (%s) to be a directory.\n' % (coverage_output_dir,))
                     
                 else:
-                    n = configuration.jobs
+                    n = jobs
                     if n <= 0:
                         n += 1
                     n += 1 #Add 1 more for the current process (which will do the initial import).
-                    coverage_files = GetCoverageFiles(configuration, n)
+                    coverage_files = GetCoverageFiles(coverage_output_dir, n)
                     os.environ['COVERAGE_FILE'] = coverage_files.pop(0)
                     
-                    coverage_instance = coverage.coverage(source=[configuration.coverage_include])
+                    coverage_instance = coverage.coverage(source=[coverage_include])
                     coverage_instance.start()
                     
-            elif configuration.coverage_output_file:
+            elif coverage_output_file:
                 #Client of parallel run.
-                os.environ['COVERAGE_FILE'] = configuration.coverage_output_file
-                coverage_instance = coverage.coverage(source=[configuration.coverage_include])
+                os.environ['COVERAGE_FILE'] = coverage_output_file
+                coverage_instance = coverage.coverage(source=[coverage_include])
                 coverage_instance.start()
                 
     return coverage_files, coverage_instance

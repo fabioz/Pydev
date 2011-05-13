@@ -9,18 +9,17 @@ public final class Delete extends stmtType {
         this.targets = targets;
     }
 
-    public Delete(exprType[] targets, SimpleNode parent) {
-        this(targets);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Delete createCopy() {
+        return createCopy(true);
+    }
+    public Delete createCopy(boolean copyComments) {
         exprType[] new0;
         if(this.targets != null){
         new0 = new exprType[this.targets.length];
         for(int i=0;i<this.targets.length;i++){
-            new0[i] = (exprType) (this.targets[i] != null? this.targets[i].createCopy():null);
+            new0[i] = (exprType) (this.targets[i] != null?
+            this.targets[i].createCopy(copyComments):null);
         }
         }else{
             new0 = this.targets;
@@ -28,19 +27,19 @@ public final class Delete extends stmtType {
         Delete temp = new Delete(new0);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if(this.specialsBefore != null){
+        if(this.specialsBefore != null && copyComments){
             for(Object o:this.specialsBefore){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsBefore().add(commentType.createCopy());
+                    temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if(this.specialsAfter != null){
+        if(this.specialsAfter != null && copyComments){
             for(Object o:this.specialsAfter){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsAfter().add(commentType.createCopy());
+                    temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
             }
         }

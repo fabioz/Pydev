@@ -52,10 +52,12 @@ manualScreencasts = (
 def template( template, contents, title, **kwargs ):
     if_not_specified_in_file = kwargs.pop('if_not_specified_in_file', {})
 
-    contents_file = '%s.contents.html' % contents
     target_file   = 'final/%s.html' % contents
 
-    contents_file = file( contents_file, 'r' ).read()
+    try:
+        contents_file = file('%s.contents.html' % contents, 'r' ).read()
+    except IOError:
+        contents_file = file('%s.contents.rst_html' % contents, 'r' ).read()
     
     try:
         contents = file( template, 'r' ).read()
@@ -112,13 +114,13 @@ def main():
     template('template1.html', 'index'                     , 'PyDev'          )
     template('template1.html', 'download'                  , 'Download'                  )
     template('template1.html', 'developers'                , 'Developers'                )
-    template('template1.html', 'developers_grammar'                , 'Developers: Grammar'                )
+    template('template1.html', 'developers_grammar'        , 'Developers: Grammar'       )
     template('template1.html', 'manual'                    , 'Manual'                    )
     template('template1.html', 'about'                     , 'About'                     )
     template('template1.html', 'history_pydev'             , 'PyDev Releases'            )
     template('template1.html', 'history_pydev_extensions'  , 'PyDev Extensions Releases' )
     
-    templateForAll(manual101, ('', 'manual','Root'), ('', 'manual_adv_features'   ,'Features'))
+    templateForAll(manual101, ('', 'manual','Root'), ('', 'manual_adv_features'   ,'Features'), if_not_specified_in_file=dict(root='manual_101_root'))
     
     templateForAll(manualAdv, ('', 'manual','Root'), ('', 'manual_adv_features','Features'), if_not_specified_in_file=dict(root='manual_adv_features'))
     

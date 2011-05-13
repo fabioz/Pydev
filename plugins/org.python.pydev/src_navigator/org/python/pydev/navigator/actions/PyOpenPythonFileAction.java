@@ -33,6 +33,7 @@ import org.python.pydev.navigator.PythonpathZipChildTreeNode;
 import org.python.pydev.navigator.elements.PythonNode;
 import org.python.pydev.outline.ParsedItem;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
@@ -85,7 +86,10 @@ public class PyOpenPythonFileAction extends Action {
         } else if (nodesSelected.size() > 0) {
 		    PythonNode node = nodesSelected.iterator().next();
 		    ParsedItem actualObject = node.getActualObject();
-		    new PyOpenAction().run(new ItemPointer(node.getPythonFile().getActualObject(), NodeUtils.getNameTokFromNode(actualObject.getAstThis().node)));
+		    ASTEntryWithChildren astThis = actualObject.getAstThis();
+		    if(astThis != null){
+		        new PyOpenAction().run(new ItemPointer(node.getPythonFile().getActualObject(), NodeUtils.getNameTokFromNode(astThis.node)));
+		    }
 		    
         } else if (pythonPathZipFilesSelected.size() > 0) {
         	openFiles(pythonPathZipFilesSelected.toArray(new PythonpathZipChildTreeNode[pythonPathZipFilesSelected.size()]));

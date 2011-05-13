@@ -18,9 +18,9 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPyEdit;
-import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
@@ -340,7 +340,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                                 }
                             }
                             started = true;
-                            if(Character.isJavaIdentifierPart(localC)){
+                            if(Character.isJavaIdentifierPart(localC) || localC == '.'){
                                 localBufToCheckNumber.append(localC);
                             }else{
                                 break;//break for
@@ -479,7 +479,9 @@ public class PyFormatStd extends PyAction implements IFormatter {
         boolean changeWhitespacesBefore = true;
         if(c == '~' || c == '+' || c == '-'){
             //could be an unary operator...
-            isUnary = buf.length() == 0;
+            String trimmedLastWord = buf.getLastWord().trim();
+            isUnary = trimmedLastWord.length() == 0 || PySelection.ALL_STATEMENT_TOKENS.contains(trimmedLastWord);
+            
             if(!isUnary){
                 for(char itChar:buf.reverseIterator()){
                     if(itChar == ' ' || itChar == '\t'){
@@ -635,23 +637,36 @@ public class PyFormatStd extends PyAction implements IFormatter {
         FastStringBuffer locBuf = new FastStringBuffer();
 
         int j = i + 1;
+        int start = j;
+        int end = start;
         while (j < cs.length && (c = cs[j]) != ')') {
 
             j++;
 
             if (c == '\'' || c == '"') { //ignore comments or multiline comments...
-                j = parsingUtils.eatLiterals(locBuf, j - 1) + 1;
+                j = parsingUtils.eatLiterals(null, j - 1) + 1;
+                end = j;
 
             } else if (c == '#') {
-                j = parsingUtils.eatComments(locBuf, j - 1) + 1;
+                j = parsingUtils.eatComments(null, j - 1) + 1;
+                end = j;
 
             } else if (c == '(') { //open another par.
+                if(end > start){
+                    locBuf.append(cs, start, end-start);
+                    start = end;
+                }
                 j = formatForPar(parsingUtils, cs, j - 1, std, locBuf, parensLevel+1, delimiter, throwSyntaxError) + 1;
+                start = j;
 
             } else {
-                locBuf.append(c);
+                end = j;
                 
             }
+        }
+        if(end > start){
+            locBuf.append(cs, start, end-start);
+            start = end;
         }
 
         if (c == ')') {
@@ -696,10 +711,14 @@ public class PyFormatStd extends PyAction implements IFormatter {
             }
             return j;
         } else {
-            //we found no closing parens but we finished looking already, so, let's just add
-            //the '(' regularly and return as we only walked that char.
+            if(throwSyntaxError){
+                throw new SyntaxErrorException("No closing ')' found.");
+            }
+            //we found no closing parens but we finished looking already, so, let's just add anything without
+            //more formatting...
             buf.append('(');
-            return i;
+            buf.append(locBuf);
+            return j;
         }
     }
 

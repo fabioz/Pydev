@@ -24,40 +24,53 @@ final class ModulesManagerCache  {
     /**
      * The access to the cache is synchronized
      */
-    LRUCache<Tuple<ModulesKey, ModulesManager>, AbstractModule> internalCache;
+    private LRUCache<Tuple<ModulesKey, ModulesManager>, AbstractModule> internalCache;
+    private final Object lock = new Object();
     
     ModulesManagerCache() {
         internalCache = new LRUCache<Tuple<ModulesKey, ModulesManager>, AbstractModule>(MAX_NUMBER_OF_MODULES);
     }
     
     /**
-     * Overriden so that if we do not find the key, we have the chance to create it.
+     * Overridden so that if we do not find the key, we have the chance to create it.
      */
     public AbstractModule getObj(ModulesKey key, ModulesManager modulesManager) {
-        synchronized (modulesManager.modulesKeys) {
+        synchronized (modulesManager.modulesKeysLock) {
             Tuple<ModulesKey, ModulesManager> keyTuple = new Tuple<ModulesKey, ModulesManager>(key, modulesManager);
             
-            AbstractModule obj = internalCache.getObj(keyTuple);
-            if(obj == null && modulesManager.modulesKeys.containsKey(key)){
-                key = modulesManager.modulesKeys.get(key); //get the 'real' key
-                obj = AbstractModule.createEmptyModule(key);
-                internalCache.add(keyTuple, obj);
+            synchronized (lock) {
+                AbstractModule obj = internalCache.getObj(keyTuple);
+                if(obj == null && modulesManager.modulesKeys.containsKey(key)){
+                    key = modulesManager.modulesKeys.get(key); //get the 'real' key
+                    obj = AbstractModule.createEmptyModule(key);
+                    internalCache.add(keyTuple, obj);
+                }
+                return obj;
             }
-            return obj;
         }
     }
 
     public void remove(ModulesKey key, ModulesManager modulesManager) {
-        synchronized (modulesManager.modulesKeys) {
+        synchronized (modulesManager.modulesKeysLock) {
             Tuple<ModulesKey, ModulesManager> keyTuple = new Tuple<ModulesKey, ModulesManager>(key, modulesManager);
-            internalCache.remove(keyTuple);
+            synchronized (lock) {
+                internalCache.remove(keyTuple);
+            }
         }
     }
 
     public void add(ModulesKey key, AbstractModule n, ModulesManager modulesManager) {
-        synchronized (modulesManager.modulesKeys) {
+        synchronized (modulesManager.modulesKeysLock) {
             Tuple<ModulesKey, ModulesManager> keyTuple = new Tuple<ModulesKey, ModulesManager>(key, modulesManager);
-            internalCache.add(keyTuple, n);
+            synchronized (lock) {
+                internalCache.add(keyTuple, n);
+            }
+        }
+    }
+
+    public void clear() {
+        synchronized (lock) {
+            internalCache.clear();
         }
     }
 }

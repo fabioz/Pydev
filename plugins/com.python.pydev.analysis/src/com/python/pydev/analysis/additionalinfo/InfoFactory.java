@@ -80,30 +80,38 @@ public class InfoFactory {
 	        String path = memento.getString(TAG_PATH);
 	        final int type = memento.getInteger(TAG_TYPE);
 	        
+	        String infoName = null;
+	        String infoModule = null;
+	        String infoPath = null;
+	        
+	        if(name != null && name.length() > 0){
+	            infoName = name;
+	        }
+	        
+	        if(moduleName != null && moduleName.length() > 0){
+	            infoModule = moduleName;
+	        }
+	        
+	        if(path != null && path.length() > 0){
+	            infoPath = path;
+	        }
 	        AbstractInfo info;
 	        if(type == IInfo.ATTRIBUTE_WITH_IMPORT_TYPE){
-	            info = new AttrInfo();
+	            info = new AttrInfo(infoName, infoModule, infoPath);
+	            
 	        }else if(type == IInfo.CLASS_WITH_IMPORT_TYPE){
-	            info = new ClassInfo();
+	            info = new ClassInfo(infoName, infoModule, infoPath);
+	            
 	        }else if(type == IInfo.METHOD_WITH_IMPORT_TYPE){
-	            info = new FuncInfo();
+	            info = new FuncInfo(infoName, infoModule, infoPath);
+	            
 	        }else if(type == IInfo.NAME_WITH_IMPORT_TYPE){
-	            info = new NameInfo();
+	            info = new NameInfo(infoName, infoModule, infoPath);
+	            
 	        }else{
 	            throw new AssertionError("Cannot restore type: "+type);
 	        }
 	        
-	        if(name != null && name.length() > 0){
-	            info.name = name;
-	        }
-	        
-	        if(moduleName != null && moduleName.length() > 0){
-	            info.moduleDeclared = moduleName;
-	        }
-	        
-	        if(path != null && path.length() > 0){
-	            info.path = path;
-	        }
 	        
 	        String projectName = null;
 	        if(keys.contains(TAG_PROJECT_NAME)){
@@ -162,7 +170,7 @@ public class InfoFactory {
 	        if(manager != null){
 	            String interpreter = memento.getString(TAG_MANAGER_INTERPRETER);
 	            
-	            AbstractAdditionalInterpreterInfo additionalInfo;
+	            AbstractAdditionalTokensInfo additionalInfo;
 				try {
 					additionalInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager, interpreter);
 				} catch (Exception e) {

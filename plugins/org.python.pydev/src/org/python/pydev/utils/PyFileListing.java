@@ -16,6 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
@@ -221,7 +222,7 @@ public class PyFileListing {
     /**
      * @return All the IFiles below the current folder that are python files (does not check if it has an __init__ path)
      */
-    public static List<IFile> getAllIFilesBelow(IFolder member) {
+    public static List<IFile> getAllIFilesBelow(IContainer member) {
         final ArrayList<IFile> ret = new ArrayList<IFile>();
         try {
             member.accept(new IResourceVisitor(){

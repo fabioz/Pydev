@@ -7,6 +7,7 @@ import threading
 from pydev_imports import xmlrpclib
 import traceback
 import time
+from pydev_runfiles_coverage import StartCoverageSupportFromParams
 
 
 
@@ -138,40 +139,57 @@ def run_client(job_id, port, verbosity, coverage_output_file, coverage_include):
         import pydev_runfiles_xml_rpc
         pydev_runfiles_xml_rpc.SetServer(server_facade)
         
-        tests_to_run = [1]
-        while tests_to_run:
-            #Investigate: is it dangerous to use the same xmlrpclib server from different threads?
-            #It seems it should be, as it creates a new connection for each request...
-            server.lock.acquire()
-            try:
-                tests_to_run = server.GetTestsToRun(job_id)
-            finally:
-                server.lock.release()
-            
-            if not tests_to_run:
-                break
-            
-            files_to_tests = {}
-            for test in tests_to_run:
-                filename_and_test = test.split('|')
-                if len(filename_and_test) == 2:
-                    files_to_tests.setdefault(filename_and_test[0], []).append(filename_and_test[1])
-    
-            configuration = pydev_runfiles.Configuration(
-                '', 
-                verbosity, 
-                None, 
-                None, 
-                None, 
-                files_to_tests, 
-                1, 
-                None, 
-                coverage_output_file=coverage_output_file, 
-                coverage_include=coverage_include, 
-            )
-            test_runner = pydev_runfiles.PydevTestRunner(configuration)
-            sys.stdout.flush()
-            test_runner.run_tests()
+        #Starts None and when the 1st test is gotten, it's started (because a server may be initiated and terminated
+        #before receiving any test -- which would mean a different process got all the tests to run).
+        coverage = None
+        
+        try:
+            tests_to_run = [1]
+            while tests_to_run:
+                #Investigate: is it dangerous to use the same xmlrpclib server from different threads?
+                #It seems it should be, as it creates a new connection for each request...
+                server.lock.acquire()
+                try:
+                    tests_to_run = server.GetTestsToRun(job_id)
+                finally:
+                    server.lock.release()
+                
+                if not tests_to_run:
+                    break
+                
+                if coverage is None:
+                    _coverage_files, coverage = StartCoverageSupportFromParams(
+                        None, coverage_output_file, 1, coverage_include)
+
+                
+                files_to_tests = {}
+                for test in tests_to_run:
+                    filename_and_test = test.split('|')
+                    if len(filename_and_test) == 2:
+                        files_to_tests.setdefault(filename_and_test[0], []).append(filename_and_test[1])
+        
+                configuration = pydev_runfiles.Configuration(
+                    '', 
+                    verbosity, 
+                    None, 
+                    None, 
+                    None, 
+                    files_to_tests, 
+                    1, #Always single job here
+                    None, 
+                    
+                    #The coverage is handled in this loop.
+                    coverage_output_file=None, 
+                    coverage_include=None, 
+                )
+                test_runner = pydev_runfiles.PydevTestRunner(configuration)
+                sys.stdout.flush()
+                test_runner.run_tests(handle_coverage=False)
+        finally:
+            if coverage is not None:
+                coverage.stop()
+                coverage.save()
+
         
     except:
         traceback.print_exc()

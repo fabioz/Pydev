@@ -13,7 +13,7 @@
             hasPages="true"
             icon="icons/AppEngine-16.png"
             id="org.python.pydev.customizations.app_engine.wizards.AppEngineWizard"
-            name="Pydev Google App Engine Project"
+            name="PyDev Google App Engine Project"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="true"/>
     </extension>
@@ -24,7 +24,7 @@
             delegate="org.python.pydev.customizations.app_engine.launching.AppEngineLaunchConfigurationDelegate"
             id="org.python.pydev.customizations.app_engine.launching.AppEngineLaunchConfigurationType"
             modes="run, debug"
-            name="Pydev Google App Run"
+            name="PyDev Google App Run"
             public="true">
         </launchConfigurationType>
     </extension>
@@ -56,7 +56,7 @@
     
     <extension point="org.eclipse.debug.ui.launchShortcuts">
         <shortcut
-            label="Pydev: Google App Run"
+            label="PyDev: Google App Run"
             icon="icons/AppEngine-16.png"
             modes="run, debug"
             class="org.python.pydev.customizations.app_engine.launching.AppEngineLaunchShortcut"
@@ -107,7 +107,7 @@
          <menu
                icon="icons/AppEngine-16.png"
                id="org.python.pydev.ui.actions.app_engine_menu"
-               label="Pydev: Google App Engine"/>
+               label="PyDev: Google App Engine"/>
          <action
                class="org.python.pydev.customizations.app_engine.actions.AppEngineUploadAction"
                enablesFor="1"
@@ -201,7 +201,7 @@
             <menu
             icon="icons/AppEngine-16.png"
             id="org.python.pydev.customizations.app_engine"
-            label="Pydev: Google App Engine">
+            label="PyDev: Google App Engine">
             
             
                 <command

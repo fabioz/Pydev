@@ -12,6 +12,7 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ import java.util.SortedMap;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.DeltaSaver;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -48,16 +50,8 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 /**
  * @author Fabio Zadrozny
  */
-public class SystemModulesManager extends ModulesManager implements ISystemModulesManager{
+public final class SystemModulesManager extends ModulesManagerWithBuild implements ISystemModulesManager{
 
-    /**
-     * Version changed from 1.3.6 to 1.3.7 to force it to be reconstructed (because it was not being correctly saved).
-     * 
-     * Also changed from 1.4.1 to 1.4.2 (because of multiple interpreters: secondary interpreters had no info -- because
-     * they weren't actually needed)
-     */
-    private static final long serialVersionUID = 5L;
-    
     /**
      * The system modules manager may have a nature if we create a SystemASTManager
      */
@@ -66,15 +60,19 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
     /**
      * This is the place where we store the info related to this manager
      */
-    private transient InterpreterInfo info;
+    private InterpreterInfo info;
 
-    /**
-     * This method sets the info that contains this modules manager.
-     * 
-     * @param interpreterInfo the interpreter info that contains this object.
-     */
-    public void setInfo(Object interpreterInfo) {
-        this.info = (InterpreterInfo)interpreterInfo;
+    public SystemModulesManager(InterpreterInfo info){
+        this.info = info;
+    }
+    
+    public void setInfo(InterpreterInfo info){
+        //Should only be used in tests (in general the info should be passed in the constructor and never changed again).
+        this.info = info;
+    }
+    
+    public void endProcessing() {
+        save();
     }
 
     
@@ -95,24 +93,27 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
 
     public IPythonNature getNature() {
         if(nature == null){
-            IInterpreterManager manager;
-            int interpreterType = this.info.getInterpreterType();
-            switch(interpreterType){
-                case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
-                    manager = PydevPlugin.getJythonInterpreterManager();
-                    break;
-                case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
-                    manager = PydevPlugin.getPythonInterpreterManager();
-                    break;
-                case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
-                    manager = PydevPlugin.getIronpythonInterpreterManager();
-                    break;
-                default:
-                    throw new RuntimeException("Don't know how to handle: "+interpreterType);
-            }
+            IInterpreterManager manager = getInterpreterManager();
             nature = new SystemPythonNature(manager, this.info);
         }
         return nature;
+    }
+
+    public IInterpreterManager getInterpreterManager() {
+        int interpreterType = this.info.getInterpreterType();
+        switch(interpreterType){
+            case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
+                return PydevPlugin.getJythonInterpreterManager();
+                
+            case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
+                return PydevPlugin.getPythonInterpreterManager();
+                
+            case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
+                return PydevPlugin.getIronpythonInterpreterManager();
+                
+            default:
+                throw new RuntimeException("Don't know how to handle: "+interpreterType);
+        }
     }
 
     public ISystemModulesManager getSystemModulesManager() {
@@ -162,14 +163,7 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
      * This is a cache with the name of a builtin pointing to itself (so, it works basically as a set), it's used
      * so that when we find a builtin that does not have a __file__ token we do not try to recreate it again later.
      */
-    private LRUCache<String, String> builtinsNotConsidered; 
-    
-    private LRUCache<String, String> getBuiltinsNotConsidered(){
-        if(builtinsNotConsidered == null){
-            builtinsNotConsidered = new LRUCache<String, String>(500);
-        }
-        return builtinsNotConsidered;
-    }
+    private final LRUCache<String, String> builtinsNotConsidered = new LRUCache<String, String>(500); 
     
     /**
      * @return true if there is a token that has rep as its representation.
@@ -186,7 +180,8 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
     /**
      * Files only get here if we were unable to parse them.
      */
-    private transient Map<File, Long> predefinedFilesNotParsedToTimestamp; 
+    private transient Map<File, Long> predefinedFilesNotParsedToTimestamp;
+
 
     public AbstractModule getBuiltinModule(String name, boolean dontSearchInit) {
         AbstractModule n = null;
@@ -317,8 +312,7 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
             }
         }
         if(foundStartingWithBuiltin){
-            LRUCache<String,String> notConsidered = getBuiltinsNotConsidered();
-            if(notConsidered.getObj(name) != null){
+            if(builtinsNotConsidered.getObj(name) != null){
                 return null;
             }
             
@@ -334,7 +328,7 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
                 doAddSingleModule(new ModulesKey(name, null), n);
                 return n;
             }else{
-                notConsidered.add(name, name);
+                builtinsNotConsidered.add(name, name);
                 return null;
             }
         }
@@ -367,6 +361,48 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
             return new Tuple<IModule, IModulesManager>(module, this);
         }
         return null;
+    }
+
+
+    public void load() throws IOException {
+        final File workspaceMetadataFile = getIoDirectory();
+        ModulesManager.loadFromFile(this, workspaceMetadataFile);
+        
+        try {
+            this.deltaSaver = new DeltaSaver<ModulesKey>(this.getIoDirectory(), "v1_sys_astdelta", readFromFileMethod,toFileMethod);
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        deltaSaver.processDeltas(this); //process the current deltas (clears current deltas automatically and saves it when the processing is concluded)
+    }
+
+
+    public void save(){
+        final File workspaceMetadataFile = getIoDirectory();
+        if(deltaSaver != null){
+            deltaSaver.clearAll(); //When save is called, the deltas don't need to be used anymore.
+        }
+        this.saveToFile(workspaceMetadataFile);
+        
+        this.deltaSaver = new DeltaSaver<ModulesKey>(this.getIoDirectory(), "v1_sys_astdelta", readFromFileMethod,toFileMethod);
+
+    }
+    
+
+    public File getIoDirectory() {
+        final File workspaceMetadataFile = PydevPlugin.getWorkspaceMetadataFile(info.getExeAsFileSystemValidPath());
+        return workspaceMetadataFile;
+    }
+
+    /**
+     * @param keysFound
+     */
+    public void updateKeysAndSave(ModulesKeyTreeMap<ModulesKey, ModulesKey> keysFound) {
+        synchronized (modulesKeysLock) {
+            modulesKeys.clear();
+            modulesKeys.putAll(keysFound);
+        }
+        this.save();
     }
 
 

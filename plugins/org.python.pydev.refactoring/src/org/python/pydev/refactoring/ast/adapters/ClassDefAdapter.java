@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.ast.visitors.context.LocalAttributeVisitor;
 import org.python.pydev.refactoring.ast.visitors.context.PropertyVisitor;

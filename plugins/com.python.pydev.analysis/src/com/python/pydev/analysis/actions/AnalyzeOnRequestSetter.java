@@ -30,7 +30,6 @@ public class AnalyzeOnRequestSetter implements IPyEditListener{
         public  void run(){
             PyParser parser = edit.getParser();
             parser.forceReparse(new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
-            edit.getPySourceViewer().invalidateTextPresentation();
         }
     }
     

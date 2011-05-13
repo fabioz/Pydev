@@ -9,27 +9,22 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
-import org.python.pydev.core.ObjectsPool;
 
 
 public class AttrInfo extends AbstractInfo{
 
-    private static final long serialVersionUID = 1L;
-
     /**
-     * We create it directly from the name of the assign here, as opposed to other places that
-     * really have the AST, because:
-     * - we may have multiple targets in an assign
-     * - we lack all the info to determine if this is a valid assign (we have to see if it is a global
-     * or a class or an instance attr).
+     * Changed for 2.1
      */
-    public static AttrInfo fromAssign(String def, String moduleDeclared, String path) {
-        AttrInfo info = new AttrInfo();
-        info.name = ObjectsPool.intern(def);
-        info.moduleDeclared = moduleDeclared;
-        info.path = path;
-        return info;
-        
+    private static final long serialVersionUID = 3L;
+
+
+    public AttrInfo(String name, String moduleDeclared, String path) {
+        super(name, moduleDeclared, path);
+    }
+    
+    public AttrInfo(String name, String moduleDeclared, String path, boolean doNotInternOnThisContstruct) {
+        super(name, moduleDeclared, path, doNotInternOnThisContstruct);
     }
 
     public int getType() {

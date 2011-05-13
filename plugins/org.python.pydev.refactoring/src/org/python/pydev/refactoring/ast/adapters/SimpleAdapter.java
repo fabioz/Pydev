@@ -9,6 +9,7 @@
 package org.python.pydev.refactoring.ast.adapters;
 
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 
 public class SimpleAdapter extends AbstractNodeAdapter<SimpleNode> {
 

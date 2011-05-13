@@ -1,3 +1,14 @@
+..
+    <right_area>
+    <p>Getting started with PyDev!</p>
+    </right_area>
+    
+    
+    <image_area>manual.png</image_area>
+    
+    
+    <quote_area><strong>PyDev 101</strong></quote_area>
+
 .. contents::
 
 Creating a Project

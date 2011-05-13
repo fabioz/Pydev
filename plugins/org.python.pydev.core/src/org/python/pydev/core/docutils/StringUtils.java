@@ -12,24 +12,106 @@ package org.python.pydev.core.docutils;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.net.URLEncoder;
+import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import javax.swing.text.Document;
 import javax.swing.text.EditorKit;
 import javax.swing.text.html.HTMLEditorKit;
 
 import org.eclipse.core.runtime.Assert;
+import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.cache.Cache;
 import org.python.pydev.core.cache.LRUCache;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 
-public class StringUtils {
+public final class StringUtils {
+    
+    /**
+     * @author fabioz
+     *
+     */
+    private static final class IterLines implements Iterator<String> {
+        private final String string;
+        private final int len;
+        private int i;
+        private boolean calculatedNext;
+        private boolean hasNext;
+        private String next;
+
+        private IterLines(String string) {
+            this.string = string;
+            this.len = string.length();
+        }
+
+        public boolean hasNext() {
+            if(!calculatedNext){
+                calculatedNext = true;
+                hasNext = calculateNext();
+            }
+            return hasNext;
+        }
+
+        private boolean calculateNext() {
+            next = null;
+            char c;
+            int start = i;
+            
+            for (;i < len; i++) {
+                c = string.charAt(i);
+                
+                
+                if (c == '\r') {
+                    if (i < len - 1 && string.charAt(i + 1) == '\n') {
+                        i++;
+                    }
+                    i++;
+                    next = string.substring(start, i);
+                    return true;
+                }
+                if (c == '\n') {
+                    i++;
+                    next = string.substring(start, i);
+                    return  true;
+                }
+            }
+            if (start != i) {
+                next = string.substring(start, i);
+                i++;
+                return true;
+            }
+            return false;
+        }
+
+        public String next() {
+            if(!hasNext()){
+                throw new NoSuchElementException();
+            }
+            String n = next;
+            calculatedNext = false;
+            next = null;
+            return n;
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+
+    private StringUtils(){
+        
+    }
 
     public static final Object EMPTY = "";
 
@@ -254,7 +336,27 @@ public class StringUtils {
             ret.add(buf.toString());
         }
         return ret;
-
+    }
+    
+    /**
+     * Splits the given string in a list where each element is a line.
+     * 
+     * @param string string to be split.
+     * @return list of strings where each string is a line.
+     * 
+     * @note the new line characters are also added to the returned string.
+     * 
+     * IMPORTANT: The line returned will be a substring of the initial line, so, it's recommended that a copy
+     * is created if it should be kept in memory (otherwise the full initial string will also be kept in memory). 
+     */
+    public static Iterable<String> iterLines(final String string) {
+        return new Iterable<String>() {
+            
+            public Iterator<String> iterator() {
+                return new IterLines(string);
+            }
+        };
+        
     }
 
 
@@ -483,9 +585,46 @@ public class StringUtils {
         }
         return false;
     }
+    
+    /**
+     * Splits some string given some char (that char will not appear in the returned strings)
+     * Empty strings are also never added.
+     */
+    public static void splitWithIntern(String string, char toSplit, Collection<String> addTo) {
+        synchronized (ObjectsPool.lock) {
+            int len = string.length();
+            
+            int last = 0;
+            
+            char c = 0;
+            
+            for (int i = 0; i < len; i++) {
+                c = string.charAt(i);
+                if(c == toSplit){
+                    if(last != i){
+                        addTo.add(ObjectsPool.internUnsynched(string.substring(last, i)));
+                    }
+                    while(c == toSplit && i < len-1){
+                        i++;
+                        c = string.charAt(i);
+                    }
+                    last = i;
+                }
+            }
+            if(c != toSplit){
+                if(last == 0 && len > 0){
+                    addTo.add(ObjectsPool.internUnsynched(string)); //it is equal to the original (no char to split)
+                    
+                }else if(last < len){
+                    addTo.add(ObjectsPool.internUnsynched(string.substring(last, len)));
+                }
+            }
+        }
+    }
 
     /**
-     * Splits some string given some char
+     * Splits some string given some char (that char will not appear in the returned strings)
+     * Empty strings are also never added.
      */
     public static List<String> split(String string, char toSplit) {
         ArrayList<String> ret = new ArrayList<String>();
@@ -872,6 +1011,7 @@ public class StringUtils {
 	 * </ul>
 	 */
 	public static final char[] BRACKETS = { '{', '}', '(', ')', '[', ']' };
+	public static final char[] CLOSING_BRACKETS = { '}', ')', ']' };
 
 	public static char getPeer(char c){
 	    switch(c){
@@ -1072,7 +1212,27 @@ public class StringUtils {
     }
 
 
-
-
+    private static final Object md5CacheLock = new Object();
+    private static final LRUCache<String, String> md5Cache = new LRUCache<String, String>(1000);
+    
+    public static String md5(String str) {
+        synchronized (md5CacheLock) {
+            String obj = md5Cache.getObj(str);
+            if(obj != null){
+                return obj;
+            }
+            try {
+                byte[] bytes = str.getBytes("UTF-8");
+                MessageDigest md = MessageDigest.getInstance("MD5");
+                //MAX_RADIX because we'll generate the shorted string possible... (while still
+                //using only numbers 0-9 and letters a-z)
+                String ret = new BigInteger(1, md.digest(bytes)).toString(Character.MAX_RADIX).toLowerCase();
+                md5Cache.add(str, ret);
+                return ret;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 
 }

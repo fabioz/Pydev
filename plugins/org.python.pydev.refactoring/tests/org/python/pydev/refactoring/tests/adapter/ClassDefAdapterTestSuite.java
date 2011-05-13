@@ -16,7 +16,6 @@ public class ClassDefAdapterTestSuite extends AbstractIOTestSuite {
 	
 	public ClassDefAdapterTestSuite(String name) {
 		super(name);
-		// TODO Auto-generated constructor stub
 	}
 
 	public static Test suite() {

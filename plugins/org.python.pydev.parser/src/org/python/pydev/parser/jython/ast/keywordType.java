@@ -13,30 +13,29 @@ public final class keywordType extends SimpleNode {
         this.afterstarargs = afterstarargs;
     }
 
-    public keywordType(NameTokType arg, exprType value, boolean afterstarargs, SimpleNode parent) {
-        this(arg, value, afterstarargs);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public keywordType createCopy() {
-        keywordType temp = new keywordType(arg!=null?(NameTokType)arg.createCopy():null,
-        value!=null?(exprType)value.createCopy():null, afterstarargs);
+        return createCopy(true);
+    }
+    public keywordType createCopy(boolean copyComments) {
+        keywordType temp = new
+        keywordType(arg!=null?(NameTokType)arg.createCopy(copyComments):null,
+        value!=null?(exprType)value.createCopy(copyComments):null, afterstarargs);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if(this.specialsBefore != null){
+        if(this.specialsBefore != null && copyComments){
             for(Object o:this.specialsBefore){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsBefore().add(commentType.createCopy());
+                    temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if(this.specialsAfter != null){
+        if(this.specialsAfter != null && copyComments){
             for(Object o:this.specialsAfter){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsAfter().add(commentType.createCopy());
+                    temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
             }
         }

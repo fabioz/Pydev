@@ -18,8 +18,8 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.jython.ast.argumentsType;
-import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
-import org.python.pydev.refactoring.ast.visitors.NodeHelper;
+import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
+import org.python.pydev.parser.jython.ast.factory.NodeHelper;
 
 public class LocalVarRenameVisitor extends VisitorBase {
 

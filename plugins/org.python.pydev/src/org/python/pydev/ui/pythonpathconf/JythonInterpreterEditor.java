@@ -37,7 +37,7 @@ public class JythonInterpreterEditor extends AbstractInterpreterEditor{
     
     protected Tuple<String, String> getAutoNewInput() {
         try {
-            Map<String, String> env = SimpleRunner.getDefaultSystemEnv(null);
+            Map<String, String> env = SimpleRunner.getDefaultSystemEnv(null, false);
             List<String> pathsToSearch = new ArrayList<String>();
             if(env.containsKey("JYTHON_HOME")){
                 pathsToSearch.add(env.get("JYTHON_HOME"));

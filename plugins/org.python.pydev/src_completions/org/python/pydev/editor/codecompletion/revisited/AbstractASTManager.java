@@ -7,7 +7,6 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -55,36 +54,22 @@ import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
-public abstract class AbstractASTManager implements ICodeCompletionASTManager, Serializable {
-
-    /**
-     * changed to 10L on release 1.3.19
-     */
-    protected static final long serialVersionUID = 10L;
+public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     
     private static final IToken[] EMPTY_ITOKEN_ARRAY = new IToken[0];
     
     private static final boolean DEBUG_CACHE = false;
     
-    private transient AssignAnalysis assignAnalysis;
+    private final AssignAnalysis assignAnalysis=  new AssignAnalysis();
     
     public AbstractASTManager(){
     }
     
-    private transient Object lock;
-    public synchronized Object getLock(){
-        if(lock == null){
-            lock = new Object();
-        }
+    private final Object lock = new Object();
+    public Object getLock(){
         return lock;
     }
     
-    public AssignAnalysis getAssignAnalysis() {
-        if(assignAnalysis == null){
-            assignAnalysis = new AssignAnalysis();
-        }
-        return assignAnalysis;
-    }
     
     
     /**
@@ -753,7 +738,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     }
 
     private IToken[] getAssignCompletions(IModule module, ICompletionState state, boolean lookForArgumentCompletion, ILocalScope localScope) {
-        AssignCompletionInfo assignCompletions = getAssignAnalysis().getAssignCompletions(this, module, state);
+        AssignCompletionInfo assignCompletions = assignAnalysis.getAssignCompletions(this, module, state);
         
         boolean useExtensions = assignCompletions.completions.size() == 0;
         

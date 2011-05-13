@@ -13,30 +13,28 @@ public final class Subscript extends exprType implements expr_contextType {
         this.ctx = ctx;
     }
 
-    public Subscript(exprType value, sliceType slice, int ctx, SimpleNode parent) {
-        this(value, slice, ctx);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Subscript createCopy() {
-        Subscript temp = new Subscript(value!=null?(exprType)value.createCopy():null,
-        slice!=null?(sliceType)slice.createCopy():null, ctx);
+        return createCopy(true);
+    }
+    public Subscript createCopy(boolean copyComments) {
+        Subscript temp = new Subscript(value!=null?(exprType)value.createCopy(copyComments):null,
+        slice!=null?(sliceType)slice.createCopy(copyComments):null, ctx);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if(this.specialsBefore != null){
+        if(this.specialsBefore != null && copyComments){
             for(Object o:this.specialsBefore){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsBefore().add(commentType.createCopy());
+                    temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if(this.specialsAfter != null){
+        if(this.specialsAfter != null && copyComments){
             for(Object o:this.specialsAfter){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsAfter().add(commentType.createCopy());
+                    temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
             }
         }

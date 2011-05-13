@@ -20,5 +20,5 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.editors,
  com.python.pydev.refactoring
 Eclipse-LazyStart: true
-Bundle-ClassPath: codecompletion.jar, retroweaver-rt.jar
+Bundle-ClassPath: codecompletion.jar
 Export-Package: com.python.pydev.codecompletion

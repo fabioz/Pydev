@@ -77,7 +77,7 @@
    
    
    
-<!-- Pydev project properties -->
+<!-- PyDev project properties -->
    <extension point="org.eclipse.ui.propertyPages">
       <page name="PyDev - PYTHONPATH"
             class="org.python.pydev.ui.PyProjectProperties"
@@ -102,7 +102,7 @@
    </extension>
    
    
-<!-- Pydev nature/project related actions -->
+<!-- PyDev nature/project related actions -->
    <extension point="org.eclipse.ui.popupMenus">
    
       <!-- remove .pyc -->
@@ -110,14 +110,14 @@
             adaptable="true"
             id="org.python.pydev.ui.actions.container.pyDeletePycAndClassFiles"
             objectClass="org.eclipse.core.resources.IContainer">
-         <menu id="org.python.pydev.ui.actions.menu" label="Pydev"/>
+         <menu id="org.python.pydev.ui.actions.menu" label="PyDev"/>
          <action
                class="org.python.pydev.ui.actions.container.PyDeletePycAndClassFiles"
                enablesFor="+"
                id="org.python.pydev.ui.actions.container.pyDeletePycAndClassFiles"
                label="Remove *.pyc, *.pyo and *$py.class Files"
                menubarPath="org.python.pydev.ui.actions.menu/pydev"
-               tooltip="Removes all the .pyc, .pyo and $.py.class files.">
+               tooltip="Removes all the .pyc, .pyo and $py.class files.">
          </action>
       </objectContribution>
       
@@ -126,7 +126,7 @@
             adaptable="true"
             id="org.python.pydev.ui.actions.container.pySourceFormatAction"
             objectClass="org.eclipse.core.resources.IContainer">
-         <menu id="org.python.pydev.ui.actions.menu" label="Pydev"/>
+         <menu id="org.python.pydev.ui.actions.menu" label="PyDev"/>
          <action
                class="org.python.pydev.ui.actions.container.PySourceFormatAction"
                enablesFor="+"
@@ -142,7 +142,7 @@
             adaptable="true"
             id="org.python.pydev.ui.actions.resources.py2To3"
             objectClass="org.eclipse.core.resources.IResource">
-         <menu id="org.python.pydev.ui.actions.menu" label="Pydev"/>
+         <menu id="org.python.pydev.ui.actions.menu" label="PyDev"/>
          <action
                class="org.python.pydev.ui.actions.resources.Py2To3"
                enablesFor="+"
@@ -159,7 +159,7 @@
             adaptable="true"
             id="org.python.pydev.ui.actions.container.pyDeleteErrors"
             objectClass="org.eclipse.core.resources.IContainer">
-         <menu id="org.python.pydev.ui.actions.menu" label="Pydev"/>
+         <menu id="org.python.pydev.ui.actions.menu" label="PyDev"/>
          <action
                class="org.python.pydev.ui.actions.container.PyDeleteErrors"
                enablesFor="+"
@@ -176,15 +176,15 @@
             adaptable="true"
             id="org.python.pydev.ui.actions.project.PyRemoveNature"
             objectClass="org.eclipse.core.resources.IProject">
-         <menu id="org.python.pydev.ui.actions.menu" label="Pydev"/>
+         <menu id="org.python.pydev.ui.actions.menu" label="PyDev"/>
          <action
                class="org.python.pydev.ui.actions.project.PyRemoveNature"
                enablesFor="1"
                icon="icons/remove_nature.png"
                id="org.python.pydev.ui.actions.project.pyRemoveNature"
-               label="Remove Pydev Project Config"
+               label="Remove PyDev Project Config"
                menubarPath="org.python.pydev.ui.actions.menu/pydev"
-               tooltip="Remove the Pydev project configuration">
+               tooltip="Remove the PyDev project configuration">
          </action>
          <visibility><objectState name="projectNature" value="org.python.pydev.pythonNature"/></visibility>
       </objectContribution>
@@ -195,15 +195,15 @@
             adaptable="true"
             id="org.python.pydev.ui.actions.project.PyAddNature"
             objectClass="org.eclipse.core.resources.IProject">
-         <menu id="org.python.pydev.ui.actions.menu" label="Pydev"/>
+         <menu id="org.python.pydev.ui.actions.menu" label="PyDev"/>
          <action
                class="org.python.pydev.ui.actions.project.PyAddNature"
                enablesFor="1"
                icon="icons/python_nature.png"
                id="org.python.pydev.ui.actions.project.pyAddNature"
-               label="Set as Pydev Project"
+               label="Set as PyDev Project"
                menubarPath="org.python.pydev.ui.actions.menu/pydev"
-               tooltip="Set project as a Pydev project">
+               tooltip="Set project as a PyDev project">
          </action>
          <visibility><not><objectState name="projectNature" value="org.python.pydev.pythonNature"/></not></visibility>
       </objectContribution>
@@ -215,14 +215,14 @@
 	<extension point="org.eclipse.ui.keywords" name="Interpreter Keywords">
 	    <keyword id="org.python.pydev.interpreter.keywords"  label="forced builtins pythonpath"/>
 	</extension>    
-	<extension point="org.eclipse.ui.keywords" name="Pydev Preferences">
+	<extension point="org.eclipse.ui.keywords" name="PyDev Preferences">
 	    <keyword id="org.python.pydev.preferences.keywords"  label="tabs spaces colors folding"/>
 	</extension>    
 
 <!-- Preference page -->
    <extension point="org.eclipse.ui.preferencePages">
       <page
-            name="Pydev"
+            name="PyDev"
             class="org.python.pydev.plugin.preferences.PydevRootPrefs"
             id="org.python.pydev.prefs">
       </page>
@@ -271,7 +271,7 @@
 	        </keywordReference>
       </page>
       <page
-      		name="Pyunit"
+      		name="PyUnit"
             category="org.python.pydev.prefs"
             class="org.python.pydev.pyunit.preferences.PyUnitPrefsPage2"
             id="org.python.pydev.prefs.pyunitPage"/>
@@ -335,7 +335,7 @@
       <page
             class="org.python.pydev.builder.pylint.PyLintPrefPage"
             category="org.python.pydev.prefs"
-            name="Pylint"
+            name="PyLint"
             id="org.python.pydev.prefs.pylint"/>
       <page
             class="org.python.pydev.builder.todo.PyTodoPrefPage"
@@ -557,9 +557,9 @@
 <!-- Editor Context (formerly scope) -->
     <extension point="org.eclipse.ui.contexts">
       <context
-            name="Pydev editor scope"
+            name="PyDev editor scope"
             parentId="org.eclipse.ui.textEditorScope"
-            description="Pydev commands"
+            description="PyDev commands"
             id="org.python.pydev.ui.editor.scope">
       </context>
     </extension>
@@ -569,13 +569,13 @@
 
 <!--category: Editor Commands-->
       <category
-            name="Pydev - Editor"
-            description="Pydev editor category"
+            name="PyDev - Editor"
+            description="PyDev editor category"
             id="org.python.pydev.ui.category.source">
       </category>
 <!--category: Refactor-->
       <category
-            name="Pydev - Refactor"
+            name="PyDev - Refactor"
             description="Python refactor category"
             id="org.python.pydev.ui.category.refactoring"> 
       </category>
@@ -935,7 +935,7 @@
 <!-- Builder for pydev -->
     <extension
          id="PyDevBuilder"
-         name="Pydev Builder"
+         name="PyDev Builder"
          point="org.eclipse.core.resources.builders">
       <builder>
          <run class="org.python.pydev.builder.PyDevBuilder"/>
@@ -960,7 +960,7 @@
 <!-- Markers for the pydev package explorer -->
     <extension 
         point="org.eclipse.core.resources.markers"
-        name="Pydev Project Error"
+        name="PyDev Project Error"
         id="PydevProjectErrorMarkers">
        <super type="org.eclipse.core.resources.problemmarker"/>
        <persistent value="false"/>
@@ -976,35 +976,36 @@
                id="org.python.pydev.editor.templates.python.modules"
                name="New Module"/>
     </extension>
-   <extension-point id="pydev_builder" name="Pydev Builder" schema="schema/pydev_builder.exsd"/>
+   <extension-point id="pydev_builder" name="PyDev Builder" schema="schema/pydev_builder.exsd"/>
 <!-- extensions -->
 <!-- extensions -->
 <!-- extensions -->
 <!-- extensions -->
 <!-- extensions -->
 <!-- extensions -->
-   <extension-point id="pydev_completion" name="Pydev completion" schema="schema/pydev_completion.exsd"/>
-   <extension-point id="pydev_modules_observer" name="Pydev modules observer" schema="schema/pydev_modules_observer.exsd"/>
-   <extension-point id="pydev_interpreter_observer" name="Pydev Interpreter Observer" schema="schema/pydev_interpreter_observer.exsd"/>
-   <extension-point id="pydev_view_created_observer" name="Pydev view created observer" schema="schema/pydev_view_created_observer.exsd"/>
-   <extension-point id="pydev_ctrl_1" name="Pydev M11 participant" schema="schema/pydev_ctrl_1.exsd"/>
-   <extension-point id="pydev_simpleassist" name="Pydev Simple Assist" schema="schema/pydev_simpleassist.exsd"/>
-   <extension-point id="pydev_organize_imports" name="Pydev Organize Imports" schema="schema/pydev_organize_imports.exsd"/>
-   <extension-point id="pydev_refactoring" name="Pydev Refactoring" schema="schema/pydev_refactoring.exsd"/>
-   <extension-point id="pydev_quick_outline" name="Pydev Quick Outline" schema="schema/pydev_quick_outline.exsd"/>
-   <extension-point id="pydev_preferences_provider" name="Pydev Preferences Provider" schema="schema/pydev_preferences_provider.exsd"/>
+   <extension-point id="pydev_completion" name="PyDev completion" schema="schema/pydev_completion.exsd"/>
+   <extension-point id="pydev_modules_observer" name="PyDev modules observer" schema="schema/pydev_modules_observer.exsd"/>
+   <extension-point id="pydev_interpreter_observer" name="PyDev Interpreter Observer" schema="schema/pydev_interpreter_observer.exsd"/>
+   <extension-point id="pydev_view_created_observer" name="PyDev view created observer" schema="schema/pydev_view_created_observer.exsd"/>
+   <extension-point id="pydev_ctrl_1" name="PyDev M11 participant" schema="schema/pydev_ctrl_1.exsd"/>
+   <extension-point id="pydev_simpleassist" name="PyDev Simple Assist" schema="schema/pydev_simpleassist.exsd"/>
+   <extension-point id="pydev_organize_imports" name="PyDev Organize Imports" schema="schema/pydev_organize_imports.exsd"/>
+   <extension-point id="pydev_refactoring" name="PyDev Refactoring" schema="schema/pydev_refactoring.exsd"/>
+   <extension-point id="pydev_quick_outline" name="PyDev Quick Outline" schema="schema/pydev_quick_outline.exsd"/>
+   <extension-point id="pydev_preferences_provider" name="PyDev Preferences Provider" schema="schema/pydev_preferences_provider.exsd"/>
    <extension-point id="pydev_pyedit_listener" name="PyEdit Listener" schema="schema/pydev_pyedit_listener.exsd"/>
-   <extension-point id="pydev_formatter" name="Pydev Formatter" schema="schema/pydev_formatter.exsd"/>
-   <extension-point id="pydev_globals_browser" name="Pydev Globals Browser" schema="schema/pydev_globals_browser.exsd"/>
-   <extension-point id="pydev_debug_preferences_page" name="Pydev Debug Preferences Page" schema="schema/pydev_debug_preferences_page.exsd"/>
+   <extension-point id="pydev_formatter" name="PyDev Formatter" schema="schema/pydev_formatter.exsd"/>
+   <extension-point id="pydev_globals_browser" name="PyDev Globals Browser" schema="schema/pydev_globals_browser.exsd"/>
+   <extension-point id="pydev_debug_preferences_page" name="PyDev Debug Preferences Page" schema="schema/pydev_debug_preferences_page.exsd"/>
    <extension-point id="pydev_pythonpath_contrib" name="Python Path Contributor" schema="schema/pydev_pythonpath_contrib.exsd"/>
-   <extension-point id="pydev_manager_observer" name="Pydev code completion manager observer" schema="schema/pydev_manager_observer.exsd"/>
-   <extension-point id="pydev_hover" name="Pydev hover" schema="schema/pydev_hover.exsd"/>
+   <extension-point id="pydev_manager_observer" name="PyDev code completion manager observer" schema="schema/pydev_manager_observer.exsd"/>
+   <extension-point id="pydev_hover" name="PyDev hover" schema="schema/pydev_hover.exsd"/>
+   <extension-point id="pydev_interpreter_info_builder" name="PyDev interpreter info builder" schema="schema/pydev_interpreter_info_builder.exsd"/>
 <!-- wizards -->
    <extension point="org.eclipse.ui.newWizards">
       <category
             id="org.python.pydev.PythonCategory"
-            name="Pydev"/>
+            name="PyDev"/>
       <wizard
             canFinishEarly="false"
             category="org.python.pydev.PythonCategory"
@@ -1014,7 +1015,7 @@
             hasPages="true"
             icon="icons/python_16x16.png"
             id="org.python.pydev.ui.wizards.project.PythonProjectWizard"
-            name="Pydev Project"
+            name="PyDev Project"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="true"/>
             
@@ -1028,7 +1029,7 @@
             hasPages="true"
             icon="icons/mainfunction.gif"
             id="org.python.pydev.ui.wizards.gettingstarted.PythonGettingStartedWizard"
-            name="Pydev Getting Started"
+            name="PyDev Getting Started"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="true"/>
       -->
@@ -1053,7 +1054,7 @@
             hasPages="true"
             icon="icons/package_obj.gif"
             id="org.python.pydev.ui.wizards.files.PythonPackageWizard"
-            name="Pydev P&amp;ackage"
+            name="PyDev P&amp;ackage"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="false"/>
       <wizard
@@ -1065,7 +1066,7 @@
             hasPages="true"
             icon="icons/python_file.gif"
             id="org.python.pydev.ui.wizards.files.PythonModuleWizard"
-            name="Pydev &amp;Module"
+            name="PyDev &amp;Module"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="false"/>
    </extension>
@@ -1074,7 +1075,7 @@
             class="org.python.pydev.ui.perspective.PythonPerspectiveFactory"
             icon="icons/python_16x16.png"
             id="org.python.pydev.ui.PythonPerspective"
-            name="Pydev"/>
+            name="PyDev"/>
    </extension>
    <extension point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension targetID="org.python.pydev.ui.PythonPerspective">
@@ -1111,15 +1112,15 @@
 
 
 
-<!-- ********************** Pydev Package Explorer ********************** --> 
-<!-- ********************** Pydev Package Explorer ********************** --> 
-<!-- ********************** Pydev Package Explorer ********************** --> 
-<!-- ********************** Pydev Package Explorer ********************** --> 
+<!-- ********************** PyDev Package Explorer ********************** --> 
+<!-- ********************** PyDev Package Explorer ********************** --> 
+<!-- ********************** PyDev Package Explorer ********************** --> 
+<!-- ********************** PyDev Package Explorer ********************** --> 
 
 <!-- Declare the view part to hold the default implementation --> 
 <extension point="org.eclipse.ui.views">
    <category
-        name="Pydev"
+        name="PyDev"
         id="org.python.pydev"/>
     <view
         allowMultiple="false"
@@ -1127,7 +1128,7 @@
         class="org.python.pydev.navigator.ui.PydevPackageExplorer"
         id="org.python.pydev.navigator.view"
         icon="icons/pydev_package_explorer.gif"
-        name="Pydev Package Explorer"/>
+        name="PyDev Package Explorer"/>
 </extension> 
 
 
@@ -1172,12 +1173,29 @@
     <dragAssistant class="org.eclipse.ui.navigator.resources.ResourceDragAdapterAssistant" viewerId="org.python.pydev.navigator.view"/>
 </extension>
    
+  <!-- Error decorations -->
+    <extension point="org.eclipse.ui.decorators">
+      <decorator
+            adaptable="false"
+            class="org.python.pydev.navigator.decorator.ProblemsLabelDecorator"
+            id="org.python.pydev.navigator.decorator.problemsLabelDecorator"
+            label="PyDev elements error decorations"
+            lightweight="true"
+            location="BOTTOM_LEFT"
+            state="true">
+         <enablement>
+            <objectClass
+                  name="org.python.pydev.navigator.elements.IWrappedResource">
+            </objectClass>
+         </enablement> 
+      </decorator> 
+    </extension>
   <!-- Declare a content extension that renders the contents of a properties file -->
   <extension point="org.eclipse.ui.navigator.navigatorContent">
          
       <navigatorContent 
             id="org.python.pydev.navigator.pythoncontent" 
-            name="Pydev Navigator Content"
+            name="PyDev Navigator Content"
             icon="icons/python_16x16.png"
             contentProvider="org.python.pydev.navigator.PythonModelProvider"
             labelProvider="org.python.pydev.navigator.PythonLabelProvider" 
@@ -1250,8 +1268,8 @@
 	  <commonWizard menuGroupId="org.python.pydev.ui.wizards" type="new" wizardId="org.python.pydev.ui.wizards.files.PythonPackageWizard">
 	     <enablement>
 	        <or>
-	           <adapt type="org.eclipse.core.resources.IFolder"/>
-	           <adapt type="org.eclipse.core.resources.IFile"/>
+	           <instanceof value="org.python.pydev.navigator.elements.PythonFolder"/>
+               <instanceof value="org.python.pydev.navigator.elements.PythonSourceFolder"/>
 	           <adapt type="org.eclipse.core.resources.IProject">
 	              <test
 	                    property="org.eclipse.core.resources.projectNature"
@@ -1263,8 +1281,19 @@
 	  <commonWizard menuGroupId="org.python.pydev.ui.wizards" type="new" wizardId="org.python.pydev.ui.wizards.files.PythonModuleWizard">
 	     <enablement>
 	        <or>
-	           <adapt type="org.eclipse.core.resources.IFolder"/>
-	           <adapt type="org.eclipse.core.resources.IFile"/>
+               <instanceof value="org.python.pydev.navigator.elements.PythonFolder"/>
+               <instanceof value="org.python.pydev.navigator.elements.PythonSourceFolder"/>
+	           <adapt type="org.eclipse.core.resources.IProject">
+	              <test
+	                    property="org.eclipse.core.resources.projectNature"
+	                    value="org.python.pydev.pythonNature"/>
+	           </adapt>
+	        </or>
+	     </enablement>
+	  </commonWizard>
+	  <commonWizard menuGroupId="org.python.pydev.ui.wizards" type="new" wizardId="org.python.pydev.ui.wizards.files.PythonSourceFolderWizard">
+	     <enablement>
+	        <or>
 	           <adapt type="org.eclipse.core.resources.IProject">
 	              <test
 	                    property="org.eclipse.core.resources.projectNature"
@@ -1275,29 +1304,29 @@
 	  </commonWizard>
 	  
       <commonFilter activeByDefault="false" 
-	     name="Pydev: non-Pydev Projects"
+	     name="PyDev: non-PyDev Projects"
       	 description="%HideNonPydevProjects.description" 
       	 id="org.python.pydev.navigator.filters.hideNonPydevProjects" 
       	 class="org.python.pydev.navigator.filters.PydevProjectsFilter">
       </commonFilter>
       
   	  <commonFilter activeByDefault="true" 
-	  	  name="Pydev: .pyc files" 
-	  	  description="Pydev: *.pyc files" 
+	  	  name="PyDev: .pyc files" 
+	  	  description="PyDev: *.pyc files" 
 	  	  id="org.python.pydev.navigator.filters.hidePycFiles"
 	  	  class="org.python.pydev.navigator.filters.PycFilter"> 
 	  </commonFilter>		 
 	  
   	  <commonFilter activeByDefault="true" 
-	  	  name="Pydev: .pyo files" 
-	  	  description="Pydev: *.pyo files" 
+	  	  name="PyDev: .pyo files" 
+	  	  description="PyDev: *.pyo files" 
 	  	  id="org.python.pydev.navigator.filters.hidePyoFiles" 
 	  	  class="org.python.pydev.navigator.filters.PyoFilter"> 
 	  </commonFilter>		 
 
   	  <commonFilter activeByDefault="true" 
-	  	  name="Pydev: *.py~ files" 
-	  	  description="Pydev: *.py~ files" 
+	  	  name="PyDev: *.py~ files" 
+	  	  description="PyDev: *.py~ files" 
 	  	  id="org.python.pydev.navigator.filters.hidePyTildaFiles" 
 	  	  class="org.python.pydev.navigator.filters.PyTildaFilter"> 
 	  </commonFilter>		 
@@ -1306,61 +1335,61 @@
 	  
 	  It seems that eclipse 3.6 fixed that, so, it's not needed anymore.
       <commonFilter activeByDefault="true" 
-	      name="Pydev: .* resources" 
-	      description="Pydev: .*resources"  
+	      name="PyDev: .* resources" 
+	      description="PyDev: .*resources"  
 	      id="org.python.pydev.navigator.filters.startsWithDot"
 	  	  class="org.python.pydev.navigator.filters.DotStartFilter"> 
       </commonFilter>
       -->
       
       <commonFilter activeByDefault="true" 
-	      name="Pydev: .class resources" 
-	      description="Pydev: .class resources" 
+	      name="PyDev: .class resources" 
+	      description="PyDev: .class resources" 
 	      id="org.python.pydev.navigator.filters.endsWithClass"
 	  	  class="org.python.pydev.navigator.filters.ClassFilter"> 
       </commonFilter> 
       
       
       <commonFilter activeByDefault="false" 
-	      name="Pydev: closed projects" 
-	      description="Pydev: closed projects" 
+	      name="PyDev: closed projects" 
+	      description="PyDev: closed projects" 
 	      id="org.python.pydev.navigator.filters.closedProject"
 	  	  class="org.python.pydev.navigator.filters.ClosedProjectsFilter"> 
       </commonFilter>
       
       <commonFilter activeByDefault="true" 
-	      name="Pydev: custom specified filters" 
-	      description="Pydev: custom specified filters" 
+	      name="PyDev: custom specified filters" 
+	      description="PyDev: custom specified filters" 
 	      id="org.python.pydev.navigator.filters.customFilters"
 	  	  class="org.python.pydev.navigator.filters.CustomFilters"> 
       </commonFilter>
       
       
       <commonFilter activeByDefault="false" 
-          name="Pydev: Nodes: All" 
-          description="Pydev: Nodes: (hide all)" 
+          name="PyDev: Nodes: All" 
+          description="PyDev: Nodes: (hide all)" 
           id="org.python.pydev.navigator.filters.pythonnodefilter"
           class="org.python.pydev.navigator.filters.PythonNodeFilter"> 
       </commonFilter>
       
       <commonFilter activeByDefault="true" 
-          name="Pydev: Nodes: Imports" 
-          description="Pydev: Nodes: Imports (hide)" 
+          name="PyDev: Nodes: Imports" 
+          description="PyDev: Nodes: Imports (hide)" 
           id="org.python.pydev.navigator.filters.Imports"
           class="org.python.pydev.navigator.filters.ImportsFilter"> 
       </commonFilter> 
       
       <commonFilter activeByDefault="false" 
-          name="Pydev: Nodes: Comments" 
-          description="Pydev: Nodes: Comments (hide)" 
+          name="PyDev: Nodes: Comments" 
+          description="PyDev: Nodes: Comments (hide)" 
           id="org.python.pydev.navigator.filters.Comments"
           class="org.python.pydev.navigator.filters.CommentsFilter"> 
       </commonFilter> 
       
       
       <commonFilter activeByDefault="false" 
-          name="Pydev: Interpreter Info" 
-          description="Pydev: Interpreter Info (hide)" 
+          name="PyDev: Interpreter Info" 
+          description="PyDev: Interpreter Info (hide)" 
           id="org.python.pydev.navigator.filters.interpreterinfofilter"
           class="org.python.pydev.navigator.filters.InterpreterInfoFilter"> 
       </commonFilter> 
@@ -1461,7 +1490,7 @@
 	
 	<!-- hyperlink: added on 3.3. see also: PyEditConfiguration.getHyperlinkDetectorTargets -->
    <extension point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectorTargets">
-      <target id="org.python.pydev.editor.PythonEditor" name="Pydev Editor">
+      <target id="org.python.pydev.editor.PythonEditor" name="PyDev Editor">
           <context type="org.eclipse.ui.texteditor.ITextEditor"/>
       </target>
    </extension>

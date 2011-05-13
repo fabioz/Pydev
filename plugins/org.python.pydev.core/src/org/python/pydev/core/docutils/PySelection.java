@@ -108,6 +108,33 @@ public final class PySelection {
         STATEMENT_TOKENS.add("yield");
     };
     
+    
+
+
+    public static final Set<String> ALL_STATEMENT_TOKENS = new HashSet<String>();
+    static{
+        ALL_STATEMENT_TOKENS.add("lambda");
+        ALL_STATEMENT_TOKENS.add("assert");
+        ALL_STATEMENT_TOKENS.add("break");
+        ALL_STATEMENT_TOKENS.add("class");
+        ALL_STATEMENT_TOKENS.add("continue");
+        ALL_STATEMENT_TOKENS.add("def");
+        ALL_STATEMENT_TOKENS.add("elif");
+        ALL_STATEMENT_TOKENS.add("else");
+        ALL_STATEMENT_TOKENS.add("except");
+        ALL_STATEMENT_TOKENS.add("finally");
+        ALL_STATEMENT_TOKENS.add("for");
+        ALL_STATEMENT_TOKENS.add("from");
+        ALL_STATEMENT_TOKENS.add("if");
+        ALL_STATEMENT_TOKENS.add("import");
+        ALL_STATEMENT_TOKENS.add("pass");
+        ALL_STATEMENT_TOKENS.add("raise");
+        ALL_STATEMENT_TOKENS.add("return");
+        ALL_STATEMENT_TOKENS.add("try");
+        ALL_STATEMENT_TOKENS.add("while");
+        ALL_STATEMENT_TOKENS.add("with");
+        ALL_STATEMENT_TOKENS.add("yield");
+    };
 
     /**
      * Alternate constructor for PySelection. Takes in a text editor from Eclipse.
@@ -1013,6 +1040,19 @@ public final class PySelection {
         return getInsideParentesisToks(addSelf, i, false);
     }
     
+    public Tuple<List<String>, Integer> getInsideParentesisToks(boolean addSelf, int iLine) {
+        String line = getLine(iLine);
+        int openParIndex = line.indexOf('(');
+        if (openParIndex <= -1) { // we are in a line that does not have a parenthesis
+            return null;
+        }        
+        
+        int lineOffset = getLineOffset(iLine);
+        int i = lineOffset + openParIndex;
+        
+        return getInsideParentesisToks(addSelf, i, false);
+    }
+    
    /**
     * This function gets the tokens inside the parenthesis that start at the current selection line
     * 
@@ -1116,15 +1156,19 @@ public final class PySelection {
     }
 
     public static final String[] TOKENS_BEFORE_ELSE = new String[]{
-        "if ", "if(", "for ", "for(", "except:", "except(", "while ", "while(", "elif ", "elif:"
+        "if", "for", "except", "while", "elif"
+    };
+    
+    public static final String[] TOKENS_BEFORE_ELIF = new String[]{
+        "if", "elif"
     };
     
     public static final String[] TOKENS_BEFORE_EXCEPT = new String[]{
-        "try:"
+        "try"
     };
 
     public static final String[] TOKENS_BEFORE_FINALLY = new String[]{
-        "try:", "except:", "except("
+        "try", "except"
     };
     
     /**
@@ -1133,12 +1177,99 @@ public final class PySelection {
      * May return null if it was not found.
      */
     public String getPreviousLineThatStartsWithToken(String[] tokens) {
-        DocIterator iterator = new DocIterator(false, this);
+        DocIterator iterator = new DocIterator(false, this, this.getCursorLine()-1, false);
+        FastStringBuffer buf = new FastStringBuffer();
+        
+        HashSet<Character> initials = new HashSet<Character>();
+        for(String t:tokens){
+            if(t.length() > 0){
+                initials.add(t.charAt(0));
+            }
+        }
+
+        int indentMustBeHigherThan = -1;
+        int currLineIndent = -1;
+        int skipLinesHigherThan = Integer.MAX_VALUE;
+        
         while(iterator.hasNext()){
             String line = (String) iterator.next();
             String trimmed = line.trim();
+            int len = trimmed.length();
+            int lastReturnedLine = iterator.getLastReturnedLine();
+            if(lastReturnedLine > skipLinesHigherThan){
+                continue;
+            }
+            
+            if(len > 0){
+                //Fast way out of a line...
+                char c0 = trimmed.charAt(0);
+                
+                if(currLineIndent == 0){
+                    //actually, at this point it's from the previous line...
+                    
+                    //If the indent expected is == 0, if the indent wasn't found on the first match, it's not possible
+                    //to get a lower match!
+                    return null;
+                }
+                currLineIndent = getFirstCharPosition(line);
+                if(indentMustBeHigherThan == -1){
+                    if(c0 != '#'){
+                        //ignore only-comment lines...
+                        boolean validIndentLine = true;
+                        Tuple<Character, Integer> found = null;
+                        for(char c:StringUtils.CLOSING_BRACKETS){
+                            int i = line.lastIndexOf(c);
+                            if(found == null || found.o2 < i){
+                                found = new Tuple<Character, Integer>(c, i);
+                            }
+                        }
+                        if(found != null){
+                            PythonPairMatcher matcher = new PythonPairMatcher();
+                            int openingPeerOffset = matcher.searchForOpeningPeer(
+                                    this.getLineOffset(lastReturnedLine) + found.o2,
+                                    StringUtils.getPeer(found.o1), found.o1, this.getDoc());
+                            if(openingPeerOffset >= 0){
+                                int lineOfOffset = getLineOfOffset(openingPeerOffset);
+                                if(lineOfOffset != lastReturnedLine){
+                                    skipLinesHigherThan = lineOfOffset;
+                                    validIndentLine = false;
+                                }
+                            }
+                        }
+                        
+                        if(validIndentLine){
+                            indentMustBeHigherThan = currLineIndent;
+                        }else{
+                            currLineIndent = -1;
+                            continue;
+                        }
+                    }
+                    
+                }else{
+                    if(indentMustBeHigherThan <= currLineIndent){
+                        continue;
+                    }
+                }
+                
+                if(!initials.contains(c0)){
+                    continue;
+                }
+                
+                buf.clear();
+                buf.append(c0);
+            }
+            
+            for(int i=1;i<len;i++){
+                char c = trimmed.charAt(i);
+                if(Character.isJavaIdentifierPart(c)){
+                    buf.append(c);
+                }else{
+                    break;
+                }
+            }
+            String firstWord = buf.toString();
             for(String prefix:tokens){
-                if(trimmed.startsWith(prefix)){
+                if(firstWord.equals(prefix)){
                     return line;
                 }
             }
@@ -1518,6 +1649,9 @@ public final class PySelection {
             while(documentOffset >= 0 && documentOffset < doc.getLength() && doc.get(documentOffset, 1).equals(".")){
                 String tok = extractActivationToken(doc, documentOffset, false).o1;
     
+                if (documentOffset == 0) {
+                	break;
+                }
                     
                 String c = doc.get(documentOffset-1, 1);
                 
@@ -2052,7 +2186,7 @@ public final class PySelection {
                     while(strTok.hasMoreTokens()){
                         tok = strTok.nextToken();
                         if(tok.indexOf('(') != -1 || tok.indexOf(':') != -1){
-                            return 0;
+                            return DECLARATION_NONE;
                         }
                     }
                     return decl;
@@ -2060,7 +2194,7 @@ public final class PySelection {
             }
         } catch (BadLocationException e) {
         }
-        return 0;
+        return DECLARATION_NONE;
     }
 
 
@@ -2163,6 +2297,12 @@ public final class PySelection {
      */
     public List<TddPossibleMatches> getTddPossibleMatchesAtLine(int offset) {
         String line = getLine(getLineOfOffset(offset));
+        return getTddPossibleMatchesAtLine(line);
+        
+    }
+
+
+    public List<TddPossibleMatches> getTddPossibleMatchesAtLine(String line) {
         List<TddPossibleMatches> ret = new ArrayList<TddPossibleMatches>();
         if(matchesClassLine(line) || matchesFunctionLine(line)){
             return ret;//In a class or method definition, it should never match.
@@ -2182,7 +2322,6 @@ public final class PySelection {
             ret.add(new TddPossibleMatches(matcher.group(TDD_PART_FULL), matcher.group(TDD_PART_PART1), secondPart, hasCall));
         }
         return ret;
-        
     }
 
 

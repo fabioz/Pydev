@@ -7,7 +7,7 @@ package org.python.pydev.refactoring.tests.core;
 
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
+import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.refactoring.ast.visitors.rewriter.Rewriter;
 
 public abstract class AbstractRewriterTestCase extends AbstractIOTestCase {

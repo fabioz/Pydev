@@ -107,20 +107,27 @@ public class DjangoProjectWizard extends PythonProjectWizard {
         final DjangoSettings djSettings = (DjangoSettings) additionalArgsToConfigProject[0];
 
         
-        final boolean shouldCreatSourceFolder = projectPage.shouldCreatSourceFolder();
+        final int sourceFolderConfigurationStyle = projectPage.getSourceFolderConfigurationStyle();
         ICallback<List<IContainer>, IProject> getSourceFolderHandlesCallback = new ICallback<List<IContainer>, IProject>(){
             
             public List<IContainer> call(IProject projectHandle) {
-				if(shouldCreatSourceFolder){
-                	IContainer folder = projectHandle.getFolder("src");
-                    List<IContainer> ret = new ArrayList<IContainer>();
-                    ret.add(folder);
-                    return ret;
-                }else{
-                	//if the user hasn't selected to create a source folder, use the project itself for that.
-                	List<IContainer> ret = new ArrayList<IContainer>();
-                	ret.add(projectHandle);
-                	return ret;
+                ArrayList<IContainer> ret;
+                switch(sourceFolderConfigurationStyle){
+                    
+                    case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER:
+                        //if the user hasn't selected to create a source folder, use the project itself for that.
+                        ret = new ArrayList<IContainer>();
+                        ret.add(projectHandle);
+                        return ret;
+                        
+                    case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_NO_PYTHONPATH:
+                        return new ArrayList<IContainer>();
+                    
+                    default:
+                        IContainer folder = projectHandle.getFolder("src");
+                        ret = new ArrayList<IContainer>();
+                        ret.add(folder);
+                        return ret;
                 }
             }
         };
@@ -130,9 +137,15 @@ public class DjangoProjectWizard extends PythonProjectWizard {
             public Map<String, String> call(IProject projectHandle){
                 Map<String, String> variableSubstitution = new HashMap<String, String>();
                 String manageLocation = projectHandle.getName()+"/manage.py";
-                if(shouldCreatSourceFolder){
-                	manageLocation = "src/"+manageLocation;
+                
+                switch(sourceFolderConfigurationStyle){
+                    case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER:
+                    case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_NO_PYTHONPATH:
+                        break;
+                    default:
+                        manageLocation = "src/"+manageLocation;
                 }
+                
                 variableSubstitution.put(DjangoConstants.DJANGO_MANAGE_VARIABLE, manageLocation);
 				return variableSubstitution; 
             }
@@ -171,12 +184,16 @@ public class DjangoProjectWizard extends PythonProjectWizard {
             AbstractRunner runner = UniversalRunner.getRunner(nature);
             
             IContainer projectContainer;
-            if(shouldCreatSourceFolder){
-            	projectContainer = projectHandle.getFolder("src");
-            	
-            }else{
-            	projectContainer = projectHandle;
+            
+            switch(sourceFolderConfigurationStyle){
+                case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER:
+                case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_NO_PYTHONPATH:
+                    projectContainer = projectHandle;
+                    break;
+                default:
+                    projectContainer = projectHandle.getFolder("src");
             }
+            
 			Tuple<String, String> output = runner.runCodeAndGetOutput(
 				RUN_DJANGO_ADMIN, 
 				new String[]{

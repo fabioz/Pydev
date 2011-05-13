@@ -1,3 +1,41 @@
+..
+    <right_area>
+    <p class="italic">"Personally, the pleasure I take in
+        developping software is half linked to the language, half to the
+        programming tools.
+        
+        With PyDev, I've got everything."</p>
+    <p>
+        Franck Perez
+    </p>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    
+    <p class="italic">
+    "PyDev is a core tool in our development process, and is a major reason
+    why Python has become viable for us as a production language.  I look
+    forward to each new release of PyDev as it is continually evolving into
+    a more and more powerful development environment."
+    </p>
+    <p>
+        Eric Wittmann, Zoundry LLC.
+    </p>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    </right_area>
+    
+    
+    <image_area></image_area>
+    
+    
+    <quote_area></quote_area>
+
 What is PyDev?
 =================
 
@@ -21,6 +59,7 @@ PyDev is a **Python IDE** for **Eclipse**, which may be used in **Python**, **Jy
 .. _Interactive console: manual_adv_interactive_console.html
 .. _Syntax highlighting: manual_adv_editor_prefs.html
 .. _Unittest integration: manual_adv_pyunit.html
+.. _Code coverage: manual_adv_coverage.html
 .. _video: video_pydev_20.html
 
 It comes with many goodies such as:
@@ -39,6 +78,7 @@ It comes with many goodies such as:
 | * `Tokens browser`_                                                                                                                                                                                                                                      |                                                                                                                                                  |
 | * `Interactive console`_                                                                                                                                                                                                                                 |                                                                                                                                                  |
 | * `Unittest integration`_                                                                                                                                                                                                                                |                                                                                                                                                  |
+| * `Code coverage`_                                                                                                                                                                                                                                       |                                                                                                                                                  |
 | * **and many others**:                                                                                                                                                                                                                                   |                                                                                                                                                  |
 +----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------+
 

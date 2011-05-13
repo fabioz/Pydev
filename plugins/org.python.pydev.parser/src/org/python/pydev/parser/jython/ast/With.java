@@ -11,39 +11,37 @@ public final class With extends stmtType {
         this.body = body;
     }
 
-    public With(WithItemType[] with_item, suiteType body, SimpleNode parent) {
-        this(with_item, body);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public With createCopy() {
+        return createCopy(true);
+    }
+    public With createCopy(boolean copyComments) {
         WithItemType[] new0;
         if(this.with_item != null){
         new0 = new WithItemType[this.with_item.length];
         for(int i=0;i<this.with_item.length;i++){
             new0[i] = (WithItemType) (this.with_item[i] != null?
-            this.with_item[i].createCopy():null);
+            this.with_item[i].createCopy(copyComments):null);
         }
         }else{
             new0 = this.with_item;
         }
-        With temp = new With(new0, body!=null?(suiteType)body.createCopy():null);
+        With temp = new With(new0, body!=null?(suiteType)body.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if(this.specialsBefore != null){
+        if(this.specialsBefore != null && copyComments){
             for(Object o:this.specialsBefore){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsBefore().add(commentType.createCopy());
+                    temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if(this.specialsAfter != null){
+        if(this.specialsAfter != null && copyComments){
             for(Object o:this.specialsAfter){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsAfter().add(commentType.createCopy());
+                    temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
             }
         }

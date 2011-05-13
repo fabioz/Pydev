@@ -7,9 +7,6 @@
 package org.python.pydev.plugin;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.MissingResourceException;
@@ -26,9 +23,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -41,7 +38,6 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.BundleInfo;
 import org.python.pydev.core.bundle.IBundleInfo;
 import org.python.pydev.core.bundle.ImageCache;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.dltk.console.ui.ScriptConsoleUIConstants;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
@@ -59,7 +55,7 @@ import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 /**
  * The main plugin class - initialized on startup - has resource bundle for internationalization - has preferences
  */
-public class PydevPlugin extends AbstractUIPlugin implements Preferences.IPropertyChangeListener {
+public class PydevPlugin extends AbstractUIPlugin  {
     
     public static final String version = "REPLACE_VERSION";
     
@@ -180,8 +176,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         } catch (MissingResourceException x) {
             resourceBundle = null;
         }
-        final Preferences preferences = plugin.getPluginPreferences();
-        preferences.addPropertyChangeListener(this);
+        final IPreferenceStore preferences = plugin.getPreferenceStore();
         
         //set them temporarily
         //setPythonInterpreterManager(new StubInterpreterManager(true));
@@ -314,9 +309,6 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
             //stop the running shells
             AbstractShell.shutdownAllShells();
 
-            Preferences preferences = plugin.getPluginPreferences();
-            preferences.removePropertyChangeListener(this);
-            
             //save the natures (code completion stuff) -- and only the ones initialized 
             //(no point in getting the ones not initialized)
             for(PythonNature nature:PythonNature.getInitializedPythonNatures()){
@@ -345,7 +337,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
 
     public static String getPluginID() {
         if(PydevPlugin.getDefault() == null){
-            return "PydevPluginID(null plugin)";
+            return "PyDevPluginID(null plugin)";
         }
         return PydevPlugin.getBundleInfo().getPluginID();
     }
@@ -378,14 +370,6 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     }
     
     
-    public void propertyChange(Preferences.PropertyChangeEvent event) {
-        //        System.out.println( event.getProperty()
-        //         + "\n\told setting: "
-        //         + event.getOldValue()
-        //         + "\n\tnew setting: "
-        //         + event.getNewValue());
-    }
-
     public static void log(String message, Throwable e) {
         log(IStatus.ERROR, message, e);
     }
@@ -426,9 +410,6 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         }
     }
 
-    public static void log(IStatus status) {
-        getDefault().getLog().log(status);
-    }
     
     public static void log(Throwable e) {
         log(e, true);
@@ -530,14 +511,14 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
             //unable to discover it
             try {
                 // the default one is python (actually, this should never happen, but who knows)
-                pythonInterpreterManager.getDefaultInterpreter();
+                pythonInterpreterManager.getDefaultInterpreterInfo();
                 modName = getModNameFromFile(file);
                 return new Tuple<SystemPythonNature, String>(pySystemPythonNature, modName);
             } catch (Exception e) {
                 //the python interpreter manager is not valid or not configured
                 try {
                     // the default one is jython
-                    jythonInterpreterManager.getDefaultInterpreter();
+                    jythonInterpreterManager.getDefaultInterpreterInfo();
                     modName = getModNameFromFile(file);
                     return new Tuple<SystemPythonNature, String>(jySystemPythonNature, modName);
                 } catch (Exception e1) {
@@ -602,53 +583,27 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         //it may not be correct, but it was the best we could do...
         return fullPath;
     }
-    
-    /**
-     * Writes to the workspace a given object (in the given filename)
-     */
-    public static void writeToWorkspaceMetadata(Object obj, String fileName) {
-        Bundle bundle = Platform.getBundle("org.python.pydev");
-        IPath path = Platform.getStateLocation( bundle );       
-        path = path.addTrailingSeparator();
-        path = path.append(fileName);
-        try {
-            FileOutputStream out = new FileOutputStream(path.toFile());
-            REF.writeToStreamAndCloseIt(obj, out);
-            
-        } catch (Exception e) {
-            PydevPlugin.log(e);
-            throw new RuntimeException(e);
-        }               
-    }
+
+
+    //Default for using in tests (could be private)
+    /*default*/ static File location;
 
     /**
      * Loads from the workspace metadata a given object (given the filename)
      */
-    public static Object readFromWorkspaceMetadata(String fileName) {
-        Bundle bundle = Platform.getBundle("org.python.pydev");
-        IPath path = Platform.getStateLocation( bundle );       
-        path = path.addTrailingSeparator();
-        path = path.append(fileName);
-        
-        FileInputStream fileInputStream = null;
-        try {
-            fileInputStream = new FileInputStream(path.toFile());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+    public static File getWorkspaceMetadataFile(String fileName) {
+        if(location == null){
+            try {
+                Bundle bundle = Platform.getBundle("org.python.pydev");
+                IPath path = Platform.getStateLocation( bundle );
+                location = path.toFile();
+            } catch (Exception e) {
+                throw new RuntimeException("If running in tests, call: setTestPlatformStateLocation", e);
+            }
         }
-        
-        return REF.readFromInputStreamAndCloseIt(new ICallback<Object, ObjectInputStream>(){
-
-            public Object call(ObjectInputStream arg) {
-                try{
-                    return arg.readObject();
-                }catch(Exception e){
-                    throw new RuntimeException(e);
-                }
-            }}, 
-            
-            fileInputStream);
+        return new File(location, fileName);
     }
+    
     /**
      * @return
      */

@@ -144,4 +144,12 @@ public class PythonSourceFolder implements IWrappedResource, IAdaptable, IContri
     }
 
     
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "PythonSourceFolder ["+this.getActualObject()+"]";
+    }
+    
 }

@@ -14,7 +14,7 @@ import org.eclipse.ui.dialogs.SelectionDialog;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.plugin.PydevPlugin;
 
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
 
 /**
@@ -28,7 +28,7 @@ public class GlobalsDialogFactory{
      * Creates the dialog according to the Eclipse version we have (on 3.2, the old API is used)
      * @param pythonNatures 
      */
-    public static SelectionDialog create(Shell shell, List<AbstractAdditionalInterpreterInfo> additionalInfo, String selectedText, List<IPythonNature> pythonNatures){
+    public static SelectionDialog create(Shell shell, List<AbstractAdditionalTokensInfo> additionalInfo, String selectedText, List<IPythonNature> pythonNatures){
         boolean expectedError = true;
         try{
             GlobalsTwoPanelElementSelector2 newDialog = new GlobalsTwoPanelElementSelector2(shell, true, selectedText, pythonNatures);
@@ -55,7 +55,7 @@ public class GlobalsDialogFactory{
         
         List<IInfo> lst = new ArrayList<IInfo>();
         
-        for(AbstractAdditionalInterpreterInfo info:additionalInfo){
+        for(AbstractAdditionalTokensInfo info:additionalInfo){
             lst.addAll(info.getAllTokens());
         }
         

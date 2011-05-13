@@ -13,30 +13,28 @@ public final class BinOp extends exprType implements operatorType {
         this.right = right;
     }
 
-    public BinOp(exprType left, int op, exprType right, SimpleNode parent) {
-        this(left, op, right);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public BinOp createCopy() {
-        BinOp temp = new BinOp(left!=null?(exprType)left.createCopy():null, op,
-        right!=null?(exprType)right.createCopy():null);
+        return createCopy(true);
+    }
+    public BinOp createCopy(boolean copyComments) {
+        BinOp temp = new BinOp(left!=null?(exprType)left.createCopy(copyComments):null, op,
+        right!=null?(exprType)right.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if(this.specialsBefore != null){
+        if(this.specialsBefore != null && copyComments){
             for(Object o:this.specialsBefore){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsBefore().add(commentType.createCopy());
+                    temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if(this.specialsAfter != null){
+        if(this.specialsAfter != null && copyComments){
             for(Object o:this.specialsAfter){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsAfter().add(commentType.createCopy());
+                    temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
             }
         }

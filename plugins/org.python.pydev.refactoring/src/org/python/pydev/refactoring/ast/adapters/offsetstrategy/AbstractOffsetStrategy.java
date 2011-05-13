@@ -12,9 +12,9 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
+import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
+import org.python.pydev.parser.jython.ast.factory.NodeHelper;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
-import org.python.pydev.refactoring.ast.visitors.NodeHelper;
 
 public abstract class AbstractOffsetStrategy implements IOffsetStrategy {
 

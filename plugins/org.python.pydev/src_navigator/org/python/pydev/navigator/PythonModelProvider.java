@@ -53,8 +53,32 @@ import org.python.pydev.plugin.nature.PythonNature;
  * 
  * @author Fabio
  */
-public class PythonModelProvider extends PythonBaseModelProvider implements IPipelinedTreeContentProvider {
+public final class PythonModelProvider extends PythonBaseModelProvider implements IPipelinedTreeContentProvider {
 
+    
+    /* (non-Javadoc)
+     * @see org.python.pydev.navigator.PythonBaseModelProvider#getChildren(java.lang.Object)
+     */
+    @Override
+    public Object[] getChildren(Object parentElement) {
+        Object[] ret = super.getChildren(parentElement);
+        if(parentElement instanceof PythonProjectSourceFolder){
+            PythonProjectSourceFolder projectSourceFolder = (PythonProjectSourceFolder) parentElement;
+            Set<Object> set = new HashSet<Object>();
+            fillChildrenForProject(set, (IProject) projectSourceFolder.getActualObject(), projectSourceFolder);
+            if(set.size() > 0){
+                Object[] newRet = new Object[ret.length + set.size()];
+                System.arraycopy(ret, 0, newRet, 0, ret.length);
+                int i=ret.length;
+                for(Object o:set){
+                    newRet[i] = o;
+                    i++;
+                }
+                ret = newRet;
+            }
+        }
+        return ret;
+    }
     
     /**
      * This method basically replaces all the elements for other resource elements
@@ -69,6 +93,7 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
         }
         
         if(parent instanceof IWrappedResource){
+            //Note: It seems that this NEVER happens (IWrappedResources only have getChildren called, not getPipelinedChildren)
             Object[] children = getChildren(parent);
             currentElements.clear();
             currentElements.addAll(Arrays.asList(children));
@@ -78,7 +103,7 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
             if(parent instanceof PythonProjectSourceFolder){
                 PythonProjectSourceFolder projectSourceFolder = (PythonProjectSourceFolder) parent;
                 IProject project = (IProject) projectSourceFolder.getActualObject();
-                fillChildrenForProject(currentElements, project);
+                fillChildrenForProject(currentElements, project, parent);
             }
             return;
             
@@ -103,7 +128,7 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
             
         } else if(parent instanceof IProject){
             IProject project = (IProject) parent;
-            fillChildrenForProject(currentElements, project);
+            fillChildrenForProject(currentElements, project, project);
         }        
         
         PipelinedShapeModification modification = new PipelinedShapeModification(parent, currentElements);
@@ -114,12 +139,12 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
     }
 
     @SuppressWarnings("unchecked")
-    private void fillChildrenForProject(Set currentElements, IProject project) {
+    private void fillChildrenForProject(Set currentElements, IProject project, Object parent) {
         ProjectInfoForPackageExplorer projectInfo = getProjectInfo(project);
         if(projectInfo != null){
             currentElements.addAll(projectInfo.configErrors);
             if(projectInfo.interpreterInfo != null){
-                currentElements.add(ProjectInfoToTreeStructure.createFrom(projectInfo.interpreterInfo));
+                currentElements.add(ProjectInfoToTreeStructure.createFrom(projectInfo.interpreterInfo, parent));
             }
         }
     }

@@ -61,9 +61,9 @@ public abstract class AbstractInformationPresenter implements DefaultInformation
         this.informationPresenterControlManager = informationPresenterControlManager;
     }
     
-    public void hideInformationControl() {
+    public void hideInformationControl(boolean activateEditor, boolean restoreFocus) {
         if(this.informationPresenterControlManager != null){
-            this.informationPresenterControlManager.hideInformationControl();
+            this.informationPresenterControlManager.hideInformationControl(activateEditor, restoreFocus);
         }
     }
     

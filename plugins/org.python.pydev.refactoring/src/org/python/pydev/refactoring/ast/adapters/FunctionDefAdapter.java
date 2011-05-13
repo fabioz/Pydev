@@ -11,6 +11,7 @@ package org.python.pydev.refactoring.ast.adapters;
 import java.util.List;
 
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.ast.visitors.context.LocalFunctionDefVisitor;
 import org.python.pydev.refactoring.ast.visitors.context.ScopeAssignedVisitor;

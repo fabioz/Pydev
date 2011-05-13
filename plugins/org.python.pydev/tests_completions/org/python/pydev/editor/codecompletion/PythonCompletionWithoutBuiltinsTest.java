@@ -58,7 +58,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             //DEBUG_TESTS_BASE = true;
             PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
             test.setUp();
-            test.testNPEOnCompletion();
+            test.testCompletionUnderWithLowerPriority();
             test.tearDown();
             System.out.println("Finished");
 
@@ -781,6 +781,59 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertTrue(!act.changedForCalltip);
         assertTrue(!act.alreadyHasParams);
         assertTrue(act.isInMethodKeywordParam);
+    }
+
+    /**
+     * Add tests that demonstrate behaviour when doc starts with a . 
+     */
+    public void testGetAckTok2() {
+        String strs[];
+        strs = PySelection.getActivationTokenAndQual(new Document("."), 1, false); 
+        assertEquals("", strs[0]);
+        assertEquals("", strs[1]);
+        
+        strs = PySelection.getActivationTokenAndQual(new Document(".a"), 1, false); 
+        assertEquals("", strs[0]);
+        assertEquals("", strs[1]);
+        
+        strs = PySelection.getActivationTokenAndQual(new Document(".a"), 2, false); 
+        assertEquals("", strs[0]);
+        assertEquals("a", strs[1]);
+        
+        ActivationTokenAndQual act = PySelection.getActivationTokenAndQual(new Document("."), 1, false, true); 
+        assertEquals("", act.activationToken);
+        assertEquals("", act.qualifier);
+        assertTrue(!act.changedForCalltip);
+        assertTrue(!act.alreadyHasParams);
+        assertTrue(!act.isInMethodKeywordParam);
+        
+        act = PySelection.getActivationTokenAndQual(new Document(".a"), 1, false, true); 
+        assertEquals("", act.activationToken);
+        assertEquals("", act.qualifier);
+        assertTrue(!act.changedForCalltip);
+        assertTrue(!act.alreadyHasParams);
+        assertTrue(!act.isInMethodKeywordParam);
+        
+        act = PySelection.getActivationTokenAndQual(new Document(".a"), 2, false, true); 
+        assertEquals("", act.activationToken);
+        assertEquals("a", act.qualifier);
+        assertTrue(!act.changedForCalltip);
+        assertTrue(!act.alreadyHasParams);
+        assertTrue(!act.isInMethodKeywordParam);
+        
+        act = PySelection.getActivationTokenAndQual(new Document(".abc"), 1, true, true); 
+        assertEquals("", act.activationToken);
+        assertEquals("abc", act.qualifier);
+        assertTrue(!act.changedForCalltip);
+        assertTrue(!act.alreadyHasParams);
+        assertTrue(!act.isInMethodKeywordParam);
+        
+        act = PySelection.getActivationTokenAndQual(new Document(".abc"), 2, true, true); 
+        assertEquals("", act.activationToken);
+        assertEquals("abc", act.qualifier);
+        assertTrue(!act.changedForCalltip);
+        assertTrue(!act.alreadyHasParams);
+        assertTrue(!act.isInMethodKeywordParam);
     }
 
     /**
@@ -1509,6 +1562,145 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     }
     
     
+    public void testCompletionUnderWithLowerPriority() throws Exception {
+        String s = 
+            "class A:\n" +
+            "    def __foo__(self):\n" +
+            "        pass\n" +
+            
+            "    def _bar(self):\n" +
+            "        pass\n" +
+            "\n"+
+            "class B(A):\n" +
+            "    def m1(self):\n" +
+            "        self." + //__foo should NOT be here!
+            "";
+        ICompletionProposal[] proposals = requestCompl(s, 3, new String[] {"m1()", "_bar()", "__foo__()"});
+        assertEquals(proposals[0].getDisplayString(), "m1()");
+        assertEquals(proposals[1].getDisplayString(), "_bar()");
+        assertEquals(proposals[2].getDisplayString(), "__foo__()");
+    }
+    
+
+    public void testOverrideCompletions() throws Exception{
+        String s;
+        s = "" +
+        "class Foo:\n"+
+        "    def foo(self):\n"+
+        "        pass\n"+
+        "    \n"+
+        "class Bar(Foo):\n" +
+        "    def ";//bring override completions!
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "foo (Override method in Foo)"});
+        assertEquals(1, comps.length);
+        Document doc = new Document(s);
+        OverrideMethodCompletionProposal comp = (OverrideMethodCompletionProposal) comps[0];
+        comp.applyOnDocument(null, doc, ' ', 0, s.length());
+        assertEquals("" +
+                "class Foo:\n"+
+                "    def foo(self):\n"+
+                "        pass\n"+
+                "    \n"+
+                "class Bar(Foo):\n" +
+                "    def foo(self):\n" +
+                "        Foo.foo(self)", doc.get());
+    }
+    
+    public void testOverrideCompletions2() throws Exception{
+        String s;
+        s = "" +
+        "class Foo:\n"+
+        "    def foo(self):\n"+
+        "        pass\n"+
+        "    \n"+
+        "class Bar(Foo):\n" +
+        "    def fo";//bring override completions!
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "foo (Override method in Foo)"});
+        assertEquals(1, comps.length);
+        Document doc = new Document(s);
+        OverrideMethodCompletionProposal comp = (OverrideMethodCompletionProposal) comps[0];
+        comp.applyOnDocument(null, doc, ' ', 0, s.length());
+        assertEquals("" +
+                "class Foo:\n"+
+                "    def foo(self):\n"+
+                "        pass\n"+
+                "    \n"+
+                "class Bar(Foo):\n" +
+                "    def foo(self):\n" +
+                "        Foo.foo(self)", doc.get());
+    }
+    
+    
+    public void testOverrideCompletions3() throws Exception{
+        String s;
+        s = "" +
+        "import unittest\n" +
+        "class Bar(unittest.TestCase):\n" +
+        "    def tearDow";//bring override completions!
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "tearDown (Override method in unittest.TestCase)"});
+        assertEquals(1, comps.length);
+        Document doc = new Document(s);
+        OverrideMethodCompletionProposal comp = (OverrideMethodCompletionProposal) comps[0];
+        comp.applyOnDocument(null, doc, ' ', 0, s.length());
+        assertEquals("" +
+                "import unittest\n" +
+                "class Bar(unittest.TestCase):\n" +
+                "    def tearDown(self):\n" +
+                "        unittest.TestCase.tearDown(self)", doc.get());
+    }
+    
+    public void testOverrideCompletions4() throws Exception{
+        String s;
+        s = "" +
+        "class Foo:\n" +
+        "    @classmethod\n" +
+        "    def rara(cls):\n" +
+        "        pass\n" +
+        "class Bar(Foo):\n" +
+        "    def ra";//bring override completions!
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "rara (Override method in Foo)"});
+        assertEquals(1, comps.length);
+        Document doc = new Document(s);
+        OverrideMethodCompletionProposal comp = (OverrideMethodCompletionProposal) comps[0];
+        comp.applyOnDocument(null, doc, ' ', 0, s.length());
+        assertEquals("" +
+                "class Foo:\n" +
+                "    @classmethod\n" +
+                "    def rara(cls):\n" +
+                "        pass\n" +
+                "class Bar(Foo):\n" +
+                "    @classmethod\n" +
+                "    def rara(cls):\n" +
+                "        super(Current, cls).rara()", doc.get());
+    }
+    
+    public void testOverrideCompletions5() throws Exception{
+        String s;
+        s = "" +
+        "class Foo:\n" +
+        "    #comment\n" +
+        "    def rara(self):\n" +
+        "        #comment\n" +
+        "        pass\n" +
+        "class Bar(Foo):\n" +
+        "    def ra";//bring override completions!
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "rara (Override method in Foo)"});
+        assertEquals(1, comps.length);
+        Document doc = new Document(s);
+        OverrideMethodCompletionProposal comp = (OverrideMethodCompletionProposal) comps[0];
+        comp.applyOnDocument(null, doc, ' ', 0, s.length());
+        assertEquals("" +
+                "class Foo:\n" +
+                "    #comment\n" +
+                "    def rara(self):\n" +
+                "        #comment\n" +
+                "        pass\n" +
+                "class Bar(Foo):\n" +
+                "    def rara(self):\n" +
+                "        Foo.rara(self)", doc.get());
+    }
+    
+
 }
 
 

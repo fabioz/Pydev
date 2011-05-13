@@ -63,11 +63,6 @@ public class DjCssEditor extends CSSSourceEditor {
     }
 
     @Override
-    protected FileService createFileService() {
-        return new FileService(IDjConstants.LANGUAGE_DJANGO_TEMPLATES_CSS, new ParseState());
-    }
-
-    @Override
     protected CommonOutlinePage createOutlinePage() {
         CommonOutlinePage outline = super.createOutlinePage();
         outline.setContentProvider(new CSSOutlineContentProvider());

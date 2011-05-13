@@ -17,6 +17,37 @@ else:
 import build_python_code_block
 
 
+DEFAULT_CONTENTS_TEMPLATE = '''<doc>
+<contents_area></contents_area>
+
+%s
+
+</doc>
+'''
+
+DEFAULT_AREAS = '''
+<right_area>
+</right_area>
+
+
+<image_area></image_area>
+
+
+<quote_area></quote_area>
+
+'''
+
+DEFAULT_AREAS_MANUAL = '''
+<right_area>
+</right_area>
+
+
+<image_area>manual.png</image_area>
+
+
+<quote_area></quote_area>
+
+'''
 #=======================================================================================================================
 # BuildFromRst
 #=======================================================================================================================
@@ -42,20 +73,35 @@ def BuildFromRst(source_filename, is_new_homepage=False):
     if final.startswith('<div'):
         final = final[final.find('\n'):]
         final = final[:final.rfind('</div>')]
+        
+    rst_contents = open(source_filename, 'r').read()
     
-    postfix = '.contents.htm'
+    if rst_contents.startswith('..'):
+        image_area_right_area_and_quote_area = ''
+        #lines = []
+        #for line in rst_contents.splitlines():
+        #    if line.strip().startswith('..'):
+        #        lines.append(line.strip()[2:].strip())
+        #lines = lines[1:] #remove the first (empty) line
+        #image_area_right_area_and_quote_area = '\n'.join(lines)
+    else:
+        if rst_contents.startswith('manual_adv'):
+            image_area_right_area_and_quote_area = DEFAULT_AREAS
+        else:
+            image_area_right_area_and_quote_area = DEFAULT_AREAS_MANUAL
+    
     name = source_filename.split('.')[0]
     if is_new_homepage:
-        f = open(name+postfix, 'r')
-        contents = f.read()
-        f.close()
+        if os.path.exists(name+'.contents.htm'):
+            raise AssertionError('This file should not exist: '+name+'.contents.htm')
+        if os.path.exists(name+'.contents.html'):
+            raise AssertionError('This file should not exist: '+name+'.contents.html')
+        contents = DEFAULT_CONTENTS_TEMPLATE % (image_area_right_area_and_quote_area,)
         final = contents.replace('<contents_area></contents_area>', '<contents_area>%s</contents_area>' % final)
         
-        #make the output html (and not htm)
-        postfix += 'l'
     
     final = final.replace('\r\n','\n').replace('\r','\n')
-    f = open(name+postfix, 'wb')
+    f = open(name+'.contents.rst_html', 'wb')
     print >> f, final
     f.close()
 
@@ -84,6 +130,7 @@ if __name__ == '__main__':
     shutil.copytree('nightly', os.path.join('final', 'nightly'))
     
     shutil.copyfile('stylesheet.css', os.path.join('final', 'stylesheet.css'))
+    shutil.copyfile('pydev_certificate.cer', os.path.join('final', 'pydev_certificate.cer'))
     shutil.copyfile('video_pydev_20.html', os.path.join('final', 'video_pydev_20.html'))
     shutil.copyfile('video_swfobject.js', os.path.join('final', 'video_swfobject.js'))
     

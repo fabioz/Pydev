@@ -12,32 +12,28 @@
 package com.python.pydev.analysis.additionalinfo;
 
 import java.io.File;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
-import org.python.pydev.core.DeltaSaver;
-import org.python.pydev.core.IDeltaProcessor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.core.callbacks.ICallback;
-import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 
 
-public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependencyInfo implements IDeltaProcessor<Object> {
+public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWithBuild {
 
     /**
      * This is the project that contains this info
@@ -54,37 +50,11 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
     }
     
     //----------------------------------------------------------------------------- START DELTA RELATED 
-    /**
-     * Used to save things in a delta fashion (projects have deltas).
-     */
-    protected DeltaSaver<Object> deltaSaver;
     
-    
-    @Override
-    public void removeInfoFromModule(String moduleName, boolean generateDelta) {
-        synchronized (lock) {
-            super.removeInfoFromModule(moduleName, generateDelta);
-            if(generateDelta){
-                this.deltaSaver.addDeleteCommand(moduleName);
-                checkDeltaSize();
-            }
-        }
-    }
-
-    @Override
-    protected void restoreSavedInfo(Object o) throws MisconfigurationException {
-        synchronized (lock) {
-            super.restoreSavedInfo(o);
-            //when we do a load, we have to process the deltas that may exist
-            if(deltaSaver.availableDeltas() > 0){
-                deltaSaver.processDeltas(this);
-            }
-        }
-    }
-
     /**
      * @return the path to the folder we want to keep things on
      */
+    @Override
     protected File getPersistingFolder() {
         try {
             Assert.isNotNull(project);
@@ -95,130 +65,26 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
             return new File(".");
         }
     }
-
-    protected DeltaSaver<Object> createDeltaSaver() {
-        return new DeltaSaver<Object>(
-                getPersistingFolder(), 
-                "projectinfodelta", 
-                new ICallback<Object, ObjectInputStream>(){
-
-            public Object call(ObjectInputStream arg) {
-                try {
-                    return arg.readObject();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }}
-        );
-    }
     
 
-    
-    public void processUpdate(Object data) {
-        throw new RuntimeException("There is no update generation, only add.");
-    }
-
-    public void processDelete(Object data) {
-        synchronized (lock) {
-            //the moduleName is generated on delete
-            this.removeInfoFromModule((String) data, false);
-        }
-    }
-        
-
-    public void processInsert(Object data) {
-        synchronized (lock) {
-        	if(data instanceof IInfo){
-        		//backward compatibility
-        		//the IInfo token is generated on insert
-	            IInfo info = (IInfo) data;
-	            if(info.getPath() == null || info.getPath().length() == 0){
-	                this.add(info, TOP_LEVEL);
-	                
-	            }else{
-	                this.add(info, INNER);
-	                
-	            }
-        	}else if(data instanceof List){
-        		//current way (saves a list of iinfo)
-        		for(IInfo info : (List<IInfo>) data){
-	        		if(info.getPath() == null || info.getPath().length() == 0){
-	        			this.add(info, TOP_LEVEL);
-	        			
-	        		}else{
-	        			this.add(info, INNER);
-	        			
-	        		}
-        		}
-        	}
-        }
-    }
-
-    public void endProcessing() {
-        //save it when the processing is finished
-        synchronized (lock) {
-            this.save();
-        }
-    }
-    
-    
-    /**
-     * This is the maximum number of deltas that can be generated before saving everything in a big chunk and 
-     * clearing the deltas. 50 means that it's something as 25 modules (because usually a module change
-     * is composed of a delete and an addition). 
-     */
-    public static final int MAXIMUN_NUMBER_OF_DELTAS = 50;
-
-    /**
-     * If the delta size is big enough, save the current state and discard the deltas.
-     */
-    private void checkDeltaSize() {
-        synchronized (lock) {
-            if(deltaSaver.availableDeltas() > MAXIMUN_NUMBER_OF_DELTAS){
-                this.save();
-            }
-        }
-    }
-
-    /**
-     * Whenever it's properly saved, clear all the deltas.
-     */
-    public void save() {
-    	synchronized (lock) {
-	    	super.save();
-	    	deltaSaver.clearAll();
-    	}
-    }
-    
-    
-    @Override
-    public List<IInfo> addAstInfo(SimpleNode node, String moduleName, IPythonNature nature,
-    		boolean generateDelta) {
-    	List<IInfo> addAstInfo = super.addAstInfo(node, moduleName, nature, generateDelta);
-    	if(generateDelta && addAstInfo.size() > 0){
-    		deltaSaver.addInsertCommand(addAstInfo);
-    	}
-    	return addAstInfo;
-    }
 
     //----------------------------------------------------------------------------- END DELTA RELATED
-    
-    
-    
-    
-    
     
     
     public AdditionalProjectInterpreterInfo(IProject project) throws MisconfigurationException {
         super(false);
         this.project = project;
         init();
-        deltaSaver = createDeltaSaver();
     }
 
+    private File persistingLocation;
+    
     @Override
     protected File getPersistingLocation() {
-        return new File(getPersistingFolder(), "AdditionalProjectInterpreterInfo.pydevinfo");
+        if(persistingLocation == null){
+            persistingLocation = new File(getPersistingFolder(), "AdditionalProjectInterpreterInfo.pydevinfo");
+        }
+        return persistingLocation;
     }
     
     @Override
@@ -227,11 +93,11 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
     }
 
     public static void saveAdditionalInfoForProject(IPythonNature nature) throws MisconfigurationException {
-        AbstractAdditionalInterpreterInfo info = getAdditionalInfoForProject(nature);
+        AbstractAdditionalTokensInfo info = getAdditionalInfoForProject(nature);
         info.save();
     }
 
-    public static List<AbstractAdditionalInterpreterInfo> getAdditionalInfo(IPythonNature nature) throws MisconfigurationException {
+    public static List<AbstractAdditionalTokensInfo> getAdditionalInfo(IPythonNature nature) throws MisconfigurationException {
         return getAdditionalInfo(nature, true, false);
     }
     
@@ -241,29 +107,29 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
      * @return all the additional info that is bounded with some nature (including related projects)
      * @throws MisconfigurationException 
      */
-    public static List<AbstractAdditionalInterpreterInfo> getAdditionalInfo(IPythonNature nature, boolean addSystemInfo,
+    public static List<AbstractAdditionalTokensInfo> getAdditionalInfo(IPythonNature nature, boolean addSystemInfo,
             boolean addReferencingProjects) throws MisconfigurationException {
         return getAdditionalInfoAndNature(nature, addSystemInfo, addReferencingProjects).o1;
     }
     
     
-    public static Tuple<List<AbstractAdditionalInterpreterInfo>, List<IPythonNature>> getAdditionalInfoAndNature(
+    public static Tuple<List<AbstractAdditionalTokensInfo>, List<IPythonNature>> getAdditionalInfoAndNature(
             IPythonNature nature, boolean addSystemInfo, boolean addReferencingProjects) throws MisconfigurationException {
         return getAdditionalInfoAndNature(nature, addSystemInfo, addReferencingProjects, true);
     }
     
     
-    public static Tuple<List<AbstractAdditionalInterpreterInfo>, List<IPythonNature>> getAdditionalInfoAndNature(
+    public static Tuple<List<AbstractAdditionalTokensInfo>, List<IPythonNature>> getAdditionalInfoAndNature(
             IPythonNature nature, boolean addSystemInfo, boolean addReferencingProjects, boolean addReferencedProjects) throws MisconfigurationException {
         
-        List<AbstractAdditionalInterpreterInfo> ret = new ArrayList<AbstractAdditionalInterpreterInfo>();
+        List<AbstractAdditionalTokensInfo> ret = new ArrayList<AbstractAdditionalTokensInfo>();
         List<IPythonNature> natures = new ArrayList<IPythonNature>();
         
         IProject project = nature.getProject();
         
         //get for the system info
         if(addSystemInfo){
-            AbstractAdditionalInterpreterInfo systemInfo;
+            AbstractAdditionalTokensInfo systemInfo;
             try {
                 systemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
                         PydevPlugin.getInterpreterManager(nature), nature.getProjectInterpreter().getExecutableOrJar());
@@ -277,7 +143,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
     
         //get for the current project
         if(project != null){
-            AbstractAdditionalInterpreterInfo additionalInfoForProject = getAdditionalInfoForProject(nature);
+            AbstractAdditionalTokensInfo additionalInfoForProject = getAdditionalInfoForProject(nature);
             if(additionalInfoForProject != null){
                 ret.add(additionalInfoForProject);
                 natures.add(nature);
@@ -286,7 +152,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
             try {
                 if(addReferencedProjects){
                     //get for the referenced projects
-                    IProject[] referencedProjects = project.getReferencedProjects();
+                    Set<IProject> referencedProjects = ProjectModulesManager.getReferencedProjects(project);
                     for (IProject refProject : referencedProjects) {
                         additionalInfoForProject = getAdditionalInfoForProject(PythonNature.getPythonNature(refProject));
                         if(additionalInfoForProject != null){
@@ -297,7 +163,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
                 }
 
                 if(addReferencingProjects){
-                    IProject[] referencingProjects = project.getReferencingProjects();
+                    Set<IProject> referencingProjects = ProjectModulesManager.getReferencingProjects(project);
                     for (IProject refProject : referencingProjects) {
                         additionalInfoForProject = getAdditionalInfoForProject(PythonNature.getPythonNature(refProject));
                         if(additionalInfoForProject != null){
@@ -306,12 +172,12 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
                         }
                     }
                 }
-            } catch (CoreException e) {
+            } catch (Exception e) {
                 PydevPlugin.log(e);
             }
             
         }
-        return new Tuple<List<AbstractAdditionalInterpreterInfo>, List<IPythonNature>>(ret, natures);
+        return new Tuple<List<AbstractAdditionalTokensInfo>, List<IPythonNature>>(ret, natures);
     }
 
     /**
@@ -354,8 +220,8 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
     //interfaces that iterate through all of them
     public static List<IInfo> getTokensEqualTo(String qualifier, IPythonNature nature, int getWhat) throws MisconfigurationException {
         ArrayList<IInfo> ret = new ArrayList<IInfo>();
-        List<AbstractAdditionalInterpreterInfo> additionalInfo = getAdditionalInfo(nature);
-        for (AbstractAdditionalInterpreterInfo info : additionalInfo) {
+        List<AbstractAdditionalTokensInfo> additionalInfo = getAdditionalInfo(nature);
+        for (AbstractAdditionalTokensInfo info : additionalInfo) {
             ret.addAll(info.getTokensEqualTo(qualifier, getWhat));
         }
         return ret;
@@ -363,8 +229,8 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
 
     public static List<IInfo> getTokensStartingWith(String qualifier, IPythonNature nature, int getWhat) throws MisconfigurationException {
         ArrayList<IInfo> ret = new ArrayList<IInfo>();
-        List<AbstractAdditionalInterpreterInfo> additionalInfo = getAdditionalInfo(nature);
-        for (AbstractAdditionalInterpreterInfo info : additionalInfo) {
+        List<AbstractAdditionalTokensInfo> additionalInfo = getAdditionalInfo(nature);
+        for (AbstractAdditionalTokensInfo info : additionalInfo) {
             ret.addAll(info.getTokensStartingWith(qualifier, getWhat));
         }
         return ret;
@@ -378,10 +244,13 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
      */
     public static List<AbstractAdditionalDependencyInfo> getAdditionalInfoForProjectAndReferencing(IPythonNature nature) throws MisconfigurationException {
         List<AbstractAdditionalDependencyInfo> ret = new ArrayList<AbstractAdditionalDependencyInfo>();
+        IProject project = nature.getProject();
+        if(project == null){
+            return ret;
+        }
         ret.add(getAdditionalInfoForProject(nature));
         
-        IProject project = nature.getProject();
-        IProject[] referencingProjects = project.getReferencingProjects();
+        Set<IProject> referencingProjects = ProjectModulesManager.getReferencingProjects(project);
         for (IProject p : referencingProjects) {
             AbstractAdditionalDependencyInfo info2 = getAdditionalInfoForProject(PythonNature.getPythonNature(p));
             if(info2 != null){

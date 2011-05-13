@@ -17,7 +17,7 @@ import org.python.pydev.ui.UIConstants;
 
 public class ProjectInfoToTreeStructure {
 
-    public static InterpreterInfoTreeNode<LabelAndImage> createFrom(IInterpreterInfo interpreterInfo) {
+    public static InterpreterInfoTreeNode<LabelAndImage> createFrom(IInterpreterInfo interpreterInfo, Object parent) {
         ImageCache imageCache = PydevPlugin.getImageCache();
         
         InterpreterInfoTreeNode<LabelAndImage> root;

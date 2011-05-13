@@ -134,7 +134,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
 
     @Override
     public String getProcessorName() {
-        return "Pydev PyRenameProcessor";
+        return "PyDev PyRenameProcessor";
     }
 
     @Override

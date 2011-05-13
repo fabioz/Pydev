@@ -50,7 +50,7 @@ import org.python.pydev.plugin.PydevPlugin;
 
 public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
 
-    public static final String PYDEV_BREAKPOINT = "Pydev breakpoint";
+    public static final String PYDEV_BREAKPOINT = "PyDev breakpoint";
 
     private List<IMarker> fMarkers;
 

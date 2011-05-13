@@ -13,4 +13,11 @@ public class SyntaxErrorException extends Exception{
     public SyntaxErrorException(){
         super("Syntax error in buffer.");
     }
+
+    /**
+     * @param string
+     */
+    public SyntaxErrorException(String msg) {
+        super(msg);
+    }
 }

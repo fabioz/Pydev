@@ -670,20 +670,22 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 		if(segments.length == 1){
 			return new Tuple<String, Boolean>(segments[1], true);
 		}
-		String lastSegment = name;
 		
-		boolean handled = isDjangoHandledModule(djangoModulesHandling, input, lastSegment);
+		boolean handled = isDjangoHandledModule(djangoModulesHandling, input, name);
 		if(handled && djangoModulesHandling == PyTitlePreferencesPage.TITLE_EDITOR_DJANGO_MODULES_SHOW_PARENT_AND_DECORATE){
 			String[] dest = new String[segments.length-1];
 			System.arraycopy(segments, 0, dest, 0, dest.length);
 			segments = dest;
 			
 		}else if(initHandling != PyTitlePreferencesPage.TITLE_EDITOR_INIT_HANDLING_IN_TITLE){
-			if(lastSegment.startsWith("__init__.")){
+			if(name.startsWith("__init__.")){
 				//remove the __init__.
 				String[] dest = new String[segments.length-1];
 				System.arraycopy(segments, 0, dest, 0, dest.length);
 				segments = dest;
+				if(dest.length > 0){
+				    name = dest[dest.length-1];
+				}
 			}
 		}
 		

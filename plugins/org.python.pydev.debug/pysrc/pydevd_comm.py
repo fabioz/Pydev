@@ -580,6 +580,54 @@ class InternalTerminateThread(InternalThreadCommand):
 
 
 #=======================================================================================================================
+# InternalRunThread
+#=======================================================================================================================
+class InternalRunThread(InternalThreadCommand):
+    def __init__(self, thread_id):
+        self.thread_id = thread_id
+
+    def doIt(self, dbg):
+        t = PydevdFindThreadById(self.thread_id)
+        if t:
+            t.additionalInfo.pydev_step_cmd = None
+            t.additionalInfo.pydev_step_stop = None
+            t.additionalInfo.pydev_state = STATE_RUN
+
+
+#=======================================================================================================================
+# InternalStepThread
+#=======================================================================================================================
+class InternalStepThread(InternalThreadCommand):
+    def __init__(self, thread_id, cmd_id):
+        self.thread_id = thread_id
+        self.cmd_id = cmd_id
+
+    def doIt(self, dbg):
+        t = PydevdFindThreadById(self.thread_id)
+        if t:
+            t.additionalInfo.pydev_step_cmd = self.cmd_id
+            t.additionalInfo.pydev_state = STATE_RUN
+
+#=======================================================================================================================
+# InternalSetNextStatementThread
+#=======================================================================================================================
+class InternalSetNextStatementThread(InternalThreadCommand):
+    def __init__(self, thread_id, cmd_id, line, func_name):
+        self.thread_id = thread_id
+        self.cmd_id = cmd_id
+        self.line = line
+        self.func_name = func_name
+
+    def doIt(self, dbg):
+        t = PydevdFindThreadById(self.thread_id)
+        if t:
+            t.additionalInfo.pydev_step_cmd = self.cmd_id
+            t.additionalInfo.pydev_next_line = int(self.line)
+            t.additionalInfo.pydev_func_name = self.func_name
+            t.additionalInfo.pydev_state = STATE_RUN
+
+
+#=======================================================================================================================
 # InternalGetVariable
 #=======================================================================================================================
 class InternalGetVariable(InternalThreadCommand):
@@ -649,15 +697,15 @@ class InternalGetFrame(InternalThreadCommand):
     def doIt(self, dbg):
         """ Converts request into python variable """
         try:
-            try:
+            frame = pydevd_vars.findFrame(self.thread_id, self.frame_id)
+            if frame is not None:
                 xml = "<xml>"            
-                frame = pydevd_vars.findFrame(self.thread_id, self.frame_id)
                 xml += pydevd_vars.frameVarsToXML(frame)
                 del frame
                 xml += "</xml>"
                 cmd = dbg.cmdFactory.makeGetFrameMessage(self.sequence, xml)
                 dbg.writer.addCommand(cmd)
-            except pydevd_vars.FrameNotFoundError:
+            else:
                 #pydevd_vars.dumpFrames(self.thread_id)
                 #don't print this error: frame not found: means that the client is not synchronized (but that's ok)
                 cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Frame not found: %s from thread: %s" % (self.frame_id, self.thread_id))
@@ -725,30 +773,35 @@ class InternalGetCompletions(InternalThreadCommand):
             try:
                 
                 frame = pydevd_vars.findFrame(self.thread_id, self.frame_id)
-            
-                #Not using frame.f_globals because of https://sourceforge.net/tracker2/?func=detail&aid=2541355&group_id=85796&atid=577329
-                #(Names not resolved in generator expression in method)
-                #See message: http://mail.python.org/pipermail/python-list/2009-January/526522.html
-                updated_globals = {}
-                updated_globals.update(frame.f_globals)
-                updated_globals.update(frame.f_locals) #locals later because it has precedence over the actual globals
-            
-                completer = _completer.Completer(updated_globals, None)
-                #list(tuple(name, descr, parameters, type))
-                completions = completer.complete(self.act_tok)
+                if frame is not None:
                 
+                    #Not using frame.f_globals because of https://sourceforge.net/tracker2/?func=detail&aid=2541355&group_id=85796&atid=577329
+                    #(Names not resolved in generator expression in method)
+                    #See message: http://mail.python.org/pipermail/python-list/2009-January/526522.html
+                    updated_globals = {}
+                    updated_globals.update(frame.f_globals)
+                    updated_globals.update(frame.f_locals) #locals later because it has precedence over the actual globals
                 
-                def makeValid(s):
-                    return pydevd_vars.makeValidXmlValue(pydevd_vars.quote(s, '/>_= \t'))
-                
-                msg = "<xml>"
-                
-                for comp in completions:
-                    msg += '<comp p0="%s" p1="%s" p2="%s" p3="%s"/>' % (makeValid(comp[0]), makeValid(comp[1]), makeValid(comp[2]), makeValid(comp[3]),)
-                msg += "</xml>"
-                
-                cmd = dbg.cmdFactory.makeGetCompletionsMessage(self.sequence, msg)
-                dbg.writer.addCommand(cmd)
+                    completer = _completer.Completer(updated_globals, None)
+                    #list(tuple(name, descr, parameters, type))
+                    completions = completer.complete(self.act_tok)
+                    
+                    
+                    def makeValid(s):
+                        return pydevd_vars.makeValidXmlValue(pydevd_vars.quote(s, '/>_= \t'))
+                    
+                    msg = "<xml>"
+                    
+                    for comp in completions:
+                        msg += '<comp p0="%s" p1="%s" p2="%s" p3="%s"/>' % (makeValid(comp[0]), makeValid(comp[1]), makeValid(comp[2]), makeValid(comp[3]),)
+                    msg += "</xml>"
+                    
+                    cmd = dbg.cmdFactory.makeGetCompletionsMessage(self.sequence, msg)
+                    dbg.writer.addCommand(cmd)
+                else:
+                    cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "InternalGetCompletions: Frame not found: %s from thread: %s" % (self.frame_id, self.thread_id))
+                    dbg.writer.addCommand(cmd)
+
                 
             finally:
                 if remove_path is not None:

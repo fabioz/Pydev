@@ -11,38 +11,37 @@ public final class Assign extends stmtType {
         this.value = value;
     }
 
-    public Assign(exprType[] targets, exprType value, SimpleNode parent) {
-        this(targets, value);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Assign createCopy() {
+        return createCopy(true);
+    }
+    public Assign createCopy(boolean copyComments) {
         exprType[] new0;
         if(this.targets != null){
         new0 = new exprType[this.targets.length];
         for(int i=0;i<this.targets.length;i++){
-            new0[i] = (exprType) (this.targets[i] != null? this.targets[i].createCopy():null);
+            new0[i] = (exprType) (this.targets[i] != null?
+            this.targets[i].createCopy(copyComments):null);
         }
         }else{
             new0 = this.targets;
         }
-        Assign temp = new Assign(new0, value!=null?(exprType)value.createCopy():null);
+        Assign temp = new Assign(new0, value!=null?(exprType)value.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if(this.specialsBefore != null){
+        if(this.specialsBefore != null && copyComments){
             for(Object o:this.specialsBefore){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsBefore().add(commentType.createCopy());
+                    temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if(this.specialsAfter != null){
+        if(this.specialsAfter != null && copyComments){
             for(Object o:this.specialsAfter){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsAfter().add(commentType.createCopy());
+                    temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
             }
         }

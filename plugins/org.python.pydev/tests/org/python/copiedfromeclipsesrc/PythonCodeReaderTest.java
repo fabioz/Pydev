@@ -12,6 +12,7 @@ package org.python.copiedfromeclipsesrc;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.docutils.PythonCodeReader;
 import org.python.pydev.core.structure.FastStringBuffer;
 
 public class PythonCodeReaderTest extends TestCase {

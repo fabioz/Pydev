@@ -11,7 +11,7 @@ build matches when doing a replace (so, the version of the xml has some extra sp
       plugin="org.python.pydev.django_templates">
 
    <description>
-      Pydev Django Templates Editor
+      PyDev Django Templates Editor
    </description>
 
    <copyright>

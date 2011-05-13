@@ -14,7 +14,6 @@ package org.python.pydev.core;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -151,13 +150,21 @@ public class REF {
 
     /**
      * @param file the file we want to read
-     * @return the contents of the fil as a string
+     * @return the contents of the file as a string
      */
     public static String getFileContents(File file) {
+        return (String) getFileContentsCustom(file, String.class);
+    }
+    
+    /**
+     * @param file the file we want to read
+     * @return the contents of the file as a string
+     */
+    public static Object getFileContentsCustom(File file, Class<? extends Object> returnType) {
         FileInputStream stream = null;
         try {
             stream = new FileInputStream(file);
-            return (String) getStreamContents(stream, null, null, String.class);
+            return getStreamContents(stream, null, null, returnType);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }finally{
@@ -265,36 +272,7 @@ public class REF {
         return Base64.encodeBase64(byteArray);
     }
     
-    
-    /**
-     * @param persisted the base64 string that should be converted to an object.
-     * @param readFromFileMethod should be the calback from the plugin that is calling this function (this is needed
-     * because from one plugin we cannot load the contents of objects defined in another plugin)
-     * 
-     * 
-     * The callback should be something as:
-     *
-     *  new ICallback<Object, ObjectInputStream>(){
-     *
-     *      public Object call(ObjectInputStream arg) {
-     *          try {
-     *              return arg.readObject();
-     *          } catch (IOException e) {
-     *              throw new RuntimeException(e);
-     *          } catch (ClassNotFoundException e) {
-     *              throw new RuntimeException(e);
-     *          }
-     *      }};
-     * 
-     * @return the object that was previously serialized in the passed base64 string.
-     */
-    public static Object getStrAsObj(String persisted, ICallback<Object, ObjectInputStream> readFromFileMethod) 
-        throws IOException, ClassNotFoundException {
-        
-        InputStream input = new ByteArrayInputStream(decodeBase64(persisted));
-        Object o = readFromInputStreamAndCloseIt(readFromFileMethod, input);
-        return o;
-    }
+
 
     /**
      * This method loads the contents of an object that was serialized.
@@ -698,7 +676,6 @@ public class REF {
      */
     @SuppressWarnings("deprecation")
     public static ITextFileBuffer getBufferFromPath(IPath path) {
-        //TODO: make this better for 3.3/ 3.2 (and check if behaviour is correct now)
         try{
             try{
                 
@@ -1124,6 +1101,14 @@ public class REF {
     private static final Map<File, Set<String>> alreadyReturned = new HashMap<File, Set<String>>();
     private static Object lockTempFiles = new Object();
     public static File getTempFileAt(File parentDir, String prefix) {
+        return getTempFileAt(parentDir, prefix, "");
+    }
+    
+    /**
+     * @param extension the extension (i.e.: ".py")
+     * @return
+     */
+    public static File getTempFileAt(File parentDir, String prefix, String extension) {
         synchronized (lockTempFiles) {
             Assert.isTrue(parentDir.isDirectory());
             Set<String> current = alreadyReturned.get(parentDir);
@@ -1133,9 +1118,10 @@ public class REF {
             }
             current.addAll(getFilesStartingWith(parentDir, prefix));
             
+            FastStringBuffer buf = new FastStringBuffer();
             
             for(long i=0;i<Long.MAX_VALUE;i++){
-                String v = prefix+i;
+                String v = buf.clear().append(prefix).append(i).append(extension).toString();
                 if(current.contains(v)){
                     continue;
                 }
@@ -1194,18 +1180,22 @@ public class REF {
      * Yes, this will delete everything under a directory. Use with care!
      */
     public static void deleteDirectoryTree(File directory) throws IOException {
+        if(!directory.exists()){
+            return;
+        }
         File[] files = directory.listFiles();
-
-        for (int i = 0; i < files.length; ++i) {
-            File f = files[i];
-
-            if (f.isDirectory()){
-                deleteDirectoryTree(f);
-            }else{
-                deleteFile(f);
+        if(files != null){
+    
+            for (int i = 0; i < files.length; ++i) {
+                File f = files[i];
+    
+                if (f.isDirectory()){
+                    deleteDirectoryTree(f);
+                }else{
+                    deleteFile(f);
+                }
             }
         }
-
         if (!directory.delete()) {
             throw new IOException("Delete operation failed when deleting: "+directory);
         }

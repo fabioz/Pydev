@@ -12,7 +12,6 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -28,7 +27,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.DeltaSaver;
 import org.python.pydev.core.ICodeCompletionASTManager;
-import org.python.pydev.core.IDeltaProcessor;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
@@ -37,43 +35,26 @@ import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaProjectModulesManagerCreator;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.ModulesKeyForJava;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * @author Fabio Zadrozny
  */
-public class ProjectModulesManager extends ProjectModulesManagerBuild implements IDeltaProcessor<ModulesKey>{
+public final class ProjectModulesManager extends ModulesManagerWithBuild implements IProjectModulesManager{
 
-    /**
-     * Forcing rebuild for 1.4.2 (a bug was making pydev loose information, so, that should make it 'right')
-     */
-    private static final long serialVersionUID = 2L;
-
-    /**
-     * Determines whether we are testing it.
-     */
-    public static boolean IN_TESTS = false;
     
     private static final boolean DEBUG_MODULES = false;
     
     //these attributes must be set whenever this class is restored.
-    private transient IProject project;
-    private transient IPythonNature nature;
-    
-    /**
-     * Used to process deltas (in case we have the process killed for some reason)
-     */
-    private transient DeltaSaver<ModulesKey> deltaSaver;
+    private volatile IProject project;
+    private volatile IPythonNature nature;
+
     
     public ProjectModulesManager() {}
     
@@ -87,16 +68,8 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
         if(completionsCacheDir == null){
         	return; //project was deleted.
         }
-        
-		this.deltaSaver = new DeltaSaver<ModulesKey>(completionsCacheDir, "astdelta", new ICallback<Object, ObjectInputStream>(){
 
-            public ModulesKey call(ObjectInputStream arg) {
-                try {
-                    return (ModulesKey) arg.readObject();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }});
+        this.deltaSaver = new DeltaSaver<ModulesKey>(completionsCacheDir, "v1_astdelta", readFromFileMethod,toFileMethod);
         
         if(!restoreDeltas){
             deltaSaver.clearAll(); //remove any existing deltas
@@ -110,65 +83,11 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
     
 
     /** 
-     * @see org.python.pydev.core.IProjectModulesManager#processUpdate(org.python.pydev.core.ModulesKey)
-     */
-    public void processUpdate(ModulesKey data) {
-        //updates are ignored because we always start with 'empty modules' (so, we don't actually generate them -- updates are treated as inserts).
-        throw new RuntimeException("Not impl");
-    }
-
-    /** 
-     * @see org.python.pydev.core.IProjectModulesManager#processDelete(org.python.pydev.core.ModulesKey)
-     */
-    public void processDelete(ModulesKey key) {
-        super.doRemoveSingleModule(key);
-    }
-
-    /** 
-     * @see org.python.pydev.core.IProjectModulesManager#processInsert(org.python.pydev.core.ModulesKey)
-     */
-    public void processInsert(ModulesKey key) {
-        super.addModule(key);
-    }
-
-    /** 
      * @see org.python.pydev.core.IProjectModulesManager#endProcessing()
      */
     public void endProcessing() {
         //save it with the updated info
         nature.saveAstManager();
-    }
-
-    @Override
-    public void doRemoveSingleModule(ModulesKey key) {
-        super.doRemoveSingleModule(key);
-        if(deltaSaver != null && !IN_TESTS){ //we don't want deltas in tests
-            //overridden to add delta
-            deltaSaver.addDeleteCommand(key);
-            checkDeltaSize();
-        }
-    }
-        
-    
-    @Override
-    public void doAddSingleModule(ModulesKey key, AbstractModule n) {
-        super.doAddSingleModule(key, n);
-        if((deltaSaver != null && !IN_TESTS) && !(key instanceof ModulesKeyForZip) && !(key instanceof ModulesKeyForJava)){ 
-            //we don't want deltas in tests nor in zips/java modules
-            //overridden to add delta
-            deltaSaver.addInsertCommand(key);
-            checkDeltaSize();
-        }
-    }
-    
-    /**
-     * If the delta size is big enough, save the current state and discard the deltas.
-     */
-    private void checkDeltaSize() {
-        if(deltaSaver != null && deltaSaver.availableDeltas() > MAXIMUN_NUMBER_OF_DELTAS){
-            nature.saveAstManager();
-            deltaSaver.clearAll();
-        }
     }
 
 
@@ -433,8 +352,12 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
                 list.add(javaModulesManagerForProject);
             }
             
-            HashSet<IProject> projs = new HashSet<IProject>();
-            getProjectsRecursively(project, referenced, projs);
+            Set<IProject> projs;
+            if(referenced){
+                projs = getReferencedProjects(project);
+            }else{
+                projs = getReferencingProjects(project);
+            }
             addModuleManagers(list, projs);
         }
         
@@ -452,14 +375,33 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
     }
 
 
+    public static Set<IProject> getReferencingProjects(IProject project) {
+        HashSet<IProject> memo = new HashSet<IProject>();
+        getProjectsRecursively(project, false, memo);
+        memo.remove(project); //shouldn't happen unless we've a cycle...
+        return memo;
+    }
+    
+    public static Set<IProject> getReferencedProjects(IProject project) {
+        HashSet<IProject> memo = new HashSet<IProject>();
+        getProjectsRecursively(project, true, memo);
+        memo.remove(project); //shouldn't happen unless we've a cycle...
+        return memo;
+    }
+    
     /**
-     * @param project the project for which we wante references.
+     * @param project the project for which we want references.
      * @param referenced whether we want to get the referenced projects or the ones referencing this one.
      * @param memo (out) this is the place where all the projects will e available.
+     * 
+     * Note: the project itself will not be added.
      */
-    public static void getProjectsRecursively(IProject project, boolean referenced, HashSet<IProject> memo) {
+    private static void getProjectsRecursively(IProject project, boolean referenced, HashSet<IProject> memo) {
         IProject[] projects = null;
         try {
+            if(project == null || !project.isOpen() || !project.exists() || memo.contains(projects)){
+                return;
+            }
             if(referenced){
                 projects = project.getReferencedProjects();
             }else{
@@ -470,19 +412,14 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
         }
         
         
-        HashSet<IProject> newFound = new HashSet<IProject>();
         
         if(projects != null){
             for (IProject p : projects) {
                 if(!memo.contains(p)){
                     memo.add(p);
-                    newFound.add(p);
+                    getProjectsRecursively(p, referenced, memo);
                 }
             }
-        }
-        
-        for (IProject p : newFound) {
-            getProjectsRecursively(p, referenced, memo);
         }
     }
     

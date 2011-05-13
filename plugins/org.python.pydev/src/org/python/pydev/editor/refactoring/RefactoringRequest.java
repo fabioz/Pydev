@@ -137,9 +137,10 @@ public class RefactoringRequest extends DecoratableObject{
      * @param desc Some string to be shown in the progress
      */
     public synchronized void communicateWork(String desc) throws OperationCanceledException {
-        if(getMonitor() != null){
-            getMonitor().setTaskName(desc);
-            getMonitor().worked(1);
+        IProgressMonitor monitor = getMonitor();
+        if(monitor != null){
+            monitor.setTaskName(desc);
+            monitor.worked(1);
             checkCancelled();
         }
     }

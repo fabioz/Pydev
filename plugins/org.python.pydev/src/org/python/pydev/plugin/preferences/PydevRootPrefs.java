@@ -18,7 +18,7 @@ public class PydevRootPrefs  extends PreferencePage implements IWorkbenchPrefere
 
 
     public PydevRootPrefs() {
-        setDescription(StringUtils.format("Pydev version: %s", PydevPlugin.version)); 
+        setDescription(StringUtils.format("PyDev version: %s", PydevPlugin.version)); 
     }
 
     protected Control createContents(Composite parent) {

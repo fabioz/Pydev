@@ -99,7 +99,6 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
 
     /**
      * @param tabFolder
-     * @param tabText TODO
      * @return
      */
     private Composite createTab(TabFolder tabFolder, String tabText) {

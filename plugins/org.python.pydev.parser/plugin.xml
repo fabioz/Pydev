@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
 <plugin>
-   <extension-point id="pydev_parser_observer" name="Pydev Parser Observer" schema="schema/pydev_parser_observer.exsd"/>
+   <extension-point id="pydev_parser_observer" name="PyDev Parser Observer" schema="schema/pydev_parser_observer.exsd"/>
 
 </plugin>

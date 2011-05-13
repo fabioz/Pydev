@@ -556,6 +556,27 @@ public final class FastStringBuffer{
         return this;
     }
 
+    
+    public String getLastWord() {
+        FastStringBuffer lastWordBuf = new FastStringBuffer(this.count);
+        int i;
+        //skip whitespaces in the end
+        for(i=this.count-1;i>=0;i--){
+            if(!Character.isWhitespace(this.value[i])){
+                break;
+            }
+        }
+        //actual word
+        for(;i>=0;i--){
+            if(Character.isWhitespace(this.value[i])){
+                break;
+            }
+            lastWordBuf.append(this.value[i]);
+        }
+        lastWordBuf.reverse();
+        return lastWordBuf.toString();
+    }
+
 
     
 }

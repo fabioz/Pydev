@@ -22,7 +22,7 @@ import java.util.NoSuchElementException;
  * 
  * @param <E>
  */
-public class FastStack<E> implements Iterable<E> {
+public final class FastStack<E> implements Iterable<E> {
 
     private E[] elementData;
 

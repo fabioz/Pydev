@@ -24,7 +24,7 @@
 
 <extension point="org.eclipse.ui.actionSets">
   <actionSet
-        label="Pydev Debug"
+        label="PyDev Debug"
         visible="false"
         id="com.python.pydev.debug.actionSet">
      <menu
@@ -36,7 +36,7 @@
            label="&amp;Start Debug Server"
            icon="icons/start_debug_server.gif"
            class="com.python.pydev.debug.actions.StartDebugServer"
-           tooltip="Pydev: start the pydev server"
+           tooltip="PyDev: start the pydev server"
            menubarPath="pyGeneralMenu/pyDebugGroup"
            toolbarPath="pyDebugGroup"
            id="com.python.pydev.debug.actions.StartDebugServer">
@@ -45,7 +45,7 @@
            label="&amp;End Debug Server"
            icon="icons/term_debug_server.gif"
            class="com.python.pydev.debug.actions.EndDebugServer"
-           tooltip="Pydev: stop the debugger server"
+           tooltip="PyDev: stop the debugger server"
            menubarPath="pyGeneralMenu/pyDebugGroup"
            toolbarPath="pyDebugGroup"
            id="com.python.pydev.debug.actions.EndDebugServer">

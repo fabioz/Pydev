@@ -15,41 +15,38 @@ public final class For extends stmtType {
         this.orelse = orelse;
     }
 
-    public For(exprType target, exprType iter, stmtType[] body, suiteType orelse, SimpleNode
-    parent) {
-        this(target, iter, body, orelse);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public For createCopy() {
+        return createCopy(true);
+    }
+    public For createCopy(boolean copyComments) {
         stmtType[] new0;
         if(this.body != null){
         new0 = new stmtType[this.body.length];
         for(int i=0;i<this.body.length;i++){
-            new0[i] = (stmtType) (this.body[i] != null? this.body[i].createCopy():null);
+            new0[i] = (stmtType) (this.body[i] != null? this.body[i].createCopy(copyComments):null);
         }
         }else{
             new0 = this.body;
         }
-        For temp = new For(target!=null?(exprType)target.createCopy():null,
-        iter!=null?(exprType)iter.createCopy():null, new0,
-        orelse!=null?(suiteType)orelse.createCopy():null);
+        For temp = new For(target!=null?(exprType)target.createCopy(copyComments):null,
+        iter!=null?(exprType)iter.createCopy(copyComments):null, new0,
+        orelse!=null?(suiteType)orelse.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if(this.specialsBefore != null){
+        if(this.specialsBefore != null && copyComments){
             for(Object o:this.specialsBefore){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsBefore().add(commentType.createCopy());
+                    temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if(this.specialsAfter != null){
+        if(this.specialsAfter != null && copyComments){
             for(Object o:this.specialsAfter){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsAfter().add(commentType.createCopy());
+                    temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
             }
         }

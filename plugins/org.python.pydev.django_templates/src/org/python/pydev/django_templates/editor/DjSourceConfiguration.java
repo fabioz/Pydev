@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.rules.IPredicateRule;
@@ -24,12 +25,14 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.django_templates.IDjConstants;
+import org.python.pydev.django_templates.completions.DjContentAssistProcessor;
 import org.python.pydev.django_templates.completions.templates.DjContextType;
 import org.python.pydev.django_templates.completions.templates.TemplateHelper;
 import org.python.pydev.editor.PyCodeScanner;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.ColorAndStyleCache;
 
+import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.IPartitioningConfiguration;
 import com.aptana.editor.common.ISourceViewerConfiguration;
 import com.aptana.editor.common.text.rules.ISubPartitionScanner;
@@ -142,6 +145,14 @@ public abstract class DjSourceConfiguration implements IPartitioningConfiguratio
         reconciler.setDamager(dr, DjSourceConfiguration.COMMENT);
         reconciler.setRepairer(dr, DjSourceConfiguration.COMMENT);
     }
+
+	/* (non-Javadoc)
+	 * @see com.aptana.editor.common.ISourceViewerConfiguration#getContentAssistProcessor(com.aptana.editor.common.AbstractThemeableEditor, java.lang.String)
+	 */
+	public IContentAssistProcessor getContentAssistProcessor(AbstractThemeableEditor editor, String contentType) {
+		return new DjContentAssistProcessor(contentType, null);
+	}
+
 
     public PyCodeScanner getCodeScanner() {
         if (codeScanner == null) {

@@ -62,9 +62,14 @@ def main():
         
     except ImportError:
         if found_other_test_framework_param:
-            sys.stderr.write('Warning: Could not import the test runner: %s. Running with the default pydev unittest runner.\n' % (
+            sys.stderr.write('Warning: Could not import the test runner: %s. Running with the default pydev unittest runner instead.\n' % (
                 found_other_test_framework_param,))
             
+        test_framework = 0
+        
+        
+    if test_framework == 0:
+        
         pydev_runfiles.main(configuration)
         
     else:

@@ -256,11 +256,14 @@ public class PyParser implements IPyParser {
         forceReparse();
     }
     
-    public void forceReparse(Object ... argsToReparse){
+    /**
+     * @return false if we asked a reparse and it will not be scheduled because a reparse is already in action.
+     */
+    public boolean forceReparse(Object ... argsToReparse){
         if(disposed){
-            return;
+            return true; //reparse didn't happen, but no matter what happens, it won't happen anyways
         }
-        scheduler.parseNow(true, argsToReparse);
+        return scheduler.parseNow(true, argsToReparse);
     }
     
 

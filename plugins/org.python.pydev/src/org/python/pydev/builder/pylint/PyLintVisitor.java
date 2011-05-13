@@ -123,7 +123,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                                         PYLINT_PROBLEM_MARKER, priority, false, false, line, 0, line, 0, null));
                             }
                             
-                            PydevMarkerUtils.replaceMarkers(lst, resource, PYLINT_PROBLEM_MARKER, monitor);
+                            PydevMarkerUtils.replaceMarkers(lst, resource, PYLINT_PROBLEM_MARKER, true, monitor);
     
                             return PydevPlugin.makeStatus(Status.OK, "", null);
                         }
@@ -183,7 +183,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             list.add("--include-ids=y");
             
             //user args
-            String userArgs = StringUtils.replaceNewLines(PyLintPrefPage.getPylintArgs(), " ");
+            String userArgs = StringUtils.replaceNewLines(PyLintPrefPage.getPyLintArgs(), " ");
             StringTokenizer tokenizer2 = new StringTokenizer(userArgs);
             while(tokenizer2.hasMoreTokens()){
                 list.add(tokenizer2.nextToken());
@@ -195,7 +195,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             
             String scriptToExe = REF.getFileAbsolutePath(script);
             String[] paramsToExe = list.toArray(new String[0]);
-            write("Pylint: Executing command line:'", out, scriptToExe, paramsToExe, "'");
+            write("PyLint: Executing command line:'", out, scriptToExe, paramsToExe, "'");
             
             PythonNature nature = PythonNature.getPythonNature(project);
             if(nature == null){
@@ -206,8 +206,8 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutputFromPythonScript(
                     nature.getProjectInterpreter().getExecutableOrJar(), scriptToExe, paramsToExe, arg.getParentFile(), project);
             
-            write("Pylint: The stdout of the command line is: "+outTup.o1, out);
-            write("Pylint: The stderr of the command line is: "+outTup.o2, out);
+            write("PyLint: The stdout of the command line is: "+outTup.o1, out);
+            write("PyLint: The stderr of the command line is: "+outTup.o2, out);
             
             String output = outTup.o1;
 

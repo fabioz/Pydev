@@ -52,13 +52,11 @@
          point="com.aptana.parsing.parser">
       <parser
             class="org.python.pydev.django_templates.html.parsing.DjHTMLParser"
-            content-type="org.python.pydev.contenttype.django_templates.html"
-            language="text/django_templates_html">
+            content-type="org.python.pydev.contenttype.django_templates.html">
       </parser>
       <parser
             class="org.python.pydev.django_templates.css.parsing.DjCssParser"
-            content-type="org.python.pydev.contenttype.django_templates.css"
-            language="text/django_templates_css">
+            content-type="org.python.pydev.contenttype.django_templates.css">
       </parser>
    </extension>
    

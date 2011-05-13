@@ -17,6 +17,5 @@ Require-Bundle: org.eclipse.ui,
  com.aptana.theme;resolution:=optional,
  org.python.pydev.debug
 Eclipse-LazyStart: true
-Bundle-ClassPath: red-core.jar,
- retroweaver-rt.jar
+Bundle-ClassPath: red-core.jar
 Export-Package: org.python.pydev.red_core

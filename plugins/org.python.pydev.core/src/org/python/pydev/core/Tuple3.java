@@ -16,8 +16,10 @@ import java.io.Serializable;
  * 
  * @author Fabio
  */
-public class Tuple3<X, Y, Z> implements Serializable {
+public final class Tuple3<X, Y, Z> implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+    
     public X o1;
     public Y o2;
     public Z o3;

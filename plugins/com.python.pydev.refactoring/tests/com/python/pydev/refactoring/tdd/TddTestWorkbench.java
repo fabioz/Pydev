@@ -63,6 +63,10 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         //We have to wait a bit until the info is setup for the tests to work...
         waitForModulesManagerSetup();
         
+        checkCreateMethodAtField();
+        
+        checkCreateField();
+        
         checkCreateNewModule4();
         
         checkCreateFieldAtClass5();
@@ -119,6 +123,89 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         
         checkCreateNewModuleWithClass3();
     }
+    
+    
+    
+    private void checkCreateField() throws CoreException, BadLocationException, MisconfigurationException {
+        String mod1Contents = "" +
+        "class Err(object):\n" +
+        "\n" +
+        "   def Foo(self):\n" +
+        "       self._suggestion_not_there.get()" +
+        "";
+        setContentsAndWaitReparseAndError(mod1Contents, false); //no error here
+        
+        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        IDocument doc = editor.getDocument();
+        int offset = doc.getLength();
+        PySelection ps = new PySelection(doc, offset);
+        assertTrue(quickFix.isValid(ps, "", editor, offset));
+        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+        try {
+            findCompletion(props, "Create _suggestion_not_there field at Err").apply(editor.getISourceViewer(), '\n', 0, offset);
+            assertContentsEqual("" +
+                    "class Err(object):\n"+
+                    "\n"+
+                    "   \n"+
+                    "   def __init__(self):\n"+
+                    "       self._suggestion_not_there = None\n"+
+                    "   \n"+
+                    "   \n"+
+                    "\n"+
+                    "   def Foo(self):\n"+
+                    "       self._suggestion_not_there.get()"+
+                    "", editor.getDocument().get());
+        } finally {
+            editor.doRevertToSaved();
+        }
+    }
+    
+    private void checkCreateMethodAtField() throws CoreException, BadLocationException, MisconfigurationException {
+        String mod1Contents = "" +
+        "class Bar(object):\n" +
+        "    pass\n" +
+        "\n" +
+        "class MyTestClass(object):\n" +
+        "    \n" +
+        "    def __init__(self):\n" +
+        "        self.bar = Bar()\n" +
+        "    \n" +
+        "    def test_1(self):\n" +
+        "        self.bar.something()" +
+        "";
+        setContentsAndWaitReparseAndError(mod1Contents, false); //no error here
+        
+        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        IDocument doc = editor.getDocument();
+        int offset = doc.getLength();
+        PySelection ps = new PySelection(doc, offset);
+        assertTrue(quickFix.isValid(ps, "", editor, offset));
+        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+        try {
+            findCompletion(props, "Create something field at Bar (pack1.pack2.mod1)").apply(editor.getISourceViewer(), '\n', 0, offset);
+            assertContentsEqual("" +
+                    "class Bar(object):\n"+
+                    "    \n"+
+                    "    \n"+
+                    "    def __init__(self):\n"+
+                    "        self.something = None\n"+
+                    "    \n"+
+                    "    \n"+
+                    "\n"+
+                    "\n"+
+                    "class MyTestClass(object):\n"+
+                    "    \n"+
+                    "    def __init__(self):\n"+
+                    "        self.bar = Bar()\n"+
+                    "    \n"+
+                    "    def test_1(self):\n"+
+                    "        self.bar.something()"+
+                    "", editor.getDocument().get());
+        } finally {
+            editor.doRevertToSaved();
+        }
+    }
+    
 
     
     
@@ -1218,8 +1305,10 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         
         ICallback<Boolean, Object> parseHappenedCondition = getParseHappenedCondition();
         
-        parser.forceReparse(new Tuple<String, Boolean>(
-                AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
+        while(!parser.forceReparse(new Tuple<String, Boolean>(
+                AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true))){
+            goToManual(50);
+        }
         goToIdleLoopUntilCondition(parseHappenedCondition);
 
         if(waitForError){

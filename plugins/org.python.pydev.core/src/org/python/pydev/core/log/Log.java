@@ -12,6 +12,7 @@ package org.python.pydev.core.log;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -23,6 +24,7 @@ import org.eclipse.ui.console.MessageConsole;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.Tuple;
 
 
 /**
@@ -36,10 +38,24 @@ public class Log {
     private static MessageConsole fConsole;
 	private static IOConsoleOutputStream fOutputStream;
 
+	private static Map<Tuple<Integer, String>, Long> lastLoggedTime = new HashMap<Tuple<Integer,String>, Long>();
+	
     /**
      * @param errorLevel IStatus.[OK|INFO|WARNING|ERROR]
      */
     public static void log(int errorLevel, String message, Throwable e) {
+        Tuple<Integer, String> key = new Tuple<Integer, String>(errorLevel, message);
+        synchronized (lastLoggedTime) {
+            Long lastLoggedMillis = lastLoggedTime.get(key);
+            long currentTimeMillis = System.currentTimeMillis();
+            if(lastLoggedMillis != null){
+                if(currentTimeMillis < lastLoggedMillis + (20 * 1000)) {
+                    //System.err.println("Skipped report of:"+message);
+                    return; //Logged in the last 20 seconds, so, just skip it for now
+                }
+            }
+            lastLoggedTime.put(key, currentTimeMillis);
+        }
         System.err.println(message);
         if(e != null){
         	if(!(e instanceof MisconfigurationException)){
@@ -112,7 +128,7 @@ public class Log {
                         c.write(buffer.toString());
                         c.write("\r\n");
                         
-//                IPath stateLocation = default1.getStateLocation().append("PydevLog.log");
+//                IPath stateLocation = default1.getStateLocation().append("PyDevLog.log");
 //                String file = stateLocation.toOSString();
 //                REF.appendStrToFile(buffer+"\r\n", file);
                     }catch(Throwable e){
@@ -138,7 +154,7 @@ public class Log {
     
     private static IOConsoleOutputStream getConsoleOutputStream(){
         if (fConsole == null){
-			fConsole = new MessageConsole("Pydev Logging", CorePlugin.getImageCache().getDescriptor("icons/python_logging.png"));
+			fConsole = new MessageConsole("PyDev Logging", CorePlugin.getImageCache().getDescriptor("icons/python_logging.png"));
 			
             fOutputStream = fConsole.newOutputStream();
             
@@ -178,6 +194,10 @@ public class Log {
                 logIndent.delete(0,4);
             }
         }
+    }
+
+    public static void log(IStatus status) {
+        CorePlugin.getDefault().getLog().log(status);
     }
 
 

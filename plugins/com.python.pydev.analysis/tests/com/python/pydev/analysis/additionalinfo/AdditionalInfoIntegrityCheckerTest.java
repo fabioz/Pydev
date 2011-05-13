@@ -13,6 +13,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.stmtType;
@@ -31,6 +32,8 @@ public class AdditionalInfoIntegrityCheckerTest extends AdditionalInfoTestsBase 
     private static final String MOD_NAME = "extendable.initially_not_existant";
     
     private IProgressMonitor monitor = new NullProgressMonitor();
+
+    private File baseDir;
     
     public static void main(String[] args) {
         try {
@@ -44,12 +47,32 @@ public class AdditionalInfoIntegrityCheckerTest extends AdditionalInfoTestsBase 
             e.printStackTrace();
         }
     }
+    
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        baseDir = REF.getTempFileAt(new File("."), "data_temp_additional_info_integrity_test");
+        if(baseDir.exists()){
+            REF.deleteDirectoryTree(baseDir);
+        }
+        baseDir.mkdir();
+    }
+    
+    @Override
+    public void tearDown() throws Exception {
+        if(baseDir.exists()){
+            REF.deleteDirectoryTree(baseDir);
+        }
+        super.tearDown();
+    }
 
     public void testIntegrityInModuleHasNoFile() throws MisconfigurationException {
         IntegrityInfo info = AdditionalInfoIntegrityChecker.checkIntegrity(nature, monitor, false);
         assertTrue(info.desc.toString(), info.allOk);
         
-        addFooModule(new Module(new stmtType[0]));
+        File f = REF.getTempFileAt(baseDir, "integrity_no_file", ".py");
+        REF.writeStrToFile("", f);
+        addFooModule(new Module(new stmtType[0]), f);
         info = AdditionalInfoIntegrityChecker.checkIntegrity(nature, monitor, false);
         assertFalse(info.allOk);
         assertEquals(1, info.modulesNotInDisk.size());

@@ -17,7 +17,6 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.python.pydev.django_templates.IDjConstants;
 import org.python.pydev.django_templates.common.DjDoubleClickStrategy;
 import org.python.pydev.django_templates.completions.DjContentAssistProcessor;
-import org.python.pydev.django_templates.editor.DjSourceConfiguration;
 import org.python.pydev.django_templates.editor.DjPartitionerSwitchStrategy;
 
 import com.aptana.editor.common.AbstractThemeableEditor;
@@ -29,7 +28,6 @@ import com.aptana.editor.common.scripting.QualifiedContentType;
 import com.aptana.editor.common.text.rules.CompositePartitionScanner;
 import com.aptana.editor.css.ICSSConstants;
 import com.aptana.editor.html.HTMLSourceConfiguration;
-import com.aptana.editor.html.HTMLSourceViewerConfiguration;
 import com.aptana.editor.html.IHTMLConstants;
 import com.aptana.editor.js.IJSConstants;
 
@@ -102,12 +100,11 @@ public class DjHTMLSourceViewerConfiguration extends CompositeSourceViewerConfig
 
     @Override
     protected IContentAssistProcessor getContentAssistProcessor(ISourceViewer sourceViewer, String contentType) {
-        if(DjSourceConfiguration.DEFAULT.equals(contentType) || IDocument.DEFAULT_CONTENT_TYPE.equals(contentType)){
-            return new DjContentAssistProcessor(contentType, null);
+        if(DjHtmlSourceConfiguration.DEFAULT.equals(contentType)){
+            return DjHtmlSourceConfiguration.getDefault().getContentAssistProcessor(getEditor(), contentType);
         }
-        AbstractThemeableEditor editor = getEditor();
-        IContentAssistProcessor htmlContentAssistProcessor = HTMLSourceViewerConfiguration.getContentAssistProcessor(contentType, editor);
-        if(HTMLSourceConfiguration.DEFAULT.equals(contentType)){
+        IContentAssistProcessor htmlContentAssistProcessor = HTMLSourceConfiguration.getDefault().getContentAssistProcessor(getEditor(), contentType);
+        if(HTMLSourceConfiguration.DEFAULT.equals(contentType) || IDocument.DEFAULT_CONTENT_TYPE.equals(contentType)){
             return new DjContentAssistProcessor(contentType, htmlContentAssistProcessor);
         }
         return htmlContentAssistProcessor;

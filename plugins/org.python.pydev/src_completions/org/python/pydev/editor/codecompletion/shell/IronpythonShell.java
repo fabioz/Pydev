@@ -19,6 +19,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleIronpythonRunner;
+import org.python.pydev.runners.SimpleRunner;
 
 /**
  * @author Fabio Zadrozny
@@ -61,7 +62,7 @@ public class IronpythonShell extends AbstractShell{
         
         String[] envp = null;
         try {
-            envp = new SimpleIronpythonRunner().getEnvironment(null, interpreter, manager);
+            envp = SimpleRunner.getEnvironment(null, interpreter, manager, true);
         } catch (CoreException e) {
             Log.log(e);
         }

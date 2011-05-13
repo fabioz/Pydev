@@ -180,7 +180,7 @@ public class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposal
             try {
                 String args;
                 if(fArgs.length() > 0){
-                    args = fArgs.substring(1, fArgs.length()-1); //remove the parentesis
+                    args = fArgs.substring(1, fArgs.length()-1); //remove the parenthesis
                 }else{
                     args = "";
                 }

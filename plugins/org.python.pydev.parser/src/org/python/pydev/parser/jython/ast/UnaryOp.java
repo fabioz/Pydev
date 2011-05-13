@@ -11,29 +11,28 @@ public final class UnaryOp extends exprType implements unaryopType {
         this.operand = operand;
     }
 
-    public UnaryOp(int op, exprType operand, SimpleNode parent) {
-        this(op, operand);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public UnaryOp createCopy() {
-        UnaryOp temp = new UnaryOp(op, operand!=null?(exprType)operand.createCopy():null);
+        return createCopy(true);
+    }
+    public UnaryOp createCopy(boolean copyComments) {
+        UnaryOp temp = new UnaryOp(op,
+        operand!=null?(exprType)operand.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if(this.specialsBefore != null){
+        if(this.specialsBefore != null && copyComments){
             for(Object o:this.specialsBefore){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsBefore().add(commentType.createCopy());
+                    temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if(this.specialsAfter != null){
+        if(this.specialsAfter != null && copyComments){
             for(Object o:this.specialsAfter){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsAfter().add(commentType.createCopy());
+                    temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
             }
         }

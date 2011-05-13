@@ -11,39 +11,37 @@ public final class SetComp extends exprType {
         this.generators = generators;
     }
 
-    public SetComp(exprType elt, comprehensionType[] generators, SimpleNode parent) {
-        this(elt, generators);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public SetComp createCopy() {
+        return createCopy(true);
+    }
+    public SetComp createCopy(boolean copyComments) {
         comprehensionType[] new0;
         if(this.generators != null){
         new0 = new comprehensionType[this.generators.length];
         for(int i=0;i<this.generators.length;i++){
             new0[i] = (comprehensionType) (this.generators[i] != null?
-            this.generators[i].createCopy():null);
+            this.generators[i].createCopy(copyComments):null);
         }
         }else{
             new0 = this.generators;
         }
-        SetComp temp = new SetComp(elt!=null?(exprType)elt.createCopy():null, new0);
+        SetComp temp = new SetComp(elt!=null?(exprType)elt.createCopy(copyComments):null, new0);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if(this.specialsBefore != null){
+        if(this.specialsBefore != null && copyComments){
             for(Object o:this.specialsBefore){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsBefore().add(commentType.createCopy());
+                    temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if(this.specialsAfter != null){
+        if(this.specialsAfter != null && copyComments){
             for(Object o:this.specialsAfter){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsAfter().add(commentType.createCopy());
+                    temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
             }
         }

@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.IPythonNature;
@@ -81,7 +82,18 @@ public class AssistDocString implements IAssistProps {
             image = imageCache.get(UIConstants.ASSIST_DOCSTRING);
         }
         l.add(new PyCompletionProposal(comp, offsetPosToAdd, 0, newOffset, image, "Make docstring",
-                null, null, IPyCompletionProposal.PRIORITY_DEFAULT));
+                null, null, IPyCompletionProposal.PRIORITY_DEFAULT){
+            public void apply(IDocument document) {
+                //remove the next line if it is a pass...
+                PySelection ps = new PySelection(document, fReplacementOffset);
+                int iNextLine = ps.getCursorLine()+1;
+                String nextLine = ps.getLine(iNextLine);
+                if(nextLine.trim().equals("pass")){
+                    ps.deleteLine(iNextLine);
+                }
+                super.apply(document);
+            }
+        });
         return l;
     }
 

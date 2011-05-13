@@ -174,4 +174,11 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
         throw new RuntimeException("Not implemented");
     }
 
+    /* (non-Javadoc)
+     * @see org.python.pydev.core.ICodeCompletionASTManager#saveToFile(java.io.File)
+     */
+    public void saveToFile(File astOutputFile) {
+        throw new RuntimeException("Not implemented");
+    }
+
 }

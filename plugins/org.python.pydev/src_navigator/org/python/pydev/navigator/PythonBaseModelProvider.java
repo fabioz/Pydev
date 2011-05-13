@@ -1194,11 +1194,22 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                         treeViewer.getControl().setRedraw(false);
                     }
                     try {
+                        Set<IProject> notifyRebuilt = new HashSet<IProject>();
+                        
                         //now, we have to make a bridge among the tree and
                         //the python model (so, if some element is removed,
                         //we have to create an actual representation for it)
                         if (addedObjects.length > 0) {
                             treeViewer.add(resource, addedObjects);
+                            for (Object object : addedObjects) {
+                                if(object instanceof IResource){
+                                    IResource rem = (IResource) object;
+                                    Object remInPythonModel = getResourceInPythonModel(rem, true);
+                                    if(remInPythonModel instanceof PythonSourceFolder){
+                                        notifyRebuilt.add(rem.getProject());
+                                    }
+                                }
+                            }
                         }
                         
                         if (removedObjects.length > 0) {
@@ -1208,16 +1219,16 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                                     IResource rem = (IResource) object;
                                     Object remInPythonModel = getResourceInPythonModel(rem, true);
                                     if(remInPythonModel instanceof PythonSourceFolder){
-                                        Map<IProject, ProjectInfoForPackageExplorer> p = projectToSourceFolders;
-                                        if(p != null){
-                                            ProjectInfoForPackageExplorer projectInfo = p.get(resource.getProject());
-                                            if(projectInfo != null){
-                                                Set<PythonSourceFolder> existingSourceFolders = projectInfo.sourceFolders;
-                                                existingSourceFolders.remove(remInPythonModel);
-                                            }
-                                        }
+                                        notifyRebuilt.add(rem.getProject());
                                     }
                                 }
+                            }
+                        }
+                        
+                        for(IProject project:notifyRebuilt){
+                            PythonNature nature = PythonNature.getPythonNature(project);
+                            if(nature != null){
+                                notifyPythonPathRebuilt(project, nature);
                             }
                         }
                     } finally {

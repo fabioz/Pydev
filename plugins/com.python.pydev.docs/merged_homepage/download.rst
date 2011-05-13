@@ -1,3 +1,48 @@
+..
+    <right_area>
+    <h3>'Quick Install':</h3>
+    
+    <p><strong>Aptana Studio 3 (Beta)</strong> </p>
+    
+    <p>
+    Just grab it preinstalled from:
+    
+        <br>
+    <A href="http://aptana.com/products/studio3/download">http://aptana.com/products/studio3/download</A> 
+        <br>
+        <br>
+    
+    </p>
+    
+    <p><strong>Update Manager</strong> </p>
+    
+    <p> Go to the update manager (Help > Install New Software) and add: 
+        <br>
+        <br>
+        <A href="http://pydev.org/updates">http://pydev.org/updates</A> &nbsp;&nbsp;&nbsp;or
+        <br>
+        <br>
+        <A href="http://pydev.org/nightly">http://pydev.org/nightly</A> 
+        <br>
+        <br>
+        and follow the Eclipse steps.</p>
+    <br/>
+    
+    <p><strong>Zip File</strong></p>
+    
+    <p>An alternative is just getting the zip file and extracting it yourself in eclipse.</p>
+    
+    <p>For <strong>Eclipse 3.4, 3.5 and 3.6</strong>, you can extract it in the '<strong>dropins</strong>' folder (and restart Eclipse).</p>
+    
+    <p>For <strong>Eclipse 3.2 and 3.3</strong>, you have to make sure the plugins folder
+    is extracted on top of the Eclipse plugins folder and <strong>restart with '-clean'</strong>.</p>
+    
+    
+    
+    </right_area>
+    <image_area>download.png</image_area>
+    <quote_area><strong>Getting it up and running in your computer...</strong></quote_area>
+
 
 Download (Current release: **LAST_VERSION_TAG**)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -5,7 +50,7 @@ Download (Current release: **LAST_VERSION_TAG**)
 
 Important
 ~~~~~~~~~~~
-First time users are strongly advised to read the `Getting started guide`_  which explains how to properly configure PyDev
+First time users are **strongly** advised to read the `Getting started guide`_  which explains how to properly configure PyDev.
 
 
 Requirements
@@ -60,9 +105,7 @@ URLs for Aptana Studio 3 (with PyDev preinstalled):
     
 :Nightly builds: 
    
-    * Standalone (update manager URL): http://nightly.aptana.com/nightly/studio3-rcp/ 
-        Note: this url must be added as an URL to the update manager on an existing standalone version.
-    * Eclipse plugin (update manager URL): http://nightly.aptana.com/nightly/studio3/
+    * Please follow the instructions to get the Aptana Studio 3 nightly from: http://wiki.appcelerator.org/display/tis/Changing+the+Update+Type
 
 
 .. _http://pydev.sourceforge.net/updates: http://pydev.sourceforge.net/updates

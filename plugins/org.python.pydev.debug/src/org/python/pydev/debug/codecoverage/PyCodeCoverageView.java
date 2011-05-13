@@ -16,6 +16,7 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -81,7 +82,6 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallbackListener;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.uiutils.RunInUiThread;
-import org.python.pydev.debug.pyunit.ViewPartWithOrientation;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks.CreatedCommandLineParams;
 import org.python.pydev.editor.PyEdit;
@@ -93,6 +93,7 @@ import org.python.pydev.tree.AllowValidPathsFilter;
 import org.python.pydev.tree.FileTreeLabelProvider;
 import org.python.pydev.tree.FileTreePyFilesProvider;
 import org.python.pydev.ui.IViewCreatedObserver;
+import org.python.pydev.ui.ViewPartWithOrientation;
 import org.python.pydev.utils.ProgressAction;
 import org.python.pydev.utils.ProgressOperation;
 import org.python.pydev.utils.PyFilteredTree;
@@ -110,6 +111,13 @@ import org.python.pydev.utils.PyFilteredTree;
 
 public class PyCodeCoverageView extends ViewPartWithOrientation {
     
+    public static final String PYCOVERAGE_VIEW_ORIENTATION = "PYCOVERAGE_VIEW_ORIENTATION";
+    @Override
+    public String getOrientationPreferencesKey() {
+        return PYCOVERAGE_VIEW_ORIENTATION;
+    }
+
+
     public static String PY_COVERAGE_VIEW_ID = "org.python.pydev.views.PyCodeCoverageView";
     
     //layout stuff
@@ -234,6 +242,16 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         File input = lastChosenDir.getLocation().toFile();
         viewer.refresh();
         ITreeContentProvider contentProvider = (ITreeContentProvider) viewer.getContentProvider();
+        ISelection selection = viewer.getSelection();
+        if(selection instanceof StructuredSelection){
+            StructuredSelection current = (StructuredSelection) selection;
+            Object firstElement = current.getFirstElement();
+            if(firstElement != null){
+                onSelectedFileInTree(firstElement);
+                return;
+            }
+        }
+        //If the current selection wasn't valid, select something or notify that nothing is selected.
         Object[] children = contentProvider.getChildren(input);
         if(children.length > 0){
             viewer.setSelection(new StructuredSelection(children[0]));
@@ -786,6 +804,14 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
             }
         });
 
+        configureToolbar();
+
+
+        updateErrorMessages();
+
+    }
+
+    private void configureToolbar() {
         IActionBars actionBars = getViewSite().getActionBars();
         IToolBarManager toolbarManager = actionBars.getToolBarManager();
         IMenuManager menuManager = actionBars.getMenuManager();
@@ -796,10 +822,8 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         if(REF.getSupportsOpenDirectory()){
             menuManager.add(openCoverageFolderAction);
         }
-
-
-        updateErrorMessages();
-
+        
+        addOrientationPreferences(menuManager);
     }
 
     /**
@@ -945,43 +969,55 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
             if (original == null)
                 return;
             final IDocument document = e.getDocumentProvider().getDocument(e.getEditorInput());
-            
             //When creating it, it'll already start to listen for changes to remove the marker when needed.
             new RemoveCoverageMarkersListener(document, e, original);
+            
 
-            String type = PYDEV_COVERAGE_MARKER;
-            try {
-                original.deleteMarkers(type, false, 1);
-            } catch (CoreException e1) {
-                Log.log(e1);
-            }
-
-            String message = "Not Executed";
-
-            FileNode cache = (FileNode) PyCoverage.getPyCoverage().cache.getFile(realFile);
+            final FileNode cache = (FileNode) PyCoverage.getPyCoverage().cache.getFile(realFile);
             if(cache != null){
-                for (Iterator<Tuple<Integer,Integer>> it = cache.notExecutedIterator(); it.hasNext();) {
-                    try {
-                        Map<String, Object> map = new HashMap<String, Object>();
-                        Tuple<Integer,Integer> startEnd = it.next();
-   
-                        IRegion region = document.getLineInformation(startEnd.o1-1);
-                        int errorStart = region.getOffset();
+                
+                IWorkspaceRunnable r= new IWorkspaceRunnable() {
+                    public void run(IProgressMonitor monitor) throws CoreException {
                         
-                        region = document.getLineInformation(startEnd.o2-1);
-                        int errorEnd = region.getOffset() + region.getLength();
-   
-                        map.put(IMarker.MESSAGE, message);
-                        map.put(IMarker.SEVERITY, new Integer(IMarker.SEVERITY_ERROR));
-                        map.put(IMarker.CHAR_START, errorStart);
-                        map.put(IMarker.CHAR_END, errorEnd);
-                        map.put(IMarker.TRANSIENT, Boolean.valueOf(true));
-                        map.put(IMarker.PRIORITY, new Integer(IMarker.PRIORITY_HIGH));
-   
-                        MarkerUtilities.createMarker(original, map, type);
-                    } catch (Exception e1) {
-                        Log.log(e1);
+                        final String type = PYDEV_COVERAGE_MARKER;
+                        try {
+                            original.deleteMarkers(type, false, 1);
+                        } catch (CoreException e1) {
+                            Log.log(e1);
+                        }
+                        
+                        final String message = "Not Executed";
+                        
+                        for (Iterator<Tuple<Integer,Integer>> it = cache.notExecutedIterator(); it.hasNext();) {
+                            try {
+                                Map<String, Object> map = new HashMap<String, Object>();
+                                Tuple<Integer,Integer> startEnd = it.next();
+           
+                                IRegion region = document.getLineInformation(startEnd.o1-1);
+                                int errorStart = region.getOffset();
+                                
+                                region = document.getLineInformation(startEnd.o2-1);
+                                int errorEnd = region.getOffset() + region.getLength();
+           
+                                map.put(IMarker.MESSAGE, message);
+                                map.put(IMarker.SEVERITY, new Integer(IMarker.SEVERITY_ERROR));
+                                map.put(IMarker.CHAR_START, errorStart);
+                                map.put(IMarker.CHAR_END, errorEnd);
+                                map.put(IMarker.TRANSIENT, Boolean.valueOf(true));
+                                map.put(IMarker.PRIORITY, new Integer(IMarker.PRIORITY_HIGH));
+           
+                                MarkerUtilities.createMarker(original, map, type);
+                            } catch (Exception e1) {
+                                Log.log(e1);
+                            }
+                        }
                     }
+                };
+
+                try {
+                    original.getWorkspace().run(r, null,IWorkspace.AVOID_UPDATE, null);
+                } catch (CoreException e1) {
+                    Log.log(e1);
                 }
             }
         }

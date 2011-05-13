@@ -246,16 +246,16 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
 
     private void notifyFinished() {
         pyUnitViewServerListener.notifyFinished(null);
-        goToManual(50); //should be enough for it to execute
+        goToManual(100); //should be enough for it to execute
     }
     
     private void notifyTestsCollected(int totalTestsCount) {
         pyUnitViewServerListener.notifyTestsCollected(""+totalTestsCount);
-        goToManual(50); //should be enough for it to execute
+        goToManual(100); //should be enough for it to execute
     }
 
     private void notifyTest(String status, String location, String test, String capturedOutput, String errorContents, String time) {
         pyUnitViewServerListener.notifyTest(status, location, test, capturedOutput, errorContents, time);
-        goToManual(50); //should be enough for it to execute
+        goToManual(100); //should be enough for it to execute
     }
 }

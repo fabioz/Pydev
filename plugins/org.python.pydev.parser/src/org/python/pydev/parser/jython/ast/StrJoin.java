@@ -9,18 +9,16 @@ public final class StrJoin extends exprType {
         this.strs = strs;
     }
 
-    public StrJoin(exprType[] strs, SimpleNode parent) {
-        this(strs);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public StrJoin createCopy() {
+        return createCopy(true);
+    }
+    public StrJoin createCopy(boolean copyComments) {
         exprType[] new0;
         if(this.strs != null){
         new0 = new exprType[this.strs.length];
         for(int i=0;i<this.strs.length;i++){
-            new0[i] = (exprType) (this.strs[i] != null? this.strs[i].createCopy():null);
+            new0[i] = (exprType) (this.strs[i] != null? this.strs[i].createCopy(copyComments):null);
         }
         }else{
             new0 = this.strs;
@@ -28,19 +26,19 @@ public final class StrJoin extends exprType {
         StrJoin temp = new StrJoin(new0);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if(this.specialsBefore != null){
+        if(this.specialsBefore != null && copyComments){
             for(Object o:this.specialsBefore){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsBefore().add(commentType.createCopy());
+                    temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if(this.specialsAfter != null){
+        if(this.specialsAfter != null && copyComments){
             for(Object o:this.specialsAfter){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsAfter().add(commentType.createCopy());
+                    temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
             }
         }

@@ -203,7 +203,7 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener{
                 
                 buffer.append(StringUtils.format("Adding to additional info modules found in disk: %s\n", info.moduleNotInAdditionalInfo));
                 for(SourceModule mod:info.moduleNotInAdditionalInfo){
-                    info.additionalProjectInfo.addSourceModuleInfo(mod, info.nature, true);
+                    info.additionalProjectInfo.addAstInfo(mod.getAst(), mod.getModulesKey(), true);
                 }
             }
         }

@@ -11,12 +11,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.ui.wizards.project.IWizardNewProjectNameAndLocationPage;
@@ -55,19 +53,7 @@ public class AppEngineWizard extends PythonProjectWizard{
      * Creates the project page.
      */
     protected IWizardNewProjectNameAndLocationPage createProjectPage(){
-        return new NewProjectNameAndLocationWizardPage("Setting project properties"){
-            
-            @Override
-            public void createControl(Composite parent){
-                super.createControl(parent);
-                checkSrcFolder.setVisible(false);
-            }
-            
-            @Override
-            public boolean shouldCreatSourceFolder(){
-                return true; //Always start a google app engine with a source folder (we need it for the templates)
-            }
-        };
+        return new NewProjectNameAndLocationWizardPage("Setting project properties");
     }
 
     /**
@@ -79,13 +65,25 @@ public class AppEngineWizard extends PythonProjectWizard{
         ICallback<List<IContainer>, IProject> getSourceFolderHandlesCallback = new ICallback<List<IContainer>, IProject>(){
 
             public List<IContainer> call(IProject projectHandle){
-                if(projectPage.shouldCreatSourceFolder()){
-                    IContainer folder = projectHandle.getFolder("src");
-                    List<IContainer> ret = new ArrayList<IContainer>();
-                    ret.add(folder);
-                    return ret;
+                int sourceFolderConfigurationStyle = projectPage.getSourceFolderConfigurationStyle();
+                ArrayList<IContainer> ret;
+                switch(sourceFolderConfigurationStyle){
+                    
+                    case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER:
+                        //if the user hasn't selected to create a source folder, use the project itself for that.
+                        ret = new ArrayList<IContainer>();
+                        ret.add(projectHandle);
+                        return ret;
+                        
+                    case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_NO_PYTHONPATH:
+                        return new ArrayList<IContainer>();
+                    
+                    default:
+                        IContainer folder = projectHandle.getFolder("src");
+                        ret = new ArrayList<IContainer>();
+                        ret.add(folder);
+                        return ret;
                 }
-                return null;
             }
         };
 
@@ -108,7 +106,20 @@ public class AppEngineWizard extends PythonProjectWizard{
                 getVariableSubstitutionCallback);
         
         //Ok, after the default is created, let's see if we have a template...
-        IFolder sourceFolder = newProjectHandle.getFolder("src");
+        IContainer sourceFolder;
+        
+        final int sourceFolderConfigurationStyle = projectPage.getSourceFolderConfigurationStyle();
+            switch(sourceFolderConfigurationStyle){
+            
+            case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER:
+            case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_NO_PYTHONPATH:
+                sourceFolder = newProjectHandle;
+                break;
+            
+            default:
+                sourceFolder = newProjectHandle.getFolder("src");
+        }
+        
         appEngineTemplatePage.fillSourceFolder(sourceFolder);
     }
 

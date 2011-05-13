@@ -311,8 +311,12 @@ def StartServer(host, port, client_port):
     sys.exit = _DoExit
     
     from pydev_imports import SimpleXMLRPCServer
-    interpreter = InterpreterInterface(host, client_port)
-    server = SimpleXMLRPCServer((host, port), logRequests=False)
+    try:
+        interpreter = InterpreterInterface(host, client_port)
+        server = SimpleXMLRPCServer((host, port), logRequests=False)
+    except:
+        sys.stderr.write('Error starting server with host: %s, port: %s, client_port: %s\n' % (host, port, client_port))
+        raise
 
     
     if True:

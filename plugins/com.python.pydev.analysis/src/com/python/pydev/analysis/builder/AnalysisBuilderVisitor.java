@@ -42,6 +42,10 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
     
     @Override
     public void visitChangedResource(final IResource resource, final IDocument document, final IProgressMonitor monitor) {
+        visitChangedResource(resource, document, monitor, false);
+    }
+    
+    public void visitChangedResource(final IResource resource, final IDocument document, final IProgressMonitor monitor, boolean forceAnalysis) {
         if(document == null){
             return;
         }
@@ -107,7 +111,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 		    Log.log("Warning: The document time in the visitor is -1. Changing for current time.");
 		    documentTime = System.currentTimeMillis();
 		}
-        doVisitChangedResource(nature, resource, document, moduleCallback, null, monitor, false, 
+        doVisitChangedResource(nature, resource, document, moduleCallback, null, monitor, forceAnalysis, 
                 AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER, documentTime);
     }
     
@@ -177,7 +181,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         if(isFullBuild()){
             runnable.run();
         }else{
-            RunnableAsJobsPoolThread.getSingleton().scheduleToRun(runnable, "Pydev: Code Analysis:"+moduleName);
+            RunnableAsJobsPoolThread.getSingleton().scheduleToRun(runnable, "PyDev: Code Analysis:"+moduleName);
         }
     }
 

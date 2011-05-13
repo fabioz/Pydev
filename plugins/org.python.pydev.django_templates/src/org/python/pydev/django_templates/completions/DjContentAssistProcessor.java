@@ -7,7 +7,6 @@
 package org.python.pydev.django_templates.completions;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -23,9 +22,9 @@ import org.python.pydev.django_templates.editor.DjSourceConfiguration;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
-import com.aptana.editor.common.contentassist.ICommonCompletionProposal;
 import com.aptana.editor.common.contentassist.ICommonContentAssistProcessor;
 import com.aptana.editor.css.CSSSourceConfiguration;
+import com.aptana.editor.css.contentassist.CSSContentAssistProcessor;
 import com.aptana.editor.html.HTMLSourceConfiguration;
 
 public class DjContentAssistProcessor implements IContentAssistProcessor, ICommonContentAssistProcessor {
@@ -35,9 +34,11 @@ public class DjContentAssistProcessor implements IContentAssistProcessor, ICommo
     private DjTemplateCompletionProcessor templatesTagsContentAssistProcessor;
     private DjTemplateCompletionProcessor templatesFiltersContentAssistProcessor;
     private String contentType;
+    private final boolean isDefaultContentType;
 
     public DjContentAssistProcessor(String contentType, IContentAssistProcessor htmlContentAssistProcessor) {
         this.contentType = contentType;
+        this.isDefaultContentType = this.contentType.equals(IDocument.DEFAULT_CONTENT_TYPE);
         this.htmlContentAssistProcessor = htmlContentAssistProcessor;
     }
 
@@ -116,47 +117,7 @@ public class DjContentAssistProcessor implements IContentAssistProcessor, ICommo
 
     private ICompletionProposal[] addDjProposals(ITextViewer viewer, int offset, ICompletionProposal[] proposals) {
 
-        //Content type we're at:
-        //Request on __html__dftl_partition_content_type: templates in the html level
-        //Request on __dftl_partition_content_type:  |{%| euo a=|"test"| nthnh  |%|}|
-        //Request on __djhtml__dftl_partition_content_type: at {% |roto| %}
-
-        //So, we use a simple heuristic to know what we should use:
-        //1. if it's at __djhtml__dftl_partition_content_type, we know exactly where we are (inside a django tag)
-        //2. If we're at __html__dftl_partition_content_type, we also know we should only get completions that are top-level
-        //3. __dftl_partition_content_type is the 'gray' area, so, we go backwards to discover where we are (looking for 
-        //the first occurrence of __djhtml__dftl_partition_content_type or __html__dftl_partition_content_type or the 
-        //sequence {% (starting, meaning inside django tag) or %} (ending, meaning outside django tag.) 
-
-        boolean completionsForTags = true;
-        if (DjSourceConfiguration.DEFAULT.equals(this.contentType)) {
-            completionsForTags = true;
-
-        } else if (HTMLSourceConfiguration.DEFAULT.equals(this.contentType) || CSSSourceConfiguration.DEFAULT.equals(this.contentType)) {
-            completionsForTags = false;
-
-        } else if (IDocument.DEFAULT_CONTENT_TYPE.equals(this.contentType)) {
-            IDocument document = viewer.getDocument();
-            try {
-                int discoverOffset = offset;
-                while (discoverOffset >= 0) {
-                    String cont = document.getContentType(discoverOffset);
-                    discoverOffset--;
-                    if (DjSourceConfiguration.DEFAULT.equals(cont)) {
-                        completionsForTags = true;
-                        break;
-
-                    } else if (HTMLSourceConfiguration.DEFAULT.equals(cont) || CSSSourceConfiguration.DEFAULT.equals(cont)) {
-                        completionsForTags = false;
-                        break;
-                    }
-                }
-
-            } catch (BadLocationException e) {
-                completionsForTags = true; //we got to the end and didn't find the scope, so, just go on and show the 'simple' ones.
-            }
-
-        }
+        boolean completionsForTags = showCompletionsInsideDjangoContext(viewer.getDocument(), offset);
 
         ICompletionProposal[] djProposals;
         DjTemplateCompletionProcessor processor;
@@ -191,8 +152,50 @@ public class DjContentAssistProcessor implements IContentAssistProcessor, ICommo
                 }
             }
         }
-        setSelectedProposal(str, djProposalsList);
         return djProposalsList.toArray(new ICompletionProposal[djProposalsList.size()]);
+    }
+
+    public boolean showCompletionsInsideDjangoContext(IDocument document, int offset) {
+        //Content type we're at:
+        //Request on __html__dftl_partition_content_type: templates in the html level
+        //Request on __dftl_partition_content_type:  |{%| euo a=|"test"| nthnh  |%|}|
+        //Request on __djhtml__dftl_partition_content_type: at {% |roto| %}
+
+        //So, we use a simple heuristic to know what we should use:
+        //1. if it's at __djhtml__dftl_partition_content_type, we know exactly where we are (inside a django tag)
+        //2. If we're at __html__dftl_partition_content_type, we also know we should only get completions that are top-level
+        //3. __dftl_partition_content_type is the 'gray' area, so, we go backwards to discover where we are (looking for 
+        //the first occurrence of __djhtml__dftl_partition_content_type or __html__dftl_partition_content_type or the 
+        //sequence {% (starting, meaning inside django tag) or %} (ending, meaning outside django tag.) 
+
+        boolean completionsForTags = true;
+        if (DjSourceConfiguration.DEFAULT.equals(this.contentType)) {
+            completionsForTags = true;
+
+        } else if (HTMLSourceConfiguration.DEFAULT.equals(this.contentType) || CSSSourceConfiguration.DEFAULT.equals(this.contentType)) {
+            completionsForTags = false;
+
+        } else if (IDocument.DEFAULT_CONTENT_TYPE.equals(this.contentType)) {
+            try {
+                int discoverOffset = offset;
+                while (discoverOffset >= 0) {
+                    String cont = document.getContentType(discoverOffset);
+                    discoverOffset--;
+                    if (DjSourceConfiguration.DEFAULT.equals(cont)) {
+                        completionsForTags = true;
+                        break;
+
+                    } else if (HTMLSourceConfiguration.DEFAULT.equals(cont) || CSSSourceConfiguration.DEFAULT.equals(cont)) {
+                        completionsForTags = false;
+                        break;
+                    }
+                }
+
+            } catch (BadLocationException e) {
+                completionsForTags = true; //we got to the end and didn't find the scope, so, just go on and show the 'simple' ones.
+            }
+        }
+        return completionsForTags;
     }
 
     public IContextInformation[] computeContextInformation(ITextViewer viewer, int offset) {
@@ -200,6 +203,9 @@ public class DjContentAssistProcessor implements IContentAssistProcessor, ICommo
     }
 
     public char[] getCompletionProposalAutoActivationCharacters() {
+        if(htmlContentAssistProcessor != null){
+            return htmlContentAssistProcessor.getCompletionProposalAutoActivationCharacters();
+        }
         return null;
     }
 
@@ -217,65 +223,50 @@ public class DjContentAssistProcessor implements IContentAssistProcessor, ICommo
 
     public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset, char activationChar, boolean autoActivated) {
         ICompletionProposal[] proposals = null;
-        if (this.htmlContentAssistProcessor != null) {
-            if (this.htmlContentAssistProcessor instanceof ICommonContentAssistProcessor) {
-                ICommonContentAssistProcessor commonContentAssistProcessor = (ICommonContentAssistProcessor) this.htmlContentAssistProcessor;
-                proposals = commonContentAssistProcessor.computeCompletionProposals(viewer, offset, activationChar, autoActivated);
-            } else {
-                proposals = this.htmlContentAssistProcessor.computeCompletionProposals(viewer, offset);
-            }
-        }
-
-        return addDjProposals(viewer, offset, proposals);
-    }
-
-    /**
-     * Based on com.aptana.editor.common.CommonContentAssistProcessor
-     */
-    protected void setSelectedProposal(String prefix, List<ICompletionProposal> proposals) {
-        ICompletionProposal caseSensitiveProposal = null;
-        ICompletionProposal caseInsensitiveProposal = null;
-
-        for (ICompletionProposal proposal : proposals) {
-            String displayString = proposal.getDisplayString();
-            int comparison = displayString.compareToIgnoreCase(prefix);
-
-            if (comparison >= 0) {
-                if (displayString.toLowerCase().startsWith(prefix.toLowerCase())) {
-                    caseInsensitiveProposal = proposal;
-
-                    if (displayString.startsWith(prefix)) {
-                        caseSensitiveProposal = proposal;
-                        // found a match, so exit loop
+        boolean completeDj = true;
+        if(isDefaultContentType){
+            try {
+                int tempOffset = offset;
+                while(tempOffset >= 0){
+                    tempOffset--;
+                    char prevChar = viewer.getDocument().getChar(tempOffset);
+                    if(prevChar == '<'){
+                        completeDj = false;
+                        break;
+                    }
+                    if(!Character.isJavaIdentifierPart(prevChar)){
                         break;
                     }
                 }
+            } catch (BadLocationException e) {
             }
         }
-
-        if (caseSensitiveProposal instanceof ICommonCompletionProposal) {
-            ((ICommonCompletionProposal) caseSensitiveProposal).setIsDefaultSelection(true);
-        } else if (caseInsensitiveProposal instanceof ICommonCompletionProposal) {
-            ((ICommonCompletionProposal) caseInsensitiveProposal).setIsDefaultSelection(true);
-        } else {
-            if (proposals.size() > 0) {
-                ICompletionProposal proposal = proposals.get(0);
-
-                if (proposal instanceof ICommonCompletionProposal) {
-                    ((ICommonCompletionProposal) proposal).setIsSuggestedSelection(true);
-                }
-            }
+        if (this.htmlContentAssistProcessor instanceof ICommonContentAssistProcessor) {
+            ICommonContentAssistProcessor commonContentAssistProcessor = (ICommonContentAssistProcessor) this.htmlContentAssistProcessor;
+            proposals = commonContentAssistProcessor.computeCompletionProposals(viewer, offset, activationChar, autoActivated);
+        } else if(this.htmlContentAssistProcessor != null){
+            proposals = this.htmlContentAssistProcessor.computeCompletionProposals(viewer, offset);
         }
-    }
+        
+        //css and django templates 'compete' in the same namespace, so, we have to add an exception in the check below...
+        if(!(this.htmlContentAssistProcessor instanceof CSSContentAssistProcessor) && proposals != null && proposals.length > 0){
+            completeDj = false;
+        }
 
-    public boolean triggerAdditionalAutoActivation(char c, int keyCode, IDocument document, int offset) {
-        return false;
+        if(completeDj){
+            return addDjProposals(viewer, offset, proposals);
+        }
+        return proposals;
     }
+    
 
     /* (non-Javadoc)
      * @see com.aptana.editor.common.contentassist.ICommonContentAssistProcessor#isValidAutoActivationLocation(char, int, org.eclipse.jface.text.IDocument, int)
      */
     public boolean isValidAutoActivationLocation(char c, int keyCode, IDocument document, int offset) {
+        if(htmlContentAssistProcessor instanceof ICommonContentAssistProcessor){
+            return ((ICommonContentAssistProcessor)htmlContentAssistProcessor).isValidAutoActivationLocation(c, keyCode, document, offset);
+        }
         return false;
     }
 
@@ -283,6 +274,9 @@ public class DjContentAssistProcessor implements IContentAssistProcessor, ICommo
      * @see com.aptana.editor.common.contentassist.ICommonContentAssistProcessor#isValidIdentifier(char, int)
      */
     public boolean isValidIdentifier(char c, int keyCode) {
+        if(htmlContentAssistProcessor instanceof ICommonContentAssistProcessor){
+            return ((ICommonContentAssistProcessor)htmlContentAssistProcessor).isValidIdentifier(c, keyCode);
+        }
         return false;
     }
 
@@ -290,6 +284,9 @@ public class DjContentAssistProcessor implements IContentAssistProcessor, ICommo
      * @see com.aptana.editor.common.contentassist.ICommonContentAssistProcessor#isValidActivationCharacter(char, int)
      */
     public boolean isValidActivationCharacter(char c, int keyCode) {
+        if(htmlContentAssistProcessor instanceof ICommonContentAssistProcessor){
+            return ((ICommonContentAssistProcessor)htmlContentAssistProcessor).isValidActivationCharacter(c, keyCode);
+        }
         return false;
     }
 

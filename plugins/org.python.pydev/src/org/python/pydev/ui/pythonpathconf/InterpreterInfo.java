@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.ISystemModulesManager;
@@ -66,7 +67,7 @@ public class InterpreterInfo implements IInterpreterInfo{
     }
     
     /**
-     * folders - they should be passed to the pythonpath
+     * Folders or zip files: they should be passed to the pythonpath
      */
     public final java.util.List<String> libs = new ArrayList<String>(); 
     
@@ -91,7 +92,7 @@ public class InterpreterInfo implements IInterpreterInfo{
      * The modules manager is no longer persisted. It is restored from a separate file, because we do
      * not want to keep it in the 'configuration', as a giant Base64 string.
      */
-    private ISystemModulesManager modulesManager;
+    private final ISystemModulesManager modulesManager;
     
     /**
      * This callback is only used in tests, to configure the paths that should be chosen after the interpreter is selected.
@@ -120,19 +121,6 @@ public class InterpreterInfo implements IInterpreterInfo{
      */
     private String name;
 
-    /**
-     * Sets the modules manager that should be used in this interpreter info.
-     * 
-     * @param modulesManager the modules manager that is contained within this info.
-     * 
-     * @note: the side-effect of this method is that it sets in the modules manager that this is the
-     * info that it should use.
-     */
-    public void setModulesManager(ISystemModulesManager modulesManager) {
-        modulesManager.setInfo(this);
-        this.modulesManager = modulesManager;
-    }
-
     public ISystemModulesManager getModulesManager() {
         return modulesManager;
     }
@@ -149,20 +137,21 @@ public class InterpreterInfo implements IInterpreterInfo{
     public InterpreterInfo(String version, String exe, Collection<String> libs0){
         this.executableOrJar = exe;
         this.version = version;
+        ISystemModulesManager modulesManager = new SystemModulesManager(this);
 
-        setModulesManager(new SystemModulesManager());
+        this.modulesManager = modulesManager;
         libs.addAll(libs0);
     }
     
-    public InterpreterInfo(String version, String exe, Collection<String> libs0, Collection<String> dlls){
+    /*default*/ InterpreterInfo(String version, String exe, Collection<String> libs0, Collection<String> dlls){
         this(version, exe, libs0);
     }
     
-    public InterpreterInfo(String version, String exe, List<String> libs0, List<String> dlls, List<String> forced) {
+    /*default*/ InterpreterInfo(String version, String exe, List<String> libs0, List<String> dlls, List<String> forced) {
         this(version, exe, libs0, dlls, forced, null, null);
     }
 
-    public InterpreterInfo(
+    /*default*/ InterpreterInfo(
     		String version, 
     		String exe, 
     		List<String> libs0, 
@@ -247,9 +236,6 @@ public class InterpreterInfo implements IInterpreterInfo{
         return true;
     }
 
-    public static InterpreterInfo fromString(String received) {
-        return fromString(received, true);
-    }
     
     /**
      * Format we receive should be:
@@ -321,7 +307,8 @@ public class InterpreterInfo implements IInterpreterInfo{
                     if(askUserInOutPath){
                         toAsk.add(trimmed);
                     }else{
-                        //is out by 'default'
+                        //Change 2.0.1: if not asked, it's included by default!
+                        selection.add(trimmed);
                     }
                     
                 }else if(trimmed.endsWith("INS_PATH")){
@@ -1027,7 +1014,7 @@ public class InterpreterInfo implements IInterpreterInfo{
      * @param path
      */
     public void restorePythonpath(IProgressMonitor monitor) {
-        StringBuffer buffer = new StringBuffer();
+        FastStringBuffer buffer = new FastStringBuffer();
         for (Iterator<String> iter = libs.iterator(); iter.hasNext();) {
             String folder = (String) iter.next();
             buffer.append(folder);
@@ -1069,23 +1056,12 @@ public class InterpreterInfo implements IInterpreterInfo{
         return file.getName().startsWith("ipy");
     }
 
+    public static String getExeAsFileSystemValidPath(String executableOrJar) {
+        return "v1_"+StringUtils.md5(executableOrJar);
+        
+    }
     public String getExeAsFileSystemValidPath() {
-        //   /\:*?"<>|
-        char[] invalidChars = new char[]{
-                '/',
-                '\\',
-                ':',
-                '*',
-                '?',
-                '"',
-                '<',
-                '>',
-                '|'};
-        String systemValid = new String(REF.encodeBase64(executableOrJar.getBytes()));
-        for (char c : invalidChars) {
-            systemValid = systemValid.replace(c, '_');
-        }
-        return systemValid;
+        return getExeAsFileSystemValidPath(executableOrJar);
     }
 
     public String getVersion() {
@@ -1197,6 +1173,7 @@ public class InterpreterInfo implements IInterpreterInfo{
         
         fillMapWithEnv(env, hashMap);
         fillMapWithEnv(envVariables, hashMap, keysThatShouldNotBeUpdated); //will override the keys already there unless they're in keysThatShouldNotBeUpdated
+        
         String[] ret = createEnvWithMap(hashMap);
         
         return ret;
@@ -1291,7 +1268,7 @@ public class InterpreterInfo implements IInterpreterInfo{
      * @return a new interpreter info that's a copy of the current interpreter info.
      */
     public InterpreterInfo makeCopy() {
-        return fromString(toString());
+        return fromString(toString(), false);
     }
 
     public void setName(String name) {
@@ -1381,4 +1358,48 @@ public class InterpreterInfo implements IInterpreterInfo{
 		this.predefinedCompletionsPath.remove(item);
 		this.clearBuiltinsCache();
 	}
+
+	
+	private IInterpreterInfoBuilder builder;
+	private final Object builderLock = new Object();
+
+    private volatile boolean loadFinished = true;
+	
+	
+	/**
+	 * Building so that the interpreter info is kept up to date.
+	 */
+    public void startBuilding() {
+        synchronized (builderLock) {
+            if(this.builder == null){
+                IInterpreterInfoBuilder builder = (IInterpreterInfoBuilder) ExtensionHelper.getParticipant(
+                        ExtensionHelper.PYDEV_INTERPRETER_INFO_BUILDER);
+                if(builder != null){
+                    builder.setInfo(this);
+                    this.builder = builder;
+                }else{
+                    Log.log("Could not get internal extension for: "+ExtensionHelper.PYDEV_INTERPRETER_INFO_BUILDER);
+                }
+            }
+        }
+    }
+
+    
+    
+    public void stopBuilding() {
+        synchronized (builderLock) {
+            if(this.builder != null){
+                this.builder.dispose();
+                this.builder = null;
+            }
+        }
+    }
+
+    public void setLoadFinished(boolean b) {
+        this.loadFinished = b;
+    }
+    
+    public boolean getLoadFinished() {
+        return this.loadFinished;
+    }
 }

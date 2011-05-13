@@ -13,30 +13,28 @@ public final class AugAssign extends stmtType implements operatorType {
         this.value = value;
     }
 
-    public AugAssign(exprType target, int op, exprType value, SimpleNode parent) {
-        this(target, op, value);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public AugAssign createCopy() {
-        AugAssign temp = new AugAssign(target!=null?(exprType)target.createCopy():null, op,
-        value!=null?(exprType)value.createCopy():null);
+        return createCopy(true);
+    }
+    public AugAssign createCopy(boolean copyComments) {
+        AugAssign temp = new AugAssign(target!=null?(exprType)target.createCopy(copyComments):null,
+        op, value!=null?(exprType)value.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if(this.specialsBefore != null){
+        if(this.specialsBefore != null && copyComments){
             for(Object o:this.specialsBefore){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsBefore().add(commentType.createCopy());
+                    temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if(this.specialsAfter != null){
+        if(this.specialsAfter != null && copyComments){
             for(Object o:this.specialsAfter){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsAfter().add(commentType.createCopy());
+                    temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
             }
         }

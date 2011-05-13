@@ -66,6 +66,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.ColorAndStyleCache;
 import org.python.pydev.ui.IViewCreatedObserver;
+import org.python.pydev.ui.ViewPartWithOrientation;
 
 
 /**
@@ -94,10 +95,10 @@ import org.python.pydev.ui.IViewCreatedObserver;
  * - Show current test(s) being run (handle parallel execution) -- OK
  * - Select some tests and make a new run with them. -- OK
  * - Show total time to run tests. -- OK
+ * - Rerun tests on file changes -- OK 
  * 
  * 
  * Nice to have:
- * - Rerun tests on file changes 
  * - Hide or show output pane 
  * - If a string was different, show an improved diff (as JDT)
  * - Save column order (tree.setColumnOrder(order))
@@ -118,7 +119,13 @@ import org.python.pydev.ui.IViewCreatedObserver;
  * Based on org.eclipse.jdt.internal.junit.ui.TestRunnerViewPart (but it's really not meant to be reused)
  */
 public class PyUnitView extends ViewPartWithOrientation{
-    
+
+    public static final String PYUNIT_VIEW_ORIENTATION = "PYUNIT_VIEW_ORIENTATION";
+    @Override
+    public String getOrientationPreferencesKey() {
+        return PYUNIT_VIEW_ORIENTATION;
+    }
+
     public static final String PY_UNIT_TEST_RESULT = "RESULT";
     private static final String PY_UNIT_VIEW_ID = "org.python.pydev.debug.pyunit.pyUnitView";
     public static final String PYUNIT_VIEW_SHOW_ONLY_ERRORS = "PYUNIT_VIEW_SHOW_ONLY_ERRORS";
@@ -126,6 +133,9 @@ public class PyUnitView extends ViewPartWithOrientation{
     
     public static final String PYUNIT_VIEW_SHOW_VIEW_ON_TEST_RUN = "PYUNIT_VIEW_SHOW_VIEW_ON_TEST_RUN";
     public static final boolean PYUNIT_VIEW_DEFAULT_SHOW_VIEW_ON_TEST_RUN = true;
+    
+    public static final String PYUNIT_VIEW_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS = "PYUNIT_VIEW_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS";
+    public static final boolean PYUNIT_VIEW_DEFAULT_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS = false;
     
     public static int MAX_RUNS_TO_KEEP = 15;
     
@@ -377,11 +387,15 @@ public class PyUnitView extends ViewPartWithOrientation{
         toolBar.add(new StopAction(this));
         
         toolBar.add(new Separator());
+        toolBar.add(new RelaunchInBackgroundAction(this));
+        
+        toolBar.add(new Separator());
         toolBar.add(new HistoryAction(this));
         PinHistoryAction pinHistory = new PinHistoryAction(this);
         toolBar.add(pinHistory);
         toolBar.add(new RestorePinHistoryAction(this, pinHistory));
         
+        addOrientationPreferences(menuManager);
     }
 
     @Override
@@ -513,7 +527,7 @@ public class PyUnitView extends ViewPartWithOrientation{
             }
             IWorkbenchPage page= workbenchWindow.getActivePage();
             if(ShowViewOnTestRunAction.getShowViewOnTestRun()){
-                return (PyUnitView) page.showView(PY_UNIT_VIEW_ID, null, IWorkbenchPage.VIEW_ACTIVATE);
+                return (PyUnitView) page.showView(PY_UNIT_VIEW_ID, null, IWorkbenchPage.VIEW_VISIBLE);
             }else{
                 IViewReference viewReference = page.findViewReference(PY_UNIT_VIEW_ID);
                 if(viewReference != null){
@@ -631,6 +645,12 @@ public class PyUnitView extends ViewPartWithOrientation{
             
             treeItem.setData (ToolTipPresenterHandler.TIP_DATA, result);
             treeItem.setData(PY_UNIT_TEST_RESULT, result);
+            
+            int selectionCount = tree.getSelectionCount();
+            if(selectionCount == 0){
+                tree.setSelection(treeItem);
+                onSelectResult(result);
+            }
         }
         
         if(updateBar){
@@ -920,6 +940,7 @@ public class PyUnitView extends ViewPartWithOrientation{
         tree.setRedraw(false);
         try {
             tree.removeAll();
+            testOutputText.setText(""); //Clear initial results (the first added will be selected)
             if(testRun != null){
                 List<PyUnitTestResult> sharedResultsList = testRun.getSharedResultsList();
                 for (PyUnitTestResult result : sharedResultsList) {
@@ -927,7 +948,6 @@ public class PyUnitView extends ViewPartWithOrientation{
                 }
             }
             updateCountersAndBar();
-            testOutputText.setText(""); //leave no result selected
         } finally {
             tree.setRedraw(true);
         }

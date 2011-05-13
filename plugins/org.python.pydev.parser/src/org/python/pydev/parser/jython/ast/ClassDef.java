@@ -22,19 +22,17 @@ public final class ClassDef extends stmtType {
         this.kwargs = kwargs;
     }
 
-    public ClassDef(NameTokType name, exprType[] bases, stmtType[] body, decoratorsType[] decs,
-    keywordType[] keywords, exprType starargs, exprType kwargs, SimpleNode parent) {
-        this(name, bases, body, decs, keywords, starargs, kwargs);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public ClassDef createCopy() {
+        return createCopy(true);
+    }
+    public ClassDef createCopy(boolean copyComments) {
         exprType[] new0;
         if(this.bases != null){
         new0 = new exprType[this.bases.length];
         for(int i=0;i<this.bases.length;i++){
-            new0[i] = (exprType) (this.bases[i] != null? this.bases[i].createCopy():null);
+            new0[i] = (exprType) (this.bases[i] != null?
+            this.bases[i].createCopy(copyComments):null);
         }
         }else{
             new0 = this.bases;
@@ -43,7 +41,7 @@ public final class ClassDef extends stmtType {
         if(this.body != null){
         new1 = new stmtType[this.body.length];
         for(int i=0;i<this.body.length;i++){
-            new1[i] = (stmtType) (this.body[i] != null? this.body[i].createCopy():null);
+            new1[i] = (stmtType) (this.body[i] != null? this.body[i].createCopy(copyComments):null);
         }
         }else{
             new1 = this.body;
@@ -52,7 +50,8 @@ public final class ClassDef extends stmtType {
         if(this.decs != null){
         new2 = new decoratorsType[this.decs.length];
         for(int i=0;i<this.decs.length;i++){
-            new2[i] = (decoratorsType) (this.decs[i] != null? this.decs[i].createCopy():null);
+            new2[i] = (decoratorsType) (this.decs[i] != null?
+            this.decs[i].createCopy(copyComments):null);
         }
         }else{
             new2 = this.decs;
@@ -61,29 +60,30 @@ public final class ClassDef extends stmtType {
         if(this.keywords != null){
         new3 = new keywordType[this.keywords.length];
         for(int i=0;i<this.keywords.length;i++){
-            new3[i] = (keywordType) (this.keywords[i] != null? this.keywords[i].createCopy():null);
+            new3[i] = (keywordType) (this.keywords[i] != null?
+            this.keywords[i].createCopy(copyComments):null);
         }
         }else{
             new3 = this.keywords;
         }
-        ClassDef temp = new ClassDef(name!=null?(NameTokType)name.createCopy():null, new0, new1,
-        new2, new3, starargs!=null?(exprType)starargs.createCopy():null,
-        kwargs!=null?(exprType)kwargs.createCopy():null);
+        ClassDef temp = new ClassDef(name!=null?(NameTokType)name.createCopy(copyComments):null,
+        new0, new1, new2, new3, starargs!=null?(exprType)starargs.createCopy(copyComments):null,
+        kwargs!=null?(exprType)kwargs.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if(this.specialsBefore != null){
+        if(this.specialsBefore != null && copyComments){
             for(Object o:this.specialsBefore){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsBefore().add(commentType.createCopy());
+                    temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if(this.specialsAfter != null){
+        if(this.specialsAfter != null && copyComments){
             for(Object o:this.specialsAfter){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsAfter().add(commentType.createCopy());
+                    temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
             }
         }

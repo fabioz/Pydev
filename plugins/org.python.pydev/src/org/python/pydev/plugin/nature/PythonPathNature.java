@@ -146,6 +146,10 @@ public class PythonPathNature implements IPythonPathNature {
         return astManager.getModulesManager();
     }
 
+    private static volatile long doFullSynchAt = -1;
+    private static final Map<String, Long> directMembersChecked = new HashMap<String, Long>();
+
+    
     /**
      * @return the project pythonpath with complete paths in the filesystem.
      */
@@ -178,9 +182,6 @@ public class PythonPathNature implements IPythonPathNature {
         FastStringBuffer buf = new FastStringBuffer();
         
         IWorkspaceRoot root = null;
-        
-        boolean checkedFullSynch = false;
-        Set<String> directMembersChecked = new HashSet<String>();
         
         ResourcesPlugin resourcesPlugin = ResourcesPlugin.getPlugin();
         for (String currentPath:strings) {
@@ -219,23 +220,28 @@ public class PythonPathNature implements IPythonPathNature {
                     String firstSegment = p.segment(0);
                     IResource firstSegmentResource = root.findMember(firstSegment);
                     if(!(firstSegmentResource instanceof IContainer) && !(firstSegmentResource instanceof IFile)){
-                        //we cannot even get the 1st part... let's do a full sync
-                        if(!checkedFullSynch){
-                            checkedFullSynch = true;
+                        //we cannot even get the 1st part... let's do sync
+                        long currentTimeMillis = System.currentTimeMillis();
+                        if(doFullSynchAt == -1 || currentTimeMillis > doFullSynchAt){
+                            doFullSynchAt = currentTimeMillis + (60 * 2 * 1000); //do a full synch at most once every 2 minutes
                             try {
-                                root.refreshLocal(IResource.DEPTH_INFINITE, null);
+                                root.refreshLocal(p.segmentCount()+1, null);
                             } catch (CoreException e) {
                                 //ignore
-                            } 
+                            }
                         }
                         
-                    }else if(!directMembersChecked.contains(firstSegment)){
-                        directMembersChecked.add(firstSegment);
-                        //OK, we can get to the 1st segment, so, let's do a refresh just from that point on, not in the whole workspace...
-                        try {
-                            firstSegmentResource.refreshLocal(IResource.DEPTH_INFINITE, null);
-                        } catch (CoreException e) {
-                            //ignore
+                    }else{
+                        Long doSynchAt = directMembersChecked.get(firstSegment);
+                        long currentTimeMillis = System.currentTimeMillis();
+                        if(doSynchAt == null || currentTimeMillis > doFullSynchAt){
+                            directMembersChecked.put(firstSegment, currentTimeMillis + (60 * 2 * 1000));
+                            //OK, we can get to the 1st segment, so, let's do a refresh just from that point on, not in the whole workspace...
+                            try {
+                                firstSegmentResource.refreshLocal(p.segmentCount(), null);
+                            } catch (CoreException e) {
+                                //ignore
+                            }
                         }
                         
                     } 

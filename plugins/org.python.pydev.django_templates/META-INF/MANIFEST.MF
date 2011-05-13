@@ -33,5 +33,4 @@ Export-Package: org.python.pydev.django_templates,
  org.python.pydev.django_templates.html.outline,
  org.python.pydev.django_templates.html.parsing,
  org.python.pydev.django_templates.preferences
-Bundle-ClassPath: django-templates.jar,
- retroweaver-rt.jar
+Bundle-ClassPath: django-templates.jar

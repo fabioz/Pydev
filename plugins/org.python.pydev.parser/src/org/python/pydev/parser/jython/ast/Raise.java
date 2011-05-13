@@ -15,31 +15,30 @@ public final class Raise extends stmtType {
         this.cause = cause;
     }
 
-    public Raise(exprType type, exprType inst, exprType tback, exprType cause, SimpleNode parent) {
-        this(type, inst, tback, cause);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Raise createCopy() {
-        Raise temp = new Raise(type!=null?(exprType)type.createCopy():null,
-        inst!=null?(exprType)inst.createCopy():null, tback!=null?(exprType)tback.createCopy():null,
-        cause!=null?(exprType)cause.createCopy():null);
+        return createCopy(true);
+    }
+    public Raise createCopy(boolean copyComments) {
+        Raise temp = new Raise(type!=null?(exprType)type.createCopy(copyComments):null,
+        inst!=null?(exprType)inst.createCopy(copyComments):null,
+        tback!=null?(exprType)tback.createCopy(copyComments):null,
+        cause!=null?(exprType)cause.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if(this.specialsBefore != null){
+        if(this.specialsBefore != null && copyComments){
             for(Object o:this.specialsBefore){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsBefore().add(commentType.createCopy());
+                    temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if(this.specialsAfter != null){
+        if(this.specialsAfter != null && copyComments){
             for(Object o:this.specialsAfter){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsAfter().add(commentType.createCopy());
+                    temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
             }
         }

@@ -505,7 +505,7 @@ public class JythonPlugin extends AbstractUIPlugin {
         try {
             if (fConsole == null) {
                 fConsole = new MessageConsole(
-                		"Pydev Scripting", JythonPlugin.getBundleInfo().getImageCache().getDescriptor("icons/python_scripting.png"));
+                		"PyDev Scripting", JythonPlugin.getBundleInfo().getImageCache().getDescriptor("icons/python_scripting.png"));
                 
                 fOutputStream = fConsole.newOutputStream();
                 fErrorStream = fConsole.newOutputStream();

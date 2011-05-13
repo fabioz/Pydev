@@ -407,5 +407,8 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
 	public void popTemporaryModule(String moduleName, int handle) {
 		throw new RuntimeException("Not implemented");
 	}
-
+	
+	public void saveToFile(File workspaceMetadataFile) {
+	    throw new RuntimeException("Not implemented");
+	}
 }

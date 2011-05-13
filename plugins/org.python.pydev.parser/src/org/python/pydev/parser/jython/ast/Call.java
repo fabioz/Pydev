@@ -18,19 +18,16 @@ public final class Call extends exprType {
         this.kwargs = kwargs;
     }
 
-    public Call(exprType func, exprType[] args, keywordType[] keywords, exprType starargs, exprType
-    kwargs, SimpleNode parent) {
-        this(func, args, keywords, starargs, kwargs);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Call createCopy() {
+        return createCopy(true);
+    }
+    public Call createCopy(boolean copyComments) {
         exprType[] new0;
         if(this.args != null){
         new0 = new exprType[this.args.length];
         for(int i=0;i<this.args.length;i++){
-            new0[i] = (exprType) (this.args[i] != null? this.args[i].createCopy():null);
+            new0[i] = (exprType) (this.args[i] != null? this.args[i].createCopy(copyComments):null);
         }
         }else{
             new0 = this.args;
@@ -39,29 +36,30 @@ public final class Call extends exprType {
         if(this.keywords != null){
         new1 = new keywordType[this.keywords.length];
         for(int i=0;i<this.keywords.length;i++){
-            new1[i] = (keywordType) (this.keywords[i] != null? this.keywords[i].createCopy():null);
+            new1[i] = (keywordType) (this.keywords[i] != null?
+            this.keywords[i].createCopy(copyComments):null);
         }
         }else{
             new1 = this.keywords;
         }
-        Call temp = new Call(func!=null?(exprType)func.createCopy():null, new0, new1,
-        starargs!=null?(exprType)starargs.createCopy():null,
-        kwargs!=null?(exprType)kwargs.createCopy():null);
+        Call temp = new Call(func!=null?(exprType)func.createCopy(copyComments):null, new0, new1,
+        starargs!=null?(exprType)starargs.createCopy(copyComments):null,
+        kwargs!=null?(exprType)kwargs.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if(this.specialsBefore != null){
+        if(this.specialsBefore != null && copyComments){
             for(Object o:this.specialsBefore){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsBefore().add(commentType.createCopy());
+                    temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if(this.specialsAfter != null){
+        if(this.specialsAfter != null && copyComments){
             for(Object o:this.specialsAfter){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsAfter().add(commentType.createCopy());
+                    temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
             }
         }
