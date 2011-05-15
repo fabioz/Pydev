@@ -230,8 +230,8 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
     protected Map<String, HashSet<ASTEntry>> getReferencesForRenameSimple(String moduleName, int line, int col, boolean expectError) {
         Map<String, HashSet<ASTEntry>> occurrencesToReturn=new HashMap<String, HashSet<ASTEntry>>();
         
-        Map<Tuple<String, IFile>, HashSet<ASTEntry>> referencesForRename = getReferencesForRename(moduleName, line, col, expectError);
-        for (Map.Entry<Tuple<String, IFile>, HashSet<ASTEntry>> entry : referencesForRename.entrySet()) {
+        Map<Tuple<String, File>, HashSet<ASTEntry>> referencesForRename = getReferencesForRename(moduleName, line, col, expectError);
+        for (Map.Entry<Tuple<String, File>, HashSet<ASTEntry>> entry : referencesForRename.entrySet()) {
             if(occurrencesToReturn.get(entry.getKey()) != null){
                 throw new RuntimeException("Error. Module: "+entry.getKey()+" already exists.");
             }
@@ -251,8 +251,8 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
      * @return a map with the name of the module and the file representing it pointing to the
      * references found in that module.
      */
-    protected Map<Tuple<String, IFile>, HashSet<ASTEntry>> getReferencesForRename(String moduleName, int line, int col, boolean expectError) {
-        Map<Tuple<String, IFile>, HashSet<ASTEntry>> occurrencesToReturn=null;
+    protected Map<Tuple<String, File>, HashSet<ASTEntry>> getReferencesForRename(String moduleName, int line, int col, boolean expectError) {
+        Map<Tuple<String, File>, HashSet<ASTEntry>> occurrencesToReturn=null;
         try {
             IProjectModulesManager modulesManager = (IProjectModulesManager) natureRefactoring.getAstManager().getModulesManager();
             IModule module = modulesManager.getModuleInDirectManager(moduleName, natureRefactoring, true);
@@ -277,7 +277,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
 
             checkStatus(processor.checkFinalConditions(nullProgressMonitor, null, false), expectError);
             occurrencesToReturn = processor.getOccurrencesInOtherFiles();
-            occurrencesToReturn.put(new Tuple<String, IFile>(CURRENT_MODULE_IN_REFERENCES, null), processor.getOccurrences());
+            occurrencesToReturn.put(new Tuple<String, File>(CURRENT_MODULE_IN_REFERENCES, null), processor.getOccurrences());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

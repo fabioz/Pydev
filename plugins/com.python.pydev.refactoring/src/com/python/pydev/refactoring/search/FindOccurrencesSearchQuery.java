@@ -6,6 +6,7 @@
  */
 package com.python.pydev.refactoring.search;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -21,7 +22,9 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -54,7 +57,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
     public IStatus run(IProgressMonitor monitor) throws OperationCanceledException {
         try {
             req.pushMonitor(monitor);
-            Map<Tuple<String, IFile>, HashSet<ASTEntry>> occurrences;
+            Map<Tuple<String, File>, HashSet<ASTEntry>> occurrences;
             occurrences = pyRefactoring.findAllOccurrences(req);
             if(occurrences == null){
                 return Status.OK_STATUS;
@@ -63,26 +66,47 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
             
             
             HashSet<Integer> foundOffsets = new HashSet<Integer>();
-            for (Map.Entry<Tuple<String, IFile>, HashSet<ASTEntry>> o : occurrences.entrySet()) {
+            for (Map.Entry<Tuple<String, File>, HashSet<ASTEntry>> o : occurrences.entrySet()) {
                 
                 foundOffsets.clear();
-                IFile file = o.getKey().o2;
-                IDocument doc = REF.getDocFromResource(file);
+                
+                IFile workspaceFile = null; 
+                try{
+                    workspaceFile = new PySourceLocatorBase().getWorkspaceFile(o.getKey().o2);
+                    if(workspaceFile == null){
+                        Log.log(StringUtils.format("Error. Unable to resolve the file:\n" +
+                                "%s\n" +
+                                "to a file in the Eclipse workspace.",
+                                o.getKey().o2));
+                        continue;
+                    }
+                }catch(IllegalStateException e){
+                    //this can happen on tests (but if not on tests, we want to re-throw it
+                    String message = e.getMessage();
+                    if(message == null || !message.equals("Workspace is closed.")){
+                        throw e; 
+                    }
+                    //otherwise, let's just keep going in the test...
+                    continue;
+                }
+                    
+                
+                IDocument doc = REF.getDocFromResource(workspaceFile);
                 
                 for(ASTEntry entry:o.getValue()){
                     int offset = AbstractRenameRefactorProcess.getOffset(doc, entry);
                     if(!foundOffsets.contains(offset)){
                         foundOffsets.add(offset);
                         if(PyFindAllOccurrences.DEBUG_FIND_REFERENCES){
-                            System.out.println("Adding match:"+file);
+                            System.out.println("Adding match:"+workspaceFile);
                         }
                         PySelection ps = new PySelection(doc, offset);
                         int lineNumber = ps.getLineOfOffset();
                         String lineContents = ps.getLine(lineNumber);
                         int lineStartOffset = ps.getLineOffset(lineNumber);
                         
-                        LineElement element = new LineElement(file, lineNumber, lineStartOffset, lineContents);
-                        findOccurrencesSearchResult.addMatch(new FileMatch(file, offset, length, element));
+                        LineElement element = new LineElement(workspaceFile, lineNumber, lineStartOffset, lineContents);
+                        findOccurrencesSearchResult.addMatch(new FileMatch(workspaceFile, offset, length, element));
                     }
                 }
             }

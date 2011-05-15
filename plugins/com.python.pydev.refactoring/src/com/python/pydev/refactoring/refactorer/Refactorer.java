@@ -6,11 +6,11 @@
  */
 package com.python.pydev.refactoring.refactorer;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
@@ -80,7 +80,7 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
         return new RefactorerFinds(this).findClassHierarchy(request);
     }
 
-    public Map<Tuple<String, IFile>, HashSet<ASTEntry>> findAllOccurrences(RefactoringRequest req) throws OperationCanceledException, CoreException{
+    public Map<Tuple<String, File>, HashSet<ASTEntry>> findAllOccurrences(RefactoringRequest req) throws OperationCanceledException, CoreException{
         PyRenameEntryPoint processor = new PyRenameEntryPoint(req);
         //to see if a new request was not created in the meantime (in which case this one will be cancelled)
         req.checkCancelled();
@@ -97,10 +97,10 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
         }
         req.checkCancelled();
         
-        Map<Tuple<String, IFile>, HashSet<ASTEntry>> occurrencesInOtherFiles = processor.getOccurrencesInOtherFiles();
+        Map<Tuple<String, File>, HashSet<ASTEntry>> occurrencesInOtherFiles = processor.getOccurrencesInOtherFiles();
         
         HashSet<ASTEntry> occurrences = processor.getOccurrences();
-        occurrencesInOtherFiles.put(new Tuple<String, IFile>(req.moduleName, req.pyEdit.getIFile()), occurrences);
+        occurrencesInOtherFiles.put(new Tuple<String, File>(req.moduleName, req.pyEdit.getEditorFile()), occurrences);
         return occurrencesInOtherFiles;
     }
     

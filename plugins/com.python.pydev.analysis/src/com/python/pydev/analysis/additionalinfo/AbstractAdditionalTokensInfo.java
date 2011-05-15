@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IInterpreterManager;
@@ -809,6 +810,14 @@ public abstract class AbstractAdditionalTokensInfo {
             }
         }
     }
+
+    /**
+     * @param token the token we want to search for (must be an exact match). Only tokens which are valid identifiers
+     * may be searched (i.e.: no dots in it or anything alike).
+     * 
+     * @return List<ModulesKey> a list with all the modules that contains the passed token.
+     */
+    public abstract List<ModulesKey> getModulesWithToken(String token, IProgressMonitor monitor);
 
 
 
