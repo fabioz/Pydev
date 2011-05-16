@@ -9,6 +9,7 @@
  */
 package com.python.pydev.analysis.ctrl_1;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -171,7 +172,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
 		}
         FastStringBuffer tempBuf = new FastStringBuffer();
         for (AbstractAdditionalTokensInfo info : additionalInfo) {
-            Set<IInfo> tokensEqualTo = info.getTokensEqualTo(markerContents, AbstractAdditionalTokensInfo.TOP_LEVEL);
+            Collection<IInfo> tokensEqualTo = info.getTokensEqualTo(markerContents, AbstractAdditionalTokensInfo.TOP_LEVEL);
             for (IInfo found : tokensEqualTo) {
                 //there always is a declaring module
                 String name = found.getName();

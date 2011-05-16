@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
@@ -105,7 +104,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
 			}
         }
         
-        Set<IInfo> tokensStartingWith = additionalInfoForProject.getTokensStartingWith(
+        Collection<IInfo> tokensStartingWith = additionalInfoForProject.getTokensStartingWith(
                 qual, AbstractAdditionalTokensInfo.TOP_LEVEL);
         
         FastStringBuffer realImportRep = new FastStringBuffer();

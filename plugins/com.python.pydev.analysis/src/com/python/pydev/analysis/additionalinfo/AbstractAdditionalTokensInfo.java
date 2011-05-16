@@ -31,7 +31,6 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.ObjectsPool;
-import org.python.pydev.core.OrderedSet;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
@@ -231,7 +230,7 @@ public abstract class AbstractAdditionalTokensInfo {
     protected Set<IInfo> getAndCreateListForInitials(String initials, TreeMap<String, Set<IInfo>> initialsToInfo) {
         Set<IInfo> lInfo = initialsToInfo.get(initials);
         if(lInfo == null){
-            lInfo = new OrderedSet<IInfo>();
+            lInfo = new HashSet<IInfo>();
             initialsToInfo.put(initials, lInfo);
         }
         return lInfo;
@@ -582,22 +581,22 @@ public abstract class AbstractAdditionalTokensInfo {
      * @param qualifier the tokens returned have to start with the given qualifier
      * @return a list of info, all starting with the given qualifier
      */
-    public Set<IInfo> getTokensStartingWith(String qualifier, int getWhat) {
+    public Collection<IInfo> getTokensStartingWith(String qualifier, int getWhat) {
         synchronized (lock) {
             return getWithFilter(qualifier, getWhat, startingWithFilter, true);
         }
     }
 
 
-    public Set<IInfo> getTokensEqualTo(String qualifier, int getWhat) {
+    public Collection<IInfo> getTokensEqualTo(String qualifier, int getWhat) {
         synchronized (lock) {
             return getWithFilter(qualifier, getWhat, equalsFilter, false);
         }
     }
     
-    protected Set<IInfo> getWithFilter(String qualifier, int getWhat, Filter filter, boolean useLowerCaseQual) {
+    protected Collection<IInfo> getWithFilter(String qualifier, int getWhat, Filter filter, boolean useLowerCaseQual) {
         synchronized (lock) {
-            Set<IInfo> toks = new OrderedSet<IInfo>();
+            List<IInfo> toks = new ArrayList<IInfo>();
             
             if((getWhat & TOP_LEVEL) != 0){
                 getWithFilter(qualifier, topLevelInitialsToInfo, toks, filter, useLowerCaseQual);
@@ -617,7 +616,7 @@ public abstract class AbstractAdditionalTokensInfo {
      * @param toks (out) the tokens will be added to this list
      * @return
      */
-    protected void getWithFilter(String qualifier, TreeMap<String, Set<IInfo>> initialsToInfo, Set<IInfo> toks, Filter filter, boolean useLowerCaseQual) {
+    protected void getWithFilter(String qualifier, TreeMap<String, Set<IInfo>> initialsToInfo, Collection<IInfo> toks, Filter filter, boolean useLowerCaseQual) {
         String initials = getInitials(qualifier);
         String qualToCompare = qualifier;
         if(useLowerCaseQual){

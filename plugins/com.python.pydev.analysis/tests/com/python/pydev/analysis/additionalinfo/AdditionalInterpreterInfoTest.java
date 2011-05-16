@@ -92,10 +92,10 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
         info2 = new FuncInfo(((NameTok)createFuncDef("metA" ).name).id, "mod1", null);
         info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
-        Set<IInfo> tokensStartingWith = info.getTokensStartingWith("met", AbstractAdditionalTokensInfo.TOP_LEVEL);
+        Collection<IInfo> tokensStartingWith = info.getTokensStartingWith("met", AbstractAdditionalTokensInfo.TOP_LEVEL);
         assertEquals(6, tokensStartingWith.size());
         
-        Set<IInfo> tokensEqualTo = info.getTokensEqualTo("metz", AbstractAdditionalTokensInfo.TOP_LEVEL);
+        Collection<IInfo> tokensEqualTo = info.getTokensEqualTo("metz", AbstractAdditionalTokensInfo.TOP_LEVEL);
         assertEquals(1, tokensEqualTo.size());
     }
     
@@ -108,7 +108,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
         info2 = new FuncInfo(((NameTok)createFuncDef("mmmm" ).name).id, "mod1", null);
         info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
-        Set<IInfo> tokensStartingWith = info.getTokensStartingWith("m", AbstractAdditionalTokensInfo.TOP_LEVEL);
+        Collection<IInfo> tokensStartingWith = info.getTokensStartingWith("m", AbstractAdditionalTokensInfo.TOP_LEVEL);
         assertEquals(4, tokensStartingWith.size());
         
         tokensStartingWith = info.getTokensStartingWith("mm", AbstractAdditionalTokensInfo.TOP_LEVEL);
@@ -130,7 +130,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
         info2 = new FuncInfo(((NameTok)createFuncDef("func2").name).id, "mod1", null);
         info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
-        Set<IInfo> tokensStartingWith = info.getTokensStartingWith("me", AbstractAdditionalTokensInfo.TOP_LEVEL);
+        Collection<IInfo> tokensStartingWith = info.getTokensStartingWith("me", AbstractAdditionalTokensInfo.TOP_LEVEL);
         assertEquals(2, tokensStartingWith.size());
         assertIsIn("met1", tokensStartingWith);
         assertIsIn("met2", tokensStartingWith);
@@ -153,7 +153,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         info.add(info3, AbstractAdditionalTokensInfo.TOP_LEVEL);
         ClassInfo info4 = new ClassInfo(((NameTok)createClassDef("class2").name).id, "mod2", null);
         info.add(info4, AbstractAdditionalTokensInfo.TOP_LEVEL);
-        Set<IInfo> tokensStartingWith = info.getTokensStartingWith("cls", AbstractAdditionalTokensInfo.TOP_LEVEL);
+        Collection<IInfo> tokensStartingWith = info.getTokensStartingWith("cls", AbstractAdditionalTokensInfo.TOP_LEVEL);
         assertEquals(2, tokensStartingWith.size());
         assertIsIn("cls1", tokensStartingWith);
         assertIsIn("cls2", tokensStartingWith);
@@ -172,7 +172,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc("test", null, new Document(doc), nature, 0);
         info.addAstInfo(module.getAst(), module.getModulesKey(), false);
 
-        Set<IInfo> tokensStartingWith = info.getTokensStartingWith("Tes", AbstractAdditionalTokensInfo.TOP_LEVEL | AbstractAdditionalTokensInfo.INNER);
+        Collection<IInfo> tokensStartingWith = info.getTokensStartingWith("Tes", AbstractAdditionalTokensInfo.TOP_LEVEL | AbstractAdditionalTokensInfo.INNER);
         assertEquals(1, tokensStartingWith.size());
         assertIsIn("Test", tokensStartingWith);
         
@@ -201,7 +201,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc("test", null, new Document(doc), nature, 0);
         info.addAstInfo(module.getAst(), module.getModulesKey(), false);
         
-        Set<IInfo> tokensStartingWith = null;
+        Collection<IInfo> tokensStartingWith = null;
         IInfo i = null;
         
         tokensStartingWith = info.getTokensStartingWith("global", AbstractAdditionalTokensInfo.TOP_LEVEL | AbstractAdditionalTokensInfo.INNER);
@@ -237,7 +237,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc("test", null, new Document(doc), nature, 0);
         info.addAstInfo(module.getAst(), module.getModulesKey(), false);
         
-        Set<IInfo> tokensStartingWith = null;
+        Collection<IInfo> tokensStartingWith = null;
         
         tokensStartingWith = info.getTokensStartingWith("m", AbstractAdditionalTokensInfo.TOP_LEVEL | AbstractAdditionalTokensInfo.INNER);
         assertEquals(1, tokensStartingWith.size());

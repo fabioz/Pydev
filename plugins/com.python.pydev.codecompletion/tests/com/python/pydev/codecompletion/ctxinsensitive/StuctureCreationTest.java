@@ -10,7 +10,6 @@
 package com.python.pydev.codecompletion.ctxinsensitive;
 
 import java.util.Collection;
-import java.util.Set;
 
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
@@ -64,7 +63,7 @@ public class StuctureCreationTest extends AdditionalInfoTestsBase {
             throw new RuntimeException(e);
         }
         assertTrue(additionalSystemInfo.getAllTokens().size() > 0);
-        Set<IInfo> tokensStartingWith = additionalSystemInfo.getTokensStartingWith("TestC", AbstractAdditionalTokensInfo.TOP_LEVEL);
+        Collection<IInfo> tokensStartingWith = additionalSystemInfo.getTokensStartingWith("TestC", AbstractAdditionalTokensInfo.TOP_LEVEL);
         assertIsIn("TestCase", "unittest", tokensStartingWith);
     }
 
@@ -76,7 +75,7 @@ public class StuctureCreationTest extends AdditionalInfoTestsBase {
     public void testSetup2() throws Exception {
         AbstractAdditionalTokensInfo additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
         assertTrue(additionalInfo.getAllTokens().size() > 0);
-        Set<IInfo> tokensStartingWith = additionalInfo.getTokensStartingWith("MyInvalidClassInInvalidFil", AbstractAdditionalTokensInfo.TOP_LEVEL);
+        Collection<IInfo> tokensStartingWith = additionalInfo.getTokensStartingWith("MyInvalidClassInInvalidFil", AbstractAdditionalTokensInfo.TOP_LEVEL);
         assertEquals("Expecting no tokens. Found: "+tokensStartingWith, 0, tokensStartingWith.size());
     }
 

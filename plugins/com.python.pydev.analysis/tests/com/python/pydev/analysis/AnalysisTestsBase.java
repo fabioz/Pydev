@@ -10,6 +10,7 @@
 package com.python.pydev.analysis;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -169,7 +170,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
                         //one last check: if TestCase is not found, recreate it!
                         AbstractAdditionalDependencyInfo additionalSystemInfo = 
                             AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(interpreterManager, defaultInterpreter);
-                        Set<IInfo> tokensStartingWith = additionalSystemInfo.getTokensStartingWith("TestCase", AbstractAdditionalTokensInfo.TOP_LEVEL);
+                        Collection<IInfo> tokensStartingWith = additionalSystemInfo.getTokensStartingWith("TestCase", AbstractAdditionalTokensInfo.TOP_LEVEL);
                         recreate = true;
                         for (IInfo info : tokensStartingWith) {
                             if(info.getName().equals("TestCase")){

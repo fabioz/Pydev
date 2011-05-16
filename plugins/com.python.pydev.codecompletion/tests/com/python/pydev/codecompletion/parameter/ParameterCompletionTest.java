@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.MisconfigurationException;
@@ -76,7 +75,7 @@ public class ParameterCompletionTest extends AdditionalInfoTestsBase {
     public void testSetup() throws MisconfigurationException {
         AbstractAdditionalTokensInfo additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
         assertTrue(additionalInfo.getAllTokens().size() > 0);
-        Set<IInfo> tokensStartingWith = additionalInfo.getTokensStartingWith("existingM", AbstractAdditionalTokensInfo.INNER);
+        Collection<IInfo> tokensStartingWith = additionalInfo.getTokensStartingWith("existingM", AbstractAdditionalTokensInfo.INNER);
         assertTrue(tokensStartingWith.size() == 1);
         assertIsIn("existingMethod", "testAssist.assist", tokensStartingWith);
     }
