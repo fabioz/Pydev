@@ -20,6 +20,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
@@ -90,12 +91,17 @@ public class JythonCodeCompletionTestsBase extends CodeCompletionTestsBase{
     }
     
     @Override
-    protected void setInterpreterManager() {
+    protected void setInterpreterManager(String path) {
         JythonInterpreterManager interpreterManager = new JythonInterpreterManager(this.getPreferences());
         
-        InterpreterInfo info = (InterpreterInfo) interpreterManager.createInterpreterInfo(TestDependent.JYTHON_JAR_LOCATION, new NullProgressMonitor(), false);
+        InterpreterInfo info;
+        info = (InterpreterInfo) interpreterManager.createInterpreterInfo(TestDependent.JYTHON_JAR_LOCATION, new NullProgressMonitor(), false);
         if(!info.executableOrJar.equals(TestDependent.JYTHON_JAR_LOCATION)){
             throw new RuntimeException("expected same");
+        }
+        if(path != null){
+            info = new InterpreterInfo(
+                    info.getVersion(), TestDependent.JYTHON_JAR_LOCATION, PythonPathHelper.parsePythonPathFromStr(path, new ArrayList<String>()));
         }
         
         interpreterManager.setInfos(new IInterpreterInfo[]{info}, null, null);

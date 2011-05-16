@@ -55,7 +55,8 @@ class Test(unittest.TestCase):
         self.assert_(
             ('__add__', 'x.__add__(y) <==> x+y', '', '3') in comps or 
             ('__add__', '', '', '4') in comps or 
-            ('__add__', 'x.__add__(y) <==> x+y\r\nx.__add__(y) <==> x+y', '()', '2') in comps,
+            ('__add__', 'x.__add__(y) <==> x+y\r\nx.__add__(y) <==> x+y', '()', '2') in comps or
+            ('__add__', 'x.\n__add__(y) <==> x+yx.\n__add__(y) <==> x+y', '()', '2'),
             'Did not find __add__ in : %s' % (comps,)
         )
         
@@ -83,7 +84,8 @@ class Test(unittest.TestCase):
         self.assert_(desc.find('str(object) -> string') >= 0 or 
                      desc == "'input_request'" or 
                      desc.find('str(string[, encoding[, errors]]) -> str') >= 0 or
-                     desc.find('str(Char* value)') >= 0, 
+                     desc.find('str(Char* value)') >= 0 or 
+                     desc.find('str(value: Char*)') >= 0, 
                      'Could not find what was needed in %s' % desc)
         
         desc = interpreter.getDescription('val.join')
@@ -93,7 +95,8 @@ class Test(unittest.TestCase):
                      desc == "<builtin method 'join'>"  or 
                      desc == "<built-in method join of str object>" or
                      desc.find('str join(str self, list sequence)') >= 0 or
-                     desc.find('S.join(iterable) -> str') >= 0,
+                     desc.find('S.join(iterable) -> str') >= 0 or
+                     desc.find('join(self: str, sequence: list) -> str') >= 0,
                      "Could not recognize: %s" % (desc,))
 
     
@@ -131,6 +134,23 @@ class Test(unittest.TestCase):
         port1 = s1.getsockname()[1]
         s.close()
         s1.close()
+        
+        if port0 <= 0 or port1 <= 0:
+            #This happens in Jython...
+            from java.net import ServerSocket
+            s0 = ServerSocket(0)
+            port0 = s0.getLocalPort()
+            
+            s1 = ServerSocket(0)
+            port1 = s1.getLocalPort()
+            
+            s0.close()
+            s1.close()
+
+        assert port0 != port1
+        assert port0 > 0
+        assert port1 > 0
+            
         return port0, port1
         
         

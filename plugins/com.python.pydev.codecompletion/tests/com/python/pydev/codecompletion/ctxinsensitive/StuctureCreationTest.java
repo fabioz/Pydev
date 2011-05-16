@@ -9,7 +9,8 @@
  */
 package com.python.pydev.codecompletion.ctxinsensitive;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Set;
 
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
@@ -63,7 +64,7 @@ public class StuctureCreationTest extends AdditionalInfoTestsBase {
             throw new RuntimeException(e);
         }
         assertTrue(additionalSystemInfo.getAllTokens().size() > 0);
-        List<IInfo> tokensStartingWith = additionalSystemInfo.getTokensStartingWith("TestC", AbstractAdditionalTokensInfo.TOP_LEVEL);
+        Set<IInfo> tokensStartingWith = additionalSystemInfo.getTokensStartingWith("TestC", AbstractAdditionalTokensInfo.TOP_LEVEL);
         assertIsIn("TestCase", "unittest", tokensStartingWith);
     }
 
@@ -75,14 +76,14 @@ public class StuctureCreationTest extends AdditionalInfoTestsBase {
     public void testSetup2() throws Exception {
         AbstractAdditionalTokensInfo additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
         assertTrue(additionalInfo.getAllTokens().size() > 0);
-        List<IInfo> tokensStartingWith = additionalInfo.getTokensStartingWith("MyInvalidClassInInvalidFil", AbstractAdditionalTokensInfo.TOP_LEVEL);
+        Set<IInfo> tokensStartingWith = additionalInfo.getTokensStartingWith("MyInvalidClassInInvalidFil", AbstractAdditionalTokensInfo.TOP_LEVEL);
         assertEquals("Expecting no tokens. Found: "+tokensStartingWith, 0, tokensStartingWith.size());
     }
 
     // ----------------------------------------------------------------------------------------------- asserts
     
     
-    private void assertIsIn(String tok, String mod, List<IInfo> tokensStartingWith) {
+    private void assertIsIn(String tok, String mod, Collection<IInfo> tokensStartingWith) {
         for (IInfo info : tokensStartingWith) {
             if(info.getName().equals(tok)){
                 if(info.getDeclaringModuleName().equals(mod)){

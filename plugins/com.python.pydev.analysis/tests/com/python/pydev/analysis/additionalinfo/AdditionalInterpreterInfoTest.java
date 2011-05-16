@@ -10,7 +10,9 @@
 package com.python.pydev.analysis.additionalinfo;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.MisconfigurationException;
@@ -90,10 +92,10 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
         info2 = new FuncInfo(((NameTok)createFuncDef("metA" ).name).id, "mod1", null);
         info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
-        List<IInfo> tokensStartingWith = info.getTokensStartingWith("met", AbstractAdditionalTokensInfo.TOP_LEVEL);
+        Set<IInfo> tokensStartingWith = info.getTokensStartingWith("met", AbstractAdditionalTokensInfo.TOP_LEVEL);
         assertEquals(6, tokensStartingWith.size());
         
-        List<IInfo> tokensEqualTo = info.getTokensEqualTo("metz", AbstractAdditionalTokensInfo.TOP_LEVEL);
+        Set<IInfo> tokensEqualTo = info.getTokensEqualTo("metz", AbstractAdditionalTokensInfo.TOP_LEVEL);
         assertEquals(1, tokensEqualTo.size());
     }
     
@@ -106,7 +108,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
         info2 = new FuncInfo(((NameTok)createFuncDef("mmmm" ).name).id, "mod1", null);
         info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
-        List<IInfo> tokensStartingWith = info.getTokensStartingWith("m", AbstractAdditionalTokensInfo.TOP_LEVEL);
+        Set<IInfo> tokensStartingWith = info.getTokensStartingWith("m", AbstractAdditionalTokensInfo.TOP_LEVEL);
         assertEquals(4, tokensStartingWith.size());
         
         tokensStartingWith = info.getTokensStartingWith("mm", AbstractAdditionalTokensInfo.TOP_LEVEL);
@@ -128,7 +130,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
         info2 = new FuncInfo(((NameTok)createFuncDef("func2").name).id, "mod1", null);
         info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
-        List<IInfo> tokensStartingWith = info.getTokensStartingWith("me", AbstractAdditionalTokensInfo.TOP_LEVEL);
+        Set<IInfo> tokensStartingWith = info.getTokensStartingWith("me", AbstractAdditionalTokensInfo.TOP_LEVEL);
         assertEquals(2, tokensStartingWith.size());
         assertIsIn("met1", tokensStartingWith);
         assertIsIn("met2", tokensStartingWith);
@@ -151,7 +153,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         info.add(info3, AbstractAdditionalTokensInfo.TOP_LEVEL);
         ClassInfo info4 = new ClassInfo(((NameTok)createClassDef("class2").name).id, "mod2", null);
         info.add(info4, AbstractAdditionalTokensInfo.TOP_LEVEL);
-        List<IInfo> tokensStartingWith = info.getTokensStartingWith("cls", AbstractAdditionalTokensInfo.TOP_LEVEL);
+        Set<IInfo> tokensStartingWith = info.getTokensStartingWith("cls", AbstractAdditionalTokensInfo.TOP_LEVEL);
         assertEquals(2, tokensStartingWith.size());
         assertIsIn("cls1", tokensStartingWith);
         assertIsIn("cls2", tokensStartingWith);
@@ -170,14 +172,14 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc("test", null, new Document(doc), nature, 0);
         info.addAstInfo(module.getAst(), module.getModulesKey(), false);
 
-        List<IInfo> tokensStartingWith = info.getTokensStartingWith("Tes", AbstractAdditionalTokensInfo.TOP_LEVEL | AbstractAdditionalTokensInfo.INNER);
+        Set<IInfo> tokensStartingWith = info.getTokensStartingWith("Tes", AbstractAdditionalTokensInfo.TOP_LEVEL | AbstractAdditionalTokensInfo.INNER);
         assertEquals(1, tokensStartingWith.size());
         assertIsIn("Test", tokensStartingWith);
         
         tokensStartingWith = info.getTokensStartingWith("m1", AbstractAdditionalTokensInfo.TOP_LEVEL | AbstractAdditionalTokensInfo.INNER);
         assertEquals(1, tokensStartingWith.size());
         assertIsIn("m1", tokensStartingWith);
-        IInfo i = tokensStartingWith.get(0);
+        IInfo i = tokensStartingWith.iterator().next();
         assertEquals("Test", i.getPath());
         
     }
@@ -199,7 +201,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc("test", null, new Document(doc), nature, 0);
         info.addAstInfo(module.getAst(), module.getModulesKey(), false);
         
-        List<IInfo> tokensStartingWith = null;
+        Set<IInfo> tokensStartingWith = null;
         IInfo i = null;
         
         tokensStartingWith = info.getTokensStartingWith("global", AbstractAdditionalTokensInfo.TOP_LEVEL | AbstractAdditionalTokensInfo.INNER);
@@ -235,12 +237,12 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc("test", null, new Document(doc), nature, 0);
         info.addAstInfo(module.getAst(), module.getModulesKey(), false);
         
-        List<IInfo> tokensStartingWith = null;
+        Set<IInfo> tokensStartingWith = null;
         
         tokensStartingWith = info.getTokensStartingWith("m", AbstractAdditionalTokensInfo.TOP_LEVEL | AbstractAdditionalTokensInfo.INNER);
         assertEquals(1, tokensStartingWith.size());
         assertIsIn("mmm", tokensStartingWith);
-        IInfo i = tokensStartingWith.get(0);
+        IInfo i = tokensStartingWith.iterator().next();
         assertEquals("Test.Test2", i.getPath());
         
         tokensStartingWith = info.getTokensStartingWith("Test", AbstractAdditionalTokensInfo.TOP_LEVEL | AbstractAdditionalTokensInfo.INNER);
@@ -298,7 +300,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         return new ClassDef(new NameTok(name, NameTok.FunctionName), null, null, null, null, null, null);
     }
 
-    private IInfo assertIsIn(String req, List<IInfo> tokensStartingWith) {
+    private IInfo assertIsIn(String req, Collection<IInfo> tokensStartingWith) {
         for (IInfo info : tokensStartingWith) {
             if(info.getName().equals(req)){
                 return info;

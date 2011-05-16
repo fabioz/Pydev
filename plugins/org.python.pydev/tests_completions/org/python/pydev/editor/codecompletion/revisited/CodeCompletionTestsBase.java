@@ -12,7 +12,7 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -262,7 +262,7 @@ public class CodeCompletionTestsBase extends TestCase {
     protected boolean restoreSystemPythonPath(boolean force, String path){
         if(restoredSystem == null || restoredSystem != this.getClass() || force){
             //restore manager and cache
-            setInterpreterManager();
+            setInterpreterManager(path);
             restoredSystem = this.getClass();
             
             //get default and restore the pythonpath
@@ -275,7 +275,6 @@ public class CodeCompletionTestsBase extends TestCase {
             if(ADD_NUMPY_TO_FORCED_BUILTINS){
                 info.addForcedLib("numpy");
             }
-            info.restorePythonpath(path, getProgressMonitor()); //here
 
             //postconditions
             afterRestorSystemPythonPath(info);
@@ -317,13 +316,18 @@ public class CodeCompletionTestsBase extends TestCase {
 
     /**
      * Sets the interpreter manager we should use
+     * @param path 
      */
-    protected void setInterpreterManager() {
+    protected void setInterpreterManager(String path) {
         PythonInterpreterManager interpreterManager = new PythonInterpreterManager(this.getPreferences());
         
-        InterpreterInfo info = (InterpreterInfo) interpreterManager.createInterpreterInfo(TestDependent.PYTHON_EXE, new NullProgressMonitor(), false);
-        if(!InterpreterInfo.isJythonExecutable(info.getExecutableOrJar()) && !InterpreterInfo.isIronpythonExecutable(info.getExecutableOrJar())){
-            TestDependent.PYTHON_EXE = info.executableOrJar;
+        InterpreterInfo info;
+        info = (InterpreterInfo) interpreterManager.createInterpreterInfo(
+                TestDependent.PYTHON_EXE, new NullProgressMonitor(), false);
+        TestDependent.PYTHON_EXE = info.executableOrJar;
+        if(path != null){
+            info = new InterpreterInfo(
+                    info.getVersion(), info.executableOrJar, PythonPathHelper.parsePythonPathFromStr(path, new ArrayList<String>()));
         }
         
         interpreterManager.setInfos(new IInterpreterInfo[]{info}, null, null);

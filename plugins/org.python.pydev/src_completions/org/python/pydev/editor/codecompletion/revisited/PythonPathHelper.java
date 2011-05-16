@@ -450,8 +450,9 @@ public class PythonPathHelper implements IPythonPathHelper {
     /**
      * @param string this is the string that has the pythonpath (separated by |)
      * @param lPath OUT: this list is filled with the pythonpath.
+     * @return 
      */
-    private static void parsePythonPathFromStr(String string, List<String> lPath) {
+    public static List<String> parsePythonPathFromStr(String string, List<String> lPath) {
         String[] strings = string.split("\\|");
         for (int i = 0; i < strings.length; i++) {
             String defaultPathStr = getDefaultPathStr(strings[i]);
@@ -466,6 +467,7 @@ public class PythonPathHelper implements IPythonPathHelper {
                 }
             }
         }
+        return lPath;
     }
 
     /**

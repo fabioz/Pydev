@@ -238,6 +238,11 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     private IInterpreterInfo[] interpreterInfosFromPersistedString;
 
     public IInterpreterInfo[] getInterpreterInfos() {
+        return internalRecreateCacheGetInterpreterInfos();
+        
+    }
+
+    private IInterpreterInfo[] internalRecreateCacheGetInterpreterInfos() {
         if(interpreterInfosFromPersistedString == null){
             synchronized(lock){
                 interpreterInfosFromPersistedString = getInterpretersFromPersistedString(getPersistedString());
@@ -249,7 +254,6 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
             }
         }
         return interpreterInfosFromPersistedString;
-        
     }
     
     
@@ -337,7 +341,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     public InterpreterInfo getInterpreterInfo(String nameOrExecutableOrJar, IProgressMonitor monitor) throws MisconfigurationException {
         synchronized(lock){
             if(interpreterInfosFromPersistedString == null){
-                getInterpreterInfos(); //recreate cache!
+                internalRecreateCacheGetInterpreterInfos(); //recreate cache!
             }
             for(IInterpreterInfo info:this.exeToInfo.values()){
                 if(info != null){
@@ -503,7 +507,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                 clearInterpretersFromPersistedString();
                 persistedString = s;
                 //After setting the preference, get the actual infos (will be recreated).
-                interpreterInfos = getInterpreterInfos();
+                interpreterInfos = internalRecreateCacheGetInterpreterInfos();
                 
                 this.restorePythopathForInterpreters(monitor, interpreterNamesToRestore);
                 //When we call performOk, the editor is going to store its values, but after actually restoring the modules, we

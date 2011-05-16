@@ -171,7 +171,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
 		}
         FastStringBuffer tempBuf = new FastStringBuffer();
         for (AbstractAdditionalTokensInfo info : additionalInfo) {
-            List<IInfo> tokensEqualTo = info.getTokensEqualTo(markerContents, AbstractAdditionalTokensInfo.TOP_LEVEL);
+            Set<IInfo> tokensEqualTo = info.getTokensEqualTo(markerContents, AbstractAdditionalTokensInfo.TOP_LEVEL);
             for (IInfo found : tokensEqualTo) {
                 //there always is a declaring module
                 String name = found.getName();

@@ -34,7 +34,7 @@ public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompleti
         try {
             IronpythonCompletionWithBuiltinsTest builtins = new IronpythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testSortParamsCorrect();
+            builtins.testCompleteImportBuiltin();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(IronpythonCompletionWithBuiltinsTest.class);

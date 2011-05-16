@@ -48,7 +48,19 @@ public class JythonTest extends TestCase {
 	private static final boolean RUN_TESTS_ON_SAME_PROCESS = true;
 	
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(JythonTest.class);
+        try {
+            JythonTest builtins = new JythonTest();
+            builtins.setUp();
+            builtins.testJythonTestsOnSeparateProcess();
+            builtins.tearDown();
+            
+            junit.textui.TestRunner.run(JythonTest.class);
+
+            System.out.println("Finished");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
     }
 
     protected void setUp() throws Exception {

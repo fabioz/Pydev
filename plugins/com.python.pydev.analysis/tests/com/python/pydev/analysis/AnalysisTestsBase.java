@@ -154,7 +154,6 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
     protected boolean restoreSystemPythonPath(boolean force, String path) {
         boolean restored = super.restoreSystemPythonPath(force, path);
         if(restored){
-            System.out.println("restoreSystemPythonPath: "+this.getClass());
             IProgressMonitor monitor = new NullProgressMonitor();
             
             //try to load it from previous session
@@ -170,11 +169,13 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
                         //one last check: if TestCase is not found, recreate it!
                         AbstractAdditionalDependencyInfo additionalSystemInfo = 
                             AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(interpreterManager, defaultInterpreter);
-                        List<IInfo> tokensStartingWith = additionalSystemInfo.getTokensStartingWith("TestCase", AbstractAdditionalTokensInfo.TOP_LEVEL);
+                        Set<IInfo> tokensStartingWith = additionalSystemInfo.getTokensStartingWith("TestCase", AbstractAdditionalTokensInfo.TOP_LEVEL);
+                        recreate = true;
                         for (IInfo info : tokensStartingWith) {
                             if(info.getName().equals("TestCase")){
                                 if(info.getDeclaringModuleName().equals("unittest")){
-                                    recreate = true;
+                                    recreate = false; 
+                                    break;
                                 }
                             }
                         }
