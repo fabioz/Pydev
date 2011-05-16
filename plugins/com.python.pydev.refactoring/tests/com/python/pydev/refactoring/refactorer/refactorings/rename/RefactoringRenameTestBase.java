@@ -25,6 +25,7 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IProjectModulesManager;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
@@ -32,6 +33,7 @@ import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.eclipseresourcestubs.FileResourceStub;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.ProjectStub;
@@ -101,17 +103,22 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
             filesInRefactoringProject = PyFileListing.getPyFilesBelow(new File(TestDependent.TEST_COM_REFACTORING_PYSRC_LOC), 
                     new NullProgressMonitor(), true, false).getFoundPyFileInfos();
             
-            ArrayList<IFile> iFiles = new ArrayList<IFile>();
+            ArrayList<Tuple<List<ModulesKey>, IPythonNature>> iFiles = new ArrayList<Tuple<List<ModulesKey>, IPythonNature>>();
+            List<ModulesKey> modules = new ArrayList<ModulesKey>();
+            
+            iFiles.add(new Tuple<List<ModulesKey>, IPythonNature>(modules, natureRefactoring));
+            FastStringBuffer tempBuf = new FastStringBuffer();
             for (PyFileInfo info: filesInRefactoringProject) {
                 File f = info.getFile();
-                iFiles.add(new FileResourceStub(f, natureRefactoring.getProject()));
+                String modName = info.getModuleName(tempBuf);
+                ModulesKey modulesKey = new ModulesKey(modName, f);
+                modules.add(modulesKey);
                 
-                String modName = natureRefactoring.resolveModule(f);
                 SourceModule mod = (SourceModule) AbstractModule.createModule(modName, f, natureRefactoring, 0);
                 
                 //also create the additional info so that it can be used for finds
                 AbstractAdditionalTokensInfo additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(natureRefactoring);
-                additionalInfo.addAstInfo(mod.getAst(), new ModulesKey(modName, f), false);
+                additionalInfo.addAstInfo(mod.getAst(), modulesKey, false);
             }
             
             RefactorerFindReferences.FORCED_RETURN = iFiles;

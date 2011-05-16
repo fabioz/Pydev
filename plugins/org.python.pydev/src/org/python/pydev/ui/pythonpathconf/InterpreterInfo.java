@@ -1378,7 +1378,9 @@ public class InterpreterInfo implements IInterpreterInfo{
                     builder.setInfo(this);
                     this.builder = builder;
                 }else{
-                    Log.log("Could not get internal extension for: "+ExtensionHelper.PYDEV_INTERPRETER_INFO_BUILDER);
+                    if(!ProjectModulesManager.IN_TESTS){
+                        Log.log("Could not get internal extension for: "+ExtensionHelper.PYDEV_INTERPRETER_INFO_BUILDER);
+                    }
                 }
             }
         }

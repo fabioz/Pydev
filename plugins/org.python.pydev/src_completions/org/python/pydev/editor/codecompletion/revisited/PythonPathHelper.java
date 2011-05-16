@@ -492,11 +492,12 @@ public class PythonPathHelper implements IPythonPathHelper {
         
         ModulesFoundStructure ret = new ModulesFoundStructure();
 
+        FastStringBuffer tempBuf = new FastStringBuffer();
         for (Iterator<String> iter = pythonpathList.iterator(); iter.hasNext();) {
             String element = iter.next();
 
             if (monitor.isCanceled()) {
-              break;
+                break;
             }
 
             //the slow part is getting the files... not much we can do (I think).
@@ -508,14 +509,7 @@ public class PythonPathHelper implements IPythonPathHelper {
                 while (e1.hasNext()) {
                     PyFileInfo pyFileInfo = e1.next();
                     File file = pyFileInfo.getFile();
-                    String scannedModuleName = pyFileInfo.getModuleName();
-
-                    String modName;
-                    if (scannedModuleName.length() != 0) {
-                        modName = new StringBuffer(scannedModuleName).append('.').append(stripExtension(file.getName())).toString();
-                    } else {
-                        modName = stripExtension(file.getName());
-                    }
+                    String modName = pyFileInfo.getModuleName(tempBuf);
                     if(isValidModuleLastPart(FullRepIterable.getLastPart(modName))){
                         ret.regularModules.put(file, modName);
                     }

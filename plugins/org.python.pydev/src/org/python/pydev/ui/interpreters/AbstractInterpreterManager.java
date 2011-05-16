@@ -336,6 +336,9 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      */
     public InterpreterInfo getInterpreterInfo(String nameOrExecutableOrJar, IProgressMonitor monitor) throws MisconfigurationException {
         synchronized(lock){
+            if(interpreterInfosFromPersistedString == null){
+                getInterpreterInfos(); //recreate cache!
+            }
             for(IInterpreterInfo info:this.exeToInfo.values()){
                 if(info != null){
                     if(info.matchNameBackwardCompatible(nameOrExecutableOrJar)){

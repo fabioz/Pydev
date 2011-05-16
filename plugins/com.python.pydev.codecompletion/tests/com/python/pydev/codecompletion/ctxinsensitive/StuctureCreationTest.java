@@ -28,19 +28,15 @@ public class StuctureCreationTest extends AdditionalInfoTestsBase {
 
         try {
             // DEBUG_TESTS_BASE = true;
-            StuctureCreationTest test = new StuctureCreationTest();
-            test.setUp();
-            test.testSetup();
-            test.tearDown();
-            test.setUp();
-            test.testSetup();
-            test.tearDown();
+            StuctureCreationTest test2 = new StuctureCreationTest();
+            test2.setUp();
+            test2.testCompletion();
+            test2.tearDown();
+
             System.out.println("Finished");
 
             junit.textui.TestRunner.run(StuctureCreationTest.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } catch (Error e) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
     }
@@ -62,7 +58,7 @@ public class StuctureCreationTest extends AdditionalInfoTestsBase {
         AbstractAdditionalTokensInfo additionalSystemInfo;
         try{
             additionalSystemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
-                    getInterpreterManager(), getInterpreterManager().getDefaultInterpreterInfo().getExecutableOrJar());
+                    getInterpreterManager(), getInterpreterManager().getDefaultInterpreterInfo().getExecutableOrJar(), true);
         }catch(MisconfigurationException e){
             throw new RuntimeException(e);
         }

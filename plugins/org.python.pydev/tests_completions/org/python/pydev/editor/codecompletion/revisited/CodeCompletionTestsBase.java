@@ -12,6 +12,7 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,8 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
@@ -571,6 +574,19 @@ public class CodeCompletionTestsBase extends TestCase {
             }
         }
         fail("The string "+toFind+" was not found amongst the passed strings.");
+    }
+    
+    public static void assertContains(Map found, Object toFind) {
+        if(found.containsKey(toFind)){
+            return;
+        }
+        
+        FastStringBuffer available = new FastStringBuffer();
+        for(Object o:found.keySet()){
+            available.append(o.toString());
+            available.append('\n');
+        }
+        fail(StringUtils.format("Object: %s not found. Available:\n%s", toFind, available));
     }
 
 }

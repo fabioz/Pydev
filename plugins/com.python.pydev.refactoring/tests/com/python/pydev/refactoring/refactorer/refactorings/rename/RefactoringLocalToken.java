@@ -21,10 +21,10 @@ public class RefactoringLocalToken extends RefactoringRenameTestBase {
     public static void main(String[] args) {
         try {
             DEBUG_REFERENCES = false;
-//            RefactoringLocalToken test = new RefactoringLocalToken();
-//            test.setUp();
-//            test.testRename1();
-//            test.tearDown();
+            RefactoringLocalToken test = new RefactoringLocalToken();
+            test.setUp();
+            test.testRename2();
+            test.tearDown();
 
             junit.textui.TestRunner.run(RefactoringLocalToken.class);
         } catch (Throwable e) {
@@ -55,7 +55,7 @@ public class RefactoringLocalToken extends RefactoringRenameTestBase {
         Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameclass.accessfoo", 0, 22);
         assertTrue(references.containsKey("reflib.renameclass.accessfoo") == false); //the current module does not have a separated key here
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
-        assertTrue(references.containsKey("reflib.renameclass.renfoo")); //the module where it is actually defined
+        assertContains(references, "reflib.renameclass.renfoo"); //the module where it is actually defined
     }
     
 

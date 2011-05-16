@@ -11,9 +11,9 @@
 package com.python.pydev.refactoring.refactorer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -39,41 +39,7 @@ public class RefactorerFindReferences {
      * 
      * This is intended to help in testing features that depend on the search.
      */
-    public static List<IFile> FORCED_RETURN;
-    
-//    /**
-//     * class used to configure the input for a text search.
-//     */
-//    public static class PyTextSearchInput extends TextSearchInput {
-//        
-//        private final String fSearchText;
-//        private final boolean fIsCaseSensitive;
-//        private final boolean fIsRegEx;
-//        private final FileTextSearchScope fScope;
-//
-//        public PyTextSearchInput(String searchText, boolean isCaseSensitive, boolean isRegEx, FileTextSearchScope scope) {
-//            fSearchText= searchText;
-//            fIsCaseSensitive= isCaseSensitive;
-//            fIsRegEx= isRegEx;
-//            fScope= scope;
-//        }
-//
-//        public String getSearchText() {
-//            return fSearchText;
-//        }
-//
-//        public boolean isCaseSensitiveSearch() {
-//            return fIsCaseSensitive;
-//        }
-//
-//        public boolean isRegExSearch() {
-//            return fIsRegEx;
-//        }
-//
-//        public FileTextSearchScope getScope() {
-//            return fScope;
-//        }
-//    }
+    public static ArrayList<Tuple<List<ModulesKey>, IPythonNature>> FORCED_RETURN;
 
 
     /**
@@ -85,17 +51,20 @@ public class RefactorerFindReferences {
      * interested in -- it is just a helper to refine our search).
      */
     public ArrayList<Tuple<List<ModulesKey>, IPythonNature>> findPossibleReferences(RefactoringRequest request) {
-//        if(FORCED_RETURN != null){
-//            ArrayList<Tuple<List<ModulesKey>, IPythonNature>> ret = new ArrayList<Tuple<List<ModulesKey>, IPythonNature>>();
-//            for(IFile f: FORCED_RETURN){
-//                //only for testing purposes
-//                String object = (String) REF.invoke(f, "getFileContents", new Object[0]);
-//                if(object.indexOf(request.initialName) != -1){
-//                    ret.add(f);
-//                }
-//            }
-//            return ret;
-//        }
+        if(FORCED_RETURN != null){
+            ArrayList<Tuple<List<ModulesKey>, IPythonNature>> ret = new ArrayList<Tuple<List<ModulesKey>, IPythonNature>>();
+            
+            for(Tuple<List<ModulesKey>, IPythonNature> f: FORCED_RETURN){
+                //only for testing purposes
+                for(ModulesKey k:f.o1){
+                    String object = REF.getFileContents(k.file);
+                    if(object.indexOf(request.initialName) != -1){
+                        ret.add(new Tuple<List<ModulesKey>, IPythonNature>(Arrays.asList(k), f.o2));
+                    }
+                }
+            }
+            return ret;
+        }
         
         ArrayList<Tuple<List<ModulesKey>, IPythonNature>> l = new ArrayList<Tuple<List<ModulesKey>, IPythonNature>>();
         
