@@ -12,6 +12,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.ui.console.IHyperlink;
 import org.python.pydev.core.tooltips.presenter.AbstractTooltipInformationPresenter;
+import org.python.pydev.core.tooltips.presenter.StyleRangeWithCustomData;
 import org.python.pydev.debug.ui.ILinkContainer;
 import org.python.pydev.debug.ui.PythonConsoleLineTracker;
 
@@ -30,7 +31,7 @@ public class InformationPresenterWithLineTracker extends AbstractTooltipInformat
         //See: org.python.pydev.debug.pyunit.PyUnitView.notifyTest(PyUnitTestResult, boolean)
         int firstSpace = hoverInfo.indexOf(' ');
         if(firstSpace > 0){
-            StyleRange range = new StyleRange();
+            StyleRangeWithCustomData range = new StyleRangeWithCustomData();
             range.fontStyle = SWT.BOLD;
             range.underline = true;
             try {
@@ -42,7 +43,7 @@ public class InformationPresenterWithLineTracker extends AbstractTooltipInformat
             range.length = firstSpace;
             if(this.data instanceof PyUnitTestResult){
                 final PyUnitTestResult pyUnitTestResult = (PyUnitTestResult) this.data;
-                range.data = new IHyperlink() {
+                range.customData = new IHyperlink() {
                     
                     public void linkExited() {
                     }
@@ -63,7 +64,7 @@ public class InformationPresenterWithLineTracker extends AbstractTooltipInformat
         lineTracker.init(new ILinkContainer() {
 
             public void addLink(IHyperlink link, int offset, int length) {
-                StyleRange range = new StyleRange();
+                StyleRangeWithCustomData range = new StyleRangeWithCustomData();
                 range.underline = true;
                 try {
                     range.underlineStyle = SWT.UNDERLINE_LINK;
@@ -80,7 +81,7 @@ public class InformationPresenterWithLineTracker extends AbstractTooltipInformat
 //                }
                 range.start = offset;
                 range.length = length + 1;
-                range.data = link;
+                range.customData = link;
                 presentation.addStyleRange(range);
             }
 

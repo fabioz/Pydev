@@ -81,6 +81,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallbackListener;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.tooltips.presenter.StyleRangeWithCustomData;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks.CreatedCommandLineParams;
@@ -545,14 +546,14 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
                     return; //Yes, in this case we clicked out of the possible range (i.e.: if we had no contents).
                 }
                 StyleRange r = text.getStyleRangeAtOffset(offset);
-                if(r == null){
-                    return;
-                }
-                Object o = r.data;
-                if(o instanceof FileNode){
-                    FileNode fileNode = (FileNode) o;
-                    if(fileNode.node != null && fileNode.node.exists()){
-                        openFileWithCoverageMarkers(fileNode.node);
+                if(r instanceof StyleRangeWithCustomData){
+                    StyleRangeWithCustomData styleRangeWithCustomData = (StyleRangeWithCustomData) r;
+                    Object o = styleRangeWithCustomData.customData;
+                    if(o instanceof FileNode){
+                        FileNode fileNode = (FileNode) o;
+                        if(fileNode.node != null && fileNode.node.exists()){
+                            openFileWithCoverageMarkers(fileNode.node);
+                        }
                     }
                 }
             }
