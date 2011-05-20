@@ -60,8 +60,8 @@ public class JythonInterpreterManagerStub extends PythonInterpreterManagerStub{
     }
 
     @Override
-    protected String getNotConfiguredInterpreterMsg() {
-        return "getNotConfiguredInterpreterMsg";
+    public String getInterpreterUIName() {
+        return "Jython";
     }
 
     @Override
