@@ -125,7 +125,9 @@ public class InterpreterObserver implements IInterpreterObserver {
      */
     private AbstractAdditionalTokensInfo restoreInfoForModuleManager(IProgressMonitor monitor, IModulesManager m, String additionalFeedback, 
             AbstractAdditionalTokensInfo info, PythonNature nature, int grammarVersion) {
-        
+        if(monitor == null){
+            monitor = new NullProgressMonitor();
+        }
         //TODO: Check if keeping a zip file open makes things faster...
         //Timer timer = new Timer();
         ModulesKey[] allModules = m.getOnlyDirectModules();

@@ -63,7 +63,11 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         //We have to wait a bit until the info is setup for the tests to work...
         waitForModulesManagerSetup();
         
+        checkCreateMethodAtField0();
+        
         checkCreateMethodAtField();
+        
+        checkCreateFieldAtField();
         
         checkCreateField();
         
@@ -160,7 +164,99 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         }
     }
     
+    private void checkCreateMethodAtField0() throws CoreException, BadLocationException, MisconfigurationException {
+        String mod1Contents = "" +
+        "class A:\n" +
+        "   pass\n" +
+        "\n" +
+        "class B:\n" +
+        "\n" +
+        "   def __init__(self, *args):\n" +
+        "       self._a = A()\n" +
+        "       self._a.Foo()" +
+        "";
+        setContentsAndWaitReparseAndError(mod1Contents, false); //no error here
+        
+        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        IDocument doc = editor.getDocument();
+        int offset = doc.getLength();
+        PySelection ps = new PySelection(doc, offset);
+        assertTrue(quickFix.isValid(ps, "", editor, offset));
+        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+        try {
+            findCompletion(props, "Create Foo method at A (pack1.pack2.mod1)").apply(editor.getISourceViewer(), '\n', 0, offset);
+            assertContentsEqual("" +
+                    "class A:\n" +
+                    "   \n" +
+                    "   \n" +
+                    "   def Foo(self):\n" +
+                    "       pass\n" +
+                    "   \n" +
+                    "   \n" +
+                    "\n" +
+                    "\n" +
+                    "class B:\n" +
+                    "\n" +
+                    "   def __init__(self, *args):\n" +
+                    "       self._a = A()\n" +
+                    "       self._a.Foo()" +
+                    "", editor.getDocument().get());
+        } finally {
+            editor.doRevertToSaved();
+        }
+    }
+    
     private void checkCreateMethodAtField() throws CoreException, BadLocationException, MisconfigurationException {
+        String mod1Contents = "" +
+        "class Bar(object):\n" +
+        "   pass\n" +
+        "\n" +
+        "class MyTestClass(object):\n" +
+        "    \n" +
+        "    def __init__(self):\n" +
+        "        self.bar = Bar()\n" +
+        "    \n" +
+        "    def test_1(self):\n" +
+        "        self.bar.something()" +
+        "";
+        setContentsAndWaitReparseAndError(mod1Contents, false); //no error here
+        
+        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        IDocument doc = editor.getDocument();
+        int offset = doc.getLength();
+        PySelection ps = new PySelection(doc, offset);
+        assertTrue(quickFix.isValid(ps, "", editor, offset));
+        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+        try {
+            findCompletion(props, "Create something method at Bar (pack1.pack2.mod1)").apply(editor.getISourceViewer(), '\n', 0, offset);
+            assertContentsEqual("" +
+                    "class Bar(object):\n"+
+                    "   \n" +
+                    "   \n" +
+                    "   def something(self):\n" +
+                    "       pass\n" +
+                    "   \n" +
+                    "   \n" +
+                    "\n"+
+                    "\n"+
+                    "class MyTestClass(object):\n"+
+                    "    \n"+
+                    "    def __init__(self):\n"+
+                    "        self.bar = Bar()\n"+
+                    "    \n"+
+                    "    def test_1(self):\n"+
+                    "        self.bar.something()"+
+                    "", editor.getDocument().get());
+        } finally {
+            editor.doRevertToSaved();
+        }
+    }
+    
+
+    
+    
+    
+    private void checkCreateFieldAtField() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents = "" +
         "class Bar(object):\n" +
         "    pass\n" +
@@ -171,7 +267,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         "        self.bar = Bar()\n" +
         "    \n" +
         "    def test_1(self):\n" +
-        "        self.bar.something()" +
+        "        self.bar.something" +
         "";
         setContentsAndWaitReparseAndError(mod1Contents, false); //no error here
         
@@ -199,14 +295,14 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                     "        self.bar = Bar()\n"+
                     "    \n"+
                     "    def test_1(self):\n"+
-                    "        self.bar.something()"+
+                    "        self.bar.something"+
                     "", editor.getDocument().get());
         } finally {
             editor.doRevertToSaved();
         }
     }
     
-
+    
     
     
     private void checkCreateBoundMethod() throws CoreException, BadLocationException, MisconfigurationException {
