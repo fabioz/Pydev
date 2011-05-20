@@ -95,6 +95,9 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         	return;
         }
         
+        if(markerAnnotation.position == null){
+            return;
+        }
         int start = markerAnnotation.position.offset;
         int end = start+markerAnnotation.position.length;
         ps.setSelection(start, end);

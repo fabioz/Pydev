@@ -70,6 +70,9 @@ public class OrganizeImports implements IOrganizeImports{
         TreeMap<Integer, MarkerAnnotationAndPosition> map = new TreeMap<Integer, MarkerAnnotationAndPosition>();
         
         for (MarkerAnnotationAndPosition marker : undefinedVariablesMarkers) {
+            if(marker.position == null){
+                continue;
+            }
             int start = marker.position.offset;
             map.put(start, marker);
         }

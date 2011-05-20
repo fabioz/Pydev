@@ -162,6 +162,9 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
         for(Iterator<MarkerAnnotationAndPosition> it=s.getMarkerIterator();it.hasNext();){
             MarkerAnnotationAndPosition marker = it.next();
             try {
+                if(marker.position == null){
+                    continue;
+                }
                 int cStart = marker.position.offset;
                 int cEnd = cStart + marker.position.length;
                 int offset = hoverRegion.getOffset();

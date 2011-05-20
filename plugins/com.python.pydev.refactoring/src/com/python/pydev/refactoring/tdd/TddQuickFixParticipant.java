@@ -91,6 +91,9 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant{
             return;
         }
         
+        if(markerAnnotation.position == null){
+            return;
+        }
         IMarker marker = markerAnnotation.markerAnnotation.getMarker();
         Integer id = (Integer) marker.getAttribute(AnalysisRunner.PYDEV_ANALYSIS_TYPE);
         int start = markerAnnotation.position.offset;
