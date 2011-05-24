@@ -25,14 +25,9 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.RenameResourceAction;
 import org.eclipse.ui.internal.ide.IDEWorkbenchMessages;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
-import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
-import org.python.pydev.editor.PyEdit;
-import org.python.pydev.navigator.elements.IWrappedResource;
 
 public class PyRenameResourceAction extends RenameResourceAction{
     
@@ -104,7 +99,7 @@ public class PyRenameResourceAction extends RenameResourceAction{
                 Iterator iterator = sSelection.iterator();
                 while (iterator.hasNext()) {
                     Object element = iterator.next();
-                    if (element instanceof IWrappedResource) {
+                    if (element instanceof IAdaptable) {
                         IAdaptable adaptable = (IAdaptable) element;
                         IResource resource = (IResource) adaptable.getAdapter(IResource.class);
                         if (resource != null) {

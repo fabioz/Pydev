@@ -52,7 +52,7 @@ public class PyCopyResourceAction extends CopyAction{
                 Iterator iterator = sSelection.iterator();
                 while (iterator.hasNext()) {
                     Object element = iterator.next();
-                    if (element instanceof IWrappedResource) {
+                    if (element instanceof IAdaptable) {
                         IAdaptable adaptable = (IAdaptable) element;
                         IResource resource = (IResource) adaptable.getAdapter(IResource.class);
                         if (resource != null) {

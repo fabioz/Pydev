@@ -17,12 +17,7 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.DeleteResourceAction;
-import org.python.pydev.editor.PyEdit;
-import org.python.pydev.navigator.elements.IWrappedResource;
 
 /**
  * Overriden org.eclipse.ui.actions.DeleteResourceAction
@@ -65,7 +60,7 @@ public class PyDeleteResourceAction extends DeleteResourceAction {
                 Iterator iterator = sSelection.iterator();
                 while (iterator.hasNext()) {
                     Object element = iterator.next();
-                    if (element instanceof IWrappedResource) {
+                    if (element instanceof IAdaptable) {
                         IAdaptable adaptable = (IAdaptable) element;
                         IResource resource = (IResource) adaptable.getAdapter(IResource.class);
                         if (resource != null) {

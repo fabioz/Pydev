@@ -19,7 +19,6 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.navigator.actions.copied.PasteAction;
-import org.python.pydev.navigator.elements.IWrappedResource;
 
 public class PyPasteAction extends PasteAction{
 
@@ -55,7 +54,7 @@ public class PyPasteAction extends PasteAction{
                 Iterator iterator = sSelection.iterator();
                 while (iterator.hasNext()) {
                     Object element = iterator.next();
-                    if (element instanceof IWrappedResource) {
+                    if (element instanceof IAdaptable) {
                         IAdaptable adaptable = (IAdaptable) element;
                         IResource resource = (IResource) adaptable.getAdapter(IResource.class);
                         if (resource != null) {
