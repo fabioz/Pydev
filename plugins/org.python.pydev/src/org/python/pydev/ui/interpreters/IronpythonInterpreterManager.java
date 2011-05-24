@@ -33,17 +33,20 @@ public class IronpythonInterpreterManager extends AbstractInterpreterManager{
     }
     
     @Override
-    protected String getNotConfiguredInterpreterMsg() {
-        return "Interpreter is not properly configured!\n" +
-                "Please go to window > preferences > PyDev > Iron Python Interpreters and configure it.\n" +
-                "If this is not supposed to be an Iron Python project, change the project type on the\n" +
-                "project properties to the project you want (e.g.: Python project).";
+    public String getInterpreterUIName() {
+        return "IronPython.";
     }
 
     @Override
     public Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor, boolean askUser) throws CoreException {
         return doCreateInterpreterInfo(executable, monitor, askUser);
     }
+    
+    @Override
+    protected String getPreferencesPageId() {
+        return "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageIronpython";
+    }
+
 
     /**
      * @param executable the iron python interpreter from where we should create the info

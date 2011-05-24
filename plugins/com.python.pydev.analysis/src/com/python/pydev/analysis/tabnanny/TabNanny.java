@@ -50,9 +50,19 @@ public class TabNanny{
         List<Tuple3<String, Integer, Boolean>> foundTabs = new ArrayList<Tuple3<String, Integer, Boolean>>();
         List<Tuple3<String, Integer, Boolean>> foundSpaces = new ArrayList<Tuple3<String, Integer, Boolean>>();
         
-        TabNannyDocIterator it = new TabNannyDocIterator(doc);
+        TabNannyDocIterator it;
+        try {
+            it = new TabNannyDocIterator(doc);
+        } catch (BadLocationException e) {
+            return ret;
+        }
         while(it.hasNext()){
-            Tuple3<String, Integer, Boolean> indentation = it.next();
+            Tuple3<String, Integer, Boolean> indentation;
+            try {
+                indentation = it.next();
+            } catch (BadLocationException e) {
+                return ret;
+            }
             //it can actually be in both (if we have spaces and tabs in the same indent line).
             if(indentation.o1.indexOf('\t') != -1){
                 foundTabs.add(indentation);

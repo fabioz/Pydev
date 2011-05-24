@@ -9,6 +9,7 @@
  */
 package com.python.pydev.refactoring.wizards.rename;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -18,12 +19,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
@@ -71,7 +73,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * key: tuple with module name and the IFile representing that module
      * value: list of ast entries to be replaced in a given file
      */
-    protected Map<Tuple<String, IFile>, HashSet<ASTEntry>> fileOccurrences = new HashMap<Tuple<String,IFile>, HashSet<ASTEntry>>();
+    protected Map<Tuple<String, File>, HashSet<ASTEntry>> fileOccurrences = new HashMap<Tuple<String,File>, HashSet<ASTEntry>>();
 
     /**
      * May be used by subclasses
@@ -106,8 +108,8 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * @param file the file where the occurrences were found
      * @param modName the name of the module that is bounded to the given file.
      */
-    protected void addOccurrences(List<ASTEntry> oc, IFile file, String modName) {
-        Tuple<String, IFile> key = new Tuple<String, IFile>(modName, file);
+    protected void addOccurrences(List<ASTEntry> oc, File file, String modName) {
+        Tuple<String, File> key = new Tuple<String, File>(modName, file);
         Set<ASTEntry> existent = fileOccurrences.get(key);
         if(existent == null){
             fileOccurrences.put(key, new HashSet<ASTEntry>(oc));
@@ -241,7 +243,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * 
      * @see com.python.pydev.refactoring.wizards.IRefactorRenameProcess#getOccurrencesInOtherFiles()
      */
-    public Map<Tuple<String, IFile>, HashSet<ASTEntry>> getOccurrencesInOtherFiles() {
+    public Map<Tuple<String, File>, HashSet<ASTEntry>> getOccurrencesInOtherFiles() {
         return this.fileOccurrences;
     }
     
@@ -277,7 +279,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * @param request the rquest for a rename.
      * @return a list with the files that may contain matches for the refactoring.
      */
-    protected List<IFile> findFilesWithPossibleReferences(RefactoringRequest request) {
+    protected ArrayList<Tuple<List<ModulesKey>, IPythonNature>> findFilesWithPossibleReferences(RefactoringRequest request) {
         return new RefactorerFindReferences().findPossibleReferences(request);
     }
 

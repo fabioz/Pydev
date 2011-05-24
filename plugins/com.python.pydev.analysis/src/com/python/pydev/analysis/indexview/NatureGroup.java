@@ -117,19 +117,19 @@ public class NatureGroup extends ElementWithChildren {
         TreeSet<ModulesKey> inModulesManager = new TreeSet<ModulesKey>(Arrays.asList(onlyDirectModules));
         
         Set<String> allAdditionalInfoModuleNames = new TreeSet<String>();
-        Tuple<List<AbstractAdditionalTokensInfo>, List<IPythonNature>> additionalInfoAndNature = AdditionalProjectInterpreterInfo.getAdditionalInfoAndNature(nature, false, false, false);
+        List<Tuple<AbstractAdditionalTokensInfo, IPythonNature>> additionalInfoAndNature = AdditionalProjectInterpreterInfo.getAdditionalInfoAndNature(nature, false, false, false);
         AbstractAdditionalTokensInfo additionalProjectInfo;
-        if(additionalInfoAndNature.o1.size() == 0){
+        if(additionalInfoAndNature.size() == 0){
             addChild(new LeafElement(this, "No additional infos found (1 expected) -- skipping other checks."));
             return;
             
         } else{
-            if(additionalInfoAndNature.o1.size() > 1){
+            if(additionalInfoAndNature.size() > 1){
                 addChild(new LeafElement(this, 
                         StringUtils.format("%s additional infos found (only 1 expected) -- continuing checks but analysis may be wrong.", 
-                                additionalInfoAndNature.o1.size())));
+                                additionalInfoAndNature.size())));
             }
-            additionalProjectInfo = additionalInfoAndNature.o1.get(0);
+            additionalProjectInfo = additionalInfoAndNature.get(0).o1;
             allAdditionalInfoModuleNames.addAll(additionalProjectInfo.getAllModulesWithTokens());
         }
         

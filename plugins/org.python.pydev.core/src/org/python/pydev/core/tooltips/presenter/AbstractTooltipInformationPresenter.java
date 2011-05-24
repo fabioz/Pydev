@@ -32,8 +32,9 @@ public abstract class AbstractTooltipInformationPresenter extends AbstractInform
                     try {
                         int offset = styledText.getOffsetAtLocation(new Point(e.x, e.y));
                         StyleRange r = styledText.getStyleRangeAtOffset(offset);
-                        if(r != null){
-                            onHandleClick(r.data);
+                        if(r instanceof StyleRangeWithCustomData){
+                            StyleRangeWithCustomData styleRangeWithCustomData = (StyleRangeWithCustomData) r;
+                            onHandleClick(styleRangeWithCustomData.customData);
                         }
                     } catch (IllegalArgumentException e1) {
                         //Don't care about wrong positions...
@@ -47,8 +48,9 @@ public abstract class AbstractTooltipInformationPresenter extends AbstractInform
                     try {
                         if(e.keyCode == SWT.CR || e.keyCode == SWT.LF){
                             StyleRange r = styledText.getStyleRangeAtOffset(styledText.getSelection().y);
-                            if(r != null){
-                                onHandleClick(r.data);
+                            if(r instanceof StyleRangeWithCustomData){
+                                StyleRangeWithCustomData styleRangeWithCustomData = (StyleRangeWithCustomData) r;
+                                onHandleClick(styleRangeWithCustomData.customData);
                             }
                         }
                     } catch (IllegalArgumentException e1) {

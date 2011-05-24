@@ -9,7 +9,6 @@ package com.python.pydev.refactoring.wizards.rename;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.core.IModule;
@@ -21,7 +20,6 @@ import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSour
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
-import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
@@ -125,30 +123,10 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
                     return;
                 }
                 
-                //now, let's make the mapping from the filesystem to the Eclipse workspace
-                IFile workspaceFile = null; 
-                try{
-                    workspaceFile = new PySourceLocatorBase().getWorkspaceFile(moduleToFind.getFile());
-                    if(workspaceFile == null){
-                        status.addFatalError(StringUtils.format("Error. Unable to resolve the file:\n" +
-                                "%s\n" +
-                                "to a file in the Eclipse workspace.",
-                                moduleToFind.getFile()));
-                        return;
-                    }
-                }catch(IllegalStateException e){
-                    //this can happen on tests (but if not on tests, we want to re-throw it
-                    String message = e.getMessage();
-					if(message == null || !message.equals("Workspace is closed.")){
-                        throw e; 
-                    }
-                    //otherwise, let's just keep going in the test and add it as a valid entry
-                }
-                
                 
                 List<ASTEntry> lst = new ArrayList<ASTEntry>();
                 lst.add(new ASTEntryWithSourceModule(moduleToFind));
-                addOccurrences(lst, workspaceFile, moduleToFind.getName());
+                addOccurrences(lst, moduleToFind.getFile(), moduleToFind.getName());
             }
         }
 

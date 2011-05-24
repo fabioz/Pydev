@@ -25,7 +25,7 @@ public class JythonUniversalRunnerTest extends JythonCodeCompletionTestsBase {
     public void setUp() throws Exception {
     	super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = true;
-        this.restorePythonPath(TestDependent.IRONPYTHON_LIB, false);
+        this.restorePythonPath(TestDependent.JYTHON_LIB_LOCATION+"|"+TestDependent.JAVA_RT_JAR_LOCATION, false);
     }
 
     @Override

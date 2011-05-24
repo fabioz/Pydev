@@ -29,6 +29,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.plugin.nature.SystemPythonNature;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 
@@ -109,21 +110,26 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
      */
     public static List<AbstractAdditionalTokensInfo> getAdditionalInfo(IPythonNature nature, boolean addSystemInfo,
             boolean addReferencingProjects) throws MisconfigurationException {
-        return getAdditionalInfoAndNature(nature, addSystemInfo, addReferencingProjects).o1;
+        List<Tuple<AbstractAdditionalTokensInfo, IPythonNature>> infoAndNature = getAdditionalInfoAndNature(nature, addSystemInfo, addReferencingProjects);
+        ArrayList<AbstractAdditionalTokensInfo> ret = new ArrayList<AbstractAdditionalTokensInfo>();
+        for (Tuple<AbstractAdditionalTokensInfo, IPythonNature> tuple : infoAndNature) {
+            ret.add(tuple.o1);
+        }
+        
+        return ret;
     }
     
     
-    public static Tuple<List<AbstractAdditionalTokensInfo>, List<IPythonNature>> getAdditionalInfoAndNature(
+    public static List<Tuple<AbstractAdditionalTokensInfo, IPythonNature>> getAdditionalInfoAndNature(
             IPythonNature nature, boolean addSystemInfo, boolean addReferencingProjects) throws MisconfigurationException {
         return getAdditionalInfoAndNature(nature, addSystemInfo, addReferencingProjects, true);
     }
     
     
-    public static Tuple<List<AbstractAdditionalTokensInfo>, List<IPythonNature>> getAdditionalInfoAndNature(
+    public static List<Tuple<AbstractAdditionalTokensInfo, IPythonNature>> getAdditionalInfoAndNature(
             IPythonNature nature, boolean addSystemInfo, boolean addReferencingProjects, boolean addReferencedProjects) throws MisconfigurationException {
         
-        List<AbstractAdditionalTokensInfo> ret = new ArrayList<AbstractAdditionalTokensInfo>();
-        List<IPythonNature> natures = new ArrayList<IPythonNature>();
+        List<Tuple<AbstractAdditionalTokensInfo, IPythonNature>> ret = new ArrayList<Tuple<AbstractAdditionalTokensInfo, IPythonNature>>();
         
         IProject project = nature.getProject();
         
@@ -138,15 +144,15 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
             }catch(PythonNatureWithoutProjectException e){
                 throw new RuntimeException(e);
             }
-            ret.add(systemInfo);
+            ret.add(new Tuple<AbstractAdditionalTokensInfo, IPythonNature>(
+                    systemInfo, new SystemPythonNature(nature.getRelatedInterpreterManager())));
         }
     
         //get for the current project
         if(project != null){
             AbstractAdditionalTokensInfo additionalInfoForProject = getAdditionalInfoForProject(nature);
             if(additionalInfoForProject != null){
-                ret.add(additionalInfoForProject);
-                natures.add(nature);
+                ret.add(new Tuple<AbstractAdditionalTokensInfo, IPythonNature>(additionalInfoForProject, nature));
             }
             
             try {
@@ -156,8 +162,8 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
                     for (IProject refProject : referencedProjects) {
                         additionalInfoForProject = getAdditionalInfoForProject(PythonNature.getPythonNature(refProject));
                         if(additionalInfoForProject != null){
-                            ret.add(additionalInfoForProject);
-                            natures.add(PythonNature.getPythonNature(refProject));
+                            ret.add(new Tuple<AbstractAdditionalTokensInfo, IPythonNature>(
+                                    additionalInfoForProject, PythonNature.getPythonNature(refProject)));
                         }
                     }
                 }
@@ -167,8 +173,8 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
                     for (IProject refProject : referencingProjects) {
                         additionalInfoForProject = getAdditionalInfoForProject(PythonNature.getPythonNature(refProject));
                         if(additionalInfoForProject != null){
-                            ret.add(additionalInfoForProject);
-                            natures.add(PythonNature.getPythonNature(refProject));
+                            ret.add(new Tuple<AbstractAdditionalTokensInfo, IPythonNature>(
+                                    additionalInfoForProject, PythonNature.getPythonNature(refProject)));
                         }
                     }
                 }
@@ -177,7 +183,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
             }
             
         }
-        return new Tuple<List<AbstractAdditionalTokensInfo>, List<IPythonNature>>(ret, natures);
+        return ret;
     }
 
     /**

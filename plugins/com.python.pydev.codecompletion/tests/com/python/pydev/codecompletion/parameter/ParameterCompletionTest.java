@@ -10,6 +10,7 @@
 package com.python.pydev.codecompletion.parameter;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -74,7 +75,7 @@ public class ParameterCompletionTest extends AdditionalInfoTestsBase {
     public void testSetup() throws MisconfigurationException {
         AbstractAdditionalTokensInfo additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
         assertTrue(additionalInfo.getAllTokens().size() > 0);
-        List<IInfo> tokensStartingWith = additionalInfo.getTokensStartingWith("existingM", AbstractAdditionalTokensInfo.INNER);
+        Collection<IInfo> tokensStartingWith = additionalInfo.getTokensStartingWith("existingM", AbstractAdditionalTokensInfo.INNER);
         assertTrue(tokensStartingWith.size() == 1);
         assertIsIn("existingMethod", "testAssist.assist", tokensStartingWith);
     }
@@ -98,7 +99,7 @@ public class ParameterCompletionTest extends AdditionalInfoTestsBase {
     // ----------------------------------------------------------------------------------------------- asserts
     
     
-    private void assertIsIn(String tok, String mod, List<IInfo> tokensStartingWith) {
+    private void assertIsIn(String tok, String mod, Collection<IInfo> tokensStartingWith) {
         for (IInfo info : tokensStartingWith) {
             if(info.getName().equals(tok)){
                 if(info.getDeclaringModuleName().equals(mod)){

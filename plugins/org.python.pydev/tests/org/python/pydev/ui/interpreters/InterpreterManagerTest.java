@@ -18,6 +18,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.plugin.PydevTestUtils;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
@@ -30,9 +31,28 @@ public class InterpreterManagerTest extends TestCase {
     private File baseDir;
     private File stateLocation;
     private File additionalPythonpathEntry;
+    
+    public static void main(String[] args) {
+
+        try {
+            // DEBUG_TESTS_BASE = true;
+            InterpreterManagerTest test2 = new InterpreterManagerTest();
+//            test2.setUp();
+//            test2.testCompletion();
+//            test2.tearDown();
+
+            System.out.println("Finished");
+
+            junit.textui.TestRunner.run(InterpreterManagerTest.class);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @Override
     protected void setUp() throws Exception {
+        ProjectModulesManager.IN_TESTS = true;
         baseDir = PydevTestUtils.setTestPlatformStateLocation();
         baseDir = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC, "data_temporary_for_testing");
         REF.deleteDirectoryTree(baseDir);
@@ -47,6 +67,7 @@ public class InterpreterManagerTest extends TestCase {
 
     @Override
     protected void tearDown() throws Exception {
+        ProjectModulesManager.IN_TESTS = false;
         REF.deleteDirectoryTree(baseDir);
     }
 
@@ -63,7 +84,6 @@ public class InterpreterManagerTest extends TestCase {
 
         manager.clearCaches();
         InterpreterInfo info = checkSameInterpreterInfo(manager);
-        System.out.println(info.libs);
 
         pythonpath = new ArrayList<String>();
         pythonpath.add(TestDependent.PYTHON_LIB);
@@ -73,7 +93,6 @@ public class InterpreterManagerTest extends TestCase {
         prefs.setValue(IInterpreterManager.PYTHON_INTERPRETER_PATH, interpreterStr);
 
         info = checkSameInterpreterInfo(manager);
-        System.out.println(info.libs);
     }
 
     private InterpreterInfo checkSameInterpreterInfo(PythonInterpreterManager manager) throws MisconfigurationException {

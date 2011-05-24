@@ -15,6 +15,9 @@ import org.eclipse.ui.texteditor.SimpleMarkerAnnotation;
 public class MarkerAnnotationAndPosition {
 
     public final SimpleMarkerAnnotation markerAnnotation;
+    /**
+     * May be null!
+     */
     public final Position position;
 
     public MarkerAnnotationAndPosition(SimpleMarkerAnnotation markerAnnotation, Position position) {

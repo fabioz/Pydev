@@ -70,12 +70,16 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
         @Override
         protected IStatus run(IProgressMonitor monitor) {
             rescheduleTimes--;
-            if(!nature.isOkToUse()){
-                if(rescheduleTimes >= 0){
-                    this.schedule(200);
+            try {
+                if(!nature.isOkToUse()){
+                    if(rescheduleTimes >= 0){
+                        this.schedule(200);
+                    }
+                }else{
+                    analyze(info, root, fileAdapter, force, nature);
                 }
-            }else{
-                analyze(info, root, fileAdapter, force, nature);
+            } catch (Throwable e) {
+                Log.log(e);
             }
             return Status.OK_STATUS;
         }

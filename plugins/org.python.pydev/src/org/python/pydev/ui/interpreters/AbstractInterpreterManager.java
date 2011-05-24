@@ -15,6 +15,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -22,17 +23,20 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.dialogs.PreferencesUtil;
+import org.eclipse.ui.progress.UIJob;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
@@ -52,6 +56,8 @@ import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.PythonNatureListenersManager;
+import org.python.pydev.ui.dialogs.PyDialogHelpers;
+import org.python.pydev.ui.pythonpathconf.AbstractInterpreterPreferencesPage;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
@@ -136,7 +142,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         if(IPythonNature.DEFAULT_INTERPRETER.equals(projectInterpreterName)){
             //if it's the default, let's translate it to the outside world 
             try {
-                return this.getDefaultInterpreterInfo().getExecutableOrJar();
+                return this.getDefaultInterpreterInfo(true).getExecutableOrJar();
             } catch (NotConfiguredInterpreterException e) {
                 Log.log(e);
                 return projectInterpreterName;
@@ -169,7 +175,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 
     public boolean isConfigured() {
         try {
-            String defaultInterpreter = getDefaultInterpreterInfo().getExecutableOrJar();
+            String defaultInterpreter = getDefaultInterpreterInfo(false).getExecutableOrJar();
             if(defaultInterpreter == null){
                 return false;
             }
@@ -194,29 +200,95 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      */
     protected abstract String getPreferenceName();
     
+
     /**
      * @throws NotConfiguredInterpreterException
      * @see org.python.pydev.core.IInterpreterManager#getDefaultInterpreterInfo()
      */
-    public IInterpreterInfo getDefaultInterpreterInfo() throws NotConfiguredInterpreterException {
+    public IInterpreterInfo getDefaultInterpreterInfo(boolean autoConfigureIfNotConfigured) throws NotConfiguredInterpreterException {
         IInterpreterInfo[] interpreters = getInterpreterInfos();
+        String errorMsg = null;
         if(interpreters.length > 0){
             IInterpreterInfo defaultInfo = interpreters[0];
             String interpreter = defaultInfo.getExecutableOrJar();
             if(interpreter == null){
-                throw new NotConfiguredInterpreterException("The configured interpreter is null, some error happened getting it.\n" +getNotConfiguredInterpreterMsg());
+                errorMsg = "The configured interpreter for "+getInterpreterUIName()+" is null, some error happened getting it.";
             }
             return defaultInfo;
         }else{
-            throw new NotConfiguredInterpreterException(FullRepIterable.getLastPart(this.getClass().getName())+":"+getNotConfiguredInterpreterMsg());
+            errorMsg = getInterpreterUIName()+" not configured.";
         }
+        
+        if(autoConfigureIfNotConfigured){
+            //If we got here, the interpreter is not properly configured, let's try to auto-configure it
+            if(PyDialogHelpers.getAskAgainInterpreter(this)){
+                configureInterpreterJob.addInterpreter(this);
+                configureInterpreterJob.schedule(50);
+            }
+        }
+        throw new NotConfiguredInterpreterException(errorMsg);
     }
 
+    
+    private static class ConfigureInterpreterJob extends UIJob{
+
+        private volatile Set<AbstractInterpreterManager> interpreters = new HashSet<AbstractInterpreterManager>();
+
+        public void addInterpreter(AbstractInterpreterManager abstractInterpreterManager) {
+            this.interpreters.add(abstractInterpreterManager);
+        }
+        public ConfigureInterpreterJob() {
+            super("Configure interpreter");
+        }
+
+        @Override
+        public IStatus runInUIThread(IProgressMonitor monitor) {
+            Set<AbstractInterpreterManager> current = interpreters;
+            interpreters = new HashSet<AbstractInterpreterManager>();
+            for(AbstractInterpreterManager m:current){
+                try {
+                    m.getDefaultInterpreterInfo(false);
+                    continue; //Maybe it got configured at some other point...
+                } catch (NotConfiguredInterpreterException e) {
+                    int ret = PyDialogHelpers.openQuestionConfigureInterpreter(m);
+                    try {
+                        switch (ret) {
+                            case PyDialogHelpers.INTERPRETER_AUTO_CONFIG:
+                                //HACK: Instead of doing the 'right' thing which would be extracting the whole auto-configure,
+                                //a flag is set to ask the dialog to make the auto configure when it's opened (easy/fast
+                                //way out of the problem, but not ideal)
+                                AbstractInterpreterPreferencesPage.autoConfigureOnCreate = true;
+                                //FALLTHROUGH
+                                
+                            case PyDialogHelpers.INTERPRETER_MANUAL_CONFIG:
+                                
+                                PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null, m.getPreferencesPageId(), null, null);
+                                dialog.open();
+
+                                break;
+                        }
+                    } finally {
+                        AbstractInterpreterPreferencesPage.autoConfigureOnCreate = false;
+                    }
+                }
+            }
+            return Status.OK_STATUS;
+        }
+        
+    }
+    
+    private static ConfigureInterpreterJob configureInterpreterJob = new ConfigureInterpreterJob();
+    
+    /**
+     * @return
+     */
+    protected abstract String getPreferencesPageId();
+    
     
     /**
      * @return a message to show to the user when there is no configured interpreter
      */
-    protected abstract String getNotConfiguredInterpreterMsg(); 
+    public abstract String getInterpreterUIName(); 
     
     private void clearInterpretersFromPersistedString(){
         synchronized(lock){
@@ -238,6 +310,11 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     private IInterpreterInfo[] interpreterInfosFromPersistedString;
 
     public IInterpreterInfo[] getInterpreterInfos() {
+        return internalRecreateCacheGetInterpreterInfos();
+        
+    }
+
+    private IInterpreterInfo[] internalRecreateCacheGetInterpreterInfos() {
         if(interpreterInfosFromPersistedString == null){
             synchronized(lock){
                 interpreterInfosFromPersistedString = getInterpretersFromPersistedString(getPersistedString());
@@ -249,7 +326,6 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
             }
         }
         return interpreterInfosFromPersistedString;
-        
     }
     
     
@@ -336,6 +412,9 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      */
     public InterpreterInfo getInterpreterInfo(String nameOrExecutableOrJar, IProgressMonitor monitor) throws MisconfigurationException {
         synchronized(lock){
+            if(interpreterInfosFromPersistedString == null){
+                internalRecreateCacheGetInterpreterInfos(); //recreate cache!
+            }
             for(IInterpreterInfo info:this.exeToInfo.values()){
                 if(info != null){
                     if(info.matchNameBackwardCompatible(nameOrExecutableOrJar)){
@@ -500,7 +579,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                 clearInterpretersFromPersistedString();
                 persistedString = s;
                 //After setting the preference, get the actual infos (will be recreated).
-                interpreterInfos = getInterpreterInfos();
+                interpreterInfos = internalRecreateCacheGetInterpreterInfos();
                 
                 this.restorePythopathForInterpreters(monitor, interpreterNamesToRestore);
                 //When we call performOk, the editor is going to store its values, but after actually restoring the modules, we
@@ -571,7 +650,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         
         IInterpreterInfo defaultInterpreterInfo;
         try {
-            defaultInterpreterInfo = getDefaultInterpreterInfo();
+            defaultInterpreterInfo = getDefaultInterpreterInfo(false);
         } catch (NotConfiguredInterpreterException e1) {
             defaultInterpreterInfo = null; //go on as usual... (the natures must know that they're not bound to an interpreter anymore).
         }

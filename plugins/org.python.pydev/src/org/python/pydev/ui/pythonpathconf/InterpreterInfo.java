@@ -1004,7 +1004,7 @@ public class InterpreterInfo implements IInterpreterInfo{
      * Restores the path given non-standard libraries
      * @param path
      */
-    public void restorePythonpath(String path, IProgressMonitor monitor) {
+    private void restorePythonpath(String path, IProgressMonitor monitor) {
         //no managers involved here...
         getModulesManager().changePythonPath(path, null, monitor);
     }
@@ -1378,7 +1378,9 @@ public class InterpreterInfo implements IInterpreterInfo{
                     builder.setInfo(this);
                     this.builder = builder;
                 }else{
-                    Log.log("Could not get internal extension for: "+ExtensionHelper.PYDEV_INTERPRETER_INFO_BUILDER);
+                    if(!ProjectModulesManager.IN_TESTS){
+                        Log.log("Could not get internal extension for: "+ExtensionHelper.PYDEV_INTERPRETER_INFO_BUILDER);
+                    }
                 }
             }
         }

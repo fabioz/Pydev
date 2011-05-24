@@ -27,6 +27,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.core.tooltips.presenter.StyleRangeWithCustomData;
 
 
 /**
@@ -243,7 +244,7 @@ public class CoverageCache {
                     int start = buffer.length();
                     fileNode.appendToBuffer(buffer, baseLocation, nameNumberOfColumns).append("\n");
                     int len = buffer.indexOf(' ', start) - start;
-                    StyleRange styleRange = new StyleRange(start, len, null, null);
+                    StyleRangeWithCustomData styleRange = new StyleRangeWithCustomData(start, len, null, null);
                     styleRange.underline = true;
                     try{
                         styleRange.underlineStyle = SWT.UNDERLINE_LINK;
@@ -252,7 +253,7 @@ public class CoverageCache {
                     }
                     onStyleCreated.call(styleRange);
                     ranges.add(styleRange);
-                    styleRange.data = element;
+                    styleRange.customData = element;
 
                     totalMiss += fileNode.miss;
                     totalStmts += fileNode.stmts;

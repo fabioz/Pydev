@@ -104,7 +104,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
 			}
         }
         
-        List<IInfo> tokensStartingWith = additionalInfoForProject.getTokensStartingWith(
+        Collection<IInfo> tokensStartingWith = additionalInfoForProject.getTokensStartingWith(
                 qual, AbstractAdditionalTokensInfo.TOP_LEVEL);
         
         FastStringBuffer realImportRep = new FastStringBuffer();

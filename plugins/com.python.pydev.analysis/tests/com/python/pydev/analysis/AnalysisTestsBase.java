@@ -10,6 +10,7 @@
 package com.python.pydev.analysis;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,8 +34,10 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.IInfo;
 import com.python.pydev.analysis.additionalinfo.builders.InterpreterObserver;
 import com.python.pydev.analysis.messages.IMessage;
 
@@ -157,8 +160,31 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
             //try to load it from previous session
             IInterpreterManager interpreterManager = getInterpreterManager();
             try{
-                String defaultInterpreter = interpreterManager.getDefaultInterpreterInfo().getExecutableOrJar();
-                if(forceAdditionalInfoRecreation || !AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(interpreterManager, defaultInterpreter)){
+                String defaultInterpreter = interpreterManager.getDefaultInterpreterInfo(false).getExecutableOrJar();
+                boolean recreate = forceAdditionalInfoRecreation;
+                if(!recreate){
+                    if(!AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(
+                            interpreterManager, defaultInterpreter)){
+                        recreate = true;
+                    }else{
+                        //one last check: if TestCase is not found, recreate it!
+                        AbstractAdditionalDependencyInfo additionalSystemInfo = 
+                            AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(interpreterManager, defaultInterpreter);
+                        Collection<IInfo> tokensStartingWith = additionalSystemInfo.getTokensStartingWith("TestCase", AbstractAdditionalTokensInfo.TOP_LEVEL);
+                        recreate = true;
+                        for (IInfo info : tokensStartingWith) {
+                            if(info.getName().equals("TestCase")){
+                                if(info.getDeclaringModuleName().equals("unittest")){
+                                    recreate = false; 
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if(recreate){
+                    System.out.println("Recreating: "+this.getClass()+" - "+interpreterManager.getInterpreterInfo(defaultInterpreter, null));
                     observer.notifyDefaultPythonpathRestored(interpreterManager, defaultInterpreter, monitor);
                 }
             }catch(MisconfigurationException e){

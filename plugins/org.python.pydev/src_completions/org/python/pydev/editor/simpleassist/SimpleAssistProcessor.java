@@ -210,9 +210,9 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
                 }
             }
         } catch (Exception e) {
+            PydevPlugin.log(e);
             CompletionError completionError = new CompletionError(e);
             this.lastError = completionError.getErrorMessage();
-            PydevPlugin.log(e);
             //Make the error visible to the user!
             return new ICompletionProposal[]{completionError};
         }

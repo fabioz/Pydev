@@ -6,11 +6,11 @@
  */
 package com.python.pydev.refactoring;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.python.pydev.core.Tuple;
@@ -44,5 +44,5 @@ public interface IPyRefactoring2  {
      * @return A map so that: the key of the map has the file and the module name that the file represents and 
      * the value a list of occurrences.
      */
-    public Map<Tuple<String, IFile>, HashSet<ASTEntry>> findAllOccurrences(RefactoringRequest req) throws OperationCanceledException, CoreException;
+    public Map<Tuple<String, File>, HashSet<ASTEntry>> findAllOccurrences(RefactoringRequest req) throws OperationCanceledException, CoreException;
 }

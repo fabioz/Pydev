@@ -86,11 +86,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                     String lastCallWithoutParensNotFound = callWithoutParens;
                     
                     for (int i=0;i<10;i++){ //more than 10 attribute accesses in a line? No way!
-                        if(i > 0){
-                            if(((pointers != null && pointers.length > 0) || StringUtils.count(possibleMatch.full, '.') <= 1)){
-                                break;
-                            }
-                        }
+
                         lastPossibleMatchNotFound = possibleMatch;
                         lastCallWithoutParensNotFound = callWithoutParens;
                         if(i > 0){
@@ -117,6 +113,19 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                         //Don't look in additional info.
                         request.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
                         pointers = pyRefactoring.findDefinition(request);
+                        if(i == 1){
+                            if((pointers != null && pointers.length > 0)){
+                                //The use-case is the following:
+                                //We have self.bar.foo()
+                                //and we found self.bar, so, we have to create the 'foo()', meaning that the current match
+                                //should actually create a method and not a field as it was found now.
+                                possibleMatch.isCall = lastPossibleMatchNotFound.isCall;
+                            }
+                        }
+                        
+                        if(((pointers != null && pointers.length > 0) || StringUtils.count(possibleMatch.full, '.') <= 1)){
+                            break;
+                        }
                     }
                     
                     if(pointers == null || callPs == null){

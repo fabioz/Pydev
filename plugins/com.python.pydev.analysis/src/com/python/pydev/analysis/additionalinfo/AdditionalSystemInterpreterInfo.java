@@ -113,12 +113,17 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
         return info.load();
     }
 
+    public static AbstractAdditionalDependencyInfo getAdditionalSystemInfo(
+            IInterpreterManager manager, String interpreter) throws MisconfigurationException {
+        return getAdditionalSystemInfo(manager, interpreter, false);
+    }
     /**
      * @param m the module manager that we want to get info on (python, jython...)
      * @return the additional info for the system
      * @throws MisconfigurationException 
      */
-    public static AbstractAdditionalDependencyInfo getAdditionalSystemInfo(IInterpreterManager manager, String interpreter) throws MisconfigurationException {
+    public static AbstractAdditionalDependencyInfo getAdditionalSystemInfo(
+            IInterpreterManager manager, String interpreter, boolean errorIfNotAvailable) throws MisconfigurationException {
         Tuple<String,String> key = new Tuple<String, String>(manager.getManagerRelatedName(), interpreter);
         AbstractAdditionalDependencyInfo info = (AbstractAdditionalDependencyInfo) additionalSystemInfo.get(key);
         if(info == null){

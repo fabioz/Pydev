@@ -108,7 +108,8 @@ shows the contents of all the update sites that have PyDev, then select what you
    :align: center   
 
 
-Then 'Next' again to confirm your selection
+Then, **UNCHECK** the **'Contact all update sites during install to find required software'** and press
+'Next' again to confirm your selection.
 
 .. image:: images/update_sites3.png
    :class: snap
@@ -124,8 +125,9 @@ And finally, read the license agreement and if you accept, select the accept rad
 At that point, Eclipse should automatically download the plugin contents and present you to a dialog asking 
 if you want to restart (to which you should say **yes**).
 
-Commom install problems
-------------------------
+
+Possible issue on download
+-----------------------------
    
 If you have any problem at this point with a message such as:
 
@@ -139,6 +141,8 @@ If you have any problem at this point with a message such as:
 
 that might indicate that the mirror you selected is having some network problem at that time, 
 so, please follow the same steps with another mirror.
+
+
 
 
 Installing with the zip file
@@ -190,9 +194,17 @@ Go to the menu **help > software updates > manage configuration**, select the pl
 go to the same place again and then click on 'remove' (note that you have a button in the menu that enables you to see the 'disabled' features).
 
 
-	
+Common Install Problems
+=============================
+
+Windows Vista/7 UAC (User Access Control)
+-------------------------------------------------
+
+Eclipse 3.3 had issues with the Windows UAC, so, Eclipse must be run as Administrator to install a plugin on Eclipse 3.3.
+
+
 Corrupted install
-======================
+--------------------
 
 
 	Eclipse sometimes is not able to correctly get the plugin, from the update site but will do no checking

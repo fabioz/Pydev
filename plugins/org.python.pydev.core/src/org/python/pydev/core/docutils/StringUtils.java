@@ -118,30 +118,49 @@ public final class StringUtils {
     /**
      * Formats a string, replacing %s with the arguments passed.
      * 
+     * %% is also changed to %.
+     * 
+     * If % is followed by any other char, the % and the next char are ignored. 
+     * 
      * @param str string to be formatted
      * @param args arguments passed
      * @return a string with the %s replaced by the arguments passed
      */
     public static String format(String str, Object... args) {
-        FastStringBuffer buffer = new FastStringBuffer(str.length()+(16*args.length));
+        int length = str.length();
+        FastStringBuffer buffer = new FastStringBuffer(length+(16*args.length));
         int j = 0;
+        int i = 0;
 
-        for (int i = 0; i < str.length(); i++) {
+        int start = 0;
+        
+        for (; i < length; i++) {
             char c = str.charAt(i);
-            if (c == '%' && i + 1 < str.length()) {
-                char nextC = str.charAt(i + 1);
-                if (nextC == 's') {
-                    buffer.appendObject(args[j]);
-                    j++;
+            if (c == '%') {
+                if(i + 1 < length){
+                    if(i > start){
+                        buffer.append(str.substring(start, i));
+                    }
+                    char nextC = str.charAt(i + 1);
+                    
+                    switch (nextC) {
+                        case 's':
+                            buffer.appendObject(args[j]);
+                            j++;
+                            break;
+                        case '%':
+                            buffer.append('%');
+                            j++;
+                            break;
+                    }
                     i++;
-                } else if (nextC == '%') {
-                    buffer.append('%');
-                    j++;
-                    i++;
+                    start = i+1;
                 }
-            } else {
-                buffer.append(c);
             }
+        }
+        
+        if(i > start){
+            buffer.append(str.substring(start, i));
         }
         return buffer.toString();
     }

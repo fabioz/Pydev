@@ -893,8 +893,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
      */
     public abstract String[] getInterpreterFilterExtensions();
     
-    /** Overridden
-     */
+    @Override
     protected Tuple<String, String> getNewInputObject(boolean autoConfig) {
         CharArrayWriter charWriter = new CharArrayWriter();
         PrintWriter logger = new PrintWriter(charWriter);
@@ -902,7 +901,12 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         try {
             Tuple<String, String> interpreterNameAndExecutable = null;
             if(autoConfig){
-                interpreterNameAndExecutable = getAutoNewInput();
+                try {
+                    interpreterNameAndExecutable = getAutoNewInput();
+                } catch (CancelException e) {
+                    //user canceled.
+                    return null;
+                }
                 if(interpreterNameAndExecutable == null){
                     reportAutoConfigProblem(null);
                     return null;
@@ -1031,9 +1035,11 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                                 if(hashSet.size() > 0){
                                     //The /Lib folder wasn't there (or at least threading.py and traceback.py weren't found)
                                     PyDialogHelpers.openCritical(
-                                            "Error: Python stdlib not found", 
+                                            "Error: Python stdlib not found or stdlib found without .py files.\n" +
+                                            "\n", 
                                             "It seems that the Python /Lib folder (which contains the standard library) " +
-                                            "was not found/selected during the install process.\n" +
+                                            "was not found/selected during the install process or the stdlib does not contain" +
+                                            "the required .py files (i.e.: only has .pyc files).\n" +
                                             "\n" +
                                             "This folder (which contains files such as threading.py and traceback.py) is " +
                                             "required for PyDev to function properly (and it must contain the actual source files, not " +
@@ -1164,6 +1170,14 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                         "the system PATH.", 
                         e));
     }
+    
+    public static final class CancelException extends Exception{
+
+        private static final long serialVersionUID = 1L;
+        
+    }
+    
+    public final CancelException cancelException = new CancelException();
 
     /**
      * @return a tuple with the name of the interpreter and the string with the file to be executed 
@@ -1173,7 +1187,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
      * 
      * If it cannot be determined, the return should be null (and not a tuple with empty values)
      */
-    protected abstract Tuple<String, String> getAutoNewInput();
+    protected abstract Tuple<String, String> getAutoNewInput() throws CancelException;
     
 
     @Override

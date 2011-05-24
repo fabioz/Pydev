@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IInterpreterManager;
@@ -110,12 +111,12 @@ public abstract class AbstractAdditionalTokensInfo {
      * 
      * This map is persisted.
      */
-    protected TreeMap<String, List<IInfo>> topLevelInitialsToInfo = new TreeMap<String, List<IInfo>>();
+    protected TreeMap<String, Set<IInfo>> topLevelInitialsToInfo = new TreeMap<String, Set<IInfo>>();
     
     /**
      * indexes so that we can get 'inner information' from classes, such as methods or inner classes from a class 
      */
-    protected TreeMap<String, List<IInfo>> innerInitialsToInfo = new TreeMap<String, List<IInfo>>();
+    protected TreeMap<String, Set<IInfo>> innerInitialsToInfo = new TreeMap<String, Set<IInfo>>();
     
 
     /**
@@ -171,9 +172,10 @@ public abstract class AbstractAdditionalTokensInfo {
     };
 
     /**
-     * 2 because we've removed some info (the hash is no longer saved)
+     * 2: because we've removed some info (the hash is no longer saved)
+     * 3: Changed from string-> list to string->set
      */
-    private static final int version = 2;
+    private static final int version = 3;
 
     public AbstractAdditionalTokensInfo(){
     }
@@ -187,7 +189,7 @@ public abstract class AbstractAdditionalTokensInfo {
         synchronized (lock) {
             String name = info.getName();
             String initials = getInitials(name);
-            TreeMap<String, List<IInfo>> initialsToInfo;
+            TreeMap<String, Set<IInfo>> initialsToInfo;
             
             if(doOn == TOP_LEVEL){
                 if(info.getPath() != null && info.getPath().length() > 0){
@@ -204,7 +206,7 @@ public abstract class AbstractAdditionalTokensInfo {
             }else{
                 throw new RuntimeException("List to add is invalid: "+doOn);
             }
-            List<IInfo> listForInitials = getAndCreateListForInitials(initials, initialsToInfo);
+            Set<IInfo> listForInitials = getAndCreateListForInitials(initials, initialsToInfo);
             listForInitials.add(info);
         }
     }
@@ -225,10 +227,10 @@ public abstract class AbstractAdditionalTokensInfo {
      * @param initialsToInfo this is the list we should use (top level or inner)
      * @return the list of tokens with the specified initials (must be exact match)
      */
-    protected List<IInfo> getAndCreateListForInitials(String initials, TreeMap<String, List<IInfo>> initialsToInfo) {
-        List<IInfo> lInfo = initialsToInfo.get(initials);
+    protected Set<IInfo> getAndCreateListForInitials(String initials, TreeMap<String, Set<IInfo>> initialsToInfo) {
+        Set<IInfo> lInfo = initialsToInfo.get(initials);
         if(lInfo == null){
-            lInfo = new ArrayList<IInfo>();
+            lInfo = new HashSet<IInfo>();
             initialsToInfo.put(initials, lInfo);
         }
         return lInfo;
@@ -448,17 +450,17 @@ public abstract class AbstractAdditionalTokensInfo {
     public Set<String> getAllModulesWithTokens() {
         HashSet<String> ret = new HashSet<String>();
         synchronized (lock) {
-            Set<Entry<String, List<IInfo>>> entrySet = this.topLevelInitialsToInfo.entrySet();
-            for (Entry<String, List<IInfo>> entry : entrySet) {
-                List<IInfo> value = entry.getValue();
+            Set<Entry<String, Set<IInfo>>> entrySet = this.topLevelInitialsToInfo.entrySet();
+            for (Entry<String, Set<IInfo>> entry : entrySet) {
+                Set<IInfo> value = entry.getValue();
                 for (IInfo info : value) {
                     ret.add(info.getDeclaringModuleName());
                 }
             }
             
             entrySet = this.innerInitialsToInfo.entrySet();
-            for (Entry<String, List<IInfo>> entry : entrySet) {
-                List<IInfo> value = entry.getValue();
+            for (Entry<String, Set<IInfo>> entry : entrySet) {
+                Set<IInfo> value = entry.getValue();
                 for (IInfo info : value) {
                     ret.add(info.getDeclaringModuleName());
                 }
@@ -554,8 +556,8 @@ public abstract class AbstractAdditionalTokensInfo {
      * @param moduleName
      * @param initialsToInfo
      */
-    private void removeInfoFromMap(String moduleName, TreeMap<String, List<IInfo>> initialsToInfo) {
-        Iterator<List<IInfo>> itListOfInfo = initialsToInfo.values().iterator();
+    private void removeInfoFromMap(String moduleName, TreeMap<String, Set<IInfo>> initialsToInfo) {
+        Iterator<Set<IInfo>> itListOfInfo = initialsToInfo.values().iterator();
         while (itListOfInfo.hasNext()) {
 
             Iterator<IInfo> it = itListOfInfo.next().iterator();
@@ -579,22 +581,22 @@ public abstract class AbstractAdditionalTokensInfo {
      * @param qualifier the tokens returned have to start with the given qualifier
      * @return a list of info, all starting with the given qualifier
      */
-    public List<IInfo> getTokensStartingWith(String qualifier, int getWhat) {
+    public Collection<IInfo> getTokensStartingWith(String qualifier, int getWhat) {
         synchronized (lock) {
             return getWithFilter(qualifier, getWhat, startingWithFilter, true);
         }
     }
 
 
-    public List<IInfo> getTokensEqualTo(String qualifier, int getWhat) {
+    public Collection<IInfo> getTokensEqualTo(String qualifier, int getWhat) {
         synchronized (lock) {
             return getWithFilter(qualifier, getWhat, equalsFilter, false);
         }
     }
     
-    protected List<IInfo> getWithFilter(String qualifier, int getWhat, Filter filter, boolean useLowerCaseQual) {
+    protected Collection<IInfo> getWithFilter(String qualifier, int getWhat, Filter filter, boolean useLowerCaseQual) {
         synchronized (lock) {
-            ArrayList<IInfo> toks = new ArrayList<IInfo>();
+            List<IInfo> toks = new ArrayList<IInfo>();
             
             if((getWhat & TOP_LEVEL) != 0){
                 getWithFilter(qualifier, topLevelInitialsToInfo, toks, filter, useLowerCaseQual);
@@ -614,7 +616,7 @@ public abstract class AbstractAdditionalTokensInfo {
      * @param toks (out) the tokens will be added to this list
      * @return
      */
-    protected void getWithFilter(String qualifier, TreeMap<String, List<IInfo>> initialsToInfo, List<IInfo> toks, Filter filter, boolean useLowerCaseQual) {
+    protected void getWithFilter(String qualifier, TreeMap<String, Set<IInfo>> initialsToInfo, Collection<IInfo> toks, Filter filter, boolean useLowerCaseQual) {
         String initials = getInitials(qualifier);
         String qualToCompare = qualifier;
         if(useLowerCaseQual){
@@ -622,9 +624,9 @@ public abstract class AbstractAdditionalTokensInfo {
         }
         
         //get until the end of the alphabet
-        SortedMap<String, List<IInfo>> subMap = initialsToInfo.subMap(initials, initials+"z");
+        SortedMap<String, Set<IInfo>> subMap = initialsToInfo.subMap(initials, initials+"z");
         
-        for (List<IInfo> listForInitials : subMap.values()) {
+        for (Set<IInfo> listForInitials : subMap.values()) {
             
             for (IInfo info : listForInitials) {
                 if(filter.doCompare(qualToCompare, info)){
@@ -640,17 +642,17 @@ public abstract class AbstractAdditionalTokensInfo {
      */
     public Collection<IInfo> getAllTokens(){
         synchronized (lock) {
-            Collection<List<IInfo>> lInfo = this.topLevelInitialsToInfo.values();
+            Collection<Set<IInfo>> lInfo = this.topLevelInitialsToInfo.values();
             
             ArrayList<IInfo> toks = new ArrayList<IInfo>();
-            for (List<IInfo> list : lInfo) {
+            for (Set<IInfo> list : lInfo) {
                 for (IInfo info : list) {
                     toks.add(info);
                 }
             }
 
             lInfo = this.innerInitialsToInfo.values();
-            for (List<IInfo> list : lInfo) {
+            for (Set<IInfo> list : lInfo) {
                 for (IInfo info : list) {
                     toks.add(info);
                 }
@@ -761,8 +763,11 @@ public abstract class AbstractAdditionalTokensInfo {
     protected void restoreSavedInfo(Object o) throws MisconfigurationException{
         synchronized (lock) {
             Tuple3 readFromFile = (Tuple3) o;
-            this.topLevelInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o1;
-            this.innerInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o2;
+            TreeMap o1 = (TreeMap) readFromFile.o1;
+            TreeMap o2 = (TreeMap) readFromFile.o2;
+            
+            this.topLevelInitialsToInfo = (TreeMap<String, Set<IInfo>>) o1;
+            this.innerInitialsToInfo = (TreeMap<String, Set<IInfo>>) o2;
             if(AbstractAdditionalTokensInfo.version != (Integer)readFromFile.o3){
                 throw new RuntimeException("I/O version doesn't match. Rebuilding internal info.");
             }
@@ -798,10 +803,10 @@ public abstract class AbstractAdditionalTokensInfo {
      * @param buffer
      * @param name
      */
-    private void entrySetToString(FastStringBuffer buffer, Set<Entry<String, List<IInfo>>> name) {
+    private void entrySetToString(FastStringBuffer buffer, Set<Entry<String, Set<IInfo>>> name) {
         synchronized (lock) {
-            for (Entry<String, List<IInfo>> entry : name) {
-                List<IInfo> value = entry.getValue();
+            for (Entry<String, Set<IInfo>> entry : name) {
+                Set<IInfo> value = entry.getValue();
                 for (IInfo info : value) {
                     buffer.append(info.toString());
                     buffer.append("\n");
@@ -809,6 +814,14 @@ public abstract class AbstractAdditionalTokensInfo {
             }
         }
     }
+
+    /**
+     * @param token the token we want to search for (must be an exact match). Only tokens which are valid identifiers
+     * may be searched (i.e.: no dots in it or anything alike).
+     * 
+     * @return List<ModulesKey> a list with all the modules that contains the passed token.
+     */
+    public abstract List<ModulesKey> getModulesWithToken(String token, IProgressMonitor monitor);
 
 
 

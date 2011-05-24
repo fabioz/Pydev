@@ -275,7 +275,7 @@ public class PyAstFactory {
             
             exprType firstParam = params.remove(0);
             
-            Call innerCall = createCall("super", "Current", NodeUtils.getRepresentationString(firstParam));
+            Call innerCall = createCall("super", currentClassName, NodeUtils.getRepresentationString(firstParam));
             Attribute attr = new Attribute(innerCall, new NameTok(NodeUtils.getRepresentationString(functionDef), NameTok.Attrib), Attribute.Load);
             call = new Call(attr, params.toArray(new Name[params.size()]), keywords.toArray(new keywordType[keywords.size()]), starargs, kwargs);
             

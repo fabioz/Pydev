@@ -12,6 +12,7 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,8 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
@@ -259,7 +262,7 @@ public class CodeCompletionTestsBase extends TestCase {
     protected boolean restoreSystemPythonPath(boolean force, String path){
         if(restoredSystem == null || restoredSystem != this.getClass() || force){
             //restore manager and cache
-            setInterpreterManager();
+            setInterpreterManager(path);
             restoredSystem = this.getClass();
             
             //get default and restore the pythonpath
@@ -272,7 +275,6 @@ public class CodeCompletionTestsBase extends TestCase {
             if(ADD_NUMPY_TO_FORCED_BUILTINS){
                 info.addForcedLib("numpy");
             }
-            info.restorePythonpath(path, getProgressMonitor()); //here
 
             //postconditions
             afterRestorSystemPythonPath(info);
@@ -295,7 +297,7 @@ public class CodeCompletionTestsBase extends TestCase {
         IInterpreterManager iMan = getInterpreterManager();
         InterpreterInfo info;
         try{
-            info = (InterpreterInfo) iMan.getDefaultInterpreterInfo();
+            info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(false);
         }catch(MisconfigurationException e){
             throw new RuntimeException(e);
         }
@@ -314,13 +316,18 @@ public class CodeCompletionTestsBase extends TestCase {
 
     /**
      * Sets the interpreter manager we should use
+     * @param path 
      */
-    protected void setInterpreterManager() {
+    protected void setInterpreterManager(String path) {
         PythonInterpreterManager interpreterManager = new PythonInterpreterManager(this.getPreferences());
         
-        InterpreterInfo info = (InterpreterInfo) interpreterManager.createInterpreterInfo(TestDependent.PYTHON_EXE, new NullProgressMonitor(), false);
-        if(!InterpreterInfo.isJythonExecutable(info.getExecutableOrJar()) && !InterpreterInfo.isIronpythonExecutable(info.getExecutableOrJar())){
-            TestDependent.PYTHON_EXE = info.executableOrJar;
+        InterpreterInfo info;
+        info = (InterpreterInfo) interpreterManager.createInterpreterInfo(
+                TestDependent.PYTHON_EXE, new NullProgressMonitor(), false);
+        TestDependent.PYTHON_EXE = info.executableOrJar;
+        if(path != null){
+            info = new InterpreterInfo(
+                    info.getVersion(), info.executableOrJar, PythonPathHelper.parsePythonPathFromStr(path, new ArrayList<String>()));
         }
         
         interpreterManager.setInfos(new IInterpreterInfo[]{info}, null, null);
@@ -341,7 +348,7 @@ public class CodeCompletionTestsBase extends TestCase {
         IInterpreterManager iMan2 = getInterpreterManager();
         InterpreterInfo info2;
         try{
-            info2 = (InterpreterInfo) iMan2.getDefaultInterpreterInfo();
+            info2 = (InterpreterInfo) iMan2.getDefaultInterpreterInfo(false);
         }catch(MisconfigurationException e){
             throw new RuntimeException(e);
         }
@@ -407,7 +414,7 @@ public class CodeCompletionTestsBase extends TestCase {
     protected void checkSize() {
         try{
             IInterpreterManager iMan = getInterpreterManager();
-            InterpreterInfo info = (InterpreterInfo) iMan.getDefaultInterpreterInfo();
+            InterpreterInfo info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(false);
             assertTrue(info.getModulesManager().getSize(true) > 0);
             
             int size = ((ASTManager)nature.getAstManager()).getSize();
@@ -571,6 +578,19 @@ public class CodeCompletionTestsBase extends TestCase {
             }
         }
         fail("The string "+toFind+" was not found amongst the passed strings.");
+    }
+    
+    public static void assertContains(Map found, Object toFind) {
+        if(found.containsKey(toFind)){
+            return;
+        }
+        
+        FastStringBuffer available = new FastStringBuffer();
+        for(Object o:found.keySet()){
+            available.append(o.toString());
+            available.append('\n');
+        }
+        fail(StringUtils.format("Object: %s not found. Available:\n%s", toFind, available));
     }
 
 }

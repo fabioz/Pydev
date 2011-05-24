@@ -52,7 +52,12 @@ if sys.platform.find('java') == -1:
         def testImports5(self):
             tip = importsTipper.GenerateTip('__builtin__.list')
             s = self.assertIn('sort', tip)
-            self.CheckArgs(s, '(cmp=None, key=None, reverse=False)', '(self, object cmp, object key, bool reverse)')
+            self.CheckArgs(
+                s, 
+                '(cmp=None, key=None, reverse=False)', 
+                '(self, object cmp, object key, bool reverse)',
+                '(self, cmp: object, key: object, reverse: bool)'
+            )
             
         def testImports2a(self):
             tips = importsTipper.GenerateTip('%s.RuntimeError' % BUILTIN_MOD)
@@ -107,16 +112,16 @@ if sys.platform.find('java') == -1:
             
             t = self.assertIn('cmp' , tip)
             
-            self.CheckArgs(t, '(x, y)', '(object x, object y)') #args
+            self.CheckArgs(t, '(x, y)', '(object x, object y)', '(x: object, y: object)') #args
             
             t = self.assertIn('isinstance' , tip)
-            self.CheckArgs(t, '(object, class_or_type_or_tuple)', '(object o, type typeinfo)') #args
+            self.CheckArgs(t, '(object, class_or_type_or_tuple)', '(object o, type typeinfo)', '(o: object, typeinfo: type)') #args
             
             t = self.assertIn('compile' , tip)
-            self.CheckArgs(t, '(source, filename, mode)', '()') #args
+            self.CheckArgs(t, '(source, filename, mode)', '()', '(o: object, name: str, val: object)') #args
             
             t = self.assertIn('setattr' , tip)
-            self.CheckArgs(t, '(object, name, value)', '(object o, str name, object val)') #args
+            self.CheckArgs(t, '(object, name, value)', '(object o, str name, object val)', '(o: object, name: str, val: object)') #args
             
             try:
                 import compiler
