@@ -17,7 +17,6 @@ import junit.framework.TestSuite;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -89,7 +88,7 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
         
         try{
             IInterpreterManager manager = PydevPlugin.getPythonInterpreterManager(true);
-            InterpreterInfo info = (InterpreterInfo) manager.getDefaultInterpreterInfo();
+            InterpreterInfo info = (InterpreterInfo) manager.getDefaultInterpreterInfo(false);
             info.setEnvVariables(new String[]{"MY_CUSTOM_VAR_FOR_TEST=FOO", "MY_CUSTOM_VAR_FOR_TEST2=FOO2"});
             
             
@@ -103,10 +102,10 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
             
             
             nature.setVersion(IPythonNature.PYTHON_VERSION_LATEST, IPythonNature.DEFAULT_INTERPRETER);
-            assertEquals(manager.getDefaultInterpreterInfo(), nature.getProjectInterpreter().getExecutableOrJar());
+            assertEquals(manager.getDefaultInterpreterInfo(false), nature.getProjectInterpreter().getExecutableOrJar());
             runnerConfig = createConfig();
             argv = runnerConfig.getCommandLine(false); 
-            assertEquals(manager.getDefaultInterpreterInfo().getExecutableOrJar(), argv[0]);
+            assertEquals(manager.getDefaultInterpreterInfo(false).getExecutableOrJar(), argv[0]);
             
             IInterpreterManager interpreterManager = nature.getRelatedInterpreterManager();
             

@@ -6,13 +6,11 @@
  */
 package com.python.pydev.analysis.tabnanny;
 
-import java.util.Iterator;
-
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.Tuple3;
-import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.docutils.ParsingUtils;
+import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -25,7 +23,7 @@ import org.python.pydev.plugin.PydevPlugin;
  * the indentations within literals, [, (, {, after \ are not considered 
  * (only the ones actually considered indentations are yielded through).
  */
-public class TabNannyDocIterator implements Iterator<Tuple3<String, Integer, Boolean>>{
+public class TabNannyDocIterator{
     
     private int offset;
     private IDocument doc;
@@ -33,7 +31,7 @@ public class TabNannyDocIterator implements Iterator<Tuple3<String, Integer, Boo
     private int docLen;
     private boolean firstPass = true;
     
-    public TabNannyDocIterator(IDocument doc){
+    public TabNannyDocIterator(IDocument doc) throws BadLocationException{
         this.doc = doc;
         docLen = doc.getLength();
         buildNext();
@@ -43,7 +41,7 @@ public class TabNannyDocIterator implements Iterator<Tuple3<String, Integer, Boo
         return nextString != null;
     }
 
-    public Tuple3<String, Integer, Boolean> next() {
+    public Tuple3<String, Integer, Boolean> next() throws BadLocationException {
         if(!hasNext()){
             throw new RuntimeException("Cannot iterate anymore.");
         }
@@ -53,13 +51,13 @@ public class TabNannyDocIterator implements Iterator<Tuple3<String, Integer, Boo
         return ret;
     }
     
-    private void buildNext() {
+    private void buildNext() throws BadLocationException {
         while(!internalBuildNext()){
             //just keep doing it... -- lot's of nothing ;-)
         }
     }
 
-    private boolean internalBuildNext() {
+    private boolean internalBuildNext() throws BadLocationException {
         try {
             //System.out.println("buildNext");
             char c = '\0';
@@ -189,7 +187,8 @@ public class TabNannyDocIterator implements Iterator<Tuple3<String, Integer, Boo
             
             
         } catch (BadLocationException e) {
-            throw new RuntimeException(e);
+            throw e;
+            
         }catch(SyntaxErrorException e){
             throw new RuntimeException(e);
         }

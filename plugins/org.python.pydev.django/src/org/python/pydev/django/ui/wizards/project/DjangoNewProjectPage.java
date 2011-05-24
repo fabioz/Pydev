@@ -57,7 +57,7 @@ public class DjangoNewProjectPage extends NewProjectNameAndLocationWizardPage {
             String projectInterpreter = this.getProjectInterpreter();
             IInterpreterInfo interpreterInfo;
             if(projectInterpreter.toLowerCase().equals("default")){
-                interpreterInfo = interpreterManager.getDefaultInterpreterInfo();
+                interpreterInfo = interpreterManager.getDefaultInterpreterInfo(false);
             }else{
                 interpreterInfo = interpreterManager.getInterpreterInfo(projectInterpreter, new NullProgressMonitor());
             }

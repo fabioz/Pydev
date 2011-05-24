@@ -106,7 +106,7 @@ public class InterpreterInfoBuilderTest extends TestCase {
             public String call(Object arg) {
                 try {
                     AbstractAdditionalDependencyInfo additionalSystemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
-                            manager, manager.getInterpreterInfos()[0].getExecutableOrJar());
+                            manager, manager.getInterpreterInfos()[0].getExecutableOrJar(), true);
                     if(additionalInfo != additionalSystemInfo){
                         throw new RuntimeException("Expecting it to be the same instance.");
                     }

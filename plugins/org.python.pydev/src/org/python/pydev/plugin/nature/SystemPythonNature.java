@@ -34,7 +34,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
     private SystemASTManager systemASTManager;
 
     public SystemPythonNature(IInterpreterManager manager) throws MisconfigurationException{
-        this(manager, manager.getDefaultInterpreterInfo());
+        this(manager, manager.getDefaultInterpreterInfo(false));
     }
     
     public SystemPythonNature(IInterpreterManager manager, IInterpreterInfo info){

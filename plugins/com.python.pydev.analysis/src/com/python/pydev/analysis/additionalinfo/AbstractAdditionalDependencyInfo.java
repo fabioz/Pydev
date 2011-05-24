@@ -228,11 +228,21 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     }
     
     
+    @Override
     public List<ModulesKey> getModulesWithToken(String token, IProgressMonitor monitor){
         FastStringBuffer temp = new FastStringBuffer();
         ArrayList<ModulesKey> ret = new ArrayList<ModulesKey>();
         if(monitor == null){
             monitor = new NullProgressMonitor();
+        }
+        if(token == null || token.length() == 0){
+            return ret;
+        }
+        
+        for(int i=0;i<token.length();i++){
+            if(!Character.isJavaIdentifierPart(token.charAt(i))){
+                throw new RuntimeException(StringUtils.format("Token: %s is not a valid token to search for.", token));
+            }
         }
         synchronized(lock){
             

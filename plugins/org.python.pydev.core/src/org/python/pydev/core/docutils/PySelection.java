@@ -2252,7 +2252,7 @@ public final class PySelection {
         public final String full;
         public final String initialPart;
         public final String secondPart;
-        public final boolean isCall;
+        public boolean isCall;
 
         public TddPossibleMatches(String full, String initialPart, String secondPart, boolean isCall){
             this.full = full;

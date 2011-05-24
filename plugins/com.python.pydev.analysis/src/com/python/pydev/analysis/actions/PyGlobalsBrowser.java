@@ -119,7 +119,7 @@ public class PyGlobalsBrowser extends PyAction{
         AbstractAdditionalTokensInfo additionalSystemInfo;
 		try {
 			additionalSystemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
-			        useManager, useManager.getDefaultInterpreterInfo().getExecutableOrJar());
+			        useManager, useManager.getDefaultInterpreterInfo(true).getExecutableOrJar());
 		} catch (MisconfigurationException e) {
 			MessageDialog.openError(getShell(), "Error", "Additional info is not available (default interpreter not configured).");
 			handle(e);

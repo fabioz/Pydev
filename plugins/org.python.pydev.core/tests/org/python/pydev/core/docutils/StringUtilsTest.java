@@ -23,7 +23,7 @@ public class StringUtilsTest extends TestCase {
         try {
             StringUtilsTest test = new StringUtilsTest();
             test.setUp();
-            test.testIterLines();
+            test.testFormat();
             test.tearDown();
             junit.textui.TestRunner.run(StringUtilsTest.class);
         } catch (Throwable e) {
@@ -34,7 +34,17 @@ public class StringUtilsTest extends TestCase {
     public void testFormat() {
         assertEquals("teste", StringUtils.format("%s", new Object[]{"teste"}));
         assertEquals("teste 1", StringUtils.format("%s 1", new Object[]{"teste"}));
+        assertEquals("teste 1 2 3 teste", StringUtils.format("teste %s %s 3 %s", new Object[]{"1", "2", "teste"}));
+        assertEquals("teste 1 2 %s", StringUtils.format("teste 1 2 %%s", new Object[]{}));
+        assertEquals("teste 1 2 3", StringUtils.format("teste 1 2 %s", new Object[]{"3"}));
+        assertEquals("teste 1 2 3", StringUtils.format("%s 1 2 3", new Object[]{"teste"}));
+        assertEquals("teste 1 2 3", StringUtils.format("%s 1 2 %s", new Object[]{"teste", 3}));
+        assertEquals("null 1 2 null", StringUtils.format("%s 1 2 %s", new Object[]{null, null}));
+        assertEquals("", StringUtils.format("%s", new Object[]{""}));
         assertEquals("%", StringUtils.format("%", new Object[]{}));
+        
+        assertEquals("", StringUtils.format("%1", new Object[]{}));
+        assertEquals("", StringUtils.format("% ", new Object[]{}));
     }
     
     public void testStripExt() {

@@ -1097,7 +1097,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             
             if(IPythonNature.DEFAULT_INTERPRETER.equals(projectInterpreterName)){
                 //if it's the default, let's translate it to the outside world 
-                ret = relatedInterpreterManager.getDefaultInterpreterInfo();
+                ret = relatedInterpreterManager.getDefaultInterpreterInfo(true);
             }else{
                 ret = relatedInterpreterManager.getInterpreterInfo(projectInterpreterName, null);
             }

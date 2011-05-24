@@ -6,10 +6,6 @@
  */
 package org.python.pydev.editor.codecompletion;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.util.StringTokenizer;
-
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension4;
@@ -63,29 +59,10 @@ public class CompletionError implements ICompletionProposal, IPyCompletionPropos
         if(message == null){
             //NullPointerException
             if(error instanceof NullPointerException){
-                error.printStackTrace();
                 message = "NullPointerException";
             }else{
                 message = "Null error message";
             }
-        }
-        
-        try{
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            error.printStackTrace(new PrintStream(out));
-            String errorLocation = out.toString();
-            StringTokenizer strTok = new StringTokenizer(errorLocation, "\r\n");
-            
-            //Get the 1st line that has line information in it...
-            while(strTok.hasMoreTokens()){
-                String tok = strTok.nextToken();
-                if(tok.endsWith(")") && tok.startsWith("\tat ") && tok.indexOf(":") != -1 && tok.indexOf("(") != -1){
-                    message+="\nAt: "+tok.trim();
-                    break;
-                }
-            }
-        }catch(Throwable e){
-            //Ignore any error here...
         }
         
         return message;

@@ -9,6 +9,7 @@
  */
 package com.python.pydev.refactoring.wizards.rename;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -311,18 +311,18 @@ public class PyRenameEntryPoint extends RenameProcessor {
      * @return a map that points the references found in other files Note that
      *         this will exclude the references found in this buffer.
      */
-    public Map<Tuple<String, IFile>, HashSet<ASTEntry>> getOccurrencesInOtherFiles() {
-        HashMap<Tuple<String, IFile>, HashSet<ASTEntry>> m = new HashMap<Tuple<String, IFile>, HashSet<ASTEntry>>();
+    public Map<Tuple<String, File>, HashSet<ASTEntry>> getOccurrencesInOtherFiles() {
+        HashMap<Tuple<String, File>, HashSet<ASTEntry>> m = new HashMap<Tuple<String, File>, HashSet<ASTEntry>>();
         if (process == null || process.size() == 0) {
             return null;
         }
 
         for (IRefactorRenameProcess p : process) {
-            Map<Tuple<String, IFile>, HashSet<ASTEntry>> o = p.getOccurrencesInOtherFiles();
+            Map<Tuple<String, File>, HashSet<ASTEntry>> o = p.getOccurrencesInOtherFiles();
             if (o != null) {
 
-                for (Map.Entry<Tuple<String, IFile>, HashSet<ASTEntry>> entry : o.entrySet()) {
-                    Tuple<String, IFile> key = entry.getKey();
+                for (Map.Entry<Tuple<String, File>, HashSet<ASTEntry>> entry : o.entrySet()) {
+                    Tuple<String, File> key = entry.getKey();
 
                     HashSet<ASTEntry> existingOccurrences = m.get(key);
                     if (existingOccurrences == null) {

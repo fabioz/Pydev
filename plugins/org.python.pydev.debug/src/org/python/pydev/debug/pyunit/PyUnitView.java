@@ -56,6 +56,7 @@ import org.eclipse.ui.console.IHyperlink;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.core.tooltips.presenter.StyleRangeWithCustomData;
 import org.python.pydev.core.tooltips.presenter.ToolTipPresenterHandler;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.debug.core.PydevDebugPlugin;
@@ -207,7 +208,7 @@ public class PyUnitView extends ViewPartWithOrientation{
                 if(testOutputText == null){
                     return;
                 }
-                StyleRange range = new StyleRange();
+                StyleRangeWithCustomData range = new StyleRangeWithCustomData();
                 range.underline = true;
                 try{
                     range.underlineStyle = SWT.UNDERLINE_LINK;
@@ -222,7 +223,7 @@ public class PyUnitView extends ViewPartWithOrientation{
                 }
                 range.start = offset;
                 range.length = length+1;
-                range.data = link;
+                range.customData = link;
                 testOutputText.setStyleRange(range);
             }
 
@@ -849,8 +850,9 @@ public class PyUnitView extends ViewPartWithOrientation{
                 int offset = styledText.getCaretOffset();
                 if(offset >= 0 && offset < styledText.getCharCount()){
                     StyleRange styleRangeAtOffset = styledText.getStyleRangeAtOffset(offset);
-                    if(styleRangeAtOffset != null){
-                        Object l = styleRangeAtOffset.data;
+                    if(styleRangeAtOffset instanceof StyleRangeWithCustomData){
+                        StyleRangeWithCustomData styleRangeWithCustomData = (StyleRangeWithCustomData) styleRangeAtOffset;
+                        Object l = styleRangeWithCustomData.customData;
                         if(l instanceof IHyperlink){
                             ((IHyperlink) l).linkActivated();
                         }

@@ -91,7 +91,7 @@ final class ChooseProcessTypeDialog extends Dialog {
         boolean enabled = false;
         String text;
         try{
-            if(interpreterManager.getDefaultInterpreterInfo() != null){
+            if(interpreterManager.getDefaultInterpreterInfo(false) != null){
                 text = python+" console";
                 enabled = true;
             }else{
@@ -116,7 +116,7 @@ final class ChooseProcessTypeDialog extends Dialog {
                 IPythonNature nature = this.activeEditor.getPythonNature();
                 if(nature != null){
                     
-                    if(nature.getRelatedInterpreterManager().getDefaultInterpreterInfo() != null){
+                    if(nature.getRelatedInterpreterManager().getDefaultInterpreterInfo(false) != null){
                         text = "Console for currently active editor";
                         enabled = true;
                     }else{

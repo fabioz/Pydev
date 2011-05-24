@@ -70,8 +70,8 @@ public class IronpythonInterpreterManagerStub extends PythonInterpreterManagerSt
     }
 
     @Override
-    protected String getNotConfiguredInterpreterMsg() {
-        return "getNotConfiguredInterpreterMsg";
+    public String getInterpreterUIName() {
+        return "IronPython";
     }
 
     @Override

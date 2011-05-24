@@ -58,6 +58,12 @@ public class PythonInterpreterManagerStub extends AbstractInterpreterManager imp
         return info;
     }
     
+    @Override
+    protected String getPreferencesPageId() {
+        return "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPagePython";
+    }
+
+    
     /**
      * @see org.python.pydev.core.IInterpreterManager#getDefaultJavaLocation()
      */
@@ -71,8 +77,8 @@ public class PythonInterpreterManagerStub extends AbstractInterpreterManager imp
     }
 
     @Override
-    protected String getNotConfiguredInterpreterMsg() {
-        return "getNotConfiguredInterpreterMsg";
+    public String getInterpreterUIName() {
+        return "Python";
     }
 
     @Override

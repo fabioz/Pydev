@@ -32,6 +32,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
 import org.python.pydev.plugin.PydevPlugin;
@@ -138,6 +139,10 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
                 IInterpreterManager manager = ChooseInterpreterManager.chooseInterpreterManager();
                 if(manager != null){
                     nature = new SystemPythonNature(manager);
+                }else{
+                    CompletionError completionError = new CompletionError(new RuntimeException("No interpreter configured."));
+                    this.error = completionError.getErrorMessage();
+                    return new ICompletionProposal[]{completionError};
                 }
             }
             
@@ -157,8 +162,9 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
                         try {
                             pythonAndTemplateProposals.addAll(getPythonProposals(viewer, documentOffset, doc, request));
                         } catch (Throwable e) {
+                            Log.log(e);
                             CompletionError completionError = new CompletionError(e);
-                            setError(e, completionError.getErrorMessage());
+                            this.error = completionError.getErrorMessage();
                             //Make the error visible to the user!
                             return new ICompletionProposal[]{completionError};
                         }
@@ -186,8 +192,9 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
                 nature.endRequests();
             }
         } catch (Exception e) {
+            Log.log(e);
             CompletionError completionError = new CompletionError(e);
-            setError(e, completionError.getErrorMessage());
+            this.error = completionError.getErrorMessage();
             //Make the error visible to the user!
             return new ICompletionProposal[]{completionError};
         }
@@ -200,17 +207,6 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
     
     
     
-
-
-
-    /**
-     * @param string
-     */
-    private void setError(Throwable e, String error) {
-        this.error = error;
-        PydevPlugin.log(e);
-    }
-
 
     /**
      * Returns the python proposals as a list.

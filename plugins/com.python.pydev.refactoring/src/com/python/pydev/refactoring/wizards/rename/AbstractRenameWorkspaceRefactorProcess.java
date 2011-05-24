@@ -11,19 +11,18 @@
 package com.python.pydev.refactoring.wizards.rename;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IProjectModulesManager;
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -71,38 +70,41 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
         CompletionCache completionCache = new CompletionCache();
         List<ASTEntry> entryOccurrences = findReferencesOnOtherModule(status, initialName, module);
 
-        if(getRecheckWhereDefinitionWasFound()){
-            for (Iterator<ASTEntry> iter = entryOccurrences.iterator(); iter.hasNext();) {
-                ASTEntry entry = iter.next();
-                int line = entry.node.beginLine;
-                int col = entry.node.beginColumn;
-                try {
-                    ArrayList<IDefinition> definitions = new ArrayList<IDefinition>();
-                    PyRefactoringFindDefinition.findActualDefinition(request, module, initialName, definitions, line, col, nature, completionCache);
-                    //Definition[] definitions = module.findDefinition(new CompletionState(line-1, col-1, initialName, nature, ""), line, col, nature, null);
-                    for (IDefinition def : definitions) {
-                        if(def instanceof Definition){
-                            Definition localDefinition = (Definition) def;
-                            //if within one module any of the definitions pointed to some class in some other module,
-                            //that means that the tokens in this module actually point to some other class 
-                            //(with the same name), and we can't actually rename them.
-                            String foundModName = localDefinition.module.getName();
-                            if(foundModName != null && !foundModName.equals(this.definition.module.getName())){
-                                if(DEBUG_FILTERED_MODULES){
-                                    System.out.println("The entries found on module:"+module.getName()+" had the definition found on module:"+
-                                            foundModName+" and were removed from the elements to be renamed.");
-                                    
-                                }
-                                return new ArrayList<ASTEntry>();
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-                
-            }
-        }
+//Removed this check: it made subclasses work badly, also, in Python because of duck-typing, many of those
+//matches are actually wanted.
+//
+//        if(getRecheckWhereDefinitionWasFound()){
+//            for (Iterator<ASTEntry> iter = entryOccurrences.iterator(); iter.hasNext();) {
+//                ASTEntry entry = iter.next();
+//                int line = entry.node.beginLine;
+//                int col = entry.node.beginColumn;
+//                try {
+//                    ArrayList<IDefinition> definitions = new ArrayList<IDefinition>();
+//                    PyRefactoringFindDefinition.findActualDefinition(request, module, initialName, definitions, line, col, nature, completionCache);
+//                    //Definition[] definitions = module.findDefinition(new CompletionState(line-1, col-1, initialName, nature, ""), line, col, nature, null);
+//                    for (IDefinition def : definitions) {
+//                        if(def instanceof Definition){
+//                            Definition localDefinition = (Definition) def;
+//                            //if within one module any of the definitions pointed to some class in some other module,
+//                            //that means that the tokens in this module actually point to some other class 
+//                            //(with the same name), and we can't actually rename them.
+//                            String foundModName = localDefinition.module.getName();
+//                            if(foundModName != null && !foundModName.equals(this.definition.module.getName())){
+//                                if(DEBUG_FILTERED_MODULES){
+//                                    System.out.println("The entries found on module:"+module.getName()+" had the definition found on module:"+
+//                                            foundModName+" and were removed from the elements to be renamed.");
+//                                    
+//                                }
+//                                return new ArrayList<ASTEntry>();
+//                            }
+//                        }
+//                    }
+//                } catch (Exception e) {
+//                    throw new RuntimeException(e);
+//                }
+//                
+//            }
+//        }
         return entryOccurrences;
     }
     
@@ -146,40 +148,42 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
     protected void doCheckInitialOnWorkspace(RefactoringStatus status, RefactoringRequest request){
         request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 50));
         try{
-            Set<IFile> references = new HashSet<IFile>(findFilesWithPossibleReferences(request));
+            ArrayList<Tuple<List<ModulesKey>, IPythonNature>> references = findFilesWithPossibleReferences(request);
             int total = references.size();
             request.getMonitor().beginTask("Possible references to analyze:"+total, total);
             request.getMonitor().setTaskName(StringUtils.format("Analyzing: %s files", total));
             int i=0;
-            for (IFile file : references) {
-                i++;
-                request.communicateWork(StringUtils.format("Analyzing %s (%s of %s)", file.getName(), i, total));
-                IProject project = file.getProject();
-                PythonNature nature = PythonNature.getPythonNature(project);
+            for (Tuple<List<ModulesKey>, IPythonNature> file : references) {
+                PythonNature nature = (PythonNature) file.o2;
                 if(nature != null){
                     if(!nature.startRequests()){
                         continue;
                     }
                     try{
-                        IProjectModulesManager modulesManager = (IProjectModulesManager) nature.getAstManager().getModulesManager();
-                        
-                        request.checkCancelled();
-                        String modName = modulesManager.resolveModuleInDirectManager(file);
-                        
-                        if(modName != null){
-                            if(!request.moduleName.equals(modName)){
-                                //we've already checked the module from the request...
-                                
-                                request.checkCancelled();
-                                IModule module = nature.getAstManager().getModule(modName, nature, true, false);
-                                
-                                if(module instanceof SourceModule){
+                        for(ModulesKey key:file.o1){
+                            i++;
+                            request.communicateWork(StringUtils.format("Analyzing %s (%s of %s)", key.name, i, total));
+                            IProjectModulesManager modulesManager = (IProjectModulesManager) nature.getAstManager().getModulesManager();
+                            
+                            request.checkCancelled();
+                            String modName = key.name;
+                            
+                            if(modName != null){
+                                if(!request.moduleName.equals(modName)){
+                                    //we've already checked the module from the request...
                                     
                                     request.checkCancelled();
-                                    List<ASTEntry> entryOccurrences = getOccurrencesInOtherModule(status, request.initialName, (SourceModule) module, nature);
+                                    IModule module = modulesManager.getModuleInDirectManager(modName, nature, false);
                                     
-                                    if(entryOccurrences.size() > 0){
-                                        addOccurrences(entryOccurrences, file, modName);
+                                    if(module instanceof SourceModule){
+                                        
+                                        request.checkCancelled();
+                                        List<ASTEntry> entryOccurrences = getOccurrencesInOtherModule(
+                                                status, request.initialName, (SourceModule) module, nature);
+                                        
+                                        if(entryOccurrences.size() > 0){
+                                            addOccurrences(entryOccurrences, key.file, modName);
+                                        }
                                     }
                                 }
                             }
