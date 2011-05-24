@@ -80,13 +80,6 @@ You can check the <A href="http://sourceforge.net/forum/forum.php?forum_id=29364
 but please, try to find what you're looking for in the homepage first.
 
 --------------------------------------------------------------------------------------------------------------Title
-Can I have Eclipse installed anywhere to use PyDev?
---------------------------------------------------------------------------------------------------------------Answer
-
-Yes (note that some previous versions had a bug in which it didn't work if the Eclipse installation had spaces in the path).
-
-
---------------------------------------------------------------------------------------------------------------Title
 How do I get started with PyDev?
 --------------------------------------------------------------------------------------------------------------Answer
 
@@ -94,6 +87,95 @@ Check the getting started manual at: <a href="http://pydev.org/manual_101_root.h
 <br/><br/>
 Also, there are some videos available at: <a href="http://www.youtube.com/user/pydev">http://www.youtube.com/user/pydev</a> which
 may help you in getting started.
+
+--------------------------------------------------------------------------------------------------------------Title
+Can I have Eclipse installed anywhere to use PyDev?
+--------------------------------------------------------------------------------------------------------------Answer
+
+Yes (note that some previous versions had a bug in which it didn't work if the Eclipse installation had spaces in the path).
+
+
+
+--------------------------------------------------------------------------------------------------------------Title
+How do I import existing projects/sources into PyDev?
+--------------------------------------------------------------------------------------------------------------Answer
+
+If the project was already in Eclipse (i.e.: has the .project and .pydevproject files),
+use File > Import > Existing Projects into Workspace.<br/><br/>
+
+Now, if the project never had the .project nor .pydevproject files, there are 2 choices:<br><br>
+
+<strong>Option 1</strong>:<br><br>
+
+Just go through the File > New > PyDev Project wizard and select as the directory the directory with your sources.<br><br>
+
+
+<strong>Option 2</strong>:<br><br>
+
+Create the .project and .pydevproject files from the template below and use File > Import > Existing Projects into Workspace
+to import it. 
+
+Note that this option is more a reference for people that want to automate creating multiple projects at once.<br/><br/>
+
+ 
+<strong>.project</strong> contents (must replace the <strong>MyProject</strong> with the project name)<br><br>
+
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>
+&lt;projectDescription&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;name&gt;MyProject&lt;/name&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;comment&gt;&lt;/comment&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;projects&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/projects&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;buildSpec&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;buildCommand&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;name&gt;org.python.pydev.PyDevBuilder&lt;/name&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;arguments&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/arguments&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/buildCommand&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/buildSpec&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;natures&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;nature&gt;org.python.pydev.pythonNature&lt;/nature&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/natures&gt;<br>
+&lt;/projectDescription&gt;<br><br><br>
+
+
+<strong>.pydevproject</strong> contents (must replace the path (<strong>/MyProject/src</strong>) 
+with the actual folders to be in the PYTHONPATH)<br><br>
+
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>
+&lt;?eclipse-pydev version="1.0"?&gt;<br>
+
+&lt;pydev_project&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;pydev_property name="org.python.pydev.PYTHON_PROJECT_INTERPRETER"&gt;Default&lt;/pydev_property&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;pydev_property name="org.python.pydev.PYTHON_PROJECT_VERSION"&gt;python 2.7&lt;/pydev_property&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;pydev_variables_property name="org.python.pydev.PROJECT_VARIABLE_SUBSTITUTION"&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/pydev_variables_property&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH"&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;path&gt;/MyProject/src&lt;/path&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/pydev_pathproperty&gt;<br>
+&lt;/pydev_project&gt;<br>
+
+
+
+--------------------------------------------------------------------------------------------------------------Title
+How do I import existing projects/sources for a Django project into PyDev?
+--------------------------------------------------------------------------------------------------------------Answer
+
+Follow the same steps in the FAQ above to import a PyDev project, then right click the project > PyDev > Set as Django project and 
+add 2 String substitution variables (on right click project > properties > PyDev PYTHONPATH)<br><br>
+
+<strong>DJANGO_MANAGE_LOCATION</strong>, which is the relative path to manage.py. i.e.: <strong>src/my_project/manage.py</strong><br>
+<strong>DJANGO_SETTINGS_MODULE</strong>, which is the name of the settings module. i.e.: <strong>my_project.settings</strong><br>
+<br><br>
+
+Note that if the .pydevproject file was created, those values could already be added to it in the entry org.python.pydev.PROJECT_VARIABLE_SUBSTITUTION:<br><br>
+
+&lt;pydev_variables_property name="org.python.pydev.PROJECT_VARIABLE_SUBSTITUTION"&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;key&gt;DJANGO_MANAGE_LOCATION&lt;/key&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;value&gt;src/my_project/manage.py&lt;/value&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;key&gt;DJANGO_SETTINGS_MODULE&lt;/key&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;value&gt;my_project.settings&lt;/value&gt;<br>
+&lt;/pydev_variables_property&gt;<br>
 
 
 --------------------------------------------------------------------------------------------------------------Title
