@@ -135,4 +135,8 @@ public class JythonEclipseInterpreterManager implements IInterpreterManager {
 
     }
 
+    public IInterpreterInfo getDefaultInterpreterInfo(boolean autoConfigure) throws MisconfigurationException {
+        return getDefaultInterpreterInfo();
+    }
+
 }

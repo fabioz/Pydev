@@ -32,6 +32,7 @@ import org.eclipse.ui.internal.ide.IDEWorkbenchMessages;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.navigator.elements.IWrappedResource;
 
 public class PyRenameResourceAction extends RenameResourceAction{
     
@@ -103,7 +104,7 @@ public class PyRenameResourceAction extends RenameResourceAction{
                 Iterator iterator = sSelection.iterator();
                 while (iterator.hasNext()) {
                     Object element = iterator.next();
-                    if (element instanceof IAdaptable) {
+                    if (element instanceof IWrappedResource) {
                         IAdaptable adaptable = (IAdaptable) element;
                         IResource resource = (IResource) adaptable.getAdapter(IResource.class);
                         if (resource != null) {

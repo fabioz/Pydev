@@ -30,7 +30,7 @@ public class InterpreterTypeTester extends PropertyTester {
 		
 		if(interpreterManager != null){
 			try {
-				String defaultInterpreter = interpreterManager.getDefaultInterpreterInfo().getExecutableOrJar();
+				String defaultInterpreter = interpreterManager.getDefaultInterpreterInfo(false).getExecutableOrJar();
 				return defaultInterpreter != null;
 			} catch (MisconfigurationException e) {
 				return false;

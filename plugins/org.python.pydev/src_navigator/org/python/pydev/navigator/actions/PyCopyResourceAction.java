@@ -19,6 +19,7 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.navigator.actions.copied.CopyAction;
+import org.python.pydev.navigator.elements.IWrappedResource;
 
 public class PyCopyResourceAction extends CopyAction{
 
@@ -51,7 +52,7 @@ public class PyCopyResourceAction extends CopyAction{
                 Iterator iterator = sSelection.iterator();
                 while (iterator.hasNext()) {
                     Object element = iterator.next();
-                    if (element instanceof IAdaptable) {
+                    if (element instanceof IWrappedResource) {
                         IAdaptable adaptable = (IAdaptable) element;
                         IResource resource = (IResource) adaptable.getAdapter(IResource.class);
                         if (resource != null) {
