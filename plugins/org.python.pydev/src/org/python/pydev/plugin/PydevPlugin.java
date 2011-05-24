@@ -33,6 +33,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.BundleInfo;
@@ -478,55 +479,79 @@ public class PydevPlugin extends AbstractUIPlugin  {
      * @return a tuple with the nature to be used and the name of the module represented by the file in that scenario.
      */
     public static Tuple<SystemPythonNature, String> getInfoForFile(File file){
-        String modName = null;
-        IInterpreterManager pythonInterpreterManager = getPythonInterpreterManager(false);
-        IInterpreterManager jythonInterpreterManager = getJythonInterpreterManager(false);
-        if(pythonInterpreterManager == null || jythonInterpreterManager == null){
-            return null;
-        }
-    
-        SystemPythonNature systemPythonNature = null;
-        SystemPythonNature pySystemPythonNature = null;
-        SystemPythonNature jySystemPythonNature = null;
         
-        try {
-            systemPythonNature = new SystemPythonNature(pythonInterpreterManager);
-            pySystemPythonNature = systemPythonNature;
-            modName = systemPythonNature.resolveModule(file);
-        } catch (Exception e) {
-            // that's ok
+        //Check if we can resolve the manager for the passed file...
+        IInterpreterManager pythonInterpreterManager2 = getPythonInterpreterManager(false);
+        Tuple<SystemPythonNature, String> infoForManager = getInfoForManager(file, pythonInterpreterManager2);
+        if(infoForManager != null){
+            return infoForManager;
         }
-        if(modName == null){
+        
+        IInterpreterManager jythonInterpreterManager2 = getJythonInterpreterManager(false);
+        infoForManager = getInfoForManager(file, jythonInterpreterManager2);
+        if(infoForManager != null){
+            return infoForManager;
+        }
+        
+        IInterpreterManager ironpythonInterpreterManager2 = getIronpythonInterpreterManager(false);
+        infoForManager = getInfoForManager(file, ironpythonInterpreterManager2);
+        if(infoForManager != null){
+            return infoForManager;
+        }
+
+        if(pythonInterpreterManager2.isConfigured()){
             try {
-                systemPythonNature = new SystemPythonNature(jythonInterpreterManager);
-                jySystemPythonNature = systemPythonNature;
-                modName = systemPythonNature.resolveModule(file);
-            } catch (Exception e) {
-                // that's ok
+                return new Tuple<SystemPythonNature, String>(new SystemPythonNature(pythonInterpreterManager2), 
+                        getModNameFromFile(file));
+            } catch (MisconfigurationException e) {
             }
         }
-        if(modName != null){
-            return new Tuple<SystemPythonNature, String>(systemPythonNature, modName);
-        }else{
-            //unable to discover it
+        
+        if(jythonInterpreterManager2.isConfigured()){
             try {
-                // the default one is python (actually, this should never happen, but who knows)
-                pythonInterpreterManager.getDefaultInterpreterInfo();
-                modName = getModNameFromFile(file);
-                return new Tuple<SystemPythonNature, String>(pySystemPythonNature, modName);
-            } catch (Exception e) {
-                //the python interpreter manager is not valid or not configured
+                return new Tuple<SystemPythonNature, String>(new SystemPythonNature(jythonInterpreterManager2), 
+                        getModNameFromFile(file));
+            } catch (MisconfigurationException e) {
+            }
+        }
+        
+        if(ironpythonInterpreterManager2.isConfigured()){
+            try {
+                return new Tuple<SystemPythonNature, String>(new SystemPythonNature(ironpythonInterpreterManager2), 
+                        getModNameFromFile(file));
+            } catch (MisconfigurationException e) {
+            }
+        }
+        
+        //Ok, nothing worked, let's just do a call which'll ask to configure python and return null! 
+        try {
+            pythonInterpreterManager2.getDefaultInterpreterInfo(true);
+        } catch (MisconfigurationException e) {
+            //Ignore
+        }
+        return null;
+    }
+    
+    /**
+     * @param file 
+     * @return 
+     * 
+     */
+    private static Tuple<SystemPythonNature, String> getInfoForManager(File file, IInterpreterManager pythonInterpreterManager) {
+        if(pythonInterpreterManager != null){
+            if(pythonInterpreterManager.isConfigured()){
                 try {
-                    // the default one is jython
-                    jythonInterpreterManager.getDefaultInterpreterInfo();
-                    modName = getModNameFromFile(file);
-                    return new Tuple<SystemPythonNature, String>(jySystemPythonNature, modName);
-                } catch (Exception e1) {
-                    // ok, nothing to do about it, no interpreter is configured
-                    return null;
+                    SystemPythonNature systemPythonNature = new SystemPythonNature(pythonInterpreterManager);
+                    String modName = systemPythonNature.resolveModule(file);
+                    if(modName != null){
+                        return new Tuple<SystemPythonNature, String>(systemPythonNature, modName);
+                    }
+                } catch (Exception e) {
+                    // that's ok
                 }
             }
         }
+        return null;
     }
     
     /**

@@ -142,7 +142,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         if(IPythonNature.DEFAULT_INTERPRETER.equals(projectInterpreterName)){
             //if it's the default, let's translate it to the outside world 
             try {
-                return this.getDefaultInterpreterInfo().getExecutableOrJar();
+                return this.getDefaultInterpreterInfo(true).getExecutableOrJar();
             } catch (NotConfiguredInterpreterException e) {
                 Log.log(e);
                 return projectInterpreterName;
@@ -175,7 +175,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 
     public boolean isConfigured() {
         try {
-            String defaultInterpreter = getDefaultInterpreterInfo().getExecutableOrJar();
+            String defaultInterpreter = getDefaultInterpreterInfo(false).getExecutableOrJar();
             if(defaultInterpreter == null){
                 return false;
             }
@@ -200,14 +200,12 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      */
     protected abstract String getPreferenceName();
     
-    public IInterpreterInfo getDefaultInterpreterInfo() throws NotConfiguredInterpreterException {
-        return getDefaultInterpreterInfo(true);
-    }
+
     /**
      * @throws NotConfiguredInterpreterException
      * @see org.python.pydev.core.IInterpreterManager#getDefaultInterpreterInfo()
      */
-    public IInterpreterInfo getDefaultInterpreterInfo(boolean autoConfigure) throws NotConfiguredInterpreterException {
+    public IInterpreterInfo getDefaultInterpreterInfo(boolean autoConfigureIfNotConfigured) throws NotConfiguredInterpreterException {
         IInterpreterInfo[] interpreters = getInterpreterInfos();
         String errorMsg = null;
         if(interpreters.length > 0){
@@ -221,7 +219,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
             errorMsg = getInterpreterUIName()+" not configured.";
         }
         
-        if(autoConfigure){
+        if(autoConfigureIfNotConfigured){
             //If we got here, the interpreter is not properly configured, let's try to auto-configure it
             if(PyDialogHelpers.getAskAgainInterpreter(this)){
                 configureInterpreterJob.addInterpreter(this);
@@ -652,7 +650,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         
         IInterpreterInfo defaultInterpreterInfo;
         try {
-            defaultInterpreterInfo = getDefaultInterpreterInfo();
+            defaultInterpreterInfo = getDefaultInterpreterInfo(false);
         } catch (NotConfiguredInterpreterException e1) {
             defaultInterpreterInfo = null; //go on as usual... (the natures must know that they're not bound to an interpreter anymore).
         }

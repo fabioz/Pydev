@@ -160,7 +160,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
             //try to load it from previous session
             IInterpreterManager interpreterManager = getInterpreterManager();
             try{
-                String defaultInterpreter = interpreterManager.getDefaultInterpreterInfo().getExecutableOrJar();
+                String defaultInterpreter = interpreterManager.getDefaultInterpreterInfo(false).getExecutableOrJar();
                 boolean recreate = forceAdditionalInfoRecreation;
                 if(!recreate){
                     if(!AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(

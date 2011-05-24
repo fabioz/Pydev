@@ -58,7 +58,7 @@ public class StuctureCreationTest extends AdditionalInfoTestsBase {
         AbstractAdditionalTokensInfo additionalSystemInfo;
         try{
             additionalSystemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
-                    getInterpreterManager(), getInterpreterManager().getDefaultInterpreterInfo().getExecutableOrJar(), true);
+                    getInterpreterManager(), getInterpreterManager().getDefaultInterpreterInfo(false).getExecutableOrJar(), true);
         }catch(MisconfigurationException e){
             throw new RuntimeException(e);
         }

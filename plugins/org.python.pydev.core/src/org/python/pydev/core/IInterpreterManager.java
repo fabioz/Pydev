@@ -63,8 +63,7 @@ public interface IInterpreterManager {
     /**
      * @return the default interpreter for the given interpreter manager.
      */
-    public IInterpreterInfo getDefaultInterpreterInfo() throws MisconfigurationException;
-    public IInterpreterInfo getDefaultInterpreterInfo(boolean autoConfigure) throws MisconfigurationException;
+    public IInterpreterInfo getDefaultInterpreterInfo(boolean autoConfigureIfNotConfigured) throws MisconfigurationException;
     
     /**
      * @return the interpreter infos kept internally in the interpreter manager.

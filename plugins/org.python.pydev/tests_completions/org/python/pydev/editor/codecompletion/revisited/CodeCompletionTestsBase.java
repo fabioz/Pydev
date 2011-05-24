@@ -297,7 +297,7 @@ public class CodeCompletionTestsBase extends TestCase {
         IInterpreterManager iMan = getInterpreterManager();
         InterpreterInfo info;
         try{
-            info = (InterpreterInfo) iMan.getDefaultInterpreterInfo();
+            info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(false);
         }catch(MisconfigurationException e){
             throw new RuntimeException(e);
         }
@@ -348,7 +348,7 @@ public class CodeCompletionTestsBase extends TestCase {
         IInterpreterManager iMan2 = getInterpreterManager();
         InterpreterInfo info2;
         try{
-            info2 = (InterpreterInfo) iMan2.getDefaultInterpreterInfo();
+            info2 = (InterpreterInfo) iMan2.getDefaultInterpreterInfo(false);
         }catch(MisconfigurationException e){
             throw new RuntimeException(e);
         }
@@ -414,7 +414,7 @@ public class CodeCompletionTestsBase extends TestCase {
     protected void checkSize() {
         try{
             IInterpreterManager iMan = getInterpreterManager();
-            InterpreterInfo info = (InterpreterInfo) iMan.getDefaultInterpreterInfo();
+            InterpreterInfo info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(false);
             assertTrue(info.getModulesManager().getSize(true) > 0);
             
             int size = ((ASTManager)nature.getAstManager()).getSize();
