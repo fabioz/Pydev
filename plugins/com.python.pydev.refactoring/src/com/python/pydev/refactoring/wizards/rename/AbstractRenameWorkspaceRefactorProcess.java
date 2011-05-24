@@ -70,38 +70,41 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
         CompletionCache completionCache = new CompletionCache();
         List<ASTEntry> entryOccurrences = findReferencesOnOtherModule(status, initialName, module);
 
-        if(getRecheckWhereDefinitionWasFound()){
-            for (Iterator<ASTEntry> iter = entryOccurrences.iterator(); iter.hasNext();) {
-                ASTEntry entry = iter.next();
-                int line = entry.node.beginLine;
-                int col = entry.node.beginColumn;
-                try {
-                    ArrayList<IDefinition> definitions = new ArrayList<IDefinition>();
-                    PyRefactoringFindDefinition.findActualDefinition(request, module, initialName, definitions, line, col, nature, completionCache);
-                    //Definition[] definitions = module.findDefinition(new CompletionState(line-1, col-1, initialName, nature, ""), line, col, nature, null);
-                    for (IDefinition def : definitions) {
-                        if(def instanceof Definition){
-                            Definition localDefinition = (Definition) def;
-                            //if within one module any of the definitions pointed to some class in some other module,
-                            //that means that the tokens in this module actually point to some other class 
-                            //(with the same name), and we can't actually rename them.
-                            String foundModName = localDefinition.module.getName();
-                            if(foundModName != null && !foundModName.equals(this.definition.module.getName())){
-                                if(DEBUG_FILTERED_MODULES){
-                                    System.out.println("The entries found on module:"+module.getName()+" had the definition found on module:"+
-                                            foundModName+" and were removed from the elements to be renamed.");
-                                    
-                                }
-                                return new ArrayList<ASTEntry>();
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-                
-            }
-        }
+//Removed this check: it made subclasses work badly, also, in Python because of duck-typing, many of those
+//matches are actually wanted.
+//
+//        if(getRecheckWhereDefinitionWasFound()){
+//            for (Iterator<ASTEntry> iter = entryOccurrences.iterator(); iter.hasNext();) {
+//                ASTEntry entry = iter.next();
+//                int line = entry.node.beginLine;
+//                int col = entry.node.beginColumn;
+//                try {
+//                    ArrayList<IDefinition> definitions = new ArrayList<IDefinition>();
+//                    PyRefactoringFindDefinition.findActualDefinition(request, module, initialName, definitions, line, col, nature, completionCache);
+//                    //Definition[] definitions = module.findDefinition(new CompletionState(line-1, col-1, initialName, nature, ""), line, col, nature, null);
+//                    for (IDefinition def : definitions) {
+//                        if(def instanceof Definition){
+//                            Definition localDefinition = (Definition) def;
+//                            //if within one module any of the definitions pointed to some class in some other module,
+//                            //that means that the tokens in this module actually point to some other class 
+//                            //(with the same name), and we can't actually rename them.
+//                            String foundModName = localDefinition.module.getName();
+//                            if(foundModName != null && !foundModName.equals(this.definition.module.getName())){
+//                                if(DEBUG_FILTERED_MODULES){
+//                                    System.out.println("The entries found on module:"+module.getName()+" had the definition found on module:"+
+//                                            foundModName+" and were removed from the elements to be renamed.");
+//                                    
+//                                }
+//                                return new ArrayList<ASTEntry>();
+//                            }
+//                        }
+//                    }
+//                } catch (Exception e) {
+//                    throw new RuntimeException(e);
+//                }
+//                
+//            }
+//        }
         return entryOccurrences;
     }
     

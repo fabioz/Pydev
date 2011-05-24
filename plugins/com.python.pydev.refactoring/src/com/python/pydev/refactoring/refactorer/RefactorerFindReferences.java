@@ -66,16 +66,15 @@ public class RefactorerFindReferences {
             return ret;
         }
         
-        ArrayList<Tuple<List<ModulesKey>, IPythonNature>> l = new ArrayList<Tuple<List<ModulesKey>, IPythonNature>>();
+        ArrayList<Tuple<List<ModulesKey>, IPythonNature>> ret = new ArrayList<Tuple<List<ModulesKey>, IPythonNature>>();
         
         try {
             IProject project = request.nature.getProject();
             if(project == null){
-            	return l;
+            	return ret;
             }
 
             
-            ArrayList<Tuple<List<ModulesKey>, IPythonNature>> ret = new ArrayList<Tuple<List<ModulesKey>, IPythonNature>>();
             try {
                 List<Tuple<AbstractAdditionalTokensInfo, IPythonNature>> infoAndNature = 
                     AdditionalProjectInterpreterInfo.getAdditionalInfoAndNature(request.nature, false, true, true);
@@ -95,7 +94,7 @@ public class RefactorerFindReferences {
         } catch (Exception e) {
             Log.log(e);
         }
-        return l;
+        return ret;
     }
 
 }
