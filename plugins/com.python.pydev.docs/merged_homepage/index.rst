@@ -102,14 +102,20 @@ Noteworthy
 
 
 **Code Analysis**
-    
- * By default, only the currently opened editor will be analyzed.
+
+  .. image:: images/index/code_analysis.png
+    :class: no_border
+   
+ * By default, only the currently opened editor will be analyzed (much shorter build times).
  * Added action to force the analysis on a given folder or file.
  * Showing error markers for PyDev elements in the tree.
  * New option to remove error markers when the editor is closed (default).
 
 **Editor**
 
+  .. image:: images/index/override_methods.png
+    :class: no_border
+        
  * Override method completions (Ctrl+Space after a 'def ') .
  * Completions starting with '_' now have lower priority.
  * Fixed major issue when replacing markers which could make errors appear when they shouldn't appear anymore
@@ -123,6 +129,9 @@ Noteworthy
 
 **PyUnit**
 
+  .. image:: images/index/rerun_on_change.png
+    :class: no_border
+    
  * Added feature to relaunch the last launch when file changes (with option to relaunch only errors).
  * setUpClass was not called when running with the pydev test runner
  * F12 makes the editor active even if there's a tooltip active in the PyUnit view.
@@ -132,6 +141,7 @@ Noteworthy
 
 **Others**
 
+ * Upon starting up PyDev, the interpreter information is validated for changes.
  * Improved the django templates code-completion to better deal with the html/css counterparts.
  * When the interpreter is not configured, detect it and take the proper actions to ask the user to configure it.
  * No longer using StyleRange.data as it's not available for older versions of Eclipse.
@@ -150,7 +160,7 @@ Noteworthy
  * Showing interpreter information when a given project is also a source folder.
 
 
-
+**Note**: Java 1.4 is no longer supported (at least Java 5 is required now).
 
 
 

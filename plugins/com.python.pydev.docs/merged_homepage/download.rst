@@ -80,7 +80,7 @@ and
 
 	* Python_ and IronPython_ require only the `Platform Runtime Binary`_ (download around 45-50 MB), and Jython_ also requires JDT_.
 	
-* Java_ 1.4 or higher
+* Java_ 5 or higher
 
   
 Important

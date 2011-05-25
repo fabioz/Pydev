@@ -27,6 +27,12 @@ p {
 
 
 
+img.no_border {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border: 0px;
+}
+
 img.snap {
     margin-top: 20px;
     margin-bottom: 20px;
