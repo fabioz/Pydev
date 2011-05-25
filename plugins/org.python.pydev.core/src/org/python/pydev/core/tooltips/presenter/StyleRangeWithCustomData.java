@@ -42,9 +42,6 @@ public class StyleRangeWithCustomData extends StyleRange{
         if(!(style instanceof StyleRangeWithCustomData)){
             return false;
         }
-        if(!(style instanceof StyleRangeWithCustomData)){
-            return false;
-        }
         StyleRangeWithCustomData other = (StyleRangeWithCustomData) style;
         if (customData == null) {
             if (other.customData != null)
@@ -52,6 +49,10 @@ public class StyleRangeWithCustomData extends StyleRange{
         } else if (!customData.equals(other.customData))
             return false;
 
+        if(super.similarTo(style)){
+            return false;
+        }
+        
         return true;
     }
     
