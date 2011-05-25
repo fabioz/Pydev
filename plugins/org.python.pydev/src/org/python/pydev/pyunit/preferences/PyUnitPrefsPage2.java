@@ -71,6 +71,18 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
         addField(new BooleanFieldEditor(USE_PYUNIT_VIEW, "Show the results in the unittest results view?", p));
         String s = "Note: if unchecked, no xml-rpc communication will be done when running tests\nand the output will only be shown in the console.";
         addField(new LabelFieldEditor("LabelFieldEditor", s, p));
+        String s2 = "Parameters for PyDev test runner:\n\n" +
+        		"    --verbosity=number\n" +
+        		"        Sets the verbosity level for the run\n\n" +
+        		"    --jobs=number\n" +
+        		"        The number of processes to be used to run the tests\n\n" +
+        		"    --split_jobs=tests|module\n" +
+        		"        if tests is passed (default), the tests will be split\n" +
+        		"        independently to each process if module is passed, a\n" +
+        		"        given job will always receive all the tests from a module" +
+        		"\n" +
+        		"";
+        addField(new LabelFieldEditor("LabelFieldEditor2", s2, p));
         
     }
 

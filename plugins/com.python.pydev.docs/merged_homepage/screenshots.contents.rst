@@ -6,56 +6,80 @@ Screenshots
 Note that these screenshots cover only a bit of the
 features available. For more details check the `Features Matrix`_.
 
-General
---------
 
-.. image:: images/screenshot/screenshot0.png
+
+
+Code Analysis
+----------------
+
+.. image:: images/screenshot/screenshot_code_analysis.png
+   :class: snap
+   
+   
+Create through TDD actions (ctrl+1)
+------------------------------------
+
+.. image:: images/screenshot/screenshot_create_robot.png
    :class: snap
    
    
 Interactive console code completion
 ------------------------------------
 
-.. image:: images/console/code_completion.png
+.. image:: images/screenshot/screenshot_shell.png
    :class: snap
+   
 
-
-Global tokens browser
+Code completion (auto-import)
 ------------------------------------
 
-.. image:: images/screenshot/screenshot8.png
+.. image:: images/screenshot/screenshot_code_completion.png
    :class: snap
-
-
-Debugger
+   
+   
+Code completion on self
 ------------------------------------
 
-.. image:: images/screenshot/screenshot6.gif
+.. image:: images/screenshot/screenshot_code_completion_self.png
    :class: snap
-
-
-
-Code analysis
-------------------------------------
-
-.. image:: images/codeanalysis/code_analysis1.png
-   :class: snap
-
-
-
-Code completion
-------------------------------------
-
-.. image:: images/codecompletion/codecompletionattr1.png
-   :class: snap
-
-
 
 
 Code coverage
 ------------------------------------
 
-.. image:: images/screenshot/screenshot5.png
+.. image:: images/screenshot/screenshot_coverage.png
+   :class: snap
+
+
+
+Debugger
+------------------------------------
+
+.. image:: images/screenshot/screenshot_debug.png
+   :class: snap
+
+
+
+
+Code completion: Override method 
+------------------------------------
+
+.. image:: images/screenshot/screenshot_override_method.png
+   :class: snap
+
+
+
+PyUnit view
+------------------------------------
+
+.. image:: images/screenshot/screenshot_py_unit.png
+   :class: snap
+
+
+Globals Browser (ctrl+shift+T)
+------------------------------------
+
+.. image:: images/screenshot/screenshot_globals_browser.png
    :class: snap
 
 

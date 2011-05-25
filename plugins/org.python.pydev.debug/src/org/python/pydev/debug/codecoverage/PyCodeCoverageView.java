@@ -530,8 +530,9 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         leftComposite.setLayout(layout);
 
         text = new StyledText(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+        onControlCreated.call(text);
         try {
-            text.setFont(new Font(null, "Courier new", 10, 0));
+            text.setFont(new Font(null, "Courier new", 9, 0));
         } catch (Exception e) {
             //ok, might mot be available.
         }
@@ -559,7 +560,6 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
             }
         });
         
-        onControlCreated.call(text);
         layoutData = new GridData();
         layoutData.grabExcessHorizontalSpace = true;
         layoutData.grabExcessVerticalSpace = true;
