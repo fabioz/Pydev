@@ -37,4 +37,47 @@ public class StyleRangeWithCustomData extends StyleRange{
     }
 
     public Object customData;
+    
+    public boolean similarTo(StyleRange style) {
+        if(!(style instanceof StyleRangeWithCustomData)){
+            return false;
+        }
+        if(!(style instanceof StyleRangeWithCustomData)){
+            return false;
+        }
+        StyleRangeWithCustomData other = (StyleRangeWithCustomData) style;
+        if (customData == null) {
+            if (other.customData != null)
+                return false;
+        } else if (!customData.equals(other.customData))
+            return false;
+
+        return true;
+    }
+    
+    
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((customData == null) ? 0 : customData.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        StyleRangeWithCustomData other = (StyleRangeWithCustomData) obj;
+        if (customData == null) {
+            if (other.customData != null)
+                return false;
+        } else if (!customData.equals(other.customData))
+            return false;
+        return true;
+    }
 }

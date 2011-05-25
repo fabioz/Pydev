@@ -93,52 +93,65 @@ First time users are strongly advised to read the `Getting started guide`_  whic
 
 
 
-Release 2.0
-==============
-
-Major (see: `video`_)
----------------------
-
-**TDD actions on Ctrl+1**
-
-**Improved code coverage support**
-
+Release 2.1
+===============
 
 
 Noteworthy
 -----------
 
-**PyUnit**
 
- * It's possible to pin a test run and restore it later.
- * Errors that occur while importing modules are properly shown.
- * It's possible to override the test runner configurations for a given launch.
- * The Nose test runner works properly when there's an error in a fixture.
+**Code Analysis**
+    
+ * By default, only the currently opened editor will be analyzed.
+ * Added action to force the analysis on a given folder or file.
+ * Showing error markers for PyDev elements in the tree.
+ * New option to remove error markers when the editor is closed (default).
 
 **Editor**
 
- * When there's some text selected and ' or " is entered, the content is converted to a string.
- * Handling literals with ui linking.
- * Creating ui link in the editor after entering (,[,{ when it is auto-closed.
- * On hover, when there's a name defined in another module, the statement containing the name is shown.
- * It's possible to launch an editor with a file not in the workspace (a project must be selected in this case)
- * If a line starts with __version__ no import is added above it.
- * When doing assign to attributes, if there's a pass in the line the assign will be added, it's removed.
- * When Ctrl+1 is used to add an import on an unresolved variable, if Ctrl is pressed on apply a local import is done.
-    
-**Interactive console (options)**
+ * Override method completions (Ctrl+Space after a 'def ') .
+ * Completions starting with '_' now have lower priority.
+ * Fixed major issue when replacing markers which could make errors appear when they shouldn't appear anymore
+ * Auto-linking on close parens is now optional (and disabled by default).
 
- * Focus on creation 
- * When created the selection may be directly sent to the console
+**Code coverage**
+ 
+ * No longer looses the selection on a refresh.
+ * Fixed issue where coverage was not working properly when running with multiple processes.
+ * Added orientation options
 
-The DJANGO_SETTINGS_MODULE environment var is passed when making a launch.
+**PyUnit**
 
-The outline page now has a filter.
+ * Added feature to relaunch the last launch when file changes (with option to relaunch only errors).
+ * setUpClass was not called when running with the pydev test runner
+ * F12 makes the editor active even if there's a tooltip active in the PyUnit view.
+ * The PyUnit tooltip is now properly restoring the focus of the previous active control.
+ * Added orientation options
 
-The input() method properly works in Python 3.2 (last "\\r" no longer shown).
+
+**Others**
+
+ * Improved the django templates code-completion to better deal with the html/css counterparts.
+ * When the interpreter is not configured, detect it and take the proper actions to ask the user to configure it.
+ * No longer using StyleRange.data as it's not available for older versions of Eclipse.
+ * Fixed issue where references to modules could become obsolete in memory.
+ * When a source folder is added/removed, the package explorer will properly update to remove/add errors.
+ * Fixed issue where code-formatting could be really slow on unbalanced parenthesis on a big file.
+ * Fixed error accessing __builtins__.__import__ when running in the debugger.
+ * Fixed issue with wrong code-formatting with numbers.
+ * The assist to create a docstring will remove the pass right after it (if there's one).
+ * The path of the file that holds the preferences no longer has the same number of chars as the path for the interpreter.
+ * Fixed some TDD actions
+ * Fixed issue where project references were not being gotten recursively as they should. 
+ * Fixed dedent issues on else and elif.
+ * Fixed issue with __init__.py not showing the parent package name (when set in the preferences to do so).
+ * sys._getframe shouldn't be needed when running unit-tests in IronPython.
+ * Showing interpreter information when a given project is also a source folder.
 
 
-**LOTS of other adjustments and bug fixes**
+
+
 
 
 Development Info
