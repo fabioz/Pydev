@@ -70,8 +70,8 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     /**
      * This is the cache, that points from an interpreter to its information.
      */
-    protected Map<String, InterpreterInfo> exeToInfo = new HashMap<String, InterpreterInfo>();
-    private IPreferenceStore prefs;
+    protected final Map<String, InterpreterInfo> exeToInfo = new HashMap<String, InterpreterInfo>();
+    private final IPreferenceStore prefs;
     
 
     //caches that are filled at runtime -------------------------------------------------------------------------------
@@ -307,7 +307,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         
     }
 
-    private IInterpreterInfo[] interpreterInfosFromPersistedString;
+    private volatile IInterpreterInfo[] interpreterInfosFromPersistedString;
 
     public IInterpreterInfo[] getInterpreterInfos() {
         return internalRecreateCacheGetInterpreterInfos();
@@ -315,17 +315,29 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     }
 
     private IInterpreterInfo[] internalRecreateCacheGetInterpreterInfos() {
-        if(interpreterInfosFromPersistedString == null){
+        IInterpreterInfo[] interpreters = interpreterInfosFromPersistedString;
+        if(interpreters == null){
             synchronized(lock){
-                interpreterInfosFromPersistedString = getInterpretersFromPersistedString(getPersistedString());
-                this.exeToInfo.clear();
-                for(IInterpreterInfo info:interpreterInfosFromPersistedString){
-                    info.startBuilding();
-                    exeToInfo.put(info.getExecutableOrJar(), (InterpreterInfo) info);
+                if(interpreterInfosFromPersistedString != null){
+                    //Some other thread restored it while we're locked.
+                    interpreters = interpreterInfosFromPersistedString;
+                    
+                }else{
+                    interpreters = getInterpretersFromPersistedString(getPersistedString());
+                    try {
+                        this.exeToInfo.clear();
+                        for(IInterpreterInfo info:interpreters){
+                            info.startBuilding();
+                            exeToInfo.put(info.getExecutableOrJar(), (InterpreterInfo) info);
+                        }
+                        
+                    } finally {
+                        interpreterInfosFromPersistedString = interpreters;
+                    }
                 }
             }
         }
-        return interpreterInfosFromPersistedString;
+        return interpreters;
     }
     
     
@@ -606,6 +618,9 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                     }
                 }
             }
+            
+            //Now, last step is updating the natures (the call must NOT be locked in this case).
+            this.restorePythopathForNatures(monitor);
 
             //We also need to restart our code-completion shell after doing that, as we may have new environment variables!
             //And in jython, changing the classpath also needs to restore it.
@@ -647,7 +662,10 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 				PydevPlugin.log(e1);
 			}
         }
-        
+    }
+    
+   
+    private void restorePythopathForNatures(IProgressMonitor monitor) {
         IInterpreterInfo defaultInterpreterInfo;
         try {
             defaultInterpreterInfo = getDefaultInterpreterInfo(false);
@@ -686,9 +704,11 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                         //if it's the default, let's translate it to the outside world 
                         info = defaultInterpreterInfo;
                     }else{
-                        info = exeToInfo.get(projectInterpreterName);
-                        
+                        synchronized (lock) {
+                            info = exeToInfo.get(projectInterpreterName);
+                        }
                     }
+                    
                     boolean makeCompleteRebuild = false;
                     if(info != null){
                     	Properties stringSubstitutionVariables = info.getStringSubstitutionVariables();
