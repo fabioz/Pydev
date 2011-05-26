@@ -92,8 +92,11 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
      * Updates the current filter with the text field text.
      */
     protected void doFilterUpdate(IProgressMonitor monitor) {
-    	setFilter(text.getText(), monitor, true);
-    	onFinishUpdateJob();
+        if(text != null && !text.isDisposed()){
+            //Must check if it's disposed, as this will be run asynchronously.
+        	setFilter(text.getText(), monitor, true);
+        	onFinishUpdateJob();
+        }
     }
 
     /**
