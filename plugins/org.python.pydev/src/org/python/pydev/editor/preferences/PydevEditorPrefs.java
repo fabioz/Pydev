@@ -34,6 +34,8 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.StyledTextForShowingCodeFactory;
 import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
@@ -257,24 +259,26 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
 
     
     public void updateLabelExample(FormatStd formatStd, IPreferenceStore store){
-        String str= 
-            "class Example(object):\n"+
-            "\n"+
-            "    backquotes = `backquotes`\n"+
-            "\n"+
-            "    @memoize(size=10)\n"+
-            "    def Call(self, param1=None):\n"+
-            "        '''docstring'''\n"+
-            "        return param1 + 10 * 10\n"+
-            "\n"+
-            "    def Call2(self):\n"+
-            "        #Comment\n"+
-            "        return self.Call(param1=10)"+
-            "";
-        Tuple<String, StyleRange[]> result = formatAndStyleRangeHelper.formatAndGetStyleRanges(
-                formatStd, str, store, false);
-        labelExample.setText(result.o1);
-        labelExample.setStyleRanges(result.o2);
+        if(labelExample != null && !labelExample.isDisposed()){
+            String str= 
+                "class Example(object):\n"+
+                "\n"+
+                "    backquotes = `backquotes`\n"+
+                "\n"+
+                "    @memoize(size=10)\n"+
+                "    def Call(self, param1=None):\n"+
+                "        '''docstring'''\n"+
+                "        return param1 + 10 * 10\n"+
+                "\n"+
+                "    def Call2(self):\n"+
+                "        #Comment\n"+
+                "        return self.Call(param1=10)"+
+                "";
+            Tuple<String, StyleRange[]> result = formatAndStyleRangeHelper.formatAndGetStyleRanges(
+                    formatStd, str, store, false);
+            labelExample.setText(result.o1);
+            labelExample.setStyleRanges(result.o2);
+        }
     }
 
     
@@ -322,13 +326,26 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
             PydevPrefs.getChainedPrefStore().removePropertyChangeListener(updateLabelExampleOnPrefsChanges);
             updateLabelExampleOnPrefsChanges = null;
         }
+        if(labelExample != null){
+            try {
+                labelExample.dispose();
+            } catch (Exception e) {
+                Log.log(e);
+            }
+            labelExample = null;
+        }
     }
 
     public void setUpdateLabelExampleOnPrefsChanges() {
         updateLabelExampleOnPrefsChanges = new IPropertyChangeListener() {
             
             public void propertyChange(PropertyChangeEvent event) {
-                updateLabelExample(PyFormatStd.getFormat(), PydevPrefs.getChainedPrefStore());
+                RunInUiThread.async(new Runnable() {
+                    
+                    public void run() {
+                        updateLabelExample(PyFormatStd.getFormat(), PydevPrefs.getChainedPrefStore());
+                    }
+                });
             }
         };
         PydevPrefs.getChainedPrefStore().addPropertyChangeListener(updateLabelExampleOnPrefsChanges);
