@@ -222,7 +222,11 @@ class T(Thread):
         import socket
 
         self.socket = s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((HOST, self.serverPort))
+        try:
+            s.connect((HOST, self.serverPort))
+        except:
+            sys.stderr.write('Error on connectToServer with parameters: host: %s port: %s' % (HOST, self.serverPort))
+            raise
 
     def getCompletionsMessage(self, defFile, completionsList):
         '''
@@ -252,8 +256,12 @@ class T(Thread):
             log = _pydev_log.Log()
             
             dbg(SERVER_NAME + ' creating socket' , INFO1)
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.bind((HOST, self.thisPort))
+            try:
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.bind((HOST, self.thisPort))
+            except:
+                sys.stderr.write('Error connecting with parameters: host: %s port: %s' % (HOST, self.serverPort))
+                raise
             s.listen(1) #socket to receive messages.
             
     
