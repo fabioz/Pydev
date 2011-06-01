@@ -118,26 +118,29 @@ public class PyExceptionListProvider implements IStructuredContentProvider {
 		ArrayList<String> list = new ArrayList<String>();
 		IInterpreterManager useManager = ChooseInterpreterManager
 				.chooseInterpreterManager();
-		List<IPythonNature> natures = PythonNature
-				.getPythonNaturesRelatedTo(useManager.getInterpreterType());
-		if (natures.size() > 0) {
-			pythonNature = natures.get(0);
-		} else {
-			return list;
-		}
-		IToken[] pythonTokens = pythonNature.getBuiltinMod().getGlobalTokens();
-		for (IToken token : pythonTokens) {
-			String[] pyTokenArr = token.toString().split("-");
-			if (pyTokenArr.length > 0) {
-				String pyToken = pyTokenArr[0];
-				if (pyToken.toLowerCase().contains(ERROR)
-						|| pyToken.toLowerCase().contains(EXCEPRION)
-						|| pyToken.toLowerCase().contains(WARNING)) {
-					list.add(pyToken.trim());
+		if (useManager != null) {
+			List<IPythonNature> natures = PythonNature
+					.getPythonNaturesRelatedTo(useManager.getInterpreterType());
+			if (natures.size() > 0) {
+				pythonNature = natures.get(0);
+			} else {
+				return list;
+			}
+			IToken[] pythonTokens = pythonNature.getBuiltinMod()
+					.getGlobalTokens();
+			for (IToken token : pythonTokens) {
+				String[] pyTokenArr = token.toString().split("-");
+				if (pyTokenArr.length > 0) {
+					String pyToken = pyTokenArr[0];
+					if (pyToken.toLowerCase().contains(ERROR)
+							|| pyToken.toLowerCase().contains(EXCEPRION)
+							|| pyToken.toLowerCase().contains(WARNING)) {
+						list.add(pyToken.trim());
+					}
 				}
 			}
+			Collections.sort(list);
 		}
-		Collections.sort(list);
 		return list;
 	}
 }

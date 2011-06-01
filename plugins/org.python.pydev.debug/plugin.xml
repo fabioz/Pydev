@@ -767,8 +767,8 @@
 <extension 
 	point="org.eclipse.ui.commands">
 	<command
-        name="Add Python Excpetion Breakpoint..."
-        description="Add Python Excpetion Breakpoint..."
+        name="Add Python Exception Breakpoint..."
+        description="Add Python Exception Breakpoint..."
         categoryId="org.python.pydev.ui.category.source"
         id="org.python.pydev.debug.pyConfigureException">
   </command>

@@ -138,7 +138,10 @@ _break_on_uncaught_exceptions = False
 # excepthook
 #=======================================================================================================================
 def excepthook(exctype, value, tb):
-    if _break_on_uncaught_exceptions and _handle_exceptions is not None:
+    if not _break_on_uncaught_exceptions:
+         return _original_excepthook(exctype, value, tb)
+
+    if _handle_exceptions is not None:
         if not issubclass(exctype, _handle_exceptions):
             return _original_excepthook(exctype, value, tb)
     
@@ -223,6 +226,9 @@ def create_exceptions(exceptionStr):
         
 
 def set_exception_status(break_on_uncaught, break_on_caught):
+    '''
+    Allows to enable/diable breaking debugger on caught/uncaught.
+    '''
     global _break_on_uncaught_exceptions
     _break_on_uncaught_exceptions = break_on_uncaught
     set_break_on_uncaught_exceptions(break_on_caught)
@@ -697,11 +703,14 @@ class PyDB:
                     breakOnUncaught = False     # Default status for Break on Uncaught exception is false
                     breakOnCaught = False       # Default status for Break on caught exception is false
                     statusList = text.split(";")
-                    if(len(statusList) == 2):
-                        if (statusList[0] == 'true'): breakOnUncaught = True
-                        if (statusList[1] == 'true'): breakOnCaught = True
+                    if len(statusList) == 2:
+                        if statusList[0] == 'true':
+                            breakOnUncaught = True
+                        if statusList[1] == 'true':
+                            breakOnCaught = True
                     set_exception_status(breakOnUncaught, breakOnCaught)
-                        
+
+
                 else:
                     #I have no idea what this is all about
                     cmd = self.cmdFactory.makeErrorMessage(seq, "unexpected command " + str(cmd_id))

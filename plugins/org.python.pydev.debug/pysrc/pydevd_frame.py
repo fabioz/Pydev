@@ -30,7 +30,7 @@ class PyDBFrame:
         if event == 'exception' and handle_exceptions is not None:
             if issubclass(arg[0], handle_exceptions):
                 self.handle_exception(frame, event, arg)
-        return self.trace_exception
+        return self.trace_dispatch
     
     def handle_exception(self, frame, event, arg):
         thread = self._args[3]
@@ -39,7 +39,8 @@ class PyDBFrame:
     
     def trace_dispatch(self, frame, event, arg):
         if event not in ('line', 'call', 'return'):
-            if event == 'exception' and is_break_on_caught_exceptions():
+            if event == 'exception' and is_break_on_caught_exceptions() \
+                        and issubclass(arg[0], get_handle_exceptions()):
                 self.handle_exception(frame, event, arg)
                 return self.trace_dispatch
             else:

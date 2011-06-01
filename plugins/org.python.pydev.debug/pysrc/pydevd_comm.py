@@ -800,7 +800,6 @@ def get_handle_exceptions():
     '''Returns the list of caught exceptions on which debugger
     needs to be break upon
     '''
-    global _handle_exceptions
     return _handle_exceptions
 
 def set_break_on_uncaught_exceptions(break_on_caught_exceptions):
@@ -810,7 +809,6 @@ def set_break_on_uncaught_exceptions(break_on_caught_exceptions):
     _break_on_caught_exceptions = break_on_caught_exceptions
 
 def is_break_on_caught_exceptions():
-    '''Returns whether to break or not on caught exceptions
+    '''Returns whether to break or not when the caught exceptions are thrown
     '''
-    global _break_on_caught_exceptions
     return _break_on_caught_exceptions
