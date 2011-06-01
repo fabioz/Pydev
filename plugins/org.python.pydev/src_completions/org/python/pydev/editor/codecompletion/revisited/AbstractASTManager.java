@@ -1214,7 +1214,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                         //from ..bar import 
                         relative += "."+modName;
                     }
-                    relative += "."+tok;
+                    if(!AbstractVisitor.isWildImport(importFrom)){
+                        relative += "."+tok;
+                    }
                     
                     modTok = findModuleFromPath(relative, nature, false, null);
                     mod = modTok.o1;
