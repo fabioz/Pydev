@@ -1671,7 +1671,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "class Bar(Foo):\n" +
                 "    @classmethod\n" +
                 "    def rara(cls):\n" +
-                "        super(Current, cls).rara()", doc.get());
+                "        super(Bar, cls).rara()", doc.get());
     }
     
     public void testOverrideCompletions5() throws Exception{

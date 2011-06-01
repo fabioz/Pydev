@@ -18,8 +18,12 @@ import org.python.pydev.utils.ICallback;
 
 import com.aptana.editor.common.outline.CommonOutlinePage;
 import com.aptana.editor.common.parsing.FileService;
+import com.aptana.editor.common.validator.IValidationManager;
+import com.aptana.editor.css.ICSSConstants;
 import com.aptana.editor.html.HTMLEditor;
+import com.aptana.editor.html.IHTMLConstants;
 import com.aptana.editor.html.parsing.HTMLParseState;
+import com.aptana.editor.js.IJSConstants;
 
 /**
  * @author Fabio Zadrozny
@@ -62,9 +66,16 @@ public class DjHTMLEditor extends HTMLEditor {
         djEditor.dispose();
     }
 
+    
     @Override
-    protected FileService createFileService() {
-        return new FileService(IDjConstants.CONTENT_TYPE_DJANGO_HTML, new HTMLParseState());
+    protected FileService createFileService()
+    {
+        FileService fileService = new FileService(IHTMLConstants.CONTENT_TYPE_HTML, new HTMLParseState());
+        IValidationManager validationManager = fileService.getValidationManager();
+        validationManager.addNestedLanguage(ICSSConstants.CONTENT_TYPE_CSS);
+        validationManager.addNestedLanguage(IJSConstants.CONTENT_TYPE_JS);
+        validationManager.addNestedLanguage(IDjConstants.CONTENT_TYPE_DJANGO_HTML);
+        return fileService;
     }
 
     @Override

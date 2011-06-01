@@ -122,11 +122,19 @@ public class WrappedResource<X extends IResource> implements IWrappedResource, I
                 IContainer.class.equals(adapter) ||
                 IFile.class.equals(adapter) ||
                 ResourceMapping.class.equals(adapter) ||
-                IWatchExpressionFactoryAdapter2.class.equals(adapter) ||
                 IFileStore.class.equals(adapter)
                 ){
             return actualObject2.getAdapter(adapter);
         }
+        
+        try {
+            if(IWatchExpressionFactoryAdapter2.class.equals(adapter)){
+                return actualObject2.getAdapter(adapter);
+            }
+        } catch (Throwable e) {
+            //Ignore (not available in eclipse 3.2)
+        }
+        
         if(
                 IDeferredWorkbenchAdapter.class.equals(adapter)||
                 IWorkbenchAdapter2.class.equals(adapter)||

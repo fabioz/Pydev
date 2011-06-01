@@ -1,4 +1,8 @@
-import unittest as python_unittest
+try:
+    import unittest2 as python_unittest
+except:
+    import unittest as python_unittest
+    
 import pydev_runfiles_xml_rpc
 import time
 import pydevd_io
@@ -122,7 +126,10 @@ class PydevTestResult(_PythonTextTestResult):
 try:
     #Version 2.7 onwards has a different structure... Let's not make any changes in it for now
     #(waiting for bug: http://bugs.python.org/issue11798)
-    from unittest import suite
+    try:
+        from unittest2 import suite
+    except ImportError:
+        from unittest import suite
     #===================================================================================================================
     # PydevTestSuite
     #===================================================================================================================
