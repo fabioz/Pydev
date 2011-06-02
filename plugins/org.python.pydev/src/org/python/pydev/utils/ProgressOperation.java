@@ -21,7 +21,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Helper class for executing an action and showing its progress.

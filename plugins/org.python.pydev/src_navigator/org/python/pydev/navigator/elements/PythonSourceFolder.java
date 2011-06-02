@@ -23,7 +23,6 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.ui.IActionFilter;
 import org.eclipse.ui.IContributorResourceAdapter;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * This is the the model for a source folder that exists within a project.

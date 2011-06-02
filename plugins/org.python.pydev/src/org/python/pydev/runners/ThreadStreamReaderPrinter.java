@@ -16,7 +16,6 @@ import java.io.InputStreamReader;
 
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
-import org.python.pydev.plugin.PydevPlugin;
 
 public class ThreadStreamReaderPrinter extends Thread {
     private static final boolean DEBUG = false;

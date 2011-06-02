@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Action used to delete the .pyc and $py.class files (generated from the python or jython interpreter).

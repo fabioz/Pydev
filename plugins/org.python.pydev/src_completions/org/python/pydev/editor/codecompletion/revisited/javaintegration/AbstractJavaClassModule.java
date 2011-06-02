@@ -37,7 +37,6 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * This is an abstract class for modules based on java classes.

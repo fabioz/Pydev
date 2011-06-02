@@ -53,7 +53,6 @@ import org.python.pydev.debug.model.remote.SetBreakpointCommand;
 import org.python.pydev.debug.model.remote.ThreadListCommand;
 import org.python.pydev.debug.model.remote.VersionCommand;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * This is the target for the debug (

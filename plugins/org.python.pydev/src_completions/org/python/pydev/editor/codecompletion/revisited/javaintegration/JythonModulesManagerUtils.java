@@ -10,7 +10,6 @@ import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModuleForZip;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Wrap things related to jython (specially dependent on JDT)

@@ -18,7 +18,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.actions.RestartLaunchAction;
-import org.python.pydev.plugin.PydevPlugin;
 
 public class PyUnitLaunch implements IPyUnitLaunch{
 

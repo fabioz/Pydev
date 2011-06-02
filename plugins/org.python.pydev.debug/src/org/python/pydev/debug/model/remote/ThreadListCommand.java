@@ -18,7 +18,6 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.debug.model.PyThread;
 import org.python.pydev.debug.model.XMLUtils;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * ListThreads command.

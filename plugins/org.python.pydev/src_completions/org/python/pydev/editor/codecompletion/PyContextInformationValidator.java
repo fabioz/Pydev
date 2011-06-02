@@ -22,7 +22,6 @@ import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Based on JavaParameterListValidator

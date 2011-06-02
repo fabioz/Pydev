@@ -23,7 +23,6 @@ import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.parser.visitors.scope.OutlineCreatorVisitor;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * ParsedModel represents a python file, parsed for OutlineView display

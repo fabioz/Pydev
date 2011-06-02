@@ -24,7 +24,6 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Class that provides different ways to open an editor.

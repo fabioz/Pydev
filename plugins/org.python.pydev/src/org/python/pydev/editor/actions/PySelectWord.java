@@ -11,7 +11,6 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.plugin.PydevPlugin;
 
 public class PySelectWord extends PyAction{
 

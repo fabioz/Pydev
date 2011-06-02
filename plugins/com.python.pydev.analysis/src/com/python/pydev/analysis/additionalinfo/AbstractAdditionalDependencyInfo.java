@@ -35,7 +35,6 @@ import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.ModulesKeyTreeMap;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.plugin.PydevPlugin;
 
 
 /**

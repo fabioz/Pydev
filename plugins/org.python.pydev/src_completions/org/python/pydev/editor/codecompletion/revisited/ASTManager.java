@@ -25,7 +25,6 @@ import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.IASTManagerObserver;
-import org.python.pydev.plugin.PydevPlugin;
 
 
 /**

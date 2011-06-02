@@ -14,7 +14,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
 import org.python.pydev.dltk.console.ui.ScriptConsolePartitioner;
 import org.python.pydev.dltk.console.ui.ScriptStyleRange;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Handles the action of going to the start of the line (Home)

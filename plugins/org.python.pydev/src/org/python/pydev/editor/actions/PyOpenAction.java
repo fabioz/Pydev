@@ -28,7 +28,6 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.Location;
 import org.python.pydev.editorinput.PyOpenEditor;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Opens an editor and selects text in it.

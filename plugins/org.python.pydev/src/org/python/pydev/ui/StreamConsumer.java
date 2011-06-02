@@ -12,7 +12,6 @@ import java.io.InputStreamReader;
 
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 
 
 /**

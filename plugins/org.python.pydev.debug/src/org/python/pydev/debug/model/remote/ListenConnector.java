@@ -13,7 +13,6 @@ import java.net.Socket;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.SocketUtil;
 
 public class ListenConnector implements Runnable {

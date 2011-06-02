@@ -25,7 +25,6 @@ import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.logging.DebugSettings;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * @author Fabio Zadrozny

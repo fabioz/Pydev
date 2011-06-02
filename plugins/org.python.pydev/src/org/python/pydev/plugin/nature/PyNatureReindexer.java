@@ -16,7 +16,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.plugin.PydevPlugin;
 
 
 public class PyNatureReindexer implements IPyEditListener{

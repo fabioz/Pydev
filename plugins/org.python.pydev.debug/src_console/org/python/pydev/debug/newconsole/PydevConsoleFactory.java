@@ -20,7 +20,6 @@ import org.python.pydev.debug.newconsole.env.IProcessFactory;
 import org.python.pydev.debug.newconsole.env.IProcessFactory.PydevConsoleLaunchInfo;
 import org.python.pydev.debug.newconsole.env.UserCanceledException;
 import org.python.pydev.dltk.console.ui.ScriptConsoleManager;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Could ask to configure the interpreter in the preferences

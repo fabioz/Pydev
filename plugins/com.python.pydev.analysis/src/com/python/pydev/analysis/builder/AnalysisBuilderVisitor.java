@@ -26,7 +26,6 @@ import org.python.pydev.editor.codecompletion.revisited.PyCodeCompletionVisitor;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.fastparser.FastDefinitionsParser;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;

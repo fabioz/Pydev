@@ -28,7 +28,6 @@ import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.parser.IParserObserver;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 
 /**

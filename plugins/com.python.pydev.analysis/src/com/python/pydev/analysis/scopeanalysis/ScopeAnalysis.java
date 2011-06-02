@@ -30,7 +30,6 @@ import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
-import org.python.pydev.plugin.PydevPlugin;
 
 public class ScopeAnalysis {
 

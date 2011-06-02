@@ -14,7 +14,6 @@ import java.util.Map;
 
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 
 public class PyUnitTestRun {
 

@@ -14,8 +14,6 @@ import org.eclipse.swt.graphics.Point;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.plugin.PydevPlugin;
-
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 
 /**

@@ -21,7 +21,6 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.expr_contextType;
 import org.python.pydev.parser.visitors.scope.GetNodeForExtractLocalVisitor;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.request.ExtractLocalRequest;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.edit.AbstractInsertEdit;

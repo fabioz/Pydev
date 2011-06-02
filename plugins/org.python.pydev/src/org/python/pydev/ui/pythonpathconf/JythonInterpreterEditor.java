@@ -21,7 +21,6 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleRunner;
 
 public class JythonInterpreterEditor extends AbstractInterpreterEditor{

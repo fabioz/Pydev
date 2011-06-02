@@ -23,8 +23,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.plugin.PydevPlugin;
-
 import com.python.pydev.analysis.messages.IMessage;
 import com.python.pydev.analysis.tabnanny.TabNanny;
 import com.python.pydev.analysis.visitors.OccurrencesVisitor;

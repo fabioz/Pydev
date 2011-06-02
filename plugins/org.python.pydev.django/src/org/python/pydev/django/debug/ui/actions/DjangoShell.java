@@ -23,7 +23,6 @@ import org.python.pydev.debug.newconsole.env.IProcessFactory;
 import org.python.pydev.debug.newconsole.env.IProcessFactory.PydevConsoleLaunchInfo;
 import org.python.pydev.django.launching.DjangoConstants;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 public class DjangoShell extends DjangoAction {

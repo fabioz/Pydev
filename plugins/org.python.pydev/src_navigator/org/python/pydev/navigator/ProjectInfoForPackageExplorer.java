@@ -22,7 +22,6 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 /**

@@ -9,7 +9,6 @@ package org.python.pydev.django.nature;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.IAction;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.actions.project.PyAddNature;
 
 public class DjangoAddNatureAction extends PyAddNature{

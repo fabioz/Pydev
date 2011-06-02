@@ -16,7 +16,6 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.visitors.PythonLanguageUtils;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Based on JavaElementHyperlinkDetector (which uses the hyperlink mechanism added at eclipse 3.3)

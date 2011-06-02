@@ -23,7 +23,6 @@ import org.python.pydev.debug.ui.actions.EvalExpressionAction;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.editor.hover.IPyHoverParticipant;
 import org.python.pydev.editor.hover.PyHoverPreferencesPage;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Gathers hover info during a debug session.

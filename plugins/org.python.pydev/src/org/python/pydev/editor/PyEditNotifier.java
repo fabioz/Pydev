@@ -16,7 +16,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IEditorInput;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit.MyResources;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Helper to give notifications for the listeners of the editor.

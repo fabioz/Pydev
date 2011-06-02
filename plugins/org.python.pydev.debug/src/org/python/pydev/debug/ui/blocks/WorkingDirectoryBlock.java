@@ -39,7 +39,6 @@ import org.python.pydev.core.docutils.StringSubstitution;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.MainModuleTab;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * A control for setting the working directory associated with a launch

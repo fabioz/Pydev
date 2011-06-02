@@ -34,7 +34,6 @@ import org.python.pydev.dltk.console.ui.ScriptConsolePartitioner;
 import org.python.pydev.dltk.console.ui.ScriptStyleRange;
 import org.python.pydev.editor.autoedit.DocCmd;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * This class will listen to the document and will:

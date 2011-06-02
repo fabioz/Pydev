@@ -11,7 +11,6 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.actions.project.PyRemoveNature;
 
 public class DjangoRemoveNatureAction extends PyRemoveNature{

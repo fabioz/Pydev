@@ -44,7 +44,6 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.refactoring.ast.FQIdentifier;
 import org.python.pydev.refactoring.ast.PythonModuleManager;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.BeforeCurrentOffset;

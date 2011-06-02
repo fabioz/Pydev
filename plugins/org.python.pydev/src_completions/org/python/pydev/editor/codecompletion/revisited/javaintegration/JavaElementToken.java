@@ -26,7 +26,6 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * This is the token that encapsulates a java element.

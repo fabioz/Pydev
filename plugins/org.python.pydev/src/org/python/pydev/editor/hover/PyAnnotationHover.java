@@ -19,7 +19,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.codefolding.PySourceViewer;
-import org.python.pydev.plugin.PydevPlugin;
 
 public class PyAnnotationHover implements IAnnotationHover{
 

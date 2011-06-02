@@ -9,7 +9,6 @@ package org.python.pydev.dltk.console.ui.internal.actions;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Deletes the previous word (ctrl+backspace)

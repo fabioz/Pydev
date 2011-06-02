@@ -39,7 +39,6 @@ import org.python.pydev.navigator.elements.PythonFolder;
 import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
 import org.python.pydev.navigator.elements.PythonResource;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 /**

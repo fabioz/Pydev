@@ -19,7 +19,6 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.remote.RemoteDebugger;
-import org.python.pydev.plugin.PydevPlugin;
 /**
  * Debugger class that represents a single python process.
  * 

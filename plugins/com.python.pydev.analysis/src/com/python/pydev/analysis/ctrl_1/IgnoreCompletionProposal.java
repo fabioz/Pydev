@@ -17,7 +17,6 @@ import org.eclipse.swt.graphics.Point;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
-import org.python.pydev.plugin.PydevPlugin;
 
 public class IgnoreCompletionProposal extends PyCompletionProposal {
 

@@ -19,7 +19,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.debug.model.AbstractDebugTargetWithTransmission;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Reads and dispatches commands

@@ -54,7 +54,6 @@ import org.python.pydev.dltk.console.ui.internal.actions.HandleDeletePreviousWor
 import org.python.pydev.dltk.console.ui.internal.actions.HandleLineStartAction;
 import org.python.pydev.dltk.console.ui.internal.actions.IInteractiveConsoleConstants;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * This is the viewer for the console. It's responsible for making sure that the actions the 

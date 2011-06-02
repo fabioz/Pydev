@@ -25,7 +25,6 @@ import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
-import org.python.pydev.plugin.PydevPlugin;
 
 
 /**

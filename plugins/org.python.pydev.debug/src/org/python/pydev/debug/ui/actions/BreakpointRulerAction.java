@@ -39,7 +39,6 @@ import org.python.pydev.debug.model.PyBreakpoint;
 import org.python.pydev.debug.model.PyDebugModelPresentation;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editorinput.PydevFileEditorInput;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Setting/removing breakpoints in the ruler

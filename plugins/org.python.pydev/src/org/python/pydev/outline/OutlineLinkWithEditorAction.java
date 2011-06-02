@@ -24,7 +24,6 @@ import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.IPyEditListener2;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
 /**

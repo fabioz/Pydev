@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.progress.UIJob;
 import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Used to properly pass notifications in the UI thread to the PyUnitView.

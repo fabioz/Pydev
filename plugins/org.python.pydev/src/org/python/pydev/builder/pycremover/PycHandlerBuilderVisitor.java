@@ -23,7 +23,6 @@ import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editorinput.PySourceLocatorBase;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor{

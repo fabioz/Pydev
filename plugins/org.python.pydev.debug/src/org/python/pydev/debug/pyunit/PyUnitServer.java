@@ -25,7 +25,6 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.ILaunchesListener2;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.SocketUtil;
 
 public class PyUnitServer implements IPyUnitServer  {

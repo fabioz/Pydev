@@ -25,7 +25,6 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Abstract class for actions that'll act upon the selected containers.

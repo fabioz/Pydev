@@ -17,7 +17,6 @@ import org.eclipse.swt.widgets.Display;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.dltk.console.ui.ScriptConsolePartitioner;
 import org.python.pydev.dltk.console.ui.ScriptStyleRange;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Helper to add text to the clipboard.
