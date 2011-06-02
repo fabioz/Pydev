@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Display;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.model.IModelListener;
 import org.python.pydev.parser.ErrorDescription;
@@ -170,7 +171,7 @@ public class ParsedModel implements IOutlineModel {
                 System.out.println("No old model root?");
             }
         }catch(Throwable e){
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
     

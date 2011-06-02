@@ -16,6 +16,7 @@ import java.util.Map;
 
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IVariable;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -56,7 +57,7 @@ public class ValueModificationChecker {
             }
             
         } catch (DebugException e) {        
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
 

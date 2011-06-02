@@ -59,14 +59,14 @@ public class PySyntaxChecker extends PyDevBuilderVisitor{
         try {
             PyParser.deleteErrorMarkers(resource);
         } catch (CoreException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         
         if(parseError != null){
             try {
                 PyParser.createParserErrorMarkers(parseError, resource, document);
             } catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
         

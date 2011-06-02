@@ -178,7 +178,7 @@ public abstract class PyRefactorAction extends PyAction {
                     Operation o = new Operation(action);
                     o.execute(monitor);
                 } catch (Exception e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
                 return Status.OK_STATUS;
             }

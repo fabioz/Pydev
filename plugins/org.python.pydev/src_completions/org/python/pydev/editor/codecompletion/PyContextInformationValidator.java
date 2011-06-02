@@ -21,6 +21,7 @@ import org.eclipse.jface.text.contentassist.IContextInformationPresenter;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -89,7 +90,7 @@ public class PyContextInformationValidator implements IContextInformationValidat
             return false;
         } catch (Exception x) {
             this.returnedFalseOnce = true;
-            PydevPlugin.log(x);
+            Log.log(x);
             return false;
         }
     }

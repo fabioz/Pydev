@@ -25,6 +25,7 @@ import org.eclipse.jface.text.quickassist.IQuickAssistProcessor;
 import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.console.IPatternMatchListener;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
@@ -226,7 +227,7 @@ public class PydevConsole extends ScriptConsole  {
         try {
             super.addHyperlink(link, offset, length);
         } catch (BadLocationException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
 

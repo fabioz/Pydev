@@ -33,6 +33,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.navigator.PythonLabelProvider;
 import org.python.pydev.plugin.PydevPlugin;
@@ -86,7 +87,7 @@ public class ProjectBlock extends AbstractLaunchConfigurationTab {
                            pythonProjects.add(project);
                        }
                    } catch (CoreException exception) {
-                       PydevPlugin.log(exception);
+                       Log.log(exception);
                    }
                    
                 }

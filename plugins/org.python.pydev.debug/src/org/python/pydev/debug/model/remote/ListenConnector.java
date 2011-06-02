@@ -11,6 +11,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import org.eclipse.core.runtime.IStatus;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.SocketUtil;
@@ -27,7 +28,7 @@ public class ListenConnector implements Runnable {
         try {
             serverSocket = new ServerSocket(0);
         } catch (IOException e) {
-            PydevPlugin.log("Error when creating server socket.", e);
+            Log.log("Error when creating server socket.", e);
             throw e;
         }
     }

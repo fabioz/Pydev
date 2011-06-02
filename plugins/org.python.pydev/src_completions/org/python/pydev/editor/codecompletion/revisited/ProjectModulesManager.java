@@ -115,7 +115,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
      */
     public ISystemModulesManager getSystemModulesManager(){
         if(nature == null){
-            PydevPlugin.log("Nature still not set");
+            Log.log("Nature still not set");
             return null; //still not set (initialization)
         }
         try {

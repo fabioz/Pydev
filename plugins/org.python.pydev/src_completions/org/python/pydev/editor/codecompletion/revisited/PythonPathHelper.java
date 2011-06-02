@@ -28,6 +28,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
 import org.python.pydev.plugin.PydevPlugin;
@@ -165,7 +166,7 @@ public class PythonPathHelper implements IPythonPathHelper {
 
             } catch (Exception e) {
                 //that's ok, it is probably not a zip file after all...
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
         return null;

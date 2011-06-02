@@ -23,6 +23,7 @@ import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.PydevPlugin;
@@ -114,7 +115,7 @@ public class PyFileListing {
                     }
                     canonicalFolders.add(canonicalizedDir);
                 } catch (IOException e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
 
                 File[] files = null;

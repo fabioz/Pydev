@@ -235,7 +235,7 @@ public class PydevPlugin extends AbstractUIPlugin  {
 			    }
 			} catch (Exception e) {
 			    //it may fail in tests... (save it in default folder in this cases)
-			    PydevPlugin.log(IStatus.ERROR, "Error getting persisting folder", e, false);
+			    Log.log(IStatus.ERROR, "Error getting persisting folder", e, false);
 			    base = new File(".");
 			}
 			File file = new File(base, "ping.log");
@@ -316,7 +316,7 @@ public class PydevPlugin extends AbstractUIPlugin  {
                 try {
                     nature.saveAstManager();
                 } catch (Exception e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
             }
         } finally{

@@ -109,7 +109,7 @@ public abstract class PyResourceAction {
                             try {
                                 next.refreshLocal(IResource.DEPTH_INFINITE, monitor);
                             } catch (Exception e) {
-                                PydevPlugin.log(e);
+                                Log.log(e);
                             }
                         }
                         nChanged[0] += doActionOnResource(next, monitor);

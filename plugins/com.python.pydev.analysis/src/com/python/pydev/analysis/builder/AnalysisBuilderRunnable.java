@@ -280,17 +280,17 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
             //ok, ignore it
             logOperationCancelled();
         } catch (Exception e){
-            PydevPlugin.log(e);
+            Log.log(e);
         } finally{
             try{
                 nature.endRequests();
             }catch(Throwable e){
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             try{
                 AnalysisBuilderRunnableFactory.removeFromThreads(key, this);
             }catch (Throwable e){
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             
             dispose();

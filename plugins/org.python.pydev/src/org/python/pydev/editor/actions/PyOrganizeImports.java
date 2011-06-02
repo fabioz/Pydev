@@ -35,6 +35,7 @@ import org.python.pydev.core.docutils.ImportHandle;
 import org.python.pydev.core.docutils.PyImportsHandling;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
@@ -94,7 +95,7 @@ public class PyOrganizeImports extends PyAction{
         } 
         catch ( Exception e ) 
         {
-            PydevPlugin.log(e);
+            Log.log(e);
             beep ( e );
         }        
     }
@@ -477,7 +478,7 @@ public class PyOrganizeImports extends PyAction{
             doc.replace(startOffset, endOffset-startOffset, all.toString());
             
         } catch (BadLocationException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
 
     }

@@ -366,13 +366,13 @@ public class PythonRunnerConfig {
         project = getProjectFromConfiguration(conf);
         
         if(project == null){ //Ok, we could not find it out
-            throw PydevPlugin.log("Could not get project for configuration: " + conf);
+            throw Log.log("Could not get project for configuration: " + conf);
         }
 
         // We need the project to find out the default interpreter from the InterpreterManager.
         IPythonNature pythonNature = PythonNature.getPythonNature(project);
         if (pythonNature == null) {
-            CoreException e = PydevPlugin.log("No python nature for project: " + project.getName());
+            CoreException e = Log.log("No python nature for project: " + project.getName());
             throw e;
         }
         

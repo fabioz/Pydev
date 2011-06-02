@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.tooltips.presenter.ToolTipPresenterHandler;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -52,7 +53,7 @@ final class PyUnitSortListener implements Listener {
                         }
                         return 0;
                     } catch (NumberFormatException e) {
-                        PydevPlugin.log(e);
+                        Log.log(e);
                     }
                     return txt0.compareTo(txt1);
                 }
@@ -83,13 +84,13 @@ final class PyUnitSortListener implements Listener {
                         }
                         return 0;
                     } catch (NumberFormatException e) {
-                        PydevPlugin.log(e);
+                        Log.log(e);
                     }
                     return txt0.compareTo(txt1);
                 }
             };
         }else{
-            PydevPlugin.log("Could not recognize column clicked: "+column);
+            Log.log("Could not recognize column clicked: "+column);
             return;
         }
 

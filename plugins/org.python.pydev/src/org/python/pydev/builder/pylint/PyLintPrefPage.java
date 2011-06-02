@@ -29,6 +29,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.utils.CustomizableFieldEditor;
@@ -202,7 +203,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
         if (!isPyLintConfigured(PyLintPrefPage.getPyLintLocation())) {
             if (b && !communicatedOnce) {
                 communicatedOnce = true;
-                PydevPlugin.log("Unable to use pylint because it is not properly configured.");
+                Log.log("Unable to use pylint because it is not properly configured.");
             }
             return false;
         }

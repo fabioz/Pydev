@@ -66,7 +66,7 @@ public class ClearSyntaxMarkersPyeditListener implements IPyEditListener, IPyEdi
                 try {
                     PyParser.deleteErrorMarkers(relatedFile);
                 } catch (CoreException e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
             }
         }

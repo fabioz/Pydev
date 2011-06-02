@@ -236,7 +236,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 				info = AdditionalProjectInterpreterInfo.
 				    getAdditionalInfoForProject(nature);
 			} catch (MisconfigurationException e) {
-				PydevPlugin.log(e);
+				Log.log(e);
 				return;
 			}
             

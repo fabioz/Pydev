@@ -271,7 +271,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
                 }
             }
         } catch (CoreException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
 

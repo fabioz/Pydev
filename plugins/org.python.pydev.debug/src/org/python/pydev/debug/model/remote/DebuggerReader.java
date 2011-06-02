@@ -15,6 +15,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 import org.eclipse.core.runtime.IStatus;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.debug.model.AbstractDebugTargetWithTransmission;
@@ -118,7 +119,7 @@ public class DebuggerReader implements Runnable {
                 cmd.processResponse(cmdCode, payload);
             }
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
             throw new RuntimeException(e);
         }
     }

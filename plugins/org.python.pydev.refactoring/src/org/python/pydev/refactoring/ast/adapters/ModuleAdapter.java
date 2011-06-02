@@ -31,6 +31,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISourceModule;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.AbstractASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
@@ -170,7 +171,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
                     }
                 }
             }catch(CompletionRecursionException e){
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }else{
             for(SimpleAdapter adapter:getAssignedVariables()){

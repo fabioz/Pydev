@@ -45,7 +45,7 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
 					return;
 				}
 			} catch (Exception e1) {
-				PydevPlugin.log(e1);
+				Log.log(e1);
 				return;
 			}
 			
@@ -90,7 +90,7 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
                     PydevMarkerUtils.replaceMarkers(lst, resource, IMarker.TASK, false, monitor);
                     //timer.printDiff("Total time to put markers: "+lst.size());
                 } catch (Exception e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 } 
             }
         }

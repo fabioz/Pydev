@@ -10,6 +10,7 @@ import java.util.ListResourceBundle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.IPyEditListener4;
 import org.python.pydev.editor.PyEdit;
@@ -32,7 +33,7 @@ public class AddRedCoreTheme implements IPyEditListener, IPyEditListener4{
 		} catch (Throwable e) {
 			//If we have some problem here, there's some versioning problem, let's log it and
 			//signal it's not available.
-			PydevPlugin.log(e);
+			Log.log(e);
 			AddRedCoreThemeAvailable.setRedCoreAvailable(false);
 		}
 	}

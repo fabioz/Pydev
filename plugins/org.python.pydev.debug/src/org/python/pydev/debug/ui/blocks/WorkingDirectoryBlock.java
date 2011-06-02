@@ -329,7 +329,7 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
         } 
         catch (CoreException e) {
             setErrorMessage("Exception occurred reading configuration" + e.getStatus().getMessage());
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
 

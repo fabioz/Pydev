@@ -161,7 +161,7 @@ public abstract class AbstractShell {
                             try {
                                 element.shutdown(); //shutdown
                             } catch (Exception e) {
-                                PydevPlugin.log(e); //let's log it... this should not happen
+                                Log.log(e); //let's log it... this should not happen
                             }
                         }
                     }
@@ -200,7 +200,7 @@ public abstract class AbstractShell {
 						try {
 							iInterpreterManager.clearCaches();
 						} catch (Exception e) {
-							PydevPlugin.log(e);
+							Log.log(e);
 							ret += e.getMessage()+"\n";
 						}
 					}
@@ -208,7 +208,7 @@ public abstract class AbstractShell {
 					ModulesManager.clearCache();
 				}
 			} catch (Exception e) {
-				PydevPlugin.log(e);
+				Log.log(e);
 				ret += e.getMessage()+"\n";
 			}
         }
@@ -447,14 +447,14 @@ public abstract class AbstractShell {
                 if (process == null) {
                     String msg = "Error creating python process - got null process(" + execMsg + ") - os:" + osName;
                     dbg(msg, 1);
-                    PydevPlugin.log(msg);
+                    Log.log(msg);
                     throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, msg, new Exception(msg)));
                 }
                 try {
                     int exitVal = process.exitValue(); //should throw exception saying that it still is not terminated...
                     String msg = "Error creating python process - exited before creating sockets - exitValue = ("+ exitVal + ")(" + execMsg + ") - os:" + osName;
                     dbg(msg, 1);
-                    PydevPlugin.log(msg);
+                    Log.log(msg);
                     throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, msg, new Exception(msg)));
                 } catch (IllegalThreadStateException e2) { //this is ok
                 }
@@ -502,14 +502,14 @@ public abstract class AbstractShell {
                             " failed, trying again...(socketToWrite already binded)";
                             
                             dbg(msg,1);
-                            PydevPlugin.log(IStatus.ERROR, msg, e1);
+                            Log.log(IStatus.ERROR, msg, e1);
                         }
                         if (socketToWrite != null && !socketToWrite.isConnected() == true) {
                             String msg = "Attempt: " + attempts + " of " + maxAttempts +
                             " failed, trying again...(socketToWrite still not binded)";
                             
                             dbg(msg,1);
-                            PydevPlugin.log(IStatus.ERROR, msg, e1);
+                            Log.log(IStatus.ERROR, msg, e1);
                         }
                     }
 
@@ -539,7 +539,7 @@ public abstract class AbstractShell {
                     
                     RuntimeException exception = new RuntimeException(msg);
                     dbg(msg, 1);
-                    PydevPlugin.log(exception);
+                    Log.log(exception);
                     throw exception;
                 }
 
@@ -719,7 +719,7 @@ public abstract class AbstractShell {
                 if (ret.length() > 500) {
                     ret = ret.substring(0, 499) + "...(continued)...";//if the string gets too big, it can crash Eclipse...
                 }
-                PydevPlugin.log(IStatus.ERROR, "ERROR WITH STRING:" + ret, e);
+                Log.log(IStatus.ERROR, ("ERROR WITH STRING:" + ret), e);
                 return "";
             }
         } finally{
@@ -912,7 +912,7 @@ public abstract class AbstractShell {
             
         } catch (Exception e) {
             if(DebugSettings.DEBUG_CODE_COMPLETION){
-                PydevPlugin.log(IStatus.ERROR, "ERROR getting completions.", e);
+                Log.log(IStatus.ERROR, "ERROR getting completions.", e);
             }
             
             restartShell();
@@ -941,7 +941,7 @@ public abstract class AbstractShell {
                         this.startIt(shellInterpreter, shellMillis);
                     }
                 } catch (Exception e) {
-                    PydevPlugin.log(IStatus.ERROR, "ERROR restarting shell.", e);
+                    Log.log(IStatus.ERROR, "ERROR restarting shell.", e);
                 }
             } finally {
                 isInRestart = false;

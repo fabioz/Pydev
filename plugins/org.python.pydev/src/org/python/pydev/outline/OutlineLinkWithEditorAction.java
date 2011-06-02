@@ -19,6 +19,7 @@ import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.IPyEditListener2;
 import org.python.pydev.editor.PyEdit;
@@ -169,7 +170,7 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
                 return new TreeSelection(treePath);
             }
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }            
         return null;
     }

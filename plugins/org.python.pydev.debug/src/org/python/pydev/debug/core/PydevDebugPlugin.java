@@ -30,6 +30,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.python.pydev.core.bundle.ImageCache;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -63,7 +64,7 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
             try{
                 this.removeConsoleLaunch(l);
             }catch(Exception e){
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
     }
@@ -200,7 +201,7 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
                     try {
                         p.terminate();
                     } catch (Exception e) {
-                        PydevPlugin.log(e);
+                        Log.log(e);
                     }
                 }
             }

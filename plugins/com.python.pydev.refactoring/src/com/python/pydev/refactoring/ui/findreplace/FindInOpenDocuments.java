@@ -135,7 +135,7 @@ public class FindInOpenDocuments {
 			});
 			NewSearchUI.runQueryInBackground(query);
 		} catch (CoreException e1) {
-			PydevPlugin.log(e1);
+			Log.log(e1);
 		}
 	}
 }

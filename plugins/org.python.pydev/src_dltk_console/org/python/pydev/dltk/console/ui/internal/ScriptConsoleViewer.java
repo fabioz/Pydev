@@ -44,6 +44,7 @@ import org.eclipse.ui.console.TextConsoleViewer;
 import org.python.pydev.bindingutils.KeyBindingHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.dltk.console.ScriptConsoleHistory;
 import org.python.pydev.dltk.console.ui.IConsoleStyleProvider;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
@@ -157,7 +158,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                     }
                 }
             } catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
     }
@@ -319,7 +320,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 
 
                 } catch (BadLocationException e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                     return;
                 }
 

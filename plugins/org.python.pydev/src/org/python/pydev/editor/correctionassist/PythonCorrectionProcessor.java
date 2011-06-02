@@ -191,11 +191,11 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
                                         offset)
                                 );
                             } catch (Exception e) {
-                                PydevPlugin.log(e);
+                                Log.log(e);
                             }
                         }
                     } catch (Exception e) {
-                        PydevPlugin.log(e);
+                        Log.log(e);
                     }
                 }
         
@@ -297,11 +297,11 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
                                 offset)
                         );
                     } catch (Exception e) {
-                        PydevPlugin.log(e);
+                        Log.log(e);
                     }
                 }
             } catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
 

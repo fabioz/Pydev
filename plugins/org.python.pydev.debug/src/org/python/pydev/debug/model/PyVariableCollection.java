@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IVariable;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.GetVariableCommand;
@@ -126,7 +127,7 @@ public class PyVariableCollection extends PyVariable implements ICommandResponse
             }
             
         } catch (InterruptedException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         fireChangeEvent = true;
         if (networkState == NETWORK_REQUEST_ARRIVED){

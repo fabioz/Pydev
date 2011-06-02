@@ -207,7 +207,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
             try {
                 doc.replace(applyFrom, contentsLen-applyFrom, formatted.substring(applyFrom));
             } catch (BadLocationException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
     }

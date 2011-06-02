@@ -22,6 +22,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -72,7 +73,7 @@ public class PyOpenEditor {
             return openEditorInput(file);
             
         } catch (Exception e) {
-            PydevPlugin.log(IStatus.ERROR, "Unexpected error opening path " + f.toString(), e);
+            Log.log(IStatus.ERROR, ("Unexpected error opening path " + f.toString()), e);
             return null;
         }
     }
@@ -100,7 +101,7 @@ public class PyOpenEditor {
             return openEditorInput(file);
             
         } catch (Exception e) {
-            PydevPlugin.log(IStatus.ERROR, "Unexpected error opening path " + path.toString(), e);
+            Log.log(IStatus.ERROR, ("Unexpected error opening path " + path.toString()), e);
             return null;
         }
     }
@@ -121,7 +122,7 @@ public class PyOpenEditor {
             return openEditorInput(file);
             
         } catch (Exception e) {
-            PydevPlugin.log(IStatus.ERROR, "Unexpected error opening zip file " + zipFile.getAbsolutePath()+ " - "+zipFilePath, e);
+            Log.log(IStatus.ERROR, ("Unexpected error opening zip file " + zipFile.getAbsolutePath()+ " - "+zipFilePath), e);
             return null;
         }
     }

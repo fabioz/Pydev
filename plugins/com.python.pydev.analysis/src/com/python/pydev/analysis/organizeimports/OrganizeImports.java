@@ -29,6 +29,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.IOrganizeImports;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
@@ -189,12 +190,12 @@ public class OrganizeImports implements IOrganizeImports{
 
                         }
                     } catch (Exception e) {
-                        PydevPlugin.log(e);
+                        Log.log(e);
                     }
                 }
                 
             } catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
         
@@ -231,7 +232,7 @@ public class OrganizeImports implements IOrganizeImports{
 
                 }
             } catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
         return undefinedVariablesMarkers;

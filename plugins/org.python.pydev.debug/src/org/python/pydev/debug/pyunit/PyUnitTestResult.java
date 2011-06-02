@@ -17,6 +17,7 @@ import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
@@ -146,7 +147,7 @@ public class PyUnitTestResult {
                     }
                 }
             } catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             //if we couldn't actually get the definition line, at least open the file we had (although that may not really
             //be the place where it's defined if it's a test in a superclass).

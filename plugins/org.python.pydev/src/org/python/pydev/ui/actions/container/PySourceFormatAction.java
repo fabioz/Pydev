@@ -152,7 +152,7 @@ public class PySourceFormatAction extends PyContainerAction{
                 }
             }
         } catch (CoreException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
             
         return formatted;

@@ -39,6 +39,7 @@ import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.cache.Cache;
 import org.python.pydev.core.cache.LRUCache;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
@@ -486,7 +487,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                         }
                     } catch (CompletionRecursionException e) {
                     } catch (Exception e) {
-                        PydevPlugin.log(e);
+                        Log.log(e);
                     }
                 }
             } else if(rep.equals(activationToken)){

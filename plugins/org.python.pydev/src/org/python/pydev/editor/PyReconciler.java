@@ -38,6 +38,7 @@ import org.eclipse.ui.texteditor.spelling.SpellingContext;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 import org.python.pydev.core.IPythonPartitions;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -265,7 +266,7 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
             //Ignore: can happen if the document changes during the reconciling.
             
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
             
         }finally{
             synchronized (modelBeingChecked) {

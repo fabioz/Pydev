@@ -7,6 +7,7 @@
 package org.python.pydev.editor.codecompletion.revisited.javaintegration;
 
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModuleForZip;
 import org.python.pydev.plugin.PydevPlugin;
@@ -50,7 +51,7 @@ public class JythonModulesManagerUtils {
             throw runtimeException;
         }
         
-        PydevPlugin.log(e);
+        Log.log(e);
         throw new RuntimeException(e);
     }
 

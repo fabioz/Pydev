@@ -17,6 +17,7 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.remote.RemoteDebugger;
 import org.python.pydev.plugin.PydevPlugin;
 /**
@@ -86,7 +87,7 @@ public class PyDebugTarget extends AbstractDebugTarget {
             try {
                 process.terminate();
             } catch (DebugException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             process = null;
         }

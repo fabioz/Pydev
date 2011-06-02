@@ -23,6 +23,7 @@ import org.eclipse.jface.text.TextSelection;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.Location;
@@ -51,10 +52,10 @@ public class PyOpenAction extends Action {
         } catch (BadLocationException e1) {
             if(textEdit instanceof PyEdit){
                 PyEdit p = (PyEdit) textEdit;
-                PydevPlugin.log(IStatus.ERROR, "Error setting selection:"+start+" - "+end+" - "+p.getEditorFile(), e1);
+                Log.log(IStatus.ERROR, ("Error setting selection:"+start+" - "+end+" - "+p.getEditorFile()), e1);
                 
             }else{
-                PydevPlugin.log(IStatus.ERROR, "Error setting selection:"+start+" - "+end, e1);
+                Log.log(IStatus.ERROR, ("Error setting selection:"+start+" - "+end), e1);
             }
         }
     }

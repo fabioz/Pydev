@@ -14,6 +14,7 @@ import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.dltk.console.ui.ScriptConsolePartitioner;
 import org.python.pydev.dltk.console.ui.ScriptStyleRange;
 import org.python.pydev.plugin.PydevPlugin;
@@ -115,7 +116,7 @@ public class ClipboardHandler {
             
             
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         return plainText.toString();
     }

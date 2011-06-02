@@ -33,6 +33,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.IUpdate;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyBreakpoint;
 import org.python.pydev.debug.model.PyDebugModelPresentation;
@@ -157,7 +158,7 @@ public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
 
             resource.getWorkspace().run(runnable, null);
         } catch (Exception e) {
-        	PydevPlugin.log(e);
+        	Log.log(e);
         }
 	}
 

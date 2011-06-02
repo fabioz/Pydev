@@ -668,7 +668,7 @@ public abstract class ModulesManager implements IModulesManager {
                                     zipModule.zipFilePath = emptyModuleForZip.pathInZip;
                                     n = decorateModule(n, nature);
                                 } catch (Exception exc1) {
-                                    PydevPlugin.log(exc1);
+                                    Log.log(exc1);
                                     n = null;
                                 }
                             }
@@ -687,7 +687,7 @@ public abstract class ModulesManager implements IModulesManager {
                                 doRemoveSingleModule(keyForCacheAccess);
                                 n = null;
                             } catch (MisconfigurationException exc) {
-                                PydevPlugin.log(exc);
+                                Log.log(exc);
                                 n=null;
                             }
                         }

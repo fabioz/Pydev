@@ -380,7 +380,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                     
             }
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         return addAstInfo;
     }

@@ -167,7 +167,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         for (TreeItem exe : items) {
             IInterpreterInfo info = this.nameToInfo.get(getNameFromTreeItem(exe));
             if(info == null){
-                PydevPlugin.log("Didn't expect interpreter info to be null in the memory: "+exe);
+                Log.log("Didn't expect interpreter info to be null in the memory: "+exe);
             }else{
                 infos.add(info);
             }
@@ -552,7 +552,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         		                monitorDialog.run(true, true, operation);
         		                
         		            }catch (Exception e) {
-        		                PydevPlugin.log(e);
+        		                Log.log(e);
         		            }            
         		            
         		            Exception e = exception[0];
@@ -860,7 +860,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 
             InterpreterInfo info = (InterpreterInfo) this.nameToInfo.get(name);
             if(info == null){
-                PydevPlugin.log("Didn't expect interpreter info to be null in the memory: "+name);
+                Log.log("Didn't expect interpreter info to be null in the memory: "+name);
             }else{
                 for (Iterator<String> iter = info.libs.iterator(); iter.hasNext();) {
                     TreeItem subItem = new TreeItem(item, SWT.NONE);
@@ -1076,10 +1076,10 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
             }
             
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
             return null;
         } finally {
-            PydevPlugin.logInfo(charWriter.toString());
+            Log.logInfo(charWriter.toString());
         }
         
         return null;

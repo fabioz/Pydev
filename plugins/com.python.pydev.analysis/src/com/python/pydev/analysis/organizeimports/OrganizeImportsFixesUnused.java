@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.IOrganizeImports;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
@@ -53,7 +54,7 @@ public class OrganizeImportsFixesUnused implements IOrganizeImports{
         try {
             ast.accept(visitor);
         } catch (Exception e1) {
-            PydevPlugin.log(e1);
+            Log.log(e1);
             return true; //just go on
         }
         List<ASTEntry> availableImports = visitor.getAsList(new Class[]{ImportFrom.class, Import.class});
@@ -92,7 +93,7 @@ public class OrganizeImportsFixesUnused implements IOrganizeImports{
 
                 }
             } catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
         return true;

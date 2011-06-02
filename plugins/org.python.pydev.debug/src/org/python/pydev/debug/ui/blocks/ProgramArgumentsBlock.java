@@ -23,6 +23,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -103,7 +104,7 @@ public class ProgramArgumentsBlock extends AbstractLaunchConfigurationTab {
         } catch (CoreException e) {
             setErrorMessage("Exception occurred reading configuration"
                     + e.getStatus().getMessage());
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
 

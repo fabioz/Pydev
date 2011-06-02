@@ -21,6 +21,7 @@ import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -91,7 +92,7 @@ public abstract class ColorCache {
                     color = getColor(new RGB(255, 255, 255));
                     
                 } else {
-                    PydevPlugin.log("Unknown color:" + name);
+                    Log.log("Unknown color:" + name);
                     color = getColor(new RGB(255, 0, 0));
                 }
             }
@@ -103,7 +104,7 @@ public abstract class ColorCache {
                 }
                 catch (DataFormatException e) {
                     // Data conversion failure, maybe someone edited our prefs by hand
-                    PydevPlugin.log(e);
+                    Log.log(e);
                     color = new Color(Display.getCurrent(), new RGB(255, 50, 0));
                 }
             }

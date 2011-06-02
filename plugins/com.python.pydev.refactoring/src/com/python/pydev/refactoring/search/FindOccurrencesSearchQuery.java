@@ -111,7 +111,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
                 }
             }
         } catch (CoreException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }finally{
             req.popMonitor();
         }

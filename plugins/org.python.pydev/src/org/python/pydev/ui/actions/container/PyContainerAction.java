@@ -111,7 +111,7 @@ public abstract class PyContainerAction implements IObjectActionDelegate {
                             try {
                                 next.refreshLocal(IResource.DEPTH_INFINITE, monitor);
                             } catch (Exception e) {
-                                PydevPlugin.log(e);
+                                Log.log(e);
                             }
                         }
                         nChanged[0] += doActionOnContainer(next, monitor);

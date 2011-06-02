@@ -164,12 +164,12 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
             
 
         } catch (Exception e){
-            PydevPlugin.log(e);
+            Log.log(e);
         } finally{
             try{
                 AnalysisBuilderRunnableFactory.removeFromThreads(key, this);
             }catch (Throwable e){
-                PydevPlugin.log(e);
+                Log.log(e);
             }finally{
                 runFinished=true;
             }

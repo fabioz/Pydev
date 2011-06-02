@@ -16,6 +16,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.OrderedSet;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.codefolding.PySourceViewer;
@@ -66,7 +67,7 @@ public abstract class AbstractAnalysisMarkersParticipants implements IAssistProp
                     try {
                         participant.addProps(marker, analysisPreferences, currLine, ps, offset, nature, edit, props);
                     } catch (Exception e) {
-                        PydevPlugin.log("Error when getting proposals.", e);
+                        Log.log("Error when getting proposals.", e);
                     }
                 }
             }

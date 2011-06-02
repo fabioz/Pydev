@@ -257,7 +257,7 @@ public class PydevMarkerUtils {
                         marker.setAttributes(asMap);
                     }
                 } catch (Exception e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
                 
             }

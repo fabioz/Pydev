@@ -100,7 +100,7 @@ public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor{
         try {
             resource.setDerived(true);
         } catch (CoreException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
 
@@ -141,7 +141,7 @@ public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor{
                                 try {
                                     workspaceFile.delete(true, monitor);
                                 } catch (CoreException e) {
-                                    PydevPlugin.log(e);
+                                    Log.log(e);
                                 }
                                 monitor.done();
                                 return Status.OK_STATUS;
@@ -152,7 +152,7 @@ public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor{
                 }
                 
             } catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
     }

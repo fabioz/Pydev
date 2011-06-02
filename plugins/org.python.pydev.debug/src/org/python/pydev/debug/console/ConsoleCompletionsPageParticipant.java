@@ -138,7 +138,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
             ICompletionProposal[] temp = receivedCompletions;
             receivedCompletions = null;
             if(temp == null){
-                PydevPlugin.logInfo("Timeout for waiting for debug completions elapsed (3 seconds).");
+                Log.logInfo("Timeout for waiting for debug completions elapsed (3 seconds).");
                 return EMPTY_COMPLETION_PROPOSALS;
             }
             return temp;

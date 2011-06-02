@@ -91,7 +91,7 @@ public class RefactorerFindDefinition {
 						request.checkCancelled();
 					}
 				} catch (MisconfigurationException e) {
-					PydevPlugin.log(e);
+					Log.log(e);
 					return new ItemPointer[0];
 				}
                 

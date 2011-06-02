@@ -157,12 +157,12 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                                 observer.notifyProjectPythonpathRestored(nature, jobProgressComunicator);
                             } catch (Exception e) {
                                 //let's keep it safe
-                                PydevPlugin.log(e);
+                                Log.log(e);
                             }
                         }
                     }
                 } catch (Throwable e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
 
                 PythonNatureListenersManager.notifyPythonPathRebuilt(project, nature); 
@@ -320,7 +320,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 try {
                     return PythonNature.addNature(file.getProject(), null, null, null, null, null, null);
                 } catch (CoreException e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
             }
         }
@@ -344,21 +344,21 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             //we have to set the nature store to stop listening changes to .pydevproject
             nature.pythonNatureStore.setProject(null);
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         
         try {
             //we have to remove the project from the pythonpath nature too...
             nature.pythonPathNature.setProject(null, null);
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         
         //notify listeners that the pythonpath nature is now empty for this project
         try {
             PythonNatureListenersManager.notifyPythonPathRebuilt(project, null); 
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         
         try {
@@ -368,7 +368,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 member.delete(true, null);
             }
         } catch (CoreException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
 
         //and finally... remove the nature
@@ -504,7 +504,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                     this.setVersion(version, interpreter);
                 }
             } catch (CoreException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }finally{
                 this.getStore().endInit();
             }
@@ -528,7 +528,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         	try {
 				rebuildPath();
 			} catch (CoreException e) {
-				PydevPlugin.log(e);
+				Log.log(e);
 			}
 			return;
         }
@@ -703,7 +703,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                     return (PythonNature) n;
                 }
             } catch (CoreException e) {
-                PydevPlugin.logInfo(e);
+                Log.logInfo(e);
             }
         }
         return null;
@@ -1060,7 +1060,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             }
         }
         
-        PydevPlugin.log("Unable to recognize version: "+grammarVersion+" returning default.");
+        Log.log("Unable to recognize version: "+grammarVersion+" returning default.");
         return LATEST_GRAMMAR_VERSION;
     }
     
@@ -1112,7 +1112,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
                 String msg = "Invalid interpreter: "+projectInterpreterName+" configured for project: "+projectName+".";
                 ProjectMisconfiguredException e = new ProjectMisconfiguredException(msg);
-                PydevPlugin.log(e);
+                Log.log(e);
                 throw e;
                 
             }else{

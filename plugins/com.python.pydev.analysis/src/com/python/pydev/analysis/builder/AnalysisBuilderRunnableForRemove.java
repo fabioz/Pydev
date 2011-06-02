@@ -57,7 +57,7 @@ public class AnalysisBuilderRunnableForRemove extends AbstractAnalysisBuilderRun
 				info = AdditionalProjectInterpreterInfo.
 				    getAdditionalInfoForProject(nature);
 			} catch (MisconfigurationException e) {
-				PydevPlugin.log(e);
+				Log.log(e);
 				return;
 			}
             

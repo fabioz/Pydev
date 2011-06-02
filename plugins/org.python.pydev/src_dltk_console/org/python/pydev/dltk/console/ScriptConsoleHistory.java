@@ -15,6 +15,7 @@ import java.util.List;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -66,7 +67,7 @@ public class ScriptConsoleHistory {
         try {
             historyAsDoc.replace(historyAsDoc.getLength(), 0, lineToAddToHistory+"\n");
         } catch (BadLocationException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
 
         if (lineToAddToHistory.length() == 0) {

@@ -27,6 +27,7 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.dltk.console.IScriptConsoleCommunication;
 import org.python.pydev.dltk.console.InterpreterResponse;
@@ -182,7 +183,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                 try {
                     lock.wait(10);
                 } catch (InterruptedException e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
             }
         }
@@ -318,7 +319,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                 try {
                     lock2.wait(20);
                 } catch (InterruptedException e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
             }
         }

@@ -95,7 +95,7 @@ public final class TddRefactorCompletionInInexistentModule extends AbstractTddRe
                 try {
                     folder.create(true, true, null);
                 } catch (CoreException e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
             }
             
@@ -105,7 +105,7 @@ public final class TddRefactorCompletionInInexistentModule extends AbstractTddRe
                 try {
                     file.create(new ByteArrayInputStream(new byte[0]), true, null);
                 } catch (CoreException e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
             }
         }
@@ -116,7 +116,7 @@ public final class TddRefactorCompletionInInexistentModule extends AbstractTddRe
             try {
                 file.create(new ByteArrayInputStream(new byte[0]), true, null);
             } catch (CoreException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
 

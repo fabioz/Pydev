@@ -8,6 +8,7 @@ package org.python.pydev.dltk.console.ui.internal.actions;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -52,7 +53,7 @@ public class HandleDeletePreviousWord {
         try {
             doc.replace(caretPosition, initialCaretPosition-caretPosition, "");
         } catch (BadLocationException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         
     }

@@ -37,6 +37,7 @@ import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.eclipse.ui.model.IWorkbenchAdapter2;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -226,7 +227,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
         try {
             return resourceManager.createImage(descriptor);
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
             return null;
         }
     }
@@ -277,7 +278,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
         try{
             return resourceManager.createFont(FontDescriptor.createFrom(descriptor));
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
             return null;
         }
 
@@ -297,7 +298,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
         try{
             return resourceManager.createColor(ColorDescriptor.createFrom(descriptor));
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
             return null;
         }
 

@@ -139,7 +139,7 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
                         }
                     } catch (Exception e) {
                         //clients should not make the hover fail!
-                        PydevPlugin.log(e);
+                        Log.log(e);
                     }
                 }
                 
@@ -238,7 +238,7 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
                         astToPrint = astToPrint.createCopy();
                         MakeAstValidForPrettyPrintingVisitor.makeValid(astToPrint);
                     }catch(Exception e){
-                        PydevPlugin.log(e);
+                        Log.log(e);
                     }
                 }
                 
@@ -327,7 +327,7 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
 
                 str = prettyPrinterV2.print(astToPrint);
             }catch(IOException e){
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
         return str;

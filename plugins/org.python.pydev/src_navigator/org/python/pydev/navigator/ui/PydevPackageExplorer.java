@@ -41,6 +41,7 @@ import org.eclipse.ui.part.ShowInContext;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.callbacks.ICallbackWithListeners;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.elements.PythonFile;
 import org.python.pydev.plugin.PydevPlugin;
@@ -195,7 +196,7 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
                 viewer.getNavigatorContentService().restoreState(memento);
             } catch (Exception e1) {
                 if(i>1){
-                    PydevPlugin.log("Unable to restore the state of the Pydev Package Explorer.", e1);
+                    Log.log("Unable to restore the state of the Pydev Package Explorer.", e1);
                 }
             }
         }

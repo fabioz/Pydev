@@ -424,7 +424,7 @@ public abstract class AbstractAdditionalTokensInfo {
 			    }//end this.lock        
 			    
 			} catch (Exception e) {
-			    PydevPlugin.log(e);
+			    Log.log(e);
 			}
 		} catch (Exception e) {
 			Log.log(e);
@@ -669,7 +669,7 @@ public abstract class AbstractAdditionalTokensInfo {
 		try {
 			persistingLocation = getPersistingLocation();
 		} catch (MisconfigurationException e) {
-			PydevPlugin.log("Error. Unable to get persisting location for additional interprer info. Configuration may be corrupted.", e);
+			Log.log("Error. Unable to get persisting location for additional interprer info. Configuration may be corrupted.", e);
 			return;
 		}
         if(DEBUG_ADDITIONAL_INFO){
@@ -694,7 +694,7 @@ public abstract class AbstractAdditionalTokensInfo {
 			info = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager, interpreter);
 			info.save();
 		} catch (MisconfigurationException e) {
-			PydevPlugin.log(e);
+			Log.log(e);
 			return;
 		}
     }
@@ -738,7 +738,7 @@ public abstract class AbstractAdditionalTokensInfo {
 			try {
 				file = getPersistingLocation();
 			} catch (MisconfigurationException e) {
-				PydevPlugin.log("Unable to restore previous info... (persisting location not available).",e);
+				Log.log("Unable to restore previous info... (persisting location not available).", e);
 				return false;
 			}
             if(file.exists() && file.isFile()){
@@ -747,7 +747,7 @@ public abstract class AbstractAdditionalTokensInfo {
                     setAsDefaultInfo();
                     return true;
                 } catch (Throwable e) {
-                    PydevPlugin.log("Unable to restore previous info... new info should be restored in a thread.",e);
+                    Log.log("Unable to restore previous info... new info should be restored in a thread.", e);
                 }
             }
         }

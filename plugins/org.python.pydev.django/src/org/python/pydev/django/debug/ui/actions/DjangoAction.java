@@ -35,6 +35,7 @@ import org.eclipse.ui.dialogs.FilteredItemsSelectionDialog;
 import org.eclipse.ui.internal.ide.dialogs.OpenResourceDialog;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.django.launching.DjangoConstants;
 import org.python.pydev.django.launching.PythonFileRunner;
 import org.python.pydev.editor.actions.PyAction;
@@ -169,18 +170,18 @@ public abstract class DjangoAction implements IObjectActionDelegate {
 											"Finished \""+ finalManageDotPy.getLocation().toOSString()+
 											" "+command+"\" execution."));
 						} catch (IOException e1) {
-							PydevPlugin.log(e1);
+							Log.log(e1);
 						}
 						
 						try {
 							outputStream.close();
 						} catch (IOException e1) {
-							PydevPlugin.log(e1);
+							Log.log(e1);
 						}
 						try {
 							selectedProject.refreshLocal(IResource.DEPTH_INFINITE, null);
 						} catch (CoreException e) {
-							PydevPlugin.log(e);
+							Log.log(e);
 						}
 	
 						return Status.OK_STATUS;
@@ -210,11 +211,11 @@ public abstract class DjangoAction implements IObjectActionDelegate {
 				try {
 					pythonPathNature.setVariableSubstitution(variableSubstitution);
 				} catch (Exception e) {
-					PydevPlugin.log(e);
+					Log.log(e);
 				}
 				
 			}else{
-				PydevPlugin.log("Error. Expected IFile selected. Found: "+firstResult.getClass());
+				Log.log("Error. Expected IFile selected. Found: "+firstResult.getClass());
 				return null;
 			}
 			
