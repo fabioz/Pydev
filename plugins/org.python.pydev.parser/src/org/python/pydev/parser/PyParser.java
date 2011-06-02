@@ -286,7 +286,7 @@ public class PyParser implements IPyParser {
         // Set up new listener
         this.document = doc;
         if (doc == null) {
-            System.err.println("No document in PyParser::setDocument?");
+            Log.log("No document in PyParser::setDocument?");
             return;
         }
 

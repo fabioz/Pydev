@@ -25,8 +25,10 @@ import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import org.python.pydev.core.docutils.PythonPairMatcher;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.parser.IParserObserver;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 
 /**
@@ -92,7 +94,7 @@ public abstract class PyEditProjection extends TextEditor implements IParserObse
                 projectionViewer.doOperation(ProjectionViewer.TOGGLE);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.log(e);
         }
     }
 

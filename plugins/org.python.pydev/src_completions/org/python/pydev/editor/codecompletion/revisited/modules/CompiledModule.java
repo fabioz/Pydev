@@ -108,7 +108,6 @@ public class CompiledModule extends AbstractModule{
                     setTokens(name, manager);
                 } catch (Exception e2) {
                     tokens = new HashMap<String, IToken>();
-                    e2.printStackTrace();
                     Log.log(e2);
                 }
             }

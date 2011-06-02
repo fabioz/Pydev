@@ -3,6 +3,7 @@ package org.python.pydev.parser.grammar30;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.grammarcommon.AbstractTreeBuilder;
 import org.python.pydev.parser.grammarcommon.ComprehensionCollection;
 import org.python.pydev.parser.grammarcommon.Decorators;
@@ -508,7 +509,7 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
             return makeImportFrom25Onwards(arity);
             
         default:
-            System.out.println("Error at TreeBuilder: default not treated:"+n.getId());
+            Log.log(("Error at TreeBuilder: default not treated:"+n.getId()));
             return null;
         }
     }

@@ -168,7 +168,7 @@ public class ParsedModel implements IOutlineModel {
                 }
                 
             }else {
-                System.out.println("No old model root?");
+                Log.log("No old model root?");
             }
         }catch(Throwable e){
             Log.log(e);

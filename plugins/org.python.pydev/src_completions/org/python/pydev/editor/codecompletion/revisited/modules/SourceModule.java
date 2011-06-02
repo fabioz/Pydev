@@ -324,7 +324,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             //end cache
             
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.log(e);
         }
         
         //now, let's get it from the cache... (which should be filled by now)
@@ -1001,7 +1001,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             
             return scope.getLocalTokens(line, col, false);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.log(e);
             return EMPTY_ITOKEN_ARRAY;
         }
     }
@@ -1016,7 +1016,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             
             return scopeVisitor.scope;
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.log(e);
             return null;
         }
     }
@@ -1045,7 +1045,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             
             return scopeVisitor.scope.getScopeEndLine();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.log(e);
             return -1;
         }
     }
@@ -1059,7 +1059,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             
             return scopeVisitor.scope.getIfMainLine();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.log(e);
             return -1;
         }
     }

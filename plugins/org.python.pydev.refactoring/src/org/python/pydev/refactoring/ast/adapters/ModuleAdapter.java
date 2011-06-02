@@ -563,7 +563,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
                 }
                 selection = new TextSelection(doc, startOffset, endOffset - startOffset);
             }catch(BadLocationException e){
-                e.printStackTrace();
+                Log.log(e);
             }
         }
         return normalizeSelection(selection);

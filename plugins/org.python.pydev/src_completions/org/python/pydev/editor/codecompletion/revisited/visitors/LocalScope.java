@@ -23,6 +23,7 @@ import java.util.Set;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -40,6 +41,7 @@ import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * @author Fabio Zadrozny
@@ -209,7 +211,7 @@ public class LocalScope implements ILocalScope {
                         }
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Log.log(e);
                 }
             }
         }

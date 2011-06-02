@@ -309,7 +309,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 	                    }
 	                } catch (Exception e) {
 	                    //ignore
-	                    e.printStackTrace();
+	                    Log.log(e);
 	                }
 	            }
 	        }

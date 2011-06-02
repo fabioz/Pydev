@@ -522,8 +522,8 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                             } finally {
                                 info.setLoadFinished(true);
                             }
-                            System.out.println("Finished restoring information for: "+info.executableOrJar+" at: "+
-                                    info.getModulesManager().getIoDirectory());
+                            Log.logInfo(("Finished restoring information for: "+info.executableOrJar+" at: "+
+                            info.getModulesManager().getIoDirectory()));
                         }
                     }
                     

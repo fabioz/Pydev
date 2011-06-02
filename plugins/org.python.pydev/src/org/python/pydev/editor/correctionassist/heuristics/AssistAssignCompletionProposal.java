@@ -17,6 +17,7 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.plugin.PydevPlugin;
@@ -83,7 +84,7 @@ public class AssistAssignCompletionProposal extends PyCompletionProposal{
 
         } catch (Throwable x) {
             // ignore
-            x.printStackTrace();
+            Log.log(x);
         }
     }
 

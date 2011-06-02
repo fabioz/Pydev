@@ -217,7 +217,7 @@ public final class FastCharStream implements CharStream {
                     System.arraycopy(buffer, initial, ret, 0, len);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.log(e);
             }
         }
         if(DEBUG){
