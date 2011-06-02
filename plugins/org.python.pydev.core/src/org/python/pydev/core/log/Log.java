@@ -14,6 +14,7 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.widgets.Display;
@@ -39,11 +40,20 @@ public class Log {
 	private static IOConsoleOutputStream fOutputStream;
 
 	private static Map<Tuple<Integer, String>, Long> lastLoggedTime = new HashMap<Tuple<Integer,String>, Long>();
-	
+
     /**
      * @param errorLevel IStatus.[OK|INFO|WARNING|ERROR]
+     * @return CoreException that can be thrown for the given log event
      */
-    public static void log(int errorLevel, String message, Throwable e) {
+	public static CoreException log(int errorLevel, String message, Throwable e, boolean printToConsole) {
+	    if (CorePlugin.getDefault() == null) {
+	        // testing mode, always print to console as there is no logger to log to
+	        printToConsole = true;
+	    }
+	    
+        Status s = new Status(errorLevel, CorePlugin.getPluginID(), errorLevel, message, e);
+        CoreException coreException = new CoreException(s);
+
         Tuple<Integer, String> key = new Tuple<Integer, String>(errorLevel, message);
         synchronized (lastLoggedTime) {
             Long lastLoggedMillis = lastLoggedTime.get(key);
@@ -51,38 +61,60 @@ public class Log {
             if(lastLoggedMillis != null){
                 if(currentTimeMillis < lastLoggedMillis + (20 * 1000)) {
                     //System.err.println("Skipped report of:"+message);
-                    return; //Logged in the last 20 seconds, so, just skip it for now
+                    return coreException; //Logged in the last 20 seconds, so, just skip it for now
                 }
             }
             lastLoggedTime.put(key, currentTimeMillis);
         }
-        System.err.println(message);
-        if(e != null){
-        	if(!(e instanceof MisconfigurationException)){
-        		e.printStackTrace();
-        	}
+        if (printToConsole) {
+            System.err.println(message);
+            if (e != null) {
+                if (!(e instanceof MisconfigurationException)) {
+                    e.printStackTrace();
+                }
+            }
         }
         try {
-            
-            Status s = new Status(errorLevel, CorePlugin.getPluginID(), errorLevel, message, e);
-            CorePlugin.getDefault().getLog().log(s);
+            if (CorePlugin.getDefault() != null) {
+                CorePlugin.getDefault().getLog().log(s);
+            }
         } catch (Exception e1) {
             //logging should not fail!
         }
+        return coreException;
     }
-
-    public static void log(Throwable e) {
-        log(IStatus.ERROR, e.getMessage() != null ? e.getMessage() : "No message gotten (null message).", e);
-    }
-
-    public static void log(String msg) {
-        log(IStatus.ERROR, msg, new RuntimeException(msg));
+	
+    public static CoreException log(String message, Throwable e, boolean printToConsole) {
+        return log(IStatus.ERROR, message, e, true);
     }
     
-    public static void log(String msg, Throwable e) {
-        log(IStatus.ERROR, msg, e);
+    public static CoreException log(int errorLevel, String message, Throwable e) {
+        return log(errorLevel, message, e, true);
     }
 
+    public static CoreException log(Throwable e, boolean printToConsole) {
+        return log(IStatus.ERROR, e.getMessage() != null ? e.getMessage() : "No message gotten (null message).", e, printToConsole);
+    }
+
+    public static CoreException log(String msg) {
+        return log(IStatus.ERROR, msg, new RuntimeException(msg));
+    }
+    
+    public static CoreException log(String msg, Throwable e) {
+        return log(IStatus.ERROR, msg, e);
+    }
+
+    public static CoreException log(Throwable e) {
+        return log(e, true);
+    }
+
+    public static CoreException logInfo(Throwable e) {
+        return log(IStatus.INFO, e.getMessage(), e, true);
+    }
+    
+    public static CoreException logInfo(String msg) {
+        return log(IStatus.INFO, msg, null, false);
+    }
     
     //------------ Log that writes to a new console
 
@@ -195,10 +227,15 @@ public class Log {
             }
         }
     }
-
+    
+    /**
+     * @deprecated use one of the other log methods
+     * XXX: At time of deprecation, none of the PyDev bundles
+     * call this method.
+     */
+    @Deprecated
     public static void log(IStatus status) {
         CorePlugin.getDefault().getLog().log(status);
     }
-
 
 }
