@@ -34,6 +34,13 @@ import org.python.pydev.core.Tuple;
 public class Log {
 
     /**
+     * Set to true to allow log messages to appear on the console when printToConsole is true.
+     * <p>
+     * Only applies when not in testing mode as in testing mode message is always printed.
+     */
+    private static final boolean DEBUG = true;
+    
+    /**
      * Console used to log contents
      */
     private static MessageConsole fConsole;
@@ -49,6 +56,8 @@ public class Log {
 	    if (CorePlugin.getDefault() == null) {
 	        // testing mode, always print to console as there is no logger to log to
 	        printToConsole = true;
+	    } else if (!DEBUG) {
+	        printToConsole = false;
 	    }
 	    
         Status s = new Status(errorLevel, CorePlugin.getPluginID(), errorLevel, message, e);
