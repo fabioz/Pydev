@@ -24,7 +24,7 @@ public class PythonCompletion25Test extends CodeCompletionTestsBase {
             // DEBUG_TESTS_BASE = true;
             PythonCompletion25Test test = new PythonCompletion25Test();
             test.setUp();
-            test.testNewRelativeImport2a();
+            test.testNewRelativeFromOtherModule();
             test.tearDown();
             System.out.println("Finished");
 
