@@ -490,6 +490,7 @@ public class InterpreterInfo implements IInterpreterInfo{
                 forcedLibs.add("wxPython");
                 forcedLibs.add("wx");
                 forcedLibs.add("numpy");
+                forcedLibs.add("scipy");
                 forcedLibs.add("Image"); //for PIL
                 
                 //these are the builtins -- apparently sys.builtin_module_names is not ok in linux.
