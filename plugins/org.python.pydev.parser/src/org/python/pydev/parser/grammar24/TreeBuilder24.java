@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.grammarcommon.AbstractTreeBuilder;
 import org.python.pydev.parser.grammarcommon.Decorators;
 import org.python.pydev.parser.grammarcommon.DefaultArg;
@@ -406,7 +407,7 @@ public final class TreeBuilder24 extends AbstractTreeBuilder implements ITreeBui
             return new ImportFrom(makeName(NameTok.ImportModule), aliases, 0); //relative import is always level 0 here (only actually added on version 25)
 
         default:
-            System.out.println("Error at TreeBuilder: default not treated:"+n.getId());
+            Log.log("Error at TreeBuilder: default not treated:"+n.getId());
             return null;
         }
     }

@@ -83,7 +83,7 @@ public class AssistAssignCompletionProposal extends PyCompletionProposal{
 
         } catch (Throwable x) {
             // ignore
-            x.printStackTrace();
+            PydevPlugin.log(x);
         }
     }
 

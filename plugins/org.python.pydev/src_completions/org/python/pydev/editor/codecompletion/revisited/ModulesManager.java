@@ -710,7 +710,7 @@ public abstract class ModulesManager implements IModulesManager {
             if (n != null) {
                 doAddSingleModule(createModulesKey(name, e.f), n);
             } else {
-                System.err.println("The module " + name + " could not be found nor created!");
+                PydevPlugin.log("The module " + name + " could not be found nor created!");
             }
         }
 

@@ -259,7 +259,7 @@ public abstract class PyAction extends Action implements IEditorActionDelegate {
         }catch(IllegalStateException x){
             //ignore, workbench has still not been created
         }
-        e.printStackTrace();
+        PydevPlugin.log(e);
     }
 
 

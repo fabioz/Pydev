@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
+import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.grammarcommon.AbstractTreeBuilder;
 import org.python.pydev.parser.grammarcommon.ComprehensionCollection;
 import org.python.pydev.parser.grammarcommon.Decorators;
@@ -454,7 +455,7 @@ public final class TreeBuilder26 extends AbstractTreeBuilder implements ITreeBui
             return makeImportFrom25Onwards(arity);
             
         default:
-            System.out.println("Error at TreeBuilder: default not treated:"+n.getId());
+            Log.log(("Error at TreeBuilder: default not treated:"+n.getId()));
             return null;
         }
     }

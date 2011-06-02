@@ -8,6 +8,7 @@ package org.python.pydev.parser.grammarcommon;
 
 import java.lang.reflect.Constructor;
 
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.PyParser;
@@ -195,7 +196,7 @@ public final class JJTPythonGrammarState implements IJJTPythonGrammarState{
         } catch (ParseException exc) {
             throw exc;
         } catch (Exception exc) {
-            exc.printStackTrace();
+            Log.log(exc);
             throw new ParseException("Internal error:" + exc);
         }
         if (newNode == null) {

@@ -32,6 +32,7 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ReturnVisitor;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * This class is used to analyse the assigns in the code and bring actual completions for them.
@@ -92,7 +93,7 @@ public class AssignAnalysis {
             } catch (CompletionRecursionException e) {
                 //thats ok
             } catch (Exception e) {
-                e.printStackTrace();
+                PydevPlugin.log(e);
                 throw new RuntimeException("Error when getting assign completions for:"+module.getName(), e);
             } catch (Throwable t) {
                 throw new RuntimeException("A throwable exception has been detected "+t.getClass());

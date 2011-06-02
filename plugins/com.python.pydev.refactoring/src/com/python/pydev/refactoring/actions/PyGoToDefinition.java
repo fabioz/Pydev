@@ -217,7 +217,6 @@ public class PyGoToDefinition extends PyRefactorAction {
                 return defs;
             }
         } catch (Exception e) {
-            e.printStackTrace();
             PydevPlugin.log(e);
             String msg = e.getMessage();
             if(msg == null){

@@ -221,7 +221,7 @@ public class PyCoverage {
             }
 
         } catch (Exception e1) {
-            e1.printStackTrace();
+            PydevPlugin.log(e1);
             throw new RuntimeException(e1);
         }
     }
@@ -315,7 +315,7 @@ public class PyCoverage {
                 }
                 
             } catch (Exception e) {
-                e.printStackTrace();
+                PydevPlugin.log(e);
             }
         }
     }
