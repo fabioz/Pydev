@@ -15,7 +15,6 @@ import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
@@ -141,53 +140,34 @@ public class InterpreterObserver implements IInterpreterObserver {
             }
             i++;
 
-            if (key.file != null) { //otherwise it should be treated as a compiled module (no ast generation)
+            if (PythonPathHelper.canAddAstInfoFor(key)) { //otherwise it should be treated as a compiled module (no ast generation)
 
-                if (key.file.exists()) {
+                if(i % 17 == 0){
+                    msgBuffer.clear();
+                    msgBuffer.append("Creating ");
+                    msgBuffer.append(additionalFeedback);
+                    msgBuffer.append(" additional info (" );
+                    msgBuffer.append(i );
+                    msgBuffer.append(" of " );
+                    msgBuffer.append(allModules.length );
+                    msgBuffer.append(") for " );
+                    msgBuffer.append(key.file.getName());
+                    monitor.setTaskName(msgBuffer.toString());
+                    monitor.worked(1);
+                }
 
-                    boolean isZipModule = key instanceof ModulesKeyForZip;
-                    ModulesKeyForZip modulesKeyForZip = null;
-                    if(isZipModule){
-                        modulesKeyForZip = (ModulesKeyForZip) key;
-                        if(DEBUG_INTERPRETER_OBSERVER){
-                            System.out.println("Found zip: "+modulesKeyForZip.file+" - "+modulesKeyForZip.zipModulePath+" - "+modulesKeyForZip.name);
-                        }
+                try {
+                    if (info.addAstInfo(key, false) == null) {
+                        String str = "Unable to generate ast -- using %s.\nError:%s";
+                        ErrorDescription errorDesc = null;
+                        throw new RuntimeException(StringUtils.format(str, 
+                                PyParser.getGrammarVersionStr(grammarVersion),
+                                (errorDesc!=null && errorDesc.message!=null)?
+                                        errorDesc.message:"unable to determine"));
                     }
-                    
-                    if (PythonPathHelper.isValidSourceFile(key.file.getName()) || 
-                            (isZipModule && PythonPathHelper.isValidSourceFile(modulesKeyForZip.zipModulePath))) {
-                        
-                        
-                        if(i % 17 == 0){
-                            msgBuffer.clear();
-                            msgBuffer.append("Creating ");
-                            msgBuffer.append(additionalFeedback);
-                            msgBuffer.append(" additional info (" );
-                            msgBuffer.append(i );
-                            msgBuffer.append(" of " );
-                            msgBuffer.append(allModules.length );
-                            msgBuffer.append(") for " );
-                            msgBuffer.append(key.file.getName());
-                            monitor.setTaskName(msgBuffer.toString());
-                            monitor.worked(1);
-                        }
 
-                        try {
-                            if (info.addAstInfo(key, false) == null) {
-                                String str = "Unable to generate ast -- using %s.\nError:%s";
-                                ErrorDescription errorDesc = null;
-                                throw new RuntimeException(StringUtils.format(str, 
-                                        PyParser.getGrammarVersionStr(grammarVersion),
-                                        (errorDesc!=null && errorDesc.message!=null)?
-                                                errorDesc.message:"unable to determine"));
-                            }
-
-                        } catch (Throwable e) {
-                            PydevPlugin.log(IStatus.ERROR, "Problem parsing the file :" + key.file + ".", e);
-                        }
-                    }
-                } else {
-                    PydevPlugin.log("The file :" + key.file + " does not exist, but is marked as existing in the pydev code completion.");
+                } catch (Throwable e) {
+                    PydevPlugin.log(IStatus.ERROR, "Problem parsing the file :" + key.file + ".", e);
                 }
             }
         }

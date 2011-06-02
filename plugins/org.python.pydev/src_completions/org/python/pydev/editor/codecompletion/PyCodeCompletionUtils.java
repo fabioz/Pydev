@@ -27,7 +27,7 @@ public class PyCodeCompletionUtils {
      * @return the completions to show to the user
      */
     public static ICompletionProposal[] onlyValidSorted(List pythonAndTemplateProposals, String qualifier, boolean onlyForCalltips) {
-        //FOURTH: Now, we have all the proposals, only thing is deciding wich ones are valid (depending on
+        //FOURTH: Now, we have all the proposals, only thing is deciding which ones are valid (depending on
         //qualifier) and sorting them correctly.
         Map<String, List<ICompletionProposal>> returnProposals = new HashMap<String, List<ICompletionProposal>>();
         String lowerCaseQualifier = qualifier.toLowerCase();

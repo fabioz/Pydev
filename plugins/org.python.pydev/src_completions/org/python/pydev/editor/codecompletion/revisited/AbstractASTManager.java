@@ -1214,7 +1214,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                         //from ..bar import 
                         relative += "."+modName;
                     }
+                    
                     if(!AbstractVisitor.isWildImport(importFrom)){
+                        tok = FullRepIterable.getLastPart(token.originalRep);
                         relative += "."+tok;
                     }
                     

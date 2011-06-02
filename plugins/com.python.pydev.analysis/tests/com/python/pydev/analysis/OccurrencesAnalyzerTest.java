@@ -37,7 +37,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testRelativeWithWildCard();
+            analyzer2.testRelImport();
             analyzer2.tearDown();
             System.out.println("finished");
             

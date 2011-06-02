@@ -1666,9 +1666,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         synchronized (currentlyOpenedEditorsLock) {
             for(PyEdit edit:currentlyOpenedEditors){
                 IEditorInput input=edit.getEditorInput();
-                Object adapter = input.getAdapter(IResource.class);
-                if(adapter != null && r.equals(adapter)){
-                    return true;
+                if(input != null){
+                    Object adapter = input.getAdapter(IResource.class);
+                    if(adapter != null && r.equals(adapter)){
+                        return true;
+                    }
                 }
             }
         }

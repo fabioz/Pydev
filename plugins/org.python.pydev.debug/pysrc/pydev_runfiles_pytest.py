@@ -160,19 +160,24 @@ class PydevPlugin:
                             #any error in the call (not in setup or teardown) is considered a regular failure.
                             status = 'fail'
                         
-                    if r.longrepr:
+                    if hasattr(r, 'longrepr') and r.longrepr:
                         rep = r.longrepr
-                        reprcrash = rep.reprcrash
-                        error_contents += str(reprcrash)
-                        error_contents += '\n'
-                        error_contents += str(rep.reprtraceback)
-                        for name, content, sep in rep.sections:
-                            error_contents += sep * 40 
-                            error_contents += name 
-                            error_contents += sep * 40 
+                        if hasattr(rep, 'reprcrash'):
+                            reprcrash = rep.reprcrash
+                            error_contents += str(reprcrash)
                             error_contents += '\n'
-                            error_contents += content 
-                            error_contents += '\n'
+                            
+                        if hasattr(rep, 'reprtraceback'):
+                            error_contents += str(rep.reprtraceback)
+                            
+                        if hasattr(rep, 'sections'):
+                            for name, content, sep in rep.sections:
+                                error_contents += sep * 40 
+                                error_contents += name 
+                                error_contents += sep * 40 
+                                error_contents += '\n'
+                                error_contents += content 
+                                error_contents += '\n'
                 
                 self.reportCond(status, filename, test, captured_output, error_contents, delta)
                 
