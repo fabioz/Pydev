@@ -26,6 +26,8 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
@@ -544,6 +546,24 @@ public class PythonPathHelper implements IPythonPathHelper {
      */
     public void saveToFile(File pythonpatHelperFile) {
         REF.writeStrToFile(StringUtils.join("\n", this.pythonpath), pythonpatHelperFile);
+    }
+
+    public static boolean canAddAstInfoFor(ModulesKey key) {
+        if(key.file != null && key.file.exists()){
+            
+            if (PythonPathHelper.isValidSourceFile(key.file.getName())){
+                return true;
+            }
+            
+            boolean isZipModule = key instanceof ModulesKeyForZip;
+            if(isZipModule){
+                ModulesKeyForZip modulesKeyForZip = (ModulesKeyForZip) key;
+                if(PythonPathHelper.isValidSourceFile(modulesKeyForZip.zipModulePath)){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }
