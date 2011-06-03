@@ -645,8 +645,9 @@ public final class FastDefinitionsParser {
         }catch(SyntaxErrorException e){
             throw new RuntimeException(e);
         }catch(StackOverflowError e){
-            Log.log("Error parsing: "+moduleName+"\nContents:\n"+new String(cs), e);
-            throw new RuntimeException(e);
+            RuntimeException runtimeException = new RuntimeException(e);
+            Log.log("Error parsing: "+moduleName+"\nContents:\n"+new String(cs, 0, cs.length>1000?1000:cs.length), runtimeException); //report at most 1000 chars...
+            throw runtimeException;
         }
         List<stmtType> body = parser.body;
         Module ret = new Module(body.toArray(new stmtType[body.size()]));

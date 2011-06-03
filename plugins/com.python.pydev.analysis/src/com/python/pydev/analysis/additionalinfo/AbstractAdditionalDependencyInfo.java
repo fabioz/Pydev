@@ -33,6 +33,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.ModulesKeyTreeMap;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
@@ -184,8 +185,21 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                 if(lastModified != 0){
                     tempKey.key = next;
                     CompleteIndexKey completeIndexKey = keys.get(tempKey);
-                    if (completeIndexKey == null || completeIndexKey.lastModified != lastModified) {
-                        newKeys.add(next);
+                    boolean canAddAstInfoFor = PythonPathHelper.canAddAstInfoFor(next);
+                    if (completeIndexKey == null) {
+                        if(canAddAstInfoFor){
+                            newKeys.add(next);
+                        }
+                    }else{
+                        if(canAddAstInfoFor){
+                            if(completeIndexKey.lastModified != lastModified){
+                                //Just re-add it if the time changed!
+                                newKeys.add(next);
+                            }
+                        }else{
+                            //It's there but it's not valid: Remove it!
+                            removedKeys.add(next);
+                        }
                     }
                 }
             }
@@ -194,7 +208,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         Iterator<CompleteIndexKey> it2 = keys.values().iterator();
         while (it2.hasNext()) {
             CompleteIndexKey next = it2.next();
-            if (!keysFound.containsKey(next.key)) {
+            if (!keysFound.containsKey(next.key) || !PythonPathHelper.canAddAstInfoFor(next.key)) {
                 removedKeys.add(next.key);
             }
         }
@@ -252,19 +266,15 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             
             //Already iterating in a copy! Important: MUST iterate in the values, as the key may have the outdated value.
             for(CompleteIndexKey indexKey : completeIndex.keys().values()){ 
-                if(DEBUG){
-                    if(indexKey.key.toString().contains("foo")){
-                        System.out.println("getModulesWithToken: "+indexKey.key+" Searching: "+token);
-                    }
-                }
                 if(monitor.isCanceled()){
                     return ret;
                 }
                 monitor.worked(1);
                 
                 CompleteIndexValue obj = completeIndex.getObj(indexKey);
+                boolean canAddAstInfoFor = PythonPathHelper.canAddAstInfoFor(indexKey.key);
                 if(obj == null){
-                    if(indexKey.key.file.exists()){
+                    if(canAddAstInfoFor){
                         try {
                             //Should be there (recreate the entry in the index and in the actual AST)
                             this.addAstInfo(indexKey.key, true);
@@ -275,7 +285,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                         obj = new CompleteIndexValue();
                     }else{
                         if(DEBUG){
-                            System.out.println("Removing (file does not exist): "+indexKey.key.name);
+                            System.out.println("Removing (file does not exist or is not a valid source module): "+indexKey.key.name);
                         }
                         this.removeInfoFromModule(indexKey.key.name, true);
                         continue; 
@@ -283,14 +293,16 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                 }
                 
                 long lastModified = indexKey.key.file.lastModified();
-                if(lastModified == 0){
-                    //File no longer exists.
+                if(lastModified == 0 || !canAddAstInfoFor){
+                    //File no longer exists or is not a valid source module.
                     if(DEBUG){
-                        System.out.println("Removing (file no longer exists): "+indexKey.key.name+" indexKey.key.file: "+indexKey.key.file+" exists: "+indexKey.key.file.exists());
+                        System.out.println("Removing (file no longer exists or is not a valid source module): "+indexKey.key.name+" indexKey.key.file: "+indexKey.key.file+" exists: "+indexKey.key.file.exists());
                     }
                     this.removeInfoFromModule(indexKey.key.name, true);
                     continue;
                 }
+                
+                //if it got here, it must be a valid source module!
                 
                 if(obj.entries != null){
                     if(lastModified != indexKey.lastModified){
