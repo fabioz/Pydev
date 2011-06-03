@@ -290,4 +290,12 @@ public class DjContentAssistProcessor implements IContentAssistProcessor, ICommo
         return false;
     }
 
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.editor.common.contentassist.ICommonContentAssistProcessor#dispose()
+	 */
+	public void dispose()
+	{
+	}
+
 }
