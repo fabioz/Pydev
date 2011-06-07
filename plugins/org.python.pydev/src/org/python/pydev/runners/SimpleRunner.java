@@ -418,13 +418,16 @@ public class SimpleRunner {
             std.start();
             err.start();
             
-            
-            try {
-                monitor.setTaskName("Waiting for process to finish.");
-                monitor.worked(5);
-                process.waitFor(); //wait until the process completion.
-            } catch (InterruptedException e1) {
-                throw new RuntimeException(e1);
+            boolean interrupted = true;
+            while(interrupted){
+                interrupted = false;
+                try {
+                    monitor.setTaskName("Waiting for process to finish.");
+                    monitor.worked(5);
+                    process.waitFor(); //wait until the process completion.
+                } catch (InterruptedException e1) {
+                    interrupted = true;
+                }
             }
 
             try {
