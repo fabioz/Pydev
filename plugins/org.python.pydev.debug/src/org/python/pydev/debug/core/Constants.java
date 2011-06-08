@@ -67,5 +67,7 @@ public interface Constants {
     //Constants for pydev debug, break on exception
 	public static String EXCEPTION_FILE_NAME = "python_exceptions.prefs";
 	public static String CUSTOM_EXCEPTION_FILE_NAME = "custom_exceptions.prefs";
+	public static String BREAK_ON_CAUGHT_EXCEPTION = "caught_exception_state.prefs";
+	public static String BREAK_ON_UNCAUGHT_EXCEPTION = "uncaught_exception_state.prefs";
     
 }

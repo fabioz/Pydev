@@ -7,6 +7,7 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          CMD_GET_COMPLETIONS, \
                          CMD_GET_FRAME, \
                          CMD_SET_PY_EXCEPTION, \
+                         CMD_SET_PY_EXCEPTION_STATE, \
                          CMD_GET_VARIABLE, \
                          CMD_LIST_THREADS, \
                          CMD_REMOVE_BREAK, \
@@ -40,7 +41,9 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          PydevdFindThreadById, \
                          PydevdLog, \
                          StartClient, \
-                         StartServer
+                         StartServer, \
+                         set_handle_exceptions, \
+                         set_break_on_uncaught_exceptions
 
 from pydevd_file_utils import NormFileToServer, GetFilenameAndBase
 import importsTipper
@@ -128,11 +131,16 @@ class PyDBCommandThread(PyDBDaemonThread):
 
 _original_excepthook = None
 _handle_exceptions = None
+_break_on_uncaught_exceptions = False
+
 
 #=======================================================================================================================
 # excepthook
 #=======================================================================================================================
 def excepthook(exctype, value, tb):
+    if not _break_on_uncaught_exceptions:
+         return _original_excepthook(exctype, value, tb)
+
     if _handle_exceptions is not None:
         if not issubclass(exctype, _handle_exceptions):
             return _original_excepthook(exctype, value, tb)
@@ -212,10 +220,18 @@ def create_exceptions(exceptionStr):
         except:
             continue
 
-    if handle_exceptions:
-        sys.stderr.write("Exceptions to hook : %s"%(str(handle_exceptions)))
-        set_pm_excepthook(tuple(handle_exceptions))
+    sys.stderr.write("Exceptions to hook : %s"%(str(handle_exceptions)))
+    set_handle_exceptions(tuple(handle_exceptions))
+    set_pm_excepthook(tuple(handle_exceptions))
+        
 
+def set_exception_status(break_on_uncaught, break_on_caught):
+    '''
+    Allows to enable/diable breaking debugger on caught/uncaught.
+    '''
+    global _break_on_uncaught_exceptions
+    _break_on_uncaught_exceptions = break_on_uncaught
+    set_break_on_uncaught_exceptions(break_on_caught)
 
 try:
     import thread
@@ -680,7 +696,21 @@ class PyDB:
                     # Command which receives set of exceptions on which user wants to break the debugger
                     # text is: ['TypeError','ImportError','zipimport.ZipImportError',]
                     create_exceptions(text)
-                        
+
+                elif cmd_id == CMD_SET_PY_EXCEPTION_STATE:
+                    # Command which receives whether to break or not on the caught/uncaught exceptions
+                    # text is: UnCaughtExceptionState;CaughtExceptionState
+                    breakOnUncaught = False     # Default status for Break on Uncaught exception is false
+                    breakOnCaught = False       # Default status for Break on caught exception is false
+                    statusList = text.split(";")
+                    if len(statusList) == 2:
+                        if statusList[0] == 'true':
+                            breakOnUncaught = True
+                        if statusList[1] == 'true':
+                            breakOnCaught = True
+                    set_exception_status(breakOnUncaught, breakOnCaught)
+
+
                 else:
                     #I have no idea what this is all about
                     cmd = self.cmdFactory.makeErrorMessage(seq, "unexpected command " + str(cmd_id))
@@ -745,7 +775,7 @@ class PyDB:
                 frame.f_trace = self.trace_dispatch
             SetTraceForParents(frame, self.trace_dispatch)
             
-            if event == 'line':
+            if event == 'line' or event == 'exception':
                 #If we're already in the correct context, we have to stop it now, because we can act only on
                 #line events -- if a return was the next statement it wouldn't work (so, we have this code
                 #repeated at pydevd_frame). 

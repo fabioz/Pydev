@@ -72,8 +72,4 @@
       <initializer class="com.python.pydev.debug.DebugPluginPrefsInitializer"/>
 </extension>
 
-<extension point="org.python.pydev.debug.pydev_configure_exception">
-      <configure_exception_participant class="org.python.pydev.debug.ui.actions.PyConfigureException"/>
-</extension>
-
 </plugin>

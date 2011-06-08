@@ -54,7 +54,6 @@ public class ExtensionHelper {
 
     //debug
     public static final String PYDEV_DEBUG_CONSOLE_INPUT_LISTENER = "org.python.pydev.debug.pydev_debug_console_input_listener";
-    public static final String PYDEV_CONFIGURE_EXCEPTION = "org.python.pydev.debug.pydev_configure_exception";
 
 
     
