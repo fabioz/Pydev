@@ -9,16 +9,14 @@ package org.python.pydev.django_templates.css.editor;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.swt.widgets.Composite;
-import org.python.pydev.django_templates.IDjConstants;
+import org.python.pydev.django_templates.DjPlugin;
 import org.python.pydev.django_templates.editor.DjEditor;
 import org.python.pydev.utils.ICallback;
 
 import com.aptana.editor.common.outline.CommonOutlinePage;
-import com.aptana.editor.common.parsing.FileService;
 import com.aptana.editor.css.CSSSourceEditor;
 import com.aptana.editor.css.outline.CSSOutlineContentProvider;
 import com.aptana.editor.css.outline.CSSOutlineLabelProvider;
-import com.aptana.parsing.ParseState;
 
 /**
  * @author Fabio Zadrozny
@@ -45,7 +43,7 @@ public class DjCssEditor extends CSSSourceEditor {
         });
         
         setSourceViewerConfiguration(new DjCssSourceViewerConfiguration(this.djEditor.getChainedPrefStore(), this));
-        setDocumentProvider(new DjCssDocumentProvider());
+        setDocumentProvider(DjPlugin.getDefault().getDjCSSDocumentProvider());
     }
     
     @Override

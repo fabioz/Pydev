@@ -10,6 +10,7 @@ package org.python.pydev.django_templates.html.editor;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.swt.widgets.Composite;
+import org.python.pydev.django_templates.DjPlugin;
 import org.python.pydev.django_templates.IDjConstants;
 import org.python.pydev.django_templates.editor.DjEditor;
 import org.python.pydev.django_templates.html.outline.DjHTMLOutlineContentProvider;
@@ -49,7 +50,7 @@ public class DjHTMLEditor extends HTMLEditor {
         });
         
         setSourceViewerConfiguration(new DjHTMLSourceViewerConfiguration(this.djEditor.getChainedPrefStore(), this));
-        setDocumentProvider(new DjHTMLDocumentProvider());
+        setDocumentProvider(DjPlugin.getDefault().getDjHTMLDocumentProvider());
     }
     
     @Override

@@ -7,10 +7,13 @@
 package org.python.pydev.django_templates;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.osgi.framework.BundleContext;
 import org.python.pydev.core.bundle.BundleInfo;
 import org.python.pydev.core.bundle.IBundleInfo;
 import org.python.pydev.core.bundle.ImageCache;
+import org.python.pydev.django_templates.css.editor.DjCssDocumentProvider;
+import org.python.pydev.django_templates.html.editor.DjHTMLDocumentProvider;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -22,6 +25,10 @@ public class DjPlugin extends AbstractUIPlugin {
 
     // The shared instance
     private static DjPlugin plugin;
+    
+    private IDocumentProvider djcssDocumentProvider;
+    private IDocumentProvider djhtmlDocumentProvider;
+
     
     // ----------------- SINGLETON THINGS -----------------------------
     public static IBundleInfo info;
@@ -80,6 +87,28 @@ public class DjPlugin extends AbstractUIPlugin {
      */
     public static DjPlugin getDefault() {
         return plugin;
+    }
+
+    /**
+     * Returns DjCSS document provider
+     * @return
+     */
+    public synchronized IDocumentProvider getDjCSSDocumentProvider() {
+    	if (djcssDocumentProvider == null) {
+    		djcssDocumentProvider = new DjCssDocumentProvider();
+    	}
+    	return djcssDocumentProvider;
+    }
+
+    /**
+     * Returns DjHTML document provider
+     * @return
+     */
+    public synchronized IDocumentProvider getDjHTMLDocumentProvider() {
+    	if (djhtmlDocumentProvider == null) {
+    		djhtmlDocumentProvider = new DjHTMLDocumentProvider();
+    	}
+    	return djhtmlDocumentProvider;
     }
 
 }
