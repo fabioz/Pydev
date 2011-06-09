@@ -6,6 +6,7 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          CMD_EXEC_EXPRESSION, \
                          CMD_GET_COMPLETIONS, \
                          CMD_GET_FRAME, \
+                         CMD_SET_PY_EXCEPTION, \
                          CMD_GET_VARIABLE, \
                          CMD_LIST_THREADS, \
                          CMD_REMOVE_BREAK, \
@@ -45,6 +46,7 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          InternalSetNextStatementThread
 
 from pydevd_file_utils import NormFileToServer, GetFilenameAndBase
+import importsTipper
 import pydevd_vars
 import traceback 
 import pydevd_vm_type 
@@ -128,18 +130,22 @@ class PyDBCommandThread(PyDBDaemonThread):
             
 
 _original_excepthook = None
-_handle_exceptions = None
+
 
 #=======================================================================================================================
 # excepthook
 #=======================================================================================================================
 def excepthook(exctype, value, tb):
-    if _handle_exceptions is not None:
-        if not issubclass(exctype, _handle_exceptions):
-            return _original_excepthook(exctype, value, tb)
-    
     #Always call the original excepthook before going on to call the debugger post mortem to show it.
     _original_excepthook(exctype, value, tb)
+    
+    debugger = GetGlobalDebugger()
+    if debugger is None or not debugger.break_on_uncaught:
+        return
+
+    if debugger.handle_exceptions is not None:
+        if not issubclass(exctype, debugger.handle_exceptions):
+            return
     
     frames = []
     
@@ -160,32 +166,10 @@ def excepthook(exctype, value, tb):
 #=======================================================================================================================
 def set_pm_excepthook(handle_exceptions=None):
     '''
-    Should be called to register the excepthook to be used.
-    
-    It's only useful for uncaught exceptions. I.e.: exceptions that go up to the excepthook.
-    
-    Can receive a parameter to stop only on some exceptions.
-    
-    E.g.: 
-        set_pm_excepthook((IndexError, ValueError))
-        
-        or 
-        
-        set_pm_excepthook(IndexError)
-        
-        if passed without a parameter, will break on any exception
-    
-    @param handle_exceptions: exception or tuple(exceptions)
-        The exceptions that should be handled.
+    This function is now deprecated (PyDev provides an UI to handle that now).
     '''
-    global _handle_exceptions
-    global _original_excepthook
-    if sys.excepthook != excepthook:
-        #Only keep the original if it's not our own excepthook (if called many times).
-        _original_excepthook = sys.excepthook
-        
-    _handle_exceptions = handle_exceptions
-    sys.excepthook = excepthook
+    raise DeprecationWarning(
+        'This function is now replaced by GetGlobalDebugger().setExceptHook and is now controlled by the PyDev UI.')
     
 
 try:
@@ -257,6 +241,9 @@ class PyDB:
         self.internalQueueLock = threading.Lock()
         self._finishDebuggingSession = False
         self.force_post_mortem_stop = 0
+        self.break_on_uncaught = False
+        self.break_on_caught = False
+        self.handle_exceptions = None
         
         
     def FinishDebuggingSession(self):
@@ -411,6 +398,28 @@ class PyDB:
         finally:
             self.release()
       
+
+    def setTracingForUntracedContexts(self):
+        #Enable the tracing for existing threads (because there may be frames being executed that
+        #are currently untraced).
+        threads = threadingEnumerate()
+        for t in threads:
+            if not t.getName().startswith('pydevd.'):
+                #TODO: optimize so that we only actually add that tracing if it's in
+                #the new breakpoint context.
+                additionalInfo = None
+                try:
+                    additionalInfo = t.additionalInfo
+                except AttributeError:
+                    pass #that's ok, no info currently set
+                    
+                if additionalInfo is not None:
+                    for frame in additionalInfo.IterFrames():
+                        frame.f_trace = self.trace_dispatch
+                        SetTraceForParents(frame, self.trace_dispatch)
+                        del frame
+    
+    
     def processNetCommand(self, cmd_id, seq, text):
         '''Processes a command received from the Java side
         
@@ -598,25 +607,7 @@ class PyDB:
                     
                         
                     self.breakpoints[file] = breakDict
-                    
-                    #and enable the tracing for existing threads (because there may be frames being executed that
-                    #are currently untraced).
-                    threads = threadingEnumerate()
-                    for t in threads:
-                        if not t.getName().startswith('pydevd.'):
-                            #TODO: optimize so that we only actually add that tracing if it's in
-                            #the new breakpoint context.
-                            additionalInfo = None
-                            try:
-                                additionalInfo = t.additionalInfo
-                            except AttributeError:
-                                pass #that's ok, no info currently set
-                                
-                            if additionalInfo is not None:
-                                for frame in additionalInfo.IterFrames():
-                                    frame.f_trace = self.trace_dispatch
-                                    SetTraceForParents(frame, self.trace_dispatch)
-                                    del frame
+                    self.setTracingForUntracedContexts()
                     
                 elif cmd_id == CMD_REMOVE_BREAK:
                     #command to remove some breakpoint
@@ -646,8 +637,51 @@ class PyDB:
                     int_cmd = InternalEvaluateExpression(seq, thread_id, frame_id, expression,
                         cmd_id == CMD_EXEC_EXPRESSION)
                     self.postInternalCommand(int_cmd, thread_id)
+
+                elif cmd_id == CMD_SET_PY_EXCEPTION:
+                    # Command which receives set of exceptions on which user wants to break the debugger
+                    # text is: break_on_uncaught;break_on_caught;TypeError;ImportError;zipimport.ZipImportError;
+                    splitted = text.split(';')
+                    if len(splitted) >= 2:
+                    
                         
+                        if splitted[0] == 'true':
+                            break_on_uncaught = True
+                        else:
+                            break_on_uncaught = False
+                            
+                            
+                        if splitted[1] == 'true':
+                            break_on_caught = True
+                        else:
+                            break_on_caught = False
+                            
+                        handle_exceptions = []
+                        for exception_type in splitted[2:]:
+                            exception_type = exception_type.strip()
+                            if not exception_type:
+                                continue
+                            
+                            try:
+                                handle_exceptions.append(eval(exception_type))
+                            except NameError:
+                                try:
+                                    f, mod, parent, foundAs = importsTipper.Find(exception_type)
+                                    handle_exceptions.append(mod)
+                                except ImportError:
+                                    sys.stderr.write("Unable to Import: %s when determining exceptions to break.\n" % (exception_type,))
+                            except:
+                                traceback.print_exc()
+                                continue
                         
+                        sys.stderr.write("Exceptions to hook : %s\n" % (handle_exceptions,))
+                        self.setExceptHook(tuple(handle_exceptions), break_on_uncaught, break_on_caught)
+                        self.setTracingForUntracedContexts()
+                        
+                    else:
+                        sys.stderr.write("Error when setting exception list. Received: %s\n" % (text,))
+
+
                 else:
                     #I have no idea what this is all about
                     cmd = self.cmdFactory.makeErrorMessage(seq, "unexpected command " + str(cmd_id))
@@ -664,6 +698,46 @@ class PyDB:
                 self.writer.addCommand(cmd)
         finally:
             self.release()
+            
+            
+    def setExceptHook(self, handle_exceptions, break_on_uncaught, break_on_caught):
+        '''
+        Should be called to set the exceptions to be handled and whether it should break on uncaught and
+        caught exceptions.
+        
+        Can receive a parameter to stop only on some exceptions.
+        
+        E.g.: 
+            set_pm_excepthook((IndexError, ValueError), True, True)
+            
+            or 
+            
+            set_pm_excepthook(IndexError, True, False)
+            
+            if passed without a parameter, will break on any exception
+        
+        @param handle_exceptions: exception or tuple(exceptions)
+            The exceptions that should be handled.
+            
+        @param break_on_uncaught bool
+            Whether it should break on uncaught exceptions.
+        
+        @param break_on_caught: bool
+            Whether it should break on caught exceptions.
+        '''
+        global _original_excepthook
+        if sys.excepthook != excepthook:
+            #Only keep the original if it's not our own excepthook (if called many times).
+            _original_excepthook = sys.excepthook
+            
+        self.handle_exceptions = handle_exceptions
+        
+        #Note that we won't set to break if we don't have any exception to break on
+        self.break_on_uncaught = handle_exceptions and break_on_uncaught
+        self.break_on_caught = handle_exceptions and break_on_caught
+        sys.excepthook = excepthook
+        
+
 
     def processThreadNotAlive(self, threadId):
         """ if thread is not alive, cancel trace_dispatch processing """
@@ -712,7 +786,7 @@ class PyDB:
                 frame.f_trace = self.trace_dispatch
             SetTraceForParents(frame, self.trace_dispatch)
             
-            if event == 'line':
+            if event == 'line' or event == 'exception':
                 #If we're already in the correct context, we have to stop it now, because we can act only on
                 #line events -- if a return was the next statement it wouldn't work (so, we have this code
                 #repeated at pydevd_frame). 
