@@ -673,8 +673,10 @@ class PyDB:
                             except:
                                 traceback.print_exc()
                                 continue
-                        
-                        sys.stderr.write("Exceptions to hook : %s\n" % (handle_exceptions,))
+                            
+                        if DEBUG_TRACE_BREAKPOINTS > 0:
+                            sys.stderr.write("Exceptions to hook : %s\n" % (handle_exceptions,))
+                            
                         self.setExceptHook(tuple(handle_exceptions), break_on_uncaught, break_on_caught)
                         self.setTracingForUntracedContexts()
                         
