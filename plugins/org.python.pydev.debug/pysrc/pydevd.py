@@ -46,7 +46,7 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          InternalSetNextStatementThread
 
 from pydevd_file_utils import NormFileToServer, GetFilenameAndBase
-import importsTipper
+import pydevd_import_class
 import pydevd_vars
 import traceback 
 import pydevd_vm_type 
@@ -289,7 +289,7 @@ class PyDB:
         except KeyError:
             self.internalQueueLock.acquire()
             try:
-                self.cmdQueue[thread_id] = PydevQueue.Queue()
+                self.cmdQueue[thread_id] = PydevQueue.Queue() #@UndefinedVariable
                 all_threads = threading.enumerate()
                 cmd = None
                 for t in all_threads:
@@ -376,7 +376,7 @@ class PyDB:
                                 PydevdLog(2, "NOT processing internal command ", str(int_cmd))
                                 cmdsToReadd.append(int_cmd)
                                 
-                    except PydevQueue.Empty:
+                    except PydevQueue.Empty: #@UndefinedVariable
                         for int_cmd in cmdsToReadd:
                             queue.put(int_cmd)
                         # this is how we exit
@@ -666,8 +666,7 @@ class PyDB:
                                 handle_exceptions.append(eval(exception_type))
                             except:
                                 try:
-                                    f, mod, parent, foundAs = importsTipper.Find(exception_type)
-                                    handle_exceptions.append(mod)
+                                    handle_exceptions.append(pydevd_import_class.ImportName(exception_type))
                                 except:
                                     sys.stderr.write("Unable to Import: %s when determining exceptions to break.\n" % (exception_type,))
                             
@@ -922,7 +921,7 @@ class PyDB:
             if hasattr(sys, 'exc_clear'): #jython does not have it
                 sys.exc_clear() #don't keep the traceback (let's keep it clear for when we go to the point of executing client code)
                 
-            if not sys.platform.startswith("java") and not sys.platform.startswith("cli"):
+            if not IS_PY3K and not IS_PY27 and not IS_64_BITS and not sys.platform.startswith("java") and not sys.platform.startswith("cli"):
                 sys.stderr.write("pydev debugger: warning: psyco not available for speedups (the debugger will still work correctly, but a bit slower)\n")
             
 
