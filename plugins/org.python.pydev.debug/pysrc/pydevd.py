@@ -664,15 +664,12 @@ class PyDB:
                             
                             try:
                                 handle_exceptions.append(eval(exception_type))
-                            except NameError:
+                            except:
                                 try:
                                     f, mod, parent, foundAs = importsTipper.Find(exception_type)
                                     handle_exceptions.append(mod)
-                                except ImportError:
+                                except:
                                     sys.stderr.write("Unable to Import: %s when determining exceptions to break.\n" % (exception_type,))
-                            except:
-                                traceback.print_exc()
-                                continue
                             
                         if DEBUG_TRACE_BREAKPOINTS > 0:
                             sys.stderr.write("Exceptions to hook : %s\n" % (handle_exceptions,))
