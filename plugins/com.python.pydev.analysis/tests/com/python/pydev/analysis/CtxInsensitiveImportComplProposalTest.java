@@ -18,7 +18,7 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
         try {
             CtxInsensitiveImportComplProposalTest analyzer2 = new CtxInsensitiveImportComplProposalTest();
             analyzer2.setUp();
-            analyzer2.testApplyLocal();
+            analyzer2.testApplyLocal4();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -198,6 +198,69 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
                 "", doc.get());
     }
     
+    
+    public void testApplyLocal2() throws Exception {
+        Document doc = new Document(
+                "def m1():\n" +
+                "\tdef another():\n" +
+                "\t\t" +
+                "");
+        
+        CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("BBB", 
+                doc.getLength(), 0, doc.getLength(), null, "Import BBB (from XXX)", null, 
+                null, 0, "from XXX import BBB");
+        
+        prop.setAddLocalImport(true);
+        prop.indentString="\t";
+        prop.apply(doc, '\n', 0, doc.getLength());
+        assertEquals("" +
+                "def m1():\n" +
+                "\tdef another():\n" +
+                "\t\tfrom XXX import BBB\n" +
+                "\t\tBBB" +
+                "", doc.get());
+    }
+    
+
+    public void testApplyLocal3() throws Exception {
+        Document doc = new Document(
+                "def m1():\n" +
+                "\tdef another():\n" +
+                "\t\tcall(\n" +
+                "\t\t\tra, " +
+                "");
+        
+        CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("BBB", 
+                doc.getLength(), 0, doc.getLength(), null, "Import BBB (from XXX)", null, 
+                null, 0, "from XXX import BBB");
+        
+        prop.setAddLocalImport(true);
+        prop.indentString="\t";
+        prop.apply(doc, '\n', 0, doc.getLength());
+        assertEquals("" +
+                "def m1():\n" +
+                "\tdef another():\n" +
+                "\t\tfrom XXX import BBB\n" +
+                "\t\tcall(\n" +
+                "\t\t\tra, BBB" +
+                "", doc.get());
+    }
+    
+    public void testApplyLocal4() throws Exception {
+        Document doc = new Document("");
+        
+        CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("BBB", 
+                doc.getLength(), 0, doc.getLength(), null, "Import BBB (from XXX)", null, 
+                null, 0, "from XXX import BBB");
+        
+        prop.setAddLocalImport(true);
+        prop.indentString="\t";
+        prop.apply(doc, '\n', 0, doc.getLength());
+        assertEquals("" +
+                "from XXX import BBB\n" +
+                "BBB" +
+                "", doc.get().replace("\r\n", "\n").replace('\r', '\n'));
+    }
     
     
 }

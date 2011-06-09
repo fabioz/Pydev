@@ -27,8 +27,8 @@ import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.core.docutils.ImportNotRecognizedException;
 import org.python.pydev.core.docutils.PyImportsHandling;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
@@ -139,6 +139,18 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
             
             boolean groupImports = ImportsPreferencesPage.getGroupImports();
             
+            LineStartingScope previousLineThatStartsScope = null;
+            PySelection ps = null;
+            if(this.addLocalImport){
+                ps = new PySelection(document, offset);
+                previousLineThatStartsScope = ps.getPreviousLineThatStartsScope(ps.getStartLineIndex());
+                if(previousLineThatStartsScope == null){
+                    //note that if we have no previous scope, it means we're actually on the global scope, so,
+                    //proceed as usual...
+                    this.addLocalImport = false;
+                }
+            }
+            
             if (realImportRep.length() > 0 && !this.addLocalImport){
                 
                 //Workaround for: https://sourceforge.net/tracker/?func=detail&aid=2697165&group_id=85796&atid=577329
@@ -209,13 +221,19 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
             }
             if(this.addLocalImport){
                 try {
-                    PySelection ps = new PySelection(document, offset);
-                    int i = PySelection.getFirstCharPosition(ps.getLine());
-                    String indent = new FastStringBuffer(i).appendN(' ', i).toString();
-                    String strToAdd = indent+realImportRep+delimiter;
-                    ps.addLine(strToAdd, ps.getCursorLine()-1);
-                    importLen = strToAdd.length();
-                    return;
+                    int iLineStartingScope;
+                    if(previousLineThatStartsScope != null){
+                        iLineStartingScope = previousLineThatStartsScope.iLineStartingScope;
+                        
+                        String line = ps.getLine(iLineStartingScope+1);
+                        
+                        int i = PySelection.getFirstCharPosition(line);
+                        String indent = line.substring(0, i);
+                        String strToAdd = indent+realImportRep+delimiter;
+                        ps.addLine(strToAdd, iLineStartingScope);
+                        importLen = strToAdd.length();
+                        return;
+                    }
                 } catch (Exception e) {
                     Log.log(e); //Something went wrong, add it as global (i.e.: BUG)
                 }
