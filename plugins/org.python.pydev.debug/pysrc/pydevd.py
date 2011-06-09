@@ -415,8 +415,7 @@ class PyDB:
                     
                 if additionalInfo is not None:
                     for frame in additionalInfo.IterFrames():
-                        frame.f_trace = self.trace_dispatch
-                        SetTraceForParents(frame, self.trace_dispatch)
+                        self.SetTraceForFrameAndParents(frame)
                         del frame
     
     
@@ -467,8 +466,7 @@ class PyDB:
                             
                         if additionalInfo is not None:
                             for frame in additionalInfo.IterFrames():
-                                frame.f_trace = self.trace_dispatch
-                                SetTraceForParents(frame, self.trace_dispatch)
+                                self.SetTraceForFrameAndParents(frame)
                                 del frame
                             
                         self.setSuspend(t, CMD_THREAD_SUSPEND)
@@ -775,14 +773,10 @@ class PyDB:
             
         elif info.pydev_step_cmd == CMD_STEP_OVER:
             info.pydev_step_stop = frame
-            if frame.f_trace is None:
-                frame.f_trace = self.trace_dispatch
-            SetTraceForParents(frame, self.trace_dispatch)
+            self.SetTraceForFrameAndParents(frame)
             
         elif info.pydev_step_cmd == CMD_RUN_TO_LINE or info.pydev_step_cmd == CMD_SET_NEXT_STATEMENT :
-            if frame.f_trace is None:
-                frame.f_trace = self.trace_dispatch
-            SetTraceForParents(frame, self.trace_dispatch)
+            self.SetTraceForFrameAndParents(frame)
             
             if event == 'line' or event == 'exception':
                 #If we're already in the correct context, we have to stop it now, because we can act only on
@@ -816,9 +810,7 @@ class PyDB:
             if back_frame is not None:
                 #steps back to the same frame (in a return call it will stop in the 'back frame' for the user)
                 info.pydev_step_stop = frame
-                if frame.f_trace is None:
-                    frame.f_trace = self.trace_dispatch
-                SetTraceForParents(frame, self.trace_dispatch)
+                self.SetTraceForFrameAndParents(frame)
             else:
                 #No back frame?!? -- this happens in jython when we have some frame created from an awt event
                 #(the previous frame would be the awt event, but this doesn't make part of 'jython', only 'java')
@@ -924,6 +916,36 @@ class PyDB:
             if not IS_PY3K and not IS_PY27 and not IS_64_BITS and not sys.platform.startswith("java") and not sys.platform.startswith("cli"):
                 sys.stderr.write("pydev debugger: warning: psyco not available for speedups (the debugger will still work correctly, but a bit slower)\n")
             
+
+
+    def SetTraceForFrameAndParents(self, frame, also_add_to_passed_frame=True):
+        dispatch_func = self.trace_dispatch
+        
+        if also_add_to_passed_frame:
+            if frame.f_trace is None:
+                frame.f_trace = dispatch_func
+            else:
+                try:
+                    #If it's the trace_exception, go back to the frame trace dispatch!
+                    if frame.f_trace.im_func.__name__ == 'trace_exception':
+                        frame.f_trace = frame.f_trace.im_self.trace_dispatch
+                except AttributeError:
+                    pass
+        
+        frame = frame.f_back
+        while frame:
+            if frame.f_trace is None:
+                frame.f_trace = dispatch_func
+            else:
+                try:
+                    #If it's the trace_exception, go back to the frame trace dispatch!
+                    if frame.f_trace.im_func.__name__ == 'trace_exception':
+                        frame.f_trace = frame.f_trace.im_self.trace_dispatch
+                except AttributeError:
+                    pass
+            frame = frame.f_back
+        del frame
+
 
     def run(self, file, globals=None, locals=None):
 
@@ -1042,16 +1064,6 @@ def usage(doExit=0):
 
 
 
-def SetTraceForParents(frame, dispatch_func):
-    frame = frame.f_back
-    while frame:
-        if frame.f_trace is None:
-            frame.f_trace = dispatch_func
-            
-        frame = frame.f_back
-    del frame
-
-
 def settrace(host=None, stdoutToServer=False, stderrToServer=False, port=5678, suspend=True, trace_only_current_thread=True):
     '''Sets the tracing function with the pydev debug function and initializes needed facilities.
     
@@ -1106,7 +1118,7 @@ def _locked_settrace(host, stdoutToServer, stderrToServer, port, suspend, trace_
             sys.stderrBuf = pydevd_io.IOBuf()
             sys.stderr = pydevd_io.IORedirector(sys.stderr, sys.stderrBuf) #@UndefinedVariable
             
-        SetTraceForParents(GetFrame(), debugger.trace_dispatch)
+        debugger.SetTraceForFrameAndParents(GetFrame(), False)
         
         t = threadingCurrentThread()      
         try:
@@ -1145,7 +1157,7 @@ def _locked_settrace(host, stdoutToServer, stderrToServer, port, suspend, trace_
         #ok, we're already in debug mode, with all set, so, let's just set the break
         debugger = GetGlobalDebugger()
         
-        SetTraceForParents(GetFrame(), debugger.trace_dispatch)
+        debugger.SetTraceForFrameAndParents(GetFrame(), False)
         
         t = threadingCurrentThread()      
         try:
