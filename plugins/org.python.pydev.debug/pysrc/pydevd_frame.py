@@ -33,6 +33,8 @@ class PyDBFrame:
             handle_exceptions = mainDebugger.handle_exceptions
             if handle_exceptions is not None and issubclass(arg[0], handle_exceptions):
                 self.handle_exception(frame, event, arg)
+                mainDebugger.SetTraceForFrameAndParents(frame)
+                return self.trace_dispatch
         return self.trace_exception
     
     
