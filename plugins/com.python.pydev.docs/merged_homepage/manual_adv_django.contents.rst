@@ -99,12 +99,14 @@ It can be activated through **ctrl+2+dj shell** (if on a PyDev Editor) or right-
 
 
 
+
 Run/Debug as Django
 ====================
 
+.. _`Remote Debugger`: manual_adv_remote_debugger.html
 
-Run as Django/Debug as Django are available (note that they set the --no-reload by default, otherwise 
-the debugger may have some issues and other processes may be kept alive when closing the process spawned by PyDev).
+
+Run as Django/Debug as Django are available (note that they set the --noreload by default).
 
 .. image:: images/django/run_as_django.png
    :class: snap   
@@ -113,3 +115,14 @@ This will create a default Run configuration, so, you may edit it later through 
 if you want to change a parameter.
 
 Note: to know how to rerun the last launch see: Rerun Last Launch on Launching_
+
+Note 2: if the --noreload is not passed, only the parent process will be killed from Eclipse and the others will only
+be killed when they'd be reloaded (i.e.: on a code-change). 
+
+Run/Debug as Django with autoreload
+====================================
+
+If you don't want to se the --noreload flag, please take a look at 
+the `Remote Debugger`_ for instructions on how to make the debugging work properly
+with the auto reload feature.
+

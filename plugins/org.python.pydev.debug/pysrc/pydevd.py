@@ -1064,6 +1064,44 @@ def usage(doExit=0):
 
 
 
+#=======================================================================================================================
+# patch_django_autoreload
+#=======================================================================================================================
+def patch_django_autoreload():
+    '''
+    Patch Django to work with remote debugger without adding an explicit 
+    pydevd.settrace to set a breakpoint (i.e.: setup the remote debugger machinery
+    and don't suspend now -- this will load the breakpoints and will listen to 
+    changes in them so that we do stop on the breakpoints set in the editor).
+    
+    Checked with with Django 1.2.5.
+    Checked with with Django 1.3.
+    '''
+    if ('runserver' in sys.argv or 'testserver' in sys.argv):
+    
+        from django.utils import autoreload
+        original_main = autoreload.main
+        
+        def main(main_func, args=None, kwargs=None):
+            
+            if os.environ.get("RUN_MAIN") == "true":
+                original_main_func = main_func
+                
+                def pydev_debugger_main_func(*args, **kwargs):
+                    settrace(suspend=False)
+                    return original_main_func(*args, **kwargs)
+                    
+                main_func = pydev_debugger_main_func
+    
+            return original_main(main_func, args, kwargs)
+    
+        autoreload.main = main
+
+
+
+#=======================================================================================================================
+# settrace
+#=======================================================================================================================
 def settrace(host=None, stdoutToServer=False, stderrToServer=False, port=5678, suspend=True, trace_only_current_thread=True):
     '''Sets the tracing function with the pydev debug function and initializes needed facilities.
     
@@ -1186,6 +1224,9 @@ def _locked_settrace(host, stdoutToServer, stderrToServer, port, suspend, trace_
             debugger.setSuspend(t, CMD_SET_BREAK)
     
 
+#=======================================================================================================================
+# main
+#=======================================================================================================================
 if __name__ == '__main__':
     sys.stderr.write("pydev debugger: starting\n")
     # parse the command line. --file is our last argument that is required
