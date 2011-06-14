@@ -17,6 +17,7 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IObjectActionDelegate;
@@ -115,6 +116,10 @@ public class ForceCodeAnalysisOnTree extends PyResourceAction implements IObject
             }
             AnalysisBuilderVisitor.setModuleNameInCache(visitor.memo, f, moduleName);
             IModule module = nature.getAstManager().getModule(moduleName, nature, true);
+            if(module == null){
+                Log.log(IStatus.WARNING, "Unable to get module: "+moduleName+" for resource: "+f, null);
+                continue;
+            }
             visitor.doVisitChangedResource(nature, f, doc, null, module, new NullProgressMonitor(), true, 
                     AnalysisBuilderRunnable.ANALYSIS_CAUSE_PARSER, documentTime); 
         }
