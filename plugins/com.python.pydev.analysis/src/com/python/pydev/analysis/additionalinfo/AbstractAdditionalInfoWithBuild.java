@@ -6,13 +6,14 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
-import java.util.Iterator;
+import java.io.File;
 import java.util.List;
 
 import org.python.pydev.core.DeltaSaver;
 import org.python.pydev.core.IDeltaProcessor;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -77,7 +78,8 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
     public List<IInfo> addAstInfo(SimpleNode node, ModulesKey key, boolean generateDelta) {
         List<IInfo> addAstInfo = super.addAstInfo(node, key, generateDelta);
         if(generateDelta && addAstInfo.size() > 0){
-            deltaSaver.addInsertCommand(addAstInfo);
+            deltaSaver.addInsertCommand(new Tuple<ModulesKey, List<IInfo>>(key, addAstInfo));
+            checkDeltaSize();
         }
         return addAstInfo;
     }
@@ -103,7 +105,20 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
                         if(arg.startsWith("STR")){
                             return arg.substring(3);
                         }
+                        if(arg.startsWith("TUP")){
+                            //Backward compatibility
+                            String tup = arg.substring(3);
+                            int i = tup.indexOf('\n');
+                            int j = tup.indexOf('\n', i+1);
+                            
+                            String modName = new String(tup.substring(0, i));
+                            File file = new File(tup.substring(i+1, j));
+                            
+                            return new Tuple<ModulesKey, List>(
+                                    new ModulesKey(modName, file), InfoStrFactory.strToInfo(tup.substring(j+1))); 
+                        }
                         if(arg.startsWith("LST")){
+                            //Backward compatibility
                             return InfoStrFactory.strToInfo(arg.substring(3));
                         }
                         
@@ -116,21 +131,31 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
                      * Here we'll convert the object we added to a string.
                      * 
                      * The objects we can add are:
-                     * List<IInfo> -- on addition
+                     * Tuple<String (module name), List<IInfo>) -- on addition
                      * String (module name) -- on deletion
                      */
                     public String call(Object arg) {
                         if(arg instanceof String){
                             return "STR"+(String) arg;
                         }
-                        if(arg instanceof List){
-                            List<IInfo> l = (List<IInfo>) arg;
-                            String infoToString = InfoStrFactory.infoToString(l);
-                            FastStringBuffer buf = new FastStringBuffer("LST", infoToString.length());
-                            buf.append(infoToString);
-                            return buf.toString();
+                        if(arg instanceof Tuple){
+                            Tuple tuple = (Tuple) arg;
+                            if(tuple.o1 instanceof ModulesKey && tuple.o2 instanceof List){
+                                ModulesKey modName = (ModulesKey) tuple.o1;
+                                List<IInfo> l = (List<IInfo>) tuple.o2;
+                                String infoToString = InfoStrFactory.infoToString(l);
+                                String fileStr = modName.file.toString();
+                                
+                                FastStringBuffer buf = new FastStringBuffer("TUP", modName.name.length()+fileStr.length()+infoToString.length()+3);
+                                buf.append(modName.name);
+                                buf.append('\n');
+                                buf.append(fileStr);
+                                buf.append('\n');
+                                buf.append(infoToString);
+                                return buf.toString();
+                            }
                         }
-                        throw new AssertionError("Expecting List<IInfo> or String.");
+                        throw new AssertionError("Expecting Tuple<String, List<IInfo>> or String. Found: "+arg);
                     }
                 }
         );
@@ -152,29 +177,8 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
 
     public void processInsert(Object data) {
         synchronized (lock) {
-            if(data instanceof IInfo){
-                //backward compatibility
-                //the IInfo token is generated on insert
-                IInfo info = (IInfo) data;
-                if(info.getPath() == null || info.getPath().length() == 0){
-                    this.add(info, TOP_LEVEL);
-                    
-                }else{
-                    this.add(info, INNER);
-                    
-                }
-            }else if(data instanceof List){
-                //current way (saves a list of iinfo)
-                for(Iterator<IInfo> it = ((List<IInfo>) data).iterator();it.hasNext();){
-                    IInfo info = it.next();
-                    if(info.getPath() == null || info.getPath().length() == 0){
-                        this.add(info, TOP_LEVEL);
-                        
-                    }else{
-                        this.add(info, INNER);
-                        
-                    }
-                }
+            if(data instanceof Tuple){
+                this.addInfoToModuleOnRestoreInsertCommand((Tuple<ModulesKey, List<IInfo>>) data);
             }
         }
     }

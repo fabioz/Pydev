@@ -13,7 +13,7 @@ class PyDBFrame:
     is reused for the entire context.
     '''
     
-    def __init__(self, *args):
+    def __init__(self, args):
         #args = mainDebugger, filename, base, info, t, frame
         #yeap, much faster than putting in self and then getting it from self later on
         self._args = args[:-1]

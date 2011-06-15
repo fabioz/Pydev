@@ -15,6 +15,8 @@ import org.python.pydev.navigator.ui.PydevPackageExplorer;
 import org.python.pydev.outline.PyOutlinePage;
 import org.python.pydev.ui.IViewCreatedObserver;
 
+import com.python.pydev.ui.hierarchy.PyHierarchyView;
+
 public class AddRedCoreThemeToView implements IViewCreatedObserver{
 
     private static boolean registeredForStyleOnCoverage = false;
@@ -34,6 +36,12 @@ public class AddRedCoreThemeToView implements IViewCreatedObserver{
     			castView.onControlCreated.registerListener(onViewCreatedListener.onTreeViewCreated);
     			castView.onDispose.registerListener(onViewCreatedListener.onDispose);
     			
+    		}else if(view instanceof PyHierarchyView){
+    		    AddRedCoreThemeToViewCallbacks onViewCreatedListener = new AddRedCoreThemeToViewCallbacks();
+    		    PyHierarchyView castView = (PyHierarchyView) view;
+    		    castView.onControlCreated.registerListener(onViewCreatedListener.onTreeViewCreated);
+    		    castView.onDispose.registerListener(onViewCreatedListener.onDispose);
+    		    
     		}else if(view instanceof PyCodeCoverageView){
     		    AddRedCoreThemeToViewCallbacks onViewCreatedListener = new AddRedCoreThemeToViewCallbacks();
     		    PyCodeCoverageView castView = (PyCodeCoverageView) view;

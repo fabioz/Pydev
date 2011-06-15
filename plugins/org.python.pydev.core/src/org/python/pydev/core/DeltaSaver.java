@@ -309,7 +309,7 @@ public class DeltaSaver<X> {
             for (DeltaCommand cmd : commandsToProcess) {
                 try {
                     cmd.processWith(deltaProcessor);
-                    processed = false;
+                    processed = true;
                 } catch (Exception e) {
                     Log.log(e);
                 }

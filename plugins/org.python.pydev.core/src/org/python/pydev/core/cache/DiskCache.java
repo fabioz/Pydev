@@ -31,9 +31,9 @@ import org.python.pydev.core.docutils.StringUtils;
 public final class DiskCache implements Serializable{
 
     /**
-     * Updated on 2.1
+     * Updated on 2.1.1 (fixed issue when restoring deltas: add was not OK.)
      */
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 4L;
 
     private static final boolean DEBUG = false;
     
@@ -85,6 +85,9 @@ public final class DiskCache implements Serializable{
         suffix = (String) aStream.readObject();
         
         cache = new LRUCache<CompleteIndexKey, CompleteIndexValue>(DISK_CACHE_IN_MEMORY);
+        if(DEBUG){
+            System.out.println("Disk cache - read: "+keys.size()+ " - "+folderToPersist);
+        }
     }
 
     /**
@@ -101,6 +104,10 @@ public final class DiskCache implements Serializable{
             aStream.writeObject(suffix);
             
             //the cache will be re-created in a 'clear' state
+            
+            if(DEBUG){
+                System.out.println("Disk cache - write: "+keys.size()+ " - "+folderToPersist);
+            }
         }
     }
     
@@ -167,12 +174,18 @@ public final class DiskCache implements Serializable{
      */
     public void add(CompleteIndexKey key, CompleteIndexValue n) {
         synchronized(lock){
-            cache.add(key, n);
-            File fileForKey = getFileForKey(key);
-            if(DEBUG){
-                System.out.println("Disk cache - Adding: "+key+" file: "+fileForKey);
+            if(n != null){
+                cache.add(key, n);
+                File fileForKey = getFileForKey(key);
+                if(DEBUG){
+                    System.out.println("Disk cache - Adding: "+key+" file: "+fileForKey);
+                }
+                REF.writeStrToFile(toFileMethod.call(n), fileForKey);
+            }else{
+                if(DEBUG){
+                    System.out.println("Disk cache - Adding: "+key+" with empty value (computed on demand).");
+                }
             }
-            REF.writeStrToFile(toFileMethod.call(n), fileForKey);
             keys.put(key, key);
         }
     }
@@ -182,6 +195,9 @@ public final class DiskCache implements Serializable{
      */
     public void clear() {
         synchronized(lock){
+            if(DEBUG){
+                System.out.println("Disk cache - clear");
+            }
             for(CompleteIndexKey key : keys.keySet()){
                 cache.remove(key);
                 File fileForKey = getFileForKey(key);
@@ -206,6 +222,9 @@ public final class DiskCache implements Serializable{
             File file = new File(folderToPersist);
             if(!file.exists()){
                 file.mkdirs();
+            }
+            if(DEBUG){
+                System.out.println("Disk cache - persist :"+folderToPersist);
             }
             this.folderToPersist = folderToPersist;
         }

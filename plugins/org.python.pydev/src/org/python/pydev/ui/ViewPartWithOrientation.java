@@ -41,8 +41,8 @@ public abstract class ViewPartWithOrientation extends ViewPart implements IPrope
     /*default*/ static final int PREFERENCES_VIEW_ORIENTATION_VERTICAL = 2;
     
     //Subclasses will be passed these constants!
-    protected static final int VIEW_ORIENTATION_HORIZONTAL = 1;
-    protected static final int VIEW_ORIENTATION_VERTICAL = 2;
+    public static final int VIEW_ORIENTATION_HORIZONTAL = 1;
+    public static final int VIEW_ORIENTATION_VERTICAL = 2;
     
     @SuppressWarnings("rawtypes")
     public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();

@@ -889,7 +889,7 @@ class PyDB:
                 return None
 
             #each new frame...
-            return additionalInfo.CreateDbFrame(self, filename, additionalInfo, t, frame).trace_dispatch(frame, event, arg)
+            return additionalInfo.CreateDbFrame((self, filename, additionalInfo, t, frame)).trace_dispatch(frame, event, arg)
         
         except SystemExit:
             return None
