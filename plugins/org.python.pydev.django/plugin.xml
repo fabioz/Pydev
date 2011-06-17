@@ -26,6 +26,19 @@
         </runtime>
     </extension>  
     
+    <!-- django config -->
+   <extension point="org.eclipse.ui.propertyPages">
+      <page name="PyDev - Django"
+            class="org.python.pydev.django.ui.DjangoProjectProperties"
+            id="org.python.pydev.django.ui.DjangoProjectProperties">
+         <filter name="projectNature"
+               value="org.python.pydev.django.djangoNature"/>
+         <enabledWhen>
+            <adapt type="org.eclipse.core.resources.IProject"/>
+         </enabledWhen>
+      </page>
+   </extension>
+    
     <!-- launch for django -->
     <extension point="org.eclipse.debug.core.launchConfigurationTypes">
         <launchConfigurationType
