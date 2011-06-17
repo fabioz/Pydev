@@ -18,7 +18,7 @@ import com.aptana.editor.html.HTMLSourceConfiguration;
  */
 public class DjHTMLDocumentProvider extends CompositeDocumentProvider {
 
-    protected DjHTMLDocumentProvider() {
+    public DjHTMLDocumentProvider() {
         super(IDjConstants.CONTENT_TYPE_DJANGO_HTML, HTMLSourceConfiguration.getDefault(), DjHtmlSourceConfiguration.getDefault(),
                 DjPartitionerSwitchStrategy.getDefault());
     }

@@ -4,155 +4,309 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-/*
- * Created on Apr 10, 2006
- */
 package com.python.pydev.ui.hierarchy;
 
-import java.awt.Color;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.python.pydev.core.Tuple;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
+import org.python.pydev.core.IModule;
+import org.python.pydev.editor.actions.PyOpenAction;
+import org.python.pydev.editor.model.ItemPointer;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.parser.visitors.scope.DefinitionsASTIteratorVisitor;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.UIConstants;
+import org.python.pydev.ui.ViewPartWithOrientation;
 
-import edu.umd.cs.piccolo.event.PBasicInputEventHandler;
-import edu.umd.cs.piccolo.event.PInputEvent;
-import edu.umd.cs.piccolo.util.PBounds;
-import edu.umd.cs.piccolox.swt.PSWTCanvas;
-import edu.umd.cs.piccolox.swt.PSWTPath;
 
 /**
- * This class is used to view the hierarchy layout of some kind.
- * 
- * Its implementation will allow viewing of simple connectivity for viewing a class hierarchy.
+ * @author fabioz
  */
-public class HierarchyViewer extends PSWTCanvas{
-    public Set<HierarchyNodeView> allAdded = new HashSet<HierarchyNodeView>();
+public class HierarchyViewer {
+    
+    private final Object lock = new Object();
+    
+    /*default*/ Tree treeMembers;
+    /*default*/ TreeViewer treeClassesViewer;
 
-    public HierarchyViewer(Composite parent, int args) {
-        super(parent, args);
+    private SashForm sash;
+
+    private Composite fParent;
+
+    public void setFocus() {
+        if(this.treeClassesViewer != null){
+            this.treeClassesViewer.getTree().setFocus();
+        }
     }
 
-    /**
-     * Sets the hierarchy initializing on the 'node of interest', that is the initial node here.
-     */
-    public void setHierarchy(HierarchyNodeModel initialNode){
-        this.getLayer().setTransform(new AffineTransform()); //default transform
-        this.getLayer().removeAllChildren(); //clear all, as we're setting from the beggining
-        allAdded.clear();
-        if(initialNode == null){
-            initialNode = new HierarchyNodeModel("Invalid");
+    public void dispose() {
+        if(this.treeClassesViewer != null){
+            this.treeClassesViewer.getTree().dispose();
+            this.treeClassesViewer = null;
         }
         
-        Set<HierarchyNodeModel> nodesAdded = new HashSet<HierarchyNodeModel>();
-        double y = 10;
-        double x = 10;
-
-        HierarchyNodeView initial = new HierarchyNodeView(this, initialNode, x,y, Color.LIGHT_GRAY);
-        allAdded.add(initial);
-        getLayer().addChild(initial.node);
-        nodesAdded.add(initialNode);
-        final double deltaY = 40;
-        
-        List<HierarchyNodeView> nodesToAdd = new ArrayList<HierarchyNodeView>();
-        nodesToAdd.add(initial);
-        addWithDelta(y+deltaY, x, nodesToAdd, deltaY, true);
-
-        nodesToAdd = new ArrayList<HierarchyNodeView>();
-        nodesToAdd.add(initial);
-        double lastY = addWithDelta(y-deltaY, x, nodesToAdd, -deltaY, false);
-        
-        this.getLayer().translate(0, -lastY-deltaY-y);
+        if(this.treeMembers != null){
+            this.treeMembers.dispose();
+            this.treeMembers = null;
+        }
     }
 
-    private double addWithDelta(double y, double initialX, List<HierarchyNodeView> nodesToAdd, double yDelta, boolean addChildren) {
-        List<HierarchyNodeView> newRound;
-        do{
-            double x = initialX;
-            newRound  = new ArrayList<HierarchyNodeView>();
-            for(HierarchyNodeView v : nodesToAdd){
-                Tuple<List<HierarchyNodeView>, Double> tup = addNodesFor(v, addChildren ? v.model.children : v.model.parents, y, x, addChildren);
-                for(HierarchyNodeView added : tup.o1){
-                    if(!newRound.contains(added)){
-                        newRound.add(added);
-                    }
-                }
-                x = tup.o2;
-            }
-            nodesToAdd = newRound;
-            y += yDelta;
+
+    public void createPartControl(Composite parent) {
+        this.fParent = parent;
+        GridLayout layout = new GridLayout();
+        layout.numColumns = 1;
+        layout.verticalSpacing = 2;
+        layout.marginWidth = 0;
+        layout.marginHeight = 2;
+        parent.setLayout(layout);
+
+        sash = new SashForm(parent, SWT.VERTICAL);
+        GridData layoutData = new GridData();
+        layoutData.grabExcessHorizontalSpace = true;
+        layoutData.grabExcessVerticalSpace = true;
+        layoutData.horizontalAlignment = GridData.FILL;
+        layoutData.verticalAlignment = GridData.FILL;
+        sash.setLayoutData(layoutData);
+        
+        parent = sash;
+        treeClassesViewer = new TreeViewer(parent);
+        treeClassesViewer.setContentProvider(new HierarchyContentProvider());
+        treeClassesViewer.setLabelProvider(new HierarchyLabelProvider());
+        
+        treeClassesViewer.addDoubleClickListener(new IDoubleClickListener() {
             
-        }while(newRound.size() > 0);
-        return y;
-    }
-
-    private Tuple<List<HierarchyNodeView>, Double> addNodesFor(HierarchyNodeView initial, List<HierarchyNodeModel> toAdd, double y, double x, boolean addChildren) {
-        ArrayList<HierarchyNodeView> ret = new ArrayList<HierarchyNodeView>();
-        HierarchyNodeView view;
-        for(HierarchyNodeModel node: toAdd){
-            view = new HierarchyNodeView(this, node, x,y);
-            if(!allAdded.contains(view)){
-                PBounds bounds = addNode(initial, view, addChildren);
-                
-                x = bounds.x+bounds.width+10;
-                getLayer().addChild(view.node);
-                ret.add(view);
-                allAdded.add(view);
-            }else{
-                for(HierarchyNodeView added : allAdded){
-                    if(added.equals(view)){
-                        //we have to get this way because the equals is only from the model point...
-                        //which means that we have to get the position of that one now
-                        addNode(initial, added, addChildren);
-                        break;
-                    }
-                }
-            }
-        }
-        return new Tuple<List<HierarchyNodeView>, Double>(ret, x);
-    }
-
-    private PBounds addNode(HierarchyNodeView from, HierarchyNodeView toNode, boolean addChildren) {
-        PBounds bounds = toNode.node.getBounds();
-        
-        final PSWTPath path = new PSWTPath();
-        Point2D to = toNode.node.getCenter();
-        Point2D fromP = from.node.getCenter();
-        if(!addChildren){
-            fromP.setLocation(fromP.getX(), fromP.getY() - (from.node.getHeight()/2.0));
-            to.setLocation(to.getX(), to.getY() + (toNode.node.getHeight()/2.0));
-        }else{
-            fromP.setLocation(fromP.getX(), fromP.getY() + (from.node.getHeight()/2.0));
-            to.setLocation(to.getX(), to.getY() - (toNode.node.getHeight()/2.0));
-        }
-        
-        path.setPathToPolyline(new Point2D[]{fromP, to});
-        getLayer().addChild(path);
-        path.moveToBack();
-        path.addInputEventListener(new PBasicInputEventHandler(){
-            @Override
-            public void mouseEntered(PInputEvent event) {
-                path.setStrokeColor(Color.LIGHT_GRAY);
-            }
-            @Override
-            public void mouseExited(PInputEvent event) {
-                path.setStrokeColor(Color.BLACK);
+            public void doubleClick(DoubleClickEvent event) {
+                ISelection selection = event.getSelection();
+                handleSelection(selection, 2);
             }
         });
-        return bounds;
+        
+        treeClassesViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+            
+            public void selectionChanged(SelectionChangedEvent event) {
+                ISelection selection = event.getSelection();
+                handleSelection(selection, 1);
+            }
+        });
+        
+        treeMembers = new Tree(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+        
+        treeMembers.addMouseListener(new MouseAdapter() {
+            public void mouseDoubleClick(MouseEvent e) {
+                TreeItem[] selection = treeMembers.getSelection();
+                if(selection.length > 0){
+                    Object data = selection[0].getData();
+                    ItemPointer p = (ItemPointer) data;
+                    if(p != null){
+                        new PyOpenAction().run(p);
+                    }
+                }
+            }
+        });
+        
     }
+
+    private static Image parentsImage;
+    private static Image classImage;
+
+    
+    public void setHierarchy(HierarchyNodeModel model) {
+        if(classImage == null){
+            classImage = PydevPlugin.getImageCache().get(UIConstants.CLASS_ICON);
+        }
+        
+        TreeNode root = new TreeNode(null, null, null);
+        TreeNode item = new TreeNode(root, model, classImage);
+        
+        TreeNode base = item;
+        recursivelyAdd(model, base, false, new HashSet<HierarchyNodeModel>());
+        
+        if(parentsImage == null){
+            ImageDescriptor imageDescriptor = com.python.pydev.PydevPlugin.getImageDescriptor("icons/class_hi.gif");
+            if(imageDescriptor != null){
+                parentsImage = imageDescriptor.createImage();
+            }
+        }
+        
+        TreeNode parents = new TreeNode(root, "Parents", parentsImage);
+        recursivelyAdd(model, parents, true, new HashSet<HierarchyNodeModel>());
+        
+        treeClassesViewer.setInput(root);
+        
+        onClick(model, 1);
+    }
+
+    
+    private void recursivelyAdd(HierarchyNodeModel model, TreeNode base, boolean addChildren, HashSet<HierarchyNodeModel> memo) {
+        List<HierarchyNodeModel> items = addChildren?model.children:model.parents;
+        if(items != null){
+            for(HierarchyNodeModel modelNode: items){
+                if(memo.contains(modelNode)){
+                    new TreeNode(base, modelNode.name+" already added.", classImage);
+                    continue;
+                }
+                memo.add(modelNode);
+                TreeNode item = new TreeNode(base, modelNode, classImage);
+                recursivelyAdd(modelNode, item, addChildren, memo);
+            }
+        }
+    }
+
+    
+    private void onClick(final HierarchyNodeModel model, int clickCount) {
+        if(clickCount == 2){
+            if(model != null){
+                IModule m = model.module;
+                if(m != null && model.ast != null){
+                    ItemPointer pointer = new ItemPointer(m.getFile(), model.ast.name);
+                    new PyOpenAction().run(pointer);
+                }
+            }
+        }else{
+            
+            Runnable r = new Runnable(){
+                
+
+                public void run() {
+                    synchronized(lock){
+                        if(treeMembers.getItemCount() > 0){
+                            treeMembers.removeAll();
+                        }
+                        if(model == null){
+                            return;
+                        }
+                        ClassDef ast = model.ast;
+                        if(ast != null && treeMembers != null){
+                            DefinitionsASTIteratorVisitor visitor = DefinitionsASTIteratorVisitor.create(ast);
+                            Iterator<ASTEntry> outline = visitor.getOutline();
+                            
+                            HashMap<SimpleNode, TreeItem> c = new HashMap<SimpleNode, TreeItem>();
+                            
+                            boolean first = true;
+                            while(outline.hasNext()){
+                                ASTEntry entry = outline.next();
+                                
+                                if(first){
+                                    //Don't add the class itself.
+                                    first = false;
+                                    continue;
+                                }
+                                
+                                TreeItem item = null;
+                                if(entry.node instanceof FunctionDef){
+                                    item = createTreeItem(c, entry);
+                                    item.setImage(PydevPlugin.getImageCache().get(UIConstants.METHOD_ICON));
+                                    if(model.module != null){
+                                        item.setData(new ItemPointer(model.module.getFile(), ((FunctionDef)entry.node).name));
+                                    }
+                                    
+                                }else if(entry.node instanceof ClassDef){
+                                    item = createTreeItem(c, entry);
+                                    item.setImage(PydevPlugin.getImageCache().get(UIConstants.CLASS_ICON));
+                                    if(model.module != null){
+                                        item.setData(new ItemPointer(model.module.getFile(), ((ClassDef)entry.node).name));
+                                    }
+                                    
+                                }else{
+                                    item = createTreeItem(c, entry);
+                                    item.setImage(PydevPlugin.getImageCache().get(UIConstants.PUBLIC_ATTR_ICON));
+                                    if(model.module != null){
+                                        item.setData(new ItemPointer(model.module.getFile(), entry.node));
+                                    }
+                                }
+                                item.setText(entry.getName());
+                                item.setExpanded(true);
+                            }
+                        }
+                    }
+                }
+                
+                private TreeItem createTreeItem(HashMap<SimpleNode, TreeItem> c, ASTEntry entry) {
+                    TreeItem parent = null;
+                    
+                    ASTEntry par = entry.parent;
+                    if(par != null){
+                        parent = c.get(par.node);
+                    }
+                    
+                    TreeItem item;
+                    if(parent == null){
+                        item = new TreeItem(treeMembers, 0);
+                    }else{
+                        item = new TreeItem(parent, 0);
+                    }
+                    c.put(entry.node, item);
+                    return item;
+                }
+            };
+            
+            Display.getDefault().asyncExec(r);
+        }
+    }
+
+    
+
+    private void handleSelection(ISelection selection, int clickCount) {
+        HierarchyNodeModel model = null;
+        if(selection instanceof IStructuredSelection){
+            IStructuredSelection iStructuredSelection = (IStructuredSelection) selection;
+            Object firstElement = iStructuredSelection.getFirstElement();
+            if(firstElement instanceof TreeNode){
+                TreeNode treeNode = (TreeNode) firstElement;
+                Object data = treeNode.data;
+                if(data instanceof HierarchyNodeModel){
+                    model = (HierarchyNodeModel) data;
+                }
+            }else if(firstElement instanceof HierarchyNodeModel){
+                model = (HierarchyNodeModel) firstElement;
+            }
+        }
+        onClick(model, clickCount);
+    }
+
+    public void setNewOrientation(int orientation) {
+        if(sash != null && !sash.isDisposed() && fParent != null && !fParent.isDisposed()){
+            GridLayout layout= (GridLayout) fParent.getLayout();
+            if(orientation == ViewPartWithOrientation.VIEW_ORIENTATION_HORIZONTAL){
+                sash.setOrientation(SWT.HORIZONTAL);
+                layout.numColumns = 2;
+                
+            }else{
+                sash.setOrientation(SWT.VERTICAL);
+                layout.numColumns = 1;
+            }
+            fParent.layout();
+        }
+    }
+
+
+
 }
-
-
-
-
-
-
 
 
 

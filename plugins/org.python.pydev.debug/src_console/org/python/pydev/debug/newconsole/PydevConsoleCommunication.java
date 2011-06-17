@@ -296,6 +296,8 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                         
                         if(errorContents == null){
                             errorContents = stdErrReader.getAndClearContents();
+                        }else{
+                            errorContents += "\n"+stdErrReader.getAndClearContents();
                         }
                         nextResponse = new InterpreterResponse(stdOutReader.getAndClearContents(), 
                                 errorContents, more, needInput);

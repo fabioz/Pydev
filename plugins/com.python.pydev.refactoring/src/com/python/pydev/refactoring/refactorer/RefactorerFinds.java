@@ -95,7 +95,7 @@ public class RefactorerFinds {
                 
                 request.communicateWork(StringUtils.format("Found: %s parents for: %s", definitions.size(), d.value));
                 
-                //and add a parent for each definition found (this will make up the next search we will do)
+                //and add a parent for each definition found (this will make up what the next search we will do)
                 for (Definition definition : definitions) {
                     HierarchyNodeModel model2 = createHierarhyNodeFromClassDef(definition);
                     if(model2 != null){

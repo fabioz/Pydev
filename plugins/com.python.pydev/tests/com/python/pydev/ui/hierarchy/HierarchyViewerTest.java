@@ -32,6 +32,7 @@ public class HierarchyViewerTest extends TestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
     }
+    
     public void testIt() throws Exception {
         if(!TestDependent.HAS_SWT_ON_PATH){
             return;
@@ -48,15 +49,16 @@ public class HierarchyViewerTest extends TestCase {
         final Shell shell = new Shell(display);
         shell.setLayout(new FillLayout());
         
-        HierarchyViewer viewer = new HierarchyViewer(shell, 0);
+        HierarchyViewer viewer = new HierarchyViewer();
+        viewer.createPartControl(shell);
         HierarchyNodeModel curr = new HierarchyNodeModel("curr");
         
         final HierarchyNodeModel par1pac1 = new HierarchyNodeModel("par1", "package1", null);
-        final HierarchyNodeModel par1 = new HierarchyNodeModel("par1");
-        final HierarchyNodeModel super1 = new HierarchyNodeModel("super1");
-        final HierarchyNodeModel super2 = new HierarchyNodeModel("super2");
-        final HierarchyNodeModel par2 = new HierarchyNodeModel("par2");
-        final HierarchyNodeModel par3 = new HierarchyNodeModel("par3");
+        final HierarchyNodeModel par1 = new HierarchyNodeModel("par1", "pack2", null);
+        final HierarchyNodeModel super1 = new HierarchyNodeModel("super1", "pack3", null);
+        final HierarchyNodeModel super2 = new HierarchyNodeModel("super2", "pack3", null);
+        final HierarchyNodeModel par2 = new HierarchyNodeModel("par2", "pack3", null);
+        final HierarchyNodeModel par3 = new HierarchyNodeModel("par3", "pack3", null);
         
         super1.parents.add(super2);
         super2.parents.add(par1pac1);
@@ -71,14 +73,14 @@ public class HierarchyViewerTest extends TestCase {
         
         curr.parents.add(new HierarchyNodeModel("par4"));
         
-        final HierarchyNodeModel c1 = new HierarchyNodeModel("child1");
+        final HierarchyNodeModel c1 = new HierarchyNodeModel("child1", "pack3", null);
         curr.children.add(c1);
-        curr.children.add(new HierarchyNodeModel("child2"));
-        final HierarchyNodeModel c3 = new HierarchyNodeModel("child3");
+        curr.children.add(new HierarchyNodeModel("child2", "pack3", null));
+        final HierarchyNodeModel c3 = new HierarchyNodeModel("child3", "pack3", null);
         c3.parents.add(par3); //does not show (we go straight to the top or to the bottom)
         curr.children.add(c3);
         
-        c1.children.add(new HierarchyNodeModel("sub1"));
+        c1.children.add(new HierarchyNodeModel("sub1", "pack3", null));
         
         
         viewer.setHierarchy(curr);

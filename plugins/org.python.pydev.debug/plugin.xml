@@ -2,6 +2,7 @@
 <?eclipse version="3.0"?>
 <plugin>
    <extension-point id="pydev_debug_console_input_listener" name="pydev_debug_console_input_listener" schema="schema/pydev_debug_console_input_listener.exsd"/>
+   <extension-point id="pydev_configure_exception" name="pydev_configure_exception" schema="schema/pydev_configure_exception.exsd"/>
 
 <!--- run keybindings -->
 <extension point="org.eclipse.ui.editorActions">
@@ -752,5 +753,51 @@
 			<adapter type="org.python.pydev.debug.ui.actions.ISetNextTarget"/>
          </factory>
     </extension> 
+ 
+<extension point="org.eclipse.ui.perspectiveExtensions">
+    <perspectiveExtension targetID="org.python.pydev.ui.PythonPerspective">
+        <actionSet id="org.python.pydev.navigate.actionSet"/>
+    </perspectiveExtension>
+    <perspectiveExtension targetID="org.eclipse.debug.ui.DebugPerspective">
+        <actionSet id="org.python.pydev.navigate.actionSet"/>
+    </perspectiveExtension>
+</extension>
+
+ <!-- Extension points for BreakOnException -->
+<extension 
+	point="org.eclipse.ui.commands">
+	<command
+        name="Add Python Exception Breakpoint..."
+        description="Add Python Exception Breakpoint..."
+        categoryId="org.python.pydev.ui.category.source"
+        id="org.python.pydev.debug.pyConfigureException">
+  </command>
+</extension>
+ 
+ <extension point="org.eclipse.ui.actionSets">
+  <actionSet
+        label="Pydev Navigate"
+        visible="false"
+        id="org.python.pydev.navigate.actionSet">
+     <menu
+           label="P&amp;ydev"
+           id="pyGeneralMenu">
+        <separator name="pyNavigateGroup"/>
+     </menu>
+     <action
+           label="Manage Exception Breakpoints"
+           class="org.python.pydev.debug.ui.actions.PyConfigureExceptionAction"
+           tooltip="Pydev: Manage exception breakpoints"
+           menubarPath="pyGeneralMenu/pyNavigateGroup"
+           id="org.python.pydev.debug.pyConfigureException"
+           icon="icons/python_exception_breakpoint.jpg"
+           definitionId="org.python.pydev.debug.pyConfigureException"
+           >
+     </action>
+  </actionSet>
+</extension>
+
+<!-- Extension points for BreakOnException -->
+ 	
 </plugin>
 
