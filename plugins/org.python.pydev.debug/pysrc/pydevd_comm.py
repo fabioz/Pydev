@@ -47,6 +47,7 @@ each command has a format:
     119      CMD_RELOAD_CODE
     120      CMD_GET_COMPLETIONS      JAVA
     121      CMD_SET_NEXT_STATEMENT
+    122      CMD_SET_PY_EXCEPTION
     
 500 series diagnostics/ok
     901      VERSION                  either      Version string (1.0)        Currently just used at startup
@@ -72,7 +73,7 @@ from socket import AF_INET, SOCK_STREAM
 try:
     from urllib import quote
 except:
-    from urllib.parse import quote
+    from urllib.parse import quote #@Reimport @UnresolvedImport
 import pydevd_vars
 import pydevd_tracing
 import pydevd_vm_type
@@ -103,6 +104,7 @@ CMD_RUN_TO_LINE = 118
 CMD_RELOAD_CODE = 119
 CMD_GET_COMPLETIONS = 120
 CMD_SET_NEXT_STATEMENT = 121
+CMD_SET_PY_EXCEPTION = 122
 CMD_VERSION = 501
 CMD_RETURN = 502
 CMD_ERROR = 901 
@@ -129,6 +131,7 @@ ID_TO_MEANING = {
     '119':'CMD_RELOAD_CODE',
     '120':'CMD_GET_COMPLETIONS',
     '121':'CMD_SET_NEXT_STATEMENT',
+    '122':'CMD_SET_PY_EXCEPTION',
     '501':'CMD_VERSION',
     '502':'CMD_RETURN',
     '901':'CMD_ERROR',
@@ -255,7 +258,12 @@ class ReaderThread(PyDBDaemonThread):
                     command, buffer = buffer.split('\n', 1)
                     PydevdLog(1, "received command ", command)
                     args = command.split('\t', 2)
-                    GlobalDebuggerHolder.globalDbg.processNetCommand(int(args[0]), int(args[1]), args[2])
+                    try:
+                        GlobalDebuggerHolder.globalDbg.processNetCommand(int(args[0]), int(args[1]), args[2])
+                    except:
+                        traceback.print_exc()
+                        sys.stderr.write("Can't process net command: %s\n" % command)
+                        sys.stderr.flush()
         except:
             traceback.print_exc()
             GlobalDebuggerHolder.globalDbg.FinishDebuggingSession()
@@ -405,7 +413,7 @@ class NetCommandFactory:
         cmd = NetCommand(CMD_ERROR, seq, text)
         if DEBUG_TRACE_LEVEL > 2:
             sys.stderr.write("Error: %s" % (text,))
-        return cmd;
+        return cmd
 
     def makeThreadCreatedMessage(self, thread):
         cmdText = "<xml>" + self.threadToXML(thread) + "</xml>"
@@ -831,4 +839,3 @@ def PydevdFindThreadById(thread_id):
         traceback.print_exc()
         
     return None
-

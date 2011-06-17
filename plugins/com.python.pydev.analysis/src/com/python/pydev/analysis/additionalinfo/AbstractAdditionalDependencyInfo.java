@@ -443,6 +443,21 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         }
     }
 
+    protected void addInfoToModuleOnRestoreInsertCommand(Tuple<ModulesKey, List<IInfo>> data) {
+        completeIndex.add(new CompleteIndexKey(data.o1), null);
+        
+        //current way (saves a list of iinfo)
+        for(Iterator<IInfo> it = data.o2.iterator();it.hasNext();){
+            IInfo info = it.next();
+            if(info.getPath() == null || info.getPath().length() == 0){
+                this.add(info, TOP_LEVEL);
+                
+            }else{
+                this.add(info, INNER);
+            }
+        }
+    }
+
 
 
 

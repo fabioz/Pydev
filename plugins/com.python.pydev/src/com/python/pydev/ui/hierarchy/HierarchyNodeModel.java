@@ -12,7 +12,7 @@ package com.python.pydev.ui.hierarchy;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jface.util.Assert;
+import org.eclipse.core.runtime.Assert;
 import org.python.pydev.core.IModule;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -29,8 +29,8 @@ public class HierarchyNodeModel {
      */
     public String name;
     
-    public List<HierarchyNodeModel> parents = new ArrayList<HierarchyNodeModel>();
-    public List<HierarchyNodeModel> children = new ArrayList<HierarchyNodeModel>();
+    public List<HierarchyNodeModel> parents = new ArrayList<HierarchyNodeModel>(5);
+    public List<HierarchyNodeModel> children = new ArrayList<HierarchyNodeModel>(5);
     
     /**
      * The module where it was defined (might be null)
@@ -48,7 +48,7 @@ public class HierarchyNodeModel {
     public IModule module;
     
     public HierarchyNodeModel(String name) {
-        this(name, "default", null);
+        this(name, "", null);
     }
     public HierarchyNodeModel(String pack, ClassDef ast) {
         this(NodeUtils.getRepresentationString(ast), pack, ast);
@@ -56,6 +56,9 @@ public class HierarchyNodeModel {
     
     public HierarchyNodeModel(String name, String pack, ClassDef ast) {
         Assert.isNotNull(name);
+        if(pack == null){
+            pack = "";
+        }
         this.name = name;
         this.moduleName = pack;
         this.ast = ast;

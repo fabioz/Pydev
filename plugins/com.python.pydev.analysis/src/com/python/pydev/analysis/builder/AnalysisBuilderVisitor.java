@@ -135,7 +135,8 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         
         if(module != null){
         	if(moduleCallback != null){
-        		throw new AssertionError("Only the module or the moduleCallback must be specified.");
+        		Log.log("Only the module or the moduleCallback must be specified for: "+resource);
+        		return;
         	}
         	setModuleInCache(resource, module);
         	
@@ -148,7 +149,8 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         	//don't set module in the cache if we only have the callback
         	//moduleCallback is already defined
         	if(moduleCallback == null){
-        		throw new AssertionError("Either the module or the moduleCallback must be specified.");
+        		Log.log("Either the module or the moduleCallback must be specified for: "+resource);
+        		return;
         	}
         }
         

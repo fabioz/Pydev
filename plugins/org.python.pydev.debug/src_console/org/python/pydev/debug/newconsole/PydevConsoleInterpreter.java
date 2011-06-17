@@ -55,7 +55,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
 
     private List<ISimpleAssistParticipant2> simpleParticipants;
 
-    private List<IPythonNature> naturesUsed;
+    private List<IPythonNature> naturesUsed = new ArrayList<IPythonNature>();
 
 	private IInterpreterInfo interpreterInfo;
 
@@ -256,6 +256,9 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
     }
 
     public void setNaturesUsed(List<IPythonNature> naturesUsed) {
+        if(naturesUsed == null){
+            naturesUsed = new ArrayList<IPythonNature>();
+        }
         this.naturesUsed = naturesUsed;
     }
 

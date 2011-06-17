@@ -44,7 +44,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testNumpy();
+            builtins.testDjango();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -492,6 +492,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
     
     public void testDjango2() throws Exception{
         if(TestDependent.PYTHON_DJANGO_PACKAGES != null){
+            assertTrue(new File(TestDependent.PYTHON_DJANGO_PACKAGES).exists());
             String s = 
                 "from django.db import models\n" +
                 "\n" +

@@ -72,13 +72,13 @@ public class NodeUtils {
         if(node instanceof ClassDef){
             node = getClassDefInit((ClassDef) node);
         }
-        
+
         if(node instanceof FunctionDef){
             FunctionDef f = (FunctionDef)node;
-            
+
             String startPar = "( ";
             FastStringBuffer buffer = new FastStringBuffer(startPar, 40);
-            
+
             for (int i = 0; i < f.args.args.length; i++) {
                 if(buffer.length() > startPar.length()){
                     buffer.append(", ");
@@ -91,7 +91,7 @@ public class NodeUtils {
         return "";
     }
 
-    
+
     public static String getFullArgs(SimpleNode ast) {
         if(ast != null){
             if(ast instanceof ClassDef){
@@ -101,7 +101,7 @@ public class NodeUtils {
                 FunctionDef functionDef = (FunctionDef) ast;
                 if(functionDef.args != null){
                     String printed = PrettyPrinterV2.printArguments(new IGrammarVersionProvider() {
-                        
+
                         public int getGrammarVersion() throws MisconfigurationException {
                             return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0;
                         }
@@ -131,7 +131,7 @@ public class NodeUtils {
         return null;
     }
 
-    
+
     /**
      * Get the representation for the passed parameter (if it is a String, it is itself, if it
      * is a SimpleNode, get its representation
@@ -148,11 +148,11 @@ public class NodeUtils {
         }
         throw new RuntimeException("Expecting a String or a SimpleNode");
     }
-    
+
     public static String getRepresentationString(SimpleNode node) {
         return getRepresentationString(node, false);
     }
-    
+
     /**
      * @param node this is the node from whom we want to get the representation
      * @return A suitable String representation for some node.
@@ -162,12 +162,12 @@ public class NodeUtils {
             NameTok tok = (NameTok) node;
             return tok.id;
         }
-        
+
         if(node instanceof Name){
             Name name = (Name) node;
             return name.id;
         }
-        
+
         if(node instanceof aliasType){
             aliasType type = (aliasType) node;
             return ((NameTok)type.name).id;
@@ -175,29 +175,29 @@ public class NodeUtils {
         if(node instanceof Attribute){
             Attribute attribute = (Attribute) node;
             return discoverRep(attribute.attr);
-            
+
         }
-        
+
         if(node instanceof keywordType){
             keywordType type = (keywordType) node;
             return discoverRep(type.arg);
         }
-        
+
         if(node instanceof ClassDef){
             ClassDef def = (ClassDef) node;
             return ((NameTok)def.name).id;
         }
-        
+
         if(node instanceof FunctionDef){
             FunctionDef def = (FunctionDef) node;
             return ((NameTok)def.name).id;
         }
-        
+
         if (node instanceof Call){
             Call call = ((Call)node);
             return getRepresentationString(call.func, useTypeRepr);
         }
-        
+
         if (node instanceof org.python.pydev.parser.jython.ast.List || node instanceof ListComp){
             String val = "[]";
             if(useTypeRepr){
@@ -205,7 +205,7 @@ public class NodeUtils {
             }
             return val;
         }
-        
+
         if (node instanceof org.python.pydev.parser.jython.ast.Dict){
             String val = "{}";
             if(useTypeRepr){
@@ -213,7 +213,7 @@ public class NodeUtils {
             }
             return val;
         }
-        
+
         if (node instanceof Str){
             String val;
             if(useTypeRepr){
@@ -223,7 +223,7 @@ public class NodeUtils {
             }
             return val;
         }
-        
+
         if (node instanceof Tuple){
             StringBuffer buf = new StringBuffer();
             Tuple t = (Tuple)node;
@@ -242,7 +242,7 @@ public class NodeUtils {
             }
             return val;
         }
-        
+
         if (node instanceof Num){
             String val = ((Num)node).n.toString();
             if(useTypeRepr){
@@ -250,7 +250,7 @@ public class NodeUtils {
             }
             return val;
         }
-        
+
         if (node instanceof Import){
             aliasType[] names = ((Import)node).names;
             for (aliasType n : names) {
@@ -260,20 +260,20 @@ public class NodeUtils {
                 return ((NameTok)n.name).id;
             }
         }
-        
+
 
         if(node instanceof commentType){
             commentType type = (commentType) node;
             return type.id;
         }
-        
+
         if(node instanceof excepthandlerType){
             excepthandlerType type = (excepthandlerType) node;
             return type.name.toString();
-            
+
         }
 
-        
+
         return null;
     }
 
@@ -299,7 +299,7 @@ public class NodeUtils {
         } else if(node instanceof ClassDef){
             ClassDef def = (ClassDef) node;
             body = def.body;
-            
+
         }
         if (body != null && body.length > 0) {
             if (body[0] instanceof Expr) {
@@ -312,30 +312,30 @@ public class NodeUtils {
         return s;
     }
 
-    
-    
+
+
     public static String getFullRepresentationString(SimpleNode node) {
         return getFullRepresentationString(node, false);
     }
-    
+
     public static String getFullRepresentationString(SimpleNode node, boolean fullOnSubscriptOrCall) {
         if (node instanceof Dict){
             return "dict";
         }
-        
+
         if (node instanceof Str || node instanceof Num){
             return getRepresentationString(node, true);
-        } 
-        
+        }
+
         if (node instanceof Tuple){
             return getRepresentationString(node, true);
-        } 
-        
+        }
+
         if (node instanceof Subscript){
             return getFullRepresentationString(((Subscript)node).value);
-        } 
-        
-        
+        }
+
+
         if(node instanceof Call){
             Call c = (Call) node;
             node = c.func;
@@ -343,24 +343,24 @@ public class NodeUtils {
                 return getFullRepresentationString((SimpleNode) REF.getAttrObj(node, "value")) + "." +discoverRep(REF.getAttrObj(node, "attr"));
             }
         }
-        
-        
+
+
         if (node instanceof Attribute){
             //attributes are tricky because we only have backwards access initially, so, we have to:
-            
+
             //get it forwards
             List<SimpleNode> attributeParts = getAttributeParts((Attribute) node);
             StringBuffer buf = new StringBuffer();
             for (Object part : attributeParts) {
                 if(part instanceof Call){
-                    //stop on a call (that's what we usually want, since the end will depend on the things that 
+                    //stop on a call (that's what we usually want, since the end will depend on the things that
                     //return from the call).
                     if(!fullOnSubscriptOrCall){
                         return buf.toString();
                     }else{
                         buf.append("()");//call
                     }
-                    
+
                 }else if (part instanceof Subscript){
                     if(!fullOnSubscriptOrCall){
                         //stop on a subscript : e.g.: in bb.cc[10].d we only want the bb.cc part
@@ -379,13 +379,13 @@ public class NodeUtils {
                 }
             }
             return buf.toString();
-            
-        } 
-        
+
+        }
+
         return getRepresentationString(node, true);
     }
-    
-    
+
+
     /**
      * line and col start at 1
      */
@@ -393,14 +393,14 @@ public class NodeUtils {
         int colDefinition = NodeUtils.getColDefinition(node);
         int lineDefinition = NodeUtils.getLineDefinition(node);
         int[] colLineEnd = NodeUtils.getColLineEnd(node, false);
-        
+
         if(lineDefinition <= line && colDefinition <= col &&
             colLineEnd[0] >= line && colLineEnd[1] >= col){
             return true;
         }
         return false;
     }
-    
+
     public static SimpleNode getNameTokFromNode(SimpleNode ast2){
         if (ast2 instanceof ClassDef){
             ClassDef c = (ClassDef) ast2;
@@ -411,17 +411,17 @@ public class NodeUtils {
             return c.name;
         }
         return ast2;
-        
+
     }
 
     public static int getNameLineDefinition(SimpleNode ast2) {
         return getLineDefinition(getNameTokFromNode(ast2));
     }
-    
+
     public static int getNameColDefinition(SimpleNode ast2) {
         return getColDefinition(getNameTokFromNode(ast2));
     }
-    
+
     /**
      * @param ast2 the node to work with
      * @return the line definition of a node
@@ -444,11 +444,11 @@ public class NodeUtils {
         return ast2.beginLine;
     }
 
-    
+
     public static int getColDefinition(SimpleNode ast2) {
         return getColDefinition(ast2, true);
     }
-    
+
     /**
      * @param ast2 the node to work with
      * @return the column definition of a node
@@ -459,17 +459,17 @@ public class NodeUtils {
             exprType value = ((Attribute)ast2).value;
             return getColDefinition(value);
         }
-        
+
         //call and subscript are special cases, because they are not gotten directly (we have to go to the first
         //part of it (which in turn may be an attribute)
         else if(ast2 instanceof Call){
             Call c = (Call) ast2;
             return getColDefinition(c.func);
-            
+
         } else if(ast2 instanceof Subscript){
             Subscript s = (Subscript) ast2;
             return getColDefinition(s.value);
-            
+
         } else if(always1ForImports){
             if(ast2 instanceof Import || ast2 instanceof ImportFrom){
                 return 1;
@@ -507,8 +507,8 @@ public class NodeUtils {
         if(v instanceof Import || v instanceof ImportFrom){
             return new int[]{lineEnd, -1}; //col is -1... import is always full line
         }
-        
-        
+
+
         if(v instanceof Str){
             if(lineEnd == getLineDefinition(v)){
                 String s = ((Str)v).s;
@@ -519,12 +519,12 @@ public class NodeUtils {
                 String s = ((Str)v).s;
                 int i = s.lastIndexOf('\n');
                 String sub = s.substring(i, s.length());
-                
+
                 col = sub.length();
                 return new int[]{lineEnd, col};
             }
         }
-        
+
         col = getEndColFromRepresentation(v, getOnlyToFirstDot);
         return new int[]{lineEnd, col};
     }
@@ -539,23 +539,23 @@ public class NodeUtils {
         if(representationString == null){
             return -1;
         }
-        
+
         if(getOnlyToFirstDot){
             int i;
             if((i = representationString.indexOf('.') )  != -1){
                 representationString = representationString.substring(0,i);
             }
         }
-        
+
         int colDefinition = getColDefinition(v);
         if(colDefinition == -1){
             return -1;
         }
-        
+
         col = colDefinition + representationString.length();
         return col;
     }
-    
+
     public static int getLineEnd(SimpleNode v) {
         if(v instanceof Expr){
             Expr expr = (Expr) v;
@@ -593,7 +593,7 @@ public class NodeUtils {
             String s = ((Str)v).s;
             int found = 0;
             for (int i = 0; i < s.length(); i++) {
-     
+
                 if(s.charAt(i) == '\n'){
                     found += 1;
                 }
@@ -610,36 +610,36 @@ public class NodeUtils {
         if(tok.endsWith("'") || tok.endsWith("\"")){
             //ok, we are getting code completion for a string.
             return "str";
-            
-            
+
+
         } else if(tok.endsWith("]") && tok.startsWith("[")){
             //ok, we are getting code completion for a list.
             return "list";
-            
-            
+
+
         } else if(tok.endsWith("}") && tok.startsWith("{")){
             //ok, we are getting code completion for a dict.
             return "dict";
-            
+
         } else if(tok.endsWith(")") && tok.startsWith("(")){
             //ok, we are getting code completion for a tuple.
             return "tuple";
-            
-            
+
+
         } else {
             try {
                 Integer.parseInt(tok);
                 return "int";
             } catch (Exception e) { //ok, not parsed as int
             }
-    
+
             try {
                 Float.parseFloat(tok);
                 return "float";
             } catch (Exception e) { //ok, not parsed as int
             }
         }
-        
+
         return null;
     }
 
@@ -655,40 +655,40 @@ public class NodeUtils {
      * Gets all the parts contained in some attribute in the right order (when we visit
      * some attribute, we have to get that in a backwards fashion, since the attribute
      * is only determined in the end of the token in the grammar)
-     * 
+     *
      * @return a list with the attribute parts in its forward order, and not backward as presented
      * in the grammar.
      */
     public static List<SimpleNode> getAttributeParts(Attribute node) {
         ArrayList<SimpleNode> nodes = new ArrayList<SimpleNode>();
-        
+
         nodes.add(node.attr);
         SimpleNode s = node.value;
-        
+
         while(true){
             if(s instanceof Attribute){
                 nodes.add(s);
                 s = ((Attribute) s).value;
-                
+
             }else if(s instanceof Call){
                 nodes.add(s);
                 s = ((Call) s).func;
-                
+
             }else{
                 nodes.add(s);
                 break;
             }
         }
-        
+
         Collections.reverse(nodes);
-        
+
         return nodes;
     }
 
 
     /**
      * Gets the parent names for a class definition
-     * 
+     *
      * @param onlyLastSegment determines whether we should return only the last segment if the name
      * of the parent resolves to a dotted name.
      */
@@ -762,14 +762,14 @@ public class NodeUtils {
                 if(entry.node.beginLine > lineNumber+1){
                     //ok, now, let's find out which context actually contains it...
                     break;
-                }                
+                }
                 last = entry;
             }
-            
+
             while(last != null && last.endLine <= lineNumber){
                 last = last.parent;
             }
-            
+
             if(last != null){
             	return getFullMethodName(last);
             }
@@ -795,13 +795,16 @@ public class NodeUtils {
 		}
 		return buffer.toString();
 	}
-	
+
 	/**
-	 * Identifies the context for both source and target line 
-	 * 
-	 * @param ASTEntry ast
-	 * @param int sourceLine: the line at which debugger is stopped currently (starts at 1) 
-	 * @param int targetLine: the line at which we need to set next (starts at 0)
+	 * Identifies the context for both source and target line
+	 *
+	 * @param ASTEntry
+	 *            ast
+	 * @param int sourceLine: the line at which debugger is stopped currently
+	 *        (starts at 1)
+	 * @param int targetLine: the line at which we need to set next (starts at
+	 *        0)
 	 * @return
 	 */
 	public static boolean isValidContextForSetNext(SimpleNode ast,
@@ -817,25 +820,19 @@ public class NodeUtils {
 			if (targetAST == null) {
 				return true; // Target line is not inside some loop
 			}
+			if (isValidElseBlock(sourceAST, targetAST, sourceLine, targetLine)) {
+				return true; // Debug pointer can be set inside else block of
+								// for..else/while..else
+			}
 			if (sourceAST == null && targetAST != null) {
 				return false; // Source is outside loop and target is inside
 								// loop
 			}
 			if (sourceAST != null && targetAST != null) {
-				if (sourceAST.equals(targetAST)
-						&& (sourceAST.node instanceof TryExcept && targetAST.node instanceof TryExcept)) {
-					excepthandlerType[] exceptionHandlers = ((TryExcept) sourceAST.node).handlers;
-					for (excepthandlerType exceptionHandler : exceptionHandlers) {
-						if (targetLine + 1 == exceptionHandler.beginLine) {
-							// On assigning debug pointer on an except statement
-							// debugger breaks in line to frame in pydevd_frame
-							return false;
-						}
-					}
-				}
 				// Both Source and Target is inside some loop
 				if (sourceAST.equals(targetAST)) {
-					return true;
+					return isValidInterLoopContext(sourceLine, targetLine,
+							sourceAST, targetAST);
 				} else {
 					ASTEntry last = sourceAST;
 					boolean retVal = false;
@@ -855,11 +852,11 @@ public class NodeUtils {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Compare name of two methods. return true if either both methods are same
 	 * or global context
-	 * 
+	 *
 	 * @param sourceMethodName
 	 * @param targetMethodName
 	 * @return
@@ -873,11 +870,13 @@ public class NodeUtils {
 			return true;
 		return false;
 	}
-	
+
 	/**
-	 * Identifies the for/while/try..except/try..finally and with for a provided line number.
-	 * 
-	 * @param lineNumber the line we want to get the loop context (starts at 1)
+	 * Identifies the for/while/try..except/try..finally and with for a provided
+	 * line number.
+	 *
+	 * @param lineNumber
+	 *            the line we want to get the loop context (starts at 1)
 	 * @param ast
 	 * @return
 	 */
@@ -888,8 +887,7 @@ public class NodeUtils {
 			ArrayList<ASTEntry> contextBlockList = new ArrayList<ASTEntry>();
 			EasyASTIteratorWithLoop visitor = EasyASTIteratorWithLoop
 					.create(ast);
-			Iterator<ASTEntry> blockIterator = visitor
-					.getIterators();
+			Iterator<ASTEntry> blockIterator = visitor.getIterators();
 			while (blockIterator.hasNext()) {
 				ASTEntry entry = blockIterator.next();
 				if ((entry.node.beginLine) < lineNumber
@@ -912,6 +910,195 @@ public class NodeUtils {
 		return loopContext;
 	}
 
+	/**
+	 * Set Next into else block of for..else/while..else is also allowed even if
+	 * current pointer is outside for..else/while..else but current pointer
+	 * context should be immediate parent of target for..else/while..else
+	 *
+	 * @param sourceAST
+	 * @param targetAST
+	 * @param sourceLine
+	 *            : the line at which debugger is stopped currently (starts at
+	 *            1)
+	 * @param targetLine
+	 *            : the line at which we need to set next (starts at 0)
+	 * @return
+	 */
+	public static boolean isValidElseBlock(ASTEntry sourceAST,
+			ASTEntry targetAST, int sourceLine, int targetLine) {
+		boolean retval = false;
+		if (targetAST.node instanceof For || targetAST.node instanceof While) {
+			int targetElseBeginLine = getElseBeginLine(targetAST);
+			if (targetElseBeginLine > 0 && targetLine + 1 > targetElseBeginLine) {
+				if ((targetAST.parent == null || targetAST.parent.node instanceof FunctionDef)
+						&& sourceAST == null) {
+					retval = true;
+				} else if (targetAST.parent != null
+						&& targetAST.parent.equals(sourceAST)) {
+					int sourceElseBeginLine = getElseBeginLine(sourceAST);
+					if (sourceLine > sourceElseBeginLine) {
+						retval = false;
+					} else {
+						retval = true;
+					}
+				}
+			}
+		}
+		return retval;
+	}
+
+	/**
+	 * Identifies the begin line of else block for for..else/while..else and
+	 * first exception begin line for try..except..else block
+	 *
+	 * @param astEntry
+	 * @return
+	 */
+	public static int getElseBeginLine(ASTEntry astEntry) {
+		int beginLine = 0;
+		if (astEntry.node instanceof TryExcept
+				&& ((TryExcept) astEntry.node).handlers.length > 0) {
+			beginLine = ((TryExcept) astEntry.node).handlers[0].beginLine;
+		} else if (astEntry.node instanceof For
+				&& ((For) astEntry.node).orelse != null) {
+			beginLine = ((For) astEntry.node).orelse.beginLine;
+		} else if (astEntry.node instanceof While
+				&& ((While) astEntry.node).orelse != null) {
+			beginLine = ((While) astEntry.node).orelse.beginLine;
+		}
+		return beginLine;
+	}
+
+	/**
+	 *
+	 *
+	 * @param sourceLine
+	 * @param targetLine
+	 * @param sourceAST
+	 * @param targetAST
+	 * @return
+	 */
+	public static boolean isValidInterLoopContext(int sourceLine,
+			int targetLine, ASTEntry sourceAST, ASTEntry targetAST) {
+		boolean retval = true;
+		if (sourceAST.node instanceof TryExcept
+				&& targetAST.node instanceof TryExcept
+				&& (!isValidTryExceptContext(sourceAST, targetAST, sourceLine,
+						targetLine))) {
+			retval = false;
+		} else if (sourceAST.node instanceof For
+				&& targetAST.node instanceof For
+				&& (!isValidForContext(sourceAST, targetAST, sourceLine,
+						targetLine))) {
+			retval = false;
+		} else if (sourceAST.node instanceof While
+				&& targetAST.node instanceof While
+				&& (!isValidWhileContext(sourceAST, targetAST, sourceLine,
+						targetLine))) {
+			retval = false;
+		}
+		return retval;
+	}
+
+	/**
+	 * Identifies the valid set next target inside Try..except..else block
+	 *
+	 * @param sourceAST
+	 * @param targetAST
+	 * @param sourceLine
+	 *            : the line at which debugger is stopped currently (starts at
+	 *            1)
+	 * @param targetLine
+	 *            : the line at which we need to set next (starts at 0)
+	 * @return
+	 */
+	public static boolean isValidTryExceptContext(ASTEntry sourceAST,
+			ASTEntry targetAST, int sourceLine, int targetLine) {
+
+		excepthandlerType[] exceptionHandlers = ((TryExcept) sourceAST.node).handlers;
+		if (((TryExcept) sourceAST.node).specialsAfter != null) {
+			// Pointer can't be set on comment(s) in try block
+			List<Object> specialList = ((TryExcept) sourceAST.node).specialsAfter;
+			for (Object obj : specialList) {
+				if (obj instanceof commentType
+						&& targetLine + 1 == ((commentType) obj).beginLine) {
+					return false;
+				}
+			}
+		}
+		for (int i = 0; i < exceptionHandlers.length; i++) {
+			excepthandlerType exceptionHandler = exceptionHandlers[i];
+			// Pointer can't be set on except... statement(s)
+			if (targetLine + 1 == exceptionHandler.beginLine) {
+				return false;
+			}
+		}
+
+		// Pointer can't be moved inside try block from except or else block
+		if (exceptionHandlers.length > 0) {
+			int exceptionBeginLine = exceptionHandlers[0].beginLine;
+			if (targetLine + 1 > ((TryExcept) sourceAST.node).beginLine
+					&& targetLine + 1 < exceptionBeginLine
+					&& sourceLine >= exceptionBeginLine) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Identifies the valid set next target inside while..else block
+	 *
+	 * @param sourceAST
+	 * @param targetAST
+	 * @param sourceLine
+	 *            : the line at which debugger is stopped currently (starts at
+	 *            1)
+	 * @param targetLine
+	 *            : the line at which we need to set next (starts at 0)
+	 * @return
+	 */
+	public static boolean isValidWhileContext(ASTEntry sourceAST,
+			ASTEntry targetAST, int sourceLine, int targetLine) {
+		// Pointer can't be moved inside while block from else block
+		if (((While) sourceAST.node).orelse != null) {
+			int elseBeginLine = ((While) sourceAST.node).orelse.beginLine;
+			if (targetLine + 1 > ((While) sourceAST.node).beginLine
+					&& targetLine + 1 < elseBeginLine
+					&& sourceLine >= elseBeginLine) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Identifies the valid set next target inside for..else block
+	 *
+	 * @param sourceAST
+	 * @param targetAST
+	 * @param sourceLine
+	 *            : the line at which debugger is stopped currently (starts at
+	 *            1)
+	 * @param targetLine
+	 *            : the line at which we need to set next (starts at 0)
+	 * @return
+	 */
+	public static boolean isValidForContext(ASTEntry sourceAST,
+			ASTEntry targetAST, int sourceLine, int targetLine) {
+		// Pointer can't be moved inside for block from else block
+		if (((For) sourceAST.node).orelse != null) {
+			int elseBeginLine = ((For) sourceAST.node).orelse.beginLine;
+			if (targetLine + 1 > ((For) sourceAST.node).beginLine
+					&& targetLine + 1 < elseBeginLine
+					&& sourceLine >= elseBeginLine) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+
     protected static final String[] strTypes = new String[]{
         "'''",
         "\"\"\"",
@@ -931,7 +1118,7 @@ public class NodeUtils {
             buffer.append("r");
         }
         final String s = strTypes[node.type-1];
-        
+
         buffer.append(s);
         buffer.append(node.s);
         buffer.append(s);
@@ -941,21 +1128,21 @@ public class NodeUtils {
 
     /**
      * @param node the if node that we want to check.
-     * @return null if the passed node is not 
+     * @return null if the passed node is not
      */
     public static boolean isIfMAinNode(If node) {
         if (node.test instanceof Compare) {
             Compare compareNode = (Compare)node.test;
             // handcrafted structure walking
-            if (compareNode.left instanceof Name 
+            if (compareNode.left instanceof Name
                 && ((Name)compareNode.left).id.equals("__name__")
                 && compareNode.ops != null
-                && compareNode.ops.length == 1 
+                && compareNode.ops.length == 1
                 && compareNode.ops[0] == Compare.Eq){
-                
+
                 if ( compareNode.comparators != null
                     && compareNode.comparators.length == 1
-                    && compareNode.comparators[0] instanceof Str 
+                    && compareNode.comparators[0] instanceof Str
                     && ((Str)compareNode.comparators[0]).s.equals("__main__")){
                     return true;
                 }
@@ -975,13 +1162,13 @@ public class NodeUtils {
             //Name generated during the parsing (in AbstractPythonGrammar)
             return false;
         }
-        
+
         return true;
     }
 
     /**
      * Creates an attribute from the passed string
-     * 
+     *
      * @param attrString: A string as 'a.b.c' or 'self.b' (at least one dot must be in the string) or self.xx()
      * Note that the call is only accepted as the last part.
      * @return an Attribute representing the string.
@@ -989,7 +1176,7 @@ public class NodeUtils {
     public static exprType makeAttribute(String attrString){
         List<String> dotSplit = StringUtils.dotSplit(attrString);
         Assert.isTrue(dotSplit.size() > 1);
-        
+
         exprType first = null;
         Attribute last = null;
         Attribute attr = null;
@@ -1017,7 +1204,7 @@ public class NodeUtils {
                 first = last;
             }
         }
-        
+
         String lastPart = dotSplit.get(0);
         if(lastPart.endsWith("()")){
             last.value = new Call(new Name(lastPart.substring(0, lastPart.length()-2), Name.Load, false), null, null, null, null);
@@ -1036,17 +1223,17 @@ public class NodeUtils {
             Module module = (Module) node;
             return module.body;
         }
-        
+
         if(node instanceof ClassDef){
             ClassDef module = (ClassDef) node;
             return module.body;
         }
-        
+
         if(node instanceof FunctionDef){
             FunctionDef module = (FunctionDef) node;
             return module.body;
         }
-        
+
         if(node instanceof excepthandlerType){
             excepthandlerType module = (excepthandlerType) node;
             return module.body;
@@ -1089,16 +1276,16 @@ public class NodeUtils {
 
     /**
      * @param node This is the node where we should start looking (usually the Module)
-     * @param path This is the path for which we want an item in the given node. 
+     * @param path This is the path for which we want an item in the given node.
      *        E.g.: If we want to find a method testFoo in a class TestCase, we'de pass TestCase.testFoo as the path.
-     *  
+     *
      */
     public static SimpleNode getNodeFromPath(SimpleNode node, String path) {
         SimpleNode leafTestNode = null;
 
         SimpleNode last = node;
         for(String s:StringUtils.dotSplit(path)){
-            
+
             stmtType found = null;
             for(stmtType n:NodeUtils.getBody(last)){
                 if(s.equals(NodeUtils.getRepresentationString(n))){
@@ -1107,7 +1294,7 @@ public class NodeUtils {
                     break;
                 }
             }
-            
+
             if(found == null){
                 leafTestNode = null;
                 break;
@@ -1121,15 +1308,15 @@ public class NodeUtils {
 
     /**
      * Finds the statement that contains the given node.
-     * 
+     *
      * @param source: this is the ast that contains the body with multiple statements.
      * @param ast: This is the ast for which we want the statement.
      */
     public static stmtType findStmtForNode(SimpleNode source, final SimpleNode ast) {
         VisitorBase v = new VisitorBase() {
-            
+
             private stmtType lastStmtFound;
-            
+
             @Override
             protected Object unhandled_node(SimpleNode node) throws Exception {
                 if(node instanceof stmtType){
@@ -1140,18 +1327,18 @@ public class NodeUtils {
                 }
                 return null;
             }
-            
+
             @Override
             public void traverse(SimpleNode node) throws Exception {
                 node.traverse(this);
             }
         };
         stmtType[] body = getBody(source);
-        
+
         stmtType last = null;
         for (stmtType stmtType : body) {
             if(stmtType.beginLine > ast.beginLine){
-                //already passed the possible statement, check the last one (which is the last statement that 
+                //already passed the possible statement, check the last one (which is the last statement that
                 //has a beginLine <= ast.beginLine) and return even if we didn't find it, as we already passed the
                 //target line.
                 if(last != null){

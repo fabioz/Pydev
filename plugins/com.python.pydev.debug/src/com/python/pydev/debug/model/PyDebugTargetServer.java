@@ -14,6 +14,7 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IProcess;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.debug.model.AbstractDebugTarget;
+import org.python.pydev.debug.model.PyExceptionBreakPointManager;
 import org.python.pydev.debug.model.PyThread;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 
@@ -39,6 +40,8 @@ public class PyDebugTargetServer extends AbstractDebugTarget {
         }
         
         debugger.addTarget(this);
+        PyExceptionBreakPointManager.getInstance().addListener(this);
+        
         IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
         breakpointManager.addBreakpointListener(this);
         // we have to know when we get removed, so that we can shut off the debugger
@@ -67,6 +70,7 @@ public class PyDebugTargetServer extends AbstractDebugTarget {
         if (launch == this.launch) {
             IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
             breakpointManager.removeBreakpointListener(this);
+            PyExceptionBreakPointManager.getInstance().removeListener(this);
         }
     }
     

@@ -44,7 +44,7 @@ import org.python.pydev.runners.SimpleRunner;
  * Launches Python process, and connects it to Eclipse's debugger.
  * Waits for process to complete.
  * 
- * Modelled after org.eclipse.jdt.internal.launching.StandardVMDebugger.
+ * Modeled after org.eclipse.jdt.internal.launching.StandardVMDebugger.
  */
 public class PythonRunner {
 

@@ -14,6 +14,9 @@ class IORedirector:
             except:
                 pass
             
+    def isatty(self):
+        return False
+
     def flush(self):
         for r in self._redirectTo:
             r.flush()
@@ -36,6 +39,9 @@ class IOBuf:
     def write(self, s):
         self.buflist.append(s)
         
+    def isatty(self):
+        return False
+
     def flush(self):
         pass
     

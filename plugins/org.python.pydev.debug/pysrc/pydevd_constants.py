@@ -45,12 +45,23 @@ _nextThreadIdLock = threading.Lock()
 # Python 3?
 #=======================================================================================================================
 IS_PY3K = False
+IS_PY27 = False
 try:
     if sys.version_info[0] >= 3:
         IS_PY3K = True            
+    elif sys.version_info[0] == 2 and sys.version_info[1] == 7:
+        IS_PY27 = True
 except AttributeError:
     pass #Not all versions have sys.version_info
 
+try:
+    IS_64_BITS = sys.maxsize > 2 ** 32
+except AttributeError:
+    try:
+        import struct
+        IS_64_BITS = struct.calcsize("P") * 8 > 32
+    except:
+        IS_64_BITS = False
 
 #=======================================================================================================================
 # Jython?

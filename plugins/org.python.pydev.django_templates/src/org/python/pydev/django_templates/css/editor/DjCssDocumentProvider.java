@@ -17,7 +17,7 @@ import com.aptana.editor.css.CSSSourceConfiguration;
  */
 public class DjCssDocumentProvider extends CompositeDocumentProvider {
 
-    protected DjCssDocumentProvider() {
+    public DjCssDocumentProvider() {
         super(IDjConstants.CONTENT_TYPE_DJANGO_CSS, CSSSourceConfiguration.getDefault(), DjCssSourceConfiguration.getDefault(),
                 DjPartitionerSwitchStrategy.getDefault());
     }

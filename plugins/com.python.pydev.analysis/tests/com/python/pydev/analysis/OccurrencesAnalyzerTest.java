@@ -37,7 +37,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testRelImport();
+            analyzer2.testImportErrorPattern();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -2778,6 +2778,17 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     			prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
     	
     	printMessages(msgs, 0);
+    }
+    
+    public void testImportErrorPattern() throws Exception {
+        
+        analyzer = new OccurrencesAnalyzer();
+        File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/redefinition_in_import/check_access.py");
+        Document doc = new Document(REF.getFileContents(file));
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("extendable.redefinition_in_import.check_access.py", file, nature, 0), 
+                prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
+        
+        printMessages(msgs, 0);
     }
     
     

@@ -1156,10 +1156,11 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 if(modRep.equals(tok)){
                     String act = state.getActivationToken();
                     Tuple<IModule, String> r = findOnImportedMods(importedModule, tok, state, act, currentModuleName);
-                    if(r == null){
-                        return null;
+                    if(r != null){
+                        return new Tuple3<IModule, String, IToken>(r.o1, r.o2, importedModule);
                     }
-                    return new Tuple3<IModule, String, IToken>(r.o1, r.o2, importedModule);
+                    //Note, if r==null, even though the name matched, keep on going (to handle cases of 
+                    //try..except ImportError, as we cannot be sure of which version will actually match).
                 }
             }
         }   
