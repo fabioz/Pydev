@@ -42,7 +42,7 @@ public class TemplateHelper {
             try {
                 fStore.load();
             } catch (IOException e) {
-                e.printStackTrace();
+                PydevPlugin.log(e);
                 throw new RuntimeException(e);
             }
         }

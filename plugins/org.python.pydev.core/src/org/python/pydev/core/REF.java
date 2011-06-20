@@ -861,7 +861,7 @@ public class REF {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.log(e);
         }finally{
             try {reader.close();} catch (IOException e1) {}
         }
