@@ -592,7 +592,7 @@ public final class PySelection {
                 doc.replace(offset, length, "");
             }
         } catch (BadLocationException e) {
-            e.printStackTrace();
+           Log.log(e);
         } 
     }
     
@@ -680,7 +680,7 @@ public final class PySelection {
                 doc.replace(offset, 0, contents);
             }
         } catch (BadLocationException e) {
-            e.printStackTrace();
+            Log.log(e);
         } 
     }
 
@@ -1700,9 +1700,8 @@ public final class PySelection {
     
             }
         } catch (BadLocationException e) {
-            System.out.println("documentOffset "+documentOffset);
-            System.out.println("theDoc.getLength() "+doc.getLength());
-            e.printStackTrace();
+            Log.log("documentOffset " + documentOffset + "\n" + "theDoc.getLength() "
+                    + doc.getLength(), e);
         }
         
         String qualifier = "";

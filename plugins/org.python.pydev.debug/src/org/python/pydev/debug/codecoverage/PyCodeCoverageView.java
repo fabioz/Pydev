@@ -404,7 +404,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
                     openFileWithCoverageMarkers(realFile);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                PydevPlugin.log(e);
             }
         }
     }

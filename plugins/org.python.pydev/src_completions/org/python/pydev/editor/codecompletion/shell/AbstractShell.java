@@ -715,7 +715,7 @@ public abstract class AbstractShell {
                     throw new RuntimeException("Couldn't find END@@ on received string.");
                 }
             } catch (RuntimeException e) {
-                e.printStackTrace();
+                PydevPlugin.log(e);
                 if (ret.length() > 500) {
                     ret = ret.substring(0, 499) + "...(continued)...";//if the string gets too big, it can crash Eclipse...
                 }

@@ -58,7 +58,6 @@ public class JythonEclipseProcess extends Process {
                             "''", "'"+port+"'", "'"+clientPort+"'" //args
                             );
                     if(e != null){
-                        e.printStackTrace();
                         Log.log(e);
                     }
                 };

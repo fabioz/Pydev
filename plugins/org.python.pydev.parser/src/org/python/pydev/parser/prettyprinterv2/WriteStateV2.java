@@ -12,6 +12,7 @@ package org.python.pydev.parser.prettyprinterv2;
 import java.io.IOException;
 
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 
 /**
@@ -62,7 +63,7 @@ public class WriteStateV2 implements IWriterEraser {
         try{
             indentation.delete(len-indentLen, len);
         }catch(Exception e){
-            e.printStackTrace();
+            Log.log(e);
         }
         eraseIndent();
     }

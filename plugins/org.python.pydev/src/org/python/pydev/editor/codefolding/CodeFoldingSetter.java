@@ -92,7 +92,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
                         try {
                             sleep(100);
                         } catch (InterruptedException e) {
-                            e.printStackTrace();
+                            PydevPlugin.log(e);
                         }
                         modelT = (ProjectionAnnotationModel) editor.getAdapter(ProjectionAnnotationModel.class);
                         if (modelT != null) {
@@ -143,7 +143,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            PydevPlugin.log(e);
         }
     }
 
