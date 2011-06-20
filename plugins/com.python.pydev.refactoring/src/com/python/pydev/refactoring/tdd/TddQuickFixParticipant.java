@@ -196,7 +196,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant{
                                         found = nature.getAstManager().findModule(
                                                 foundFromImportStr, currentModule, state);
                                     } catch (Exception e) {
-                                        PydevPlugin.log(e);
+                                        Log.log(e);
                                     }
                                     break OUT;
                                 }

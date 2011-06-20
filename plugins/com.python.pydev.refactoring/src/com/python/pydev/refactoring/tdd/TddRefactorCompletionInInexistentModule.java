@@ -31,7 +31,6 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editorinput.PySourceLocatorBase;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
@@ -95,7 +94,7 @@ public final class TddRefactorCompletionInInexistentModule extends AbstractTddRe
                 try {
                     folder.create(true, true, null);
                 } catch (CoreException e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
             }
             
@@ -105,7 +104,7 @@ public final class TddRefactorCompletionInInexistentModule extends AbstractTddRe
                 try {
                     file.create(new ByteArrayInputStream(new byte[0]), true, null);
                 } catch (CoreException e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
             }
         }
@@ -116,7 +115,7 @@ public final class TddRefactorCompletionInInexistentModule extends AbstractTddRe
             try {
                 file.create(new ByteArrayInputStream(new byte[0]), true, null);
             } catch (CoreException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
 

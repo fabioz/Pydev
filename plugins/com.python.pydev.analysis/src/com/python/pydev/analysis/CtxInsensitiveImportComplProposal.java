@@ -186,7 +186,7 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
                             }
                         }
                     } catch (ImportNotRecognizedException e1) {
-                        PydevPlugin.log(e1);//that should not happen at this point
+                        Log.log(e1);//that should not happen at this point
                     }
                 }
                 
@@ -298,7 +298,7 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
 
             
         } catch (BadLocationException x) {
-            PydevPlugin.log(x);
+            Log.log(x);
         }
     }    
     

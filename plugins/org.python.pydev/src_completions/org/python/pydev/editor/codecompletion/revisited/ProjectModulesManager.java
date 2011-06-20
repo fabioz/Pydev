@@ -40,7 +40,6 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaProjectModulesManagerCreator;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 /**
@@ -115,7 +114,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
      */
     public ISystemModulesManager getSystemModulesManager(){
         if(nature == null){
-            PydevPlugin.log("Nature still not set");
+            Log.log("Nature still not set");
             return null; //still not set (initialization)
         }
         try {

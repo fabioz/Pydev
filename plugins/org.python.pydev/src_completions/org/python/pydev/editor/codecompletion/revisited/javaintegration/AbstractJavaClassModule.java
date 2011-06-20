@@ -30,13 +30,13 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * This is an abstract class for modules based on java classes.
@@ -188,7 +188,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
                         javaElement, PyCodeCompletionImages.getImageForType(IToken.TYPE_ATTR)));
             }
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
 
         return lst.toArray(new CompiledToken[lst.size()]);

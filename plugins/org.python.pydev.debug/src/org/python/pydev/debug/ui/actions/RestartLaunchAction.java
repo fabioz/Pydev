@@ -17,6 +17,7 @@ import org.eclipse.jface.bindings.keys.KeySequence;
 import org.eclipse.ui.part.IPageBookViewPage;
 import org.eclipse.ui.texteditor.IUpdate;
 import org.python.pydev.bindingutils.KeyBindingHelper;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
@@ -67,12 +68,12 @@ public class RestartLaunchAction extends PyAction implements IUpdate{
             try {
                 launch.terminate();
             } catch (DebugException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             try {
                 launchConfiguration.launch(launch.getLaunchMode(), null);
             } catch (CoreException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
     }

@@ -12,8 +12,7 @@ import java.util.List;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.SelectionDialog;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.plugin.PydevPlugin;
-
+import org.python.pydev.core.log.Log;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
 
@@ -40,7 +39,7 @@ public class GlobalsDialogFactory{
         }catch(Throwable e){
             //That's OK: it's only available for Eclipse 3.3 onwards.
             if(expectedError){
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
         

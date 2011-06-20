@@ -11,7 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import org.eclipse.core.runtime.IStatus;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.log.Log;
 
 
 /**
@@ -37,7 +37,7 @@ public class StreamConsumer extends Thread {
             }
             bReader.close();
         } catch (IOException ioe) {
-            PydevPlugin.log(IStatus.ERROR, "Error in stream consumer", ioe);
+            Log.log(IStatus.ERROR, "Error in stream consumer", ioe);
         }
     }
     /**

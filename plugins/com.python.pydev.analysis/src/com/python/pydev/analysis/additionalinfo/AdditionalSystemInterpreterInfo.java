@@ -20,7 +20,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 import com.python.pydev.analysis.AnalysisPlugin;
@@ -70,7 +70,7 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
             base = stateLocation.toFile();
         } catch (NullPointerException e) {
             //it may fail in tests... (save it in default folder in this cases)
-            PydevPlugin.log(IStatus.ERROR, "Error getting persisting folder", e, false);
+            Log.log(IStatus.ERROR, "Error getting persisting folder", e, false);
             base = new File(".");
         }
         File file = new File(

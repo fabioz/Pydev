@@ -14,8 +14,8 @@ import java.util.Map;
 
 import org.eclipse.jface.action.IAction;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.OfflineActionTarget;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * This is the class that manages the actions that are binded after Ctrl+2
@@ -85,7 +85,7 @@ public class OfflineActionsManager {
             action.run();
         } catch (Throwable e) {
             target.statusError("Exception raised when executing action:"+requestedStr+" - "+e.getMessage());
-            PydevPlugin.log(e);
+            Log.log(e);
             return false;
         }
         return true;

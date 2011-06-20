@@ -15,7 +15,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposalExtension4;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.log.Log;
 
 
 /**
@@ -135,7 +135,7 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
                 }
             } catch (BadLocationException x) {
                 // ignore
-                PydevPlugin.log(x);
+                Log.log(x);
             }
             return;
         }

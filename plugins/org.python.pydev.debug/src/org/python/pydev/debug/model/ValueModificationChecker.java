@@ -16,7 +16,7 @@ import java.util.Map;
 
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IVariable;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.log.Log;
 
 /**
  * This class should check for value modifications in the stacks while debugging.
@@ -56,7 +56,7 @@ public class ValueModificationChecker {
             }
             
         } catch (DebugException e) {        
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
 

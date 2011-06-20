@@ -13,9 +13,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.plugin.PydevPlugin;
 
 
 public class PyNatureReindexer implements IPyEditListener{
@@ -28,7 +28,7 @@ public class PyNatureReindexer implements IPyEditListener{
                     try {
                         nature.rebuildPath();
                     } catch (CoreException e) {
-                        PydevPlugin.log(e);
+                        Log.log(e);
                     }
                 }
             }

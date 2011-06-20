@@ -152,7 +152,7 @@ public class PythonLabelProvider implements ILabelProvider{
                                     IDecoration.BOTTOM_LEFT);
                             projectWithError = decorationOverlayIcon.createImage();
                         } catch (Exception e) {
-                            PydevPlugin.log("Unable to create error decoration for project icon.", e);
+                            Log.log("Unable to create error decoration for project icon.", e);
                             projectWithError = image;
                         }
                     }

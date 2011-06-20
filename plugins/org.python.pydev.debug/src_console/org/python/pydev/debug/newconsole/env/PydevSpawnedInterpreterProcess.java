@@ -13,8 +13,8 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamsProxy;
 import org.eclipse.ui.console.IOConsole;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * This class defines a process that pydev will spawn for the console.
@@ -86,7 +86,7 @@ public class PydevSpawnedInterpreterProcess implements IProcess {
                 this.spawnedInterpreterProcess.destroy();
             }
         } catch (RuntimeException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         this.spawnedInterpreterProcess = null;
         terminated = true;

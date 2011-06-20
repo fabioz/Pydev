@@ -10,8 +10,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.logging.DebugSettings;
-import org.python.pydev.plugin.PydevPlugin;
-
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 
@@ -57,7 +55,7 @@ public class AnalysisBuilderRunnableForRemove extends AbstractAnalysisBuilderRun
 				info = AdditionalProjectInterpreterInfo.
 				    getAdditionalInfoForProject(nature);
 			} catch (MisconfigurationException e) {
-				PydevPlugin.log(e);
+				Log.log(e);
 				return;
 			}
             

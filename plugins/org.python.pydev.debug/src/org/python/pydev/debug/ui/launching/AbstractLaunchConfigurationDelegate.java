@@ -135,7 +135,7 @@ public abstract class AbstractLaunchConfigurationDelegate extends LaunchConfigur
             ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
             launchManager.removeLaunch(launch);
         }catch(Throwable x){
-            PydevPlugin.log(x);
+            Log.log(x);
         }
     }
 

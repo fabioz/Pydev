@@ -28,6 +28,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 
 public abstract class AbstractPythonWizard extends Wizard implements INewWizard {
@@ -141,11 +142,11 @@ public abstract class AbstractPythonWizard extends Wizard implements INewWizard 
                     }
                 }
             } catch (PartInitException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
                 return false;
             }
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
             return false;
         }
         return true;

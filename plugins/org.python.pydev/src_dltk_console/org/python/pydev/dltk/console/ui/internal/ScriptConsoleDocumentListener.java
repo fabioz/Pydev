@@ -34,7 +34,6 @@ import org.python.pydev.dltk.console.ui.ScriptConsolePartitioner;
 import org.python.pydev.dltk.console.ui.ScriptStyleRange;
 import org.python.pydev.editor.autoedit.DocCmd;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * This class will listen to the document and will:
@@ -176,7 +175,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             try {
                 doc.replace(doc.getLength(), 0, this.initialCommands);
             } catch (BadLocationException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
     }
@@ -252,7 +251,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             try{
                 offset = getLastLineLength();
             }catch(BadLocationException e){
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
         appendInvitation(false);
@@ -300,7 +299,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                     lineTracker.lineAppended(region);
                 }
             }catch(Exception e){
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
     }
@@ -366,13 +365,13 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             text = doc.get(offset, doc.getLength() - offset);
         }catch(BadLocationException e){
             text = "";
-            PydevPlugin.log(e);
+            Log.log(e);
         }
 
         try{
             doc.replace(offset, text.length(), ""); //$NON-NLS-1$
         }catch(BadLocationException e){
-            PydevPlugin.log(e);
+            Log.log(e);
         }
 
         text = text.replaceAll("\r\n|\n|\r", delim); //$NON-NLS-1$
@@ -461,7 +460,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                                     strategy.customizeNewLine(historyDoc, docCmd);
                                     finalIndentString[0] = docCmd.text.replaceAll("\\r\\n|\\n|\\r", ""); //remove any new line added!
                                     if(currHistoryLen != historyDoc.getLength()){
-                                        PydevPlugin.log("Error: the document passed to the customizeNewLine should not be changed!");
+                                        Log.log("Error: the document passed to the customizeNewLine should not be changed!");
                                     }
                                 }
                             }
@@ -532,7 +531,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             try{
                 PyAutoIndentStrategy.customizeParenthesis(parenDoc, docCmd, true, strategy.getIndentPrefs());
             }catch(BadLocationException e){
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             newText = docCmd.text+newText.substring(1);
             if(!docCmd.shiftsCaret){
@@ -552,7 +551,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                     canSkipOpenParenthesis = strategy.canSkipCloseParenthesis(parenDoc, docCmd);
                 }catch(BadLocationException e){
                     canSkipOpenParenthesis = false;
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
                 if(canSkipOpenParenthesis){
                     shiftsCaret = false;
@@ -624,7 +623,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         try{
             doc.replace(initialOffset, 0, text);
         }catch(BadLocationException e){
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
 
@@ -741,7 +740,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             commandLineOffset = getCommandLineOffset();
             commandLineLength = getCommandLineLength();
         }catch(BadLocationException e1){
-            PydevPlugin.log(e1);
+            Log.log(e1);
             return "";
         }
         if(commandLineLength < 0){
@@ -751,8 +750,8 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         try {
             return doc.get(commandLineOffset, commandLineLength);
         } catch (BadLocationException e) {
-            PydevPlugin.log(StringUtils.format(
-                    "Error: bad location: offset:%s text:%s", commandLineOffset, commandLineLength));
+            Log.log(StringUtils.format(
+            "Error: bad location: offset:%s text:%s", commandLineOffset, commandLineLength));
             return "";
         }
     }

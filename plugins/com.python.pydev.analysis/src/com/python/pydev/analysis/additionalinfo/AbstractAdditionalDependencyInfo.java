@@ -36,7 +36,6 @@ import org.python.pydev.editor.codecompletion.revisited.ModulesKeyTreeMap;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.plugin.PydevPlugin;
 
 
 /**
@@ -392,7 +391,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                     
             }
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         return addAstInfo;
     }

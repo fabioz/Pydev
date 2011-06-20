@@ -28,7 +28,6 @@ import org.python.pydev.core.ArrayUtils;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Helper class to deal with markers.
@@ -257,7 +256,7 @@ public class PydevMarkerUtils {
                         marker.setAttributes(asMap);
                     }
                 } catch (Exception e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
                 
             }

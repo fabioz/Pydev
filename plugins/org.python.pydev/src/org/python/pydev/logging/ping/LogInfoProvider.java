@@ -48,7 +48,7 @@ public class LogInfoProvider implements ILogPingProvider {
 		        node = Preferences.userRoot().node(keyNodeInPrefs);
                 id = node.get(keySettingInPrefs, "");
             } catch (Exception e1) {
-                PydevPlugin.log(e1);
+                Log.log(e1);
             }
             IPreferenceStore preferenceStore = PydevPlugin.getDefault().getPreferenceStore();
             
@@ -68,7 +68,7 @@ public class LogInfoProvider implements ILogPingProvider {
 		        try {
 		            node.put(keySettingInPrefs, id);
 		        } catch (Exception e) {
-		            PydevPlugin.log(e);
+		            Log.log(e);
 		        }
 		    }
 		    

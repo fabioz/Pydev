@@ -22,6 +22,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
@@ -121,13 +122,13 @@ public class PyRefactoringFindDefinition {
         }
         
         if(request.nature == null){
-            PydevPlugin.logInfo("Unable to resolve nature for find definition request (python or jython interpreter may not be configured).");
+            Log.logInfo("Unable to resolve nature for find definition request (python or jython interpreter may not be configured).");
             return null;
         }
         
         IModule mod = request.getModule();
         if(mod == null){
-            PydevPlugin.logInfo("Unable to resolve module for find definition request.");
+            Log.logInfo("Unable to resolve module for find definition request.");
             return null;
         }
 
@@ -140,7 +141,7 @@ public class PyRefactoringFindDefinition {
                 }
             }
             if(modName == null){
-                PydevPlugin.logInfo("Unable to resolve module for find definition request (modName == null).");
+                Log.logInfo("Unable to resolve module for find definition request (modName == null).");
                 return null;
             }
         }

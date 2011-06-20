@@ -27,7 +27,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.ThreadStreamReader;
 import org.python.pydev.runners.UniversalRunner;
@@ -103,11 +102,11 @@ public class PyCoverage {
                     PythonRunnerConfig.getCoverageScript(), new String[]{"combine"}, getCoverageDirLocation(), monitor);
             
             if(output.o1 != null && output.o1.length() > 0){
-                PydevPlugin.logInfo(output.o1);
+                Log.logInfo(output.o1);
             }
             if(output.o2 != null && output.o2.length() > 0){
                 if(output.o2.startsWith("Coverage.py warning:")){
-                    PydevPlugin.logInfo(output.o2);
+                    Log.logInfo(output.o2);
                     
                 }else{
                     Log.log(output.o2);
@@ -192,7 +191,7 @@ public class PyCoverage {
                         try {
                             p.destroy();
                         } catch (Exception e) {
-                            PydevPlugin.log(e);
+                            Log.log(e);
                         }
                         break;
                     }
@@ -201,7 +200,7 @@ public class PyCoverage {
                 String stdOut = inputStream.getAndClearContents();
                 String stdErr = errorStream.getAndClearContents().trim();
                 if(stdErr.length() > 0){
-                    PydevPlugin.log(stdErr);
+                    Log.log(stdErr);
                 }
                 
                 monitor.setTaskName("Getting coverage info...(please wait, this could take a while)");
@@ -217,11 +216,11 @@ public class PyCoverage {
                 if (p != null) {
                     p.destroy();
                 }
-                PydevPlugin.log(e);
+                Log.log(e);
             }
 
         } catch (Exception e1) {
-            PydevPlugin.log(e1);
+            Log.log(e1);
             throw new RuntimeException(e1);
         }
     }
@@ -315,7 +314,7 @@ public class PyCoverage {
                 }
                 
             } catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
     }

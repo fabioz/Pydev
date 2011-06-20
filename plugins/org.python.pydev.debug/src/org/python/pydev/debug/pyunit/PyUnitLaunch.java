@@ -14,10 +14,10 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.Launch;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.actions.RestartLaunchAction;
-import org.python.pydev.plugin.PydevPlugin;
 
 public class PyUnitLaunch implements IPyUnitLaunch{
 
@@ -33,7 +33,7 @@ public class PyUnitLaunch implements IPyUnitLaunch{
         try {
             this.launch.terminate(); //doing this should call dispose later on.
         } catch (DebugException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
 

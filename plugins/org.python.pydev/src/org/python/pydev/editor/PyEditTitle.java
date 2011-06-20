@@ -404,7 +404,7 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 					IPath path = keys.get(i);
 					List<IEditorReference> refs = partsAndPaths.get(path);
 					if(refs == null || refs.size() == 0){
-						PydevPlugin.log("Unexpected condition. Key path without related editors: "+path);
+						Log.log("Unexpected condition. Key path without related editors: "+path);
 						keys.remove(i);
 						i--; //make up for the removed editor.
 						continue;
@@ -490,7 +490,7 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 				}
 				list.add(iEditorReference);
 			} catch (Throwable e) {
-				PydevPlugin.log(e);
+				Log.log(e);
 			}
 		}
 		return ret;
@@ -564,7 +564,7 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 					}
 						
 				} catch (Throwable e) {
-					PydevPlugin.log(e);
+					Log.log(e);
 				}
 			}
 		});
@@ -599,7 +599,7 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 								((PyEdit) editor).setEditorTitle(title);
 							}
 						} catch (Throwable e) {
-							PydevPlugin.log(e);
+							Log.log(e);
 						}
 					}
 				});
@@ -647,7 +647,7 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 							((PyEdit) editor).setEditorTitle(title+" #"+(i+1));
 						}
 					} catch (Throwable e) {
-						PydevPlugin.log(e);
+						Log.log(e);
 					}
 				}
 			});

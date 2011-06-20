@@ -16,6 +16,7 @@ import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 
 public abstract class AbstractPythonNature implements IPythonNature{
@@ -83,7 +84,7 @@ public abstract class AbstractPythonNature implements IPythonNature{
                 IModulesManager modulesManager = modulesManagerStack.pop();
                 modulesManager.endCompletionCache();
             } catch (EmptyStackException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
     }

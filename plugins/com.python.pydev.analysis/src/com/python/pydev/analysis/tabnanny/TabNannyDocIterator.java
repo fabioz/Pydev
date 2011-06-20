@@ -11,8 +11,8 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
-import org.python.pydev.plugin.PydevPlugin;
 
 
 /**
@@ -71,7 +71,7 @@ public class TabNannyDocIterator{
                     initial = offset;
                 }else{
                     if(initial == offset){
-                        PydevPlugin.log("Error: TabNannyDocIterator didn't walk.\n" +
+                        Log.log("Error: TabNannyDocIterator didn't walk.\n" +
                                 "Curr char:"+c+"\n" +
                                 "Curr char (as int):"+(int)c+"\n" +
                                 "Offset:"+offset+"\n" +

@@ -30,9 +30,9 @@ import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.IPythonPathHelper;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.utils.PyFileListing;
@@ -167,7 +167,7 @@ public class PythonPathHelper implements IPythonPathHelper {
 
             } catch (Exception e) {
                 //that's ok, it is probably not a zip file after all...
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
         return null;

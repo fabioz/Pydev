@@ -19,6 +19,7 @@ import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.viewers.ISelection;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.dltk.console.ui.internal.ScriptConsoleViewer;
 import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
 import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
@@ -81,7 +82,7 @@ public class PydevConsoleQuickAssistProcessor implements IQuickAssistProcessor {
                                 offset, commandLine, commandLineOffset));
                         
                     } catch (BadLocationException e) {
-                        PydevPlugin.log(e);
+                        Log.log(e);
                     }
                 }
             }

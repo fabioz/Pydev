@@ -13,9 +13,9 @@ import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.hyperlink.AbstractHyperlinkDetector;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.ui.texteditor.ITextEditor;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.visitors.PythonLanguageUtils;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Based on JavaElementHyperlinkDetector (which uses the hyperlink mechanism added at eclipse 3.3)
@@ -54,13 +54,13 @@ public class PythonElementHyperlinkDetector extends AbstractHyperlinkDetector {
                     return null;
                 }
             } catch (BadLocationException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
 
             //return a hyperlink even without trying to find the definition (which may be costly)
             return new IHyperlink[] { new PythonHyperlink(wordRegion, editor) };
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
             return null;
         }
 

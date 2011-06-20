@@ -58,7 +58,6 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
@@ -668,7 +667,7 @@ public abstract class ModulesManager implements IModulesManager {
                                     zipModule.zipFilePath = emptyModuleForZip.pathInZip;
                                     n = decorateModule(n, nature);
                                 } catch (Exception exc1) {
-                                    PydevPlugin.log(exc1);
+                                    Log.log(exc1);
                                     n = null;
                                 }
                             }
@@ -687,7 +686,7 @@ public abstract class ModulesManager implements IModulesManager {
                                 doRemoveSingleModule(keyForCacheAccess);
                                 n = null;
                             } catch (MisconfigurationException exc) {
-                                PydevPlugin.log(exc);
+                                Log.log(exc);
                                 n=null;
                             }
                         }
@@ -710,7 +709,7 @@ public abstract class ModulesManager implements IModulesManager {
             if (n != null) {
                 doAddSingleModule(createModulesKey(name, e.f), n);
             } else {
-                PydevPlugin.log("The module " + name + " could not be found nor created!");
+                Log.log(("The module " + name + " could not be found nor created!"));
             }
         }
 

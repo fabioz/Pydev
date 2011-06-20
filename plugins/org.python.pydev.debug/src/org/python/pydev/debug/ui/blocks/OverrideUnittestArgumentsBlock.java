@@ -25,7 +25,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
 
@@ -110,7 +110,7 @@ public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationT
                     false));
         } catch (CoreException e) {
             buttonAskOverride.setSelection(false);
-            PydevPlugin.log(e);
+            Log.log(e);
         }
 
         //Test runner
@@ -127,7 +127,7 @@ public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationT
                 }
             }
         } catch (CoreException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         if (!testRunnerSet) {
             comboSelectRunner.setText(PyUnitPrefsPage2.ENTRY_NAMES_AND_VALUES[0][0]);
@@ -139,7 +139,7 @@ public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationT
                     prefs.getString(PyUnitPrefsPage2.TEST_RUNNER_DEFAULT_PARAMETERS));
             textRunnerParameters.setText(params);
         } catch (CoreException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         updateOverrideState();
     }

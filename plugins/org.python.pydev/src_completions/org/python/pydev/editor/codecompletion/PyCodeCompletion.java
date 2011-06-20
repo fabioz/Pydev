@@ -571,7 +571,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                 }
                 getSelfOrClsCompletions(visitor.scope, request, theList, state, getOnlySupers);
             } catch (Exception e1) {
-                PydevPlugin.log(e1);
+                Log.log(e1);
             }
             return true;
         }

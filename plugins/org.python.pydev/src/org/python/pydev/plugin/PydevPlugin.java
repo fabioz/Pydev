@@ -235,7 +235,7 @@ public class PydevPlugin extends AbstractUIPlugin  {
 			    }
 			} catch (Exception e) {
 			    //it may fail in tests... (save it in default folder in this cases)
-			    PydevPlugin.log(IStatus.ERROR, "Error getting persisting folder", e, false);
+			    Log.log(IStatus.ERROR, "Error getting persisting folder", e, false);
 			    base = new File(".");
 			}
 			File file = new File(base, "ping.log");
@@ -316,7 +316,7 @@ public class PydevPlugin extends AbstractUIPlugin  {
                 try {
                     nature.saveAstManager();
                 } catch (Exception e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
             }
         } finally{
@@ -370,71 +370,78 @@ public class PydevPlugin extends AbstractUIPlugin  {
         return resourceBundle;
     }
     
-    
+    /**
+     * @deprecated, use {@link Log#log(String, Throwable)}
+     */
+    @Deprecated
     public static void log(String message, Throwable e) {
-        log(IStatus.ERROR, message, e);
+        Log.log(message, e);
     }
     
+    /**
+     * @deprecated, use {@link Log#log(int, String, Throwable)}
+     */
+    @Deprecated
     public static void log(int errorLevel, String message, Throwable e) {
-        log(errorLevel, message, e, true);
+        Log.log(errorLevel, message, e);
     }
+    
+    /**
+     * @deprecated, use {@link Log#log(String, Throwable, boolean)}
+     */
+    @Deprecated
     public static void log(String message, Throwable e, boolean printToConsole) {
-        log(IStatus.ERROR, message, e, printToConsole);
+        Log.log(message, e, printToConsole);
     }
 
+    /**
+     * @deprecated, use {@link Log#logInfo(Throwable)}
+     */
+    @Deprecated
     public static void logInfo(Throwable e) {
-        log(IStatus.INFO, e.getMessage(), e, true);
+        Log.logInfo(e);
     }
 
     /**
      * @param errorLevel IStatus.[OK|INFO|WARNING|ERROR]
+     * @deprecated, use {@link Log#log(int, String, Throwable, boolean)}
      */
+    @Deprecated
     public static void log(int errorLevel, String message, Throwable e, boolean printToConsole) {
-        if(printToConsole){
-            if(errorLevel == IStatus.ERROR){
-                System.out.println("Error received...");
-            }else{
-                System.out.println("Log received...");
-            }
-            System.out.println(message);
-            System.err.println(message);
-            if(e != null){
-                e.printStackTrace();
-            }
-        }
-        
-        try {
-            Status s = new Status(errorLevel, getPluginID(), errorLevel, message, e);
-            getDefault().getLog().log(s);
-        } catch (Throwable e1) {
-            //logging should never fail!
-        }
+        Log.log(errorLevel, message, e, printToConsole);
     }
 
     
+    /**
+     * @deprecated, use {@link Log#log(Throwable)}
+     */
+    @Deprecated
     public static void log(Throwable e) {
-        log(e, true);
+        Log.log(e);
     }
     
+    /**
+     * @deprecated, use {@link Log#log(Throwable, boolean)}
+     */
+    @Deprecated
     public static void log(Throwable e, boolean printToConsole) {
-        log(IStatus.ERROR, e.getMessage() != null ? e.getMessage() : "No message gotten.", e, printToConsole);
+        Log.log(e, printToConsole);
     }
 
+    /**
+     * @deprecated, use {@link Log#logInfo(String)}
+     */
+    @Deprecated
     public static void logInfo(String msg) {
-        IStatus s = PydevPlugin.makeStatus(IStatus.INFO, msg, null);
-        PydevPlugin plug = getDefault();
-        if(plug == null){//testing mode
-            System.out.println(msg);
-        }else{
-            plug.getLog().log(s);
-        }
+        Log.logInfo(msg);
     }
     
+    /**
+     * @deprecated, use {@link Log#log(String)}
+     */
+    @Deprecated
     public static CoreException log(String msg) {
-        IStatus s = PydevPlugin.makeStatus(IStatus.ERROR, msg, new RuntimeException(msg));
-        CoreException e = new CoreException(s);
-        PydevPlugin.log(e);
-        return e;
+        return Log.log(msg);
     }
 
     /**

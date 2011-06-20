@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.dialogs.PreferencesUtil;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.utils.ComboFieldEditor;
@@ -107,7 +108,7 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
         try {
             override = config.getAttribute(LAUNCH_CONFIG_OVERRIDE_PYUNIT_RUN_PARAMS_CHOICE, false);
         } catch (CoreException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         IPreferenceStore prefs = PydevPrefs.getPreferenceStore();
         int testRunner = prefs.getInt(TEST_RUNNER);
@@ -116,12 +117,12 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
             try {
                 testRunner = config.getAttribute(LAUNCH_CONFIG_OVERRIDE_TEST_RUNNER, testRunner);
             } catch (CoreException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             try {
                 ret = config.getAttribute(LAUNCH_CONFIG_OVERRIDE_PYUNIT_RUN_PARAMS, ret);
             } catch (CoreException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
         

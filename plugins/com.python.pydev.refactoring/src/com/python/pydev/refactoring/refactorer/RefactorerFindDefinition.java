@@ -27,8 +27,6 @@ import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editor.refactoring.TooManyMatchesException;
-import org.python.pydev.plugin.PydevPlugin;
-
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
@@ -91,7 +89,7 @@ public class RefactorerFindDefinition {
 						request.checkCancelled();
 					}
 				} catch (MisconfigurationException e) {
-					PydevPlugin.log(e);
+					Log.log(e);
 					return new ItemPointer[0];
 				}
                 

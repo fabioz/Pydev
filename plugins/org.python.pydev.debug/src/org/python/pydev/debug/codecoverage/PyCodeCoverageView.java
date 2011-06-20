@@ -195,7 +195,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
             try {
                 REF.openDirectory(PyCoverage.getCoverageDirLocation());
             } catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
         
@@ -217,7 +217,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
             try {
                 executeRefreshAction(this.monitor);
             } catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
 
@@ -404,7 +404,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
                     openFileWithCoverageMarkers(realFile);
                 }
             } catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
     }

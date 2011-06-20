@@ -101,6 +101,7 @@ import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.docutils.PyPartitionScanner;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.parser.ISimpleNode;
 import org.python.pydev.editor.actions.FirstCharAction;
 import org.python.pydev.editor.actions.OfflineAction;
@@ -308,7 +309,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 	                    }
 	                } catch (Exception e) {
 	                    //ignore
-	                    PydevPlugin.log(e);
+	                    Log.log(e);
 	                }
 	            }
 	        }
@@ -385,7 +386,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         try {
             onPyEditCreated.call(this);
         } catch (Throwable e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         try{
             //initialize the 'save' listeners of PyEdit
@@ -411,7 +412,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             this.addPropertyListener(codeFoldingSetter);
 
         }catch (Throwable e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
 
@@ -464,7 +465,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                     }
                 } catch (Throwable e) {
                     //must not fail
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
             }
         }
@@ -557,7 +558,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                         break;
                     }
             } catch (BadLocationException e) {
-                PydevPlugin.log(IStatus.ERROR, "Unexpected error forcing tabs", e);
+                Log.log(IStatus.ERROR, "Unexpected error forcing tabs", e);
                 break;
             }
             i++;
@@ -684,7 +685,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             thread.start();
         }catch (Throwable e) {
             //never fail in the init
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
     
@@ -747,7 +748,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             //if it still hasn't returned, remove any existing marker (i.e.: rename operation)
             removeInvalidModuleMarkers(file);
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
     
@@ -757,7 +758,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                 file.deleteMarkers(INVALID_MODULE_MARKER_TYPE, true, IResource.DEPTH_ZERO);
             }
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
     
@@ -831,12 +832,12 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             notifier.notifyInputChanged(oldInput, input);
             notifier.notifyOnSetDocument(document);
         }catch (Throwable e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         try{
         	PyEditTitle.invalidateTitle(this, input);
 	    }catch (Throwable e) {
-	    	PydevPlugin.log(e);
+	    	Log.log(e);
 	    }
     }
     
@@ -919,14 +920,14 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             }
         } catch (Throwable e) {
             //can never fail
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         
         try{
             fixEncoding(getEditorInput(), document);
         } catch (Throwable e) {
             //can never fail
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         
         super.performSave(overwrite, progressMonitor);
@@ -935,7 +936,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             notifier.notifyOnSave();
         } catch (Throwable e) {
             //can never fail
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
     
@@ -972,7 +973,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                                         //refresh it...
                                         file.refreshLocal(IResource.DEPTH_INFINITE, null);
                                     } catch (CoreException e) {
-                                        PydevPlugin.log(e);
+                                        Log.log(e);
                                     }
                                     return Status.OK_STATUS;
                                 }
@@ -980,11 +981,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                             }.schedule();
                         }
                     } catch (CoreException e) {
-                        PydevPlugin.log(e);
+                        Log.log(e);
                     }
                 }
             }catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
     }
@@ -1066,7 +1067,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                     removeInvalidModuleMarkers(iFile);
                 }
             } catch (Throwable e1) {
-                PydevPlugin.log(e1);
+                Log.log(e1);
             }
             
             try{
@@ -1088,7 +1089,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                 }
                 
             }catch (Throwable e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
         super.dispose();
@@ -1166,7 +1167,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             notifier.notifyOnCreateActions(resources);
             onCreateActions.call(this);
         }catch (Throwable e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
 
@@ -1278,7 +1279,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             
             setSelection(startOffset, endOffset - startOffset);
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
 
@@ -1308,7 +1309,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             length = endOffset - offset;
             setSelection(offset, length);
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         
     }
@@ -1364,7 +1365,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                 }
             }
         } catch (MisconfigurationException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
 
         fireModelChanged(ast);
@@ -1384,7 +1385,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
         } catch (CoreException e1) {
             // Whatever, could not create a marker. Swallow this one
-            PydevPlugin.log(e1);
+            Log.log(e1);
         } catch (BadLocationException e2) {
             // Whatever, could not create a marker. Swallow this one
             //PydevPlugin.log(e2);
@@ -1393,7 +1394,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                 errorDescription = errDesc;
                 fireParseErrorChanged(errorDescription);
             } catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
     }
@@ -1421,7 +1422,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             try {
                 listener.modelChanged(root);
             } catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
     }
@@ -1501,7 +1502,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                             new PyOpenAction().run(pointers.get(0));
                         }
                     } catch (Exception e) {
-                        PydevPlugin.log(e);
+                        Log.log(e);
                     }
                 }
             }
@@ -1593,7 +1594,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             this.setPreferenceStore(PydevPrefs.getChainedPrefStore());
             setEditorContextMenuId(PY_EDIT_CONTEXT);
         }catch (Throwable e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
 

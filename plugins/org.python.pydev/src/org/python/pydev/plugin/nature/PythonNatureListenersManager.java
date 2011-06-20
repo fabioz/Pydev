@@ -17,7 +17,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.log.Log;
 
 /**
  * This class is used to pass notifications about the python nature around for 
@@ -59,7 +59,7 @@ public class PythonNatureListenersManager {
                     listener.notifyPythonPathRebuilt(project, nature);
                 }
             }catch(Throwable e){
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
     }

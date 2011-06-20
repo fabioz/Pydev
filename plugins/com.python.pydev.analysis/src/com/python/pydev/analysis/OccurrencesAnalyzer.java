@@ -19,11 +19,10 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.plugin.PydevPlugin;
-
 import com.python.pydev.analysis.messages.IMessage;
 import com.python.pydev.analysis.tabnanny.TabNanny;
 import com.python.pydev.analysis.visitors.OccurrencesVisitor;
@@ -61,7 +60,7 @@ public class OccurrencesAnalyzer implements IAnalyzer {
         } catch (OperationCanceledException e) {
             throw e;
         } catch (Exception e) {
-            PydevPlugin.log(IStatus.ERROR, "Error while visiting "+module.getName()+" ("+module.getFile()+")",e);
+            Log.log(IStatus.ERROR, ("Error while visiting "+module.getName()+" ("+module.getFile()+")"), e);
         }
         
         List<IMessage> messages = new ArrayList<IMessage>();
@@ -70,7 +69,7 @@ public class OccurrencesAnalyzer implements IAnalyzer {
             try{
                 messages.addAll(TabNanny.analyzeDoc(document, prefs, module.getName(), indentPrefs, monitor));
             }catch(Exception e){
-                PydevPlugin.log(e); //just to be safe... (could happen if the document changes during the process).
+                Log.log(e); //just to be safe... (could happen if the document changes during the process).
             }
         }
         return messages.toArray(new IMessage[messages.size()]);

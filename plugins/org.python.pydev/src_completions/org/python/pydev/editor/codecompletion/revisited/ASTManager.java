@@ -23,8 +23,8 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.IASTManagerObserver;
-import org.python.pydev.plugin.PydevPlugin;
 
 
 /**
@@ -56,7 +56,7 @@ public final class ASTManager extends AbstractASTManager implements ICodeComplet
                 observer.notifyASTManagerAttached(this);
             } catch (Exception e) {
                 //let's keep it safe
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
     }

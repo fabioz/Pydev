@@ -26,6 +26,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -62,7 +63,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
             return AnalysisPlugin.getStorageDirForProject(project);
         } catch (NullPointerException e) {
             //it may fail in tests... (save it in default folder in this cases)
-            PydevPlugin.log(IStatus.ERROR, "Error getting persisting folder", e, false);
+            Log.log(IStatus.ERROR, "Error getting persisting folder", e, false);
             return new File(".");
         }
     }
@@ -179,7 +180,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
                     }
                 }
             } catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             
         }

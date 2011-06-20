@@ -14,9 +14,9 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
-import org.python.pydev.plugin.PydevPlugin;
 
 public class IgnoreCompletionProposal extends PyCompletionProposal {
 
@@ -37,7 +37,7 @@ public class IgnoreCompletionProposal extends PyCompletionProposal {
             //ok, after doing it, let's call for a reparse
             edit.getParser().forceReparse();
         } catch (BadLocationException x) {
-            PydevPlugin.log(x);
+            Log.log(x);
         }
     }
     

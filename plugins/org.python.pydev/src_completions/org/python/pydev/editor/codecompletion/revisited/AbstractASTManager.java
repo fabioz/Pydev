@@ -53,7 +53,6 @@ import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.visitors.NodeUtils;
-import org.python.pydev.plugin.PydevPlugin;
 
 public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     
@@ -374,7 +373,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             String message = e.getMessage();
             if(message == null){
                 if(e instanceof NullPointerException){
-                    PydevPlugin.log(e);
+                    Log.log(e);
                     message = "NullPointerException";
                 }else{
                     message = "Null error message";
@@ -717,7 +716,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
             
         }else{
-            PydevPlugin.log("Module passed in is null!!");
+            Log.log("Module passed in is null!!");
         }
         
         return EMPTY_ITOKEN_ARRAY;

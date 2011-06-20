@@ -25,7 +25,6 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Abstract class for actions that'll act upon the selected containers.
@@ -111,7 +110,7 @@ public abstract class PyContainerAction implements IObjectActionDelegate {
                             try {
                                 next.refreshLocal(IResource.DEPTH_INFINITE, monitor);
                             } catch (Exception e) {
-                                PydevPlugin.log(e);
+                                Log.log(e);
                             }
                         }
                         nChanged[0] += doActionOnContainer(next, monitor);

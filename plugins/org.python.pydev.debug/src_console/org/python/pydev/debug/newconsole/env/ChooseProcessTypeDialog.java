@@ -26,6 +26,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NotConfiguredInterpreterException;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -196,13 +197,12 @@ final class ChooseProcessTypeDialog extends Dialog {
                             if(completeProjectPythonPath != null){
                                 pythonpath.addAll(completeProjectPythonPath);
                             }else{
-                                PydevPlugin.logInfo(
-                                        "Unable to get pythonpath for project: "+nature.getProject()+" (initialization not finished).");
+                                Log.logInfo("Unable to get pythonpath for project: "+nature.getProject()+" (initialization not finished).");
                             }
                         }
                     }
                 }catch(Exception e){
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
             }
             return new Tuple<Collection<String>, IPythonNature>(pythonpath, null);

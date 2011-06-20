@@ -29,6 +29,7 @@ import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.navigator.IPipelinedTreeContentProvider;
 import org.eclipse.ui.navigator.PipelinedShapeModification;
 import org.eclipse.ui.navigator.PipelinedViewerUpdate;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.core.structure.TreeNode;
 import org.python.pydev.navigator.elements.IWrappedResource;
@@ -38,7 +39,6 @@ import org.python.pydev.navigator.elements.PythonFolder;
 import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
 import org.python.pydev.navigator.elements.PythonResource;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 /**
@@ -388,7 +388,7 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
         try {
             sourcePathSet = nature.getPythonPathNature().getProjectSourcePathSet(true);
         } catch (CoreException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }        
         
         Object currentParent = project;
@@ -660,7 +660,7 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
                         try {
                             sourcePathSet = nature.getPythonPathNature().getProjectSourcePathSet(true);
                         } catch (CoreException e) {
-                            PydevPlugin.log(e);
+                            Log.log(e);
                         }        
                         PythonSourceFolder wrapped = tryWrapSourceFolder(p, folder, sourcePathSet);
                         if(wrapped != null){

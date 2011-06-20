@@ -28,6 +28,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -35,7 +36,6 @@ import org.python.pydev.editor.hover.PyTextHover;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
-import org.python.pydev.plugin.PydevPlugin;
 
 public class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposalExtension2 implements ICompletionProposalExtension{
     
@@ -195,7 +195,7 @@ public class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposal
                 goToLinkedModeFromArgs(viewer, offset, doc, exitPos, iPar, args);
 
             }catch(BadLocationException e){
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             return;
         }
@@ -218,7 +218,7 @@ public class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposal
                     goToLinkedModeFromArgs(viewer, offset, doc, offset + strToAdd.length()+nPositionsAdded, iPar, newStr);
                 }
             } catch (BadLocationException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             return;
         }

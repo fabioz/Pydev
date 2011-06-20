@@ -21,7 +21,7 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.log.Log;
 
 public abstract class AbstractPyCompletionProposalExtension2 extends PyCompletionProposal implements ICompletionProposalExtension2, ICompletionProposalExtension {
     
@@ -87,7 +87,7 @@ public abstract class AbstractPyCompletionProposalExtension2 extends PyCompletio
                 this.fLen = finalOffset-widgetCaret;
                 this.getPresentationUpdater().updateStyle(viewer, widgetCaret, this.fLen);
             } catch (BadLocationException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             
         }else{
@@ -180,7 +180,7 @@ public abstract class AbstractPyCompletionProposalExtension2 extends PyCompletio
             try {
                 doc.replace(offset, 0, ".");
             } catch (BadLocationException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             return false;
         }

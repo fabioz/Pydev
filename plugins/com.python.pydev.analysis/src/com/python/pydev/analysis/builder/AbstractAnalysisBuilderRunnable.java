@@ -12,7 +12,6 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.logging.DebugSettings;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Abstract class for the builder runnables.
@@ -164,12 +163,12 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
             
 
         } catch (Exception e){
-            PydevPlugin.log(e);
+            Log.log(e);
         } finally{
             try{
                 AnalysisBuilderRunnableFactory.removeFromThreads(key, this);
             }catch (Throwable e){
-                PydevPlugin.log(e);
+                Log.log(e);
             }finally{
                 runFinished=true;
             }

@@ -21,6 +21,7 @@ import org.eclipse.ui.dialogs.ListDialog;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
@@ -90,7 +91,7 @@ public class PythonInterpreterEditor extends AbstractInterpreterEditor{
                 }
 
             } catch (Throwable e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             if(foundVersions.size() == 1){
                 return new Tuple<String, String>(getUniqueInterpreterName("python"), foundVersions.get(0).toString());

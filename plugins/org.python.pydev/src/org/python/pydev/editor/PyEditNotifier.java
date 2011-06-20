@@ -14,8 +14,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IEditorInput;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit.MyResources;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Helper to give notifications for the listeners of the editor.
@@ -51,7 +51,7 @@ public class PyEditNotifier {
                         }
                     } catch (Exception e) {
                         //must not fail
-                        PydevPlugin.log(e);
+                        Log.log(e);
                     }
                 }
             }
@@ -76,7 +76,7 @@ public class PyEditNotifier {
                         }
                     } catch (Throwable e) {
                         //must not fail
-                        PydevPlugin.log(e);
+                        Log.log(e);
                     }
                 }
             }
@@ -147,7 +147,7 @@ public class PyEditNotifier {
                         }
                     } catch (Exception e) {
                         //must not fail
-                        PydevPlugin.log(e);
+                        Log.log(e);
                     }
                 }
             }
@@ -177,7 +177,7 @@ public class PyEditNotifier {
                             }
                         } catch (Exception e) {
                             //must not fail
-                            PydevPlugin.log(e);
+                            Log.log(e);
                         }
                     }
                 }
@@ -200,7 +200,7 @@ public class PyEditNotifier {
                     pyEditListener4.onEditorCreated(edit);
                 } catch (Exception e) {
                     //must not fail
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
             }
         }

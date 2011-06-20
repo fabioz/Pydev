@@ -210,7 +210,7 @@ public class PythonPathNature implements IPythonPathNature {
                 try {
                     r = root.findMember(p);
                 } catch (Exception e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
                 
                 if(!(r instanceof IContainer) && !(r instanceof IFile)){
@@ -250,7 +250,7 @@ public class PythonPathNature implements IPythonPathNature {
                     try {
                         r = root.findMember(p);
                     } catch (Exception e) {
-                        PydevPlugin.log(e);
+                        Log.log(e);
                     }
                 }
                 
@@ -262,7 +262,7 @@ public class PythonPathNature implements IPythonPathNature {
                 }else if(r instanceof IFile){ //zip/jar/egg file
                     String extension = r.getFileExtension();
                     if(extension == null || FileTypesPreferencesPage.isValidZipFile("."+extension) == false){
-                        PydevPlugin.log("Error: the path "+currentPath+" is a file but is not a recognized zip file.");
+                        Log.log("Error: the path "+currentPath+" is a file but is not a recognized zip file.");
                         
                     }else{
                         buf.append(REF.getFileAbsolutePath(r.getLocation().toFile()));
