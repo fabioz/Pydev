@@ -19,7 +19,6 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
