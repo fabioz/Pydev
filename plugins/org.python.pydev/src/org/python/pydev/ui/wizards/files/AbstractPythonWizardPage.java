@@ -46,6 +46,7 @@ import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.python.pydev.core.IPythonPathNature;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.editor.templates.TemplateHelper;
 import org.python.pydev.plugin.PydevPlugin;
@@ -414,7 +415,7 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
                             textSourceFolder.setText(f.sourceFolder.folder.getFullPath().toString());
                         }
                     } catch (Exception e1) {
-                        PydevPlugin.log(e1);
+                        Log.log(e1);
                     }
                     
                 }
@@ -464,7 +465,7 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
             }
             
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
 
         if(shouldCreatePackageSelect()){
@@ -500,7 +501,7 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
                         textSourceFolder.setText(f.folder.getFullPath().toString());
                     }
                 } catch (Exception e1) {
-                    PydevPlugin.log(e1);
+                    Log.log(e1);
                 }
                 
             }
@@ -556,7 +557,7 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
 
             
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         return false;
     }
@@ -646,7 +647,7 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
             setMessage(getDescription());
             setPageComplete(true);
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
             setErrorMessage("Error while validating page:"+e.getMessage());
             setPageComplete(false);
         }

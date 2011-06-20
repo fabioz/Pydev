@@ -373,10 +373,10 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
             info = tup.o1;
             
         } catch (RuntimeException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
             throw e;
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
             throw new RuntimeException(e);
         }
         if(info.executableOrJar == null || info.executableOrJar.trim().length() == 0){
@@ -471,7 +471,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                             //ok, its format might have changed
                             String errMsg = "Interpreter storage changed.\r\n" +
                             "Please restore it (window > preferences > Pydev > Interpreter)";
-                            PydevPlugin.log(errMsg, e);
+                            Log.log(errMsg, e);
                             
                             return new IInterpreterInfo[0];
                         }
@@ -489,7 +489,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                         try {
                             info.getModulesManager().load();
                         } catch (Exception e) {
-                            PydevPlugin.logInfo(new RuntimeException("Restoring info for: "+info.getExecutableOrJar(), e));
+                            Log.logInfo(new RuntimeException("Restoring info for: "+info.getExecutableOrJar(), e));
                             
                             info.setLoadFinished(false);
                             try {
@@ -523,13 +523,13 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                             } finally {
                                 info.setLoadFinished(true);
                             }
-                            PydevPlugin.logInfo("Finished restoring information for: "+info.executableOrJar+" at: "+
-                                    info.getModulesManager().getIoDirectory());
+                            Log.logInfo(("Finished restoring information for: "+info.executableOrJar+" at: "+
+                            info.getModulesManager().getIoDirectory()));
                         }
                     }
                     
                 } catch (Exception e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                     
                     //ok, some error happened (maybe it's not configured)
                     return new IInterpreterInfo[0];
@@ -664,11 +664,11 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 					try {
 						observer.notifyDefaultPythonpathRestored(this, interpreter, monitor);
 					} catch (Exception e) {
-						PydevPlugin.log(e);
+						Log.log(e);
 					}
 				}
 			} catch (MisconfigurationException e1) {
-				PydevPlugin.log(e1);
+				Log.log(e1);
 			}
         }
     }
@@ -750,7 +750,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                     }
                 }
             } catch (Throwable e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
     }

@@ -33,8 +33,8 @@ import org.eclipse.ui.console.MessageConsole;
 import org.python.pydev.consoles.MessageConsoles;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.UniversalRunner;
 import org.python.pydev.runners.UniversalRunner.AbstractRunner;
@@ -176,7 +176,7 @@ public class Py2To3 extends PyResourceAction implements IObjectActionDelegate{
             try {
                 c.refreshLocal(IResource.DEPTH_INFINITE, null);
             } catch (CoreException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
         clearRunInput();
@@ -201,13 +201,13 @@ public class Py2To3 extends PyResourceAction implements IObjectActionDelegate{
         String dir = next.getLocation().toOSString();
         File workingDir = new File(dir);
         if(!workingDir.exists()){
-            PydevPlugin.log("Received file that does not exist for 2to3: "+workingDir);
+            Log.log("Received file that does not exist for 2to3: "+workingDir);
             return 0;
         }
         if(!workingDir.isDirectory()){
             workingDir = workingDir.getParentFile();
             if(!workingDir.isDirectory()){
-                PydevPlugin.log("Unable to find working dir for 2to3. Found invalid: "+workingDir);
+                Log.log("Unable to find working dir for 2to3. Found invalid: "+workingDir);
                 return 0;
             }
         }
@@ -221,7 +221,7 @@ public class Py2To3 extends PyResourceAction implements IObjectActionDelegate{
             out.write("\n");
             out.write(tup.o2);
         } catch (IOException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         return 1;
     }

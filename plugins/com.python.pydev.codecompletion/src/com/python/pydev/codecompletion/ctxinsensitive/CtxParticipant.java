@@ -22,6 +22,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
@@ -92,14 +93,14 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
                 additionalInfoForProject = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
                         PydevPlugin.getInterpreterManager(nature), nature.getProjectInterpreter().getExecutableOrJar());
             } catch (Exception e) {
-            	PydevPlugin.log(e);
+            	Log.log(e);
                 return;
             }
         }else{
             try {
 				additionalInfoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
 			} catch (Exception e) {
-				PydevPlugin.log(e);
+				Log.log(e);
 				return;
 			}
         }
@@ -274,7 +275,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
 			try {
 				tokensStartingWith = AdditionalProjectInterpreterInfo.getTokensStartingWith(qual, state.getNature(), AbstractAdditionalTokensInfo.INNER);
 			} catch (MisconfigurationException e) {
-				PydevPlugin.log(e);
+				Log.log(e);
 				return ret;
 			}
             for (IInfo info : tokensStartingWith) {

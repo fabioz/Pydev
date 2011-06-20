@@ -46,7 +46,6 @@ import org.python.pydev.dltk.console.IScriptConsoleCommunication;
 import org.python.pydev.dltk.console.InterpreterResponse;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 /**
@@ -138,7 +137,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
             ICompletionProposal[] temp = receivedCompletions;
             receivedCompletions = null;
             if(temp == null){
-                PydevPlugin.logInfo("Timeout for waiting for debug completions elapsed (3 seconds).");
+                Log.logInfo("Timeout for waiting for debug completions elapsed (3 seconds).");
                 return EMPTY_COMPLETION_PROPOSALS;
             }
             return temp;

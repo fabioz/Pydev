@@ -11,10 +11,10 @@ package org.python.pydev.debug.newconsole;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.dltk.console.IScriptConsoleShell;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
 import org.python.pydev.dltk.console.ui.ScriptConsoleTextHover;
-import org.python.pydev.plugin.PydevPlugin;
 
 public class PydevConsoleTextHover extends ScriptConsoleTextHover {
 
@@ -31,7 +31,7 @@ public class PydevConsoleTextHover extends ScriptConsoleTextHover {
 
             return interpreterShell.getDescription(document, cursorPosition);
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
             return null;
         }
     }

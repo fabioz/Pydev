@@ -26,8 +26,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
-import org.python.pydev.plugin.PydevPlugin;
-
 import com.python.pydev.refactoring.IPyRefactoring2;
 import com.python.pydev.refactoring.actions.PyFindAllOccurrences;
 import com.python.pydev.refactoring.refactorer.search.AbstractPythonSearchQuery;
@@ -111,7 +109,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
                 }
             }
         } catch (CoreException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }finally{
             req.popMonitor();
         }

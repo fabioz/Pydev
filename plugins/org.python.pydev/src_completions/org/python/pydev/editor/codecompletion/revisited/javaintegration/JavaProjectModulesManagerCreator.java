@@ -11,7 +11,7 @@ import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.python.pydev.core.IModulesManager;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.log.Log;
 
 /**
  * Creator for modules manager.
@@ -51,7 +51,7 @@ public class JavaProjectModulesManagerCreator {
                 JDTSupported = false;
                 return null;
             }else{
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
         

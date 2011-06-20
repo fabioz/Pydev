@@ -8,7 +8,7 @@ package org.python.pydev.ui.actions.project;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.IAction;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 
 /**
@@ -26,7 +26,7 @@ public class PyAddNature extends PyRemoveNature{
         try {
             PythonNature.addNature(selectedProject, null, null, null, null, null, null);
         } catch (CoreException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
 

@@ -24,9 +24,9 @@ import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IWorkingSet;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.ui.PydevPackageExplorer.PydevCommonViewer;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * This class saves and restores the expanded and selected items in the tree.
@@ -100,7 +100,7 @@ public class PyPackageStateSaver {
             
             treeViewer.setSelection(new TreeSelection(paths.toArray(new TreePath[0])), true);
         }catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
 
@@ -116,7 +116,7 @@ public class PyPackageStateSaver {
         while(true){
             i++;
             if(i > max){
-                PydevPlugin.log("Could not get the structure for: "+resource);
+                Log.log("Could not get the structure for: "+resource);
                 return new ArrayList<Object>();//something strange happened...
                 
             }else if(resource instanceof IProject || resource instanceof IWorkspaceRoot || resource instanceof IWorkingSet){
@@ -193,7 +193,7 @@ public class PyPackageStateSaver {
                 }
             }
         }catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
     

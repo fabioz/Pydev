@@ -250,7 +250,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
 							lastModified = predefinedModule.lastModified();
 						}
 						predefinedFilesNotParsedToTimestamp.put(predefinedModule, lastModified);
-						PydevPlugin.log("Unable to parse: "+predefinedModule, obj.o2);
+						Log.log("Unable to parse: "+predefinedModule, obj.o2);
 						
 					}else if(obj.o1 != null){
 						n = new PredefinedSourceModule(name, predefinedModule, obj.o1, obj.o2);

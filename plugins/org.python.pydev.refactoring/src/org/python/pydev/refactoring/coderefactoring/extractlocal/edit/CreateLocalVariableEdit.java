@@ -11,6 +11,7 @@ package org.python.pydev.refactoring.coderefactoring.extractlocal.edit;
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -20,7 +21,6 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.expr_contextType;
 import org.python.pydev.parser.visitors.scope.GetNodeForExtractLocalVisitor;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.request.ExtractLocalRequest;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.edit.AbstractInsertEdit;
@@ -67,7 +67,7 @@ public class CreateLocalVariableEdit extends AbstractInsertEdit {
                 FastStack scopeStack = scope.getScopeStack();
                 currentScope = (SimpleNode) scopeStack.peek(); //at least the module should be there if we don't have anything.
             } catch (Exception e1) {
-                PydevPlugin.log(e1);
+                Log.log(e1);
             }
             
             GetNodeForExtractLocalVisitor visitor = new GetNodeForExtractLocalVisitor(startLineIndex);

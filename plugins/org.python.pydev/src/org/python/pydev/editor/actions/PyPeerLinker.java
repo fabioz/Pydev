@@ -28,11 +28,11 @@ import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.DocCmd;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Something similar org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor.BracketInserter (but not too similar). 
@@ -190,7 +190,7 @@ public class PyPeerLinker {
 
 
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         return true;
     }

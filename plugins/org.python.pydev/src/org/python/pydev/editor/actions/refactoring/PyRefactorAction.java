@@ -35,7 +35,6 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * @author Fabio Zadrozny
@@ -178,7 +177,7 @@ public abstract class PyRefactorAction extends PyAction {
                     Operation o = new Operation(action);
                     o.execute(monitor);
                 } catch (Exception e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
                 return Status.OK_STATUS;
             }

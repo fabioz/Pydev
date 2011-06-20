@@ -29,6 +29,7 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.editor.codecompletion.CompletionError;
 import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
@@ -210,7 +211,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
                 }
             }
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
             CompletionError completionError = new CompletionError(e);
             this.lastError = completionError.getErrorMessage();
             //Make the error visible to the user!

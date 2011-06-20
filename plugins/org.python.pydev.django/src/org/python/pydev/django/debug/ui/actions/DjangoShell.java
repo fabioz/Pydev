@@ -16,13 +16,13 @@ import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.newconsole.PydevConsoleFactory;
 import org.python.pydev.debug.newconsole.PydevConsoleInterpreter;
 import org.python.pydev.debug.newconsole.env.IProcessFactory;
 import org.python.pydev.debug.newconsole.env.IProcessFactory.PydevConsoleLaunchInfo;
 import org.python.pydev.django.launching.DjangoConstants;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 public class DjangoShell extends DjangoAction {
@@ -83,7 +83,7 @@ public class DjangoShell extends DjangoAction {
     				try {
     					pythonPathNature.setVariableSubstitution(variableSubstitution);
     				} catch (Exception e) {
-    					PydevPlugin.log(e);
+    					Log.log(e);
     				}
 
                 }

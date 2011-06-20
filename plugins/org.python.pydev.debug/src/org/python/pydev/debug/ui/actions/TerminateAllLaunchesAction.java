@@ -16,6 +16,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.bindings.keys.KeySequence;
 import org.eclipse.ui.texteditor.IUpdate;
 import org.python.pydev.bindingutils.KeyBindingHelper;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
@@ -46,7 +47,7 @@ public class TerminateAllLaunchesAction extends PyAction implements IUpdate{
             }
             setEnabled(false);
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
 
@@ -63,7 +64,7 @@ public class TerminateAllLaunchesAction extends PyAction implements IUpdate{
                             iLaunch.terminate();
                         }
                     } catch (Exception e) {
-                        PydevPlugin.log(e);
+                        Log.log(e);
                     }
                 }
                 return Status.OK_STATUS;

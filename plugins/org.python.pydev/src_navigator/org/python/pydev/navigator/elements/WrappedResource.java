@@ -23,8 +23,8 @@ import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.eclipse.ui.model.IWorkbenchAdapter2;
 import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
-import org.python.pydev.plugin.PydevPlugin;
 
 
 /**
@@ -146,7 +146,7 @@ public class WrappedResource<X extends IResource> implements IWrappedResource, I
             if(!logged.contains(adapter)){
                 logged.add(adapter);
                 //Only log once per session.
-                PydevPlugin.logInfo("Did not expect adapter request: "+adapter);
+                Log.logInfo("Did not expect adapter request: "+adapter);
             }
         }
         return null;

@@ -51,7 +51,7 @@ public class AddRedCoreThemeToViewCallbacks {
     				    
     				    
     				}else{
-    				    PydevPlugin.log("Cannot handle: "+obj);
+    				    Log.log("Cannot handle: "+obj);
     				}
                 } catch (Throwable e) {
                     Log.log(IStatus.ERROR, "Unable to dispose properly. Probably using incompatible version of Aptana Studio", e);
@@ -85,7 +85,7 @@ public class AddRedCoreThemeToViewCallbacks {
                     
                     
                 }else{
-                    PydevPlugin.log("Cannot handle: "+obj);
+                    Log.log("Cannot handle: "+obj);
                 }
                     
                 return null;

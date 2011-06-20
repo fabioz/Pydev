@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.python.pydev.core.Tuple;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.log.Log;
 
 public class PyUnitTestRun {
 
@@ -61,7 +61,7 @@ public class PyUnitTestRun {
             //ignore
             
         }else{
-            PydevPlugin.log("Unexpected status: "+result.status);
+            Log.log("Unexpected status: "+result.status);
         }
         Tuple<String, String> key = new Tuple<String, String>(result.location, result.test);
         this.testsRunning.remove(key);//when a result is added, it should be removed from the tests running.

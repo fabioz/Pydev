@@ -14,12 +14,12 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.ui.console.IConsoleFactory;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.env.IProcessFactory;
 import org.python.pydev.debug.newconsole.env.IProcessFactory.PydevConsoleLaunchInfo;
 import org.python.pydev.debug.newconsole.env.UserCanceledException;
 import org.python.pydev.dltk.console.ui.ScriptConsoleManager;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Could ask to configure the interpreter in the preferences
@@ -48,7 +48,7 @@ public class PydevConsoleFactory implements IConsoleFactory {
         try {
         	return createConsole(createDefaultPydevInterpreter(), null);
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         return null;
     }
@@ -60,7 +60,7 @@ public class PydevConsoleFactory implements IConsoleFactory {
         try {
             return createConsole(createDefaultPydevInterpreter(), additionalInitialComands);
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         return null;
     }
@@ -74,7 +74,7 @@ public class PydevConsoleFactory implements IConsoleFactory {
                 return console;
             }
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         return null;
     	

@@ -45,6 +45,7 @@ import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.ErrorDescription;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -175,7 +176,7 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
             }
         } catch (Throwable e) {
             //things may be disposed...
-            PydevPlugin.log(e);
+            Log.log(e);
         }finally{
             relinkAll();
         }
@@ -334,7 +335,7 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
             );
             
         }catch(Throwable e){
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         onTreeViewerCreated.call(getTreeViewer());
     }

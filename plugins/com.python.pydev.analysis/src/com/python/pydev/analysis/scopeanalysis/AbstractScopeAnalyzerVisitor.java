@@ -26,6 +26,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.TupleN;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -65,8 +66,6 @@ import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
-import org.python.pydev.plugin.PydevPlugin;
-
 import com.python.pydev.analysis.visitors.Found;
 import com.python.pydev.analysis.visitors.GenAndTok;
 import com.python.pydev.analysis.visitors.Scope;
@@ -477,7 +476,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             }
             
         } catch (Exception e) {
-            PydevPlugin.log(IStatus.ERROR, "Error when analyzing module "+moduleName, e);
+            Log.log(IStatus.ERROR, ("Error when analyzing module "+moduleName), e);
         }
         return null;
     }
@@ -1087,7 +1086,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                     onFoundUnresolvedImportPart(token, rep, foundAs);
                 }
             } catch (Exception e) {
-                PydevPlugin.log("Error checking for valid tokens (imports) for "+moduleName,e);
+                Log.log("Error checking for valid tokens (imports) for "+moduleName, e);
             }
         }
         return found;

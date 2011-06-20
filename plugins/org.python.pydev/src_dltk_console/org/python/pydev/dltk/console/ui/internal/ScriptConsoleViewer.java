@@ -44,6 +44,7 @@ import org.eclipse.ui.console.TextConsoleViewer;
 import org.python.pydev.bindingutils.KeyBindingHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.dltk.console.ScriptConsoleHistory;
 import org.python.pydev.dltk.console.ui.IConsoleStyleProvider;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
@@ -53,7 +54,6 @@ import org.python.pydev.dltk.console.ui.internal.actions.HandleDeletePreviousWor
 import org.python.pydev.dltk.console.ui.internal.actions.HandleLineStartAction;
 import org.python.pydev.dltk.console.ui.internal.actions.IInteractiveConsoleConstants;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * This is the viewer for the console. It's responsible for making sure that the actions the 
@@ -157,7 +157,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                     }
                 }
             } catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
     }
@@ -319,7 +319,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 
 
                 } catch (BadLocationException e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                     return;
                 }
 

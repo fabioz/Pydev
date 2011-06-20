@@ -27,11 +27,11 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.ITextEditorExtension;
 import org.eclipse.ui.texteditor.ITextEditorExtension2;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 
 /**
@@ -54,7 +54,7 @@ public abstract class PyAction extends Action implements IEditorActionDelegate {
     public static Shell getShell() {
         IWorkbenchWindow activeWorkbenchWindow = getActiveWorkbenchWindow();
         if(activeWorkbenchWindow == null){
-            PydevPlugin.log("Error. Not currently with thread access (so, there is no activeWorkbenchWindow available)");
+            Log.log("Error. Not currently with thread access (so, there is no activeWorkbenchWindow available)");
             return null;
         }
         return activeWorkbenchWindow.getShell();
@@ -259,7 +259,7 @@ public abstract class PyAction extends Action implements IEditorActionDelegate {
         }catch(IllegalStateException x){
             //ignore, workbench has still not been created
         }
-        PydevPlugin.log(e);
+        Log.log(e);
     }
 
 
@@ -375,7 +375,7 @@ public abstract class PyAction extends Action implements IEditorActionDelegate {
             return identString;
         } catch (Exception e) {
             
-            PydevPlugin.log(e, false); //no need te print it to the console - happens regularly whed doing unit-tests without the eclipse env
+            Log.log(e, false); //no need te print it to the console - happens regularly whed doing unit-tests without the eclipse env
             return "    "; //default
         }
     }

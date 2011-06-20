@@ -24,6 +24,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.ide.IDE;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
@@ -106,7 +107,7 @@ public class PyOpenPythonFileAction extends Action {
 		            }
 		        }
 		    } else {
-		        PydevPlugin.log("Expecting the provider to be a TreeViewer -- it is:" + this.provider.getClass());
+		        Log.log("Expecting the provider to be a TreeViewer -- it is:" + this.provider.getClass());
 		    }
 		}
     }

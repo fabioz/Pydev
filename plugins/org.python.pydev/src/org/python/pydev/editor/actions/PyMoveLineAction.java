@@ -31,10 +31,10 @@ import org.eclipse.ui.texteditor.TextEditorAction;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DocCmd;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
-import org.python.pydev.plugin.PydevPlugin;
 
 
 /**
@@ -212,7 +212,7 @@ public abstract class PyMoveLineAction extends TextEditorAction {
 
 			
 		} catch (BadLocationException e) {
-			PydevPlugin.log(e);
+			Log.log(e);
 			return;
 		}
 	}

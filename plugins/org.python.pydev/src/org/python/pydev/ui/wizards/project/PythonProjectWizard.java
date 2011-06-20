@@ -32,6 +32,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 import org.python.pydev.core.callbacks.ICallback;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.wizards.gettingstarted.AbstractNewProjectWizard;
@@ -158,7 +159,7 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
                 }
             } else {
                 // Unexpected runtime exceptions and errors may still occur.
-                PydevPlugin.log(IStatus.ERROR, t.toString(), t);
+                Log.log(IStatus.ERROR, t.toString(), t);
                 MessageDialog.openError(getShell(), "Unable to create project", t.getMessage());
             }
             return null;

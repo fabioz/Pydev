@@ -42,12 +42,12 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.StatusInfo;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.dialogs.ProjectSelectionDialog;
@@ -146,7 +146,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
             reportError("Unable to discover launch config for: "+buf, null);
             return;
         }else{
-            PydevPlugin.log("Expecting instance of IStructuredSelection. Received: "+selection.getClass().getName());
+            Log.log("Expecting instance of IStructuredSelection. Received: "+selection.getClass().getName());
         }
         
     }

@@ -17,9 +17,8 @@ import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
-import org.python.pydev.plugin.PydevPlugin;
-
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.messages.IMessage;
 import com.python.pydev.analysis.messages.Message;
@@ -206,7 +205,7 @@ public class TabNanny{
                         startLine, startLine, startCol, endCol, analysisPrefs));
                 
             } catch (BadLocationException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             
         }

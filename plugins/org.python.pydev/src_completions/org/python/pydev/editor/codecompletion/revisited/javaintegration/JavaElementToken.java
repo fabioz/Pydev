@@ -23,9 +23,9 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * This is the token that encapsulates a java element.
@@ -125,7 +125,7 @@ public class JavaElementToken extends CompiledToken {
             } catch (JavaModelException e) {
                 //just ignore it in this case (that may happen when no docstring is available)
             } catch (Exception e) {
-                PydevPlugin.log("Error getting completion for "+member,e);
+                Log.log("Error getting completion for "+member, e);
             }
         }
         return null;

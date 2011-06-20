@@ -17,13 +17,13 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.core.base.AbstractPythonRefactoring;
@@ -95,7 +95,7 @@ public class ExtractLocalRefactoring extends AbstractPythonRefactoring {
         }catch(ParseException e){
             return null;
         }catch(Throwable e){
-            PydevPlugin.log(e);
+            Log.log(e);
             return null;
         }
     }

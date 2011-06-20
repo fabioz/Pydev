@@ -32,7 +32,6 @@ import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.parser.prettyprinterv2.MakeAstValidForPrettyPrintingVisitor;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * @author fabioz
@@ -109,7 +108,7 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
         try{
             MakeAstValidForPrettyPrintingVisitor.makeValid(functionDef);
         }catch(Exception e){
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         String printed = printAst(edit, functionDef, delimiter);
         PySelection ps = new PySelection(document, offset);
@@ -148,7 +147,7 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
 
                 str = prettyPrinterV2.print(astToPrint);
             }catch(IOException e){
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
         return str;

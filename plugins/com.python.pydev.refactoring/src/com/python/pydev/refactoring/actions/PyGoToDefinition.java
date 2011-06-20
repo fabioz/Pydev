@@ -202,7 +202,7 @@ public class PyGoToDefinition extends PyRefactorAction {
 		try {
 			refactoringRequest = getRefactoringRequest();
 		} catch (MisconfigurationException e1) {
-			PydevPlugin.log(e1);
+			Log.log(e1);
 			return new ItemPointer[0];
 		}
 
@@ -217,7 +217,7 @@ public class PyGoToDefinition extends PyRefactorAction {
                 return defs;
             }
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
             String msg = e.getMessage();
             if(msg == null){
                 msg = "Unable to get error msg (null)";

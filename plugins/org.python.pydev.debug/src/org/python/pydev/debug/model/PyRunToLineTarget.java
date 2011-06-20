@@ -18,6 +18,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -55,28 +56,28 @@ public class PyRunToLineTarget implements IRunToLineTarget{
                 //Let's try to find a suitable nature
                 File editorFile = pyEdit.getEditorFile();
                 if(editorFile == null || !editorFile.exists()){
-                    PydevPlugin.log(e);
+                    Log.log(e);
                     return;
                 }
                 nature = PydevPlugin.getInfoForFile(editorFile).o1;
             }
             
             if(nature == null){
-                PydevPlugin.log("Unable to determine nature!");
+                Log.log("Unable to determine nature!");
                 return;
             }
             
             try{
                 sourceModule = (SourceModule) AbstractModule.createModuleFromDoc("", null, doc, nature, -1);
             }catch(MisconfigurationException e){
-                PydevPlugin.log(e);
+                Log.log(e);
                 return;
             }
             ast = sourceModule.getAst();
         }
         
         if(ast == null){
-            PydevPlugin.log("Cannot determine context to run to.");
+            Log.log("Cannot determine context to run to.");
             return;
         }
         

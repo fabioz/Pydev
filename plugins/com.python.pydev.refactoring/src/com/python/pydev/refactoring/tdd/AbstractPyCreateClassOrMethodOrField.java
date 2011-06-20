@@ -32,7 +32,6 @@ import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.visitors.NodeUtils;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.BeginOffset;
@@ -209,7 +208,7 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
                         PySelection.CLASS_AND_FUNC_TOKENS, false, firstCharPosition);
 
                 if(scopeStart == null){
-                    PydevPlugin.log("Could not get proper scope to create code inside class.");
+                    Log.log("Could not get proper scope to create code inside class.");
                     ClassDef astNode = targetClass.getASTNode();
                     if(astNode.body.length > 0){
                         offset = NodeUtils.getLineEnd(astNode.body[astNode.body.length-1]);
@@ -295,7 +294,7 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
                             }
                         }
                     } catch (Exception e) {
-                        PydevPlugin.log(e);
+                        Log.log(e);
                     }
                 }
                 

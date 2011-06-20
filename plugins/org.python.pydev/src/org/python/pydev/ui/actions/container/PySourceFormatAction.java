@@ -31,7 +31,6 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Action used to apply source code formatting to all the available python files.
@@ -152,7 +151,7 @@ public class PySourceFormatAction extends PyContainerAction{
                 }
             }
         } catch (CoreException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
             
         return formatted;

@@ -11,9 +11,9 @@ import org.eclipse.jface.text.TextViewer;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.django_templates.completions.templates.TemplateHelper;
 import org.python.pydev.editor.actions.PyBackspace;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.ColorAndStyleCache;
 import org.python.pydev.utils.ICallback;
@@ -47,7 +47,7 @@ public class DjEditor {
                     try {
                         ((ISourceViewer)getISourceViewer.call(null)).invalidateTextPresentation();
                     } catch (Exception e) {
-                        PydevPlugin.log(e);
+                        Log.log(e);
                     }
                 }
             }

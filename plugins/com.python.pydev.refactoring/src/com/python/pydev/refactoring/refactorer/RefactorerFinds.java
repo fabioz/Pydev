@@ -27,6 +27,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -39,7 +40,6 @@ import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
@@ -127,7 +127,7 @@ public class RefactorerFinds {
 		try {
 			infoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProjectAndReferencing(request.nature);
 		} catch (MisconfigurationException e) {
-			PydevPlugin.log(e);
+			Log.log(e);
 			return;
 		}
         

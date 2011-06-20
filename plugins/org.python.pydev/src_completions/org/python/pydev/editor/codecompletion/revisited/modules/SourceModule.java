@@ -39,6 +39,7 @@ import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.cache.Cache;
 import org.python.pydev.core.cache.LRUCache;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
@@ -64,7 +65,6 @@ import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.visitors.NodeUtils;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
@@ -323,7 +323,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             //end cache
             
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         
         //now, let's get it from the cache... (which should be filled by now)
@@ -486,7 +486,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                         }
                     } catch (CompletionRecursionException e) {
                     } catch (Exception e) {
-                        PydevPlugin.log(e);
+                        Log.log(e);
                     }
                 }
             } else if(rep.equals(activationToken)){
@@ -1000,7 +1000,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             
             return scope.getLocalTokens(line, col, false);
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
             return EMPTY_ITOKEN_ARRAY;
         }
     }
@@ -1015,7 +1015,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             
             return scopeVisitor.scope;
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
             return null;
         }
     }
@@ -1044,7 +1044,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             
             return scopeVisitor.scope.getScopeEndLine();
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
             return -1;
         }
     }
@@ -1058,7 +1058,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             
             return scopeVisitor.scope.getIfMainLine();
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
             return -1;
         }
     }

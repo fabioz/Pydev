@@ -11,10 +11,9 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.plugin.PydevPlugin;
-
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 
 /**
@@ -86,7 +85,7 @@ public class PyConsoleCompletion  extends CtxInsensitiveImportComplProposal{
                 document.replace(document.getLength(), 0, newCurrentLineString);
             }
         } catch (BadLocationException x) {
-            PydevPlugin.log(x);
+            Log.log(x);
         }
     } 
     

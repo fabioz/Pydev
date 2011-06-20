@@ -29,6 +29,7 @@ import org.eclipse.ui.dialogs.ElementTreeSelectionDialog;
 import org.eclipse.ui.dialogs.ISelectionStatusValidator;
 import org.python.copiedfromeclipsesrc.CopiedWorkbenchLabelProvider;
 import org.python.pydev.core.IPythonPathNature;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.UIConstants;
@@ -156,7 +157,7 @@ class PackageContentProvider implements ITreeContentProvider{
                     }
                     return ret.toArray();
                 } catch (CoreException e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
             }
         }
@@ -187,7 +188,7 @@ class PackageContentProvider implements ITreeContentProvider{
                     }
                 }
             } catch (CoreException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             return ret.toArray();
         }

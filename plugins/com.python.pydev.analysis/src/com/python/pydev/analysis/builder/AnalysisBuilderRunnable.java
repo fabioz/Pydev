@@ -26,8 +26,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.logging.DebugSettings;
-import org.python.pydev.plugin.PydevPlugin;
-
 import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.OccurrencesAnalyzer;
@@ -280,17 +278,17 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
             //ok, ignore it
             logOperationCancelled();
         } catch (Exception e){
-            PydevPlugin.log(e);
+            Log.log(e);
         } finally{
             try{
                 nature.endRequests();
             }catch(Throwable e){
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             try{
                 AnalysisBuilderRunnableFactory.removeFromThreads(key, this);
             }catch (Throwable e){
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             
             dispose();

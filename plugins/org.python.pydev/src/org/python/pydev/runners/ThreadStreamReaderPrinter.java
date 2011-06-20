@@ -14,8 +14,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
-import org.python.pydev.plugin.PydevPlugin;
 
 public class ThreadStreamReaderPrinter extends Thread {
     private static final boolean DEBUG = false;
@@ -44,7 +44,7 @@ public class ThreadStreamReaderPrinter extends Thread {
                 contents = new FastStringBuffer();
             }
         } catch (IOException ioe) {
-            PydevPlugin.log(ioe);
+            Log.log(ioe);
         }
     }
 }

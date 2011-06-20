@@ -17,7 +17,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.PyParser;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 /**
@@ -59,14 +58,14 @@ public class PySyntaxChecker extends PyDevBuilderVisitor{
         try {
             PyParser.deleteErrorMarkers(resource);
         } catch (CoreException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         
         if(parseError != null){
             try {
                 PyParser.createParserErrorMarkers(parseError, resource, document);
             } catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
         

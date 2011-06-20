@@ -16,11 +16,11 @@ import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.parser.ErrorDescription;
 import org.python.pydev.parser.PyParser;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.interpreters.IInterpreterObserver;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -65,7 +65,7 @@ public class InterpreterObserver implements IInterpreterObserver {
 	                AbstractAdditionalTokensInfo.saveAdditionalSystemInfo(manager, interpreter);
 	            }
 	        } catch (Throwable e) {
-	            PydevPlugin.log(e);
+	            Log.log(e);
 	        }
         }
     }
@@ -99,7 +99,7 @@ public class InterpreterObserver implements IInterpreterObserver {
 		                        notifyDefaultPythonpathRestored(iManager, interpreterInfo.getExecutableOrJar(), jobProgressComunicator);
 		                        jobProgressComunicator.done();
 		                    } catch (Exception e) {
-		                        PydevPlugin.log(e);
+		                        Log.log(e);
 		                    }
 	        			}
         			}
@@ -167,7 +167,7 @@ public class InterpreterObserver implements IInterpreterObserver {
                     }
 
                 } catch (Throwable e) {
-                    PydevPlugin.log(IStatus.ERROR, "Problem parsing the file :" + key.file + ".", e);
+                    Log.log(IStatus.ERROR, "Problem parsing the file :" + key.file + ".", e);
                 }
             }
         }
@@ -200,7 +200,7 @@ public class InterpreterObserver implements IInterpreterObserver {
                 }
             }
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
             throw new RuntimeException(e);
         }
     }
@@ -210,7 +210,7 @@ public class InterpreterObserver implements IInterpreterObserver {
 		try {
 			loadAdditionalInfoForProject = AdditionalProjectInterpreterInfo.loadAdditionalInfoForProject(nature);
 		} catch (MisconfigurationException e) {
-			PydevPlugin.log(e);
+		    Log.log(e);
 			loadAdditionalInfoForProject = false;
 		}
 		if(!loadAdditionalInfoForProject){

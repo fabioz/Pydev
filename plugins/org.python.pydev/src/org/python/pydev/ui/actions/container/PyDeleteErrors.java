@@ -12,7 +12,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.log.Log;
 
 /**
  * Action used to delete the error markers
@@ -33,7 +33,7 @@ public class PyDeleteErrors extends PyContainerAction {
         try {
             container.refreshLocal(IResource.DEPTH_INFINITE, monitor);
         } catch (CoreException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         
         if(monitor.isCanceled()){
@@ -42,7 +42,7 @@ public class PyDeleteErrors extends PyContainerAction {
         try{
             container.deleteMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
         } catch (CoreException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
             
         return -1;
