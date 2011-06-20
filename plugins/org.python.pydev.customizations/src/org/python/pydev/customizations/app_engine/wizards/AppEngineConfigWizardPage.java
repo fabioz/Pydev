@@ -262,7 +262,7 @@ public class AppEngineConfigWizardPage extends WizardPage{
             }
         }
         PythonSelectionLibrariesDialog runnable = new PythonSelectionLibrariesDialog(
-                new ArrayList<String>(mapStartToLib.values()), libFoldersForPythonpath);
+                new ArrayList<String>(mapStartToLib.values()), libFoldersForPythonpath, false);
         runnable.setMsg("Please select the libraries you want in your PYTHONPATH.");
         
         RunInUiThread.sync(runnable);

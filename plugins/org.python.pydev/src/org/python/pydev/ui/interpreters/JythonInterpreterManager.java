@@ -22,7 +22,6 @@ import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
@@ -67,13 +66,12 @@ public class JythonInterpreterManager extends AbstractInterpreterManager{
         if(!isJythonExecutable){
             throw new RuntimeException("In order to get the info for the jython interpreter, a jar is needed (e.g.: jython.jar)");
         }
-        File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
-        if(! script.exists()){
-            throw new RuntimeException("The file specified does not exist: "+script);
-        }
+        File script = getInterpreterInfoPy();
         
         //gets the info for the python side
-        Tuple<String, String> outTup = new SimpleJythonRunner().runAndGetOutputWithJar(REF.getFileAbsolutePath(script), executable, null, null, null, monitor);
+        Tuple<String, String> outTup = new SimpleJythonRunner().runAndGetOutputWithJar(
+                REF.getFileAbsolutePath(script), executable, null, null, null, monitor);
+        
         String output = outTup.o1;
         
         InterpreterInfo info = createInfoFromOutput(monitor, outTup, askUser);
@@ -96,7 +94,6 @@ public class JythonInterpreterManager extends AbstractInterpreterManager{
 
         return new Tuple<InterpreterInfo,String>(info, output);
     }
-
 
     public int getInterpreterType() {
         return IInterpreterManager.INTERPRETER_TYPE_JYTHON;

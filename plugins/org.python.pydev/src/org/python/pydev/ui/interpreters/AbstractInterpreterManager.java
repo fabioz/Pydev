@@ -11,6 +11,7 @@
  */
 package org.python.pydev.ui.interpreters;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -555,6 +556,14 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         }
         
         return buf.toString();
+    }
+
+    protected static File getInterpreterInfoPy() throws CoreException {
+        File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
+        if (!script.exists()) {
+            throw new RuntimeException("The file specified does not exist: " + script);
+        }
+        return script;
     }
 
     String persistedString;

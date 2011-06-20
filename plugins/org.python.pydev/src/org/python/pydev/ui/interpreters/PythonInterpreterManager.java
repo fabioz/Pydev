@@ -63,9 +63,11 @@ public class PythonInterpreterManager extends AbstractInterpreterManager{
             throw new RuntimeException("A jar cannot be used in order to get the info for the python interpreter.");
         }                
 
-        File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
+        File script = getInterpreterInfoPy();
 
-        Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutputWithInterpreter(executable, REF.getFileAbsolutePath(script), null, null, null, monitor);
+        Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutputWithInterpreter(
+                executable, REF.getFileAbsolutePath(script), null, null, null, monitor);
+        
         InterpreterInfo info = createInfoFromOutput(monitor, outTup, askUser);
         
         if(info == null){

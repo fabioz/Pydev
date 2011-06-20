@@ -61,10 +61,11 @@ public class IronpythonInterpreterManager extends AbstractInterpreterManager{
             throw new RuntimeException("A jar cannot be used in order to get the info for the iron python interpreter.");
         }                
 
-        File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
+        File script = getInterpreterInfoPy();
 
         Tuple<String, String> outTup = new SimpleIronpythonRunner().runAndGetOutputWithInterpreter(
                 executable, REF.getFileAbsolutePath(script), null, null, null, monitor);
+        
         InterpreterInfo info = createInfoFromOutput(monitor, outTup, askUser);
         
         if(info == null){

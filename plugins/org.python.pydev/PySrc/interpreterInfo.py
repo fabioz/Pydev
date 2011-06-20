@@ -93,7 +93,7 @@ if __name__ == '__main__':
     
     path_used = sys.path
     try:
-        path_used = sorted(path_used) #@UndefinedVariable -- not on all versions
+        path_used = path_used[:] #Use a copy.
     except:
         pass #just ignore it...
     

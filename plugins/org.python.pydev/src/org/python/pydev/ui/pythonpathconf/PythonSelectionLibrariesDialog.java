@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package org.python.pydev.ui.pythonpathconf;
 
 import java.util.ArrayList;
@@ -10,7 +16,6 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.dialogs.ListSelectionDialog;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
@@ -69,12 +74,14 @@ public final class PythonSelectionLibrariesDialog implements Runnable {
     private final List<String> allItems;
     private final ArrayList<String> selection = new ArrayList<String>();
     private boolean result;
+    private boolean addSelectAllNotInWorkspace;
 
     /**
      */
-    public PythonSelectionLibrariesDialog(List<String> initialSelection, List<String> allItems) {
+    public PythonSelectionLibrariesDialog(List<String> initialSelection, List<String> allItems, boolean addSelectAllNotInWorkspace) {
         this.initialSelection = initialSelection;
         this.allItems = allItems;
+        this.addSelectAllNotInWorkspace = addSelectAllNotInWorkspace;
     }
 
     private String msg = "Select the folders to be added to the SYSTEM pythonpath!\n" + "\n"
@@ -87,8 +94,9 @@ public final class PythonSelectionLibrariesDialog implements Runnable {
 
     public void run() {
 
-        ListSelectionDialog dialog = new ListSelectionDialog(Display.getDefault().getActiveShell(), allItems, new ContentProvider(),
-                new LabelProvider(), msg);
+        PyListSelectionDialog dialog = new PyListSelectionDialog(
+                Display.getDefault().getActiveShell(), allItems, new ContentProvider(),
+                new LabelProvider(), msg, addSelectAllNotInWorkspace);
         dialog.setInitialSelections(initialSelection.toArray(new String[0]));
         int i = dialog.open();
         if (i == Window.OK) {

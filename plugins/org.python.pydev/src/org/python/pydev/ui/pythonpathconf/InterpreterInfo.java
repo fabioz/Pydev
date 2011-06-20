@@ -332,7 +332,7 @@ public class InterpreterInfo implements IInterpreterInfo{
             }
         }else{
             if(toAsk.size() > 0){
-                PythonSelectionLibrariesDialog runnable = new PythonSelectionLibrariesDialog(selection, toAsk);
+                PythonSelectionLibrariesDialog runnable = new PythonSelectionLibrariesDialog(selection, toAsk, true);
                 try{
                     RunInUiThread.sync(runnable);
                 }catch(NoClassDefFoundError e){

@@ -23,6 +23,7 @@ import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.ICallback;
@@ -92,7 +93,7 @@ public class JythonCodeCompletionTestsBase extends CodeCompletionTestsBase{
     
     @Override
     protected void setInterpreterManager(String path) {
-        JythonInterpreterManager interpreterManager = new JythonInterpreterManager(this.getPreferences());
+        AbstractInterpreterManager interpreterManager = new JythonInterpreterManager(this.getPreferences());
         
         InterpreterInfo info;
         info = (InterpreterInfo) interpreterManager.createInterpreterInfo(TestDependent.JYTHON_JAR_LOCATION, new NullProgressMonitor(), false);
