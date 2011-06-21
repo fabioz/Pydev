@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
@@ -79,13 +80,23 @@ public class RefactorerFindReferences {
                 List<Tuple<AbstractAdditionalTokensInfo, IPythonNature>> infoAndNature = 
                     AdditionalProjectInterpreterInfo.getAdditionalInfoAndNature(request.nature, false, true, true);
 
-                for (Tuple<AbstractAdditionalTokensInfo, IPythonNature> tuple : infoAndNature) {
-                    if(tuple.o1 != null && tuple.o2 != null){
-                        List<ModulesKey> modulesWithToken = tuple.o1.getModulesWithToken(
-                                request.initialName, request.getMonitor());
-                        
-                        ret.add(new Tuple<List<ModulesKey>, IPythonNature>(modulesWithToken, tuple.o2));
+                request.getMonitor().beginTask("Find possible references", infoAndNature.size());
+                request.getMonitor().setTaskName("Find possible references");
+                try {
+                    for (Tuple<AbstractAdditionalTokensInfo, IPythonNature> tuple : infoAndNature) {
+                        try {
+                            request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 1));
+                            if (tuple.o1 != null && tuple.o2 != null) {
+                                List<ModulesKey> modulesWithToken = tuple.o1.getModulesWithToken(request.initialName, request.getMonitor());
+
+                                ret.add(new Tuple<List<ModulesKey>, IPythonNature>(modulesWithToken, tuple.o2));
+                            }
+                        } finally {
+                            request.popMonitor().done();
+                        }
                     }
+                } finally {
+                    request.getMonitor().done();
                 }
             } catch (MisconfigurationException e) {
                 Log.log(e);

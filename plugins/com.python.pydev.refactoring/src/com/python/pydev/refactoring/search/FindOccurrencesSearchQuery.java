@@ -9,6 +9,8 @@ package com.python.pydev.refactoring.search;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -16,6 +18,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.search.ui.ISearchResult;
 import org.python.pydev.core.REF;
@@ -26,6 +29,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+
 import com.python.pydev.refactoring.IPyRefactoring2;
 import com.python.pydev.refactoring.actions.PyFindAllOccurrences;
 import com.python.pydev.refactoring.refactorer.search.AbstractPythonSearchQuery;
@@ -54,9 +58,18 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
 
     public IStatus run(IProgressMonitor monitor) throws OperationCanceledException {
         try {
+            monitor.beginTask("Searching...", 100);
             req.pushMonitor(monitor);
+            
+            
             Map<Tuple<String, File>, HashSet<ASTEntry>> occurrences;
-            occurrences = pyRefactoring.findAllOccurrences(req);
+            try {
+                req.pushMonitor(new SubProgressMonitor(monitor, 80));
+                occurrences = pyRefactoring.findAllOccurrences(req);
+            } finally {
+                req.popMonitor().done();
+            }
+            
             if(occurrences == null){
                 return Status.OK_STATUS;
             }
@@ -64,54 +77,59 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
             
             
             HashSet<Integer> foundOffsets = new HashSet<Integer>();
-            for (Map.Entry<Tuple<String, File>, HashSet<ASTEntry>> o : occurrences.entrySet()) {
-                
-                foundOffsets.clear();
-                
-                IFile workspaceFile = null; 
-                try{
-                    workspaceFile = new PySourceLocatorBase().getWorkspaceFile(o.getKey().o2);
-                    if(workspaceFile == null){
-                        Log.log(StringUtils.format("Error. Unable to resolve the file:\n" +
-                                "%s\n" +
-                                "to a file in the Eclipse workspace.",
-                                o.getKey().o2));
+            try {
+                req.pushMonitor(new SubProgressMonitor(monitor, 20));
+                Set<Entry<Tuple<String, File>, HashSet<ASTEntry>>> entrySet = occurrences.entrySet();
+                req.getMonitor().beginTask("Resolving occurrences...", entrySet.size());
+                for (Map.Entry<Tuple<String, File>, HashSet<ASTEntry>> o : entrySet) {
+
+                    foundOffsets.clear();
+
+                    IFile workspaceFile = null;
+                    try {
+                        workspaceFile = new PySourceLocatorBase().getWorkspaceFile(o.getKey().o2);
+                        if (workspaceFile == null) {
+                            Log.logInfo(StringUtils.format("Ignoring: %s. " + "Unable to resolve to a file in the Eclipse workspace.",
+                                    o.getKey().o2));
+                            continue;
+                        }
+                    } catch (IllegalStateException e) {
+                        //this can happen on tests (but if not on tests, we want to re-throw it
+                        String message = e.getMessage();
+                        if (message == null || !message.equals("Workspace is closed.")) {
+                            throw e;
+                        }
+                        //otherwise, let's just keep going in the test...
                         continue;
                     }
-                }catch(IllegalStateException e){
-                    //this can happen on tests (but if not on tests, we want to re-throw it
-                    String message = e.getMessage();
-                    if(message == null || !message.equals("Workspace is closed.")){
-                        throw e; 
-                    }
-                    //otherwise, let's just keep going in the test...
-                    continue;
-                }
-                    
-                
-                IDocument doc = REF.getDocFromResource(workspaceFile);
-                
-                for(ASTEntry entry:o.getValue()){
-                    int offset = AbstractRenameRefactorProcess.getOffset(doc, entry);
-                    if(!foundOffsets.contains(offset)){
-                        foundOffsets.add(offset);
-                        if(PyFindAllOccurrences.DEBUG_FIND_REFERENCES){
-                            System.out.println("Adding match:"+workspaceFile);
+
+                    IDocument doc = REF.getDocFromResource(workspaceFile);
+                    req.getMonitor().setTaskName("Resolving occurrences... "+workspaceFile);
+
+                    for (ASTEntry entry : o.getValue()) {
+                        int offset = AbstractRenameRefactorProcess.getOffset(doc, entry);
+                        if (!foundOffsets.contains(offset)) {
+                            foundOffsets.add(offset);
+                            if (PyFindAllOccurrences.DEBUG_FIND_REFERENCES) {
+                                System.out.println("Adding match:" + workspaceFile);
+                            }
+                            PySelection ps = new PySelection(doc, offset);
+                            int lineNumber = ps.getLineOfOffset();
+                            String lineContents = ps.getLine(lineNumber);
+                            int lineStartOffset = ps.getLineOffset(lineNumber);
+
+                            LineElement element = new LineElement(workspaceFile, lineNumber, lineStartOffset, lineContents);
+                            findOccurrencesSearchResult.addMatch(new FileMatch(workspaceFile, offset, length, element));
                         }
-                        PySelection ps = new PySelection(doc, offset);
-                        int lineNumber = ps.getLineOfOffset();
-                        String lineContents = ps.getLine(lineNumber);
-                        int lineStartOffset = ps.getLineOffset(lineNumber);
-                        
-                        LineElement element = new LineElement(workspaceFile, lineNumber, lineStartOffset, lineContents);
-                        findOccurrencesSearchResult.addMatch(new FileMatch(workspaceFile, offset, length, element));
                     }
                 }
+            } finally {
+                req.popMonitor().done();
             }
         } catch (CoreException e) {
             Log.log(e);
         }finally{
-            req.popMonitor();
+            req.popMonitor().done();
         }
         return Status.OK_STATUS;
     }

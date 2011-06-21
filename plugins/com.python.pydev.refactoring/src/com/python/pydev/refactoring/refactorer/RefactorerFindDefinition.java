@@ -51,6 +51,7 @@ public class RefactorerFindDefinition {
      */
     public ItemPointer[] findDefinition(RefactoringRequest request) {
         try{
+            request.getMonitor().beginTask("Find definition", 100);
             List<ItemPointer> pointers = new ArrayList<ItemPointer>();
             CompletionCache completionCache = new CompletionCache();
             ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
@@ -102,7 +103,6 @@ public class RefactorerFindDefinition {
             throw e;
         }finally{
             request.getMonitor().done();
-            request.popMonitor();
         }
     }
 

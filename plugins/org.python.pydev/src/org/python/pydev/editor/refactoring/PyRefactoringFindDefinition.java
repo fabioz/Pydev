@@ -55,36 +55,36 @@ public class PyRefactoringFindDefinition {
     public static String[] findActualDefinition(RefactoringRequest request, CompletionCache completionCache,
             ArrayList<IDefinition> selected) throws CompletionRecursionException {
         //ok, let's find the definition.
-        request.createSubMonitor(50);
-        request.getMonitor().beginTask("Find definition", 5);
-        request.communicateWork("Finding Definition");
-        
-        IModule mod = prepareRequestForFindDefinition(request);
-        if(mod == null){
-            return null;
-        }
-        
-        String modName = request.moduleName;
-        request.communicateWork("Module name found:"+modName);
-        
-
-        //1. we have to know what we're looking for (activationToken)
-        String[] tokenAndQual = PySelection.getActivationTokenAndQual(request.getDoc(), request.ps.getAbsoluteCursorOffset(), true);
-        String tok = tokenAndQual[0] + tokenAndQual[1];
-        
-        //2. check findDefinition (SourceModule)
+        request.getMonitor().beginTask("Find actual definition", 5);
+        String[] tokenAndQual;
         try {
-            int beginLine = request.getBeginLine();
-            int beginCol = request.getBeginCol()+1;
-            IPythonNature pythonNature = request.nature;
+            //1. we have to know what we're looking for (activationToken)
+            request.communicateWork("Finding Definition");
+            IModule mod = prepareRequestForFindDefinition(request);
+            if (mod == null) {
+                return null;
+            }
+            String modName = request.moduleName;
+            request.communicateWork("Module name found:" + modName);
+            tokenAndQual = PySelection.getActivationTokenAndQual(request.getDoc(), request.ps.getAbsoluteCursorOffset(), true);
+            String tok = tokenAndQual[0] + tokenAndQual[1];
+            //2. check findDefinition (SourceModule)
+            try {
+                int beginLine = request.getBeginLine();
+                int beginCol = request.getBeginCol() + 1;
+                IPythonNature pythonNature = request.nature;
 
-            PyRefactoringFindDefinition.findActualDefinition(request, mod, tok, selected, beginLine, beginCol, pythonNature, completionCache);
-        } catch (OperationCanceledException e) {
-            throw e;
-        } catch (CompletionRecursionException e) {
-        	throw e;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+                PyRefactoringFindDefinition.findActualDefinition(request, mod, tok, selected, beginLine, beginCol, pythonNature,
+                        completionCache);
+            } catch (OperationCanceledException e) {
+                throw e;
+            } catch (CompletionRecursionException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } finally {
+            request.getMonitor().done();
         }
         return tokenAndQual;
     }

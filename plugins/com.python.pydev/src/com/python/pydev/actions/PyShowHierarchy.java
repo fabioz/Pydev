@@ -6,13 +6,19 @@
  */
 package com.python.pydev.actions;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
+import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
@@ -33,42 +39,51 @@ import com.python.pydev.ui.hierarchy.PyHierarchyView;
 public class PyShowHierarchy extends PyRefactorAction{
 
 
-    private PyHierarchyView view;
-    private HierarchyNodeModel model;
 
     @Override
     protected String perform(IAction action, IProgressMonitor monitor) throws Exception {
-        Runnable r = new Runnable() {
-            public void run() {
-                IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-                try {
-                    IWorkbenchPage page= workbenchWindow.getActivePage();
-                    view = (PyHierarchyView) page.showView("com.python.pydev.ui.hierarchy.PyHierarchyView", null, IWorkbenchPage.VIEW_VISIBLE);
-                    
-                } catch (Exception e) {
-                    Log.log(e);
-                }
-            }
-        };
-        
-        Display.getDefault().syncExec(r); //sync it here, so that we can check it later...
-        if(view != null){
-            //set whatever is needed for the hierarchy
-            IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
-            if(pyRefactoring instanceof IPyRefactoring2){
-                RefactoringRequest refactoringRequest = getRefactoringRequest(monitor);
-                IPyRefactoring2 r2 = (IPyRefactoring2) pyRefactoring;
-                model = r2.findClassHierarchy(refactoringRequest);
-            }
-            if(model != null){
-                
-                r = new Runnable() {
-                    public void run() {
-                        view.setHierarchy(model);
+        try {
+            final PyHierarchyView view;
+            IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+            IWorkbenchPage page = workbenchWindow.getActivePage();
+            view = (PyHierarchyView) page.showView("com.python.pydev.ui.hierarchy.PyHierarchyView", null, IWorkbenchPage.VIEW_VISIBLE);
+            
+            ProgressMonitorDialog monitorDialog = new AsynchronousProgressMonitorDialog(PyAction.getShell());
+            try {
+                IRunnableWithProgress operation = new IRunnableWithProgress() {
+
+                    public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+                        try {
+                            final HierarchyNodeModel model;
+
+                            //set whatever is needed for the hierarchy
+                            IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
+                            if (pyRefactoring instanceof IPyRefactoring2) {
+                                RefactoringRequest refactoringRequest = getRefactoringRequest(monitor);
+                                IPyRefactoring2 r2 = (IPyRefactoring2) pyRefactoring;
+                                model = r2.findClassHierarchy(refactoringRequest);
+
+                                Runnable r = new Runnable() {
+                                    public void run() {
+                                        view.setHierarchy(model);
+                                    }
+                                };
+                                Display.getDefault().asyncExec(r);
+                            }
+                        } catch (Exception e) {
+                            Log.log(e);
+                        }
+
                     }
                 };
-                Display.getDefault().asyncExec(r); //this can be 'not synched'
+
+                boolean fork = true;
+                monitorDialog.run(fork, true, operation);
+            } catch (Throwable e) {
+                Log.log(e);
             }
+        } catch (Exception e) {
+            Log.log(e);
         }
         return "";
     }

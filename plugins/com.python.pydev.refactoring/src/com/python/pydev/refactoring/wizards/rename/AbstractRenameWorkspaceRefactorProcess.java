@@ -11,13 +11,11 @@
 package com.python.pydev.refactoring.wizards.rename;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
@@ -27,7 +25,6 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
-import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -119,18 +116,30 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
      */
     @Override
     protected void findReferencesToRenameOnWorkspace(RefactoringRequest request, RefactoringStatus status) {
-        request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 50));
-        try{
-            findReferencesToRenameOnLocalScope(request, status);
+        request.getMonitor().beginTask("Find references on workspace", 100);
+        try {
+            try {
+                request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 20));
+                findReferencesToRenameOnLocalScope(request, status);
+            } finally {
+                request.popMonitor().done();
+            }
+            
+            
             //if the user has set that we should only find references in the local scope in the checkInitialOnLocalScope
             //we should not try to find other references in the workspace.
-        }finally{
+            boolean onlyInLocalScope = (Boolean) request.getAdditionalInfo(
+                    AstEntryRefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false);
+            if (!onlyInLocalScope && !status.hasFatalError()) {
+                request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 80));
+                try {
+                    doCheckInitialOnWorkspace(status, request);
+                } finally {
+                    request.popMonitor().done();
+                }
+            }
+        } finally {
             request.getMonitor().done();
-            request.popMonitor();
-        }
-        boolean onlyInLocalScope = (Boolean)request.getAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false);
-        if(!onlyInLocalScope && !status.hasFatalError()){
-            doCheckInitialOnWorkspace(status, request);
         }
     }
     
@@ -146,52 +155,67 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
      * @param request the request used for the refactoring
      */
     protected void doCheckInitialOnWorkspace(RefactoringStatus status, RefactoringRequest request){
-        request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 50));
         try{
-            ArrayList<Tuple<List<ModulesKey>, IPythonNature>> references = findFilesWithPossibleReferences(request);
+            request.getMonitor().beginTask("Check references on workspace", 100);
+            
+            ArrayList<Tuple<List<ModulesKey>, IPythonNature>> references;
+            
+            try {
+                request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 90));
+                references = findFilesWithPossibleReferences(request);
+            } finally {
+                request.popMonitor().done();
+            }
+            
+            
+            
             int total = references.size();
-            request.getMonitor().beginTask("Possible references to analyze:"+total, total);
-            request.getMonitor().setTaskName(StringUtils.format("Analyzing: %s files", total));
-            int i=0;
-            for (Tuple<List<ModulesKey>, IPythonNature> file : references) {
-                PythonNature nature = (PythonNature) file.o2;
-                if(nature != null){
-                    if(!nature.startRequests()){
-                        continue;
-                    }
-                    try{
-                        for(ModulesKey key:file.o1){
-                            i++;
-                            request.communicateWork(StringUtils.format("Analyzing %s (%s of %s)", key.name, i, total));
-                            IProjectModulesManager modulesManager = (IProjectModulesManager) nature.getAstManager().getModulesManager();
-                            
-                            request.checkCancelled();
-                            String modName = key.name;
-                            
-                            if(modName != null){
-                                if(!request.moduleName.equals(modName)){
-                                    //we've already checked the module from the request...
-                                    
-                                    request.checkCancelled();
-                                    IModule module = modulesManager.getModuleInDirectManager(modName, nature, false);
-                                    
-                                    if(module instanceof SourceModule){
-                                        
+            try {
+                request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 10));
+                request.getMonitor().beginTask("Analyzing references found", total);
+                int i = 0;
+                for (Tuple<List<ModulesKey>, IPythonNature> file : references) {
+                    i++;
+                    request.communicateWork(StringUtils.format("Analyzing %s (%s of %s)", file.o2.getProject(), i, total));
+                    PythonNature nature = (PythonNature) file.o2;
+                    if (nature != null) {
+                        if (!nature.startRequests()) {
+                            continue;
+                        }
+                        try {
+                            for (ModulesKey key : file.o1) {
+                                IProjectModulesManager modulesManager = (IProjectModulesManager) nature.getAstManager().getModulesManager();
+
+                                request.checkCancelled();
+                                String modName = key.name;
+
+                                if (modName != null) {
+                                    if (!request.moduleName.equals(modName)) {
+                                        //we've already checked the module from the request...
+
                                         request.checkCancelled();
-                                        List<ASTEntry> entryOccurrences = getOccurrencesInOtherModule(
-                                                status, request.initialName, (SourceModule) module, nature);
-                                        
-                                        if(entryOccurrences.size() > 0){
-                                            addOccurrences(entryOccurrences, key.file, modName);
+                                        IModule module = modulesManager.getModuleInDirectManager(modName, nature, false);
+
+                                        if (module instanceof SourceModule) {
+
+                                            request.checkCancelled();
+                                            List<ASTEntry> entryOccurrences = getOccurrencesInOtherModule(status, request.initialName,
+                                                    (SourceModule) module, nature);
+
+                                            if (entryOccurrences.size() > 0) {
+                                                addOccurrences(entryOccurrences, key.file, modName);
+                                            }
                                         }
                                     }
                                 }
                             }
+                        } finally {
+                            nature.endRequests();
                         }
-                    }finally{
-                        nature.endRequests();
                     }
                 }
+            } finally {
+                request.popMonitor().done();
             }
         }catch (OperationCanceledException e) {
             //that's ok
@@ -199,7 +223,6 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
             throw new RuntimeException(e);
         }finally{
             request.getMonitor().done();
-            request.popMonitor();
         }
         
     }

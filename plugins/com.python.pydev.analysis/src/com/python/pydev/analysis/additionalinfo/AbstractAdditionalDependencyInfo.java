@@ -11,6 +11,7 @@ package com.python.pydev.analysis.additionalinfo;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
@@ -258,116 +260,130 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             }
         }
         synchronized(lock){
-            
+            FastStringBuffer bufProgress = new FastStringBuffer();
             //Note that this operation is not as fast as the others, as it relies on a cache that is optimized
             //for space and not for speed (but still, should be faster than having to do a text-search to know the 
             //tokens when the cache is available).
             
-            //Already iterating in a copy! Important: MUST iterate in the values, as the key may have the outdated value.
-            for(CompleteIndexKey indexKey : completeIndex.keys().values()){ 
-                if(monitor.isCanceled()){
-                    return ret;
-                }
-                monitor.worked(1);
-                
-                CompleteIndexValue obj = completeIndex.getObj(indexKey);
-                boolean canAddAstInfoFor = PythonPathHelper.canAddAstInfoFor(indexKey.key);
-                if(obj == null){
-                    if(canAddAstInfoFor){
-                        try {
-                            //Should be there (recreate the entry in the index and in the actual AST)
-                            this.addAstInfo(indexKey.key, true);
-                        } catch (Exception e) {
-                            Log.log(e);
-                        }
+            //Already iterating in a copy! Important: MUST iterate in the values, as the key may have the outdated values.
+            Collection<CompleteIndexKey> values = completeIndex.keys().values();
+            long last = System.currentTimeMillis();
+            int worked = 0;
+            try {
+                monitor.beginTask("Get modules with token", values.size());
+                for(CompleteIndexKey indexKey : values){ 
+                    worked++;
+                    if(monitor.isCanceled()){
+                        return ret;
+                    }
+                    long current = System.currentTimeMillis();
+                    if(last + 200 < current){
+                        last = current;
+                        monitor.setTaskName(bufProgress.clear().append("Searching: ").append(indexKey.key.name).toString());
+                        monitor.worked(worked);
+                    }
+                    
+                    CompleteIndexValue obj = completeIndex.getObj(indexKey);
+                    boolean canAddAstInfoFor = PythonPathHelper.canAddAstInfoFor(indexKey.key);
+                    if(obj == null){
+                        if(canAddAstInfoFor){
+                            try {
+                                //Should be there (recreate the entry in the index and in the actual AST)
+                                this.addAstInfo(indexKey.key, true);
+                            } catch (Exception e) {
+                                Log.log(e);
+                            }
 
-                        obj = new CompleteIndexValue();
-                    }else{
+                            obj = new CompleteIndexValue();
+                        }else{
+                            if(DEBUG){
+                                System.out.println("Removing (file does not exist or is not a valid source module): "+indexKey.key.name);
+                            }
+                            this.removeInfoFromModule(indexKey.key.name, true);
+                            continue; 
+                        }
+                    }
+                    
+                    long lastModified = indexKey.key.file.lastModified();
+                    if(lastModified == 0 || !canAddAstInfoFor){
+                        //File no longer exists or is not a valid source module.
                         if(DEBUG){
-                            System.out.println("Removing (file does not exist or is not a valid source module): "+indexKey.key.name);
+                            System.out.println("Removing (file no longer exists or is not a valid source module): "+indexKey.key.name+" indexKey.key.file: "+indexKey.key.file+" exists: "+indexKey.key.file.exists());
                         }
                         this.removeInfoFromModule(indexKey.key.name, true);
-                        continue; 
-                    }
-                }
-                
-                long lastModified = indexKey.key.file.lastModified();
-                if(lastModified == 0 || !canAddAstInfoFor){
-                    //File no longer exists or is not a valid source module.
-                    if(DEBUG){
-                        System.out.println("Removing (file no longer exists or is not a valid source module): "+indexKey.key.name+" indexKey.key.file: "+indexKey.key.file+" exists: "+indexKey.key.file.exists());
-                    }
-                    this.removeInfoFromModule(indexKey.key.name, true);
-                    continue;
-                }
-                
-                //if it got here, it must be a valid source module!
-                
-                if(obj.entries != null){
-                    if(lastModified != indexKey.lastModified){
-                        obj = new CompleteIndexValue();
-                        try {
-                            //Recreate the entry on the new time (recreate the entry in the index and in the actual AST)
-                            this.addAstInfo(indexKey.key, true);
-                        } catch (Exception e) {
-                            Log.log(e);
-                        }
-                    }
-                }
-                
-                //The actual values are always recreated lazily (in the case that it's really needed).
-                if(obj.entries == null){
-                    FastStringBuffer buf;
-                    ModulesKey key = indexKey.key;
-                    try {
-                        if(key instanceof ModulesKeyForZip){
-                            ModulesKeyForZip modulesKeyForZip = (ModulesKeyForZip) key;
-                            buf = (FastStringBuffer) REF.getCustomReturnFromZip(
-                                    modulesKeyForZip.file, modulesKeyForZip.zipModulePath, FastStringBuffer.class);
-                        }else{
-                            buf = (FastStringBuffer) REF.getFileContentsCustom(key.file, FastStringBuffer.class);
-                        }
-                    } catch (Exception e) {
-                        Log.log(e);
                         continue;
                     }
                     
-                    HashSet<String> set = new HashSet<String>();
-                    temp = temp.clear();
-                    int length = buf.length();
-                    for(int i=0;i<length;i++){
-                        char c = buf.charAt(i);
-                        if(Character.isJavaIdentifierStart(c)){
-                            temp.clear();
-                            temp.append(c);
-                            i++;
-                            for(;i < length;i++){
-                                c = buf.charAt(i);
-                                if(c == ' ' || c == '\t'){
-                                    break; //Fast forward through the most common case...
-                                }
-                                if(Character.isJavaIdentifierPart(c)){
-                                    temp.append(c);
-                                }else{
-                                    break;
-                                }
+                    //if it got here, it must be a valid source module!
+                    
+                    if(obj.entries != null){
+                        if(lastModified != indexKey.lastModified){
+                            obj = new CompleteIndexValue();
+                            try {
+                                //Recreate the entry on the new time (recreate the entry in the index and in the actual AST)
+                                this.addAstInfo(indexKey.key, true);
+                            } catch (Exception e) {
+                                Log.log(e);
                             }
-                            String str = temp.toString();
-                            if(PySelection.ALL_STATEMENT_TOKENS.contains(str)){
-                                continue;
-                            }
-                            set.add(str);
                         }
                     }
                     
-                    obj.entries = set;
-                    indexKey.lastModified = lastModified;
-                    completeIndex.add(indexKey, obj); //Serialize the new contents
+                    //The actual values are always recreated lazily (in the case that it's really needed).
+                    if(obj.entries == null){
+                        FastStringBuffer buf;
+                        ModulesKey key = indexKey.key;
+                        try {
+                            if(key instanceof ModulesKeyForZip){
+                                ModulesKeyForZip modulesKeyForZip = (ModulesKeyForZip) key;
+                                buf = (FastStringBuffer) REF.getCustomReturnFromZip(
+                                        modulesKeyForZip.file, modulesKeyForZip.zipModulePath, FastStringBuffer.class);
+                            }else{
+                                buf = (FastStringBuffer) REF.getFileContentsCustom(key.file, FastStringBuffer.class);
+                            }
+                        } catch (Exception e) {
+                            Log.log(e);
+                            continue;
+                        }
+                        
+                        HashSet<String> set = new HashSet<String>();
+                        temp = temp.clear();
+                        int length = buf.length();
+                        for(int i=0;i<length;i++){
+                            char c = buf.charAt(i);
+                            if(Character.isJavaIdentifierStart(c)){
+                                temp.clear();
+                                temp.append(c);
+                                i++;
+                                for(;i < length;i++){
+                                    c = buf.charAt(i);
+                                    if(c == ' ' || c == '\t'){
+                                        break; //Fast forward through the most common case...
+                                    }
+                                    if(Character.isJavaIdentifierPart(c)){
+                                        temp.append(c);
+                                    }else{
+                                        break;
+                                    }
+                                }
+                                String str = temp.toString();
+                                if(PySelection.ALL_STATEMENT_TOKENS.contains(str)){
+                                    continue;
+                                }
+                                set.add(str);
+                            }
+                        }
+                        
+                        obj.entries = set;
+                        indexKey.lastModified = lastModified;
+                        completeIndex.add(indexKey, obj); //Serialize the new contents
+                    }
+                    
+                    if(obj.entries != null && obj.entries.contains(token)){
+                        ret.add(indexKey.key);
+                    }
                 }
-                
-                if(obj.entries != null && obj.entries.contains(token)){
-                    ret.add(indexKey.key);
-                }
+            } finally {
+                monitor.done();
             }
         }
         return ret;

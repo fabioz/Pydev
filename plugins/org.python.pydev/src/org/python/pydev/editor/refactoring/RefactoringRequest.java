@@ -11,9 +11,7 @@ import java.util.Stack;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.python.pydev.core.IModule;
@@ -279,22 +277,40 @@ public class RefactoringRequest extends DecoratableObject{
     }
     
     /**
+     * Clients using the RefactoringRequest are expected to receive it as a parameter, then:
+     * 
+     * getMonitor().beginTask("my task", total)
+     * 
+     * 
+     * try{
+     *     //Calling another function
+     *     req.pushMonitor(new SubProgressMonitor(monitor, 10));
+     *     callIt(req);
+     * finally{
+     *     req.popMonitor().done();
+     * }
+     * 
+     * try{
+     *     //Calling another function
+     *     req.pushMonitor(new SubProgressMonitor(monitor, 90));
+     *     callIt(req);
+     * finally{
+     *     req.popMonitor().done();
+     * }
+     * 
+     * 
+     * getMonitor().done();
+     * 
+     * 
+     * 
+     * 
+     * 
      * @return the current progress monitor 
      */
     public IProgressMonitor getMonitor() {
         return this.monitors.peek();
     }
 
-    /**
-     * Creates a new SubMonitor (that will act on the current monitor)
-     */
-    public void createSubMonitor(int i) {
-        IProgressMonitor monitor = getMonitor();
-        if(monitor == null){
-            monitor = new NullProgressMonitor();
-        }
-        pushMonitor(new SubProgressMonitor(monitor, 50));        
-    }
 
     public IFile getIFile(){
         if(this.pyEdit == null){

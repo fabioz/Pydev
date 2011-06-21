@@ -20,6 +20,7 @@ import java.util.Set;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
@@ -236,6 +237,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
         request.pushMonitor(pm);
         RefactoringStatus status = new RefactoringStatus();
         try {
+            request.getMonitor().beginTask("Finding references", process.size());
             if (process == null || process.size() == 0) {
                 status.addFatalError("Refactoring Process not defined: the refactoring cycle did not complet correctly.");
                 return status;
@@ -243,13 +245,18 @@ public class PyRenameEntryPoint extends RenameProcessor {
             
             fChange = new CompositeChange("RenameChange: '" + request.initialName+ "' to '"+request.inputName+"'");
 
-            request.getMonitor().beginTask("Finding references", 2*100*process.size());
-            //(each process has 100 for finding references and 100 for creating change object)
-            
-            // now, check the initial and final conditions
+            //Finding references and creating change object...
+            //now, check the initial and final conditions
             for (IRefactorRenameProcess p : process) {
                 request.checkCancelled();
-                p.findReferencesToRename(request, status);
+                
+                request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 1));
+                try {
+                    p.findReferencesToRename(request, status);
+                } finally {
+                    request.popMonitor().done();
+                }
+                
                 if (status.hasFatalError() || request.getMonitor().isCanceled()) {
                     return status;
                 }
