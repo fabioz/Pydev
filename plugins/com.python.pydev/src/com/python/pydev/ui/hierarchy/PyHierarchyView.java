@@ -54,10 +54,14 @@ public class PyHierarchyView extends ViewPartWithOrientation {
     @Override
     public void dispose() {
         super.dispose();
+        if(viewer.treeClassesViewer != null && !viewer.treeClassesViewer.getTree().isDisposed()){
+            onDispose.call(viewer.treeClassesViewer);
+        }
+        if(viewer.treeMembers != null && !viewer.treeMembers.isDisposed()){
+            onDispose.call(viewer.treeMembers);
+        }
         viewer.dispose();
         
-        onDispose.call(viewer.treeClassesViewer);
-        onDispose.call(viewer.treeMembers);
     }
 
     @Override
