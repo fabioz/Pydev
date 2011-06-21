@@ -11,6 +11,7 @@ import java.util.Stack;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
@@ -266,6 +267,9 @@ public class RefactoringRequest extends DecoratableObject{
      * @param monitor the monitor to be used
      */
     public void pushMonitor(IProgressMonitor monitor){
+        if(monitor == null){
+            monitor = new NullProgressMonitor();
+        }
         this.monitors.push(monitor);
     }
     

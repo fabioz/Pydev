@@ -52,7 +52,7 @@ public class PyShowHierarchy extends PyRefactorAction{
             try {
                 IRunnableWithProgress operation = new IRunnableWithProgress() {
 
-                    public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+                    public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
                         try {
                             final HierarchyNodeModel model;
 
@@ -63,9 +63,14 @@ public class PyShowHierarchy extends PyRefactorAction{
                                 IPyRefactoring2 r2 = (IPyRefactoring2) pyRefactoring;
                                 model = r2.findClassHierarchy(refactoringRequest);
 
+                                if(monitor.isCanceled()){
+                                   return; 
+                                }
                                 Runnable r = new Runnable() {
                                     public void run() {
-                                        view.setHierarchy(model);
+                                        if(!monitor.isCanceled()){
+                                            view.setHierarchy(model);
+                                        }
                                     }
                                 };
                                 Display.getDefault().asyncExec(r);

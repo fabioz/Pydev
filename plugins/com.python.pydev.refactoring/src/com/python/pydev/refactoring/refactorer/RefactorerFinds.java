@@ -11,7 +11,6 @@
 package com.python.pydev.refactoring.refactorer;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -23,6 +22,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.python.pydev.core.ICompletionCache;
+import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -30,11 +30,11 @@ import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
-import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
+import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.exprType;
@@ -57,19 +57,20 @@ public class RefactorerFinds {
         this.refactorer = refactorer;
     }
 
-    private void findParentDefinitions(IPythonNature nature, IModule module, List<Definition> definitions, 
-            List<String> withoutAstDefinitions, HierarchyNodeModel model, ICompletionCache completionCache) throws Exception {
+    private void findParentDefinitions(IPythonNature nature, IModule module, List<IDefinition> definitions, 
+            List<String> withoutAstDefinitions, HierarchyNodeModel model, ICompletionCache completionCache, RefactoringRequest request) throws Exception {
         //ok, let's find the parents...
         for(exprType exp :model.ast.bases){
             String n = NodeUtils.getFullRepresentationString(exp);
             final int line = exp.beginLine;
             final int col = exp.beginColumn+n.length(); //the col must be the last char because it can be a dotted name
             if(module != null){
-                final Definition[] defs = (Definition[])module.findDefinition(
-                        CompletionStateFactory.getEmptyCompletionState(n, nature, completionCache), line, col, nature);
                 
-                if(defs.length > 0){
-                    definitions.addAll(Arrays.asList(defs));
+                ArrayList<IDefinition> foundDefs = new ArrayList<IDefinition>();
+                PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module, n, foundDefs, line, col, nature, completionCache);
+                
+                if(foundDefs.size() > 0){
+                    definitions.addAll(foundDefs);
                 }else{
                     withoutAstDefinitions.add(n);
                 }
@@ -93,14 +94,15 @@ public class RefactorerFinds {
                 foundOnRound.clear();
 
                 for (HierarchyNodeModel toFindOnRound : nextRound) {
-                    List<Definition> definitions = new ArrayList<Definition>();
+                    List<IDefinition> definitions = new ArrayList<IDefinition>();
                     List<String> withoutAstDefinitions = new ArrayList<String>();
-                    findParentDefinitions(nature, toFindOnRound.module, definitions, withoutAstDefinitions, toFindOnRound, completionCache);
+                    findParentDefinitions(nature, toFindOnRound.module, definitions, withoutAstDefinitions, toFindOnRound, completionCache, request);
 
                     request.communicateWork(StringUtils.format("Found: %s parents for: %s", definitions.size(), d.value));
 
                     //and add a parent for each definition found (this will make up what the next search we will do)
-                    for (Definition definition : definitions) {
+                    for (IDefinition def : definitions) {
+                        Definition definition = (Definition) def;
                         HierarchyNodeModel model2 = createHierarhyNodeFromClassDef(definition);
                         if (model2 != null) {
                             if (allFound.containsKey(model2) == false) {

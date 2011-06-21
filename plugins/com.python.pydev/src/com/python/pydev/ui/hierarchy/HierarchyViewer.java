@@ -144,7 +144,7 @@ public class HierarchyViewer {
         TreeNode item = new TreeNode(root, model, classImage);
         
         TreeNode base = item;
-        recursivelyAdd(model, base, false, new HashSet<HierarchyNodeModel>());
+        recursivelyAdd(model, base, true, new HashSet<HierarchyNodeModel>());
         
         if(parentsImage == null){
             ImageDescriptor imageDescriptor = com.python.pydev.PydevPlugin.getImageDescriptor("icons/class_hi.gif");
@@ -154,7 +154,7 @@ public class HierarchyViewer {
         }
         
         TreeNode parents = new TreeNode(root, "Parents", parentsImage);
-        recursivelyAdd(model, parents, true, new HashSet<HierarchyNodeModel>());
+        recursivelyAdd(model, parents, false, new HashSet<HierarchyNodeModel>());
         
         treeClassesViewer.setInput(root);
         

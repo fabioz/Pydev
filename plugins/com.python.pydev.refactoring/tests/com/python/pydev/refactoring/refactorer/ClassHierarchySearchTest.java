@@ -24,7 +24,6 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.nature.PythonNature;
 
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
 import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
 
@@ -34,7 +33,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
         try {
             ClassHierarchySearchTest test = new ClassHierarchySearchTest();
             test.setUp();
-            test.testFindHierarchy();
+            test.testFindHierarchy9();
             test.tearDown();
             
             junit.textui.TestRunner.run(ClassHierarchySearchTest.class);
@@ -250,6 +249,29 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
         HierarchyNodeModel foo = assertIsIn("FooIn2", "fooIn2", node.children);
         assertEquals(0, foo.parents.size());
     }
+    
+    public void testFindHierarchy9() {
+        String fooIn1Original  = "class FooIn1(object):pass\n";
+        String fooIn1Dep = "from fooIn1Original import FooIn1\n";
+        String fooIn2 = "from fooIn1Dep import FooIn1\nclass FooIn2(FooIn1):pass\n";
+        
+        final int line = 1;
+        final int col = 8;
+        
+        setUpModule(0, 0, fooIn1Original, "fooIn1Original", nature);
+        setUpModule(0, 0, fooIn1Dep, "fooIn1Dep", nature);
+        RefactoringRequest request;
+        request = setUpModule(line, col, fooIn2, "fooIn2", nature);
+        
+        HierarchyNodeModel node = refactorer.findClassHierarchy(request);
+        assertEquals("FooIn2", node.name);
+        assertTrue(node.moduleName.startsWith("fooIn2"));
+        
+        assertEquals(node.parents.size(), 1);
+        
+        HierarchyNodeModel foo = node.parents.get(0);
+        assertNotNull(foo.ast);
+    }
 
     private RefactoringRequest setUpFooModule(final int line, final int col) {
         String str ="" +
@@ -271,8 +293,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
 
     private RefactoringRequest setUpModule(
             final int line, final int col, String str, String modName, PythonNature natureToAdd) {
-        File f = REF.getTempFileAt(baseDir, modName, ".py");
-        modName = f.getName().substring(0, f.getName().length()-3); //remove extension
+        File f = new File(baseDir, modName+".py");
         
         Document doc = new Document(str);
         PySelection ps = new PySelection(doc, line, col);

@@ -53,14 +53,21 @@ public class Log {
      * @return CoreException that can be thrown for the given log event
      */
 	public static CoreException log(int errorLevel, String message, Throwable e, boolean printToConsole) {
-	    if (CorePlugin.getDefault() == null) {
+	    CorePlugin plugin = CorePlugin.getDefault();
+        if (plugin == null) {
 	        // testing mode, always print to console as there is no logger to log to
 	        printToConsole = true;
 	    } else if (!DEBUG) {
 	        printToConsole = false;
 	    }
 	    
-        Status s = new Status(errorLevel, CorePlugin.getPluginID(), errorLevel, message, e);
+        String id;
+        if(plugin == null){
+            id = "CorePlugin";
+        }else{
+            id = plugin.getBundle().getSymbolicName();
+        }
+        Status s = new Status(errorLevel, id, errorLevel, message, e);
         CoreException coreException = new CoreException(s);
 
         Tuple<Integer, String> key = new Tuple<Integer, String>(errorLevel, message);
@@ -84,8 +91,8 @@ public class Log {
             }
         }
         try {
-            if (CorePlugin.getDefault() != null) {
-                CorePlugin.getDefault().getLog().log(s);
+            if (plugin != null) {
+                plugin.getLog().log(s);
             }
         } catch (Exception e1) {
             //logging should not fail!

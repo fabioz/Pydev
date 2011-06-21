@@ -237,11 +237,12 @@ public class PyRenameEntryPoint extends RenameProcessor {
         request.pushMonitor(pm);
         RefactoringStatus status = new RefactoringStatus();
         try {
-            request.getMonitor().beginTask("Finding references", process.size());
             if (process == null || process.size() == 0) {
+                request.getMonitor().beginTask("Finding references", 1);
                 status.addFatalError("Refactoring Process not defined: the refactoring cycle did not complet correctly.");
                 return status;
             }
+            request.getMonitor().beginTask("Finding references", process.size());
             
             fChange = new CompositeChange("RenameChange: '" + request.initialName+ "' to '"+request.inputName+"'");
 

@@ -35,7 +35,7 @@ public class RenameClassRefactoringTest extends RefactoringRenameTestBase {
             DEBUG_REFERENCES = true;
             RenameClassRefactoringTest test = new RenameClassRefactoringTest();
             test.setUp();
-            test.testRename4();
+            test.testRename1();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameClassRefactoringTest.class);
@@ -58,8 +58,8 @@ public class RenameClassRefactoringTest extends RefactoringRenameTestBase {
         assertFalse(references.containsKey("reflib.renameclass.__init__"));
         
         //the modules with a duplicate definition here should not be in the results.
-        assertFalse(references.containsKey("reflib.renameclass.accessdup"));
-        assertFalse(references.containsKey("reflib.renameclass.duprenfoo"));
+        assertTrue(references.containsKey("reflib.renameclass.accessdup"));
+        assertTrue(references.containsKey("reflib.renameclass.duprenfoo"));
         
         assertEquals(4, references.get(CURRENT_MODULE_IN_REFERENCES).size());
         assertContains(1, 7, references.get(CURRENT_MODULE_IN_REFERENCES));
@@ -73,7 +73,7 @@ public class RenameClassRefactoringTest extends RefactoringRenameTestBase {
         assertContains(5, 11, references.get("reflib.renameclass.accessfoo"));
         assertContains(6, 9, references.get("reflib.renameclass.accessfoo"));
         
-        assertEquals(2, references.size());
+        assertEquals(8, references.size());
 
     }
 

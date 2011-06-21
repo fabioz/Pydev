@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICompletionCache;
@@ -74,7 +75,7 @@ public class PyRefactoringFindDefinition {
                 int beginCol = request.getBeginCol() + 1;
                 IPythonNature pythonNature = request.nature;
 
-                PyRefactoringFindDefinition.findActualDefinition(request, mod, tok, selected, beginLine, beginCol, pythonNature,
+                PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), mod, tok, selected, beginLine, beginCol, pythonNature,
                         completionCache);
             } catch (OperationCanceledException e) {
                 throw e;
@@ -169,20 +170,29 @@ public class PyRefactoringFindDefinition {
      * 
      * @throws Exception
      */
-    public static void findActualDefinition(RefactoringRequest request, IModule mod, String tok, ArrayList<IDefinition> selected, 
+    public static void findActualDefinition(IProgressMonitor monitor, IModule mod, String tok, ArrayList<IDefinition> selected, 
             int beginLine, int beginCol, IPythonNature pythonNature, ICompletionCache completionCache) throws Exception, CompletionRecursionException {
         
         IDefinition[] definitions = mod.findDefinition(CompletionStateFactory.getEmptyCompletionState(tok, pythonNature, 
                 beginLine-1, beginCol-1, completionCache), beginLine, beginCol, pythonNature);
         
-        request.communicateWork("Found:"+definitions.length+ " definitions");
+        if(monitor != null){
+            monitor.setTaskName("Found:"+definitions.length+ " definitions");
+            monitor.worked(1);
+            if(monitor.isCanceled()){
+                return;
+            }
+        }
+        
         for (IDefinition definition : definitions) {
             boolean doAdd = true;
             if(definition instanceof Definition){
                 Definition d = (Definition) definition;
                 doAdd = !findActualTokenFromImportFromDefinition(pythonNature, tok, selected, d, completionCache);
             }
-            request.checkCancelled();
+            if(monitor != null && monitor.isCanceled()){
+                return;
+            }
             if(doAdd){
                 selected.add(definition);
             }
