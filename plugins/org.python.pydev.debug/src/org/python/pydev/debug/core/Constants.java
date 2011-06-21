@@ -63,11 +63,6 @@ public interface Constants {
     static final String ATTR_UNITTEST_TESTS = PLUGIN_ID + ".ATTR_UNITTEST_TESTS";
     static final String ATTR_UNITTEST_CONFIGURATION_FILE = PLUGIN_ID + ".ATTR_UNITTEST_CONFIGURATION_FILE";
     static final String PYDEV_CONFIG_RUN = "PYDEV_CONFIG_RUN";
-    
-    //Constants for pydev debug, break on exception
-	public static String EXCEPTION_FILE_NAME = "python_exceptions.prefs";
-	public static String CUSTOM_EXCEPTION_FILE_NAME = "custom_exceptions.prefs";
-	public static String BREAK_ON_CAUGHT_EXCEPTION = "caught_exception_state.prefs";
-	public static String BREAK_ON_UNCAUGHT_EXCEPTION = "uncaught_exception_state.prefs";
+  
     
 }

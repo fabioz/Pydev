@@ -151,7 +151,6 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
                 launch.setSourceLocator(new PySourceLocator());
             }
             PyDebugTargetServer target = new PyDebugTargetServer(launch, null, this);
-            PyExceptionBreakPointManager.getInstance().setPyDebugTarget(target);
             target.startTransmission(socket);
             target.initialize();
             this.addTarget(target);

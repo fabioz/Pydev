@@ -49,7 +49,6 @@ import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
 import org.python.pydev.debug.model.remote.RemoveBreakpointCommand;
 import org.python.pydev.debug.model.remote.RunCommand;
-import org.python.pydev.debug.model.remote.SendPyExceptionBreakStatusCommand;
 import org.python.pydev.debug.model.remote.SendPyExceptionCommand;
 import org.python.pydev.debug.model.remote.SetBreakpointCommand;
 import org.python.pydev.debug.model.remote.ThreadListCommand;
@@ -63,7 +62,7 @@ import org.python.pydev.plugin.PydevPlugin;
  * @author Fabio
  */
 @SuppressWarnings("restriction")
-public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmission implements IDebugTarget, ILaunchListener {
+public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmission implements IDebugTarget, ILaunchListener, IExceptionsBreakpointListener {
     
     private static final boolean DEBUG = false;
 
@@ -238,6 +237,16 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     }
 
     //Breakpoints ------------------------------------------------------------------------------------------------------
+    
+    /* (non-Javadoc)
+     * @see org.python.pydev.debug.model.IExceptionsBreakpointListener#onSetConfiguredExceptions()
+     */
+    public void onSetConfiguredExceptions() {
+        // Sending python exceptions to the debugger
+        SendPyExceptionCommand sendCmd = new SendPyExceptionCommand(this);
+        this.postCommand(sendCmd);
+    }
+
     /**
      * @return true if the given breakpoint is supported by this target
      */
@@ -582,12 +591,8 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         // now, register all the breakpoints in all projects
         addBreakpointsFor(ResourcesPlugin.getWorkspace().getRoot());
 
-        SendPyExceptionBreakStatusCommand statusCmd = new SendPyExceptionBreakStatusCommand(this, AbstractDebuggerCommand.CMD_SET_PY_EXCEPTION_STATE);
-        this.postCommand(statusCmd);
-        
-        // Sending python exceptions before sending run command 
-        SendPyExceptionCommand sendCmd = new SendPyExceptionCommand(this, AbstractDebuggerCommand.CMD_SET_PY_EXCEPTION);
-        this.postCommand(sendCmd);
+        // Sending python exceptions before sending run command
+        this.onSetConfiguredExceptions();
 
         // Send the run command, and we are off
         RunCommand run = new RunCommand(this);

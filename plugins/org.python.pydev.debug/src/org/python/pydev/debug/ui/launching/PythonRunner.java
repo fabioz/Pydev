@@ -33,7 +33,6 @@ import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyDebugTarget;
-import org.python.pydev.debug.model.PyExceptionBreakPointManager;
 import org.python.pydev.debug.model.PySourceLocator;
 import org.python.pydev.debug.model.remote.RemoteDebugger;
 import org.python.pydev.debug.pyunit.PyUnitServer;
@@ -45,7 +44,7 @@ import org.python.pydev.runners.SimpleRunner;
  * Launches Python process, and connects it to Eclipse's debugger.
  * Waits for process to complete.
  * 
- * Modelled after org.eclipse.jdt.internal.launching.StandardVMDebugger.
+ * Modeled after org.eclipse.jdt.internal.launching.StandardVMDebugger.
  */
 public class PythonRunner {
 
@@ -140,7 +139,6 @@ public class PythonRunner {
         t.startTransmission(socket); // this starts reading/writing from sockets
         t.initialize();
         t.addConsoleInputListener();
-        PyExceptionBreakPointManager.getInstance().setPyDebugTarget(t);
     }
 
     private static IProcess doIt(PythonRunnerConfig config, IProgressMonitor monitor, String [] envp, String[] cmdLine, File workingDirectory, ILaunch launch) throws CoreException{

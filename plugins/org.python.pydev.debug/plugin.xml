@@ -773,17 +773,23 @@
         id="org.python.pydev.debug.pyConfigureException">
   </command>
 </extension>
+ <extension point="org.eclipse.ui.menus">
+<menuContribution
+            locationURI="menu:org.eclipse.ui.run">
+            <command
+           commandId="org.python.pydev.debug.pyConfigureException"
+           label="Manage Exception Breakpoints"
+           id="org.python.pydev.debug.menu.run.pyConfigureException"
+           icon="icons/python_exception_breakpoint.jpg">
+         </command>
+  </menuContribution>
+</extension>
  
  <extension point="org.eclipse.ui.actionSets">
   <actionSet
         label="Pydev Navigate"
         visible="false"
         id="org.python.pydev.navigate.actionSet">
-     <menu
-           label="P&amp;ydev"
-           id="pyGeneralMenu">
-        <separator name="pyNavigateGroup"/>
-     </menu>
      <action
            label="Manage Exception Breakpoints"
            class="org.python.pydev.debug.ui.actions.PyConfigureExceptionAction"

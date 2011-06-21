@@ -48,8 +48,7 @@ each command has a format:
     120      CMD_GET_COMPLETIONS      JAVA
     121      CMD_SET_NEXT_STATEMENT
     122      CMD_SET_PY_EXCEPTION
-    123      CMD_SET_PY_EXCEPTION_STATE
-    
+
 500 series diagnostics/ok
     901      VERSION                  either      Version string (1.0)        Currently just used at startup
     902      RETURN                   either      Depends on caller    -
@@ -106,7 +105,6 @@ CMD_RELOAD_CODE = 119
 CMD_GET_COMPLETIONS = 120
 CMD_SET_NEXT_STATEMENT = 121
 CMD_SET_PY_EXCEPTION = 122
-CMD_SET_PY_EXCEPTION_STATE = 123
 CMD_VERSION = 501
 CMD_RETURN = 502
 CMD_ERROR = 901 
@@ -134,7 +132,6 @@ ID_TO_MEANING = {
     '120':'CMD_GET_COMPLETIONS',
     '121':'CMD_SET_NEXT_STATEMENT',
     '122':'CMD_SET_PY_EXCEPTION',
-    '123':'CMD_SET_PY_EXCEPTION_STATE',
     '501':'CMD_VERSION',
     '502':'CMD_RETURN',
     '901':'CMD_ERROR',
@@ -584,6 +581,51 @@ class InternalTerminateThread(InternalThreadCommand):
         cmd = dbg.cmdFactory.makeThreadKilledMessage(self.thread_id)
         dbg.writer.addCommand(cmd)
 
+#=======================================================================================================================
+# InternalRunThread
+#=======================================================================================================================
+class InternalRunThread(InternalThreadCommand):
+    def __init__(self, thread_id):
+        self.thread_id = thread_id
+    def doIt(self, dbg):
+        t = PydevdFindThreadById(self.thread_id)
+        if t: 
+            t.additionalInfo.pydev_step_cmd = None 
+            t.additionalInfo.pydev_step_stop = None
+            t.additionalInfo.pydev_state = STATE_RUN
+
+#=======================================================================================================================
+# InternalStepThread
+#=======================================================================================================================
+class InternalStepThread(InternalThreadCommand):
+    def __init__(self, thread_id, cmd_id):
+        self.thread_id = thread_id
+        self.cmd_id = cmd_id
+
+    def doIt(self, dbg):
+        t = PydevdFindThreadById(self.thread_id)
+        if t:
+            t.additionalInfo.pydev_step_cmd = self.cmd_id
+            t.additionalInfo.pydev_state = STATE_RUN
+
+#=======================================================================================================================
+# InternalSetNextStatementThread
+#=======================================================================================================================
+class InternalSetNextStatementThread(InternalThreadCommand):
+    def __init__(self, thread_id, cmd_id, line, func_name):
+        self.thread_id = thread_id
+        self.cmd_id = cmd_id
+        self.line = line
+        self.func_name = func_name
+
+    def doIt(self, dbg):
+        t = PydevdFindThreadById(self.thread_id)
+        if t:
+            t.additionalInfo.pydev_step_cmd = self.cmd_id
+            t.additionalInfo.pydev_next_line = int(self.line)
+            t.additionalInfo.pydev_func_name = self.func_name
+            t.additionalInfo.pydev_state = STATE_RUN
+
 
 #=======================================================================================================================
 # InternalGetVariable
@@ -655,15 +697,15 @@ class InternalGetFrame(InternalThreadCommand):
     def doIt(self, dbg):
         """ Converts request into python variable """
         try:
-            try:
+            frame = pydevd_vars.findFrame(self.thread_id, self.frame_id)
+            if frame is not None:
                 xml = "<xml>"            
-                frame = pydevd_vars.findFrame(self.thread_id, self.frame_id)
                 xml += pydevd_vars.frameVarsToXML(frame)
                 del frame
                 xml += "</xml>"
                 cmd = dbg.cmdFactory.makeGetFrameMessage(self.sequence, xml)
                 dbg.writer.addCommand(cmd)
-            except pydevd_vars.FrameNotFoundError:
+            else:
                 #pydevd_vars.dumpFrames(self.thread_id)
                 #don't print this error: frame not found: means that the client is not synchronized (but that's ok)
                 cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Frame not found: %s from thread: %s" % (self.frame_id, self.thread_id))
@@ -731,31 +773,35 @@ class InternalGetCompletions(InternalThreadCommand):
             try:
                 
                 frame = pydevd_vars.findFrame(self.thread_id, self.frame_id)
-            
-                #Not using frame.f_globals because of https://sourceforge.net/tracker2/?func=detail&aid=2541355&group_id=85796&atid=577329
-                #(Names not resolved in generator expression in method)
-                #See message: http://mail.python.org/pipermail/python-list/2009-January/526522.html
-                updated_globals = {}
-                updated_globals.update(frame.f_globals)
-                updated_globals.update(frame.f_locals) #locals later because it has precedence over the actual globals
-            
-                completer = _completer.Completer(updated_globals, None)
-                #list(tuple(name, descr, parameters, type))
-                completions = completer.complete(self.act_tok)
+                if frame is not None:
                 
+                    #Not using frame.f_globals because of https://sourceforge.net/tracker2/?func=detail&aid=2541355&group_id=85796&atid=577329
+                    #(Names not resolved in generator expression in method)
+                    #See message: http://mail.python.org/pipermail/python-list/2009-January/526522.html
+                    updated_globals = {}
+                    updated_globals.update(frame.f_globals)
+                    updated_globals.update(frame.f_locals) #locals later because it has precedence over the actual globals
                 
-                def makeValid(s):
-                    return pydevd_vars.makeValidXmlValue(pydevd_vars.quote(s, '/>_= \t'))
-                
-                msg = "<xml>"
-                
-                for comp in completions:
-                    msg += '<comp p0="%s" p1="%s" p2="%s" p3="%s"/>' % (makeValid(comp[0]), makeValid(comp[1]), makeValid(comp[2]), makeValid(comp[3]),)
-                msg += "</xml>"
-                
-                cmd = dbg.cmdFactory.makeGetCompletionsMessage(self.sequence, msg)
-                dbg.writer.addCommand(cmd)
-                
+                    completer = _completer.Completer(updated_globals, None)
+                    #list(tuple(name, descr, parameters, type))
+                    completions = completer.complete(self.act_tok)
+
+
+                    def makeValid(s):
+                        return pydevd_vars.makeValidXmlValue(pydevd_vars.quote(s, '/>_= \t'))
+
+                    msg = "<xml>"
+
+                    for comp in completions:
+                        msg += '<comp p0="%s" p1="%s" p2="%s" p3="%s"/>' % (makeValid(comp[0]), makeValid(comp[1]), makeValid(comp[2]), makeValid(comp[3]),)
+                    msg += "</xml>"
+
+                    cmd = dbg.cmdFactory.makeGetCompletionsMessage(self.sequence, msg)
+                    dbg.writer.addCommand(cmd)
+                else:
+                    cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "InternalGetCompletions: Frame not found: %s from thread: %s" % (self.frame_id, self.thread_id))
+                    dbg.writer.addCommand(cmd)
+
             finally:
                 if remove_path is not None:
                     sys.path.remove(remove_path)
@@ -784,31 +830,3 @@ def PydevdFindThreadById(thread_id):
         traceback.print_exc()
         
     return None
-
-
-_handle_exceptions = None
-_break_on_caught_exceptions = False
-
-def set_handle_exceptions(handle_exceptions):
-    '''Set the list for the caught exceptions on which debugger 
-    needs to be break upon
-    '''
-    global _handle_exceptions
-    _handle_exceptions = handle_exceptions
-
-def get_handle_exceptions():
-    '''Returns the list of caught exceptions on which debugger
-    needs to be break upon
-    '''
-    return _handle_exceptions
-
-def set_break_on_uncaught_exceptions(break_on_caught_exceptions):
-    '''Enable / Disable break on caught exception feature
-    '''
-    global _break_on_caught_exceptions
-    _break_on_caught_exceptions = break_on_caught_exceptions
-
-def is_break_on_caught_exceptions():
-    '''Returns whether to break or not when the caught exceptions are thrown
-    '''
-    return _break_on_caught_exceptions

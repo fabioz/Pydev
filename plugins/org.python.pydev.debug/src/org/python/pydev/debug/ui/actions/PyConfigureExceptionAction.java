@@ -1,19 +1,17 @@
+/**
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package org.python.pydev.debug.ui.actions;
-
-import java.util.Arrays;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
-import org.python.pydev.debug.core.Constants;
-import org.python.pydev.debug.core.FileUtils;
-import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.debug.model.PyExceptionBreakPointManager;
-import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
-import org.python.pydev.debug.model.remote.SendPyExceptionBreakStatusCommand;
-import org.python.pydev.debug.model.remote.SendPyExceptionCommand;
 import org.python.pydev.debug.ui.PyConfigureExceptionDialog;
 import org.python.pydev.editor.actions.PyAction;
 
@@ -26,49 +24,32 @@ public class PyConfigureExceptionAction extends PyAction implements
 				getShell(), "", new PyExceptionListProvider(),
 				new LabelProvider(), "");
 
-		dialog.setInitialElementSelections(FileUtils
-				.getConfiguredExceptions(Constants.EXCEPTION_FILE_NAME));
+		dialog.setInitialElementSelections(PyExceptionBreakPointManager
+				.getInstance().getExceptionsList());
 		dialog.setTitle("Add Python Exception Breakpoint");
-		dialog.open();
+		if (dialog.open() == PyConfigureExceptionDialog.OK) {
 
-		Object[] selectedItems = dialog.getResult();
-		if (selectedItems != null) {
-			String[] exceptionArray = Arrays.copyOf(selectedItems,
-					selectedItems.length, String[].class);
-
-			// TODO: Compare last list to that of the current list before saving
-			// and posting to debugger
-			FileUtils.saveConfiguredExceptions(exceptionArray,
-					Constants.EXCEPTION_FILE_NAME);
-			AbstractDebugTarget pyDebugTarget = PyExceptionBreakPointManager
-					.getInstance().getPyDebugTarget();
-			if (pyDebugTarget != null) {
-				SendPyExceptionBreakStatusCommand statusCmd = new SendPyExceptionBreakStatusCommand(pyDebugTarget,
-						AbstractDebuggerCommand.CMD_SET_PY_EXCEPTION_STATE);
-				pyDebugTarget.postCommand(statusCmd);
-				
-				// Sending python exceptions to the debugger
-				SendPyExceptionCommand sendCmd = new SendPyExceptionCommand(
-						pyDebugTarget,
-						AbstractDebuggerCommand.CMD_SET_PY_EXCEPTION);
-				pyDebugTarget.postCommand(sendCmd);
+			Object[] selectedItems = dialog.getResult();
+			String[] exceptionArray;
+			if (selectedItems != null) {
+				exceptionArray = new String[selectedItems.length];
+				System.arraycopy(selectedItems, 0, exceptionArray, 0,
+						selectedItems.length);
+			} else {
+				exceptionArray = new String[0];
 			}
+			PyExceptionBreakPointManager.getInstance().setBreakOn(
+					dialog.getResultHandleCaughtExceptions(),
+					dialog.getResultHandleUncaughtExceptions(), exceptionArray);
 		}
 	}
 
-	@Override
 	public void selectionChanged(IAction action, ISelection selection) {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void dispose() {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void init(IWorkbenchWindow window) {
-		// TODO Auto-generated method stub
-
 	}
 }

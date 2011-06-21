@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package org.python.pydev.debug.ui;
 
 import java.util.ArrayList;
@@ -37,8 +43,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.ui.internal.WorkbenchMessages;
 import org.python.pydev.core.StringMatcher;
-import org.python.pydev.debug.core.Constants;
-import org.python.pydev.debug.core.FileUtils;
+import org.python.pydev.debug.model.PyExceptionBreakPointManager;
 import org.python.pydev.debug.ui.actions.PyExceptionListProvider;
 
 public class PyConfigureExceptionDialog extends SelectionDialog {
@@ -70,6 +75,8 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 	// enable/disable breaking on the caught
 	private Button uncaughtExceptionCheck;
 	private Button caughtExceptionCheck;
+	private boolean handleCaughtExceptions;
+	private boolean handleUncaughtExceptions;
 
 	protected static String SELECT_ALL_TITLE = WorkbenchMessages.SelectionDialog_selectLabel;
 	protected static String DESELECT_ALL_TITLE = WorkbenchMessages.SelectionDialog_deselectLabel;
@@ -282,17 +289,17 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 	}
 
 	/**
-	 * Creates two checkboxes to enable/disable breaking on the exception. 
-	 * The default value for Suspend on caught exception is false 
-	 * The default value for suspend on uncaught exception is false 
+	 * Creates two checkboxes to enable/disable breaking on the exception. The
+	 * default value for Suspend on caught exception is false The default value
+	 * for suspend on uncaught exception is false
 	 * 
 	 * @param composite
 	 */
 	private void createCaughtUncaughtCheck(Composite composite) {
-		String breakOnUncaught = FileUtils
-				.readExceptionsFromFile(Constants.BREAK_ON_UNCAUGHT_EXCEPTION);
-		String breakOnCaught = FileUtils
-				.readExceptionsFromFile(Constants.BREAK_ON_CAUGHT_EXCEPTION);
+		PyExceptionBreakPointManager instance = PyExceptionBreakPointManager
+				.getInstance();
+		String breakOnCaught = instance.getBreakOnCaughtExceptions();
+		String breakOnUncaught = instance.getBreakOnUncaughtExceptions();
 
 		uncaughtExceptionCheck = new Button(composite, SWT.CHECK);
 		uncaughtExceptionCheck.setText("Suspend on uncaught exceptions");
@@ -304,13 +311,16 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 		}
 
 		caughtExceptionCheck = new Button(composite, SWT.CHECK);
-		caughtExceptionCheck.setText("Suspend on caught exceptions");
+		caughtExceptionCheck.setText("Suspend on caught exceptions *");
 		if (breakOnCaught.length() > 0) {
 			caughtExceptionCheck.setSelection(Boolean
 					.parseBoolean(breakOnCaught));
 		} else {
 			caughtExceptionCheck.setSelection(false);
 		}
+
+		Label label = new Label(composite, SWT.NONE);
+		label.setText("* Will make debugging ~ 2x slower");
 	}
 
 	/**
@@ -356,7 +366,7 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 		Object[] children = contentProvider.getElements(inputElement);
 		// Build a list of selected children.
 		if (children != null) {
-			ArrayList list = new ArrayList();
+			ArrayList<Object> list = new ArrayList<Object>();
 			for (int i = 0; i < children.length; ++i) {
 				Object element = children[i];
 				if (listViewer.getChecked(element)) {
@@ -375,19 +385,18 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 			setResult(list);
 		}
 
-		saveBreakStatus();
+		// Save whether to break debugger or not on caught / uncaught exceptions
+		handleCaughtExceptions = caughtExceptionCheck.getSelection();
+		handleUncaughtExceptions = uncaughtExceptionCheck.getSelection();
 		super.okPressed();
 	}
 
-	/**
-	 * Save whether to break debugger or not on caught / uncaught exceptions
-	 * 
-	 */
-	private void saveBreakStatus() {
-		FileUtils.writeExceptionsToFile(Constants.BREAK_ON_CAUGHT_EXCEPTION,
-				caughtExceptionCheck.getSelection() ? "true" : "false", false);
-		FileUtils.writeExceptionsToFile(Constants.BREAK_ON_UNCAUGHT_EXCEPTION,
-				uncaughtExceptionCheck.getSelection() ? "true": "false", false);
+	public boolean getResultHandleUncaughtExceptions() {
+		return this.handleUncaughtExceptions;
+	}
+
+	public boolean getResultHandleCaughtExceptions() {
+		return this.handleCaughtExceptions;
 	}
 
 	/**
@@ -495,7 +504,8 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 				display.asyncExec(new Runnable() {
 
 					public void run() {
-						if (!monitor.isCanceled()) {
+						if (!monitor.isCanceled() && filterPatternField != null
+								&& !filterPatternField.isDisposed()) {
 							doFilterUpdate(monitor);
 						}
 					}
