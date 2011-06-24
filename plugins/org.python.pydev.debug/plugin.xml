@@ -778,9 +778,9 @@
             locationURI="menu:org.eclipse.ui.run">
             <command
            commandId="org.python.pydev.debug.pyConfigureException"
-           label="Manage Exception Breakpoints"
+           label="Manage Python Exception Breakpoints"
            id="org.python.pydev.debug.menu.run.pyConfigureException"
-           icon="icons/python_exception_breakpoint.jpg">
+           icon="icons/python_exception_breakpoint.png">
          </command>
   </menuContribution>
 </extension>
@@ -796,7 +796,7 @@
            tooltip="Pydev: Manage exception breakpoints"
            menubarPath="pyGeneralMenu/pyNavigateGroup"
            id="org.python.pydev.debug.pyConfigureException"
-           icon="icons/python_exception_breakpoint.jpg"
+           icon="icons/python_exception_breakpoint.png"
            definitionId="org.python.pydev.debug.pyConfigureException"
            >
      </action>
