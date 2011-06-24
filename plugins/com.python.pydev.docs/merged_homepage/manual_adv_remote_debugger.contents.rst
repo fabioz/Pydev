@@ -112,7 +112,7 @@ remove the noreload flag and edit your manage.py so that the lines:
 are added **BEFORE** the **if __name__ == "__main__"**. Note: this was added in PyDev 2.1.1.
 
 With that change, the breakpoints should be gotten whenever a run is done (note that from now
-on, launches should only be done in 'regular' mode from now on and the debug server must
+on, launches should only be done in **'regular' mode** from now on and the debug server must
 be already started in the Eclipse side).
 
 To disable the debugging, those lines must be removed from manage.py. 

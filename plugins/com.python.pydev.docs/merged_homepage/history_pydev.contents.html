@@ -5,6 +5,94 @@
 <br/>
 
 
+
+
+<h1>Release 2.1</h1>
+<div class="section" id="noteworthy">
+<h2>Noteworthy</h2>
+<p><strong>Code Analysis</strong></p>
+<blockquote>
+<blockquote>
+<img alt="images/index/code_analysis.png" class="no-border" src="images/index/code_analysis.png" />
+</blockquote>
+<ul class="simple">
+<li>By default, only the currently opened editor will be analyzed (much shorter build times).</li>
+<li>Added action to force the analysis on a given folder or file.</li>
+<li>Showing error markers for PyDev elements in the tree.</li>
+<li>New option to remove error markers when the editor is closed (default).</li>
+</ul>
+</blockquote>
+<p><strong>Editor</strong></p>
+<blockquote>
+<blockquote>
+<img alt="images/index/override_methods.png" class="no-border" src="images/index/override_methods.png" />
+</blockquote>
+<ul class="simple">
+<li>Override method completions (Ctrl+Space after a 'def ') .</li>
+<li>Completions starting with '_' now have lower priority.</li>
+<li>Fixed major issue when replacing markers which could make errors appear when they shouldn't appear anymore</li>
+<li>Auto-linking on close parens is now optional (and disabled by default).</li>
+</ul>
+</blockquote>
+<p><strong>Code coverage</strong></p>
+<blockquote>
+<ul class="simple">
+<li>No longer looses the selection on a refresh.</li>
+<li>Fixed issue where coverage was not working properly when running with multiple processes.</li>
+<li>Added orientation options</li>
+</ul>
+</blockquote>
+<p><strong>PyUnit</strong></p>
+<blockquote>
+<blockquote>
+<img alt="images/index/rerun_on_change.png" class="no-border" src="images/index/rerun_on_change.png" />
+</blockquote>
+<ul class="simple">
+<li>Added feature to relaunch the last launch when file changes (with option to relaunch only errors).</li>
+<li>setUpClass was not called when running with the pydev test runner</li>
+<li>F12 makes the editor active even if there's a tooltip active in the PyUnit view.</li>
+<li>The PyUnit tooltip is now properly restoring the focus of the previous active control.</li>
+<li>Added orientation options</li>
+</ul>
+</blockquote>
+<p><strong>Others</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Upon starting up PyDev, the interpreter information is validated for changes.</li>
+<li>Improved the django templates code-completion to better deal with the html/css counterparts.</li>
+<li>When the interpreter is not configured, detect it and take the proper actions to ask the user to configure it.</li>
+<li>No longer using StyleRange.data as it's not available for older versions of Eclipse.</li>
+<li>Fixed issue where references to modules could become obsolete in memory.</li>
+<li>When a source folder is added/removed, the package explorer will properly update to remove/add errors.</li>
+<li>Fixed issue where code-formatting could be really slow on unbalanced parenthesis on a big file.</li>
+<li>Fixed error accessing __builtins__.__import__ when running in the debugger.</li>
+<li>Fixed issue with wrong code-formatting with numbers.</li>
+<li>The assist to create a docstring will remove the pass right after it (if there's one).</li>
+<li>The path of the file that holds the preferences no longer has the same number of chars as the path for the interpreter.</li>
+<li>Fixed some TDD actions</li>
+<li>Fixed issue where project references were not being gotten recursively as they should.</li>
+<li>Fixed dedent issues on else and elif.</li>
+<li>Fixed issue with __init__.py not showing the parent package name (when set in the preferences to do so).</li>
+<li>sys._getframe shouldn't be needed when running unit-tests in IronPython.</li>
+<li>Showing interpreter information when a given project is also a source folder.</li>
+</ul>
+</blockquote>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <h1>Release 2.0</h1>
 <ul>
 <div class="section" id="major-see-video">

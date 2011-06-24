@@ -93,71 +93,63 @@ First time users are strongly advised to read the `Getting started guide`_  whic
 
 
 
-Release 2.1
+Release 2.2
 ===============
 
 
 Noteworthy
 -----------
 
+**Eclipse 3.7** 
 
-**Code Analysis**
+    * Eclipse 3.7 (Indigo) is now supported.
 
-  .. image:: images/index/code_analysis.png
-    :class: no_border
-   
- * By default, only the currently opened editor will be analyzed (much shorter build times).
- * Added action to force the analysis on a given folder or file.
- * Showing error markers for PyDev elements in the tree.
- * New option to remove error markers when the editor is closed (default).
+**Break on Exceptions**
 
-**Editor**
-
-  .. image:: images/index/override_methods.png
-    :class: no_border
+    .. image:: images/index/manage_exceptions.png
+        :class: no_border
         
- * Override method completions (Ctrl+Space after a 'def ') .
- * Completions starting with '_' now have lower priority.
- * Fixed major issue when replacing markers which could make errors appear when they shouldn't appear anymore
- * Auto-linking on close parens is now optional (and disabled by default).
+    * It's now possible to **break on caught exceptions** in the debugger.
+    * There's an UI to break on caught or uncaught exceptions (menu: Run > Manage Python Exception Breakpoints).
 
-**Code coverage**
- 
- * No longer looses the selection on a refresh.
- * Fixed issue where coverage was not working properly when running with multiple processes.
- * Added orientation options
+**Hierarchy view**
 
-**PyUnit**
+    .. image:: images/index/hierarchy_view.png
+        :class: no_border
 
-  .. image:: images/index/rerun_on_change.png
-    :class: no_border
+    * UI improved (now only uses SWT -- access through F4 with the cursor over a class).
+
+**PyPy**: 
     
- * Added feature to relaunch the last launch when file changes (with option to relaunch only errors).
- * setUpClass was not called when running with the pydev test runner
- * F12 makes the editor active even if there's a tooltip active in the PyUnit view.
- * The PyUnit tooltip is now properly restoring the focus of the previous active control.
- * Added orientation options
+    * PyDev now supports PyPy (can be configured as a regular Python interpreter).
 
+**Django**
+
+    .. _`Django remote debugging with auto-reload`: manual_adv_remote_debugger.html#django-remote-debugging-with-auto-reload
+    
+    * Django configuration in project properties page (improved UI for configuration of the django manage.py and django settings module).
+    * Improved support for debugging Django with autoreload. Details at: `Django remote debugging with auto-reload`_.
+
+**Code analysis**
+
+    * Fixed issue where a resolution of a token did not properly consider a try..except ImportError (always went for the first match).
+    * Fixed issue with relative import with wildcards.
+    * Fixed issue with relative import with alias.
+    * Fixed issue where binary files would be wrongly parsed (ended up generating errors in the error log).
+
+**Code completion**
+
+    * Improved sorting of proposals (__*__ come at last)
 
 **Others**
 
- * Upon starting up PyDev, the interpreter information is validated for changes.
- * Improved the django templates code-completion to better deal with the html/css counterparts.
- * When the interpreter is not configured, detect it and take the proper actions to ask the user to configure it.
- * No longer using StyleRange.data as it's not available for older versions of Eclipse.
- * Fixed issue where references to modules could become obsolete in memory.
- * When a source folder is added/removed, the package explorer will properly update to remove/add errors.
- * Fixed issue where code-formatting could be really slow on unbalanced parenthesis on a big file.
- * Fixed error accessing __builtins__.__import__ when running in the debugger.
- * Fixed issue with wrong code-formatting with numbers.
- * The assist to create a docstring will remove the pass right after it (if there's one).
- * The path of the file that holds the preferences no longer has the same number of chars as the path for the interpreter.
- * Fixed some TDD actions
- * Fixed issue where project references were not being gotten recursively as they should. 
- * Fixed dedent issues on else and elif.
- * Fixed issue with __init__.py not showing the parent package name (when set in the preferences to do so).
- * sys._getframe shouldn't be needed when running unit-tests in IronPython.
- * Showing interpreter information when a given project is also a source folder.
+    * Improved ctrl+1 quick fix with local import.
+    * Fixed issue running with py.test.
+    * PyDev test runner working properly with unittest2.
+    * Fixed compatibility issue with eclipse 3.2.
+    * No longer sorting libraries when adding interpreter/added option to select all not in workspace.
+    * Fixed deadlock in the debugger when dealing with multiple threads.
+    * Fixed debugger issue (dictionary changing size during thread creation/removal on python 3.x).
 
 
 **Note**: Java 1.4 is no longer supported (at least Java 5 is required now).
