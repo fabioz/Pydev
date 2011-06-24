@@ -207,7 +207,7 @@ class PyDBDaemonThread(threading.Thread):
     def OnRun(self):
         raise NotImplementedError('Should be reimplemented by: %s' % self.__class__)
 
-    def doKill(self):
+    def doKillPydevThread(self):
         #that was not working very well because jython gave some socket errors
         self.killReceived = True
             
@@ -223,7 +223,7 @@ class ReaderThread(PyDBDaemonThread):
         self.setName("pydevd.Reader")
         
         
-    def doKill(self):
+    def doKillPydevThread(self):
         #We must close the socket so that it doesn't stay halted there.
         self.killReceived = True
         try:

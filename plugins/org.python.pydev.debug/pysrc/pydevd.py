@@ -88,8 +88,6 @@ connected = False
 bufferStdOutToServer = False
 bufferStdErrToServer = False
 
-PyDBUseLocks = True
-
      
 #=======================================================================================================================
 # PyDBCommandThread
@@ -221,11 +219,6 @@ class PyDB:
        These are placed on the internal command queue.
     """
     
-    RUNNING_THREAD_IDS = {} #this is a dict of thread ids pointing to thread ids. Whenever a command
-                            #is passed to the java end that acknowledges that a thread was created,
-                            #the thread id should be passed here -- and if at some time we do not find
-                            #that thread alive anymore, we must remove it from this list and make
-                            #the java side know that the thread was killed.
 
     def __init__(self):
         SetGlobalDebugger(self)
@@ -234,31 +227,27 @@ class PyDB:
         self.writer = None
         self.quitting = None
         self.cmdFactory = NetCommandFactory() 
-        self.cmdQueue = {}     # the hash of Queues. Key is thread id, value is thread
+        self._cmd_queue = {}     # the hash of Queues. Key is thread id, value is thread
         self.breakpoints = {}
         self.readyToRun = False
-        self.lock = threading.RLock()
-        self.internalQueueLock = threading.Lock()
+        self._main_lock = threading.Lock()
+        self._lock_running_thread_ids = threading.Lock()
         self._finishDebuggingSession = False
         self.force_post_mortem_stop = 0
         self.break_on_uncaught = False
         self.break_on_caught = False
         self.handle_exceptions = None
         
+        #this is a dict of thread ids pointing to thread ids. Whenever a command is passed to the java end that
+        #acknowledges that a thread was created, the thread id should be passed here -- and if at some time we do not
+        #find that thread alive anymore, we must remove it from this list and make the java side know that the thread
+        #was killed.
+        self._running_thread_ids = {} 
+                                
         
     def FinishDebuggingSession(self):
         self._finishDebuggingSession = True
 
-        
-    def acquire(self):
-        if PyDBUseLocks:
-            self.lock.acquire()
-        return True
-    
-    def release(self):
-        if PyDBUseLocks:
-            self.lock.release()
-        return True
         
     def initializeNetwork(self, sock):
         try:
@@ -282,43 +271,19 @@ class PyDB:
         
 
     def getInternalQueue(self, thread_id):
-        """ returns intenal command queue for a given thread.
+        """ returns internal command queue for a given thread.
         if new queue is created, notify the RDB about it """
         try:
-            return self.cmdQueue[thread_id]
+            return self._cmd_queue[thread_id]
         except KeyError:
-            self.internalQueueLock.acquire()
-            try:
-                self.cmdQueue[thread_id] = PydevQueue.Queue() #@UndefinedVariable
-                all_threads = threading.enumerate()
-                cmd = None
-                for t in all_threads:
-                    if GetThreadId(t) == thread_id:
-                        if not hasattr(t, 'additionalInfo'):
-                            #see http://sourceforge.net/tracker/index.php?func=detail&aid=1955428&group_id=85796&atid=577329
-                            #Let's create the additional info right away!
-                            t.additionalInfo = PyDBAdditionalThreadInfo()
-                            
-                        self.RUNNING_THREAD_IDS[thread_id] = t
-                        cmd = self.cmdFactory.makeThreadCreatedMessage(t)
-                        break
-                        
-                if cmd:
-                    PydevdLog(2, "found a new thread ", str(thread_id))
-                    self.writer.addCommand(cmd)
-                else:
-                    PydevdLog(0, "could not find thread by id to register")
-            finally:
-                self.internalQueueLock.release()
-                
-        return self.cmdQueue[thread_id]
+            return self._cmd_queue.setdefault(thread_id, PydevQueue.Queue()) #@UndefinedVariable
             
         
     def postInternalCommand(self, int_cmd, thread_id):
         """ if thread_id is *, post to all """
         if thread_id == "*":
-            for k in self.cmdQueue.keys(): 
-                self.cmdQueue[k].put(int_cmd)
+            for k in self._cmd_queue.keys(): 
+                self._cmd_queue[k].put(int_cmd)
                 
         else:
             queue = self.getInternalQueue(thread_id)
@@ -342,61 +307,80 @@ class PyDB:
     def processInternalCommands(self):
         '''This function processes internal commands
         '''
+        curr_thread_id = GetThreadId(threadingCurrentThread())
+        program_threads_alive = {}
+        all_threads = threadingEnumerate()
+        program_threads_dead = []
+
         
-        self.acquire()
+        self._main_lock.acquire()
         try:
             if bufferStdOutToServer:
                 self.checkOutput(sys.stdoutBuf, 1) #@UndefinedVariable
                     
             if bufferStdErrToServer:
                 self.checkOutput(sys.stderrBuf, 2) #@UndefinedVariable
-
-            currThreadId = GetThreadId(threadingCurrentThread())
-            threads = threadingEnumerate()
-            foundNonPyDBDaemonThread = False
-            foundThreads = {}
             
-            for t in threads:
-                tId = GetThreadId(t)
-                if t.isAlive():
-                    foundThreads[tId] = tId
+            self._lock_running_thread_ids.acquire()
+            try:
+                for t in all_threads:
+                    thread_id = GetThreadId(t)
                     
-                if not isinstance(t, PyDBDaemonThread):
-                    foundNonPyDBDaemonThread = True
-                    queue = self.getInternalQueue(GetThreadId(t))
-                    cmdsToReadd = []    #some commands must be processed by the thread itself... if that's the case,
-                                        #we will re-add the commands to the queue after executing.
-                    try:
-                        while True:
-                            int_cmd = queue.get(False)
-                            if int_cmd.canBeExecutedBy(currThreadId):
-                                PydevdLog(2, "processing internal command ", str(int_cmd))
-                                int_cmd.doIt(self)
-                            else:
-                                PydevdLog(2, "NOT processing internal command ", str(int_cmd))
-                                cmdsToReadd.append(int_cmd)
-                                
-                    except PydevQueue.Empty: #@UndefinedVariable
-                        for int_cmd in cmdsToReadd:
-                            queue.put(int_cmd)
-                        # this is how we exit
-
-            if not foundNonPyDBDaemonThread:
-                self.FinishDebuggingSession()
-                for t in threads: 
-                    if hasattr(t, 'doKill'):
-                        t.doKill()
+                    if not isinstance(t, PyDBDaemonThread) and t.isAlive():
+                        program_threads_alive[thread_id] = t
+                    
+                        if not DictContains(self._running_thread_ids, thread_id):
+                            if not hasattr(t, 'additionalInfo'):
+                                #see http://sourceforge.net/tracker/index.php?func=detail&aid=1955428&group_id=85796&atid=577329
+                                #Let's create the additional info right away!
+                                t.additionalInfo = PyDBAdditionalThreadInfo()
+                            self._running_thread_ids[thread_id] = t
+                            self.writer.addCommand(self.cmdFactory.makeThreadCreatedMessage(t))
+    
+    
+                        queue = self.getInternalQueue(thread_id)
+                        cmdsToReadd = []    #some commands must be processed by the thread itself... if that's the case,
+                                            #we will re-add the commands to the queue after executing.
+                        try:
+                            while True:
+                                int_cmd = queue.get(False)
+                                if int_cmd.canBeExecutedBy(curr_thread_id):
+                                    PydevdLog(2, "processing internal command ", str(int_cmd))
+                                    int_cmd.doIt(self)
+                                else:
+                                    PydevdLog(2, "NOT processing internal command ", str(int_cmd))
+                                    cmdsToReadd.append(int_cmd)
+                                    
+                        except PydevQueue.Empty: #@UndefinedVariable
+                            for int_cmd in cmdsToReadd:
+                                queue.put(int_cmd)
+                            # this is how we exit
+    
+                
+                thread_ids = list(self._running_thread_ids.keys())
+                for tId in thread_ids:
+                    if not DictContains(program_threads_alive, tId):
+                        program_threads_dead.append(tId)
+            finally:
+                self._lock_running_thread_ids.release()
                         
-            for tId in self.RUNNING_THREAD_IDS.keys():
+            for tId in program_threads_dead:
                 try:
-                    if not DictContains(foundThreads, tId):
-                        self.processThreadNotAlive(tId)
+                    self.processThreadNotAlive(tId)
                 except:
-                    sys.stderr.write('Error iterating through %s (%s) - %s\n' % (foundThreads, foundThreads.__class__, dir(foundThreads)))
+                    sys.stderr.write('Error iterating through %s (%s) - %s\n' % (
+                        program_threads_alive, program_threads_alive.__class__, dir(program_threads_alive)))
                     raise
+
+
+            if len(program_threads_alive) == 0:
+                self.FinishDebuggingSession()
+                for t in all_threads: 
+                    if hasattr(t, 'doKillPydevThread'):
+                        t.doKillPydevThread()
                     
         finally:
-            self.release()
+            self._main_lock.release()
       
 
     def setTracingForUntracedContexts(self):
@@ -435,7 +419,7 @@ class PyDB:
         probably will give better performance).
         '''
 
-        self.acquire()
+        self._main_lock.acquire()
         try:
             try:
                 cmd = None
@@ -693,7 +677,7 @@ class PyDB:
                     
                 self.writer.addCommand(cmd)
         finally:
-            self.release()
+            self._main_lock.release()
             
             
     def setExceptHook(self, handle_exceptions, break_on_uncaught, break_on_caught):
@@ -737,21 +721,27 @@ class PyDB:
 
     def processThreadNotAlive(self, threadId):
         """ if thread is not alive, cancel trace_dispatch processing """
-        thread = self.RUNNING_THREAD_IDS.get(threadId, None)
-        if thread is None:
-            return
-        
-        del self.RUNNING_THREAD_IDS[threadId]
-        wasNotified = thread.additionalInfo.pydev_notify_kill
+        self._lock_running_thread_ids.acquire()
+        try:
+            thread = self._running_thread_ids.pop(threadId, None)
+            if thread is None:
+                return
             
-        if not wasNotified:
-            cmd = self.cmdFactory.makeThreadKilledMessage(threadId)
-            self.writer.addCommand(cmd)
-            thread.additionalInfo.pydev_notify_kill = True
+            wasNotified = thread.additionalInfo.pydev_notify_kill
+            if not wasNotified:
+                thread.additionalInfo.pydev_notify_kill = True
+                
+        finally:
+            self._lock_running_thread_ids.release()
+            
+        cmd = self.cmdFactory.makeThreadKilledMessage(threadId)
+        self.writer.addCommand(cmd)
+            
 
     def setSuspend(self, thread, stop_reason):
         thread.additionalInfo.pydev_state = STATE_SUSPEND
         thread.stop_reason = stop_reason
+        
 
     def doWaitSuspend(self, thread, frame, event, arg): #@UnusedVariable
         """ busy waits until the thread state changes to RUN 
@@ -840,8 +830,8 @@ class PyDB:
                 #that was not working very well because jython gave some socket errors
                 threads = threadingEnumerate()
                 for t in threads: 
-                    if hasattr(t, 'doKill'):
-                        t.doKill()
+                    if hasattr(t, 'doKillPydevThread'):
+                        t.doKillPydevThread()
                 return None
     
             filename, base = GetFilenameAndBase(frame)

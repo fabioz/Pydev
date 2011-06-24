@@ -2,6 +2,11 @@
 This module holds the constants used for specifying the states of the debugger.
 '''
 
+
+DEBUG_TRACE_LEVEL = -1
+DEBUG_TRACE_BREAKPOINTS = -1
+
+
 STATE_RUN = 1
 STATE_SUSPEND = 2
 
@@ -12,8 +17,6 @@ except:
     setattr(__builtin__, 'True', 1)
     setattr(__builtin__, 'False', 0)
 
-DEBUG_TRACE_LEVEL = -1
-DEBUG_TRACE_BREAKPOINTS = -1
 
 class DebugInfoHolder:
     #we have to put it here because it can be set through the command line (so, the 
