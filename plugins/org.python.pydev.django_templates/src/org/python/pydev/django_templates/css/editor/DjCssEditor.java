@@ -13,10 +13,7 @@ import org.python.pydev.django_templates.DjPlugin;
 import org.python.pydev.django_templates.editor.DjEditor;
 import org.python.pydev.utils.ICallback;
 
-import com.aptana.editor.common.outline.CommonOutlinePage;
 import com.aptana.editor.css.CSSSourceEditor;
-import com.aptana.editor.css.outline.CSSOutlineContentProvider;
-import com.aptana.editor.css.outline.CSSOutlineLabelProvider;
 
 /**
  * @author Fabio Zadrozny
@@ -58,15 +55,6 @@ public class DjCssEditor extends CSSSourceEditor {
     public void dispose() {
         super.dispose();
         djEditor.dispose();
-    }
-
-    @Override
-    protected CommonOutlinePage createOutlinePage() {
-        CommonOutlinePage outline = super.createOutlinePage();
-        outline.setContentProvider(new CSSOutlineContentProvider());
-        outline.setLabelProvider(new CSSOutlineLabelProvider());
-
-        return outline;
     }
 
     @Override
