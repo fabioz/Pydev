@@ -6,26 +6,9 @@
  */
 package com.python.pydev.refactoring.tdd;
 
-import java.io.ByteArrayInputStream;
-
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IEditorPart;
-import org.python.pydev.editor.PyEdit;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.ui.wizards.files.AbstractPythonWizard;
 import org.python.pydev.ui.wizards.files.AbstractPythonWizardPage;
 

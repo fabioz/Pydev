@@ -12,7 +12,6 @@ package com.python.pydev.analysis.additionalinfo;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.MisconfigurationException;
