@@ -98,8 +98,10 @@ _`Forced Builtins`
 -------------------
 
     The Forced builtin libs are the libraries that are built-in the interpreter, such as **__builtin__, sha, etc** or
-    libraries that should forcefully analyzed through shell introspection (the other option to analyze modules
-    with too much runtime information is providing `Predefined Completions`_).
+    libraries that should forcefully analyzed through a shell (i.e.: to analyze modules in this list, PyDev will spawn
+    a shell and do a dir() on the module to get the available tokens for completions and code-analysis) -- still, 
+    sometimes even that is not always possible, in which case, `Predefined Completions`_ may be used to let PyDev know 
+    about the structure of the code.
     
     For **Python**, you should have around **50** entries 
     
