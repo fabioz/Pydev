@@ -10,7 +10,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.Map;
 
-import org.eclipse.core.resources.IBuildConfiguration;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFilterMatcherDescriptor;
 import org.eclipse.core.resources.IMarker;
@@ -336,16 +335,5 @@ public class WorkspaceStub implements IWorkspace{
         
         return null;
     }
-
-
-	public void build(IBuildConfiguration[] buildConfigs, int kind, boolean buildReferences,
-			IProgressMonitor monitor) throws CoreException {
-		throw new RuntimeException("Not implemented");
-	}
-
-
-	public IBuildConfiguration newBuildConfig(String projectName, String configName) {
-		throw new RuntimeException("Not implemented");
-	}
 
 }
