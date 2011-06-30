@@ -272,6 +272,8 @@ public class SelectExistingOrCreateNewDialog extends TreeSelectionDialog impleme
 	 */
 	@SuppressWarnings("unchecked")
 	protected void computeResult() {
+	    doFinalUpdateBeforeComputeResult();
+
 	    IStructuredSelection selection = (IStructuredSelection) getTreeViewer().getSelection();
 	    List list = selection.toList();
 	    if(list.size() == 1){

@@ -115,7 +115,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                         return;
                     }
 
-                    if (event.character == SWT.CR) {
+                    if (event.character == SWT.CR || event.character == SWT.LF) {
                         
                         //if we had an enter with the shift pressed and we're in a completion, we must stop it
                         if(inCompletion && (event.stateMask & SWT.SHIFT) != 0){

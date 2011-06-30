@@ -18,17 +18,20 @@ import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -36,6 +39,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.dialogs.ElementTreeSelectionDialog;
 import org.python.pydev.core.StringMatcher;
+import org.python.pydev.ui.dialogs.TreeSelectionDialog.UpdateJob;
 
 /**
  * This class extends the 'default' element tree selection dialog so that the user is able to filter the matches
@@ -56,7 +60,7 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
     protected boolean updateInThread = true;
     
     
-    class UpdateJob extends Thread{
+    protected class UpdateJob extends Thread{
         IProgressMonitor monitor = new NullProgressMonitor(); //only thing it implements is the canceled
         
         public UpdateJob(){
@@ -119,12 +123,26 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
     
     private int fWidth = 60;
     protected Text text;
-    private UpdateJob updateJob;
+    protected UpdateJob updateJob;
+    
+    protected int getDefaultMargins(){
+        return 2;
+    }
+    
+    protected int getDefaultSpacing(){
+        return 2;
+    }
 
 
     @Override
     protected Control createDialogArea(Composite parent) {
-        Control control = super.createDialogArea(parent);
+        Control composite = super.createDialogArea(parent);
+        
+        if(composite instanceof Composite){
+            updateCompositeLayout((Composite) composite);
+        }
+        
+        
         getTreeViewer().expandAll();
         
         getTreeViewer().addFilter(new ViewerFilter(){
@@ -143,9 +161,39 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
             this.setFilter(this.initialFilter, new NullProgressMonitor(), true);
         }
         
-        return control;
+        return composite;
     }
     
+    /* (non-Javadoc)
+     * @see org.eclipse.ui.dialogs.SelectionStatusDialog#createButtonBar(org.eclipse.swt.widgets.Composite)
+     */
+    @Override
+    protected Control createButtonBar(Composite parent) {
+        Control composite = super.createButtonBar(parent);
+        if(composite instanceof Composite){
+            updateCompositeLayout((Composite) composite);
+        }
+        return composite;
+    }
+
+    
+    private void updateCompositeLayout(Composite composite) {
+        Layout l = composite.getLayout();
+        if(l instanceof GridLayout){
+            GridLayout layout = (GridLayout) l;
+            layout.marginHeight = convertVerticalDLUsToPixels(getDefaultMargins());
+            layout.marginWidth = convertHorizontalDLUsToPixels(getDefaultMargins());
+            layout.verticalSpacing = convertVerticalDLUsToPixels(getDefaultSpacing());
+            layout.horizontalSpacing = convertHorizontalDLUsToPixels(getDefaultSpacing());
+            composite.setLayout(layout);
+        }
+        for(Control t:composite.getChildren()){
+            if(t instanceof Composite){
+                updateCompositeLayout((Composite)t);
+            }
+        }
+    }
+
     @Override
     protected Label createMessageArea(Composite composite) {
         Label label = super.createMessageArea(composite);
@@ -191,35 +239,39 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
     }
 
     
-    
+    private final Object lock = new Object();
     //filtering things...
     protected void setFilter(String text, IProgressMonitor monitor, boolean updateFilterMatcher) {
-        if(monitor.isCanceled())
-            return;
-        
-        if(updateFilterMatcher){
-        	//just so that subclasses may already treat it.
-	        if(fFilterMatcher.lastPattern.equals(text)){
-	            //no actual change...
-	            return;
-	        }
-	        fFilterMatcher.setFilter(text);
-	        if(monitor.isCanceled())
-	            return;
-        }
-
-        getTreeViewer().getTree().setRedraw(false);
-        getTreeViewer().getTree().getParent().setRedraw(false);
-        try {
+        synchronized (lock) {
             if(monitor.isCanceled())
                 return;
-            getTreeViewer().refresh();
-            if(monitor.isCanceled())
-                return;
-            getTreeViewer().expandAll();
-        } finally {
-            getTreeViewer().getTree().setRedraw(true);
-            getTreeViewer().getTree().getParent().setRedraw(true);
+            
+            if(updateFilterMatcher){
+                //just so that subclasses may already treat it.
+                if(fFilterMatcher.lastPattern.equals(text)){
+                    //no actual change...
+                    return;
+                }
+                fFilterMatcher.setFilter(text);
+                if(monitor.isCanceled())
+                    return;
+            }
+            
+            TreeViewer treeViewer = getTreeViewer();
+            Tree tree = treeViewer.getTree();
+            tree.setRedraw(false);
+            tree.getParent().setRedraw(false);
+            try {
+                if(monitor.isCanceled())
+                    return;
+                treeViewer.refresh();
+                if(monitor.isCanceled())
+                    return;
+                treeViewer.expandAll();
+            } finally {
+                tree.setRedraw(true);
+                tree.getParent().setRedraw(true);
+            }
         }
     }
     
@@ -276,6 +328,8 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
      */
     @SuppressWarnings("unchecked")
     protected void computeResult() {
+        doFinalUpdateBeforeComputeResult();
+        
         IStructuredSelection selection = (IStructuredSelection) getTreeViewer().getSelection();
         List list = selection.toList();
         if(list.size() > 0){
@@ -288,6 +342,17 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
                 list.add(items[0].getData());
                 setResult(list);
             }
+        }
+    }
+
+    protected void doFinalUpdateBeforeComputeResult() {
+        if(updateInThread){
+            //Make sure that the selection is OK
+            UpdateJob j = updateJob;
+            if(j != null){
+                updateJob.cancel();
+            }
+            doFilterUpdate(new NullProgressMonitor());
         }
     }
 
@@ -311,4 +376,8 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
 	}
 
 
+	@Override
+	public boolean isHelpAvailable() {
+	    return false;
+	}
 }

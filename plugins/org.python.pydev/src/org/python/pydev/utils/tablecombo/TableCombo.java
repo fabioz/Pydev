@@ -1311,7 +1311,7 @@ public class TableCombo extends Composite {
 	            if ((event.stateMask & SWT.ALT) != 0 && (event.keyCode == SWT.ARROW_UP || event.keyCode == SWT.ARROW_DOWN)) {
 	                dropDown (false);
 	            }
-	            if (event.character == SWT.CR) {
+	            if (event.character == SWT.CR || event.character == SWT.LF) {
 	                // Enter causes default selection
 	                dropDown (false);
 	                Event e = new Event ();

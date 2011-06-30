@@ -880,7 +880,7 @@ public class PyUnitView extends ViewPartWithOrientation{
      */
     private final class EnterProssedTreeItemKeyListener extends KeyAdapter {
         public void keyReleased(KeyEvent e) {
-            if(e.widget == tree && (e.keyCode == SWT.LF || e.keyCode == SWT.CR)){
+            if(e.widget == tree && (e.keyCode == SWT.LF || e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR)){
                 onTriggerGoToTest();
             }
         }
