@@ -171,10 +171,10 @@ public class SelectExistingOrCreateNewDialog extends TreeSelectionDialog impleme
 	    getTreeViewer().getTree().addKeyListener(new KeyListener() {
 			
 	    	/**
-	    	 * Support for deleting the current selection on del.
+	    	 * Support for deleting the current selection on del or backspace.
 	    	 */
 			public void keyReleased(KeyEvent e) {
-				if(e.keyCode == SWT.DEL){
+				if(e.keyCode == SWT.DEL || e.keyCode == SWT.BS){
 					removeSelection();
 				}
 			}
