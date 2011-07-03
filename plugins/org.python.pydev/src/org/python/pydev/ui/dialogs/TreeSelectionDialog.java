@@ -38,7 +38,11 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.dialogs.ElementTreeSelectionDialog;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.StringMatcher;
+import org.python.pydev.core.callbacks.CallbackWithListeners;
+import org.python.pydev.core.callbacks.ICallbackWithListeners;
+import org.python.pydev.ui.IViewCreatedObserver;
 
 /**
  * This class extends the 'default' element tree selection dialog so that the user is able to filter the matches
@@ -52,6 +56,13 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
     protected DefaultFilterMatcher fFilterMatcher = new DefaultFilterMatcher();
     protected ITreeContentProvider contentProvider;
     protected String initialFilter = "";
+    
+    @SuppressWarnings("rawtypes")
+    public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();
+    
+    @SuppressWarnings("rawtypes")
+    public final ICallbackWithListeners onDispose = new CallbackWithListeners();
+
     
     /**
      * Give subclasses a chance to decide if they want to update the contents of the tree in a thread or not. 
@@ -142,17 +153,16 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
         }
         
         
-        getTreeViewer().expandAll();
-        
-        getTreeViewer().addFilter(new ViewerFilter(){
+        TreeViewer treeViewer = getTreeViewer();
+        treeViewer.addFilter(new ViewerFilter(){
 
             @Override
             public boolean select(Viewer viewer, Object parentElement, Object element) {
                 return matchItemToShowInTree(element);
             }}
         );
-        getTreeViewer().setAutoExpandLevel(AbstractTreeViewer.ALL_LEVELS);
-        getTreeViewer().expandAll();
+        treeViewer.setAutoExpandLevel(AbstractTreeViewer.ALL_LEVELS);
+        treeViewer.expandAll();
 
         if(this.initialFilter.length() > 0){
             this.text.setText(this.initialFilter);
@@ -160,7 +170,25 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
             this.setFilter(this.initialFilter, new NullProgressMonitor(), true);
         }
         
+        List<IViewCreatedObserver> participants = ExtensionHelper.getParticipants(
+                ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
+        for (IViewCreatedObserver iViewCreatedObserver : participants) {
+            iViewCreatedObserver.notifyViewCreated(this);
+        }
+        onControlCreated.call(this.text);
+        onControlCreated.call(this.getTreeViewer());
+        
         return composite;
+    }
+    
+    
+    @Override
+    public int open() {
+        try {
+            return super.open();
+        } finally {
+            onDispose.call(this);
+        }
     }
     
     /* (non-Javadoc)

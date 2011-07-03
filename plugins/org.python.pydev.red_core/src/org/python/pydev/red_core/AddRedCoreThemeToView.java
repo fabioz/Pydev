@@ -14,6 +14,7 @@ import org.python.pydev.debug.pyunit.PyUnitView;
 import org.python.pydev.navigator.ui.PydevPackageExplorer;
 import org.python.pydev.outline.PyOutlinePage;
 import org.python.pydev.ui.IViewCreatedObserver;
+import org.python.pydev.ui.dialogs.TreeSelectionDialog;
 
 import com.python.pydev.ui.hierarchy.PyHierarchyView;
 
@@ -27,25 +28,25 @@ public class AddRedCoreThemeToView implements IViewCreatedObserver{
     		if(view instanceof PydevPackageExplorer){
     			AddRedCoreThemeToViewCallbacks onViewCreatedListener = new AddRedCoreThemeToViewCallbacks();
     			PydevPackageExplorer castView = (PydevPackageExplorer) view;
-    			castView.onTreeViewerCreated.registerListener(onViewCreatedListener.onTreeViewCreated);
+    			castView.onTreeViewerCreated.registerListener(onViewCreatedListener.onControlCreated);
     			castView.onDispose.registerListener(onViewCreatedListener.onDispose);
     			
     		}else if(view instanceof PyUnitView){
     			AddRedCoreThemeToViewCallbacks onViewCreatedListener = new AddRedCoreThemeToViewCallbacks();
     			PyUnitView castView = (PyUnitView) view;
-    			castView.onControlCreated.registerListener(onViewCreatedListener.onTreeViewCreated);
+    			castView.onControlCreated.registerListener(onViewCreatedListener.onControlCreated);
     			castView.onDispose.registerListener(onViewCreatedListener.onDispose);
     			
     		}else if(view instanceof PyHierarchyView){
     		    AddRedCoreThemeToViewCallbacks onViewCreatedListener = new AddRedCoreThemeToViewCallbacks();
     		    PyHierarchyView castView = (PyHierarchyView) view;
-    		    castView.onControlCreated.registerListener(onViewCreatedListener.onTreeViewCreated);
+    		    castView.onControlCreated.registerListener(onViewCreatedListener.onControlCreated);
     		    castView.onDispose.registerListener(onViewCreatedListener.onDispose);
     		    
     		}else if(view instanceof PyCodeCoverageView){
     		    AddRedCoreThemeToViewCallbacks onViewCreatedListener = new AddRedCoreThemeToViewCallbacks();
     		    PyCodeCoverageView castView = (PyCodeCoverageView) view;
-    		    castView.onControlCreated.registerListener(onViewCreatedListener.onTreeViewCreated);
+    		    castView.onControlCreated.registerListener(onViewCreatedListener.onControlCreated);
     		    castView.onDispose.registerListener(onViewCreatedListener.onDispose);
     		    
     		    if(!registeredForStyleOnCoverage){
@@ -64,7 +65,13 @@ public class AddRedCoreThemeToView implements IViewCreatedObserver{
     		}else if(view instanceof PyOutlinePage){
     		    AddRedCoreThemeToViewCallbacks onViewCreatedListener = new AddRedCoreThemeToViewCallbacks();
     		    PyOutlinePage castView = (PyOutlinePage) view;
-    		    castView.onTreeViewerCreated.registerListener(onViewCreatedListener.onTreeViewCreated);
+    		    castView.onTreeViewerCreated.registerListener(onViewCreatedListener.onControlCreated);
+    		    castView.onDispose.registerListener(onViewCreatedListener.onDispose);
+    		    
+    		}else if(view instanceof TreeSelectionDialog){
+                AddRedCoreThemeToViewCallbacks onViewCreatedListener = new AddRedCoreThemeToViewCallbacks();
+                TreeSelectionDialog castView = (TreeSelectionDialog) view;
+    		    castView.onControlCreated.registerListener(onViewCreatedListener.onControlCreated);
     		    castView.onDispose.registerListener(onViewCreatedListener.onDispose);
     		}
 	    }

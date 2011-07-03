@@ -11,7 +11,6 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Control;
 import org.python.pydev.core.callbacks.ICallbackListener;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 
 import com.aptana.theme.ThemePlugin;
 
@@ -22,7 +21,7 @@ import com.aptana.theme.ThemePlugin;
 public class AddRedCoreThemeToViewCallbacks {
 
     public final ICallbackListener onDispose;
-	public final ICallbackListener onTreeViewCreated;
+	public final ICallbackListener onControlCreated;
 	
 	private class Container{
 	    public Container(Control viewer) {
@@ -60,7 +59,7 @@ public class AddRedCoreThemeToViewCallbacks {
 			}
 		};
 		
-		onTreeViewCreated = new ICallbackListener() {
+		onControlCreated = new ICallbackListener() {
 			
 
 
