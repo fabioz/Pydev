@@ -14,6 +14,7 @@ import java.util.List;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -30,6 +31,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.IModule;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
@@ -41,6 +43,9 @@ import org.python.pydev.parser.visitors.scope.DefinitionsASTIteratorVisitor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 import org.python.pydev.ui.ViewPartWithOrientation;
+
+import com.python.pydev.actions.LabelProviderWithDecoration;
+import com.python.pydev.actions.ShowOutlineLabelProvider;
 
 
 /**
@@ -75,6 +80,20 @@ public class HierarchyViewer {
         }
     }
 
+    
+    /**
+     * Handle the creation for earlier versions of Eclipse.
+     */
+    protected static ILabelProvider createLabelProvider() {
+        try {
+            return new LabelProviderWithDecoration(
+                    new HierarchyLabelProvider(), 
+                    PlatformUI.getWorkbench().getDecoratorManager().getLabelDecorator(), 
+                    null);
+        } catch (Throwable e) {
+            return new ShowOutlineLabelProvider();
+        }
+    }
 
     public void createPartControl(Composite parent) {
         this.fParent = parent;
@@ -95,8 +114,8 @@ public class HierarchyViewer {
         
         parent = sash;
         treeClassesViewer = new TreeViewer(parent);
-        treeClassesViewer.setContentProvider(new HierarchyContentProvider());
-        treeClassesViewer.setLabelProvider(new HierarchyLabelProvider());
+        treeClassesViewer.setContentProvider(new TreeNodeContentProvider());
+        treeClassesViewer.setLabelProvider(createLabelProvider());
         
         treeClassesViewer.addDoubleClickListener(new IDoubleClickListener() {
             

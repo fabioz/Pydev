@@ -12,9 +12,11 @@ package org.python.pydev.parser.visitors.scope;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.parser.jython.ast.stmtType;
 
 /**
  * This class is used so that after traversing the AST, we have a simple structure for navigating
@@ -121,6 +123,29 @@ public class DefinitionsASTIteratorVisitor extends EasyASTIteratorVisitor{
         DefinitionsASTIteratorVisitor visitor = new DefinitionsASTIteratorVisitor();
         try {
             root.accept(visitor);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return visitor;
+    }
+    
+    /**
+     * Creates the iterator and traverses the passed root so that the results can be gotten.
+     */
+    public static DefinitionsASTIteratorVisitor createForChildren(ClassDef root){
+        if(root == null){
+            return null;
+        }
+        DefinitionsASTIteratorVisitor visitor = new DefinitionsASTIteratorVisitor();
+        try {
+            stmtType[] body = root.body;
+            if (body != null) {
+                for (int i = 0; i < body.length; i++) {
+                    if (body[i] != null){
+                        body[i].accept(visitor);
+                    }
+                }
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -39,7 +39,6 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.dialogs.ElementTreeSelectionDialog;
 import org.python.pydev.core.StringMatcher;
-import org.python.pydev.ui.dialogs.TreeSelectionDialog.UpdateJob;
 
 /**
  * This class extends the 'default' element tree selection dialog so that the user is able to filter the matches
@@ -224,7 +223,7 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
 
         text.addKeyListener(new KeyListener() {
             public void keyPressed(KeyEvent e) {
-                if (e.keyCode == SWT.ARROW_DOWN){
+                if (e.keyCode == SWT.ARROW_DOWN || e.keyCode == SWT.PAGE_DOWN){
                     Tree tree = getTreeViewer().getTree();
 					tree.setFocus();
                     updateSelectionIfNothingSelected(tree);
@@ -326,7 +325,7 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
     /*
      * @see SelectionStatusDialog#computeResult()
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     protected void computeResult() {
         doFinalUpdateBeforeComputeResult();
         

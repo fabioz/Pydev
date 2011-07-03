@@ -61,7 +61,7 @@ public class PyShowHierarchy extends PyRefactorAction{
                             if (pyRefactoring instanceof IPyRefactoring2) {
                                 RefactoringRequest refactoringRequest = getRefactoringRequest(monitor);
                                 IPyRefactoring2 r2 = (IPyRefactoring2) pyRefactoring;
-                                model = r2.findClassHierarchy(refactoringRequest);
+                                model = r2.findClassHierarchy(refactoringRequest, false);
 
                                 if(monitor.isCanceled()){
                                    return; 
