@@ -103,6 +103,13 @@ public final class PyOutlineSelectionDialog extends TreeSelectionDialog {
      */
     private KeyListener ctrlOlistener;
 
+    /**
+     * The first line selected (starts at 1)
+     */
+    private int startLineIndex = -1;
+
+    private TreeNode<OutlineEntry> initialSelection;
+
     
     private PyOutlineSelectionDialog(Shell shell) {
         super(shell, createLabelProvider(), new TreeNodeContentProvider());
@@ -150,8 +157,15 @@ public final class PyOutlineSelectionDialog extends TreeSelectionDialog {
     public PyOutlineSelectionDialog(Shell shell, PyEdit pyEdit) {
         this(shell);
         this.pyEdit = pyEdit;
+        PySelection ps = this.pyEdit.createPySelection();
+        startLineIndex = ps.getStartLineIndex()+1; //+1 because the ast starts at 1
         calculateHierarchy();
         setInput(root);
+        
+        //After creating the tree viewer (and setting the input), let's set the initial selection!
+        if(initialSelection != null){
+            this.setInitialSelections(new Object[]{initialSelection});
+        }
     }
 
     public boolean close() {
@@ -278,6 +292,11 @@ public final class PyOutlineSelectionDialog extends TreeSelectionDialog {
             } else {
                 n = new TreeNode<OutlineEntry>(root, new OutlineEntry(next), null);
             }
+            
+            if(n.data.node.beginLine <= startLineIndex){
+                initialSelection = n;
+            }
+            
             entryToTreeNode.put(next, n);
         }
         this.root = root;
