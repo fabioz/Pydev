@@ -10,10 +10,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
@@ -25,9 +29,11 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.progress.UIJob;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.uiutils.DialogMemento;
@@ -109,10 +115,81 @@ public final class PyOutlineSelectionDialog extends TreeSelectionDialog {
     private int startLineIndex = -1;
 
     private TreeNode<OutlineEntry> initialSelection;
+    
+    
+    private final UIJob uiJobSetRootWithParentsInput = new UIJob("Set input") {
+        
+        @Override
+        public IStatus runInUIThread(IProgressMonitor monitor) {
+            if(!monitor.isCanceled()){
+                getTreeViewer().setInput(rootWithParents);
+            }else{
+                //Will be recalculated if asked again!
+                rootWithParents = null;
+            }
+            
+            
+            return Status.OK_STATUS;
+        }
+    };
 
+
+    private final Job jobCalculateParents = new Job("Calculate parents") {
+        
+        @Override
+        public IStatus run(IProgressMonitor monitor) {
+            rootWithParents = root.createCopy(null);
+            
+            if(nodeToModel == null){
+                //Step 2: create mapping: classdef to hierarchy model.
+                nodeToModel = new HashMap<SimpleNode, HierarchyNodeModel>();
+                List<Tuple<ClassDef, TreeNode<OutlineEntry>>> gathered = new ArrayList<Tuple<ClassDef, TreeNode<OutlineEntry>>>();  
+                gatherClasses(rootWithParents, monitor, gathered);
+                monitor.beginTask("Calculate parents", gathered.size()+1);
+                
+                IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
+                IPyRefactoring2 r2 = (IPyRefactoring2) pyRefactoring;
+                
+
+                for(Tuple<ClassDef, TreeNode<OutlineEntry>> t:gathered){
+                    SubProgressMonitor subProgressMonitor = new SubProgressMonitor(monitor, 1);
+                    try {
+                        ClassDef classDef = t.o1;
+                        PySelection ps = new PySelection(pyEdit.getDocument(), classDef.name.beginLine - 1, classDef.name.beginColumn - 1);
+                        try {
+                            RefactoringRequest refactoringRequest = PyRefactorAction.createRefactoringRequest(subProgressMonitor, pyEdit,
+                                    ps);
+                            HierarchyNodeModel model = r2.findClassHierarchy(refactoringRequest, true);
+                            nodeToModel.put(t.o2.data.node, model);
+                        } catch (MisconfigurationException e) {
+                            Log.log(e);
+                        }
+                    } finally {
+                        subProgressMonitor.done();
+                    }
+                }
+            }
+            
+            if(!monitor.isCanceled()){
+                fillHierarchy(rootWithParents);
+            }
+
+            if(!monitor.isCanceled()){
+                uiJobSetRootWithParentsInput.setPriority(Job.INTERACTIVE);
+                uiJobSetRootWithParentsInput.schedule();
+            }else{
+                //Will be recalculated if asked again!
+                rootWithParents = null;
+            }
+            monitor.done();
+            
+            return Status.OK_STATUS;
+        }
+    };
     
     private PyOutlineSelectionDialog(Shell shell) {
         super(shell, createLabelProvider(), new TreeNodeContentProvider());
+        setShellStyle(getShellStyle() & ~SWT.APPLICATION_MODAL); //Not modal because then the user may cancel the progress.
         if(CorePlugin.getDefault() != null){
             memento = new DialogMemento(getShell(), "com.python.pydev.actions.PyShowOutline");
         }else{
@@ -247,7 +324,6 @@ public final class PyOutlineSelectionDialog extends TreeSelectionDialog {
         if (showParentHierarchy) {
             //Create the TreeNode structure if it's still not created...
             calculateHierarchyWithParents();
-            treeViewer.setInput(rootWithParents);
         } else {
             calculateHierarchy();
             treeViewer.setInput(root);
@@ -304,6 +380,8 @@ public final class PyOutlineSelectionDialog extends TreeSelectionDialog {
 
     private void calculateHierarchyWithParents() {
         if (rootWithParents != null) {
+            uiJobSetRootWithParentsInput.setPriority(Job.INTERACTIVE);
+            uiJobSetRootWithParentsInput.schedule();
             return;
         }
         
@@ -312,17 +390,11 @@ public final class PyOutlineSelectionDialog extends TreeSelectionDialog {
         if(root == null){
             return;
         }
-        
-        rootWithParents = root.createCopy(null);
+
+        jobCalculateParents.setPriority(Job.INTERACTIVE);
+        jobCalculateParents.schedule();
         
 
-        if(nodeToModel == null){
-            //Step 2: create mapping: classdef to hierarchy model.
-            nodeToModel = new HashMap<SimpleNode, HierarchyNodeModel>();
-            fillClasses(rootWithParents, new NullProgressMonitor());
-        }
-        
-        fillHierarchy(rootWithParents);
     }
 
     private void fillHierarchy(TreeNode<OutlineEntry> entry) {
@@ -358,34 +430,20 @@ public final class PyOutlineSelectionDialog extends TreeSelectionDialog {
     }
 
     
-    private void fillClasses(TreeNode<OutlineEntry> entry, IProgressMonitor monitor) {
+    private void gatherClasses(TreeNode<OutlineEntry> entry, IProgressMonitor monitor, List<Tuple<ClassDef, TreeNode<OutlineEntry>>> gathered) {
         if (entry.children.size() == 0) {
             return;
         }
-
         //Iterate in a copy, since we may change the original...
         for (TreeNode<OutlineEntry> nextEntry : entry.children) {
 
             if (nextEntry.data.node instanceof ClassDef) {
                 ClassDef classDef = (ClassDef) nextEntry.data.node;
-                IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
-                if (pyRefactoring instanceof IPyRefactoring2) {
-                    PySelection ps = new PySelection(pyEdit.getDocument(), classDef.name.beginLine - 1, classDef.name.beginColumn - 1);
-
-                    RefactoringRequest refactoringRequest;
-                    try {
-                        refactoringRequest = PyRefactorAction.createRefactoringRequest(monitor, pyEdit, ps);
-                        IPyRefactoring2 r2 = (IPyRefactoring2) pyRefactoring;
-                        HierarchyNodeModel model = r2.findClassHierarchy(refactoringRequest, true);
-                        nodeToModel.put(nextEntry.data.node, model);
-                    } catch (MisconfigurationException e) {
-                        Log.log(e);
-                    }
-                }
+                gathered.add(new Tuple<ClassDef, TreeNode<OutlineEntry>>(classDef, nextEntry));
             }
 
             //Enter the leaf to fill it too.
-            fillClasses(nextEntry, monitor);
+            gatherClasses(nextEntry, monitor, gathered);
         }
     }
 

@@ -87,13 +87,21 @@ public final class ShowOutlineLabelProvider extends LabelProvider implements ISt
             OutlineEntry entry = (OutlineEntry) element;
             String start = NodeUtils.getFullRepresentationString(entry.node);
             if(entry.model != null){
-                FastStringBuffer suffix = new FastStringBuffer("  (", entry.model.name.length()+50).append(entry.model.name);
+                FastStringBuffer suffix = new FastStringBuffer("    (", entry.model.name.length()+50).append(entry.model.name);
                 if(entry.model.moduleName != null && entry.model.moduleName.length() > 0){
                     suffix.append(" - ").append(entry.model.moduleName);
                 }
                 suffix.append(')');
                 
                 return new StyledString(start).append(suffix.toString(), StyledString.QUALIFIER_STYLER);
+                
+                
+            }else if (entry.parentClass != null){
+                FastStringBuffer suffix = new FastStringBuffer("    (", entry.parentClass.length()+4).
+                append(entry.parentClass).append(')');
+                
+                return new StyledString(start).append(suffix.toString(), StyledString.QUALIFIER_STYLER);
+                
             }
             return new StyledString(start);
         }

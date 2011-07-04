@@ -30,6 +30,9 @@ public class TreeNodeContentProvider implements ITreeContentProvider {
     }
 
     public Object[] getChildren(Object parentElement) {
+        if(parentElement == null){
+            return new Object[0];
+        }
         @SuppressWarnings("rawtypes")
         TreeNode m = (TreeNode)parentElement;
         return m.children.toArray();

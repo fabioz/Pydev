@@ -7,6 +7,8 @@
 package com.python.pydev.actions;
 
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
@@ -18,6 +20,7 @@ import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
 public class OutlineEntry {
 
     public final SimpleNode node;
+    public final String parentClass;
     public final HierarchyNodeModel model;
 
     public OutlineEntry(ASTEntry entry) {
@@ -27,6 +30,19 @@ public class OutlineEntry {
     public OutlineEntry(ASTEntry entry, HierarchyNodeModel model) {
         this.node = entry.node;
         this.model = model;
+        
+        String p = null;
+        if(!(this.node instanceof ClassDef)){
+            while(entry.parent != null){
+                if(entry.parent.node instanceof ClassDef){
+                    ClassDef classDef = (ClassDef) entry.parent.node;
+                    p = NodeUtils.getRepresentationString(classDef);
+                    break;
+                }
+                entry = entry.parent;
+            }
+        }
+        parentClass = p;
     }
 
     @Override
