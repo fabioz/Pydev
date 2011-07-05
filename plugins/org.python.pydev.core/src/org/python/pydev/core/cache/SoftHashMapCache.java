@@ -8,20 +8,21 @@ package org.python.pydev.core.cache;
 
 import java.io.Serializable;
 
-
 /**
- * If the cache is to be used by multiple threads,
- * the cache must be wrapped with code to synchronize the methods
- * cache = (Map)Collections.synchronizedMap(cache);
- * 
- * (it is actually serializable or not depending on its keys and values)
+ * @author fabioz
+ *
  */
-public final class LRUCache<Key, Val> extends CacheMapWrapper<Key, Val> implements Serializable{
+public final class SoftHashMapCache<Key, Val> extends CacheMapWrapper<Key, Val> implements Serializable{
 
     private static final long serialVersionUID = 1L;
     
-    public LRUCache(int maxSize){
-        super(new LRUMap<Key, Val>(maxSize));
+    public SoftHashMapCache(){
+        super(new SoftHashMap<Key, Val>());
     }
 
+    @SuppressWarnings("rawtypes")
+    @Override
+    public void removeStaleEntries() {
+        ((SoftHashMap)cache).removeStaleEntries();
+    }
 }

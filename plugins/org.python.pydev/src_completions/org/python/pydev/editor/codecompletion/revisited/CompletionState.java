@@ -411,7 +411,12 @@ public class CompletionState implements ICompletionState {
     public void remove(Object key) {
         this.completionCache.remove(key);
     }
-
-
     
+    public void removeStaleEntries() {
+        this.completionCache.removeStaleEntries();
+    }
+
+    public void clear() {
+        this.completionCache.clear();
+    }
 }

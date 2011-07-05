@@ -207,5 +207,12 @@ public class CompletionStateWrapper implements ICompletionState {
     public void remove(Object key) {
         this.wrapped.remove(key);
     }
+    
+    public void clear() {
+        this.wrapped.clear();
+    }
 
+    public void removeStaleEntries() {
+        this.wrapped.removeStaleEntries();
+    }
 }

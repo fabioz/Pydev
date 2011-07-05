@@ -131,6 +131,14 @@ public final class FastStringBuffer{
         append(String.valueOf(b));
         return this;
     }
+    
+    /**
+     * Appends a double to the buffer.
+     */
+    public FastStringBuffer append(double b) {
+        append(Double.valueOf(b));
+        return this;
+    }
 
     /**
      * Appends an array of chars to the buffer.
