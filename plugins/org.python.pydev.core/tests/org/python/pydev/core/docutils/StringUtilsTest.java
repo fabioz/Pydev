@@ -380,5 +380,10 @@ public class StringUtilsTest extends TestCase {
         assertEquals("ck2u8j60r58fu0sgyxrigm3cu", StringUtils.md5(""));
         assertEquals("4l3c9nzlvo3spzkuri5l3r4si", StringUtils.md5("c:\\my_really\\big\\python\\path\\executable\\is_\\very_very_very\\long\\python.exe"));
     }
+    
+    public void testJoin() throws Exception {
+        assertEquals(";", StringUtils.join(";", "", ""));
+        
+    }
 }
 

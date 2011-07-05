@@ -801,9 +801,12 @@ public final class StringUtils {
      */
     public static String join(String delimiter, String[] splitted) {
         FastStringBuffer buf = new FastStringBuffer(splitted.length*100);
+        boolean first = true;
         for (String string : splitted) {
-            if(buf.length() > 0){
+            if(!first){
                 buf.append(delimiter);
+            }else{
+                first = false;
             }
             buf.append(string);
         }
@@ -816,9 +819,12 @@ public final class StringUtils {
      */
 	public static String join(String delimiter, String[] splitted, int startAtSegment, int endAtSegment) {
         FastStringBuffer buf = new FastStringBuffer(splitted.length*100);
+        boolean first = true;
         for (int i=startAtSegment;i<splitted.length && i < endAtSegment;i++) {
-            if(buf.length() > 0){
+            if(!first){
                 buf.append(delimiter);
+            }else{
+                first = false;
             }
             buf.append(splitted[i]);
         }
@@ -831,9 +837,12 @@ public final class StringUtils {
      */
     public static String join(String delimiter, List<String> splitted) {
         FastStringBuffer buf = new FastStringBuffer(splitted.size()*100);
+        boolean first = true;
         for (String string : splitted) {
-            if(buf.length() > 0){
+            if(!first){
                 buf.append(delimiter);
+            }else{
+                first = false;
             }
             buf.append(string);
         }
