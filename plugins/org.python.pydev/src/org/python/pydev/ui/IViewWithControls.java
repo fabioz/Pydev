@@ -6,16 +6,16 @@
  */
 package org.python.pydev.ui;
 
+import org.python.pydev.core.callbacks.ICallbackWithListeners;
 
-
-public interface IViewCreatedObserver {
-
-	/**
-	 * Called for:
-	 * - PydevPackageExplorer
-	 * - PyOutlinePage  
-	 * etc.
-	 */
-	void notifyViewCreated(IViewWithControls view);
-
+/**
+ * @author fabioz
+ *
+ */
+@SuppressWarnings("rawtypes")
+public interface IViewWithControls {
+    
+    public ICallbackWithListeners getOnControlCreated();
+    
+    public ICallbackWithListeners getOnControlDisposed();
 }

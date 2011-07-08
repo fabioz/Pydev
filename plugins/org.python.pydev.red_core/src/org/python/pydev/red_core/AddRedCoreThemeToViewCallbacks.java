@@ -20,34 +20,19 @@ import com.aptana.theme.ThemePlugin;
 @SuppressWarnings("rawtypes")
 public class AddRedCoreThemeToViewCallbacks {
 
-    public final ICallbackListener onDispose;
+    public final ICallbackListener onControlDisposed;
 	public final ICallbackListener onControlCreated;
 	
-	private class Container{
-	    public Container(Control viewer) {
-	        this.obj = viewer;
-	    }
-	    
-	    public Container(TreeViewer viewer) {
-            this.obj = viewer;
-        }
-
-        public final Object obj;
-	}
-	
-	private Container container;
-	
     public AddRedCoreThemeToViewCallbacks() {
-		onDispose = new ICallbackListener() {
+		onControlDisposed = new ICallbackListener() {
 			
 			public Object call(Object obj) {
 				try {
-				    if(container.obj instanceof TreeViewer){
-				        ThemePlugin.getDefault().getControlThemerFactory().dispose((TreeViewer)container.obj);
+				    if(obj instanceof TreeViewer){
+				        ThemePlugin.getDefault().getControlThemerFactory().dispose((TreeViewer)obj);
 				        
     				}else if(obj instanceof Control){
-    				    ThemePlugin.getDefault().getControlThemerFactory().dispose((Control)container.obj);
-    				    
+    				    ThemePlugin.getDefault().getControlThemerFactory().dispose((Control)obj);
     				    
     				}else{
     				    Log.log("Cannot handle: "+obj);
@@ -60,13 +45,10 @@ public class AddRedCoreThemeToViewCallbacks {
 		};
 		
 		onControlCreated = new ICallbackListener() {
-			
-
 
             public Object call(Object obj) {
                 if(obj instanceof TreeViewer){
     			    TreeViewer treeViewer = (TreeViewer) obj;
-    			    container = new Container(treeViewer);
                     try {
                         ThemePlugin.getDefault().getControlThemerFactory().apply(treeViewer);
                     } catch (Throwable e) {
@@ -75,7 +57,6 @@ public class AddRedCoreThemeToViewCallbacks {
                     
                 }else if(obj instanceof Control){
                     Control control = (Control) obj;
-                    container = new Container(control);
                     try {
                         ThemePlugin.getDefault().getControlThemerFactory().apply(control);
                     } catch (Throwable e) {

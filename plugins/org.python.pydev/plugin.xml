@@ -704,8 +704,8 @@
       </command>
 <!-- command: Show browser-->
       <command
-            name="Python Show Global Tokens Browser"
-            description="Show Global Tokens Browser"
+            name="Python Show Global Tokens (Editor)"
+            description="Python Show Global Tokens (Editor)"
             categoryId="org.python.pydev.ui.category.source"
             id="org.python.pydev.editor.actions.pyShowBrowser">
       </command>

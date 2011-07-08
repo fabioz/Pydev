@@ -107,21 +107,38 @@
 
 <extension point="org.eclipse.ui.commands">
       <command
-            name="Python Show Class Browser"
-            description="Show Class Browser"
+            name="Python Show Global Tokens (Global)"
+            description="Python Show Global Tokens (Global)"
             categoryId="org.python.pydev.ui.category.source"
             id="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench">
       </command>
 </extension>
 
+<extension point="org.eclipse.ui.contexts">
+      <context
+            description="PyDev view (PyUnit, PyOutline, etc)."
+            id="com.python.pydev.contexts.window"
+            name="PyDev view"
+            parentId="org.eclipse.ui.contexts.window">
+      </context>
+</extension>
+
 <extension point="org.eclipse.ui.bindings">
       <key
             sequence="M1+M2+T"
-            contextId="org.eclipse.ui.contexts.window"
+            contextId="com.python.pydev.contexts.window"
             commandId="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench"	
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
 </extension>
+
+
+<extension point="org.python.pydev.pydev_view_created_observer">
+      <view_created_observer
+            class="com.python.pydev.analysis.PyContextActivatorViewCreatedObserver">
+      </view_created_observer>
+</extension>
+
 
 <!-- view: indexing info -->
 <extension point="org.eclipse.ui.views">

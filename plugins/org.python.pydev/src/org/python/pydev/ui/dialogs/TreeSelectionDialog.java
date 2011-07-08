@@ -43,6 +43,7 @@ import org.python.pydev.core.StringMatcher;
 import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.ui.IViewCreatedObserver;
+import org.python.pydev.ui.IViewWithControls;
 
 /**
  * This class extends the 'default' element tree selection dialog so that the user is able to filter the matches
@@ -50,18 +51,16 @@ import org.python.pydev.ui.IViewCreatedObserver;
  * 
  * @author Fabio
  */
-public class TreeSelectionDialog extends ElementTreeSelectionDialog{
+@SuppressWarnings({"rawtypes", "unchecked"})
+public class TreeSelectionDialog extends ElementTreeSelectionDialog implements IViewWithControls{
 
     private ILabelProvider labelProvider;
     protected DefaultFilterMatcher fFilterMatcher = new DefaultFilterMatcher();
     protected ITreeContentProvider contentProvider;
     protected String initialFilter = "";
     
-    @SuppressWarnings("rawtypes")
     public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();
-    
-    @SuppressWarnings("rawtypes")
-    public final ICallbackWithListeners onDispose = new CallbackWithListeners();
+    public final ICallbackWithListeners onControlDisposed = new CallbackWithListeners();
 
     
     /**
@@ -187,7 +186,8 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
         try {
             return super.open();
         } finally {
-            onDispose.call(this);
+            onControlDisposed.call(this.text);
+            onControlDisposed.call(this.getTreeViewer());
         }
     }
     
@@ -353,7 +353,6 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
     /*
      * @see SelectionStatusDialog#computeResult()
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     protected void computeResult() {
         doFinalUpdateBeforeComputeResult();
         
@@ -407,4 +406,12 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
 	public boolean isHelpAvailable() {
 	    return false;
 	}
+
+    public ICallbackWithListeners getOnControlCreated() {
+        return onControlCreated;
+    }
+
+    public ICallbackWithListeners getOnControlDisposed() {
+        return onControlDisposed;
+    }
 }

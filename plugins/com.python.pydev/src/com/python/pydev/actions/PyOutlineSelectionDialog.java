@@ -283,6 +283,19 @@ public final class PyOutlineSelectionDialog extends TreeSelectionDialog {
             }
         };
         this.text.addKeyListener(ctrlOlistener);
+        
+        this.text.addKeyListener(new KeyListener() {
+
+            public void keyReleased(KeyEvent e) {
+            }
+
+            public void keyPressed(KeyEvent e) {
+                if (e.keyCode == SWT.CR || e.keyCode == SWT.LF || e.keyCode == SWT.KEYPAD_CR) {
+                    okPressed();
+                }
+            }
+        });
+
         this.getTreeViewer().getTree().addKeyListener(ctrlOlistener);
         return ret;
     }
