@@ -19,6 +19,7 @@ import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension;
 import org.eclipse.jface.text.contentassist.IContextInformation;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
@@ -103,6 +104,12 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
         }else{
             //happens on compare editor
             this.indentString = new DefaultIndentPrefs().getIndentationString();
+        }
+        //If the completion is applied with shift pressed, do a local import. Note that the user is only actually
+        //able to do that if the popup menu is focused (i.e.: request completion and do a tab to focus it, instead
+        //of having the focus on the editor and just pressing up/down).
+        if((stateMask & SWT.SHIFT) != 0){
+            this.setAddLocalImport(true);
         }
         apply(document, trigger, stateMask, offset);
     }
