@@ -143,11 +143,16 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
             PySelection ps = null;
             if(this.addLocalImport){
                 ps = new PySelection(document, offset);
-                previousLineThatStartsScope = ps.getPreviousLineThatStartsScope(ps.getStartLineIndex());
-                if(previousLineThatStartsScope == null){
-                    //note that if we have no previous scope, it means we're actually on the global scope, so,
-                    //proceed as usual...
+                int startLineIndex = ps.getStartLineIndex();
+                if(startLineIndex == 0){
                     this.addLocalImport = false;
+                }else{
+                    previousLineThatStartsScope = ps.getPreviousLineThatStartsScope(startLineIndex-1);
+                    if(previousLineThatStartsScope == null){
+                        //note that if we have no previous scope, it means we're actually on the global scope, so,
+                        //proceed as usual...
+                        this.addLocalImport = false;
+                    }
                 }
             }
             
@@ -220,17 +225,49 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
                 document.replace(offset-dif, dif+this.fLen, fReplacementString+appendForTrigger);
             }
             if(this.addLocalImport){
+                //All the code below is because we don't want to work with a generated AST (as it may not be there),
+                //so, we go to the previous scope, find out the valid indent inside it and then got backwards
+                //from the position we're in now to find the closer location to where we're now where we're
+                //actually able to add the import.
                 try {
                     int iLineStartingScope;
                     if(previousLineThatStartsScope != null){
                         iLineStartingScope = previousLineThatStartsScope.iLineStartingScope;
                         
-                        String line = ps.getLine(iLineStartingScope+1);
-                        
-                        int i = PySelection.getFirstCharPosition(line);
-                        String indent = line.substring(0, i);
+                        //Go to a non-empty line from the line we have and the line we're currently in.
+                        int iLine = iLineStartingScope+1;
+                        String line = ps.getLine(iLine);
+                        int startLineIndex = ps.getStartLineIndex();
+                        while(iLine < startLineIndex && (line.startsWith("#") || line.trim().length() == 0)){
+                            iLine++;
+                            line = ps.getLine(iLine);
+                        }
+                        if(iLine >= startLineIndex){
+                            //Sanity check!
+                            iLine = startLineIndex;
+                            line = ps.getLine(iLine);
+                        }
+                        int firstCharPos = PySelection.getFirstCharPosition(line);
+                        //Ok, all good so far, now, this would add the line to the beginning of
+                        //the element (after the if statement, def, etc.), let's try to put
+                        //it closer to where we're now (but still in a valid position).
+                        int j = startLineIndex;
+                        while(j >= 0){
+                            String line2 = ps.getLine(j);
+                            if(PySelection.getFirstCharPosition(line2) == firstCharPos){
+                                iLine = j;
+                                break;
+                            }
+                            if(j == iLineStartingScope){
+                                break;
+                            }
+                            j--;
+                        }
+                            
+
+                        String indent = line.substring(0, firstCharPos);
                         String strToAdd = indent+realImportRep+delimiter;
-                        ps.addLine(strToAdd, iLineStartingScope);
+                        ps.addLine(strToAdd, iLine-1); //Will add it just after the line passed as a parameter.
                         importLen = strToAdd.length();
                         return;
                     }
