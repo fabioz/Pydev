@@ -7,7 +7,7 @@
 package org.python.pydev.red_core;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Control;
 import org.python.pydev.core.callbacks.ICallbackListener;
 import org.python.pydev.core.log.Log;
@@ -28,8 +28,8 @@ public class AddRedCoreThemeToViewCallbacks {
 			
 			public Object call(Object obj) {
 				try {
-				    if(obj instanceof TreeViewer){
-				        ThemePlugin.getDefault().getControlThemerFactory().dispose((TreeViewer)obj);
+				    if(obj instanceof Viewer){
+				        ThemePlugin.getDefault().getControlThemerFactory().dispose((Viewer)obj);
 				        
     				}else if(obj instanceof Control){
     				    ThemePlugin.getDefault().getControlThemerFactory().dispose((Control)obj);
@@ -47,10 +47,10 @@ public class AddRedCoreThemeToViewCallbacks {
 		onControlCreated = new ICallbackListener() {
 
             public Object call(Object obj) {
-                if(obj instanceof TreeViewer){
-    			    TreeViewer treeViewer = (TreeViewer) obj;
+                if(obj instanceof Viewer){
+                    Viewer viewer = (Viewer) obj;
                     try {
-                        ThemePlugin.getDefault().getControlThemerFactory().apply(treeViewer);
+                        ThemePlugin.getDefault().getControlThemerFactory().apply(viewer);
                     } catch (Throwable e) {
                         Log.log(IStatus.ERROR, "Unable to apply theme. Probably using incompatible version of Aptana Studio", e);
                     }

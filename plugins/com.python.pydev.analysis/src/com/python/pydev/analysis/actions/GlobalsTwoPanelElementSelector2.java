@@ -31,6 +31,7 @@ import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IWorkbenchPage;
@@ -43,10 +44,16 @@ import org.eclipse.ui.XMLMemento;
 import org.eclipse.ui.actions.WorkingSetFilterActionGroup;
 import org.eclipse.ui.dialogs.FilteredItemsSelectionDialog;
 import org.eclipse.ui.statushandlers.StatusManager;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.callbacks.CallbackWithListeners;
+import org.python.pydev.core.callbacks.ICallbackWithListeners;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.model.ItemPointer;
+import org.python.pydev.ui.IViewCreatedObserver;
+import org.python.pydev.ui.IViewWithControls;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
@@ -57,7 +64,8 @@ import com.python.pydev.analysis.additionalinfo.InfoFactory;
 /**
  * Let us choose from a list of IInfo (and the related additional info)
  */
-public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialog{
+@SuppressWarnings({"rawtypes", "unchecked"})
+public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialog implements IViewWithControls{
 
     private static final String DIALOG_SETTINGS = "com.python.pydev.analysis.actions.GlobalsTwoPanelElementSelector2"; //$NON-NLS-1$
 
@@ -72,6 +80,12 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
     private List<AbstractAdditionalTokensInfo> additionalInfo;
 
     private String selectedText;
+    
+    public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();
+    public final ICallbackWithListeners onControlDisposed = new CallbackWithListeners();
+
+    private List createdCallbacksForControls;
+
 
     public GlobalsTwoPanelElementSelector2(Shell shell, boolean multi, String selectedText, List<IPythonNature> pythonNatures) {
         super(shell, multi);
@@ -200,7 +214,41 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
     protected Control createExtendedContentArea(Composite parent){
         return null;
     }
+    
+    @Override
+    protected Control createDialogArea(Composite parent) {
+        Control ret = super.createDialogArea(parent);
+        
+        List<IViewCreatedObserver> participants = ExtensionHelper.getParticipants(
+                ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
+        for (IViewCreatedObserver iViewCreatedObserver : participants) {
+            iViewCreatedObserver.notifyViewCreated(this);
+        }
+        
+        createdCallbacksForControls = callRecursively(onControlCreated, parent, new ArrayList());
 
+        return ret;
+    }
+
+    /**
+     * Calls the callback with the composite c and all of its children (recursively).
+     */
+    private List callRecursively(ICallbackWithListeners callback, Composite c, ArrayList controls) {
+        try {
+            for(Control child:c.getChildren()){
+                if(child instanceof Composite){
+                    callRecursively(callback, (Composite) child, controls);
+                }
+                if(child instanceof Text || child instanceof Table){
+                    controls.add(child);
+                    callback.call(child);
+                }
+            }
+        } catch (Throwable e) {
+            Log.log(e);
+        }
+        return controls;
+    }
 
     public Object[] getResult(){
         Object[] result = super.getResult();
@@ -228,7 +276,14 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
         }else{
             setInitialPattern("");
         }
-        return super.open();
+        int ret = super.open();
+        if(this.createdCallbacksForControls != null){
+            for(Object o:this.createdCallbacksForControls){
+                onControlDisposed.call(o);
+            }
+            this.createdCallbacksForControls = null;
+        }
+        return ret;
     }
 
     public String getElementName(Object item){
@@ -457,6 +512,14 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
             infoFactory.saveState(element);
         }
 
+    }
+
+    public ICallbackWithListeners getOnControlCreated() {
+        return onControlCreated;
+    }
+
+    public ICallbackWithListeners getOnControlDisposed() {
+        return onControlDisposed;
     }
 
 

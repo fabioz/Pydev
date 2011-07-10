@@ -224,7 +224,12 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
             styledText.addMouseListener(new MouseAdapter() {
                 
                 public void mouseDown(MouseEvent e) {
-                    int offset = styledText.getOffsetAtLocation(new Point(e.x, e.y));
+                    int offset;
+                    try {
+                        offset = styledText.getOffsetAtLocation(new Point(e.x, e.y));
+                    } catch (IllegalArgumentException e1) {
+                        return; //invalid location
+                    }
                     StyleRange r = styledText.getStyleRangeAtOffset(offset);
                     if(r instanceof PyStyleRange){
                         String tagReplaced = ((PyStyleRange) r).tagReplaced;

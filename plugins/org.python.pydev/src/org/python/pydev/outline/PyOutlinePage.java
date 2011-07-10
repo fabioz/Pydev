@@ -12,6 +12,7 @@
  */
 package org.python.pydev.outline;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IAdaptable;
@@ -36,6 +37,7 @@ import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.part.IShowInTarget;
@@ -80,6 +82,7 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
     private OutlineLinkWithEditorAction linkWithEditor;
     public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();
 	public final ICallbackWithListeners onControlDisposed = new CallbackWithListeners();
+    private List createdCallbacksForControls;
 
     public PyOutlinePage(PyEdit editorView) {
         super();
@@ -93,6 +96,14 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
     }
     
     public void dispose() {
+        onControlDisposed.call(getTreeViewer());
+        if(createdCallbacksForControls != null){
+            for(Object o:createdCallbacksForControls){
+                onControlDisposed.call(o);
+            }
+            createdCallbacksForControls = null;
+        }
+        
         if (model != null) {
             model.dispose();
             model = null;
@@ -108,8 +119,6 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
             linkWithEditor = null;
         }
         super.dispose();
-        onControlDisposed.call(getTreeViewer());
-        call(onControlDisposed, filter);
     }
 
 
@@ -339,22 +348,28 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
             );
             
             onControlCreated.call(getTreeViewer());
-            call(onControlCreated, filter);
+            createdCallbacksForControls = callRecursively(onControlCreated, filter, new ArrayList());
         }catch(Throwable e){
             Log.log(e);
         }
     }
     
-	/**
-	 * Calls the callback with the composite c and all of its children (recursively).
+    /**
+     * Calls the callback with the composite c and all of its children (recursively).
      */
-    private void call(ICallbackWithListeners callback, Composite c) {
-        for(Control child:c.getChildren()){
-            if(child instanceof Composite){
-                call(callback, (Composite) child);
+    private List callRecursively(ICallbackWithListeners callback, Composite c, ArrayList controls) {
+        try {
+            for(Control child:c.getChildren()){
+                if(child instanceof Composite){
+                    callRecursively(callback, (Composite) child, controls);
+                }
+                controls.add(child);
+                callback.call(child);
             }
-            callback.call(child);
+        } catch (Throwable e) {
+            Log.log(e);
         }
+        return controls;
     }
 
     public boolean show(ShowInContext context) {

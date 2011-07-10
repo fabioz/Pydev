@@ -125,12 +125,17 @@ public class REF {
         return getAttrObj(o, attr, false);
     }
     
+
+    public static Object getAttrObj(Object o, String attr, boolean raiseExceptionIfNotAvailable){
+        return getAttrObj(o.getClass(), o, attr, raiseExceptionIfNotAvailable);
+    }
+    
     /**
      * @return the value of some attribute in the given object
      */
-    public static Object getAttrObj(Object o, String attr, boolean raiseExceptionIfNotAvailable){
+    public static Object getAttrObj(Class<? extends Object> c, Object o, String attr, boolean raiseExceptionIfNotAvailable){
         try {
-            Field field = REF.getAttr(o, attr);
+            Field field = REF.getAttrFromClass(c, attr);
             if(field != null){
                 //get it even if it's not public!
                 if((field.getModifiers() & Modifier.PUBLIC) == 0){
