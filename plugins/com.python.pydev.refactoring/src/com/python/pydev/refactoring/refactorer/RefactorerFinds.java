@@ -277,7 +277,7 @@ public class RefactorerFinds {
     /**
      * @return the hierarchy model, having the returned node as our 'point of interest'.
      */
-    public HierarchyNodeModel findClassHierarchy(RefactoringRequest request) {
+    public HierarchyNodeModel findClassHierarchy(RefactoringRequest request, boolean findOnlyParents) {
         try {
             request.getMonitor().beginTask("Find class hierarchy", 100);
             
@@ -316,12 +316,13 @@ public class RefactorerFinds {
                     request.popMonitor().done();
                 }
                 
-                
-                try {
-                    request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 80));
-                    findChildren(request, model, allFound);
-                } finally {
-                    request.popMonitor().done();
+                if(!findOnlyParents){
+                    try {
+                        request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 80));
+                        findChildren(request, model, allFound);
+                    } finally {
+                        request.popMonitor().done();
+                    }
                 }
                 
                 return model;

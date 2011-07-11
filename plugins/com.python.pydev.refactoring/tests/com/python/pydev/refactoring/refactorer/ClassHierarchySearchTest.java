@@ -91,7 +91,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
 //            RefactorerFinds.DEBUG = true;
 //            AbstractAdditionalDependencyInfo.DEBUG = true;
             
-            HierarchyNodeModel node = refactorer.findClassHierarchy(request);
+            HierarchyNodeModel node = refactorer.findClassHierarchy(request, false);
             assertEquals("Bar", node.name);
             assertTrue(node.moduleName.startsWith("foo"));
         
@@ -113,7 +113,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
         
         RefactoringRequest request = setUpFooModule(line, col);
         
-        HierarchyNodeModel node = refactorer.findClassHierarchy(request);
+        HierarchyNodeModel node = refactorer.findClassHierarchy(request, false);
         assertEquals("Foo", node.name);
         assertTrue(node.moduleName.startsWith("foo"));
         
@@ -136,7 +136,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
         
         RefactoringRequest request = setUpFooModule(line, col, str);
         
-        HierarchyNodeModel node = refactorer.findClassHierarchy(request);
+        HierarchyNodeModel node = refactorer.findClassHierarchy(request, false);
         assertEquals("Foo", node.name);
         assertTrue(node.moduleName.startsWith("foo"));
         
@@ -160,7 +160,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
         
         RefactoringRequest request = setUpFooModule(line, col, str);
         
-        HierarchyNodeModel node = refactorer.findClassHierarchy(request);
+        HierarchyNodeModel node = refactorer.findClassHierarchy(request, false);
         assertEquals("Bar", node.name);
         assertTrue(node.moduleName.startsWith("foo"));
         
@@ -188,7 +188,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
         
         RefactoringRequest request = setUpFooModule(line, col, str);
         
-        HierarchyNodeModel node = refactorer.findClassHierarchy(request);
+        HierarchyNodeModel node = refactorer.findClassHierarchy(request, false);
         assertEquals("Leaf", node.name);
         assertTrue(node.moduleName.startsWith("foo"));
         
@@ -222,7 +222,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
         
         RefactoringRequest request = setUpFooModule(line, col, str);
         
-        HierarchyNodeModel node = refactorer.findClassHierarchy(request);
+        HierarchyNodeModel node = refactorer.findClassHierarchy(request, false);
         assertEquals("Bla", node.name);
         assertTrue(node.moduleName.startsWith("foo"));
         
@@ -242,7 +242,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
         request = setUpModule(line, col, str2, "fooIn2", nature2);
         request = setUpModule(line, col, str, "fooIn1", nature);
         
-        HierarchyNodeModel node = refactorer.findClassHierarchy(request);
+        HierarchyNodeModel node = refactorer.findClassHierarchy(request, false);
         assertEquals("FooIn1", node.name);
         assertTrue(node.moduleName.startsWith("fooIn1"));
         
@@ -263,7 +263,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
         RefactoringRequest request;
         request = setUpModule(line, col, fooIn2, "fooIn2", nature);
         
-        HierarchyNodeModel node = refactorer.findClassHierarchy(request);
+        HierarchyNodeModel node = refactorer.findClassHierarchy(request, false);
         assertEquals("FooIn2", node.name);
         assertTrue(node.moduleName.startsWith("fooIn2"));
         

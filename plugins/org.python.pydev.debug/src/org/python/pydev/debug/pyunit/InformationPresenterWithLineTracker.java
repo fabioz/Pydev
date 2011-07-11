@@ -9,7 +9,6 @@ package org.python.pydev.debug.pyunit;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.ui.console.IHyperlink;
 import org.python.pydev.core.tooltips.presenter.AbstractTooltipInformationPresenter;
 import org.python.pydev.core.tooltips.presenter.StyleRangeWithCustomData;

@@ -54,6 +54,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IHyperlink;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.core.tooltips.presenter.StyleRangeWithCustomData;
@@ -67,6 +68,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.ColorAndStyleCache;
 import org.python.pydev.ui.IViewCreatedObserver;
+import org.python.pydev.ui.IViewWithControls;
 import org.python.pydev.ui.ViewPartWithOrientation;
 
 
@@ -119,7 +121,8 @@ import org.python.pydev.ui.ViewPartWithOrientation;
  * 
  * Based on org.eclipse.jdt.internal.junit.ui.TestRunnerViewPart (but it's really not meant to be reused)
  */
-public class PyUnitView extends ViewPartWithOrientation{
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public class PyUnitView extends ViewPartWithOrientation implements IViewWithControls{
 
     public static final String PYUNIT_VIEW_ORIENTATION = "PYUNIT_VIEW_ORIENTATION";
     @Override
@@ -187,7 +190,6 @@ public class PyUnitView extends ViewPartWithOrientation{
      */
     private boolean disposed = false;
 
-    @SuppressWarnings("unchecked")
     public PyUnitView() {
         PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
         
@@ -253,7 +255,6 @@ public class PyUnitView extends ViewPartWithOrientation{
         return tree;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void createPartControl(Composite parent) {
         Assert.isTrue(!disposed);
@@ -433,7 +434,6 @@ public class PyUnitView extends ViewPartWithOrientation{
         this.tree.setFocus();
     }
     
-    @SuppressWarnings("unchecked")
     @Override
     public void dispose() {
         if(this.disposed){
@@ -443,14 +443,14 @@ public class PyUnitView extends ViewPartWithOrientation{
         if(this.tree != null){
             Tree t = this.tree;
             this.tree = null;
+            onControlDisposed.call(t);
             t.dispose();
-            onDispose.call(t);
         }
         if(this.testOutputText != null){
             StyledText t = this.testOutputText;
             this.testOutputText = null;
+            onControlDisposed.call(t);
             t.dispose();
-            onDispose.call(t);
         }
         if(this.fCounterPanel != null){
             this.fCounterPanel.dispose();
@@ -880,7 +880,7 @@ public class PyUnitView extends ViewPartWithOrientation{
      */
     private final class EnterProssedTreeItemKeyListener extends KeyAdapter {
         public void keyReleased(KeyEvent e) {
-            if(e.widget == tree && (e.keyCode == SWT.LF || e.keyCode == SWT.CR)){
+            if(e.widget == tree && (e.keyCode == SWT.LF || e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR)){
                 onTriggerGoToTest();
             }
         }
@@ -1007,11 +1007,20 @@ public class PyUnitView extends ViewPartWithOrientation{
     /**
      * Sets the text component to be used (in tests we want to set it externally)
      */
-    @SuppressWarnings("unchecked")
     /*default*/ void setTextComponent(StyledText text) {
         this.testOutputText = text;
         onControlCreated.call(text);
         text.addMouseListener(this.activateLinkmouseListener);
+    }
+
+
+    public ICallbackWithListeners getOnControlCreated() {
+        return onControlCreated;
+    }
+
+
+    public ICallbackWithListeners getOnControlDisposed() {
+        return onControlDisposed;
     }
 
 

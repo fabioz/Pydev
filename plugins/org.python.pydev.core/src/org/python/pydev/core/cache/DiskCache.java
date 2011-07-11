@@ -11,10 +11,18 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.StringUtils;
 
@@ -56,7 +64,7 @@ public final class DiskCache implements Serializable{
      */
     private Map<CompleteIndexKey, CompleteIndexKey> keys = new HashMap<CompleteIndexKey, CompleteIndexKey>();
     
-    private transient LRUCache<CompleteIndexKey, CompleteIndexValue> cache;
+    private transient Cache<CompleteIndexKey, CompleteIndexValue> cache;
     
     /**
      * The files persisted should have this suffix (should start with .)
@@ -72,6 +80,26 @@ public final class DiskCache implements Serializable{
      * When serialized, this must be set later on...
      */
     public transient ICallback<String, CompleteIndexValue> toFileMethod;
+    
+    private transient Job scheduleRemoveStale;
+    
+    private class JobRemoveStale extends Job{
+
+        public JobRemoveStale() {
+            super("Clear stale references");
+        }
+
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            synchronized (lock) {
+                if(cache != null){
+                    cache.removeStaleEntries();
+                }
+            }
+            return Status.OK_STATUS;
+        }
+        
+    }
 
     /**
      * Custom deserialization is needed.
@@ -84,10 +112,16 @@ public final class DiskCache implements Serializable{
         folderToPersist = (String) aStream.readObject();
         suffix = (String) aStream.readObject();
         
-        cache = new LRUCache<CompleteIndexKey, CompleteIndexValue>(DISK_CACHE_IN_MEMORY);
+        cache = createCache();
+        scheduleRemoveStale = new JobRemoveStale();
         if(DEBUG){
             System.out.println("Disk cache - read: "+keys.size()+ " - "+folderToPersist);
         }
+    }
+
+    protected Cache<CompleteIndexKey, CompleteIndexValue> createCache() {
+        return new SoftHashMapCache<CompleteIndexKey, CompleteIndexValue>();
+//        return new LRUCache<CompleteIndexKey, CompleteIndexValue>(DISK_CACHE_IN_MEMORY);
     }
 
     /**
@@ -112,7 +146,8 @@ public final class DiskCache implements Serializable{
     }
     
     public DiskCache(File folderToPersist, String suffix, ICallback<CompleteIndexValue, String> readFromFileMethod, ICallback<String, CompleteIndexValue> toFileMethod) {
-        this.cache = new LRUCache<CompleteIndexKey, CompleteIndexValue>(DISK_CACHE_IN_MEMORY);
+        this.scheduleRemoveStale = new JobRemoveStale();
+        this.cache = createCache();
         this.folderToPersist = REF.getFileAbsolutePath(folderToPersist);
         this.suffix = suffix;
         this.readFromFileMethod = readFromFileMethod;
@@ -120,8 +155,38 @@ public final class DiskCache implements Serializable{
     }
     
     
+    /**
+     * Returns a tuple with the values in-memory and not in memory.
+     * 
+     * The first value in the returned tuple contains the keys/values in memory and
+     * the second contains a list of the values not in memory 
+     */
+    public Tuple<List<Tuple<CompleteIndexKey, CompleteIndexValue>>, Collection<CompleteIndexKey>> getInMemoryInfo() {
+        synchronized(lock){
+            List<Tuple<CompleteIndexKey, CompleteIndexValue>> ret0 = new ArrayList<Tuple<CompleteIndexKey, CompleteIndexValue>>();
+            List<CompleteIndexKey> ret1 = new ArrayList<CompleteIndexKey>();
+            
+            //Note: no need to iterate in a copy since we're with the lock access.
+            
+            //Important: MUST iterate in the values, as the key may have the outdated values (i.e.: even though it's
+            //a map val=val, the val that represents the 'key' may not be updated).
+            for(CompleteIndexKey key:keys.values()){
+                CompleteIndexValue value = cache.getObj(key);
+                if(value != null){
+                    ret0.add(new Tuple<CompleteIndexKey, CompleteIndexValue>(key, value));
+                }else{
+                    ret1.add(key);
+                }
+            }
+            scheduleRemoveStale();
+            return new Tuple<List<Tuple<CompleteIndexKey,CompleteIndexValue>>, Collection<CompleteIndexKey>>(ret0, ret1);
+        }
+    }
+    
+    
     public CompleteIndexValue getObj(CompleteIndexKey key) {
         synchronized(lock){
+            scheduleRemoveStale();
             CompleteIndexValue v = cache.getObj(key);
             if(v == null && keys.containsKey(key)){
                 //miss in memory... get from disk
@@ -159,6 +224,7 @@ public final class DiskCache implements Serializable{
      */
     public void remove(CompleteIndexKey key) {
         synchronized(lock){
+            scheduleRemoveStale();
             if(DEBUG){
                 System.out.println("Disk cache - Removing: "+key);
             }
@@ -174,6 +240,7 @@ public final class DiskCache implements Serializable{
      */
     public void add(CompleteIndexKey key, CompleteIndexValue n) {
         synchronized(lock){
+            scheduleRemoveStale();
             if(n != null){
                 cache.add(key, n);
                 File fileForKey = getFileForKey(key);
@@ -190,6 +257,10 @@ public final class DiskCache implements Serializable{
         }
     }
 
+    protected void scheduleRemoveStale() {
+        this.scheduleRemoveStale.schedule(1000);
+    }
+
     /**
      * Clear the whole cache.
      */
@@ -199,11 +270,11 @@ public final class DiskCache implements Serializable{
                 System.out.println("Disk cache - clear");
             }
             for(CompleteIndexKey key : keys.keySet()){
-                cache.remove(key);
                 File fileForKey = getFileForKey(key);
                 fileForKey.delete();
             }
             keys.clear();
+            cache.clear();
         }        
     }
 

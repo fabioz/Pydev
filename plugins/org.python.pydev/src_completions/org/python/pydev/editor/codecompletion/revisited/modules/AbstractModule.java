@@ -21,6 +21,7 @@ import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
@@ -255,23 +256,26 @@ public abstract class AbstractModule implements IModule {
 
     
     
-    public static AbstractModule createModuleFromDoc(String name, File f, IDocument doc, IPythonNature nature, int currLine) throws MisconfigurationException {
+    public static AbstractModule createModuleFromDoc(String name, File f, IDocument doc, IGrammarVersionProvider nature, int currLine) throws MisconfigurationException {
         return createModuleFromDoc(name, f, doc, nature, currLine, true);
     }
     /** 
      * This function creates the module given that you have a document (that will be parsed)
      * @throws MisconfigurationException 
      */
-    public static AbstractModule createModuleFromDoc(String name, File f, IDocument doc, IPythonNature nature, int currLine, boolean checkForPath) throws MisconfigurationException {
+    public static AbstractModule createModuleFromDoc(
+            String name, File f, IDocument doc, IGrammarVersionProvider nature, int currLine, boolean checkForPath) throws MisconfigurationException {
         //for doc, we are only interested in python files.
         
         if(f != null){
             if(!checkForPath || PythonPathHelper.isValidSourceFile(REF.getFileAbsolutePath(f))){
-                Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, nature, currLine, name, f));
+                Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(
+                        new PyParser.ParserInfo(doc, true, nature, currLine, name, f));
                 return new SourceModule(name, f, obj.o1, obj.o2);
             }
         } else {
-            Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, nature, currLine, name, f));
+            Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(
+                    new PyParser.ParserInfo(doc, true, nature, currLine, name, f));
             return new SourceModule(name, f, obj.o1, obj.o2);
         }
         return null;

@@ -27,4 +27,16 @@ public interface Cache<Key, Val> {
      * Adds some value to the cache
      */
     public void add(Key key, Val n);
+    
+    /**
+     * If the cache has some process to remove stale entries, this is the time to do so.
+     * 
+     * Note that this interface does not include synchronization, so, clients should do the synchronization themselves.
+     */
+    public void removeStaleEntries();
+
+    /**
+     * Clears the cache.
+     */
+    public void clear();
 }

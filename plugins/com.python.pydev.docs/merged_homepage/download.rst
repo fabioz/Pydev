@@ -32,7 +32,7 @@
     
     <p>An alternative is just getting the zip file and extracting it yourself in eclipse.</p>
     
-    <p>For <strong>Eclipse 3.4, 3.5 and 3.6</strong>, you can extract it in the '<strong>dropins</strong>' folder (and restart Eclipse).</p>
+    <p>For <strong>Eclipse 3.4 - 3.7</strong>, you can extract it in the '<strong>dropins</strong>' folder (and restart Eclipse).</p>
     
     <p>For <strong>Eclipse 3.2 and 3.3</strong>, you have to make sure the plugins folder
     is extracted on top of the Eclipse plugins folder and <strong>restart with '-clean'</strong>.</p>
@@ -59,7 +59,7 @@ Requirements
 .. _Python: http://www.python.org
 .. _Jython: http://www.jython.org
 .. _IronPython: http://www.codeplex.com/Wiki/View.aspx?ProjectName=IronPython
-.. _Eclipse (3.2 to 3.6): http://www.eclipse.org
+.. _Eclipse (3.2 to 3.7): http://www.eclipse.org
 .. _Java: http://www.javasoft.com
 .. _JDT: http://www.eclipse.org/jdt/
 .. _Platform Runtime Binary: http://download.eclipse.org/eclipse/downloads/
@@ -76,7 +76,7 @@ At least one of:
 and 
 
 
-* `Aptana Studio 2`_, `Aptana Studio 3`_ (Beta) or `Eclipse (3.2 to 3.6)`_ 
+* `Aptana Studio 2`_, `Aptana Studio 3`_ (Beta) or `Eclipse (3.2 to 3.7)`_ 
 
 	* Python_ and IronPython_ require only the `Platform Runtime Binary`_ (download around 45-50 MB), and Jython_ also requires JDT_.
 	

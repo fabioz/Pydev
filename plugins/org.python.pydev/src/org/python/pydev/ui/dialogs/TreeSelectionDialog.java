@@ -18,24 +18,32 @@ import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.dialogs.ElementTreeSelectionDialog;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.StringMatcher;
+import org.python.pydev.core.callbacks.CallbackWithListeners;
+import org.python.pydev.core.callbacks.ICallbackWithListeners;
+import org.python.pydev.ui.IViewCreatedObserver;
+import org.python.pydev.ui.IViewWithControls;
 
 /**
  * This class extends the 'default' element tree selection dialog so that the user is able to filter the matches
@@ -43,12 +51,17 @@ import org.python.pydev.core.StringMatcher;
  * 
  * @author Fabio
  */
-public class TreeSelectionDialog extends ElementTreeSelectionDialog{
+@SuppressWarnings({"rawtypes", "unchecked"})
+public class TreeSelectionDialog extends ElementTreeSelectionDialog implements IViewWithControls{
 
     private ILabelProvider labelProvider;
     protected DefaultFilterMatcher fFilterMatcher = new DefaultFilterMatcher();
     protected ITreeContentProvider contentProvider;
     protected String initialFilter = "";
+    
+    public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();
+    public final ICallbackWithListeners onControlDisposed = new CallbackWithListeners();
+
     
     /**
      * Give subclasses a chance to decide if they want to update the contents of the tree in a thread or not. 
@@ -56,7 +69,7 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
     protected boolean updateInThread = true;
     
     
-    class UpdateJob extends Thread{
+    protected class UpdateJob extends Thread{
         IProgressMonitor monitor = new NullProgressMonitor(); //only thing it implements is the canceled
         
         public UpdateJob(){
@@ -119,23 +132,36 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
     
     private int fWidth = 60;
     protected Text text;
-    private UpdateJob updateJob;
+    protected UpdateJob updateJob;
+    
+    protected int getDefaultMargins(){
+        return 2;
+    }
+    
+    protected int getDefaultSpacing(){
+        return 2;
+    }
 
 
     @Override
     protected Control createDialogArea(Composite parent) {
-        Control control = super.createDialogArea(parent);
-        getTreeViewer().expandAll();
+        Control composite = super.createDialogArea(parent);
         
-        getTreeViewer().addFilter(new ViewerFilter(){
+        if(composite instanceof Composite){
+            updateCompositeLayout((Composite) composite);
+        }
+        
+        
+        TreeViewer treeViewer = getTreeViewer();
+        treeViewer.addFilter(new ViewerFilter(){
 
             @Override
             public boolean select(Viewer viewer, Object parentElement, Object element) {
                 return matchItemToShowInTree(element);
             }}
         );
-        getTreeViewer().setAutoExpandLevel(AbstractTreeViewer.ALL_LEVELS);
-        getTreeViewer().expandAll();
+        treeViewer.setAutoExpandLevel(AbstractTreeViewer.ALL_LEVELS);
+        treeViewer.expandAll();
 
         if(this.initialFilter.length() > 0){
             this.text.setText(this.initialFilter);
@@ -143,9 +169,58 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
             this.setFilter(this.initialFilter, new NullProgressMonitor(), true);
         }
         
-        return control;
+        List<IViewCreatedObserver> participants = ExtensionHelper.getParticipants(
+                ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
+        for (IViewCreatedObserver iViewCreatedObserver : participants) {
+            iViewCreatedObserver.notifyViewCreated(this);
+        }
+        onControlCreated.call(this.text);
+        onControlCreated.call(this.getTreeViewer());
+        
+        return composite;
     }
     
+    
+    @Override
+    public int open() {
+        try {
+            return super.open();
+        } finally {
+            onControlDisposed.call(this.text);
+            onControlDisposed.call(this.getTreeViewer());
+        }
+    }
+    
+    /* (non-Javadoc)
+     * @see org.eclipse.ui.dialogs.SelectionStatusDialog#createButtonBar(org.eclipse.swt.widgets.Composite)
+     */
+    @Override
+    protected Control createButtonBar(Composite parent) {
+        Control composite = super.createButtonBar(parent);
+        if(composite instanceof Composite){
+            updateCompositeLayout((Composite) composite);
+        }
+        return composite;
+    }
+
+    
+    private void updateCompositeLayout(Composite composite) {
+        Layout l = composite.getLayout();
+        if(l instanceof GridLayout){
+            GridLayout layout = (GridLayout) l;
+            layout.marginHeight = convertVerticalDLUsToPixels(getDefaultMargins());
+            layout.marginWidth = convertHorizontalDLUsToPixels(getDefaultMargins());
+            layout.verticalSpacing = convertVerticalDLUsToPixels(getDefaultSpacing());
+            layout.horizontalSpacing = convertHorizontalDLUsToPixels(getDefaultSpacing());
+            composite.setLayout(layout);
+        }
+        for(Control t:composite.getChildren()){
+            if(t instanceof Composite){
+                updateCompositeLayout((Composite)t);
+            }
+        }
+    }
+
     @Override
     protected Label createMessageArea(Composite composite) {
         Label label = super.createMessageArea(composite);
@@ -176,7 +251,7 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
 
         text.addKeyListener(new KeyListener() {
             public void keyPressed(KeyEvent e) {
-                if (e.keyCode == SWT.ARROW_DOWN){
+                if (e.keyCode == SWT.ARROW_DOWN || e.keyCode == SWT.PAGE_DOWN){
                     Tree tree = getTreeViewer().getTree();
 					tree.setFocus();
                     updateSelectionIfNothingSelected(tree);
@@ -191,35 +266,39 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
     }
 
     
-    
+    private final Object lock = new Object();
     //filtering things...
     protected void setFilter(String text, IProgressMonitor monitor, boolean updateFilterMatcher) {
-        if(monitor.isCanceled())
-            return;
-        
-        if(updateFilterMatcher){
-        	//just so that subclasses may already treat it.
-	        if(fFilterMatcher.lastPattern.equals(text)){
-	            //no actual change...
-	            return;
-	        }
-	        fFilterMatcher.setFilter(text);
-	        if(monitor.isCanceled())
-	            return;
-        }
-
-        getTreeViewer().getTree().setRedraw(false);
-        getTreeViewer().getTree().getParent().setRedraw(false);
-        try {
+        synchronized (lock) {
             if(monitor.isCanceled())
                 return;
-            getTreeViewer().refresh();
-            if(monitor.isCanceled())
-                return;
-            getTreeViewer().expandAll();
-        } finally {
-            getTreeViewer().getTree().setRedraw(true);
-            getTreeViewer().getTree().getParent().setRedraw(true);
+            
+            if(updateFilterMatcher){
+                //just so that subclasses may already treat it.
+                if(fFilterMatcher.lastPattern.equals(text)){
+                    //no actual change...
+                    return;
+                }
+                fFilterMatcher.setFilter(text);
+                if(monitor.isCanceled())
+                    return;
+            }
+            
+            TreeViewer treeViewer = getTreeViewer();
+            Tree tree = treeViewer.getTree();
+            tree.setRedraw(false);
+            tree.getParent().setRedraw(false);
+            try {
+                if(monitor.isCanceled())
+                    return;
+                treeViewer.refresh();
+                if(monitor.isCanceled())
+                    return;
+                treeViewer.expandAll();
+            } finally {
+                tree.setRedraw(true);
+                tree.getParent().setRedraw(true);
+            }
         }
     }
     
@@ -274,8 +353,9 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
     /*
      * @see SelectionStatusDialog#computeResult()
      */
-    @SuppressWarnings("unchecked")
     protected void computeResult() {
+        doFinalUpdateBeforeComputeResult();
+        
         IStructuredSelection selection = (IStructuredSelection) getTreeViewer().getSelection();
         List list = selection.toList();
         if(list.size() > 0){
@@ -288,6 +368,17 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
                 list.add(items[0].getData());
                 setResult(list);
             }
+        }
+    }
+
+    protected void doFinalUpdateBeforeComputeResult() {
+        if(updateInThread){
+            //Make sure that the selection is OK
+            UpdateJob j = updateJob;
+            if(j != null){
+                updateJob.cancel();
+            }
+            doFilterUpdate(new NullProgressMonitor());
         }
     }
 
@@ -311,4 +402,16 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
 	}
 
 
+	@Override
+	public boolean isHelpAvailable() {
+	    return false;
+	}
+
+    public ICallbackWithListeners getOnControlCreated() {
+        return onControlCreated;
+    }
+
+    public ICallbackWithListeners getOnControlDisposed() {
+        return onControlDisposed;
+    }
 }

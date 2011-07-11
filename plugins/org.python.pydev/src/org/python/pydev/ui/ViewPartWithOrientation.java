@@ -48,7 +48,7 @@ public abstract class ViewPartWithOrientation extends ViewPart implements IPrope
     public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();
     
     @SuppressWarnings("rawtypes")
-    public final ICallbackWithListeners onDispose = new CallbackWithListeners();
+    public final ICallbackWithListeners onControlDisposed = new CallbackWithListeners();
     
 
     public void createPartControl(Composite parent) {

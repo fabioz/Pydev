@@ -52,7 +52,6 @@ import org.python.pydev.dltk.console.ui.ScriptConsole;
 import org.python.pydev.dltk.console.ui.internal.actions.HandleBackspaceAction;
 import org.python.pydev.dltk.console.ui.internal.actions.HandleDeletePreviousWord;
 import org.python.pydev.dltk.console.ui.internal.actions.HandleLineStartAction;
-import org.python.pydev.dltk.console.ui.internal.actions.IInteractiveConsoleConstants;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 
 /**
@@ -116,7 +115,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                         return;
                     }
 
-                    if (event.character == SWT.CR) {
+                    if (event.character == SWT.CR || event.character == SWT.LF) {
                         
                         //if we had an enter with the shift pressed and we're in a completion, we must stop it
                         if(inCompletion && (event.stateMask & SWT.SHIFT) != 0){

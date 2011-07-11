@@ -23,6 +23,8 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
@@ -79,18 +81,36 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction{
             public Control createDialogArea(Composite parent){
                 memento.readSettings();
                 Control ret = super.createDialogArea(parent);
+                this.text.addKeyListener(new KeyListener() {
+
+                    public void keyReleased(KeyEvent e) {
+                    }
+
+                    public void keyPressed(KeyEvent e) {
+                        if (e.keyCode == SWT.CR || e.keyCode == SWT.LF || e.keyCode == SWT.KEYPAD_CR) {
+                            okPressed();
+                        }
+                    }
+                });
+                return ret;
+            }
+            
+            
+            
+            /* (non-Javadoc)
+             * @see org.python.pydev.ui.dialogs.TreeSelectionDialog#createButtonBar(org.eclipse.swt.widgets.Composite)
+             */
+            @Override
+            protected Control createButtonBar(Composite parent) {
                 configTestRunner= new Link(parent, SWT.PUSH);
-                configTestRunner.setText(
-                        "        <a>Configure test runner</a>: allows the configuration of the test runner\n" +
-                        "        used and additional parameters passed." +
-                		"");
+                configTestRunner.setText(" <a>Configure test runner</a>");
                 configTestRunner.addSelectionListener(new SelectionAdapter() {
                     public void widgetSelected(SelectionEvent e) {
                         PyUnitPrefsPage2.showPage();
                     }
 
                 });
-                return ret;
+                return configTestRunner;
             }
 
             protected Point getInitialSize(){
@@ -106,6 +126,8 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction{
              */
             @SuppressWarnings("unchecked")
             protected void computeResult() {
+                doFinalUpdateBeforeComputeResult();
+
                 IStructuredSelection selection = (IStructuredSelection) getTreeViewer().getSelection();
                 List<Object> list = selection.toList();
                 if(list.size() > 0){
@@ -136,7 +158,7 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction{
         };
 
         dialog.setTitle("PyDev: Select tests to run");
-        dialog.setMessage("Select the tests to run");
+        dialog.setMessage("Select the tests to run (press enter to run tests shown/selected)");
         dialog.setInitialFilter("test");
         dialog.setAllowMultiple(true);
         dialog.setInput(ast);

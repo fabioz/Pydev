@@ -24,7 +24,6 @@ import org.python.pydev.parser.jython.ast.Set;
 import org.python.pydev.parser.jython.ast.SetComp;
 import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Tuple;
-import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 public class PyParser30Test extends PyParserTestBase{

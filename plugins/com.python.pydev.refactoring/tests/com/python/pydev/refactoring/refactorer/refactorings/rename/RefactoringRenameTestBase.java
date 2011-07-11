@@ -18,7 +18,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
@@ -34,7 +33,6 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
-import org.python.pydev.eclipseresourcestubs.FileResourceStub;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.ProjectStub;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;

@@ -32,7 +32,7 @@ public interface IPyRefactoring2  {
     /**
      * @return the class hierarchy for some request.
      */
-    public HierarchyNodeModel findClassHierarchy(RefactoringRequest request);
+    public HierarchyNodeModel findClassHierarchy(RefactoringRequest request, boolean findOnlyParents);
     
     /**
      * @param defs the definitions we're intersted in.

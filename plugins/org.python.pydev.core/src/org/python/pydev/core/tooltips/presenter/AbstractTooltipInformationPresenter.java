@@ -46,7 +46,7 @@ public abstract class AbstractTooltipInformationPresenter extends AbstractInform
             styledText.addKeyListener(new KeyAdapter() {
                 public void keyPressed(KeyEvent e) {
                     try {
-                        if(e.keyCode == SWT.CR || e.keyCode == SWT.LF){
+                        if(e.keyCode == SWT.CR || e.keyCode == SWT.LF || e.keyCode == SWT.KEYPAD_CR){
                             StyleRange r = styledText.getStyleRangeAtOffset(styledText.getSelection().y);
                             if(r instanceof StyleRangeWithCustomData){
                                 StyleRangeWithCustomData styleRangeWithCustomData = (StyleRangeWithCustomData) r;

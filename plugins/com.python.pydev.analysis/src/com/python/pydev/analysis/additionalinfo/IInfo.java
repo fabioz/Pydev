@@ -9,8 +9,6 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
-import java.io.Serializable;
-
 public interface IInfo {
 
     /**

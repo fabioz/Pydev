@@ -10,12 +10,13 @@ import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StyledString;
+import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.StyledString.Styler;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
 
 
-public class HierarchyContentProvider implements ITreeContentProvider {
+public class TreeNodeContentProvider implements ITreeContentProvider {
 
     
     public void dispose() {
@@ -29,28 +30,35 @@ public class HierarchyContentProvider implements ITreeContentProvider {
     }
 
     public Object[] getChildren(Object parentElement) {
+        if(parentElement == null){
+            return new Object[0];
+        }
+        @SuppressWarnings("rawtypes")
         TreeNode m = (TreeNode)parentElement;
         return m.children.toArray();
     }
 
     public Object getParent(Object element) {
+        @SuppressWarnings("rawtypes")
         TreeNode m = (TreeNode)element;
         return m.parent;
     }
 
     public boolean hasChildren(Object element) {
+        @SuppressWarnings("rawtypes")
         TreeNode m = (TreeNode)element;
         return m.children.size() > 0;
     }
 
 }
 
-class HierarchyLabelProvider extends LabelProvider {
+class HierarchyLabelProvider extends LabelProvider implements IStyledLabelProvider {
     
     
     @Override
     public Image getImage(Object element) {
         if(element instanceof TreeNode){
+            @SuppressWarnings("rawtypes")
             TreeNode treeNode = (TreeNode) element;
             return treeNode.image;
         }
@@ -60,24 +68,42 @@ class HierarchyLabelProvider extends LabelProvider {
     @Override
     public String getText(Object element) {
         if(element instanceof TreeNode){
+            @SuppressWarnings("rawtypes")
             TreeNode treeNode = (TreeNode) element;
             Object data = treeNode.data;
             if(data instanceof HierarchyNodeModel){
                 HierarchyNodeModel model = (HierarchyNodeModel) data;
                 String spaces = "     ";
-                try {
-                    StyledString styledString = new StyledString(model.name+spaces);
-                    Styler styler = StyledString.createColorRegistryStyler(JFacePreferences.DECORATIONS_COLOR, null);
-                    styledString.append("("+model.moduleName+")", styler);
-                    return styledString.getString();
-                } catch (Throwable e) {
-                    //not there on all versions of eclipse...
+                if(model.moduleName != null && model.moduleName.trim().length() > 0){
                     return model.name+spaces+"("+model.moduleName+")";
                 }
+                return model.name;
             }
             return data.toString();
         }
         return super.getText(element);
+    }
+    
+
+    //not there on all versions of eclipse...
+    public StyledString getStyledText(Object element) {
+        if(element instanceof TreeNode){
+            @SuppressWarnings("rawtypes")
+            TreeNode treeNode = (TreeNode) element;
+            Object data = treeNode.data;
+            if(data instanceof HierarchyNodeModel){
+                HierarchyNodeModel model = (HierarchyNodeModel) data;
+                String spaces = "     ";
+                StyledString styledString = new StyledString(model.name+spaces);
+                if(model.moduleName != null && model.moduleName.trim().length() > 0){
+                    Styler styler = StyledString.createColorRegistryStyler(JFacePreferences.DECORATIONS_COLOR, null);
+                    styledString.append("("+model.moduleName+")", styler);
+                }
+                return styledString;
+            }
+            return new StyledString(data.toString());
+        }
+        return new StyledString(element == null ? "" : element.toString());
     }
     
 

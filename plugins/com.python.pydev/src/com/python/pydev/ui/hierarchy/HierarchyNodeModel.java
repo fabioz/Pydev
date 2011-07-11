@@ -24,6 +24,7 @@ import org.python.pydev.parser.visitors.NodeUtils;
  */
 public class HierarchyNodeModel {
 
+
     /**
      * Its name (cannot be null)
      */
@@ -68,20 +69,42 @@ public class HierarchyNodeModel {
         this(module.getName(), def);
         this.module = module;
     }
-    
-    @Override
-    public int hashCode() {
-        return name.hashCode();
-    }
-    
-    @Override
-    public boolean equals(Object obj) {
-        final HierarchyNodeModel h = (HierarchyNodeModel)obj;
-        return name.equals(h.name) && moduleName.equals(h.moduleName);
-    }
+
     
     @Override
     public String toString() {
         return "HierarchyNodeModel["+name+" - "+moduleName+"]";
     }
+    
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((moduleName == null) ? 0 : moduleName.hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        return result;
+    }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (!(obj instanceof HierarchyNodeModel))
+            return false;
+        HierarchyNodeModel other = (HierarchyNodeModel) obj;
+        if (moduleName == null) {
+            if (other.moduleName != null)
+                return false;
+        } else if (!moduleName.equals(other.moduleName))
+            return false;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        return true;
+    }
+
 }

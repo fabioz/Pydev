@@ -15,6 +15,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.Visitor;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
@@ -55,13 +56,13 @@ public class CreateLocalVariableEdit extends AbstractInsertEdit {
         if(lineForLocal == -1){
             ITextSelection userSelection = info.getUserSelection();
             PySelection selection = new PySelection(info.getDocument(), userSelection);
-            int startLineIndex = selection.getStartLineIndex();
-            startLineIndex += 1; //from doc to ast
+            int startLineIndexIndocCoords = selection.getStartLineIndex();
+            int startLineIndexInASTCoords = startLineIndexIndocCoords + 1; //from doc to ast
             Module module = info.getModuleAdapter().getASTNode();
             SimpleNode currentScope = module;
             
             try {
-                FindScopeVisitor scopeVisitor = new FindScopeVisitor(startLineIndex, selection.getCursorColumn()+1);
+                FindScopeVisitor scopeVisitor = new FindScopeVisitor(startLineIndexInASTCoords, selection.getCursorColumn()+1);
                 module.accept(scopeVisitor);
                 ILocalScope scope = scopeVisitor.scope;
                 FastStack scopeStack = scope.getScopeStack();
@@ -70,7 +71,7 @@ public class CreateLocalVariableEdit extends AbstractInsertEdit {
                 Log.log(e1);
             }
             
-            GetNodeForExtractLocalVisitor visitor = new GetNodeForExtractLocalVisitor(startLineIndex);
+            GetNodeForExtractLocalVisitor visitor = new GetNodeForExtractLocalVisitor(startLineIndexInASTCoords);
             try{
                 currentScope.accept(visitor);
             }catch(Exception e){
@@ -78,9 +79,32 @@ public class CreateLocalVariableEdit extends AbstractInsertEdit {
             }
             SimpleNode lastNodeBeforePassedLine = visitor.getLastInContextBeforePassedLine();
             if(lastNodeBeforePassedLine != null){
-                lineForLocal = lastNodeBeforePassedLine.beginLine-1;
+                final int[] line = new int[]{Integer.MAX_VALUE};
+                try {
+                    Visitor v = new Visitor(){
+                        
+                        protected Object unhandled_node(SimpleNode node) throws Exception {
+                            line[0] = Math.min(line[0], node.beginLine-1);
+                            return this;
+                        }
+                    };
+                    lastNodeBeforePassedLine.accept(v);
+                } catch (Exception e) {
+                    Log.log(e);
+                }
+                if(line[0] != Integer.MAX_VALUE){
+                    lineForLocal = line[0];
+                }else{
+                    lineForLocal = lastNodeBeforePassedLine.beginLine-1;
+                }
             }else{
-                lineForLocal = selection.getStartLineIndex();
+                lineForLocal = startLineIndexIndocCoords;
+            }
+            
+            //The above should give us the proper location, but let's make sure it's NEVER after the current
+            //location!
+            if(lineForLocal > startLineIndexIndocCoords){
+                lineForLocal = startLineIndexIndocCoords;
             }
         }
         return lineForLocal;

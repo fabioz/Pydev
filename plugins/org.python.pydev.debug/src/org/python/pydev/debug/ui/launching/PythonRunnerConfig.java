@@ -62,7 +62,6 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
-import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;

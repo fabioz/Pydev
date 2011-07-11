@@ -28,6 +28,7 @@
     <br/>
     <br/>
     <br/>
+    <img alt="PyDev" src="images/eclipse_award.png"/>
     </right_area>
     
     

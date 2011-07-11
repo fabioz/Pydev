@@ -24,7 +24,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -80,6 +79,7 @@ import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallbackListener;
+import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.tooltips.presenter.StyleRangeWithCustomData;
 import org.python.pydev.core.uiutils.RunInUiThread;
@@ -94,6 +94,7 @@ import org.python.pydev.tree.AllowValidPathsFilter;
 import org.python.pydev.tree.FileTreeLabelProvider;
 import org.python.pydev.tree.FileTreePyFilesProvider;
 import org.python.pydev.ui.IViewCreatedObserver;
+import org.python.pydev.ui.IViewWithControls;
 import org.python.pydev.ui.ViewPartWithOrientation;
 import org.python.pydev.utils.ProgressAction;
 import org.python.pydev.utils.ProgressOperation;
@@ -110,7 +111,8 @@ import org.python.pydev.utils.PyFilteredTree;
  * <p>
  */
 
-public class PyCodeCoverageView extends ViewPartWithOrientation {
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public class PyCodeCoverageView extends ViewPartWithOrientation implements IViewWithControls{
     
     public static final String PYCOVERAGE_VIEW_ORIENTATION = "PYCOVERAGE_VIEW_ORIENTATION";
     @Override
@@ -462,7 +464,6 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
      * The constructor.
      */
     public PyCodeCoverageView() {
-        @SuppressWarnings("unchecked")
         List<IViewCreatedObserver> participants = ExtensionHelper.getParticipants(
                 ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
         for (IViewCreatedObserver iViewCreatedObserver : participants) {
@@ -814,7 +815,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
 
     private void configureToolbar() {
         IActionBars actionBars = getViewSite().getActionBars();
-        IToolBarManager toolbarManager = actionBars.getToolBarManager();
+        //IToolBarManager toolbarManager = actionBars.getToolBarManager();
         IMenuManager menuManager = actionBars.getMenuManager();
         
         menuManager.add(selectColumnsAction);
@@ -887,9 +888,25 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
      */
     @Override
     public void dispose() {
-        PyCoveragePreferences.setInternalAllRunsDoCoverage(false);
-        PyCoveragePreferences.setLastChosenDir(null);
+        try {
+            PyCoveragePreferences.setInternalAllRunsDoCoverage(false);
+            PyCoveragePreferences.setLastChosenDir(null);
+            if(text != null){
+                onControlDisposed.call(text);
+                text.dispose();
+                text = null;
+            }
+            
+            if(viewer != null){
+                onControlDisposed.call(viewer);
+                viewer.getTree().dispose();
+                viewer = null;
+            }
+        } catch (Throwable e) {
+            Log.log(e);
+        }
         super.dispose();
+        
     }
 
     private void updateErrorMessages() {
@@ -1022,6 +1039,14 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
                 }
             }
         }
+    }
+
+    public ICallbackWithListeners getOnControlCreated() {
+        return onControlCreated;
+    }
+
+    public ICallbackWithListeners getOnControlDisposed() {
+        return onControlDisposed;
     }
 
 

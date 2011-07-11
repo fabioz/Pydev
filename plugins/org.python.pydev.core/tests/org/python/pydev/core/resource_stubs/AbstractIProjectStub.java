@@ -128,4 +128,5 @@ public class AbstractIProjectStub extends AbstractIContainerStub implements IPro
 		throw new RuntimeException("Not implemented");
 	}
 
+
 }

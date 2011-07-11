@@ -33,7 +33,7 @@ public abstract class DjParser extends CompositeParser {
         String source = new String(parseState.getSource());
         int startingOffset = parseState.getStartingOffset();
         IParseNode root = new ParseRootNode(language, new ParseNode[0], startingOffset, startingOffset
-                + source.length());
+                + source.length() - 1);
 
         advance();
         short id = getCurrentSymbol().getId();

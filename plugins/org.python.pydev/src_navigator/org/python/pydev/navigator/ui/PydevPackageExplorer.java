@@ -45,13 +45,14 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.elements.PythonFile;
 import org.python.pydev.ui.IViewCreatedObserver;
+import org.python.pydev.ui.IViewWithControls;
 
 /**
  * This class is the package explorer for pydev. It uses the CNF (Common Navigator Framework) to show
  * the resources as python elements.
  */
-@SuppressWarnings("restriction")
-public class PydevPackageExplorer extends CommonNavigator implements IShowInTarget {
+@SuppressWarnings({"restriction", "rawtypes", "unchecked"})
+public class PydevPackageExplorer extends CommonNavigator implements IShowInTarget, IViewWithControls {
 
     /**
      * This viewer is the one used instead of the common viewer -- should only be used to fix failures in the base class.
@@ -140,8 +141,9 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
      * This is the memento to be used.
      */
     private IMemento memento;
-	public final ICallbackWithListeners onTreeViewerCreated = new CallbackWithListeners();
-	public final ICallbackWithListeners onDispose = new CallbackWithListeners();
+	public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();
+	public final ICallbackWithListeners onControlDisposed = new CallbackWithListeners();
+    private PydevCommonViewer viewer;
 
 	public PydevPackageExplorer() {
 		super();
@@ -185,7 +187,8 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
     public void createPartControl(Composite aParent) {
         super.createPartControl(aParent);
         PydevCommonViewer viewer = (PydevCommonViewer) getCommonViewer();
-        onTreeViewerCreated.call(viewer);
+        this.viewer = viewer;
+        onControlCreated.call(viewer);
 
         viewer.availableToRestoreMemento = true;
         for(int i=0;i<3;i++){
@@ -202,7 +205,10 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
     }
     
     public void dispose() {
-    	onDispose.call(this);
+        if(viewer != null){
+            onControlDisposed.call(viewer);
+            viewer = null;
+        }
     	super.dispose();
     };
     
@@ -268,7 +274,6 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
      * @param element the element that should be gotten as an element from the pydev model
      * @return a pydev element or the same element passed as a parameter.
      */
-    @SuppressWarnings("unchecked")
     private Object getPythonModelElement(Object element) {
         if(element instanceof IWrappedResource){
             return element;
@@ -330,6 +335,14 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
             }
             commonViewer.setSelection(selection, true);
         }
+    }
+
+    public ICallbackWithListeners getOnControlCreated() {
+        return onControlCreated;
+    }
+
+    public ICallbackWithListeners getOnControlDisposed() {
+        return onControlDisposed;
     }
 
 

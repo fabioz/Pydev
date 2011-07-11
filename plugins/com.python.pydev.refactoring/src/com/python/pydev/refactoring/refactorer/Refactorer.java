@@ -78,8 +78,8 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
         return new RefactorerFinds(this).areAllInSameClassHierarchy(defs);
     }
     
-    public HierarchyNodeModel findClassHierarchy(RefactoringRequest request) {
-        return new RefactorerFinds(this).findClassHierarchy(request);
+    public HierarchyNodeModel findClassHierarchy(RefactoringRequest request, boolean findOnlyParents) {
+        return new RefactorerFinds(this).findClassHierarchy(request, findOnlyParents);
     }
 
     public Map<Tuple<String, File>, HashSet<ASTEntry>> findAllOccurrences(RefactoringRequest req) throws OperationCanceledException, CoreException{

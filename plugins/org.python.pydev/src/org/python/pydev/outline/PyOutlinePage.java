@@ -12,6 +12,7 @@
  */
 package org.python.pydev.outline;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IAdaptable;
@@ -34,6 +35,7 @@ import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.IActionBars;
@@ -51,6 +53,7 @@ import org.python.pydev.parser.ErrorDescription;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.IViewCreatedObserver;
+import org.python.pydev.ui.IViewWithControls;
 import org.python.pydev.ui.UIConstants;
 
 /**
@@ -64,7 +67,8 @@ import org.python.pydev.ui.UIConstants;
  * @note: tests for the outline page are not directly for the outline page, but for its model, 
  * based on ParsedItems.
  **/
-public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShowInTarget, IAdaptable{
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShowInTarget, IAdaptable, IViewWithControls{
 
     PyEdit editorView;
     IDocument document;
@@ -75,8 +79,9 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
     ISelectionChangedListener selectionListener;
     
     private OutlineLinkWithEditorAction linkWithEditor;
-	public final ICallbackWithListeners<TreeViewer> onTreeViewerCreated = new CallbackWithListeners<TreeViewer>();
-	public final ICallbackWithListeners<PyOutlinePage> onDispose = new CallbackWithListeners<PyOutlinePage>();
+    public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();
+	public final ICallbackWithListeners onControlDisposed = new CallbackWithListeners();
+    private List createdCallbacksForControls;
 
     public PyOutlinePage(PyEdit editorView) {
         super();
@@ -90,6 +95,14 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
     }
     
     public void dispose() {
+        onControlDisposed.call(getTreeViewer());
+        if(createdCallbacksForControls != null){
+            for(Object o:createdCallbacksForControls){
+                onControlDisposed.call(o);
+            }
+            createdCallbacksForControls = null;
+        }
+        
         if (model != null) {
             model.dispose();
             model = null;
@@ -105,7 +118,6 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
             linkWithEditor = null;
         }
         super.dispose();
-        onDispose.call(this);
     }
 
 
@@ -334,13 +346,32 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
                 }}
             );
             
+            onControlCreated.call(getTreeViewer());
+            createdCallbacksForControls = callRecursively(onControlCreated, filter, new ArrayList());
         }catch(Throwable e){
             Log.log(e);
         }
-        onTreeViewerCreated.call(getTreeViewer());
     }
     
-	public boolean show(ShowInContext context) {
+    /**
+     * Calls the callback with the composite c and all of its children (recursively).
+     */
+    private List callRecursively(ICallbackWithListeners callback, Composite c, ArrayList controls) {
+        try {
+            for(Control child:c.getChildren()){
+                if(child instanceof Composite){
+                    callRecursively(callback, (Composite) child, controls);
+                }
+                controls.add(child);
+                callback.call(child);
+            }
+        } catch (Throwable e) {
+            Log.log(e);
+        }
+        return controls;
+    }
+
+    public boolean show(ShowInContext context) {
         linkWithEditor.doLinkOutlinePosition(this.editorView, this, new PySelection(this.editorView));
         return true;
     }
@@ -425,6 +456,14 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
         if(event != null){
             selectionChanged(event);
         }
+    }
+
+    public ICallbackWithListeners getOnControlCreated() {
+        return onControlCreated;
+    }
+
+    public ICallbackWithListeners getOnControlDisposed() {
+        return onControlDisposed;
     }
 
 

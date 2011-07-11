@@ -1,11 +1,11 @@
-Pydev VERSION Released
+PyDev VERSION Released
 
 
 Hi All,
 
-Pydev VERSION has been released
+PyDev VERSION has been released
 
-Details on Pydev: http://pydev.org 
+Details on PyDev: http://pydev.org 
 Details on its development: http://pydev.blogspot.com
 
 Release Highlights:
@@ -35,6 +35,6 @@ http://appcelerator.com/
 Aptana
 http://aptana.com/
 
-Pydev - Python Development Environment for Eclipse
+PyDev - Python Development Environment for Eclipse
 http://pydev.org
 http://pydev.blogspot.com
