@@ -11,7 +11,6 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.refactoring.coderefactoring.inlinelocal.request.InlineLocalRequest;
 import org.python.pydev.refactoring.core.edit.AbstractReplaceEdit;
-import org.python.pydev.refactoring.utils.NodeUtils;
 
 public class ReplaceWithExpression extends AbstractReplaceEdit {
     private int offset;
@@ -23,7 +22,7 @@ public class ReplaceWithExpression extends AbstractReplaceEdit {
 
         IDocument doc = req.info.getDocument();
 
-        this.offset = NodeUtils.getOffset(doc, variable);
+        this.offset = org.python.pydev.parser.visitors.NodeUtils.getOffset(doc, variable);
 
         this.expression = req.assignment.value;
         this.replaceLength = variable.id.length();

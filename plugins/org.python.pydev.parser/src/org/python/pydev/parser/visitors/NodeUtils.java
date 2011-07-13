@@ -15,10 +15,12 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
@@ -1376,6 +1378,12 @@ public class NodeUtils {
         }
         //Not found!
         return null;
+    }
+
+
+    public static int getOffset(IDocument doc, SimpleNode node) {
+        int nodeOffsetBegin = PySelection.getAbsoluteCursorOffset(doc, node.beginLine - 1, node.beginColumn - 1);
+        return nodeOffsetBegin;
     }
 
 }

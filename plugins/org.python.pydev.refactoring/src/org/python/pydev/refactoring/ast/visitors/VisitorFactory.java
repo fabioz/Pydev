@@ -26,6 +26,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.VisitorIF;
+import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.refactoring.ast.PythonModuleManager;
 import org.python.pydev.refactoring.ast.adapters.AbstractNodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
@@ -141,5 +142,20 @@ public final class VisitorFactory {
         if(objects.o2 != null)
             throw new RuntimeException(objects.o2);
         return (Module) objects.o1;
+    }
+
+    /**
+     * Provides a way to find duplicates of a given expression.
+     */
+    public static FindDuplicatesVisitor createDuplicatesVisitor(
+            ITextSelection selection, SimpleNode nodeToVisit, exprType expression, AbstractScopeNode node, IDocument doc){
+        FindDuplicatesVisitor visitor = new FindDuplicatesVisitor(selection, expression, doc);
+        try{
+            nodeToVisit.accept(visitor);
+            visitor.finish();
+        }catch(Throwable e){
+            throw new RuntimeException(e);
+        }
+        return visitor;
     }
 }

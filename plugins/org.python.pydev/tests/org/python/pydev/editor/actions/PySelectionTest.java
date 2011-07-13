@@ -39,7 +39,7 @@ public class PySelectionTest extends TestCase {
         try {
             PySelectionTest test = new PySelectionTest();
             test.setUp();
-            test.testGetLastIf3();
+            test.testIntersects();
             test.tearDown();
             
             junit.textui.TestRunner.run(PySelectionTest.class);
@@ -752,5 +752,22 @@ public class PySelectionTest extends TestCase {
         calls = ps.getTddPossibleMatchesAtLine();
         assertEquals(1, calls.size());
         assertEquals("self.call(", calls.get(0).toString());
+    }
+    
+    
+    public void testIntersects() throws Exception {
+        int line = 0;
+        int col = 1;
+        int len = 2;
+        doc = new Document(" aa      ");
+        ps = new PySelection(doc, line, col, len);
+        assertTrue(ps.intersects(1, 2));
+        assertTrue(ps.intersects(1, 10));
+        assertTrue(ps.intersects(0, 10));
+        assertFalse(ps.intersects(0, 0));
+        assertTrue(ps.intersects(0, 2));
+        assertFalse(ps.intersects(0, 1));
+        assertFalse(ps.intersects(3, 0));
+        assertTrue(ps.intersects(2, 0));
     }
 }
