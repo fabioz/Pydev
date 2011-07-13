@@ -339,12 +339,13 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         if(document == null){
             return;
         }
+        //Whenever PyLint is passed, the markers will be deleted.
+        try {
+            resource.deleteMarkers(PYLINT_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+        } catch (CoreException e3) {
+            Log.log(e3);
+        }
         if(PyLintPrefPage.usePyLint() == false){
-            try {
-                resource.deleteMarkers(PYLINT_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
-            } catch (CoreException e3) {
-                Log.log(e3);
-            }
             return;
         }
         
