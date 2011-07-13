@@ -26,7 +26,8 @@ public class ScopeVarVisitorTestCase extends AbstractIOTestCase {
 	@Override
 	public void runTest() throws Throwable {
 		StringBuffer buffer = new StringBuffer();
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(data.source), new PythonNatureStub());
+		ModuleAdapter module = VisitorFactory.createModuleAdapter(
+		        null, null, new Document(data.source), new PythonNatureStub(), createVersionProvider());
 
 		for (FunctionDefAdapter func : module.getFunctions()) {
 

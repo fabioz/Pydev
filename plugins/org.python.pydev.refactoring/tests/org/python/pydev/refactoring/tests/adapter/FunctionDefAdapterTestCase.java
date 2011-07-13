@@ -23,7 +23,8 @@ public class FunctionDefAdapterTestCase extends AbstractIOTestCase {
 	@Override
 	public void runTest() throws Throwable {
 		StringBuffer buffer = new StringBuffer();
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(data.source), new PythonNatureStub());
+		ModuleAdapter module = VisitorFactory.createModuleAdapter(
+		        null, null, new Document(data.source), new PythonNatureStub(), createVersionProvider());
 		List<IClassDefAdapter> classes = module.getClasses();
 		assertTrue(classes.size() > 0);
 

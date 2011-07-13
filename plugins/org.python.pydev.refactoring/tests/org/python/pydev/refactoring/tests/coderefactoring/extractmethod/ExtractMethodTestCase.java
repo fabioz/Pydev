@@ -46,7 +46,7 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
 		MockupExtractMethodConfig config = initConfig();
 
 		IDocument doc = new Document(data.source);
-		Module astModule = VisitorFactory.getRootNode(doc);
+		Module astModule = VisitorFactory.getRootNode(doc, createVersionProvider());
 		String name = data.file.getName();
 		name = name.substring(0, name.length() - EXTENSION);
 		ModuleAdapter module = new ModuleAdapter(null, data.file, doc, astModule, new PythonNatureStub());

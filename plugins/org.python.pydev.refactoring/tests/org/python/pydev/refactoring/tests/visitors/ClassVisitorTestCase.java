@@ -26,7 +26,8 @@ public class ClassVisitorTestCase extends AbstractIOTestCase {
 	@Override
 	public void runTest() throws Throwable {
 		StringBuffer buffer = new StringBuffer();
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(data.source), new PythonNatureStub());
+		ModuleAdapter module = VisitorFactory.createModuleAdapter(
+		        null, null, new Document(data.source), new PythonNatureStub(), createVersionProvider());
 		ClassDefVisitor visitor = VisitorFactory.createContextVisitor(ClassDefVisitor.class, module.getASTNode(), module, module);
 		Iterator<IClassDefAdapter> iter = visitor.iterator();
 

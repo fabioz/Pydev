@@ -34,12 +34,8 @@ public class ExtractLocalTestCase extends AbstractIOTestCase {
 	    
 	    IDocument document = new Document(data.source);
 	    ITextSelection selection = new TextSelection(document, data.sourceSelection.getOffset(), data.sourceSelection.getLength());
-	    RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
-            
-            public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
-            }
-        });
+	    IGrammarVersionProvider versionProvider = createVersionProvider();
+        RefactoringInfo info = new RefactoringInfo(document, selection, versionProvider);
 	    ExtractLocalRefactoring refactoring = new ExtractLocalRefactoring(info);
 	    
 	    ExtractLocalRequestProcessor requestProcessor = refactoring.getRequestProcessor();
@@ -58,4 +54,5 @@ public class ExtractLocalTestCase extends AbstractIOTestCase {
 	    
 		REF.IN_TESTS = false;
 	}
+
 }

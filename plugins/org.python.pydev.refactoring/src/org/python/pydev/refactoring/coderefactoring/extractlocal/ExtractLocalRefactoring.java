@@ -99,7 +99,8 @@ public class ExtractLocalRefactoring extends AbstractPythonRefactoring {
         source = source.replaceAll("\r", "");
 
         try{
-            ModuleAdapter node = VisitorFactory.createModuleAdapter(null, null, new Document(source), null);
+            ModuleAdapter node = VisitorFactory.createModuleAdapter(
+                    null, null, new Document(source), null, info.getVersionProvider());
             return node;
         }catch(TokenMgrError e){
             return null;

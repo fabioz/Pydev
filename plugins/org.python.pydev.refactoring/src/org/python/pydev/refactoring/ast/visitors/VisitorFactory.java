@@ -13,10 +13,12 @@ import java.io.File;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
+import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISourceModule;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -63,8 +65,8 @@ public final class VisitorFactory {
         }
     }
 
-    public static <T extends VisitorIF> T createVisitor(Class<T> visitorClass, String source) throws Throwable {
-        return createVisitor(visitorClass, getRootNodeFromString(source));
+    public static <T extends VisitorIF> T createVisitor(Class<T> visitorClass, String source, IGrammarVersionProvider versionProvider) throws Throwable {
+        return createVisitor(visitorClass, getRootNodeFromString(source, versionProvider));
     }
 
     public static <T extends VisitorIF> T createVisitor(Class<T> visitorClass, SimpleNode root) {
@@ -92,7 +94,7 @@ public final class VisitorFactory {
         }
     }
 
-    public static ModuleAdapter createModuleAdapter(PythonModuleManager pythonModuleManager, File file, IDocument doc, IPythonNature nature) throws Throwable {
+    public static ModuleAdapter createModuleAdapter(PythonModuleManager pythonModuleManager, File file, IDocument doc, IPythonNature nature, IGrammarVersionProvider versionProvider) throws Throwable {
         if(file != null && file.exists()){
             if(pythonModuleManager != null){
                 IModulesManager modulesManager = pythonModuleManager.getIModuleManager();
@@ -111,20 +113,20 @@ public final class VisitorFactory {
                 }
             }
         }
-        return new ModuleAdapter(pythonModuleManager, file, doc, getRootNode(doc), nature);
+        return new ModuleAdapter(pythonModuleManager, file, doc, getRootNode(doc, versionProvider), nature);
     }
 
 
-    public static SimpleNode getRootNodeFromString(String source) throws ParseException {
-        return getRootNode(getDocumentFromString(source));
+    public static SimpleNode getRootNodeFromString(String source, IGrammarVersionProvider versionProvider) throws ParseException, MisconfigurationException {
+        return getRootNode(getDocumentFromString(source), versionProvider);
     }
 
     private static IDocument getDocumentFromString(String source) {
         return new Document(source);
     }
 
-    public static Module getRootNode(IDocument doc) throws ParseException {
-        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, false, IPythonNature.LATEST_GRAMMAR_VERSION));
+    public static Module getRootNode(IDocument doc, IGrammarVersionProvider versionProvider) throws ParseException, MisconfigurationException {
+        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, false, versionProvider.getGrammarVersion()));
         Throwable exception = objects.o2;
 
         if(exception != null){
