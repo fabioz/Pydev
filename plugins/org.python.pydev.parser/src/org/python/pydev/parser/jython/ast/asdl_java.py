@@ -55,6 +55,7 @@ class EmitVisitor(asdl.VisitorBase):
         self.file.write('package org.python.pydev.parser.jython.ast;\n')
         if refersToSimpleNode:
             self.file.write('import org.python.pydev.parser.jython.SimpleNode;\n')
+            self.file.write('import java.util.Arrays;\n')
 #        if useDataOutput:
 #            print >> self.file, 'import java.io.DataOutputStream;'
 #            print >> self.file, 'import java.io.IOException;'
@@ -238,6 +239,44 @@ class JavaVisitor(EmitVisitor):
 #        self.emit("}", depth)
         self.emit("", 0)
         
+     
+        self.emit("public int hashCode() {", depth)
+        self.emit("final int prime = 31;", depth+1)
+        self.emit("int result = 1;", depth+1)
+        for f in fields:
+            jType = self.jType(f)
+            if f.seq:
+                self.emit("result = prime * result + Arrays.hashCode(%s);" % (f.name,), depth+1)
+            elif jType == 'int':
+                self.emit("result = prime * result + %s;" % (f.name,), depth+1)
+            elif jType == 'boolean':
+                self.emit("result = prime * result + (%s ? 17 : 137);" % (f.name,), depth+1)
+            else:
+                self.emit("result = prime * result + ((%s == null) ? 0 : %s.hashCode());" % (f.name, f.name), depth+1)
+        self.emit("return result;", depth)
+        self.emit("}", depth)
+        
+        #equals()
+        self.emit("public boolean equals(Object obj) {", depth)
+        self.emit("if (this == obj) return true;", depth+1)
+        self.emit("if (obj == null) return false;", depth+1)
+        self.emit("if (getClass() != obj.getClass()) return false;", depth+1)
+        self.emit("%s other = (%s) obj;" % (ctorname, ctorname,), depth+1)
+        for f in fields:
+            jType = self.jType(f)
+            if f.seq:
+                self.emit('if (!Arrays.equals(%s, other.%s)) return false;' % (f.name, f.name,), depth+1) 
+                
+            elif jType in ('int', 'boolean'):
+                self.emit('if(this.%s != other.%s) return false;' % (f.name, f.name,), depth+1) 
+                
+            else:
+                self.emit('if (%s == null) { if (other.%s != null) return false;}' % (f.name, f.name,), depth+1) 
+                self.emit('else if (!%s.equals(other.%s)) return false;' % (f.name, f.name,), depth+1) 
+                
+        self.emit("return true;", depth+1)
+                
+        self.emit("}", depth)
         
         
         #createCopy()
@@ -417,6 +456,14 @@ class VisitorVisitor(EmitVisitor):
         for ctor in self.ctors:
             self.emit("public Object visit%s(%s node) throws Exception;" % 
                     (ctor, ctor), 1)
+        self.emit('}', 0)
+        self.close()
+
+        self.open("ISimpleNodeSwitch", refersToSimpleNode=0)
+        self.emit('public interface ISimpleNodeSwitch {', 0)
+        for ctor in self.ctors:
+            self.emit("public void visit(%s node);" % 
+                    (ctor,), 1)
         self.emit('}', 0)
         self.close()
 

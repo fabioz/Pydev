@@ -10,9 +10,11 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.django_templates.DjPlugin;
+import org.python.pydev.django_templates.IDjConstants;
 import org.python.pydev.django_templates.editor.DjEditor;
 import org.python.pydev.utils.ICallback;
 
+import com.aptana.editor.common.parsing.FileService;
 import com.aptana.editor.css.CSSSourceEditor;
 
 /**
@@ -60,5 +62,10 @@ public class DjCssEditor extends CSSSourceEditor {
     @Override
     protected char[] getPairMatchingCharacters() {
         return this.djEditor.getPairMatchingCharacters(super.getPairMatchingCharacters());
+    }
+
+    @Override
+    protected FileService createFileService() {
+    	return new FileService(IDjConstants.CONTENT_TYPE_DJANGO_CSS);
     }
 }

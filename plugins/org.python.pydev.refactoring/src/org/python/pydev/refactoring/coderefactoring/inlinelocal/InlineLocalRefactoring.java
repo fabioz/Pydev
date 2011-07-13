@@ -24,7 +24,6 @@ import org.python.pydev.refactoring.core.base.AbstractPythonRefactoring;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.change.IChangeProcessor;
 import org.python.pydev.refactoring.messages.Messages;
-import org.python.pydev.refactoring.utils.NodeUtils;
 
 public class InlineLocalRefactoring extends AbstractPythonRefactoring {
     private InlineLocalRequestProcessor requestProcessor;
@@ -157,7 +156,7 @@ public class InlineLocalRefactoring extends AbstractPythonRefactoring {
 
         for(Name variable:variables){
             int nodeLength = variable.id.length();
-            int nodeOffsetBegin = NodeUtils.getOffset(info.getDocument(), variable);
+            int nodeOffsetBegin = org.python.pydev.parser.visitors.NodeUtils.getOffset(info.getDocument(), variable);
             int nodeOffsetEnd = nodeOffsetBegin + nodeLength;
 
             if(selectionOffset >= nodeOffsetBegin && selectionOffset <= nodeOffsetEnd){

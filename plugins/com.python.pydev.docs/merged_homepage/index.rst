@@ -94,6 +94,39 @@ First time users are strongly advised to read the `Getting started guide`_  whic
 
 
 
+Release 2.2.1
+===============
+
+
+**Quick-outline**
+
+    .. image:: images/index/quick_outline_parent.png
+        :class: no_border
+        
+
+    * Parent methods may be shown with a 2nd Ctrl+O.
+    * The initial node is selected with the current location in the file.
+
+**Extract local refactoring**
+
+    .. image:: images/index/refactor_duplicate.png
+        :class: no_border
+        
+    * Option to replace duplicates.
+    * Fixed issue where wrong grammar could be used.
+        
+**Others**
+
+    * Improved handling of Ctrl+Shift+T so that no keybinding conflict takes place (now it'll be only active on the PyDev views/editor).
+    * PyLint markers always removed on a project clean.
+    * If the standard library source files are not found, more options are presented.
+    * If the completion popup is focused and shift is pressed on a context insensitive completion, a local import is done.
+    * Fixed issue where a local import wasn't being added to the correct location.
+    * Fixed error message in debugger when there was no caught/uncaught exception set in an empty workspace.
+    * Performance improvements on hierarchy view.
+    * Django commands may be deleted on dialog with backspace.
+
+
 Release 2.2
 ===============
 

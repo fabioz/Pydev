@@ -13,7 +13,6 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.refactoring.coderefactoring.inlinelocal.request.InlineLocalRequest;
 import org.python.pydev.refactoring.core.edit.AbstractRemoveEdit;
-import org.python.pydev.refactoring.utils.NodeUtils;
 
 public class RemoveAssignment extends AbstractRemoveEdit {
     private InlineLocalRequest request;
@@ -31,7 +30,7 @@ public class RemoveAssignment extends AbstractRemoveEdit {
 
         this.node = request.assignment.targets[0];
         IDocument document = req.info.getDocument();
-        this.beginOffset = NodeUtils.getOffset(document, node);
+        this.beginOffset = org.python.pydev.parser.visitors.NodeUtils.getOffset(document, node);
 
         this.endOffset = beginOffset + 1;
 

@@ -17,7 +17,7 @@ public final class Rewriter  {
     
     public static String reparsed(String source, AdapterPrefs adapterPrefs) {
         try {
-            SimpleNode root = VisitorFactory.getRootNodeFromString(source);
+            SimpleNode root = VisitorFactory.getRootNodeFromString(source, adapterPrefs.versionProvider);
             return createSourceFromAST(root, adapterPrefs);
         } catch (Throwable e) {
             throw new RuntimeException(e);

@@ -10,8 +10,12 @@ package org.python.pydev.refactoring.ast.adapters;
 
 import java.util.List;
 
+import org.eclipse.jface.text.ITextSelection;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
+import org.python.pydev.refactoring.ast.visitors.FindDuplicatesVisitor;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.ast.visitors.context.ClassDefVisitor;
 import org.python.pydev.refactoring.ast.visitors.context.LocalFunctionDefVisitor;
@@ -77,5 +81,15 @@ public abstract class AbstractScopeNode<T extends SimpleNode> extends AbstractNo
             }
         }
         return false;
+    }
+
+    /**
+     * Provides all the duplicates in this scope (excluding the one from the passed selection).
+     */
+    public List<Tuple<ITextSelection, SimpleNode>> getDuplicates(
+            ITextSelection selection, exprType expression) {
+        FindDuplicatesVisitor v = VisitorFactory.createDuplicatesVisitor(
+                selection, getASTNode(), expression, this, this.getModule().getDoc());
+        return v.getDuplicates();
     }
 }

@@ -1034,21 +1034,35 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                                 
                                 if(hashSet.size() > 0){
                                     //The /Lib folder wasn't there (or at least threading.py and traceback.py weren't found)
-                                    PyDialogHelpers.openCritical(
+                                    int choice = PyDialogHelpers.openCriticalWithChoices(
+                                            "Error: Python stdlib source files not found.",
+                                            
                                             "Error: Python stdlib not found or stdlib found without .py files.\n" +
-                                            "\n", 
+                                            "\n"+
                                             "It seems that the Python /Lib folder (which contains the standard library) " +
-                                            "was not found/selected during the install process or the stdlib does not contain" +
+                                            "was not found/selected during the install process or the stdlib does not contain " +
                                             "the required .py files (i.e.: only has .pyc files).\n" +
                                             "\n" +
                                             "This folder (which contains files such as threading.py and traceback.py) is " +
-                                            "required for PyDev to function properly (and it must contain the actual source files, not " +
-                                            "only .pyc files).\n" +
+                                            "required for PyDev to function properly, and it must contain the actual source files, not " +
+                                            "only .pyc files. if you don't have the .py files in your install, please use an install from " +
+                                            "python.org or grab the standard library for your install from there.\n" +
                                             "\n" +
-                                            "Note that if this is a virtualenv install, the /Lib folder from the base install needs to be selected " +
-                                            "(unlike the site-packages which is optional)."
+                                            "If this is a virtualenv install, the /Lib folder from the base install needs to be selected " +
+                                            "(unlike the site-packages which is optional).\n" +
+                                            "\n" +
+                                            "What do you want to do?\n\n" +
+                                            "Note: if you choose to proceed, the /Lib with the standard library .py source files must " +
+                                            "be added later on, otherwise PyDev may not function properly.",
+                                            new String[]{"Re-select folders", "Cancel", "Proceed anyways"}
                                             );
-                                    continue; //Keey on with the outer while(true)
+                                    if(choice == 0){
+                                        //Keep on with outer while(true)
+                                        continue;
+                                    }
+                                    if(choice != 2){
+                                        return null;
+                                    }
                                 }
                             } catch (Exception e) {
                                 ErrorDialog.openError(this.getShell(), "Problem checking if the interpreter paths are correct.", 

@@ -27,7 +27,8 @@ public class ModuleAdapterTestCase extends AbstractIOTestCase {
 		XStream xstream = new XStream();
 		xstream.alias("config", ModuleAdapterTestConfig.class);
 
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(data.source), new PythonNatureStub());
+		ModuleAdapter module = VisitorFactory.createModuleAdapter(
+		        null, null, new Document(data.source), new PythonNatureStub(), createVersionProvider());
 		if (data.config.length() > 0) {
 			config = (ModuleAdapterTestConfig) xstream.fromXML(data.config);
 		} else {

@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IModulesManager;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
@@ -47,10 +49,24 @@ public abstract class AbstractIOTestCase extends TestCase implements IInputOutpu
         }
         ModuleAdapter module = VisitorFactory.createModuleAdapter(
                 pythonModuleManager,
-                data.file, new Document(data.source), CodeCompletionTestsBase.nature);
+                data.file, new Document(data.source), CodeCompletionTestsBase.nature,
+                CodeCompletionTestsBase.nature);
         return module;
     }
     
+    protected IGrammarVersionProvider createVersionProvider() {
+        IGrammarVersionProvider versionProvider = new IGrammarVersionProvider() {
+            
+            public int getGrammarVersion() throws MisconfigurationException {
+                if(data.file.toString().contains("_grammar3")){
+                    return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0;
+                }
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+            }
+        };
+        return versionProvider;
+    }
+
 
 
 	public AbstractIOTestCase(String name) {

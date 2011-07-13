@@ -100,7 +100,7 @@ public class RefactoringInfo {
         }
 
         try{
-            this.moduleAdapter = VisitorFactory.createModuleAdapter(moduleManager, realFile, doc, nature);
+            this.moduleAdapter = VisitorFactory.createModuleAdapter(moduleManager, realFile, doc, nature, this.versionProvider);
         }catch(Throwable e){
             throw new RuntimeException(e);
         }
@@ -150,7 +150,7 @@ public class RefactoringInfo {
 
         if(source.length() > 0){
             try{
-                return VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature);
+                return VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature, this.versionProvider);
             }catch(TokenMgrError e){
                 return null;
             }catch(ParseException e){
@@ -169,7 +169,7 @@ public class RefactoringInfo {
 
         if(this.userSelection != null && source.length() > 0){
             try{
-                parsedAdapter = VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature);
+                parsedAdapter = VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature, this.versionProvider);
             }catch(TokenMgrError e){
                 return null;
             }catch(ParseException e){
@@ -267,6 +267,13 @@ public class RefactoringInfo {
 
     public PySelection getPySelection() {
         return new PySelection(doc, userSelection);
+    }
+
+    /**
+     * @return
+     */
+    public IGrammarVersionProvider getVersionProvider() {
+        return this.versionProvider;
     }
 
 //    public Workspace getWorkspace() {

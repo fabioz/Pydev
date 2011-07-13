@@ -55,6 +55,23 @@ public class PyDialogHelpers {
         return MessageDialog.OK;
     }
     
+    /**
+     * @return the index chosen or -1 if it was canceled.
+     */
+    public static int openCriticalWithChoices(String title, String message, String[] choices) {
+        Shell shell = PyAction.getShell();
+        MessageDialog dialog = new MessageDialog(
+                shell,
+                title, 
+                null,
+                message, 
+                MessageDialog.ERROR, 
+                choices, 
+                0
+                );
+        return dialog.open();
+    }
+    
     public final static int INTERPRETER_AUTO_CONFIG = 0;
     public final static int INTERPRETER_MANUAL_CONFIG = 1;
     public final static int INTERPRETER_DONT_ASK_CONFIG = 2;

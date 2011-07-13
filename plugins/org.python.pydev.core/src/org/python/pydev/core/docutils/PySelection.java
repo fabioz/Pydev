@@ -2324,6 +2324,25 @@ public final class PySelection {
     }
 
 
+    /**
+     * @param offset
+     * @return
+     */
+    public boolean intersects(int offset, int len) {
+        int currOffset = this.textSelection.getOffset();
+        int currLen = this.textSelection.getLength();
+
+        ///The end is after the end of the current sel
+        if(offset >= currOffset+currLen){
+            return false;
+        }
+        if(offset+len <= currOffset){
+            return false;
+        }
+        return true;
+    }
+
+
 
 
 

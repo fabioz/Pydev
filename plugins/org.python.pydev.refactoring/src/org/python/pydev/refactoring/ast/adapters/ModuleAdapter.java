@@ -656,4 +656,11 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         int lineOfOffset = this.doc.getLineOfOffset(selectionOffset);
         return this.doc.getLineOffset(lineOfOffset);
     }
+    
+    /**
+     * @return the doc
+     */
+    public IDocument getDoc() {
+        return doc;
+    }
 }
