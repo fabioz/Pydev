@@ -45,7 +45,8 @@ public class ExtractLocalRefactoring extends AbstractPythonRefactoring {
 
     @Override
     protected List<IChangeProcessor> getChangeProcessors() {
-        IChangeProcessor changeProcessor = new ExtractLocalChangeProcessor(getName(), this.info, this.requestProcessor);
+        IChangeProcessor changeProcessor = new ExtractLocalChangeProcessor(
+                getName(), this.info, this.requestProcessor);
         return ListUtils.wrap(changeProcessor);
     }
 

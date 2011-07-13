@@ -44,6 +44,7 @@ public class ExtractLocalTestCase extends AbstractIOTestCase {
 	    
 	    ExtractLocalRequestProcessor requestProcessor = refactoring.getRequestProcessor();
 	    requestProcessor.setVariableName("extracted_variable");
+	    requestProcessor.setReplaceDuplicates(true);
 	    
 	    NullProgressMonitor monitor = new NullProgressMonitor();
 	    RefactoringStatus result = refactoring.checkAllConditions(monitor);

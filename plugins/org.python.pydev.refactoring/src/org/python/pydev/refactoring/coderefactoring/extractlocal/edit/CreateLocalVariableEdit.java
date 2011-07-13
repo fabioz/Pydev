@@ -8,8 +8,11 @@
 
 package org.python.pydev.refactoring.coderefactoring.extractlocal.edit;
 
+import java.util.List;
+
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.core.ILocalScope;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStack;
@@ -36,11 +39,17 @@ public class CreateLocalVariableEdit extends AbstractInsertEdit {
     
     private int lineForLocal = -1;
 
+    private boolean replaceDuplicates;
+
+    private List<Tuple<ITextSelection, SimpleNode>> duplicates;
+
     public CreateLocalVariableEdit(ExtractLocalRequest req) {
         super(req);
         this.info = req.info;
         this.variableName = req.variableName;
         this.expression = (exprType) req.expression.createCopy();
+        replaceDuplicates = req.replaceDuplicates;
+        duplicates = req.duplicates;
     }
 
     @Override
@@ -55,6 +64,15 @@ public class CreateLocalVariableEdit extends AbstractInsertEdit {
     private int calculateLineForLocal() {
         if(lineForLocal == -1){
             ITextSelection userSelection = info.getUserSelection();
+            if(replaceDuplicates){
+                //When replacing duplicates, we have to consider the selection the first
+                //replace (so that the local created works for all the replaces).
+                for(Tuple<ITextSelection, SimpleNode> dup:duplicates){
+                    if(dup.o1.getStartLine() < userSelection.getStartLine()){
+                        userSelection = dup.o1;
+                    }
+                }
+            }
             PySelection selection = new PySelection(info.getDocument(), userSelection);
             int startLineIndexIndocCoords = selection.getStartLineIndex();
             int startLineIndexInASTCoords = startLineIndexIndocCoords + 1; //from doc to ast
