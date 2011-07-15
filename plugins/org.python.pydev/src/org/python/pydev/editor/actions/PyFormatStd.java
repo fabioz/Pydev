@@ -291,7 +291,6 @@ public class PyFormatStd extends PyAction implements IFormatter {
                         }
                         if(localC == '(' || localC == ','){
                             //it's not an operator, but vararg. kwarg or list expansion
-                            break; //break for
                         }
                         if(Character.isJavaIdentifierPart(localC)){
                             //ok, there's a chance that it can be an operator, but we still have to check
@@ -308,8 +307,13 @@ public class PyFormatStd extends PyAction implements IFormatter {
                             if(!localBufToCheckWildImport.reverse().toString().equals("import")){
                                 isOperator = true;
                             }
-                            break;
                         }
+                        if(localC == '\'' || localC == ')'){
+                            isOperator = true;
+                        }
+                        
+                        //If it got here (i.e.: not whitespace), get out of the for loop.
+                        break;
                     }
                     if(!isOperator){
                         buf.append('*');
