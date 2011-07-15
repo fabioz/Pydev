@@ -149,7 +149,7 @@ public abstract class DjangoAction implements IObjectActionDelegate {
 	    		IConsole console = consoleManager.getConsole(processes[0]);
 	    		final IOConsoleOutputStream outputStream = ((IOConsole)console).newOutputStream();
 	    		
-	    		new Job("Refresh on finish") {
+	    		Job j = new Job("Refresh on finish") {
 					
 					protected IStatus run(IProgressMonitor monitor) {
 						boolean allTerminated = false;
@@ -191,7 +191,9 @@ public abstract class DjangoAction implements IObjectActionDelegate {
 	
 						return Status.OK_STATUS;
 					}
-				}.schedule();
+				};
+				j.setSystem(true);
+	    		j.schedule();
     		}
     		return launch;
 		} catch (Exception e) {
