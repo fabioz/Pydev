@@ -161,6 +161,12 @@ public abstract class DjangoAction implements IObjectActionDelegate {
 									break;
 								}
 							}
+							synchronized (this) {
+							    try {
+							        this.wait(50);
+							    } catch (InterruptedException e) {
+							    }
+							}
 							
 						}
 						try {
