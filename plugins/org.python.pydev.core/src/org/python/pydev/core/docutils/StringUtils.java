@@ -320,7 +320,7 @@ public final class StringUtils {
     /**
      * Splits the given string in a list where each element is a line.
      * 
-     * @param string string to be splitted.
+     * @param string string to be split.
      * @return list of strings where each string is a line.
      * 
      * @note the new line characters are also added to the returned string.
