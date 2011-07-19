@@ -375,7 +375,7 @@ public abstract class PyAction extends Action implements IEditorActionDelegate {
             return identString;
         } catch (Exception e) {
             
-            Log.log(e, false); //no need te print it to the console - happens regularly whed doing unit-tests without the eclipse env
+            Log.logInfo(e); //Happens regularly when doing unit-tests without the eclipse env
             return "    "; //default
         }
     }

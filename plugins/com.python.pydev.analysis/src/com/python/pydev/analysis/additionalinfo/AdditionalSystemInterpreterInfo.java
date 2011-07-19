@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
@@ -70,7 +69,7 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
             base = stateLocation.toFile();
         } catch (NullPointerException e) {
             //it may fail in tests... (save it in default folder in this cases)
-            Log.log(IStatus.ERROR, "Error getting persisting folder", e, false);
+            Log.logInfo("Error getting persisting folder", e);
             base = new File(".");
         }
         File file = new File(

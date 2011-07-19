@@ -61,7 +61,7 @@ public class PyCodeCompletionImages {
             }
             
         } catch (Exception e) {
-            Log.log(e, false);
+            Log.logInfo(e);
             return null;
         }
     }

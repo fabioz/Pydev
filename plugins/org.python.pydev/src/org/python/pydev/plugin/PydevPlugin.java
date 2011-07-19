@@ -235,7 +235,7 @@ public class PydevPlugin extends AbstractUIPlugin  {
 			    }
 			} catch (Exception e) {
 			    //it may fail in tests... (save it in default folder in this cases)
-			    Log.log(IStatus.ERROR, "Error getting persisting folder", e, false);
+			    Log.logInfo("Error getting persisting folder", e);
 			    base = new File(".");
 			}
 			File file = new File(base, "ping.log");
@@ -369,81 +369,8 @@ public class PydevPlugin extends AbstractUIPlugin  {
     public ResourceBundle getResourceBundle() {
         return resourceBundle;
     }
-    
-    /**
-     * @deprecated, use {@link Log#log(String, Throwable)}
-     */
-    @Deprecated
-    public static void log(String message, Throwable e) {
-        Log.log(message, e);
-    }
-    
-    /**
-     * @deprecated, use {@link Log#log(int, String, Throwable)}
-     */
-    @Deprecated
-    public static void log(int errorLevel, String message, Throwable e) {
-        Log.log(errorLevel, message, e);
-    }
-    
-    /**
-     * @deprecated, use {@link Log#log(String, Throwable, boolean)}
-     */
-    @Deprecated
-    public static void log(String message, Throwable e, boolean printToConsole) {
-        Log.log(message, e, printToConsole);
-    }
-
-    /**
-     * @deprecated, use {@link Log#logInfo(Throwable)}
-     */
-    @Deprecated
-    public static void logInfo(Throwable e) {
-        Log.logInfo(e);
-    }
-
-    /**
-     * @param errorLevel IStatus.[OK|INFO|WARNING|ERROR]
-     * @deprecated, use {@link Log#log(int, String, Throwable, boolean)}
-     */
-    @Deprecated
-    public static void log(int errorLevel, String message, Throwable e, boolean printToConsole) {
-        Log.log(errorLevel, message, e, printToConsole);
-    }
 
     
-    /**
-     * @deprecated, use {@link Log#log(Throwable)}
-     */
-    @Deprecated
-    public static void log(Throwable e) {
-        Log.log(e);
-    }
-    
-    /**
-     * @deprecated, use {@link Log#log(Throwable, boolean)}
-     */
-    @Deprecated
-    public static void log(Throwable e, boolean printToConsole) {
-        Log.log(e, printToConsole);
-    }
-
-    /**
-     * @deprecated, use {@link Log#logInfo(String)}
-     */
-    @Deprecated
-    public static void logInfo(String msg) {
-        Log.logInfo(msg);
-    }
-    
-    /**
-     * @deprecated, use {@link Log#log(String)}
-     */
-    @Deprecated
-    public static CoreException log(String msg) {
-        return Log.log(msg);
-    }
-
     /**
      * @return the script to get the variables.
      * 
