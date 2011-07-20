@@ -18,7 +18,6 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.rules.RuleBasedScanner;
 import org.eclipse.jface.text.rules.SingleLineRule;
-import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -33,12 +32,11 @@ import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.ColorAndStyleCache;
 
 import com.aptana.editor.common.AbstractThemeableEditor;
+import com.aptana.editor.common.CommonUtil;
 import com.aptana.editor.common.IPartitioningConfiguration;
 import com.aptana.editor.common.ISourceViewerConfiguration;
 import com.aptana.editor.common.text.rules.ISubPartitionScanner;
 import com.aptana.editor.common.text.rules.SubPartitionScanner;
-import com.aptana.theme.IThemeManager;
-import com.aptana.theme.ThemePlugin;
 
 /**
  * @author Fabio Zadrozny
@@ -61,9 +59,9 @@ public abstract class DjSourceConfiguration implements IPartitioningConfiguratio
     protected static final String[][] TOP_CONTENT_TYPES = new String[][] { { IDjConstants.CONTENT_TYPE_DJANGO_HTML } };
 
     protected IPredicateRule[] partitioningRules = new IPredicateRule[] {
-            new SingleLineRule("\"", "\"", new Token(STRING_DOUBLE), '\\'),
-            new SingleLineRule("\'", "\'", new Token(STRING_SINGLE), '\\'), 
-            new SingleLineRule("{#", "#}", new Token(COMMENT)) 
+            new SingleLineRule("\"", "\"", getToken(STRING_DOUBLE), '\\'),
+            new SingleLineRule("\'", "\'", getToken(STRING_SINGLE), '\\'), 
+            new SingleLineRule("{#", "#}", getToken(COMMENT)) 
     };
 
     private String contentType;
@@ -101,7 +99,7 @@ public abstract class DjSourceConfiguration implements IPartitioningConfiguratio
      * @see com.aptana.editor.common.IPartitioningConfiguration#createSubPartitionScanner()
      */
     public ISubPartitionScanner createSubPartitionScanner() {
-        return new SubPartitionScanner(partitioningRules, CONTENT_TYPES, new Token(DEFAULT));
+        return new SubPartitionScanner(partitioningRules, CONTENT_TYPES, getToken(DEFAULT));
     }
 
     /*
@@ -189,12 +187,8 @@ public abstract class DjSourceConfiguration implements IPartitioningConfiguratio
         return doubleQuotedStringScanner;
     }
 
-    protected IToken getToken(String tokenName) {
-        return getThemeManager().getToken(tokenName);
-    }
-
-    protected IThemeManager getThemeManager() {
-        return ThemePlugin.getDefault().getThemeManager();
+    protected static IToken getToken(String tokenName) {
+        return CommonUtil.getToken(tokenName);
     }
 
     protected ColorAndStyleCache colorCache;
