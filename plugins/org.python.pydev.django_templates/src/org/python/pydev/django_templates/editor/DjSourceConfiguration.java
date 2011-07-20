@@ -66,10 +66,6 @@ public abstract class DjSourceConfiguration implements IPartitioningConfiguratio
             new SingleLineRule("{#", "#}", new Token(COMMENT)) 
     };
 
-    protected PyCodeScanner codeScanner;
-    protected RuleBasedScanner singleQuotedStringScanner;
-    protected RuleBasedScanner doubleQuotedStringScanner;
-    protected RuleBasedScanner commentScanner;
     private String contentType;
     
     public DjSourceConfiguration(String contentType){
@@ -155,28 +151,8 @@ public abstract class DjSourceConfiguration implements IPartitioningConfiguratio
 
 
     public PyCodeScanner getCodeScanner() {
-        if (codeScanner == null) {
-            IPreferenceStore store = TemplateHelper.getTemplatesPreferenceStore();
-            codeScanner = new PyCodeScanner(getColorCache(), getKeywordsFromTemplates());
-            store.addPropertyChangeListener(new IPropertyChangeListener() {
-                
-                public void propertyChange(PropertyChangeEvent event) {
-                    if(TemplateHelper.CUSTOM_TEMPLATES_DJ_KEY.equals(event.getProperty())){
-                        updateCodeScannerKeywords();
-                    }
-                }
-            });
-        }
+        PyCodeScanner codeScanner = new PyCodeScanner(getColorCache(), getKeywordsFromTemplates());
         return codeScanner;
-    }
-
-
-
-    protected void updateCodeScannerKeywords() {
-        if(this.codeScanner != null){
-            String[] keywords = getKeywordsFromTemplates();
-            this.codeScanner.setKeywords(keywords);
-        }
     }
 
     public String[] getKeywordsFromTemplates() {
@@ -195,27 +171,21 @@ public abstract class DjSourceConfiguration implements IPartitioningConfiguratio
     }
 
     protected ITokenScanner getSingleQuotedStringScanner() {
-        if (singleQuotedStringScanner == null) {
-            singleQuotedStringScanner = new RuleBasedScanner();
-            singleQuotedStringScanner.setDefaultReturnToken(getToken(STRING_QUOTED_SINGLE_DJ));
-        }
+    	RuleBasedScanner singleQuotedStringScanner = new RuleBasedScanner();
+        singleQuotedStringScanner.setDefaultReturnToken(getToken(STRING_QUOTED_SINGLE_DJ));
         return singleQuotedStringScanner;
     }
 
     
     protected ITokenScanner getCommentScanner() {
-        if (commentScanner == null) {
-            commentScanner = new RuleBasedScanner();
-            commentScanner.setDefaultReturnToken(getToken(COMMENT_DJ));
-        }
+    	RuleBasedScanner commentScanner = new RuleBasedScanner();
+        commentScanner.setDefaultReturnToken(getToken(COMMENT_DJ));
         return commentScanner;
     }
     
     protected ITokenScanner getDoubleQuotedStringScanner() {
-        if (doubleQuotedStringScanner == null) {
-            doubleQuotedStringScanner = new RuleBasedScanner();
-            doubleQuotedStringScanner.setDefaultReturnToken(getToken(STRING_QUOTED_DOUBLE_DJ));
-        }
+    	RuleBasedScanner doubleQuotedStringScanner = new RuleBasedScanner();
+        doubleQuotedStringScanner.setDefaultReturnToken(getToken(STRING_QUOTED_DOUBLE_DJ));
         return doubleQuotedStringScanner;
     }
 
