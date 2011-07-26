@@ -1478,29 +1478,6 @@ public final class PySelection {
     }
     
     
-    /**
-     * @return the number of line breaks in the passed string.
-     */
-    public static int countLineBreaks(String replacementString) {
-        int lineBreaks = 0;
-        int ignoreNextNAt = -1;
-        
-        //we may have line breaks with \r\n, or only \n or \r
-        for (int i = 0; i < replacementString.length(); i++) {
-            char c = replacementString.charAt(i);
-            if(c == '\r'){
-                lineBreaks++;
-                ignoreNextNAt = i + 1;
-                
-            }else if(c == '\n'){
-                if(ignoreNextNAt != i){
-                    lineBreaks++;
-                }
-            }
-        }
-        return lineBreaks;
-    }
-
     public static class ActivationTokenAndQual{
         public ActivationTokenAndQual(String activationToken, String qualifier, boolean changedForCalltip, 
                 boolean alreadyHasParams, boolean isInMethodKeywordParam, int offsetForKeywordParam,

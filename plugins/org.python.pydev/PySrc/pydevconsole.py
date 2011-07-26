@@ -14,55 +14,9 @@ except NameError: # version < 2.3 -- didn't have the True/False builtins
     setattr(__builtin__, 'True', 1) #Python 3.0 does not accept __builtin__.True = 1 in its syntax
     setattr(__builtin__, 'False', 0)
 
-from pydev_imports import xmlrpclib
-
-#=======================================================================================================================
-# BaseStdIn
-#=======================================================================================================================
-class BaseStdIn:
-    
-    def readline(self, *args, **kwargs):
-        #sys.stderr.write('Cannot readline out of the console evaluation\n') -- don't show anything
-        #This could happen if the user had done input('enter number).<-- upon entering this, that message would appear,
-        #which is not something we want.
-        return '\n'
-    
-    def isatty(self):    
-        return False #not really a file
-        
-    def write(self, *args, **kwargs):
-        pass #not available StdIn (but it can be expected to be in the stream interface)
-        
-    def flush(self, *args, **kwargs):
-        pass #not available StdIn (but it can be expected to be in the stream interface)
-       
-    def read(self, *args, **kwargs):
-        #in the interactive interpreter, a read and a readline are the same.
-        return self.readline()
-    
+from pydev_console_utils import BaseStdIn, StdIn, BaseInterpreterInterface
 sys.stdin = BaseStdIn()
     
-#=======================================================================================================================
-# StdIn
-#=======================================================================================================================
-class StdIn(BaseStdIn):
-    '''
-        Object to be added to stdin (to emulate it as non-blocking while the next line arrives)
-    '''
-    
-    def __init__(self, interpreter, host, client_port):
-        self.interpreter = interpreter
-        self.client_port = client_port
-        self.host = host
-    
-    def readline(self, *args, **kwargs):
-        #Ok, callback into the client to see get the new input
-        server = xmlrpclib.Server('http://%s:%s' % (self.host, self.client_port))
-        requested_input = server.RequestInput()
-        if not requested_input:
-            return '\n' #Yes, a readline must return something (otherwise we can get an EOFError on the input() call).
-        return requested_input
-
 
         
 try:
@@ -131,7 +85,7 @@ except:
 #=======================================================================================================================
 # InterpreterInterface
 #=======================================================================================================================
-class InterpreterInterface:
+class InterpreterInterface(BaseInterpreterInterface):
     '''
         The methods in this class should be registered in the xml-rpc server.
     '''
@@ -145,70 +99,12 @@ class InterpreterInterface:
 
 
         
-    def addExec(self, line):
-        #f_opened = open('c:/temp/a.txt', 'a')
-        #f_opened.write(line+'\n')
-        original_in = sys.stdin
-        try:
-            help = None
-            if 'pydoc' in sys.modules:
-                pydoc = sys.modules['pydoc'] #Don't import it if it still is not there.
-                
-                
-                if hasattr(pydoc, 'help'):
-                    #You never know how will the API be changed, so, let's code defensively here
-                    help = pydoc.help
-                    if not hasattr(help, 'input'):
-                        help = None
-        except:
-            #Just ignore any error here
-            pass
-            
-        more = False
-        try:
-            sys.stdin = StdIn(self, self.host, self.client_port)
-            try:
-                if help is not None:
-                    #This will enable the help() function to work.
-                    try:
-                        try:
-                            help.input = sys.stdin 
-                        except AttributeError:
-                            help._input = sys.stdin 
-                    except:
-                        help = None
-                        if not self._input_error_printed:
-                            self._input_error_printed = True
-                            sys.stderr.write('\nError when trying to update pydoc.help.input\n')
-                            sys.stderr.write('(help() may not work -- please report this as a bug in the pydev bugtracker).\n\n')
-                            import traceback;traceback.print_exc()
-                
-                try:
-                    command = Command(self.interpreter, line)
-                    Sync(command)
-                    more = command.more
-                finally:
-                    if help is not None:
-                        try:
-                            try:
-                                help.input = original_in
-                            except AttributeError:
-                                help._input = original_in
-                        except:
-                            pass
-                        
-            finally:
-                sys.stdin = original_in
-        except SystemExit:
-            raise
-        except:
-            import traceback;traceback.print_exc()
+    def doAddExec(self, line):
+        command = Command(self.interpreter, line)
+        Sync(command)
+        return command.more
+
         
-        #it's always false at this point
-        need_input = False
-        return more, need_input
-        
-            
     def getCompletions(self, text):
         try:
             from _completer import Completer
@@ -282,6 +178,11 @@ class InterpreterInterface:
         sys.exit(0)
         
     
+try:
+    from pydev_ipython_console import InterpreterInterface
+except:
+    sys.stderr.write('Note: IPython not available: using PyDev builtin shell.\n')
+    pass #IPython not available, proceed as usual.
     
 #=======================================================================================================================
 # _DoExit
