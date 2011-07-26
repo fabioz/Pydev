@@ -31,7 +31,7 @@ public class PyContentViewerCreator implements IViewerCreator {
 	 * Creates a new configuration with the pydev preference store so that the colors appear correctly when using
 	 * Aptana themes.
 	 * 
-	 * Also copies the available data from the original compare configuration to the new coniguration.
+	 * Also copies the available data from the original compare configuration to the new configuration.
 	 */
     private CompareConfiguration createNewCompareConfiguration(CompareConfiguration mp) {
         List<IPreferenceStore> stores = PydevPrefs.getDefaultStores(false);
@@ -55,7 +55,11 @@ public class PyContentViewerCreator implements IViewerCreator {
         cc.setRightLabel(mp.getRightLabel(null));
         cc.setRightEditable(mp.isRightEditable());
         
-        cc.setContainer(mp.getContainer());
+        try {
+            cc.setContainer(mp.getContainer());
+        } catch (Throwable e) {
+            //Ignore: not available in Eclipse 3.2.
+        }
         
         
         return cc;       
