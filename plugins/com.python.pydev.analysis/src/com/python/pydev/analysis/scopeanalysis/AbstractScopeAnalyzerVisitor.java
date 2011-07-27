@@ -445,13 +445,25 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      *  
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitImport(org.python.pydev.parser.jython.ast.Import)
      */
-    public Object visitImport(Import node) throws Exception {
-        unhandled_node(node);
-        List <IToken>list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
+	public Object visitImport(Import node) throws Exception {
+		unhandled_node(node);
+		List<IToken> list = AbstractVisitor.makeImportToken(node, null,
+				moduleName, true);
 
-        scope.addImportTokens(list, null, this.completionCache);
-        return null;
-    }
+		IToken[] builtInTokens = this.nature.getBuiltinMod().getGlobalTokens();
+		for (IToken token : list) {
+			for (IToken builtInToken : builtInTokens) {
+				if (token.getRepresentation().equals(
+						builtInToken.getRepresentation())) {
+					// This is built-in token add an editor warning
+					onAddAssignmentToBuiltinMessage(token,
+							token.getRepresentation());
+				}
+			}
+		}
+		scope.addImportTokens(list, null, this.completionCache);
+		return null;
+	}
 
     /**
      * visit some import 
@@ -498,6 +510,13 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         
         if (node.ctx == Name.Store || node.ctx == Name.Param || node.ctx == Name.KwOnlyParam || (node.ctx == Name.AugStore && found)) { //if it was undefined on augstore, we do not go on to creating the token
             String rep = token.getRepresentation();
+            IToken[] builtInTokens = this.nature.getBuiltinMod().getGlobalTokens();
+            for (IToken builtInToken: builtInTokens){
+            	if (rep.equals(builtInToken.getRepresentation())){
+            		// This is built-in token add an editor warning
+            		onAddAssignmentToBuiltinMessage(token, rep);
+            	}
+            }
             boolean inNamesToIgnore = doCheckIsInNamesToIgnore(rep, token);
             
             if(!inNamesToIgnore){
@@ -1246,6 +1265,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     public abstract void onAddDuplicatedSignature(SourceToken token, String name);
 
     public abstract void onAddNoSelf(SourceToken token, Object[] objects);
+
+    protected abstract void onAddAssignmentToBuiltinMessage(IToken foundTok, String representation);
 
     /**
      * This one is not abstract, but is provided as a hook, as the others.

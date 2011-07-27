@@ -86,6 +86,7 @@ public abstract class AbstractMessage implements IMessage{
             messages.put(IAnalysisPreferences.TYPE_UNDEFINED_IMPORT_VARIABLE, "Undefined variable from import: %s");
             messages.put(IAnalysisPreferences.TYPE_NO_EFFECT_STMT, "Statement apppears to have no effect");
             messages.put(IAnalysisPreferences.TYPE_INDENTATION_PROBLEM, "%s");
+            messages.put(IAnalysisPreferences.TYPE_ASSIGNMENT_TO_BUILT_IN, "Assignment to reserved built-in symbol: %s");
         }
         return messages.get(getType());
 

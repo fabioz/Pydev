@@ -26,6 +26,7 @@ public interface IAnalysisPreferences {
     public static final int TYPE_NO_EFFECT_STMT             = 11;
     public static final int TYPE_INDENTATION_PROBLEM        = 12;
     public static final int TYPE_UNDEFINED_VARIABLE_IN_SELF = 13; //Generated on demand by the tdd actions
+    public static final int TYPE_ASSIGNMENT_TO_BUILT_IN 	= 14;
     
     
     public static final String MSG_TO_IGNORE_TYPE_UNUSED_IMPORT              = "@UnusedImport";
@@ -40,7 +41,8 @@ public interface IAnalysisPreferences {
     public static final String MSG_TO_IGNORE_TYPE_UNUSED_PARAMETER           = "@UnusedVariable";
     public static final String MSG_TO_IGNORE_TYPE_NO_EFFECT_STMT             = "@NoEffect";
     public static final String MSG_TO_IGNORE_TYPE_INDENTATION_PROBLEM        = "@IndentOk";
-    
+    public static final String MSG_TO_IGNORE_TYPE_ASSIGNMENT_TO_BUILT_IN     = "@ReservedAssignment";
+
     
     /**
      * Used to define if the analysis should happen only on save
