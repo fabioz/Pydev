@@ -31,6 +31,7 @@ import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -474,14 +475,17 @@ public class PydevPlugin extends AbstractUIPlugin  {
     private static Tuple<SystemPythonNature, String> getInfoForManager(File file, IInterpreterManager pythonInterpreterManager) {
         if(pythonInterpreterManager != null){
             if(pythonInterpreterManager.isConfigured()){
-                try {
-                    SystemPythonNature systemPythonNature = new SystemPythonNature(pythonInterpreterManager);
-                    String modName = systemPythonNature.resolveModule(file);
-                    if(modName != null){
-                        return new Tuple<SystemPythonNature, String>(systemPythonNature, modName);
+                IInterpreterInfo[] interpreterInfos = pythonInterpreterManager.getInterpreterInfos();
+                for (IInterpreterInfo iInterpreterInfo : interpreterInfos) {
+                    try {
+                        SystemPythonNature systemPythonNature = new SystemPythonNature(pythonInterpreterManager, iInterpreterInfo);
+                        String modName = systemPythonNature.resolveModule(file);
+                        if(modName != null){
+                            return new Tuple<SystemPythonNature, String>(systemPythonNature, modName);
+                        }
+                    } catch (Exception e) {
+                        // that's ok
                     }
-                } catch (Exception e) {
-                    // that's ok
                 }
             }
         }
