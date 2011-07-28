@@ -119,7 +119,7 @@ public class PydevXmlRpcClient implements IPydevXmlRpcClient{
                     try {
                         wait(10);
                     } catch (InterruptedException e1) {
-                        Log.log(e1);
+//                        Log.log(e1);
                     }
                 }
             }

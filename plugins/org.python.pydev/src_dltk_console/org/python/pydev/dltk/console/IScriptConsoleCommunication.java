@@ -31,12 +31,13 @@ public interface IScriptConsoleCommunication {
     /**
      * Creates the completions to be applied in the interpreter.
      * 
-     * @param text the text with what should be completed (e.g.: xxx.bar.foo)
+     * @param text the full line
+     * @param actTok the text with what should be completed (e.g.: xxx.bar.foo) 
      * @param offset the offset where the completion was requested in the console document
      * @return a list of proposals that can be applied for the given text.
      * @throws Exception
      */
-    public ICompletionProposal[] getCompletions(String text, int offset) throws Exception;
+    public ICompletionProposal[] getCompletions(String text, String actTok, int offset) throws Exception;
     
     /**
      * Gets the description to be shown on hover to the user

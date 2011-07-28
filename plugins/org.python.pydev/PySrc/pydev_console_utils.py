@@ -52,6 +52,13 @@ class Null:
 #=======================================================================================================================
 class BaseStdIn:
     
+    def __init__(self, *args, **kwargs):
+        try:
+            self.encoding = sys.stdin.encoding
+        except:
+            #Not sure if it's available in all Python versions...
+            pass
+    
     def readline(self, *args, **kwargs):
         #sys.stderr.write('Cannot readline out of the console evaluation\n') -- don't show anything
         #This could happen if the user had done input('enter number).<-- upon entering this, that message would appear,
@@ -80,12 +87,13 @@ class StdIn(BaseStdIn):
     '''
     
     def __init__(self, interpreter, host, client_port):
+        BaseStdIn.__init__(self)
         self.interpreter = interpreter
         self.client_port = client_port
         self.host = host
     
     def readline(self, *args, **kwargs):
-        #Ok, callback into the client to see get the new input
+        #Ok, callback into the client to get the new input
         server = xmlrpclib.Server('http://%s:%s' % (self.host, self.client_port))
         requested_input = server.RequestInput()
         if not requested_input:
@@ -169,3 +177,72 @@ class BaseInterpreterInterface:
         @return: more (True if more input is needed to complete the statement and False if the statement is complete).
         '''
         raise NotImplementedError()
+    
+    
+    def getNamespace(self):
+        '''
+        Subclasses should override.
+        
+        @return: dict with namespace.
+        '''
+        raise NotImplementedError()
+    
+        
+    
+    def getDescription(self, text):
+        try:
+            obj = None
+            if '.' not in text:
+                try:
+                    obj = self.getNamespace()[text]
+                except KeyError:
+                    return ''
+                    
+            else:
+                try:
+                    splitted = text.split('.')
+                    obj = self.getNamespace()[splitted[0]]
+                    for t in splitted[1:]:
+                        obj = getattr(obj, t)
+                except:
+                    return ''
+                    
+                
+            if obj is not None:
+                try:
+                    if sys.platform.startswith("java"):
+                        #Jython
+                        doc = obj.__doc__
+                        if doc is not None:
+                            return doc
+                        
+                        import jyimportsTipper
+                        is_method, infos = jyimportsTipper.ismethod(obj)
+                        ret = ''
+                        if is_method:
+                            for info in infos:
+                                ret += info.getAsDoc()
+                            return ret
+                            
+                    else:
+                        #Python and Iron Python
+                        import inspect #@UnresolvedImport
+                        doc = inspect.getdoc(obj) 
+                        if doc is not None:
+                            return doc
+                except:
+                    pass
+                    
+            try:
+                #if no attempt succeeded, try to return repr()... 
+                return repr(obj)
+            except:
+                try:
+                    #otherwise the class 
+                    return str(obj.__class__)
+                except:
+                    #if all fails, go to an empty string 
+                    return ''
+        except:
+            import traceback;traceback.print_exc()
+            return ''

@@ -97,81 +97,25 @@ class InterpreterInterface(BaseInterpreterInterface):
         self.interpreter = InteractiveConsole(self.namespace)
         self._input_error_printed = False
 
-
         
     def doAddExec(self, line):
         command = Command(self.interpreter, line)
         Sync(command)
         return command.more
 
+
+    def getNamespace(self):
+        return self.namespace
+    
         
-    def getCompletions(self, text):
+    def getCompletions(self, text, act_tok):
         try:
             from _completer import Completer
             completer = Completer(self.namespace, None)
-            return completer.complete(text)
+            return completer.complete(act_tok)
         except:
             import traceback;traceback.print_exc()
             return []
-        
-    
-    def getDescription(self, text):
-        try:
-            obj = None
-            if '.' not in text:
-                try:
-                    obj = self.namespace[text]
-                except KeyError:
-                    return ''
-                    
-            else:
-                try:
-                    splitted = text.split('.')
-                    obj = self.namespace[splitted[0]]
-                    for t in splitted[1:]:
-                        obj = getattr(obj, t)
-                except:
-                    return ''
-                    
-                
-            if obj is not None:
-                try:
-                    if sys.platform.startswith("java"):
-                        #Jython
-                        doc = obj.__doc__
-                        if doc is not None:
-                            return doc
-                        
-                        import jyimportsTipper
-                        is_method, infos = jyimportsTipper.ismethod(obj)
-                        ret = ''
-                        if is_method:
-                            for info in infos:
-                                ret += info.getAsDoc()
-                            return ret
-                            
-                    else:
-                        #Python and Iron Python
-                        import inspect #@UnresolvedImport
-                        doc = inspect.getdoc(obj) 
-                        if doc is not None:
-                            return doc
-                except:
-                    pass
-                    
-            try:
-                #if no attempt succeeded, try to return repr()... 
-                return repr(obj)
-            except:
-                try:
-                    #otherwise the class 
-                    return str(obj.__class__)
-                except:
-                    #if all fails, go to an empty string 
-                    return ''
-        except:
-            import traceback;traceback.print_exc()
-            return ''
         
     
     def close(self):

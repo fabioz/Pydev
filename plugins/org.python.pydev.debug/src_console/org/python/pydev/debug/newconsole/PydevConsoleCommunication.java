@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
@@ -330,30 +331,30 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
     /**
      * @return completions from the client
      */
-    public ICompletionProposal[] getCompletions(String text, int offset) throws Exception {
+    public ICompletionProposal[] getCompletions(String text, String actTok, int offset) throws Exception {
         if(waitingForInput){
             return new ICompletionProposal[0];
         }
-        Object fromServer = client.execute("getCompletions", new Object[]{text});
+        Object fromServer = client.execute("getCompletions", new Object[]{text, actTok});
         List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>();
         
         
-        convertToICompletions(text, offset, fromServer, ret);
+        convertToICompletions(text, actTok, offset, fromServer, ret);
         ICompletionProposal[] proposals = ret.toArray(new ICompletionProposal[ret.size()]);
         return proposals;
     }
 
-    public static void convertToICompletions(String text, int offset, Object fromServer, List<ICompletionProposal> ret) {
+    public static void convertToICompletions(String text, String actTok, int offset, Object fromServer, List<ICompletionProposal> ret) {
         if(fromServer instanceof Object[]){
             Object[] objects = (Object[]) fromServer;
             fromServer = Arrays.asList(objects);
         }
         if(fromServer instanceof List){
-            int length = text.lastIndexOf('.');
+            int length = actTok.lastIndexOf('.');
             if(length == -1){
-                length = text.length();
+                length = actTok.length();
             }else{
-                length = text.length()-length-1;
+                length = actTok.length()-length-1;
             }
             
             List comps = (List) fromServer;
@@ -370,8 +371,12 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                     String nameAndArgs = name+args;
 
                     int priority = IPyCompletionProposal.PRIORITY_DEFAULT;
-                    if(type == IToken.TYPE_PARAM){
+                    
+                    if(type == IToken.TYPE_LOCAL){
                         priority = IPyCompletionProposal.PRIORITY_LOCALS;
+                        
+                    }else if(type == IToken.TYPE_PARAM){
+                        priority = IPyCompletionProposal.PRIORITY_LOCALS_1;
                     }
                     
 //                    ret.add(new PyCompletionProposal(name,
@@ -387,6 +392,32 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                     PyCalltipsContextInformation pyContextInformation = null;
                     if(args.length() > 2){
                         pyContextInformation = new PyCalltipsContextInformation(args, replacementOffset+name.length()+1); //just after the parenthesis
+                    }else{
+                        
+                        //Support for IPython completions (non standard names)
+                        
+                        //i.e.: %completions, cd ...
+                        if(name.length() > 0){
+                            
+                            //magic ipython stuff (starting with %)
+                            if(name.charAt(0) == '%'){
+                                replacementOffset -= 1;
+                                
+                            }else if(name.charAt(0) == '/'){
+                                //Should be something as cd c:/temp/foo (and name is /temp/foo)
+                                char[] chars = text.toCharArray();
+                                for(int i=0;i<chars.length;i++){
+                                    char c = chars[i];
+                                    if(c == name.charAt(0)){
+                                        String sub = text.substring(i, text.length());
+                                        if(name.startsWith(sub)){
+                                            replacementOffset -= (sub.length()-FullRepIterable.getLastPart(actTok).length());
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                     
                     ret.add(new PyLinkedModeCompletionProposal(nameAndArgs,
@@ -398,7 +429,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
             }
         }
     }
-
+    
     /**
      * Extracts an int from an object
      * 

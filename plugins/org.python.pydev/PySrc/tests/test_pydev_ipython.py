@@ -49,6 +49,9 @@ class TestCase(unittest.TestCase):
         front_end.input_buffer = 'a?'
         front_end._on_enter()
         print front_end.complete('%')
+        print front_end.complete('%e')
+        print front_end.complete('cd c:/t')
+        print front_end.complete('cd c:/temp/')
 #        front_end.input_buffer = 'print raw_input("press enter\\n")'
 #        front_end._on_enter()
 #        

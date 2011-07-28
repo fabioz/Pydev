@@ -90,7 +90,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
             int position, int offset, int whatToShow) throws Exception {
 
         
-        String text = commandLine.substring(0, position);
+        final String text = commandLine.substring(0, position);
         ActivationTokenAndQual tokenAndQual = PySelection.getActivationTokenAndQual(new Document(text), text.length(), true, false);
         
         
@@ -171,7 +171,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         if(!showOnlyTemplates){
             //shell completions 
             if(consoleCommunication != null){
-                ICompletionProposal[] consoleCompletions = consoleCommunication.getCompletions(actTok, offset);
+                ICompletionProposal[] consoleCompletions = consoleCommunication.getCompletions(text, actTok, offset);
                 results2.addAll(Arrays.asList(consoleCompletions));
             }
         }
