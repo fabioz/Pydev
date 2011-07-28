@@ -28,7 +28,7 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
     public int severityForNoEffectStmt;
     public int severityForIndentationProblem;
     public int severityForInvalidModuleName;
-    public int severityForAssignmentToBuiltIn;
+    public int severityForAssignmentToBuiltInSymbol;
 
     public AnalysisPreferencesStub(){
         severityForUnusedImport = IMarker.SEVERITY_WARNING;
@@ -44,7 +44,7 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
         severityForNoEffectStmt = IMarker.SEVERITY_WARNING;
         severityForIndentationProblem = IMarker.SEVERITY_WARNING;
         severityForInvalidModuleName = IMarker.SEVERITY_WARNING;
-        severityForAssignmentToBuiltIn = IMarker.SEVERITY_WARNING;
+        severityForAssignmentToBuiltInSymbol = IMarker.SEVERITY_WARNING;
     }
     
     public int getSeverityForType(int type) {
@@ -85,8 +85,8 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
             case TYPE_INDENTATION_PROBLEM:
                 return severityForIndentationProblem;
 
-            case TYPE_ASSIGNMENT_TO_BUILT_IN:
-                return severityForAssignmentToBuiltIn;
+            case TYPE_ASSIGNMENT_TO_BUILT_IN_SYMBOL:
+                return severityForAssignmentToBuiltInSymbol;
         }
         throw new RuntimeException("unable to get severity for type "+type);
     }

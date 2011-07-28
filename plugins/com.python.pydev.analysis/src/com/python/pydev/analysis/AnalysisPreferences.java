@@ -47,19 +47,19 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences{
      * AnalysisPreferencesPage
      */
     final static Object [][] completeSeverityMap = new Object[][]{
-        {IAnalysisPreferences.TYPE_UNUSED_IMPORT              , AnalysisPreferenceInitializer.SEVERITY_UNUSED_IMPORT              , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_UNUSED_IMPORT                },
-        {IAnalysisPreferences.TYPE_UNUSED_VARIABLE            , AnalysisPreferenceInitializer.SEVERITY_UNUSED_VARIABLE            , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_UNUSED_VARIABLE              },
-        {IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE         , AnalysisPreferenceInitializer.SEVERITY_UNDEFINED_VARIABLE         , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_UNDEFINED_VARIABLE           },
-        {IAnalysisPreferences.TYPE_DUPLICATED_SIGNATURE       , AnalysisPreferenceInitializer.SEVERITY_DUPLICATED_SIGNATURE       , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_DUPLICATED_SIGNATURE         },
-        {IAnalysisPreferences.TYPE_REIMPORT                   , AnalysisPreferenceInitializer.SEVERITY_REIMPORT                   , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_REIMPORT                     },
-        {IAnalysisPreferences.TYPE_UNRESOLVED_IMPORT          , AnalysisPreferenceInitializer.SEVERITY_UNRESOLVED_IMPORT          , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_UNRESOLVED_IMPORT            },
-        {IAnalysisPreferences.TYPE_NO_SELF                    , AnalysisPreferenceInitializer.SEVERITY_NO_SELF                    , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_NO_SELF                      },
-        {IAnalysisPreferences.TYPE_UNUSED_WILD_IMPORT         , AnalysisPreferenceInitializer.SEVERITY_UNUSED_WILD_IMPORT         , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_UNUSED_WILD_IMPORT           },
-        {IAnalysisPreferences.TYPE_UNDEFINED_IMPORT_VARIABLE  , AnalysisPreferenceInitializer.SEVERITY_UNDEFINED_IMPORT_VARIABLE  , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_UNDEFINED_IMPORT_VARIABLE    },
-        {IAnalysisPreferences.TYPE_UNUSED_PARAMETER           , AnalysisPreferenceInitializer.SEVERITY_UNUSED_PARAMETER           , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_UNUSED_PARAMETER             },
-        {IAnalysisPreferences.TYPE_NO_EFFECT_STMT             , AnalysisPreferenceInitializer.SEVERITY_NO_EFFECT_STMT             , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_NO_EFFECT_STMT               },
-        {IAnalysisPreferences.TYPE_INDENTATION_PROBLEM        , AnalysisPreferenceInitializer.SEVERITY_INDENTATION_PROBLEM        , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_INDENTATION_PROBLEM          },
-        {IAnalysisPreferences.TYPE_ASSIGNMENT_TO_BUILT_IN     , AnalysisPreferenceInitializer.SEVERITY_ASSIGNMENT_TO_BUILTIN   	  , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_ASSIGNMENT_TO_BUILTIN       	},
+        {IAnalysisPreferences.TYPE_UNUSED_IMPORT                     , AnalysisPreferenceInitializer.SEVERITY_UNUSED_IMPORT                       , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_UNUSED_IMPORT                },
+        {IAnalysisPreferences.TYPE_UNUSED_VARIABLE                   , AnalysisPreferenceInitializer.SEVERITY_UNUSED_VARIABLE                     , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_UNUSED_VARIABLE              },
+        {IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE                , AnalysisPreferenceInitializer.SEVERITY_UNDEFINED_VARIABLE                  , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_UNDEFINED_VARIABLE           },
+        {IAnalysisPreferences.TYPE_DUPLICATED_SIGNATURE              , AnalysisPreferenceInitializer.SEVERITY_DUPLICATED_SIGNATURE                , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_DUPLICATED_SIGNATURE         },
+        {IAnalysisPreferences.TYPE_REIMPORT                          , AnalysisPreferenceInitializer.SEVERITY_REIMPORT                            , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_REIMPORT                     },
+        {IAnalysisPreferences.TYPE_UNRESOLVED_IMPORT                 , AnalysisPreferenceInitializer.SEVERITY_UNRESOLVED_IMPORT                   , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_UNRESOLVED_IMPORT            },
+        {IAnalysisPreferences.TYPE_NO_SELF                           , AnalysisPreferenceInitializer.SEVERITY_NO_SELF                             , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_NO_SELF                      },
+        {IAnalysisPreferences.TYPE_UNUSED_WILD_IMPORT                , AnalysisPreferenceInitializer.SEVERITY_UNUSED_WILD_IMPORT                  , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_UNUSED_WILD_IMPORT           },
+        {IAnalysisPreferences.TYPE_UNDEFINED_IMPORT_VARIABLE         , AnalysisPreferenceInitializer.SEVERITY_UNDEFINED_IMPORT_VARIABLE           , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_UNDEFINED_IMPORT_VARIABLE    },
+        {IAnalysisPreferences.TYPE_UNUSED_PARAMETER                  , AnalysisPreferenceInitializer.SEVERITY_UNUSED_PARAMETER                    , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_UNUSED_PARAMETER             },
+        {IAnalysisPreferences.TYPE_NO_EFFECT_STMT                    , AnalysisPreferenceInitializer.SEVERITY_NO_EFFECT_STMT                      , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_NO_EFFECT_STMT               },
+        {IAnalysisPreferences.TYPE_INDENTATION_PROBLEM               , AnalysisPreferenceInitializer.SEVERITY_INDENTATION_PROBLEM                 , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_INDENTATION_PROBLEM          },
+        {IAnalysisPreferences.TYPE_ASSIGNMENT_TO_BUILT_IN_SYMBOL     , AnalysisPreferenceInitializer.SEVERITY_ASSIGNMENT_TO_BUILT_IN_SYMBOL   	  , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_ASSIGNMENT_TO_BUILT_IN_SYMBOL},
     };
     
 

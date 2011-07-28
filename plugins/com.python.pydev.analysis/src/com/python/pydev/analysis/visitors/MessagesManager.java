@@ -196,7 +196,7 @@ public final class MessagesManager {
      * @param token adds a message saying that a token gathered from assignment is a reserved keyword
      */
     public void onAddAssignmentToBuiltinMessage(IToken token, String rep) {
-            addMessage(IAnalysisPreferences.TYPE_ASSIGNMENT_TO_BUILT_IN, token);
+            addMessage(IAnalysisPreferences.TYPE_ASSIGNMENT_TO_BUILT_IN_SYMBOL, token);
     }
 
     /**
