@@ -157,7 +157,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testMetaclass(){
         doc = new Document(
                 "class MyMetaclass(type):\n"+
-                "    def __init__(cls, name, bases, dict): #@UnusedVariable\n"+
+                "    def __init__(cls, name, bases, dct): #@UnusedVariable\n"+
                 "        pass\n"+
                 "\n"
         );
@@ -1774,8 +1774,8 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     
     public void testGlobal3(){
         doc = new Document(
-            "global type\n"+
-            "type = 10\n"
+            "global typ\n"+
+            "typ = 10\n"
         );
         checkNoError();
     }
@@ -2908,5 +2908,30 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
             GRAMMAR_TO_USE_FOR_PARSING = initial;
         }
     }
-    
+
+	public void testBuiltInAssignment() {
+		int initial = GRAMMAR_TO_USE_FOR_PARSING;
+		try {
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+            doc = new Document(
+                    "import os as list \n" +
+                    "class Foo:\n" +
+                    "	id = 10 \n" +
+                    "	for tuple in range(3):	\n" +
+                    "		val = tuple \n" +
+                    "	try: \n" +
+                    "		val += val/0 \n" +
+                    "	except ZeroDivisionError as range: \n" +
+                    "		pass \n" +
+                    ""
+            );
+			analyzer = new OccurrencesAnalyzer();
+			msgs = analyzeDoc();
+
+			printMessages(msgs, 5); // list, id, tuple and range are reserved
+									// keywords.
+		} finally {
+			GRAMMAR_TO_USE_FOR_PARSING = initial;
+		}
+    }
 }
