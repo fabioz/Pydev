@@ -8,6 +8,7 @@ package com.python.pydev.analysis;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.contentassist.IContextInformation;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 
 import junit.framework.TestCase;
@@ -18,7 +19,7 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
         try {
             CtxInsensitiveImportComplProposalTest analyzer2 = new CtxInsensitiveImportComplProposalTest();
             analyzer2.setUp();
-            analyzer2.testApplyLocal7();
+            analyzer2.testApplyLocal9();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -321,6 +322,59 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
         prop.indentString="\t";
         prop.apply(doc, '\n', 0, doc.getLength());
         assertEquals("\n\nclass Bar():\n\n    s\n    import sys\n    ssys", doc.get().replace("\r\n", "\n").replace('\r', '\n'));
+    }
+    
+    public void testApplyLocal9() throws Exception {
+        String initial = "" +
+        		        "if True:\n" +
+                		"    pass\n" +
+                		"\n" +
+                		"eggs = D" +
+                		"";
+        Document doc = new Document(initial);
+        
+        CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("Decimal", 
+                doc.getLength(), 0, doc.getLength(), null, "Import Decimal", null, 
+                null, 0, "import Decimal");
+        
+        prop.setAddLocalImport(true);
+        prop.indentString="    ";
+        prop.apply(doc, '\n', SWT.SHIFT, doc.getLength());
+        assertEquals("" +
+                "import Decimal\n" +
+        		"if True:\n" +
+                "    pass\n" +
+                "\n" +
+                "eggs = DDecimal" +
+                "", doc.get().replace("\r\n", "\n").replace('\r', '\n'));
+    }
+    
+    
+    public void testApplyLocal10() throws Exception {
+        String initial = "" +
+        "def m1():\n" +
+        "    if True:\n" +
+        "        pass\n" +
+        "    \n" +
+        "    eggs = D" +
+        "";
+        Document doc = new Document(initial);
+        
+        CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal("Decimal", 
+                doc.getLength(), 0, doc.getLength(), null, "Import Decimal", null, 
+                null, 0, "import Decimal");
+        
+        prop.setAddLocalImport(true);
+        prop.indentString="    ";
+        prop.apply(doc, '\n', SWT.SHIFT, doc.getLength());
+        assertEquals("" +
+                "def m1():\n" +
+                "    if True:\n" +
+                "        pass\n" +
+                "    \n" +
+                "    import Decimal\n" +
+                "    eggs = DDecimal" +
+                "", doc.get().replace("\r\n", "\n").replace('\r', '\n'));
     }
     
     

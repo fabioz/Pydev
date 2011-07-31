@@ -29,6 +29,7 @@ import org.eclipse.ui.internal.console.IOConsolePartition;
 import org.eclipse.ui.part.IPageBookViewPage;
 import org.python.pydev.bindingutils.KeyBindingHelper;
 import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
@@ -89,6 +90,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
         
         private static final ICompletionProposal[] EMPTY_COMPLETION_PROPOSALS = new ICompletionProposal[0];
         private ICompletionProposal[] receivedCompletions;
+        private String actTok;
         private String text;
         private int offset;
         
@@ -101,15 +103,16 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
         /**
          * Gets the completions at the passed offset.
          */
-        public ICompletionProposal[] getCompletions(String text, int offset) throws Exception {
+        public ICompletionProposal[] getCompletions(String text, String actTok, int offset) throws Exception {
             this.text = text;
+            this.actTok = actTok;
             this.offset = offset;
             PyStackFrame stackFrame = getCurrentSuspendedPyStackFrame(null);
             
             if(stackFrame != null){
                 AbstractDebugTarget target = (AbstractDebugTarget) stackFrame.getAdapter(IDebugTarget.class);
                 if(target != null){
-                    GetCompletionsCommand cmd = new GetCompletionsCommand(target, text, 
+                    GetCompletionsCommand cmd = new GetCompletionsCommand(target, actTok, 
                             stackFrame.getLocalsLocator().getPyDBLocation());
                     cmd.setCompletionListener(this);
                     target.postCommand(cmd);
@@ -143,7 +146,10 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
             return temp;
         }
 
-        public void execInterpreter(String command, ICallback<Object, InterpreterResponse> onResponseReceived) {
+        public void execInterpreter(
+                String command, 
+                ICallback<Object, InterpreterResponse> onResponseReceived, 
+                ICallback<Object, Tuple<String, String>> onContentsReceived) {
             throw new RuntimeException("Not implemented");
 
         }
@@ -162,7 +168,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
                 String response = compCmd.getResponse();
                 List<Object[]> fromServer = XMLUtils.XMLToCompletions(response);
                 List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>();
-                PydevConsoleCommunication.convertToICompletions(text, offset, fromServer, ret);
+                PydevConsoleCommunication.convertToICompletions(text, actTok, offset, fromServer, ret);
                 receivedCompletions = ret.toArray(new ICompletionProposal[ret.size()]);
             } catch (CoreException e) {
                 receivedCompletions = EMPTY_COMPLETION_PROPOSALS;

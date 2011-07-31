@@ -349,7 +349,7 @@ public class ImportHandle {
                 }else if(c == ';'){
                     try {
                         String impStr = imp.toString();
-                        int endLine = line+PySelection.countLineBreaks(impStr);
+                        int endLine = line+StringUtils.countLineBreaks(impStr);
                         this.importInfo.add(new ImportHandleInfo(impStr, line, endLine, startedInMiddle));
                         line = endLine;
                     } catch (ImportNotRecognizedException e) {
@@ -367,7 +367,7 @@ public class ImportHandle {
             }
             try {
                 String impStr = imp.toString();
-                this.importInfo.add(new ImportHandleInfo(impStr, line, line+PySelection.countLineBreaks(impStr), startedInMiddle));
+                this.importInfo.add(new ImportHandleInfo(impStr, line, line+StringUtils.countLineBreaks(impStr), startedInMiddle));
             } catch (ImportNotRecognizedException e) {
                 //that's ok, not a valid import (at least, we couldn't parse it)
             }

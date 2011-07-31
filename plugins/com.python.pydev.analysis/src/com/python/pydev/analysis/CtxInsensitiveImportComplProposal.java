@@ -154,7 +154,9 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
                 if(startLineIndex == 0){
                     this.addLocalImport = false;
                 }else{
-                    previousLineThatStartsScope = ps.getPreviousLineThatStartsScope(startLineIndex-1);
+                    previousLineThatStartsScope = ps.getPreviousLineThatStartsScope(
+                            PySelection.INDENT_TOKENS, startLineIndex-1, PySelection.getFirstCharPosition(
+                                    ps.getCursorLineContents()));
                     if(previousLineThatStartsScope == null){
                         //note that if we have no previous scope, it means we're actually on the global scope, so,
                         //proceed as usual...

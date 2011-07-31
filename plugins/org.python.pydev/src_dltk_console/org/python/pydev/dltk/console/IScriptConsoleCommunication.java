@@ -10,6 +10,7 @@
 package org.python.pydev.dltk.console;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
 
 /**
@@ -23,20 +24,25 @@ public interface IScriptConsoleCommunication {
      * Executes a given command in the interpreter (push a line)
      * 
      * @param command the command to be executed
+     * @param onContentsReceived 
      * @return the response from the interpreter (contains the stdout, stderr, etc).
      * @throws Exception
      */
-    void execInterpreter(String command, ICallback<Object, InterpreterResponse> onResponseReceived);
+    void execInterpreter(
+            String command, 
+            ICallback<Object, InterpreterResponse> onResponseReceived, 
+            ICallback<Object, Tuple<String, String>> onContentsReceived);
 
     /**
      * Creates the completions to be applied in the interpreter.
      * 
-     * @param text the text with what should be completed (e.g.: xxx.bar.foo)
+     * @param text the full line
+     * @param actTok the text with what should be completed (e.g.: xxx.bar.foo) 
      * @param offset the offset where the completion was requested in the console document
      * @return a list of proposals that can be applied for the given text.
      * @throws Exception
      */
-    public ICompletionProposal[] getCompletions(String text, int offset) throws Exception;
+    public ICompletionProposal[] getCompletions(String text, String actTok, int offset) throws Exception;
     
     /**
      * Gets the description to be shown on hover to the user

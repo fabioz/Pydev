@@ -24,7 +24,6 @@ import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.console.MessageConsole;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.FullRepIterable;
-import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
 
 
@@ -34,11 +33,9 @@ import org.python.pydev.core.Tuple;
 public class Log {
 
     /**
-     * Set to true to allow log messages to appear on the console when printToConsole is true.
-     * <p>
-     * Only applies when not in testing mode as in testing mode message is always printed.
+     * Only applicable when plugin == null (i.e.: running tests)
      */
-    private static final boolean DEBUG = false;
+    private static final int DEBUG_LEVEL = IStatus.WARNING;
     
     /**
      * Console used to log contents
@@ -52,21 +49,15 @@ public class Log {
      * @param errorLevel IStatus.[OK|INFO|WARNING|ERROR]
      * @return CoreException that can be thrown for the given log event
      */
-	public static CoreException log(int errorLevel, String message, Throwable e, boolean printToConsole) {
+	public static CoreException log(int errorLevel, String message, Throwable e) {
 	    CorePlugin plugin = CorePlugin.getDefault();
-        if (plugin == null) {
-	        // testing mode, always print to console as there is no logger to log to
-	        printToConsole = true;
-	    } else if (!DEBUG) {
-	        printToConsole = false;
-	    }
-	    
         String id;
         if(plugin == null){
             id = "CorePlugin";
         }else{
             id = plugin.getBundle().getSymbolicName();
         }
+        
         Status s = new Status(errorLevel, id, errorLevel, message, e);
         CoreException coreException = new CoreException(s);
 
@@ -82,17 +73,16 @@ public class Log {
             }
             lastLoggedTime.put(key, currentTimeMillis);
         }
-        if (printToConsole) {
-            System.err.println(message);
-            if (e != null) {
-                if (!(e instanceof MisconfigurationException)) {
-                    e.printStackTrace();
-                }
-            }
-        }
         try {
             if (plugin != null) {
                 plugin.getLog().log(s);
+            }else{
+                if(DEBUG_LEVEL <= errorLevel){
+                    System.err.println(message);
+                    if(e != null){
+                        e.printStackTrace();
+                    }
+                }
             }
         } catch (Exception e1) {
             //logging should not fail!
@@ -100,16 +90,9 @@ public class Log {
         return coreException;
     }
 	
-    public static CoreException log(String message, Throwable e, boolean printToConsole) {
-        return log(IStatus.ERROR, message, e, true);
-    }
-    
-    public static CoreException log(int errorLevel, String message, Throwable e) {
-        return log(errorLevel, message, e, true);
-    }
-
-    public static CoreException log(Throwable e, boolean printToConsole) {
-        return log(IStatus.ERROR, e.getMessage() != null ? e.getMessage() : "No message gotten (null message).", e, printToConsole);
+    public static CoreException log(Throwable e) {
+        return log(IStatus.ERROR, e.getMessage() != null ? e.getMessage() : 
+            "No message gotten (null message).", e);
     }
 
     public static CoreException log(String msg) {
@@ -120,16 +103,17 @@ public class Log {
         return log(IStatus.ERROR, msg, e);
     }
 
-    public static CoreException log(Throwable e) {
-        return log(e, true);
-    }
 
     public static CoreException logInfo(Throwable e) {
-        return log(IStatus.INFO, e.getMessage(), e, true);
+        return log(IStatus.INFO, e.getMessage(), e);
     }
     
     public static CoreException logInfo(String msg) {
-        return log(IStatus.INFO, msg, null, false);
+        return log(IStatus.INFO, msg, new RuntimeException(msg));
+    }
+    
+    public static CoreException logInfo(String msg, Throwable e) {
+        return log(IStatus.INFO, msg, e);
     }
     
     //------------ Log that writes to a new console

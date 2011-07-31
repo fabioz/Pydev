@@ -24,6 +24,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IInterpreterManager;
@@ -746,7 +747,10 @@ public abstract class AbstractAdditionalTokensInfo {
                     setAsDefaultInfo();
                     return true;
                 } catch (Throwable e) {
-                    Log.log("Unable to restore previous info... new info should be restored in a thread.", e);
+                    try {
+                        Log.log(IStatus.INFO, "Info: Rebuilding internal caches: "+this.getPersistingLocation(), e);
+                    } catch (Exception e1) {
+                    }
                 }
             }
         }
@@ -844,7 +848,6 @@ class IOUtils {
             input.close();
             return o;
         } catch (Exception e) {
-            Log.log(e);
             throw new RuntimeException(e);
         }
     }

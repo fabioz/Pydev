@@ -569,7 +569,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 }
             }
         } catch (Exception e) {
-            Log.log(IStatus.INFO, "Expected IO issue (version changed or validation not ok): properly handled.", e);
+            Log.logInfo("Info: Rebuilding internal caches for: "+this.project, e);
             astManager = null;
         }
         

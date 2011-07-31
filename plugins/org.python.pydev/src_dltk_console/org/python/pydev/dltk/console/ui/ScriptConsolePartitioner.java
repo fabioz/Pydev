@@ -17,6 +17,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.TypedRegion;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.IConsoleDocumentPartitioner;
 
@@ -65,7 +66,8 @@ public class ScriptConsolePartitioner implements IConsoleDocumentPartitioner {
             boolean updatedRange = false;
             if(ranges.size() > 0){
                 ScriptStyleRange lastRange = ranges.get(ranges.size()-1);
-                if(lastRange.scriptType == r.scriptType){
+                if(lastRange.scriptType == r.scriptType && 
+                        equalsColor(lastRange.foreground, r.foreground) && equalsColor(lastRange.background, r.background)){
                     if(lastRange.start+lastRange.length == r.start){
                         lastRange.length += r.length;
                         updatedRange = true;
@@ -77,6 +79,17 @@ public class ScriptConsolePartitioner implements IConsoleDocumentPartitioner {
                 ranges.add(r);
             }
         }
+    }
+
+    private boolean equalsColor(Color foreground, Color foreground2) {
+        if(foreground == foreground2){
+            return true;
+        }
+        if(foreground == null || foreground2 == null){
+            return false;
+        }
+        
+        return foreground.equals(foreground2);
     }
 
     /**

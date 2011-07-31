@@ -151,7 +151,7 @@ public class DjangoProjectProperties extends PropertyPage {
                 
                 
             } catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             
         }else{
@@ -201,7 +201,7 @@ public class DjangoProjectProperties extends PropertyPage {
             }
 
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         return true;
     }

@@ -20,7 +20,6 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
@@ -63,7 +62,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
             return AnalysisPlugin.getStorageDirForProject(project);
         } catch (NullPointerException e) {
             //it may fail in tests... (save it in default folder in this cases)
-            Log.log(IStatus.ERROR, "Error getting persisting folder", e, false);
+            Log.logInfo("Error getting persisting folder", e);
             return new File(".");
         }
     }

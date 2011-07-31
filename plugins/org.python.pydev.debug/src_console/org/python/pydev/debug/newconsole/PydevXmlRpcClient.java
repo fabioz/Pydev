@@ -15,7 +15,6 @@ import org.apache.xmlrpc.client.AsyncCallback;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.core.net.LocalHost;
 import org.python.pydev.runners.ThreadStreamReader;
 
@@ -119,7 +118,7 @@ public class PydevXmlRpcClient implements IPydevXmlRpcClient{
                     try {
                         wait(10);
                     } catch (InterruptedException e1) {
-                        Log.log(e1);
+//                        Log.log(e1);
                     }
                 }
             }

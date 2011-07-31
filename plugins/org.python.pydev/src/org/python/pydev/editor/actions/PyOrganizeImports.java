@@ -35,6 +35,7 @@ import org.python.pydev.core.docutils.ImportHandle;
 import org.python.pydev.core.docutils.PyImportsHandling;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
@@ -157,7 +158,7 @@ public class PyOrganizeImports extends PyAction{
         for (Iterator<Tuple3<Integer, String, ImportHandle>> iter = list.iterator(); iter.hasNext();) {
             Tuple3<Integer, String, ImportHandle> element = iter.next();
             String s = element.o2;
-            int i = PySelection.countLineBreaks(s);
+            int i = StringUtils.countLineBreaks(s);
             while (i >= 0) {
                 PySelection.deleteLine(doc, (element.o1).intValue());
                 i--;

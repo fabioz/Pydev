@@ -23,6 +23,8 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -461,6 +463,31 @@ public final class PyOutlineSelectionDialog extends TreeSelectionDialog {
     }
 
 
+    @Override
+    protected void configureShell(final Shell shell) {
+        super.configureShell(shell);
+        //Whenever the shell is deactivated, we want to go on and close it (i.e.: work as a popup dialog)
+        shell.addShellListener(new ShellListener() {
+            
+            public void shellIconified(ShellEvent e) {
+            }
+            
+            public void shellDeiconified(ShellEvent e) {
+            }
+            
+            public void shellDeactivated(ShellEvent e) {
+                shell.close();
+            }
+            
+            public void shellClosed(ShellEvent e) {
+            }
+            
+            public void shellActivated(ShellEvent e) {
+            }
+        });
+        
+    }
+    
     /* (non-Javadoc)
      * @see org.eclipse.ui.dialogs.ElementTreeSelectionDialog#open()
      */
