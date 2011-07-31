@@ -452,7 +452,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             
             public Object call(final InterpreterResponse arg){
                 //When we receive the response, we must handle it in the UI thread.
-                RunInUiThread.async(new Runnable(){
+                Runnable runnable = new Runnable(){
                     
                     public void run(){
                         try{
@@ -498,15 +498,34 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                             }
                         }
                     }
-                });
+                };
+                RunInUiThread.async(runnable);
                 return null;
             }
         };
         
+        final ICallback<Object, Tuple<String, String>> onContentsReceived = new ICallback<Object, Tuple<String, String>>(){
+
+            public Object call(final Tuple<String, String> result) {
+                Runnable runnable = new Runnable() {
+                    
+                    public void run() {
+                        if (result != null) {
+                            addToConsoleView(result.o1, true);
+                            addToConsoleView(result.o2, false);
+                            revealEndOfDocument();
+                        }
+                    }
+                };
+                RunInUiThread.async(runnable);
+                return null;
+            }
+            
+        };
         //Handle the command in a thread that doesn't block the U/I.
         new Thread(){
             public void run(){
-                handler.handleCommand(commandLine, onResponseReceived);
+                handler.handleCommand(commandLine, onResponseReceived, onContentsReceived);
             }
         }.start();
     }

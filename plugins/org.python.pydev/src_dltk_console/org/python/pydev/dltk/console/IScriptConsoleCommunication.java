@@ -10,6 +10,7 @@
 package org.python.pydev.dltk.console;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
 
 /**
@@ -23,10 +24,14 @@ public interface IScriptConsoleCommunication {
      * Executes a given command in the interpreter (push a line)
      * 
      * @param command the command to be executed
+     * @param onContentsReceived 
      * @return the response from the interpreter (contains the stdout, stderr, etc).
      * @throws Exception
      */
-    void execInterpreter(String command, ICallback<Object, InterpreterResponse> onResponseReceived);
+    void execInterpreter(
+            String command, 
+            ICallback<Object, InterpreterResponse> onResponseReceived, 
+            ICallback<Object, Tuple<String, String>> onContentsReceived);
 
     /**
      * Creates the completions to be applied in the interpreter.

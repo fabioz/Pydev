@@ -172,10 +172,12 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
         inputReceived = null;
         boolean needInput = true;
         
+        String stdOutContents = stdOutReader.getAndClearContents();
+        String stderrContents = stdErrReader.getAndClearContents();
         //let the busy loop from execInterpreter free and enter a busy loop
         //in this function until execInterpreter gives us an input
-        nextResponse = new InterpreterResponse(stdOutReader.getAndClearContents(), 
-                stdErrReader.getAndClearContents(), false, needInput);
+        nextResponse = new InterpreterResponse(stdOutContents, 
+                stderrContents, false, needInput);
         
         //busy loop until we have an input
         while(inputReceived == null){
@@ -195,7 +197,10 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
      * 
      * @param command the command to be executed in the client
      */
-    public void execInterpreter(final String command, final ICallback<Object, InterpreterResponse> onResponseReceived){
+    public void execInterpreter(
+            final String command, 
+            final ICallback<Object, InterpreterResponse> onResponseReceived,
+            final ICallback<Object, Tuple<String, String>> onContentsReceived){
         nextResponse = null;
         if(waitingForInput){
             inputReceived = command;
@@ -295,12 +300,14 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                         String errorContents = executed.o1;
                         boolean more = executed.o2;
                         
+                        String stdOutContents;
                         if(errorContents == null){
                             errorContents = stdErrReader.getAndClearContents();
                         }else{
                             errorContents += "\n"+stdErrReader.getAndClearContents();
                         }
-                        nextResponse = new InterpreterResponse(stdOutReader.getAndClearContents(), 
+                        stdOutContents = stdOutReader.getAndClearContents();
+                        nextResponse = new InterpreterResponse(stdOutContents, 
                                 errorContents, more, needInput);
                         
                     }catch(Exception e){
@@ -315,13 +322,26 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
             
         }
         
+        int i = 500; //only get contents each 500 millis...
+        
         //busy loop until we have a response
         while(nextResponse == null){
             synchronized(lock2){
                 try {
                     lock2.wait(20);
                 } catch (InterruptedException e) {
-                    Log.log(e);
+//                    Log.log(e);
+                }
+            }
+            
+            i-=20;
+            
+            if(i <= 0 && nextResponse == null){
+                i = 250; //after the first, get it each 250 millis
+                String stderrContents = stdErrReader.getAndClearContents();
+                String stdOutContents = stdOutReader.getAndClearContents();
+                if(stdOutContents.length() > 0 || stderrContents.length() > 0){
+                    onContentsReceived.call(new Tuple<String, String>(stdOutContents, stderrContents));
                 }
             }
         }

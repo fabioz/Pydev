@@ -29,6 +29,7 @@ import org.eclipse.ui.internal.console.IOConsolePartition;
 import org.eclipse.ui.part.IPageBookViewPage;
 import org.python.pydev.bindingutils.KeyBindingHelper;
 import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
@@ -145,7 +146,10 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
             return temp;
         }
 
-        public void execInterpreter(String command, ICallback<Object, InterpreterResponse> onResponseReceived) {
+        public void execInterpreter(
+                String command, 
+                ICallback<Object, InterpreterResponse> onResponseReceived, 
+                ICallback<Object, Tuple<String, String>> onContentsReceived) {
             throw new RuntimeException("Not implemented");
 
         }
