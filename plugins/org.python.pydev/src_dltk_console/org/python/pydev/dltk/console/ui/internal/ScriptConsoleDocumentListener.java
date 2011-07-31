@@ -21,6 +21,7 @@ import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
@@ -270,18 +271,22 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         int start = doc.getLength();
 
         IConsoleStyleProvider styleProvider = viewer.getStyleProvider();
+        Tuple<List<ScriptStyleRange>, String> style = null;
         if (styleProvider != null) {
-            ScriptStyleRange style;
             if(stdout){
                 style = styleProvider.createInterpreterOutputStyle(out, start);
             }else{ //stderr
                 style = styleProvider.createInterpreterErrorStyle(out, start);
             }
             if (style != null) {
-                addToPartitioner(style);
+                for(ScriptStyleRange s:style.o1){
+                    addToPartitioner(s);
+                }
             }
         }
-        appendText(out);
+        if(style != null){
+            appendText(style.o2);
+        }
         
         PySelection ps = new PySelection(doc, start);
         int cursorLine = ps.getCursorLine();
