@@ -37,7 +37,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testImportErrorPattern();
+            analyzer2.testDictAccess();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -2908,5 +2908,15 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
             GRAMMAR_TO_USE_FOR_PARSING = initial;
         }
     }
+
     
+    public void testDictAccess() throws Exception {
+        
+        doc = new Document(
+                "import unittest\n"+
+                "unittest.__dict__\n"
+        );
+        checkNoError();
+        
+    }
 }

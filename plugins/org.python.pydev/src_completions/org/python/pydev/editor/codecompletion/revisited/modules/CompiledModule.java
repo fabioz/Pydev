@@ -194,6 +194,7 @@ public class CompiledModule extends AbstractModule{
                 array.add(new CompiledToken("__file__","","",name,IToken.TYPE_BUILTIN));
                 array.add(new CompiledToken("__name__","","",name,IToken.TYPE_BUILTIN));
                 array.add(new CompiledToken("__builtins__","","",name,IToken.TYPE_BUILTIN));
+                array.add(new CompiledToken("__dict__","","",name,IToken.TYPE_BUILTIN));
             }
             
             addTokens(array);

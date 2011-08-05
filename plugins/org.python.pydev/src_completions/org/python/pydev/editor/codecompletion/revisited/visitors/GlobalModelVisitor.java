@@ -54,6 +54,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
         this.visitWhat = visitWhat;
         this.moduleName = moduleName;
         this.onlyAllowTokensIn__all__ = onlyAllowTokensIn__all__;
+        this.tokens.add(new SourceToken(new Name("__dict__", Name.Load, false), "__dict__", "", "", moduleName));
         if(moduleName != null && moduleName.endsWith("__init__")){
             this.tokens.add(new SourceToken(new Name("__path__", Name.Load, false), "__path__", "", "", moduleName));
         }
