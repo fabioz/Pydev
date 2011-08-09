@@ -231,7 +231,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         this.currentLocalScope.getScopeStack().pop();
         
         //the class is only added to the names to ignore when it's scope is resolved!
-        addToNamesToIgnore(node, true);
+        addToNamesToIgnore(node, true, true);
         
         
         return null;
@@ -240,8 +240,17 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     /**
      * used so that the token is added to the names to ignore...
      */
-    protected void addToNamesToIgnore(SimpleNode node, boolean finishClassScope) {
+    protected void addToNamesToIgnore(SimpleNode node, boolean finishClassScope, boolean checkBuiltins) {
         SourceToken token = AbstractVisitor.makeToken(node, "");
+        
+        if(checkBuiltins){
+            String rep = token.getRepresentation();
+            if (builtinTokens.contains(rep)){
+                // Overriding builtin...
+                onAddAssignmentToBuiltinMessage(token, rep);
+            }
+        }
+        
         ScopeItems currScopeItems = scope.getCurrScopeItems();
         
         Found found = new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems());
@@ -289,7 +298,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      */
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         unhandled_node(node);
-        addToNamesToIgnore(node, false);
+        addToNamesToIgnore(node, false, true);
 
         AbstractScopeAnalyzerVisitor visitor = this;
         argumentsType args = node.args;
@@ -433,8 +442,13 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     public Object visitNameTok(NameTok nameTok) throws Exception {
         unhandled_node(nameTok);
         if(nameTok.ctx == NameTok.VarArg || nameTok.ctx == NameTok.KwArg){
+            
             SourceToken token = AbstractVisitor.makeToken(nameTok, moduleName);
             scope.addToken(token, token, (nameTok).id);
+            if (builtinTokens.contains(token.getRepresentation())){
+                // Overriding builtin...
+                onAddAssignmentToBuiltinMessage(token, token.getRepresentation());
+            }
         }
         return null;
     }
@@ -522,7 +536,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                 if(!rep.equals("self") && !rep.equals("cls")){ 
                     scope.addToken(token,token);
                 }else{
-                    addToNamesToIgnore(node, false); //ignore self
+                    addToNamesToIgnore(node, false, false); //ignore self
                 }
             }
         } 
@@ -551,7 +565,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
 
             SourceToken token = AbstractVisitor.makeToken(nameAst, moduleName);
             scope.addTokenToGlobalScope(token);
-            addToNamesToIgnore(nameAst, false); // it is global, so, ignore it...
+            addToNamesToIgnore(nameAst, false, true); // it is global, so, ignore it...
         }
         return null;
     }

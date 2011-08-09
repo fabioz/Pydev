@@ -37,7 +37,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testDictAccess();
+            analyzer2.testBuiltInAssignment3();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -2945,4 +2945,29 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 			GRAMMAR_TO_USE_FOR_PARSING = initial;
 		}
     }
+	
+	public void testBuiltInAssignment2() {
+        doc = new Document(
+                "def m1(*list, **dict):\n" +
+                "    pass"
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 2); // list, dict
+	}
+	
+	public void testBuiltInAssignment3() {
+	    doc = new Document(
+	            "def list():\n" +
+	            "    pass\n" +
+	            "class dict:\n" +
+	            "    pass\n" +
+	            "global id"
+	    );
+	    analyzer = new OccurrencesAnalyzer();
+	    msgs = analyzeDoc();
+	    
+	    printMessages(msgs, 3); // list, dict, id
+	}
 }
