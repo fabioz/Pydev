@@ -572,10 +572,13 @@ public class PythonPathHelper implements IPythonPathHelper {
         return false;
     }
 
-    public static void markAsPyDevFileIfDetected(IFile file) {
+    /**
+     * @return true if PyEdit.EDITOR_ID is set as the persistent property (only if the file does not have an extension).
+     */
+    public static boolean markAsPyDevFileIfDetected(IFile file) {
         String name = file.getName();
-        if(name != null && name.indexOf('.') != -1){
-            return;
+        if(name == null || name.indexOf('.') != -1){
+            return false;
         }
         
         String editorID;
@@ -586,13 +589,18 @@ public class PythonPathHelper implements IPythonPathHelper {
                 Reader inputStreamReader = new InputStreamReader(new BufferedInputStream(contents));
                 if(REF.hasPythonShebang(inputStreamReader)){
                     IDE.setDefaultEditor(file, PyEdit.EDITOR_ID);
+                    return true;
                 }
+            }else{
+                return PyEdit.EDITOR_ID.equals(editorID);
             }
+            
         } catch (Exception e) {
             if(file.exists()){
                 Log.log(e);
             }
         }
+        return false;
     }
 
 }

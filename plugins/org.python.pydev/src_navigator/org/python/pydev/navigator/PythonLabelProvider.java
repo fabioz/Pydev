@@ -20,11 +20,9 @@ import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.TreeNode;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.elements.ProjectConfigError;
@@ -95,11 +93,9 @@ public class PythonLabelProvider implements ILabelProvider{
 				String name = iFile.getName();
 				
 				if(name.indexOf('.') == -1){
-				    PythonPathHelper.markAsPyDevFileIfDetected(iFile);
 				    try {
-                        String persistentProperty = iFile.getPersistentProperty(IDE.EDITOR_KEY);
-                        if(PyEdit.EDITOR_ID.equals(persistentProperty)){
-                            return PydevPlugin.getImageCache().get(UIConstants.PY_FILE_ICON);
+				        if(PythonPathHelper.markAsPyDevFileIfDetected(iFile)){
+				            return PydevPlugin.getImageCache().get(UIConstants.PY_FILE_ICON);
                         }
                     } catch (Exception e) {
                         //Ignore
