@@ -118,7 +118,7 @@ public class PyVariableCollection extends PyVariable implements ICommandResponse
             // VariablesView does not deal well with children changing asynchronously.
             // it causes unneeded scrolling, because view preserves selection instead
             // of visibility.
-            // I try to minimize the occurence here, by giving pydevd time to complete the
+            // I try to minimize the occurrence here, by giving pydevd time to complete the
             // task before we are forced to do asynchronous notification.
             int i = 10; 
             while (--i > 0 && networkState != NETWORK_REQUEST_ARRIVED){

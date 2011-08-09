@@ -11,6 +11,7 @@
 package org.python.pydev.debug.model.remote;
 
 import org.eclipse.core.runtime.IStatus;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 
@@ -60,6 +61,7 @@ public abstract class AbstractDebuggerCommand {
     static public final int CMD_GET_COMPLETIONS = 120;
     static public final int CMD_SET_NEXT_STATEMENT = 121;
     static public final int CMD_SET_PY_EXCEPTION = 122;
+    static public final int CMD_GET_FILE_CONTENTS = 123;
     static public final int CMD_ERROR = 901;
     static public final int CMD_VERSION = 501;
     static public final int CMD_RETURN = 502;
@@ -143,7 +145,7 @@ public abstract class AbstractDebuggerCommand {
     }
     
     public static String makeCommand(int code, int sequence, String payload) {
-        StringBuffer s = new StringBuffer();
+        FastStringBuffer s = new FastStringBuffer(payload.length() + 20);
         s.append(code);
         s.append("\t");
         s.append(sequence);

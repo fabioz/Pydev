@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
@@ -21,6 +22,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.editorinput.PySourceLocatorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.utils.ComboFieldEditor;
 
 /**
  * Preferences for the locations that should be translated -- used when the debugger is not able
@@ -44,12 +46,31 @@ public class SourceLocatorPrefsPage extends FieldEditorPreferencePage implements
     public void init(IWorkbench workbench) {
     }
     
+    private static final String[][] ENTRIES_AND_VALUES = new String[][] {
+        {"Ask for local file.", Integer.toString(PySourceLocatorPrefs.ASK_FOR_FILE)},
+        {"Ask for local file/Get from server (read only).", Integer.toString(PySourceLocatorPrefs.ASK_FOR_FILE_GET_FROM_SERVER)},
+        {"Get from server (read only).", Integer.toString(PySourceLocatorPrefs.GET_FROM_SERVER)},
+    };
+    
     
     /**
      * Creates the editors
      */
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
+        addField(new ComboFieldEditor(
+                PySourceLocatorPrefs.ON_SOURCE_NOT_FOUND, 
+                "Action when source is not directly found:", 
+                ENTRIES_AND_VALUES,
+                p
+        ));
+        
+        addField(new IntegerFieldEditor(
+                PySourceLocatorPrefs.FILE_CONTENTS_TIMEOUT, 
+                "Timeout to get file contents (millis):", 
+                p
+        ));
+        
         addField(new TableEditor(PydevEditorPrefs.SOURCE_LOCATION_PATHS, "Translation paths to use:", p){
 
             @Override

@@ -30,6 +30,14 @@ public class PySourceLocatorPrefs {
      */
     public static final String DONTASK = "DONTASK";
     
+    public static final String ON_SOURCE_NOT_FOUND = "ON_SOURCE_NOT_FOUND";
+    public static final String FILE_CONTENTS_TIMEOUT = "FILE_CONTENTS_TIMEOUT";
+    public static final int DEFAULT_FILE_CONTENTS_TIMEOUT = 1500;
+    
+    public static final int ASK_FOR_FILE = 0; //Default
+    public static final int ASK_FOR_FILE_GET_FROM_SERVER = 1;
+    public static final int GET_FROM_SERVER = 2;
+
 
     /**
      * Checks if a translation path passed is valid.
@@ -178,6 +186,28 @@ public class PySourceLocatorPrefs {
             strs.add(temp.toArray(new String[temp.size()]));
         }
         return strs;
+    }
+
+
+    public static int getOnSourceNotFound() {
+        IPreferenceStore store = PydevPlugin.getDefault().getPreferenceStore();
+        int onSourceNotFound = store.getInt(ON_SOURCE_NOT_FOUND);
+        
+        //Make sure that it's a valid value.
+        if(onSourceNotFound < ASK_FOR_FILE || onSourceNotFound > GET_FROM_SERVER){
+            onSourceNotFound = ASK_FOR_FILE;
+        }
+        return onSourceNotFound;
+    }
+    
+    public static int getFileContentsTimeout() {
+        IPreferenceStore store = PydevPlugin.getDefault().getPreferenceStore();
+        int timeout = store.getInt(FILE_CONTENTS_TIMEOUT);
+        if(timeout < 1000){
+            //Always let at least 1 sec timeout.
+            timeout = 1000;
+        }
+        return timeout;
     }
     
 }

@@ -105,6 +105,7 @@ CMD_RELOAD_CODE = 119
 CMD_GET_COMPLETIONS = 120
 CMD_SET_NEXT_STATEMENT = 121
 CMD_SET_PY_EXCEPTION = 122
+CMD_GET_FILE_CONTENTS = 123
 CMD_VERSION = 501
 CMD_RETURN = 502
 CMD_ERROR = 901 
@@ -550,6 +551,13 @@ class NetCommandFactory:
             return NetCommand(CMD_GET_COMPLETIONS, seq, payload)
         except Exception:
             return self.makeErrorMessage(seq, GetExceptionTracebackStr())
+        
+    def makeGetFileContents(self, seq, payload):
+        try:
+            return NetCommand(CMD_GET_FILE_CONTENTS, seq, payload)
+        except Exception:
+            return self.makeErrorMessage(seq, GetExceptionTracebackStr())
+        
 
 INTERNAL_TERMINATE_THREAD = 1
 INTERNAL_SUSPEND_THREAD = 2

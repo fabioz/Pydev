@@ -21,6 +21,7 @@ import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.editor.correctionassist.docstrings.DocstringsPrefPage;
 import org.python.pydev.editor.hover.PyHoverPreferencesPage;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
+import org.python.pydev.editorinput.PySourceLocatorPrefs;
 import org.python.pydev.parser.PyParserManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
@@ -169,6 +170,9 @@ public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
         node.putBoolean(PyHoverPreferencesPage.SHOW_DOCSTRING_ON_HOVER, PyHoverPreferencesPage.DEFAULT_SHOW_DOCSTRING_ON_HOVER);
         node.putBoolean(PyHoverPreferencesPage.SHOW_DEBUG_VARIABLES_VALUES_ON_HOVER, PyHoverPreferencesPage.DEFAULT_SHOW_DEBUG_VARIABLES_VALUES_ON_HOVER);
         
+        //source locator
+        node.putInt(PySourceLocatorPrefs.ON_SOURCE_NOT_FOUND, PySourceLocatorPrefs.ASK_FOR_FILE_GET_FROM_SERVER);
+        node.putInt(PySourceLocatorPrefs.FILE_CONTENTS_TIMEOUT, PySourceLocatorPrefs.DEFAULT_FILE_CONTENTS_TIMEOUT);
     }
     
 
