@@ -23,6 +23,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.parser.PyParserManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.utils.ComboFieldEditor;
 import org.python.pydev.utils.LabelFieldEditor;
 
 /**
@@ -58,7 +59,23 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
     public static final boolean DEFAULT_REMOVE_ERRORS_WHEN_EDITOR_IS_CLOSED = true;
     private Button onlyAnalyzeOpenCheckBox;
     private Button removeErrorsCheckBox;
-
+    
+    
+    public static final String PYC_DELETE_HANDLING = "PYC_DELETE_HANDLING";
+    
+    public static final int PYC_ALWAYS_DELETE = 0;
+    public static final int PYC_DELETE_WHEN_PY_IS_DELETED = 1;
+    public static final int PYC_NEVER_DELETE = 2;
+    
+    public static final int DEFAULT_PYC_DELETE_HANDLING = PYC_ALWAYS_DELETE;
+    
+    
+    private static final String[][] ENTRIES_AND_VALUES = new String[][] {
+        {"Delete any orphaned .pyc file.", Integer.toString(PYC_ALWAYS_DELETE)},
+        {"Only delete .pyc when .py delete is detected.", Integer.toString(PYC_DELETE_WHEN_PY_IS_DELETED)},
+        {"Never delete .pyc files.", Integer.toString(PYC_NEVER_DELETE)},
+    };
+    
     /**
      * @param style
      */
@@ -120,6 +137,14 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
             }
         });
         
+        addField(new ComboFieldEditor(
+                PYC_DELETE_HANDLING, 
+                "How to handle .pyc deletion?", 
+                ENTRIES_AND_VALUES,
+                p
+        ));
+
+        
     }
     
     /* (non-Javadoc)
@@ -177,6 +202,10 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
     
     public static int getElapseMillisBeforeAnalysis() {
         return PyParserManager.getPyParserManager(PydevPrefs.getPreferences()).getElapseMillisBeforeAnalysis();
+    }
+
+    public static int getPycDeleteHandling() {
+        return PydevPrefs.getPreferences().getInt(PYC_DELETE_HANDLING);
     }
 
 }

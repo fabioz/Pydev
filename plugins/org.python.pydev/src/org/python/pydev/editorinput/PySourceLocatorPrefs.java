@@ -34,9 +34,12 @@ public class PySourceLocatorPrefs {
     public static final String FILE_CONTENTS_TIMEOUT = "FILE_CONTENTS_TIMEOUT";
     public static final int DEFAULT_FILE_CONTENTS_TIMEOUT = 1500;
     
-    public static final int ASK_FOR_FILE = 0; //Default
+    public static final int ASK_FOR_FILE = 0;
     public static final int ASK_FOR_FILE_GET_FROM_SERVER = 1;
     public static final int GET_FROM_SERVER = 2;
+    
+    public static final int DEFAULT_ON_FILE_NOT_FOUND_IN_DEBUGGER = ASK_FOR_FILE_GET_FROM_SERVER;
+    
 
 
     /**
@@ -195,7 +198,7 @@ public class PySourceLocatorPrefs {
         
         //Make sure that it's a valid value.
         if(onSourceNotFound < ASK_FOR_FILE || onSourceNotFound > GET_FROM_SERVER){
-            onSourceNotFound = ASK_FOR_FILE;
+            onSourceNotFound = DEFAULT_ON_FILE_NOT_FOUND_IN_DEBUGGER;
         }
         return onSourceNotFound;
     }

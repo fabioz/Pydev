@@ -126,8 +126,8 @@ public final class StringUtils {
      * @param args arguments passed
      * @return a string with the %s replaced by the arguments passed
      */
-    public static String format(String str, Object... args) {
-        int length = str.length();
+    public static String format(final String str, Object... args) {
+        final int length = str.length();
         FastStringBuffer buffer = new FastStringBuffer(length+(16*args.length));
         int j = 0;
         int i = 0;
@@ -168,13 +168,13 @@ public final class StringUtils {
     /**
      * Counts the number of %s in the string
      * 
-     * @param str the string to be analyzide
+     * @param str the string to be analyzed
      * @return the number of %s in the string
      */
-    public static int countPercS(String str) {
+    public static int countPercS(final String str) {
         int j = 0;
 
-        int len = str.length();
+        final int len = str.length();
         for (int i = 0; i < len; i++) {
             char c = str.charAt(i);
             if (c == '%' && i + 1 < len) {
@@ -191,27 +191,25 @@ public final class StringUtils {
     /**
      * Removes whitespaces and tabs at the end of the string.
      */
-    public static String rightTrim(String input) {
+    public static String rightTrim(final String input) {
         int len = input.length();
         int st = 0;
         int off = 0;
-        char[] val = input.toCharArray();
 
-        while ((st < len) && (val[off + len - 1] <= ' ')) {
+        while ((st < len) && (input.charAt(off + len - 1) <= ' ')) {
             len--;
         }
         return input.substring(0, len);
     }
 
     /**
-     * Removes whitespaces and tabs at the beggining of the string.
+     * Removes whitespaces and tabs at the beginning of the string.
      */
     public static String leftTrim(String input) {
         int len = input.length();
         int off = 0;
-        char[] val = input.toCharArray();
 
-        while ((off < len) && (val[off] <= ' ')) {
+        while ((off < len) && (input.charAt(off) <= ' ')) {
             off++;
         }
         return input.substring(off, len);
@@ -232,9 +230,8 @@ public final class StringUtils {
         int len = input.length();
         int st = 0;
         int off = 0;
-        char[] val = input.toCharArray();
         
-        while ((st < len) && (val[off + len - 1] != ch)) {
+        while ((st < len) && (input.charAt(off + len - 1) != ch)) {
             len--;
         }
         len--;
@@ -260,9 +257,8 @@ public final class StringUtils {
         int len = input.length();
         int st = 0;
         int off = 0;
-        char[] val = input.toCharArray();
         
-        while ((st < len) && (val[off + len - 1] == charToTrim)) {
+        while ((st < len) && (input.charAt(off + len - 1) == charToTrim)) {
             len--;
         }
         return input.substring(0, len);
@@ -281,9 +277,8 @@ public final class StringUtils {
     public static String leftTrim(String input, char charToTrim) {
         int len = input.length();
         int off = 0;
-        char[] val = input.toCharArray();
         
-        while ((off < len) && (val[off] == charToTrim)) {
+        while ((off < len) && (input.charAt(off) == charToTrim)) {
             off++;
         }
         return input.substring(off, len);
@@ -531,7 +526,7 @@ public final class StringUtils {
             if(c == toSplit){
                 if(last != i){
                     if(ret.size() == maxPartsToSplit-1){
-                        ret.add(string.substring(last, string.length()));
+                        ret.add(string.substring(last, len));
                         return ret;
                     }else{
                         ret.add(string.substring(last, i));
@@ -593,9 +588,11 @@ public final class StringUtils {
         return ret;
     }
     
-    private static boolean matches(String string, String toSplit, int i) {
-        if(string.length()-i >= toSplit.length()){
-            for(int j=0;j<toSplit.length();j++){
+    private static boolean matches(final String string, final String toSplit, int i) {
+        int length = string.length();
+        int toSplitLen = toSplit.length();
+        if(length-i >= toSplitLen){
+            for(int j=0;j<toSplitLen;j++){
                 if(string.charAt(i+j) != toSplit.charAt(j)){
                     return false;
                 }
@@ -891,11 +888,12 @@ public final class StringUtils {
     private static final int STATE_NUMBER = 2;
     
     public static String asStyleLowercaseUnderscores(String string) {
-        FastStringBuffer buf = new FastStringBuffer(string.length()*2);
-        char[] charArray = string.toCharArray();
+        int len = string.length();
+        FastStringBuffer buf = new FastStringBuffer(len*2);
         
         int lastState = 0;
-        for(char c:charArray){
+        for(int i=0;i<len;i++){
+            char c = string.charAt(i);
             if(Character.isUpperCase(c)){
                 if(lastState != STATE_UPPER){
                     if(buf.length() > 0 && buf.lastChar() != '_'){
@@ -924,7 +922,9 @@ public final class StringUtils {
 
     
     public static boolean isAllUpper(String string) {
-        for(char c:string.toCharArray()){
+        int len = string.length();
+        for(int i=0;i<len;i++){
+            char c = string.charAt(i);
             if(Character.isLetter(c) && !Character.isUpperCase(c)){
                 return false;
             }
@@ -937,12 +937,13 @@ public final class StringUtils {
             string = string.toLowerCase();
         }
         
-        FastStringBuffer buf = new FastStringBuffer(string.length());
-        char[] charArray = string.toCharArray();
+        int len = string.length();
+        FastStringBuffer buf = new FastStringBuffer(len);
         boolean first = true;
         int nextUpper = 0;
         
-        for(char c:charArray){
+        for(int i=0;i<len;i++){
+            char c = string.charAt(i);
             if(first){
                 if(c == '_'){
                     //underscores at the start
@@ -991,21 +992,23 @@ public final class StringUtils {
 	    return false;
 	}
 
-	public static boolean endsWith(String str, char c) {
-	    if(str.length() == 0){
+	public static boolean endsWith(final String str, char c) {
+	    int len = str.length();
+        if(len == 0){
 	        return false;
 	    }
-	    if(str.charAt(str.length()-1) == c){
+	    if(str.charAt(len-1) == c){
 	        return true;
 	    }
 	    return false;
 	}
 
-	public static boolean endsWith(StringBuffer str, char c) {
-	    if(str.length() == 0){
+	public static boolean endsWith(final StringBuffer str, char c) {
+	    int len = str.length();
+        if(len == 0){
 	        return false;
 	    }
-	    if(str.charAt(str.length()-1) == c){
+	    if(str.charAt(len-1) == c){
 	        return true;
 	    }
 	    return false;
@@ -1018,11 +1021,12 @@ public final class StringUtils {
 	 * @param str
 	 * @return <code>true</code> if the given string is a word
 	 */
-	public static boolean isWord(String str) {
-	    if (str == null || str.length() == 0)
+	public static boolean isWord(final String str) {
+	    int len = str.length();
+        if (str == null || len == 0)
 	        return false;
 	
-	    for (int i= 0; i < str.length(); i++) {
+	    for (int i= 0; i < len; i++) {
 	        if (!Character.isJavaIdentifierPart(str.charAt(i)))
 	            return false;
 	    }
@@ -1082,9 +1086,10 @@ public final class StringUtils {
 	    return trimmedLine.indexOf('}') != -1 || trimmedLine.indexOf(')') != -1 || trimmedLine.indexOf(']') != -1;
 	}
 	
-	public static boolean hasUnbalancedClosingPeers(String line) {
+	public static boolean hasUnbalancedClosingPeers(final String line) {
 	    Map<Character, Integer> stack = new HashMap<Character, Integer>();
-	    for(int i=0;i<line.length();i++){
+	    final int len = line.length();
+        for(int i=0;i<len;i++){
 	        char c = line.charAt(i);
 	        switch(c){
 	        case '(':
@@ -1143,7 +1148,7 @@ public final class StringUtils {
 
 	public static int count(String name, char c) {
 		int count=0;
-		int len = name.length();
+		final int len = name.length();
 		for(int i=0;i<len;i++){
 			if(name.charAt(i) == c){
 				count++;
@@ -1164,8 +1169,9 @@ public final class StringUtils {
 		return result;
 	}
 
-    public static boolean containsWhitespace(String name) {
-        for(int i=0;i<name.length();i++){
+    public static boolean containsWhitespace(final String name) {
+        final int len = name.length();
+        for(int i=0;i<len;i++){
             if(Character.isWhitespace(name.charAt(i))){
                 return true;
             }
@@ -1192,15 +1198,16 @@ public final class StringUtils {
      * @param param
      * @return
      */
-    public static boolean isPythonIdentifier(String param) {
-        if(param.length() == 0){
+    public static boolean isPythonIdentifier(final String param) {
+        final int len = param.length();
+        if(len == 0){
             return false;
         }
         char c = param.charAt(0);
         if(!Character.isLetter(c) && c != '_' && c <= 128){
             return false;
         }
-        for(int i=1;i<param.length();i++){
+        for(int i=1;i<len;i++){
             c = param.charAt(i);
             if((!Character.isLetter(c) && !Character.isDigit(c) && c != '_') && (c <= 128)){
                 return false;
@@ -1209,8 +1216,9 @@ public final class StringUtils {
         return true;
     }
 
-    public static String getWithFirstUpper(String creationStr) {
-        if(creationStr.length() == 0){
+    public static String getWithFirstUpper(final String creationStr) {
+        final int len = creationStr.length();
+        if(len == 0){
             return creationStr;
         }
         char upperCase = Character.toUpperCase(creationStr.charAt(0));
@@ -1222,12 +1230,14 @@ public final class StringUtils {
         return indentTo(source, indent, true);
     }
     
-    public static String indentTo(String source, String indent, boolean indentFirstLine) {
-        if(indent == null || indent.length() == 0){
+    public static String indentTo(final String source, final String indent, boolean indentFirstLine) {
+        final int indentLen = indent.length();
+        if(indent == null || indentLen == 0){
             return source;
         }
         List<String> splitInLines = splitInLines(source);
-        FastStringBuffer buf = new FastStringBuffer(source.length() + (splitInLines.size()* indent.length())+2);
+        final int sourceLen = source.length();
+        FastStringBuffer buf = new FastStringBuffer(sourceLen + (splitInLines.size()* indentLen)+2);
         
         for(int i=0;i<splitInLines.size();i++){
             String line = splitInLines.get(i);
@@ -1266,12 +1276,13 @@ public final class StringUtils {
     /**
      * @return the number of line breaks in the passed string.
      */
-    public static int countLineBreaks(String replacementString) {
+    public static int countLineBreaks(final String replacementString) {
         int lineBreaks = 0;
         int ignoreNextNAt = -1;
         
         //we may have line breaks with \r\n, or only \n or \r
-        for (int i = 0; i < replacementString.length(); i++) {
+        final int len = replacementString.length();
+        for (int i = 0; i < len; i++) {
             char c = replacementString.charAt(i);
             if(c == '\r'){
                 lineBreaks++;
