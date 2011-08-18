@@ -9,8 +9,6 @@ package org.python.pydev.editor;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.osgi.service.environment.Constants;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.preference.PreferenceStore;
@@ -31,6 +29,8 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
+import org.python.pydev.core.IFontUsage;
+import org.python.pydev.core.FontUtils;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PyPartitionScanner;
@@ -71,18 +71,10 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener{
         styledText = new StyledText(parent, SWT.BORDER|SWT.READ_ONLY);
         this.backgroundColorCache = new ColorAndStyleCache(new PreferenceStore());
         this.colorCache = new ColorAndStyleCache(null);
-        
-        int fontHeight;
-        String fontName = "Courier New";
-        
-        if (Platform.getOS().equals(Constants.OS_MACOSX)) {
-            // see org.python.pydev.ui.actions.resources.Py2To3#confirmRun()
-            // for an explanation why a different font and size is neccesary on OS X
-            fontName = "Monaco";
-            fontHeight = 11;
-        } else {
-            fontHeight = 10;
-        }
+                
+        Tuple<String, Integer> codeFontDetails = FontUtils.getCodeFontNameAndHeight(IFontUsage.STYLED);
+        String fontName = codeFontDetails.o1;
+        int fontHeight = codeFontDetails.o2.intValue();
         
         try {
             FontData labelFontData;

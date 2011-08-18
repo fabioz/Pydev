@@ -19,8 +19,6 @@ import java.util.Map;
 import org.eclipse.jface.resource.CompositeImageDescriptor;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.osgi.service.environment.Constants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
@@ -30,6 +28,9 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
+import org.python.pydev.core.FontUtils;
+import org.python.pydev.core.IFontUsage;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.Tuple4;
 import org.python.pydev.core.log.Log;
@@ -214,16 +215,10 @@ public class ImageCache {
 		    	Display display = Display.getCurrent();
 				image = new Image(display, get(key), SWT.IMAGE_COPY);
 				imageHash.put(cacheKey, image); //put it there (even though it'll still be changed).
-	            
-				int base = 10;
-				String fontName = "Courier New";
 				
-				if (Platform.getOS().equals(Constants.OS_MACOSX)) {
-	                // see org.python.pydev.ui.actions.resources.Py2To3#confirmRun()
-	                // for an explanation why a different font and size is neccesary on OS X
-				    fontName = "Monaco";
-				    base = 12; 
-				}
+		        Tuple<String, Integer> codeFontDetails = FontUtils.getCodeFontNameAndHeight(IFontUsage.IMAGECACHE);
+		        String fontName = codeFontDetails.o1;
+		        int base = codeFontDetails.o2.intValue();
 				
 		        GC gc = new GC(image);
 		        
@@ -248,7 +243,7 @@ public class ImageCache {
                 if (textFontData.length == 1) {
                 	labelFontData = textFontData[0];
                 } else {
-                	labelFontData = new FontData(fontName, base-1, SWT.BOLD);                    	
+                	labelFontData = new FontData(fontName, base, SWT.BOLD);                    	
                 }
                 
 		        Font font = new Font(display, labelFontData);

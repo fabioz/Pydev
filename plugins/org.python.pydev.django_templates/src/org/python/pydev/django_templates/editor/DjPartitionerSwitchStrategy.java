@@ -21,29 +21,16 @@ public class DjPartitionerSwitchStrategy extends PartitionerSwitchStrategy {
         { "{{", "}}" }
     };
     
-    private static final String[][] DJANGO_ESCAPE_PAIRS = new String[][] { 
-        { "{%", "%}" }, 
-        { "{{", "}}" }
-    };
-
-    // /**
-    //  * 
-    //  */
-    // private DjPartitionerSwitchStrategy() {
-    //     super(DJANGO_TEMPLATES_PAIRS);
-    // }
-    
-    // FIXME: 2011-01-11: the above seems to throw an error while building 
-    //
-    // I suspect this is an API discrepancy between the last released Aptana Studio 3 Beta (which I am building against) 
-    // and the upcoming one (which I don't have, yet). Temporary solution: replace with auto-generated stub.
-    protected DjPartitionerSwitchStrategy(String[][] switchSequencePairs, String[][] escapeSequencePairs) {
-        super(switchSequencePairs, escapeSequencePairs);
+    /**
+     * 
+     */
+    private DjPartitionerSwitchStrategy() {
+        super(DJANGO_TEMPLATES_PAIRS);
     }
 
     public static DjPartitionerSwitchStrategy getDefault() {
         if (instance == null) {
-            instance = new DjPartitionerSwitchStrategy(DJANGO_TEMPLATES_PAIRS, DJANGO_ESCAPE_PAIRS);
+            instance = new DjPartitionerSwitchStrategy();
         }
         return instance;
     }

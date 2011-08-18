@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import org.python.pydev.core.docutils.StringUtils;
 import org.eclipse.core.runtime.Assert;
 
 /**
@@ -117,7 +117,7 @@ public final class PercentToBraceConverter {
      */
     public String convert() {
         
-        if (initialSourceString.isEmpty()) {
+        if (StringUtils.isEmpty(initialSourceString)) {
             return initialSourceString;
         }
 
@@ -249,7 +249,7 @@ public final class PercentToBraceConverter {
             convertedString = results.get(0);
         } else if (results.size() > 1) {
             // multiple lines
-            convertedString = StringUtils.joinArray(results.toArray(), sep);
+            convertedString = StringUtils.join(sep, results.toArray());
         } else {
             // this should never happen
             Assert.isTrue(false, "E: there must always be one result even if "+
@@ -432,10 +432,10 @@ public final class PercentToBraceConverter {
         String result = null;
         String formatStringMatch = matchedFormatString;
         
-        if (!head.isEmpty() && formatStringMatch.indexOf(head) == -1) {
+        if (!StringUtils.isEmpty(head) && formatStringMatch.indexOf(head) == -1) {
             formatStringMatch = head + formatStringMatch;
         }
-        if (!tail.isEmpty() && formatStringMatch.lastIndexOf(tail) == -1) {
+        if (!StringUtils.isEmpty(tail) && formatStringMatch.lastIndexOf(tail) == -1) {
             formatStringMatch += tail;
         }
         
@@ -516,7 +516,7 @@ public final class PercentToBraceConverter {
                 e = "";
             }
             // fix falsely included tail in interpolation values
-            if (!tail.isEmpty()) {
+            if (!StringUtils.isEmpty(tail)) {
                 int index = interpValues.indexOf(tail);
                 if (index > 0) { // yes, '>' not '>=', since substring(0,0) doesn't make sense
                     result = String.format("%s%s%s%s%s", fmtStr, ".format", s, interpValues.substring(0, index), e);
@@ -563,7 +563,7 @@ public final class PercentToBraceConverter {
             final int initlen = initial.length();
             head = initial.substring(0, to);
             tail = initial.substring(from + to, initlen);
-            if (tail.isEmpty()) {
+            if (StringUtils.isEmpty(tail)) {
                 // As a last effort, try to find the tail because the FMTSTR_PATTERN matcher may have 
                 // failed in the face of ambiguity.
                 //
@@ -893,7 +893,7 @@ public final class PercentToBraceConverter {
             suffix += conversion;
             
             result = prefix;
-            if (!suffix.isEmpty()) {
+            if (!StringUtils.isEmpty(suffix)) {
                 result += ":" + suffix;
             }
             

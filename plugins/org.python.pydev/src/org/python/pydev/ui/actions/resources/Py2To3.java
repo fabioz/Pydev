@@ -16,8 +16,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.osgi.service.environment.Constants;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
@@ -33,6 +31,8 @@ import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.console.MessageConsole;
 import org.python.pydev.consoles.MessageConsoles;
+import org.python.pydev.core.FontUtils;
+import org.python.pydev.core.IFontUsage;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
@@ -132,20 +132,9 @@ public class Py2To3 extends PyResourceAction implements IObjectActionDelegate{
             }
             protected Control createDialogArea(Composite parent) {
                 try {
-                    int fheight;
-                    String fontName;
-                    if (Platform.getOS().equals(Constants.OS_MACOSX)) {
-                        // on OS X we need a different font because 
-                        // under Mac SWT the bitmap font rasterizer 
-                        // doesn't take hinting into account and thus 
-                        // makes small fonts rendered as bitmaps unreadable
-                        // see http://aptanastudio.tenderapp.com/discussions/problems/2052-some-dialogs-have-unreadable-small-font-size
-                        fontName = "Courier";
-                        fheight = 11;
-                    } else {
-                        fontName = "Courier New";
-                        fheight = 8;
-                    }
+                    Tuple<String, Integer> codeFontDetails = FontUtils.getCodeFontNameAndHeight(IFontUsage.DIALOG);
+                    String fontName = codeFontDetails.o1;
+                    int fheight = codeFontDetails.o2.intValue();
                     
                     //FontData labelFontData;
                     //

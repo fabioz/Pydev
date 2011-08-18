@@ -2290,17 +2290,7 @@ It defines ${classes_and_methods}
         
 @copyright:  ${year} ${organisation_name}. All rights reserved.
         
-@license:    Licensed under the Apache License, Version 2.0 (the "License");\n
-             you may not use this file except in compliance with the License.
-             You may obtain a copy of the License at
-             
-             U{http://www.apache.org/licenses/LICENSE-2.0}
-             
-             Unless required by applicable law or agreed to in writing, software
-             distributed under the License is distributed on an B{"AS IS"} B{BASIS},
-             B{WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND}, either express or implied.
-             See the License for the specific language governing permissions and
-             limitations under the License.
+@license:    ${license}
 
 @contact:    ${user_email}
 @deffield    updated: Updated
@@ -2451,17 +2441,7 @@ It defines ${classes_and_methods}
             
 @copyright:  ${year} ${organisation_name}. All rights reserved.
             
-@license:    Licensed under the Apache License, Version 2.0 (the "License");\n
-             you may not use this file except in compliance with the License.
-             You may obtain a copy of the License at
-             
-             U{http://www.apache.org/licenses/LICENSE-2.0}
-             
-             Unless required by applicable law or agreed to in writing, software
-             distributed under the License is distributed on an B{"AS IS"} B{BASIS},
-             B{WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND}, either express or implied.
-             See the License for the specific language governing permissions and
-             limitations under the License.
+@license:    ${license}
 
 @contact:    ${user_email}
 @deffield    updated: Updated
