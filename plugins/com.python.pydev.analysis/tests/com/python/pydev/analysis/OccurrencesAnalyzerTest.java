@@ -37,7 +37,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testBuiltInAssignment3();
+            analyzer2.testBuiltInAssignment4();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -2969,5 +2969,24 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 	    msgs = analyzeDoc();
 	    
 	    printMessages(msgs, 3); // list, dict, id
+	}
+	
+	public void testBuiltInAssignment4() {
+        int initial = GRAMMAR_TO_USE_FOR_PARSING;
+        try {
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+    	    doc = new Document(
+    	            "def Method(a:lambda list:None) -> lambda list:None:\n" +
+    	            "    pass\n" +
+    	            ""
+    	    );
+    	    analyzer = new OccurrencesAnalyzer();
+    	    msgs = analyzeDoc();
+    	    
+    	    printMessages(msgs, 2); 
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = initial;
+        }
+
 	}
 }
