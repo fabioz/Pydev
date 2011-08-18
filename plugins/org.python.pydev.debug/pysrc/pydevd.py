@@ -54,6 +54,7 @@ import pydevd_vm_type
 import pydevd_tracing 
 import pydevd_io
 from pydevd_additional_thread_info import PyDBAdditionalThreadInfo 
+import pydevd_traceproperty
 import time
 threadingEnumerate = threading.enumerate
 threadingCurrentThread = threading.currentThread
@@ -77,7 +78,8 @@ DONT_TRACE = {
               'pydevd_vars.py':1,
               'pydevd_vm_type.py':1,
               'pydevd.py':1 ,
-              'pydevd_psyco_stub.py':1
+              'pydevd_psyco_stub.py':1,
+              'pydevd_traceproperty.py':1
               }
 
 if IS_PY3K:
@@ -661,7 +663,10 @@ class PyDB:
                         
                     else:
                         sys.stderr.write("Error when setting exception list. Received: %s\n" % (text,))
-                        
+                    
+                    #Temporarily written here
+                    #TODO: Move property replace in the correct condition
+                    pydevd_traceproperty.replace_builtin_property()     
                         
                 elif cmd_id == CMD_GET_FILE_CONTENTS:
                     if os.path.exists(text):
