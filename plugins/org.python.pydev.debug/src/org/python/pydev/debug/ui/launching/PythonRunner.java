@@ -30,6 +30,7 @@ import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyDebugTarget;
@@ -44,29 +45,9 @@ import org.python.pydev.runners.SimpleRunner;
  * Launches Python process, and connects it to Eclipse's debugger.
  * Waits for process to complete.
  * 
- * Modelled after org.eclipse.jdt.internal.launching.StandardVMDebugger.
+ * Modeled after org.eclipse.jdt.internal.launching.StandardVMDebugger.
  */
 public class PythonRunner {
-
-    /**
-     * @param p
-     * @param process
-     * @throws CoreException
-     */
-    private static void checkProcess(Process p, IProcess process) throws CoreException {
-        if (process == null) {
-            p.destroy();
-            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not register with debug plugin?", null));
-        }
-    }
-    /**
-     * @param p
-     * @throws CoreException
-     */
-    private static void checkProcess(Process p) throws CoreException {
-        if (p == null)
-            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR,"Could not execute python process. Was it cancelled?", null));
-    }
 
     
     /**
@@ -91,7 +72,7 @@ public class PythonRunner {
             }
             
         }catch (final JDTNotAvailableException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
             final Display display = Display.getDefault();
             display.syncExec(new Runnable(){
 
@@ -122,7 +103,6 @@ public class PythonRunner {
         String[] cmdLine = config.getCommandLine(true);
 
         Process p = createProcess(launch, config.envp, cmdLine, config.workingDirectory);
-        checkProcess(p);
         HashMap<Object, Object> processAttributes = new HashMap<Object, Object>();
         processAttributes.put(IProcess.ATTR_CMDLINE, config.getCommandLineAsString());
         processAttributes.put(Constants.PYDEV_DEBUG_IPROCESS_ATTR, Constants.PYDEV_DEBUG_IPROCESS_ATTR_TRUE);
@@ -132,7 +112,6 @@ public class PythonRunner {
         IProcess process;
         try {
             process = registerWithDebugPluginForProcessType(config.getRunningName(), launch,p, processAttributes, config);
-            checkProcess(p, process);
             t.process = process;
         } finally {
             t.finishedInit = true;
@@ -182,7 +161,6 @@ public class PythonRunner {
         
         //it was dying before register, so, I made this faster to see if this fixes it
         Process p = createProcess(launch, envp, cmdLine, workingDirectory);    
-        checkProcess(p);
 
         IProcess process;
         String label = cmdLine[cmdLine.length-1];
@@ -193,7 +171,6 @@ public class PythonRunner {
             throw new RuntimeException("Interactive not supported here!");
         }
         process = registerWithDebugPluginForProcessType(label, launch, p, processAttributes, config);
-        checkProcess(p, process);
 
         // Registered the process with the debug plugin
         subMonitor.subTask("Done");
@@ -220,6 +197,10 @@ public class PythonRunner {
             envp = s;
         }        
         Process p = DebugPlugin.exec(cmdLine, workingDirectory, envp);
+        if (p == null){
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR,"Could not execute python process.", null));
+        }
+        PythonRunnerCallbacks.afterCreatedProcess.call(p);
         return p;
     }
 

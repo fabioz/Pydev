@@ -65,6 +65,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.callbacks.ICallback;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.TreeNode;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -512,7 +513,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                         contents.close();
                     }
                 } catch (Exception e) {
-                    PydevPlugin.log("Handled error getting contents.", e);
+                    Log.log("Handled error getting contents.", e);
                     return false;
                 }
             }
@@ -849,26 +850,26 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
             }
             
         }catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         
         try {
             PythonNatureListenersManager.removePythonNatureListener(this);
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         
         try {
             this.topLevelChoice.dispose();
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
 
         
         try{
             super.dispose();
         }catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
         
@@ -949,7 +950,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                 IWorkspace workspace = adapter.getWorkspace();
                 set.add(workspace);
             }else{
-                PydevPlugin.log("Was not expecting that IWorkingSet adaptable didn't return anything...");
+                Log.log("Was not expecting that IWorkingSet adaptable didn't return anything...");
             }
         }
         return set.toArray(new IWorkspace[0]);
@@ -1194,11 +1195,22 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                         treeViewer.getControl().setRedraw(false);
                     }
                     try {
+                        Set<IProject> notifyRebuilt = new HashSet<IProject>();
+                        
                         //now, we have to make a bridge among the tree and
                         //the python model (so, if some element is removed,
                         //we have to create an actual representation for it)
                         if (addedObjects.length > 0) {
                             treeViewer.add(resource, addedObjects);
+                            for (Object object : addedObjects) {
+                                if(object instanceof IResource){
+                                    IResource rem = (IResource) object;
+                                    Object remInPythonModel = getResourceInPythonModel(rem, true);
+                                    if(remInPythonModel instanceof PythonSourceFolder){
+                                        notifyRebuilt.add(rem.getProject());
+                                    }
+                                }
+                            }
                         }
                         
                         if (removedObjects.length > 0) {
@@ -1208,16 +1220,16 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                                     IResource rem = (IResource) object;
                                     Object remInPythonModel = getResourceInPythonModel(rem, true);
                                     if(remInPythonModel instanceof PythonSourceFolder){
-                                        Map<IProject, ProjectInfoForPackageExplorer> p = projectToSourceFolders;
-                                        if(p != null){
-                                            ProjectInfoForPackageExplorer projectInfo = p.get(resource.getProject());
-                                            if(projectInfo != null){
-                                                Set<PythonSourceFolder> existingSourceFolders = projectInfo.sourceFolders;
-                                                existingSourceFolders.remove(remInPythonModel);
-                                            }
-                                        }
+                                        notifyRebuilt.add(rem.getProject());
                                     }
                                 }
+                            }
+                        }
+                        
+                        for(IProject project:notifyRebuilt){
+                            PythonNature nature = PythonNature.getPythonNature(project);
+                            if(nature != null){
+                                notifyPythonPathRebuilt(project, nature);
                             }
                         }
                     } finally {

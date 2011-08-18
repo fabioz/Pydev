@@ -11,16 +11,15 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunch;
-import org.eclipse.debug.core.Launch;
 import org.eclipse.ui.console.IConsoleFactory;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.Tuple4;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.env.IProcessFactory;
+import org.python.pydev.debug.newconsole.env.IProcessFactory.PydevConsoleLaunchInfo;
 import org.python.pydev.debug.newconsole.env.UserCanceledException;
 import org.python.pydev.dltk.console.ui.ScriptConsoleManager;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Could ask to configure the interpreter in the preferences
@@ -49,7 +48,19 @@ public class PydevConsoleFactory implements IConsoleFactory {
         try {
         	return createConsole(createDefaultPydevInterpreter(), null);
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
+        }
+        return null;
+    }
+    
+    /**
+     * @return a new PydevConsole or null if unable to create it (user cancels it)
+     */
+    public PydevConsole createConsole(String additionalInitialComands) {
+        try {
+            return createConsole(createDefaultPydevInterpreter(), additionalInitialComands);
+        } catch (Exception e) {
+            Log.log(e);
         }
         return null;
     }
@@ -63,7 +74,7 @@ public class PydevConsoleFactory implements IConsoleFactory {
                 return console;
             }
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         return null;
     	
@@ -89,21 +100,22 @@ public class PydevConsoleFactory implements IConsoleFactory {
         
         IProcessFactory iprocessFactory = new IProcessFactory();
         
-        Tuple4<Launch, Process, Integer, IInterpreterInfo> launchAndProcess = iprocessFactory.createInteractiveLaunch();
+        PydevConsoleLaunchInfo launchAndProcess = iprocessFactory.createInteractiveLaunch();
         if(launchAndProcess == null){
             return null;
         }
-        return createPydevInterpreter(
-        		launchAndProcess.o1, launchAndProcess.o2, 
-        		launchAndProcess.o3, launchAndProcess.o4, iprocessFactory.getNaturesUsed());
+        return createPydevInterpreter(launchAndProcess, iprocessFactory.getNaturesUsed());
 
         
     }
     
     // Use IProcessFactory to get the required tuple
     public static PydevConsoleInterpreter createPydevInterpreter(
-    		final ILaunch launch, Process process, Integer clientPort, 
-    		IInterpreterInfo interpreterInfo, List<IPythonNature> natures) throws Exception {
+            PydevConsoleLaunchInfo info, List<IPythonNature> natures) throws Exception {
+        final ILaunch launch = info.launch;
+        Process process = info.process;
+        Integer clientPort = info.clientPort;
+        IInterpreterInfo interpreterInfo = info.interpreter;
         if(launch == null){
             return null;
         }

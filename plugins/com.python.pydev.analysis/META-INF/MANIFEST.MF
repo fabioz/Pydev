@@ -21,7 +21,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.search,
  org.eclipse.ui.ide
 Eclipse-LazyStart: true
-Bundle-ClassPath: analysis.jar, retroweaver-rt.jar
+Bundle-ClassPath: analysis.jar
 Export-Package: com.python.pydev.analysis,
  com.python.pydev.analysis.actions,
  com.python.pydev.analysis.additionalinfo,

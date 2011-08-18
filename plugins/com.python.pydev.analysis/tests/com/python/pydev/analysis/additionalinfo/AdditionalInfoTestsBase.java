@@ -101,10 +101,10 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
     }
     
     
-    protected void addFooModule(final SimpleNode ast) {
+    protected void addFooModule(final SimpleNode ast, File f) {
         String modName = "foo";
         PythonNature natureToAdd = nature;
-        addModuleToNature(ast, modName, natureToAdd);
+        addModuleToNature(ast, modName, natureToAdd, f);
     }
 
     /**
@@ -112,18 +112,18 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
      * @param modName the module name
      * @param natureToAdd the nature where the module should be added
      */
-    protected void addModuleToNature(final SimpleNode ast, String modName, PythonNature natureToAdd) {
+    protected void addModuleToNature(final SimpleNode ast, String modName, PythonNature natureToAdd, File f) {
         //this is to add the info from the module that we just created...
-        AbstractAdditionalInterpreterInfo additionalInfo;
+        AbstractAdditionalDependencyInfo additionalInfo;
 		try {
 			additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(natureToAdd);
 		} catch (MisconfigurationException e) {
 			throw new RuntimeException(e);
 		}
-        additionalInfo.addAstInfo(ast, modName, natureToAdd, false);
+        additionalInfo.addAstInfo(ast, new ModulesKey(modName, f), false);
         ModulesManager modulesManager = (ModulesManager) natureToAdd.getAstManager().getModulesManager();
-        SourceModule mod = (SourceModule) AbstractModule.createModule(ast, null, modName);
-        modulesManager.doAddSingleModule(new ModulesKey(modName, null), mod);
+        SourceModule mod = (SourceModule) AbstractModule.createModule(ast, f, modName);
+        modulesManager.doAddSingleModule(new ModulesKey(modName, f), mod);
     }
     
 }

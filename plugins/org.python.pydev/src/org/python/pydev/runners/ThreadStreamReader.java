@@ -14,7 +14,7 @@ import java.io.InputStreamReader;
 
 import org.python.pydev.core.structure.FastStringBuffer;
 
-public class ThreadStreamReader extends Thread {
+public final class ThreadStreamReader extends Thread {
     
     /**
      * Input stream read.
@@ -30,6 +30,11 @@ public class ThreadStreamReader extends Thread {
      * Access to the buffer should be synchronized.
      */
     private final Object lock = new Object();
+
+    /**
+     * Whether the read should be synchronized.
+     */
+    private final boolean synchronize;
     
     /**
      * Keeps the next unique identifier.
@@ -45,18 +50,29 @@ public class ThreadStreamReader extends Thread {
     }
 
     public ThreadStreamReader(InputStream is) {
+        this(is, true); //default is synchronize.
+    }
+    
+    public ThreadStreamReader(InputStream is, boolean synchronize) {
         this.setName("ThreadStreamReader: "+next());
         this.setDaemon(true);
         contents = new FastStringBuffer();
         this.is = is;
+        this.synchronize = synchronize;
     }
 
     public void run() {
         try {
             InputStreamReader in = new InputStreamReader(is);
             int c;
-            while ((c = in.read()) != -1) {
-                synchronized(lock){
+            if(synchronize){
+                while ((c = in.read()) != -1) {
+                    synchronized(lock){
+                        contents.append((char) c);
+                    }
+                }
+            }else{
+                while ((c = in.read()) != -1) {
                     contents.append((char) c);
                 }
             }

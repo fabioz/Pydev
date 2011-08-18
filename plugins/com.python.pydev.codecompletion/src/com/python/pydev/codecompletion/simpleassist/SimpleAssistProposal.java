@@ -92,7 +92,7 @@ public class SimpleAssistProposal extends PyCompletionProposal implements ICompl
                 //check if we should dedent
             	PyAutoIndentStrategy strategy = new PyAutoIndentStrategy();
             	DocCmd cmd = new DocCmd(offset+fReplacementString.length()-dif, 0, " "); 
-            	Tuple<String, Integer> dedented = strategy.autoDedentElif(doc, cmd);
+            	Tuple<String, Integer> dedented = PyAutoIndentStrategy.autoDedentElif(doc, cmd, strategy.getIndentPrefs());
             	doc.replace(cmd.offset, 0, " :");
             	//make up for the ' :' (right before ':')
             	if(dedented != null){
@@ -108,7 +108,7 @@ public class SimpleAssistProposal extends PyCompletionProposal implements ICompl
             	//dedent if needed
             	PyAutoIndentStrategy strategy = new PyAutoIndentStrategy();
             	DocCmd cmd = new DocCmd(offset+replacementString.length()-dif, 0, ":"); 
-            	Tuple<String, Integer> dedented = strategy.autoDedentAfterColon(doc, cmd);
+            	Tuple<String, Integer> dedented = PyAutoIndentStrategy.autoDedentAfterColon(doc, cmd, strategy.getIndentPrefs());
             	doc.replace(cmd.offset, 0, ":");
             	//make up for the ':'
             	if(dedented != null){

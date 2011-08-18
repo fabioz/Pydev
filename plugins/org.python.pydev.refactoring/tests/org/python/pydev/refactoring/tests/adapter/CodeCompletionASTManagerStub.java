@@ -18,6 +18,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -166,6 +167,18 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
 
     public Object getLock() {
         return lock;
+    }
+
+    public Tuple<IModule, String> findModule(String fromImportStr, String currentModule, ICompletionState state)
+            throws CompletionRecursionException {
+        throw new RuntimeException("Not implemented");
+    }
+
+    /* (non-Javadoc)
+     * @see org.python.pydev.core.ICodeCompletionASTManager#saveToFile(java.io.File)
+     */
+    public void saveToFile(File astOutputFile) {
+        throw new RuntimeException("Not implemented");
     }
 
 }

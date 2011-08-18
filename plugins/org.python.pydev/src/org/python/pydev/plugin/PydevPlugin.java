@@ -7,9 +7,6 @@
 package org.python.pydev.plugin;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.MissingResourceException;
@@ -26,22 +23,23 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.BundleInfo;
 import org.python.pydev.core.bundle.IBundleInfo;
 import org.python.pydev.core.bundle.ImageCache;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.dltk.console.ui.ScriptConsoleUIConstants;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
@@ -49,6 +47,8 @@ import org.python.pydev.logging.ping.AsyncLogPing;
 import org.python.pydev.logging.ping.ILogPing;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
+import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.ui.ColorCache;
 import org.python.pydev.ui.interpreters.IronpythonInterpreterManager;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
@@ -57,7 +57,7 @@ import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 /**
  * The main plugin class - initialized on startup - has resource bundle for internationalization - has preferences
  */
-public class PydevPlugin extends AbstractUIPlugin implements Preferences.IPropertyChangeListener {
+public class PydevPlugin extends AbstractUIPlugin  {
     
     public static final String version = "REPLACE_VERSION";
     
@@ -147,6 +147,8 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     
     private static PydevPlugin plugin; //The shared instance.
 
+    private ColorCache colorCache;
+
     private ResourceBundle resourceBundle; //Resource bundle.
 
     public static final String DEFAULT_PYDEV_SCOPE = "org.python.pydev";
@@ -176,8 +178,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         } catch (MissingResourceException x) {
             resourceBundle = null;
         }
-        final Preferences preferences = plugin.getPluginPreferences();
-        preferences.addPropertyChangeListener(this);
+        final IPreferenceStore preferences = plugin.getPreferenceStore();
         
         //set them temporarily
         //setPythonInterpreterManager(new StubInterpreterManager(true));
@@ -235,7 +236,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
 			    }
 			} catch (Exception e) {
 			    //it may fail in tests... (save it in default folder in this cases)
-			    PydevPlugin.log(IStatus.ERROR, "Error getting persisting folder", e, false);
+			    Log.logInfo("Error getting persisting folder", e);
 			    base = new File(".");
 			}
 			File file = new File(base, "ping.log");
@@ -310,16 +311,13 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
             //stop the running shells
             AbstractShell.shutdownAllShells();
 
-            Preferences preferences = plugin.getPluginPreferences();
-            preferences.removePropertyChangeListener(this);
-            
             //save the natures (code completion stuff) -- and only the ones initialized 
             //(no point in getting the ones not initialized)
             for(PythonNature nature:PythonNature.getInitializedPythonNatures()){
                 try {
                     nature.saveAstManager();
                 } catch (Exception e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
             }
         } finally{
@@ -341,7 +339,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
 
     public static String getPluginID() {
         if(PydevPlugin.getDefault() == null){
-            return "PydevPluginID(null plugin)";
+            return "PyDevPluginID(null plugin)";
         }
         return PydevPlugin.getBundleInfo().getPluginID();
     }
@@ -372,85 +370,8 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     public ResourceBundle getResourceBundle() {
         return resourceBundle;
     }
-    
-    
-    public void propertyChange(Preferences.PropertyChangeEvent event) {
-        //        System.out.println( event.getProperty()
-        //         + "\n\told setting: "
-        //         + event.getOldValue()
-        //         + "\n\tnew setting: "
-        //         + event.getNewValue());
-    }
 
-    public static void log(String message, Throwable e) {
-        log(IStatus.ERROR, message, e);
-    }
     
-    public static void log(int errorLevel, String message, Throwable e) {
-        log(errorLevel, message, e, true);
-    }
-    public static void log(String message, Throwable e, boolean printToConsole) {
-        log(IStatus.ERROR, message, e, printToConsole);
-    }
-
-    public static void logInfo(Throwable e) {
-        log(IStatus.INFO, e.getMessage(), e, true);
-    }
-
-    /**
-     * @param errorLevel IStatus.[OK|INFO|WARNING|ERROR]
-     */
-    public static void log(int errorLevel, String message, Throwable e, boolean printToConsole) {
-        if(printToConsole){
-            if(errorLevel == IStatus.ERROR){
-                System.out.println("Error received...");
-            }else{
-                System.out.println("Log received...");
-            }
-            System.out.println(message);
-            System.err.println(message);
-            if(e != null){
-                e.printStackTrace();
-            }
-        }
-        
-        try {
-            Status s = new Status(errorLevel, getPluginID(), errorLevel, message, e);
-            getDefault().getLog().log(s);
-        } catch (Throwable e1) {
-            //logging should never fail!
-        }
-    }
-
-    public static void log(IStatus status) {
-        getDefault().getLog().log(status);
-    }
-    
-    public static void log(Throwable e) {
-        log(e, true);
-    }
-    
-    public static void log(Throwable e, boolean printToConsole) {
-        log(IStatus.ERROR, e.getMessage() != null ? e.getMessage() : "No message gotten.", e, printToConsole);
-    }
-
-    public static void logInfo(String msg) {
-        IStatus s = PydevPlugin.makeStatus(IStatus.INFO, msg, null);
-        PydevPlugin plug = getDefault();
-        if(plug == null){//testing mode
-            System.out.println(msg);
-        }else{
-            plug.getLog().log(s);
-        }
-    }
-    
-    public static CoreException log(String msg) {
-        IStatus s = PydevPlugin.makeStatus(IStatus.ERROR, msg, new RuntimeException(msg));
-        CoreException e = new CoreException(s);
-        PydevPlugin.log(e);
-        return e;
-    }
-
     /**
      * @return the script to get the variables.
      * 
@@ -493,55 +414,82 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
      * @return a tuple with the nature to be used and the name of the module represented by the file in that scenario.
      */
     public static Tuple<SystemPythonNature, String> getInfoForFile(File file){
-        String modName = null;
-        IInterpreterManager pythonInterpreterManager = getPythonInterpreterManager(false);
-        IInterpreterManager jythonInterpreterManager = getJythonInterpreterManager(false);
-        if(pythonInterpreterManager == null || jythonInterpreterManager == null){
-            return null;
-        }
-    
-        SystemPythonNature systemPythonNature = null;
-        SystemPythonNature pySystemPythonNature = null;
-        SystemPythonNature jySystemPythonNature = null;
         
-        try {
-            systemPythonNature = new SystemPythonNature(pythonInterpreterManager);
-            pySystemPythonNature = systemPythonNature;
-            modName = systemPythonNature.resolveModule(file);
-        } catch (Exception e) {
-            // that's ok
+        //Check if we can resolve the manager for the passed file...
+        IInterpreterManager pythonInterpreterManager2 = getPythonInterpreterManager(false);
+        Tuple<SystemPythonNature, String> infoForManager = getInfoForManager(file, pythonInterpreterManager2);
+        if(infoForManager != null){
+            return infoForManager;
         }
-        if(modName == null){
+        
+        IInterpreterManager jythonInterpreterManager2 = getJythonInterpreterManager(false);
+        infoForManager = getInfoForManager(file, jythonInterpreterManager2);
+        if(infoForManager != null){
+            return infoForManager;
+        }
+        
+        IInterpreterManager ironpythonInterpreterManager2 = getIronpythonInterpreterManager(false);
+        infoForManager = getInfoForManager(file, ironpythonInterpreterManager2);
+        if(infoForManager != null){
+            return infoForManager;
+        }
+
+        if(pythonInterpreterManager2.isConfigured()){
             try {
-                systemPythonNature = new SystemPythonNature(jythonInterpreterManager);
-                jySystemPythonNature = systemPythonNature;
-                modName = systemPythonNature.resolveModule(file);
-            } catch (Exception e) {
-                // that's ok
+                return new Tuple<SystemPythonNature, String>(new SystemPythonNature(pythonInterpreterManager2), 
+                        getModNameFromFile(file));
+            } catch (MisconfigurationException e) {
             }
         }
-        if(modName != null){
-            return new Tuple<SystemPythonNature, String>(systemPythonNature, modName);
-        }else{
-            //unable to discover it
+        
+        if(jythonInterpreterManager2.isConfigured()){
             try {
-                // the default one is python (actually, this should never happen, but who knows)
-                pythonInterpreterManager.getDefaultInterpreter();
-                modName = getModNameFromFile(file);
-                return new Tuple<SystemPythonNature, String>(pySystemPythonNature, modName);
-            } catch (Exception e) {
-                //the python interpreter manager is not valid or not configured
-                try {
-                    // the default one is jython
-                    jythonInterpreterManager.getDefaultInterpreter();
-                    modName = getModNameFromFile(file);
-                    return new Tuple<SystemPythonNature, String>(jySystemPythonNature, modName);
-                } catch (Exception e1) {
-                    // ok, nothing to do about it, no interpreter is configured
-                    return null;
+                return new Tuple<SystemPythonNature, String>(new SystemPythonNature(jythonInterpreterManager2), 
+                        getModNameFromFile(file));
+            } catch (MisconfigurationException e) {
+            }
+        }
+        
+        if(ironpythonInterpreterManager2.isConfigured()){
+            try {
+                return new Tuple<SystemPythonNature, String>(new SystemPythonNature(ironpythonInterpreterManager2), 
+                        getModNameFromFile(file));
+            } catch (MisconfigurationException e) {
+            }
+        }
+        
+        //Ok, nothing worked, let's just do a call which'll ask to configure python and return null! 
+        try {
+            pythonInterpreterManager2.getDefaultInterpreterInfo(true);
+        } catch (MisconfigurationException e) {
+            //Ignore
+        }
+        return null;
+    }
+    
+    /**
+     * @param file 
+     * @return 
+     * 
+     */
+    private static Tuple<SystemPythonNature, String> getInfoForManager(File file, IInterpreterManager pythonInterpreterManager) {
+        if(pythonInterpreterManager != null){
+            if(pythonInterpreterManager.isConfigured()){
+                IInterpreterInfo[] interpreterInfos = pythonInterpreterManager.getInterpreterInfos();
+                for (IInterpreterInfo iInterpreterInfo : interpreterInfos) {
+                    try {
+                        SystemPythonNature systemPythonNature = new SystemPythonNature(pythonInterpreterManager, iInterpreterInfo);
+                        String modName = systemPythonNature.resolveModule(file);
+                        if(modName != null){
+                            return new Tuple<SystemPythonNature, String>(systemPythonNature, modName);
+                        }
+                    } catch (Exception e) {
+                        // that's ok
+                    }
                 }
             }
         }
+        return null;
     }
     
     /**
@@ -598,52 +546,37 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         //it may not be correct, but it was the best we could do...
         return fullPath;
     }
-    
-    /**
-     * Writes to the workspace a given object (in the given filename)
-     */
-    public static void writeToWorkspaceMetadata(Object obj, String fileName) {
-        Bundle bundle = Platform.getBundle("org.python.pydev");
-        IPath path = Platform.getStateLocation( bundle );       
-        path = path.addTrailingSeparator();
-        path = path.append(fileName);
-        try {
-            FileOutputStream out = new FileOutputStream(path.toFile());
-            REF.writeToStreamAndCloseIt(obj, out);
-            
-        } catch (Exception e) {
-            PydevPlugin.log(e);
-            throw new RuntimeException(e);
-        }               
-    }
+
+
+    //Default for using in tests (could be private)
+    /*default*/ static File location;
 
     /**
      * Loads from the workspace metadata a given object (given the filename)
      */
-    public static Object readFromWorkspaceMetadata(String fileName) {
-        Bundle bundle = Platform.getBundle("org.python.pydev");
-        IPath path = Platform.getStateLocation( bundle );       
-        path = path.addTrailingSeparator();
-        path = path.append(fileName);
-        
-        FileInputStream fileInputStream = null;
-        try {
-            fileInputStream = new FileInputStream(path.toFile());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+    public static File getWorkspaceMetadataFile(String fileName) {
+        if(location == null){
+            try {
+                Bundle bundle = Platform.getBundle("org.python.pydev");
+                IPath path = Platform.getStateLocation( bundle );
+                location = path.toFile();
+            } catch (Exception e) {
+                throw new RuntimeException("If running in tests, call: setTestPlatformStateLocation", e);
+            }
         }
-        
-        return REF.readFromInputStreamAndCloseIt(new ICallback<Object, ObjectInputStream>(){
-
-            public Object call(ObjectInputStream arg) {
-                try{
-                    return arg.readObject();
-                }catch(Exception e){
-                    throw new RuntimeException(e);
-                }
-            }}, 
-            
-            fileInputStream);
+        return new File(location, fileName);
+    }
+    
+    /**
+     * @return
+     */
+    public static ColorCache getColorCache() {
+        PydevPlugin plugin = getDefault();
+        if(plugin.colorCache == null){
+            plugin.colorCache = new ColorCache(PydevPrefs.getChainedPrefStore()) {
+            };
+        }
+        return plugin.colorCache;
     }
     
 

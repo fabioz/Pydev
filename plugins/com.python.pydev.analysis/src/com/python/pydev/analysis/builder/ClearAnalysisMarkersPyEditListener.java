@@ -56,7 +56,7 @@ public class ClearAnalysisMarkersPyEditListener implements IPyEditListener, IPyE
      * @param input the input that has a related resource that should have markers removed
      */
     private void removeMarkersFromInput(IEditorInput input) {
-        if(input != null && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()){
+        if(input != null && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor() && PyDevBuilderPrefPage.getRemoveErrorsWhenEditorIsClosed()){
             IFile relatedFile = (IFile) input.getAdapter(IFile.class);
             
             if(relatedFile != null && relatedFile.exists()){

@@ -10,6 +10,7 @@
 package com.python.pydev.codecompletion.parameter;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -18,7 +19,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
@@ -72,9 +73,9 @@ public class ParameterCompletionTest extends AdditionalInfoTestsBase {
     // ------------------------------------------------------------------------------------------------- tests
     
     public void testSetup() throws MisconfigurationException {
-        AbstractAdditionalInterpreterInfo additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
+        AbstractAdditionalTokensInfo additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
         assertTrue(additionalInfo.getAllTokens().size() > 0);
-        List<IInfo> tokensStartingWith = additionalInfo.getTokensStartingWith("existingM", AbstractAdditionalInterpreterInfo.INNER);
+        Collection<IInfo> tokensStartingWith = additionalInfo.getTokensStartingWith("existingM", AbstractAdditionalTokensInfo.INNER);
         assertTrue(tokensStartingWith.size() == 1);
         assertIsIn("existingMethod", "testAssist.assist", tokensStartingWith);
     }
@@ -98,7 +99,7 @@ public class ParameterCompletionTest extends AdditionalInfoTestsBase {
     // ----------------------------------------------------------------------------------------------- asserts
     
     
-    private void assertIsIn(String tok, String mod, List<IInfo> tokensStartingWith) {
+    private void assertIsIn(String tok, String mod, Collection<IInfo> tokensStartingWith) {
         for (IInfo info : tokensStartingWith) {
             if(info.getName().equals(tok)){
                 if(info.getDeclaringModuleName().equals(mod)){

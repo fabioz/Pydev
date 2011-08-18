@@ -10,6 +10,7 @@ import java.io.File;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
+import org.python.pydev.core.log.Log;
 
 public class FileTreeContentProvider implements ITreeContentProvider {
     public Object[] getChildren(Object element) {
@@ -35,8 +36,8 @@ public class FileTreeContentProvider implements ITreeContentProvider {
         }else if(element instanceof String){
             return new File((String) element).getParent();
         }
-        System.out.println("element not instance of File of String: " + element.getClass().getName() + " "
-                + element.toString());
+        Log.log(("element not instance of File of String: " + element.getClass().getName() + " " 
+        + element.toString()));
         return null;
     }
 

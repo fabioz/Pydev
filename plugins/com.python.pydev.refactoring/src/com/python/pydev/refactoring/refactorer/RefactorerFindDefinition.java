@@ -27,10 +27,8 @@ import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editor.refactoring.TooManyMatchesException;
-import org.python.pydev.plugin.PydevPlugin;
-
 import com.python.pydev.analysis.AnalysisPlugin;
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
 
@@ -53,6 +51,7 @@ public class RefactorerFindDefinition {
      */
     public ItemPointer[] findDefinition(RefactoringRequest request) {
         try{
+            request.getMonitor().beginTask("Find definition", 100);
             List<ItemPointer> pointers = new ArrayList<ItemPointer>();
             CompletionCache completionCache = new CompletionCache();
             ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
@@ -75,7 +74,7 @@ public class RefactorerFindDefinition {
                 List<IInfo> tokensEqualTo;
 				try {
 					tokensEqualTo = AdditionalProjectInterpreterInfo.getTokensEqualTo(lookForInterface, request.nature,
-					        AbstractAdditionalInterpreterInfo.TOP_LEVEL | AbstractAdditionalInterpreterInfo.INNER);
+					        AbstractAdditionalTokensInfo.TOP_LEVEL | AbstractAdditionalTokensInfo.INNER);
 					ICodeCompletionASTManager manager = request.nature.getAstManager();
 					if(manager == null){
 						return new ItemPointer[0];
@@ -91,7 +90,7 @@ public class RefactorerFindDefinition {
 						request.checkCancelled();
 					}
 				} catch (MisconfigurationException e) {
-					PydevPlugin.log(e);
+					Log.log(e);
 					return new ItemPointer[0];
 				}
                 
@@ -104,7 +103,6 @@ public class RefactorerFindDefinition {
             throw e;
         }finally{
             request.getMonitor().done();
-            request.popMonitor();
         }
     }
 

@@ -16,8 +16,6 @@ import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Module;
-import org.python.pydev.parser.jython.ast.stmtType;
-import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 
 public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
@@ -27,7 +25,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testNPEError3();
+            test.testArgs3();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -144,6 +142,61 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         FunctionDef funcDef = (FunctionDef) node.body[0];
         String result = PrettyPrinterV2.printArguments(p, funcDef.args);
         assertEquals("**a", result);
+    }
+    
+    public void testEllipsis() throws Throwable {
+        final String s = "" +
+        "...\n"+
+        "";
+        
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        checkPrettyPrintEqual(s, s);
+    }
+    
+    public void testEllipsis2() throws Throwable {
+        final String s = "" +
+        "class Bar(object):\n" +
+        "    ...\n" +
+        "...\n"+
+        "";
+        
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        checkPrettyPrintEqual(s, s);
+    }
+
+
+    public void testEllipsis3() throws Throwable {
+        final String s = "" +
+        "from ... import foo\n" +
+        "class Bar(object):\n" +
+        "    ...\n" +
+        "...\n"+
+        "";
+        
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        checkPrettyPrintEqual(s, s);
+    }
+    
+    public void testEllipsis4() throws Throwable {
+        final String s = "" +
+        "lst[...]\n" +
+        "";
+        
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7);
+        checkPrettyPrintEqual(s, s);
+    }
+    
+    public void testEllipsis5() throws Throwable {
+        final String s = "" +
+        "from ... import foo\n" +
+        "class Bar(object):\n" +
+        "    lst[...]\n" +
+        "    ...\n" +
+        "...\n"+
+        "";
+        
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        checkPrettyPrintEqual(s, s);
     }
     
     
@@ -2969,6 +3022,38 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         FunctionDef funcDef = (FunctionDef) node.body[0];
         //yes, just making sure it's not supported.
         assertEquals("(a, b), c", PrettyPrinterV2.printArguments(versionProvider, funcDef.args));
+        
+    }
+    
+    
+    public void testPrintMultipleKwargsInClassDef() throws Throwable {
+        final String s = ""+
+        "class A(meta=B,foo=C):\n" +
+        "    pass\n" +
+        "";
+        
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        checkPrettyPrintEqual(s);
+        
+    }
+    
+    public void testNewSetEndingWithComma() throws Throwable {
+        String s = "s = {1,}\n";
+        String expected = "s = {1}\n"; //yes, when creating a copy we loose the specials (and end without the comma).
+        
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        checkPrettyPrintEqual(s, s, expected);
+        
+    }
+    
+    public void testArgs3() throws Throwable {
+        String expected = "" +
+        "def test(arg,attribute,a=10,b=20,*args,**kwargs):\n"+
+        "    return Parent.test(arg,attribute,a=a,b=b,*args,**kwargs)\n" +
+        "";
+        
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7);
+        checkPrettyPrintEqual(expected, expected);
         
     }
     

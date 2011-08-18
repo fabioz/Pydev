@@ -12,7 +12,6 @@ import java.util.List;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -20,28 +19,26 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyOpenAction;
-import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.model.ItemPointer;
 
 /**
  * This is the proposal that goes outside. It only creates the proposal that'll actually do something later, as
  * creating that proposal may be slower.
  */
-public final class TddRefactorCompletionInModule extends PyCompletionProposal implements ICompletionProposalExtension2 {
+public final class TddRefactorCompletionInModule extends AbstractTddRefactorCompletion {
     
     private File module;
-    private PyEdit edit;
     private List<String> parametersAfterCall;
-    private PyCreateAction pyCreateAction;
+    private AbstractPyCreateAction pyCreateAction;
     private PySelection ps;
+    public int locationStrategy = AbstractPyCreateAction.LOCATION_STRATEGY_END;
 
     public TddRefactorCompletionInModule(String replacementString, 
             Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, 
-            int priority, PyEdit edit, File module, List<String> parametersAfterCall, PyCreateAction pyCreateAction, PySelection ps) {
+            int priority, PyEdit edit, File module, List<String> parametersAfterCall, AbstractPyCreateAction pyCreateAction, PySelection ps) {
         
-        super(replacementString, 0, 0, 0, image, displayString, contextInformation, additionalProposalInfo, priority);
+        super(edit, replacementString, 0, 0, 0, image, displayString, contextInformation, additionalProposalInfo, priority);
         this.module = module;
-        this.edit = edit;
         this.parametersAfterCall = parametersAfterCall;
         this.pyCreateAction = pyCreateAction;
         this.ps = ps;
@@ -75,13 +72,16 @@ public final class TddRefactorCompletionInModule extends PyCompletionProposal im
                 fAdditionalProposalInfo, 
                 0, 
                 pyEdit,
-                PyCreateClass.LOCATION_STRATEGY_END,
+                locationStrategy,
                 parametersAfterCall,
                 pyCreateAction,
                 ps
                 );
         completion.apply(pyEdit.getEditorSourceViewer(), '\n', 0, 0);
-
+        
+        //As the change was done in another module, let's ask for a new code analysis for the current editor,
+        //as the new contents should fix the marker which we used for the fix.
+        forceReparseInBaseEditorAnd(pyEdit);
     }
     
 

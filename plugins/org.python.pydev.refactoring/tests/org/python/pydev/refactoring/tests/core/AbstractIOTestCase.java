@@ -10,11 +10,13 @@ import java.util.ArrayList;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IModulesManager;
-import org.python.pydev.core.ISystemModulesManager;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
+import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.refactoring.ast.PythonModuleManager;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
@@ -40,17 +42,31 @@ public abstract class AbstractIOTestCase extends TestCase implements IInputOutpu
         if(version != null){
             //As the files will be found in the system, we need to set the system modules manager info.
             IModulesManager modulesManager = pythonModuleManager.getIModuleManager();
-            ISystemModulesManager systemModulesManager = modulesManager.getSystemModulesManager();
+            SystemModulesManager systemModulesManager = (SystemModulesManager) modulesManager.getSystemModulesManager();
             systemModulesManager.setInfo(new InterpreterInfo(version, "", new ArrayList<String>()));
             
             CodeCompletionTestsBase.nature.setVersion(version, null);
         }
         ModuleAdapter module = VisitorFactory.createModuleAdapter(
                 pythonModuleManager,
-                data.file, new Document(data.source), CodeCompletionTestsBase.nature);
+                data.file, new Document(data.source), CodeCompletionTestsBase.nature,
+                CodeCompletionTestsBase.nature);
         return module;
     }
     
+    protected IGrammarVersionProvider createVersionProvider() {
+        IGrammarVersionProvider versionProvider = new IGrammarVersionProvider() {
+            
+            public int getGrammarVersion() throws MisconfigurationException {
+                if(data.file.toString().contains("_grammar3")){
+                    return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0;
+                }
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+            }
+        };
+        return versionProvider;
+    }
+
 
 
 	public AbstractIOTestCase(String name) {

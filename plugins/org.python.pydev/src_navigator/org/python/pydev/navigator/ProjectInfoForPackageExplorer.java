@@ -19,9 +19,9 @@ import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 /**
@@ -102,7 +102,7 @@ public class ProjectInfoForPackageExplorer{
             try {
                 project.deleteMarkers(PythonBaseModelProvider.PYDEV_PACKAGE_EXPORER_PROBLEM_MARKER, true, 0);
             } catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             
             List<ProjectConfigError> errors = configErrorsAndInfo.o1;
@@ -113,7 +113,7 @@ public class ProjectInfoForPackageExplorer{
                     attributes.put(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
                     MarkerUtilities.createMarker(project, attributes, PythonBaseModelProvider.PYDEV_PACKAGE_EXPORER_PROBLEM_MARKER);
                 } catch (Exception e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
             }
         }

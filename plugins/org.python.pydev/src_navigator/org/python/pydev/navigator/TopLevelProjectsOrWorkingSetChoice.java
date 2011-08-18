@@ -20,8 +20,8 @@ import org.eclipse.ui.navigator.CommonViewer;
 import org.eclipse.ui.navigator.ICommonContentExtensionSite;
 import org.eclipse.ui.navigator.IExtensionStateModel;
 import org.python.pydev.core.callbacks.ICallback;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.navigator.elements.IWrappedResource;
-import org.python.pydev.plugin.PydevPlugin;
 /**
  * Based on code from WorkingSetsContentProvider (but as it's internal and dependent on ProjectExplorer, 
  * we MUST create our own)
@@ -82,7 +82,7 @@ public class TopLevelProjectsOrWorkingSetChoice {
             
             extensionStateModel.addPropertyChangeListener(rootModeListener);
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         updateRootMode();
     }
@@ -120,7 +120,7 @@ public class TopLevelProjectsOrWorkingSetChoice {
             }
             extensionStateModel = null;
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
     

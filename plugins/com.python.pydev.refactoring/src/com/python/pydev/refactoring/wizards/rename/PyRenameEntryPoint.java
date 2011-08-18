@@ -9,6 +9,7 @@
  */
 package com.python.pydev.refactoring.wizards.rename;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,10 +17,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
@@ -134,7 +135,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
 
     @Override
     public String getProcessorName() {
-        return "Pydev PyRenameProcessor";
+        return "PyDev PyRenameProcessor";
     }
 
     @Override
@@ -237,19 +238,26 @@ public class PyRenameEntryPoint extends RenameProcessor {
         RefactoringStatus status = new RefactoringStatus();
         try {
             if (process == null || process.size() == 0) {
+                request.getMonitor().beginTask("Finding references", 1);
                 status.addFatalError("Refactoring Process not defined: the refactoring cycle did not complet correctly.");
                 return status;
             }
+            request.getMonitor().beginTask("Finding references", process.size());
             
             fChange = new CompositeChange("RenameChange: '" + request.initialName+ "' to '"+request.inputName+"'");
 
-            request.getMonitor().beginTask("Finding references", 2*100*process.size());
-            //(each process has 100 for finding references and 100 for creating change object)
-            
-            // now, check the initial and final conditions
+            //Finding references and creating change object...
+            //now, check the initial and final conditions
             for (IRefactorRenameProcess p : process) {
                 request.checkCancelled();
-                p.findReferencesToRename(request, status);
+                
+                request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 1));
+                try {
+                    p.findReferencesToRename(request, status);
+                } finally {
+                    request.popMonitor().done();
+                }
+                
                 if (status.hasFatalError() || request.getMonitor().isCanceled()) {
                     return status;
                 }
@@ -311,18 +319,18 @@ public class PyRenameEntryPoint extends RenameProcessor {
      * @return a map that points the references found in other files Note that
      *         this will exclude the references found in this buffer.
      */
-    public Map<Tuple<String, IFile>, HashSet<ASTEntry>> getOccurrencesInOtherFiles() {
-        HashMap<Tuple<String, IFile>, HashSet<ASTEntry>> m = new HashMap<Tuple<String, IFile>, HashSet<ASTEntry>>();
+    public Map<Tuple<String, File>, HashSet<ASTEntry>> getOccurrencesInOtherFiles() {
+        HashMap<Tuple<String, File>, HashSet<ASTEntry>> m = new HashMap<Tuple<String, File>, HashSet<ASTEntry>>();
         if (process == null || process.size() == 0) {
             return null;
         }
 
         for (IRefactorRenameProcess p : process) {
-            Map<Tuple<String, IFile>, HashSet<ASTEntry>> o = p.getOccurrencesInOtherFiles();
+            Map<Tuple<String, File>, HashSet<ASTEntry>> o = p.getOccurrencesInOtherFiles();
             if (o != null) {
 
-                for (Map.Entry<Tuple<String, IFile>, HashSet<ASTEntry>> entry : o.entrySet()) {
-                    Tuple<String, IFile> key = entry.getKey();
+                for (Map.Entry<Tuple<String, File>, HashSet<ASTEntry>> entry : o.entrySet()) {
+                    Tuple<String, File> key = entry.getKey();
 
                     HashSet<ASTEntry> existingOccurrences = m.get(key);
                     if (existingOccurrences == null) {

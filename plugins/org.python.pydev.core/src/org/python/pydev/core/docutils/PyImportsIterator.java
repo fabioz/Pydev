@@ -42,14 +42,21 @@ public class PyImportsIterator implements Iterator<ImportHandle> {
      * Document used in the iteration
      */
     private IDocument doc;
+
+    private boolean addOnlyGlobalImports;
+    
+    public PyImportsIterator(IDocument doc) {
+        this(doc, true);
+    }
     
     /**
      * Constructor
      * 
      * @param doc the document from where the import should be gathered.
      */
-    public PyImportsIterator(IDocument doc) {
+    public PyImportsIterator(IDocument doc, boolean addOnlyGlobalImports) {
         this.doc = doc;
+        this.addOnlyGlobalImports = addOnlyGlobalImports;
         delimiter = PySelection.getDelimiter(doc);
         this.docIterator = new PyDocIterator(doc, false, false, false, true);
         //gather the 1st import
@@ -72,7 +79,15 @@ public class PyImportsIterator implements Iterator<ImportHandle> {
         while(docIterator.hasNext()){
             String str = docIterator.next();
             
-            if((str.startsWith("import ") || str.startsWith("from "))){
+            boolean match;
+            if(addOnlyGlobalImports){
+                match = str.startsWith("import ") || str.startsWith("from ");
+            }else{
+                str = StringUtils.leftTrim(str);
+                match = str.startsWith("import ") || str.startsWith("from ");
+            }
+            
+            if(match){
                 startFoundLine = docIterator.getLastReturnedLine();
                 
                 if(str.indexOf('(') != -1){ //we have something like from os import (pipe,\nfoo)

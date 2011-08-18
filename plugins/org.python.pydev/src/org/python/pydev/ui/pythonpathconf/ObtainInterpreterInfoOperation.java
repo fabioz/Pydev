@@ -78,7 +78,7 @@ public class ObtainInterpreterInfoOperation implements IRunnableWithProgress{
         monitor = new OperationMonitor(monitor, logger);
         monitor.beginTask("Getting libs", 100);
         try {
-            InterpreterInfo interpreterInfo = (InterpreterInfo) interpreterManager.createInterpreterInfo(file, monitor);
+            InterpreterInfo interpreterInfo = (InterpreterInfo) interpreterManager.createInterpreterInfo(file, monitor, true);
             if(interpreterInfo != null){
                 result = interpreterInfo;
             }

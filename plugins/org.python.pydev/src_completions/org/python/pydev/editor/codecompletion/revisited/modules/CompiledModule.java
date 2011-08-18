@@ -29,15 +29,16 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.cache.LRUCache;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * @author Fabio Zadrozny
@@ -73,7 +74,7 @@ public class CompiledModule extends AbstractModule{
      * 
      * @param module - module from where to get completions.
      */
-    public CompiledModule(String name, ICodeCompletionASTManager manager){
+    public CompiledModule(String name, IModulesManager manager){
         this(name, IToken.TYPE_BUILTIN, manager);
     }
 
@@ -82,7 +83,7 @@ public class CompiledModule extends AbstractModule{
      * @param module - module from where to get completions.
      */
     @SuppressWarnings("unchecked")
-    public CompiledModule(String name, int tokenTypes, ICodeCompletionASTManager manager){
+    public CompiledModule(String name, int tokenTypes, IModulesManager manager){
         super(name);
         if(COMPILED_MODULES_ENABLED){
             try {
@@ -106,8 +107,7 @@ public class CompiledModule extends AbstractModule{
                     setTokens(name, manager);
                 } catch (Exception e2) {
                     tokens = new HashMap<String, IToken>();
-                    e2.printStackTrace();
-                    PydevPlugin.log(e2);
+                    Log.log(e2);
                 }
             }
         }else{
@@ -123,20 +123,19 @@ public class CompiledModule extends AbstractModule{
 
     }
 
-    private void setTokens(String name, ICodeCompletionASTManager manager) throws IOException, Exception, CoreException {
+    private void setTokens(String name, IModulesManager manager) throws IOException, Exception, CoreException {
         if(TRACE_COMPILED_MODULES){
-            PydevPlugin.log(IStatus.INFO, "Compiled modules: getting info for:"+name, null);
+            Log.log(IStatus.INFO, ("Compiled modules: getting info for:"+name), null);
         }
         final IPythonNature nature = manager.getNature();
         AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
         synchronized(shell){
             Tuple<String, List<String[]>> completions = shell.getImportCompletions(name, 
-                    manager.getModulesManager().getCompletePythonPath(nature.getProjectInterpreter(), 
+                    manager.getCompletePythonPath(nature.getProjectInterpreter(), 
                             nature.getRelatedInterpreterManager())); //default
             
             if(TRACE_COMPILED_MODULES){
-                PydevPlugin.log(IStatus.INFO, 
-                        "Compiled modules: "+name+" file: "+completions.o1+" found: "+completions.o2.size()+" completions.", null);
+                Log.log(IStatus.INFO, ("Compiled modules: "+name+" file: "+completions.o1+" found: "+completions.o2.size()+" completions."), null);
             }
             String fPath = completions.o1;
             if(fPath != null){
@@ -185,7 +184,7 @@ public class CompiledModule extends AbstractModule{
                         received += "  ";
                     }
                     
-                    PydevPlugin.log(IStatus.ERROR, "Error getting completions for compiled module "+name+" received = '"+received+"'", e);
+                    Log.log(IStatus.ERROR, ("Error getting completions for compiled module "+name+" received = '"+received+"'"), e);
                 }
             }
             
@@ -305,7 +304,7 @@ public class CompiledModule extends AbstractModule{
                     cache.put(activationToken, map);
                 }
             } catch (Exception e) {
-                PydevPlugin.log("Error while getting info for module:"+this.name+". Project: "+manager.getNature().getProject(), e);
+                Log.log("Error while getting info for module:"+this.name+". Project: "+manager.getNature().getProject(), e);
             }
         }
         return toks;

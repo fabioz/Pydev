@@ -6,16 +6,15 @@
  */
 package org.python.pydev.core.callbacks;
 
-import java.util.ArrayList;
-
+import org.python.pydev.core.OrderedSet;
 import org.python.pydev.core.log.Log;
 
 public class CallbackWithListeners<X> implements ICallbackWithListeners<X>{
 
-	private ArrayList<ICallbackListener<X>> listeners;
+	private final OrderedSet<ICallbackListener<X>> listeners;
 
 	public CallbackWithListeners() {
-		this.listeners = new ArrayList<ICallbackListener<X>>();
+		this.listeners = new OrderedSet<ICallbackListener<X>>();
 	}
 	
 	public Object call(X obj) {
@@ -37,5 +36,9 @@ public class CallbackWithListeners<X> implements ICallbackWithListeners<X>{
 	public void registerListener(ICallbackListener<X> listener) {
 		this.listeners.add(listener);
 	}
+
+    public void unregisterListener(ICallbackListener<X> listener) {
+        this.listeners.remove(listener);
+    }
 
 }

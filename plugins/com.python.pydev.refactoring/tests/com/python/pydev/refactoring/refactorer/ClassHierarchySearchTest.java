@@ -9,10 +9,12 @@
  */
 package com.python.pydev.refactoring.refactorer;
 
+import java.io.File;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
@@ -31,7 +33,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
         try {
             ClassHierarchySearchTest test = new ClassHierarchySearchTest();
             test.setUp();
-            test.testFindHierarchy5();
+            test.testFindHierarchy9();
             test.tearDown();
             
             junit.textui.TestRunner.run(ClassHierarchySearchTest.class);
@@ -41,12 +43,19 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
     }
 
     private Refactorer refactorer;
+    private File baseDir;
+    
 
     public void setUp() throws Exception {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         this.restorePythonPath(false);
         refactorer = new Refactorer();
+        baseDir = REF.getTempFileAt(new File("."), "data_temp_class_hierarchy_search_test");
+        if(baseDir.exists()){
+            REF.deleteDirectoryTree(baseDir);
+        }
+        baseDir.mkdir();
         SourceModule.TESTING = true;
     }
 
@@ -54,25 +63,48 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
         CompiledModule.COMPILED_MODULES_ENABLED = false;
         ProjectModulesManager projectModulesManager = ((ProjectModulesManager)nature.getAstManager().getModulesManager());
         projectModulesManager.doRemoveSingleModule(new ModulesKey("foo", null));
+        projectModulesManager.doRemoveSingleModule(new ModulesKey("foo0", null));
         projectModulesManager.doRemoveSingleModule(new ModulesKey("fooIn1", null));
+        projectModulesManager.doRemoveSingleModule(new ModulesKey("fooIn10", null));
         
         projectModulesManager = ((ProjectModulesManager)nature2.getAstManager().getModulesManager());
         projectModulesManager.doRemoveSingleModule(new ModulesKey("fooIn2", null));
+        projectModulesManager.doRemoveSingleModule(new ModulesKey("fooIn20", null));
+        
+        if(baseDir.exists()){
+            REF.deleteDirectoryTree(baseDir);
+        }
         super.tearDown();
     }
     
-    public void testFindHierarchy() {
+    public void testFindHierarchy() throws Throwable {
         final int line = 1;
         final int col = 9;
-        
+
+//        System.out.println("START ------------");
+//        System.out.println("START ------------");
+//        System.out.println("START ------------");
+//        System.out.println("START ------------");
         RefactoringRequest request = setUpFooModule(line, col);
         
-        HierarchyNodeModel node = refactorer.findClassHierarchy(request);
-        assertEquals("Bar", node.name);
-        assertEquals("foo", node.moduleName);
+        try {
+//            RefactorerFinds.DEBUG = true;
+//            AbstractAdditionalDependencyInfo.DEBUG = true;
+            
+            HierarchyNodeModel node = refactorer.findClassHierarchy(request, false);
+            assertEquals("Bar", node.name);
+            assertTrue(node.moduleName.startsWith("foo"));
         
-        assertIsIn("Pickler", "pickle", node.parents);
-        assertIsIn("Foo", "foo", node.children);
+            assertIsIn("Pickler", "pickle", node.parents);
+            assertIsIn("Foo", node.moduleName, node.children);
+        }finally{
+//            System.out.println("END ------------");
+//            System.out.println("END ------------");
+//            System.out.println("END ------------");
+//            System.out.println("END ------------");
+//            AbstractAdditionalDependencyInfo.DEBUG = false;
+//            RefactorerFinds.DEBUG = false;
+        }
     }
 
     public void testFindHierarchy2() {
@@ -81,11 +113,11 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
         
         RefactoringRequest request = setUpFooModule(line, col);
         
-        HierarchyNodeModel node = refactorer.findClassHierarchy(request);
+        HierarchyNodeModel node = refactorer.findClassHierarchy(request, false);
         assertEquals("Foo", node.name);
-        assertEquals("foo", node.moduleName);
+        assertTrue(node.moduleName.startsWith("foo"));
         
-        HierarchyNodeModel model = assertIsIn("Bar", "foo", node.parents);
+        HierarchyNodeModel model = assertIsIn("Bar", node.moduleName, node.parents);
         assertIsIn("Pickler", "pickle", model.parents);
         
     }
@@ -104,11 +136,11 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
         
         RefactoringRequest request = setUpFooModule(line, col, str);
         
-        HierarchyNodeModel node = refactorer.findClassHierarchy(request);
+        HierarchyNodeModel node = refactorer.findClassHierarchy(request, false);
         assertEquals("Foo", node.name);
-        assertEquals("foo", node.moduleName);
+        assertTrue(node.moduleName.startsWith("foo"));
         
-        assertIsIn("Bar", "foo", node.parents);
+        assertIsIn("Bar", node.moduleName, node.parents);
         assertIsIn("Pickler", "pickle", node.parents);
         
     }
@@ -128,12 +160,12 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
         
         RefactoringRequest request = setUpFooModule(line, col, str);
         
-        HierarchyNodeModel node = refactorer.findClassHierarchy(request);
+        HierarchyNodeModel node = refactorer.findClassHierarchy(request, false);
         assertEquals("Bar", node.name);
-        assertEquals("foo", node.moduleName);
+        assertTrue(node.moduleName.startsWith("foo"));
         
-        node = assertIsIn("Foo", "foo", node.children);
-        assertIsIn("Foo1", "foo", node.children);
+        node = assertIsIn("Foo", node.moduleName, node.children);
+        assertIsIn("Foo1", node.moduleName, node.children);
         
     }
     
@@ -156,14 +188,14 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
         
         RefactoringRequest request = setUpFooModule(line, col, str);
         
-        HierarchyNodeModel node = refactorer.findClassHierarchy(request);
+        HierarchyNodeModel node = refactorer.findClassHierarchy(request, false);
         assertEquals("Leaf", node.name);
-        assertEquals("foo", node.moduleName);
+        assertTrue(node.moduleName.startsWith("foo"));
         
-        HierarchyNodeModel mid1 = assertIsIn("Mid1", "foo", node.parents);
-        HierarchyNodeModel mid2 = assertIsIn("Mid2", "foo", node.parents);
-        assertIsIn("Root", "foo", mid1.parents);
-        HierarchyNodeModel root = assertIsIn("Root", "foo", mid2.parents);
+        HierarchyNodeModel mid1 = assertIsIn("Mid1", node.moduleName, node.parents);
+        HierarchyNodeModel mid2 = assertIsIn("Mid2", node.moduleName, node.parents);
+        assertIsIn("Root", node.moduleName, mid1.parents);
+        HierarchyNodeModel root = assertIsIn("Root", node.moduleName, mid2.parents);
         assertIsIn("object", null, root.parents);
         
     }
@@ -190,11 +222,11 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
         
         RefactoringRequest request = setUpFooModule(line, col, str);
         
-        HierarchyNodeModel node = refactorer.findClassHierarchy(request);
+        HierarchyNodeModel node = refactorer.findClassHierarchy(request, false);
         assertEquals("Bla", node.name);
-        assertEquals("foo", node.moduleName);
+        assertTrue(node.moduleName.startsWith("foo"));
         
-        HierarchyNodeModel foo = assertIsIn("Foo", "foo", node.parents);
+        HierarchyNodeModel foo = assertIsIn("Foo", node.moduleName, node.parents);
         assertEquals(0, foo.parents.size());
         
     }
@@ -210,12 +242,35 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
         request = setUpModule(line, col, str2, "fooIn2", nature2);
         request = setUpModule(line, col, str, "fooIn1", nature);
         
-        HierarchyNodeModel node = refactorer.findClassHierarchy(request);
+        HierarchyNodeModel node = refactorer.findClassHierarchy(request, false);
         assertEquals("FooIn1", node.name);
-        assertEquals("fooIn1", node.moduleName);
+        assertTrue(node.moduleName.startsWith("fooIn1"));
         
         HierarchyNodeModel foo = assertIsIn("FooIn2", "fooIn2", node.children);
         assertEquals(0, foo.parents.size());
+    }
+    
+    public void testFindHierarchy9() {
+        String fooIn1Original  = "class FooIn1(object):pass\n";
+        String fooIn1Dep = "from fooIn1Original import FooIn1\n";
+        String fooIn2 = "from fooIn1Dep import FooIn1\nclass FooIn2(FooIn1):pass\n";
+        
+        final int line = 1;
+        final int col = 8;
+        
+        setUpModule(0, 0, fooIn1Original, "fooIn1Original", nature);
+        setUpModule(0, 0, fooIn1Dep, "fooIn1Dep", nature);
+        RefactoringRequest request;
+        request = setUpModule(line, col, fooIn2, "fooIn2", nature);
+        
+        HierarchyNodeModel node = refactorer.findClassHierarchy(request, false);
+        assertEquals("FooIn2", node.name);
+        assertTrue(node.moduleName.startsWith("fooIn2"));
+        
+        assertEquals(node.parents.size(), 1);
+        
+        HierarchyNodeModel foo = node.parents.get(0);
+        assertNotNull(foo.ast);
     }
 
     private RefactoringRequest setUpFooModule(final int line, final int col) {
@@ -236,7 +291,10 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
         return setUpModule(line, col, str, modName, natureToAdd);
     }
 
-    private RefactoringRequest setUpModule(final int line, final int col, String str, String modName, PythonNature natureToAdd) {
+    private RefactoringRequest setUpModule(
+            final int line, final int col, String str, String modName, PythonNature natureToAdd) {
+        File f = new File(baseDir, modName+".py");
+        
         Document doc = new Document(str);
         PySelection ps = new PySelection(doc, line, col);
         
@@ -244,7 +302,9 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
         request.moduleName = modName;
         final SimpleNode ast = request.getAST();
         
-        addModuleToNature(ast, modName, natureToAdd);
+        REF.writeStrToFile(str, f);
+
+        addModuleToNature(ast, modName, natureToAdd, f);
         return request;
     }
 
@@ -257,7 +317,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase  {
             if(model.name.equals(name)){
                 if(modName == null){
                     return model;
-                }else if(model.moduleName.equals(modName)){
+                }else if(model.moduleName.equals(modName) || model.moduleName.startsWith(modName)){
                     return model;
                 }
             }

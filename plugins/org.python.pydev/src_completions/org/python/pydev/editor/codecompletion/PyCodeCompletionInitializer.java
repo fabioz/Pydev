@@ -48,6 +48,7 @@ public class PyCodeCompletionInitializer extends AbstractPreferenceInitializer{
         //Debug
         node.putBoolean(PyLoggingPreferencesPage.DEBUG_CODE_COMPLETION, PyLoggingPreferencesPage.DEFAULT_DEBUG_CODE_COMPLETION);
         node.putBoolean(PyLoggingPreferencesPage.DEBUG_ANALYSIS_REQUESTS, PyLoggingPreferencesPage.DEFAULT_DEBUG_ANALYSIS_REQUESTS);
+        node.putBoolean(PyLoggingPreferencesPage.DEBUG_INTERPRETER_AUTO_UPDATE, PyLoggingPreferencesPage.DEFAULT_DEBUG_INTERPRETER_AUTO_UPDATE);
     }
 
 }

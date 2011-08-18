@@ -35,7 +35,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.utils.PyFileListing.PyFileInfo;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 
 public class NatureGroup extends ElementWithChildren {
@@ -117,19 +117,19 @@ public class NatureGroup extends ElementWithChildren {
         TreeSet<ModulesKey> inModulesManager = new TreeSet<ModulesKey>(Arrays.asList(onlyDirectModules));
         
         Set<String> allAdditionalInfoModuleNames = new TreeSet<String>();
-        Tuple<List<AbstractAdditionalInterpreterInfo>, List<IPythonNature>> additionalInfoAndNature = AdditionalProjectInterpreterInfo.getAdditionalInfoAndNature(nature, false, false, false);
-        AbstractAdditionalInterpreterInfo additionalProjectInfo;
-        if(additionalInfoAndNature.o1.size() == 0){
+        List<Tuple<AbstractAdditionalTokensInfo, IPythonNature>> additionalInfoAndNature = AdditionalProjectInterpreterInfo.getAdditionalInfoAndNature(nature, false, false, false);
+        AbstractAdditionalTokensInfo additionalProjectInfo;
+        if(additionalInfoAndNature.size() == 0){
             addChild(new LeafElement(this, "No additional infos found (1 expected) -- skipping other checks."));
             return;
             
         } else{
-            if(additionalInfoAndNature.o1.size() > 1){
+            if(additionalInfoAndNature.size() > 1){
                 addChild(new LeafElement(this, 
                         StringUtils.format("%s additional infos found (only 1 expected) -- continuing checks but analysis may be wrong.", 
-                                additionalInfoAndNature.o1.size())));
+                                additionalInfoAndNature.size())));
             }
-            additionalProjectInfo = additionalInfoAndNature.o1.get(0);
+            additionalProjectInfo = additionalInfoAndNature.get(0).o1;
             allAdditionalInfoModuleNames.addAll(additionalProjectInfo.getAllModulesWithTokens());
         }
         
@@ -208,7 +208,7 @@ public class NatureGroup extends ElementWithChildren {
         
         for(SourceModule mod:info.moduleNotInAdditionalInfo){
             addChild(new LeafElement(this, StringUtils.format("FIX: Adding to additional info: %s", mod.getName())));
-            additionalProjectInfo.addSourceModuleInfo(mod, info.nature, true);
+            additionalProjectInfo.addAstInfo(mod.getAst(), mod.getModulesKey(), true);
         }
         
     }

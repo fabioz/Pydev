@@ -12,10 +12,7 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.Serializable;
+import java.io.IOException;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
@@ -26,8 +23,8 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.IASTManagerObserver;
-import org.python.pydev.plugin.PydevPlugin;
 
 
 /**
@@ -42,13 +39,8 @@ import org.python.pydev.plugin.PydevPlugin;
  * 
  * @author Fabio Zadrozny
  */
-public final class ASTManager extends AbstractASTManager implements ICodeCompletionASTManager, Serializable{
+public final class ASTManager extends AbstractASTManager implements ICodeCompletionASTManager{
 
-    
-    /**
-     * changed to 11L on release 1.4.2
-     */
-    protected static final long serialVersionUID = 11L;
     
     public ASTManager() {}
     
@@ -64,7 +56,7 @@ public final class ASTManager extends AbstractASTManager implements ICodeComplet
                 observer.notifyASTManagerAttached(this);
             } catch (Exception e) {
                 //let's keep it safe
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
     }
@@ -104,32 +96,17 @@ public final class ASTManager extends AbstractASTManager implements ICodeComplet
         return getProjectModulesManager().getSize(true);
     }
 
-    public static ICodeCompletionASTManager loadFromFile(File astOutputFile) {
-        return (ICodeCompletionASTManager) IOUtils.readFromFile(astOutputFile);
+    public void saveToFile(File astOutputFile) {
+        modulesManager.saveToFile(astOutputFile);
+    }
+    
+    public static ICodeCompletionASTManager loadFromFile(File astOutputFile) throws IOException {
+        ASTManager astManager = new ASTManager();
+        ProjectModulesManager projectModulesManager = new ProjectModulesManager();
+        ProjectModulesManager.loadFromFile(projectModulesManager, astOutputFile);
+        astManager.modulesManager = projectModulesManager;
+        return astManager;
     }
 
 }
 
-
-
-class IOUtils {
-
-    /**
-     * @param astOutputFile
-     * @return
-     */
-    public static Object readFromFile(File astOutputFile) {
-        try {
-            InputStream input = new FileInputStream(astOutputFile);
-            ObjectInputStream in = new ObjectInputStream(input);
-            Object o = in.readObject();
-            in.close();
-            input.close();
-            return o;
-        } catch (Exception e) {
-            //ok, no need to log it.
-            return null;
-        }
-    }
-
-}

@@ -9,7 +9,9 @@
  */
 package org.python.pydev.core.docutils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 
 import junit.framework.TestCase;
 
@@ -21,18 +23,28 @@ public class StringUtilsTest extends TestCase {
         try {
             StringUtilsTest test = new StringUtilsTest();
             test.setUp();
-            test.testRemoveWhitespaceColumnsToLeftAndApplyIndent();
+            test.testFormat();
             test.tearDown();
             junit.textui.TestRunner.run(StringUtilsTest.class);
         } catch (Throwable e) {
             e.printStackTrace();
         }
     }
-
+    
     public void testFormat() {
         assertEquals("teste", StringUtils.format("%s", new Object[]{"teste"}));
         assertEquals("teste 1", StringUtils.format("%s 1", new Object[]{"teste"}));
+        assertEquals("teste 1 2 3 teste", StringUtils.format("teste %s %s 3 %s", new Object[]{"1", "2", "teste"}));
+        assertEquals("teste 1 2 %s", StringUtils.format("teste 1 2 %%s", new Object[]{}));
+        assertEquals("teste 1 2 3", StringUtils.format("teste 1 2 %s", new Object[]{"3"}));
+        assertEquals("teste 1 2 3", StringUtils.format("%s 1 2 3", new Object[]{"teste"}));
+        assertEquals("teste 1 2 3", StringUtils.format("%s 1 2 %s", new Object[]{"teste", 3}));
+        assertEquals("null 1 2 null", StringUtils.format("%s 1 2 %s", new Object[]{null, null}));
+        assertEquals("", StringUtils.format("%s", new Object[]{""}));
         assertEquals("%", StringUtils.format("%", new Object[]{}));
+        
+        assertEquals("", StringUtils.format("%1", new Object[]{}));
+        assertEquals("", StringUtils.format("% ", new Object[]{}));
     }
     
     public void testStripExt() {
@@ -109,9 +121,82 @@ public class StringUtilsTest extends TestCase {
         
     }
     
+    public void testSplitWithMax() throws Exception{
+        String[] split = StringUtils.split("a b c", ' ', 1).toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"a b c"}, split));
+        
+        split = StringUtils.split("a b c", ' ', 2).toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"a", "b c"}, split));
+        
+        split = StringUtils.split("aaa  bb  ", ' ', 2).toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"aaa", "bb  "}, split));
+        
+        split = StringUtils.split("aaa  bb  ", ' ', 3).toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"aaa", "bb"}, split));
+        
+        split = StringUtils.split("aaa  bb  ", ' ', 1).toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"aaa  bb  "}, split));
+    }
+    
+    public void testIterLines() throws Exception{
+        ArrayList<String> arrayList = new ArrayList<String>();
+        
+        Iterable<String> iterLines = StringUtils.iterLines("aa\nbb\nccc");
+        Iterator<String> it = iterLines.iterator();
+        while(it.hasNext()){
+            arrayList.add(it.next());
+        }
+        assertEquals(Arrays.asList("aa\n", "bb\n", "ccc"), arrayList);
+        arrayList.clear();
+
+        
+        for(String s:StringUtils.iterLines("aa")){
+            arrayList.add(s);
+        }
+        assertEquals(Arrays.asList("aa"), arrayList);
+        arrayList.clear();
+        
+        
+        for(String s:StringUtils.iterLines("")){
+            arrayList.add(s);
+        }
+        assertEquals(Arrays.asList(), arrayList);
+        arrayList.clear();
+        
+        for(String s:StringUtils.iterLines("\n")){
+            arrayList.add(s);
+        }
+        assertEquals(Arrays.asList("\n"), arrayList);
+        arrayList.clear();
+        
+        for(String s:StringUtils.iterLines("\n\na")){
+            arrayList.add(s);
+        }
+        assertEquals(Arrays.asList("\n", "\n", "a"), arrayList);
+        arrayList.clear();
+        
+        for(String s:StringUtils.iterLines("a\n\r\n")){
+            arrayList.add(s);
+        }
+        assertEquals(Arrays.asList("a\n", "\r\n"), arrayList);
+        arrayList.clear();
+        
+        for(String s:StringUtils.iterLines("a\n\r\n\r\r")){
+            arrayList.add(s);
+        }
+        assertEquals(Arrays.asList("a\n", "\r\n", "\r", "\r"), arrayList);
+        arrayList.clear();
+    }
+    
     public void testSplit() throws Exception{
         String[] split = StringUtils.split("aaa bb  ", ' ').toArray(new String[0]);
         assertTrue(Arrays.equals(new String[]{"aaa", "bb"}, split));
+        
+        split = StringUtils.split("|||", '|').toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{}, split));
+        
+        split = StringUtils.split("|a||", '|').toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"a"}, split));
         
         split = StringUtils.split("  aaa  bb   ", ' ').toArray(new String[0]);
         assertTrue(Arrays.equals(new String[]{"aaa", "bb"}, split));
@@ -164,7 +249,12 @@ public class StringUtilsTest extends TestCase {
     
     
     public void testSplitOnString() throws Exception {
-        String[] split = StringUtils.split("aaa bb ccc bb kkk bb ", " bb ").toArray(new String[0]);
+        String[] split;
+        
+        split = StringUtils.split("&&2|1|2|0&&1|3|4|0&&2|1|2|0", "&&").toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"2|1|2|0", "1|3|4|0", "2|1|2|0"}, split));
+        
+        split = StringUtils.split("aaa bb ccc bb kkk bb ", " bb ").toArray(new String[0]);
         assertTrue(Arrays.equals(new String[]{"aaa", "ccc", "kkk"}, split));
         
         split = StringUtils.split("aaa bb ccc bb kkk bb", " bb ").toArray(new String[0]);
@@ -271,7 +361,7 @@ public class StringUtilsTest extends TestCase {
         
         assertTrue(StringUtils.isPythonIdentifier("a"));
         assertTrue(StringUtils.isPythonIdentifier("a1"));
-        assertTrue(StringUtils.isPythonIdentifier("a1Àã"));
+        assertTrue(StringUtils.isPythonIdentifier("a1ï¿½ï¿½"));
     }
     
     public void testGetFirstWithUpper() throws Exception {
@@ -284,6 +374,16 @@ public class StringUtilsTest extends TestCase {
         assertEquals("", StringUtils.indentTo("", ""));
         assertEquals("  aa\n  bb", StringUtils.indentTo("aa\nbb", "  "));
         assertEquals(" a", StringUtils.indentTo("a", " "));
+    }
+    
+    public void testMd5() throws Exception {
+        assertEquals("ck2u8j60r58fu0sgyxrigm3cu", StringUtils.md5(""));
+        assertEquals("4l3c9nzlvo3spzkuri5l3r4si", StringUtils.md5("c:\\my_really\\big\\python\\path\\executable\\is_\\very_very_very\\long\\python.exe"));
+    }
+    
+    public void testJoin() throws Exception {
+        assertEquals(";", StringUtils.join(";", "", ""));
+        
     }
 }
 

@@ -4,7 +4,7 @@
  */
 package com.python.pydev.analysis.additionalinfo.builders;
 
-import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.IModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.IModulesObserver;
 
@@ -16,7 +16,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.IModulesObserver
  */
 public class AdditionalInfoModulesObserver implements IModulesObserver {
 
-    public void notifyCompiledModuleCreated(CompiledModule module, ICodeCompletionASTManager manager) {
+    public void notifyCompiledModuleCreated(CompiledModule module, IModulesManager manager) {
 //        IPythonNature nature = manager.getNature();
 //        AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
 //        if(info == null){

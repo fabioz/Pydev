@@ -6,6 +6,7 @@
  */
 package org.python.pydev.core.tooltips.presenter;
 
+import org.eclipse.jface.bindings.keys.KeySequence;
 import org.eclipse.jface.text.DefaultInformationControl.IInformationPresenter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
@@ -22,6 +23,8 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.Widget;
+import org.python.pydev.bindingutils.KeyBindingHelper;
+import org.python.pydev.core.uiutils.UIUtils;
 
 /**
  * Shows tooltips as an information presenter, so, links can be added and the user can interact with it.
@@ -35,7 +38,7 @@ import org.eclipse.swt.widgets.Widget;
  * tooltip text on the fly.
  */
 public class ToolTipPresenterHandler {
-    
+
     public static final String TIP_DATA = "TIP_DATA";
     private Shell tipShell;
     private Label tipLabelImage, tipLabelText;
@@ -45,38 +48,25 @@ public class ToolTipPresenterHandler {
 
     public ToolTipPresenterHandler(Shell parent) {
         this(parent, null);
-        
+
     }
+
     /**
      * Creates a new tooltip handler
      *
      * @param parent the parent Shell
      */
     public ToolTipPresenterHandler(Shell parent, IInformationPresenter presenter) {
-        final Display display = parent.getDisplay();
-
-        tipShell = new Shell(parent, SWT.ON_TOP | SWT.TOOL);
-        GridLayout gridLayout = new GridLayout();
-        gridLayout.numColumns = 2;
-        gridLayout.marginWidth = 2;
-        gridLayout.marginHeight = 2;
-        tipShell.setLayout(gridLayout);
-
-        tipShell.setBackground(display.getSystemColor(SWT.COLOR_INFO_BACKGROUND));
-
-        tipLabelImage = new Label(tipShell, SWT.NONE);
-        tipLabelImage.setForeground(display.getSystemColor(SWT.COLOR_INFO_FOREGROUND));
-        tipLabelImage.setBackground(display.getSystemColor(SWT.COLOR_INFO_BACKGROUND));
-        tipLabelImage.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.VERTICAL_ALIGN_CENTER));
-
-        tipLabelText = new Label(tipShell, SWT.NONE);
-        tipLabelText.setForeground(display.getSystemColor(SWT.COLOR_INFO_FOREGROUND));
-        tipLabelText.setBackground(display.getSystemColor(SWT.COLOR_INFO_BACKGROUND));
-        tipLabelText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.VERTICAL_ALIGN_CENTER));
-
-        tooltip = new InformationPresenterControlManager(presenter);
         this.presenter = presenter;
+        tooltip = new InformationPresenterControlManager(presenter);
+    }
 
+    private void disposeOfCurrentTipShell() {
+        if (tipShell != null) {
+            tipShell.dispose();
+            tipShell = null;
+        }
+        tipWidget = null;
     }
 
     /**
@@ -85,6 +75,7 @@ public class ToolTipPresenterHandler {
      * @control the control on which to enable hoverhelp
      */
     public void install(final Control control) {
+
         tooltip.install(control);
 
         /*
@@ -92,8 +83,7 @@ public class ToolTipPresenterHandler {
          */
         control.addMouseListener(new MouseAdapter() {
             public void mouseDown(MouseEvent e) {
-                if (tipShell.isVisible())
-                    tipShell.setVisible(false);
+                disposeOfCurrentTipShell();
             }
         });
 
@@ -102,9 +92,7 @@ public class ToolTipPresenterHandler {
          */
         control.addMouseTrackListener(new MouseTrackAdapter() {
             public void mouseExit(MouseEvent e) {
-                if (tipShell.isVisible())
-                    tipShell.setVisible(false);
-                tipWidget = null;
+                disposeOfCurrentTipShell();
             }
 
             public void mouseHover(MouseEvent event) {
@@ -123,26 +111,37 @@ public class ToolTipPresenterHandler {
                     widget = w.getItem(pt);
                 }
                 if (widget == null) {
-                    tipShell.setVisible(false);
-                    tipWidget = null;
+                    disposeOfCurrentTipShell();
                     return;
                 }
-                if (widget == tipWidget)
+                if (widget == tipWidget){
                     return;
+                }
+                
                 tipWidget = widget;
                 Object data = widget.getData(TIP_DATA);
-                if(data == null){
+                if (data == null) {
                     return;
                 }
                 final String text;
-                if(data instanceof String){
+                if (data instanceof String) {
                     text = (String) data;
-                }else{
+                } else {
                     text = data.toString();
                 }
-                if(text == null){
+                if (text == null) {
                     return;
                 }
+
+                //It must be set before showing the tooltip, as we'll loose the focus to the tooltip and the
+                //currently active bindings will become inactive.
+                KeySequence activateEditorBinding = KeyBindingHelper.getCommandKeyBinding("org.eclipse.ui.window.activateEditor");
+                tooltip.setActivateEditorBinding(activateEditorBinding);
+                Shell activeShell = UIUtils.getActiveShell();
+                tooltip.setInitiallyActiveShell(activeShell);
+                
+                createControls();
+
                 final Point pos = new Point(pt.x + 10, pt.y);
                 ITooltipInformationProvider provider = new ITooltipInformationProvider() {
 
@@ -155,16 +154,44 @@ public class ToolTipPresenterHandler {
                     }
                 };
 
-                if(presenter instanceof IInformationPresenterAsTooltip){
+                if (presenter instanceof IInformationPresenterAsTooltip) {
                     IInformationPresenterAsTooltip iInformationPresenterAsTooltip = (IInformationPresenterAsTooltip) presenter;
                     iInformationPresenterAsTooltip.setData(data);
                 }
                 tooltip.setInformationProvider(provider);
                 tooltip.showInformation();
-                
+
             }
         });
 
     }
-}
 
+    
+    private void createControls() {
+        Display display = UIUtils.getDisplay();
+
+        if (tipShell != null) {
+            return;
+        }
+
+        tipShell = new Shell(display, SWT.ON_TOP | SWT.TOOL);
+        GridLayout gridLayout = new GridLayout();
+        gridLayout.numColumns = 2;
+        gridLayout.marginWidth = 2;
+        gridLayout.marginHeight = 2;
+        tipShell.setLayout(gridLayout);
+
+        tipShell.setBackground(display.getSystemColor(SWT.COLOR_INFO_BACKGROUND));
+
+        tipLabelImage = new Label(tipShell, SWT.NONE);
+        tipLabelImage.setForeground(display.getSystemColor(SWT.COLOR_INFO_FOREGROUND));
+        tipLabelImage.setBackground(display.getSystemColor(SWT.COLOR_INFO_BACKGROUND));
+        tipLabelImage.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.VERTICAL_ALIGN_CENTER));
+
+        tipLabelText = new Label(tipShell, SWT.NONE);
+        tipLabelText.setForeground(display.getSystemColor(SWT.COLOR_INFO_FOREGROUND));
+        tipLabelText.setBackground(display.getSystemColor(SWT.COLOR_INFO_BACKGROUND));
+        tipLabelText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.VERTICAL_ALIGN_CENTER));
+    }
+
+}

@@ -7,17 +7,18 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import org.python.pydev.core.ICompletionCache;
-import org.python.pydev.core.cache.LRUCache;
+import org.python.pydev.core.cache.CacheMapWrapper;
+import org.python.pydev.core.cache.LRUMap;
 
 /**
  * Default completion cache implementation
  *
  * @author Fabio
  */
-public class CompletionCache extends LRUCache<Object, Object> implements ICompletionCache {
+public final class CompletionCache extends CacheMapWrapper<Object, Object> implements ICompletionCache {
 
     public CompletionCache() {
-        super(200);
+        super(new LRUMap<Object, Object>(200));
     }
 
 }

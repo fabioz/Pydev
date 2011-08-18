@@ -53,11 +53,11 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ProjectMisconfiguredException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
+import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.plugin.PydevPlugin;
@@ -109,7 +109,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     }
     
     
-    private Object initLock = new Object();
+    private final Object initLock = new Object();
     
     
     
@@ -157,12 +157,12 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                                 observer.notifyProjectPythonpathRestored(nature, jobProgressComunicator);
                             } catch (Exception e) {
                                 //let's keep it safe
-                                PydevPlugin.log(e);
+                                Log.log(e);
                             }
                         }
                     }
                 } catch (Throwable e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
 
                 PythonNatureListenersManager.notifyPythonPathRebuilt(project, nature); 
@@ -308,7 +308,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         	//call initialize always - let it do the control.
             init(null, null, null, new NullProgressMonitor(), null, null);
         }else{
-        	this.clearCaches();
+        	this.clearCaches(false);
         }
 
     }
@@ -320,7 +320,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 try {
                     return PythonNature.addNature(file.getProject(), null, null, null, null, null, null);
                 } catch (CoreException e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
             }
         }
@@ -344,21 +344,21 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             //we have to set the nature store to stop listening changes to .pydevproject
             nature.pythonNatureStore.setProject(null);
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         
         try {
             //we have to remove the project from the pythonpath nature too...
             nature.pythonPathNature.setProject(null, null);
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         
         //notify listeners that the pythonpath nature is now empty for this project
         try {
             PythonNatureListenersManager.notifyPythonPathRebuilt(project, null); 
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         
         try {
@@ -368,7 +368,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 member.delete(true, null);
             }
         } catch (CoreException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
 
         //and finally... remove the nature
@@ -504,7 +504,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                     this.setVersion(version, interpreter);
                 }
             } catch (CoreException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }finally{
                 this.getStore().endInit();
             }
@@ -528,7 +528,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         	try {
 				rebuildPath();
 			} catch (CoreException e) {
-				PydevPlugin.log(e);
+				Log.log(e);
 			}
 			return;
         }
@@ -562,14 +562,14 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                                 observer.notifyNatureRecreated(this, monitor);
                             } catch (Exception e) {
                                 //let's not fail because of other plugins
-                                PydevPlugin.log(e);
+                                Log.log(e);
                             }
                         }
                     }
                 }
             }
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.logInfo("Info: Rebuilding internal caches for: "+this.project, e);
             astManager = null;
         }
         
@@ -578,7 +578,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             try {
                 rebuildPath();
             } catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
     }
@@ -614,7 +614,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         if(completionsCacheDir == null){
         	return null;
         }
-		return new File(completionsCacheDir, "asthelper.completions");
+		return new File(completionsCacheDir, "v1_astmanager");
     }
 
     /**
@@ -622,7 +622,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * @throws CoreException 
      */
     public void rebuildPath() throws CoreException {
-        clearCaches();
+        clearCaches(true);
         String paths = this.pythonPathNature.getOnlyProjectPythonPathStr(true);
         synchronized(this.setParamsLock){
 		    this.rebuildJob.cancel();
@@ -703,7 +703,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                     return (PythonNature) n;
                 }
             } catch (CoreException e) {
-                PydevPlugin.logInfo(e);
+                Log.logInfo(e);
             }
         }
         return null;
@@ -775,7 +775,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * @throws CoreException 
      */
     public void setVersion(String version, String interpreter) throws CoreException{
-        clearCaches();
+        clearCaches(false);
         
         if(version != null){
             this.versionPropertyCache = version;
@@ -827,11 +827,11 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         }
         
         if(astManager == null){
-            REF.writeToFile(null, astOutputFile);
+            return;
             
         }else{
             synchronized(astManager.getLock()){
-                REF.writeToFile(astManager, astOutputFile);
+                astManager.saveToFile(astOutputFile);
             }
         }
     }
@@ -917,18 +917,21 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     
     // ------------------------------------------------------------------------------------------ LOCAL CACHES
-    public void clearCaches() {
+    public void clearCaches(boolean clearGlobalModulesCache) {
         this.interpreterType = null;
         this.versionPropertyCache = null;
         this.interpreterPropertyCache = null;
         this.pythonPathNature.clearCaches();
+        if(clearGlobalModulesCache){
+            ModulesManager.clearCache();
+        }
     }
     
     Integer interpreterType = null; //cache
     
-    public void setBuiltinCompletions(IToken[] comps) {
+    public void clearBuiltinCompletions() {
         try {
-			this.getRelatedInterpreterManager().setBuiltinCompletions(comps, this.getProjectInterpreterName());
+			this.getRelatedInterpreterManager().clearBuiltinCompletions(this.getProjectInterpreterName());
 		} catch (CoreException e) {
 			throw new RuntimeException(e);
 		}
@@ -937,7 +940,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     public IToken[] getBuiltinCompletions() {
         try {
 			return this.getRelatedInterpreterManager().getBuiltinCompletions(this.getProjectInterpreterName());
-		} catch (CoreException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
     }
@@ -945,14 +948,14 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     public IModule getBuiltinMod(){
         try {
 			return this.getRelatedInterpreterManager().getBuiltinMod(this.getProjectInterpreterName());
-		} catch (CoreException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
     }
 
-    public void setBuiltinMod(IModule mod){
+    public void clearBuiltinMod(){
         try {
-			this.getRelatedInterpreterManager().setBuiltinMod(mod, this.getProjectInterpreterName());
+			this.getRelatedInterpreterManager().clearBuiltinMod(this.getProjectInterpreterName());
 		} catch (CoreException e) {
 			throw new RuntimeException(e);
 		}
@@ -1057,7 +1060,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             }
         }
         
-        PydevPlugin.log("Unable to recognize version: "+grammarVersion+" returning default.");
+        Log.log("Unable to recognize version: "+grammarVersion+" returning default.");
         return LATEST_GRAMMAR_VERSION;
     }
     
@@ -1094,7 +1097,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             
             if(IPythonNature.DEFAULT_INTERPRETER.equals(projectInterpreterName)){
                 //if it's the default, let's translate it to the outside world 
-                ret = relatedInterpreterManager.getDefaultInterpreterInfo(null);
+                ret = relatedInterpreterManager.getDefaultInterpreterInfo(true);
             }else{
                 ret = relatedInterpreterManager.getInterpreterInfo(projectInterpreterName, null);
             }
@@ -1109,7 +1112,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
                 String msg = "Invalid interpreter: "+projectInterpreterName+" configured for project: "+projectName+".";
                 ProjectMisconfiguredException e = new ProjectMisconfiguredException(msg);
-                PydevPlugin.log(e);
+                Log.log(e);
                 throw e;
                 
             }else{
@@ -1178,7 +1181,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                     }
                     if(resource == null || !resource.exists()){
                         lst.add(new ProjectConfigError(
-                                relatedToProject, "Invalid source folder specified: "+path));
+                                relatedToProject, "Source folder: "+path+" not found"));
                     }
                 }
             }

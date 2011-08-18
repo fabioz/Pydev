@@ -138,7 +138,7 @@ public class AnalysisRunner {
                 return;
             }
             
-            PydevMarkerUtils.replaceMarkers(lst, resource, AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, monitor);
+            PydevMarkerUtils.replaceMarkers(lst, resource, AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, true, monitor);
             //timer.printDiff("Time to put markers: "+lst.size());
         } catch (Exception e) {
             Log.log(e);

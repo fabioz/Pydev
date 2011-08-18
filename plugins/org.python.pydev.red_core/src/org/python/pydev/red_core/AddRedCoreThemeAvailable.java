@@ -6,6 +6,8 @@
  */
 package org.python.pydev.red_core;
 
+import org.python.pydev.red_core.preferences.PydevRedCorePreferencesInitializer;
+
 import com.aptana.editor.common.CommonEditorPlugin;
 import com.aptana.theme.ThemePlugin;
 
@@ -15,6 +17,10 @@ import com.aptana.theme.ThemePlugin;
 public class AddRedCoreThemeAvailable {
 
 	private static volatile Boolean redCoreAvailable = null;
+	
+	public static boolean isRedCoreAvailableForTheming(){
+	    return(isRedCoreAvailable() && PydevRedCorePreferencesInitializer.getUseAptanaThemes());
+	}
 	
 	public static boolean isRedCoreAvailable(){
 		if(redCoreAvailable == null){

@@ -112,10 +112,29 @@ if not IS_PYTHON_3K: #For Python 3.0, the PYTHONIOENCODING should already treat 
             import traceback;traceback.print_exc() #@Reimport
 
 
+try:
+    import org.python.core.PyDictionary #@UnresolvedImport @UnusedImport -- just to check if it could be valid
+    def DictContains(d, key):
+        return d.has_key(key)
+except:
+    try:
+        #Py3k does not have has_key anymore, and older versions don't have __contains__
+        DictContains = dict.__contains__
+    except:
+        try:
+            DictContains = dict.has_key
+        except NameError:
+            def DictContains(d, key):
+                return d.has_key(key)
 
 
 #----------------------------------------------------------------------------------------------------------------------- 
 #now that we've finished the needed pydev sitecustomize, let's run the default one (if available)
+
+#Ok, some weirdness going on in Python 3k: when removing this module from the sys.module to import the 'real'
+#sitecustomize, all the variables in this scope become None (as if it was garbage-collected), so, the the reference
+#below is now being kept to create a cyclic reference so that it neven dies)
+__pydev_sitecustomize_module__ = sys.modules.get('sitecustomize') #A ref to this module
 
 
 #remove the pydev site customize (and the pythonpath for it)
@@ -133,7 +152,8 @@ try:
                 #We'll re-add any paths removed but the pydev_sitecustomize we added from pydev.
                 paths_removed.append(c)
             
-    del sys.modules['sitecustomize'] #this module
+    if DictContains(sys.modules, 'sitecustomize'):
+        del sys.modules['sitecustomize'] #this module
 except:
     #print the error... should never happen (so, always show, and not only on debug)!
     import traceback;traceback.print_exc() #@Reimport
@@ -141,8 +161,13 @@ else:
     #Now, execute the default sitecustomize
     try:
         import sitecustomize #@UnusedImport
-    except ImportError:
+        sitecustomize.__pydev_sitecustomize_module__=__pydev_sitecustomize_module__
+    except:
         pass
+    
+    if not DictContains(sys.modules, 'sitecustomize'):
+        #If there was no sitecustomize, re-add the pydev sitecustomize (pypy gives a KeyError if it's not there)
+        sys.modules['sitecustomize'] = __pydev_sitecustomize_module__
     
     try:
         if paths_removed:

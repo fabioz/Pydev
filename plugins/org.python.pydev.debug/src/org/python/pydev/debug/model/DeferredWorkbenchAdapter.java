@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.ui.DeferredDebugElementWorkbenchAdapter;
 import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
 import org.eclipse.ui.progress.IElementCollector;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.GetVariableCommand;
 import org.python.pydev.debug.model.remote.ICommandResponseListener;
@@ -112,7 +113,7 @@ public class DeferredWorkbenchAdapter extends DeferredDebugElementWorkbenchAdapt
                 Thread.sleep(10); //10 millis
             }
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Log.log(e);
         }
 
         if(commandVariables != null){

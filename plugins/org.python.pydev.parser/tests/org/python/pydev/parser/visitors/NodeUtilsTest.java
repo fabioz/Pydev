@@ -11,8 +11,10 @@ import java.util.List;
 
 import org.python.pydev.parser.PyParserTestBase;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.Module;
+import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
@@ -191,5 +193,18 @@ public class NodeUtilsTest extends PyParserTestBase {
         List<ASTEntry> classes = visitor.getClassesAndMethodsList();
         assertEquals(1, classes.size());
         assertEquals(endLine, classes.get(0).endLine);
+    }
+    
+    public void testFindStmtForNode() throws Exception {
+        Module ast = (Module) parseLegalDocStr("a=10;b=20;c=30");
+        Assign assign = (Assign) ast.body[1];
+        Name b = (Name) assign.targets[0];
+        assertSame(assign, NodeUtils.findStmtForNode(ast, b));
+        
+        ast = (Module) parseLegalDocStr("a=10\nb=20\nc=30");
+        assign = (Assign) ast.body[1];
+        b = (Name) assign.targets[0];
+        assertSame(assign, NodeUtils.findStmtForNode(ast, b));
+        
     }
 }

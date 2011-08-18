@@ -7,7 +7,7 @@ Interactive Console
 Console View
 --------------
 
-**Ctrl+Alt+Enter** (while in the Pydev editor) can be used to:
+**Ctrl+Alt+Enter** (while in the PyDev editor) can be used to:
 
 * Open a console if there's no open console
 * Send the selected text to the console
@@ -64,7 +64,7 @@ Hyperlinks are linked in tracebacks
    :class: snap
 
 
-The color, initial commands and vm args for jython can be configured in window > preferences > pydev > interactive console
+The color, initial commands and vm args for jython can be configured in window > preferences > PyDev > interactive console
 
 .. image:: images/console/prefs.png
    :class: snap

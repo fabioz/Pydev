@@ -13,10 +13,11 @@ package org.python.pydev.debug.model;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IVariable;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.log.Log;
 
 /**
  * This class should check for value modifications in the stacks while debugging.
@@ -56,7 +57,7 @@ public class ValueModificationChecker {
             }
             
         } catch (DebugException e) {        
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
 
@@ -104,7 +105,9 @@ public class ValueModificationChecker {
             for (PyThread thread : threads) {
                 ids.add(thread.getId());
             }
-            for(String id: cache.keySet()){
+            //Must iterate in a copy.
+            Set<String> keySet = new HashSet<String>(cache.keySet());
+            for(String id: keySet){
                 if(!ids.contains(id)){
                     cache.remove(id);
                 }

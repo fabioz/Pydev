@@ -13,6 +13,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.decoratorsType;
+import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.ui.UIConstants;
 
 /**
@@ -42,7 +43,11 @@ public class OutlineHideStaticMethodsAction extends AbstractOutlineFilterAction 
                 if (element instanceof ParsedItem) {
                     ParsedItem item = (ParsedItem) element;
 
-                    SimpleNode token = item.getAstThis().node;
+                    ASTEntryWithChildren astThis = item.getAstThis();
+                    if(astThis == null){
+                        return true;
+                    }
+                    SimpleNode token = astThis.node;
 
                     //String name = null;
                     if (token instanceof FunctionDef) {

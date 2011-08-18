@@ -14,7 +14,7 @@ package org.python.pydev.editor.codecompletion.revisited;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.preference.PreferenceStore;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -26,7 +26,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class IronpythonInterpreterManagerStub extends PythonInterpreterManagerStub{
 
-    public IronpythonInterpreterManagerStub(Preferences prefs) {
+    public IronpythonInterpreterManagerStub(PreferenceStore prefs) {
         super(prefs);
     }
 
@@ -38,7 +38,7 @@ public class IronpythonInterpreterManagerStub extends PythonInterpreterManagerSt
     @Override
     public IInterpreterInfo[] getInterpreterInfos() {
         String defaultInterpreter = getDefaultInterpreter();
-        InterpreterInfo info = (InterpreterInfo) this.createInterpreterInfo(defaultInterpreter, new NullProgressMonitor());
+        InterpreterInfo info = (InterpreterInfo) this.createInterpreterInfo(defaultInterpreter, new NullProgressMonitor(), false);
         if(!InterpreterInfo.isJythonExecutable(defaultInterpreter)){
             TestDependent.IRONPYTHON_EXE = info.executableOrJar;
         }
@@ -70,13 +70,13 @@ public class IronpythonInterpreterManagerStub extends PythonInterpreterManagerSt
     }
 
     @Override
-    protected String getNotConfiguredInterpreterMsg() {
-        return "getNotConfiguredInterpreterMsg";
+    public String getInterpreterUIName() {
+        return "IronPython";
     }
 
     @Override
-    public Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException, JDTNotAvailableException {
-        return IronpythonInterpreterManager.doCreateInterpreterInfo(executable, monitor);
+    public Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor, boolean askUser) throws CoreException, JDTNotAvailableException {
+        return IronpythonInterpreterManager.doCreateInterpreterInfo(executable, monitor, askUser);
     }
 
     

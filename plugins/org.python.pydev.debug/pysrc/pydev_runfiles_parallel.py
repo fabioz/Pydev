@@ -2,7 +2,7 @@ import unittest
 try:
     import Queue
 except:
-    import queue as Queue
+    import queue as Queue #@UnresolvedImport
 from pydevd_constants import * #@UnusedWildImport
 import pydev_runfiles_xml_rpc
 import time
@@ -23,13 +23,20 @@ def FlattenTestSuite(test_suite, ret):
 #=======================================================================================================================
 # ExecuteTestsInParallel
 #=======================================================================================================================
-def ExecuteTestsInParallel(tests, jobs, split, verbosity):
+def ExecuteTestsInParallel(tests, jobs, split, verbosity, coverage_files, coverage_include):
     '''
     @param tests: list(PydevTestSuite)
         A list with the suites to be run
         
     @param split: str
         Either 'module' or the number of tests that should be run in each batch
+        
+    @param coverage_files: list(file)
+        A list with the files that should be used for giving coverage information (if empty, coverage information 
+        should not be gathered). 
+        
+    @param coverage_include: str
+        The pattern that should be included in the coverage.
         
     @return: bool
         Returns True if the tests were actually executed in parallel. If the tests were not executed because only 1
@@ -114,7 +121,10 @@ def ExecuteTestsInParallel(tests, jobs, split, verbosity):
         test_cases_provider.start()
         port = test_cases_provider.port
         
-        clients.append(ClientThread(i, port, verbosity))
+        if coverage_files:
+            clients.append(ClientThread(i, port, verbosity, coverage_files.pop(0), coverage_include))
+        else:
+            clients.append(ClientThread(i, port, verbosity))
         
     for client in clients:
         client.start()
@@ -229,13 +239,15 @@ class CommunicationThread(threading.Thread):
 #=======================================================================================================================
 class ClientThread(threading.Thread):
     
-    def __init__(self, job_id, port, verbosity):
+    def __init__(self, job_id, port, verbosity, coverage_output_file=None, coverage_include=None):
         threading.Thread.__init__(self)
         self.setDaemon(True)
         self.port = port
         self.job_id = job_id
         self.verbosity = verbosity
         self.finished = False
+        self.coverage_output_file = coverage_output_file
+        self.coverage_include = coverage_include
 
 
     def _reader_thread(self, pipe, target):
@@ -261,6 +273,11 @@ class ClientThread(threading.Thread):
                 str(self.port), 
                 str(self.verbosity), 
             ]
+            
+            if self.coverage_output_file and self.coverage_include:
+                args.append(self.coverage_output_file)
+                args.append(self.coverage_include)
+            
             import subprocess
             if False:
                 proc = subprocess.Popen(args, env=os.environ, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)

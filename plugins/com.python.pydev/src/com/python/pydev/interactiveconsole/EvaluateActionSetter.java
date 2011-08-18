@@ -16,7 +16,9 @@ import java.util.ListResourceBundle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
@@ -33,8 +35,10 @@ import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.newconsole.PydevConsole;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.debug.newconsole.PydevConsoleFactory;
+import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.dltk.console.ui.ScriptConsole;
 import org.python.pydev.dltk.console.ui.internal.ScriptConsoleViewer;
+import org.python.pydev.dltk.console.ui.internal.actions.IInteractiveConsoleConstants;
 import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.runners.SimpleRunner;
@@ -63,41 +67,25 @@ public class EvaluateActionSetter implements IPyEditListener{
                 if(console == null){
                     //if no console is available, create it (if possible).
                     PydevConsoleFactory factory = new PydevConsoleFactory();
-                    console = factory.createConsole();
-                }
-                
-                if(console instanceof PydevConsole){
-                    //ok, console available 
-                    PydevConsole pydevConsole = (PydevConsole) console;
-                    IDocument document = pydevConsole.getDocument();
+                    String cmd = null;
                     
-                    String code = selection.getTextSelection().getText();
-                    if(code.length() != 0){
-                        document.replace(document.getLength(), 0, code+"\n");
-                    }else{
-                        //no code available: do an execfile in the current context
-                        File editorFile = this.edit.getEditorFile();
-                        
-                        if(editorFile != null){
-                            String fileStr = SimpleRunner.getArgumentsAsStr(new String[]{editorFile.toString()});
-                            
-                            char[] characters = fileStr.trim().toCharArray();
-                            FastStringBuffer buf = new FastStringBuffer(characters.length+characters.length/2);
-                            for (int i = 0; i < characters.length; i++) {
-                                char character= characters[i];
-                                if (character == '\\') {
-                                    buf.append("\\");
-                                }
-                                buf.append(character);
-                            }
-                            if(buf.startsWith('"')){
-                                buf.deleteFirst();
-                            }
-                            if(buf.endsWith('"')){
-                                buf.deleteLast();
-                            }
-                            document.replace(document.getLength(), 0, StringUtils.format("execfile('%s')\n", buf.toString()));
+                    //Check if the current selection should be sent to the editor.
+                    if(InteractiveConsolePrefs.getSendCommandOnCreationFromEditor()){
+                        cmd = getCommandToSend(edit, selection);
+                        if(cmd != null){
+                            cmd = "\n"+cmd;
                         }
+                    }
+                    console = factory.createConsole(cmd);
+                    
+                    
+                }else{
+                    //Note: we can't use the return of the console from the createConsole() at this point
+                    //because the viewer is still not properly set up (i.e.: console.getViewer() == null)
+                    //So, if we had something to send to the user, it would be sent in the initial commands.
+                    if(console instanceof PydevConsole){
+                        //ok, console available 
+                        sendCommandToConsole(selection, console, this.edit);
                     }
                 }
             } catch (Exception e) {
@@ -105,10 +93,68 @@ public class EvaluateActionSetter implements IPyEditListener{
             }
         }
     }
-
-    private static final String EVALUATE_ACTION_ID = "org.python.pydev.interactiveconsole.evaluateActionSetter";
-
     
+    /**
+     * Sends the current selected text/editor to the console.
+     */
+    private static void sendCommandToConsole(PySelection selection, ScriptConsole console, PyEdit edit) throws BadLocationException {
+        PydevConsole pydevConsole = (PydevConsole) console;
+        IDocument document = pydevConsole.getDocument();
+        
+        String cmd = getCommandToSend(edit, selection);
+        if(cmd != null){
+            document.replace(document.getLength(), 0, cmd);
+        }
+        
+        if(InteractiveConsolePrefs.getFocusConsoleOnSendCommand()){
+            ScriptConsoleViewer viewer = pydevConsole.getViewer();
+            if(viewer == null){
+                return;
+            }
+            StyledText textWidget = viewer.getTextWidget();
+            if(textWidget == null){
+                return;
+            }
+            textWidget.setFocus();
+        }
+    }
+
+    /**
+     * Gets the command to send to the console (either the selected text or an execfile with the editor).
+     */
+    private static String getCommandToSend(PyEdit edit, PySelection selection) {
+        String cmd = null;
+        String code = selection.getTextSelection().getText();
+
+        if(code.length() != 0){
+            cmd = code+"\n";
+        }else{
+            //no code available: do an execfile in the current context
+            File editorFile = edit.getEditorFile();
+            
+            if(editorFile != null){
+                String fileStr = SimpleRunner.getArgumentsAsStr(new String[]{editorFile.toString()});
+                
+                char[] characters = fileStr.trim().toCharArray();
+                FastStringBuffer buf = new FastStringBuffer(characters.length+characters.length/2);
+                for (int i = 0; i < characters.length; i++) {
+                    char character= characters[i];
+                    if (character == '\\') {
+                        buf.append("\\");
+                    }
+                    buf.append(character);
+                }
+                if(buf.startsWith('"')){
+                    buf.deleteFirst();
+                }
+                if(buf.endsWith('"')){
+                    buf.deleteLast();
+                }
+                cmd = StringUtils.format("execfile('%s')\n", buf.toString());
+            }
+        }
+        return cmd;
+    }
 
     /**
      * @param consoleType the console type we're searching for
@@ -192,12 +238,12 @@ public class EvaluateActionSetter implements IPyEditListener{
      */
     public void onCreateActions(ListResourceBundle resources, final PyEdit edit, IProgressMonitor monitor) {
         final EvaluateAction evaluateAction = new EvaluateAction(edit);
-        evaluateAction.setActionDefinitionId(EVALUATE_ACTION_ID);
-        evaluateAction.setId(EVALUATE_ACTION_ID);
+        evaluateAction.setActionDefinitionId(IInteractiveConsoleConstants.EVALUATE_ACTION_ID);
+        evaluateAction.setId(IInteractiveConsoleConstants.EVALUATE_ACTION_ID);
         Runnable runnable = new Runnable() {
             public void run() {
                 if(!edit.isDisposed()){
-                    edit.setAction(EVALUATE_ACTION_ID, evaluateAction);
+                    edit.setAction(IInteractiveConsoleConstants.EVALUATE_ACTION_ID, evaluateAction);
                 }
             }
         };

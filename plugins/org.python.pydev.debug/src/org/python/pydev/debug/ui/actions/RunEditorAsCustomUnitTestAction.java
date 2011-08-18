@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -24,6 +23,8 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
@@ -40,6 +41,7 @@ import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.core.uiutils.DialogMemento;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.AbstractLaunchShortcut;
+import org.python.pydev.debug.ui.launching.FileOrResource;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -79,18 +81,36 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction{
             public Control createDialogArea(Composite parent){
                 memento.readSettings();
                 Control ret = super.createDialogArea(parent);
+                this.text.addKeyListener(new KeyListener() {
+
+                    public void keyReleased(KeyEvent e) {
+                    }
+
+                    public void keyPressed(KeyEvent e) {
+                        if (e.keyCode == SWT.CR || e.keyCode == SWT.LF || e.keyCode == SWT.KEYPAD_CR) {
+                            okPressed();
+                        }
+                    }
+                });
+                return ret;
+            }
+            
+            
+            
+            /* (non-Javadoc)
+             * @see org.python.pydev.ui.dialogs.TreeSelectionDialog#createButtonBar(org.eclipse.swt.widgets.Composite)
+             */
+            @Override
+            protected Control createButtonBar(Composite parent) {
                 configTestRunner= new Link(parent, SWT.PUSH);
-                configTestRunner.setText(
-                        "        <a>Configure test runner</a>: allows the configuration of the test runner\n" +
-                        "        used and additional parameters passed." +
-                		"");
+                configTestRunner.setText(" <a>Configure test runner</a>");
                 configTestRunner.addSelectionListener(new SelectionAdapter() {
                     public void widgetSelected(SelectionEvent e) {
                         PyUnitPrefsPage2.showPage();
                     }
 
                 });
-                return ret;
+                return configTestRunner;
             }
 
             protected Point getInitialSize(){
@@ -106,6 +126,8 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction{
              */
             @SuppressWarnings("unchecked")
             protected void computeResult() {
+                doFinalUpdateBeforeComputeResult();
+
                 IStructuredSelection selection = (IStructuredSelection) getTreeViewer().getSelection();
                 List<Object> list = selection.toList();
                 if(list.size() > 0){
@@ -135,8 +157,8 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction{
             
         };
 
-        dialog.setTitle("Pydev: Select tests to run");
-        dialog.setMessage("Select the tests to run");
+        dialog.setTitle("PyDev: Select tests to run");
+        dialog.setMessage("Select the tests to run (press enter to run tests shown/selected)");
         dialog.setInitialFilter("test");
         dialog.setAllowMultiple(true);
         dialog.setInput(ast);
@@ -192,7 +214,7 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction{
             
             @Override
             public ILaunchConfigurationWorkingCopy createDefaultLaunchConfigurationWithoutSaving(
-                    IResource[] resource) throws CoreException{
+                    FileOrResource[] resource) throws CoreException{
                 ILaunchConfigurationWorkingCopy workingCopy = super.createDefaultLaunchConfigurationWithoutSaving(resource);
                 if(arguments.length() > 0){
                     workingCopy.setAttribute(Constants.ATTR_UNITTEST_TESTS, arguments);
@@ -201,7 +223,7 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction{
             }
 
             @Override
-            protected List<ILaunchConfiguration> findExistingLaunchConfigurations(IResource[] file){
+            protected List<ILaunchConfiguration> findExistingLaunchConfigurations(FileOrResource[] file){
                 List<ILaunchConfiguration> ret = new ArrayList<ILaunchConfiguration>();
                 
                 List<ILaunchConfiguration> existing = super.findExistingLaunchConfigurations(file);

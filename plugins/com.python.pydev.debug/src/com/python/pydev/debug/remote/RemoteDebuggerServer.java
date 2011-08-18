@@ -18,7 +18,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.debug.model.PySourceLocator;
 import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
-
 import com.python.pydev.debug.DebugPluginPrefsInitializer;
 import com.python.pydev.debug.model.ProcessServer;
 import com.python.pydev.debug.model.PyDebugTargetServer;
@@ -153,8 +152,8 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
             target.startTransmission(socket);
             target.initialize();
             this.addTarget(target);
-        } catch (IOException e) {        
-            e.printStackTrace();
+        } catch (IOException e) {
+            Log.log(e);
         }        
     }
 

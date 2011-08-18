@@ -4,9 +4,9 @@ import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
-import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 
 /**
@@ -17,7 +17,7 @@ public final class Rewriter  {
     
     public static String reparsed(String source, AdapterPrefs adapterPrefs) {
         try {
-            SimpleNode root = VisitorFactory.getRootNodeFromString(source);
+            SimpleNode root = VisitorFactory.getRootNodeFromString(source, adapterPrefs.versionProvider);
             return createSourceFromAST(root, adapterPrefs);
         } catch (Throwable e) {
             throw new RuntimeException(e);

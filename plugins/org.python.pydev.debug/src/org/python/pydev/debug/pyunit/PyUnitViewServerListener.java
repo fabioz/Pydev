@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.progress.UIJob;
 import org.python.pydev.core.callbacks.ICallback0;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.log.Log;
 
 /**
  * Used to properly pass notifications in the UI thread to the PyUnitView.
@@ -42,7 +42,7 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
                 try {
                     iCallback0.call();
                 } catch (Exception e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
             }
             return Status.OK_STATUS;

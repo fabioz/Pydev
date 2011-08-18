@@ -97,6 +97,7 @@ public class PyDeleteResourceAction extends DeleteResourceAction {
         if(!fillSelection()){ //will also update the list of resources (main change from the DeleteResourceAction)
             return;
         }
+        Helpers.checkValidateState();
         super.run();
     }
 }

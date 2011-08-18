@@ -19,14 +19,17 @@ import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension;
 import org.eclipse.jface.text.contentassist.IContextInformation;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.core.docutils.ImportHandle;
+import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.core.docutils.ImportNotRecognizedException;
 import org.python.pydev.core.docutils.PyImportsHandling;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
+import org.python.pydev.core.docutils.PySelection.LineStartingScope;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
@@ -69,6 +72,11 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
      */
     private boolean appliedWithTrigger = false;
 
+    /**
+     * If the import should be added locally or globally.
+     */
+    private boolean addLocalImport = false;
+
 
     public CtxInsensitiveImportComplProposal(String replacementString, int replacementOffset, int replacementLength, 
             int cursorPosition, Image image, String displayString, IContextInformation contextInformation, 
@@ -78,6 +86,10 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
                 contextInformation, additionalProposalInfo, priority, ON_APPLY_DEFAULT, "");
         this.realImportRep = realImportRep;
+    }
+    
+    public void setAddLocalImport(boolean b) {
+        this.addLocalImport = b;
     }
     
     /**
@@ -92,6 +104,12 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
         }else{
             //happens on compare editor
             this.indentString = new DefaultIndentPrefs().getIndentationString();
+        }
+        //If the completion is applied with shift pressed, do a local import. Note that the user is only actually
+        //able to do that if the popup menu is focused (i.e.: request completion and do a tab to focus it, instead
+        //of having the focus on the editor and just pressing up/down).
+        if((stateMask & SWT.SHIFT) != 0){
+            this.setAddLocalImport(true);
         }
         apply(document, trigger, stateMask, offset);
     }
@@ -128,7 +146,26 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
             
             boolean groupImports = ImportsPreferencesPage.getGroupImports();
             
-            if (realImportRep.length() > 0){
+            LineStartingScope previousLineThatStartsScope = null;
+            PySelection ps = null;
+            if(this.addLocalImport){
+                ps = new PySelection(document, offset);
+                int startLineIndex = ps.getStartLineIndex();
+                if(startLineIndex == 0){
+                    this.addLocalImport = false;
+                }else{
+                    previousLineThatStartsScope = ps.getPreviousLineThatStartsScope(
+                            PySelection.INDENT_TOKENS, startLineIndex-1, PySelection.getFirstCharPosition(
+                                    ps.getCursorLineContents()));
+                    if(previousLineThatStartsScope == null){
+                        //note that if we have no previous scope, it means we're actually on the global scope, so,
+                        //proceed as usual...
+                        this.addLocalImport = false;
+                    }
+                }
+            }
+            
+            if (realImportRep.length() > 0 && !this.addLocalImport){
                 
                 //Workaround for: https://sourceforge.net/tracker/?func=detail&aid=2697165&group_id=85796&atid=577329
                 //when importing from __future__ import with_statement, we actually want to add a 'with' token, not 
@@ -163,7 +200,7 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
                             }
                         }
                     } catch (ImportNotRecognizedException e1) {
-                        PydevPlugin.log(e1);//that should not happen at this point
+                        Log.log(e1);//that should not happen at this point
                     }
                 }
                 
@@ -187,12 +224,65 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
                     appendForTrigger = ".";
                 }
             }
+            
+            
             //if the trigger is ')', just let it apply regularly -- so, ')' will only be added if it's already in the completion.
             
             //first do the completion
             if(fReplacementString.length() > 0){
                 int dif = offset - fReplacementOffset;
                 document.replace(offset-dif, dif+this.fLen, fReplacementString+appendForTrigger);
+            }
+            if(this.addLocalImport){
+                //All the code below is because we don't want to work with a generated AST (as it may not be there),
+                //so, we go to the previous scope, find out the valid indent inside it and then got backwards
+                //from the position we're in now to find the closer location to where we're now where we're
+                //actually able to add the import.
+                try {
+                    int iLineStartingScope;
+                    if(previousLineThatStartsScope != null){
+                        iLineStartingScope = previousLineThatStartsScope.iLineStartingScope;
+                        
+                        //Go to a non-empty line from the line we have and the line we're currently in.
+                        int iLine = iLineStartingScope+1;
+                        String line = ps.getLine(iLine);
+                        int startLineIndex = ps.getStartLineIndex();
+                        while(iLine < startLineIndex && (line.startsWith("#") || line.trim().length() == 0)){
+                            iLine++;
+                            line = ps.getLine(iLine);
+                        }
+                        if(iLine >= startLineIndex){
+                            //Sanity check!
+                            iLine = startLineIndex;
+                            line = ps.getLine(iLine);
+                        }
+                        int firstCharPos = PySelection.getFirstCharPosition(line);
+                        //Ok, all good so far, now, this would add the line to the beginning of
+                        //the element (after the if statement, def, etc.), let's try to put
+                        //it closer to where we're now (but still in a valid position).
+                        int j = startLineIndex;
+                        while(j >= 0){
+                            String line2 = ps.getLine(j);
+                            if(PySelection.getFirstCharPosition(line2) == firstCharPos){
+                                iLine = j;
+                                break;
+                            }
+                            if(j == iLineStartingScope){
+                                break;
+                            }
+                            j--;
+                        }
+                            
+
+                        String indent = line.substring(0, firstCharPos);
+                        String strToAdd = indent+realImportRep+delimiter;
+                        ps.addLine(strToAdd, iLine-1); //Will add it just after the line passed as a parameter.
+                        importLen = strToAdd.length();
+                        return;
+                    }
+                } catch (Exception e) {
+                    Log.log(e); //Something went wrong, add it as global (i.e.: BUG)
+                }
             }
             
 
@@ -254,7 +344,7 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
 
             
         } catch (BadLocationException x) {
-            PydevPlugin.log(x);
+            Log.log(x);
         }
     }    
     

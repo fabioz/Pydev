@@ -18,11 +18,11 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.ui.actions.EvalExpressionAction;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.editor.hover.IPyHoverParticipant;
 import org.python.pydev.editor.hover.PyHoverPreferencesPage;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Gathers hover info during a debug session.
@@ -66,7 +66,7 @@ public class PyDebugHover implements IPyHoverParticipant{
                     reportSyntaxErrors = true; //the user has text selected
                 } catch (BadLocationException e) {
                     //that's Ok... we were not able to get the actual selection here
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
             }
             if(act == null || act.trim().length() == 0){
@@ -93,7 +93,7 @@ public class PyDebugHover implements IPyHoverParticipant{
                         return valueString+"\n";
                     }
                 } catch (DebugException e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
             }
         }

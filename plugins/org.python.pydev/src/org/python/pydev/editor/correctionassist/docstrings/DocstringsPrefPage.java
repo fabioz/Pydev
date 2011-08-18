@@ -6,6 +6,8 @@
  */
 package org.python.pydev.editor.correctionassist.docstrings;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.eclipse.jface.dialogs.InputDialog;
@@ -69,6 +71,12 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements
         IPreferenceStore preferences = PydevPrefs.getPreferences();
         return preferences.getString(P_DOCSTRINGCHARACTER);
     }
+    
+    private final static Map<String, String> strToMarker = new HashMap<String, String>();
+    static{
+        strToMarker.put("'", "'''");
+        strToMarker.put("\"", "\"\"\"");
+    }
 
     /**
      * 
@@ -77,7 +85,12 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements
      */
     public static String getDocstringMarker() {
         String docstringChar = getPreferredDocstringCharacter();
-        return docstringChar + docstringChar + docstringChar;
+        String ret = strToMarker.get(docstringChar);
+        if(ret == null){
+            ret = docstringChar + docstringChar + docstringChar;
+            strToMarker.put(docstringChar, ret);
+        }
+        return ret;
     }
 
     /**

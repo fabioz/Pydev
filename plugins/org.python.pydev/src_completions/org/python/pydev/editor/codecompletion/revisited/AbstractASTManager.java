@@ -7,7 +7,6 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -43,45 +42,34 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.GlobalModelVisitor;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
-public abstract class AbstractASTManager implements ICodeCompletionASTManager, Serializable {
-
-    /**
-     * changed to 10L on release 1.3.19
-     */
-    protected static final long serialVersionUID = 10L;
+public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     
     private static final IToken[] EMPTY_ITOKEN_ARRAY = new IToken[0];
     
     private static final boolean DEBUG_CACHE = false;
     
-    private transient AssignAnalysis assignAnalysis;
+    private final AssignAnalysis assignAnalysis=  new AssignAnalysis();
     
     public AbstractASTManager(){
     }
     
-    private transient Object lock;
-    public synchronized Object getLock(){
-        if(lock == null){
-            lock = new Object();
-        }
+    private final Object lock = new Object();
+    public Object getLock(){
         return lock;
     }
     
-    public AssignAnalysis getAssignAnalysis() {
-        if(assignAnalysis == null){
-            assignAnalysis = new AssignAnalysis();
-        }
-        return assignAnalysis;
-    }
     
     
     /**
@@ -385,7 +373,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             String message = e.getMessage();
             if(message == null){
                 if(e instanceof NullPointerException){
-                    e.printStackTrace();
+                    Log.log(e);
                     message = "NullPointerException";
                 }else{
                     message = "Null error message";
@@ -439,7 +427,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 
         if(state2.getActivationToken() != null){
             IModule m = getBuiltinMod(state.getNature());
-            return m.getGlobalTokens(state2, this);
+            if(m != null){
+                return m.getGlobalTokens(state2, this);
+            }
         }
         
         if(act.equals("__builtins__") || act.startsWith("__builtins__.")){
@@ -726,7 +716,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 
             
         }else{
-            System.err.println("Module passed in is null!!");
+            Log.log("Module passed in is null!!");
         }
         
         return EMPTY_ITOKEN_ARRAY;
@@ -748,7 +738,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     }
 
     private IToken[] getAssignCompletions(IModule module, ICompletionState state, boolean lookForArgumentCompletion, ILocalScope localScope) {
-        AssignCompletionInfo assignCompletions = getAssignAnalysis().getAssignCompletions(this, module, state);
+        AssignCompletionInfo assignCompletions = assignAnalysis.getAssignCompletions(this, module, state);
         
         boolean useExtensions = assignCompletions.completions.size() == 0;
         
@@ -925,33 +915,14 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * @return the tokens in the builtins
      */
     protected IToken[] getBuiltinComps(IPythonNature nature) {
-        IToken[] builtinCompletions = nature.getBuiltinCompletions();
-        
-        if(builtinCompletions == null || builtinCompletions.length == 0){
-            IModule builtMod = getBuiltinMod(nature);
-            if(builtMod != null){
-                builtinCompletions = builtMod.getGlobalTokens();
-                nature.setBuiltinCompletions(builtinCompletions);
-            }
-        }
-        return builtinCompletions;
+        return nature.getBuiltinCompletions();
     }
 
     /**
-     * TODO: WHEN CLEARING CACHE, CLEAR THE BUILTIN REF TOO
      * @return the module that represents the builtins
      */
     protected IModule getBuiltinMod(IPythonNature nature) {
-        IModule mod = nature.getBuiltinMod();
-        if(mod == null){
-            mod = getModule("__builtin__", nature, false);
-            if(mod == null){
-                //Python 3.0 has builtins and not __builtin__
-                mod = getModule("builtins", nature, false);
-            }
-            nature.setBuiltinMod(mod);
-        }
-        return mod;
+        return nature.getBuiltinMod();
     }
 
     /**
@@ -1184,10 +1155,11 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                 if(modRep.equals(tok)){
                     String act = state.getActivationToken();
                     Tuple<IModule, String> r = findOnImportedMods(importedModule, tok, state, act, currentModuleName);
-                    if(r == null){
-                        return null;
+                    if(r != null){
+                        return new Tuple3<IModule, String, IToken>(r.o1, r.o2, importedModule);
                     }
-                    return new Tuple3<IModule, String, IToken>(r.o1, r.o2, importedModule);
+                    //Note, if r==null, even though the name matched, keep on going (to handle cases of 
+                    //try..except ImportError, as we cannot be sure of which version will actually match).
                 }
             }
         }   
@@ -1195,12 +1167,23 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     }
 
     
+    public Tuple<IModule, String> findModule(String moduleToFind, String currentModule, ICompletionState state) throws CompletionRecursionException {
+        NameTok name = new NameTok(moduleToFind, NameTok.ImportModule);
+        Import impTok = new Import(new aliasType[]{new aliasType(name, null)});
+        
+        List<IToken> tokens = new ArrayList<IToken>();
+        List<IToken> imp = AbstractVisitor.makeImportToken(impTok, tokens, currentModule, true);
+        IToken importedModule = imp.get(imp.size()-1); //get the last one (it's the one with the 'longest' representation).
+        return this.findOnImportedMods(importedModule, "", state, "", currentModule);
+    }
+    
+    
     /**
      * Checks if some module can be resolved and returns the module it is resolved to (and to which token).
      * @throws CompletionRecursionException 
      * 
      */
-    protected Tuple<IModule, String> findOnImportedMods(IToken importedModule, String tok, ICompletionState state, 
+    public Tuple<IModule, String> findOnImportedMods(IToken importedModule, String tok, ICompletionState state, 
             String activationToken, String currentModuleName) throws CompletionRecursionException {
         
         
@@ -1232,7 +1215,11 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                         //from ..bar import 
                         relative += "."+modName;
                     }
-                    relative += "."+tok;
+                    
+                    if(!AbstractVisitor.isWildImport(importFrom)){
+                        tok = FullRepIterable.getLastPart(token.originalRep);
+                        relative += "."+tok;
+                    }
                     
                     modTok = findModuleFromPath(relative, nature, false, null);
                     mod = modTok.o1;
@@ -1399,7 +1386,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * @return tuple with found module and the String removed from the path in
      * order to find the module.
      */
-    protected Tuple<IModule, String> findModuleFromPath(String rep, IPythonNature nature, boolean dontSearchInit, String currentModuleName){
+    public Tuple<IModule, String> findModuleFromPath(String rep, IPythonNature nature, boolean dontSearchInit, String currentModuleName){
         String tok = "";
         boolean lookingForRelative = currentModuleName != null;
         IModule mod = getModule(rep, nature, dontSearchInit, lookingForRelative);

@@ -3,6 +3,7 @@ package org.python.pydev.parser.grammar30;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.grammarcommon.AbstractTreeBuilder;
 import org.python.pydev.parser.grammarcommon.ComprehensionCollection;
 import org.python.pydev.parser.grammarcommon.Decorators;
@@ -60,7 +61,7 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
     public final SimpleNode onCloseNode(SimpleNode n, int arity) throws Exception {
         exprType value;
         exprType[] exprs;
-        suiteType orelseSuite;
+        Suite orelseSuite;
         stmtType[] body;
         Suite suite;
 
@@ -81,9 +82,9 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
             return new Subscript(value, slice, Subscript.Load);
 
         case JJTBEGIN_FOR_ELSE_STMT:
-            return new suiteType(null);
+            return new Suite(null);
         case JJTBEGIN_ELSE_STMT:
-            return new suiteType(null);
+            return new Suite(null);
         case JJTBEGIN_WHILE_STMT:
             return new While(null, null, null);
         case JJTWHILE_STMT:
@@ -242,7 +243,8 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
             starargs = null;
             kwargs = null;
             
-            for(int i=0;i<nodeArity;i++){
+            int loopTo = nodeArity;
+            for(int i=0;i<loopTo;i++){
                 SimpleNode node = stack.peekNode();
                 if(node instanceof keywordType){
                     stack.popNode();
@@ -264,7 +266,12 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
                         this.addSpecialsAndClearOriginal(nkwargs, kwargs);
                         nodeArity--;
                     }
+                }else{
+                    break;
                 }
+            }
+            if(classDefKeywords.size() > 1){
+                Collections.reverse(classDefKeywords);
             }
             
             exprType[] bases = makeExprs(nodeArity);
@@ -321,7 +328,7 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
             }
             orelseSuite = null;
             if(stack.peekNode() instanceof suiteType){
-                orelseSuite = (suiteType) stack.popNode();
+                orelseSuite = (Suite) stack.popNode();
                 arity--;
             }
             
@@ -350,7 +357,7 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
             }
         case JJTBEGIN_TRY_ELSE_STMT:
             //we do that just to get the specials
-            return new suiteType(null);
+            return new Suite(null);
         case JJTBEGIN_EXCEPT_CLAUSE:
             return new excepthandlerType(null,null,null);
         case JJTEXCEPT_CLAUSE:
@@ -369,7 +376,7 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
             return handler;
         case JJTBEGIN_FINALLY_STMT:
             //we do that just to get the specials
-            return new suiteType(null);
+            return new Suite(null);
         case JJTTRYFINALLY_STMT:
             suiteType finalBody = popSuiteAndSuiteType();
             body = popSuite();
@@ -444,8 +451,12 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
 //                lambda.getSpecialsBefore().add("lambda ");
 //            }
             return lambda;
-        case JJTELLIPSES:
+        case JJTELLIPSIS:
             return new Ellipsis();
+            
+        case JJTELLIPSIS_AS_NAME:
+            return new Name("...", Name.Load, true);
+
         case JJTSLICE:
             SimpleNode[] arr = new SimpleNode[arity];
             for (int i = arity-1; i >= 0; i--) {
@@ -498,7 +509,7 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
             return makeImportFrom25Onwards(arity);
             
         default:
-            System.out.println("Error at TreeBuilder: default not treated:"+n.getId());
+            Log.log(("Error at TreeBuilder: default not treated:"+n.getId()));
             return null;
         }
     }

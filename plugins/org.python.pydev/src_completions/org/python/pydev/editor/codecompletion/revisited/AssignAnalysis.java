@@ -19,6 +19,7 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -92,7 +93,7 @@ public class AssignAnalysis {
             } catch (CompletionRecursionException e) {
                 //thats ok
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.log(e);
                 throw new RuntimeException("Error when getting assign completions for:"+module.getName(), e);
             } catch (Throwable t) {
                 throw new RuntimeException("A throwable exception has been detected "+t.getClass());

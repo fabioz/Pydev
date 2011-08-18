@@ -16,20 +16,19 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class JythonInterpreterManager extends AbstractInterpreterManager{
 
-    public JythonInterpreterManager(Preferences prefs) {
-        super(prefs);
+    public JythonInterpreterManager(IPreferenceStore preferences) {
+        super(preferences);
     }
 
     @Override
@@ -38,18 +37,20 @@ public class JythonInterpreterManager extends AbstractInterpreterManager{
     }
     
     @Override
-    protected String getNotConfiguredInterpreterMsg() {
-        return "Interpreter is not properly configured!\r\n" +
-               "Please go to window->preferences->PyDev->Jython Interpreters and configure it.\r\n" +
-               "If this is not supposed to be a Jython project, change the project type on the\r\n" +
-               "project properties to the project you want (e.g.: Python project).";
+    public String getInterpreterUIName() {
+        return "Jython";
     }
 
     @Override
-    public Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException, JDTNotAvailableException {
-        return doCreateInterpreterInfo(executable, monitor);
+    public Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor, boolean askUser) throws CoreException, JDTNotAvailableException {
+        return doCreateInterpreterInfo(executable, monitor, askUser);
     }
 
+    @Override
+    protected String getPreferencesPageId() {
+        return "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageJython";
+    }
+    
     /**
      * This is the method that creates the interpreter info for jython. It gets the info on the jython side and on the java side
      * 
@@ -59,22 +60,21 @@ public class JythonInterpreterManager extends AbstractInterpreterManager{
      * 
      * @throws CoreException
      */
-    public static Tuple<InterpreterInfo,String> doCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException, JDTNotAvailableException {
+    public static Tuple<InterpreterInfo,String> doCreateInterpreterInfo(String executable, IProgressMonitor monitor, boolean askUser) throws CoreException, JDTNotAvailableException {
         boolean isJythonExecutable = InterpreterInfo.isJythonExecutable(executable);
         
         if(!isJythonExecutable){
             throw new RuntimeException("In order to get the info for the jython interpreter, a jar is needed (e.g.: jython.jar)");
         }
-        File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
-        if(! script.exists()){
-            throw new RuntimeException("The file specified does not exist: "+script);
-        }
+        File script = getInterpreterInfoPy();
         
         //gets the info for the python side
-        Tuple<String, String> outTup = new SimpleJythonRunner().runAndGetOutputWithJar(REF.getFileAbsolutePath(script), executable, null, null, null, monitor);
+        Tuple<String, String> outTup = new SimpleJythonRunner().runAndGetOutputWithJar(
+                REF.getFileAbsolutePath(script), executable, null, null, null, monitor);
+        
         String output = outTup.o1;
         
-        InterpreterInfo info = createInfoFromOutput(monitor, outTup);
+        InterpreterInfo info = createInfoFromOutput(monitor, outTup, askUser);
         if(info == null){
             //cancelled
             return null;
@@ -94,7 +94,6 @@ public class JythonInterpreterManager extends AbstractInterpreterManager{
 
         return new Tuple<InterpreterInfo,String>(info, output);
     }
-
 
     public int getInterpreterType() {
         return IInterpreterManager.INTERPRETER_TYPE_JYTHON;

@@ -14,6 +14,9 @@ package org.python.pydev.builder;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
@@ -27,6 +30,18 @@ import org.python.pydev.utils.LabelFieldEditor;
  */
 public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
+    private final class BooleanFieldEditorWithPublicGetControl extends BooleanFieldEditor {
+        private BooleanFieldEditorWithPublicGetControl(String name, String label, Composite parent) {
+            super(name, label, parent);
+        }
+
+        @Override
+        public Button getChangeControl(Composite parent) {
+            Button checkBox = super.getChangeControl(parent);
+            return checkBox;
+        }
+    }
+
     public static final boolean DEFAULT_USE_PYDEV_BUILDERS = true;
     public static final String USE_PYDEV_BUILDERS = "USE_PYDEV_BUILDERS";
     
@@ -36,8 +51,13 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
     public static final int DEFAULT_PYDEV_ELAPSE_BEFORE_ANALYSIS = 3000;
     public static final String PYDEV_ELAPSE_BEFORE_ANALYSIS = PyParserManager.PYDEV_ELAPSE_BEFORE_ANALYSIS;
 
-    public static final String ANALYZE_ONLY_ACTIVE_EDITOR = "ANALYZE_ONLY_ACTIVE_EDITOR";
-    public static final boolean DEFAULT_ANALYZE_ONLY_ACTIVE_EDITOR = false;
+    public static final String ANALYZE_ONLY_ACTIVE_EDITOR = "ANALYZE_ONLY_ACTIVE_EDITOR_2"; //Changed to _2 because we changed this behavior and the default is now true!
+    public static final boolean DEFAULT_ANALYZE_ONLY_ACTIVE_EDITOR = true;
+    
+    public static final String REMOVE_ERRORS_WHEN_EDITOR_IS_CLOSED = "REMOVE_ERRORS_WHEN_EDITOR_IS_CLOSED_2"; //Changed to _2
+    public static final boolean DEFAULT_REMOVE_ERRORS_WHEN_EDITOR_IS_CLOSED = true;
+    private Button onlyAnalyzeOpenCheckBox;
+    private Button removeErrorsCheckBox;
 
     /**
      * @param style
@@ -45,7 +65,7 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
     public PyDevBuilderPrefPage() {
         super(GRID);
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
-        setDescription("Pydev builders");
+        setDescription("PyDev builders");
     }
 
     /**
@@ -55,7 +75,7 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
         Composite p = getFieldEditorParent();
         
         String s = "WARNING: \n\n" +
-                "Pydev builders are required for many features \n" +
+                "PyDev builders are required for many features \n" +
                 "provided by Pydev such as:\n" +
                 "\n" +
                 "- Code completion\n" +
@@ -75,16 +95,64 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
         addField(new IntegerFieldEditor(PyParserManager.PYDEV_ELAPSE_BEFORE_ANALYSIS, "Time to elapse before reparsing changed file (millis)", p));
         
         s = "If only open editors are analyzed, markers will only be added\n" +
-            "to the opened Pydev editors and will be removed upon close.\n";
+            "to the opened PyDev editors.\n";
         addField(new LabelFieldEditor("ActiveBufferLabelFieldEditor", s, p));
         
-        addField(new BooleanFieldEditor(ANALYZE_ONLY_ACTIVE_EDITOR, "Only analyze open editors?", p));
+        BooleanFieldEditorWithPublicGetControl onlyAnalyzeOpen = new BooleanFieldEditorWithPublicGetControl(
+                ANALYZE_ONLY_ACTIVE_EDITOR, "Only analyze open editors?", p);
+        addField(onlyAnalyzeOpen);
+
+        
+        BooleanFieldEditorWithPublicGetControl removeErrors = new BooleanFieldEditorWithPublicGetControl(
+                REMOVE_ERRORS_WHEN_EDITOR_IS_CLOSED, "Remove errors when editor is closed?", p);
+        addField(removeErrors);
+        
+        removeErrorsCheckBox = removeErrors.getChangeControl(p);
+        
+        onlyAnalyzeOpenCheckBox = onlyAnalyzeOpen.getChangeControl(p);
+        onlyAnalyzeOpenCheckBox.addSelectionListener(new SelectionListener() {
+            
+            public void widgetSelected(SelectionEvent e) {
+                updateCheckEnabledState();
+            }
+            
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+        });
+        
+    }
+    
+    /* (non-Javadoc)
+     * @see org.eclipse.jface.preference.FieldEditorPreferencePage#dispose()
+     */
+    @Override
+    public void dispose() {
+        super.dispose();
+    }
+    
+    @Override
+    protected void initialize() {
+        super.initialize();
+        updateCheckEnabledState();
+    }
+    
+    @Override
+    protected void performDefaults() {
+        super.performDefaults();
+        updateCheckEnabledState();
     }
 
     /**
      * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
      */
     public void init(IWorkbench workbench) {
+    }
+
+    private void updateCheckEnabledState() {
+        if(removeErrorsCheckBox != null && !removeErrorsCheckBox.isDisposed() && 
+                onlyAnalyzeOpenCheckBox != null && !onlyAnalyzeOpenCheckBox.isDisposed()){
+            removeErrorsCheckBox.setEnabled(onlyAnalyzeOpenCheckBox.getSelection());
+        }
     }
 
     public static boolean usePydevBuilders() {
@@ -97,6 +165,10 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
     
     public static boolean getAnalyzeOnlyActiveEditor() {
         return PydevPrefs.getPreferences().getBoolean(ANALYZE_ONLY_ACTIVE_EDITOR);
+    }
+    
+    public static boolean getRemoveErrorsWhenEditorIsClosed() {
+        return PydevPrefs.getPreferences().getBoolean(REMOVE_ERRORS_WHEN_EDITOR_IS_CLOSED);
     }
     
     public static void setAnalyzeOnlyActiveEditor(boolean b) {

@@ -32,6 +32,7 @@ import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
@@ -134,6 +135,10 @@ public class ParsedItem implements Comparable<Object>{
         }
         
         SimpleNode token = astThis.node;
+        return getImageForNode(imageCache, token, astThis.parent);
+    }
+
+    public static Image getImageForNode(ImageCache imageCache, SimpleNode token, ASTEntry parent) {
         if (token instanceof ClassDef) {
             String className = NodeUtils.getNameFromNameTok((NameTok) ((ClassDef)token).name);
             switch (qualifierFromName(className)) {
@@ -233,7 +238,7 @@ public class ParsedItem implements Comparable<Object>{
                 image = UIConstants.PUBLIC_ATTR_ICON;
             }
             
-            if(astThis.parent != null && astThis.parent.node != null && astThis.parent.node instanceof ClassDef){
+            if(parent != null && parent.node != null && parent.node instanceof ClassDef){
                 return imageCache.getImageDecorated(image, UIConstants.DECORATION_CLASS);
             }
             return imageCache.get(image);

@@ -31,12 +31,15 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISourceModule;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.cache.Cache;
 import org.python.pydev.core.cache.LRUCache;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
@@ -62,7 +65,6 @@ import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.visitors.NodeUtils;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
@@ -321,7 +323,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             //end cache
             
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.log(e);
         }
         
         //now, let's get it from the cache... (which should be filled by now)
@@ -484,7 +486,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                         }
                     } catch (CompletionRecursionException e) {
                     } catch (Exception e) {
-                        PydevPlugin.log(e);
+                        Log.log(e);
                     }
                 }
             } else if(rep.equals(activationToken)){
@@ -716,7 +718,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         List<IToken> localImportedModules = scopeVisitor.scope.getLocalImportedModules(line, col, this.name);
         ICodeCompletionASTManager astManager = nature.getAstManager();
         for (IToken tok : localImportedModules) {
-            if(tok.getRepresentation().equals(rep)){
+            String importRep = tok.getRepresentation();
+            if(importRep.equals(rep) || rep.startsWith(importRep+".")){
                 Tuple3<IModule, String, IToken> o = astManager.findOnImportedMods(new IToken[]{tok}, state.getCopyWithActTok(rep), this.getName());
                 if(o != null && o.o1 instanceof SourceModule){
                     ICompletionState copy = state.getCopy();
@@ -997,7 +1000,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             
             return scope.getLocalTokens(line, col, false);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.log(e);
             return EMPTY_ITOKEN_ARRAY;
         }
     }
@@ -1012,7 +1015,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             
             return scopeVisitor.scope;
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.log(e);
             return null;
         }
     }
@@ -1041,7 +1044,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             
             return scopeVisitor.scope.getScopeEndLine();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.log(e);
             return -1;
         }
     }
@@ -1055,7 +1058,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             
             return scopeVisitor.scope.getIfMainLine();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.log(e);
             return -1;
         }
     }
@@ -1164,6 +1167,16 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         }
         
         return bootstrap;    
+    }
+
+    /**
+     * @return
+     */
+    public ModulesKey getModulesKey() {
+        if(zipFilePath != null && zipFilePath.length() > 0){
+            return new ModulesKeyForZip(name, file, zipFilePath, true);
+        }
+        return new ModulesKey(name, file);
     }
 
 }

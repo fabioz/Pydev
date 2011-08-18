@@ -11,21 +11,23 @@
  */
 package org.python.pydev.debug.codecoverage;
 
+import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.structure.FastStringBuffer;
 
 /**
  * @author Fabio Zadrozny
  */
-public class FileNode {
+public class FileNode implements ICoverageLeafNode{
     
-    public Object node;
+    public File node;
     public int stmts;
-    public int exec;
+    public int miss;
     public String notExecuted;
     
     /* (non-Javadoc)
@@ -37,59 +39,92 @@ public class FileNode {
         }
         
         FileNode f = (FileNode) obj;
-        return f.node.equals(node) && f.exec == exec && f.notExecuted.equals(notExecuted) && f.stmts == stmts; 
+        return f.node.equals(node) && f.miss == miss && f.notExecuted.equals(notExecuted) && f.stmts == stmts; 
+    }
+    
+    @Override
+    public int hashCode() {
+        return node.hashCode()*3 + ((miss+1) * 7) + ((stmts+1)*5);
     }
     
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     public String toString() {
-        return FileNode.toString(node.toString(), stmts, exec, notExecuted);
+        FastStringBuffer buf = new FastStringBuffer();
+        FileNode.appendToBuffer(buf, node.toString(), stmts, miss, notExecuted, PyCoveragePreferences.getNameNumberOfColumns());
+        return buf.toString();
     }
     
-    public static String toString(String str, int stmts, int exec, String notExecuted) {
-        return new FastStringBuffer().
-            append(getName(str)).
-            append("   ").
-            append(getStmts(stmts)).
-            append("     ").
-            append(exec).
-            append("      ").
-            append(calcCover(stmts, exec)).
-            append("  ").
-            append(notExecuted).toString();
+    public FastStringBuffer appendToBuffer(FastStringBuffer buffer, String baseLocation, int nameNumberOfColumns) {
+        String name = node.toString();
+        if(name.toLowerCase().startsWith(baseLocation.toLowerCase())){
+            name = name.substring(baseLocation.length());
+        }
+        if(name.startsWith("/") || name.startsWith("\\")){
+            name = name.substring(1);
+        }
+        if(name.length() == 0){
+            name = node.getName();
+        }
+        return appendToBuffer(buffer, name, stmts, miss, notExecuted, nameNumberOfColumns);
     }
     
-    public static String getName(String str){
-        if(str.length() > 40){
-            str = str.substring(str.length()-37, str.length());
-            str = ".. "+str;
-        }
-        while (str.length() < 40){
-            str = " "+str;
-        }
-        return str;
+    /**
+     * @param buffer
+     * @return
+     */
+    public static FastStringBuffer appendToBuffer(FastStringBuffer buffer, String str, int stmts, int miss, String notExecuted, int nameNumberOfColumns) {
+        buffer.
+        append(getName(str, nameNumberOfColumns)).
+        append("   ").
+        append(getStmts(stmts)).
+        append("     ").
+        append(getStmts(miss)).
+        append("      ").
+        append(calcCover(stmts, miss)).
+        append("  ").
+        append(notExecuted);
+        return buffer;
     }
 
-    public static String getStmts(int stmts){
+    
+    public static String getName(String str, int nameNumberOfColumns){
+        FastStringBuffer buffer = new FastStringBuffer(str, str.length() > nameNumberOfColumns?0:nameNumberOfColumns-str.length());
+        
+        if(buffer.length() > nameNumberOfColumns){
+            buffer = buffer.delete(0, Math.abs((nameNumberOfColumns-2)-str.length()));
+            buffer.insert(0, "..");
+        }
+        if (buffer.length() < nameNumberOfColumns){
+            buffer.appendN(' ', nameNumberOfColumns-str.length());
+        }
+        return buffer.toString();
+    }
+
+    private static String getStmts(int stmts){
         FastStringBuffer str = new FastStringBuffer();
-        str.append(stmts);
+        if(stmts == 0){
+            str.append('-');
+            
+        }else{
+            str.append(stmts);
+        }
         while (str.length() < 4){
-            str.insert(0, " ");
+            str.insert(0, ' ');
         }
         return str.toString();
     }
 
-    public static String getExec(int exec){
-        return getStmts(exec);
-    }
 
-    public static String calcCover(int stmts, int exec){
+    public static String calcCover(int stmts, int miss){
         double v = 0;
-        if(stmts != 0){
-            v = ((double)exec) / ((double)stmts) * 100.0;
+        if(stmts > 0){
+            v = ((double)stmts-miss) / ((double)stmts) * 100.0;
+        }else{
+            return "   - ";
         }
-        DecimalFormat format = new DecimalFormat("##.#");
+        DecimalFormat format = new DecimalFormat("###.#");
         String str = format.format(v);
         str += "%";
         while (str.length() < 5){
@@ -101,8 +136,8 @@ public class FileNode {
     /**
      * @return an iterator with the lines that were not executed
      */
-    public Iterator<Object> notExecutedIterator() {
-        List<Object> l = new ArrayList<Object>();
+    public Iterator<Tuple<Integer, Integer>> notExecutedIterator() {
+        List<Tuple<Integer, Integer>> l = new ArrayList<Tuple<Integer, Integer>>();
         
         String[] toks = notExecuted.replaceAll(" ", "").split(",");
         for (int i = 0; i < toks.length; i++) {
@@ -111,17 +146,17 @@ public class FileNode {
                 continue;
             }
             if(tok.indexOf("-") == -1){
-                l.add(new Integer(tok));
+                Integer startEnd = new Integer(tok);
+                l.add(new Tuple<Integer, Integer>(startEnd, startEnd));
             }else{
                 String[] begEnd = tok.split("-");
-                for (int j = Integer.parseInt(begEnd[0]) ; j <= Integer.parseInt(begEnd[1]); j++){
-                    l.add(new Integer(j));
-                }
+                l.add(new Tuple<Integer, Integer>(Integer.parseInt(begEnd[0]), Integer.parseInt(begEnd[1])));
             }
         }
         
         return l.iterator();
     }
+
 
 }
 

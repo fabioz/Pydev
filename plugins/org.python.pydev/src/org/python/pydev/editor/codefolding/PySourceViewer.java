@@ -103,6 +103,9 @@ public class PySourceViewer extends ProjectionViewer {
             MarkerAnnotationAndPosition annotation = it.next();
             
             Position position = annotation.position;
+            if(position == null){
+                continue;
+            }
             int offset = position.getOffset();
             if(offset >= lineStartOffset && offset <= lineEndOffset){
                 IMarker marker = annotation.markerAnnotation.getMarker();

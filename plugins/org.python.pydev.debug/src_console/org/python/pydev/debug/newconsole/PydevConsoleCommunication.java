@@ -23,10 +23,12 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.dltk.console.IScriptConsoleCommunication;
 import org.python.pydev.dltk.console.InterpreterResponse;
@@ -36,7 +38,6 @@ import org.python.pydev.editor.codecompletion.PyCalltipsContextInformation;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.codecompletion.PyLinkedModeCompletionProposal;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.ThreadStreamReader;
 
 /**
@@ -171,10 +172,12 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
         inputReceived = null;
         boolean needInput = true;
         
+        String stdOutContents = stdOutReader.getAndClearContents();
+        String stderrContents = stdErrReader.getAndClearContents();
         //let the busy loop from execInterpreter free and enter a busy loop
         //in this function until execInterpreter gives us an input
-        nextResponse = new InterpreterResponse(stdOutReader.getAndClearContents(), 
-                stdErrReader.getAndClearContents(), false, needInput);
+        nextResponse = new InterpreterResponse(stdOutContents, 
+                stderrContents, false, needInput);
         
         //busy loop until we have an input
         while(inputReceived == null){
@@ -182,7 +185,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                 try {
                     lock.wait(10);
                 } catch (InterruptedException e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
             }
         }
@@ -194,7 +197,10 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
      * 
      * @param command the command to be executed in the client
      */
-    public void execInterpreter(final String command, final ICallback<Object, InterpreterResponse> onResponseReceived){
+    public void execInterpreter(
+            final String command, 
+            final ICallback<Object, InterpreterResponse> onResponseReceived,
+            final ICallback<Object, Tuple<String, String>> onContentsReceived){
         nextResponse = null;
         if(waitingForInput){
             inputReceived = command;
@@ -202,7 +208,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
             //the thread that we started in the last exec is still alive if we were waiting for an input.
         }else{
             //create a thread that'll keep locked until an answer is received from the server.
-            Job job = new Job("Pydev Console Communication"){
+            Job job = new Job("PyDev Console Communication"){
 
                 /**
                  * Executes the needed command 
@@ -294,10 +300,14 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                         String errorContents = executed.o1;
                         boolean more = executed.o2;
                         
+                        String stdOutContents;
                         if(errorContents == null){
                             errorContents = stdErrReader.getAndClearContents();
+                        }else{
+                            errorContents += "\n"+stdErrReader.getAndClearContents();
                         }
-                        nextResponse = new InterpreterResponse(stdOutReader.getAndClearContents(), 
+                        stdOutContents = stdOutReader.getAndClearContents();
+                        nextResponse = new InterpreterResponse(stdOutContents, 
                                 errorContents, more, needInput);
                         
                     }catch(Exception e){
@@ -312,13 +322,26 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
             
         }
         
+        int i = 500; //only get contents each 500 millis...
+        
         //busy loop until we have a response
         while(nextResponse == null){
             synchronized(lock2){
                 try {
                     lock2.wait(20);
                 } catch (InterruptedException e) {
-                    PydevPlugin.log(e);
+//                    Log.log(e);
+                }
+            }
+            
+            i-=20;
+            
+            if(i <= 0 && nextResponse == null){
+                i = 250; //after the first, get it each 250 millis
+                String stderrContents = stdErrReader.getAndClearContents();
+                String stdOutContents = stdOutReader.getAndClearContents();
+                if(stdOutContents.length() > 0 || stderrContents.length() > 0){
+                    onContentsReceived.call(new Tuple<String, String>(stdOutContents, stderrContents));
                 }
             }
         }
@@ -328,30 +351,30 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
     /**
      * @return completions from the client
      */
-    public ICompletionProposal[] getCompletions(String text, int offset) throws Exception {
+    public ICompletionProposal[] getCompletions(String text, String actTok, int offset) throws Exception {
         if(waitingForInput){
             return new ICompletionProposal[0];
         }
-        Object fromServer = client.execute("getCompletions", new Object[]{text});
+        Object fromServer = client.execute("getCompletions", new Object[]{text, actTok});
         List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>();
         
         
-        convertToICompletions(text, offset, fromServer, ret);
+        convertToICompletions(text, actTok, offset, fromServer, ret);
         ICompletionProposal[] proposals = ret.toArray(new ICompletionProposal[ret.size()]);
         return proposals;
     }
 
-    public static void convertToICompletions(String text, int offset, Object fromServer, List<ICompletionProposal> ret) {
+    public static void convertToICompletions(String text, String actTok, int offset, Object fromServer, List<ICompletionProposal> ret) {
         if(fromServer instanceof Object[]){
             Object[] objects = (Object[]) fromServer;
             fromServer = Arrays.asList(objects);
         }
         if(fromServer instanceof List){
-            int length = text.lastIndexOf('.');
+            int length = actTok.lastIndexOf('.');
             if(length == -1){
-                length = text.length();
+                length = actTok.length();
             }else{
-                length = text.length()-length-1;
+                length = actTok.length()-length-1;
             }
             
             List comps = (List) fromServer;
@@ -368,8 +391,12 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                     String nameAndArgs = name+args;
 
                     int priority = IPyCompletionProposal.PRIORITY_DEFAULT;
-                    if(type == IToken.TYPE_PARAM){
+                    
+                    if(type == IToken.TYPE_LOCAL){
                         priority = IPyCompletionProposal.PRIORITY_LOCALS;
+                        
+                    }else if(type == IToken.TYPE_PARAM){
+                        priority = IPyCompletionProposal.PRIORITY_LOCALS_1;
                     }
                     
 //                    ret.add(new PyCompletionProposal(name,
@@ -385,6 +412,32 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                     PyCalltipsContextInformation pyContextInformation = null;
                     if(args.length() > 2){
                         pyContextInformation = new PyCalltipsContextInformation(args, replacementOffset+name.length()+1); //just after the parenthesis
+                    }else{
+                        
+                        //Support for IPython completions (non standard names)
+                        
+                        //i.e.: %completions, cd ...
+                        if(name.length() > 0){
+                            
+                            //magic ipython stuff (starting with %)
+                            if(name.charAt(0) == '%'){
+                                replacementOffset -= 1;
+                                
+                            }else if(name.charAt(0) == '/'){
+                                //Should be something as cd c:/temp/foo (and name is /temp/foo)
+                                char[] chars = text.toCharArray();
+                                for(int i=0;i<chars.length;i++){
+                                    char c = chars[i];
+                                    if(c == name.charAt(0)){
+                                        String sub = text.substring(i, text.length());
+                                        if(name.startsWith(sub)){
+                                            replacementOffset -= (sub.length()-FullRepIterable.getLastPart(actTok).length());
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                     
                     ret.add(new PyLinkedModeCompletionProposal(nameAndArgs,
@@ -396,7 +449,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
             }
         }
     }
-
+    
     /**
      * Extracts an int from an object
      * 

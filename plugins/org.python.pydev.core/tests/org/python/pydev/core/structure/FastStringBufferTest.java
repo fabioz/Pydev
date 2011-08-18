@@ -134,6 +134,46 @@ public class FastStringBufferTest extends TestCase{
     }
     
     
+    public void testDeleteLastChars() throws Exception {
+        FastStringBuffer buf = new FastStringBuffer(0);
+        buf.append("rara");
+        buf.append("foo");
+        buf.deleteLastChars("foo".length());
+        assertEquals("rara", buf.toString());
+        buf.deleteLastChars(50);
+        assertEquals("", buf.toString());
+    }
+    
+    
+    public void testInsertN() throws Exception {
+        FastStringBuffer buf = new FastStringBuffer(0);
+        buf.append("rara");
+        buf.insertN(0, ' ', 2);
+        assertEquals("  rara", buf.toString());
+        buf.insertN(1, 'a', 1);
+        assertEquals(" a rara", buf.toString());
+        buf.insertN(7, 'b', 3);
+        assertEquals(" a rarabbb", buf.toString());
+    }
+    
+    public void testGetLastWord() throws Exception {
+        FastStringBuffer buf = new FastStringBuffer(0);
+        assertEquals("", buf.getLastWord());
+        buf.append("b");
+        assertEquals("b", buf.getLastWord());
+        buf.append("ar");
+        assertEquals("bar", buf.getLastWord());
+        buf.append("1");
+        assertEquals("bar1", buf.getLastWord());
+        buf.append("\tsome");
+        assertEquals("some", buf.getLastWord());
+        buf.append(" some1");
+        assertEquals("some1", buf.getLastWord());
+        buf.append("  \t");
+        assertEquals("some1", buf.getLastWord());
+    }
+    
+    
 //    public void testFastString() throws Exception {
 //        
 //        long total=0;

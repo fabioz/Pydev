@@ -20,7 +20,7 @@ import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.texteditor.ITextEditor;
-import org.python.pydev.plugin.KeyBindingHelper;
+import org.python.pydev.bindingutils.KeyBindingHelper;
 
 /**
  * @author Fabio Zadrozny 

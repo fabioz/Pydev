@@ -62,9 +62,14 @@ def main():
         
     except ImportError:
         if found_other_test_framework_param:
-            sys.stderr.write('Warning: Could not import the test runner: %s. Running with the default pydev unittest runner.\n' % (
+            sys.stderr.write('Warning: Could not import the test runner: %s. Running with the default pydev unittest runner instead.\n' % (
                 found_other_test_framework_param,))
             
+        test_framework = 0
+        
+        
+    if test_framework == 0:
+        
         pydev_runfiles.main(configuration)
         
     else:
@@ -131,7 +136,8 @@ def main():
             if DEBUG:
                 sys.stdout.write('Final test framework args: %s\n' % (argv[1:],))
                 
-            from pydev_runfiles_nose import PYDEV_NOSE_PLUGIN_SINGLETON
+            import pydev_runfiles_nose
+            PYDEV_NOSE_PLUGIN_SINGLETON = pydev_runfiles_nose.StartPydevNosePluginSingleton(configuration)
             argv.append('--with-pydevplugin')
             nose.run(argv=argv, addplugins=[PYDEV_NOSE_PLUGIN_SINGLETON])
 

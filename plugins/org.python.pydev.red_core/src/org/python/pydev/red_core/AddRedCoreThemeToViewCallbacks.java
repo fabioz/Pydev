@@ -7,50 +7,35 @@
 package org.python.pydev.red_core;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Control;
 import org.python.pydev.core.callbacks.ICallbackListener;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 
 import com.aptana.theme.ThemePlugin;
 
 /**
  * Used to create the callbacks that will add the theming to the pydev views.
  */
+@SuppressWarnings("rawtypes")
 public class AddRedCoreThemeToViewCallbacks {
 
-	public final ICallbackListener onDispose;
-	public final ICallbackListener onTreeViewCreated;
+    public final ICallbackListener onControlDisposed;
+	public final ICallbackListener onControlCreated;
 	
-	private class Container{
-	    public Container(Control viewer) {
-	        this.obj = viewer;
-	    }
-	    
-	    public Container(TreeViewer viewer) {
-            this.obj = viewer;
-        }
-
-        public final Object obj;
-	}
-	
-	private Container container;
-	
-	public AddRedCoreThemeToViewCallbacks() {
-		onDispose = new ICallbackListener() {
+    public AddRedCoreThemeToViewCallbacks() {
+		onControlDisposed = new ICallbackListener() {
 			
 			public Object call(Object obj) {
 				try {
-				    if(container.obj instanceof TreeViewer){
-				        ThemePlugin.getDefault().getControlThemerFactory().dispose((TreeViewer)container.obj);
+				    if(obj instanceof Viewer){
+				        ThemePlugin.getDefault().getControlThemerFactory().dispose((Viewer)obj);
 				        
     				}else if(obj instanceof Control){
-    				    ThemePlugin.getDefault().getControlThemerFactory().dispose((Control)container.obj);
-    				    
+    				    ThemePlugin.getDefault().getControlThemerFactory().dispose((Control)obj);
     				    
     				}else{
-    				    PydevPlugin.log("Cannot handle: "+obj);
+    				    Log.log("Cannot handle: "+obj);
     				}
                 } catch (Throwable e) {
                     Log.log(IStatus.ERROR, "Unable to dispose properly. Probably using incompatible version of Aptana Studio", e);
@@ -59,23 +44,19 @@ public class AddRedCoreThemeToViewCallbacks {
 			}
 		};
 		
-		onTreeViewCreated = new ICallbackListener() {
-			
-
+		onControlCreated = new ICallbackListener() {
 
             public Object call(Object obj) {
-                if(obj instanceof TreeViewer){
-    			    TreeViewer treeViewer = (TreeViewer) obj;
-    			    container = new Container(treeViewer);
+                if(obj instanceof Viewer){
+                    Viewer viewer = (Viewer) obj;
                     try {
-                        ThemePlugin.getDefault().getControlThemerFactory().apply(treeViewer);
+                        ThemePlugin.getDefault().getControlThemerFactory().apply(viewer);
                     } catch (Throwable e) {
                         Log.log(IStatus.ERROR, "Unable to apply theme. Probably using incompatible version of Aptana Studio", e);
                     }
                     
                 }else if(obj instanceof Control){
                     Control control = (Control) obj;
-                    container = new Container(control);
                     try {
                         ThemePlugin.getDefault().getControlThemerFactory().apply(control);
                     } catch (Throwable e) {
@@ -84,7 +65,7 @@ public class AddRedCoreThemeToViewCallbacks {
                     
                     
                 }else{
-                    PydevPlugin.log("Cannot handle: "+obj);
+                    Log.log("Cannot handle: "+obj);
                 }
                     
                 return null;

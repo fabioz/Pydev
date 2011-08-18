@@ -75,6 +75,8 @@ public class PyUnitView2TestTestWorkbench extends AbstractWorkbenchTestCase impl
         launchManager.addLaunchListener(this);
         UnitTestLaunchShortcut unitTestLaunchShortcut = new UnitTestLaunchShortcut();
         unitTestLaunchShortcut.launch(editor, "run");
+
+
         
         //1 minute for the launch to complete should be enough
         goToManual(60*1000, new ICallback<Boolean, Object>() {
@@ -89,39 +91,76 @@ public class PyUnitView2TestTestWorkbench extends AbstractWorkbenchTestCase impl
             }
         });
         
-        goToManual(60*1000, getPyUnitViewOkCallback(0, 3));
+        PyUnitView view = PyUnitView.getView();
+        ShowOnlyFailuresAction action = (ShowOnlyFailuresAction) getPyUnitViewAction(view, ShowOnlyFailuresAction.class);
+        action.setChecked(false);//clicking it should do this.
+        action.run();
+        assertTrue(!action.isChecked());
+        
+        //note that only 3 methods appear in the tree because we've selected to show all methods (not only errors/failures)
+        ICallback<Boolean, Object> callback = getPyUnitViewOkCallback(0, 3);
+        goToManual(15*1000, callback);
+        assertTrue(callback.call(THROW_ERROR));
         
         executePyUnitViewAction(PyUnitView.getView(), RelaunchAction.class);
         
-        goToManual(60*1000, getPyUnitViewOkCallback(1, 3));
+        callback = getPyUnitViewOkCallback(1, 3);
+        goToManual(15*1000, callback);
+        assertTrue(callback.call(THROW_ERROR));
         
         executePyUnitViewAction(PyUnitView.getView(), RelaunchErrorsAction.class);
         
-        goToManual(60*1000, getPyUnitViewOkCallback(2, 2));
+        action = (ShowOnlyFailuresAction) getPyUnitViewAction(view, ShowOnlyFailuresAction.class);
+        action.setChecked(true);//clicking it should do this.
+        action.run();
+        assertTrue(action.isChecked());
+        
+        //note that only 2 methods appear in the tree because we've selected to show only errors/failures
+        callback = getPyUnitViewOkCallback(2, 2);
+        goToManual(15*1000, callback);
+        assertTrue(callback.call(THROW_ERROR));
+        
     }
+    
+    private static final String THROW_ERROR = "THROW_ERROR";
 
 
-    private ICallback<Boolean, Object> getPyUnitViewOkCallback(final int historySize, final int methodsRun) {
+    private ICallback<Boolean, Object> getPyUnitViewOkCallback(final int historySize, final int methodsAppearingInTree) {
         return new ICallback<Boolean, Object>() {
 
             public Boolean call(Object arg) {
                 PyUnitView view = PyUnitView.getView();
                 PyUnitTestRun currentTestRun = view.getCurrentTestRun();
                 if(currentTestRun == null){
+                    if(arg == THROW_ERROR){
+                        throw new AssertionError("currentTestRun == null");
+                    }
                     return false;
                 }
                 if(!currentTestRun.getFinished()){
+                    if(arg == THROW_ERROR){
+                        throw new AssertionError("!currentTestRun.getFinished()");
+                    }
                     return false;
                 }
                 Tree tree = view.getTree();
-                if(tree.getItemCount() != methodsRun){
+                if(tree.getItemCount() != methodsAppearingInTree){
+                    if(arg == THROW_ERROR){
+                        throw new AssertionError("tree.getItemCount() "+tree.getItemCount()+"!= methodsRun "+methodsAppearingInTree);
+                    }
                     return false;
                 }
                 CounterPanel counterPanel = view.getCounterPanel();
                 if(!counterPanel.fNumberOfErrors.getText().equals("1")){
+                    if(arg == THROW_ERROR){
+                        throw new AssertionError("!counterPanel.fNumberOfErrors.getText().equals(\"1\")");
+                    }
                     return false;
                 }
                 if(!counterPanel.fNumberOfFailures.getText().equals("1")){
+                    if(arg == THROW_ERROR){
+                        throw new AssertionError("!counterPanel.fNumberOfFailures.getText().equals(\"1\")");
+                    }
                     return false;
                 }
                 HistoryAction historyAction = (HistoryAction) getPyUnitViewAction(view, HistoryAction.class);
@@ -140,6 +179,9 @@ public class PyUnitView2TestTestWorkbench extends AbstractWorkbenchTestCase impl
                 };
                 menuCreator.fillMenuManager(actionsMenu);
                 if(historySize + 1 != actions.size()){ //+1 to count for the current!
+                    if(arg == THROW_ERROR){
+                        throw new AssertionError("historySize + 1 != actions.size()");
+                    }
                     return false;
                 }
                 

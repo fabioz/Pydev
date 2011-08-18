@@ -17,11 +17,11 @@ import junit.framework.TestSuite;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -49,14 +49,14 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
     // something simpler can be enough
 
     public void testResourceLocation() throws Exception {
-        ILaunchConfiguration config = new JythonLaunchShortcut().createDefaultLaunchConfiguration(new IResource[] { mod1 });
+        ILaunchConfiguration config = new JythonLaunchShortcut().createDefaultLaunchConfiguration(FileOrResource.createArray(new IResource[] { mod1 }));
         PythonRunnerConfig runnerConfig = new PythonRunnerConfig(config, ILaunchManager.RUN_MODE,
                 PythonRunnerConfig.RUN_JYTHON);
         assertEquals(mod1.getLocation(), runnerConfig.resource[0]);
     }
 
     public void testOverridingResourceLocation() throws Exception {
-        ILaunchConfiguration config = new JythonLaunchShortcut().createDefaultLaunchConfiguration(new IResource[] { mod1 });
+        ILaunchConfiguration config = new JythonLaunchShortcut().createDefaultLaunchConfiguration(FileOrResource.createArray(new IResource[] { mod1 }));
         ILaunchConfigurationWorkingCopy configCopy = config.getWorkingCopy();
         String customResourcePath = "/foo/bar/acme.py";
         configCopy.setAttribute(Constants.ATTR_ALTERNATE_LOCATION, customResourcePath);
@@ -66,7 +66,7 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
     }
 
     public void testUnittestCommandLine() throws Exception {
-        ILaunchConfiguration config = new JythonLaunchShortcut().createDefaultLaunchConfiguration(new IResource[] { mod1 });
+        ILaunchConfiguration config = new JythonLaunchShortcut().createDefaultLaunchConfiguration(FileOrResource.createArray(new IResource[] { mod1 }));
         PythonRunnerConfig runnerConfig = new PythonRunnerConfig(config, ILaunchManager.RUN_MODE,
                 PythonRunnerConfig.RUN_JYTHON);
         String[] argv = runnerConfig.getCommandLine(false);
@@ -75,7 +75,7 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
     }
     
     public void testPythonUnittestCommandLine() throws Exception {
-        ILaunchConfiguration config = new UnitTestLaunchShortcut().createDefaultLaunchConfiguration(new IResource[] { mod1 });
+        ILaunchConfiguration config = new UnitTestLaunchShortcut().createDefaultLaunchConfiguration(FileOrResource.createArray(new IResource[] { mod1 }));
         PythonRunnerConfig runnerConfig = new PythonRunnerConfig(config, ILaunchManager.RUN_MODE, PythonRunnerConfig.RUN_UNITTEST);
         String[] argv = runnerConfig.getCommandLine(false);
         assertTrue(arrayContains(argv, PythonRunnerConfig.getRunFilesScript()));
@@ -88,7 +88,7 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
         
         try{
             IInterpreterManager manager = PydevPlugin.getPythonInterpreterManager(true);
-            InterpreterInfo info = (InterpreterInfo) manager.getInterpreterInfo(manager.getDefaultInterpreter(), new NullProgressMonitor());
+            InterpreterInfo info = (InterpreterInfo) manager.getDefaultInterpreterInfo(false);
             info.setEnvVariables(new String[]{"MY_CUSTOM_VAR_FOR_TEST=FOO", "MY_CUSTOM_VAR_FOR_TEST2=FOO2"});
             
             
@@ -102,15 +102,15 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
             
             
             nature.setVersion(IPythonNature.PYTHON_VERSION_LATEST, IPythonNature.DEFAULT_INTERPRETER);
-            assertEquals(manager.getDefaultInterpreter(), nature.getProjectInterpreter().getExecutableOrJar());
+            assertEquals(manager.getDefaultInterpreterInfo(false), nature.getProjectInterpreter().getExecutableOrJar());
             runnerConfig = createConfig();
             argv = runnerConfig.getCommandLine(false); 
-            assertEquals(manager.getDefaultInterpreter(), argv[0]);
+            assertEquals(manager.getDefaultInterpreterInfo(false).getExecutableOrJar(), argv[0]);
             
             IInterpreterManager interpreterManager = nature.getRelatedInterpreterManager();
             
             InterpreterInfo info2 = new InterpreterInfo(IPythonNature.PYTHON_VERSION_2_6, "c:\\interpreter\\py25.exe", new ArrayList<String>());
-            interpreterManager.addInterpreterInfo(info2);
+            interpreterManager.setInfos(new IInterpreterInfo[]{info, info2}, null, null);
             
             nature.setVersion(IPythonNature.PYTHON_VERSION_LATEST, "c:\\interpreter\\py25.exe");
             assertEquals("c:\\interpreter\\py25.exe", nature.getProjectInterpreter().getExecutableOrJar());
@@ -121,7 +121,7 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
 
             ILaunchConfiguration config;
             
-            config = new LaunchShortcut().createDefaultLaunchConfiguration(new IResource[] { mod1 });
+            config = new LaunchShortcut().createDefaultLaunchConfiguration(FileOrResource.createArray(new IResource[] { mod1 }));
             ILaunchConfigurationWorkingCopy workingCopy = config.getWorkingCopy();
             HashMap<String, String> map = new HashMap<String, String>();
             map.put("VAR_SPECIFIED_IN_LAUNCH", "BAR");
@@ -143,7 +143,7 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
     }
 
     private PythonRunnerConfig createConfig() throws CoreException, InvalidRunException, MisconfigurationException {
-        ILaunchConfiguration config = new LaunchShortcut().createDefaultLaunchConfiguration(new IResource[] { mod1 });
+        ILaunchConfiguration config = new LaunchShortcut().createDefaultLaunchConfiguration(FileOrResource.createArray(new IResource[] { mod1 }));
         PythonRunnerConfig runnerConfig = new PythonRunnerConfig(config, ILaunchManager.RUN_MODE, PythonRunnerConfig.RUN_REGULAR);
         return runnerConfig;
     }

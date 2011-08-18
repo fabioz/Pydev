@@ -110,29 +110,35 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
         PyUnitProgressBar progressBar = view.getProgressBar();
 
         notifyTestsCollected(9);
-        assertEquals("Runs: 0/9", counterPanel.fNumberOfRuns.getText());
+        assertEquals("0 / 9", counterPanel.fNumberOfRuns.getText());
         
         notifyTest("ok", "d:/temp/a.py", "TestCase.testMet1", "", "", "0.1");
         assertSame(view.getCurrentTestRun(), serverListener1.getTestRun());
         assertEquals(1, serverListener1.getTestRun().getSharedResultsList().size());
-        assertEquals("Runs: 1/9", counterPanel.fNumberOfRuns.getText());
+        assertEquals("1 / 9", counterPanel.fNumberOfRuns.getText());
         assertEquals("0", counterPanel.fNumberOfErrors.getText());
         assertEquals("0", counterPanel.fNumberOfFailures.getText());
         assertEquals(false, progressBar.getHasErrors());
         
         notifyTest("fail", "d:/temp/a.py", "TestCase.testMet2", "", "", "0.3");
-        assertEquals("Runs: 2/9", counterPanel.fNumberOfRuns.getText());
+        assertEquals("2 / 9", counterPanel.fNumberOfRuns.getText());
         assertEquals("0", counterPanel.fNumberOfErrors.getText());
         assertEquals("1", counterPanel.fNumberOfFailures.getText());
         assertEquals(true, progressBar.getHasErrors());
         
         notifyTest("error", "d:/temp/a.py", "TestCase.testMet2", "", "", "0.5");
-        assertEquals("Runs: 3/9", counterPanel.fNumberOfRuns.getText());
+        assertEquals("3 / 9", counterPanel.fNumberOfRuns.getText());
         assertEquals("1", counterPanel.fNumberOfErrors.getText());
         assertEquals("1", counterPanel.fNumberOfFailures.getText());
         assertEquals(true, progressBar.getHasErrors());
         
         notifyFinished();
+        
+        ShowOnlyFailuresAction action = (ShowOnlyFailuresAction) getPyUnitViewAction(view, ShowOnlyFailuresAction.class);
+        action.setChecked(false);//clicking it should do this.
+        action.run();
+        assertTrue(!action.isChecked()); //showing all methods (not only failures/errors)
+
         checkRun1Active(view, serverListener1);
         
         
@@ -177,7 +183,7 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
         
         assertEquals(terminatedActions.size(), 1);
         
-        ShowOnlyFailuresAction action = (ShowOnlyFailuresAction) getPyUnitViewAction(view, ShowOnlyFailuresAction.class);
+        action = (ShowOnlyFailuresAction) getPyUnitViewAction(view, ShowOnlyFailuresAction.class);
         assertFalse(action.isChecked());
         action.setChecked(true);//clicking it should do this.
         action.run();
@@ -210,7 +216,7 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
         assertEquals(3, serverListener1.getTestRun().getSharedResultsList().size());
         CounterPanel counterPanel = view.getCounterPanel();
         PyUnitProgressBar progressBar = view.getProgressBar();
-        assertEquals("Runs: 3/9", counterPanel.fNumberOfRuns.getText());
+        assertEquals("3 / 9", counterPanel.fNumberOfRuns.getText());
         assertEquals("1", counterPanel.fNumberOfErrors.getText());
         assertEquals("1", counterPanel.fNumberOfFailures.getText());
         assertEquals(true, progressBar.getHasErrors());
@@ -228,7 +234,7 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
         CounterPanel counterPanel = view.getCounterPanel();
         assertSame(serverListener2.getTestRun(), view.getCurrentTestRun());
         assertEquals(0, serverListener2.getTestRun().getSharedResultsList().size());
-        assertEquals("Runs: 0/0", counterPanel.fNumberOfRuns.getText());
+        assertEquals("0 / 0", counterPanel.fNumberOfRuns.getText());
         assertEquals("0", counterPanel.fNumberOfErrors.getText());
         assertEquals("0", counterPanel.fNumberOfFailures.getText());
         assertEquals(false, progressBar.getHasErrors());
@@ -240,16 +246,16 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
 
     private void notifyFinished() {
         pyUnitViewServerListener.notifyFinished(null);
-        goToManual(50); //should be enough for it to execute
+        goToManual(100); //should be enough for it to execute
     }
     
     private void notifyTestsCollected(int totalTestsCount) {
         pyUnitViewServerListener.notifyTestsCollected(""+totalTestsCount);
-        goToManual(50); //should be enough for it to execute
+        goToManual(100); //should be enough for it to execute
     }
 
     private void notifyTest(String status, String location, String test, String capturedOutput, String errorContents, String time) {
         pyUnitViewServerListener.notifyTest(status, location, test, capturedOutput, errorContents, time);
-        goToManual(50); //should be enough for it to execute
+        goToManual(100); //should be enough for it to execute
     }
 }

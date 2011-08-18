@@ -39,7 +39,6 @@ import org.python.pydev.core.docutils.StringSubstitution;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.MainModuleTab;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * A control for setting the working directory associated with a launch
@@ -49,7 +48,7 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
             
-    private static final String DEFAULT_WORKING_DIRECTORY_TEXT = "${project_loc}";
+    private static final String DEFAULT_WORKING_DIRECTORY_TEXT = "${project_loc:/selected project name}";
     // Local directory
     private Button fWorkspaceButton;
     private Button fFileSystemButton;
@@ -137,7 +136,7 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
         fUseDefaultDirButton.addSelectionListener(fListener);
         fWorkingDirText = createSingleText(comp, 1); 
         fWorkingDirText.addModifyListener(fListener);
-        fWorkingDirText.setEnabled(false);
+        fWorkingDirText.setEditable(false);
     //user enter choice
         fUseOtherDirButton = createRadioButton(comp, "Other:");
         fUseOtherDirButton.addSelectionListener(fListener);
@@ -230,6 +229,7 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
         fVariablesButton.setEnabled(false);
         fFileSystemButton.setEnabled(false);
         fUseOtherDirButton.setSelection(false);
+        fWorkingDirText.setEnabled(true);
     }
 
     /**
@@ -242,6 +242,7 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
         fWorkspaceButton.setEnabled(true);
         fVariablesButton.setEnabled(true);
         fFileSystemButton.setEnabled(true);
+        fWorkingDirText.setEnabled(false);
         updateLaunchConfigurationDialog();
     }
 
@@ -261,12 +262,7 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
      * Sets the default working directory
      */
     protected void setDefaultWorkingDir() {
-        ILaunchConfiguration config = getLaunchConfiguration();
-        if (config != null) {
-            setDefaultWorkingDirectoryText(DEFAULT_WORKING_DIRECTORY_TEXT);
-            return;
-        }
-        setDefaultWorkingDirectoryText(System.getProperty("user.dir")); //$NON-NLS-1$
+        setDefaultWorkingDirectoryText(DEFAULT_WORKING_DIRECTORY_TEXT);
     }
 
     /* (non-Javadoc)
@@ -323,18 +319,16 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
             String owd = configuration.getAttribute(Constants.ATTR_OTHER_WORKING_DIRECTORY, (String) null);
             setDefaultWorkingDir();
 
-            if (    (    (wd != null)
-                    &&  (wd.equals(owd)))
-                ||  (owd == null)) {
+            if ((wd != null && wd.equals(owd)) || owd == null) {
+                //will set the default as the other working directory text
                 setOtherWorkingDirectoryText(wd);
-            }
-            else {
+            } else {
                 fOtherWorkingText.setText(owd);
             }
         } 
         catch (CoreException e) {
             setErrorMessage("Exception occurred reading configuration" + e.getStatus().getMessage());
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
 
@@ -381,6 +375,7 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
         if(dir != null) {
             fWorkingDirText.setText(dir);
             fUseDefaultDirButton.setSelection(true);
+            fUseOtherDirButton.setSelection(false);
             handleUseDefaultWorkingDirButtonSelected();
         }
     }
@@ -393,8 +388,8 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
     protected void setOtherWorkingDirectoryText(String dir) {
         if(dir != null) {
             fOtherWorkingText.setText(dir);
-            fUseDefaultDirButton.setSelection(false);
             fUseOtherDirButton.setSelection(true);
+            fUseDefaultDirButton.setSelection(false);
             handleUseOtherWorkingDirButtonSelected();
         }
     }

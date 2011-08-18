@@ -20,7 +20,7 @@ public class DjHTMLOutlineLabelProvider extends HTMLOutlineLabelProvider {
 
     public DjHTMLOutlineLabelProvider(IParseState parseState) {
         labelProvider = new DjOutlineLabelProvider(parseState);
-        addSubLanguage(IDjConstants.LANGUAGE_DJANGO_TEMPLATES_HTML, new DjLanguageOutlineLabelProvider());
+        addSubLanguage(IDjConstants.CONTENT_TYPE_DJANGO_HTML, new DjLanguageOutlineLabelProvider());
     }
 
     @Override

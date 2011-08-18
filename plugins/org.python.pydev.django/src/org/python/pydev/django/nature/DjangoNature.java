@@ -16,7 +16,7 @@ import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 
 public class DjangoNature implements IProjectNature {
@@ -88,7 +88,7 @@ public class DjangoNature implements IProjectNature {
 	                }
             	}
             } catch (CoreException e) {
-                PydevPlugin.logInfo(e);
+                Log.logInfo(e);
             }
         }
         return null;

@@ -15,18 +15,19 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.python.pydev.core.ArrayUtils;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Helper class to deal with markers.
@@ -210,7 +211,7 @@ public class PydevMarkerUtils {
 
 
     /**
-     * This method allows clients to rplace the existing markers of some type in a given resource for other markers.
+     * This method allows clients to replace the existing markers of some type in a given resource for other markers.
      * 
      * @param lst the new markers to be set in the resource
      * @param resource the resource were the markers should be replaced
@@ -218,76 +219,70 @@ public class PydevMarkerUtils {
      * @param removeUserEditable if true, will remove the user-editable markers too (otherwise, will leave the user-editable markers)
      * @param monitor used to check whether this process should be canceled.
      */
-    public static void replaceMarkers(List<MarkerInfo> lst, IResource resource, String markerType, boolean removeUserEditable, IProgressMonitor monitor) {
-        IMarker[] existingMarkers;
-        try {
-            existingMarkers = resource.findMarkers(markerType, false, IResource.DEPTH_ZERO);
+    public static void replaceMarkers(
+            final List<MarkerInfo> lst, final IResource resource, final String markerType, final boolean removeUserEditable, IProgressMonitor monitor) {
+        IWorkspaceRunnable r = new IWorkspaceRunnable() {
             
-            if(!removeUserEditable){
-                //we don't want to remove the user-editable markers, so, let's filter them out!
-                existingMarkers = ArrayUtils.filter(existingMarkers, new ICallback<Boolean, IMarker>(){
-
-                    public Boolean call(IMarker marker) {
-                        //if it's user-editable, it should not be included in the list
-                        return !marker.getAttribute(IMarker.USER_EDITABLE, true); //default for user-editable is true.
-                    }}
-                ).toArray(new IMarker[0]);
-            }
-            
-        } catch (CoreException e1) {
-            PydevPlugin.log(e1);
-            existingMarkers = new IMarker[0];
-        }
-        
-        int lastExistingUsed = 0;
-        try {
-            for (MarkerInfo markerInfo : lst) {
-                HashMap<String, Object> asMap = markerInfo.getAsMap();
-                if(monitor.isCanceled()){
-                    return; //Canceled it. Don't keep on doing anything with the markers.
+            public void run(IProgressMonitor monitor) throws CoreException {
+                if(!resource.exists()){
+                    return;
                 }
-                if(asMap != null){
-                    if(lastExistingUsed < existingMarkers.length){
-                        IMarker marker = existingMarkers[lastExistingUsed];
-                        try{
-                            marker.setAttributes(asMap);
-                        } catch (Exception e) {
-                            PydevPlugin.log(e);
-                        }
-
-                        lastExistingUsed += 1;
+                try {
+                    if(removeUserEditable){
+                        resource.deleteMarkers(markerType, true, IResource.DEPTH_ZERO);
+                        
                     }else{
-                        try{
-                            MarkerUtilities.createMarker(resource, asMap, markerType);
-                        } catch (Exception e) {
-                            PydevPlugin.log(e);
-                        }
+                        IMarker[] existingMarkers;
+                        existingMarkers = resource.findMarkers(markerType, false, IResource.DEPTH_ZERO);
+                        //we don't want to remove the user-editable markers, so, let's filter them out!
+                        existingMarkers = ArrayUtils.filter(existingMarkers, new ICallback<Boolean, IMarker>(){
+                            
+                            public Boolean call(IMarker marker) {
+                                //if it's user-editable, it should not be included in the list
+                                return !marker.getAttribute(IMarker.USER_EDITABLE, true); //default for user-editable is true.
+                            }}
+                        ).toArray(new IMarker[0]);
+                        ResourcesPlugin.getWorkspace().deleteMarkers(existingMarkers);
                     }
+                } catch (Exception e1) {
+                    Log.log(e1);
                 }
+                
+                
+                try {
+                    for (MarkerInfo markerInfo : lst) {
+                        HashMap<String, Object> asMap = markerInfo.getAsMap();
+                        IMarker marker= resource.createMarker(markerType);
+                        marker.setAttributes(asMap);
+                    }
+                } catch (Exception e) {
+                    Log.log(e);
+                }
+                
             }
-        } catch (Exception e) {
-            PydevPlugin.log(e);
-        }
-        
-        //erase the ones that weren't replaced.
-        for(int i=lastExistingUsed; i < existingMarkers.length; i++){
-            try {
-                //erase the ones we didn't use
-                existingMarkers[i].delete();
-            } catch (Exception e) {
-                PydevPlugin.log(e);
-            }
+        };
+        try {
+            resource.getWorkspace().run(r, null,IWorkspace.AVOID_UPDATE, null);
+        } catch (CoreException e) {
+            Log.log(e);
         }
     }
 
 
+
+
     /**
-     * Replaces all the markers (including user-editable markers)
-     * 
-     * @see #replaceMarkers(List, IResource, String, boolean, IProgressMonitor)
+     * @param original 
+     * @param pydevCoverageMarker
      */
-    public static void replaceMarkers(List<MarkerInfo> lst, IResource resource, String markerType, IProgressMonitor monitor) {
-        replaceMarkers(lst, resource, markerType, true, monitor);
-        
+    public static void removeMarkers(IResource resource, String markerType) {
+        if(resource == null){
+            return;
+        }
+        try {
+            resource.deleteMarkers(markerType, false, IResource.DEPTH_ZERO);
+        } catch (Exception e) {
+            Log.log(e);
+        }        
     }
 }

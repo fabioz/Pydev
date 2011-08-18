@@ -6,6 +6,7 @@
  */
 package com.python.pydev.refactoring.wizards.rename;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,6 +32,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSourceModule;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.refactoring.core.base.PyDocumentChange;
 import org.python.pydev.refactoring.core.base.PyTextFileChange;
@@ -88,7 +90,7 @@ public class TextEditCreation {
      * Dictionary with a tuple (name of renamed module / file of the renamed module) --> 
      * occurrences to be renamed
      */
-    private Map<Tuple<String, IFile>, HashSet<ASTEntry>> fileOccurrences;
+    private Map<Tuple<String, File>, HashSet<ASTEntry>> fileOccurrences;
     
     /**
      * Occurrences to be renamed in the current module.
@@ -126,13 +128,13 @@ public class TextEditCreation {
                 docOccurrences.addAll(occurrences);
             }
             
-            Map<Tuple<String, IFile>, HashSet<ASTEntry>> occurrencesInOtherFiles = p.getOccurrencesInOtherFiles();
+            Map<Tuple<String, File>, HashSet<ASTEntry>> occurrencesInOtherFiles = p.getOccurrencesInOtherFiles();
             if(fileOccurrences == null){
                 fileOccurrences = occurrencesInOtherFiles;
             }else{
                 //iterate in a copy
-                for (Map.Entry<Tuple<String, IFile>, HashSet<ASTEntry>> entry : 
-                        new HashMap<Tuple<String, IFile>, HashSet<ASTEntry>>(occurrencesInOtherFiles).entrySet()) {
+                for (Map.Entry<Tuple<String, File>, HashSet<ASTEntry>> entry : 
+                        new HashMap<Tuple<String, File>, HashSet<ASTEntry>>(occurrencesInOtherFiles).entrySet()) {
                     HashSet<ASTEntry> set = occurrencesInOtherFiles.get(entry.getKey());
                     if(set == null){
                         occurrencesInOtherFiles.put(entry.getKey(), entry.getValue());
@@ -156,15 +158,36 @@ public class TextEditCreation {
      */
     private void createOtherFileChanges() {
 
-        for (Map.Entry<Tuple<String, IFile>, HashSet<ASTEntry>> entry : fileOccurrences.entrySet()) {
+        for (Map.Entry<Tuple<String, File>, HashSet<ASTEntry>> entry : fileOccurrences.entrySet()) {
             //key = module name, IFile for the module (__init__ file may be found if it is a package)
-            Tuple<String, IFile> tup = entry.getKey();
+            Tuple<String, File> tup = entry.getKey();
 
+            //now, let's make the mapping from the filesystem to the Eclipse workspace
+            IFile workspaceFile = null; 
+            try{
+                workspaceFile = new PySourceLocatorBase().getWorkspaceFile(tup.o2);
+                if(workspaceFile == null){
+                    status.addWarning(StringUtils.format("Error. Unable to resolve the file:\n" +
+                            "%s\n" +
+                            "to a file in the Eclipse workspace.",
+                            tup.o2));
+                    continue;
+                }
+            }catch(IllegalStateException e){
+                //this can happen on tests (but if not on tests, we want to re-throw it
+                String message = e.getMessage();
+                if(message == null || !message.equals("Workspace is closed.")){
+                    throw e; 
+                }
+                //otherwise, let's just keep going in the test...
+                continue;
+            }
+                
             //check the text changes
             HashSet<ASTEntry> astEntries = filterAstEntries(entry.getValue(), AST_ENTRIES_FILTER_TEXT);
             if (astEntries.size() > 0) {
-                IDocument docFromResource = REF.getDocFromResource(tup.o2);
-                TextFileChange fileChange = new PyTextFileChange("RenameChange: " + inputName, tup.o2);
+                IDocument docFromResource = REF.getDocFromResource(workspaceFile);
+                TextFileChange fileChange = new PyTextFileChange("RenameChange: " + inputName, workspaceFile);
 
                 MultiTextEdit rootEdit = new MultiTextEdit();
                 fileChange.setEdit(rootEdit);
@@ -177,7 +200,7 @@ public class TextEditCreation {
             //now, check for file changes
             astEntries = filterAstEntries(entry.getValue(), AST_ENTRIES_FILTER_FILE);
             if (astEntries.size() > 0) {
-                IResource resourceToRename = tup.o2;
+                IResource resourceToRename = workspaceFile;
                 String newName = inputName + ".py";
 
                 //if we have an __init__ file but the initial token is not an __init__ file, it means

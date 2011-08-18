@@ -66,7 +66,7 @@ public interface IIndentPrefs {
     
     /**
      * Get whether or not to auto-skip braces insertion  
-     * @return iff auto-skip braces is ENABLED
+     * @return if auto-skip braces is ENABLED
      */
     public boolean getAutoBraces();
     
@@ -114,4 +114,9 @@ public interface IIndentPrefs {
 	 * Should we close literals?
 	 */
 	public boolean getAutoLiterals();
+
+    /**
+     * Should we do the link on auto-close?
+     */
+    public boolean getAutoLink();
 }

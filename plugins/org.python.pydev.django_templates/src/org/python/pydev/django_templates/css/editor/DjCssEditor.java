@@ -9,16 +9,13 @@ package org.python.pydev.django_templates.css.editor;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.swt.widgets.Composite;
+import org.python.pydev.django_templates.DjPlugin;
 import org.python.pydev.django_templates.IDjConstants;
 import org.python.pydev.django_templates.editor.DjEditor;
 import org.python.pydev.utils.ICallback;
 
-import com.aptana.editor.common.outline.CommonOutlinePage;
 import com.aptana.editor.common.parsing.FileService;
 import com.aptana.editor.css.CSSSourceEditor;
-import com.aptana.editor.css.outline.CSSOutlineContentProvider;
-import com.aptana.editor.css.outline.CSSOutlineLabelProvider;
-import com.aptana.parsing.ParseState;
 
 /**
  * @author Fabio Zadrozny
@@ -45,7 +42,7 @@ public class DjCssEditor extends CSSSourceEditor {
         });
         
         setSourceViewerConfiguration(new DjCssSourceViewerConfiguration(this.djEditor.getChainedPrefStore(), this));
-        setDocumentProvider(new DjCssDocumentProvider());
+        setDocumentProvider(DjPlugin.getDefault().getDjCSSDocumentProvider());
     }
     
     @Override
@@ -63,21 +60,12 @@ public class DjCssEditor extends CSSSourceEditor {
     }
 
     @Override
-    protected FileService createFileService() {
-        return new FileService(IDjConstants.LANGUAGE_DJANGO_TEMPLATES_CSS, new ParseState());
-    }
-
-    @Override
-    protected CommonOutlinePage createOutlinePage() {
-        CommonOutlinePage outline = super.createOutlinePage();
-        outline.setContentProvider(new CSSOutlineContentProvider());
-        outline.setLabelProvider(new CSSOutlineLabelProvider());
-
-        return outline;
-    }
-
-    @Override
     protected char[] getPairMatchingCharacters() {
         return this.djEditor.getPairMatchingCharacters(super.getPairMatchingCharacters());
+    }
+
+    @Override
+    protected FileService createFileService() {
+    	return new FileService(IDjConstants.CONTENT_TYPE_DJANGO_CSS);
     }
 }

@@ -25,7 +25,6 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.ILaunchesListener2;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.SocketUtil;
 
 public class PyUnitServer implements IPyUnitServer  {
@@ -73,7 +72,7 @@ public class PyUnitServer implements IPyUnitServer  {
         public void handle(IRequest request){
             int parameterCount = request.getParameterCount();
             if(parameterCount != this.expectedParameters){
-                PydevPlugin.log("Error. Expected "+this.expectedParameters+" parameters in notifyTest. Received: "+parameterCount);
+                Log.log("Error. Expected "+this.expectedParameters+" parameters in notifyTest. Received: "+parameterCount);
             }else{
                 this.dispatch(request);
             }
@@ -126,7 +125,7 @@ public class PyUnitServer implements IPyUnitServer  {
 
             }catch(Throwable e){
                 //Never return any error here (we don't want to stop running the tests because of some error here).
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             return "OK";
         }
@@ -192,9 +191,9 @@ public class PyUnitServer implements IPyUnitServer  {
                 Object requestParam = request.getParameter(0);
                 if(!(requestParam instanceof Object[])){
                     if(requestParam == null){
-                        PydevPlugin.log("Expected Object[]. Found: null");
+                        Log.log("Expected Object[]. Found: null");
                     }else{
-                        PydevPlugin.log("Expected Object[]. Found: "+requestParam.getClass());
+                        Log.log("Expected Object[]. Found: "+requestParam.getClass());
                     }
                     return;
                 }
@@ -205,20 +204,20 @@ public class PyUnitServer implements IPyUnitServer  {
                     Object param = parameters[i];
                     if(!(param instanceof Object[])){
                         if(param == null){
-                            PydevPlugin.log("Expected Object[]. Found: null");
+                            Log.log("Expected Object[]. Found: null");
                         }else{
-                            PydevPlugin.log("Expected Object[]. Found: "+param.getClass());
+                            Log.log("Expected Object[]. Found: "+param.getClass());
                         }
                         return;
                     }
                     
                     final Object[] methodAndParams = (Object[]) param;
                     if(methodAndParams.length != 2){
-                        PydevPlugin.log("Expected Object[] of len == 2. Found len: "+methodAndParams.length);
+                        Log.log("Expected Object[] of len == 2. Found len: "+methodAndParams.length);
                         continue;
                     }
                     if(!(methodAndParams[1] instanceof Object[])){
-                        PydevPlugin.log("Expected methodAndParams[1] to be Object[]. Found: "+methodAndParams[1].getClass());
+                        Log.log("Expected methodAndParams[1] to be Object[]. Found: "+methodAndParams[1].getClass());
                         continue;
                     }
                     
@@ -339,7 +338,7 @@ public class PyUnitServer implements IPyUnitServer  {
                 ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
                 launchManager.removeLaunchListener(this.launchListener);
             } catch (Throwable e1) {
-                PydevPlugin.log(e1);
+                Log.log(e1);
             }
             
             if(this.webServer != null){

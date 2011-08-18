@@ -28,7 +28,6 @@ import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
 import org.python.pydev.parser.jython.ast.stmtType;
-import org.python.pydev.parser.jython.ast.suiteType;
 
 /**
  * Provides a bunch of helpers useful when creating a tree builder.
@@ -161,9 +160,9 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
         return ids;
     }
 
-    protected final suiteType popSuiteAndSuiteType() {
+    protected final Suite popSuiteAndSuiteType() {
         Suite s = (Suite) stack.popNode();
-        suiteType orelseSuite = (suiteType) stack.popNode();
+        Suite orelseSuite = (Suite) stack.popNode();
         orelseSuite.body = s.body;
         addSpecialsAndClearOriginal(s, orelseSuite);
         return orelseSuite;
@@ -197,10 +196,12 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
         }
     }
 
-    protected final void setParentForFuncOrClass(stmtType[] body, SimpleNode classDef) {
+    protected final void setParentForFuncOrClass(stmtType[] body, stmtType classDef) {
         for (stmtType b : body) {
-            if (b instanceof ClassDef || b instanceof FunctionDef) {
-                b.parent = classDef;
+            if (b instanceof ClassDef) {
+                ((ClassDef)b).parent = classDef;
+            }else if(b instanceof FunctionDef){
+                ((FunctionDef)b).parent = classDef;
             }
         }
     }

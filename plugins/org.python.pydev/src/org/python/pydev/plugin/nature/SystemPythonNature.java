@@ -12,7 +12,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -22,7 +21,6 @@ import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.editor.codecompletion.revisited.SystemASTManager;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
  * This nature is used only as a 'last resort', if we're unable to link a given resource to
@@ -36,7 +34,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
     private SystemASTManager systemASTManager;
 
     public SystemPythonNature(IInterpreterManager manager) throws MisconfigurationException{
-        this(manager, manager.getDefaultInterpreterInfo(new NullProgressMonitor()));
+        this(manager, manager.getDefaultInterpreterInfo(false));
     }
     
     public SystemPythonNature(IInterpreterManager manager, IInterpreterInfo info){
@@ -126,7 +124,6 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
     }
 
     public String resolveModule(String file) throws MisconfigurationException {
-        InterpreterInfo info = (InterpreterInfo) this.manager.getDefaultInterpreterInfo(new NullProgressMonitor());
         if(info == null){
             return null;
         }
@@ -167,36 +164,35 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
 
     
     //builtin completions
-    private IToken[] builtinCompletions;
     
     public IToken[] getBuiltinCompletions() {
-        return builtinCompletions;
+        if(!this.isOkToUse()){
+            return null;
+        }
+        return this.manager.getBuiltinCompletions(this.info.getName());
     }
 
-    public void setBuiltinCompletions(IToken[] toks) {
-        this.builtinCompletions = toks;
+    public void clearBuiltinCompletions() {
+        this.manager.clearBuiltinCompletions(this.info.getName());
     }
     
     
     //builtin mod
-    private IModule builtinMod;
 
     public IModule getBuiltinMod() {
-        return builtinMod;
+        if(!this.isOkToUse()){
+            return null;
+        }
+        return this.manager.getBuiltinMod(this.info.getName());
     }
 
-    public void setBuiltinMod(IModule mod) {
-        this.builtinMod = mod;
+    public void clearBuiltinMod() {
+        this.manager.clearBuiltinMod(this.info.getName());
     }
 
     
     public int getGrammarVersion() throws MisconfigurationException {
-        IInterpreterInfo info;
-        if(this.info != null){
-            info = this.info;
-        }else{
-            info = manager.getDefaultInterpreterInfo(new NullProgressMonitor());
-        }
+        IInterpreterInfo info = this.info;
         if(info != null){
             return info.getGrammarVersion();
         }else{
@@ -205,7 +201,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
     }
 
     public IInterpreterInfo getProjectInterpreter() throws MisconfigurationException {
-        return this.manager.getDefaultInterpreterInfo(null);
+        return this.info;
     }
 
     public boolean isOkToUse(){

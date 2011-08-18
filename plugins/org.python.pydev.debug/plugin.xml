@@ -2,6 +2,7 @@
 <?eclipse version="3.0"?>
 <plugin>
    <extension-point id="pydev_debug_console_input_listener" name="pydev_debug_console_input_listener" schema="schema/pydev_debug_console_input_listener.exsd"/>
+   <extension-point id="pydev_configure_exception" name="pydev_configure_exception" schema="schema/pydev_configure_exception.exsd"/>
 
 <!--- run keybindings -->
 <extension point="org.eclipse.ui.editorActions">
@@ -37,7 +38,7 @@
 <!--- run keybindings:commands -->
 <extension point="org.eclipse.ui.commands">
       <category
-            name="Pydev - Run"
+            name="PyDev - Run"
             description="Python run category"
             id="org.python.pydev.ui.category.run"> 
       </category>
@@ -123,13 +124,6 @@
         public="true">
 	</launchConfigurationType>
 	<launchConfigurationType
-        delegate="org.python.pydev.debug.ui.launching.CoverageLaunchConfigurationDelegate"
-        id="org.python.pydev.debug.coverageLaunchConfigurationType"
-        modes="run"
-        name="Python Coverage"
-        public="true">
-	</launchConfigurationType>
-	<launchConfigurationType
         delegate="org.python.pydev.debug.ui.launching.UnittestLaunchConfigurationDelegate"
         id="org.python.pydev.debug.unittestLaunchConfigurationType"
         modes="run, debug"
@@ -174,11 +168,6 @@
 		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
 	</launchConfigurationTypeImage>
 	<launchConfigurationTypeImage
-		icon="icons/python_coverage.png"
-		configTypeID="org.python.pydev.debug.coverageLaunchConfigurationType"
-		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
-	</launchConfigurationTypeImage>
-	<launchConfigurationTypeImage
 		icon="icons/python_unit.png"
 		configTypeID="org.python.pydev.debug.unittestLaunchConfigurationType"
 		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
@@ -210,7 +199,7 @@
 	</launchConfigurationTabGroup>
     <launchConfigurationTabGroup
         type="org.python.pydev.debug.ironpythonUnittestLaunchConfigurationType"
-        class="org.python.pydev.debug.ui.IronpythonTabGroup"
+        class="org.python.pydev.debug.ui.IronpythonUnittestTabGroup"
         id="org.python.pydev.debug.ui.IronpythonTabGroup">
     </launchConfigurationTabGroup>
 
@@ -222,13 +211,8 @@
 		id="org.python.pydev.debug.ui.PythonTabGroup">
 	</launchConfigurationTabGroup>
 	<launchConfigurationTabGroup
-		type="org.python.pydev.debug.coverageLaunchConfigurationType"
-		class="org.python.pydev.debug.ui.PythonTabGroup"
-		id="org.python.pydev.debug.ui.PythonTabGroup">
-	</launchConfigurationTabGroup>
-	<launchConfigurationTabGroup
 		type="org.python.pydev.debug.unittestLaunchConfigurationType"
-		class="org.python.pydev.debug.ui.PythonTabGroup"
+		class="org.python.pydev.debug.ui.PythonUnittestTabGroup"
 		id="org.python.pydev.debug.ui.PythonTabGroup">
 	</launchConfigurationTabGroup>
 	
@@ -236,7 +220,7 @@
 	<!--Jython-->
 	<launchConfigurationTabGroup
 		type="org.python.pydev.debug.jythonUnittestLaunchConfigurationType"
-		class="org.python.pydev.debug.ui.JythonTabGroup"
+		class="org.python.pydev.debug.ui.JythonUnittestTabGroup"
 		id="org.python.pydev.debug.ui.JythonTabGroup">
 	</launchConfigurationTabGroup>
 	<launchConfigurationTabGroup
@@ -338,33 +322,6 @@
         <configurationType id="org.python.pydev.debug.jythonLaunchConfigurationType"/>
 	</shortcut>
 	<shortcut
-		label="Python Coverage"
-		icon="icons/python_coverage.png"
-		modes="run"
-		class="org.python.pydev.debug.ui.launching.CoverageLaunchShortcut"
-		id="org.python.pydev.debug.ui.launchShortcut.python.coverage">
-		<!--this adds it to run-as (taken from \eclipse\plugins\org.eclipse.jdt.junit_3.0.1) -->
-        <contextualLaunch>
-           <enablement>
-              <with variable="selection">
-           		 <iterate>
-           		    <and>
-	           		 	<or>
-	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
-	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
-                            <adapt type="org.eclipse.core.resources.IContainer" />
-	               		</or>    
-               		    <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.pythonNature"/>
-              		    <test property="org.python.pydev.debug.ui.interpreterType" value="python"/>
-               		</and>
-
-           		 </iterate>
-              </with>
-           </enablement>
-        </contextualLaunch>
-        <configurationType id="org.python.pydev.debug.coverageLaunchConfigurationType"/>
-	</shortcut>
-	<shortcut
 		label="Python unit-test"
 		icon="icons/python_unit.png"
 		modes="run, debug"
@@ -452,7 +409,7 @@
         class="org.python.pydev.debug.codecoverage.PyCodeCoverageView"
         icon="icons/python_coverage.png"
         category="org.python.pydev"
-        name="Code Coverage Results View"
+        name="Code Coverage"
         id="org.python.pydev.views.PyCodeCoverageView"/>
    <!--- removed until the implementation is improved 
    <view
@@ -463,6 +420,15 @@
         id="org.python.pydev.debug.views.TestReportView"/>
    -->
 </extension>
+
+<extension
+   id="pydev_coverage_marker"
+   name="PyDev coverage marker"
+   point="org.eclipse.core.resources.markers">
+   <super type="org.eclipse.core.resources.problemmarker"/>
+   <persistent value="false"/>
+</extension>
+
 
 <!--- console line tracking -->
 <extension 
@@ -662,7 +628,7 @@
     <consoleFactory
       class="org.python.pydev.debug.newconsole.PydevConsoleFactory"
       icon="icons/python_16x16.png"
-      label="Pydev Console" />
+      label="PyDev Console" />
   </extension>
   <extension point="org.eclipse.core.runtime.preferences">
      <initializer class="org.python.pydev.debug.newconsole.PydevConsolePreferencesInitializer"/>
@@ -787,5 +753,60 @@
 			<adapter type="org.python.pydev.debug.ui.actions.ISetNextTarget"/>
          </factory>
     </extension> 
+ 
+
+ <!-- Extension points for BreakOnException -->
+<extension 
+	point="org.eclipse.ui.commands">
+	<command
+        name="Add Python Exception Breakpoint..."
+        description="Add Python Exception Breakpoint..."
+        categoryId="org.python.pydev.ui.category.source"
+        id="org.python.pydev.debug.pyConfigureException">
+  </command>
+</extension>
+
+<extension point="org.eclipse.ui.menus">
+<menuContribution
+      locationURI="menu:org.eclipse.ui.run">
+      <command
+           commandId="org.python.pydev.debug.pyConfigureException"
+           label="Manage Python Exception Breakpoints"
+           id="org.python.pydev.debug.menu.run.pyConfigureException"
+           icon="icons/python_exception_breakpoint.png">
+      </command>
+  </menuContribution>
+</extension>
+ 
+<extension point="org.eclipse.ui.actionSets">
+  <actionSet
+        label="PyDev Exception Breakpoints"
+        visible="false"
+        id="org.python.pydev.exceptionBreakpoints">
+     <menu
+           label="P&amp;ydev"
+           id="pyGeneralMenu">
+        <separator name="pyExceptionBreakpoints"/>
+     </menu>
+     <action
+           label="Manage Exception Breakpoints"
+           class="org.python.pydev.debug.ui.actions.PyConfigureExceptionAction"
+           tooltip="Pydev: Manage exception breakpoints"
+           menubarPath="pyGeneralMenu/pyExceptionBreakpoints"
+           id="org.python.pydev.debug.pyConfigureException"
+           icon="icons/python_exception_breakpoint.png"
+           definitionId="org.python.pydev.debug.pyConfigureException"
+           >
+     </action>
+  </actionSet>
+</extension>
+
+<extension point="org.eclipse.ui.perspectiveExtensions">
+    <perspectiveExtension targetID="org.eclipse.debug.ui.DebugPerspective">
+        <actionSet id="org.python.pydev.exceptionBreakpoints"/>
+    </perspectiveExtension>
+</extension>
+<!-- Extension points for BreakOnException -->
+ 	
 </plugin>
 

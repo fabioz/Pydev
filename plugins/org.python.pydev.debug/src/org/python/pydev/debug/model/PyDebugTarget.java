@@ -17,8 +17,8 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.remote.RemoteDebugger;
-import org.python.pydev.plugin.PydevPlugin;
 /**
  * Debugger class that represents a single python process.
  * 
@@ -42,6 +42,7 @@ public class PyDebugTarget extends AbstractDebugTarget {
         debugger.addTarget(this);
         IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
         breakpointManager.addBreakpointListener(this);
+        PyExceptionBreakPointManager.getInstance().addListener(this);
         // we have to know when we get removed, so that we can shut off the debugger
         DebugPlugin.getDefault().getLaunchManager().addLaunchListener(this);
     }        
@@ -51,6 +52,7 @@ public class PyDebugTarget extends AbstractDebugTarget {
         if (launch == this.launch) {
             IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
             breakpointManager.removeBreakpointListener(this);
+            PyExceptionBreakPointManager.getInstance().removeListener(this);
             debugger.dispose();
             debugger = null;
         }
@@ -86,7 +88,7 @@ public class PyDebugTarget extends AbstractDebugTarget {
             try {
                 process.terminate();
             } catch (DebugException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             process = null;
         }

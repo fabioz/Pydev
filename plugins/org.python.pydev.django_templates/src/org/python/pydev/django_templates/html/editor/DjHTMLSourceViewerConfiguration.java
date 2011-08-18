@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
@@ -17,7 +18,6 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.python.pydev.django_templates.IDjConstants;
 import org.python.pydev.django_templates.common.DjDoubleClickStrategy;
 import org.python.pydev.django_templates.completions.DjContentAssistProcessor;
-import org.python.pydev.django_templates.editor.DjSourceConfiguration;
 import org.python.pydev.django_templates.editor.DjPartitionerSwitchStrategy;
 
 import com.aptana.editor.common.AbstractThemeableEditor;
@@ -26,10 +26,11 @@ import com.aptana.editor.common.CompositeSourceViewerConfiguration;
 import com.aptana.editor.common.IPartitionerSwitchStrategy;
 import com.aptana.editor.common.scripting.IContentTypeTranslator;
 import com.aptana.editor.common.scripting.QualifiedContentType;
+import com.aptana.editor.common.text.RubyRegexpAutoIndentStrategy;
 import com.aptana.editor.common.text.rules.CompositePartitionScanner;
 import com.aptana.editor.css.ICSSConstants;
+import com.aptana.editor.html.HTMLPlugin;
 import com.aptana.editor.html.HTMLSourceConfiguration;
-import com.aptana.editor.html.HTMLSourceViewerConfiguration;
 import com.aptana.editor.html.IHTMLConstants;
 import com.aptana.editor.js.IJSConstants;
 
@@ -102,14 +103,23 @@ public class DjHTMLSourceViewerConfiguration extends CompositeSourceViewerConfig
 
     @Override
     protected IContentAssistProcessor getContentAssistProcessor(ISourceViewer sourceViewer, String contentType) {
-        if(DjSourceConfiguration.DEFAULT.equals(contentType) || IDocument.DEFAULT_CONTENT_TYPE.equals(contentType)){
-            return new DjContentAssistProcessor(contentType, null);
+        if(DjHtmlSourceConfiguration.DEFAULT.equals(contentType)){
+            return DjHtmlSourceConfiguration.getDefault().getContentAssistProcessor(getEditor(), contentType);
         }
-        AbstractThemeableEditor editor = getEditor();
-        IContentAssistProcessor htmlContentAssistProcessor = HTMLSourceViewerConfiguration.getContentAssistProcessor(contentType, editor);
-        if(HTMLSourceConfiguration.DEFAULT.equals(contentType)){
+        IContentAssistProcessor htmlContentAssistProcessor = HTMLSourceConfiguration.getDefault().getContentAssistProcessor(getEditor(), contentType);
+        if(HTMLSourceConfiguration.DEFAULT.equals(contentType) || IDocument.DEFAULT_CONTENT_TYPE.equals(contentType)){
             return new DjContentAssistProcessor(contentType, htmlContentAssistProcessor);
         }
         return htmlContentAssistProcessor;
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see com.aptana.editor.common.CommonSourceViewerConfiguration#getAutoEditStrategies(org.eclipse.jface.text.source.ISourceViewer, java.lang.String)
+     */
+    @Override
+    public IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType) {
+        //Same as: HTMLSourceViewerConfiguration.getAutoEditStrategies
+        return new IAutoEditStrategy[] { new RubyRegexpAutoIndentStrategy(contentType, this, sourceViewer, HTMLPlugin.getDefault().getPreferenceStore()) };
     }
 }

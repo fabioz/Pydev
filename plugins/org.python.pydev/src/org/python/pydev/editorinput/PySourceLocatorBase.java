@@ -72,7 +72,7 @@ public class PySourceLocatorBase {
         IFile[] files = getWorkspaceFiles(file);
         return selectWorkspaceFile(files);
     }
-
+    
     
     /**
      * @param file the file we want to get in the workspace
@@ -87,6 +87,27 @@ public class PySourceLocatorBase {
         }
         
         return files;
+    }
+    
+    
+
+    public IContainer getWorkspaceContainer(File file) {
+        IContainer[] containers = getWorkspaceContainers(file);
+        if(containers == null || containers.length < 1){
+            return null;
+        }
+        return containers[0];
+    }
+
+    public IContainer[] getWorkspaceContainers(File file) {
+        IWorkspace workspace= ResourcesPlugin.getWorkspace();
+        IContainer[] containers= workspace.getRoot().findContainersForLocationURI(file.toURI());
+        containers = filterNonExistentContainers(containers);
+        if (containers == null || containers.length == 0){
+            return null;
+        }
+        
+        return containers;
     }
     
     
@@ -343,6 +364,24 @@ public class PySourceLocatorBase {
                 existentFiles.add(files[i]);
         }
         return (IFile[])existentFiles.toArray(new IFile[existentFiles.size()]);
+    }
+    
+    
+    /**
+     * @param containers the containers that should be filtered
+     * @return a new array of IContainer with only the containers that actually exist.
+     */
+    public IContainer[] filterNonExistentContainers(IContainer[] containers){
+        if (containers == null)
+            return null;
+        
+        int length= containers.length;
+        ArrayList<IContainer> existentFiles= new ArrayList<IContainer>(length);
+        for (int i= 0; i < length; i++) {
+            if (containers[i].exists())
+                existentFiles.add(containers[i]);
+        }
+        return (IContainer[])existentFiles.toArray(new IContainer[existentFiles.size()]);
     }
     
     

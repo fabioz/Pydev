@@ -404,7 +404,7 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 					IPath path = keys.get(i);
 					List<IEditorReference> refs = partsAndPaths.get(path);
 					if(refs == null || refs.size() == 0){
-						PydevPlugin.log("Unexpected condition. Key path without related editors: "+path);
+						Log.log("Unexpected condition. Key path without related editors: "+path);
 						keys.remove(i);
 						i--; //make up for the removed editor.
 						continue;
@@ -490,7 +490,7 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 				}
 				list.add(iEditorReference);
 			} catch (Throwable e) {
-				PydevPlugin.log(e);
+				Log.log(e);
 			}
 		}
 		return ret;
@@ -564,7 +564,7 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 					}
 						
 				} catch (Throwable e) {
-					PydevPlugin.log(e);
+					Log.log(e);
 				}
 			}
 		});
@@ -599,7 +599,7 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 								((PyEdit) editor).setEditorTitle(title);
 							}
 						} catch (Throwable e) {
-							PydevPlugin.log(e);
+							Log.log(e);
 						}
 					}
 				});
@@ -647,7 +647,7 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 							((PyEdit) editor).setEditorTitle(title+" #"+(i+1));
 						}
 					} catch (Throwable e) {
-						PydevPlugin.log(e);
+						Log.log(e);
 					}
 				}
 			});
@@ -662,10 +662,7 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 	 */
 	private Tuple<String, Boolean> getPartNameInLevel(
 			int level, IPath path, String initHandling, String djangoModulesHandling, IEditorInput input) {
-		String classStr = input.getClass().toString();
-		if(classStr.endsWith("RemoteFileStoreEditorInput") && classStr.indexOf("com.aptana") != -1){
-			return new Tuple<String, Boolean>(input.getName(), true);
-		}
+		String name = input.getName();
 		String[] segments = path.segments();
 		if(segments.length == 0){
 			return new Tuple<String, Boolean>("", true);
@@ -673,20 +670,22 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 		if(segments.length == 1){
 			return new Tuple<String, Boolean>(segments[1], true);
 		}
-		String lastSegment = segments[segments.length-1];
 		
-		boolean handled = isDjangoHandledModule(djangoModulesHandling, input, lastSegment);
+		boolean handled = isDjangoHandledModule(djangoModulesHandling, input, name);
 		if(handled && djangoModulesHandling == PyTitlePreferencesPage.TITLE_EDITOR_DJANGO_MODULES_SHOW_PARENT_AND_DECORATE){
 			String[] dest = new String[segments.length-1];
 			System.arraycopy(segments, 0, dest, 0, dest.length);
 			segments = dest;
 			
 		}else if(initHandling != PyTitlePreferencesPage.TITLE_EDITOR_INIT_HANDLING_IN_TITLE){
-			if(lastSegment.startsWith("__init__.")){
+			if(name.startsWith("__init__.")){
 				//remove the __init__.
 				String[] dest = new String[segments.length-1];
 				System.arraycopy(segments, 0, dest, 0, dest.length);
 				segments = dest;
+				if(dest.length > 0){
+				    name = dest[dest.length-1];
+				}
 			}
 		}
 		
@@ -699,9 +698,12 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 		
 		String modulePart = StringUtils.join(".", segments, startAt, endAt);
 		
-		String name = segments[segments.length-1];
 		if(!PyTitlePreferencesPage.getTitleShowExtension()){
+		    String initial = name;
 			name = FullRepIterable.getFirstPart(name);
+			if(name.length() == 0){
+			    name = initial;
+			}
 		}
 		if(modulePart.length() > 0){
 			return new Tuple<String, Boolean>(name+" ("+modulePart+")", startAt == 0);
@@ -744,7 +746,15 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 		IPath path = null;
 		if(otherInput instanceof IPathEditorInput){
 			IPathEditorInput iPathEditorInput = (IPathEditorInput) otherInput;
-			path = iPathEditorInput.getPath();
+			try {
+                path = iPathEditorInput.getPath();
+            } catch (IllegalArgumentException e) {
+                //ignore: we may have the trace below inside the FileEditorInput.
+                //java.lang.IllegalArgumentException
+                //at org.eclipse.ui.part.FileEditorInput.getPath(FileEditorInput.java:208)
+                //at org.python.pydev.editor.PyEditTitle.getPathFromInput(PyEditTitle.java:751)
+
+            }
 		}
 		if(path == null){
 			if(otherInput instanceof IFileEditorInput){

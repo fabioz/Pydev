@@ -19,9 +19,9 @@ import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.widgets.Shell;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
+import org.python.pydev.bindingutils.KeyBindingHelper;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyInformationPresenter;
-import org.python.pydev.plugin.KeyBindingHelper;
 
 /**
  * @author Fabio Zadrozny
@@ -84,7 +84,7 @@ public class PyContentAssistant extends ContentAssistant{
     }
     
     /**
-     * @return true if the last tim was an auto activation (and updates
+     * @return true if the last time was an auto activation (and updates
      * the internal flag regarding it).
      */
     public boolean getLastCompletionAutoActivated(){

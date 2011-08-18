@@ -15,7 +15,7 @@ package org.python.pydev.debug.codecoverage;
 /**
  * @author Fabio Zadrozny
  */
-public class ErrorFileNode {
+public class ErrorFileNode implements ICoverageLeafNode{
     public Object node;
     public String desc;
     
@@ -35,7 +35,7 @@ public class ErrorFileNode {
      * @see java.lang.Object#toString()
      */
     public String toString() {
-        return FileNode.getName(node.toString()) + "   " +desc;
+        return FileNode.getName(node.toString(), PyCoveragePreferences.getNameNumberOfColumns()) + "   " +desc;
     }
     
     

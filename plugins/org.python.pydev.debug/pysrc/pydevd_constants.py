@@ -2,6 +2,11 @@
 This module holds the constants used for specifying the states of the debugger.
 '''
 
+
+DEBUG_TRACE_LEVEL = -1
+DEBUG_TRACE_BREAKPOINTS = -1
+
+
 STATE_RUN = 1
 STATE_SUSPEND = 2
 
@@ -12,8 +17,6 @@ except:
     setattr(__builtin__, 'True', 1)
     setattr(__builtin__, 'False', 0)
 
-DEBUG_TRACE_LEVEL = -1
-DEBUG_TRACE_BREAKPOINTS = -1
 
 class DebugInfoHolder:
     #we have to put it here because it can be set through the command line (so, the 
@@ -25,7 +28,11 @@ USE_PSYCO_OPTIMIZATION = True
 
 #Hold a reference to the original _getframe (because psyco will change that as soon as it's imported)
 import sys #Note: the sys import must be here anyways (others depend on it)
-GetFrame = sys._getframe
+try:
+    GetFrame = sys._getframe
+except AttributeError:
+    def GetFrame():
+        raise AssertionError('sys._getframe not available (possible causes: enable -X:Frames on IronPython?)')
 
 #Used to determine the maximum size of each variable passed to eclipse -- having a big value here may make
 #the communication slower -- as the variables are being gathered lazily in the latest version of eclipse,
@@ -41,12 +48,23 @@ _nextThreadIdLock = threading.Lock()
 # Python 3?
 #=======================================================================================================================
 IS_PY3K = False
+IS_PY27 = False
 try:
     if sys.version_info[0] >= 3:
         IS_PY3K = True            
+    elif sys.version_info[0] == 2 and sys.version_info[1] == 7:
+        IS_PY27 = True
 except AttributeError:
     pass #Not all versions have sys.version_info
 
+try:
+    IS_64_BITS = sys.maxsize > 2 ** 32
+except AttributeError:
+    try:
+        import struct
+        IS_64_BITS = struct.calcsize("P") * 8 > 32
+    except:
+        IS_64_BITS = False
 
 #=======================================================================================================================
 # Jython?

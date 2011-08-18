@@ -11,6 +11,11 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
@@ -22,11 +27,6 @@ import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.IASTManagerObserver;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.plugin.PydevPlugin;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Tests here have no dependency on the pythonpath.
@@ -57,12 +57,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
     public void setUp() throws Exception {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = false;
-
-        PydevPlugin.setPythonInterpreterManager(new PythonInterpreterManagerStub(getPreferences()));
-        nature = createNature();
-        ASTManager manager = new ASTManager();
-        nature.setAstManager(manager);
-        manager.setNature(nature);
+        super.restorePythonPath(false);
     }
 
     /*
@@ -443,7 +438,11 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         try {
             ASTManagerTest test = new ASTManagerTest();
             test.setUp();
-            test.testLocals();
+            test.testRelative();
+            test.tearDown();
+            
+            test.setUp();
+            test.testRelative();
             test.tearDown();
 
             junit.textui.TestRunner.run(ASTManagerTest.class);

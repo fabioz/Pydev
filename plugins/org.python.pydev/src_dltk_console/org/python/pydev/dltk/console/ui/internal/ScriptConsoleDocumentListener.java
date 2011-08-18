@@ -21,6 +21,7 @@ import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
@@ -34,7 +35,6 @@ import org.python.pydev.dltk.console.ui.ScriptConsolePartitioner;
 import org.python.pydev.dltk.console.ui.ScriptStyleRange;
 import org.python.pydev.editor.autoedit.DocCmd;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * This class will listen to the document and will:
@@ -176,7 +176,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             try {
                 doc.replace(doc.getLength(), 0, this.initialCommands);
             } catch (BadLocationException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
     }
@@ -252,7 +252,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             try{
                 offset = getLastLineLength();
             }catch(BadLocationException e){
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
         appendInvitation(false);
@@ -271,18 +271,22 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         int start = doc.getLength();
 
         IConsoleStyleProvider styleProvider = viewer.getStyleProvider();
+        Tuple<List<ScriptStyleRange>, String> style = null;
         if (styleProvider != null) {
-            ScriptStyleRange style;
             if(stdout){
                 style = styleProvider.createInterpreterOutputStyle(out, start);
             }else{ //stderr
                 style = styleProvider.createInterpreterErrorStyle(out, start);
             }
             if (style != null) {
-                addToPartitioner(style);
+                for(ScriptStyleRange s:style.o1){
+                    addToPartitioner(s);
+                }
             }
         }
-        appendText(out);
+        if(style != null){
+            appendText(style.o2);
+        }
         
         PySelection ps = new PySelection(doc, start);
         int cursorLine = ps.getCursorLine();
@@ -300,7 +304,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                     lineTracker.lineAppended(region);
                 }
             }catch(Exception e){
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
     }
@@ -366,13 +370,13 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             text = doc.get(offset, doc.getLength() - offset);
         }catch(BadLocationException e){
             text = "";
-            PydevPlugin.log(e);
+            Log.log(e);
         }
 
         try{
             doc.replace(offset, text.length(), ""); //$NON-NLS-1$
         }catch(BadLocationException e){
-            PydevPlugin.log(e);
+            Log.log(e);
         }
 
         text = text.replaceAll("\r\n|\n|\r", delim); //$NON-NLS-1$
@@ -448,7 +452,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             
             public Object call(final InterpreterResponse arg){
                 //When we receive the response, we must handle it in the UI thread.
-                RunInUiThread.async(new Runnable(){
+                Runnable runnable = new Runnable(){
                     
                     public void run(){
                         try{
@@ -461,7 +465,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                                     strategy.customizeNewLine(historyDoc, docCmd);
                                     finalIndentString[0] = docCmd.text.replaceAll("\\r\\n|\\n|\\r", ""); //remove any new line added!
                                     if(currHistoryLen != historyDoc.getLength()){
-                                        PydevPlugin.log("Error: the document passed to the customizeNewLine should not be changed!");
+                                        Log.log("Error: the document passed to the customizeNewLine should not be changed!");
                                     }
                                 }
                             }
@@ -494,15 +498,34 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                             }
                         }
                     }
-                });
+                };
+                RunInUiThread.async(runnable);
                 return null;
             }
         };
         
+        final ICallback<Object, Tuple<String, String>> onContentsReceived = new ICallback<Object, Tuple<String, String>>(){
+
+            public Object call(final Tuple<String, String> result) {
+                Runnable runnable = new Runnable() {
+                    
+                    public void run() {
+                        if (result != null) {
+                            addToConsoleView(result.o1, true);
+                            addToConsoleView(result.o2, false);
+                            revealEndOfDocument();
+                        }
+                    }
+                };
+                RunInUiThread.async(runnable);
+                return null;
+            }
+            
+        };
         //Handle the command in a thread that doesn't block the U/I.
         new Thread(){
             public void run(){
-                handler.handleCommand(commandLine, onResponseReceived);
+                handler.handleCommand(commandLine, onResponseReceived, onContentsReceived);
             }
         }.start();
     }
@@ -530,9 +553,9 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             DocCmd docCmd = new DocCmd(currentOffset, 0, "(");
             docCmd.shiftsCaret = true;
             try{
-                strategy.customizeParenthesis(parenDoc, docCmd, true);
+                PyAutoIndentStrategy.customizeParenthesis(parenDoc, docCmd, true, strategy.getIndentPrefs());
             }catch(BadLocationException e){
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             newText = docCmd.text+newText.substring(1);
             if(!docCmd.shiftsCaret){
@@ -552,7 +575,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                     canSkipOpenParenthesis = strategy.canSkipCloseParenthesis(parenDoc, docCmd);
                 }catch(BadLocationException e){
                     canSkipOpenParenthesis = false;
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
                 if(canSkipOpenParenthesis){
                     shiftsCaret = false;
@@ -624,7 +647,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         try{
             doc.replace(initialOffset, 0, text);
         }catch(BadLocationException e){
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
 
@@ -741,7 +764,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             commandLineOffset = getCommandLineOffset();
             commandLineLength = getCommandLineLength();
         }catch(BadLocationException e1){
-            PydevPlugin.log(e1);
+            Log.log(e1);
             return "";
         }
         if(commandLineLength < 0){
@@ -751,8 +774,8 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         try {
             return doc.get(commandLineOffset, commandLineLength);
         } catch (BadLocationException e) {
-            PydevPlugin.log(StringUtils.format(
-                    "Error: bad location: offset:%s text:%s", commandLineOffset, commandLineLength));
+            Log.log(StringUtils.format(
+            "Error: bad location: offset:%s text:%s", commandLineOffset, commandLineLength));
             return "";
         }
     }

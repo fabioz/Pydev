@@ -59,9 +59,11 @@ public abstract class AbstractDebuggerCommand {
     static public final int CMD_RELOAD_CODE = 119;
     static public final int CMD_GET_COMPLETIONS = 120;
     static public final int CMD_SET_NEXT_STATEMENT = 121;
+    static public final int CMD_SET_PY_EXCEPTION = 122;
     static public final int CMD_ERROR = 901;
     static public final int CMD_VERSION = 501;
     static public final int CMD_RETURN = 502;
+    static public final int CMD_GET_TASKLETS = 503;
     
     protected AbstractDebugTarget target;
     protected ICommandResponseListener responseListener;

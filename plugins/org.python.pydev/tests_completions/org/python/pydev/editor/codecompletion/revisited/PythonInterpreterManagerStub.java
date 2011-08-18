@@ -14,7 +14,7 @@ package org.python.pydev.editor.codecompletion.revisited;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.preference.PreferenceStore;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -27,7 +27,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class PythonInterpreterManagerStub extends AbstractInterpreterManager implements IInterpreterManager {
 
-    public PythonInterpreterManagerStub(Preferences prefs) {
+    public PythonInterpreterManagerStub(PreferenceStore prefs) {
         super(prefs);
     }
 
@@ -39,7 +39,7 @@ public class PythonInterpreterManagerStub extends AbstractInterpreterManager imp
     @Override
     public IInterpreterInfo[] getInterpreterInfos() {
         String defaultInterpreter = getDefaultInterpreter();
-        InterpreterInfo info = (InterpreterInfo) this.createInterpreterInfo(defaultInterpreter, new NullProgressMonitor());
+        InterpreterInfo info = (InterpreterInfo) this.createInterpreterInfo(defaultInterpreter, new NullProgressMonitor(), false);
         if(!InterpreterInfo.isJythonExecutable(defaultInterpreter) && !InterpreterInfo.isIronpythonExecutable(defaultInterpreter)){
             TestDependent.PYTHON_EXE = info.executableOrJar;
         }
@@ -58,6 +58,12 @@ public class PythonInterpreterManagerStub extends AbstractInterpreterManager imp
         return info;
     }
     
+    @Override
+    protected String getPreferencesPageId() {
+        return "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPagePython";
+    }
+
+    
     /**
      * @see org.python.pydev.core.IInterpreterManager#getDefaultJavaLocation()
      */
@@ -71,13 +77,13 @@ public class PythonInterpreterManagerStub extends AbstractInterpreterManager imp
     }
 
     @Override
-    protected String getNotConfiguredInterpreterMsg() {
-        return "getNotConfiguredInterpreterMsg";
+    public String getInterpreterUIName() {
+        return "Python";
     }
 
     @Override
-    public Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException, JDTNotAvailableException {
-        return PythonInterpreterManager.doCreateInterpreterInfo(executable, monitor);
+    public Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor, boolean askUser) throws CoreException, JDTNotAvailableException {
+        return PythonInterpreterManager.doCreateInterpreterInfo(executable, monitor, askUser);
     }
 
     

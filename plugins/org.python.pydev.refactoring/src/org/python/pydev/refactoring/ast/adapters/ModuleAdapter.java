@@ -31,6 +31,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISourceModule;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.AbstractASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
@@ -42,7 +43,7 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Str;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.refactoring.ast.FQIdentifier;
 import org.python.pydev.refactoring.ast.PythonModuleManager;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.BeforeCurrentOffset;
@@ -169,7 +170,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
                     }
                 }
             }catch(CompletionRecursionException e){
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }else{
             for(SimpleAdapter adapter:getAssignedVariables()){
@@ -561,7 +562,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
                 }
                 selection = new TextSelection(doc, startOffset, endOffset - startOffset);
             }catch(BadLocationException e){
-                e.printStackTrace();
+                Log.log(e);
             }
         }
         return normalizeSelection(selection);
@@ -654,5 +655,12 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
     public int getStartLineBefore(int selectionOffset) throws Exception {
         int lineOfOffset = this.doc.getLineOfOffset(selectionOffset);
         return this.doc.getLineOffset(lineOfOffset);
+    }
+    
+    /**
+     * @return the doc
+     */
+    public IDocument getDoc() {
+        return doc;
     }
 }

@@ -162,6 +162,9 @@ public class JavaModuleInProject extends AbstractJavaClassModule {
     private void getCompletionsForType(String contents, String filterCompletionName, IType type,
             final List<Tuple<IJavaElement, CompletionProposal>> ret) throws JavaModelException {
         ICompilationUnit unit = type.getCompilationUnit();
+        if(unit == null){
+            return;
+        }
         CompletionProposalCollector collector = createCollector(filterCompletionName, ret, unit);
         type.codeComplete(StringUtils.format(contents, name).toCharArray(), -1, 0, new char[0][0], new char[0][0], new int[0], false, collector);
     }

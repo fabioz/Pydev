@@ -12,9 +12,12 @@ import org.python.pydev.core.docutils.StringUtils;
 
 public class TestCaseUtils extends TestCase{
     
+    public static final boolean DEBUG = false;
     
-    protected void assertContentsEqual(String expected, String generated) {
-        System.out.println(generated);
+    public static void assertContentsEqual(String expected, String generated) {
+        if(DEBUG){
+            System.out.println(generated);
+        }
         assertEquals(StringUtils.replaceNewLines(expected, "\n"), StringUtils.replaceNewLines(generated, "\n"));
     }
 

@@ -11,7 +11,6 @@ import java.util.List;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.templates.TemplateProposal;
 import org.eclipse.swt.graphics.Image;
@@ -20,29 +19,26 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 
 /**
  * This is the proposal that goes outside. It only creates the proposal that'll actually do something later, as
  * creating that proposal may be slower.
  */
-public final class TddRefactorCompletion extends PyCompletionProposal implements ICompletionProposalExtension2 {
+public final class TddRefactorCompletion extends AbstractTddRefactorCompletion {
     private TemplateProposal executed;
-    private PyEdit edit;
     private int locationStrategy;
     private List<String> parametersAfterCall;
-    private PyCreateAction pyCreateAction;
+    private AbstractPyCreateAction pyCreateAction;
     private PySelection ps;
 
     TddRefactorCompletion(String replacementString, 
             Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, 
-            int priority, PyEdit edit, int locationStrategy, List<String> parametersAfterCall, PyCreateAction pyCreateAction, PySelection ps) {
+            int priority, PyEdit edit, int locationStrategy, List<String> parametersAfterCall, AbstractPyCreateAction pyCreateAction, PySelection ps) {
         
-        super(replacementString, 0, 0, 0, image, displayString, contextInformation,
+        super(edit, replacementString, 0, 0, 0, image, displayString, contextInformation,
                 additionalProposalInfo, priority);
         this.locationStrategy = locationStrategy;
-        this.edit = edit;
         this.parametersAfterCall = parametersAfterCall;
         this.pyCreateAction = pyCreateAction;
         this.ps = ps;
@@ -60,11 +56,23 @@ public final class TddRefactorCompletion extends PyCompletionProposal implements
     
     @Override
     public Point getSelection(IDocument document) {
-        return getExecuted().getSelection(document);
+        TemplateProposal executed2 = getExecuted();
+        if(executed2 != null){
+            return executed2.getSelection(document);
+        }
+        return null;
     }
 
     public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
-        getExecuted().apply(viewer, trigger, stateMask, 0);
+        if(edit != null){
+            //We have to reparse to make sure that we'll have an accurate AST.
+            edit.getParser().reparseDocument();
+        }
+        TemplateProposal executed2 = getExecuted();
+        if(executed2 != null){
+            executed2.apply(viewer, trigger, stateMask, 0);
+            forceReparseInBaseEditorAnd();
+        }
     }
     
     private TemplateProposal getExecuted() {

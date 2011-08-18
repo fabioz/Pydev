@@ -12,7 +12,6 @@
 package org.python.pydev.editor.actions;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -23,8 +22,9 @@ import org.eclipse.jface.text.TextSelection;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PyDocIterator;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
+import org.python.pydev.core.docutils.PySelection.TddPossibleMatches;
+import org.python.pydev.core.docutils.StringUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -39,7 +39,7 @@ public class PySelectionTest extends TestCase {
         try {
             PySelectionTest test = new PySelectionTest();
             test.setUp();
-            test.testGetParametersAfter();
+            test.testIntersects();
             test.tearDown();
             
             junit.textui.TestRunner.run(PySelectionTest.class);
@@ -257,6 +257,17 @@ public class PySelectionTest extends TestCase {
         assertEquals(3, selection.getLineAvailableForImport(false));
     }
     
+    public void testImportLine11() {
+        String strDoc = "" +
+        "__version__ = '$Revision: 86849 $'\n" +
+        "def m1():\n"+
+        "    testca\n"+
+        "\n";
+        Document document = new Document(strDoc);
+        PySelection selection = new PySelection(document);
+        assertEquals(1, selection.getLineAvailableForImport(false));
+    }
+    
     
     public void testSelectAll() {
         ps = new PySelection(doc, new TextSelection(doc, 0,0));
@@ -370,7 +381,33 @@ public class PySelectionTest extends TestCase {
         doc = new Document(s);
         ps = new PySelection(doc, doc.getLength());
         assertEquals(null, ps.getPreviousLineThatStartsWithToken(PySelection.TOKENS_BEFORE_ELSE));
-        
+    }        
+    
+    public void testGetLastIf2() throws Exception {
+        String s = 
+            "if True:\n" +
+            "  if False:\n" +
+            "    print foo\n" +
+            "  a = 10\n" + //as we're already in this indent level, an if in the same level has to be disconsidered!
+            "  b = 20" +
+            "";
+        doc = new Document(s);
+        ps = new PySelection(doc, doc.getLength());
+        assertEquals("if True:", ps.getPreviousLineThatStartsWithToken(PySelection.TOKENS_BEFORE_ELSE));
+    }
+    
+    public void testGetLastIf3() throws Exception {
+        String s = 
+            "if True:\n" +
+            "  if False:\n" +
+            "    print foo\n" +
+            "  a = (10,\n" + //as we're already in this indent level, an if in the same level has to be disconsidered!
+            "20)\n" +
+            "  a = 30" +
+            "";
+        doc = new Document(s);
+        ps = new PySelection(doc, doc.getLength());
+        assertEquals("if True:", ps.getPreviousLineThatStartsWithToken(PySelection.TOKENS_BEFORE_ELSE));
     }
     
     public void testGetLineWithoutComments() {
@@ -629,7 +666,7 @@ public class PySelectionTest extends TestCase {
         PySelection ps = new PySelection(doc);
         assertEquals(0, ps.getEndOfDocummentOffset());
         doc.set("   ");
-        assertEquals(2, ps.getEndOfDocummentOffset());
+        assertEquals(3, ps.getEndOfDocummentOffset());
     }
     
     public void testGetParametersAfter() throws Exception {
@@ -639,6 +676,11 @@ public class PySelectionTest extends TestCase {
         
         doc.set("MyCall(aa, bb, 10, )");
         List<String> params = ps.getParametersAfterCall(6);
+        assertEquals(3, params.size());
+        assertEquals("10", params.get(2));
+        
+        doc.set("MyCall   \t(aa, bb, 10, )");
+        params = ps.getParametersAfterCall(6);
         assertEquals(3, params.size());
         assertEquals("10", params.get(2));
         
@@ -656,19 +698,76 @@ public class PySelectionTest extends TestCase {
         assertEquals("another(call, 1, 'thn', foo)", params.get(0));
     }
     
-    public void testGetContentsAfterSelf() throws Exception {
-        HashSet<String> set = new HashSet<String>();
-        set.add("foo");
-        assertEquals(set, PySelection.getSelfAttributeAccesses("self.foo"));
-        
-        set = new HashSet<String>();
-        set.add("bar");
-        assertEquals(set, PySelection.getSelfAttributeAccesses(
-                "self.foo(ueontehuo), self.bar[ueos:suneoh], self., self.[ueo]"));
-    }
     
     public void testGetClassNameInLine() throws Exception {
         assertEquals("Foo", PySelection.getClassNameInLine("class Foo(obje"));
         assertEquals("Foo", PySelection.getClassNameInLine("class Foo.uesonth(obje"));
+    }
+    
+    public void testGetFunctionCalls() throws Exception {
+        Document doc = new Document();
+        PySelection ps = new PySelection(doc);
+        assertEquals(0, ps.getTddPossibleMatchesAtLine().size());
+        
+        doc.set("MyCall(aa, bb, 10, )");
+        List<TddPossibleMatches> calls = ps.getTddPossibleMatchesAtLine();
+        assertEquals(1, calls.size());
+        assertEquals("MyCall(", calls.get(0).toString());
+        
+        doc.set("foo.MyCall(aa, bb, 10, )");
+        calls = ps.getTddPossibleMatchesAtLine();
+        assertEquals(1, calls.size());
+        assertEquals("foo.MyCall(", calls.get(0).toString());
+        
+        doc.set("foo.MyCall1 (aa, bb, 10, )");
+        calls = ps.getTddPossibleMatchesAtLine();
+        assertEquals(1, calls.size());
+        assertEquals("foo.MyCall1 (", calls.get(0).toString());
+        
+        doc.set("call1(aa, bar.call2(), 10, )");
+        calls = ps.getTddPossibleMatchesAtLine();
+        assertEquals(2, calls.size());
+        assertEquals("call1(", calls.get(0).toString());
+        assertEquals("bar.call2(", calls.get(1).toString());
+        
+        doc.set("def m1(foo)");
+        calls = ps.getTddPossibleMatchesAtLine();
+        assertEquals(0, calls.size());
+        
+        doc.set("class Bar(object):");
+        calls = ps.getTddPossibleMatchesAtLine();
+        assertEquals(0, calls.size());
+        
+        doc.set("a = (1,3)");
+        calls = ps.getTddPossibleMatchesAtLine();
+        assertEquals(0, calls.size());
+        
+        doc.set("self.a.b, my.call()");
+        calls = ps.getTddPossibleMatchesAtLine();
+        assertEquals(2, calls.size());
+        assertEquals("self.a.b", calls.get(0).toString());
+        assertEquals("my.call(", calls.get(1).toString());
+        
+        doc.set("self.call().call2()");
+        calls = ps.getTddPossibleMatchesAtLine();
+        assertEquals(1, calls.size());
+        assertEquals("self.call(", calls.get(0).toString());
+    }
+    
+    
+    public void testIntersects() throws Exception {
+        int line = 0;
+        int col = 1;
+        int len = 2;
+        doc = new Document(" aa      ");
+        ps = new PySelection(doc, line, col, len);
+        assertTrue(ps.intersects(1, 2));
+        assertTrue(ps.intersects(1, 10));
+        assertTrue(ps.intersects(0, 10));
+        assertFalse(ps.intersects(0, 0));
+        assertTrue(ps.intersects(0, 2));
+        assertFalse(ps.intersects(0, 1));
+        assertFalse(ps.intersects(3, 0));
+        assertTrue(ps.intersects(2, 0));
     }
 }

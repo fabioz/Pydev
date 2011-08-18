@@ -37,7 +37,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testSetComprehension();
+            analyzer2.testImportErrorPattern();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -2745,6 +2745,17 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         printMessages(msgs, 2);
     }
     
+    public void testRelativeWithWildCard() throws Exception {
+        
+        analyzer = new OccurrencesAnalyzer();
+        File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/relative_wildcard/mymod2.py");
+        Document doc = new Document(REF.getFileContents(file));
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("extendable.relative_wildcard.mymod2", file, nature, 0), 
+                prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
+        
+        printMessages(msgs, 0);
+    }
+    
     
     public void testModuleNotFoundOnRelativeAndFullMixed() throws Exception {
     	
@@ -2767,6 +2778,17 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     			prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
     	
     	printMessages(msgs, 0);
+    }
+    
+    public void testImportErrorPattern() throws Exception {
+        
+        analyzer = new OccurrencesAnalyzer();
+        File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/redefinition_in_import/check_access.py");
+        Document doc = new Document(REF.getFileContents(file));
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("extendable.redefinition_in_import.check_access.py", file, nature, 0), 
+                prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
+        
+        printMessages(msgs, 0);
     }
     
     
@@ -2845,6 +2867,43 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
             printMessages(msgs, 2);
             assertContainsMsg("Unused variable: jj", msgs);
             assertContainsMsg("Undefined variable: jj", msgs);
+        }finally{
+            GRAMMAR_TO_USE_FOR_PARSING = initial;
+        }
+    }
+    
+    public void testElipsis() {
+        int initial = GRAMMAR_TO_USE_FOR_PARSING;
+        try{
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+            doc = new Document(
+                    "class Bar:\n" +
+                    "    ...\n" +
+                    ""
+            );
+            analyzer = new OccurrencesAnalyzer();
+            msgs = analyzeDoc();
+            
+            printMessages(msgs, 0);
+        }finally{
+            GRAMMAR_TO_USE_FOR_PARSING = initial;
+        }
+    }
+    
+    
+    public void testBoolInClassConstructor() {
+        int initial = GRAMMAR_TO_USE_FOR_PARSING;
+        try{
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+            doc = new Document(
+                    "class Bar(A or B):\n" +
+                    "    ...\n" +
+                    ""
+            );
+            analyzer = new OccurrencesAnalyzer();
+            msgs = analyzeDoc();
+            
+            printMessages(msgs, 2); //A and B not defined.
         }finally{
             GRAMMAR_TO_USE_FOR_PARSING = initial;
         }

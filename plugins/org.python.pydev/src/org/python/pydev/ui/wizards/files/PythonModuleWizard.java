@@ -18,6 +18,7 @@ import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateProposal;
 import org.eclipse.jface.text.templates.persistence.TemplatePersistenceData;
 import org.eclipse.ui.IEditorPart;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.templates.PyDocumentTemplateContext;
 import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
@@ -42,8 +43,8 @@ public class PythonModuleWizard extends AbstractPythonWizard {
     public static final String WIZARD_ID = "org.python.pydev.ui.wizards.files.PythonModuleWizard";
 
     @Override
-    protected PythonAbstractPathPage createPathPage() {
-        return new PythonAbstractPathPage(this.description, selection){
+    protected AbstractPythonWizardPage createPathPage() {
+        return new AbstractPythonWizardPage(this.description, selection){
 
             @Override
             protected boolean shouldCreatePackageSelect() {
@@ -67,7 +68,17 @@ public class PythonModuleWizard extends AbstractPythonWizard {
         }
         IContainer validatedPackage = filePage.getValidatedPackage();
         if(validatedPackage == null){
-            return null;
+            String packageText = filePage.getPackageText();
+            if(packageText == null){
+                Log.log("Package text not available");
+                return null;
+            }
+            IFile packageInit = PythonPackageWizard.createPackage(monitor, validatedSourceFolder, packageText);
+            if(packageInit == null){
+                Log.log("Package not created");
+                return null;
+            }
+            validatedPackage = packageInit.getParent();
         }
         String validatedName = filePage.getValidatedName()+FileTypesPreferencesPage.getDefaultDottedPythonExtension();
         

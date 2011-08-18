@@ -1,13 +1,25 @@
+..
+    <right_area>
+    <p>Getting started with PyDev!</p>
+    </right_area>
+    
+    
+    <image_area>manual.png</image_area>
+    
+    
+    <quote_area><strong>PyDev 101</strong></quote_area>
+    
+    
 .. contents::
 
-.. _`Aptana Studio 3`: http://aptana.com/products/studio3
+_`Aptana Studio 3`: http://aptana.com/products/studio3
 
 
 Note for users with Aptana Studio 3 (Beta)
 ==========================================
 
-Pydev already comes preinstalled in `Aptana Studio 3`_, so, this step can be skipped (note that if `Aptana Studio 3`_ is used,
-Pydev cannot be installed or update separately, as it must always be updated as a whole). 
+PyDev already comes preinstalled in `Aptana Studio 3`_, so, this step can be skipped (note that if `Aptana Studio 3`_ is used,
+PyDev cannot be installed or update separately, as it must always be updated as a whole). 
 
 
 Before starting the install
@@ -19,7 +31,31 @@ any plugin needs to be updated).
 
 Also, it seems Eclipse 3.6.0 has some issues installing in shared locations (in any OS). An example of such a location would 
 be the Program Files directory on Windows (see: https://bugs.eclipse.org/bugs/show_bug.cgi?id=322929), so, 
-please use at least 3.6.1 if planning to install Eclipse/Pydev on a shared location.
+please use at least 3.6.1 if planning to install Eclipse/PyDev on a shared location.
+
+
+PyDev Certificate
+===================
+
+PyDev is built with a self-signed certificate, which means that when installed a dialog will be opened to ask if you trust
+the certificate (which should be OK for most users).
+
+Now, if you don't want that dialog to appear, it's possible to import the certificate before starting the installation process
+(this is actually a requirement for those that want to install PyDev from the command line because of a bug in the Eclipse p2 director).
+
+.. _PyDev certificate: pydev_certificate.cer
+
+The first step for that is downloading the `PyDev certificate`_. 
+
+The second step is discovering the java being used in Eclipse: go to **Help > About > Installation details and look for 'java.home'**
+
+Then to actually import it, in the command line, go to the Eclipse 'java.home' directory and execute 
+
+    **bin\\keytool.exe -import -file pydev_certificate.cer -keystore lib\\security\\cacerts**
+    
+Note that if you never did anything here, your **password** when requested should be **changeit**
+
+Reference: http://download.oracle.com/javase/1.4.2/docs/tooldocs/solaris/keytool.html#cacerts
 
 
 Installing with the update site 
@@ -27,7 +63,7 @@ Installing with the update site
 
 **Note: Instructions are targeted at Eclipse 3.5 and 3.6**
 
-To install Pydev and Pydev Extensions using the Eclipse Update Manager, you need to use the **Help > Install New Software...**
+To install PyDev and PyDev Extensions using the Eclipse Update Manager, you need to use the **Help > Install New Software...**
 menu (note that in older versions, this would be the 'Find and Install' menu).
 
 .. image:: images/install_menu.png
@@ -63,8 +99,8 @@ _`Available update sites`
       
 
 After entering the update sites, select the update site you entered or 
-select "All available sites" and add a filter for Pydev, so that it 
-shows the contents of all the update sites that have Pydev, then select what you want to install and click 'Next'.
+select "All available sites" and add a filter for PyDev, so that it 
+shows the contents of all the update sites that have PyDev, then select what you want to install and click 'Next'.
 
 
 .. image:: images/update_sites2.png
@@ -72,7 +108,8 @@ shows the contents of all the update sites that have Pydev, then select what you
    :align: center   
 
 
-Then 'Next' again to confirm your selection
+Then, **UNCHECK** the **'Contact all update sites during install to find required software'** and press
+'Next' again to confirm your selection.
 
 .. image:: images/update_sites3.png
    :class: snap
@@ -88,8 +125,9 @@ And finally, read the license agreement and if you accept, select the accept rad
 At that point, Eclipse should automatically download the plugin contents and present you to a dialog asking 
 if you want to restart (to which you should say **yes**).
 
-Commom install problems
-------------------------
+
+Possible issue on download
+-----------------------------
    
 If you have any problem at this point with a message such as:
 
@@ -103,6 +141,8 @@ If you have any problem at this point with a message such as:
 
 that might indicate that the mirror you selected is having some network problem at that time, 
 so, please follow the same steps with another mirror.
+
+
 
 
 Installing with the zip file
@@ -131,13 +171,13 @@ Checking the installation
 ===========================
 
 You can verify if it is correctly installed going to the menu **'window > preferences'** and 
-checking if there is a **Pydev** item under that.
+checking if there is a **PyDev** item under that.
 
 
 Uninstalling
 ==============
 
-Follow the instructons below if at any time you wish to stop using the Pydev plugin 
+Follow the instructons below if at any time you wish to stop using the PyDev plugin 
 (or any other Eclipse plugin):
 
 **Eclipse 3.5**
@@ -154,9 +194,17 @@ Go to the menu **help > software updates > manage configuration**, select the pl
 go to the same place again and then click on 'remove' (note that you have a button in the menu that enables you to see the 'disabled' features).
 
 
-	
+Common Install Problems
+=============================
+
+Windows Vista/7 UAC (User Access Control)
+-------------------------------------------------
+
+Eclipse 3.3 had issues with the Windows UAC, so, Eclipse must be run as Administrator to install a plugin on Eclipse 3.3.
+
+
 Corrupted install
-======================
+--------------------
 
 
 	Eclipse sometimes is not able to correctly get the plugin, from the update site but will do no checking

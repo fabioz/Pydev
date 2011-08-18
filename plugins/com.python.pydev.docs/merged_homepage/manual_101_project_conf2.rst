@@ -1,24 +1,35 @@
+..
+    <right_area>
+    <p>Further configuring your project!</p>
+    </right_area>
+    
+    
+    <image_area>manual.png</image_area>
+    
+    
+    <quote_area><strong>PyDev 101</strong></quote_area>
+
 Here you will learn to **further configure your project** and add Python information to an already existing project.
 
 
-The first thing to know about Pydev is that to use it to its 'full extent',
+The first thing to know about PyDev is that to use it to its 'full extent',
 you must have your python modules beneath a **source folder** (the source
 folders are the paths that are added to your PYTHONPATH). 
 
-You can add a new source folder in the menu: **File > new > other > pydev > source folder**.
+You can add a new source folder in the menu: **File > new > other > PyDev > source folder**.
 
-**NOTE:** You may use pydev without configuring that, for quick scripts, but some features such as code analysis may not
+**NOTE:** You may use PyDev without configuring that, for quick scripts, but some features such as code analysis may not
 work at all (but you will still have syntax highlighting and the default editor actions).
 
 .. image:: images/new_source_folder.png
    :class: snap
    :align: center
 
-When you add a source folder to an existing project, it will 'automatically' add the Pydev information to it (in Eclipse terms, it will add 
+When you add a source folder to an existing project, it will 'automatically' add the PyDev information to it (in Eclipse terms, it will add 
 its nature to it).
 
 
-You may see which Python information your project has by going to the Pydev Package Explorer, rigth-clicking
+You may see which Python information your project has by going to the PyDev Package Explorer, rigth-clicking
 the project you want info on and selecting 'properties' (or pressing Alt+Enter with the project selected):
 
 
@@ -41,7 +52,7 @@ create a project for it and make a project reference to that project.
    :align: center
 
 The **force restore internal info** may be useful if you had an external library that changed and just want to update its information, or
-you believe that for some reason pydev did not succeed in synchronizing with the latest code-changes you did.
+you believe that for some reason PyDev did not succeed in synchronizing with the latest code-changes you did.
 
 
 The **String Substitution Variables** can be used in conjunction with the **source folders**, **external
@@ -86,12 +97,12 @@ Project reference for Jython users
 -----------------------------------
 
 Jython projects may reference Java (JDT) projects. To create that reference, it's not enough to just add the reference
-to the JDT project from the Pydev project, the JDT project must be **set as a Pydev project and its bin folders must
-be properly configured as source folders for Pydev**. 
+to the JDT project from the PyDev project, the JDT project must be **set as a PyDev project and its bin folders must
+be properly configured as source folders for PyDev**. 
 
-To do that, right-click the project and select **Pydev > Set as Pydev project** and add the **bin** folders as if they 
-were regular **Pydev source folders** (the ones containing your .class files -- the folders containing the .java classes 
-shouldn't be referenced in the Pydev config).
+To do that, right-click the project and select **PyDev > Set as PyDev project** and add the **bin** folders as if they 
+were regular **PyDev source folders** (the ones containing your .class files -- the folders containing the .java classes 
+shouldn't be referenced in the PyDev config).
 
-**Note:** Before version **1.4.8**, Pydev did not handle a JDT project which had .py files correctly (even if the folders
+**Note:** Before version **1.4.8**, PyDev did not handle a JDT project which had .py files correctly (even if the folders
 were properly configured)

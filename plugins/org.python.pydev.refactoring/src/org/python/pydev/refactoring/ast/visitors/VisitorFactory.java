@@ -13,10 +13,12 @@ import java.io.File;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
+import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISourceModule;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -26,6 +28,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.VisitorIF;
+import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.refactoring.ast.PythonModuleManager;
 import org.python.pydev.refactoring.ast.adapters.AbstractNodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
@@ -62,8 +65,8 @@ public final class VisitorFactory {
         }
     }
 
-    public static <T extends VisitorIF> T createVisitor(Class<T> visitorClass, String source) throws Throwable {
-        return createVisitor(visitorClass, getRootNodeFromString(source));
+    public static <T extends VisitorIF> T createVisitor(Class<T> visitorClass, String source, IGrammarVersionProvider versionProvider) throws Throwable {
+        return createVisitor(visitorClass, getRootNodeFromString(source, versionProvider));
     }
 
     public static <T extends VisitorIF> T createVisitor(Class<T> visitorClass, SimpleNode root) {
@@ -91,7 +94,7 @@ public final class VisitorFactory {
         }
     }
 
-    public static ModuleAdapter createModuleAdapter(PythonModuleManager pythonModuleManager, File file, IDocument doc, IPythonNature nature) throws Throwable {
+    public static ModuleAdapter createModuleAdapter(PythonModuleManager pythonModuleManager, File file, IDocument doc, IPythonNature nature, IGrammarVersionProvider versionProvider) throws Throwable {
         if(file != null && file.exists()){
             if(pythonModuleManager != null){
                 IModulesManager modulesManager = pythonModuleManager.getIModuleManager();
@@ -110,20 +113,20 @@ public final class VisitorFactory {
                 }
             }
         }
-        return new ModuleAdapter(pythonModuleManager, file, doc, getRootNode(doc), nature);
+        return new ModuleAdapter(pythonModuleManager, file, doc, getRootNode(doc, versionProvider), nature);
     }
 
 
-    public static SimpleNode getRootNodeFromString(String source) throws ParseException {
-        return getRootNode(getDocumentFromString(source));
+    public static SimpleNode getRootNodeFromString(String source, IGrammarVersionProvider versionProvider) throws ParseException, MisconfigurationException {
+        return getRootNode(getDocumentFromString(source), versionProvider);
     }
 
     private static IDocument getDocumentFromString(String source) {
         return new Document(source);
     }
 
-    public static Module getRootNode(IDocument doc) throws ParseException {
-        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, false, IPythonNature.LATEST_GRAMMAR_VERSION));
+    public static Module getRootNode(IDocument doc, IGrammarVersionProvider versionProvider) throws ParseException, MisconfigurationException {
+        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, false, versionProvider.getGrammarVersion()));
         Throwable exception = objects.o2;
 
         if(exception != null){
@@ -141,5 +144,20 @@ public final class VisitorFactory {
         if(objects.o2 != null)
             throw new RuntimeException(objects.o2);
         return (Module) objects.o1;
+    }
+
+    /**
+     * Provides a way to find duplicates of a given expression.
+     */
+    public static FindDuplicatesVisitor createDuplicatesVisitor(
+            ITextSelection selection, SimpleNode nodeToVisit, exprType expression, AbstractScopeNode node, IDocument doc){
+        FindDuplicatesVisitor visitor = new FindDuplicatesVisitor(selection, expression, doc);
+        try{
+            nodeToVisit.accept(visitor);
+            visitor.finish();
+        }catch(Throwable e){
+            throw new RuntimeException(e);
+        }
+        return visitor;
     }
 }

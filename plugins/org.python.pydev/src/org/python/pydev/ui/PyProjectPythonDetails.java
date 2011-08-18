@@ -35,6 +35,7 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.utils.ICallback;
@@ -203,7 +204,7 @@ public class PyProjectPythonDetails extends PropertyPage{
                         try {
                             onSelectionChanged.call(null);
                         } catch (Exception e1) {
-                            PydevPlugin.log(e1);
+                            Log.log(e1);
                         }
                     }
                 }
@@ -333,7 +334,7 @@ public class PyProjectPythonDetails extends PropertyPage{
             }
             
         } catch (CoreException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
 
@@ -359,7 +360,7 @@ public class PyProjectPythonDetails extends PropertyPage{
                 }
                 pythonNature.setVersion(projectConfig.getSelectedPythonOrJythonAndGrammarVersion(), projectInterpreter);
             } catch (CoreException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
         return true;

@@ -149,6 +149,8 @@ def GenerateImportsTipForModule(obj_to_complete, dirComps=None, getattr=getattr,
         dirComps = dir(obj_to_complete)
         if hasattr(obj_to_complete, '__dict__'):
             dirComps.append('__dict__')
+        if hasattr(obj_to_complete, '__class__'):
+            dirComps.append('__class__')
         
     getCompleteInfo = True
     
@@ -221,8 +223,23 @@ def GenerateImportsTipForModule(obj_to_complete, dirComps=None, getattr=getattr,
                                         #sort(self, object cmp, object key, bool reverse)
                                         #sort(self)
                                         #sort(self, object cmp)
+                                        
+                                        #Or: sort(self: list, cmp: object, key: object)
+                                        #sort(self: list, cmp: object, key: object, reverse: bool)
+                                        #sort(self: list)
+                                        #sort(self: list, cmp: object)
                                         if hasattr(obj, '__name__'):
                                             name = obj.__name__+'('
+                                            
+                                            
+                                            #Fix issue where it was appearing sort(aa)sort(bb)sort(cc) in the same line.
+                                            lines = doc.splitlines()
+                                            if len(lines) == 1:
+                                                c = doc.count(name)
+                                                if c > 1:
+                                                    doc = ('\n'+name).join(doc.split(name))
+                                                    
+                                            
                                             major = ''
                                             for line in doc.splitlines():
                                                 if line.startswith(name) and line.endswith(')'):
@@ -232,6 +249,7 @@ def GenerateImportsTipForModule(obj_to_complete, dirComps=None, getattr=getattr,
                                                 args = major[major.index('('):]
                                                 found = True
                                             
+                                        
                                     if not found:
                                         i = doc.find('->')
                                         if i < 0:
@@ -272,6 +290,17 @@ def GenerateImportsTipForModule(obj_to_complete, dirComps=None, getattr=getattr,
                                                             
                                                     args = ''.join(r)
                                                 
+                                    if IS_IPY:
+                                        if args.startswith('(self:'):
+                                            i = args.find(',')
+                                            if i >= 0:
+                                                args = '(self'+args[i:]
+                                            else:
+                                                args = '(self)'
+                                        i = args.find(')')
+                                        if i > 0:
+                                            args = args[:i+1]
+
                             except:
                                 pass
         

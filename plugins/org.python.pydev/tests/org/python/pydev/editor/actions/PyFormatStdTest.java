@@ -32,7 +32,7 @@ public class PyFormatStdTest extends TestCase {
             PyFormatStdTest n = new PyFormatStdTest();
             n.setUp();
             DEBUG = true;
-            n.testUnaryOpWithSpace();
+            n.testOperator2();
             n.tearDown();
             
             junit.textui.TestRunner.run(PyFormatStdTest.class);
@@ -264,6 +264,7 @@ public class PyFormatStdTest extends TestCase {
 "    return ((a + b) + (a + b))   \n";
         
         checkFormatResults(s, s1);
+        checkFormatResults(s.replace('+', '*'), s1.replace('+', '*'));
     
 
         std.parametersWithSpace = true;
@@ -272,6 +273,7 @@ public class PyFormatStdTest extends TestCase {
 "    return ( ( a + b ) + ( a + b ) )   \n";
         
         checkFormatResults(s, s2);
+        checkFormatResults(s.replace('+', '*'), s2.replace('+', '*'));
     }
 
     public void testFormatInnerParams2(){
@@ -288,6 +290,7 @@ public class PyFormatStdTest extends TestCase {
 "    return ( callA()+callB( b+b ) )   \n";
         
         checkFormatResults(s, s1);
+        checkFormatResults(s.replace('+', '*'), s1.replace('+', '*'));
     }
 
     
@@ -355,6 +358,7 @@ public class PyFormatStdTest extends TestCase {
 "thisChanges( a + b + ( a + b ) )";
         
         checkFormatResults(s, s2);
+        checkFormatResults(s.replace('+', '*'), s2.replace('+', '*'));
         
         //unfinished comment
         s = ""+
@@ -449,6 +453,7 @@ public class PyFormatStdTest extends TestCase {
         "";
         
         checkFormatResults(s, s1);
+        checkFormatResults(s.replace('+', '*'), s1.replace('+', '*'));
         
     }
     
@@ -591,6 +596,7 @@ public class PyFormatStdTest extends TestCase {
         "";
         
         checkFormatResults(s, s1);
+        checkFormatResults(s.replace('+', '*'), s1.replace('+', '*'));
     }
     
     
@@ -964,6 +970,96 @@ public class PyFormatStdTest extends TestCase {
         		"tmp = (\n" +
         		"\t)";
         checkFormatResults(s, s);
+    }
+    
+    public void testNumber() throws Exception{
+        String s = "" +
+        "return -1";
+        checkFormatResults(s, s);
+    }
+    
+    public void testNumber2() throws Exception{
+        String s = "" +
+        "call(a + 1e+10)";
+        checkFormatResults(s, s);
+    }
+    
+    public void testNumber3() throws Exception{
+        String s = "" +
+        "call(0.0,1.E+13,1.0,0.0)";
+        checkFormatResults(s, s);
+    }
+    
+    public void testNumber4() throws Exception{
+        String s = "" +
+        "1 + 2 + +3 - -3";
+        checkFormatResults(s, s);
+    }
+    
+    public void testNumber5() throws Exception{
+        String s = "" +
+        "def a():\n" +
+        "    return -1";
+        checkFormatResults(s, s);
+    }
+    
+    public void testNumber6() throws Exception{
+        String s = "" +
+        "def a(a=10 + +20):\n" +
+        "    return -1";
+        checkFormatResults(s, s);
+    }
+    
+    public void testNumber7() throws Exception{
+        String s = "" +
+        "def a(a=10 + +20):\n" +
+        "    return a + -1 - (-3)";
+        checkFormatResults(s, s);
+        checkFormatResults(s.replace('+', '*'), s.replace('+', '*'));
+    }
+    
+    public void testNumber8() throws Exception{
+        String s = "" +
+        " -1 - (-3)";
+        checkFormatResults(s, s);
+    }
+    
+    public void testOperator() throws Exception{
+        String s = "" +
+        "a=('#'*3)";
+        std.operatorsWithSpace = true;
+        checkFormatResults(s, "a = ('#' * 3)");
+    }
+    
+    public void testOperator2() throws Exception{
+        String s = "" +
+        "a=(('#')*3)";
+        std.operatorsWithSpace = true;
+        checkFormatResults(s, "a = (('#') * 3)");
+    }
+    
+    public void testFormatError() throws Exception{
+        String s = "" +
+        "class Bar:\n" +
+        "    def Foo:\n" +
+        "        ra( )\n" +
+        "        a.Get(self, ra( )\n" +
+        "";
+        final PyFormatStd pyFormatStd = new PyFormatStd();
+        try {
+            pyFormatStd.formatStr(s, std, "\n", true);
+            fail("Expecting exception!");
+        } catch (Exception e) {
+        }
+        String expected = "" +
+        "class Bar:\n" +
+        "    def Foo:\n" +
+        "        ra()\n" +
+        "        a.Get(self, ra()\n" +
+        "";
+        
+        checkFormatResults(s, expected);
+
     }
     
 

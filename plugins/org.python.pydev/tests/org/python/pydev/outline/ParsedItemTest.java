@@ -18,7 +18,7 @@ public class ParsedItemTest extends PyParserTestBase {
         try {
             ParsedItemTest analyzer2 = new ParsedItemTest();
             analyzer2.setUp();
-            analyzer2.testParsedItemCreation3();
+            analyzer2.testParsedItemCreation4();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -56,6 +56,28 @@ public class ParsedItemTest extends PyParserTestBase {
         // method level: 1 comment
         ASTEntryWithChildren functionEntry = classEntry.children.get(0);
         assertEquals(1, functionEntry.children.size()); 
+        
+    }
+    
+    public void testParsedItemCreation4() throws Exception {
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5);
+        String str = "" +
+        "if 0:\n" +
+        "    #--- foo ---\n" +
+        "    pass\n" +
+        "else:\n" +
+        "    #--- bar ---\n" +
+        "    pass";
+        
+        SimpleNode node = parseLegalDocStr(str);
+        
+        OutlineCreatorVisitor visitor = OutlineCreatorVisitor.create(node);
+        ParsedItem item = new ParsedItem(visitor.getAll().toArray(new ASTEntryWithChildren[0]), null);
+        
+        //module level: 2 comments
+        assertEquals(2, item.getAstChildrenEntries().length);
+        assertNull(item.getAstChildrenEntries()[0].children); //comment has no children
+        assertNull(item.getAstChildrenEntries()[1].children); //comment has no children
         
     }
     

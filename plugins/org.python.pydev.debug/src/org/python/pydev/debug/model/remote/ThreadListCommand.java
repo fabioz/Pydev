@@ -13,6 +13,7 @@ package org.python.pydev.debug.model.remote;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.debug.model.PyThread;
@@ -68,7 +69,7 @@ public class ThreadListCommand extends AbstractDebuggerCommand {
             threads = XMLUtils.ThreadsFromXML(target, payload);
         } catch (CoreException e) {
             PydevDebugPlugin.log(IStatus.ERROR, "LIST THREADS got an unexpected response "  + payload, null);
-            e.printStackTrace();
+            Log.log(e);
         }
         done = true;
     }

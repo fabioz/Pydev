@@ -36,6 +36,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
 
     //The shared instance.
     private static AnalysisPlugin plugin;
+//    private IWorkbenchWindow activeWorkbenchWindow;
     
     /**
      * The constructor.
@@ -49,6 +50,52 @@ public class AnalysisPlugin extends AbstractUIPlugin {
      */
     public void start(BundleContext context) throws Exception {
         super.start(context);
+
+// Leaving code around to know when we get to the PyDev perspective in the active window (may be
+// useful in the future).
+//        Display.getDefault().asyncExec(new Runnable() {
+//            public void run() {
+//                IWorkbench workbench = PlatformUI.getWorkbench();
+//                
+//                activeWorkbenchWindow = workbench.getActiveWorkbenchWindow();
+//                handleActivePage();
+//                
+//                workbench.addWindowListener(new IWindowListener() {
+//                    
+//                    public void windowOpened(IWorkbenchWindow window) {
+//                    }
+//                    
+//                    public void windowDeactivated(IWorkbenchWindow window) {
+//                    }
+//                    
+//                    public void windowClosed(IWorkbenchWindow window) {
+//                    }
+//                    
+//                    public void windowActivated(IWorkbenchWindow window) {
+//                        //When a window is activated, remove from the previous and add to the new one.
+//                        if(activeWorkbenchWindow != null){
+//                            activeWorkbenchWindow.removePerspectiveListener(perspectiveObserver);
+//                        }
+//                        activeWorkbenchWindow = window;
+//                        handleActivePage();
+//                    }
+//                });
+//            }
+//
+//            protected void handleActivePage() {
+//                if(activeWorkbenchWindow != null){
+//                    activeWorkbenchWindow.addPerspectiveListener(perspectiveObserver);
+//                    IWorkbenchPage activePage = activeWorkbenchWindow.getActivePage();
+//                    if(activePage != null){
+//                        IPerspectiveDescriptor perspective = activePage.getPerspective();
+//                        if(perspective != null){
+// TO KNOW ABOUT PYDEV PERSPECTIVE: perspectiveId.indexOf(PythonPerspectiveFactory.PERSPECTIVE_ID) > -1
+//                            perspectiveObserver.handleStateChange(perspective.getId());
+//                        }
+//                    }
+//                }
+//            }
+//        });
     }
 
     /**

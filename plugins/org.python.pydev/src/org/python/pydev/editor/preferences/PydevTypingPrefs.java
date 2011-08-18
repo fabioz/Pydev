@@ -16,9 +16,9 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
+import org.python.pydev.bindingutils.KeyBindingHelper;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.WrapAndCaseUtils;
-import org.python.pydev.plugin.KeyBindingHelper;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.AbstractPydevPrefs;
 
@@ -47,14 +47,16 @@ public class PydevTypingPrefs  extends AbstractPydevPrefs {
         // simply a holder for the current reference for a Button, so you can input a tooltip
         Button b;
         
-
+        b = addCheckBox(appearanceComposite, "Enable link on automatic parenthesis or literals closing", AUTO_LINK, 0);
+        b.setToolTipText(WrapAndCaseUtils.wrap("Enabling this option will enable the linking mode after a parenthesis or literal is auto-closed.", TOOLTIP_WIDTH));
+        
         //auto par
         b = addCheckBox(appearanceComposite, "Automatic parentheses insertion", AUTO_PAR, 0);
         b.setToolTipText(WrapAndCaseUtils.wrap("Enabling this option will enable automatic insertion of parentheses.  " +
                 "Specifically, whenever you hit a brace such as '(', '{', or '[', its related peer will be inserted " +
                 "and your cursor will be placed between the two braces.", TOOLTIP_WIDTH));
         
-        //auto par
+        //indent
         b = addCheckBox(appearanceComposite, "After '(' indent to its level (indents by tabs if unchecked)", AUTO_INDENT_TO_PAR_LEVEL, 0);
         Control c = addTextField(appearanceComposite, "Number of indentation levels to add:", AUTO_INDENT_AFTER_PAR_WIDTH, 3, 20, true);
         createInverseDependency(b, AUTO_INDENT_AFTER_PAR_WIDTH, c);

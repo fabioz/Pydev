@@ -72,6 +72,9 @@ public class PythonPerspectiveFactory implements IPerspectiveFactory {
         layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.file");//$NON-NLS-1$
         layout.addNewWizardShortcut("org.eclipse.ui.editors.wizards.UntitledTextFileWizard");//$NON-NLS-1$
 
+        layout.addShowViewShortcut("org.python.pydev.views.PyCodeCoverageView");
+        layout.addShowViewShortcut("org.python.pydev.navigator.view");
+        layout.addShowViewShortcut("org.python.pydev.debug.pyunit.pyUnitView");
         layout.addShowViewShortcut(NewSearchUI.SEARCH_VIEW_ID);
         layout.addShowViewShortcut(IConsoleConstants.ID_CONSOLE_VIEW);
         layout.addShowViewShortcut(IPageLayout.ID_OUTLINE);
@@ -79,9 +82,6 @@ public class PythonPerspectiveFactory implements IPerspectiveFactory {
         layout.addShowViewShortcut(IPageLayout.ID_RES_NAV);
         layout.addShowViewShortcut("org.eclipse.pde.runtime.LogView");
         layout.addShowViewShortcut(IPageLayout.ID_TASK_LIST);
-        layout.addShowViewShortcut("org.python.pydev.views.PyRefactorView");
-        layout.addShowViewShortcut("org.python.pydev.views.PyCodeCoverageView");
-        layout.addShowViewShortcut("org.python.pydev.navigator.view");
         
         layout.addActionSet(IDebugUIConstants.LAUNCH_ACTION_SET);
         layout.addActionSet(IPageLayout.ID_NAVIGATE_ACTION_SET);

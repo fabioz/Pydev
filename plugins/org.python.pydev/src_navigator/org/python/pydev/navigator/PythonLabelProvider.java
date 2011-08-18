@@ -120,7 +120,7 @@ public class PythonLabelProvider implements ILabelProvider{
         if(element instanceof TreeNode<?>){
             TreeNode<?> treeNode = (TreeNode<?>) element;
             LabelAndImage data = (LabelAndImage) treeNode.getData();
-            return data.o2;
+            return data.image;
         }
         if(element instanceof IProject){
             IProject project = (IProject) element;
@@ -152,7 +152,7 @@ public class PythonLabelProvider implements ILabelProvider{
                                     IDecoration.BOTTOM_LEFT);
                             projectWithError = decorationOverlayIcon.createImage();
                         } catch (Exception e) {
-                            PydevPlugin.log("Unable to create error decoration for project icon.", e);
+                            Log.log("Unable to create error decoration for project icon.", e);
                             projectWithError = image;
                         }
                     }
@@ -228,7 +228,7 @@ public class PythonLabelProvider implements ILabelProvider{
         if(element instanceof TreeNode<?>){
             TreeNode<?> treeNode = (TreeNode<?>) element;
             LabelAndImage data = (LabelAndImage) treeNode.getData();
-            return data.o1;
+            return data.label;
         }
         if(element instanceof ProjectConfigError){
             return ((ProjectConfigError)element).getLabel();

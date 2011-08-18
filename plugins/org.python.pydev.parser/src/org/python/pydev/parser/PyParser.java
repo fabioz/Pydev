@@ -50,7 +50,6 @@ import org.python.pydev.core.parser.IParserObserver;
 import org.python.pydev.core.parser.IParserObserver2;
 import org.python.pydev.core.parser.IParserObserver3;
 import org.python.pydev.core.parser.IPyParser;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.grammar24.PythonGrammar24;
 import org.python.pydev.parser.grammar25.PythonGrammar25;
 import org.python.pydev.parser.grammar26.PythonGrammar26;
@@ -257,11 +256,14 @@ public class PyParser implements IPyParser {
         forceReparse();
     }
     
-    public void forceReparse(Object ... argsToReparse){
+    /**
+     * @return false if we asked a reparse and it will not be scheduled because a reparse is already in action.
+     */
+    public boolean forceReparse(Object ... argsToReparse){
         if(disposed){
-            return;
+            return true; //reparse didn't happen, but no matter what happens, it won't happen anyways
         }
-        scheduler.parseNow(true, argsToReparse);
+        return scheduler.parseNow(true, argsToReparse);
     }
     
 
@@ -284,7 +286,7 @@ public class PyParser implements IPyParser {
         // Set up new listener
         this.document = doc;
         if (doc == null) {
-            System.err.println("No document in PyParser::setDocument?");
+            Log.log("No document in PyParser::setDocument?");
             return;
         }
 
@@ -464,6 +466,7 @@ public class PyParser implements IPyParser {
         
         if(obj.o1 != null){
             //Ok, reparse successful, lets erase the markers that are in the editor we just parsed
+            //Note: we may get the ast even if errors happen (and we'll notify in that case too).
             ChangedParserInfoForObservers info = new ChangedParserInfoForObservers(obj.o1, adaptable, document, documentTime, argsToReparse);
             fireParserChanged(info);
         }

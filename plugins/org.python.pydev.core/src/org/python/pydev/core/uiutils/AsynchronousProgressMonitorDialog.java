@@ -13,6 +13,7 @@ import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.python.pydev.core.log.Log;
 
 /**
  * This class overrides the ProgressMonitorDialog to limit the
@@ -53,8 +54,15 @@ public class AsynchronousProgressMonitorDialog extends ProgressMonitorDialog {
 						}
 					}
 				};
-				Display disp = getContents().getDisplay();
-				disp.timerExec(UPDATE_INTERVAL_MS, updateStatus);
+				Display display = Display.getCurrent();
+				if(display == null){
+				    display = Display.getDefault();
+				}
+				if(display != null){
+				    display.timerExec(UPDATE_INTERVAL_MS, updateStatus);
+				}else{
+				    Log.log("AsynchronousProgressMonitorDialog: No display available!");
+				}
 			}
 		}
 	}
@@ -126,8 +134,7 @@ public class AsynchronousProgressMonitorDialog extends ProgressMonitorDialog {
 				}
 			});
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.log(e);
 		}
 		System.out.println("Took " + ((System.currentTimeMillis()-l)));
 	}

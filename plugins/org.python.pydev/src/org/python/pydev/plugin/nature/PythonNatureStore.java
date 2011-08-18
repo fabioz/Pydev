@@ -46,9 +46,9 @@ import org.eclipse.core.runtime.Status;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
-import org.python.pydev.plugin.PydevPlugin;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -161,7 +161,8 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      */
     private synchronized void checkLoad(String function) {
         if(!loaded){
-            PydevPlugin.log(new RuntimeException(StringUtils.format("%s still not loaded and '%s' already called.", xmlFile, function)));
+            Throwable e = new RuntimeException(StringUtils.format("%s still not loaded and '%s' already called.", xmlFile, function));
+            Log.log(e);
         }
     }
     
@@ -335,11 +336,11 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      * It creates a backup of the original file and creates a new document to be used.
      */
     private void handleProblemInXmlDocument(DocumentBuilder parser, File file, Exception e) throws CoreException{
-        PydevPlugin.log("Error loading contents from .pydevproject: "+file, e);
+        Log.log("Error loading contents from .pydevproject: "+file, e);
         try{
             REF.createBackupFile(file);
         }catch(Exception e1){
-            PydevPlugin.log("Error creating backup for: "+file, e);
+            Log.log("Error creating backup for: "+file, e);
         }
         createAndSetInMemoryDocument(parser);
         doStore();
@@ -885,7 +886,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                 try {
                     nature.rebuildPath();
                 } catch (CoreException e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
             }
         }
@@ -923,7 +924,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                 if(file == null){
                     if (!ProjectModulesManager.IN_TESTS) {
                         //if we're not in tests, let's log this, as it'd be an error.
-                        PydevPlugin.log("Error: xml file should only be null in tests (when no workspace is available)");
+                        Log.log("Error: xml file should only be null in tests (when no workspace is available)");
                     }
                     return Status.OK_STATUS;
                 }
@@ -933,7 +934,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                 }
                 REF.writeStrToFile(str, file);
             } catch (Exception e) {
-                PydevPlugin.log("Unable to write contents of file: "+file, e);
+                Log.log("Unable to write contents of file: "+file, e);
             }
             
             traceFunc("END doStore");

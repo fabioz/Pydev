@@ -44,7 +44,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testKeywordCompletions();
+            builtins.testDjango();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -465,7 +465,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
     public void testFindDefinition() throws Exception {
         isInTestFindDefinition = true;
         try {
-            CompiledModule mod = new CompiledModule("os", nature.getAstManager());
+            CompiledModule mod = new CompiledModule("os", nature.getAstManager().getModulesManager());
             Definition[] findDefinition = mod.findDefinition(
                     CompletionStateFactory.getEmptyCompletionState("walk", nature, new CompletionCache()), -1, -1, nature);
             assertEquals(1, findDefinition.length);
@@ -492,6 +492,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
     
     public void testDjango2() throws Exception{
         if(TestDependent.PYTHON_DJANGO_PACKAGES != null){
+            assertTrue(new File(TestDependent.PYTHON_DJANGO_PACKAGES).exists());
             String s = 
                 "from django.db import models\n" +
                 "\n" +
@@ -525,5 +526,22 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         }
     }
     
+
+    public void testOverrideCompletions() throws Exception{
+        String s;
+        s = "" +
+        "class Bar(object):\n" +
+        "    def __ha";//bring override completions!
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "__hash__ (Override method in object)"});
+        assertEquals(1, comps.length);
+        Document doc = new Document(s);
+        OverrideMethodCompletionProposal comp = (OverrideMethodCompletionProposal) comps[0];
+        comp.applyOnDocument(null, doc, ' ', 0, s.length());
+        assertEquals("" +
+                "class Bar(object):\n" +
+                "    def __hash__(self, *args, **kwargs):\n" +
+                "        return object.__hash__(self, *args, **kwargs)", doc.get());
+    }
     
+
 }

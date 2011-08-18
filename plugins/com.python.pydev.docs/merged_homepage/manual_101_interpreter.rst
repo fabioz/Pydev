@@ -1,3 +1,15 @@
+..
+    <right_area>
+    <p>Getting started with PyDev!</p>
+    </right_area>
+    
+    
+    <image_area>manual.png</image_area>
+    
+    
+    <quote_area><strong>PyDev 101</strong></quote_area>
+
+
 .. contents::
 
 Configure Interpreter
@@ -7,7 +19,7 @@ After installing it, the first thing you must do is configure the **Python and/o
 To configure the interpreter:
 
 
-1. Go to: **window > preferences > pydev > Interpreter - (Python/Jython/IronPython)**.
+1. Go to: **window > preferences > PyDev > Interpreter - (Python/Jython/IronPython)**.
 2. Choose the interpreter you have installed in your computer (such as python.exe, jython.jar or ipy.exe).
 
    Note that the **Auto Config** will try to find it in your PATH, but it can fail if it's not there.
@@ -41,7 +53,7 @@ What if it is not correct?
     in a way that for some reason when getting the variables of one interpreter, it gathers the info from another
     interpreter (thus mixing the interpreter and the actual libraries).
     
-    Usually running (from the command prompt) the file that gives that info for Pydev can help you discovering the
+    Usually running (from the command prompt) the file that gives that info for PyDev can help you discovering the
     problem in your configuration (interpreterInfo.py):
     
         That file is usually located at: eclipse\plugins\org.python.pydev_$version$\PySrc\interpreterInfo.py,
@@ -66,7 +78,7 @@ What if I add something new in my System PYTHONPATH after configuring it?
     
     Note that if you added a library that's already under a folder in the PYTHONPATH, you have to at least go to
     the interpreter preferences and press apply so that it clears its internal caches (after the configuration
-    is done, things are set in stone for Pydev) 
+    is done, things are set in stone for PyDev) 
 
 
 Libraries
@@ -86,8 +98,10 @@ _`Forced Builtins`
 -------------------
 
     The Forced builtin libs are the libraries that are built-in the interpreter, such as **__builtin__, sha, etc** or
-    libraries that should forcefully analyzed through shell introspection (the other option to analyze modules
-    with too much runtime information is providing `Predefined Completions`_).
+    libraries that should forcefully analyzed through a shell (i.e.: to analyze modules in this list, PyDev will spawn
+    a shell and do a dir() on the module to get the available tokens for completions and code-analysis) -- still, 
+    sometimes even that is not always possible, in which case, `Predefined Completions`_ may be used to let PyDev know 
+    about the structure of the code.
     
     For **Python**, you should have around **50** entries 
     
@@ -97,9 +111,9 @@ _`Forced Builtins`
     Microsoft, Microsoft.Windows.Themes, System, System.IO, etc. 
     
     Additionally, you may add other libraries that you want to treat as 
-    builtins, such as **os, wxPython, OpenGL, etc**. This is very important, because Pydev works 
+    builtins, such as **os, wxPython, OpenGL, etc**. This is very important, because PyDev works 
     on the java side only with static information, but some modules don't have much information when analyzed 
-    statically, so, Pydev creates a shell to get information on those. Another important
+    statically, so, PyDev creates a shell to get information on those. Another important
     thing is that they **must** be on your system pythonpath (otherwise, the shell will be unable to get that information). 
     
     
@@ -148,7 +162,7 @@ _`Predefined Completions`
     
     **Note 2**: .pypredef files are not searched in subfolders
     
-    **Optionally a QScintilla .api file may be added**. When this is done, Pydev will try to create 
+    **Optionally a QScintilla .api file may be added**. When this is done, PyDev will try to create 
     .pypredef files from that .api file and will add the folder containing those to the PYTHONPATH.
     Note that this conversion is still in beta and the file may not be correctly generated, so,
     keep an eye for errors logged when a code-completion that would use those modules (while it
@@ -182,7 +196,7 @@ String substitution variables
 Cygwin users
 --------------- 
     
-    Pydev currently has no support for cygwin. Currently you'll be able to configure the interpreter 
+    PyDev currently has no support for cygwin. Currently you'll be able to configure the interpreter 
     with cygwin, but there are still other related problems (mostly on converting between windows and cygwin paths as needed).
 
 

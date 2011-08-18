@@ -28,6 +28,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -258,7 +259,7 @@ public class PyBreakpoint extends LineBreakpoint {
             
         } catch (Exception e) {
             //Some error happened determining it. Match anything.
-            PydevPlugin.log("Error determining breakpoint context. Breakpoint at: "+file+" will match any context.", e);
+            Log.log("Error determining breakpoint context. Breakpoint at: "+file+" will match any context.", e);
             functionName = "None";
         }
         return functionName;

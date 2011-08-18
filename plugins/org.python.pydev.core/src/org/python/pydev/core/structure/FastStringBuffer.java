@@ -60,6 +60,9 @@ public final class FastStringBuffer{
      */
     public FastStringBuffer(String s, int additionalSize) {
         this.count = s.length();
+        if(additionalSize < 0){
+            additionalSize = 0;
+        }
         value = new char[this.count + additionalSize];
         s.getChars(0, this.count, value, 0);
     }
@@ -126,6 +129,14 @@ public final class FastStringBuffer{
      */
     public FastStringBuffer append(boolean b) {
         append(String.valueOf(b));
+        return this;
+    }
+    
+    /**
+     * Appends a double to the buffer.
+     */
+    public FastStringBuffer append(double b) {
+        append(Double.valueOf(b));
         return this;
     }
 
@@ -217,6 +228,17 @@ public final class FastStringBuffer{
             this.count--;
         }
     }
+    
+    /**
+     * @param length
+     */
+    public void deleteLastChars(int charsToDelete) {
+        this.count -= charsToDelete;
+        if(this.count < 0){
+            this.count = 0;
+        }
+    }
+
 
     /**
      * @return the char given at a specific position of the buffer (no bounds check)
@@ -236,6 +258,20 @@ public final class FastStringBuffer{
         }
         System.arraycopy(value, offset, value, offset + len, count - offset);
         str.getChars(0, len, value, offset);
+        count = newCount;
+        return this;
+    }
+    /**
+     * Inserts a string at a given position in the buffer.
+     */
+    public FastStringBuffer insert(int offset, FastStringBuffer str) {
+        int len = str.length();
+        int newCount = count + len;
+        if (newCount > value.length) {
+            resizeForMinimum(newCount);
+        }
+        System.arraycopy(value, offset, value, offset + len, count - offset);
+        System.arraycopy(str.value, 0, value, offset, str.count);
         count = newCount;
         return this;
     }
@@ -347,6 +383,15 @@ public final class FastStringBuffer{
 
     public int indexOf(char c) {
         for(int i=0;i<this.count;i++){
+            if(c == this.value[i]){
+                return i;
+            }
+        }
+        return -1;
+    }
+    
+    public int indexOf(char c, int fromOffset) {
+        for(int i=fromOffset;i<this.count;i++){
             if(c == this.value[i]){
                 return i;
             }
@@ -511,6 +556,35 @@ public final class FastStringBuffer{
         }
         return lines;
     }
+
+    public FastStringBuffer insertN(int pos, char c, int repetitions) {
+        FastStringBuffer other = new FastStringBuffer(repetitions);
+        other.appendN(c, repetitions);
+        insert(pos, other);
+        return this;
+    }
+
+    
+    public String getLastWord() {
+        FastStringBuffer lastWordBuf = new FastStringBuffer(this.count);
+        int i;
+        //skip whitespaces in the end
+        for(i=this.count-1;i>=0;i--){
+            if(!Character.isWhitespace(this.value[i])){
+                break;
+            }
+        }
+        //actual word
+        for(;i>=0;i--){
+            if(Character.isWhitespace(this.value[i])){
+                break;
+            }
+            lastWordBuf.append(this.value[i]);
+        }
+        lastWordBuf.reverse();
+        return lastWordBuf.toString();
+    }
+
 
     
 }

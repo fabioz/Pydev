@@ -23,7 +23,8 @@ public class ScopeVarAssignVisitorTestCase extends AbstractIOTestCase {
 	@Override
 	public void runTest() throws Throwable {
 		StringBuffer buffer = new StringBuffer();
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(data.source), new PythonNatureStub());
+		ModuleAdapter module = VisitorFactory.createModuleAdapter(
+		        null, null, new Document(data.source), new PythonNatureStub(), createVersionProvider());
 		ScopeAssignedVisitor visitor = VisitorFactory.createContextVisitor(ScopeAssignedVisitor.class, module.getASTNode(), module, module);
 
 		assertTrue(visitor.getAll().size() > 0);

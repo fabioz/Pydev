@@ -15,19 +15,30 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.IInputValidator;
+import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.dialogs.ISelectionStatusValidator;
 import org.python.pydev.core.docutils.StringUtils;
@@ -41,7 +52,7 @@ import org.python.pydev.plugin.PydevPlugin;
  * need to pass the key which it should manage -- internally values are stored as a list separated
  * by '|').
  */
-public class SelectExistingOrCreateNewDialog extends TreeSelectionDialog {
+public class SelectExistingOrCreateNewDialog extends TreeSelectionDialog implements SelectionListener {
 	
 	/**
 	 * Text when nothing is selected (so, anything written will be the text executed).
@@ -68,6 +79,10 @@ public class SelectExistingOrCreateNewDialog extends TreeSelectionDialog {
 	 * and it should be used when the user presses OK to save the current commands.
 	 */
 	private List<String> input;
+
+    private Button btAdd;
+
+    private Button btRemove;
 	
 
 	/**
@@ -93,7 +108,7 @@ public class SelectExistingOrCreateNewDialog extends TreeSelectionDialog {
 		this.setInput(StringUtils.split(initialValue, '|'));
 		this.setAllowMultiple(false);
 		this.setValidator(createValidator());
-		
+		this.setHelpAvailable(false);
 		//as we have many special things about deleting, filtering in this class, it's important that
 		//elements are up to date.
 		this.updateInThread = false;
@@ -156,23 +171,11 @@ public class SelectExistingOrCreateNewDialog extends TreeSelectionDialog {
 	    getTreeViewer().getTree().addKeyListener(new KeyListener() {
 			
 	    	/**
-	    	 * Support for deleting the current selection on del.
+	    	 * Support for deleting the current selection on del or backspace.
 	    	 */
 			public void keyReleased(KeyEvent e) {
-				if(e.keyCode == SWT.DEL){
-					IStructuredSelection selection = (IStructuredSelection) getTreeViewer().getSelection();
-					List<String> list = selection.toList();
-					for (String s : list) {
-						if(NEW_ENTRY_TEXT.equals(s)){
-							continue; //don't delete this one.
-						}
-						input.remove(s);
-					}
-					saveCurrentCommands(null);
-					
-					//updates the selection
-					setFilter(text.getText(), new NullProgressMonitor(), false);
-					updateSelectionIfNothingSelected(getTreeViewer().getTree());
+				if(e.keyCode == SWT.DEL || e.keyCode == SWT.BS){
+					removeSelection();
 				}
 			}
 			
@@ -180,9 +183,81 @@ public class SelectExistingOrCreateNewDialog extends TreeSelectionDialog {
 				
 			}
 		});
+	    
+	    Tree tree = getTreeViewer().getTree();
+	    GridData layoutData = (GridData) tree.getLayoutData();
+	    layoutData.grabExcessHorizontalSpace = true;
+	    layoutData.grabExcessVerticalSpace = true;
+	    layoutData.horizontalAlignment = GridData.FILL;
+	    layoutData.verticalAlignment = GridData.FILL;
+	    return ret;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.ui.dialogs.ElementTreeSelectionDialog#createTreeViewer(org.eclipse.swt.widgets.Composite)
+	 */
+	@Override
+	protected TreeViewer createTreeViewer(Composite parent) {
+	    Composite composite = new Composite(parent, SWT.None);
+	    GridLayout gridLayout = new GridLayout(2, false);
+	    gridLayout.marginWidth = 0;
+        composite.setLayout(gridLayout);
+	    GridData layoutData = new GridData(GridData.FILL_BOTH);
+        composite.setLayoutData(layoutData);
+	    
+	    TreeViewer ret = super.createTreeViewer(composite);
+	    
+        Composite buttonBox = new Composite(composite, SWT.NULL);
+        GridData gridData = new GridData(SWT.END, SWT.FILL, false, false);
+        buttonBox.setLayoutData(gridData);
+        
+        
+        GridLayout layout = new GridLayout(1, true);
+        layout.marginWidth = 0;
+        buttonBox.setLayout(layout);
+        btAdd = createPushButton(buttonBox, "Add");
+        btRemove = createPushButton(buttonBox, "Remove (DEL)");
+        
 	    return ret;
 	}
 
+	
+    private Button createPushButton(Composite parent, String text) {
+        Button button = new Button(parent, SWT.PUSH);
+        button.setText(text);
+        button.setFont(parent.getFont());
+        GridData data = new GridData(GridData.FILL_HORIZONTAL);
+        int widthHint = convertHorizontalDLUsToPixels(button, IDialogConstants.BUTTON_WIDTH);
+        data.widthHint = Math.max(widthHint, button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x);
+        button.setLayoutData(data);
+
+        button.addSelectionListener(this);
+        return button;
+    }
+
+    
+    /**
+     * Returns the number of pixels corresponding to the
+     * given number of horizontal dialog units.
+     * <p>
+     * Clients may call this framework method, but should not override it.
+     * </p>
+     *
+     * @param control the control being sized
+     * @param dlus the number of horizontal dialog units
+     * @return the number of pixels
+     */
+    protected int convertHorizontalDLUsToPixels(Control control, int dlus) {
+        GC gc = new GC(control);
+        gc.setFont(control.getFont());
+        int averageWidth = gc.getFontMetrics().getAverageCharWidth();
+        gc.dispose();
+
+        double horizontalDialogUnitSize = averageWidth * 0.25;
+
+        return (int) Math.round(dlus * horizontalDialogUnitSize);
+    }
+	
 	protected Point getInitialSize(){
 	    return memento.getInitialSize(super.getInitialSize(), getShell());
 	}
@@ -197,6 +272,8 @@ public class SelectExistingOrCreateNewDialog extends TreeSelectionDialog {
 	 */
 	@SuppressWarnings("unchecked")
 	protected void computeResult() {
+	    doFinalUpdateBeforeComputeResult();
+
 	    IStructuredSelection selection = (IStructuredSelection) getTreeViewer().getSelection();
 	    List list = selection.toList();
 	    if(list.size() == 1){
@@ -231,6 +308,43 @@ public class SelectExistingOrCreateNewDialog extends TreeSelectionDialog {
 	    }
 	}
 	
+    public void widgetSelected(SelectionEvent e) {
+        Object source = e.getSource();
+        if(source == btAdd){
+            InputDialog dialog = new InputDialog(
+                    getShell(), 
+                    "Add custom command to list", 
+                    "Add custom command to list", 
+                    "", 
+                    new IInputValidator() {
+                        
+                        public String isValid(String newText) {
+                            if(newText.trim().length() == 0){
+                                return "Command not entered.";
+                            }
+                            if(input.contains(newText)){
+                                return "Command already entered.";
+                            }
+                            return null;
+                        }
+                    });
+            int open = dialog.open();
+            if(open == InputDialog.OK){
+                String value = dialog.getValue();
+                input.add(value);
+                saveCurrentCommands(value); //Save it.
+                updateGui();
+            }
+        }else if(source == btRemove){
+            removeSelection();
+            
+        }
+    }
+
+    public void widgetDefaultSelected(SelectionEvent e) {
+        //Do nothing.
+    }
+
 	
 	/**
 	 * Creates a new command (should be used only when OK is pressed, as it will add that
@@ -254,7 +368,7 @@ public class SelectExistingOrCreateNewDialog extends TreeSelectionDialog {
 	 */
 	private void saveCurrentCommands(String newCommand) {
 		ArrayList<String> newCommands = new ArrayList<String>(input);
-		if(newCommand != null){
+		if(newCommand != null && !input.contains(newCommand)){
 			newCommands.add(newCommand);
 		}
 		newCommands.remove(NEW_ENTRY_TEXT); //never save this entry.
@@ -343,6 +457,27 @@ public class SelectExistingOrCreateNewDialog extends TreeSelectionDialog {
 	protected boolean matchItemToShowInTree(Object element) {
 		return this.currentlyAccepted.contains(element);
 	}
+
+    private void updateGui() {
+        setFilter(text.getText(), new NullProgressMonitor(), false);
+        updateSelectionIfNothingSelected(getTreeViewer().getTree());
+    }
+
+    private void removeSelection() {
+        IStructuredSelection selection = (IStructuredSelection) getTreeViewer().getSelection();
+        List<String> list = selection.toList();
+        for (String s : list) {
+        	if(NEW_ENTRY_TEXT.equals(s)){
+        		continue; //don't delete this one.
+        	}
+        	input.remove(s);
+        }
+        saveCurrentCommands(null);
+        
+        //updates the selection
+        updateGui();
+    }
+
 
 }
 

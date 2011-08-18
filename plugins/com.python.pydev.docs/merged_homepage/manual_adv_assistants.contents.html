@@ -8,7 +8,7 @@
 <P>They are ALL activated through <strong>Ctrl+1</strong>, but which one(s) will show depend on the context it is activated.</P>
 
 <p>
-Currently, there are 7 content assistants in the Pydev:
+Currently, there are 7 content assistants in the PyDev:
 </p>
 
 
@@ -38,7 +38,7 @@ Currently, there are 7 content assistants in the Pydev:
 <p>
 Let's say that you have the code below, and that the code-analysis has just seen that the 'xmlreader' token was undefined 
 (this is important, as we cannot make this analysis before the token was generated). In this case, we have 2 options offered,
-one to fix that importing the token and another one saying that pydev should ignore that error. The example below shows it in action:
+one to fix that importing the token and another one saying that PyDev should ignore that error. The example below shows it in action:
 <br/><br/>
 <img border="1" src="images/contentassist/ctrl_1_fix_import1.png"/> <br/><br/>
 If we let the cursor at the undefined token line and press Ctrl+1, we get:
@@ -48,7 +48,7 @@ If we let the cursor at the undefined token line and press Ctrl+1, we get:
 <img border="1" src="images/contentassist/ctrl_1_fix_import3.png"/>
 <br/><br/>
 Now, if we had chosen the third option (<strong>@UndefinedVariable</strong>), a note would have been entered in the code, 
-to warn Pydev to ignore that error, as pointed below...<br/><br/>
+to warn PyDev to ignore that error, as pointed below...<br/><br/>
 <img border="1" src="images/contentassist/ctrl_1_ignoreerror.png"/>
 </p>
 <br/>
@@ -57,9 +57,9 @@ to warn Pydev to ignore that error, as pointed below...<br/><br/>
 	
 <h3>Don't analyze module</h3>
 <p>
-	Pydev can accept a 'note' to warn it not to make code-analysis at all in some module. In order to do
+	PyDev can accept a 'note' to warn it not to make code-analysis at all in some module. In order to do
 	that' you can go to the first line of the module and press 'Ctrl+1' and choose the <strong>@PydevCodeAnalysisIgnore</strong> flag.
-	Doing that will add a note in the code to warn that this module should not be analyzed by Pydev.<br/><br/>
+	Doing that will add a note in the code to warn that this module should not be analyzed by PyDev.<br/><br/>
 	If you use automatically generated files, it might be useful to put that warning on those files, as it would not be 
 	useful to analyze those files. The example below shows the result of this action.<br/><br/>
 </p>
@@ -76,7 +76,7 @@ to warn Pydev to ignore that error, as pointed below...<br/><br/>
 <br/>
 	
 <p>
-<h2>Pydev 'Open Source' content assistants</h2> 
+<h2>PyDev 'Open Source' content assistants</h2> 
 </p>
 <br/>
 	
@@ -139,11 +139,6 @@ to warn Pydev to ignore that error, as pointed below...<br/><br/>
 <image_area>manual.png</image_area>
 
 
-<quote_area><strong>Pydev 101</strong></quote_area>
+<quote_area><strong>PyDev 101</strong></quote_area>
 
-<next>manual_adv_coverage</next>
-<title_next>(Code Coverage)</title_next>
-<prev>manual_adv_refactoring</prev>
-<title_prev>(Refactoring)</title_prev>
-<root>manual_adv_features</root>
 </doc>

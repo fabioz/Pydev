@@ -9,17 +9,19 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
-import java.io.Serializable;
-
-public interface IInfo extends Serializable {
+public interface IInfo {
 
     /**
      * @return the name of the representing token
+     * 
+     * Cannot be null.
      */
     String getName();
 
     /**
      * @return the name of the module that declares this information
+     * 
+     * Cannot be null.
      */
     String getDeclaringModuleName();
     
@@ -30,6 +32,8 @@ public interface IInfo extends Serializable {
      *          pass
      *          
      * If this is the representation for the method m1, the path will be 'Test'
+     * 
+     * This field may be null!
      */
     String getPath();
     

@@ -99,4 +99,14 @@ public interface IInterpreterInfo {
     
     
     public List<String> getPredefinedCompletionsPath();
+
+    /**
+     * 
+     */
+    public void stopBuilding();
+
+    /**
+     * 
+     */
+    public void startBuilding();
 }

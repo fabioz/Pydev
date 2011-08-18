@@ -17,9 +17,8 @@ import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
-import org.python.pydev.plugin.PydevPlugin;
-
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.messages.IMessage;
 import com.python.pydev.analysis.messages.Message;
@@ -50,9 +49,19 @@ public class TabNanny{
         List<Tuple3<String, Integer, Boolean>> foundTabs = new ArrayList<Tuple3<String, Integer, Boolean>>();
         List<Tuple3<String, Integer, Boolean>> foundSpaces = new ArrayList<Tuple3<String, Integer, Boolean>>();
         
-        TabNannyDocIterator it = new TabNannyDocIterator(doc);
+        TabNannyDocIterator it;
+        try {
+            it = new TabNannyDocIterator(doc);
+        } catch (BadLocationException e) {
+            return ret;
+        }
         while(it.hasNext()){
-            Tuple3<String, Integer, Boolean> indentation = it.next();
+            Tuple3<String, Integer, Boolean> indentation;
+            try {
+                indentation = it.next();
+            } catch (BadLocationException e) {
+                return ret;
+            }
             //it can actually be in both (if we have spaces and tabs in the same indent line).
             if(indentation.o1.indexOf('\t') != -1){
                 foundTabs.add(indentation);
@@ -196,7 +205,7 @@ public class TabNanny{
                         startLine, startLine, startCol, endCol, analysisPrefs));
                 
             } catch (BadLocationException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             
         }

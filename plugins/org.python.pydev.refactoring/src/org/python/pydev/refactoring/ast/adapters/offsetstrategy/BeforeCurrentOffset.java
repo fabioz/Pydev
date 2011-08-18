@@ -10,8 +10,8 @@ package org.python.pydev.refactoring.ast.adapters.offsetstrategy;
 
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
-import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 
 public class BeforeCurrentOffset extends BeginOffset {

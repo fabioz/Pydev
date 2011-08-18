@@ -9,10 +9,14 @@
  *******************************************************************************/
 package org.python.pydev.dltk.console.ui.internal;
 
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.dltk.console.InterpreterResponse;
 
 public interface ICommandHandler {
     
-    void handleCommand(String userInput, ICallback<Object, InterpreterResponse> onResponseReceived);
+    void handleCommand(
+            String userInput, 
+            ICallback<Object, InterpreterResponse> onResponseReceived,
+            ICallback<Object, Tuple<String, String>> onContentsReceived);
 }

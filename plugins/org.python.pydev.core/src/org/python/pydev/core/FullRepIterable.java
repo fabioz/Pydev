@@ -123,6 +123,11 @@ public class FullRepIterable implements Iterable<String>{
         }
     }
     
+    /**
+     * If 'aa' is passed, return String[]{'', 'aa'}
+     * If 'aa.bb' is passed, return String[]{'aa', 'bb'}
+     * If 'aa.bb.cc' is passed, return String[]{'aa.bb', 'cc'}
+     */
     public static String[] headAndTail(String fullRep){
         return headAndTail(fullRep, true);
     }
@@ -216,6 +221,17 @@ public class FullRepIterable implements Iterable<String>{
             return "";
         }
         return currentModuleName.substring(0, i);
+    }
+    
+    /**
+     * @return All that is after the first dot (not including the dot)
+     */
+    public static String getWithoutFirstPart(String currentModuleName) {
+        int i = currentModuleName.indexOf('.');
+        if(i == -1){
+            return "";
+        }
+        return currentModuleName.substring(i+1);
     }
 
     

@@ -74,7 +74,8 @@ public class GeneratePropertiesTestCase extends AbstractIOTestCase {
 	}
 
 	private MockupGeneratePropertiesRequestProcessor setupRequestProcessor(MockupGeneratePropertiesConfig config) throws Throwable {
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(data.source), new PythonNatureStub());
+		ModuleAdapter module = VisitorFactory.createModuleAdapter(
+		        null, null, new Document(data.source), new PythonNatureStub(), createVersionProvider());
 		List<IClassDefAdapter> classes = module.getClasses();
 		assertTrue(classes.size() > 0);
 

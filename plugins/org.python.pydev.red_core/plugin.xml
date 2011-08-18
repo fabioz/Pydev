@@ -28,11 +28,15 @@
     <viewerContentBinding viewerId="com.aptana.explorer.view">
         <includes>
             <contentExtension pattern="org.python.pydev.navigator.pythoncontent"/>
-            <contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/> 
             <contentExtension pattern="org.python.pydev.navigator.filters.*"/> 
         </includes>
     </viewerContentBinding>
 </extension>
+
+<extension point="org.eclipse.core.runtime.preferences">
+    <initializer class="org.python.pydev.red_core.preferences.PydevRedCorePreferencesInitializer"/>
+</extension>
+
 
 
 </plugin>

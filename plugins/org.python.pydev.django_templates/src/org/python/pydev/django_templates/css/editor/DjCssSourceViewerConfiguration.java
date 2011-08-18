@@ -19,7 +19,6 @@ import org.python.pydev.django_templates.IDjConstants;
 import org.python.pydev.django_templates.common.DjDoubleClickStrategy;
 import org.python.pydev.django_templates.completions.DjContentAssistProcessor;
 import org.python.pydev.django_templates.editor.DjPartitionerSwitchStrategy;
-import org.python.pydev.django_templates.editor.DjSourceConfiguration;
 
 import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonEditorPlugin;
@@ -30,7 +29,6 @@ import com.aptana.editor.common.scripting.QualifiedContentType;
 import com.aptana.editor.common.text.rules.CompositePartitionScanner;
 import com.aptana.editor.css.CSSSourceConfiguration;
 import com.aptana.editor.css.ICSSConstants;
-import com.aptana.editor.html.HTMLSourceViewerConfiguration;
 
 /**
  * @author Fabio Zadrozny
@@ -100,14 +98,12 @@ public class DjCssSourceViewerConfiguration extends CompositeSourceViewerConfigu
 
     @Override
     protected IContentAssistProcessor getContentAssistProcessor(ISourceViewer sourceViewer, String contentType) {
-        if(DjSourceConfiguration.DEFAULT.equals(contentType) || IDocument.DEFAULT_CONTENT_TYPE.equals(contentType)){
-            return new DjContentAssistProcessor(contentType, null);
+        if(DjCssSourceConfiguration.DEFAULT.equals(contentType)){
+            return DjCssSourceConfiguration.getDefault().getContentAssistProcessor(getEditor(), contentType);
         }
-        AbstractThemeableEditor editor = getEditor();
         //Note: The HTMLSourceViewerConfiguration should get the CSS content assist based on the content type. 
-        IContentAssistProcessor cssContentAssistProcessor = HTMLSourceViewerConfiguration.getContentAssistProcessor(contentType, editor);
-        if(CSSSourceConfiguration.DEFAULT.equals(contentType)){
-            System.out.println("Default: "+contentType+" -- "+cssContentAssistProcessor);
+        IContentAssistProcessor cssContentAssistProcessor = CSSSourceConfiguration.getDefault().getContentAssistProcessor(getEditor(), contentType);
+        if(CSSSourceConfiguration.DEFAULT.equals(contentType) || IDocument.DEFAULT_CONTENT_TYPE.equals(contentType)){
             return new DjContentAssistProcessor(contentType, cssContentAssistProcessor);
         }
         return cssContentAssistProcessor;

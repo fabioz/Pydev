@@ -48,7 +48,19 @@ public class JythonTest extends TestCase {
 	private static final boolean RUN_TESTS_ON_SAME_PROCESS = true;
 	
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(JythonTest.class);
+        try {
+            JythonTest builtins = new JythonTest();
+            builtins.setUp();
+            builtins.testJythonTestsOnSeparateProcess();
+            builtins.tearDown();
+            
+            junit.textui.TestRunner.run(JythonTest.class);
+
+            System.out.println("Finished");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
     }
 
     protected void setUp() throws Exception {
@@ -153,6 +165,8 @@ public class JythonTest extends TestCase {
         System.out.println(StringUtils.format("Running: %s", f));
         
         String sep = SimpleRunner.getPythonPathSeparator();
+        assertTrue(new File(TestDependent.JYTHON_ANT_JAR_LOCATION).exists());
+        assertTrue(new File(TestDependent.JYTHON_JUNIT_JAR_LOCATION).exists());
         String pythonpath = TestDependent.TEST_PYDEV_PLUGIN_LOC+"pysrc/"+sep+
             TestDependent.JYTHON_ANT_JAR_LOCATION + sep+
             TestDependent.JYTHON_JUNIT_JAR_LOCATION;

@@ -24,7 +24,7 @@ Below there are some of the features available (version 1.0.2)
  * Refactoring with BRM
  * Go to definition with BRM
  * Code Coverage
- * Pylint integration
+ * PyLint integration
  * TODO tasks
  * Content Assistants (Ctrl+1)
      * Assign result to attribute or local

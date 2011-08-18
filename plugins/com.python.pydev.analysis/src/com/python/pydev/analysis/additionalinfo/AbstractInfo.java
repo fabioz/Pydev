@@ -9,23 +9,49 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
+import java.io.Serializable;
 
-public abstract class AbstractInfo implements IInfo{
+import org.python.pydev.core.ObjectsPool;
+
+
+public abstract class AbstractInfo implements IInfo, Serializable{
+    /**
+     * Changed for 2.1
+     */
+    private static final long serialVersionUID = 3L;
+
     /**
      * the name
      */
-    public String name;
+    public final String name;
     
     /**
      * This is the path (may be null)
      */
-    public String path;
+    public final String path;
     
     /**
      * the name of the module where this function is declared
      */
-    public String moduleDeclared;
+    public final String moduleDeclared;
 
+
+    public AbstractInfo(String name, String moduleDeclared, String path) {
+        synchronized (ObjectsPool.lock) {
+            this.name = ObjectsPool.internUnsynched(name);
+            this.moduleDeclared = ObjectsPool.internUnsynched(moduleDeclared);
+            this.path = ObjectsPool.internUnsynched(path);
+        }
+    }
+    
+    /**
+     * Same as the other constructor but does not intern anything.
+     */
+    public AbstractInfo(String name, String moduleDeclared, String path, boolean doNotInternOnThisContstruct) {
+        this.name = name;
+        this.moduleDeclared = moduleDeclared;
+        this.path = path;
+    }
 
     public String getName() {
         return name;

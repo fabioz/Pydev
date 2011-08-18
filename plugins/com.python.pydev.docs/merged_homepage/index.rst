@@ -1,12 +1,51 @@
-What is Pydev?
+..
+    <right_area>
+    <p class="italic">"Personally, the pleasure I take in
+        developping software is half linked to the language, half to the
+        programming tools.
+        
+        With PyDev, I've got everything."</p>
+    <p>
+        Franck Perez
+    </p>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    
+    <p class="italic">
+    "PyDev is a core tool in our development process, and is a major reason
+    why Python has become viable for us as a production language.  I look
+    forward to each new release of PyDev as it is continually evolving into
+    a more and more powerful development environment."
+    </p>
+    <p>
+        Eric Wittmann, Zoundry LLC.
+    </p>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <img alt="PyDev" src="images/eclipse_award.png"/>
+    </right_area>
+    
+    
+    <image_area></image_area>
+    
+    
+    <quote_area></quote_area>
+
+What is PyDev?
 =================
 
-Pydev is a **Python IDE** for **Eclipse**, which may be used in **Python**, **Jython** and **IronPython** development.
+PyDev is a **Python IDE** for **Eclipse**, which may be used in **Python**, **Jython** and **IronPython** development.
 
 .. _Features Matrix: manual_adv_features.html
-.. _History for Pydev Extensions: history_pydev_extensions.html
-.. _History for Pydev: history_pydev.html
-.. _Pydev Blog: http://pydev.blogspot.com/
+.. _History for PyDev Extensions: history_pydev_extensions.html
+.. _History for PyDev: history_pydev.html
+.. _PyDev Blog: http://pydev.blogspot.com/
 
 .. _Django Integration: manual_adv_django.html
 .. _Code Completion: manual_adv_complctx.html
@@ -21,140 +60,146 @@ Pydev is a **Python IDE** for **Eclipse**, which may be used in **Python**, **Jy
 .. _Interactive console: manual_adv_interactive_console.html
 .. _Syntax highlighting: manual_adv_editor_prefs.html
 .. _Unittest integration: manual_adv_pyunit.html
-
+.. _Code coverage: manual_adv_coverage.html
+.. _video: video_pydev_20.html
 
 It comes with many goodies such as:
 
- * `Django integration`_
- * `Code completion`_
- * `Code completion with auto import`_
- * `Syntax highlighting`_
- * `Code analysis`_
- * `Go to definition`_
- * `Refactoring`_
- * `Mark occurrences`_
- * `Debugger`_
- * `Remote debugger`_
- * `Tokens browser`_
- * `Interactive console`_
- * `Unittest integration`_
- * **and many others**:
++----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------+
+| * `Django integration`_                                                                                                                                                                                                                                  |                                                                                                                                                  |
+| * `Code completion`_                                                                                                                                                                                                                                     |                                                                                                                                                  |
+| * `Code completion with auto import`_                                                                                                                                                                                                                    |                                                                                                                                                  |
+| * `Syntax highlighting`_                                                                                                                                                                                                                                 |                                                                                                                                                  |
+| * `Code analysis`_                                                                                                                                                                                                                                       | .. raw:: html                                                                                                                                    |
+| * `Go to definition`_                                                                                                                                                                                                                                    |                                                                                                                                                  |
+| * `Refactoring`_                                                                                                                                                                                                                                         |    <a href="video_pydev_20.html" border=0><img class="link" src="images/video/snap.png" alt="PyDev 2.0 video" title="Click to see video" /></a>  |
+| * `Mark occurrences`_                                                                                                                                                                                                                                    |                                                                                                                                                  |
+| * `Debugger`_                                                                                                                                                                                                                                            |                                                                                                                                                  |
+| * `Remote debugger`_                                                                                                                                                                                                                                     |                                                                                                                                                  |
+| * `Tokens browser`_                                                                                                                                                                                                                                      |                                                                                                                                                  |
+| * `Interactive console`_                                                                                                                                                                                                                                 |                                                                                                                                                  |
+| * `Unittest integration`_                                                                                                                                                                                                                                |                                                                                                                                                  |
+| * `Code coverage`_                                                                                                                                                                                                                                       |                                                                                                                                                  |
+| * **and many others**:                                                                                                                                                                                                                                   |                                                                                                                                                  |
++----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------+
 
 For more details on the provided features, check the `Features Matrix`_.
 
 
-Release 1.6.5
-==============
+.. _`Getting started guide`: manual_101_root.html
 
- * Syntax highlighting now has options to have {}, [] and () as well as operators in different colors
-
- * Code generation for classes and methods:
- 
-     Note that this is an initial implementation of the idea, aimed as those that use a TDD (Test Driven Development) approach,
-     so, one can create the test first and generate the classes/methods later on from using shortcuts or quick-fixes (which is 
-     something that those using JDT -- Java Development Tools -- in Eclipse should be already familiar with). This feature 
-     should be already usable on a number of situations but it's still far from being 100% complete.
- 
-     * Alt+Shift+S C can be used to create a class for the currently selected token
-     * Alt+Shift+S M can be used to create a method for the currently selected token
-     * Ctrl+1 has as a quick fix for creating a class or method
-
- * Debugger
-     * When discovering encoding on Python 3.x, the file is opened as binary
-     * Remote debugger (pydevd.settrace()) properly synchronized
-     * Fixed debugger issue on interpreter shutdown on Python 2.7
-
- * Bug fixes:    
-     * Fixed issue when doing code-completion on a line that started with some token that started with 'import'. e.g.: import_foo = a
-     * Fixed import when running unittest with coverage
-     * Fixed extract local (could extract to wrong location)    
-     * Fixed NPE when requesting print of arguments in the context-information tooltips
-     * Fixed AttributeError with pydevconsole on Python 3.x
-
-
-Release 1.6.4
-==============
-
- * Improved `Unittest integration`_:
- 
-     * Created a PyUnit view (with a red/green bar) which can be used to see the results of tests and relaunching them
-     * The default test runner now allows parallel execution (distributing tests by module or individually)
-     * The nose and py.test test runners are also supported now
-
- * Major Bug Fixed: existing interpreters could be corrupted when adding a new one
-
- * Fixed AttributeError on console startup in Python 3.0
- 
- * Added theming and automatic sash orientation to the pydev code coverage view
- 
- * Patch by frigo7: When creating a new remote debugger target, the terminated ones are removed
- 
- * Patch by frigo7: compare editor properly showing the revision information and fixed broken shortcuts (e.g.: ctrl+z)
- 
- * Read-only files no longer editable in pydev actions
- 
- * Fixed issue of remaining \\r on python 3.0 on input()
- 
- * The pydev parser is now properly dealing with bom (utf-8)
- 
- * Assign to local: if method starts with '_', the leading '_' is not added to the local
+Important
+==========
+First time users are strongly advised to read the `Getting started guide`_  which explains how to properly configure PyDev
 
 
 
-Release 1.6.3
-==============
+Release 2.2.1
+===============
 
 
-* Improved editor preferences page when using Aptana themes
+**Quick-outline**
 
-* Icons updated to work better with dark backgrounds
+    .. image:: images/index/quick_outline_parent.png
+        :class: no_border
+        
 
-* Handling code-completion for keywords (e.g.: a method definition with a parameter 'call' will have a 'call=' completion on the caller)
+    * Parent methods may be shown with a 2nd Ctrl+O.
+    * The initial node is selected with the current location in the file.
 
-* Showing a better tooltip for parameters
+**Extract local refactoring**
 
-* No longer marking the Django templates editor as the default editor for css nor html (it can be restored at window > preferences > general > editors > file associations)
+    .. image:: images/index/refactor_duplicate.png
+        :class: no_border
+        
+    * Option to replace duplicates.
+    * Fixed issue where wrong grammar could be used.
+        
+**Others**
 
-* **Globals Browser**
-    * Improved message in globals browser to better explan its features:
-        * Exact match with a whitespace in the end
-        * CamelCase matching (so, entering only TC would be enough to find a class named TestCase)  
-        * Dotted names may be used to filter through the packages (so, dj.ut.TC would find a TestCase class defined in the django.utils package)
-    * Fix: When a space is added in the end, an exact match is done
-    * Fix: No longer restoring items that don't exist anymore
+    * Improved handling of Ctrl+Shift+T so that no keybinding conflict takes place (now it'll be only active on the PyDev views/editor).
+    * PyLint markers always removed on a project clean.
+    * If the standard library source files are not found, more options are presented.
+    * If the completion popup is focused and shift is pressed on a context insensitive completion, a local import is done.
+    * Fixed issue where a local import wasn't being added to the correct location.
+    * Fixed error message in debugger when there was no caught/uncaught exception set in an empty workspace.
+    * Performance improvements on hierarchy view.
+    * Django commands may be deleted on dialog with backspace.
+
+
+Release 2.2
+===============
+
+
+Noteworthy
+-----------
+
+**Eclipse 3.7** 
+
+    * Eclipse 3.7 (Indigo) is now supported.
+
+**Break on Exceptions**
+
+    .. image:: images/index/manage_exceptions.png
+        :class: no_border
+        
+    * It's now possible to **break on caught exceptions** in the debugger.
+    * There's an UI to break on caught or uncaught exceptions (menu: Run > Manage Python Exception Breakpoints).
+
+**Hierarchy view**
+
+    .. image:: images/index/hierarchy_view.png
+        :class: no_border
+
+    * UI improved (now only uses SWT -- access through F4 with the cursor over a class).
+
+**PyPy**: 
     
-* Bug Fixes
-    * Fixed issue on dict and set comprehension code analysis
-    * Syntax errors on hover in a debug session not shown
-    * Block preferences page validation before save
-    * Improved django wizard configuration a bit to cover cases where the user does not have django installed or tries to add 'django' as the project name
-    * The example code in the pydev editor preferences is no longer editable
-    * 2to3 only added in the context menu of projects with the pydev nature
-    * If a debug session is terminated, no message saying that the variable can't be resolved in the hover is shown if the debug target is still selected
-    * Fixed path issues in sqlite3 path in django project creation
-    * Fixed issue where quotes could end up in the execfile when they should not be there
-    * Fixed issue where shift right did not work properly because the indent prefixes were not properly set when the tab preference changed
+    * PyDev now supports PyPy (can be configured as a regular Python interpreter).
+
+**Django**
+
+    .. _`Django remote debugging with auto-reload`: manual_adv_remote_debugger.html#django-remote-debugging-with-auto-reload
     
+    * Django configuration in project properties page (improved UI for configuration of the django manage.py and django settings module).
+    * Improved support for debugging Django with autoreload. Details at: `Django remote debugging with auto-reload`_.
 
-    
-What happened to Pydev Extensions?
-====================================
+**Code analysis**
+
+    * Fixed issue where a resolution of a token did not properly consider a try..except ImportError (always went for the first match).
+    * Fixed issue with relative import with wildcards.
+    * Fixed issue with relative import with alias.
+    * Fixed issue where binary files would be wrongly parsed (ended up generating errors in the error log).
+
+**Code completion**
+
+    * Improved sorting of proposals (__*__ come at last)
+
+**Others**
+
+    * Improved ctrl+1 quick fix with local import.
+    * Fixed issue running with py.test.
+    * PyDev test runner working properly with unittest2.
+    * Fixed compatibility issue with eclipse 3.2.
+    * No longer sorting libraries when adding interpreter/added option to select all not in workspace.
+    * Fixed deadlock in the debugger when dealing with multiple threads.
+    * Fixed debugger issue (dictionary changing size during thread creation/removal on python 3.x).
 
 
-Pydev Extensions is now merged with Pydev, and its once closed source code has become open source (on version 1.5.0). 
-Thus, there is no more Pydev Extensions, only the open source Pydev, with all the capabilities of Pydev Extensions
-incorporated.
+**Note**: Java 1.4 is no longer supported (at least Java 5 is required now).
+
+
 
 Development Info
 ====================================
 
-`Pydev Blog`_
+`PyDev Blog`_
 
 Releases History:
 ==================
 
-`History for Pydev`_
+`History for PyDev`_
 
-`History for Pydev Extensions`_
+`History for PyDev Extensions`_
 
  

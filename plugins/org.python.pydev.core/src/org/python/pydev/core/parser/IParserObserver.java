@@ -22,7 +22,11 @@ import org.eclipse.jface.text.IDocument;
 public interface IParserObserver {
     
     /**
-     * every time document gets parsed, it generates a new parse tree
+     * Every time document gets parsed, it generates a new parse tree.
+     * 
+     * Note that it may be called even if there are errors in the file (so, parserChanged will
+     * be called and parserError will be called later on)
+     * 
      * @param root the root of the new AST (abstract syntax tree)
      * @param file the file that has just been analyzed (it may be null)
      * 

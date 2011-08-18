@@ -16,16 +16,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Helper class for finding out about python files below some source folder.
@@ -53,9 +53,25 @@ public class PyFileListing {
             return file;
         }
 
-        /** Returns fully qualified name of module. */
-        public String getModuleName() {
+        /** Returns fully qualified name of the package. */
+        public String getPackageName() {
             return relPath;
+        }
+
+        /**
+         * @return the name of the module represented by this info.
+         */
+        public String getModuleName(FastStringBuffer temp) {
+            String scannedModuleName = this.getPackageName();
+
+            String modName;
+            String name = file.getName();
+            if (scannedModuleName.length() != 0) {
+                modName = temp.clear().append(scannedModuleName).append('.').append(PythonPathHelper.stripExtension(name)).toString();
+            } else {
+                modName = PythonPathHelper.stripExtension(name);
+            }
+            return modName;
         }
     }
 
@@ -98,7 +114,7 @@ public class PyFileListing {
                     }
                     canonicalFolders.add(canonicalizedDir);
                 } catch (IOException e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
 
                 File[] files = null;
@@ -221,7 +237,7 @@ public class PyFileListing {
     /**
      * @return All the IFiles below the current folder that are python files (does not check if it has an __init__ path)
      */
-    public static List<IFile> getAllIFilesBelow(IFolder member) {
+    public static List<IFile> getAllIFilesBelow(IContainer member) {
         final ArrayList<IFile> ret = new ArrayList<IFile>();
         try {
             member.accept(new IResourceVisitor(){

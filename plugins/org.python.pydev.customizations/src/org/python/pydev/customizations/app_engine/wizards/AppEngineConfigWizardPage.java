@@ -8,6 +8,7 @@ package org.python.pydev.customizations.app_engine.wizards;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,11 +33,13 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.customizations.CustomizationsPlugin;
 import org.python.pydev.customizations.CustomizationsUIConstants;
 import org.python.pydev.customizations.app_engine.launching.AppEngineConstants;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
+import org.python.pydev.ui.pythonpathconf.PythonSelectionLibrariesDialog;
 
 /**
  * This wizard page gives the google app engine configuration settings.
@@ -236,30 +239,52 @@ public class AppEngineConfigWizardPage extends WizardPage{
             }
         }
         
-        List<File> libFoldersForPythonpath = gatherLibFoldersForPythonpath(loc.getAbsolutePath());
-        for(File libLoc:libFoldersForPythonpath){
-            if(!libLoc.exists()){
-                setErrorMessage(StringUtils.format("Invalid Google App Engine directory. Did not find: %s", libLoc
-                        .getAbsolutePath()));
-                return false;
-            }
-            if(!libLoc.isDirectory()){
-                setErrorMessage(StringUtils.format("Invalid Google App Engine install. Expected directory for: %s",
-                        libLoc.getAbsolutePath()));
+        File libDir = new File(loc, "lib");
+        if(!libDir.exists()){
+            setErrorMessage(StringUtils.format("Invalid Google App Engine directory. Did not find 'lib' dir at: %s", libDir
+                    .getAbsolutePath()));
+        }
+        if(!libDir.isDirectory()){
+            setErrorMessage(StringUtils.format("Invalid Google App Engine directory. Expected 'lib' to be a directory at: %s", libDir
+                    .getAbsolutePath()));
+        }
 
+        List<String> libFoldersForPythonpath = gatherLibFoldersForPythonpath(libDir, "/lib/");
+        Collections.sort(libFoldersForPythonpath); //Show it sorted to the user!
+        
+        //We do this because we want to keep only one version of django_0_96 or django_1_21 selected by default (which
+        //the user may later change).
+        Map<String, String> mapStartToLib = new HashMap<String, String>();
+        for(String s:libFoldersForPythonpath){
+            List<String> split = StringUtils.split(s, '_');
+            if(split.size() > 0){
+                mapStartToLib.put(split.get(0), s);
             }
         }
+        PythonSelectionLibrariesDialog runnable = new PythonSelectionLibrariesDialog(
+                new ArrayList<String>(mapStartToLib.values()), libFoldersForPythonpath, false);
+        runnable.setMsg("Please select the libraries you want in your PYTHONPATH.");
+        
+        RunInUiThread.sync(runnable);
+        boolean result = runnable.getOkResult(); 
+        if(result == false){
+            //Canceled by the user
+            return false;
+        }
+        ArrayList<String> selection = runnable.getSelection();
+
 
         //If we got here, all is OK, let's go on and show the templateNamesAndDescriptions that'll be added to the PYTHONPATH (as external folders)
         variableSubstitution.put(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE, loc.getAbsolutePath());
-        fillExternalSourceFolders(variableSubstitution, 
-                new String[]{
-                "${"+AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE+"}",
-                "${"+AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE+"}/lib/django",
-                "${"+AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE+"}/lib/webob",
-                "${"+AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE+"}/lib/yaml/lib",
-                }
-        );
+        
+        String[] paths = new String[selection.size()+1];
+        paths[0] = "${"+AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE+"}";
+        int i=0;
+        for(String s:selection){
+            i++;
+            paths[i] = "${"+AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE+"}"+s;
+        }
+        fillExternalSourceFolders(variableSubstitution, paths);
 
         setErrorMessage(null);
         setMessage(null);
@@ -267,23 +292,36 @@ public class AppEngineConfigWizardPage extends WizardPage{
     }
 
     /**
-     * Given the app engine location, returns the folders that should be added to the pythonpath.
+     * Given the app engine location, returns the folders paths that should be added to the pythonpath considering
+     * the app engine variable.
      * 
-     * Note that it does not validate if the folders are actually valid (the client is responsible for doing
-     * that and giving the proper errors).
+     * E.g.: /lib/webob, /lib/yaml/lib, so that they complete with 
+     * "${"+AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE+"}"+"/lib/webob"
      */
-    private List<File> gatherLibFoldersForPythonpath(String appEngineLoc){
-        ArrayList<File> ret = new ArrayList<File>();
-        String[] preconditions = new String[] { "django", "webob", "yaml/lib" };
-        for(String precondition:preconditions){
-            List<String> parts = StringUtils.split(precondition, '/');
-            File libLoc = new File(appEngineLoc, "lib");
-            for(String part:parts){
-                libLoc = new File(libLoc, part);
+    private List<String> gatherLibFoldersForPythonpath(File libDir, String currentPath){
+        ArrayList<String> ret = new ArrayList<String>();
+        for(File f:libDir.listFiles()){
+            if(f.isDirectory()){
+                if(checkDirHasFolderWithInitInside(f)){
+                    ret.add(currentPath+f.getName());
+                }else{
+                    ret.addAll(gatherLibFoldersForPythonpath(f, currentPath+f.getName()+"/"));
+                }
             }
-            ret.add(libLoc);
         }
         return ret;
+    }
+
+    private boolean checkDirHasFolderWithInitInside(File f) {
+        File[] listFiles = f.listFiles();
+        for (File file : listFiles) {
+            if(file.isDirectory()){
+                if(new File(file, "__init__.py").exists() || new File(file, "__init__.pyc").exists()){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**

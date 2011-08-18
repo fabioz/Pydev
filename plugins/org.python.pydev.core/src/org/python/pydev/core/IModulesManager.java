@@ -6,6 +6,7 @@
  */
 package org.python.pydev.core;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -166,13 +167,15 @@ public interface IModulesManager {
     /**
      * Used so that we can deal with modules that are not saved (i.e.: modules that we're currently
      * editing but don't want to save).
+     * 
+     * @return the handle to be used to pop it later on.
      */
-	public void pushTemporaryModule(String moduleName, IModule module);
+	public int pushTemporaryModule(String moduleName, IModule module);
 
 	/**
 	 * Remove a previous pushTemporaryModule.
 	 */
-	public void popTemporaryModule(String moduleName);
+	public void popTemporaryModule(String moduleName, int handle);
 
-
+    public void saveToFile(File workspaceMetadataFile);
 }

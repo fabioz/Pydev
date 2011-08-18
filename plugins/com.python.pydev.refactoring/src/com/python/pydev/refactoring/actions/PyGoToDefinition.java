@@ -11,7 +11,6 @@
 package com.python.pydev.refactoring.actions;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,16 +32,11 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.progress.UIJob;
-import org.python.pydev.core.ICodeCompletionASTManager;
-import org.python.pydev.core.IModulesManager;
-import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.parser.IParserObserver;
@@ -54,7 +48,6 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractJavaClassModule;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaDefinition;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
@@ -209,60 +202,22 @@ public class PyGoToDefinition extends PyRefactorAction {
 		try {
 			refactoringRequest = getRefactoringRequest();
 		} catch (MisconfigurationException e1) {
-			PydevPlugin.log(e1);
+			Log.log(e1);
 			return new ItemPointer[0];
 		}
 
 		final Shell shell = getShell();
         try {
-        	ArrayList<Tuple<IModulesManager, String>> pushed = new ArrayList<Tuple<IModulesManager, String>>();
             
-            try{
-            	workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-            	IEditorReference[] editorReferences = workbenchWindow.getActivePage().getEditorReferences();
-            	for (IEditorReference iEditorReference : editorReferences) {
-            		IEditorPart editor = iEditorReference.getEditor(false);
-            		if(editor != null){
-            			if(editor instanceof PyEdit){
-            				PyEdit edit = (PyEdit) editor;
-            				IPythonNature pythonNature = edit.getPythonNature();
-            				if(pythonNature != null){
-            					ICodeCompletionASTManager astManager = pythonNature.getAstManager();
-            					if(astManager != null){
-            						IModulesManager modulesManager = astManager.getModulesManager();
-            						if(modulesManager != null){
-            							File editorFile = edit.getEditorFile();
-            							String resolveModule = pythonNature.resolveModule(editorFile);
-            							if(resolveModule != null){
-            								pushed.add(new Tuple<IModulesManager, String>(modulesManager, resolveModule));
-            								modulesManager.pushTemporaryModule(
-            										resolveModule, 
-            										new SourceModule(resolveModule, editorFile, edit.getAST(), null));
-            							}
-            						}
-            					}
-            				}
-            			}
-            		}
-            	}
-            	
-            	
-				if(areRefactorPreconditionsOK(refactoringRequest)){
-	                ItemPointer[] defs = findDefinition(pyEdit);
-	                if(doOpenDefinition){
-	                    openDefinition(defs, pyEdit, shell);
-	                }
-	                return defs;
-	            }
-            }finally{
-            	//undo any temporary push!
-            	for (Tuple<IModulesManager, String> push : pushed) {
-					push.o1.popTemporaryModule(push.o2);
-				}
+			if(areRefactorPreconditionsOK(refactoringRequest)){
+                ItemPointer[] defs = findDefinition(pyEdit);
+                if(doOpenDefinition){
+                    openDefinition(defs, pyEdit, shell);
+                }
+                return defs;
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            PydevPlugin.log(e);
+            Log.log(e);
             String msg = e.getMessage();
             if(msg == null){
                 msg = "Unable to get error msg (null)";

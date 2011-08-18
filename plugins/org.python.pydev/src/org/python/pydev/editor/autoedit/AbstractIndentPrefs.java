@@ -52,11 +52,11 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
     public void convertToStd(IDocument document, DocumentCommand command){
         try {
             if (getUseSpaces(true)) {
-                command.text = convertTabsToSpaces(document, command.length, command.text, command.offset, getIndentationString());
+                command.text = convertTabsToSpaces(document, command.text, command.offset, getIndentationString());
             }
 
             else {
-                command.text = convertSpacesToTabs(document, command.length, command.text, command.offset, getIndentationString());
+                command.text = convertSpacesToTabs(document, command.text, command.offset, getIndentationString());
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -70,15 +70,15 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
     //------------------------------------------------------------- UTILS
     
     /**
-     * Replaces tabs if needed by ident string or just a space depending of the
+     * Replaces tabs if needed by indent string or just a space depending of the
      * tab location
      * 
      */
     private String convertTabsToSpaces(
-        IDocument document, int length, String text, int offset, 
+        IDocument document, String text, int offset, 
         String indentString) throws BadLocationException 
     {
-        // only interresting if it contains a tab (also if it is a tab only)
+        // only interesting if it contains a tab (also if it is a tab only)
         if (text.indexOf("\t") != -1) {
             // get some text infos
             
@@ -108,7 +108,7 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
     /**
      * Converts spaces to strings. Useful when pasting
      */
-    private String convertSpacesToTabs(IDocument document, int length,
+    private String convertSpacesToTabs(IDocument document,
             String text, int offset, String indentString)
             throws BadLocationException
     {

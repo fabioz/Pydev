@@ -35,10 +35,10 @@ import org.eclipse.ui.dialogs.FilteredItemsSelectionDialog;
 import org.eclipse.ui.internal.ide.dialogs.OpenResourceDialog;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.django.launching.DjangoConstants;
 import org.python.pydev.django.launching.PythonFileRunner;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 /**
@@ -92,7 +92,7 @@ public abstract class DjangoAction implements IObjectActionDelegate {
 		if(nature == null){
 			MessageDialog.openError(
 					PyAction.getShell(), 
-					"Pydev nature not found", 
+					"PyDev nature not found", 
 					"Unable to perform action because the Pydev nature is not properly set.");
 			return null;
 		}
@@ -149,7 +149,7 @@ public abstract class DjangoAction implements IObjectActionDelegate {
 	    		IConsole console = consoleManager.getConsole(processes[0]);
 	    		final IOConsoleOutputStream outputStream = ((IOConsole)console).newOutputStream();
 	    		
-	    		new Job("Refresh on finish") {
+	    		Job j = new Job("Refresh on finish") {
 					
 					protected IStatus run(IProgressMonitor monitor) {
 						boolean allTerminated = false;
@@ -161,6 +161,12 @@ public abstract class DjangoAction implements IObjectActionDelegate {
 									break;
 								}
 							}
+							synchronized (this) {
+							    try {
+							        this.wait(50);
+							    } catch (InterruptedException e) {
+							    }
+							}
 							
 						}
 						try {
@@ -169,23 +175,25 @@ public abstract class DjangoAction implements IObjectActionDelegate {
 											"Finished \""+ finalManageDotPy.getLocation().toOSString()+
 											" "+command+"\" execution."));
 						} catch (IOException e1) {
-							PydevPlugin.log(e1);
+							Log.log(e1);
 						}
 						
 						try {
 							outputStream.close();
 						} catch (IOException e1) {
-							PydevPlugin.log(e1);
+							Log.log(e1);
 						}
 						try {
 							selectedProject.refreshLocal(IResource.DEPTH_INFINITE, null);
 						} catch (CoreException e) {
-							PydevPlugin.log(e);
+							Log.log(e);
 						}
 	
 						return Status.OK_STATUS;
 					}
-				}.schedule();
+				};
+				j.setSystem(true);
+	    		j.schedule();
     		}
     		return launch;
 		} catch (Exception e) {
@@ -210,11 +218,11 @@ public abstract class DjangoAction implements IObjectActionDelegate {
 				try {
 					pythonPathNature.setVariableSubstitution(variableSubstitution);
 				} catch (Exception e) {
-					PydevPlugin.log(e);
+					Log.log(e);
 				}
 				
 			}else{
-				PydevPlugin.log("Error. Expected IFile selected. Found: "+firstResult.getClass());
+				Log.log("Error. Expected IFile selected. Found: "+firstResult.getClass());
 				return null;
 			}
 			

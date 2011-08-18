@@ -29,11 +29,11 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.TokenMgrError;
+import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.refactoring.ast.PythonModuleManager;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
-import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
@@ -100,7 +100,7 @@ public class RefactoringInfo {
         }
 
         try{
-            this.moduleAdapter = VisitorFactory.createModuleAdapter(moduleManager, realFile, doc, nature);
+            this.moduleAdapter = VisitorFactory.createModuleAdapter(moduleManager, realFile, doc, nature, this.versionProvider);
         }catch(Throwable e){
             throw new RuntimeException(e);
         }
@@ -150,7 +150,7 @@ public class RefactoringInfo {
 
         if(source.length() > 0){
             try{
-                return VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature);
+                return VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature, this.versionProvider);
             }catch(TokenMgrError e){
                 return null;
             }catch(ParseException e){
@@ -169,7 +169,7 @@ public class RefactoringInfo {
 
         if(this.userSelection != null && source.length() > 0){
             try{
-                parsedAdapter = VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature);
+                parsedAdapter = VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature, this.versionProvider);
             }catch(TokenMgrError e){
                 return null;
             }catch(ParseException e){
@@ -267,6 +267,13 @@ public class RefactoringInfo {
 
     public PySelection getPySelection() {
         return new PySelection(doc, userSelection);
+    }
+
+    /**
+     * @return
+     */
+    public IGrammarVersionProvider getVersionProvider() {
+        return this.versionProvider;
     }
 
 //    public Workspace getWorkspace() {

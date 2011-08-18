@@ -12,7 +12,9 @@ package org.python.pydev.core.log;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
+import java.util.Map;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.widgets.Display;
@@ -22,7 +24,7 @@ import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.console.MessageConsole;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.FullRepIterable;
-import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.Tuple;
 
 
 /**
@@ -31,42 +33,88 @@ import org.python.pydev.core.MisconfigurationException;
 public class Log {
 
     /**
+     * Only applicable when plugin == null (i.e.: running tests)
+     */
+    private static final int DEBUG_LEVEL = IStatus.WARNING;
+    
+    /**
      * Console used to log contents
      */
     private static MessageConsole fConsole;
 	private static IOConsoleOutputStream fOutputStream;
 
+	private static Map<Tuple<Integer, String>, Long> lastLoggedTime = new HashMap<Tuple<Integer,String>, Long>();
+
     /**
      * @param errorLevel IStatus.[OK|INFO|WARNING|ERROR]
+     * @return CoreException that can be thrown for the given log event
      */
-    public static void log(int errorLevel, String message, Throwable e) {
-        System.err.println(message);
-        if(e != null){
-        	if(!(e instanceof MisconfigurationException)){
-        		e.printStackTrace();
-        	}
+	public static CoreException log(int errorLevel, String message, Throwable e) {
+	    CorePlugin plugin = CorePlugin.getDefault();
+        String id;
+        if(plugin == null){
+            id = "CorePlugin";
+        }else{
+            id = plugin.getBundle().getSymbolicName();
+        }
+        
+        Status s = new Status(errorLevel, id, errorLevel, message, e);
+        CoreException coreException = new CoreException(s);
+
+        Tuple<Integer, String> key = new Tuple<Integer, String>(errorLevel, message);
+        synchronized (lastLoggedTime) {
+            Long lastLoggedMillis = lastLoggedTime.get(key);
+            long currentTimeMillis = System.currentTimeMillis();
+            if(lastLoggedMillis != null){
+                if(currentTimeMillis < lastLoggedMillis + (20 * 1000)) {
+                    //System.err.println("Skipped report of:"+message);
+                    return coreException; //Logged in the last 20 seconds, so, just skip it for now
+                }
+            }
+            lastLoggedTime.put(key, currentTimeMillis);
         }
         try {
-            
-            Status s = new Status(errorLevel, CorePlugin.getPluginID(), errorLevel, message, e);
-            CorePlugin.getDefault().getLog().log(s);
+            if (plugin != null) {
+                plugin.getLog().log(s);
+            }else{
+                if(DEBUG_LEVEL <= errorLevel){
+                    System.err.println(message);
+                    if(e != null){
+                        e.printStackTrace();
+                    }
+                }
+            }
         } catch (Exception e1) {
             //logging should not fail!
         }
+        return coreException;
+    }
+	
+    public static CoreException log(Throwable e) {
+        return log(IStatus.ERROR, e.getMessage() != null ? e.getMessage() : 
+            "No message gotten (null message).", e);
     }
 
-    public static void log(Throwable e) {
-        log(IStatus.ERROR, e.getMessage() != null ? e.getMessage() : "No message gotten (null message).", e);
-    }
-
-    public static void log(String msg) {
-        log(IStatus.ERROR, msg, new RuntimeException(msg));
+    public static CoreException log(String msg) {
+        return log(IStatus.ERROR, msg, new RuntimeException(msg));
     }
     
-    public static void log(String msg, Throwable e) {
-        log(IStatus.ERROR, msg, e);
+    public static CoreException log(String msg, Throwable e) {
+        return log(IStatus.ERROR, msg, e);
     }
 
+
+    public static CoreException logInfo(Throwable e) {
+        return log(IStatus.INFO, e.getMessage(), e);
+    }
+    
+    public static CoreException logInfo(String msg) {
+        return log(IStatus.INFO, msg, new RuntimeException(msg));
+    }
+    
+    public static CoreException logInfo(String msg, Throwable e) {
+        return log(IStatus.INFO, msg, e);
+    }
     
     //------------ Log that writes to a new console
 
@@ -112,7 +160,7 @@ public class Log {
                         c.write(buffer.toString());
                         c.write("\r\n");
                         
-//                IPath stateLocation = default1.getStateLocation().append("PydevLog.log");
+//                IPath stateLocation = default1.getStateLocation().append("PyDevLog.log");
 //                String file = stateLocation.toOSString();
 //                REF.appendStrToFile(buffer+"\r\n", file);
                     }catch(Throwable e){
@@ -138,7 +186,7 @@ public class Log {
     
     private static IOConsoleOutputStream getConsoleOutputStream(){
         if (fConsole == null){
-			fConsole = new MessageConsole("Pydev Logging", CorePlugin.getImageCache().getDescriptor("icons/python_logging.png"));
+			fConsole = new MessageConsole("PyDev Logging", CorePlugin.getImageCache().getDescriptor("icons/python_logging.png"));
 			
             fOutputStream = fConsole.newOutputStream();
             
@@ -179,6 +227,15 @@ public class Log {
             }
         }
     }
-
+    
+    /**
+     * @deprecated use one of the other log methods
+     * XXX: At time of deprecation, none of the PyDev bundles
+     * call this method.
+     */
+    @Deprecated
+    public static void log(IStatus status) {
+        CorePlugin.getDefault().getLog().log(status);
+    }
 
 }

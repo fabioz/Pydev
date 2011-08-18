@@ -20,18 +20,18 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextHover;
-import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.quickassist.IQuickAssistProcessor;
 import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.console.IPatternMatchListener;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
+import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.debug.ui.PythonConsoleLineTracker;
 import org.python.pydev.dltk.console.ScriptConsolePrompt;
 import org.python.pydev.dltk.console.ui.IConsoleStyleProvider;
 import org.python.pydev.dltk.console.ui.ScriptConsole;
-import org.python.pydev.dltk.console.ui.ScriptStyleRange;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
 import org.python.pydev.plugin.PydevPlugin;
@@ -43,7 +43,7 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PydevConsole extends ScriptConsole  {
 
-    public static final String CONSOLE_NAME = "Pydev Console";
+    public static final String CONSOLE_NAME = "PyDev Console";
 
     public static int nextId = -1;
     
@@ -55,6 +55,7 @@ public class PydevConsole extends ScriptConsole  {
         return String.valueOf(nextId);
     }
     
+    
     public PydevConsole(PydevConsoleInterpreter interpreter, String additionalInitialComands) {
         super(CONSOLE_NAME + " [" + getNextId() + "]", PydevConsoleConstants.CONSOLE_TYPE, interpreter);
         this.additionalInitialComands = additionalInitialComands;
@@ -64,43 +65,9 @@ public class PydevConsole extends ScriptConsole  {
     }
 
     
-    /**
-     * Can be overridden to create a style provider for the console.
-     * @return a style provider.
-     */
     public IConsoleStyleProvider createStyleProvider() {
-        return new IConsoleStyleProvider(){
-
-            private ScriptStyleRange getIt(String content, int offset, TextAttribute attr, int scriptStyle){
-                //background is the default (already set)
-                return new ScriptStyleRange(
-                		offset, content.length(), attr.getForeground(), null, scriptStyle, attr.getStyle());
-            }
-            
-            public ScriptStyleRange createInterpreterErrorStyle(String content, int offset) {
-            	TextAttribute attr = ColorManager.getDefault().getConsoleErrorTextAttribute();
-                return getIt(content, offset, attr, ScriptStyleRange.STDERR);
-            }
-
-            public ScriptStyleRange createInterpreterOutputStyle(String content, int offset) {
-            	TextAttribute attr = ColorManager.getDefault().getConsoleOutputTextAttribute();
-                return getIt(content, offset, attr, ScriptStyleRange.STDOUT);
-            }
-
-            public ScriptStyleRange createPromptStyle(String content, int offset) {
-            	TextAttribute attr = ColorManager.getDefault().getConsolePromptTextAttribute();
-                return getIt(content, offset, attr, ScriptStyleRange.PROMPT);
-            }
-
-            public ScriptStyleRange createUserInputStyle(String content, int offset) {
-            	TextAttribute attr = ColorManager.getDefault().getConsoleInputTextAttribute();
-                return getIt(content, offset, attr, ScriptStyleRange.STDIN);
-            }
-            
-        };
+        return new ConsoleStyleProvider();
     }
-
-
     
     /**
      * The completion processor for pydev.
@@ -206,6 +173,11 @@ public class PydevConsole extends ScriptConsole  {
         return str;
     }
     
+    @Override
+    public boolean getFocusOnStart() {
+        return InteractiveConsolePrefs.getFocusConsoleOnStartup();
+    }
+    
     /**
      * IConsole: Add a link to the console
      */
@@ -220,7 +192,7 @@ public class PydevConsole extends ScriptConsole  {
         try {
             super.addHyperlink(link, offset, length);
         } catch (BadLocationException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
 

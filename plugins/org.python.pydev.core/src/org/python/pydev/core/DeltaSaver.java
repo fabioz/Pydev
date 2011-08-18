@@ -10,14 +10,7 @@
 package org.python.pydev.core;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -25,6 +18,7 @@ import java.util.List;
 
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 /**
  * This class can be used to work on deltas. It is able to save and restore data on a 'delta' fashion.
@@ -47,20 +41,23 @@ public class DeltaSaver<X> {
      * 
      * @author Fabio
      */
-    public abstract static class DeltaCommand implements Serializable{
+    public abstract class DeltaCommand{
 
-        public transient Object data;
+        public final X data;
 
-        public DeltaCommand(Object o) {
+        public DeltaCommand(X o) {
             this.data = o;
         }
 
         
-        public abstract void processWith(IDeltaProcessor deltaProcessor);
+        public abstract void processWith(IDeltaProcessor<X> deltaProcessor);
         
-        public void readData(ICallback<Object, ObjectInputStream> readFromFileMethod, ObjectInputStream in) {
-            this.data = readFromFileMethod.call(in);
-        }
+
+
+        /**
+         * @return String with 3 letters describing the command (written to disk and used to restore it later on).
+         */
+        public abstract String getCommandFileDesc();
 
     }
 
@@ -69,17 +66,18 @@ public class DeltaSaver<X> {
      * 
      * @author Fabio
      */
-    public static class DeltaDeleteCommand extends DeltaCommand {
+    public class DeltaDeleteCommand extends DeltaCommand {
 
-        private static final long serialVersionUID = 1;
-
-        public DeltaDeleteCommand(Object o) {
+        public DeltaDeleteCommand(X o) {
             super(o);
         }
 
-        @SuppressWarnings("unchecked")
-        public void processWith(IDeltaProcessor deltaProcessor){
+        public void processWith(IDeltaProcessor<X> deltaProcessor){
             deltaProcessor.processDelete(data);
+        }
+
+        public String getCommandFileDesc() {
+            return "DEL";
         }
 
     }
@@ -90,17 +88,18 @@ public class DeltaSaver<X> {
      * 
      * @author Fabio
      */
-    public static class DeltaInsertCommand extends DeltaCommand{
+    public class DeltaInsertCommand extends DeltaCommand{
 
-        private static final long serialVersionUID = 1;
-
-        public DeltaInsertCommand(Object o) {
+        public DeltaInsertCommand(X o) {
             super(o);
         }
         
-        @SuppressWarnings("unchecked")
-        public void processWith(IDeltaProcessor deltaProcessor){
+        public void processWith(IDeltaProcessor<X> deltaProcessor){
             deltaProcessor.processInsert(data);
+        }
+        
+        public String getCommandFileDesc() {
+            return "INS";
         }
     }
     
@@ -110,17 +109,18 @@ public class DeltaSaver<X> {
      * 
      * @author Fabio
      */
-    public static class DeltaUpdateCommand extends DeltaCommand{
+    public class DeltaUpdateCommand extends DeltaCommand{
         
-        private static final long serialVersionUID = 1;
-        
-        public DeltaUpdateCommand(Object o) {
+        public DeltaUpdateCommand(X o) {
             super(o);
         }
         
-        @SuppressWarnings("unchecked")
-        public void processWith(IDeltaProcessor deltaProcessor){
+        public void processWith(IDeltaProcessor<X> deltaProcessor){
             deltaProcessor.processUpdate(data);
+        }
+        
+        public String getCommandFileDesc() {
+            return "UPD";
         }
     }
 
@@ -145,20 +145,26 @@ public class DeltaSaver<X> {
     private int nCommands;
 
     /**
-     * This is the method that should read the data in the delta from a file... This is because of the &*(^%EO way eclipse handles this kind of stuff,
-     * so, we can't just serialize it from another plugin.
+     * This is the method that should read the data in the delta from a file...
      */
-    private ICallback<Object, ObjectInputStream> readFromFileMethod;
+    private ICallback<X, String> readFromFileMethod;
+
+    /**
+     * Convert the object to a representation to be put on the disk (readFromFileMethod will be used with the same
+     * data passed here later on... if it cannot be read, null should be returned).
+     */
+    private ICallback<String, X> toFileMethod;
     
     /**
      * @param dirToSaveDeltas this is the directory where the deltas should be saved
      * @param extension this is the extension that should be given to the deltas
      */
-    public DeltaSaver(File dirToSaveDeltas, String extension, ICallback<Object, ObjectInputStream> readFromFileMethod) {
+    public DeltaSaver(File dirToSaveDeltas, String extension, ICallback<X, String> readFromFileMethod, ICallback<String, X> toFileMethod) {
         this.dirToSaveDeltas = dirToSaveDeltas;
         this.suffix = "."+extension;
         this.commands = Collections.synchronizedList(new ArrayList<DeltaCommand>());
         this.readFromFileMethod = readFromFileMethod;
+        this.toFileMethod = toFileMethod;
         validateDir();
         loadDeltas();
     }
@@ -184,7 +190,8 @@ public class DeltaSaver<X> {
             ArrayList<File> deltasFound = findDeltas();
             for (File file : deltasFound) {
                 try {
-                    DeltaCommand cmd = (DeltaCommand) IOUtils.readFromFile(file, this.readFromFileMethod);
+                    @SuppressWarnings("unchecked")
+                    DeltaCommand cmd = (DeltaCommand) readFromFile(file, this.readFromFileMethod);
                     if(cmd != null && cmd.data != null){
                         addRestoredCommand(cmd);
                     }
@@ -245,8 +252,13 @@ public class DeltaSaver<X> {
                 throw new RuntimeException(e);
             }
             //always write the command and its data separately
-            IOUtils.writeToFile(command, command.data, file);
-            this.commands.add(command);
+            String write = toFileMethod.call((X)command.data);
+            if(write == null){
+                Log.log("Null returned to write from data: "+command.data);
+            }else{
+                writeToFile(command, write, file);
+                this.commands.add(command);
+            }
         }
     }
 
@@ -297,7 +309,7 @@ public class DeltaSaver<X> {
             for (DeltaCommand cmd : commandsToProcess) {
                 try {
                     cmd.processWith(deltaProcessor);
-                    processed = false;
+                    processed = true;
                 } catch (Exception e) {
                     Log.log(e);
                 }
@@ -310,55 +322,43 @@ public class DeltaSaver<X> {
         }
     }
 
-}
-
-
-
-class IOUtils {
-    public static void writeToFile(Object o1, Object o2, File file) {
+    
+    public void writeToFile(DeltaCommand command, String data, File file) {
         try {
-            OutputStream out = new FileOutputStream(file);
-            try {
-                ObjectOutputStream stream = new ObjectOutputStream(out);
-                stream.writeObject(o1);
-                stream.writeObject(o2);
-                stream.close();
-            } catch (Exception e) {
-                Log.log(e);
-                throw new RuntimeException(e);
-            } finally{
-                out.close();
-            }
+            FastStringBuffer buf = new FastStringBuffer(command.getCommandFileDesc(), data.length());
+            buf.append(data);
+            REF.writeStrToFile(buf.toString(), file);
         } catch (Exception e) {
             Log.log(e);
         }
     }
 
-    /**
-     * @param astOutputFile
-     * @param readFromFileMethod 
-     * @return
-     */
-    public static Object readFromFile(File astOutputFile, ICallback<Object, ObjectInputStream> readFromFileMethod) {
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public DeltaSaver.DeltaCommand readFromFile(File astOutputFile, ICallback<X, String> readFromFileMethod) {
         try {
             boolean deletFile = false;
             //the file is not even there
             if(!astOutputFile.exists()){
                 return null;
             }
-            InputStream input = new FileInputStream(astOutputFile);
-            ObjectInputStream in = new ObjectInputStream(input);
+            String fileContents = REF.getFileContents(astOutputFile);
             DeltaSaver.DeltaCommand o = null;
             try {
-                o = (DeltaSaver.DeltaCommand) in.readObject();
-                o.readData(readFromFileMethod, in);
+                if(fileContents.startsWith("UPD")){
+                    o = new DeltaSaver.DeltaUpdateCommand(readFromFileMethod.call(fileContents.substring(3)));
+                    
+                }else if(fileContents.startsWith("DEL")){
+                    o = new DeltaSaver.DeltaDeleteCommand(readFromFileMethod.call(fileContents.substring(3)));
+                    
+                }else if(fileContents.startsWith("INS")){
+                    o = new DeltaSaver.DeltaInsertCommand(readFromFileMethod.call(fileContents.substring(3)));
+                    
+                }
             } catch (Exception e) {
                 //the format has changed (no real problem here... just erase the file)
                 deletFile = true;
                 o = null;
-            } finally {
-                in.close();
-                input.close();
             }
             if(deletFile){
                 if(astOutputFile.exists()){
@@ -373,3 +373,5 @@ class IOUtils {
     }
 
 }
+
+

@@ -19,6 +19,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.plugin.preferences.IPydevPreferencesProvider;
@@ -48,7 +49,159 @@ public class ColorManager {
      */
     protected Map<RGB, Color> fColorTable= new HashMap<RGB, Color>(10);
     
-    private Color getColor(RGB rgb) {
+    
+    public static final RGB dimBlack = new RGB(0.00f, 0.00f, 0.00f);
+    public static final RGB dimRed = new RGB(0.000f, 1.000f, 0.502f);
+    public static final RGB dimGreen = new RGB(0.333f, 1.000f, 0.502f);
+    public static final RGB dimYellow = new RGB(0.167f, 1.000f, 0.502f);
+    public static final RGB dimBlue = new RGB(0.667f, 1.000f, 0.502f);
+    public static final RGB dimMagenta = new RGB(0.833f, 1.000f, 0.502f);
+    public static final RGB dimCyan = new RGB(0.500f, 1.000f, 0.502f);
+    public static final RGB dimWhite = new RGB(0.000f, 0.000f, 0.753f);
+    
+    public static final RGB brightBlack = new RGB(0.000f, 0.000f, 0.502f);
+    public static final RGB brightRed = new RGB(0.000f, 1.000f, 1.000f);
+    public static final RGB brightGreen = new RGB(0.333f, 1.000f, 1.000f);
+    public static final RGB brightYellow = new RGB(0.167f, 1.000f, 1.000f);
+    public static final RGB brightBlue = new RGB(0.667f, 1.000f, 1.000f);
+    public static final RGB brightMagenta = new RGB(0.833f, 1.000f, 1.000f);
+    public static final RGB brightCyan = new RGB(0.500f, 1.000f, 1.000f);
+    public static final RGB brightWhite = new RGB(0.000f, 0.000f, 1.000f);
+
+    /**
+     * Receives a string such as:
+     * 
+     * <ESC>[{attr1};...;{attrn}m
+     * 
+     * Where {attr1}...{attrn} are numbers so that:
+     * 
+     * Foreground Colors
+     * 30  Black
+     * 31  Red
+     * 32  Green
+     * 33  Yellow
+     * 34  Blue
+     * 35  Magenta
+     * 36  Cyan
+     * 37  White
+     * 
+     * Background Colors
+     * 40  Black
+     * 41  Red
+     * 42  Green
+     * 43  Yellow
+     * 44  Blue
+     * 45  Magenta
+     * 46  Cyan
+     * 47  White
+     * 
+     * If 0;30 is received, it means a 'dim' version of black, if 1;30 is received, it means a 'bright' version is used.
+     * 
+     * If [0m is received, the attributes are reset (and null may be returned in this case).
+     * 
+     * Reference: http://graphcomp.com/info/specs/ansi_col.html
+     */
+    public TextAttribute getAnsiTextAttribute(String str, TextAttribute prevAttribute, TextAttribute resetAttribute) {
+        if(str.startsWith("[")){
+            str = str.substring(1);
+        }
+        int foundM = str.indexOf('m');
+        if(foundM == -1){
+            return prevAttribute;
+        }
+        str = str.substring(0, foundM);
+        
+        if(str.equals("0")){
+            return resetAttribute;
+        }
+        
+        boolean bright = false;
+        Color foreground = null;
+        Color background = null;
+        
+        List<String> split = StringUtils.split(str, ';');
+        for (String string : split) {
+            try {
+                int parsed = Integer.parseInt(string);
+                switch (parsed) {
+                    case 0:
+                        bright = false;
+                        break;
+                        
+                    case 1:
+                        bright = true;
+                        break;
+                        
+                        
+                    case 30://  Black
+                        foreground = getColor(bright?brightBlack:dimBlack);
+                        break;
+                    case 31://  Red
+                        foreground = getColor(bright?brightRed:dimRed);
+                        break;
+                    case 32://  Green
+                        foreground = getColor(bright?brightGreen:dimGreen);
+                        break;
+                    case 33://  Yellow
+                        foreground = getColor(bright?brightYellow:dimYellow);
+                        break;
+                    case 34://  Blue
+                        foreground = getColor(bright?brightBlue:dimBlue);
+                        break;
+                    case 35://  Magenta
+                        foreground = getColor(bright?brightMagenta:dimMagenta);
+                        break;
+                    case 36://  Cyan
+                        foreground = getColor(bright?brightCyan:dimCyan);
+                        break;
+                    case 37://  White
+                        foreground = getColor(bright?brightWhite:dimWhite);
+                        break;
+                        
+                        
+                    case 40://  Black
+                        background = getColor(bright?brightBlack:dimBlack);
+                        break;
+                    case 41://  Red
+                        background = getColor(bright?brightRed:dimRed);
+                        break;
+                    case 42://  Green
+                        background = getColor(bright?brightGreen:dimGreen);
+                        break;
+                    case 43://  Yellow
+                        background = getColor(bright?brightYellow:dimYellow);
+                        break;
+                    case 44://  Blue
+                        background = getColor(bright?brightBlue:dimBlue);
+                        break;
+                    case 45://  Magenta
+                        background = getColor(bright?brightMagenta:dimMagenta);
+                        break;
+                    case 46://  Cyan
+                        background = getColor(bright?brightCyan:dimCyan);
+                        break;
+                    case 47://  White
+                        background = getColor(bright?brightWhite:dimWhite);
+                        break;
+
+    
+                    default:
+                        break;
+                }
+            } catch (NumberFormatException e) {
+                //ignore
+            }
+        }
+        
+        return new TextAttribute(
+                foreground!=null?foreground:prevAttribute.getForeground(), 
+                background!=null?background:prevAttribute.getBackground(), 
+                prevAttribute.getStyle()
+                );
+    }
+
+    
+    public Color getColor(RGB rgb) {
         Color color= fColorTable.get(rgb);
         if (color == null) {
             color= new Color(Display.getCurrent(), rgb);
@@ -194,6 +347,7 @@ public class ColorManager {
         }
         return null; //use default
     }
+
 }
 
 

@@ -4,8 +4,8 @@ Bundle-Name: Core Plug-in
 Bundle-SymbolicName: org.python.pydev.core; singleton:=true
 Bundle-Version: 0.9.7.1
 Bundle-ClassPath: core.jar,
- retroweaver-rt.jar,
- commons-codec.jar
+ commons-codec.jar,
+ lib/jpathwatch-0-94.jar
 Bundle-Activator: org.python.pydev.core.CorePlugin
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin
@@ -24,6 +24,7 @@ Export-Package: org.apache.commons.codec,
  org.apache.commons.codec.digest,
  org.apache.commons.codec.language,
  org.apache.commons.codec.net,
+ org.python.pydev.bindingutils,
  org.python.pydev.core,
  org.python.pydev.core.bundle,
  org.python.pydev.core.cache,

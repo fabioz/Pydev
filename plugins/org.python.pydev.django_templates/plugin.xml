@@ -12,7 +12,7 @@
             id="org.python.pydev.django_templates.html"
             name="%editor.djhtml.name">
          <contentTypeBinding
-               contentTypeId="org.python.pydev.contenttype.django_templates.html">
+               contentTypeId="com.aptana.contenttype.html.django_templates">
          </contentTypeBinding>
       </editor>
       <editor
@@ -24,7 +24,7 @@
             id="org.python.pydev.django_templates.css"
             name="%editor.djcss.name">
          <contentTypeBinding
-               contentTypeId="org.python.pydev.contenttype.django_templates.css">
+               contentTypeId="com.aptana.contenttype.css.django_templates">
          </contentTypeBinding>
       </editor>
 
@@ -35,14 +35,14 @@
             base-type="com.aptana.contenttype.html"
             describer="org.python.pydev.django_templates.html.editor.DjHTMLContentDescriber"
             file-extensions="djhtml,djhtm"
-            id="org.python.pydev.contenttype.django_templates.html"
+            id="com.aptana.contenttype.html.django_templates"
             name="%content-type.djhtml.name"
             priority="normal">
       </content-type>
       <content-type
             base-type="com.aptana.contenttype.css"
             file-extensions="djcss"
-            id="org.python.pydev.contenttype.django_templates.css"
+            id="com.aptana.contenttype.css.django_templates"
             name="%content-type.djcss.name"
             priority="normal">
       </content-type>
@@ -52,13 +52,11 @@
          point="com.aptana.parsing.parser">
       <parser
             class="org.python.pydev.django_templates.html.parsing.DjHTMLParser"
-            content-type="org.python.pydev.contenttype.django_templates.html"
-            language="text/django_templates_html">
+            content-type="com.aptana.contenttype.html.django_templates">
       </parser>
       <parser
             class="org.python.pydev.django_templates.css.parsing.DjCssParser"
-            content-type="org.python.pydev.contenttype.django_templates.css"
-            language="text/django_templates_css">
+            content-type="com.aptana.contenttype.css.django_templates">
       </parser>
    </extension>
    

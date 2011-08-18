@@ -10,7 +10,7 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.modules;
 
-import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.IModulesManager;
 
 /**
  * This interface is used to identify what happens to modules. 
@@ -26,6 +26,6 @@ public interface IModulesObserver {
      * @param module this is the compiled module that has just been created.
      * @param manager the manager that where this module is stored
      */
-    void notifyCompiledModuleCreated(CompiledModule module, ICodeCompletionASTManager manager);
+    void notifyCompiledModuleCreated(CompiledModule module, IModulesManager manager);
 
 }

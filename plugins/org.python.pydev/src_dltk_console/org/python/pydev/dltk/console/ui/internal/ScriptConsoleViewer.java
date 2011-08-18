@@ -41,8 +41,10 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.TextConsoleViewer;
+import org.python.pydev.bindingutils.KeyBindingHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.dltk.console.ScriptConsoleHistory;
 import org.python.pydev.dltk.console.ui.IConsoleStyleProvider;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
@@ -51,8 +53,6 @@ import org.python.pydev.dltk.console.ui.internal.actions.HandleBackspaceAction;
 import org.python.pydev.dltk.console.ui.internal.actions.HandleDeletePreviousWord;
 import org.python.pydev.dltk.console.ui.internal.actions.HandleLineStartAction;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
-import org.python.pydev.plugin.KeyBindingHelper;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * This is the viewer for the console. It's responsible for making sure that the actions the 
@@ -115,7 +115,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                         return;
                     }
 
-                    if (event.character == SWT.CR) {
+                    if (event.character == SWT.CR || event.character == SWT.LF) {
                         
                         //if we had an enter with the shift pressed and we're in a completion, we must stop it
                         if(inCompletion && (event.stateMask & SWT.SHIFT) != 0){
@@ -156,7 +156,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                     }
                 }
             } catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
     }
@@ -167,6 +167,8 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
      */
     volatile int inHistoryRequests = 0;
     volatile boolean changedAfterLastHistoryRequest=false;
+
+    private final boolean focusOnStart;
 
     /**
      * This is the text widget that's used to edit the console. It has some treatments to handle
@@ -316,7 +318,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 
 
                 } catch (BadLocationException e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                     return;
                 }
 
@@ -497,8 +499,9 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
      * @param contentHandler
      */
     public ScriptConsoleViewer(Composite parent, ScriptConsole console,
-            final IScriptConsoleContentHandler contentHandler, IConsoleStyleProvider styleProvider, String initialCommands) {
+            final IScriptConsoleContentHandler contentHandler, IConsoleStyleProvider styleProvider, String initialCommands, boolean focusOnStart) {
         super(parent, console);
+        this.focusOnStart = focusOnStart;
 
         this.console = console;
         this.getTextWidget().setBackground(console.getPydevConsoleBackground());
@@ -636,6 +639,9 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         
         if(isMainViewer){
             clear(true);
+        }
+        if(focusOnStart){
+            this.getTextWidget().setFocus();
         }
     }
     

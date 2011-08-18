@@ -20,10 +20,10 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.VerifyEvent;
-import org.python.copiedfromeclipsesrc.PythonPairMatcher;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
@@ -327,7 +327,7 @@ public class PyBackspace extends PyAction {
         if(cursorLine > 0){
             IRegion prevLineInfo = doc.getLineInformation(cursorLine-1);
             int prevLineEndOffset = prevLineInfo.getOffset()+prevLineInfo.getLength();
-            Tuple<Integer, Boolean> tup = PyAutoIndentStrategy.determineSmartIndent(prevLineEndOffset, ps, prefs);
+            Tuple<Integer, Boolean> tup = PyAutoIndentStrategy.determineSmartIndent(prevLineEndOffset, doc, prefs);
             Integer previousContextSmartIndent = tup.o1;
             if(previousContextSmartIndent > 0 && lineContentsToCursorLen > previousContextSmartIndent){
                 int initialLineOffset = cursorOffset-lineContentsToCursorLen;

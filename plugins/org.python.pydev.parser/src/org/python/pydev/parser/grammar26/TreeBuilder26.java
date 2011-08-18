@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
+import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.grammarcommon.AbstractTreeBuilder;
 import org.python.pydev.parser.grammarcommon.ComprehensionCollection;
 import org.python.pydev.parser.grammarcommon.Decorators;
@@ -106,9 +107,9 @@ public final class TreeBuilder26 extends AbstractTreeBuilder implements ITreeBui
             p = new Print(((exprType) stack.popNode()), exprs, nl);
             return p;
         case JJTBEGIN_FOR_ELSE_STMT:
-            return new suiteType(null);
+            return new Suite(null);
         case JJTBEGIN_ELSE_STMT:
-            return new suiteType(null);
+            return new Suite(null);
         case JJTBEGIN_WHILE_STMT:
             return new While(null, null, null);
         case JJTWHILE_STMT:
@@ -276,7 +277,7 @@ public final class TreeBuilder26 extends AbstractTreeBuilder implements ITreeBui
             }
         case JJTBEGIN_TRY_ELSE_STMT:
             //we do that just to get the specials
-            return new suiteType(null);
+            return new Suite(null);
         case JJTBEGIN_EXCEPT_CLAUSE:
             return new excepthandlerType(null,null,null);
         case JJTEXCEPT_CLAUSE:
@@ -295,7 +296,7 @@ public final class TreeBuilder26 extends AbstractTreeBuilder implements ITreeBui
             return handler;
         case JJTBEGIN_FINALLY_STMT:
             //we do that just to get the specials
-            return new suiteType(null);
+            return new Suite(null);
         case JJTTRYFINALLY_STMT:
             suiteType finalBody = popSuiteAndSuiteType();
             body = popSuite();
@@ -324,7 +325,7 @@ public final class TreeBuilder26 extends AbstractTreeBuilder implements ITreeBui
                 asOrExpr = null;
             }
             
-            suiteType s = new suiteType(suite.body);
+            suiteType s = new Suite(suite.body);
             addSpecialsAndClearOriginal(suite, s);
             
             return new With(new WithItem[]{new WithItem(expr, asOrExpr)}, s);
@@ -384,7 +385,7 @@ public final class TreeBuilder26 extends AbstractTreeBuilder implements ITreeBui
 //                lambda.getSpecialsBefore().add("lambda ");
 //            }
             return lambda;
-        case JJTELLIPSES:
+        case JJTELLIPSIS:
             return new Ellipsis();
         case JJTSLICE:
             SimpleNode[] arr = new SimpleNode[arity];
@@ -454,7 +455,7 @@ public final class TreeBuilder26 extends AbstractTreeBuilder implements ITreeBui
             return makeImportFrom25Onwards(arity);
             
         default:
-            System.out.println("Error at TreeBuilder: default not treated:"+n.getId());
+            Log.log(("Error at TreeBuilder: default not treated:"+n.getId()));
             return null;
         }
     }

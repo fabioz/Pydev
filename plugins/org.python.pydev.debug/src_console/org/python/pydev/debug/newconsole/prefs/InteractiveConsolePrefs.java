@@ -6,6 +6,7 @@
  */
 package org.python.pydev.debug.newconsole.prefs;
 
+import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.ColorFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
@@ -48,10 +49,20 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
         
         addField(new IntegerFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS, 
                 "Maximum connection attempts\nfor initial communication:", p));
+        
+        addField(new BooleanFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_FOCUS_ON_CONSOLE_START, 
+                "Focus console when it's started?", BooleanFieldEditor.SEPARATE_LABEL, p));
+        
+        addField(new BooleanFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_SEND_INITIAL_COMMAND_WHEN_CREATED_FROM_EDITOR, 
+                "When creating console send\ncurrent selection/editor\ncontents for execution?", BooleanFieldEditor.SEPARATE_LABEL, p));
+        
+        addField(new BooleanFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_FOCUS_ON_SEND_COMMAND, 
+                "Focus console when an evaluate\ncommand is sent from the editor?", BooleanFieldEditor.SEPARATE_LABEL, p));
+        
     }
 
     public void init(IWorkbench workbench) {
-        setDescription("Pydev interactive console preferences."); 
+        setDescription("PyDev interactive console preferences."); 
         setPreferenceStore(PydevDebugPlugin.getDefault().getPreferenceStore());
     }
 
@@ -61,6 +72,33 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
             return plugin.getPreferenceStore().getInt(PydevConsoleConstants.INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS);
         }else{
             return PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS;
+        }
+    }
+    
+    public static boolean getFocusConsoleOnStartup() {
+        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
+        if(plugin != null){
+            return plugin.getPreferenceStore().getBoolean(PydevConsoleConstants.INTERACTIVE_CONSOLE_FOCUS_ON_CONSOLE_START);
+        }else{
+            return PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_FOCUS_ON_CONSOLE_START;
+        }
+    }
+    
+    public static boolean getFocusConsoleOnSendCommand() {
+        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
+        if(plugin != null){
+            return plugin.getPreferenceStore().getBoolean(PydevConsoleConstants.INTERACTIVE_CONSOLE_FOCUS_ON_SEND_COMMAND);
+        }else{
+            return PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_FOCUS_ON_SEND_COMMAND;
+        }
+    }
+    
+    public static boolean getSendCommandOnCreationFromEditor() {
+        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
+        if(plugin != null){
+            return plugin.getPreferenceStore().getBoolean(PydevConsoleConstants.INTERACTIVE_CONSOLE_SEND_INITIAL_COMMAND_WHEN_CREATED_FROM_EDITOR);
+        }else{
+            return PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_SEND_INITIAL_COMMAND_WHEN_CREATED_FROM_EDITOR;
         }
     }
 

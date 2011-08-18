@@ -1,12 +1,13 @@
-from pydevd_constants import *
+from pydevd_constants import * #@UnusedWildImport
 try:
     from Queue import Queue
 except:
-    from queue import Queue
+    from queue import Queue #@UnresolvedImport
 import threading
 from pydev_imports import xmlrpclib
 import traceback
 import time
+from pydev_runfiles_coverage import StartCoverageSupportFromParams
 
 
 
@@ -47,7 +48,6 @@ class ServerComm(threading.Thread):
         assert port is not None
         self.job_id = job_id
         
-        from pydev_imports import xmlrpclib
         self.finished = False
         self.server = server
         
@@ -122,7 +122,7 @@ class ServerFacade(object):
 #=======================================================================================================================
 # run_client
 #=======================================================================================================================
-def run_client(job_id, port, verbosity):
+def run_client(job_id, port, verbosity, coverage_output_file, coverage_include):
     job_id = int(job_id)
     
     import pydev_localhost
@@ -139,29 +139,57 @@ def run_client(job_id, port, verbosity):
         import pydev_runfiles_xml_rpc
         pydev_runfiles_xml_rpc.SetServer(server_facade)
         
-        tests_to_run = [1]
-        while tests_to_run:
-            #Investigate: is it dangerous to use the same xmlrpclib server from different threads?
-            #It seems it should be, as it creates a new connection for each request...
-            server.lock.acquire()
-            try:
-                tests_to_run = server.GetTestsToRun(job_id)
-            finally:
-                server.lock.release()
-            
-            if not tests_to_run:
-                break
-            
-            files_to_tests = {}
-            for test in tests_to_run:
-                filename_and_test = test.split('|')
-                if len(filename_and_test) == 2:
-                    files_to_tests.setdefault(filename_and_test[0], []).append(filename_and_test[1])
-    
-            configuration = pydev_runfiles.Configuration('', verbosity, None, None, None, files_to_tests, 1, None)
-            test_runner = pydev_runfiles.PydevTestRunner(configuration)
-            sys.stdout.flush()
-            test_runner.run_tests()
+        #Starts None and when the 1st test is gotten, it's started (because a server may be initiated and terminated
+        #before receiving any test -- which would mean a different process got all the tests to run).
+        coverage = None
+        
+        try:
+            tests_to_run = [1]
+            while tests_to_run:
+                #Investigate: is it dangerous to use the same xmlrpclib server from different threads?
+                #It seems it should be, as it creates a new connection for each request...
+                server.lock.acquire()
+                try:
+                    tests_to_run = server.GetTestsToRun(job_id)
+                finally:
+                    server.lock.release()
+                
+                if not tests_to_run:
+                    break
+                
+                if coverage is None:
+                    _coverage_files, coverage = StartCoverageSupportFromParams(
+                        None, coverage_output_file, 1, coverage_include)
+
+                
+                files_to_tests = {}
+                for test in tests_to_run:
+                    filename_and_test = test.split('|')
+                    if len(filename_and_test) == 2:
+                        files_to_tests.setdefault(filename_and_test[0], []).append(filename_and_test[1])
+        
+                configuration = pydev_runfiles.Configuration(
+                    '', 
+                    verbosity, 
+                    None, 
+                    None, 
+                    None, 
+                    files_to_tests, 
+                    1, #Always single job here
+                    None, 
+                    
+                    #The coverage is handled in this loop.
+                    coverage_output_file=None, 
+                    coverage_include=None, 
+                )
+                test_runner = pydev_runfiles.PydevTestRunner(configuration)
+                sys.stdout.flush()
+                test_runner.run_tests(handle_coverage=False)
+        finally:
+            if coverage is not None:
+                coverage.stop()
+                coverage.save()
+
         
     except:
         traceback.print_exc()
@@ -173,10 +201,19 @@ def run_client(job_id, port, verbosity):
 # main
 #=======================================================================================================================
 if __name__ == '__main__':
-    job_id, port, verbosity = sys.argv[1:]
+    if len(sys.argv) -1 == 3:
+        job_id, port, verbosity = sys.argv[1:]
+        coverage_output_file, coverage_include = None, None
+        
+    elif len(sys.argv) -1 == 5:
+        job_id, port, verbosity, coverage_output_file, coverage_include = sys.argv[1:]
+        
+    else:
+        raise AssertionError('Could not find out how to handle the parameters: '+sys.argv[1:])
+        
     job_id = int(job_id)
     port = int(port)
     verbosity = int(verbosity)
-    run_client(job_id, port, verbosity)
+    run_client(job_id, port, verbosity, coverage_output_file, coverage_include)
     
     

@@ -13,7 +13,7 @@ class PyDBFrame:
     is reused for the entire context.
     '''
     
-    def __init__(self, *args):
+    def __init__(self, args):
         #args = mainDebugger, filename, base, info, t, frame
         #yeap, much faster than putting in self and then getting it from self later on
         self._args = args[:-1]
@@ -24,9 +24,36 @@ class PyDBFrame:
     def doWaitSuspend(self, *args, **kwargs):
         self._args[0].doWaitSuspend(*args, **kwargs)
     
+    def trace_exception(self, frame, event, arg):
+        if event == 'exception':
+            mainDebugger = self._args[0]
+            if not mainDebugger.break_on_caught:
+                return None
+            
+            handle_exceptions = mainDebugger.handle_exceptions
+            if handle_exceptions is not None and issubclass(arg[0], handle_exceptions):
+                self.handle_exception(frame, event, arg)
+                mainDebugger.SetTraceForFrameAndParents(frame)
+                return self.trace_dispatch
+        return self.trace_exception
+    
+    
+    def handle_exception(self, frame, event, arg):
+        thread = self._args[3]
+        self.setSuspend(thread, CMD_STEP_INTO)
+        self.doWaitSuspend(thread, frame, event, arg)
+    
+    
     def trace_dispatch(self, frame, event, arg):
-        if event not in ('line', 'call', 'return', 'exception'):
-            return None
+        if event not in ('line', 'call', 'return'):
+            if event == 'exception':
+                mainDebugger = self._args[0]
+                if mainDebugger.break_on_caught and issubclass(arg[0], mainDebugger.handle_exceptions):
+                    self.handle_exception(frame, event, arg)
+                    return self.trace_dispatch
+            else:
+                #I believe this can only happen in jython on some frontiers on jython and java code, which we don't want to trace.
+                return None 
             
         mainDebugger, filename, info, thread = self._args
         
@@ -48,7 +75,10 @@ class PyDBFrame:
         #so, that's why the additional checks are there.
         if not breakpoint:
             if can_skip:
-                return None
+                if mainDebugger.break_on_caught:
+                    return self.trace_exception
+                else:
+                    return None
 
         else:
             #checks the breakpoint to see if there is a context match in some function
@@ -66,7 +96,10 @@ class PyDBFrame:
             else: # if we had some break, it won't get here (so, that's a context that we want to skip)
                 if can_skip:
                     #print 'skipping', frame.f_lineno, info.pydev_state, info.pydev_step_stop, info.pydev_step_cmd
-                    return None
+                    if mainDebugger.break_on_caught:
+                        return self.trace_exception
+                    else:
+                        return None
                 
         #We may have hit a breakpoint or we are already in step mode. Either way, let's check what we should do in this frame
         #print 'NOT skipped', frame.f_lineno, frame.f_code.co_name
@@ -123,9 +156,10 @@ class PyDBFrame:
             
             elif info.pydev_step_cmd == CMD_RUN_TO_LINE or info.pydev_step_cmd == CMD_SET_NEXT_STATEMENT:
                 stop = False
-                if event == 'line':
+                if event == 'line' or event == 'exception':
                     #Yes, we can only act on line events (weird hum?)
                     #Note: This code is duplicated at pydevd.py
+                    #Acting on exception events after debugger breaks with exception
                     curr_func_name = frame.f_code.co_name
                     
                     #global context is set with an empty name

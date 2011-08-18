@@ -17,13 +17,13 @@ import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.TryFinally;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
-import org.python.pydev.parser.jython.ast.suiteType;
 
 public class CodeFoldingVisitor extends EasyASTIteratorWithChildrenVisitor{
 
@@ -96,7 +96,7 @@ public class CodeFoldingVisitor extends EasyASTIteratorWithChildrenVisitor{
             stmtType firstOrElseStmt = entryIf.orelse.body[0];
             
             if(!(firstOrElseStmt instanceof If) && firstOrElseStmt != null){
-                If generatedIf = new If(new BoolOp(BoolOp.And, new exprType[0]), new stmtType[0], new suiteType(new stmtType[0]));
+                If generatedIf = new If(new BoolOp(BoolOp.And, new exprType[0]), new stmtType[0], new Suite(new stmtType[0]));
                 
                 generatedIf.beginLine = firstOrElseStmt.beginLine-1;
                 generatedIf.beginColumn = 1;

@@ -11,6 +11,7 @@ import java.util.List;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
@@ -18,8 +19,24 @@ import org.python.pydev.refactoring.core.base.RefactoringInfo;
 /**
  * This class should be used to generate code for creating a new class. 
  */
-public class PyCreateClass extends PyCreateClassOrMethod{
+public class PyCreateClass extends AbstractPyCreateClassOrMethodOrField{
 
+    private final static String baseClassStr = "" +
+            "class %s(${object}):\n" +
+            "    ${pass}${cursor}\n" +
+            "\n" +
+            "\n" +
+            "";
+    
+    private final static String baseClassWithInitStr = "" +
+            "class %s(${object}):\n" +
+            "    \n" +
+            "    def __init__(self, %s):\n" +
+            "        ${pass}${cursor}\n" +
+            "\n" +
+            "\n" +
+            "";
+    
     public String getCreationStr(){
         return "class";
     }
@@ -35,23 +52,11 @@ public class PyCreateClass extends PyCreateClassOrMethod{
 
         String source;
         if(parametersAfterCall == null || parametersAfterCall.size()== 0){
-            source = "" +
-            "class "+actTok+"(${object}):\n" +
-            "    ${pass}${cursor}\n" +
-            "\n" +
-            "\n" +
-            "";
+            source = StringUtils.format(baseClassStr, actTok);
         }else{
             FastStringBuffer params = createParametersList(parametersAfterCall);
+            source = StringUtils.format(baseClassWithInitStr, actTok, params);
             
-            source = "" +
-            "class "+actTok+"(${object}):\n" +
-            "    \n" +
-            "    def __init__(self, "+params+"):\n" +
-            "        ${pass}${cursor}\n" +
-            "\n" +
-            "\n" +
-            "";
         }
         
         Tuple<Integer, String> offsetAndIndent = getLocationOffset(locationStrategy, pySelection, moduleAdapter);

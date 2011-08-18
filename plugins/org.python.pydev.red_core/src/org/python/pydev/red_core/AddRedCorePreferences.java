@@ -9,17 +9,21 @@ package org.python.pydev.red_core;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.preferences.IPydevPreferencesProvider;
 import org.python.pydev.plugin.preferences.IPydevPreferencesProvider2;
+import org.python.pydev.red_core.preferences.PydevRedCorePreferencesInitializer;
 import org.python.pydev.utils.LabelFieldEditor;
 import org.python.pydev.utils.LinkFieldEditor;
 
@@ -34,8 +38,9 @@ import com.aptana.theme.ThemePlugin;
 public class AddRedCorePreferences implements IPydevPreferencesProvider, IPydevPreferencesProvider2{
 
 	
-	public IPreferenceStore[] getPreferenceStore() {
-		if(!AddRedCoreThemeAvailable.isRedCoreAvailable()){
+
+    public IPreferenceStore[] getPreferenceStore() {
+		if(!AddRedCoreThemeAvailable.isRedCoreAvailableForTheming()){
 			return null;
 		}
 		return new IPreferenceStore[]{
@@ -45,7 +50,7 @@ public class AddRedCorePreferences implements IPydevPreferencesProvider, IPydevP
 	}
 	
 	public boolean isColorOrStyleProperty(String property) {
-		if(!AddRedCoreThemeAvailable.isRedCoreAvailable()){
+		if(!AddRedCoreThemeAvailable.isRedCoreAvailableForTheming()){
 			return false;
 		}
         if(property.equals(IThemeManager.THEME_CHANGED)){
@@ -55,7 +60,7 @@ public class AddRedCorePreferences implements IPydevPreferencesProvider, IPydevP
 	}
 
 	private TextAttribute getFromTheme(String name) {
-		if(!AddRedCoreThemeAvailable.isRedCoreAvailable()){
+		if(!AddRedCoreThemeAvailable.isRedCoreAvailableForTheming()){
 			return null;
 		}
 		Theme currentTheme = ThemePlugin.getDefault().getThemeManager().getCurrentTheme();
@@ -139,17 +144,60 @@ public class AddRedCorePreferences implements IPydevPreferencesProvider, IPydevP
 	}
 
 	public RGB getConsoleBackgroundRGB() {
-	    if(!AddRedCoreThemeAvailable.isRedCoreAvailable()){
+	    if(!AddRedCoreThemeAvailable.isRedCoreAvailableForTheming()){
 	        return null;
 	    }
 		Theme currentTheme = ThemePlugin.getDefault().getThemeManager().getCurrentTheme();
 		return currentTheme.getBackground();
 	}
 
+	
+    protected Button addUseAptanaThemesCheckbox(final Composite parent, String label) {     
+        final Button checkBox= new Button(parent, SWT.CHECK);
+        checkBox.setText(label);
+        
+        GridData gd= new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
+        gd.horizontalSpan= 2;
+        checkBox.setLayoutData(gd);
+        checkBox.setSelection(PydevRedCorePreferencesInitializer.getUseAptanaThemes());
+        
+        final Label labelReUseAptanaThemes = addLabel(parent, "");
+        checkBox.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                PydevRedCorePreferencesInitializer.setUseAptanaThemes(checkBox.getSelection());
+                labelReUseAptanaThemes.setText("Restart required!\nMeanwhile, new and existing editors (or other widgets) may not function properly.\n\n");
+                labelReUseAptanaThemes.setForeground(labelReUseAptanaThemes.getDisplay().getSystemColor(SWT.COLOR_RED));
+                parent.layout();
+            }
+            
+        });
+        
+        return checkBox;
+    }
+    
+    protected Label addLabel(Composite parent, String label) {     
+        Label labelWidget= new Label(parent, SWT.None);
+        labelWidget.setText(label);
+        
+        GridData gd= new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
+        gd.horizontalSpan= 2;
+        labelWidget.setLayoutData(gd);
+        
+        return labelWidget;
+    }
+
     public boolean createColorOptions(Composite appearanceComposite, final PydevEditorPrefs prefs) {
         if(!AddRedCoreThemeAvailable.isRedCoreAvailable()){
             return false;
         }
+        
+        addUseAptanaThemesCheckbox(appearanceComposite, "Use aptana themes? (restart required)");
+
+        
+        if(!PydevRedCorePreferencesInitializer.getUseAptanaThemes()){
+            return false;
+        }
+        
         LinkFieldEditor colorsAndFontsLinkFieldEditor = new LinkFieldEditor(
                 "UNUSED", "Colors handled through <a>Aptana Themes</a>\n"
                 		, appearanceComposite, new SelectionListener() {

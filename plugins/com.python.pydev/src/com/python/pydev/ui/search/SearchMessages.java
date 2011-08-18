@@ -168,7 +168,6 @@ public final class SearchMessages extends NLS {
     public static String FileSearchPage_sort_path_label;
     public static String FileSearchPage_error_marker;
     public static String FileSearchPage_sort_by_label;
-    public static String FileSearchPage_limited_format;
     public static String WorkspaceScope;
     public static String ScopePart_group_text;
     public static String ScopePart_selectedResourcesScope_text;
@@ -186,8 +185,6 @@ public final class SearchMessages extends NLS {
     public static String SearchPreferencePage_emphasizePotentialMatches;
     public static String SearchPreferencePage_potentialMatchFgColor;
     public static String SearchPreferencePage_reuseEditor;
-    public static String SearchPreferencePage_limit_label;
-    public static String SearchPreferencePage_limit_error;
     public static String SearchPreferencePage_bringToFront;
     public static String SearchPreferencePage_defaultPerspective;
     public static String SearchPreferencePage_defaultPerspective_none;

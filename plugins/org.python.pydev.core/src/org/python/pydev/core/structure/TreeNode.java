@@ -13,12 +13,14 @@ public class TreeNode<T> {
  
     private T data;
     private final List<TreeNode<T>> children = new ArrayList<TreeNode<T>>();
-    private TreeNode<T> parent;
+    private Object parent;
  
-    public TreeNode(TreeNode<T> parent, T data) {
+    public TreeNode(Object parent, T data) {
         this.parent = parent;
         if(parent != null){
-            parent.addChild(this);
+            if(parent instanceof TreeNode){
+                ((TreeNode) parent).addChild(this);
+            }
         }
         setData(data);
     }
@@ -39,7 +41,7 @@ public class TreeNode<T> {
         this.children.add(treeNode);
     }
 
-    public TreeNode<T> getParent() {
+    public Object getParent() {
         return parent;
     }
 

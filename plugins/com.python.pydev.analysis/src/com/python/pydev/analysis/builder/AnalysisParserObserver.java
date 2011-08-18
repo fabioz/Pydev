@@ -14,7 +14,11 @@ import java.util.HashMap;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.IModule;
@@ -27,6 +31,7 @@ import org.python.pydev.core.parser.IParserObserver;
 import org.python.pydev.core.parser.IParserObserver3;
 import org.python.pydev.core.parser.ISimpleNode;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -41,10 +46,53 @@ import com.python.pydev.analysis.IAnalysisPreferences;
 public class AnalysisParserObserver implements IParserObserver, IParserObserver3{
 
 
+    /**
+     * @author fabioz
+     *
+     */
+    private final class AnalyzeLaterJob extends Job {
+        private final IPythonNature nature;
+        private ChangedParserInfoForObservers info;
+        private SimpleNode root;
+        private IFile fileAdapter;
+        private boolean force;
+        private int rescheduleTimes=15;
+
+        private AnalyzeLaterJob(String name, ChangedParserInfoForObservers info, SimpleNode root, IFile fileAdapter, boolean force, IPythonNature nature) {
+            super(name);
+            this.nature = nature;
+            this.info = info;
+            this.root = root;
+            this.fileAdapter = fileAdapter;
+            this.force=force;
+        }
+
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            rescheduleTimes--;
+            try {
+                if(!nature.isOkToUse()){
+                    if(rescheduleTimes >= 0){
+                        this.schedule(200);
+                    }
+                }else{
+                    analyze(info, root, fileAdapter, force, nature);
+                }
+            } catch (Throwable e) {
+                Log.log(e);
+            }
+            return Status.OK_STATUS;
+        }
+    }
+
+
     public static final String ANALYSIS_PARSER_OBSERVER_FORCE = "AnalysisParserObserver:force";
 
-    public void parserChanged(ChangedParserInfoForObservers info) {
-        SimpleNode root = (SimpleNode) info.root;
+    public void parserChanged(final ChangedParserInfoForObservers info) {
+        if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+            System.out.println("AnalysisParserObserver: parserChanged");
+        }
+        final SimpleNode root = (SimpleNode) info.root;
         if(info.file == null){
             return;
         }
@@ -76,49 +124,59 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
         if(whenAnalyze == IAnalysisPreferences.ANALYZE_ON_SUCCESFUL_PARSE || force){
             
             //create the module
-            IPythonNature nature = PythonNature.getPythonNature(fileAdapter);
+            final IPythonNature nature = PythonNature.getPythonNature(fileAdapter);
             if(nature == null){
                 return;
             }
             
             //don't analyze it if we're still not 'all set'
             if(!nature.isOkToUse()){
+                Job job = new AnalyzeLaterJob("Analyze later", info, root, fileAdapter, force, nature);
+                job.schedule(100);
                 return;
             }
             
-            if(!nature.startRequests()){
-                return;
-            }
-            IModule module;
-            try{
-            	//we visit external because we must index them
-            	String moduleName = nature.resolveModuleOnlyInProjectSources(fileAdapter, true);
-                if(moduleName == null){
-                    AnalysisRunner.deleteMarkers(fileAdapter);
-                    return; // we only analyze resources that are in the pythonpath
-                }
-    
-                String file = fileAdapter.getRawLocation().toOSString();
-                module = AbstractModule.createModule(root, new File(file), moduleName);
-                
-            }catch(Exception e){
-                Log.log(e); //Not much we can do about it.
-                return;
-            }finally{
-                nature.endRequests();
-            }
-            
-            //visit it
-            AnalysisBuilderVisitor visitor = new AnalysisBuilderVisitor();
-            visitor.memo = new HashMap<String, Object>();
-            visitor.memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, false);
-            visitor.memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, info.documentTime);
-            visitor.visitingWillStart(new NullProgressMonitor(), false, null);
-            visitor.doVisitChangedResource(nature, fileAdapter, info.doc, null, module, new NullProgressMonitor(), force, 
-                    AnalysisBuilderRunnable.ANALYSIS_CAUSE_PARSER, info.documentTime); 
-            
-            visitor.visitingEnded(new NullProgressMonitor());
+            analyze(info, root, fileAdapter, force, nature);
         }
+    }
+
+
+    private void analyze(ChangedParserInfoForObservers info, SimpleNode root, IFile fileAdapter, boolean force, IPythonNature nature) {
+        if(!nature.startRequests()){
+            return;
+        }
+        IModule module;
+        try{
+        	//we visit external because we must index them
+        	String moduleName = nature.resolveModuleOnlyInProjectSources(fileAdapter, true);
+            if(moduleName == null){
+                AnalysisRunner.deleteMarkers(fileAdapter);
+                return; // we only analyze resources that are in the pythonpath
+            }
+   
+            String file = fileAdapter.getRawLocation().toOSString();
+            module = AbstractModule.createModule(root, new File(file), moduleName);
+            
+        }catch(Exception e){
+            Log.log(e); //Not much we can do about it.
+            return;
+        }finally{
+            nature.endRequests();
+        }
+        
+        //visit it
+        AnalysisBuilderVisitor visitor = new AnalysisBuilderVisitor();
+        visitor.memo = new HashMap<String, Object>();
+        visitor.memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, false);
+        visitor.memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, info.documentTime);
+        visitor.visitingWillStart(new NullProgressMonitor(), false, null);
+        try {
+            visitor.doVisitChangedResource(nature, fileAdapter, info.doc, null, module, new NullProgressMonitor(), force, 
+                    AnalysisBuilderRunnable.ANALYSIS_CAUSE_PARSER, info.documentTime);
+        } finally {
+            visitor.visitingEnded(new NullProgressMonitor());
+        } 
+        
     }
 
     

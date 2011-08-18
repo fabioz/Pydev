@@ -12,25 +12,33 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.core.callbacks.ICallbackListener;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.red_core.preferences.PydevRedCorePreferencesInitializer;
 
-import com.aptana.editor.common.extensions.ThemeableEditorExtension;
 import com.aptana.editor.common.extensions.FindBarEditorExtension;
+import com.aptana.editor.common.extensions.ThemeableEditorExtension;
 
 public class AddRedCoreThemeImpl {
 	
 	private FindBarEditorExtension themeableEditorFindBarExtension;
 	private ThemeableEditorExtension themeableEditorColorsExtension;
 
-	public void installRedCoreTheme(final PyEdit edit) {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+    public void installRedCoreTheme(final PyEdit edit) {
 		final PyEditThemeAdaptable adaptable = new PyEditThemeAdaptable(edit);
 		themeableEditorFindBarExtension = new FindBarEditorExtension(adaptable);
-		themeableEditorColorsExtension = new ThemeableEditorExtension(adaptable);
+		
+		if(PydevRedCorePreferencesInitializer.getUseAptanaThemes()){
+		    //may be null!
+		    themeableEditorColorsExtension = new ThemeableEditorExtension(adaptable);
+		}
 		
 		edit.onCreatePartControl.registerListener(new ICallbackListener() {
 			
 			public Object call(Object obj) {
 				Composite parent = (Composite) obj;
-				themeableEditorColorsExtension.setParent(parent);
+				if(themeableEditorColorsExtension != null){
+				    themeableEditorColorsExtension.setParent(parent);
+				}
 				Composite newParent = themeableEditorFindBarExtension.createFindBarComposite(parent);
 				return newParent;
 			}
@@ -40,7 +48,9 @@ public class AddRedCoreThemeImpl {
 			
 			public Object call(Object obj) {
 				themeableEditorFindBarExtension.createFindBar(adaptable.getISourceViewer());
-				themeableEditorColorsExtension.overrideThemeColors();
+				if(themeableEditorColorsExtension != null){
+				    themeableEditorColorsExtension.overrideThemeColors();
+				}
 				return null;
 			}
 		});
@@ -48,7 +58,9 @@ public class AddRedCoreThemeImpl {
 		edit.onInitializeLineNumberRulerColumn.registerListener(new ICallbackListener() {
 			
 			public Object call(Object obj) {
-				themeableEditorColorsExtension.initializeLineNumberRulerColumn((LineNumberRulerColumn) obj);
+			    if(themeableEditorColorsExtension != null){
+			        themeableEditorColorsExtension.initializeLineNumberRulerColumn((LineNumberRulerColumn) obj);
+			    }
 				return null;
 			}
 		});
@@ -57,7 +69,9 @@ public class AddRedCoreThemeImpl {
 			
 			public Object call(Object obj) {
 			    themeableEditorFindBarExtension.dispose();
-				themeableEditorColorsExtension.dispose();
+			    if(themeableEditorColorsExtension != null){
+			        themeableEditorColorsExtension.dispose();
+			    }
 				return null;
 			}
 		});
@@ -65,7 +79,9 @@ public class AddRedCoreThemeImpl {
 		edit.onHandlePreferenceStoreChanged.registerListener(new ICallbackListener() {
 			
 			public Object call(Object event) {
-				themeableEditorColorsExtension.handlePreferenceStoreChanged((PropertyChangeEvent) event);
+			    if(themeableEditorColorsExtension != null){
+			        themeableEditorColorsExtension.handlePreferenceStoreChanged((PropertyChangeEvent) event);
+			    }
 				return null;
 			}
 		});
@@ -73,7 +89,9 @@ public class AddRedCoreThemeImpl {
 		edit.onCreateSourceViewer.registerListener(new ICallbackListener() {
 			
 			public Object call(Object viewer) {
-				themeableEditorColorsExtension.createBackgroundPainter((ISourceViewer) viewer);
+			    if(themeableEditorColorsExtension != null){
+			        themeableEditorColorsExtension.createBackgroundPainter((ISourceViewer) viewer);
+			    }
 				return null;
 			}
 		});
@@ -81,7 +99,7 @@ public class AddRedCoreThemeImpl {
 		edit.onCreateActions.registerListener(new ICallbackListener() {
 			
 			public Object call(Object obj) {
-				themeableEditorFindBarExtension.createFindBarActions();
+		        themeableEditorFindBarExtension.createFindBarActions();
 				return null;
 			}
 		});

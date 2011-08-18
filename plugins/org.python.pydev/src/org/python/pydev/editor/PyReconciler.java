@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ISynchronizable;
@@ -37,7 +38,7 @@ import org.eclipse.ui.texteditor.spelling.SpellingContext;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 import org.python.pydev.core.IPythonPartitions;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.log.Log;
 
 /**
  * Based on SpellingReconcileStrategy.
@@ -230,8 +231,13 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
         try {
             //we're not using incremental updates!!! -- that's why the region is ignored and fDocument.len is used.
             //PyEditConfiguration#getReconciler should also be configured for that if needed.
-            ITypedRegion[] partitions = TextUtilities.computePartitioning(fDocument, IPythonPartitions.PYTHON_PARTITION_TYPE, 0, fDocument
-                    .getLength(), false);
+            ITypedRegion[] partitions = TextUtilities.computePartitioning(
+                    fDocument, 
+                    IPythonPartitions.PYTHON_PARTITION_TYPE, 
+                    0, 
+                    fDocument.getLength(), 
+                    false
+            );
 
             ArrayList<IRegion> regions = new ArrayList<IRegion>();
             for (ITypedRegion partition : partitions) {
@@ -255,8 +261,11 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
                         fProgressMonitor);
             }
 
+        } catch (BadLocationException e) {
+            //Ignore: can happen if the document changes during the reconciling.
+            
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
             
         }finally{
             synchronized (modelBeingChecked) {

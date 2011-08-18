@@ -12,6 +12,7 @@
  */
 package org.python.pydev.outline;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IAdaptable;
@@ -34,23 +35,25 @@ import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.part.IShowInTarget;
 import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.texteditor.IDocumentProvider;
-import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.ErrorDescription;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.IViewCreatedObserver;
+import org.python.pydev.ui.IViewWithControls;
 import org.python.pydev.ui.UIConstants;
 
 /**
@@ -60,18 +63,12 @@ import org.python.pydev.ui.UIConstants;
  * PyDocumentProvider already partitions the document into strings/comments/other<p>
  * RawPartition is the simplest outline that shows this "raw" document partitioning<p>
  * raw partition was only used as an example, not useful in production<p>
- *
- * Design notes:
- * a good (and only one that subclasses ContentOutlinePage) 
- * example of Eclipse's internal outline page is
- * org.eclipse.ui.extenaltools.internal.ant.editor.outline
- * see PlantyEditor, and PlantyContentOutlinePage
- * 
  * 
  * @note: tests for the outline page are not directly for the outline page, but for its model, 
  * based on ParsedItems.
  **/
-public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, IAdaptable{
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShowInTarget, IAdaptable, IViewWithControls{
 
     PyEdit editorView;
     IDocument document;
@@ -82,12 +79,13 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
     ISelectionChangedListener selectionListener;
     
     private OutlineLinkWithEditorAction linkWithEditor;
-	public final ICallbackWithListeners onTreeViewerCreated = new CallbackWithListeners();
-	public final ICallbackWithListeners onDispose = new CallbackWithListeners();
+    public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();
+	public final ICallbackWithListeners onControlDisposed = new CallbackWithListeners();
+    private List createdCallbacksForControls;
 
     public PyOutlinePage(PyEdit editorView) {
         super();
-		List<IViewCreatedObserver> participants = ExtensionHelper.getParticipants(
+        List<IViewCreatedObserver> participants = ExtensionHelper.getParticipants(
 				ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
 		for (IViewCreatedObserver iViewCreatedObserver : participants) {
 			iViewCreatedObserver.notifyViewCreated(this);
@@ -97,6 +95,14 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
     }
     
     public void dispose() {
+        onControlDisposed.call(getTreeViewer());
+        if(createdCallbacksForControls != null){
+            for(Object o:createdCallbacksForControls){
+                onControlDisposed.call(o);
+            }
+            createdCallbacksForControls = null;
+        }
+        
         if (model != null) {
             model.dispose();
             model = null;
@@ -112,7 +118,6 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
             linkWithEditor = null;
         }
         super.dispose();
-        onDispose.call(this);
     }
 
 
@@ -183,7 +188,7 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
             }
         } catch (Throwable e) {
             //things may be disposed...
-            PydevPlugin.log(e);
+            Log.log(e);
         }finally{
             relinkAll();
         }
@@ -341,13 +346,32 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
                 }}
             );
             
+            onControlCreated.call(getTreeViewer());
+            createdCallbacksForControls = callRecursively(onControlCreated, filter, new ArrayList());
         }catch(Throwable e){
-            PydevPlugin.log(e);
+            Log.log(e);
         }
-        onTreeViewerCreated.call(getTreeViewer());
     }
     
-	public boolean show(ShowInContext context) {
+    /**
+     * Calls the callback with the composite c and all of its children (recursively).
+     */
+    private List callRecursively(ICallbackWithListeners callback, Composite c, ArrayList controls) {
+        try {
+            for(Control child:c.getChildren()){
+                if(child instanceof Composite){
+                    callRecursively(callback, (Composite) child, controls);
+                }
+                controls.add(child);
+                callback.call(child);
+            }
+        } catch (Throwable e) {
+            Log.log(e);
+        }
+        return controls;
+    }
+
+    public boolean show(ShowInContext context) {
         linkWithEditor.doLinkOutlinePosition(this.editorView, this, new PySelection(this.editorView));
         return true;
     }
@@ -432,6 +456,14 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
         if(event != null){
             selectionChanged(event);
         }
+    }
+
+    public ICallbackWithListeners getOnControlCreated() {
+        return onControlCreated;
+    }
+
+    public ICallbackWithListeners getOnControlDisposed() {
+        return onControlDisposed;
     }
 
 

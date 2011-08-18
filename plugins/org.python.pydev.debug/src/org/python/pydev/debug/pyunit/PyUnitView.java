@@ -54,8 +54,10 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IHyperlink;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.core.tooltips.presenter.StyleRangeWithCustomData;
 import org.python.pydev.core.tooltips.presenter.ToolTipPresenterHandler;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.debug.core.PydevDebugPlugin;
@@ -66,6 +68,8 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.ColorAndStyleCache;
 import org.python.pydev.ui.IViewCreatedObserver;
+import org.python.pydev.ui.IViewWithControls;
+import org.python.pydev.ui.ViewPartWithOrientation;
 
 
 /**
@@ -94,10 +98,10 @@ import org.python.pydev.ui.IViewCreatedObserver;
  * - Show current test(s) being run (handle parallel execution) -- OK
  * - Select some tests and make a new run with them. -- OK
  * - Show total time to run tests. -- OK
+ * - Rerun tests on file changes -- OK 
  * 
  * 
  * Nice to have:
- * - Rerun tests on file changes 
  * - Hide or show output pane 
  * - If a string was different, show an improved diff (as JDT)
  * - Save column order (tree.setColumnOrder(order))
@@ -117,8 +121,15 @@ import org.python.pydev.ui.IViewCreatedObserver;
  * 
  * Based on org.eclipse.jdt.internal.junit.ui.TestRunnerViewPart (but it's really not meant to be reused)
  */
-public class PyUnitView extends ViewPartWithOrientation{
-    
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public class PyUnitView extends ViewPartWithOrientation implements IViewWithControls{
+
+    public static final String PYUNIT_VIEW_ORIENTATION = "PYUNIT_VIEW_ORIENTATION";
+    @Override
+    public String getOrientationPreferencesKey() {
+        return PYUNIT_VIEW_ORIENTATION;
+    }
+
     public static final String PY_UNIT_TEST_RESULT = "RESULT";
     private static final String PY_UNIT_VIEW_ID = "org.python.pydev.debug.pyunit.pyUnitView";
     public static final String PYUNIT_VIEW_SHOW_ONLY_ERRORS = "PYUNIT_VIEW_SHOW_ONLY_ERRORS";
@@ -126,6 +137,9 @@ public class PyUnitView extends ViewPartWithOrientation{
     
     public static final String PYUNIT_VIEW_SHOW_VIEW_ON_TEST_RUN = "PYUNIT_VIEW_SHOW_VIEW_ON_TEST_RUN";
     public static final boolean PYUNIT_VIEW_DEFAULT_SHOW_VIEW_ON_TEST_RUN = true;
+    
+    public static final String PYUNIT_VIEW_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS = "PYUNIT_VIEW_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS";
+    public static final boolean PYUNIT_VIEW_DEFAULT_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS = false;
     
     public static int MAX_RUNS_TO_KEEP = 15;
     
@@ -176,7 +190,6 @@ public class PyUnitView extends ViewPartWithOrientation{
      */
     private boolean disposed = false;
 
-    @SuppressWarnings("unchecked")
     public PyUnitView() {
         PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
         
@@ -197,7 +210,7 @@ public class PyUnitView extends ViewPartWithOrientation{
                 if(testOutputText == null){
                     return;
                 }
-                StyleRange range = new StyleRange();
+                StyleRangeWithCustomData range = new StyleRangeWithCustomData();
                 range.underline = true;
                 try{
                     range.underlineStyle = SWT.UNDERLINE_LINK;
@@ -212,7 +225,7 @@ public class PyUnitView extends ViewPartWithOrientation{
                 }
                 range.start = offset;
                 range.length = length+1;
-                range.data = link;
+                range.customData = link;
                 testOutputText.setStyleRange(range);
             }
 
@@ -242,7 +255,6 @@ public class PyUnitView extends ViewPartWithOrientation{
         return tree;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void createPartControl(Composite parent) {
         Assert.isTrue(!disposed);
@@ -372,13 +384,20 @@ public class PyUnitView extends ViewPartWithOrientation{
         action.setChecked(this.showOnlyErrors);
         
         toolBar.add(new Separator());
-        toolBar.add(new RelaunchErrorsAction(this));
         toolBar.add(new RelaunchAction(this));
+        toolBar.add(new RelaunchErrorsAction(this));
         toolBar.add(new StopAction(this));
         
         toolBar.add(new Separator());
-        toolBar.add(new HistoryAction(this));
+        toolBar.add(new RelaunchInBackgroundAction(this));
         
+        toolBar.add(new Separator());
+        toolBar.add(new HistoryAction(this));
+        PinHistoryAction pinHistory = new PinHistoryAction(this);
+        toolBar.add(pinHistory);
+        toolBar.add(new RestorePinHistoryAction(this, pinHistory));
+        
+        addOrientationPreferences(menuManager);
     }
 
     @Override
@@ -415,7 +434,6 @@ public class PyUnitView extends ViewPartWithOrientation{
         this.tree.setFocus();
     }
     
-    @SuppressWarnings("unchecked")
     @Override
     public void dispose() {
         if(this.disposed){
@@ -425,14 +443,14 @@ public class PyUnitView extends ViewPartWithOrientation{
         if(this.tree != null){
             Tree t = this.tree;
             this.tree = null;
+            onControlDisposed.call(t);
             t.dispose();
-            onDispose.call(t);
         }
         if(this.testOutputText != null){
             StyledText t = this.testOutputText;
             this.testOutputText = null;
+            onControlDisposed.call(t);
             t.dispose();
-            onDispose.call(t);
         }
         if(this.fCounterPanel != null){
             this.fCounterPanel.dispose();
@@ -510,7 +528,7 @@ public class PyUnitView extends ViewPartWithOrientation{
             }
             IWorkbenchPage page= workbenchWindow.getActivePage();
             if(ShowViewOnTestRunAction.getShowViewOnTestRun()){
-                return (PyUnitView) page.showView(PY_UNIT_VIEW_ID, null, IWorkbenchPage.VIEW_ACTIVATE);
+                return (PyUnitView) page.showView(PY_UNIT_VIEW_ID, null, IWorkbenchPage.VIEW_VISIBLE);
             }else{
                 IViewReference viewReference = page.findViewReference(PY_UNIT_VIEW_ID);
                 if(viewReference != null){
@@ -628,6 +646,12 @@ public class PyUnitView extends ViewPartWithOrientation{
             
             treeItem.setData (ToolTipPresenterHandler.TIP_DATA, result);
             treeItem.setData(PY_UNIT_TEST_RESULT, result);
+            
+            int selectionCount = tree.getSelectionCount();
+            if(selectionCount == 0){
+                tree.setSelection(treeItem);
+                onSelectResult(result);
+            }
         }
         
         if(updateBar){
@@ -826,8 +850,9 @@ public class PyUnitView extends ViewPartWithOrientation{
                 int offset = styledText.getCaretOffset();
                 if(offset >= 0 && offset < styledText.getCharCount()){
                     StyleRange styleRangeAtOffset = styledText.getStyleRangeAtOffset(offset);
-                    if(styleRangeAtOffset != null){
-                        Object l = styleRangeAtOffset.data;
+                    if(styleRangeAtOffset instanceof StyleRangeWithCustomData){
+                        StyleRangeWithCustomData styleRangeWithCustomData = (StyleRangeWithCustomData) styleRangeAtOffset;
+                        Object l = styleRangeWithCustomData.customData;
                         if(l instanceof IHyperlink){
                             ((IHyperlink) l).linkActivated();
                         }
@@ -855,7 +880,7 @@ public class PyUnitView extends ViewPartWithOrientation{
      */
     private final class EnterProssedTreeItemKeyListener extends KeyAdapter {
         public void keyReleased(KeyEvent e) {
-            if(e.widget == tree && (e.keyCode == SWT.LF || e.keyCode == SWT.CR)){
+            if(e.widget == tree && (e.keyCode == SWT.LF || e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR)){
                 onTriggerGoToTest();
             }
         }
@@ -917,6 +942,7 @@ public class PyUnitView extends ViewPartWithOrientation{
         tree.setRedraw(false);
         try {
             tree.removeAll();
+            testOutputText.setText(""); //Clear initial results (the first added will be selected)
             if(testRun != null){
                 List<PyUnitTestResult> sharedResultsList = testRun.getSharedResultsList();
                 for (PyUnitTestResult result : sharedResultsList) {
@@ -924,7 +950,6 @@ public class PyUnitView extends ViewPartWithOrientation{
                 }
             }
             updateCountersAndBar();
-            testOutputText.setText(""); //leave no result selected
         } finally {
             tree.setRedraw(true);
         }
@@ -982,11 +1007,20 @@ public class PyUnitView extends ViewPartWithOrientation{
     /**
      * Sets the text component to be used (in tests we want to set it externally)
      */
-    @SuppressWarnings("unchecked")
     /*default*/ void setTextComponent(StyledText text) {
         this.testOutputText = text;
         onControlCreated.call(text);
         text.addMouseListener(this.activateLinkmouseListener);
+    }
+
+
+    public ICallbackWithListeners getOnControlCreated() {
+        return onControlCreated;
+    }
+
+
+    public ICallbackWithListeners getOnControlDisposed() {
+        return onControlDisposed;
     }
 
 

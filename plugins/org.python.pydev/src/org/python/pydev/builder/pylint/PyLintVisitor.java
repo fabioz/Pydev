@@ -41,6 +41,7 @@ import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.SimplePythonRunner;
@@ -123,7 +124,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                                         PYLINT_PROBLEM_MARKER, priority, false, false, line, 0, line, 0, null));
                             }
                             
-                            PydevMarkerUtils.replaceMarkers(lst, resource, PYLINT_PROBLEM_MARKER, monitor);
+                            PydevMarkerUtils.replaceMarkers(lst, resource, PYLINT_PROBLEM_MARKER, true, monitor);
     
                             return PydevPlugin.makeStatus(Status.OK, "", null);
                         }
@@ -133,7 +134,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             } catch (final Exception e) {
                 new Job("Error reporting"){
                     protected IStatus run(IProgressMonitor monitor) {
-                        PydevPlugin.log(e);
+                        Log.log(e);
                         return PydevPlugin.makeStatus(Status.OK, "", null);
                     }
                 }.schedule();
@@ -141,7 +142,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                 try {
                     pyLintThreads.remove(this);
                 } catch (Exception e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
             }
         }
@@ -183,7 +184,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             list.add("--include-ids=y");
             
             //user args
-            String userArgs = StringUtils.replaceNewLines(PyLintPrefPage.getPylintArgs(), " ");
+            String userArgs = StringUtils.replaceNewLines(PyLintPrefPage.getPyLintArgs(), " ");
             StringTokenizer tokenizer2 = new StringTokenizer(userArgs);
             while(tokenizer2.hasMoreTokens()){
                 list.add(tokenizer2.nextToken());
@@ -195,19 +196,20 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             
             String scriptToExe = REF.getFileAbsolutePath(script);
             String[] paramsToExe = list.toArray(new String[0]);
-            write("Pylint: Executing command line:'", out, scriptToExe, paramsToExe, "'");
+            write("PyLint: Executing command line:'", out, scriptToExe, paramsToExe, "'");
             
             PythonNature nature = PythonNature.getPythonNature(project);
             if(nature == null){
-                PydevPlugin.log(new RuntimeException("PyLint ERROR: Nature not configured for: "+project));
+                Throwable e = new RuntimeException("PyLint ERROR: Nature not configured for: "+project);
+                Log.log(e);
                 return;
             }
             
             Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutputFromPythonScript(
                     nature.getProjectInterpreter().getExecutableOrJar(), scriptToExe, paramsToExe, arg.getParentFile(), project);
             
-            write("Pylint: The stdout of the command line is: "+outTup.o1, out);
-            write("Pylint: The stderr of the command line is: "+outTup.o2, out);
+            write("PyLint: The stdout of the command line is: "+outTup.o1, out);
+            write("PyLint: The stderr of the command line is: "+outTup.o2, out);
             
             String output = outTup.o1;
 
@@ -228,11 +230,13 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             
             //System.out.println(output);
             if(output.indexOf("Traceback (most recent call last):") != -1){
-                PydevPlugin.log(new RuntimeException("PyLint ERROR: \n"+output));
+                Throwable e = new RuntimeException("PyLint ERROR: \n"+output);
+                Log.log(e);
                 return;
             }
             if(outTup.o2.indexOf("Traceback (most recent call last):") != -1){
-                PydevPlugin.log(new RuntimeException("PyLint ERROR: \n"+outTup.o2));
+                Throwable e = new RuntimeException("PyLint ERROR: \n"+outTup.o2);
+                Log.log(e);
                 return;
             }
             while(tokenizer.hasMoreTokens()){
@@ -320,10 +324,10 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                             addToMarkers(tok, priority, id, line-1);
                         }
                     } catch (RuntimeException e2) {
-                        PydevPlugin.log(e2);
+                        Log.log(e2);
                     }
                 } catch (Exception e1) {
-                    PydevPlugin.log(e1);
+                    Log.log(e1);
                 }
             }
         }
@@ -335,12 +339,13 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         if(document == null){
             return;
         }
+        //Whenever PyLint is passed, the markers will be deleted.
+        try {
+            resource.deleteMarkers(PYLINT_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+        } catch (CoreException e3) {
+            Log.log(e3);
+        }
         if(PyLintPrefPage.usePyLint() == false){
-            try {
-                resource.deleteMarkers(PYLINT_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
-            } catch (CoreException e3) {
-                PydevPlugin.log(e3);
-            }
             return;
         }
         
@@ -389,7 +394,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                 }
             }
         } catch (IOException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
 

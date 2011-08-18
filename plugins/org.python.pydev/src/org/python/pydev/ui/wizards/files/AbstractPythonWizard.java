@@ -16,18 +16,53 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 
 public abstract class AbstractPythonWizard extends Wizard implements INewWizard {
 
+    
+    public static void startWizard(AbstractPythonWizard wizard, String title) {
+        IWorkbenchPart part = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart();
+        IStructuredSelection sel = (IStructuredSelection) part.getSite().getSelectionProvider()
+            .getSelection();
+
+        startWizard(wizard, title, sel);
+    }
+    
+    /**
+     * Must be called in the UI thread.
+     * @param sel will define what appears initially in the project/source folder/name.
+     */
+    public static void startWizard(AbstractPythonWizard wizard, String title, IStructuredSelection sel) {
+        IWorkbenchPart part = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart();
+
+        wizard.init(part.getSite().getWorkbenchWindow().getWorkbench(), sel);
+        wizard.setWindowTitle(title);
+
+        Shell shell = part.getSite().getShell();
+        if (shell == null) {
+            shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+        }
+        WizardDialog dialog = new WizardDialog(shell, wizard);
+        dialog.setPageSize(350, 500);
+        dialog.setHelpAvailable(false);
+        dialog.create();
+        dialog.open();
+    }
+    
 
     /**
      * The workbench.
@@ -63,7 +98,7 @@ public abstract class AbstractPythonWizard extends Wizard implements INewWizard 
 
     
     /** Wizard page asking filename */
-    protected PythonAbstractPathPage filePage;
+    protected AbstractPythonWizardPage filePage;
 
     /**
      * @see org.eclipse.jface.wizard.IWizard#addPages()
@@ -77,7 +112,7 @@ public abstract class AbstractPythonWizard extends Wizard implements INewWizard 
     /**
      * @return
      */
-    protected abstract PythonAbstractPathPage createPathPage();
+    protected abstract AbstractPythonWizardPage createPathPage();
 
     
     /**
@@ -107,11 +142,11 @@ public abstract class AbstractPythonWizard extends Wizard implements INewWizard 
                     }
                 }
             } catch (PartInitException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
                 return false;
             }
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
             return false;
         }
         return true;

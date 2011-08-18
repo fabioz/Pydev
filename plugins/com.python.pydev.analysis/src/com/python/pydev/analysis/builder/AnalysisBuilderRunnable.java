@@ -22,14 +22,14 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.logging.DebugSettings;
-import org.python.pydev.plugin.PydevPlugin;
 
 import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.OccurrencesAnalyzer;
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.messages.IMessage;
 
@@ -153,7 +153,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
                 Log.log("Finished analysis: null nature -- "+moduleName);
                 return;
             }
-            AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.
+            AbstractAdditionalTokensInfo info = AdditionalProjectInterpreterInfo.
                 getAdditionalInfoForProject(nature);
             
             if(info == null){
@@ -254,7 +254,15 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
             
             //don't stop after setting to add / remove the markers
             if(r != null){
-                runner.setMarkers(r, document, messages, this.internalCancelMonitor);
+                boolean analyzeOnlyActiveEditor = PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor();
+                if(forceAnalysis || !analyzeOnlyActiveEditor || 
+                        (analyzeOnlyActiveEditor && (!PyDevBuilderPrefPage.getRemoveErrorsWhenEditorIsClosed() || PyEdit.isEditorOpenForResource(r)))){
+                    runner.setMarkers(r, document, messages, this.internalCancelMonitor);
+                }else{
+                    if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+                        Log.toLogFile(this, "Skipped adding markers for module: "+moduleName+" (editor not opened).");
+                    }
+                }
             }
             
             //if there are callbacks registered, call them if we still didn't return (mostly for tests)
@@ -270,17 +278,17 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
             //ok, ignore it
             logOperationCancelled();
         } catch (Exception e){
-            PydevPlugin.log(e);
+            Log.log(e);
         } finally{
             try{
                 nature.endRequests();
             }catch(Throwable e){
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             try{
                 AnalysisBuilderRunnableFactory.removeFromThreads(key, this);
             }catch (Throwable e){
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             
             dispose();
@@ -291,7 +299,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
     /**
      * @return false if there's no modification among the current version of the file and the last version analyzed.
      */
-    private void recreateCtxInsensitiveInfo(AbstractAdditionalInterpreterInfo info, SourceModule sourceModule, 
+    private void recreateCtxInsensitiveInfo(AbstractAdditionalTokensInfo info, SourceModule sourceModule, 
             IPythonNature nature, IResource r) {
         
         //info.removeInfoFromModule(sourceModule.getName()); -- does not remove info from the module because this
@@ -303,7 +311,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
         }else{
             generateDelta = true;
         }
-        info.addSourceModuleInfo(sourceModule, nature, generateDelta);
+        info.addAstInfo(sourceModule.getAst(), sourceModule.getModulesKey(), generateDelta);
     }
 
 

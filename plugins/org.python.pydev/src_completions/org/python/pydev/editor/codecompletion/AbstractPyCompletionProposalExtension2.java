@@ -21,12 +21,12 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.log.Log;
 
 public abstract class AbstractPyCompletionProposalExtension2 extends PyCompletionProposal implements ICompletionProposalExtension2, ICompletionProposalExtension {
     
 
-    protected PyCompletionPresentationUpdater presentationUpdater;
+    private PyCompletionPresentationUpdater presentationUpdater;
     
     /**
      * Only available when Ctrl is pressed when selecting the completion.
@@ -34,6 +34,11 @@ public abstract class AbstractPyCompletionProposalExtension2 extends PyCompletio
     public int fLen;
     
     public boolean fLastIsPar;
+    
+    public AbstractPyCompletionProposalExtension2(
+            String replacementString, int replacementOffset, int replacementLength, int cursorPosition, int priority) {
+        super(replacementString, replacementOffset, replacementLength, cursorPosition, null, null, null, null, priority);
+    }
 
     public AbstractPyCompletionProposalExtension2(String replacementString, int replacementOffset, int replacementLength,
             int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
@@ -41,7 +46,6 @@ public abstract class AbstractPyCompletionProposalExtension2 extends PyCompletio
         
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
                 contextInformation, additionalProposalInfo, priority, onApplyAction, args);
-        presentationUpdater = new PyCompletionPresentationUpdater();
     }
 
 
@@ -81,9 +85,9 @@ public abstract class AbstractPyCompletionProposalExtension2 extends PyCompletio
                 }
                 
                 this.fLen = finalOffset-widgetCaret;
-                this.presentationUpdater.updateStyle(viewer, widgetCaret, this.fLen);
+                this.getPresentationUpdater().updateStyle(viewer, widgetCaret, this.fLen);
             } catch (BadLocationException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             
         }else{
@@ -100,7 +104,7 @@ public abstract class AbstractPyCompletionProposalExtension2 extends PyCompletio
     }
 
     public void unselected(ITextViewer viewer) {
-        this.presentationUpdater.repairPresentation(viewer);
+        this.getPresentationUpdater().repairPresentation(viewer);
     }
 
     public boolean validate(IDocument document, int offset, DocumentEvent event) {
@@ -176,11 +180,19 @@ public abstract class AbstractPyCompletionProposalExtension2 extends PyCompletio
             try {
                 doc.replace(offset, 0, ".");
             } catch (BadLocationException e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             return false;
         }
         
         return true;
+    }
+
+
+    protected PyCompletionPresentationUpdater getPresentationUpdater() {
+        if(presentationUpdater == null){
+            presentationUpdater = new PyCompletionPresentationUpdater();
+        }
+        return presentationUpdater;
     }
 }

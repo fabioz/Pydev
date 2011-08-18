@@ -5487,7 +5487,7 @@ else
     case DOT:
       jj_consume_token(DOT);
       jj_consume_token(DOT);
-                  SimpleNode jjtn001 = jjtree.builder.openNode( JJTELLIPSES);
+                  SimpleNode jjtn001 = jjtree.builder.openNode( JJTELLIPSIS);
                   boolean jjtc001 = true;
                   jjtree.openNodeScope(jjtn001);
                   jjtreeOpenNodeScope(jjtn001);

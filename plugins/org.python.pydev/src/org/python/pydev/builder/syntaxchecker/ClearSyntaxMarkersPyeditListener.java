@@ -20,7 +20,6 @@ import org.python.pydev.editor.IPyEditListener3;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.PyParser;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * When the editor is disposed, if needed this class will remove the markers from the related
@@ -66,7 +65,7 @@ public class ClearSyntaxMarkersPyeditListener implements IPyEditListener, IPyEdi
                 try {
                     PyParser.deleteErrorMarkers(relatedFile);
                 } catch (CoreException e) {
-                    PydevPlugin.log(e);
+                    Log.log(e);
                 }
             }
         }

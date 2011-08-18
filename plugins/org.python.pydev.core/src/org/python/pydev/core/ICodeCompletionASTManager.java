@@ -276,5 +276,31 @@ public interface ICodeCompletionASTManager {
      */
     public Object getLock();
 
+    /**
+     * Finds a module from the string representation of that module.
+     * 
+     * @param fromImportStr the module we want (i.e.: pack1.pack2.other_module or other_module)
+     * @param currentModule the module we're in right now (i.e.: pack1.pack2.mod1)
+     * 
+     * @return null (if not found) or a tuple with the module which we could find and a representation found inside that module. 
+     * 
+     * Example 1:
+     * If we were in a module pack1.pack2.mod1 and were looking for a module 'other_module' which was a relative
+     * module and it existed, we'd get the module pack1.pack2.other_module and an empty string, as we were able to find
+     * the module.
+     * 
+     * Example 2:
+     * If we had a representation pack1.other_module and other_module didn't exist under pack1, we'd get a module
+     * 'pack1.__init__' and the string as 'other_module'
+     * 
+     * @throws CompletionRecursionException 
+     */
+    public Tuple<IModule, String> findModule(String fromImportStr, String currentModule, ICompletionState state) throws CompletionRecursionException;
+
+    /**
+     * @param astOutputFile
+     */
+    public void saveToFile(File astOutputFile);
+
     
 }

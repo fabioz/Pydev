@@ -24,6 +24,7 @@ import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.ImportsSelection;
@@ -55,7 +56,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
 
     private List<ISimpleAssistParticipant2> simpleParticipants;
 
-    private List<IPythonNature> naturesUsed;
+    private List<IPythonNature> naturesUsed = new ArrayList<IPythonNature>();
 
 	private IInterpreterInfo interpreterInfo;
 
@@ -75,14 +76,11 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
      * (non-Javadoc)
      * @see org.python.pydev.dltk.console.IScriptConsoleInterpreter#exec(java.lang.String)
      */
-    public void exec(String command, final ICallback<Object, InterpreterResponse> onResponseReceived){
-        consoleCommunication.execInterpreter(command, new ICallback<Object, InterpreterResponse>(){
-            
-            public Object call(InterpreterResponse response){
-                onResponseReceived.call(response);
-                return null;
-            }
-        });
+    public void exec(
+            String command, 
+            final ICallback<Object, InterpreterResponse> onResponseReceived,
+            final ICallback<Object, Tuple<String, String>> onContentsReceived){
+        consoleCommunication.execInterpreter(command, onResponseReceived, onContentsReceived);
     }
 
     @SuppressWarnings("unchecked")
@@ -90,7 +88,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
             int position, int offset, int whatToShow) throws Exception {
 
         
-        String text = commandLine.substring(0, position);
+        final String text = commandLine.substring(0, position);
         ActivationTokenAndQual tokenAndQual = PySelection.getActivationTokenAndQual(new Document(text), text.length(), true, false);
         
         
@@ -171,7 +169,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         if(!showOnlyTemplates){
             //shell completions 
             if(consoleCommunication != null){
-                ICompletionProposal[] consoleCompletions = consoleCommunication.getCompletions(actTok, offset);
+                ICompletionProposal[] consoleCompletions = consoleCommunication.getCompletions(text, actTok, offset);
                 results2.addAll(Arrays.asList(consoleCompletions));
             }
         }
@@ -180,10 +178,10 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
             //templates (only if we have no activation token)
             PyTemplateCompletionProcessor pyTemplateCompletionProcessor = new PyTemplateCompletionProcessor();
             pyTemplateCompletionProcessor.addTemplateProposals(viewer, offset, results2);
-        
-            Collections.sort(results2, IPyCodeCompletion.PROPOSAL_COMPARATOR);
         }
         
+        Collections.sort(results2, IPyCodeCompletion.PROPOSAL_COMPARATOR);
+
         ArrayList<ICompletionProposal> results3 = new ArrayList<ICompletionProposal>();
         if(!showOnlyTemplates){
             //other participants
@@ -256,6 +254,9 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
     }
 
     public void setNaturesUsed(List<IPythonNature> naturesUsed) {
+        if(naturesUsed == null){
+            naturesUsed = new ArrayList<IPythonNature>();
+        }
         this.naturesUsed = naturesUsed;
     }
 

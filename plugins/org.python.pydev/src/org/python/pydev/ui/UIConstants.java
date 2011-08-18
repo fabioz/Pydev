@@ -14,6 +14,11 @@ package org.python.pydev.ui;
  * Miscellaneous UI strings
  */
 public class UIConstants {
+    public static final String CREATE_CLASS_ICON = "icons/new/create_class_obj.png";
+    public static final String CREATE_METHOD_ICON = "icons/new/create_method_obj.png";
+    public static final String CREATE_MODULE_ICON = "icons/new/create_python_module.png";
+
+    
 // Outline view
     public static final String CLASS_ICON = "icons/new/class_obj.gif";
     public static final String METHOD_ICON = "icons/new/method_obj.gif";
@@ -81,8 +86,8 @@ public class UIConstants {
     
     public static final String ASSIST_MOVE_IMPORT = "icons/correction_move.gif";
         
-    public static final String ASSIST_ASSIGN_TO_LOCAL = METHOD_ICON;
-    public static final String ASSIST_ASSIGN_TO_CLASS = METHOD_ICON;
+    public static final String ASSIST_ASSIGN_TO_LOCAL = PUBLIC_ATTR_ICON;
+    public static final String ASSIST_ASSIGN_TO_CLASS = PUBLIC_ATTR_ICON;
     
     public static final String ASSIST_DOCSTRING = COMPLETION_TEMPLATE;
     
@@ -118,4 +123,7 @@ public class UIConstants {
 	public static final String FORCE_TABS_ACTIVE = "icons/tabs_active.png";
 	public static final String FORCE_TABS_INACTIVE = "icons/tabs_inactive.png";
 	public static final String PY_LINT_ICON = "icons/pylint.png";
+    public static final String WARNING = "icons/warning.png";
+    public static final String ERROR_DECORATION = "icons/error_decoration.gif";
+    public static final String WARNING_DECORATION = "icons/warning_decoration.gif";
 }

@@ -7,17 +7,22 @@
 package org.python.pydev.editor.codecompletion;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
-import org.python.pydev.editor.codecompletion.revisited.IronpythonInterpreterManagerStub;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.ui.interpreters.IronpythonInterpreterManager;
+import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class IronPythonCodeCompletionTestsBase extends CodeCompletionTestsBase{
 
@@ -29,8 +34,18 @@ public class IronPythonCodeCompletionTestsBase extends CodeCompletionTestsBase{
     }
     
     @Override
-    protected void setInterpreterManager() {
-        PydevPlugin.setIronpythonInterpreterManager(new IronpythonInterpreterManagerStub(this.getPreferences()));
+    protected void setInterpreterManager(String path) {
+        IronpythonInterpreterManager interpreterManager = new IronpythonInterpreterManager(this.getPreferences());
+        
+        InterpreterInfo info = (InterpreterInfo) interpreterManager.createInterpreterInfo(TestDependent.IRONPYTHON_EXE, new NullProgressMonitor(), false);
+        TestDependent.IRONPYTHON_EXE = info.executableOrJar;
+        
+        if(path != null){
+            info = new InterpreterInfo(info.getVersion(), info.executableOrJar, PythonPathHelper.parsePythonPathFromStr(path, new ArrayList<String>()));
+        }
+        
+        interpreterManager.setInfos(new IInterpreterInfo[]{info}, null, null);
+        PydevPlugin.setIronpythonInterpreterManager(interpreterManager);
     }
     
     
@@ -60,7 +75,7 @@ public class IronPythonCodeCompletionTestsBase extends CodeCompletionTestsBase{
     public void setUp() throws Exception {
     	super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = true;
-        this.restorePythonPath(TestDependent.IRONPYTHON_LIB, false);
+        this.restorePythonPath(null, false);
     }
 
     @Override

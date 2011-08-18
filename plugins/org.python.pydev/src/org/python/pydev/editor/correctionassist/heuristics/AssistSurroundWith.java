@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
@@ -49,31 +50,44 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
         String indentation = PyAction.getStaticIndentationString(edit);
         
         ps.selectCompleteLine();
+        String selectedText = ps.getSelectedText();
+        List<String> splitInLines = StringUtils.splitInLines(selectedText);
+        int firstCharPosition = -1;
+        for (String string : splitInLines) {
+            if(string.trim().length() > 0){
+                int localFirst = PySelection.getFirstCharPosition(string);
+                if(firstCharPosition == -1){
+                    firstCharPosition = localFirst;
+                }else if(localFirst < firstCharPosition){
+                    firstCharPosition = localFirst;
+                }
+            }
+        }
+        if(firstCharPosition == -1){
+            return l;
+        }
         
-        int start = ps.getStartLine().getOffset();
-        int end = ps.getEndLine().getOffset()+ps.getEndLine().getLength();
-
         //delimiter to use
         String delimiter = PyAction.getDelimiter(ps.getDoc());
         
         //get the 1st char (determines indent)
-        int firstCharPosition = PySelection.getFirstCharRelativePosition(ps.getDoc(), start);
         FastStringBuffer startIndentBuffer = new FastStringBuffer(firstCharPosition+1);
-        int i = 0;
-        while(i < firstCharPosition){
-            startIndentBuffer.append(" ");
-            i++;
-        }
+        startIndentBuffer.appendN(' ', firstCharPosition);
         final String startIndent = startIndentBuffer.toString();
         
         //code to be surrounded
-        String surroundedCode = ps.getDoc().get(start, end-start);
+        String surroundedCode = selectedText;
         surroundedCode = indentation+surroundedCode.replaceAll(delimiter, delimiter+indentation);
         
+
         //region
         IRegion region = ps.getRegion();
-        TemplateContext context = createContext(edit.getPySourceViewer(), region, ps.getDoc());
-
+        TemplateContext context = null;
+        if(edit != null){
+            context = createContext(edit.getPySourceViewer(), region, ps.getDoc());
+        }
+        
+        
         //not static because we need the actual code.
         String[] replace0to3 = new String[]{startIndent, delimiter, surroundedCode, delimiter, startIndent, delimiter, startIndent, indentation, indentation};
         String[] replace4toEnd = new String[]{startIndent, delimiter, surroundedCode, delimiter, startIndent, indentation};
@@ -87,18 +101,35 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
                 comp = StringUtils.format(comp, (Object [])replace4toEnd);
             }
             
-            Template t = new Template("Surround with", SURROUND_WITH_COMPLETIONS[iComp+1], "", comp, false);
-            l.add(new TemplateProposal(t, context, region, imageCache.get(UIConstants.COMPLETION_TEMPLATE), 5){
-                @Override
-                public String getAdditionalProposalInfo() {
-                    return startIndent+super.getAdditionalProposalInfo();
-                }
-            });
+            l.add(createProposal(ps, imageCache, edit, startIndent, region, iComp, comp, context));
         }
+        
+        
 
         return l;
     }
 
+    private ICompletionProposal createProposal(
+            PySelection ps, ImageCache imageCache, PyEdit edit, final String startIndent, IRegion region,
+            int iComp, String comp, TemplateContext context) {
+        Template t = new Template("Surround with", SURROUND_WITH_COMPLETIONS[iComp+1], "", comp, false);
+        if(context != null){
+            TemplateProposal proposal = new TemplateProposal(
+                    t, context, region, imageCache.get(UIConstants.COMPLETION_TEMPLATE), 5){
+                @Override
+                public String getAdditionalProposalInfo() {
+                    return startIndent+super.getAdditionalProposalInfo();
+                }
+            };
+            return proposal;
+        }else{
+            //In tests
+            return new CompletionProposal(comp, region.getOffset(), region.getLength(), 0);
+        }
+    }
+
+    
+    
     /**
      * Template completions available for surround with... They %s will be replaced later for the actual code/indentation.
      * 

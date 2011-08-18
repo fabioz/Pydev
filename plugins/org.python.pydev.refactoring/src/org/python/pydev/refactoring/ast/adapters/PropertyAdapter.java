@@ -14,6 +14,7 @@ import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
+import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 
 public class PropertyAdapter extends AbstractNodeAdapter<SimpleNode> {
 

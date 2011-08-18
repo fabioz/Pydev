@@ -12,51 +12,155 @@ package org.python.pydev.core.docutils;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.net.URLEncoder;
+import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 import javax.swing.text.Document;
 import javax.swing.text.EditorKit;
 import javax.swing.text.html.HTMLEditorKit;
 
+import org.eclipse.core.runtime.Assert;
+import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.cache.Cache;
 import org.python.pydev.core.cache.LRUCache;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 
-public class StringUtils {
+public final class StringUtils {
+    
+    /**
+     * @author fabioz
+     *
+     */
+    private static final class IterLines implements Iterator<String> {
+        private final String string;
+        private final int len;
+        private int i;
+        private boolean calculatedNext;
+        private boolean hasNext;
+        private String next;
+
+        private IterLines(String string) {
+            this.string = string;
+            this.len = string.length();
+        }
+
+        public boolean hasNext() {
+            if(!calculatedNext){
+                calculatedNext = true;
+                hasNext = calculateNext();
+            }
+            return hasNext;
+        }
+
+        private boolean calculateNext() {
+            next = null;
+            char c;
+            int start = i;
+            
+            for (;i < len; i++) {
+                c = string.charAt(i);
+                
+                
+                if (c == '\r') {
+                    if (i < len - 1 && string.charAt(i + 1) == '\n') {
+                        i++;
+                    }
+                    i++;
+                    next = string.substring(start, i);
+                    return true;
+                }
+                if (c == '\n') {
+                    i++;
+                    next = string.substring(start, i);
+                    return  true;
+                }
+            }
+            if (start != i) {
+                next = string.substring(start, i);
+                i++;
+                return true;
+            }
+            return false;
+        }
+
+        public String next() {
+            if(!hasNext()){
+                throw new NoSuchElementException();
+            }
+            String n = next;
+            calculatedNext = false;
+            next = null;
+            return n;
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+
+    private StringUtils(){
+        
+    }
 
     public static final Object EMPTY = "";
 
     /**
      * Formats a string, replacing %s with the arguments passed.
      * 
+     * %% is also changed to %.
+     * 
+     * If % is followed by any other char, the % and the next char are ignored. 
+     * 
      * @param str string to be formatted
      * @param args arguments passed
      * @return a string with the %s replaced by the arguments passed
      */
     public static String format(String str, Object... args) {
-        FastStringBuffer buffer = new FastStringBuffer(str.length()+(16*args.length));
+        int length = str.length();
+        FastStringBuffer buffer = new FastStringBuffer(length+(16*args.length));
         int j = 0;
+        int i = 0;
 
-        for (int i = 0; i < str.length(); i++) {
+        int start = 0;
+        
+        for (; i < length; i++) {
             char c = str.charAt(i);
-            if (c == '%' && i + 1 < str.length()) {
-                char nextC = str.charAt(i + 1);
-                if (nextC == 's') {
-                    buffer.appendObject(args[j]);
-                    j++;
+            if (c == '%') {
+                if(i + 1 < length){
+                    if(i > start){
+                        buffer.append(str.substring(start, i));
+                    }
+                    char nextC = str.charAt(i + 1);
+                    
+                    switch (nextC) {
+                        case 's':
+                            buffer.appendObject(args[j]);
+                            j++;
+                            break;
+                        case '%':
+                            buffer.append('%');
+                            j++;
+                            break;
+                    }
                     i++;
-                } else if (nextC == '%') {
-                    buffer.append('%');
-                    j++;
-                    i++;
+                    start = i+1;
                 }
-            } else {
-                buffer.append(c);
             }
+        }
+        
+        if(i > start){
+            buffer.append(str.substring(start, i));
         }
         return buffer.toString();
     }
@@ -216,7 +320,7 @@ public class StringUtils {
     /**
      * Splits the given string in a list where each element is a line.
      * 
-     * @param string string to be splitted.
+     * @param string string to be split.
      * @return list of strings where each string is a line.
      * 
      * @note the new line characters are also added to the returned string.
@@ -251,7 +355,27 @@ public class StringUtils {
             ret.add(buf.toString());
         }
         return ret;
-
+    }
+    
+    /**
+     * Splits the given string in a list where each element is a line.
+     * 
+     * @param string string to be split.
+     * @return list of strings where each string is a line.
+     * 
+     * @note the new line characters are also added to the returned string.
+     * 
+     * IMPORTANT: The line returned will be a substring of the initial line, so, it's recommended that a copy
+     * is created if it should be kept in memory (otherwise the full initial string will also be kept in memory). 
+     */
+    public static Iterable<String> iterLines(final String string) {
+        return new Iterable<String>() {
+            
+            public Iterator<String> iterator() {
+                return new IterLines(string);
+            }
+        };
+        
     }
 
 
@@ -389,6 +513,48 @@ public class StringUtils {
         }
         return "";
     }
+    
+    /**
+     * Splits the passed string based on the toSplit string.
+     */
+    public static List<String> split(final String string, final char toSplit, int maxPartsToSplit) {
+        Assert.isTrue(maxPartsToSplit > 0);
+        ArrayList<String> ret = new ArrayList<String>();
+        int len = string.length();
+        
+        int last = 0;
+        
+        char c = 0;
+        
+        for (int i = 0; i < len; i++) {
+            c = string.charAt(i);
+            if(c == toSplit){
+                if(last != i){
+                    if(ret.size() == maxPartsToSplit-1){
+                        ret.add(string.substring(last, string.length()));
+                        return ret;
+                    }else{
+                        ret.add(string.substring(last, i));
+                    }
+                }
+                while(c == toSplit && i < len-1){
+                    i++;
+                    c = string.charAt(i);
+                }
+                last = i;
+            }
+        }
+        if(c != toSplit){
+            if(last == 0 && len > 0){
+                ret.add(string); //it is equal to the original (no char to split)
+                
+            }else if(last < len){
+                ret.add(string.substring(last, len));
+                
+            }
+        }
+        return ret;
+    }
 
     /**
      * Splits the passed string based on the toSplit string.
@@ -438,9 +604,46 @@ public class StringUtils {
         }
         return false;
     }
+    
+    /**
+     * Splits some string given some char (that char will not appear in the returned strings)
+     * Empty strings are also never added.
+     */
+    public static void splitWithIntern(String string, char toSplit, Collection<String> addTo) {
+        synchronized (ObjectsPool.lock) {
+            int len = string.length();
+            
+            int last = 0;
+            
+            char c = 0;
+            
+            for (int i = 0; i < len; i++) {
+                c = string.charAt(i);
+                if(c == toSplit){
+                    if(last != i){
+                        addTo.add(ObjectsPool.internUnsynched(string.substring(last, i)));
+                    }
+                    while(c == toSplit && i < len-1){
+                        i++;
+                        c = string.charAt(i);
+                    }
+                    last = i;
+                }
+            }
+            if(c != toSplit){
+                if(last == 0 && len > 0){
+                    addTo.add(ObjectsPool.internUnsynched(string)); //it is equal to the original (no char to split)
+                    
+                }else if(last < len){
+                    addTo.add(ObjectsPool.internUnsynched(string.substring(last, len)));
+                }
+            }
+        }
+    }
 
     /**
-     * Splits some string given some char
+     * Splits some string given some char (that char will not appear in the returned strings)
+     * Empty strings are also never added.
      */
     public static List<String> split(String string, char toSplit) {
         ArrayList<String> ret = new ArrayList<String>();
@@ -465,7 +668,7 @@ public class StringUtils {
         }
         if(c != toSplit){
             if(last == 0 && len > 0){
-                ret.add(string); //it is equal to the original (no dots)
+                ret.add(string); //it is equal to the original (no char to split)
                 
             }else if(last < len){
                 ret.add(string.substring(last, len));
@@ -598,9 +801,12 @@ public class StringUtils {
      */
     public static String join(String delimiter, String[] splitted) {
         FastStringBuffer buf = new FastStringBuffer(splitted.length*100);
+        boolean first = true;
         for (String string : splitted) {
-            if(buf.length() > 0){
+            if(!first){
                 buf.append(delimiter);
+            }else{
+                first = false;
             }
             buf.append(string);
         }
@@ -613,9 +819,12 @@ public class StringUtils {
      */
 	public static String join(String delimiter, String[] splitted, int startAtSegment, int endAtSegment) {
         FastStringBuffer buf = new FastStringBuffer(splitted.length*100);
+        boolean first = true;
         for (int i=startAtSegment;i<splitted.length && i < endAtSegment;i++) {
-            if(buf.length() > 0){
+            if(!first){
                 buf.append(delimiter);
+            }else{
+                first = false;
             }
             buf.append(splitted[i]);
         }
@@ -628,9 +837,12 @@ public class StringUtils {
      */
     public static String join(String delimiter, List<String> splitted) {
         FastStringBuffer buf = new FastStringBuffer(splitted.size()*100);
+        boolean first = true;
         for (String string : splitted) {
-            if(buf.length() > 0){
+            if(!first){
                 buf.append(delimiter);
+            }else{
+                first = false;
             }
             buf.append(string);
         }
@@ -827,6 +1039,7 @@ public class StringUtils {
 	 * </ul>
 	 */
 	public static final char[] BRACKETS = { '{', '}', '(', ')', '[', ']' };
+	public static final char[] CLOSING_BRACKETS = { '}', ')', ']' };
 
 	public static char getPeer(char c){
 	    switch(c){
@@ -839,7 +1052,18 @@ public class StringUtils {
 	    }
 	    
 	    throw new NoPeerAvailableException("Unable to find peer for :"+c);
+	}
+	
+	public static String getWithClosedPeer(char c){
+	    switch(c){
+	    case '{':return "{}";
+	    case '(':return "()";
+	    case '[':return "[]";
+	    case '\'':return "''";
+	    case '"':return "\"\"";
+	    }
 	    
+	    throw new NoPeerAvailableException("Unable to find peer for :"+c);
 	}
 
 	public static boolean isOpeningPeer(char lastChar) {
@@ -856,6 +1080,43 @@ public class StringUtils {
 
 	public static boolean hasClosingBracket(String trimmedLine) {
 	    return trimmedLine.indexOf('}') != -1 || trimmedLine.indexOf(')') != -1 || trimmedLine.indexOf(']') != -1;
+	}
+	
+	public static boolean hasUnbalancedClosingPeers(String line) {
+	    Map<Character, Integer> stack = new HashMap<Character, Integer>();
+	    for(int i=0;i<line.length();i++){
+	        char c = line.charAt(i);
+	        switch(c){
+	        case '(':
+	        case '{':
+	        case '[':
+	            Integer iStack = stack.get(c);
+	            if(iStack == null){
+	                iStack = 0;
+	            }
+                iStack++;
+                stack.put(c, iStack);
+                break;
+                
+	        case ')':
+	        case '}':
+	        case ']':
+	            char peer = StringUtils.getPeer((char)c);
+	            iStack = stack.get(peer);
+	            if(iStack == null){
+	                iStack = 0;
+	            }
+	            iStack--;
+	            stack.put(peer, iStack);
+	            break;
+	        }
+	    }
+	    for(int i:stack.values()){
+	        if(i < 0){
+	            return true;
+	        }
+	    }
+	    return false;
 	}
 
 	/**
@@ -958,6 +1219,10 @@ public class StringUtils {
     }
 
     public static String indentTo(String source, String indent) {
+        return indentTo(source, indent, true);
+    }
+    
+    public static String indentTo(String source, String indent, boolean indentFirstLine) {
         if(indent == null || indent.length() == 0){
             return source;
         }
@@ -966,14 +1231,59 @@ public class StringUtils {
         
         for(int i=0;i<splitInLines.size();i++){
             String line = splitInLines.get(i);
-            buf.append(indent);
+            if(indentFirstLine || i > 0){
+                buf.append(indent);
+            }
             buf.append(line);
         }
         return buf.toString();
     }
 
 
+    private static final Object md5CacheLock = new Object();
+    private static final LRUCache<String, String> md5Cache = new LRUCache<String, String>(1000);
+    
+    public static String md5(String str) {
+        synchronized (md5CacheLock) {
+            String obj = md5Cache.getObj(str);
+            if(obj != null){
+                return obj;
+            }
+            try {
+                byte[] bytes = str.getBytes("UTF-8");
+                MessageDigest md = MessageDigest.getInstance("MD5");
+                //MAX_RADIX because we'll generate the shorted string possible... (while still
+                //using only numbers 0-9 and letters a-z)
+                String ret = new BigInteger(1, md.digest(bytes)).toString(Character.MAX_RADIX).toLowerCase();
+                md5Cache.add(str, ret);
+                return ret;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 
-
+    /**
+     * @return the number of line breaks in the passed string.
+     */
+    public static int countLineBreaks(String replacementString) {
+        int lineBreaks = 0;
+        int ignoreNextNAt = -1;
+        
+        //we may have line breaks with \r\n, or only \n or \r
+        for (int i = 0; i < replacementString.length(); i++) {
+            char c = replacementString.charAt(i);
+            if(c == '\r'){
+                lineBreaks++;
+                ignoreNextNAt = i + 1;
+                
+            }else if(c == '\n'){
+                if(ignoreNextNAt != i){
+                    lineBreaks++;
+                }
+            }
+        }
+        return lineBreaks;
+    }
 
 }

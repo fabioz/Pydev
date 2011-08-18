@@ -44,7 +44,6 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
             
             junit.textui.TestRunner.run(CompletionParticipantTest.class);
         } catch (Throwable e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

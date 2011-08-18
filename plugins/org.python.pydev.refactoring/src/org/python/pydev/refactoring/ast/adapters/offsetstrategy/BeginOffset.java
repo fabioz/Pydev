@@ -14,9 +14,9 @@ import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.parser.visitors.FindLastLineVisitor;
 import org.python.pydev.parser.visitors.NodeUtils;
-import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 
 public class BeginOffset extends AbstractOffsetStrategy {

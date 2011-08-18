@@ -10,6 +10,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.python.pydev.navigator.elements.PythonNode;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 
 public class CommentsFilter extends AbstractFilter{
 
@@ -17,7 +18,11 @@ public class CommentsFilter extends AbstractFilter{
     public boolean select(Viewer viewer, Object parentElement, Object element) {
         if(element instanceof PythonNode){
             PythonNode node = (PythonNode) element;
-            SimpleNode n = node.entry.getAstThis().node;
+            ASTEntryWithChildren astThis = node.entry.getAstThis();
+            if(astThis == null){
+                return true;
+            }
+            SimpleNode n = astThis.node;
             if(NodeUtils.isComment(n)){
                 return false;
             }

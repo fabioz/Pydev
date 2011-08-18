@@ -14,7 +14,7 @@ package org.python.pydev.editor.codecompletion.revisited;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
-import java.io.Serializable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -24,12 +24,15 @@ import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.IPythonPathHelper;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.utils.PyFileListing;
@@ -41,13 +44,8 @@ import org.python.pydev.utils.PyFileListing.PyFileInfo;
  * 
  * @author Fabio Zadrozny
  */
-public class PythonPathHelper implements IPythonPathHelper, Serializable {
-
-    /**
-     * Changed to 2L on 1.4.2
-     */
-    private static final long serialVersionUID = 2L;
-
+public class PythonPathHelper implements IPythonPathHelper {
+    
     /**
      * This is a list of Files containing the pythonpath.
      */
@@ -74,7 +72,7 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
      * @return the listing with valid module files considering that root is a root path in the pythonpath.
      * May return null if the passed file does not exist or is not a directory (e.g.: zip file)
      */
-    public PyFileListing getModulesBelow(File root, IProgressMonitor monitor) {
+    public static PyFileListing getModulesBelow(File root, IProgressMonitor monitor) {
         if (!root.exists()) {
             return null;
         }
@@ -169,7 +167,7 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
 
             } catch (Exception e) {
                 //that's ok, it is probably not a zip file after all...
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
         return null;
@@ -392,7 +390,7 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
      * @param root this is the folder we're checking
      * @return true if it is a folder with an __init__ python file
      */
-    protected boolean isFileOrFolderWithInit(File root) {
+    protected static boolean isFileOrFolderWithInit(File root) {
         //check for an __init__ in a dir (we do not check if it is a file, becase if it is, it should return null)
         String[] items = root.list(new FilenameFilter() {
 
@@ -433,6 +431,13 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
         return true;
     }
 
+    public void setPythonPath(List<String> newPythonpath) {
+        synchronized (pythonpath) {
+            pythonpath.clear();
+            pythonpath.addAll(newPythonpath);
+        }
+    }
+    
     /**
      * @param string with paths separated by |
      * @return
@@ -447,8 +452,9 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
     /**
      * @param string this is the string that has the pythonpath (separated by |)
      * @param lPath OUT: this list is filled with the pythonpath.
+     * @return 
      */
-    private static void parsePythonPathFromStr(String string, List<String> lPath) {
+    public static List<String> parsePythonPathFromStr(String string, List<String> lPath) {
         String[] strings = string.split("\\|");
         for (int i = 0; i < strings.length; i++) {
             String defaultPathStr = getDefaultPathStr(strings[i]);
@@ -458,9 +464,12 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
                     //we have to get it with the appropriate cases and in a canonical form
                     String path = REF.getFileAbsolutePath(file);
                     lPath.add(path);
+                }else{
+                    lPath.add(defaultPathStr);
                 }
             }
         }
+        return lPath;
     }
 
     /**
@@ -480,15 +489,19 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
      * python modules.
      */
     public ModulesFoundStructure getModulesFoundStructure(IProgressMonitor monitor) {
+        if(monitor == null){
+            monitor = new NullProgressMonitor();
+        }
         List<String> pythonpathList = getPythonpath();
         
         ModulesFoundStructure ret = new ModulesFoundStructure();
 
+        FastStringBuffer tempBuf = new FastStringBuffer();
         for (Iterator<String> iter = pythonpathList.iterator(); iter.hasNext();) {
             String element = iter.next();
 
             if (monitor.isCanceled()) {
-              break;
+                break;
             }
 
             //the slow part is getting the files... not much we can do (I think).
@@ -500,14 +513,7 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
                 while (e1.hasNext()) {
                     PyFileInfo pyFileInfo = e1.next();
                     File file = pyFileInfo.getFile();
-                    String scannedModuleName = pyFileInfo.getModuleName();
-
-                    String modName;
-                    if (scannedModuleName.length() != 0) {
-                        modName = new StringBuffer(scannedModuleName).append('.').append(stripExtension(file.getName())).toString();
-                    } else {
-                        modName = stripExtension(file.getName());
-                    }
+                    String modName = pyFileInfo.getModuleName(tempBuf);
                     if(isValidModuleLastPart(FullRepIterable.getLastPart(modName))){
                         ret.regularModules.put(file, modName);
                     }
@@ -521,6 +527,43 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
             }
         }
         return ret;
+    }
+
+    /**
+     * @param workspaceMetadataFile
+     * @throws IOException 
+     */
+    public void loadFromFile(File pythonpatHelperFile) throws IOException {
+        String fileContents = REF.getFileContents(pythonpatHelperFile);
+        if(fileContents == null || fileContents.trim().length() == 0){
+            throw new IOException("No loaded contents from: "+pythonpatHelperFile);
+        }
+        this.pythonpath.addAll(StringUtils.split(fileContents, '\n'));
+    }
+
+    /**
+     * @param pythonpatHelperFile
+     */
+    public void saveToFile(File pythonpatHelperFile) {
+        REF.writeStrToFile(StringUtils.join("\n", this.pythonpath), pythonpatHelperFile);
+    }
+
+    public static boolean canAddAstInfoFor(ModulesKey key) {
+        if(key.file != null && key.file.exists()){
+            
+            if (PythonPathHelper.isValidSourceFile(key.file.getName())){
+                return true;
+            }
+            
+            boolean isZipModule = key instanceof ModulesKeyForZip;
+            if(isZipModule){
+                ModulesKeyForZip modulesKeyForZip = (ModulesKeyForZip) key;
+                if(PythonPathHelper.isValidSourceFile(modulesKeyForZip.zipModulePath)){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }

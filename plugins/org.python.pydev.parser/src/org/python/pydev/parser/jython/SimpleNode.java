@@ -66,6 +66,9 @@ public class SimpleNode implements Node, ISimpleNode{
     public SimpleNode createCopy(){
         throw new RuntimeException("Subclasses must reimplement");
     }
+    public SimpleNode createCopy(boolean copyComments){
+        throw new RuntimeException("Subclasses must reimplement");
+    }
     
     
     /**

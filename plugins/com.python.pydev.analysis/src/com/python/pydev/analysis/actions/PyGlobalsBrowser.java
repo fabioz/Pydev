@@ -31,7 +31,7 @@ import org.python.pydev.ui.interpreters.ChooseInterpreterManager;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
@@ -116,17 +116,17 @@ public class PyGlobalsBrowser extends PyAction{
      * @throws MisconfigurationException 
      */
     private static void getFromManagerAndRelatedNatures(String selectedText, IInterpreterManager useManager){
-        AbstractAdditionalInterpreterInfo additionalSystemInfo;
+        AbstractAdditionalTokensInfo additionalSystemInfo;
 		try {
 			additionalSystemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
-			        useManager, useManager.getDefaultInterpreter());
+			        useManager, useManager.getDefaultInterpreterInfo(true).getExecutableOrJar());
 		} catch (MisconfigurationException e) {
 			MessageDialog.openError(getShell(), "Error", "Additional info is not available (default interpreter not configured).");
 			handle(e);
 			return;
 		}
         
-        List<AbstractAdditionalInterpreterInfo> additionalInfo = new ArrayList<AbstractAdditionalInterpreterInfo>();
+        List<AbstractAdditionalTokensInfo> additionalInfo = new ArrayList<AbstractAdditionalTokensInfo>();
         additionalInfo.add(additionalSystemInfo);
         
         List<IPythonNature> natures = PythonNature.getPythonNaturesRelatedTo(useManager.getInterpreterType());
@@ -151,7 +151,7 @@ public class PyGlobalsBrowser extends PyAction{
      * @param additionalInfo the additional informations 
      * @param selectedText the text that should be initially set as a filter
      */
-    public static void doSelect(List<IPythonNature> pythonNatures, List<AbstractAdditionalInterpreterInfo> additionalInfo, 
+    public static void doSelect(List<IPythonNature> pythonNatures, List<AbstractAdditionalTokensInfo> additionalInfo, 
             String selectedText) {
         
         SelectionDialog dialog = GlobalsDialogFactory.create(getShell(), additionalInfo, selectedText, pythonNatures);

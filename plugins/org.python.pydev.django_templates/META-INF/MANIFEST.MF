@@ -21,7 +21,10 @@ Require-Bundle: org.eclipse.core.runtime,
  org.python.pydev.core,
  org.eclipse.ui.workbench.texteditor,
  org.junit;bundle-version="3.8.2";resolution:=optional,
- org.python.pydev;bundle-version="0.9.7.1"
+ org.python.pydev;bundle-version="0.9.7.1",
+ com.aptana.editor.html.formatter,
+ com.aptana.formatter.epl,
+ com.aptana.formatter.ui.epl
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
 Eclipse-ExtensibleAPI: true
@@ -33,5 +36,4 @@ Export-Package: org.python.pydev.django_templates,
  org.python.pydev.django_templates.html.outline,
  org.python.pydev.django_templates.html.parsing,
  org.python.pydev.django_templates.preferences
-Bundle-ClassPath: django-templates.jar,
- retroweaver-rt.jar
+Bundle-ClassPath: django-templates.jar

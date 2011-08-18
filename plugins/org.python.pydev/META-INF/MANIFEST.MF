@@ -4,7 +4,7 @@ Bundle-Name: Pydev - Python Development Environment
 Bundle-SymbolicName: org.python.pydev; singleton:=true
 Bundle-Version: 0.9.7.1
 Bundle-ClassPath: pydev.jar,
- retroweaver-rt.jar
+ libs/WinRegistry-4.4.jar
 Bundle-Activator: org.python.pydev.plugin.PydevPlugin
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin
@@ -70,7 +70,6 @@ Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.editor.correctionassist.heuristics,
  org.python.pydev.editor.hover,
  org.python.pydev.editor.model,
- org.python.pydev.editor.partitioner,
  org.python.pydev.editor.preferences,
  org.python.pydev.editor.refactoring,
  org.python.pydev.editor.scripting,
@@ -96,6 +95,7 @@ Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.ui,
  org.python.pydev.ui.actions.container,
  org.python.pydev.ui.actions.project,
+ org.python.pydev.ui.actions.resources,
  org.python.pydev.ui.dialogs,
  org.python.pydev.ui.editors,
  org.python.pydev.ui.filetypes,

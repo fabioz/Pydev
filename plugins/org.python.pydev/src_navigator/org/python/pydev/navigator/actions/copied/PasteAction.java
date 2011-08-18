@@ -7,33 +7,47 @@
 package org.python.pydev.navigator.actions.copied;
 
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.dialogs.IInputValidator;
+import org.eclipse.jface.dialogs.InputDialog;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.FileTransfer;
+import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.TransferData;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.CopyFilesAndFoldersOperation;
 import org.eclipse.ui.actions.CopyProjectOperation;
 import org.eclipse.ui.actions.SelectionListenerAction;
+import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.ResourceTransfer;
+import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.actions.PyAction;
 
 /**
- * Standard action for pasting resources on the clipboard to the selected resource's location.
- * <p>
- * This class may be instantiated; it is not intended to be subclassed.
- * </p>
+ * Copied to extend.
  * 
  * @since 2.0
  */
-public class PasteAction extends SelectionListenerAction {
+public abstract class PasteAction extends SelectionListenerAction {
 
     /**
      * The id of this action.
@@ -64,7 +78,7 @@ public class PasteAction extends SelectionListenerAction {
         this.clipboard = clipboard;
         setToolTipText("Paste ToolTip"); // TODO ResourceNavigatorMessages.PasteAction_toolTip); //$NON-NLS-1$
         setId(PasteAction.ID);
-        PlatformUI.getWorkbench().getHelpSystem().setHelp(this, "HelpId"); //$NON-NLS-1$
+//        PlatformUI.getWorkbench().getHelpSystem().setHelp(this, "HelpId"); //$NON-NLS-1$
                 // TODO INavigatorHelpContextIds.PASTE_ACTION);
     }
 
@@ -148,7 +162,111 @@ public class PasteAction extends SelectionListenerAction {
             CopyFilesAndFoldersOperation operation = new CopyFilesAndFoldersOperation(
                     this.shell);
             operation.copyFiles(fileData, container);
+            return;
         }
+        
+        //Now, at last, try a text transfer (create a new file with the contents).
+        TextTransfer instance = TextTransfer.getInstance();
+        String contents = (String) clipboard.getContents(instance);
+        if(contents != null){
+            // enablement should ensure that we always have access to a container
+            IContainer container = getContainer();
+            String name = getNameForContentsPasted(container);
+            if(name == null){
+                return;
+            }
+            String delimiter = PyAction.getDelimiter(new Document());
+            if(delimiter != null){
+                StringUtils.replaceNewLines(contents, delimiter);
+            }
+            
+            IFile file = container.getFile(new Path(name));
+            if(!file.exists()){
+                try {
+                    file.create(new ByteArrayInputStream(contents.getBytes()), true, null);
+                } catch (CoreException e) {
+                    Log.log(e);
+                }
+                try {
+                    IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+                    if(page != null){
+                        IDE.openEditor(page, file);
+                    }
+                } catch (Exception e) {
+                    Log.log(e);
+                }
+            }
+        }
+    }
+
+    
+    private String getNameForContentsPasted(final IContainer container) {
+        final IWorkspace workspace = container.getWorkspace();
+        final String returnValue[] = { null };
+
+        final IInputValidator validator = new IInputValidator() {
+            public String isValid(String string) {
+                IStatus status = workspace.validateName(string, IResource.FILE);
+                if (!status.isOK()) {
+                    return status.getMessage();
+                }
+                if (container.getFile(new Path(string)).exists()) {
+                    return "File already exists";
+                }
+                return null;
+            }
+        };
+        
+        String base = "snippet%s.py";
+        for(int i=0;i<1000;i++){
+            String newCheck;
+            if(i == 0){
+                newCheck = StringUtils.format(base, "");
+            }else{
+                newCheck = StringUtils.format(base, i);
+                
+            }
+            if(validator.isValid(newCheck) == null){
+                base = newCheck;
+                break;
+            }
+        }
+        
+        final String initialValue = base;
+        
+        this.shell.getDisplay().syncExec(new Runnable() {
+            public void run() {
+
+                InputDialog dialog = new InputDialog(
+                        shell, 
+                        "Enter file name", 
+                        "Please enter the name of the file to be created with the pasted contents.", 
+                        initialValue, 
+                        validator){
+                    @Override
+                    protected void createButtonsForButtonBar(Composite parent) {
+                        super.createButtonsForButtonBar(parent);
+                        Text control = getText();
+                        String textInControl = control.getText();
+                        int i = textInControl.indexOf('.');
+                        if(i >= 0){
+                            control.setSelection(0, i);
+                        }
+                    }
+                };
+                dialog.setBlockOnOpen(true);
+                dialog.open();
+                if (dialog.getReturnCode() == Window.CANCEL) {
+                    returnValue[0] = null;
+                } else {
+                    returnValue[0] = dialog.getValue();
+                }
+            }
+        });
+        if (returnValue[0] == null) {
+            return null;
+        }
+        return returnValue[0];
     }
 
     /**

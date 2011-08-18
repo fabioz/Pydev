@@ -23,7 +23,6 @@ import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editorinput.PySourceLocatorBase;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor{
@@ -100,7 +99,7 @@ public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor{
         try {
             resource.setDerived(true);
         } catch (CoreException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
 
@@ -141,7 +140,7 @@ public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor{
                                 try {
                                     workspaceFile.delete(true, monitor);
                                 } catch (CoreException e) {
-                                    PydevPlugin.log(e);
+                                    Log.log(e);
                                 }
                                 monitor.done();
                                 return Status.OK_STATUS;
@@ -152,7 +151,7 @@ public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor{
                 }
                 
             } catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
     }

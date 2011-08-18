@@ -11,6 +11,7 @@
  */
 package org.python.pydev.editor.correctionassist;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -18,7 +19,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.quickassist.IQuickAssistInvocationContext;
 import org.eclipse.jface.text.quickassist.IQuickAssistProcessor;
@@ -29,7 +29,11 @@ import org.eclipse.ui.texteditor.spelling.SpellingAnnotation;
 import org.eclipse.ui.texteditor.spelling.SpellingCorrectionProcessor;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
@@ -139,17 +143,122 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
         return false;
     }
 
-    @SuppressWarnings("unchecked")
     public ICompletionProposal[] computeQuickAssistProposals(IQuickAssistInvocationContext invocationContext) {
         int offset = invocationContext.getOffset();
-        PySelection ps = edit.createPySelection();
-        if(!(this.edit instanceof PyEdit) || ps == null){
+                PySelection base = edit.createPySelection();
+                if(!(this.edit instanceof PyEdit) || base == null){
+                    return new ICompletionProposal[0];
+                }
+                PyEdit editor = (PyEdit) this.edit;
+        
+                List<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
+                String sel = PyAction.getLineWithoutComments(base);
+        
+                List<IAssistProps> assists = new ArrayList<IAssistProps>();
+                synchronized (PythonCorrectionProcessor.additionalAssists) {
+                    for (IAssistProps prop : additionalAssists.values()) {
+                        assists.add(prop);
+                    }
+                }
+        
+                assists.add(new AssistSurroundWith());
+                assists.add(new AssistImport());
+                assists.add(new AssistDocString());
+                assists.add(new AssistAssign());
+        //        assists.add(new AssistOverride()); -- Not ready!
+        
+                assists.addAll(ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_CTRL_1));
+                ImageCache imageCache = PydevPlugin.getImageCache();
+                File editorFile = edit.getEditorFile();
+                IPythonNature pythonNature = null;
+                try {
+                    pythonNature = edit.getPythonNature();
+                } catch (MisconfigurationException e1) {
+                    Log.log(e1);
+                }
+        
+                for (IAssistProps assist : assists) {
+                    //Always create a new for each assist, as any given assist may change it.
+                    PySelection ps = new PySelection(base);
+                    try {
+                        if (assist.isValid(ps, sel, editor, offset)) {
+                            try {
+                                results.addAll(assist.getProps(
+                                        ps, 
+                                        imageCache, 
+                                        editorFile, 
+                                        pythonNature, 
+                                        editor, 
+                                        offset)
+                                );
+                            } catch (Exception e) {
+                                Log.log(e);
+                            }
+                        }
+                    } catch (Exception e) {
+                        Log.log(e);
+                    }
+                }
+        
+                Collections.sort(results, IPyCodeCompletion.PROPOSAL_COMPARATOR);
+        
+                
+                try{
+                    //handling spelling... (we only want to show spelling fixes if a spell problem annotation is found at the current location).
+                    //we'll only show some spelling proposal if there's some spelling problem (so, we don't have to check the preferences at this place,
+                    //as no annotations on spelling will be here if the spelling is not enabled). 
+                    ICompletionProposal[] spellProps = null;
+                    
+                    IAnnotationModel annotationModel = editor.getPySourceViewer().getAnnotationModel();
+                    Iterator<Object> it = annotationModel.getAnnotationIterator();
+                    while(it.hasNext()){
+                        Object annotation = it.next();
+                        if(annotation instanceof SpellingAnnotation){
+                            SpellingAnnotation spellingAnnotation = (SpellingAnnotation) annotation;
+                            SpellingProblem spellingProblem = spellingAnnotation.getSpellingProblem();
+                            
+                            int problemOffset = spellingProblem.getOffset();
+                            int problemLen = spellingProblem.getLength();
+                            if(problemOffset <= offset && problemOffset+problemLen >= offset){
+                                SpellingCorrectionProcessor spellingCorrectionProcessor = new SpellingCorrectionProcessor();
+                                spellProps = spellingCorrectionProcessor.computeQuickAssistProposals(invocationContext);
+                                break;
+                            }
+                        }
+                    }
+                    
+                    
+            
+                    if(spellProps == null || (spellProps.length == 1 && spellProps[0] instanceof NoCompletionsProposal)){
+                        //no proposals from the spelling
+                        return (ICompletionProposal[]) results.toArray(new ICompletionProposal[results.size()]);
+                    }
+                    
+                    //ok, add the spell problems and return...
+                    ICompletionProposal[] ret = (ICompletionProposal[]) results.toArray(new ICompletionProposal[results.size()+spellProps.length]);
+                    System.arraycopy(spellProps, 0, ret, results.size(), spellProps.length);
+                    return ret;
+                }catch(Throwable e){ 
+                    if(e instanceof ClassNotFoundException || e instanceof LinkageError || e instanceof NoSuchMethodException || 
+                            e instanceof NoSuchMethodError || e instanceof NoClassDefFoundError){
+                        //Eclipse 3.2 support
+                        return (ICompletionProposal[]) results.toArray(new ICompletionProposal[results.size()]);
+                    }
+                    throw new RuntimeException(e);
+                }
+    }
+    
+    @SuppressWarnings("unchecked")
+    private ICompletionProposal[] onComputeQuickAssistProposals(IQuickAssistInvocationContext invocationContext) {
+        int offset = invocationContext.getOffset();
+        PySelection base = edit.createPySelection();
+        if(!(this.edit instanceof PyEdit) || base == null){
             return new ICompletionProposal[0];
         }
         PyEdit editor = (PyEdit) this.edit;
 
         List<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
-        String sel = PyAction.getLineWithoutComments(ps);
+        String sel = PyAction.getLineWithoutComments(base);
 
         List<IAssistProps> assists = new ArrayList<IAssistProps>();
         synchronized (PythonCorrectionProcessor.additionalAssists) {
@@ -163,28 +272,38 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
         assists.add(new AssistDocString());
         assists.add(new AssistAssign());
         assists.add(new AssistPercentToFormat());
+//        assists.add(new AssistOverride()); -- Not ready!
 
         assists.addAll(ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_CTRL_1));
+        ImageCache imageCache = PydevPlugin.getImageCache();
+        File editorFile = edit.getEditorFile();
+        IPythonNature pythonNature = null;
+        try {
+            pythonNature = edit.getPythonNature();
+        } catch (MisconfigurationException e1) {
+            Log.log(e1);
+        }
 
         for (IAssistProps assist : assists) {
-            ps = edit.createPySelection();
+            //Always create a new for each assist, as any given assist may change it.
+            PySelection ps = new PySelection(base);
             try {
                 if (assist.isValid(ps, sel, editor, offset)) {
                     try {
                         results.addAll(assist.getProps(
                                 ps, 
-                                PydevPlugin.getImageCache(), 
-                                edit.getEditorFile(), 
-                                edit.getPythonNature(), 
+                                imageCache, 
+                                editorFile, 
+                                pythonNature, 
                                 editor, 
                                 offset)
                         );
-                    } catch (BadLocationException e) {
-                        PydevPlugin.log(e);
+                    } catch (Exception e) {
+                        Log.log(e);
                     }
                 }
             } catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
         }
 
@@ -198,7 +317,7 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
             ICompletionProposal[] spellProps = null;
             
             IAnnotationModel annotationModel = editor.getPySourceViewer().getAnnotationModel();
-            Iterator it = annotationModel.getAnnotationIterator();
+            Iterator<Object> it = annotationModel.getAnnotationIterator();
             while(it.hasNext()){
                 Object annotation = it.next();
                 if(annotation instanceof SpellingAnnotation){

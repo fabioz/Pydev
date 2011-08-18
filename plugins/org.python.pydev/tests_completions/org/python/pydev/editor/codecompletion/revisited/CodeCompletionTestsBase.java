@@ -12,6 +12,7 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,22 +23,27 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PydevTestUtils;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.BundleInfoStub;
+import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.PrintProgressMonitor;
 
@@ -85,11 +91,11 @@ public class CodeCompletionTestsBase extends TestCase {
      * python nature.
      */
     public static Class<?> restoredSystem;
-    private Preferences preferences;
+    private PreferenceStore preferences;
 
-    public Preferences getPreferences(){
+    public PreferenceStore getPreferences(){
         if(this.preferences == null){
-            this.preferences = new Preferences();
+            this.preferences = new PreferenceStore();
         }
         return this.preferences;
     }
@@ -110,6 +116,7 @@ public class CodeCompletionTestsBase extends TestCase {
         PydevPlugin.setBundleInfo(new BundleInfoStub());
         ProjectModulesManager.IN_TESTS = true;
         REF.IN_TESTS = true;
+        PydevTestUtils.setTestPlatformStateLocation();
     }
     
     /*
@@ -255,7 +262,7 @@ public class CodeCompletionTestsBase extends TestCase {
     protected boolean restoreSystemPythonPath(boolean force, String path){
         if(restoredSystem == null || restoredSystem != this.getClass() || force){
             //restore manager and cache
-            setInterpreterManager();
+            setInterpreterManager(path);
             restoredSystem = this.getClass();
             
             //get default and restore the pythonpath
@@ -268,7 +275,6 @@ public class CodeCompletionTestsBase extends TestCase {
             if(ADD_NUMPY_TO_FORCED_BUILTINS){
                 info.addForcedLib("numpy");
             }
-            info.restorePythonpath(path, getProgressMonitor()); //here
 
             //postconditions
             afterRestorSystemPythonPath(info);
@@ -291,7 +297,7 @@ public class CodeCompletionTestsBase extends TestCase {
         IInterpreterManager iMan = getInterpreterManager();
         InterpreterInfo info;
         try{
-            info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(getProgressMonitor());
+            info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(false);
         }catch(MisconfigurationException e){
             throw new RuntimeException(e);
         }
@@ -310,9 +316,22 @@ public class CodeCompletionTestsBase extends TestCase {
 
     /**
      * Sets the interpreter manager we should use
+     * @param path 
      */
-    protected void setInterpreterManager() {
-        PydevPlugin.setPythonInterpreterManager(new PythonInterpreterManagerStub(this.getPreferences()));
+    protected void setInterpreterManager(String path) {
+        PythonInterpreterManager interpreterManager = new PythonInterpreterManager(this.getPreferences());
+        
+        InterpreterInfo info;
+        info = (InterpreterInfo) interpreterManager.createInterpreterInfo(
+                TestDependent.PYTHON_EXE, new NullProgressMonitor(), false);
+        TestDependent.PYTHON_EXE = info.executableOrJar;
+        if(path != null){
+            info = new InterpreterInfo(
+                    info.getVersion(), info.executableOrJar, PythonPathHelper.parsePythonPathFromStr(path, new ArrayList<String>()));
+        }
+        
+        interpreterManager.setInfos(new IInterpreterInfo[]{info}, null, null);
+        PydevPlugin.setPythonInterpreterManager(interpreterManager);
     }
     
     
@@ -329,7 +348,7 @@ public class CodeCompletionTestsBase extends TestCase {
         IInterpreterManager iMan2 = getInterpreterManager();
         InterpreterInfo info2;
         try{
-            info2 = (InterpreterInfo) iMan2.getDefaultInterpreterInfo(getProgressMonitor());
+            info2 = (InterpreterInfo) iMan2.getDefaultInterpreterInfo(false);
         }catch(MisconfigurationException e){
             throw new RuntimeException(e);
         }
@@ -395,7 +414,7 @@ public class CodeCompletionTestsBase extends TestCase {
     protected void checkSize() {
         try{
             IInterpreterManager iMan = getInterpreterManager();
-            InterpreterInfo info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(getProgressMonitor());
+            InterpreterInfo info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(false);
             assertTrue(info.getModulesManager().getSize(true) > 0);
             
             int size = ((ASTManager)nature.getAstManager()).getSize();
@@ -559,6 +578,19 @@ public class CodeCompletionTestsBase extends TestCase {
             }
         }
         fail("The string "+toFind+" was not found amongst the passed strings.");
+    }
+    
+    public static void assertContains(Map found, Object toFind) {
+        if(found.containsKey(toFind)){
+            return;
+        }
+        
+        FastStringBuffer available = new FastStringBuffer();
+        for(Object o:found.keySet()){
+            available.append(o.toString());
+            available.append('\n');
+        }
+        fail(StringUtils.format("Object: %s not found. Available:\n%s", toFind, available));
     }
 
 }

@@ -9,10 +9,10 @@
  */
 package com.python.pydev.refactoring.wizards;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
@@ -38,5 +38,5 @@ public interface IRefactorRenameProcess {
      * 
      * The tuple that is the key of the map has the file and the module name that the file represents.
      */
-    public Map<Tuple<String, IFile>, HashSet<ASTEntry>> getOccurrencesInOtherFiles();
+    public Map<Tuple<String, File>, HashSet<ASTEntry>> getOccurrencesInOtherFiles();
 }

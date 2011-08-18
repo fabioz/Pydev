@@ -6,15 +6,21 @@
  */
 package org.python.pydev.core.tooltips.presenter;
 
+import org.eclipse.jface.bindings.keys.KeySequence;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Shell;
 
 public interface IInformationPresenterControlManager {
 
-    void hideInformationControl();
+    void hideInformationControl(boolean activateEditor, boolean restoreFocus);
 
     void install(Control control);
 
     void setInformationProvider(ITooltipInformationProvider provider);
 
     void showInformation();
+
+    void setActivateEditorBinding(KeySequence activateEditorBinding);
+
+    void setInitiallyActiveShell(Shell activeShell);
 }

@@ -20,6 +20,9 @@ public class PydevProjectsFilter extends AbstractFilter{
             Object adapted = adaptable.getAdapter(IProject.class);
             if(adapted instanceof IProject){
                 IProject project = (IProject) adapted;
+                if(!project.isOpen()){
+                    return true; //As we don't know about the nature of closed projects, don't filter it out.
+                }
                 return PythonNature.getPythonNature(project) != null;
             }
         }

@@ -66,7 +66,9 @@ public final class NoSelfChecker {
                 buf.append(",");
             }
             String rep = NodeUtils.getRepresentationString(base);
-            buf.append(FullRepIterable.getLastPart(rep));
+            if(rep != null){
+                buf.append(FullRepIterable.getLastPart(rep));
+            }
         }
         classBases.push(buf.toString());
         maybeNoSelfDefinedItems.push(new HashMap<String, Tuple<Expected, FunctionDef>>());

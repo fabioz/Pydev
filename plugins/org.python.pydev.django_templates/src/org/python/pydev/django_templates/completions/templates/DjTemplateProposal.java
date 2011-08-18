@@ -7,6 +7,7 @@
 package org.python.pydev.django_templates.completions.templates;
 
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.jface.text.templates.TemplateProposal;
@@ -19,6 +20,7 @@ public class DjTemplateProposal extends TemplateProposal implements ICommonCompl
     private boolean isDefault;
     private boolean isSuggested;
     private boolean displayOnlyName;
+    private int relevance;
 
     public DjTemplateProposal(Template template, TemplateContext context, IRegion region, Image image, int relevance, boolean displayOnlyName) {
         super(template, context, region, image, relevance);
@@ -58,5 +60,35 @@ public class DjTemplateProposal extends TemplateProposal implements ICommonCompl
             return getTemplate().getName();
         }
         return super.getDisplayString();
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
+    public int compareTo(ICompletionProposal o) {
+        if (this == o)
+        {
+            return 0;
+        }
+
+        // not yet sorting on relevance
+        String s1 = this.getDisplayString();
+        String s2 = o.getDisplayString();
+        if(s1 == null){
+            s1 = "";
+        }
+        if(s2 == null){
+            s2 = "";
+        }
+        return s1.compareToIgnoreCase(s2);
+
+    }
+    
+    public int getRelevance() {
+        return this.relevance;
+    }
+
+    public void setRelevance(int relevance) {
+        this.relevance = relevance;
     }
 }

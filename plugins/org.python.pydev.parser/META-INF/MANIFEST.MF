@@ -3,8 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Parser Plug-in
 Bundle-SymbolicName: org.python.pydev.parser; singleton:=true
 Bundle-Version: 0.9.7.1
-Bundle-ClassPath: parser.jar,
- retroweaver-rt.jar
+Bundle-ClassPath: parser.jar
 Bundle-Activator: org.python.pydev.parser.ParserPlugin
 Bundle-Localization: plugin
 Require-Bundle: org.junit;bundle-version="[3.8.0,3.9.9]";resolution:=optional,
@@ -22,12 +21,15 @@ Export-Package: org.python.pydev.parser,
  org.python.pydev.parser.grammar24,
  org.python.pydev.parser.grammar25,
  org.python.pydev.parser.grammar26,
+ org.python.pydev.parser.grammar27,
  org.python.pydev.parser.grammar30,
  org.python.pydev.parser.grammarcommon,
  org.python.pydev.parser.jython,
  org.python.pydev.parser.jython.ast,
+ org.python.pydev.parser.jython.ast.factory,
  org.python.pydev.parser.prettyprinter,
  org.python.pydev.parser.prettyprinterv2,
+ org.python.pydev.parser.profile,
  org.python.pydev.parser.visitors,
  org.python.pydev.parser.visitors.comparator,
  org.python.pydev.parser.visitors.scope

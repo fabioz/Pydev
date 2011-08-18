@@ -21,7 +21,7 @@ import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.log.Log;
 
 /**
  * ColorCache gets colors by RGB, or name
@@ -61,6 +61,9 @@ public abstract class ColorCache {
         fNamedColorTable.clear();
     }
     
+    public Color getColor(String name) {
+        return getNamedColor(name);
+    }
     public Color getColor(RGB rgb) {
         Color color = (Color) fColorTable.get(rgb);
         if (color == null) {
@@ -80,13 +83,16 @@ public abstract class ColorCache {
             if (colorCode.length() == 0) {
                 if (name.equals("RED")) {
                     color = getColor(new RGB(255, 0, 0));
-                }
-                else if (name.equals("BLACK")) {
-                    color = getColor(new RGB(0,0,0));
-                }
-                else {
-                    PydevPlugin.log("Unknown color:" + name);
-                    color = getColor(new RGB(255,0,0));
+                    
+                } else if (name.equals("BLACK")) {
+                    color = getColor(new RGB(0, 0, 0));
+                    
+                } else if (name.equals("WHITE")) {
+                    color = getColor(new RGB(255, 255, 255));
+                    
+                } else {
+                    Log.log("Unknown color:" + name);
+                    color = getColor(new RGB(255, 0, 0));
                 }
             }
             else {
@@ -97,7 +103,7 @@ public abstract class ColorCache {
                 }
                 catch (DataFormatException e) {
                     // Data conversion failure, maybe someone edited our prefs by hand
-                    PydevPlugin.log(e);
+                    Log.log(e);
                     color = new Color(Display.getCurrent(), new RGB(255, 50, 0));
                 }
             }

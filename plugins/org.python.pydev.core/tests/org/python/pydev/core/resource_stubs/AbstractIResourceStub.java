@@ -96,7 +96,7 @@ public class AbstractIResourceStub implements IResource{
     }
 
     public boolean exists() {
-        throw new RuntimeException("Not implemented");
+        return true;
     }
 
     public IMarker findMarker(long id) throws CoreException {

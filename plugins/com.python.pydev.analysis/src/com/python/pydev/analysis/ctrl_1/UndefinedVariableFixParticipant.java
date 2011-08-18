@@ -9,6 +9,7 @@
  */
 package com.python.pydev.analysis.ctrl_1;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,6 +19,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.python.pydev.core.FullRepIterable;
@@ -39,7 +41,7 @@ import org.python.pydev.ui.UIConstants;
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 import com.python.pydev.analysis.IAnalysisPreferences;
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
 import com.python.pydev.analysis.builder.AnalysisParserObserver;
@@ -93,6 +95,9 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         	return;
         }
         
+        if(markerAnnotation.position == null){
+            return;
+        }
         int start = markerAnnotation.position.offset;
         int end = start+markerAnnotation.position.length;
         ps.setSelection(start, end);
@@ -162,15 +167,15 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         
         
         //2. check if it is some global class or method
-        List<AbstractAdditionalInterpreterInfo> additionalInfo;
+        List<AbstractAdditionalTokensInfo> additionalInfo;
 		try {
 			additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfo(nature);
 		} catch (MisconfigurationException e) {
 			return;
 		}
         FastStringBuffer tempBuf = new FastStringBuffer();
-        for (AbstractAdditionalInterpreterInfo info : additionalInfo) {
-            List<IInfo> tokensEqualTo = info.getTokensEqualTo(markerContents, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
+        for (AbstractAdditionalTokensInfo info : additionalInfo) {
+            Collection<IInfo> tokensEqualTo = info.getTokensEqualTo(markerContents, AbstractAdditionalTokensInfo.TOP_LEVEL);
             for (IInfo found : tokensEqualTo) {
                 //there always is a declaring module
                 String name = found.getName();
@@ -207,6 +212,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         
         mods.add(tuple);
         
+        String tooltip = importDeclaration+"\n\nNote: Hold Ctrl on apply to do local import.";
         props.add(new CtxInsensitiveImportComplProposal(
                 "",
                 offset,
@@ -215,12 +221,21 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                 importImage,
                 displayImport,
                 null,
-                "",
+                tooltip,
                 IPyCompletionProposal.PRIORITY_LOCALS,
                 importDeclaration
                 ){
+            
+            @Override
+            public void selected(ITextViewer viewer, boolean smartToggle) {
+                //Overridden to do nothing (i.e.: don't leave yellow when ctrl is pressed).
+            }
+            
             @Override
             public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
+                if((stateMask & SWT.CTRL) != 0){
+                    this.setAddLocalImport(true);
+                }
                 super.apply(viewer, trigger, stateMask, offset);
                 if(forceReparseOnApply){
                     //and after applying it, let's request a reanalysis
@@ -234,6 +249,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                     }
                 }
             }
+
         });
     }
     

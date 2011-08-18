@@ -9,6 +9,7 @@ package org.python.pydev.debug.ui.launching;
 import org.eclipse.core.expressions.PropertyTester;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 
 public class InterpreterTypeTester extends PropertyTester {
@@ -25,12 +26,12 @@ public class InterpreterTypeTester extends PropertyTester {
 		}else if("ironpython".equals(str)){
 			interpreterManager = PydevPlugin.getIronpythonInterpreterManager();
 		}else{
-			PydevPlugin.log("Unable to check for: "+expectedValue);
+			Log.log("Unable to check for: "+expectedValue);
 		}
 		
 		if(interpreterManager != null){
 			try {
-				String defaultInterpreter = interpreterManager.getDefaultInterpreter();
+				String defaultInterpreter = interpreterManager.getDefaultInterpreterInfo(false).getExecutableOrJar();
 				return defaultInterpreter != null;
 			} catch (MisconfigurationException e) {
 				return false;

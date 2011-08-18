@@ -31,6 +31,7 @@ import org.eclipse.ui.IPropertyListener;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.DocIterator;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.performanceeval.OptimizationRelatedConstants;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.model.IModelListener;
@@ -92,7 +93,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
                         try {
                             sleep(100);
                         } catch (InterruptedException e) {
-                            e.printStackTrace();
+                            Log.log(e);
                         }
                         modelT = (ProjectionAnnotationModel) editor.getAdapter(ProjectionAnnotationModel.class);
                         if (modelT != null) {
@@ -143,7 +144,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.log(e);
         }
     }
 

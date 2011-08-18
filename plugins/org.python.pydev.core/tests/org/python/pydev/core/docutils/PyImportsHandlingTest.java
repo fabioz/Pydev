@@ -18,7 +18,7 @@ public class PyImportsHandlingTest extends TestCase {
         try {
             PyImportsHandlingTest test = new PyImportsHandlingTest();
             test.setUp();
-            test.testPyImportHandling3();
+            test.testPyImportHandling4();
             test.tearDown();
             junit.textui.TestRunner.run(PyImportsHandlingTest.class);
         } catch (Throwable e) {
@@ -82,6 +82,27 @@ public class PyImportsHandlingTest extends TestCase {
         assertEquals("from xxx.bbb \\\n    import yyy", next.importFound);
         assertEquals(1, next.startFoundLine);
         assertEquals(2, next.endFoundLine);
+        
+        assertTrue(!it.hasNext());
+        
+    }
+    
+    public void testPyImportHandling4() throws Exception {
+        
+        Document doc = new Document("class Foo:\n    from ...a.b import b\n    from xxx.bbb \\\n    import yyy\n");
+        PyImportsHandling importsHandling = new PyImportsHandling(doc, false);
+        Iterator<ImportHandle> it = importsHandling.iterator();
+        assertTrue(it.hasNext());
+        ImportHandle next = it.next();
+        
+        assertEquals("from ...a.b import b", next.importFound);
+        assertEquals(1, next.startFoundLine);
+        assertEquals(1, next.endFoundLine);
+        
+        next = it.next();
+        assertEquals("from xxx.bbb \\\n    import yyy", next.importFound);
+        assertEquals(2, next.startFoundLine);
+        assertEquals(3, next.endFoundLine);
         
         assertTrue(!it.hasNext());
         

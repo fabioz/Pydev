@@ -20,7 +20,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.runners.SimpleRunner;
 
 public class JythonInterpreterEditor extends AbstractInterpreterEditor{
@@ -37,7 +37,7 @@ public class JythonInterpreterEditor extends AbstractInterpreterEditor{
     
     protected Tuple<String, String> getAutoNewInput() {
         try {
-            Map<String, String> env = SimpleRunner.getDefaultSystemEnv(null);
+            Map<String, String> env = SimpleRunner.getDefaultSystemEnv(null, false);
             List<String> pathsToSearch = new ArrayList<String>();
             if(env.containsKey("JYTHON_HOME")){
                 pathsToSearch.add(env.get("JYTHON_HOME"));
@@ -64,7 +64,7 @@ public class JythonInterpreterEditor extends AbstractInterpreterEditor{
             return super.getAutoNewInputFromPaths(pathsToSearch, "jython.jar", "jython");
             
         } catch (CoreException e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         
         return null;

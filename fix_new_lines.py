@@ -13,7 +13,7 @@ if __name__ == '__main__':
                 '.html', 
                 '.htm', 
                 '.txt', 
-                '.launch', 
+#                '.launch', 
                 '.diff', 
                 '.jjt', 
                 '.jjt_template', 

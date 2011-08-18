@@ -15,7 +15,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.ITextViewer;
-import org.python.copiedfromeclipsesrc.PythonPairMatcher;
+import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.core.docutils.StringUtils;
 
 /**

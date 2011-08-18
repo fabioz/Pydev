@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Display;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.model.IModelListener;
 import org.python.pydev.parser.ErrorDescription;
@@ -22,7 +23,6 @@ import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.parser.visitors.scope.OutlineCreatorVisitor;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * ParsedModel represents a python file, parsed for OutlineView display
@@ -124,7 +124,7 @@ public class ParsedModel implements IOutlineModel {
                 ASTEntryWithChildren astThisOld = oldItem.getAstThis();
                 ASTEntryWithChildren astThisNew = newItem.getAstThis();
                 
-                if(astThisOld != null && astThisOld != null && 
+                if(astThisOld != null && astThisNew != null && 
                    astThisOld.node != null && astThisNew.node != null && 
                    astThisOld.node.getClass() != astThisNew.node.getClass()){
                     
@@ -167,10 +167,10 @@ public class ParsedModel implements IOutlineModel {
                 }
                 
             }else {
-                System.out.println("No old model root?");
+                Log.log("No old model root?");
             }
         }catch(Throwable e){
-            PydevPlugin.log(e);
+            Log.log(e);
         }
     }
     
@@ -178,6 +178,9 @@ public class ParsedModel implements IOutlineModel {
         if(sel.size() == 1) { // only sync the editing view if it is a single-selection
             Object firstElement = sel.getFirstElement();
             ASTEntryWithChildren p = ((ParsedItem)firstElement).getAstThis();
+            if(p == null){
+                return null;
+            }
             SimpleNode node = p.node;
             if(node instanceof ClassDef){
                 ClassDef def = (ClassDef) node;

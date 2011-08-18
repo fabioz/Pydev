@@ -46,6 +46,10 @@
    		<parser_observer class="com.python.pydev.analysis.builder.AnalysisParserObserver"/>
    </extension>
 
+   <extension point="org.python.pydev.pydev_interpreter_info_builder">
+  		<interpreter_info_builder_participant class="com.python.pydev.analysis.system_info_builder.InterpreterInfoBuilder"/>
+   </extension>
+
    <extension point="org.python.pydev.pydev_interpreter_observer">
   		<interpreter_observer class="com.python.pydev.analysis.additionalinfo.builders.InterpreterObserver"/>
    </extension>
@@ -71,7 +75,7 @@
 
 <extension point="org.eclipse.ui.actionSets">
   <actionSet
-        label="Pydev Navigate"
+        label="PyDev Navigate"
         visible="false"
         id="com.python.pydev.navigate.actionSet">
      <menu
@@ -83,7 +87,7 @@
            label="&amp;Globals Browser"
            icon="icons/opentype.gif"
            class="com.python.pydev.analysis.actions.PyGlobalsBrowserWorkbench"
-           tooltip="Pydev: Globals Browser"
+           tooltip="PyDev: Globals Browser"
            menubarPath="pyGeneralMenu/pyNavigateGroup"
            toolbarPath="pyNavigateGroup"
            id="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench"
@@ -103,21 +107,38 @@
 
 <extension point="org.eclipse.ui.commands">
       <command
-            name="Python Show Class Browser"
-            description="Show Class Browser"
+            name="Python Show Global Tokens (Global)"
+            description="Python Show Global Tokens (Global)"
             categoryId="org.python.pydev.ui.category.source"
             id="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench">
       </command>
 </extension>
 
+<extension point="org.eclipse.ui.contexts">
+      <context
+            description="PyDev view (PyUnit, PyOutline, etc)."
+            id="com.python.pydev.contexts.window"
+            name="PyDev view"
+            parentId="org.eclipse.ui.contexts.window">
+      </context>
+</extension>
+
 <extension point="org.eclipse.ui.bindings">
       <key
             sequence="M1+M2+T"
-            contextId="org.eclipse.ui.contexts.window"
+            contextId="com.python.pydev.contexts.window"
             commandId="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench"	
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
 </extension>
+
+
+<extension point="org.python.pydev.pydev_view_created_observer">
+      <view_created_observer
+            class="com.python.pydev.analysis.PyContextActivatorViewCreatedObserver">
+      </view_created_observer>
+</extension>
+
 
 <!-- view: indexing info -->
 <extension point="org.eclipse.ui.views">
@@ -128,5 +149,27 @@
         name="Index View"
         id="com.python.pydev.analysis.indexview.PyIndexView"/>
 </extension>
+
+
+<!-- PyDev nature/project related actions -->
+   <extension point="org.eclipse.ui.popupMenus">
+      
+      <!-- Force analysis of tree -->
+      <objectContribution
+            adaptable="true"
+            id="com.python.pydev.analysis.actions.forceCodeAnalysisOnTree"
+            objectClass="org.eclipse.core.resources.IResource">
+         <menu id="org.python.pydev.ui.actions.menu" label="PyDev"/>
+         <action
+               class="com.python.pydev.analysis.actions.ForceCodeAnalysisOnTree"
+               enablesFor="+"
+               id="com.python.pydev.analysis.actions.forceCodeAnalysisOnTree"
+               label="Code analysis"
+               menubarPath="org.python.pydev.ui.actions.menu/pydev"
+               tooltip="Force a code analysis for the selected elements (recursive)">
+         </action>
+         <visibility><objectState name="projectNature" value="org.python.pydev.pythonNature"/></visibility>
+      </objectContribution>
+   </extension>
 
 </plugin>

@@ -9,30 +9,105 @@
  */
 package com.python.pydev.actions;
 
+import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
-import org.python.pydev.core.IToken;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
+import org.python.pydev.core.bundle.ImageCache;
+import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.outline.ParsedItem;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.ast.ClassDef;
-import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.plugin.PydevPlugin;
 
-public final class ShowOutlineLabelProvider extends LabelProvider {
+import com.python.pydev.ui.hierarchy.TreeNode;
+
+public final class ShowOutlineLabelProvider extends LabelProvider implements IStyledLabelProvider {
     
     public Image getImage(Object element) {
-        SimpleNode n = ((ASTEntry)element).node;
-        if(n instanceof ClassDef){
-            return PyCodeCompletionImages.getImageForType(IToken.TYPE_CLASS);
+        SimpleNode n = null;
+        if(element instanceof TreeNode){
+            @SuppressWarnings("rawtypes")
+            TreeNode treeNode = (TreeNode) element;
+            element = treeNode.data;
         }
-        if(n instanceof FunctionDef){
-            return PyCodeCompletionImages.getImageForType(IToken.TYPE_FUNCTION);
+        if(element instanceof OutlineEntry){
+            n = ((OutlineEntry) element).node;
         }
-        return PyCodeCompletionImages.getImageForType(IToken.TYPE_ATTR);
+        
+        if(element instanceof ASTEntry){
+            n = ((ASTEntry)element).node;
+        }
+        if(n != null){
+            ImageCache imageCache = PydevPlugin.getImageCache();
+            if (imageCache == null){
+                return null;
+            }
+            
+            return ParsedItem.getImageForNode(imageCache, n, null);
+        }
+        return null;
     }
 
     public String getText(Object element) {
-        return NodeUtils.getFullRepresentationString(((ASTEntry)element).node);
+        if(element instanceof TreeNode){
+            @SuppressWarnings("rawtypes")
+            TreeNode treeNode = (TreeNode) element;
+            element = treeNode.data;
+        }
+        if(element instanceof OutlineEntry){
+            OutlineEntry entry = (OutlineEntry) element;
+            String start = NodeUtils.getFullRepresentationString(entry.node);
+            if(entry.model != null){
+                FastStringBuffer suffix = new FastStringBuffer("  (", entry.model.name.length()+50).append(entry.model.name);
+                if(entry.model.moduleName != null && entry.model.moduleName.length() > 0){
+                    suffix.append(" - ").append(entry.model.moduleName);
+                }
+                suffix.append(')');
+                
+                return start+suffix.toString();
+            }
+            return start;
+        }
+        if(element instanceof ASTEntry){
+            return NodeUtils.getFullRepresentationString(((ASTEntry)element).node);
+        }
+        return element.toString();
+    }
+
+    
+    public StyledString getStyledText(Object element) {
+        if(element instanceof TreeNode){
+            @SuppressWarnings("rawtypes")
+            TreeNode treeNode = (TreeNode) element;
+            element = treeNode.data;
+        }
+        if(element instanceof OutlineEntry){
+            OutlineEntry entry = (OutlineEntry) element;
+            String start = NodeUtils.getFullRepresentationString(entry.node);
+            if(entry.model != null){
+                FastStringBuffer suffix = new FastStringBuffer("    (", entry.model.name.length()+50).append(entry.model.name);
+                if(entry.model.moduleName != null && entry.model.moduleName.length() > 0){
+                    suffix.append(" - ").append(entry.model.moduleName);
+                }
+                suffix.append(')');
+                
+                return new StyledString(start).append(suffix.toString(), StyledString.QUALIFIER_STYLER);
+                
+                
+            }else if (entry.parentClass != null){
+                FastStringBuffer suffix = new FastStringBuffer("    (", entry.parentClass.length()+4).
+                append(entry.parentClass).append(')');
+                
+                return new StyledString(start).append(suffix.toString(), StyledString.QUALIFIER_STYLER);
+                
+            }
+            return new StyledString(start);
+        }
+        if(element instanceof ASTEntry){
+            return new StyledString(NodeUtils.getFullRepresentationString(((ASTEntry)element).node));
+        }
+        return new StyledString(element.toString());
     }
 }

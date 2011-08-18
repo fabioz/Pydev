@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 
 public class ThreadStreamReaderPrinter extends Thread {
@@ -43,7 +44,7 @@ public class ThreadStreamReaderPrinter extends Thread {
                 contents = new FastStringBuffer();
             }
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            Log.log(ioe);
         }
     }
 }

@@ -216,7 +216,7 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
     }
     
     /**
-     * @return wether we are in a class or method definition scope
+     * @return whether we are in a class or method definition scope
      */
     protected boolean isInClassMethodDecl() {
         Iterator<SimpleNode> iterator = stack.iterator();

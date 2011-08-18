@@ -17,13 +17,14 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.core.base.AbstractPythonRefactoring;
@@ -44,7 +45,8 @@ public class ExtractLocalRefactoring extends AbstractPythonRefactoring {
 
     @Override
     protected List<IChangeProcessor> getChangeProcessors() {
-        IChangeProcessor changeProcessor = new ExtractLocalChangeProcessor(getName(), this.info, this.requestProcessor);
+        IChangeProcessor changeProcessor = new ExtractLocalChangeProcessor(
+                getName(), this.info, this.requestProcessor);
         return ListUtils.wrap(changeProcessor);
     }
 
@@ -53,9 +55,14 @@ public class ExtractLocalRefactoring extends AbstractPythonRefactoring {
         List<Tuple<ITextSelection, ModuleAdapter>> selections = new LinkedList<Tuple<ITextSelection, ModuleAdapter>>();
 
         /* Use different approaches to find a valid selection */
-        selections.add(new Tuple<ITextSelection, ModuleAdapter>(info.getUserSelection(), info.getParsedUserSelection()));
-        selections.add(new Tuple<ITextSelection, ModuleAdapter>(info.getExtendedSelection(), info.getParsedExtendedSelection()));
-        selections.add(new Tuple<ITextSelection, ModuleAdapter>(info.getUserSelection(), getParsedMultilineSelection(info.getUserSelection())));
+        selections.add(new Tuple<ITextSelection, ModuleAdapter>(
+                info.getUserSelection(), info.getParsedUserSelection()));
+        
+        selections.add(new Tuple<ITextSelection, ModuleAdapter>(
+                info.getExtendedSelection(), info.getParsedExtendedSelection()));
+        
+        selections.add(new Tuple<ITextSelection, ModuleAdapter>(
+                info.getUserSelection(), getParsedMultilineSelection(info.getUserSelection())));
 
         /* Find a valid selection */
         ITextSelection selection = null;
@@ -70,12 +77,16 @@ public class ExtractLocalRefactoring extends AbstractPythonRefactoring {
                 }
             }
         }
+        
 
         /* No valid selections found, report error */
         if(expression == null){
             status.addFatalError(Messages.extractLocalNoExpressionSelected);
         }
 
+        AbstractScopeNode<?> scopeAdapter = info.getModuleAdapter().getScopeAdapter(selection);
+        requestProcessor.setDuplicates(scopeAdapter.getDuplicates(selection, expression));
+        
         requestProcessor.setSelection(selection);
         requestProcessor.setExpression(expression);
 
@@ -88,14 +99,15 @@ public class ExtractLocalRefactoring extends AbstractPythonRefactoring {
         source = source.replaceAll("\r", "");
 
         try{
-            ModuleAdapter node = VisitorFactory.createModuleAdapter(null, null, new Document(source), null);
+            ModuleAdapter node = VisitorFactory.createModuleAdapter(
+                    null, null, new Document(source), null, info.getVersionProvider());
             return node;
         }catch(TokenMgrError e){
             return null;
         }catch(ParseException e){
             return null;
         }catch(Throwable e){
-            PydevPlugin.log(e);
+            Log.log(e);
             return null;
         }
     }

@@ -34,6 +34,7 @@ import org.eclipse.ui.dialogs.PropertyPage;
 import org.eclipse.ui.dialogs.ResourceSelectionDialog;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.dialogs.ProjectFolderSelectionDialog;
@@ -110,7 +111,7 @@ public class PyProjectProperties extends PropertyPage {
                 
                 createRestoreButton(topComp);
             } catch (Exception e) {
-                PydevPlugin.log(e);
+                Log.log(e);
             }
             
         }
@@ -348,7 +349,7 @@ public class PyProjectProperties extends PropertyPage {
                 }
                 
             } catch (Exception e) {
-                PydevPlugin.log(IStatus.ERROR, "Unexpected error setting project properties", e);
+                Log.log(IStatus.ERROR, "Unexpected error setting project properties", e);
             }
         }
         return true;

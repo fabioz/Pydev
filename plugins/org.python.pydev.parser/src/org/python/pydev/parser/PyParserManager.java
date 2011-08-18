@@ -215,35 +215,40 @@ public class PyParserManager {
             //remove the listener from the parser
             IPyParser parser = getParser(edit);
             
-            parser.removeParseListener(edit);
-            
-            //from the internal list from the parsers to the editors
-            List<IPyEdit> lst = parsers.get(parser);
-            //we always have the list here (because we must have created it before disposing it)
-            lst.remove(edit);
-            
-            //and from the edit itself
-            edit.getCache().remove(KEY_IN_PYEDIT_CACHE);
-            
-            //now, if there's no one in that parsers list anymore, lets dispose the parser
-            //and remove it from our references
-            boolean dispose = lst.size() == 0;
-            
-            if(dispose){
-                if(DEBUG){
-                    System.out.println("Disposing parser.");
+            //External editors may not have a parser...
+            if(parser != null){
+                
+                parser.removeParseListener(edit);
+                
+                //from the internal list from the parsers to the editors
+                List<IPyEdit> lst = parsers.get(parser);
+                //we always have the list here (because we must have created it before disposing it)
+                lst.remove(edit);
+                
+                //and from the edit itself
+                edit.getCache().remove(KEY_IN_PYEDIT_CACHE);
+                
+                //now, if there's no one in that parsers list anymore, lets dispose the parser
+                //and remove it from our references
+                boolean dispose = lst.size() == 0;
+                
+                if(dispose){
+                    if(DEBUG){
+                        System.out.println("Disposing parser.");
+                    }
+                    parser.dispose();
+                    this.parsers.remove(parser);
+                    if(DEBUG){
+                        System.out.println("Available parsers:"+this.parsers.size());
+                    }
+                }else{
+                    //otherwise, just set its new input
+                    IPyEdit pyEdit = lst.get(0);
+                    IDocument doc = pyEdit.getDocument();
+                    parser.setDocument(doc, pyEdit.getEditorInput());
                 }
-                parser.dispose();
-                this.parsers.remove(parser);
-                if(DEBUG){
-                    System.out.println("Available parsers:"+this.parsers.size());
-                }
-            }else{
-                //otherwise, just set its new input
-                IPyEdit pyEdit = lst.get(0);
-                IDocument doc = pyEdit.getDocument();
-                parser.setDocument(doc, pyEdit.getEditorInput());
             }
+            
         }
     }
 
