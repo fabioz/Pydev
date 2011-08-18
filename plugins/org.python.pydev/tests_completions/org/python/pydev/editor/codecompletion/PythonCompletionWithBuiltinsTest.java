@@ -192,7 +192,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         requestCompl(s, s.length(), -1, new String[]{"RuntimeError"});
 
         //check for builtins..3 (builtins should not be available because it is an import request for completions)
-        requestCompl("from testlib.unittest import  ", new String[]{"__file__", "__name__", "__init__", "__path__", "anothertest"
+        requestCompl("from testlib.unittest import  ", new String[]{"__file__", "__name__", "__init__", "__dict__", "__path__", "anothertest"
                 , "AnotherTest", "GUITest", "guitestcase", "main", "relative", "t", "TestCase", "testcase", "TestCaseAlias", 
                 });
 
@@ -412,7 +412,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         s = "" +
         "from testlib.unittest import anothertest\n"+
         "anothertest.";         
-        requestCompl(s, s.length(), 4, new String[]{"__file__", "__name__", "AnotherTest","t"});
+        requestCompl(s, s.length(), 5, new String[]{"__file__", "__dict__", "__name__", "AnotherTest","t"});
 
     }
     

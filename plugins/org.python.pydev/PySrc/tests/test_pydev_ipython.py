@@ -1,7 +1,12 @@
 import unittest
+import sys
+import os
 
+#make it as if we were executing from the directory above this one 
+sys.argv[0] = os.path.dirname(sys.argv[0]) 
+#twice the dirname to get the previous level from this file.
+sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0])))
 
-    
     
 
 #=======================================================================================================================
@@ -60,4 +65,6 @@ class TestCase(unittest.TestCase):
 # main
 #=======================================================================================================================
 if __name__ == '__main__':
-    unittest.main()
+    if sys.platform.find('java') != -1:
+        #IPython not available for Jython
+        unittest.main()

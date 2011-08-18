@@ -108,9 +108,10 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
         
-        checkExpected(5);
+        checkExpected(6);
         assertIsIn("__name__", comps);
         assertIsIn("__file__", comps);
+        assertIsIn("__dict__", comps);
         assertIsIn("unittest", comps);
         assertIsIn("Classe1", comps);
         assertIsIn("Test", comps);
@@ -135,9 +136,10 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
-        checkExpected(6);
+        checkExpected(7);
         assertIsIn("__name__", comps);
         assertIsIn("__file__", comps);
+        assertIsIn("__dict__", comps);
         assertIsIn("unittest", comps);
         assertIsIn("Classe1", comps);
         assertIsIn("Test", comps);
@@ -294,9 +296,10 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
-        checkExpected(3);
+        checkExpected(4);
         assertIsIn("contentsCopy", comps);
         assertIsIn("__file__", comps);
+        assertIsIn("__dict__", comps);
         assertIsIn("__name__", comps);
     }
     
@@ -310,9 +313,10 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
-        checkExpected(5);
+        checkExpected(7);
         assertIsIn("__file__", comps);
         assertIsIn("__name__", comps);
+        assertIsIn("__dict__", comps);
         assertIsIn("par1", comps);
         assertIsIn("par2", comps);
         assertIsIn("met", comps);

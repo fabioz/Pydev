@@ -46,12 +46,19 @@ class Test(unittest.TestCase):
         interpreter.addExec('val = %s()' % (raw_input_name,))
         interpreter.addExec('50')
         interpreter.addExec('print (val)')
-        self.assertEqual(['50', 'input_request'], sys.stdout.getvalue().split())
+        found = sys.stdout.getvalue().split()
+        try:
+            self.assertEqual(['50', 'input_request'], found)
+        except:
+            self.assertEqual(['input_request'], found) #IPython
         
-        comps = interpreter.getCompletions('foo.')
-        self.assert_(('CONSTANT', '', '', '3') in comps or ('CONSTANT', '', '', '4') in comps)
+        comps = interpreter.getCompletions('foo.', 'foo.')
+        self.assert_(
+            ('CONSTANT', '', '', '3') in comps or ('CONSTANT', '', '', '4') in comps,\
+            'Found: %s' % comps
+        )
         
-        comps = interpreter.getCompletions('"".')
+        comps = interpreter.getCompletions('"".', '"".')
         self.assert_(
             ('__add__', 'x.__add__(y) <==> x+y', '', '3') in comps or 
             ('__add__', '', '', '4') in comps or 
@@ -61,21 +68,21 @@ class Test(unittest.TestCase):
         )
         
         
-        completions = interpreter.getCompletions('')
+        completions = interpreter.getCompletions('', '')
         for c in completions:
             if c[0] == 'AssertionError':
                 break
         else:
             self.fail('Could not find AssertionError')
             
-        completions = interpreter.getCompletions('Assert')
+        completions = interpreter.getCompletions('Assert', 'Assert')
         for c in completions:
             if c[0] == 'RuntimeError':
                 self.fail('Did not expect to find RuntimeError there')
         
-        self.assert_(('__doc__', None, '', '3') not in interpreter.getCompletions('foo.CO'))
+        self.assert_(('__doc__', None, '', '3') not in interpreter.getCompletions('foo.CO', 'foo.'))
         
-        comps = interpreter.getCompletions('va')
+        comps = interpreter.getCompletions('va', 'va')
         self.assert_(('val', '', '', '3') in comps or ('val', '', '', '4') in comps)
         
         interpreter.addExec('s = "mystring"')
