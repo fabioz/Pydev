@@ -543,5 +543,20 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
                 "        return object.__hash__(self, *args, **kwargs)", doc.get());
     }
     
+    public void testBuiltinKnownReturns() throws Exception{
+        String s = "a = open()\n" +
+        		"a.";
+        
+        //open returns a file object.
+        requestCompl(s, -1, new String[]{"close()", "flush()", "readlines()"});
+    }
+    
+    public void testBuiltinKnownReturns1() throws Exception{
+        String s = "a = ''.split()\n" + //returns list
+        "a.";
+        
+        requestCompl(s, -1, new String[]{"append(object)", "reverse()"});
+    }
+    
 
 }

@@ -288,7 +288,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
                     
                     if(n instanceof EmptyModule || n instanceof SourceModule){ 
                         //it is actually found as a source module, so, we have to 'coerce' it to a compiled module
-                        n = new CompiledModule(name, IToken.TYPE_BUILTIN, this);
+                        n = new CompiledModule(name, this);
                         doAddSingleModule(new ModulesKey(n.getName(), null), n);
                         return n;
                     }
@@ -301,7 +301,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
                     
                     if(n == null || n instanceof EmptyModule || n instanceof SourceModule){ 
                         //still not created or not defined as compiled module (as it should be)
-                        n = new CompiledModule(name, IToken.TYPE_BUILTIN, this);
+                        n = new CompiledModule(name, this);
                         doAddSingleModule(new ModulesKey(n.getName(), null), n);
                         return n;
                     }
@@ -317,7 +317,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
             }
             
             //ok, just add it if it is some module that actually exists
-            n = new CompiledModule(name, IToken.TYPE_BUILTIN, this);
+            n = new CompiledModule(name, this);
             IToken[] globalTokens = n.getGlobalTokens();
             //if it does not contain the __file__, this means that it's not actually a module
             //(but may be a token from a compiled module, so, clients wanting it must get the module
