@@ -143,7 +143,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
                                     //other = method
                                     //
                                     //and later on, we want the arguments for 'other' to be the same arguments for 'method'.
-                                    added.setArgs(methodTok.getArgs());
+                                    added.updateAliasToken(methodTok);
                                 }
                             }
                         }

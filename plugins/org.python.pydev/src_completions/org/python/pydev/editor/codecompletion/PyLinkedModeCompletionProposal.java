@@ -80,6 +80,13 @@ public class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposal
     }
     
     /**
+     * @return the element
+     */
+    public IToken getElement() {
+        return element;
+    }
+    
+    /**
      * Constructor where all the info is passed.
      */
     public PyLinkedModeCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, int priority, int onApplyAction, String args) {
