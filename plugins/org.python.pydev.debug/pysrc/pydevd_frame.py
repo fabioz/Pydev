@@ -179,7 +179,7 @@ class PyDBFrame:
             
             else:
                 stop = False
-                    
+
             if stop:
                 #event is always == line or return at this point
                 if event == 'line':
@@ -194,7 +194,10 @@ class PyDBFrame:
                         #So, just setting it to None should be OK
                         if basename(back.f_code.co_filename) == 'pydevd.py' and back.f_code.co_name == 'run':
                             back = None
-                            
+
+                        # We dont want to trace the return event of pydevd_traceproperty (custom property for debugging)
+                        if basename(back.f_code.co_filename) == 'pydevd_traceproperty.py':
+                            return None
                         
                     if back is not None:
                         #if we're in a return, we want it to appear to the user in the previous frame!

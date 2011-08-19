@@ -1,4 +1,5 @@
-
+'''
+'''
 from pydevd_comm import GetGlobalDebugger
 from pydevd_constants import * #@UnusedWildImport
 import pydevd_tracing
@@ -15,7 +16,6 @@ def replace_builtin_property():
         try:
             import builtins #Python 3.0 does not have the __builtin__ module @UnresolvedImport
             builtins.__dict__['property'] = DebugProperty
-            print(builtins.__dict__['property'])
         except:
             if DEBUG_TRACE_LEVEL:
                 import traceback;traceback.print_exc() #@Reimport
@@ -34,7 +34,8 @@ class DebugProperty(object):
 
     def __get__(self, obj, objtype=None):
         try:
-            pydevd_tracing.SetTrace(None)
+            if GetGlobalDebugger().disable_property_getter_trace:
+                pydevd_tracing.SetTrace(None)
             if obj is None:
                 return self         
             if self.fget is None:
@@ -45,7 +46,8 @@ class DebugProperty(object):
 
     def __set__(self, obj, value):
         try:
-            pydevd_tracing.SetTrace(None)
+            if GetGlobalDebugger().disable_property_setter_trace:
+                pydevd_tracing.SetTrace(None)
             if self.fset is None:
                 raise AttributeError("can't set attribute")
             self.fset(obj, value)
@@ -55,7 +57,8 @@ class DebugProperty(object):
 
     def __delete__(self, obj):
         try:
-            pydevd_tracing.SetTrace(None)
+            if GetGlobalDebugger().disable_property_deleter_trace:
+                pydevd_tracing.SetTrace(None)
             if self.fdel is None:
                 raise AttributeError("can't delete attribute")
             self.fdel(obj)
@@ -65,11 +68,21 @@ class DebugProperty(object):
     def setter(self, fset):
         """Overriding setter decorator for the property
         """
-        if self.fset is None:
-            self.fset = fset
+        try:
+            pydevd_tracing.SetTrace(None)
+            if self.fset is None:
+                self.fset = fset
+            return self
+        finally:
+            pydevd_tracing.SetTrace(GetGlobalDebugger().trace_dispatch)
 
     def deleter(self, fdel):
         """Overriding deleter decorator for the property
         """
-        if self.fdel is None:
-            self.fdel = fdel
+        try:
+            pydevd_tracing.SetTrace(None)
+            if self.fdel is None:
+                self.fdel = fdel
+            return self
+        finally:
+            pydevd_tracing.SetTrace(GetGlobalDebugger().trace_dispatch)

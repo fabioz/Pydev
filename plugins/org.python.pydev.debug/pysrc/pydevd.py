@@ -24,6 +24,7 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          CMD_RELOAD_CODE, \
                          CMD_VERSION, \
                          CMD_GET_FILE_CONTENTS, \
+                         CMD_SET_PROPERTY_TRACE, \
                          GetGlobalDebugger, \
                          InternalChangeVariable, \
                          InternalGetCompletions, \
@@ -241,6 +242,12 @@ class PyDB:
         self.break_on_caught = False
         self.handle_exceptions = None
         
+        # By default user can step into properties getter/setter/deleter methods
+        self.disable_property_trace = False
+        self.disable_property_getter_trace = False
+        self.disable_property_setter_trace = False
+        self.disable_property_deleter_trace = False
+
         #this is a dict of thread ids pointing to thread ids. Whenever a command is passed to the java end that
         #acknowledges that a thread was created, the thread id should be passed here -- and if at some time we do not
         #find that thread alive anymore, we must remove it from this list and make the java side know that the thread
@@ -664,10 +671,6 @@ class PyDB:
                     else:
                         sys.stderr.write("Error when setting exception list. Received: %s\n" % (text,))
                     
-                    #Temporarily written here
-                    #TODO: Move property replace in the correct condition
-                    pydevd_traceproperty.replace_builtin_property()     
-                        
                 elif cmd_id == CMD_GET_FILE_CONTENTS:
                     if os.path.exists(text):
                         f = open(text, 'r')
@@ -677,6 +680,25 @@ class PyDB:
                             f.close()
                         cmd = self.cmdFactory.makeGetFileContents(seq, source)
 
+                elif cmd_id == CMD_SET_PROPERTY_TRACE:
+                    # Command which receives whether to trace property getter/setter/deleter
+                    # text is feature_state(true/false);disable_getter/disable_setter/disable_deleter
+                    if text != "":
+                        splitted = text.split(';')
+                        if len(splitted) >= 3:
+                            if self.disable_property_trace is False and splitted[0] == 'true':
+                                # Replacing property by custom property only when the debugger starts
+                                pydevd_traceproperty.replace_builtin_property()
+                                self.disable_property_trace = True
+                            if splitted[1] == 'true':
+                                self.disable_property_getter_trace = True
+                            if splitted[2] == 'true':
+                                self.disable_property_setter_trace = True
+                            if splitted[3] == 'true':
+                                self.disable_property_deleter_trace = True
+                    else:
+                        # User hasn't configured any settings for property tracing
+                        pass
 
                 else:
                     #I have no idea what this is all about
