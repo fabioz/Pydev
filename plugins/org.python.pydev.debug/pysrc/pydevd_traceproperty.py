@@ -1,4 +1,4 @@
-'''
+'''For debug purpose we are replacing actual builtin property by the debug property  
 '''
 from pydevd_comm import GetGlobalDebugger
 from pydevd_constants import * #@UnusedWildImport
