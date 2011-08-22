@@ -12,10 +12,13 @@
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Call;
@@ -32,12 +35,25 @@ public class InnerModelVisitor extends AbstractVisitor {
     /**
      * List that contains heuristics to find attributes.
      */
-    private List attrsHeuristics = new ArrayList();
+    private final List attrsHeuristics = new ArrayList();
+
+    private final Map<String, SourceToken> repToTokenWithArgs = new HashMap<String, SourceToken>();
+    
+
+    @Override
+    protected SourceToken addToken(SimpleNode node) {
+        SourceToken tok = super.addToken(node);
+        if(tok.getArgs().length() > 0){
+            this.repToTokenWithArgs.put(tok.getRepresentation(), tok);
+        }
+        return tok;
+    }
+    
 
     public InnerModelVisitor(String moduleName, ICompletionState state){
         this.moduleName = moduleName;
-        attrsHeuristics.add(new HeuristicFindAttrs(HeuristicFindAttrs.WHITIN_METHOD_CALL, HeuristicFindAttrs.IN_KEYWORDS, "properties.create", moduleName, state));
-        attrsHeuristics.add(new HeuristicFindAttrs(HeuristicFindAttrs.WHITIN_ANY        , HeuristicFindAttrs.IN_ASSIGN  , "", moduleName, state));
+        attrsHeuristics.add(new HeuristicFindAttrs(HeuristicFindAttrs.WHITIN_METHOD_CALL, HeuristicFindAttrs.IN_KEYWORDS, "properties.create", moduleName, state, this.repToTokenWithArgs));
+        attrsHeuristics.add(new HeuristicFindAttrs(HeuristicFindAttrs.WHITIN_ANY        , HeuristicFindAttrs.IN_ASSIGN  , "", moduleName, state, this.repToTokenWithArgs));
     }
     
     /**

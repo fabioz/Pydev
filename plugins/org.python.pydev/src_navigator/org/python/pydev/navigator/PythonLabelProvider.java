@@ -92,6 +92,16 @@ public class PythonLabelProvider implements ILabelProvider{
 				IFile iFile = (IFile) actualObject;
 				String name = iFile.getName();
 				
+				if(name.indexOf('.') == -1){
+				    try {
+				        if(PythonPathHelper.markAsPyDevFileIfDetected(iFile)){
+				            return PydevPlugin.getImageCache().get(UIConstants.PY_FILE_ICON);
+                        }
+                    } catch (Exception e) {
+                        //Ignore
+                    }
+				}
+				
 				if(name.startsWith("__init__.") && PythonPathHelper.isValidSourceFile(name)){
 					return PyTitlePreferencesPage.getInitIcon();
 				}else{

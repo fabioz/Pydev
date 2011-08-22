@@ -173,7 +173,14 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                                 //No checkings needed for type (we already did that above).
                                 if(tokenAndBaseClass.o1 instanceof SourceToken){
                                     SourceToken sourceToken = (SourceToken) tokenAndBaseClass.o1;
-                                    functionDef = (FunctionDef) sourceToken.getAst();
+                                    SimpleNode ast = sourceToken.getAst();
+                                    if(ast instanceof FunctionDef){
+                                        functionDef = (FunctionDef) ast;
+                                    }else{
+                                        functionDef = sourceToken.getAliased().createCopy();
+                                        NameTok t = (NameTok) functionDef.name;
+                                        t.id = sourceToken.getRepresentation();
+                                    }
                                 }else{
                                     //unfortunately, for builtins we usually cannot trust the parameters.
                                     String representation = tokenAndBaseClass.o1.getRepresentation();

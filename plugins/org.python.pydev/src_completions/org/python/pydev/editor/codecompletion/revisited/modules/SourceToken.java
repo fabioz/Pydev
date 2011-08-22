@@ -38,6 +38,12 @@ public class SourceToken extends AbstractToken{
     private SimpleNode ast;
 
     /**
+     * If this token ended up being an alias to a function def, this is the original def.
+     */
+    private FunctionDef aliased;
+
+
+    /**
      * @param node
      */
     public SourceToken(SimpleNode node, String rep, String args, String doc, String parentPackage) {
@@ -135,6 +141,7 @@ public class SourceToken extends AbstractToken{
 
     int[] colLineEndToFirstDot;
     int[] colLineEndComplete;
+
     public int getLineEnd(boolean getOnlyToFirstDot){
         if(getOnlyToFirstDot){
             if(colLineEndToFirstDot == null){
@@ -216,6 +223,28 @@ public class SourceToken extends AbstractToken{
             return new int[]{getLineDefinition(), getColDefinition()+getRepresentation().length()};
         }
         throw new RuntimeException("Unable to get the lenght of the token:"+ast.getClass().getName());
+    }
+
+    /**
+     * Updates the parameter, type and docstring based on another token (used for aliases).
+     */
+    public void updateAliasToken(SourceToken methodTok) {
+        this.args = methodTok.getArgs();
+        this.type = methodTok.getType();
+        this.doc = methodTok.getDocStr();
+        SimpleNode localAst = methodTok.getAst();
+        if(localAst instanceof FunctionDef){
+            this.aliased = (FunctionDef) localAst;
+        }else{
+            this.aliased = methodTok.getAliased();
+        }
+    }
+
+    /**
+     * @return the function def to which this token is an alias to (or null if it's not an alias).
+     */
+    public FunctionDef getAliased() {
+        return aliased;
     }
 
 }

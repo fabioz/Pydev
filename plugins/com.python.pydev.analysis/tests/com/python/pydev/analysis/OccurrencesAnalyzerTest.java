@@ -37,7 +37,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testImportErrorPattern();
+            analyzer2.testBuiltInAssignment4();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -157,7 +157,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testMetaclass(){
         doc = new Document(
                 "class MyMetaclass(type):\n"+
-                "    def __init__(cls, name, bases, dict): #@UnusedVariable\n"+
+                "    def __init__(cls, name, bases, dct): #@UnusedVariable\n"+
                 "        pass\n"+
                 "\n"
         );
@@ -1774,8 +1774,8 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     
     public void testGlobal3(){
         doc = new Document(
-            "global type\n"+
-            "type = 10\n"
+            "global typ\n"+
+            "typ = 10\n"
         );
         checkNoError();
     }
@@ -2908,5 +2908,85 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
             GRAMMAR_TO_USE_FOR_PARSING = initial;
         }
     }
+
     
+    public void testDictAccess() throws Exception {
+        
+        doc = new Document(
+                "import unittest\n"+
+                "unittest.__dict__\n"
+        );
+        checkNoError();
+    }
+
+        
+	public void testBuiltInAssignment() {
+		int initial = GRAMMAR_TO_USE_FOR_PARSING;
+		try {
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+            doc = new Document(
+                    "import os as list \n" +
+                    "class Foo:\n" +
+                    "	id = 10 \n" +
+                    "	for tuple in range(3):	\n" +
+                    "		val = tuple \n" +
+                    "	try: \n" +
+                    "		val += val/0 \n" +
+                    "	except ZeroDivisionError as range: \n" +
+                    "		pass \n" +
+                    ""
+            );
+			analyzer = new OccurrencesAnalyzer();
+			msgs = analyzeDoc();
+
+			printMessages(msgs, 5); // list, id, tuple and range are reserved
+									// keywords.
+		} finally {
+			GRAMMAR_TO_USE_FOR_PARSING = initial;
+		}
+    }
+	
+	public void testBuiltInAssignment2() {
+        doc = new Document(
+                "def m1(*list, **dict):\n" +
+                "    pass"
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 2); // list, dict
+	}
+	
+	public void testBuiltInAssignment3() {
+	    doc = new Document(
+	            "def list():\n" +
+	            "    pass\n" +
+	            "class dict:\n" +
+	            "    pass\n" +
+	            "global id"
+	    );
+	    analyzer = new OccurrencesAnalyzer();
+	    msgs = analyzeDoc();
+	    
+	    printMessages(msgs, 3); // list, dict, id
+	}
+	
+	public void testBuiltInAssignment4() {
+        int initial = GRAMMAR_TO_USE_FOR_PARSING;
+        try {
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+    	    doc = new Document(
+    	            "def Method(a:lambda list:None) -> lambda list:None:\n" +
+    	            "    pass\n" +
+    	            ""
+    	    );
+    	    analyzer = new OccurrencesAnalyzer();
+    	    msgs = analyzeDoc();
+    	    
+    	    printMessages(msgs, 2); 
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = initial;
+        }
+
+	}
 }

@@ -52,6 +52,47 @@ public class CompiledModule extends AbstractModule{
     private Map<String, Map<String, IToken> > cache = new HashMap<String, Map<String, IToken>>();
     
     private static final Definition[] EMPTY_DEFINITION = new Definition[0];
+
+    private static final Map<String, String> BUILTIN_REPLACEMENTS = new HashMap<String, String>();
+    static{
+        BUILTIN_REPLACEMENTS.put("open", "file");
+        BUILTIN_REPLACEMENTS.put("dir", "list");
+        BUILTIN_REPLACEMENTS.put("filter", "list");
+        BUILTIN_REPLACEMENTS.put("raw_input", "str");
+        BUILTIN_REPLACEMENTS.put("input", "str");
+        BUILTIN_REPLACEMENTS.put("locals", "dict");
+        BUILTIN_REPLACEMENTS.put("map", "list");
+        BUILTIN_REPLACEMENTS.put("range", "list");
+        BUILTIN_REPLACEMENTS.put("repr", "str");
+        BUILTIN_REPLACEMENTS.put("reversed", "list");
+        BUILTIN_REPLACEMENTS.put("sorted", "list");
+        BUILTIN_REPLACEMENTS.put("zip", "list");
+        
+        BUILTIN_REPLACEMENTS.put("str.capitalize", "str");
+        BUILTIN_REPLACEMENTS.put("str.center", "str");
+        BUILTIN_REPLACEMENTS.put("str.decode", "str");
+        BUILTIN_REPLACEMENTS.put("str.encode", "str");
+        BUILTIN_REPLACEMENTS.put("str.expandtabs", "str");
+        BUILTIN_REPLACEMENTS.put("str.format", "str");
+        BUILTIN_REPLACEMENTS.put("str.join", "str");
+        BUILTIN_REPLACEMENTS.put("str.ljust", "str");
+        BUILTIN_REPLACEMENTS.put("str.lower", "str");
+        BUILTIN_REPLACEMENTS.put("str.lstrip", "str");
+        BUILTIN_REPLACEMENTS.put("str.partition", "tuple");
+        BUILTIN_REPLACEMENTS.put("str.replace", "str");
+        BUILTIN_REPLACEMENTS.put("str.rjust", "str");
+        BUILTIN_REPLACEMENTS.put("str.rpartition", "tuple");
+        BUILTIN_REPLACEMENTS.put("str.rsplit", "list");
+        BUILTIN_REPLACEMENTS.put("str.rstrip", "str");
+        BUILTIN_REPLACEMENTS.put("str.split", "list");
+        BUILTIN_REPLACEMENTS.put("str.splitlines", "list");
+        BUILTIN_REPLACEMENTS.put("str.strip", "str");
+        BUILTIN_REPLACEMENTS.put("str.swapcase", "str");
+        BUILTIN_REPLACEMENTS.put("str.title", "str");
+        BUILTIN_REPLACEMENTS.put("str.translate", "str");
+        BUILTIN_REPLACEMENTS.put("str.upper", "str");
+        BUILTIN_REPLACEMENTS.put("str.zfill", "str");
+    }
     
     /**
      * These are the tokens the compiled module has.
@@ -64,6 +105,8 @@ public class CompiledModule extends AbstractModule{
     private LRUCache<String, Definition[]> definitionsFoundCache = new LRUCache<String, Definition[]>(30);
     
     private File file;
+
+    private final boolean isPythonBuiltin;
     
     @Override
     public File getFile() {
@@ -83,8 +126,9 @@ public class CompiledModule extends AbstractModule{
      * @param module - module from where to get completions.
      */
     @SuppressWarnings("unchecked")
-    public CompiledModule(String name, int tokenTypes, IModulesManager manager){
+    private CompiledModule(String name, int tokenTypes, IModulesManager manager){
         super(name);
+        isPythonBuiltin = ("__builtin__".equals(name) || "builtins".equals(name));
         if(COMPILED_MODULES_ENABLED){
             try {
                 setTokens(name, manager);
@@ -194,6 +238,7 @@ public class CompiledModule extends AbstractModule{
                 array.add(new CompiledToken("__file__","","",name,IToken.TYPE_BUILTIN));
                 array.add(new CompiledToken("__name__","","",name,IToken.TYPE_BUILTIN));
                 array.add(new CompiledToken("__builtins__","","",name,IToken.TYPE_BUILTIN));
+                array.add(new CompiledToken("__dict__","","",name,IToken.TYPE_BUILTIN));
             }
             
             addTokens(array);
@@ -280,8 +325,16 @@ public class CompiledModule extends AbstractModule{
                     throw new RuntimeException("Unable to create shell for CompiledModule: "+this.name, e);
                 }
                 synchronized(shell){
-                    String act = name+"."+activationToken;
-                    List<String[]> completions = shell.getImportCompletions(act, 
+                    String act = name+'.'+activationToken;
+                    String tokenToCompletion = act;
+                    if(isPythonBuiltin){
+                        String replacement = BUILTIN_REPLACEMENTS.get(activationToken);
+                        if(replacement != null){
+                            tokenToCompletion = name+'.'+replacement;
+                        }
+                    }
+                    
+                    List<String[]> completions = shell.getImportCompletions(tokenToCompletion, 
                             manager.getModulesManager().getCompletePythonPath(
                                     nature.getProjectInterpreter(), 
                                     nature.getRelatedInterpreterManager())).o2;

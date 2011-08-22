@@ -31,8 +31,20 @@ import org.python.pydev.parser.jython.SimpleNode;
 public class ModuleTest extends TestCase {
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(ModuleTest.class);
-    }
+        
+        try {
+            //DEBUG_TESTS_BASE = true;
+            ModuleTest test = new ModuleTest();
+            test.setUp();
+            test.testMod2();
+            test.tearDown();
+            System.out.println("Finished");
+
+            junit.textui.TestRunner.run(ModuleTest.class);
+        } catch(Throwable e){
+            e.printStackTrace();
+        }
+      }
     
     public void testMod1(){
         Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(getDoc1()), false, IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
@@ -40,8 +52,8 @@ public class ModuleTest extends TestCase {
         IModule module = AbstractModule.createModule(n);
        
         IToken[] globalTokens = module.getGlobalTokens();
-        assertEquals(7, globalTokens.length); //C c D d a __file__ __name__
-        compareReps(globalTokens, "__file__ __name__ C c D d a");
+        assertEquals(8, globalTokens.length); //C c D d a __file__ __name__
+        compareReps(globalTokens, "__file__ __name__ __dict__ C c D d a");
 
         IToken[] wildImportedModules = module.getWildImportedModules();
         assertEquals(1, wildImportedModules.length); //m4
@@ -53,6 +65,52 @@ public class ModuleTest extends TestCase {
 
         assertEquals("docstring for module", module.getDocString());
         
+    }
+    
+    public void testMod2(){
+        String doc = "" +
+        		"def method(a, b):\n" +
+        		"    pass\n" +
+        		"other = method\n" +
+        		"";
+        Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(doc), false, IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
+        SimpleNode n = obj.o1;
+        IModule module = AbstractModule.createModule(n);
+        
+        IToken[] globalTokens = module.getGlobalTokens();
+        assertEquals(5, globalTokens.length);
+        compareReps(globalTokens, "__file__ __name__ __dict__ method other");
+        int found = 0;
+        for(IToken t:globalTokens){
+            if(t.getRepresentation().equals("method") || t.getRepresentation().equals("other")){
+                assertEquals("( a, b )", t.getArgs());
+                found += 1;
+            }
+        }
+        assertEquals(2, found);
+    }
+    
+    public void testMod3(){
+        String doc = "" +
+        "def method(a, b):\n" +
+        "    pass\n" +
+        "other = another = method\n" +
+        "";
+        Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(doc), false, IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
+        SimpleNode n = obj.o1;
+        IModule module = AbstractModule.createModule(n);
+        
+        IToken[] globalTokens = module.getGlobalTokens();
+        assertEquals(6, globalTokens.length); 
+        compareReps(globalTokens, "__file__ __name__ __dict__ method other another");
+        int found = 0;
+        for(IToken t:globalTokens){
+            if(t.getRepresentation().equals("method") || t.getRepresentation().equals("other") || t.getRepresentation().equals("another")){
+                assertEquals("( a, b )", t.getArgs());
+                found += 1;
+            }
+        }
+        assertEquals(3, found);
     }
     
     /**

@@ -94,6 +94,7 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_NO_SELF, "'self' not specified in class method", 3,values,p, true));
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_NO_EFFECT_STMT, "Statement has no effect", 3,values,p, true));
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_INDENTATION_PROBLEM, "Indentation problems and mixing of tabs/spaces", 3,values,p, true));
+        addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_ASSIGNMENT_TO_BUILT_IN_SYMBOL, "Redefinition of builtin symbols", 3,values,p, true));
 
     }
 

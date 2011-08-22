@@ -238,7 +238,23 @@
            id="org.python.pydev.debug.ui.launching.LaunchableTester"
            namespace="org.python.pydev.debug.ui"
            properties="interpreterType"
-           type="org.eclipse.core.runtime.IAdaptable"/>            
+           type="org.eclipse.core.runtime.IAdaptable"/>
+           
+      <propertyTester
+            namespace="org.python.pydev.debug.ui"
+            properties="python_type"
+            type="org.python.pydev.navigator.elements.IWrappedResource"
+            class="org.python.pydev.debug.ui.PythonTypePropertyTester"
+            id="org.python.pydev.debug.ui.python_type_wrappedresource">
+      </propertyTester>
+      <propertyTester
+            namespace="org.python.pydev.debug.ui"
+            properties="python_type"
+            type="org.eclipse.core.resources.IResource"
+            class="org.python.pydev.debug.ui.PythonTypePropertyTester"
+            id="org.python.pydev.debug.ui.python_type_resource">
+      </propertyTester>
+            
   </extension>
 <!--- launch shortcuts -->
 <extension point="org.eclipse.debug.ui.launchShortcuts">
@@ -258,6 +274,7 @@
 	           		 	<or>
 	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
 	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
+                  		    <test property="org.python.pydev.debug.ui.python_type"/>
 	               		</or>    
                		    <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.pythonNature"/>
               		    <test property="org.python.pydev.debug.ui.interpreterType" value="python"/>
@@ -284,6 +301,7 @@
 	           		 	<or>
 	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
 	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
+	               		    <test property="org.python.pydev.debug.ui.python_type"/>
 	               		</or>    
                		    <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.pythonNature"/>
               		    <test property="org.python.pydev.debug.ui.interpreterType" value="ironpython"/>
@@ -311,6 +329,7 @@
 	           		 	<or>
 	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
 	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
+	               		    <test property="org.python.pydev.debug.ui.python_type"/>
 	               		</or>    
                		    <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.pythonNature"/>
               		    <test property="org.python.pydev.debug.ui.interpreterType" value="jython"/>
@@ -335,6 +354,7 @@
 	           		 	<or>
 	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
 	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
+	               		    <test property="org.python.pydev.debug.ui.python_type"/>
                             <adapt type="org.eclipse.core.resources.IContainer" />
 	               		</or>    
                		    <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.pythonNature"/>
@@ -361,6 +381,7 @@
 	           		 	<or>
 	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
 	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
+	               		    <test property="org.python.pydev.debug.ui.python_type"/>
                             <adapt type="org.eclipse.core.resources.IContainer" />
 	               		</or>    
                		    <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.pythonNature"/>
@@ -387,6 +408,7 @@
 	           		 	<or>
 	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
 	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
+	               		    <test property="org.python.pydev.debug.ui.python_type"/>
                             <adapt type="org.eclipse.core.resources.IContainer" />
 	               		</or>    
                		    <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.pythonNature"/>

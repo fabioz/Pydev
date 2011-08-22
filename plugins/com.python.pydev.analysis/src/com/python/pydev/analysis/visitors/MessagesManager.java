@@ -191,7 +191,14 @@ public final class MessagesManager {
             addMessage(IAnalysisPreferences.TYPE_UNDEFINED_IMPORT_VARIABLE, token, undef.o2 );
         }
     }
-    
+
+    /**
+     * @param token adds a message saying that a token gathered from assignment is a reserved keyword
+     */
+    public void onAddAssignmentToBuiltinMessage(IToken token, String rep) {
+        addMessage(IAnalysisPreferences.TYPE_ASSIGNMENT_TO_BUILT_IN_SYMBOL, token);
+    }
+
     /**
      * Checks if some token is actually undefined and changes its representation if needed
      * @return a tuple indicating if it really is undefined and the representation that should be used.
@@ -415,7 +422,9 @@ public final class MessagesManager {
     private boolean doIgnoreMessageIfJustInformational(int type) {
         return type == IAnalysisPreferences.TYPE_UNUSED_PARAMETER || 
            type == IAnalysisPreferences.TYPE_INDENTATION_PROBLEM ||
-           type == IAnalysisPreferences.TYPE_NO_EFFECT_STMT;
+           type == IAnalysisPreferences.TYPE_NO_EFFECT_STMT || 
+           type == IAnalysisPreferences.TYPE_ASSIGNMENT_TO_BUILT_IN_SYMBOL
+           ;
     }
 
     /**

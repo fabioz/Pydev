@@ -31,12 +31,14 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.part.FileEditorInput;
+import org.python.pydev.core.IPyStackFrame;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
@@ -60,7 +62,7 @@ public class PySourceLocatorBase {
      * @return
      */
     public IEditorInput createEditorInput(IPath path) {
-        return createEditorInput(path, true);
+        return createEditorInput(path, true, null);
     }
 
     
@@ -123,7 +125,10 @@ public class PySourceLocatorBase {
      * 
      * @return the editor input found or none if None was available for the given path
      */
-    public IEditorInput createEditorInput(IPath path, boolean askIfDoesNotExist) {
+    public IEditorInput createEditorInput(IPath path, boolean askIfDoesNotExist, IPyStackFrame pyStackFrame) {
+        int onSourceNotFound = PySourceLocatorPrefs.getOnSourceNotFound();
+        IEditorInput edInput = null;
+        
         String pathTranslation = PySourceLocatorPrefs.getPathTranslation(path);
         if(pathTranslation != null){
             if(!pathTranslation.equals(PySourceLocatorPrefs.DONTASK)){
@@ -135,7 +140,6 @@ public class PySourceLocatorBase {
             }
         }
         
-        IEditorInput edInput = null;
         IWorkspace w = ResourcesPlugin.getWorkspace();      
         
         //let's start with the 'easy' way
@@ -150,8 +154,9 @@ public class PySourceLocatorBase {
             File systemFile = path.toFile();
             if(systemFile.exists()){
                 edInput = createEditorInput(systemFile);
-                
-            }else if(askIfDoesNotExist){
+            }
+            
+            if(edInput == null){
                 //here we can do one more thing: if the file matches some opened editor, let's use it...
                 //(this is done because when debugging, we don't want to be asked over and over
                 //for the same file)
@@ -160,32 +165,71 @@ public class PySourceLocatorBase {
                     return input;
                 }
                 
-                //this is the last resort... First we'll try to check for a 'good' match,
-                //and if there's more than one we'll ask it to the user
-                List<IFile> likelyFiles = getLikelyFiles(path, w);
-                IFile iFile = selectWorkspaceFile(likelyFiles.toArray(new IFile[0]));
-                if(iFile != null){
-                    PySourceLocatorPrefs.addPathTranslation(path, iFile.getLocation());
-                    return new FileEditorInput(iFile);
+                if(askIfDoesNotExist && (
+                        onSourceNotFound == PySourceLocatorPrefs.ASK_FOR_FILE || 
+                        onSourceNotFound == PySourceLocatorPrefs.ASK_FOR_FILE_GET_FROM_SERVER)){
+                    
+                    //this is the last resort... First we'll try to check for a 'good' match,
+                    //and if there's more than one we'll ask it to the user
+                    List<IFile> likelyFiles = getLikelyFiles(path, w);
+                    IFile iFile = selectWorkspaceFile(likelyFiles.toArray(new IFile[0]));
+                    if(iFile != null){
+                        PySourceLocatorPrefs.addPathTranslation(path, iFile.getLocation());
+                        return new FileEditorInput(iFile);
+                    }
+                    
+                    //ok, ask the user for any file in the computer
+                    IEditorInput pydevFileEditorInput = selectFilesystemFileForPath(path);
+                    input = pydevFileEditorInput;
+                    if(input != null){
+                    	File file = PydevFileEditorInput.getFile(pydevFileEditorInput);
+                    	if(file != null){
+    	                    PySourceLocatorPrefs.addPathTranslation(path, Path.fromOSString(REF.getFileAbsolutePath(file)));
+    	                    return input;
+                    	}
+                    }
+                    
+                    PySourceLocatorPrefs.setIgnorePathTranslation(path);
                 }
-                
-                //ok, ask the user for any file in the computer
-                IEditorInput pydevFileEditorInput = selectFilesystemFileForPath(path);
-                input = pydevFileEditorInput;
-                if(input != null){
-                	File file = PydevFileEditorInput.getFile(pydevFileEditorInput);
-                	if(file != null){
-	                    PySourceLocatorPrefs.addPathTranslation(path, Path.fromOSString(REF.getFileAbsolutePath(file)));
-	                    return input;
-                	}
-                }
-                
-                PySourceLocatorPrefs.setIgnorePathTranslation(path);
             }
         }else{ //file exists
             IFile workspaceFile = selectWorkspaceFile(files);
             if(workspaceFile != null){
                 edInput = new FileEditorInput(workspaceFile);
+            }
+        }
+        
+        if(edInput == null && (
+                onSourceNotFound == PySourceLocatorPrefs.ASK_FOR_FILE_GET_FROM_SERVER || 
+                onSourceNotFound == PySourceLocatorPrefs.GET_FROM_SERVER)){
+            if(pyStackFrame != null){
+                try {
+                    String fileContents = pyStackFrame.getFileContents();
+                    if(fileContents != null && fileContents.length() > 0){
+                        String lastSegment = path.lastSegment();
+                        File workspaceMetadataFile = PydevPlugin.getWorkspaceMetadataFile("temporary_files");
+                        if(!workspaceMetadataFile.exists()){
+                            workspaceMetadataFile.mkdirs();
+                        }
+                        File file = new File(workspaceMetadataFile, lastSegment);
+                        try {
+                            if(file.exists()){
+                                file.delete();
+                            }
+                        } catch (Exception e) {
+                        }
+                        REF.writeStrToFile(fileContents, file);
+                        try {
+                            file.setReadOnly();
+                        } catch (Exception e) {
+                        }
+                        edInput = PydevFileEditorInput.create(file, true);
+                    }
+                    
+                } catch (Exception e) {
+                    Log.log(e);
+                }
+                
             }
         }
         return edInput;

@@ -11,10 +11,14 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -25,6 +29,7 @@ import java.util.zip.ZipFile;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.ui.ide.IDE;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
@@ -32,6 +37,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
 import org.python.pydev.plugin.nature.IPythonPathHelper;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
@@ -561,6 +567,37 @@ public class PythonPathHelper implements IPythonPathHelper {
                 if(PythonPathHelper.isValidSourceFile(modulesKeyForZip.zipModulePath)){
                     return true;
                 }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @return true if PyEdit.EDITOR_ID is set as the persistent property (only if the file does not have an extension).
+     */
+    public static boolean markAsPyDevFileIfDetected(IFile file) {
+        String name = file.getName();
+        if(name == null || name.indexOf('.') != -1){
+            return false;
+        }
+        
+        String editorID;
+        try {
+            editorID = file.getPersistentProperty(IDE.EDITOR_KEY);
+            if(editorID == null){
+                InputStream contents = file.getContents(true);
+                Reader inputStreamReader = new InputStreamReader(new BufferedInputStream(contents));
+                if(REF.hasPythonShebang(inputStreamReader)){
+                    IDE.setDefaultEditor(file, PyEdit.EDITOR_ID);
+                    return true;
+                }
+            }else{
+                return PyEdit.EDITOR_ID.equals(editorID);
+            }
+            
+        } catch (Exception e) {
+            if(file.exists()){
+                Log.log(e);
             }
         }
         return false;

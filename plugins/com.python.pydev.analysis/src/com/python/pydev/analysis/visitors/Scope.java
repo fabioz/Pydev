@@ -238,7 +238,7 @@ public final class Scope implements Iterable<ScopeItems>{
                     //if it was found but in a class scope (and we're now in a method scope), we will have to create a new Found.
                     
                     //found... may have been or not used, (if we're in an if scope, that does not matter, because
-                    //we have to group things toghether for generating messages for all the occurences in the if)
+                    //we have to group things together for generating messages for all the occurrences in the if)
                     found.addGeneratorToFound(generator,o, getCurrScopeId(), getCurrScopeItems());
                     
                     //ok, it was added, so, let's call this over because we've appended it to another found,

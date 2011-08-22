@@ -49,7 +49,7 @@ public abstract class AbstractVisitor extends VisitorBase{
      */
     public static final int INNER_DEFS = 16;
 
-    protected List<IToken> tokens = new ArrayList<IToken>();
+    protected final List<IToken> tokens = new ArrayList<IToken>();
     
     /**
      * Module being visited.

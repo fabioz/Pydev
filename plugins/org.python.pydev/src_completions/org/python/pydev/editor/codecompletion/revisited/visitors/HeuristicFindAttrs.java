@@ -12,10 +12,12 @@
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -27,6 +29,7 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
  * This class defines how we should find attributes. 
@@ -43,18 +46,21 @@ public class HeuristicFindAttrs extends AbstractVisitor {
      * Whether we should add the attributes that are added as 'self.xxx = 10'
      */
     private boolean discoverSelfAttrs = true;
-
+    
+    private final Map<String, SourceToken> repToTokenWithArgs;
+    
     /**
      * @param where
      * @param how
      * @param methodCall
      * @param state 
      */
-    public HeuristicFindAttrs(int where, int how, String methodCall, String moduleName, ICompletionState state) {
+    public HeuristicFindAttrs(int where, int how, String methodCall, String moduleName, ICompletionState state, Map<String, SourceToken> repToTokenWithArgs) {
         this.where = where;
         this.how = how;
         this.methodCall = methodCall;
         this.moduleName = moduleName;
+        this.repToTokenWithArgs = repToTokenWithArgs;
         if(state != null){
             if(state.getLookingFor() == ICompletionState.LOOKING_FOR_CLASSMETHOD_VARIABLE){
                 this.discoverSelfAttrs = false;
@@ -101,6 +107,14 @@ public class HeuristicFindAttrs extends AbstractVisitor {
     }
     
     
+    @Override
+    protected SourceToken addToken(SimpleNode node) {
+        SourceToken tok = super.addToken(node);
+        if(tok.getArgs().length() > 0){
+            this.repToTokenWithArgs.put(tok.getRepresentation(), tok);
+        }
+        return tok;
+    }
     
     //ENTRY POINTS
     /**
@@ -169,7 +183,7 @@ public class HeuristicFindAttrs extends AbstractVisitor {
     
     
     /**
-     * Name should be whithin assign.
+     * Name should be within assign.
      * 
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
@@ -177,6 +191,19 @@ public class HeuristicFindAttrs extends AbstractVisitor {
         if(how == IN_ASSIGN){
             inAssing = true;
             
+            exprType value = node.value;
+            String rep = NodeUtils.getRepresentationString(value);
+            SourceToken methodTok = null;
+            if(rep != null){
+                methodTok = repToTokenWithArgs.get(rep);
+                //The use case is the following: we have a method and an assign to it:
+                //def method(a, b):
+                //   ...
+                //other = method
+                //
+                //and later on, we want the arguments for 'other' to be the same arguments for 'method'.
+            }
+
             for (int i = 0; i < node.targets.length; i++) {
                 if(node.targets[i] instanceof Attribute){
                     visitAttribute((Attribute)node.targets[i]);
@@ -184,7 +211,10 @@ public class HeuristicFindAttrs extends AbstractVisitor {
                 }else if(node.targets[i] instanceof Name && inFuncDef == false){
                     String id = ((Name)node.targets[i]).id;
                     if(id != null){
-                        addToken(node.targets[i]);
+                        SourceToken added = addToken(node.targets[i]);
+                        if(methodTok != null){
+                            added.updateAliasToken(methodTok);
+                        }
                     }
                     
                 }else if(node.targets[i] instanceof Tuple && inFuncDef == false){

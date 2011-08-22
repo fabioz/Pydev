@@ -298,7 +298,9 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                             if(i == -1)
                                 continue;
                             
-                            int line = Integer.parseInt(tok.substring(0, i).trim() );
+                            final String substring = tok.substring(0, i).trim();
+                            //On PyLint 0.24 it started giving line,col (and not only the line).
+                            int line = Integer.parseInt(StringUtils.split(substring, ',').get(0) );
                             
                             IRegion region = null;
                             try {
