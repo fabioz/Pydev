@@ -2,16 +2,17 @@ import sys
 from pydev_console_utils import BaseInterpreterInterface
 import re
 
+#Uncomment to force PyDev standard shell.   
+#raise ImportError()
 
 try:
     from pydev_ipython_console_010 import PyDevFrontEnd
+    sys.stderr.write('PyDev console: using IPython 0.10\n')
 except ImportError:
     #IPython 0.11 broke compatibility...
     from pydev_ipython_console_011 import PyDevFrontEnd
+    sys.stderr.write('PyDev console: using IPython 0.11\n')
  
-
-#Uncomment to force PyDev standard shell.   
-#raise ImportError()
 
 
 #=======================================================================================================================

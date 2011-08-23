@@ -1,13 +1,13 @@
 Interactive Console
 =======================
 
+.. _IPython: http://ipython.org/
+
+**Note**: From PyDev 2.2.2 onwards, if IPython_ (0.10 or 0.11) is found in the PYTHONPATH, 
+PyDev will use it as the backend for the console.
 
 
-
-Console View
---------------
-
-**Ctrl+Alt+Enter** (while in the PyDev editor) can be used to:
+To use it, do **Ctrl+Alt+Enter** (while in the PyDev editor) to:
 
 * Open a console if there's no open console
 * Send the selected text to the console
