@@ -43,6 +43,7 @@ public class PyDebugTarget extends AbstractDebugTarget {
         IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
         breakpointManager.addBreakpointListener(this);
         PyExceptionBreakPointManager.getInstance().addListener(this);
+        PyPropertyTraceManager.getInstance().addListener(this);
         // we have to know when we get removed, so that we can shut off the debugger
         DebugPlugin.getDefault().getLaunchManager().addLaunchListener(this);
     }        
@@ -53,6 +54,7 @@ public class PyDebugTarget extends AbstractDebugTarget {
             IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
             breakpointManager.removeBreakpointListener(this);
             PyExceptionBreakPointManager.getInstance().removeListener(this);
+            PyPropertyTraceManager.getInstance().removeListener(this);
             debugger.dispose();
             debugger = null;
         }

@@ -254,6 +254,13 @@ class WriterThreadCase13(AbstractWriterThread):
         # Should Skip step into properties setter
         assert line == 39, 'Expected return to be in line 39, was: %s' % line
 
+        # Enable property tracing
+        self.Write("124\t%s\t%s" % (self.NextSeq(), "true;false;false;true"))
+        self.WriteStepIn(threadId)
+        threadId, frameId, line = self.WaitForBreakpointHit('107', True)
+        # Should go inside getter method
+        assert line == 8, 'Expected return to be in line 8, was: %s' % line
+
         self.WriteRunThread(threadId)
         
         self.finishedOk = True

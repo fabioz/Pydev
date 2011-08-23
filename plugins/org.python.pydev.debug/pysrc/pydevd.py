@@ -86,6 +86,7 @@ DONT_TRACE = {
 if IS_PY3K:
     #if we try to trace io.py it seems it can get halted (see http://bugs.python.org/issue4716)
     DONT_TRACE['io.py'] = 1
+    DONT_TRACE['cp1252.py'] = 1
 
 
 connected = False
@@ -690,12 +691,21 @@ class PyDB:
                                 # Replacing property by custom property only when the debugger starts
                                 pydevd_traceproperty.replace_builtin_property()
                                 self.disable_property_trace = True
+                            # Enable/Disable tracing of the property getter
                             if splitted[1] == 'true':
                                 self.disable_property_getter_trace = True
+                            else:
+                                self.disable_property_getter_trace = False
+                            # Enable/Disable tracing of the property setter
                             if splitted[2] == 'true':
                                 self.disable_property_setter_trace = True
+                            else:
+                                self.disable_property_setter_trace = False
+                            # Enable/Disable tracing of the property deleter
                             if splitted[3] == 'true':
                                 self.disable_property_deleter_trace = True
+                            else:
+                                self.disable_property_deleter_trace = False
                     else:
                         # User hasn't configured any settings for property tracing
                         pass
