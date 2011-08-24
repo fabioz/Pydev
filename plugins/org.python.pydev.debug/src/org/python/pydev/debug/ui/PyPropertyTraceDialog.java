@@ -22,10 +22,11 @@ public class PyPropertyTraceDialog extends SelectionDialog {
 	private Button disableStepIntoSetterCheck;
 	private Button disableStepIntoDeleterCheck;
 
-	private boolean disableStepIntoProperties;
-	private boolean disableStepIntoGetter;
-	private boolean disableStepIntoSetter;
-	private boolean disableStepIntoDeleter;
+	// By default user can step into properties
+	private boolean disableStepIntoProperties = false;
+	private boolean disableStepIntoGetter = false;
+	private boolean disableStepIntoSetter = false;
+	private boolean disableStepIntoDeleter = false;
 
 	public PyPropertyTraceDialog(Shell parentShell) {
 		super(parentShell);
@@ -41,14 +42,16 @@ public class PyPropertyTraceDialog extends SelectionDialog {
 		List<String> pyPropertyTraceStatesList = ConfigureExceptionsFileUtils
 				.getConfiguredExceptions(PyPropertyTraceManager.PROPERTY_TRACE_STATE);
 
-		disableStepIntoProperties = Boolean
-				.parseBoolean(pyPropertyTraceStatesList.get(0));
-		disableStepIntoGetter = Boolean.parseBoolean(pyPropertyTraceStatesList
-				.get(1));
-		disableStepIntoSetter = Boolean.parseBoolean(pyPropertyTraceStatesList
-				.get(2));
-		disableStepIntoDeleter = Boolean.parseBoolean(pyPropertyTraceStatesList
-				.get(3));
+		if (pyPropertyTraceStatesList.size() == 4) {
+			disableStepIntoProperties = Boolean
+					.parseBoolean(pyPropertyTraceStatesList.get(0));
+			disableStepIntoGetter = Boolean
+					.parseBoolean(pyPropertyTraceStatesList.get(1));
+			disableStepIntoSetter = Boolean
+					.parseBoolean(pyPropertyTraceStatesList.get(2));
+			disableStepIntoDeleter = Boolean
+					.parseBoolean(pyPropertyTraceStatesList.get(3));
+		}
 
 		disableStepIntoPropertiesCheck = new Button(composite, SWT.CHECK);
 		disableStepIntoPropertiesCheck.setText("Disable step into properties");
