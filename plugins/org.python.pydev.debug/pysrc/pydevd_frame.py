@@ -195,11 +195,10 @@ class PyDBFrame:
                         if basename(back.f_code.co_filename) == 'pydevd.py' and back.f_code.co_name == 'run':
                             back = None
 
+                    if back is not None:
                         # We dont want to trace the return event of pydevd_traceproperty (custom property for debugging)
                         if basename(back.f_code.co_filename) == 'pydevd_traceproperty.py':
                             return None
-                        
-                    if back is not None:
                         #if we're in a return, we want it to appear to the user in the previous frame!
                         self.setSuspend(thread, info.pydev_step_cmd)
                         self.doWaitSuspend(thread, back, event, arg)
