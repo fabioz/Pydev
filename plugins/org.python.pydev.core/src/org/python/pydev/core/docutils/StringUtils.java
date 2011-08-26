@@ -1273,6 +1273,11 @@ public final class StringUtils {
         }
     }
 
+    public static String getExeAsFileSystemValidPath(String executableOrJar) {
+        return "v1_"+StringUtils.md5(executableOrJar);
+    }
+
+    
     /**
      * @return the number of line breaks in the passed string.
      */

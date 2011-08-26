@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.IPath;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
@@ -73,8 +74,10 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
             base = new File(".");
         }
         File file = new File(
-                base, 
-                manager.getManagerRelatedName() + "_"+ InterpreterInfo.getExeAsFileSystemValidPath(this.additionalInfoInterpreter)
+            base, 
+            manager.getManagerRelatedName() + 
+            "_"+ 
+            StringUtils.getExeAsFileSystemValidPath(this.additionalInfoInterpreter)
         );
         
         if(!file.exists()){

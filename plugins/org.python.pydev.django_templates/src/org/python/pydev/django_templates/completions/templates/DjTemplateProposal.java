@@ -6,11 +6,13 @@
  */
 package org.python.pydev.django_templates.completions.templates;
 
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.jface.text.templates.TemplateProposal;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.graphics.Image;
 
 import com.aptana.editor.common.contentassist.ICommonCompletionProposal;
@@ -90,5 +92,9 @@ public class DjTemplateProposal extends TemplateProposal implements ICommonCompl
 
     public void setRelevance(int relevance) {
         this.relevance = relevance;
+    }
+
+    public boolean validateTrigger(IDocument document, int offset, KeyEvent keyEvent) {
+        return false;
     }
 }
