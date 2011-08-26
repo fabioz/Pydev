@@ -2228,13 +2228,11 @@ public final class PySelection {
         public final String full;
         public final String initialPart;
         public final String secondPart;
-        public boolean isCall;
 
-        public TddPossibleMatches(String full, String initialPart, String secondPart, boolean isCall){
+        public TddPossibleMatches(String full, String initialPart, String secondPart){
             this.full = full;
             this.initialPart = initialPart;
             this.secondPart = secondPart;
-            this.isCall = isCall;
         }
         
         @Override
@@ -2295,7 +2293,7 @@ public final class PySelection {
             if(secondPart.length() == 0 && !hasCall){
                 continue; //local var or number
             }
-            ret.add(new TddPossibleMatches(matcher.group(TDD_PART_FULL), matcher.group(TDD_PART_PART1), secondPart, hasCall));
+            ret.add(new TddPossibleMatches(matcher.group(TDD_PART_FULL), matcher.group(TDD_PART_PART1), secondPart));
         }
         return ret;
     }
