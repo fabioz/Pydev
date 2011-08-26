@@ -94,7 +94,12 @@ public class DjTemplateProposal extends TemplateProposal implements ICommonCompl
         this.relevance = relevance;
     }
 
-    public boolean validateTrigger(IDocument document, int offset, KeyEvent keyEvent) {
-        return false;
-    }
+    /*
+     * (non-Javadoc)
+     * @see com.aptana.editor.common.contentassist.ICommonCompletionProposal#validateTrigger(org.eclipse.jface.text.IDocument, int, org.eclipse.swt.events.KeyEvent)
+     */
+	public boolean validateTrigger(IDocument document, int offset, KeyEvent keyEvent)
+	{
+		return true;
+	}
 }
