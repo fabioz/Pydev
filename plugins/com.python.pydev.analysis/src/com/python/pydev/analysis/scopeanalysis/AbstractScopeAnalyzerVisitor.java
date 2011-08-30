@@ -75,7 +75,7 @@ import com.python.pydev.analysis.visitors.Scope;
 import com.python.pydev.analysis.visitors.ScopeItems;
 
 /**
- * This is a visitor that transverses the scopes available and is able to provide information
+ * This is a visitor that traverses the scopes available and is able to provide information
  * on all the scopes (subclasses should implement the specifics about it).
  * 
  * @author Fabio
