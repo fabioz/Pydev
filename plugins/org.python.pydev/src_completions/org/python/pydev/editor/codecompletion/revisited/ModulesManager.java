@@ -67,9 +67,9 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 public abstract class ModulesManager implements IModulesManager {
 
     /**
-     * 
+     * Note: MODULES_MANAGER_V1 had a bug when writing/reading ModulesKeyForZip entries.
      */
-    private static final String MODULES_MANAGER_V1 = "MODULES_MANAGER_V1\n";
+    private static final String MODULES_MANAGER_V2 = "MODULES_MANAGER_V2\n";
 
     private final static boolean DEBUG_BUILD = false;
     
@@ -177,11 +177,6 @@ public abstract class ModulesManager implements IModulesManager {
         pythonPathHelper = (PythonPathHelper)pathHelper;
     }
     
-    /**
-     * The version for deserialization
-     */
-    private static final long serialVersionUID = 2L;
-
 
     public void saveToFile(File workspaceMetadataFile) {
         if(workspaceMetadataFile.exists() && !workspaceMetadataFile.isDirectory()){
@@ -198,19 +193,53 @@ public abstract class ModulesManager implements IModulesManager {
         File modulesKeysFile = new File(workspaceMetadataFile, "modulesKeys");
         File pythonpatHelperFile = new File(workspaceMetadataFile, "pythonpath");
         FastStringBuffer buf;
+        HashMap<String, Integer> commonTokens = new HashMap<String, Integer>(); 
+        
         synchronized (modulesKeysLock) {
             buf = new FastStringBuffer(this.modulesKeys.size()*50);
-            buf.append(MODULES_MANAGER_V1);
+            buf.append(MODULES_MANAGER_V2);
             
             for (Iterator<ModulesKey> iter = this.modulesKeys.keySet().iterator(); iter.hasNext();) {
                 ModulesKey next = iter.next();
                 buf.append(next.name);
                 if(next.file != null){
                     buf.append("|");
-                    buf.append(next.file.toString());
+                    if(next instanceof ModulesKeyForZip){
+                        ModulesKeyForZip modulesKeyForZip = (ModulesKeyForZip) next;
+                        if(modulesKeyForZip.zipModulePath != null){
+                            String fileStr = next.file.toString();
+                            Integer t = commonTokens.get(fileStr);
+                            if(t == null){
+                                t = commonTokens.size();
+                                commonTokens.put(fileStr, t);
+                            }
+                            buf.append(t);
+                            buf.append("|");
+                            
+                            buf.append(modulesKeyForZip.zipModulePath);
+                            buf.append("|");
+                            buf.append(modulesKeyForZip.isFile?'1':'0');
+                        }
+                    }else{
+                        buf.append(next.file.toString());
+                    }
                 }
                 buf.append('\n');
             }
+        }
+        if(commonTokens.size() > 0){
+            FastStringBuffer header = new FastStringBuffer(buf.length()+(commonTokens.size()*50));
+            header.append(MODULES_MANAGER_V2);
+            header.append("--COMMON--\n");
+            for(Map.Entry<String, Integer> entries:commonTokens.entrySet()){
+                header.append(entries.getValue());
+                header.append('=');
+                header.append(entries.getKey());
+                header.append('\n');
+            }
+            header.append("--END-COMMON--\n");
+            header.append(buf);
+            buf = header;
         }
         REF.writeStrToFile(buf.toString(), modulesKeysFile);
         
@@ -236,11 +265,35 @@ public abstract class ModulesManager implements IModulesManager {
         }
         
         String fileContents = REF.getFileContents(modulesKeysFile);
-        if(!fileContents.startsWith(MODULES_MANAGER_V1)){
-            throw new RuntimeException("Could not load modules manager from "+modulesKeysFile+" (version not detected).");
+        if(!fileContents.startsWith(MODULES_MANAGER_V2)){
+            throw new RuntimeException("Could not load modules manager from "+modulesKeysFile+" (version changed).");
         }
         
-        fileContents = fileContents.substring(MODULES_MANAGER_V1.length());
+        HashMap<Integer, String> intToString = new HashMap<Integer, String>();
+        fileContents = fileContents.substring(MODULES_MANAGER_V2.length());
+        if(fileContents.startsWith("--COMMON--\n")){
+            String header = fileContents.substring("--COMMON--\n".length());
+            header = header.substring(0, header.indexOf("--END-COMMON--\n"));
+            fileContents = fileContents.substring(fileContents.indexOf("--END-COMMON--\n")+"--END-COMMON--\n".length());
+            
+            for(String line:StringUtils.iterLines(header)){
+                line = line.trim();
+                List<String> split = StringUtils.split(line, '=');
+                if(split.size() == 2){
+                    try {
+                        int i = Integer.parseInt(split.get(0));
+                        intToString.put(i, split.get(1));
+                    } catch (NumberFormatException e) {
+                        Log.log(e);
+                    }
+                }
+                
+            }
+            if(fileContents.startsWith(MODULES_MANAGER_V2)){
+                fileContents = fileContents.substring(MODULES_MANAGER_V2.length());
+            }
+        }
+        
         for(String line:StringUtils.iterLines(fileContents)){
             line = line.trim();
             List<String> split = StringUtils.split(line, '|');
@@ -250,6 +303,17 @@ public abstract class ModulesManager implements IModulesManager {
                 
             }else if(split.size() == 2){
                 key = new ModulesKey(split.get(0), new File(split.get(1)));
+                
+            }else if(split.size() == 4){
+                try {
+                    key = new ModulesKeyForZip(
+                            split.get(0), 
+                            new File(intToString.get(Integer.parseInt(split.get(1)))), 
+                            split.get(2), 
+                            split.get(3).equals("1"));
+                } catch (NumberFormatException e) {
+                    Log.log(e);
+                }
                 
             }
             if(key != null){
@@ -333,7 +397,9 @@ public abstract class ModulesManager implements IModulesManager {
         synchronized (modulesKeysLock) {
             while (it.hasNext()) {
                 ModulesKey next = it.next();
-                if (!modulesKeys.containsKey(next)) {
+                ModulesKey modulesKey = modulesKeys.get(next);
+                if(modulesKey == null || modulesKey.getClass() != next.getClass()){
+                    //Check the class because ModulesKey and ModulesKeyForZip are equal considering only the name.
                     newKeys.add(next);
                 }
             }
@@ -341,7 +407,8 @@ public abstract class ModulesManager implements IModulesManager {
             it = modulesKeys.keySet().iterator();
             while (it.hasNext()) {
                 ModulesKey next = it.next();
-                if (!keysFound.containsKey(next)) {
+                ModulesKey modulesKey = modulesKeys.get(next);
+                if (modulesKey == null || modulesKey.getClass() != next.getClass()) {
                     removedKeys.add(next);
                 }
             }
@@ -713,7 +780,7 @@ public abstract class ModulesManager implements IModulesManager {
         }
 
         if (n instanceof EmptyModule) {
-            throw new RuntimeException("Should not be an empty module anymore!");
+            throw new RuntimeException("Should not be an empty module anymore: "+n);
         }
         if(n instanceof SourceModule){
             SourceModule sourceModule = (SourceModule) n;

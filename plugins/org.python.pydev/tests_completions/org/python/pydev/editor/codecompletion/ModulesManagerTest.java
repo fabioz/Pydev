@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
@@ -24,7 +25,17 @@ import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 public class ModulesManagerTest extends CodeCompletionTestsBase{
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(ModulesManagerTest.class);
+        try {
+            ModulesManagerTest test = new ModulesManagerTest();
+            test.setUp();
+            test.testLoad();
+            test.tearDown();
+            
+            junit.textui.TestRunner.run(ModulesManagerTest.class);
+        } catch (Exception e) {
+            
+            e.printStackTrace();
+        }
     }
 
 
@@ -53,6 +64,8 @@ public class ModulesManagerTest extends CodeCompletionTestsBase{
         manager.addModule(new ModulesKey("bar", new File("bar.py")));
         manager.addModule(new ModulesKey("foo", new File("foo.py")));
         manager.addModule(new ModulesKey("empty", null));
+        manager.addModule(new ModulesKeyForZip("zip", new File("zip.zip"), "path", true));
+        
         PythonPathHelper pythonPathHelper = manager.getPythonPathHelper();
         pythonPathHelper.setPythonPath("rara|boo");
         assertEquals(Arrays.asList("rara", "boo"), manager.getPythonPath());
@@ -68,10 +81,25 @@ public class ModulesManagerTest extends CodeCompletionTestsBase{
             
             SystemModulesManager loaded = new SystemModulesManager(null);
             SystemModulesManager.loadFromFile(loaded, f);
+            ModulesKey[] onlyDirectModules = loaded.getOnlyDirectModules();
+            boolean found = false;
+            for (ModulesKey modulesKey : onlyDirectModules) {
+                if(modulesKey.name.equals("zip")){
+                    ModulesKeyForZip z = (ModulesKeyForZip) modulesKey;
+                    assertEquals(z.zipModulePath, "path");
+                    assertEquals(z.file, new File("zip.zip"));
+                    assertEquals(z.isFile, true);
+                    found = true;
+                }
+            }
+            if(!found){
+                fail("Did not find ModulesKeyForZip.");
+            }
             Set<String> set = new HashSet<String>();
             set.add("bar");
             set.add("foo");
             set.add("empty");
+            set.add("zip");
             assertEquals(set, loaded.getAllModuleNames(true, ""));
             assertEquals(Arrays.asList("rara", "boo"), loaded.getPythonPath());
         } finally {
