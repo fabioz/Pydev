@@ -111,29 +111,44 @@ public final class PySelection {
     
 
 
-    public static final Set<String> ALL_STATEMENT_TOKENS = new HashSet<String>();
+    public static final Set<String> ALL_KEYWORD_TOKENS = new HashSet<String>();
     static{
-        ALL_STATEMENT_TOKENS.add("lambda");
-        ALL_STATEMENT_TOKENS.add("assert");
-        ALL_STATEMENT_TOKENS.add("break");
-        ALL_STATEMENT_TOKENS.add("class");
-        ALL_STATEMENT_TOKENS.add("continue");
-        ALL_STATEMENT_TOKENS.add("def");
-        ALL_STATEMENT_TOKENS.add("elif");
-        ALL_STATEMENT_TOKENS.add("else");
-        ALL_STATEMENT_TOKENS.add("except");
-        ALL_STATEMENT_TOKENS.add("finally");
-        ALL_STATEMENT_TOKENS.add("for");
-        ALL_STATEMENT_TOKENS.add("from");
-        ALL_STATEMENT_TOKENS.add("if");
-        ALL_STATEMENT_TOKENS.add("import");
-        ALL_STATEMENT_TOKENS.add("pass");
-        ALL_STATEMENT_TOKENS.add("raise");
-        ALL_STATEMENT_TOKENS.add("return");
-        ALL_STATEMENT_TOKENS.add("try");
-        ALL_STATEMENT_TOKENS.add("while");
-        ALL_STATEMENT_TOKENS.add("with");
-        ALL_STATEMENT_TOKENS.add("yield");
+        ALL_KEYWORD_TOKENS.add("False");
+        ALL_KEYWORD_TOKENS.add("None");
+        ALL_KEYWORD_TOKENS.add("True"); 
+        ALL_KEYWORD_TOKENS.add("and");
+        ALL_KEYWORD_TOKENS.add("as");
+        ALL_KEYWORD_TOKENS.add("assert");
+        ALL_KEYWORD_TOKENS.add("break");
+        ALL_KEYWORD_TOKENS.add("class");
+        ALL_KEYWORD_TOKENS.add("continue");
+        ALL_KEYWORD_TOKENS.add("def");
+        ALL_KEYWORD_TOKENS.add("del");
+        ALL_KEYWORD_TOKENS.add("elif");
+        ALL_KEYWORD_TOKENS.add("else");
+        ALL_KEYWORD_TOKENS.add("except");
+        ALL_KEYWORD_TOKENS.add("exec");
+        ALL_KEYWORD_TOKENS.add("finally");
+        ALL_KEYWORD_TOKENS.add("for");
+        ALL_KEYWORD_TOKENS.add("from");
+        ALL_KEYWORD_TOKENS.add("global");
+        ALL_KEYWORD_TOKENS.add("if");
+        ALL_KEYWORD_TOKENS.add("import");
+        ALL_KEYWORD_TOKENS.add("in");
+        ALL_KEYWORD_TOKENS.add("is");
+        ALL_KEYWORD_TOKENS.add("lambda");
+        ALL_KEYWORD_TOKENS.add("nonlocal");
+        ALL_KEYWORD_TOKENS.add("not");
+        ALL_KEYWORD_TOKENS.add("or");
+        ALL_KEYWORD_TOKENS.add("pass");
+        ALL_KEYWORD_TOKENS.add("print");
+        ALL_KEYWORD_TOKENS.add("raise");
+        ALL_KEYWORD_TOKENS.add("return");
+        ALL_KEYWORD_TOKENS.add("self");
+        ALL_KEYWORD_TOKENS.add("try");
+        ALL_KEYWORD_TOKENS.add("while");
+        ALL_KEYWORD_TOKENS.add("with");
+        ALL_KEYWORD_TOKENS.add("yield");
     };
 
     /**

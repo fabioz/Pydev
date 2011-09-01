@@ -483,7 +483,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         if(c == '~' || c == '+' || c == '-'){
             //could be an unary operator...
             String trimmedLastWord = buf.getLastWord().trim();
-            isUnary = trimmedLastWord.length() == 0 || PySelection.ALL_STATEMENT_TOKENS.contains(trimmedLastWord);
+            isUnary = trimmedLastWord.length() == 0 || PySelection.ALL_KEYWORD_TOKENS.contains(trimmedLastWord);
             
             if(!isUnary){
                 for(char itChar:buf.reverseIterator()){

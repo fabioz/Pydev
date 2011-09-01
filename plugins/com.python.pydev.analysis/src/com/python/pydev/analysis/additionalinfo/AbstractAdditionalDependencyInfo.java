@@ -397,7 +397,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                         }
                     }
                     String str = temp.toString();
-                    if(PySelection.ALL_STATEMENT_TOKENS.contains(str)){
+                    if(PySelection.ALL_KEYWORD_TOKENS.contains(str)){
                         continue;
                     }
                     set.add(str);
