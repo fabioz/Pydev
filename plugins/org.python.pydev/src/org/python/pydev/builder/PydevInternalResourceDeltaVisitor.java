@@ -9,6 +9,7 @@
  */
 package org.python.pydev.builder;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
@@ -93,6 +94,9 @@ public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisi
         } else if (type == IResource.FILE) {
             String ext = resource.getFileExtension();
             if(ext == null){ //resource.getFileExtension() may return null if it has none.
+                if(resource instanceof IFile){
+                    PythonPathHelper.markAsPyDevFileIfDetected((IFile) resource);
+                }
                 return true;
             }
             

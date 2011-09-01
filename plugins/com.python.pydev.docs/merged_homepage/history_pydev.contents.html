@@ -1,9 +1,110 @@
+<!-- TODO: Convert to rst with http://johnmacfarlane.net/pandoc/installing.html)
+
 <doc>
 <contents_area>
 
 <h3>History For PyDev</h3>
 <br/>
 
+<h1>Release 2.2.1</h1>
+<p><strong>Quick-outline</strong></p>
+<blockquote>
+<img alt="images/index/quick_outline_parent.png" class="no-border" src="images/index/quick_outline_parent.png" />
+<ul class="simple">
+<li>Parent methods may be shown with a 2nd Ctrl+O.</li>
+<li>The initial node is selected with the current location in the file.</li>
+</ul>
+</blockquote>
+<p><strong>Extract local refactoring</strong></p>
+<blockquote>
+<img alt="images/index/refactor_duplicate.png" class="no-border" src="images/index/refactor_duplicate.png" />
+<ul class="simple">
+<li>Option to replace duplicates.</li>
+<li>Fixed issue where wrong grammar could be used.</li>
+</ul>
+</blockquote>
+<p><strong>Others</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Improved handling of Ctrl+Shift+T so that no keybinding conflict takes place (now it'll be only active on the PyDev views/editor).</li>
+<li>PyLint markers always removed on a project clean.</li>
+<li>If the standard library source files are not found, more options are presented.</li>
+<li>If the completion popup is focused and shift is pressed on a context insensitive completion, a local import is done.</li>
+<li>Fixed issue where a local import wasn't being added to the correct location.</li>
+<li>Fixed error message in debugger when there was no caught/uncaught exception set in an empty workspace.</li>
+<li>Performance improvements on hierarchy view.</li>
+<li>Django commands may be deleted on dialog with backspace.</li>
+</ul>
+</blockquote>
+
+
+
+
+
+
+<h1>Release 2.2</h1>
+<p><strong>Eclipse 3.7</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Eclipse 3.7 (Indigo) is now supported.</li>
+</ul>
+</blockquote>
+<p><strong>Break on Exceptions</strong></p>
+<blockquote>
+<img alt="images/index/manage_exceptions.png" class="no-border" src="images/index/manage_exceptions.png" />
+<ul class="simple">
+<li>It's now possible to <strong>break on caught exceptions</strong> in the debugger.</li>
+<li>There's an UI to break on caught or uncaught exceptions (menu: Run &gt; Manage Python Exception Breakpoints).</li>
+</ul>
+</blockquote>
+<p><strong>Hierarchy view</strong></p>
+<blockquote>
+<img alt="images/index/hierarchy_view.png" class="no-border" src="images/index/hierarchy_view.png" />
+<ul class="simple">
+<li>UI improved (now only uses SWT -- access through F4 with the cursor over a class).</li>
+</ul>
+</blockquote>
+<p><strong>PyPy</strong>:</p>
+<blockquote>
+<ul class="simple">
+<li>PyDev now supports PyPy (can be configured as a regular Python interpreter).</li>
+</ul>
+</blockquote>
+<p><strong>Django</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Django configuration in project properties page (improved UI for configuration of the django manage.py and django settings module).</li>
+<li>Improved support for debugging Django with autoreload. Details at: <a class="reference external" href="manual_adv_remote_debugger.html#django-remote-debugging-with-auto-reload">Django remote debugging with auto-reload</a>.</li>
+</ul>
+</blockquote>
+<p><strong>Code analysis</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Fixed issue where a resolution of a token did not properly consider a try..except ImportError (always went for the first match).</li>
+<li>Fixed issue with relative import with wildcards.</li>
+<li>Fixed issue with relative import with alias.</li>
+<li>Fixed issue where binary files would be wrongly parsed (ended up generating errors in the error log).</li>
+</ul>
+</blockquote>
+<p><strong>Code completion</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Improved sorting of proposals (__*__ come at last)</li>
+</ul>
+</blockquote>
+<p><strong>Others</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Improved ctrl+1 quick fix with local import.</li>
+<li>Fixed issue running with py.test.</li>
+<li>PyDev test runner working properly with unittest2.</li>
+<li>Fixed compatibility issue with eclipse 3.2.</li>
+<li>No longer sorting libraries when adding interpreter/added option to select all not in workspace.</li>
+<li>Fixed deadlock in the debugger when dealing with multiple threads.</li>
+<li>Fixed debugger issue (dictionary changing size during thread creation/removal on python 3.x).</li>
+</ul>
+</blockquote>
+<p><strong>Note</strong>: Java 1.4 is no longer supported (at least Java 5 is required now).</p>
 
 
 

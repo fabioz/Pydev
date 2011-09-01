@@ -58,7 +58,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             //DEBUG_TESTS_BASE = true;
             PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
             test.setUp();
-            test.testCompletionUnderWithLowerPriority();
+            test.testOverrideCompletions3();
             test.tearDown();
             System.out.println("Finished");
 
@@ -148,12 +148,12 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         
         requestCompl("from testl"                          , testLibAndSubmodules);
         requestCompl("import testl"                        , testLibAndSubmodules);
-        requestCompl("from testlib import "                , new String[]{"__file__", "__name__", "__init__", "unittest", "__path__"});
+        requestCompl("from testlib import "                , new String[]{"__file__", "__name__", "__init__", "unittest", "__path__", "__dict__"});
         requestCompl("from testlib import unittest, __in"  , new String[]{"__init__"});
         requestCompl("from testlib import unittest,__in"   , new String[]{"__init__"});
         requestCompl("from testlib import unittest ,__in"  , new String[]{"__init__"});
         requestCompl("from testlib import unittest , __in" , new String[]{"__init__"});
-        requestCompl("from testlib import unittest , "     , new String[]{"__file__", "__name__", "__init__", "unittest", "__path__"});
+        requestCompl("from testlib import unittest , "     , new String[]{"__file__", "__name__", "__init__", "unittest", "__path__", "__dict__"});
         
         requestCompl("from testlib.unittest import  ", getTestLibUnittestTokens());
 
@@ -283,7 +283,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     public void testMultilineImportCompletion() throws Exception{
         String s = "from testlib import (\n";
         
-        requestCompl(s, new String[]{"__file__", "__name__", "__init__", "unittest", "__path__"});
+        requestCompl(s, new String[]{"__file__", "__name__", "__init__", "unittest", "__path__", "__dict__"});
         
     }
 
@@ -295,6 +295,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           "__file__"
         , "__init__"
         , "__name__"
+        , "__dict__"
         , "__path__"
         , "anothertest"
         , "AnotherTest"
@@ -406,7 +407,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl(s, s.length(), -1, new String[]{
             "AnotherTest"
             , "GUITest"
-            , "main"
+            , "main(module, defaultTest, argv, testRunner, testLoader)"
             , "TestCase"
             , "testcase"
             , "TestCaseAlias"
@@ -497,7 +498,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         s = "" +
         "from extendable.nested2 import hub\n"+
         "hub.c1.e.";
-        requestCompl(s, s.length(), -1, new String[] { "assertBMPsNotEqual"});
+        requestCompl(s, s.length(), -1, new String[] { "assertBMPsNotEqual(f1, f2)"});
     }
     
     public void testDeepNested6() throws Exception{
@@ -1295,7 +1296,16 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             "    def BB(self):\n" +
             "        self.Compute()." +
             "";
-        requestCompl(s, s.length(), -1, new String[] {"BB()", "assertEquals"});
+        ICompletionProposal[] requestCompl = requestCompl(s, s.length(), -1, new String[] {"BB()", "assertEquals(first, second, msg)"});
+        boolean found = false;
+        for(ICompletionProposal p:requestCompl){
+            if(p.getDisplayString().equals("assertEquals(first, second, msg)")){
+                IToken element = ((PyLinkedModeCompletionProposal)p).getElement();
+                assertEquals(element.getType(), IToken.TYPE_FUNCTION);
+                found = true;
+            }
+        }
+        assertTrue(found);
     }
     
     
@@ -1700,7 +1710,48 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "        Foo.rara(self)", doc.get());
     }
     
+    public void testCompletionsWithParametersFromAssign() throws Exception{
+        String s;
+        s = "" +
+        "class Foo:\n" +
+        "    def rara(self, a, b):\n" +
+        "        pass\n" +
+        "    what = rara\n" +
+        "f = Foo()\n" +
+        "f.wha";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "what(a, b)"});
+        assertEquals(1, comps.length);
 
+    }
+    
+
+    public void testOverrideCompletions6() throws Exception{
+        String s;
+        s = "" +
+        "class Foo:\n" +
+        "    def rara(self, a, b):\n" +
+        "        pass\n" +
+        "    what = rara\n" +
+        "\n" +
+        "class Bar(Foo):\n" +
+        "    def wh" +
+        "";
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "what (Override method in Foo)"});
+        assertEquals(1, comps.length);
+        Document doc = new Document(s);
+        OverrideMethodCompletionProposal comp = (OverrideMethodCompletionProposal) comps[0];
+        comp.applyOnDocument(null, doc, ' ', 0, s.length());
+        assertEquals("" +
+                "class Foo:\n" +
+                "    def rara(self, a, b):\n" +
+                "        pass\n" +
+                "    what = rara\n" +
+                "\n" +
+                "class Bar(Foo):\n" +
+                "    def what(self, a, b):\n" +
+                "        Foo.what(self, a, b)", doc.get());
+    }
+    
 }
 
 

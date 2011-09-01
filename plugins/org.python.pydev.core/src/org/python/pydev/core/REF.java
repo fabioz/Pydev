@@ -913,6 +913,39 @@ public class REF {
         return null;
     }
 
+    
+    /**
+     * Returns if the given file has a python shebang (i.e.: starts with #!... python)
+     * 
+     * Will close the reader.
+     */
+    public static boolean hasPythonShebang(Reader inputStreamReader) 
+        throws IllegalCharsetNameException{
+        
+        BufferedReader reader = new BufferedReader(inputStreamReader);
+        try{
+            String l1 = reader.readLine();
+            if(l1 != null){
+                //Special case to skip bom.
+                if(l1.startsWith(BOM_UTF8)){
+                    l1 = l1.substring(BOM_UTF8.length());
+                }
+
+                if(l1.startsWith("#!") && l1.indexOf("python") != -1){
+                    return true;
+                }
+            }
+            
+        } catch (IOException e) {
+            Log.log(e);
+        }finally{
+            try {reader.close();} catch (IOException e1) {}
+        }
+        return false;
+    }
+
+    
+    
     /**
      * Useful to silent it on tests
      */

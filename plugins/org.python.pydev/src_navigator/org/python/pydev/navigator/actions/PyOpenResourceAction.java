@@ -96,6 +96,7 @@ public class PyOpenResourceAction extends PyOpenPythonFileAction{
     @Override
     protected void openFiles(List<IFile> filesSelected) {
         for (IFile f : filesSelected) {
+            PythonPathHelper.markAsPyDevFileIfDetected(f);
             try {
                 IDE.openEditor(page, f);
             } catch (PartInitException e) {

@@ -11,10 +11,13 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -27,6 +30,7 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
  * This class visits only the global context. Other visitors should visit contexts inside of this one.
@@ -39,8 +43,9 @@ public class GlobalModelVisitor extends AbstractVisitor {
     private SourceToken __all__;
     private Assign __all__Assign;
     private exprType[] __all__AssignTargets;
-    private Assign lastAssign;
+    private FastStack<Assign> lastAssign = new FastStack<Assign>();
     private boolean onlyAllowTokensIn__all__;
+    private final Map<String, SourceToken> repToTokenWithArgs = new HashMap<String, SourceToken>();
 
     public GlobalModelVisitor(int visitWhat, String moduleName, boolean onlyAllowTokensIn__all__) {
         this(visitWhat, moduleName, onlyAllowTokensIn__all__, false);
@@ -54,6 +59,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
         this.visitWhat = visitWhat;
         this.moduleName = moduleName;
         this.onlyAllowTokensIn__all__ = onlyAllowTokensIn__all__;
+        this.tokens.add(new SourceToken(new Name("__dict__", Name.Load, false), "__dict__", "", "", moduleName));
         if(moduleName != null && moduleName.endsWith("__init__")){
             this.tokens.add(new SourceToken(new Name("__path__", Name.Load, false), "__path__", "", "", moduleName));
         }
@@ -64,6 +70,15 @@ public class GlobalModelVisitor extends AbstractVisitor {
         }
     }
 
+    @Override
+    protected SourceToken addToken(SimpleNode node) {
+        SourceToken tok = super.addToken(node);
+        if(tok.getArgs().length() > 0){
+            this.repToTokenWithArgs.put(tok.getRepresentation(), tok);
+        }
+        return tok;
+    }
+    
     protected Object unhandled_node(SimpleNode node) throws Exception {
         return null;
     }
@@ -89,13 +104,14 @@ public class GlobalModelVisitor extends AbstractVisitor {
     }
 
     /**
-     * Name should be whithin assign.
+     * Name should be within assign.
      * 
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
     public Object visitAssign(Assign node) throws Exception {
-        lastAssign = node;
+        lastAssign.push(node);
         node.traverse(this);
+        lastAssign.pop();
         return null;
     }
 
@@ -109,10 +125,29 @@ public class GlobalModelVisitor extends AbstractVisitor {
         if ((this.visitWhat & GLOBAL_TOKENS) != 0) {
             if (node.ctx == Name.Store) {
                 SourceToken added = addToken(node);
-                if(added.getRepresentation().equals("__all__") && __all__Assign == null){
-                    __all__ = added;
-                    __all__Assign = lastAssign;
-                    __all__AssignTargets = lastAssign.targets;
+                if(lastAssign.size() > 0){
+                    Assign last = lastAssign.peek();
+                    if(added.getRepresentation().equals("__all__") && __all__Assign == null){
+                        __all__ = added;
+                        __all__Assign = last;
+                        __all__AssignTargets = last.targets;
+                    }else{
+                        if(last.value != null){
+                            String rep = NodeUtils.getRepresentationString(last.value);
+                            if(rep != null){
+                                SourceToken methodTok = repToTokenWithArgs.get(rep);
+                                if(methodTok != null){
+                                    //The use case is the following: we have a method and an assign to it:
+                                    //def method(a, b):
+                                    //   ...
+                                    //other = method
+                                    //
+                                    //and later on, we want the arguments for 'other' to be the same arguments for 'method'.
+                                    added.updateAliasToken(methodTok);
+                                }
+                            }
+                        }
+                    }
                 }
             }else if(node.ctx == Name.Load){
                 if(node.id.equals("__all__")){

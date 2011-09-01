@@ -213,7 +213,10 @@ public abstract class ProcessWindow extends Dialog{
             buffer.append(contents);
             if(buffer.length() > 2000){
                 //Let it always close to 2000.
-                buffer.delete(0, 2000-buffer.length());
+                try {
+                    buffer.delete(0, 2000-buffer.length());
+                } catch (Exception e) {
+                }
             }
             final List<String> split = StringUtils.splitInLines(buffer.toString());
             

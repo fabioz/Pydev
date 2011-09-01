@@ -94,100 +94,52 @@ First time users are strongly advised to read the `Getting started guide`_  whic
 
 
 
-Release 2.2.1
+Release 2.2.2
 ===============
 
+**IPython / Interactive console**
 
-**Quick-outline**
-
-    .. image:: images/index/quick_outline_parent.png
-        :class: no_border
-        
-
-    * Parent methods may be shown with a 2nd Ctrl+O.
-    * The initial node is selected with the current location in the file.
-
-**Extract local refactoring**
-
-    .. image:: images/index/refactor_duplicate.png
-        :class: no_border
-        
-    * Option to replace duplicates.
-    * Fixed issue where wrong grammar could be used.
-        
-**Others**
-
-    * Improved handling of Ctrl+Shift+T so that no keybinding conflict takes place (now it'll be only active on the PyDev views/editor).
-    * PyLint markers always removed on a project clean.
-    * If the standard library source files are not found, more options are presented.
-    * If the completion popup is focused and shift is pressed on a context insensitive completion, a local import is done.
-    * Fixed issue where a local import wasn't being added to the correct location.
-    * Fixed error message in debugger when there was no caught/uncaught exception set in an empty workspace.
-    * Performance improvements on hierarchy view.
-    * Django commands may be deleted on dialog with backspace.
-
-
-Release 2.2
-===============
-
-
-Noteworthy
------------
-
-**Eclipse 3.7** 
-
-    * Eclipse 3.7 (Indigo) is now supported.
-
-**Break on Exceptions**
-
-    .. image:: images/index/manage_exceptions.png
-        :class: no_border
-        
-    * It's now possible to **break on caught exceptions** in the debugger.
-    * There's an UI to break on caught or uncaught exceptions (menu: Run > Manage Python Exception Breakpoints).
-
-**Hierarchy view**
-
-    .. image:: images/index/hierarchy_view.png
+    .. image:: images/index/ipython_console.png
         :class: no_border
 
-    * UI improved (now only uses SWT -- access through F4 with the cursor over a class).
+    * IPython (0.10 or 0.11) is now used as the interactive console backend if PyDev can detect it in the PYTHONPATH.
+    * While waiting for the output of a command, intermediary results are printed in the console.
+    * ANSI color codes are supported in the interactive console.
 
-**PyPy**: 
+**Code Analysis**
+
+    .. image:: images/index/assignment_to_builtin.png
+        :class: no_border
+
+    * Reporting variables that shadow builtins as warnings.
+    * Fixed issue where __dict__ was not found.
     
-    * PyDev now supports PyPy (can be configured as a regular Python interpreter).
+**Code completion**
+
+    * Aliases have a better treatment (i.e.: unittest.assertEqual will show the proper type/parameters).
+    * Improved support for analyzing function builtins where the return type is known (i.e.: open, str.split, etc).
+    
+**Debugger**
+
+    * When doing a remote debug session, if the files cannot be found in the local filesystem, PyDev will ask for files in the remote debugger.
+
+**Editor**
+    
+    * Files without extension that have a python shebang (e.g.: #!/usr/bin/python in the first line) are automatically opened with the PyDev editor (in the PyDev Package Explorer).
 
 **Django**
 
-    .. _`Django remote debugging with auto-reload`: manual_adv_remote_debugger.html#django-remote-debugging-with-auto-reload
+    * When the shell command is used in the django custom commands, PyDev no longer uses 100% cpu while it doesn't complete.
+
+**Others** 
     
-    * Django configuration in project properties page (improved UI for configuration of the django manage.py and django settings module).
-    * Improved support for debugging Django with autoreload. Details at: `Django remote debugging with auto-reload`_.
-
-**Code analysis**
-
-    * Fixed issue where a resolution of a token did not properly consider a try..except ImportError (always went for the first match).
-    * Fixed issue with relative import with wildcards.
-    * Fixed issue with relative import with alias.
-    * Fixed issue where binary files would be wrongly parsed (ended up generating errors in the error log).
-
-**Code completion**
-
-    * Improved sorting of proposals (__*__ come at last)
-
-**Others**
-
-    * Improved ctrl+1 quick fix with local import.
-    * Fixed issue running with py.test.
-    * PyDev test runner working properly with unittest2.
-    * Fixed compatibility issue with eclipse 3.2.
-    * No longer sorting libraries when adding interpreter/added option to select all not in workspace.
-    * Fixed deadlock in the debugger when dealing with multiple threads.
-    * Fixed debugger issue (dictionary changing size during thread creation/removal on python 3.x).
-
-
-**Note**: Java 1.4 is no longer supported (at least Java 5 is required now).
-
+    * Fixed issue where the * operator was not properly formatted.
+    * When the quick outline dialog is deactivated, it's closed.
+    * Fixed heuristic for finding position for local import. 
+    * Fixed compare editor issue with Eclipse 3.2.
+    * Fixed integration issue with latest PyLint.
+    * Fixed deadlock issue on app engine manage window.
+    * More options added to configure the automatic deletion of .pyc files (delete always, never delete, delete only on .py delete).
 
 
 Development Info

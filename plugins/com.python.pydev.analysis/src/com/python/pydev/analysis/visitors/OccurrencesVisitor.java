@@ -249,7 +249,15 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
     protected void onAddUndefinedVarInImportMessage(IToken foundTok, Found foundAs) {
         messagesManager.addUndefinedVarInImportMessage(foundTok, foundTok.getRepresentation());
     }
-    
+
+
+    /**
+     * @param foundTok
+     */
+    protected void onAddAssignmentToBuiltinMessage(IToken foundTok, String representation) {
+        messagesManager.onAddAssignmentToBuiltinMessage(foundTok, representation);
+    }
+
     /**
      * @param token
      */

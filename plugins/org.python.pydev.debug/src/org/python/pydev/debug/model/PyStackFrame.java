@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.debug.core.DebugException;
@@ -26,16 +27,22 @@ import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
+import org.python.pydev.core.IPyStackFrame;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
+import org.python.pydev.debug.model.remote.GetFileContentsCommand;
 import org.python.pydev.debug.model.remote.GetFrameCommand;
 import org.python.pydev.debug.model.remote.GetVariableCommand;
+import org.python.pydev.debug.model.remote.ICommandResponseListener;
+import org.python.pydev.editorinput.PySourceLocatorPrefs;
 
 /**
  * Represents a stack entry.
  * 
  * Needs to integrate with the source locator
  */
-public class PyStackFrame extends PlatformObject implements IStackFrame, IVariableLocator {
+public class PyStackFrame extends PlatformObject implements IStackFrame, IVariableLocator, IPyStackFrame {
 
     private String name;
     private PyThread thread;
@@ -329,4 +336,53 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
         return "PyStackFrame: "+this.id;
     }
 
+    
+    private String fileContents = null;
+
+    
+    public String getFileContents() {
+        if(fileContents == null){
+            // send the command, and then busy-wait
+            GetFileContentsCommand cmd = new GetFileContentsCommand(target, this.path.toOSString());
+            
+            final Object lock = new Object();
+            final String[] response = new String[1];
+            
+            cmd.setCompletionListener(new ICommandResponseListener() {
+                
+                public void commandComplete(AbstractDebuggerCommand cmd) {
+                    try {
+                        response[0] = ((GetFileContentsCommand)cmd).getResponse();
+                    } catch (CoreException e) {
+                        response[0] = "";
+                    }
+                    try {
+                        synchronized (lock) {
+                            lock.notify();
+                        }
+                    } catch (Exception e) {
+                        //ignore
+                    }
+                }
+            });
+            
+            target.postCommand(cmd);
+            int timeout = PySourceLocatorPrefs.getFileContentsTimeout();
+            long initialTimeMillis = System.currentTimeMillis();
+            while(response[0] == null){
+                synchronized (lock) {
+                    try {
+                        lock.wait(50);
+                    } catch (Exception e) {
+                        //ignore
+                    }
+                }
+                if(System.currentTimeMillis() - initialTimeMillis > timeout){
+                    break;
+                }
+            }
+            fileContents = response[0];
+        }
+        return fileContents;
+    }
 }

@@ -183,6 +183,10 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
     }
 
     @Override
+    protected void onAddAssignmentToBuiltinMessage(IToken token, String representation) {
+    }
+
+    @Override
     protected void onAddToProbablyNotDefined(IToken token, Found foundForProbablyNotDefined) {
         super.onAddToProbablyNotDefined(token, foundForProbablyNotDefined);
         onAddUndefinedMessage(token, foundForProbablyNotDefined);

@@ -125,7 +125,7 @@ class InterpreterInterface(BaseInterpreterInterface):
 try:
     from pydev_ipython_console import InterpreterInterface
 except:
-    sys.stderr.write('Note: IPython not available: using PyDev builtin shell.\n')
+    sys.stderr.write('PyDev console: using default backend (IPython not available).\n')
     pass #IPython not available, proceed as usual.
     
 #=======================================================================================================================

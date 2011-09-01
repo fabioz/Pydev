@@ -25,6 +25,11 @@ public class FileStub extends AbstractIFileStub implements IFile{
         this.file = file;
     }
     
+    @Override
+    public String getName() {
+        return this.file.getName();
+    }
+    
     public IContainer getParent() {
         return project.getFolder(this.file.getParentFile());
     }

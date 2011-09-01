@@ -6,6 +6,7 @@
  */
 package org.python.pydev.core;
 
+import java.io.CharArrayReader;
 import java.io.File;
 import java.util.HashSet;
 
@@ -95,4 +96,42 @@ public class REFTest extends TestCase {
         }
         assertTrue(!start_dir.exists());
     }
+    
+    
+    public void testHasPythonShebang(){
+        String s = "" +
+        "#!bla\n" + 
+        "\n" +
+        "";
+        CharArrayReader reader = new CharArrayReader(s.toCharArray());
+        assertFalse(REF.hasPythonShebang(reader));
+    }
+    
+    public void testHasPythonShebang1(){
+        String s = "" +
+        "#!python\n" + 
+        "\n" +
+        "";
+        CharArrayReader reader = new CharArrayReader(s.toCharArray());
+        assertTrue(REF.hasPythonShebang(reader));
+    }
+    
+    public void testHasPythonShebang2(){
+        String s = "" +
+        "#!python2\n" + 
+        "\n" +
+        "";
+        CharArrayReader reader = new CharArrayReader(s.toCharArray());
+        assertTrue(REF.hasPythonShebang(reader));
+    }
+    
+    public void testHasPythonShebang3(){
+        String s = "" +
+        "#!python3\n" + 
+        "\n" +
+        "";
+        CharArrayReader reader = new CharArrayReader(s.toCharArray());
+        assertTrue(REF.hasPythonShebang(reader));
+    }
+
 }

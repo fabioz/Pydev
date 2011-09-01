@@ -68,7 +68,10 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
     
     public static final String SEVERITY_INDENTATION_PROBLEM = "SEVERITY_INDENTATION_PROBLEM";
     public static final int DEFAULT_SEVERITY_INDENTATION_PROBLEM = IMarker.SEVERITY_WARNING;
-    
+
+    public static final String SEVERITY_ASSIGNMENT_TO_BUILT_IN_SYMBOL = "SEVERITY_ASSIGNMENT_TO_BUILT_IN_SYMBOL";
+    public static final int DEFAULT_SEVERITY_ASSIGNMENT_TO_BUILT_IN_SYMBOL = IMarker.SEVERITY_WARNING;
+
     public static final String DO_AUTO_IMPORT = "DO_AUTO_IMPORT";
     public static final boolean DEFAULT_DO_AUT_IMPORT = true;
     

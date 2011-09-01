@@ -38,7 +38,7 @@ public class PythonModelProviderTest extends TestCase {
         try {
             PythonModelProviderTest test = new PythonModelProviderTest();
             test.setUp();
-            test.testWorkingSetsTopLevel();
+            test.testInterceptAdd();
             test.tearDown();
             System.out.println("OK");
             

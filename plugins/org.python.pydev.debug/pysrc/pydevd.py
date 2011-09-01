@@ -23,6 +23,7 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          CMD_RUN_TO_LINE, \
                          CMD_RELOAD_CODE, \
                          CMD_VERSION, \
+                         CMD_GET_FILE_CONTENTS, \
                          GetGlobalDebugger, \
                          InternalChangeVariable, \
                          InternalGetCompletions, \
@@ -660,6 +661,16 @@ class PyDB:
                         
                     else:
                         sys.stderr.write("Error when setting exception list. Received: %s\n" % (text,))
+                        
+                        
+                elif cmd_id == CMD_GET_FILE_CONTENTS:
+                    if os.path.exists(text):
+                        f = open(text, 'r')
+                        try:
+                            source = f.read()
+                        finally:
+                            f.close()
+                        cmd = self.cmdFactory.makeGetFileContents(seq, source)
 
 
                 else:
