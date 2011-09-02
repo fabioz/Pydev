@@ -15,6 +15,7 @@ import static com.python.pydev.analysis.IAnalysisPreferences.TYPE_UNUSED_IMPORT;
 import static com.python.pydev.analysis.IAnalysisPreferences.TYPE_UNUSED_VARIABLE;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 
 import org.eclipse.core.resources.IMarker;
@@ -37,7 +38,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testBuiltInAssignment4();
+            analyzer2.testRelativeOnPy3();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -295,7 +296,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     private IMessage[] analyzeDoc2() {
         try{
-            return analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc("foo", null, doc, nature, 0), 
+            return analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc("foo", null, doc, nature, true), 
                     prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
         }catch(MisconfigurationException e){
             throw new RuntimeException(e);
@@ -768,7 +769,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_LOC+"relative/__init__.py");
         Document doc = new Document(REF.getFileContents(file));
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("relative.__init__", file, nature, 0), 
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("relative.__init__", file, nature, true), 
                 prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
         
         //no unused import message is generated
@@ -780,7 +781,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_LOC+"testenc/encimport.py");
         Document doc = new Document(REF.getFileContents(file));
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("testenc.encimport", file, nature, 0), 
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("testenc.encimport", file, nature, true), 
                 prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
         
         printMessages(msgs, 0);
@@ -791,7 +792,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_LOC+"testOtherImports/f1.py");
         Document doc = new Document(REF.getFileContents(file));
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("testOtherImports.f1", file, nature, 0), 
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("testOtherImports.f1", file, nature, true), 
                 prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
         
         printMessages(msgs, 1);
@@ -850,7 +851,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_LOC+"testlib/unittest/relative/testrelative.py");
         Document doc = new Document(REF.getFileContents(file));
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("testlib.unittest.relative.testrelative", file, nature, 0),
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("testlib.unittest.relative.testrelative", file, nature, true),
                 prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
         
         printMessages(msgs, 0);
@@ -861,7 +862,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_LOC+"relative/mod2.py");
         Document doc = new Document(REF.getFileContents(file));
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("relative.mod2", file, nature, 0), 
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("relative.mod2", file, nature, true), 
                 prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
         
         printMessages(msgs, 1);
@@ -1217,7 +1218,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     private IMessage[] analyzeDoc()  {
         SourceModule mod;
         try{
-            mod = (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0);
+            mod = (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, true);
         }catch(MisconfigurationException e){
             throw new RuntimeException(e);
         }
@@ -2738,7 +2739,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/recursion_on_non_existent/unexistent_import.py");
         Document doc = new Document(REF.getFileContents(file));
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("extendable.recursion_on_non_existent.unexistent_import", file, nature, 0), 
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("extendable.recursion_on_non_existent.unexistent_import", file, nature, true), 
                 prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
         
         //unused and unresolved
@@ -2750,7 +2751,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/relative_wildcard/mymod2.py");
         Document doc = new Document(REF.getFileContents(file));
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("extendable.relative_wildcard.mymod2", file, nature, 0), 
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("extendable.relative_wildcard.mymod2", file, nature, true), 
                 prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
         
         printMessages(msgs, 0);
@@ -2762,7 +2763,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     	analyzer = new OccurrencesAnalyzer();
     	File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/relative_and_full_mixed/pluginstestcaseext.py");
     	Document doc = new Document(REF.getFileContents(file));
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("extendable.relative_and_full_mixed.pluginstestcaseext", file, nature, 0), 
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("extendable.relative_and_full_mixed.pluginstestcaseext", file, nature, true), 
     			prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
     	
     	printMessages(msgs, 0);
@@ -2774,7 +2775,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     	analyzer = new OccurrencesAnalyzer();
     	File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/relative_absolute_import/__init__.py");
     	Document doc = new Document(REF.getFileContents(file));
-    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("extendable.relative_absolute_import.__init__", file, nature, 0), 
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("extendable.relative_absolute_import.__init__", file, nature, true), 
     			prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
     	
     	printMessages(msgs, 0);
@@ -2785,7 +2786,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/redefinition_in_import/check_access.py");
         Document doc = new Document(REF.getFileContents(file));
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("extendable.redefinition_in_import.check_access.py", file, nature, 0), 
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("extendable.redefinition_in_import.check_access.py", file, nature, true), 
                 prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
         
         printMessages(msgs, 0);
@@ -2987,6 +2988,38 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         } finally {
             GRAMMAR_TO_USE_FOR_PARSING = initial;
         }
-
 	}
+	
+	
+	public void testRelativeOnPy3() throws IOException, MisconfigurationException {
+	    int initial = GRAMMAR_TO_USE_FOR_PARSING;
+	    try {
+	        GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+	        analyzer = new OccurrencesAnalyzer();
+	        File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/grammar3/sub1.py");
+	        Document doc = new Document(REF.getFileContents(file));
+	        msgs = analyzer.analyzeDocument(nature, (SourceModule) 
+	                AbstractModule.createModule("extendable.grammar3.sub1", file, nature, true), 
+	                prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
+	        
+	        printMessages(msgs, 1); //Errors in Python 3.x
+	    } finally {
+	        GRAMMAR_TO_USE_FOR_PARSING = initial;
+	    }
+	}
+	
+	
+	public void testRelativeOnPy2() throws IOException, MisconfigurationException {
+        analyzer = new OccurrencesAnalyzer();
+        File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/grammar3/sub1.py");
+        Document doc = new Document(REF.getFileContents(file));
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) 
+                AbstractModule.createModule("extendable.grammar3.sub1", file, nature, true), 
+                prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
+        
+        printMessages(msgs, 0); //No errors in Python 2.x 
+	}
+	
+	
+	
 }

@@ -414,7 +414,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         //let's create the module only once (this way the classdefs will be the same as reparses should not be needed).
         IModule module;
         try{
-            module = AbstractASTManager.createModule(file, doc, new CompletionState(-1, -1, "", nature, "", completionCache), nature.getAstManager());
+            module = AbstractASTManager.createModule(file, doc, nature);
         }catch(MisconfigurationException e1){
             throw new RuntimeException(e1);
         }

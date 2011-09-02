@@ -590,7 +590,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
 
 
     private ScopeAnalyzerVisitor doVisit(int line, int col) throws Exception {
-        SourceModule mod = (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0);
+        SourceModule mod = (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, true);
         PySelection ps = new PySelection(doc, line, col);
         ScopeAnalyzerVisitor visitor = new ScopeAnalyzerVisitor(nature, "mod1", mod, new NullProgressMonitor(), ps);
         mod.getAst().accept(visitor);

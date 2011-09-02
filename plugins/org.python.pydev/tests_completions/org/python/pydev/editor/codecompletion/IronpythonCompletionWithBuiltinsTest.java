@@ -14,9 +14,12 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.editor.codecompletion.revisited.AbstractASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -77,9 +80,13 @@ public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompleti
         String file = TestDependent.TEST_PYSRC_LOC+"testrec3/rec.py";
         String strDoc = "RuntimeError.";
         File f = new File(file);
+        ICompletionState state = CompletionStateFactory.getEmptyCompletionState("RuntimeError", nature, new CompletionCache());
+        IModule module = AbstractASTManager.createModule(
+                f, 
+                new Document(REF.getFileContents(f)), 
+                nature);
         try{
-            nature.getAstManager().getCompletionsForToken(f, new Document(REF.getFileContents(f)), 
-                    CompletionStateFactory.getEmptyCompletionState("RuntimeError", nature, new CompletionCache()));
+            nature.getAstManager().getCompletionsForModule(module, state, true, true);
         }catch(CompletionRecursionException e){
             //that's ok... we're asking for it here...
         }

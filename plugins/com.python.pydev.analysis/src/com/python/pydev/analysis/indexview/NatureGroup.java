@@ -157,7 +157,7 @@ public class NatureGroup extends ElementWithChildren {
             }
             if(!allAdditionalInfoModuleNames.contains(key.name)){
                 try {
-                    AbstractModule mod = AbstractModule.createModule(key.name, key.file, info.nature, -1);
+                    AbstractModule mod = AbstractModule.createModule(key.name, key.file, info.nature, true);
                     if(!(mod instanceof SourceModule)){
                         continue;
                     }

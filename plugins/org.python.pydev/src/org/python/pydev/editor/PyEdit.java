@@ -1473,7 +1473,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      * @param innerStructure
      * @throws MisconfigurationException 
      */
-    public static void openWithPathAndInnerStructure(String projectName, IPath path, List<String> innerStructure) throws MisconfigurationException{
+    public static void openWithPathAndInnerStructure(
+            String projectName, IPath path, List<String> innerStructure) throws MisconfigurationException{
         IWorkspace workspace = ResourcesPlugin.getWorkspace();
         IProject project = workspace.getRoot().getProject(projectName);
         if(project != null){
@@ -1483,7 +1484,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                 if(editor instanceof PyEdit){
                     PyEdit pyEdit = (PyEdit) editor;
                     IPythonNature nature = pyEdit.getPythonNature();
-                    AbstractModule mod = AbstractModule.createModuleFromDoc(nature.resolveModule(file), file.getLocation().toFile(), pyEdit.getDocument(), nature, 0);
+                    AbstractModule mod = AbstractModule.createModuleFromDoc(nature.resolveModule(file), file.getLocation().toFile(), pyEdit.getDocument(), nature, false);
                     
                     StringBuffer tok = new StringBuffer(80);
                     for(String s:innerStructure){

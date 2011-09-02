@@ -142,7 +142,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
 
     private IMessage[] analyze() {
         try{
-            return analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), 
+            return analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, true), 
                     prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
         }catch(MisconfigurationException e){
             throw new RuntimeException(e);

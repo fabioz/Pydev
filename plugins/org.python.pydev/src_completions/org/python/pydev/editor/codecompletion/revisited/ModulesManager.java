@@ -728,7 +728,7 @@ public abstract class ModulesManager implements IModulesManager {
                                     IDocument doc = REF.getDocFromZip(emptyModuleForZip.f, emptyModuleForZip.pathInZip);
                                     //NOTE: The nature (and so the grammar to be used) must be defined by this modules
                                     //manager (and not by the initial caller)!!
-                                    n = AbstractModule.createModuleFromDoc(name, emptyModuleForZip.f, doc, this.getNature(), -1, false);
+                                    n = AbstractModule.createModuleFromDoc(name, emptyModuleForZip.f, doc, this.getNature(), false);
                                     SourceModule zipModule = (SourceModule) n;
                                     zipModule.zipFilePath = emptyModuleForZip.pathInZip;
                                     n = decorateModule(n, nature);
@@ -744,7 +744,7 @@ public abstract class ModulesManager implements IModulesManager {
                             try {
                                 //NOTE: The nature (and so the grammar to be used) must be defined by this modules
                                 //manager (and not by the initial caller)!!
-                                n = AbstractModule.createModule(name, e.f, this.getNature(), -1);
+                                n = AbstractModule.createModule(name, e.f, this.getNature(), true);
                                 n = decorateModule(n, nature);
                             } catch (IOException exc) {
                                 keyForCacheAccess.name = name;

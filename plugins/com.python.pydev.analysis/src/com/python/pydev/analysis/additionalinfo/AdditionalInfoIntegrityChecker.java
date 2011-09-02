@@ -149,7 +149,7 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener{
             }
             if(!allAdditionalInfoTrackedModules.contains(key.name)){
                 try {
-                    AbstractModule mod = AbstractModule.createModule(key.name, key.file, info.nature, -1);
+                    AbstractModule mod = AbstractModule.createModule(key.name, key.file, info.nature, true);
                     if(!(mod instanceof SourceModule)){
                         continue;
                     }

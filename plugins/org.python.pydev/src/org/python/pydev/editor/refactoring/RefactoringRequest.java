@@ -223,7 +223,7 @@ public class RefactoringRequest extends DecoratableObject{
                 try{
                     module= AbstractModule.createModuleFromDoc(
                            resolveModule(), file, ps.getDoc(), 
-                           nature, getBeginLine());
+                           nature, false);
                 }catch(MisconfigurationException e){
                     throw new RuntimeException(e);
                 }

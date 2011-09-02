@@ -58,7 +58,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             //DEBUG_TESTS_BASE = true;
             PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
             test.setUp();
-            test.testOverrideCompletions3();
+            test.testConfigObjEgg();
             test.tearDown();
             System.out.println("Finished");
 
@@ -1750,6 +1750,26 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "class Bar(Foo):\n" +
                 "    def what(self, a, b):\n" +
                 "        Foo.what(self, a, b)", doc.get());
+    }
+
+    
+
+    public void testGrammar2AbsoluteAndRelativeImports() throws Exception {
+        String file = TestDependent.TEST_PYSRC_LOC+"extendable/grammar3/sub1.py";
+        String strDoc = "from relative import ";
+        ICompletionProposal[] codeCompletionProposals = requestCompl(
+                new File(file), strDoc, strDoc.length(), -1, new String[]{"NotFound"});   
+        assertNotContains("DTest", codeCompletionProposals);
+    }
+    
+    public void testGrammar2AbsoluteAndRelativeImportsWithFromFuture() throws Exception {
+        String file = TestDependent.TEST_PYSRC_LOC+"extendable/grammar3/sub1.py";
+        
+        //Must behave as Py3
+        String strDoc = "from __future__ import absolute_import\nfrom relative import ";
+        ICompletionProposal[] codeCompletionProposals = requestCompl(
+                new File(file), strDoc, strDoc.length(), -1, new String[]{"DTest"});   
+        assertNotContains("NotFound", codeCompletionProposals);
     }
     
 }

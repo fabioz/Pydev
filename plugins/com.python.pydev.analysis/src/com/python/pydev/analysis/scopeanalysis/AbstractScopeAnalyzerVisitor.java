@@ -108,7 +108,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     /**
      * this is the module we are visiting
      */
-    protected IModule current;
+    public final IModule current;
     
     /**
      * To keep track of cancels

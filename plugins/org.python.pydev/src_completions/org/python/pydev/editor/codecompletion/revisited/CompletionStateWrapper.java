@@ -16,13 +16,13 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.core.structure.FastStringBuffer;
 
-public class CompletionStateWrapper implements ICompletionState {
+public final class CompletionStateWrapper implements ICompletionState {
 
     private ICompletionState wrapped;
     
     public CompletionStateWrapper(CompletionState state) {
         this.wrapped = state;
-        this.activationToken = state.activationToken;
+        this.activationToken = state.getActivationToken();
         this.localImportsGotten = state.getLocalImportsGotten();
     }
     

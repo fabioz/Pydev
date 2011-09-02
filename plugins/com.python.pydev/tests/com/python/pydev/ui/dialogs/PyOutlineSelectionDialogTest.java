@@ -70,10 +70,8 @@ public class PyOutlineSelectionDialogTest extends SWTTest {
                 }
             };
             
-            SourceModule moduleTest = (SourceModule) AbstractModule.createModuleFromDoc(
-                    "test", null, new Document(testDoc), grammarVersionProvider, 0);
-            SourceModule moduleBar = (SourceModule) AbstractModule.createModuleFromDoc(
-                    "bar", null, new Document(barDoc), grammarVersionProvider, 0);
+            SourceModule moduleTest = (SourceModule) AbstractModule.createModuleFromDoc("test", null, new Document(testDoc), grammarVersionProvider, true);
+            SourceModule moduleBar = (SourceModule) AbstractModule.createModuleFromDoc("bar", null, new Document(barDoc), grammarVersionProvider, true);
             
             
             Module astTest = (Module) moduleTest.getAst();

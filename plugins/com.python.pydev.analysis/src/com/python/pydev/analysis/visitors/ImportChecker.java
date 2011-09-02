@@ -155,7 +155,7 @@ public final class ImportChecker {
                     token.getRepresentation(), nature, completionCache);
             
             try {
-                modTok = astManager.findOnImportedMods(new IToken[]{token}, state, moduleName);
+                modTok = astManager.findOnImportedMods(new IToken[]{token}, state, moduleName, visitor.current);
             } catch (CompletionRecursionException e1) {
                 modTok = null;//unable to resolve it
             }

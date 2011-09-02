@@ -24,7 +24,7 @@ public class Formatter implements IFormatter{
     public void formatAll(IDocument doc, IPyEdit edit, boolean isOpenedFile, boolean throwSyntaxError) throws SyntaxErrorException {
             Tuple<SimpleNode, Throwable> objects;
             try{
-                objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, edit.getPythonNature()));
+                objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, edit.getPythonNature()));
             }catch(MisconfigurationException e1){
                 Log.log(e1);
                 return;

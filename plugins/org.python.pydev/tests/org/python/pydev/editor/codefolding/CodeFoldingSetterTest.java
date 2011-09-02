@@ -360,7 +360,7 @@ public class CodeFoldingSetterTest extends TestCase {
     }
     
     private List<FoldingEntry> getMarks(Document doc, int grammarVersion) {
-        Tuple<SimpleNode, Throwable> r = PyParser.reparseDocument(new PyParser.ParserInfo(doc, false, grammarVersion));
+        Tuple<SimpleNode, Throwable> r = PyParser.reparseDocument(new PyParser.ParserInfo(doc, grammarVersion));
         List<FoldingEntry> marks = CodeFoldingSetter.getMarks(doc, r.o1);
         if(DEBUG){
             for (FoldingEntry entry : marks) {

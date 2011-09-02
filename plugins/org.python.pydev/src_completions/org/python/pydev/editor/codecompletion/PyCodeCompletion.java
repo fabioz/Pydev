@@ -57,6 +57,7 @@ import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
@@ -124,11 +125,13 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                 if (scopeStart != null) {
                     className = PySelection.getClassNameInLine(scopeStart.lineStartingScope);
                     if (className != null && className.length() > 0) {
-                        Tuple<List<String>, Integer> insideParensBaseClasses = ps.getInsideParentesisToks(true, scopeStart.iLineStartingScope);
+                        Tuple<List<String>, Integer> insideParensBaseClasses = ps.getInsideParentesisToks(
+                                true, scopeStart.iLineStartingScope);
                         if(insideParensBaseClasses != null){
                             
                             //representation -> token and base class
-                            OrderedMap<String, ImmutableTuple<IToken, String>> map = new OrderedMap<String, ImmutableTuple<IToken,String>>();
+                            OrderedMap<String, ImmutableTuple<IToken, String>> map = 
+                                new OrderedMap<String, ImmutableTuple<IToken,String>>();
                             
                             for(String baseClass:insideParensBaseClasses.o1){
                                 try {
@@ -145,8 +148,13 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                                         return ret;
                                     }
                                     //Ok, looking for a token in globals.
-                                    IToken[] comps = astManager.getCompletionsForToken(request.editorFile, request.doc, state);
-                                    for (IToken iToken : comps) {
+                                    IModule module = request.getModule();
+                                    if(module == null){
+                                        continue;
+                                    }
+                                    IToken[] comps = astManager.getCompletionsForModule(module, state, true, true);
+                                    for (int i = 0; i < comps.length; i++) {
+                                        IToken iToken = comps[i];
                                         String representation = iToken.getRepresentation();
                                         ImmutableTuple<IToken, String> curr = map.get(representation);
                                         if(curr != null && curr.o1 instanceof SourceToken){
@@ -154,11 +162,16 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                                         }
                                         
                                         int type = iToken.getType();
-                                        if(iToken instanceof SourceToken && ((SourceToken) iToken).getAst() instanceof FunctionDef){
-                                            map.put(representation, new ImmutableTuple<IToken, String>(iToken, baseClass));
+                                        if(iToken instanceof SourceToken && 
+                                                ((SourceToken) iToken).getAst() instanceof FunctionDef){
+                                            map.put(representation, 
+                                                    new ImmutableTuple<IToken, String>(iToken, baseClass));
                                             
-                                        } else if(type == IToken.TYPE_FUNCTION || type == IToken.TYPE_UNKNOWN || type == IToken.TYPE_BUILTIN){
-                                            map.put(representation, new ImmutableTuple<IToken, String>(iToken, baseClass));
+                                        } else if(type == IToken.TYPE_FUNCTION || 
+                                                type == IToken.TYPE_UNKNOWN ||
+                                                type == IToken.TYPE_BUILTIN){
+                                            map.put(representation, 
+                                                    new ImmutableTuple<IToken, String>(iToken, baseClass));
                                             
                                         }
                                     }
@@ -184,13 +197,15 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                                 }else{
                                     //unfortunately, for builtins we usually cannot trust the parameters.
                                     String representation = tokenAndBaseClass.o1.getRepresentation();
-                                    PyAstFactory factory = new PyAstFactory(new AdapterPrefs(ps.getEndLineDelim(), request.nature));
+                                    PyAstFactory factory = new PyAstFactory(
+                                            new AdapterPrefs(ps.getEndLineDelim(), request.nature));
                                     functionDef = factory.createFunctionDef(representation);
                                     functionDef.args = factory.createArguments(true);
                                     functionDef.args.vararg = new NameTok("args", NameTok.VarArg);
                                     functionDef.args.kwarg = new NameTok("kwargs", NameTok.KwArg);
                                     if(!representation.equals("__init__")){
-                                        functionDef.body = new stmtType[]{new Return(null)}; //signal that the return should be added
+                                        functionDef.body = 
+                                            new stmtType[]{new Return(null)}; //signal that the return should be added
                                     }
                                 }
                                 
@@ -235,7 +250,8 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             int line = request.doc.getLineOfOffset(request.documentOffset);
             IRegion region = request.doc.getLineInformation(line);
         
-            ICompletionState state = new CompletionState(line, request.documentOffset - region.getOffset(), null, request.nature, request.qualifier);
+            ICompletionState state = new CompletionState(
+                    line, request.documentOffset - region.getOffset(), null, request.nature, request.qualifier);
             state.setIsInCalltip(request.isInCalltip);
         
         
@@ -292,6 +308,8 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                                 continue;
                             }
                             
+                            IModule current = request.getModule();
+                            
                             while(token.isImportFrom()){
                                 //we'll only add it here if it is an import from (so, set the flag to false for the outer add)
                                 
@@ -302,7 +320,9 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                                 ICompletionState s = state.getCopyForResolveImportWithActTok(token.getRepresentation());
                                 s.checkFindResolveImportMemory(token);
                                 
-                                IToken token2 = astManager.resolveImport(s, token);
+                                ImmutableTuple<IModule, IToken> modTok = astManager.resolveImport(s, token, current);
+                                IToken token2 = modTok.o2;
+                                current = modTok.o1;
                                 if(token2 != null && initialToken != token2){
                                     String args = token2.getArgs();
                                     if(args.length() > 0){
@@ -418,14 +438,22 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             Log.toLogFile(this,"astManager.getCompletionsForToken");
             Log.addLogLevel();
         }
-        IToken[] comps = astManager.getCompletionsForToken(request.editorFile, request.doc, state);
+        
+        IModule module = request.getModule();
+        if(module == null){
+            Log.remLogLevel();
+            Log.toLogFile(this,"END astManager.getCompletionsForToken: null module");
+            return;
+        }
+        IToken[] comps = astManager.getCompletionsForModule(module, state, true, true);
         if(DebugSettings.DEBUG_CODE_COMPLETION){
             Log.remLogLevel();
             Log.toLogFile(this,"END astManager.getCompletionsForToken");
         }
 
-        tokensList.addAll(Arrays.asList(comps));
-        
+        for (int i = 0; i < comps.length; i++) {
+            tokensList.add(comps[i]);
+        }
         tokensList.addAll(getGlobalsFromParticipants(request, state));
     }
 
@@ -445,7 +473,6 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
         }
         
         char[] toks = new char[]{'.', ' '};
-        List<Object> completions = new ArrayList<Object>();
         
         boolean lookInGlobals = true;
         
@@ -461,16 +488,21 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             state.setActivationToken(initialActivationToken);
 
             //Ok, looking for a token in globals.
-            IToken[] comps = astManager.getCompletionsForToken(request.editorFile, request.doc, state);
-            tokensList.addAll(Arrays.asList(comps));
+            IModule module = request.getModule();
+            if(module != null){
+                IToken[] comps = astManager.getCompletionsForModule(module, state, true, true);
+                for (int i = 0; i < comps.length; i++) {
+                    tokensList.add(comps[i]);
+                }
+            }
         }
-        tokensList.addAll(completions);
     }
 
     /**
      * Does a code-completion that will check for imports
+     * @throws MisconfigurationException 
      */
-    private boolean doImportCompletion(CompletionRequest request, ICodeCompletionASTManager astManager, List<Object> tokensList, ImportInfo importsTipper) throws CompletionRecursionException {
+    private boolean doImportCompletion(CompletionRequest request, ICodeCompletionASTManager astManager, List<Object> tokensList, ImportInfo importsTipper) throws CompletionRecursionException, MisconfigurationException {
         boolean importsTip;
         //get the project and make the code completion!!
         //so, we want to do a code completion for imports...
@@ -479,7 +511,9 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
         importsTip = true;
         importsTipper.importsTipperStr = importsTipper.importsTipperStr.trim();
         IToken[] imports = astManager.getCompletionsForImport(importsTipper, request, false);
-        tokensList.addAll(Arrays.asList(imports));
+        for (int i = 0; i < imports.length; i++) {
+            tokensList.add(imports[i]);
+        }
         return importsTip;
     }
 
@@ -545,7 +579,12 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
     public static boolean getSelfOrClsCompletions(CompletionRequest request, List theList, ICompletionState state, 
             boolean getOnlySupers, boolean checkIfInCorrectScope, String lookForRep) throws MisconfigurationException {
         
-        SimpleNode s = PyParser.reparseDocument(new PyParser.ParserInfo(request.doc, true, request.nature, state.getLine())).o1;
+        IModule module = request.getModule();
+        SimpleNode s = null;
+        if(module instanceof SourceModule){
+            SourceModule sourceModule = (SourceModule) module;
+            s = sourceModule.getAst();
+        }
         if(s != null){
             FindScopeVisitor visitor = new FindScopeVisitor(state.getLine(), 0);
             try {
@@ -590,28 +629,33 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      * @throws MisconfigurationException 
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static void getSelfOrClsCompletions(ILocalScope scope, CompletionRequest request, List theList, ICompletionState state, boolean getOnlySupers) throws BadLocationException, MisconfigurationException {
+    public static void getSelfOrClsCompletions(
+            ILocalScope scope, CompletionRequest request, List theList, ICompletionState state, boolean getOnlySupers) throws BadLocationException, MisconfigurationException {
         for(Iterator<SimpleNode> it = scope.iterator(); it.hasNext();){
             SimpleNode node = it.next();
             if(node instanceof ClassDef){
                 ClassDef d = (ClassDef) node;
                 
                 if(getOnlySupers){
-                    List gottenComps = new ArrayList();
                     for (int i = 0; i < d.bases.length; i++) {
                         if(d.bases[i] instanceof Name){
                             Name n = (Name) d.bases[i];
                             state.setActivationToken(n.id);
                             IToken[] completions;
                             try {
-                                completions = request.nature.getAstManager().getCompletionsForToken(request.editorFile, request.doc, state);
-                                gottenComps.addAll(Arrays.asList(completions));
+                                ICodeCompletionASTManager astManager = request.nature.getAstManager();
+                                IModule module = request.getModule();
+                                if(module != null){
+                                    completions = astManager.getCompletionsForModule(module, state, true, true);
+                                    for (int j = 0; j < completions.length; j++) {
+                                        theList.add(completions[j]);
+                                    }
+                                }
                             } catch (CompletionRecursionException e) {
                                 //ok...
                             }
                         }
                     }
-                    theList.addAll(gottenComps);
                 }else{
                     //ok, get the completions for the class, only thing we have to take care now is that we may 
                     //not have only 'self' for completion, but something like self.foo.
@@ -627,7 +671,12 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                         //ok, it's just really self, let's get on to get the completions
                         state.setActivationToken(NodeUtils.getNameFromNameTok((NameTok) d.name));
                         try {
-                            theList.addAll(Arrays.asList(request.nature.getAstManager().getCompletionsForToken(request.editorFile, request.doc, state)));
+                            ICodeCompletionASTManager astManager = request.nature.getAstManager();
+                            IModule module = request.getModule();
+                            IToken[] completions = astManager.getCompletionsForModule(module, state, true, true);
+                            for (int j = 0; j < completions.length; j++) {
+                                theList.add(completions[j]);
+                            }
                         } catch (CompletionRecursionException e) {
                             //ok
                         }
@@ -642,16 +691,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                         
                         
                         //ok, try our best shot at getting the module name of the current buffer used in the request.
-                        String modName = "";
-                        File requestFile = request.editorFile;
-                        if(request.editorFile != null){
-                            String resolveModule = request.nature.resolveModule(requestFile);
-                            if(resolveModule != null){
-                                modName = resolveModule;
-                            }
-                        }
-                        
-                        IModule module = AbstractModule.createModuleFromDoc(modName, requestFile, request.doc, request.nature, line);
+                        IModule module = request.getModule();
                       
                         AbstractASTManager astMan = ((AbstractASTManager)request.nature.getAstManager());
                         theList.addAll(new AssignAnalysis().getAssignCompletions(

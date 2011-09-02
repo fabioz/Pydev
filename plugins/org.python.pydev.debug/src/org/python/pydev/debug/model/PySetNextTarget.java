@@ -73,8 +73,7 @@ public class PySetNextTarget implements ISetNextTarget {
 			}
 
 			try {
-				sourceModule = (SourceModule) AbstractModule
-						.createModuleFromDoc("", null, doc, nature, -1);
+				sourceModule = (SourceModule) AbstractModule.createModuleFromDoc("", null, doc, nature, true);
 			} catch (MisconfigurationException e) {
 				Log.log(e);
 				return false;

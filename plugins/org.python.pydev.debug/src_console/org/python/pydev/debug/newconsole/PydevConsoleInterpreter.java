@@ -22,8 +22,10 @@ import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.callbacks.ICallback;
@@ -109,6 +111,10 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
                     }
                     
                     public File getEditorFile(){
+                        return null;
+                    }
+
+                    public IModule getModule() throws MisconfigurationException {
                         return null;
                     }
                 }, onlyGetDirectModules);

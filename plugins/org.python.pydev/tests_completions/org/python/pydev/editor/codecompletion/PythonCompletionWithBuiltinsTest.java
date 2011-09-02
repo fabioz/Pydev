@@ -17,6 +17,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
@@ -24,6 +26,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.editor.codecompletion.revisited.AbstractASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
@@ -127,8 +130,13 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         String strDoc = "RuntimeError.";
         File f = new File(file);
         try{
-            nature.getAstManager().getCompletionsForToken(f, new Document(REF.getFileContents(f)), 
-                    CompletionStateFactory.getEmptyCompletionState("RuntimeError", nature, new CompletionCache()));
+            ICodeCompletionASTManager astManager = nature.getAstManager();
+            ICompletionState state = CompletionStateFactory.getEmptyCompletionState("RuntimeError", nature, new CompletionCache());
+            IModule module = AbstractASTManager.createModule(
+                    f, 
+                    new Document(REF.getFileContents(f)), 
+                    nature);
+            astManager.getCompletionsForModule(module, state, true, true);
         }catch(CompletionRecursionException e){
             //that's ok... we're asking for it here...
         }

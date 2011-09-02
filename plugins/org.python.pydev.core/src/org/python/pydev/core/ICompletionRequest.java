@@ -24,4 +24,11 @@ public interface ICompletionRequest {
      */
     File getEditorFile();
 
+    /**
+     * @return the module for this request or null.
+     * 
+     * @throws MisconfigurationException 
+     */
+    IModule getModule() throws MisconfigurationException;
+
 }

@@ -180,7 +180,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
         PythonNature nature = PythonNature.getPythonNature(resource.getProject());
         IFile f = (IFile) resource;
         String file = f.getRawLocation().toOSString();
-        module = (SourceModule)AbstractModule.createModuleFromDoc(moduleName, new File(file), document, nature, 0);
+        module = (SourceModule)AbstractModule.createModuleFromDoc(moduleName, new File(file), document, nature, true);
         return module;
     }
 

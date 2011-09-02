@@ -112,7 +112,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
                 ModulesKey modulesKey = new ModulesKey(modName, f);
                 modules.add(modulesKey);
                 
-                SourceModule mod = (SourceModule) AbstractModule.createModule(modName, f, natureRefactoring, 0);
+                SourceModule mod = (SourceModule) AbstractModule.createModule(modName, f, natureRefactoring, true);
                 
                 //also create the additional info so that it can be used for finds
                 AbstractAdditionalTokensInfo additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(natureRefactoring);

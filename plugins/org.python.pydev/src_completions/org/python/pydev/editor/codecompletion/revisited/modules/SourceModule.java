@@ -167,7 +167,23 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     public IToken[] getTokenImportedModules() {
         return getTokens(GlobalModelVisitor.ALIAS_MODULES, null, null);
     }
+    
+    private Boolean hasFutureImportAbsoluteImportDeclared = null; 
 
+    public boolean hasFutureImportAbsoluteImportDeclared() {
+        if(hasFutureImportAbsoluteImportDeclared == null){
+            hasFutureImportAbsoluteImportDeclared = false;
+            IToken[] tokenImportedModules = getTokenImportedModules();
+            for (IToken iToken : tokenImportedModules) {
+                if("__future__.absolute_import".equals(iToken.getOriginalRep())){
+                    hasFutureImportAbsoluteImportDeclared = true;
+                    break;
+                }
+            }
+        }
+        return hasFutureImportAbsoluteImportDeclared;
+    }
+    
     /**
      * 
      * @return the file this module corresponds to.
@@ -720,7 +736,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         for (IToken tok : localImportedModules) {
             String importRep = tok.getRepresentation();
             if(importRep.equals(rep) || rep.startsWith(importRep+".")){
-                Tuple3<IModule, String, IToken> o = astManager.findOnImportedMods(new IToken[]{tok}, state.getCopyWithActTok(rep), this.getName());
+                Tuple3<IModule, String, IToken> o = astManager.findOnImportedMods(
+                        new IToken[]{tok}, state.getCopyWithActTok(rep), this.getName(), this);
                 if(o != null && o.o1 instanceof SourceModule){
                     ICompletionState copy = state.getCopy();
                     copy.setActivationToken(o.o2);
