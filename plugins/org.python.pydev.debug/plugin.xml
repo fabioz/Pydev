@@ -868,6 +868,13 @@
   </actionSet>
 </extension>
 
+<!-- Extension point for Show In Outline -->
+<extension point="org.eclipse.ui.perspectiveExtensions">
+    <perspectiveExtension targetID="org.eclipse.debug.ui.DebugPerspective">
+        <showInPart id="org.eclipse.ui.views.ContentOutline"/> 
+    </perspectiveExtension>
+</extension>
+
 <extension point="org.eclipse.ui.perspectiveExtensions">
     <perspectiveExtension targetID="org.eclipse.debug.ui.DebugPerspective">
         <actionSet id="org.python.pydev.pyPropertyTrace"/>
