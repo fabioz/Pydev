@@ -17,11 +17,14 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.mapping.ResourceMapping;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.debug.ui.actions.IToggleBreakpointsTarget;
 import org.eclipse.debug.ui.actions.IWatchExpressionFactoryAdapter2;
+import org.eclipse.search.ui.ISearchPageScoreComputer;
 import org.eclipse.ui.IContributorResourceAdapter;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.eclipse.ui.model.IWorkbenchAdapter2;
 import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
+import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
@@ -122,7 +125,12 @@ public class WrappedResource<X extends IResource> implements IWrappedResource, I
                 IContainer.class.equals(adapter) ||
                 IFile.class.equals(adapter) ||
                 ResourceMapping.class.equals(adapter) ||
-                IFileStore.class.equals(adapter)
+                IFileStore.class.equals(adapter) ||
+                
+                //Added in 3.6
+                ISearchPageScoreComputer.class.equals(adapter)||
+                IToggleBreakpointsTarget.class.equals(adapter)||
+                ITaskListResourceAdapter.class.equals(adapter)
                 ){
             return actualObject2.getAdapter(adapter);
         }
