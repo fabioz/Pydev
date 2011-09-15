@@ -219,22 +219,6 @@ public abstract class AbstractVisitor extends VisitorBase{
     }
 
     
-    public static boolean isWildImport(SimpleNode node) {
-        if (node instanceof ImportFrom) {
-            ImportFrom n = (ImportFrom) node;
-            return isWildImport(n);
-        }
-        return false;
-    }
-    
-    public static boolean isWildImport(IToken generator) {
-        if (generator instanceof SourceToken) {
-            SourceToken t = (SourceToken) generator;
-            return isWildImport(t.getAst());
-        }
-        return false;
-    }
-    
     public static boolean isString(SimpleNode ast) {
         if(ast instanceof Str){
             return true;

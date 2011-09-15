@@ -68,16 +68,16 @@ public class ImageCache {
     }
 
 
-    private Map<Object, Image> imageHash = new HashMap<Object, Image>(10);
-    private Map<Object, ImageDescriptor> descriptorHash = new HashMap<Object, ImageDescriptor>(10);
-    private ImageDecorator imageDecorator = new ImageDecorator();
+    private final Map<Object, Image> imageHash = new HashMap<Object, Image>(10);
+    private final Map<Object, ImageDescriptor> descriptorHash = new HashMap<Object, ImageDescriptor>(10);
+    private final ImageDecorator imageDecorator = new ImageDecorator();
     
     
     
-    private URL baseURL; 
+    private final URL baseURL; 
     private Image missing = null;
-	private Object lock = new Object();
-	private Object descriptorLock = new Object();
+	private final Object lock = new Object();
+	private final Object descriptorLock = new Object();
     
     public ImageCache(URL baseURL) {
         this.baseURL = baseURL;
@@ -85,6 +85,7 @@ public class ImageCache {
     
     
     protected ImageCache() {
+        this(null);
     }
 
 

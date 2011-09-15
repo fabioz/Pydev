@@ -382,11 +382,16 @@ public class PydevPlugin extends AbstractUIPlugin  {
         return PydevPlugin.getBundleInfo().getRelativePath(relative);
     }
 
+    private static ImageCache imageCache = null;
+    
     /**
      * @return the cache that should be used to access images within the pydev plugin.
      */
     public static ImageCache getImageCache(){
-        return PydevPlugin.getBundleInfo().getImageCache();
+        if(imageCache == null){
+            imageCache = PydevPlugin.getBundleInfo().getImageCache();
+        }
+        return imageCache;
     }
     
     

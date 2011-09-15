@@ -37,7 +37,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 
-public class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposalExtension2 implements ICompletionProposalExtension{
+public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposalExtension2 implements ICompletionProposalExtension{
     
 
     private int firstParameterLen = 0;

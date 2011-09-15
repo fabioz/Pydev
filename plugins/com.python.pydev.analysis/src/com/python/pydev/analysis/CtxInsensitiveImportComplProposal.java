@@ -34,6 +34,7 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codecompletion.AbstractPyCompletionProposalExtension2;
+import org.python.pydev.editor.codecompletion.IPyCompletionProposal2;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
@@ -44,7 +45,8 @@ import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
  * 
  * @author Fabio
  */
-public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionProposalExtension2 implements ICompletionProposalExtension{
+public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionProposalExtension2 
+    implements ICompletionProposalExtension, IPyCompletionProposal2{
     
     /**
      * If empty, act as a regular completion
@@ -363,7 +365,7 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
         return new Point(pos, 0 );
     }
     
-    public String getInternalDisplayStringRepresentation() {
+    public final String getInternalDisplayStringRepresentation() {
         return fReplacementString;
     }
 

@@ -148,9 +148,9 @@ public abstract class AbstractAdditionalTokensInfo {
     /**
      * A filter that checks if tokens are equal
      */
-    private Filter equalsFilter  = new Filter(){
+    private final Filter equalsFilter  = new Filter(){
         public boolean doCompare(String qualifier, IInfo info) {
-            return doCompare(qualifier, info.getName());
+            return info.getName().equals(qualifier);
         }
         public boolean doCompare(String qualifier, String infoName) {
             return infoName.equals(qualifier);
@@ -160,7 +160,7 @@ public abstract class AbstractAdditionalTokensInfo {
     /**
      * A filter that checks if the tokens starts with a qualifier
      */
-    private Filter startingWithFilter = new Filter(){
+    private final Filter startingWithFilter = new Filter(){
 
         public boolean doCompare(String lowerCaseQual, IInfo info) {
             return doCompare(lowerCaseQual, info.getName());

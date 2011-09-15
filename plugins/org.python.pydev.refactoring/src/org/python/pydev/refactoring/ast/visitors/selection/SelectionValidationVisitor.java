@@ -33,7 +33,7 @@ public class SelectionValidationVisitor extends VisitorBase {
 
     private void validateNode(SimpleNode node) throws SelectionException {
         if(node instanceof ImportFrom){
-            if(AbstractVisitor.isWildImport(node)){
+            if(AbstractVisitor.isWildImport((ImportFrom)node)){
                 //Wild import
                 throw new SelectionException("Selection may not contain a wild import statement (Line " + node.beginLine + "," + node.beginColumn + ")");
             }

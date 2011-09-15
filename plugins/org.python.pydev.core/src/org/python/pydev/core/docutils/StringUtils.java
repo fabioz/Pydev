@@ -676,6 +676,61 @@ public final class StringUtils {
     }
     
     /**
+     * Helper to process parts of a string.
+     */
+    public static interface ICallbackOnSplit{
+
+        /**
+         * @param substring the part found
+         * @return false to stop processing the string (and true to check the next part).
+         */
+        boolean call(String substring);
+        
+    }
+    
+    /**
+     * Splits some string given some char (that char will not appear in the returned strings)
+     * Empty strings are also never added.
+     * 
+     * @return true if the onSplit callback only returned true (and false if it stopped before).
+     * @note: empty strings may be yielded.
+     */
+    public static boolean split(String string, char toSplit, ICallbackOnSplit onSplit) {
+        int len = string.length();
+        int last = 0;
+        char c = 0;
+        
+        for (int i = 0; i < len; i++) {
+            c = string.charAt(i);
+            if(c == toSplit){
+                if(last != i){
+                    if(!onSplit.call(string.substring(last, i))){
+                        return false;
+                    }
+                }
+                while(c == toSplit && i < len-1){
+                    i++;
+                    c = string.charAt(i);
+                }
+                last = i;
+            }
+        }
+        if(c != toSplit){
+            if(last == 0 && len > 0){
+                if(!onSplit.call(string)){ //it is equal to the original (no char to split)
+                    return false;
+                }
+                
+            }else if(last < len){
+                if(!onSplit.call(string.substring(last, len))){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
+    /**
      * Splits some string given many chars
      */
     public static List<String> split(String string, char ... toSplit) {

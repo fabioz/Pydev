@@ -207,7 +207,7 @@ public class SourceToken extends AbstractToken{
     }
 
     public boolean isWildImport() {
-        return AbstractVisitor.isWildImport(ast);
+        return ast instanceof ImportFrom && AbstractVisitor.isWildImport((ImportFrom)ast);
     }
     
     public boolean isString() {

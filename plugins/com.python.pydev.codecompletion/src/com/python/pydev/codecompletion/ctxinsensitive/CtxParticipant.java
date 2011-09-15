@@ -111,6 +111,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
         FastStringBuffer realImportRep = new FastStringBuffer();
         FastStringBuffer displayString = new FastStringBuffer();
         FastStringBuffer tempBuf = new FastStringBuffer();
+        boolean doIgnoreImportsStartingWithUnder = AutoImportsPreferencesPage.doIgnoreImportsStartingWithUnder();
         for (IInfo info : tokensStartingWith) {
             //there always must be a declaringModuleName
             String declaringModuleName = info.getDeclaringModuleName();
@@ -129,7 +130,8 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
             if(addAutoImport){
                 realImportRep.clear();
                 realImportRep.append("from ");
-                realImportRep.append(AutoImportsPreferencesPage.removeImportsStartingWithUnderIfNeeded(declaringModuleName, tempBuf));
+                realImportRep.append(AutoImportsPreferencesPage.removeImportsStartingWithUnderIfNeeded(
+                        declaringModuleName, tempBuf, doIgnoreImportsStartingWithUnder));
                 realImportRep.append(" import ");
                 realImportRep.append(rep);
             }
@@ -188,6 +190,8 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
             FastStringBuffer displayString = new FastStringBuffer();
             FastStringBuffer tempBuf = new FastStringBuffer();
             
+            boolean doIgnoreImportsStartingWithUnder = AutoImportsPreferencesPage.doIgnoreImportsStartingWithUnder();
+            
             for (IInfo info : tokensStartingWith) {
                 //there always must be a declaringModuleName
                 String declaringModuleName = info.getDeclaringModuleName();
@@ -198,7 +202,8 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
                 }
                 boolean hasInit = false;
                 if(declaringModuleName.endsWith(".__init__")){
-                    declaringModuleName = declaringModuleName.substring(0, declaringModuleName.length()-9);//remove the .__init__
+                    declaringModuleName = declaringModuleName.substring(
+                            0, declaringModuleName.length()-9);//remove the .__init__
                     hasInit = true;
                 }
                 
@@ -211,7 +216,8 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
                 if(addAutoImport){
                     realImportRep.clear();
                     realImportRep.append("from ");
-                    realImportRep.append(AutoImportsPreferencesPage.removeImportsStartingWithUnderIfNeeded(declaringModuleName, tempBuf));
+                    realImportRep.append(AutoImportsPreferencesPage.removeImportsStartingWithUnderIfNeeded(
+                            declaringModuleName, tempBuf, doIgnoreImportsStartingWithUnder));
                     realImportRep.append(" import ");
                     realImportRep.append(rep);
                 }
@@ -233,7 +239,8 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
                         displayString.toString(), 
                         (IContextInformation)null, 
                         "", 
-                        lowerRep.equals(lowerQual)? IPyCompletionProposal.PRIORITY_LOCALS_1 : IPyCompletionProposal.PRIORITY_GLOBALS,
+                        lowerRep.equals(lowerQual)? 
+                                IPyCompletionProposal.PRIORITY_LOCALS_1 : IPyCompletionProposal.PRIORITY_GLOBALS,
                         realImportRep.toString());
                 
                 completions.add(proposal);
@@ -273,7 +280,8 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
             
             List<IInfo> tokensStartingWith;
 			try {
-				tokensStartingWith = AdditionalProjectInterpreterInfo.getTokensStartingWith(qual, state.getNature(), AbstractAdditionalTokensInfo.INNER);
+				tokensStartingWith = AdditionalProjectInterpreterInfo.getTokensStartingWith(
+				        qual, state.getNature(), AbstractAdditionalTokensInfo.INNER);
 			} catch (MisconfigurationException e) {
 				Log.log(e);
 				return ret;

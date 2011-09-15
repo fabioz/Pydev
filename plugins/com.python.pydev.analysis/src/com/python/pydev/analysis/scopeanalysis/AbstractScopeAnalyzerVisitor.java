@@ -135,7 +135,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      * @param document 
      * @param monitor 
      */
-    @SuppressWarnings("unchecked")
     public AbstractScopeAnalyzerVisitor(IPythonNature nature, String moduleName, IModule current, IDocument document, IProgressMonitor monitor) {
         this.monitor = monitor;
         this.current = current;
@@ -151,7 +150,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         ICompletionState completionState = CompletionStateFactory.getEmptyCompletionState(nature, new CompletionCache());
         this.completionCache = completionState;
         
-        List<IToken> builtinCompletions = nature.getAstManager().getBuiltinCompletions(completionState, new ArrayList());
+        List<IToken> builtinCompletions = nature.getAstManager().getBuiltinCompletions(completionState, new ArrayList<IToken>());
         
         if(moduleName != null && moduleName.endsWith("__init__")){
             //__path__ should be added to modules that have __init__
@@ -1042,10 +1041,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             //    b = 2
             //    c = 3
             //    f1(**locals())
-            
-            for(Found f:currScopeItems.getAll()){
-                f.setUsed(true);
-            }
+            currScopeItems.setAllUsed();
             return true;
         }
         
