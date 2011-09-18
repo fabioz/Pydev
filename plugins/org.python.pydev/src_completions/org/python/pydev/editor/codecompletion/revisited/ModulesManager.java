@@ -618,6 +618,9 @@ public abstract class ModulesManager implements IModulesManager {
     			map = new TreeMap<Integer, IModule>(); //small initial size!
     			temporaryModules.put(moduleName, map);
     		}
+    		if(module instanceof AbstractModule){
+    		    module = decorateModule((AbstractModule) module, null);
+    		}
     		nextHandle += 1; //Note: don't care about stack overflow!
     		map.put(nextHandle, module);
     		return nextHandle;
