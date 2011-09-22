@@ -168,6 +168,10 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
                 if (launch != null && launch.canTerminate()){
                     launch.terminate();
                 }
+				if (serverSocket != null) {
+					serverSocket.close();
+					remoteDebuggerPort = -1;
+				}
             } catch (Exception e) {
                 Log.log(e);
             }
