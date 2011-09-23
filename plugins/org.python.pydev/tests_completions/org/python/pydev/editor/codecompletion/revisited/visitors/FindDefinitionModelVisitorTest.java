@@ -65,7 +65,7 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
         "ex.newMethod(c,d)";
 
         Document doc = new Document(d);
-        IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, 2);
+        IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, true);
         Definition[] defs = (Definition[]) module.findDefinition(CompletionStateFactory.getEmptyCompletionState("ex", nature, new CompletionCache()), 3, 3, nature);
         
         assertEquals(1, defs.length);
@@ -91,7 +91,7 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
         "mydict['key'] = 'value'";        
         
         Document doc = new Document(d);
-        IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, -1);
+        IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, true);
         Definition[] defs = (Definition[]) module.findDefinition(CompletionStateFactory.getEmptyCompletionState("mydict", nature, new CompletionCache()), 2, 2, nature);
         
         assertEquals(1, defs.length);
@@ -115,7 +115,7 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
         "";
         
         Document doc = new Document(d);
-        IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, 2);
+        IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, true);
         ICompletionState emptyCompletionState = CompletionStateFactory.getEmptyCompletionState("bar", nature, new CompletionCache());
         Definition[] defs = (Definition[]) module.findDefinition(emptyCompletionState, 6, 17, nature);
         
@@ -141,7 +141,7 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
         "";
         
         Document doc = new Document(d);
-        IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, 1);
+        IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, true);
         ICompletionState emptyCompletionState = CompletionStateFactory.getEmptyCompletionState("xxx", nature, new CompletionCache());
         
         //look for xxx
@@ -182,7 +182,7 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
             "        self.c.";
 
         Document doc = new Document(d);
-        IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, 9);
+        IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, true);
         //self.c is found as an assign
         Definition[] defs = (Definition[]) module.findDefinition(CompletionStateFactory.getEmptyCompletionState("self.c",nature, new CompletionCache()), 10, 9, nature);
         
@@ -211,7 +211,7 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
         "    pass\n";
         
         Document doc = new Document(d);
-        IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, -1);
+        IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, true);
         //self.c is found as an assign
         Definition[] defs = (Definition[]) module.findDefinition(CompletionStateFactory.getEmptyCompletionState("TestIt",nature, new CompletionCache()), -1, -1, nature);
         
@@ -238,7 +238,7 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
             "        c.met1";
 
         Document doc = new Document(d);
-        IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, 9);
+        IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, true);
         
         Definition[] defs = (Definition[]) module.findDefinition(
         		CompletionStateFactory.getEmptyCompletionState("c.met1", nature, new CompletionCache()), 8, 13, nature);
@@ -257,7 +257,7 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
 		"";
 		
 		Document doc = new Document(d);
-		SourceModule module = (SourceModule)AbstractModule.createModuleFromDoc("", null, doc, nature, 2);
+		SourceModule module = (SourceModule)AbstractModule.createModuleFromDoc("", null, doc, nature, true);
 		Module ast = (Module)module.getAst();
 		assertEquals(1, ast.body.length);
 		ICompletionState emptyCompletionState = CompletionStateFactory.getEmptyCompletionState("args", nature, new CompletionCache());
@@ -276,7 +276,7 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
     	"";
     	
     	Document doc = new Document(d);
-    	SourceModule module = (SourceModule)AbstractModule.createModuleFromDoc("", null, doc, nature, 2);
+    	SourceModule module = (SourceModule)AbstractModule.createModuleFromDoc("", null, doc, nature, true);
     	Module ast = (Module)module.getAst();
     	assertEquals(1, ast.body.length);
     	ICompletionState emptyCompletionState = CompletionStateFactory.getEmptyCompletionState("args", nature, new CompletionCache());
@@ -298,7 +298,7 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
             "";
             
             Document doc = new Document(d);
-            SourceModule module = (SourceModule)AbstractModule.createModuleFromDoc("", null, doc, nature, 2);
+            SourceModule module = (SourceModule)AbstractModule.createModuleFromDoc("", null, doc, nature, true);
             Module ast = (Module)module.getAst();
             assertEquals(1, ast.body.length);
             ICompletionState emptyCompletionState = CompletionStateFactory.getEmptyCompletionState("arg2", nature, new CompletionCache());

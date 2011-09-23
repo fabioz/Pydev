@@ -192,7 +192,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/with_path.py");
         Document doc = new Document(REF.getFileContents(file));
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("extendable.with_path", file, nature, 0), 
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("extendable.with_path", file, nature, true), 
                 prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
         
         printMessages(msgs, 0);
@@ -203,7 +203,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/__init__.py");
         Document doc = new Document(REF.getFileContents(file));
-        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("extendable.__init__", file, nature, 0), 
+        msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("extendable.__init__", file, nature, true), 
                 prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
         
         printMessages(msgs, 0);

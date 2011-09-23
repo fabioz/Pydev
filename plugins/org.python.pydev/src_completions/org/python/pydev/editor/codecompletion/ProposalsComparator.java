@@ -26,10 +26,12 @@ public final class ProposalsComparator implements Comparator<ICompletionProposal
             IPyCompletionProposal p1 = (IPyCompletionProposal) o1;
             IPyCompletionProposal p2 = (IPyCompletionProposal) o2;
             
-            if(p1.getPriority() < p2.getPriority()){
+            int priority1 = p1.getPriority();
+            int priority2 = p2.getPriority();
+            if(priority1 < priority2){
                 return -1;
             }
-            if(p1.getPriority() > p2.getPriority()){
+            if(priority1 > priority2){
                 return 1;
             }
         }
@@ -37,10 +39,11 @@ public final class ProposalsComparator implements Comparator<ICompletionProposal
         else if(o1 instanceof IPyCompletionProposal){
             IPyCompletionProposal p1 = (IPyCompletionProposal) o1;
             
-            if(p1.getPriority() < IPyCompletionProposal.PRIORITY_DEFAULT){
+            int priority1 = p1.getPriority();
+            if(priority1 < IPyCompletionProposal.PRIORITY_DEFAULT){
                 return -1;
             }
-            if(p1.getPriority() > IPyCompletionProposal.PRIORITY_DEFAULT){
+            if(priority1 > IPyCompletionProposal.PRIORITY_DEFAULT){
                 return 1;
             }
         }
@@ -48,10 +51,11 @@ public final class ProposalsComparator implements Comparator<ICompletionProposal
         else if(o2 instanceof IPyCompletionProposal){
             IPyCompletionProposal p2 = (IPyCompletionProposal) o2;
             
-            if(IPyCompletionProposal.PRIORITY_DEFAULT < p2.getPriority()){
+            int priority2 = p2.getPriority();
+            if(IPyCompletionProposal.PRIORITY_DEFAULT < priority2){
                 return -1;
             }
-            if(IPyCompletionProposal.PRIORITY_DEFAULT > p2.getPriority()){
+            if(IPyCompletionProposal.PRIORITY_DEFAULT > priority2){
                 return 1;
             }
         }
@@ -61,31 +65,6 @@ public final class ProposalsComparator implements Comparator<ICompletionProposal
         String o2Str = o2.getDisplayString();
         String o1StrOriginal = o1Str;
         String o2StrOriginal = o2Str;
-        
-        //START: Get the contents only to the first parens or space for the comparissons.
-        {
-            int iSplit1 = o1Str.indexOf('(');
-            int iSplit2 = o2Str.indexOf('(');
-            
-            int iSpace1 = o1Str.indexOf(' ');
-            if(iSpace1 >= 0 && iSpace1 < iSplit1){
-                iSplit1 = iSpace1;
-            }
-            
-            int iSpace2 = o2Str.indexOf(' ');
-            if(iSpace2 >= 0 && iSpace2 < iSplit2){
-                iSplit2 = iSpace2;
-            }
-            
-            if(iSplit1 >= 0){
-                o1Str = o1Str.substring(0, iSplit1);
-            }
-            if(iSplit2 >= 0){
-                o2Str = o2Str.substring(0, iSplit2);
-            }
-        }
-        //END: Get the contents only to the first parens or space for the comparissons.
-        
         
         
         boolean o1StartsWithUnder = false;
@@ -107,6 +86,7 @@ public final class ProposalsComparator implements Comparator<ICompletionProposal
                 return 1;
             }
             return -1;
+            
         }else if(o1StartsWithUnder){//both start with '_' at this point, let's check for '__'
             int o1Len = o1Str.length();
             int o2Len = o2Str.length();
@@ -131,6 +111,36 @@ public final class ProposalsComparator implements Comparator<ICompletionProposal
             
             
             //Ok, at this point, both start with '__', so, the final thing is checking for '__' in the end.
+
+
+            //START: Get the contents only to the first parens or space for the comparisons.
+            {
+                int iSplit1 = o1Str.indexOf('(', 0);
+                int iSplit2 = o2Str.indexOf('(', 0);
+                
+                int iSpace1 = o1Str.indexOf(' ', 0);
+                int iSpace2 = o2Str.indexOf(' ', 0);
+                
+                if(iSpace1 >= 0 && iSpace1 < iSplit1){
+                    iSplit1 = iSpace1;
+                }
+                
+                if(iSpace2 >= 0 && iSpace2 < iSplit2){
+                    iSplit2 = iSpace2;
+                }
+                
+                if(iSplit1 >= 0){
+                    o1Str = o1Str.substring(0, iSplit1);
+                    o1Len = o1Str.length();
+                }
+                if(iSplit2 >= 0){
+                    o2Str = o2Str.substring(0, iSplit2);
+                    o2Len = o2Str.length();
+                }
+            }
+            //END: Get the contents only to the first parens or space for the comparisons.
+            
+            
             boolean o1EndsWithUnder = false;
             boolean o2EndsWithUnder = false;
             

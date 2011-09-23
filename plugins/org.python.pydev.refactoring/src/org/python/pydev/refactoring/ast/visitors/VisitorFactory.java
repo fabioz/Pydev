@@ -126,7 +126,7 @@ public final class VisitorFactory {
     }
 
     public static Module getRootNode(IDocument doc, IGrammarVersionProvider versionProvider) throws ParseException, MisconfigurationException {
-        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, false, versionProvider.getGrammarVersion()));
+        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, versionProvider.getGrammarVersion()));
         Throwable exception = objects.o2;
 
         if(exception != null){

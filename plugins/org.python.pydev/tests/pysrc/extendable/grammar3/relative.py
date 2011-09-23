@@ -1,0 +1,2 @@
+class NotFound(object):
+    pass

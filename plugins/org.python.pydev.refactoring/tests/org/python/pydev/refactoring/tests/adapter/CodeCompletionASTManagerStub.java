@@ -18,6 +18,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.ImmutableTuple;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.structure.CompletionRecursionException;
@@ -41,7 +42,7 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
 
 	public Tuple3<IModule, String, IToken> findOnImportedMods(
 			IToken[] importedModules, ICompletionState state,
-			String currentModuleName) throws CompletionRecursionException {
+			String currentModuleName, IModule current) throws CompletionRecursionException {
 		throw new RuntimeException("Not implemented");
 	}
 
@@ -133,7 +134,7 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
 		throw new RuntimeException("Not implemented");
 	}
 
-	public IToken resolveImport(ICompletionState state, IToken imported)
+	public ImmutableTuple<IModule, IToken> resolveImport(ICompletionState state, IToken imported, IModule current)
 			throws CompletionRecursionException {
 		throw new RuntimeException("Not implemented");
 	}
@@ -169,7 +170,7 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
         return lock;
     }
 
-    public Tuple<IModule, String> findModule(String fromImportStr, String currentModule, ICompletionState state)
+    public Tuple<IModule, String> findModule(String fromImportStr, String currentModule, ICompletionState state, IModule current)
             throws CompletionRecursionException {
         throw new RuntimeException("Not implemented");
     }

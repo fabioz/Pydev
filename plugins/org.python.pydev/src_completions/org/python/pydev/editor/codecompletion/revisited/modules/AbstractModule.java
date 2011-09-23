@@ -234,16 +234,14 @@ public abstract class AbstractModule implements IModule {
     /**
      * This method creates a source module from a file.
      * 
-     * @param f
      * @return
      * @throws IOException 
      * @throws MisconfigurationException 
      */
-    public static AbstractModule createModule(String name, File f, IPythonNature nature, int currLine) throws IOException, MisconfigurationException {
-        String path = REF.getFileAbsolutePath(f);
-        if(PythonPathHelper.isValidFileMod(path)){
-            if(PythonPathHelper.isValidSourceFile(path)){
-                return createModuleFromDoc(name, f, REF.getDocFromFile(f), nature, currLine);
+    public static AbstractModule createModule(String name, File f, IPythonNature nature, boolean checkForPath) throws IOException, MisconfigurationException {
+        if(PythonPathHelper.isValidFileMod(f.getName())){
+            if(PythonPathHelper.isValidSourceFile(f.getName())){
+                return createModuleFromDoc(name, f, REF.getDocFromFile(f), nature, checkForPath);
     
             }else{ //this should be a compiled extension... we have to get completions from the python shell.
                 return new CompiledModule(name, nature.getAstManager().getModulesManager());
@@ -256,26 +254,23 @@ public abstract class AbstractModule implements IModule {
 
     
     
-    public static AbstractModule createModuleFromDoc(String name, File f, IDocument doc, IGrammarVersionProvider nature, int currLine) throws MisconfigurationException {
-        return createModuleFromDoc(name, f, doc, nature, currLine, true);
-    }
     /** 
      * This function creates the module given that you have a document (that will be parsed)
      * @throws MisconfigurationException 
      */
-    public static AbstractModule createModuleFromDoc(
-            String name, File f, IDocument doc, IGrammarVersionProvider nature, int currLine, boolean checkForPath) throws MisconfigurationException {
+    public static SourceModule createModuleFromDoc(
+            String name, File f, IDocument doc, IGrammarVersionProvider nature, boolean checkForPath) throws MisconfigurationException {
         //for doc, we are only interested in python files.
         
         if(f != null){
-            if(!checkForPath || PythonPathHelper.isValidSourceFile(REF.getFileAbsolutePath(f))){
+            if(!checkForPath || PythonPathHelper.isValidSourceFile(f.getName())){
                 Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(
-                        new PyParser.ParserInfo(doc, true, nature, currLine, name, f));
+                        new PyParser.ParserInfo(doc, nature, name, f));
                 return new SourceModule(name, f, obj.o1, obj.o2);
             }
         } else {
             Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(
-                    new PyParser.ParserInfo(doc, true, nature, currLine, name, f));
+                    new PyParser.ParserInfo(doc, nature, name, f));
             return new SourceModule(name, f, obj.o1, obj.o2);
         }
         return null;
@@ -285,7 +280,8 @@ public abstract class AbstractModule implements IModule {
      * This function creates a module and resolves the module name (use this function if only the file is available).
      * @throws MisconfigurationException 
      */
-    public static IModule createModuleFromDoc(File file, IDocument doc, IPythonNature pythonNature, int line, IModulesManager projModulesManager) throws MisconfigurationException {
+    public static IModule createModuleFromDoc(File file, IDocument doc, IPythonNature pythonNature) throws MisconfigurationException {
+        IModulesManager projModulesManager = pythonNature.getAstManager().getModulesManager();
         String moduleName = null;
         if(file != null){
             moduleName = projModulesManager.resolveModule(REF.getFileAbsolutePath(file));
@@ -293,7 +289,7 @@ public abstract class AbstractModule implements IModule {
         if(moduleName == null){
             moduleName = MODULE_NAME_WHEN_FILE_IS_UNDEFINED;
         }
-        IModule module = createModuleFromDoc(moduleName, file, doc, pythonNature, line, false);
+        IModule module = createModuleFromDoc(moduleName, file, doc, pythonNature, false);
         return module;
     }
 

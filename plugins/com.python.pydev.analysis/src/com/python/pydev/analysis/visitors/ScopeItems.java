@@ -77,7 +77,7 @@ public final class ScopeItems {
     }
 
     
-    private Map<String,List<Found>> m = new HashMap<String,List<Found>>();
+    private final Map<String,List<Found>> m = new HashMap<String,List<Found>>();
     
     /**
      * Stack for names that should not generate warnings, such as builtins, method names, etc.
@@ -103,16 +103,20 @@ public final class ScopeItems {
         return foundItems.get(foundItems.size()-1);
     }
 
+    public void setAllUsed(){
+        for (List<Found> list : m.values()) {
+            int len = list.size();
+            for(int i=0;i<len;i++){
+                list.get(i).setUsed(true);
+            }
+        }
+    }
+    
     /**
      * @return a list with all the found items in this scope
      */
-    public List<Found> getAll(){
-        ArrayList<Found> found = new ArrayList<Found>();
-        Collection<List<Found>> values = m.values();
-        for (List<Found> list : values) {
-            found.addAll(list);
-        }
-        return found;
+    public Collection<List<Found>> getAll(){
+        return m.values();
     }
     
     /**
@@ -134,14 +138,6 @@ public final class ScopeItems {
         }
         
         foundItems.add(found);
-    }
-
-    public Collection<Found> values() {
-        ArrayList<Found> ret = new ArrayList<Found>();
-        for (List<Found> foundItems : m.values()) {
-            ret.addAll(foundItems);
-        }
-        return ret;
     }
 
     public void addIfSubScope() {

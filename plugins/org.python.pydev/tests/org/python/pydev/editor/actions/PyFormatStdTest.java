@@ -32,7 +32,7 @@ public class PyFormatStdTest extends TestCase {
             PyFormatStdTest n = new PyFormatStdTest();
             n.setUp();
             DEBUG = true;
-            n.testOperator2();
+            n.testOperator4();
             n.tearDown();
             
             junit.textui.TestRunner.run(PyFormatStdTest.class);
@@ -1036,6 +1036,20 @@ public class PyFormatStdTest extends TestCase {
         "a=(('#')*3)";
         std.operatorsWithSpace = true;
         checkFormatResults(s, "a = (('#') * 3)");
+    }
+    
+    public void testOperator3() throws Exception{
+        String s = "" +
+        "in_index = is_reversed and -3 or -2";
+        std.operatorsWithSpace = true;
+        checkFormatResults(s, "in_index = is_reversed and -3 or -2");
+    }
+    
+    public void testOperator4() throws Exception{
+        String s = "" +
+        "in_index=is_reversed and -3 or -2";
+        std.operatorsWithSpace = false;
+        checkFormatResults(s, "in_index=is_reversed and-3 or-2");
     }
     
     public void testFormatError() throws Exception{

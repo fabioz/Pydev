@@ -235,7 +235,7 @@ public class PyBreakpoint extends LineBreakpoint {
                     //the ast manager is actually restored (so, modName is None, and we have little alternative
                     //but making a parse to get the function name)
                     IDocument doc = getDocument();
-                    sourceModule = (SourceModule) AbstractModule.createModuleFromDoc("", null, doc, nature, -1);
+                    sourceModule = (SourceModule) AbstractModule.createModuleFromDoc("", null, doc, nature, true);
                 }
                 
                 int lineToUse = getLineNumber() - 1;

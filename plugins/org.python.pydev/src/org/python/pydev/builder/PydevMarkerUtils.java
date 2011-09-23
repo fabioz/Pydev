@@ -263,7 +263,7 @@ public class PydevMarkerUtils {
         };
         try {
             resource.getWorkspace().run(r, null,IWorkspace.AVOID_UPDATE, null);
-        } catch (CoreException e) {
+        } catch (Exception e) {
             Log.log(e);
         }
     }

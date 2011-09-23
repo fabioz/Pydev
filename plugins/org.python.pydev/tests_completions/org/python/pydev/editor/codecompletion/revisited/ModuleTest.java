@@ -47,7 +47,8 @@ public class ModuleTest extends TestCase {
       }
     
     public void testMod1(){
-        Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(getDoc1()), false, IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
+        Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(
+                new PyParser.ParserInfo(new Document(getDoc1()), IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
         SimpleNode n = obj.o1;
         IModule module = AbstractModule.createModule(n);
        
@@ -73,7 +74,8 @@ public class ModuleTest extends TestCase {
         		"    pass\n" +
         		"other = method\n" +
         		"";
-        Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(doc), false, IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
+        Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(
+                new PyParser.ParserInfo(new Document(doc), IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
         SimpleNode n = obj.o1;
         IModule module = AbstractModule.createModule(n);
         
@@ -96,7 +98,8 @@ public class ModuleTest extends TestCase {
         "    pass\n" +
         "other = another = method\n" +
         "";
-        Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(doc), false, IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
+        Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(
+                new PyParser.ParserInfo(new Document(doc), IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
         SimpleNode n = obj.o1;
         IModule module = AbstractModule.createModule(n);
         

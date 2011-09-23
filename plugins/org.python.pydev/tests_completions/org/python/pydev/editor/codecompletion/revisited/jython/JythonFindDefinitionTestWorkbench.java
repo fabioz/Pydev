@@ -25,7 +25,7 @@ public class JythonFindDefinitionTestWorkbench extends AbstractJythonWorkbenchTe
         "print swing.JFrame()";
 
         Document doc = new Document(d);
-        IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, 2);
+        IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, true);
         Definition[] defs = (Definition[]) module.findDefinition(CompletionStateFactory.getEmptyCompletionState("swing.JFrame", nature, new CompletionCache()), 2, 7, nature);
         
         assertEquals(1, defs.length);
@@ -41,7 +41,7 @@ public class JythonFindDefinitionTestWorkbench extends AbstractJythonWorkbenchTe
         "import java.lang.Class";
         
         Document doc = new Document(d);
-        IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, 1);
+        IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, true);
         Definition[] defs = (Definition[]) module.findDefinition(CompletionStateFactory.getEmptyCompletionState("java.lang.Class", nature, new CompletionCache()), 1, 20, nature);
         
         assertEquals(1, defs.length);
@@ -60,7 +60,7 @@ public class JythonFindDefinitionTestWorkbench extends AbstractJythonWorkbenchTe
         "java.lang.Class.asSubclass";
         
         Document doc = new Document(d);
-        IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, 2);
+        IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, true);
         Definition[] defs = (Definition[]) module.findDefinition(CompletionStateFactory.getEmptyCompletionState("java.lang.Class.asSubclass", nature, new CompletionCache()), 2, 20, nature);
         
         assertEquals(1, defs.length);

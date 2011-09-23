@@ -55,13 +55,21 @@ public class AutoImportsPreferencesPage extends FieldEditorPreferencePage implem
                 "Do auto import on organize imports (Ctrl+Shift+O)?", BooleanFieldEditor.DEFAULT, p));
     }
     
-    public static String removeImportsStartingWithUnderIfNeeded(String declPackageWithoutInit, FastStringBuffer buf) {
-        if(doIgnoreImportsStartingWithUnder()){
+    /**
+     * 
+     * @param doIgnoreImportsStartingWithUnder: result from the doIgnoreImportsStartingWithUnder() method
+     * (but should be called before so that it does not get into a loop which call this method as that method
+     * may be slow).
+     */
+    public static String removeImportsStartingWithUnderIfNeeded(
+            String declPackageWithoutInit, FastStringBuffer buf, boolean doIgnoreImportsStartingWithUnder) {
+        if(doIgnoreImportsStartingWithUnder){
             List<String> splitted = StringUtils.dotSplit(declPackageWithoutInit);
             
             boolean foundStartingWithoutUnder=false;
             buf.clear();
-            for (int i=splitted.size()-1;i>=0;i--) {
+            int len = splitted.size();
+            for (int i=len-1;i>=0;i--) {
                 String s=splitted.get(i);
                 if(!foundStartingWithoutUnder){
                     if(s.charAt(0) == '_'){

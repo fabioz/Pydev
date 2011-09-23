@@ -244,7 +244,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
 						}
 					};
 					Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(
-							new PyParser.ParserInfo(doc, true, provider, 0, name, predefinedModule));
+							new PyParser.ParserInfo(doc, provider, name, predefinedModule));
 					if(obj.o2 != null){
 						if(lastModified == null){
 							lastModified = predefinedModule.lastModified();

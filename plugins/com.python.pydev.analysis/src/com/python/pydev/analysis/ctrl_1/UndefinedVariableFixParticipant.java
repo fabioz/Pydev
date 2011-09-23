@@ -123,6 +123,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         
         //use a single buffer to create all the strings
         FastStringBuffer buffer = new FastStringBuffer();
+        boolean doIgnoreImportsStartingWithUnder = AutoImportsPreferencesPage.doIgnoreImportsStartingWithUnder();
         
         for (String completeName : allModules) {
             FullRepIterable iterable = new FullRepIterable(completeName);
@@ -186,7 +187,8 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                 }
                 
                 declPackageWithoutInit = AutoImportsPreferencesPage
-                        .removeImportsStartingWithUnderIfNeeded(declPackageWithoutInit, tempBuf);
+                        .removeImportsStartingWithUnderIfNeeded(
+                                declPackageWithoutInit, tempBuf, doIgnoreImportsStartingWithUnder);
                 
                 
                 buffer.clear();

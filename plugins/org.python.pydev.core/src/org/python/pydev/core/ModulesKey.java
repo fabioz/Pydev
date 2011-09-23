@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.Serializable;
 
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.docutils.StringUtils.ICallbackOnSplit;
 
 /**
  * This class defines the key to use for some module. All its operations are based on its name.
@@ -92,17 +93,37 @@ public class ModulesKey implements Comparable<ModulesKey>, Serializable{
         return name;
     }
 
+    
+
+    private static final class ProcessCheckIfStartingWithPart implements ICallbackOnSplit {
+        private final String startingWithLowerCase;
+
+        private ProcessCheckIfStartingWithPart(String startingWithLowerCase) {
+            this.startingWithLowerCase = startingWithLowerCase;
+        }
+
+        public boolean call(String mod) {
+            if(mod.length() == 0){
+                return true; //keep on going
+            }
+            if(mod.startsWith(startingWithLowerCase)){
+                return false; //Ok, a part starts with
+            }
+            return true; //keep on going
+        }
+    }
+
 
     /**
      * @return true if any of the parts in this modules key start with the passed string (considering the internal
      * parts lower case).
      */
-    public boolean hasPartStartingWith(String startingWithLowerCase) {
-        for (String mod : StringUtils.dotSplit(this.name.toLowerCase())) {
-            if(mod.startsWith(startingWithLowerCase)){
-                return true;
-            }
-        }
-        return false;
+    public boolean hasPartStartingWith(final String startingWithLowerCase) {
+        ICallbackOnSplit onSplit = new ProcessCheckIfStartingWithPart(startingWithLowerCase);
+        //Return negated: if false was returned it means it returned early or found a part.
+        return !StringUtils.split(this.name.toLowerCase(), '.', onSplit); 
     }
+    
+    
+    
 }

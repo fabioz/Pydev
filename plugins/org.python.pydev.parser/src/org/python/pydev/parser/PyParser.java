@@ -416,7 +416,7 @@ public class PyParser implements IPyParser {
             version = IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
         }
         long documentTime = System.currentTimeMillis();
-        Tuple<SimpleNode, Throwable> obj = reparseDocument(new ParserInfo(document, true, version));
+        Tuple<SimpleNode, Throwable> obj = reparseDocument(new ParserInfo(document, version));
         
         IFile original = null;
         IAdaptable adaptable = null;
@@ -496,15 +496,9 @@ public class PyParser implements IPyParser {
     //static methods that can be used to get the ast (and error if any) --------------------------------------
     
 
-    public static class ParserInfo{
+    public final static class ParserInfo{
         public IDocument document;
         
-        public boolean stillTryToChangeCurrentLine=true; 
-        
-        /**
-         * The currently selected line
-         */
-        public int currentLine=-1;
         
         /**
          * A set with the lines that were changed when trying to make the document parseable
@@ -530,26 +524,21 @@ public class PyParser implements IPyParser {
         /**
          * @param grammarVersion: see IPythonNature.GRAMMAR_XXX constants
          */
-        public ParserInfo(IDocument document, boolean stillTryToChangeCurrentLine, int grammarVersion){
-            this(document, stillTryToChangeCurrentLine, grammarVersion, -1, null, null);
+        public ParserInfo(IDocument document, int grammarVersion){
+            this(document, grammarVersion, null, null);
         }
         
-        public ParserInfo(IDocument document, boolean stillTryToChangeCurrentLine, IGrammarVersionProvider nature) throws MisconfigurationException{
-            this(document, stillTryToChangeCurrentLine, nature.getGrammarVersion());
+        public ParserInfo(IDocument document, IGrammarVersionProvider nature) throws MisconfigurationException{
+            this(document, nature.getGrammarVersion());
         }
         
-        public ParserInfo(IDocument document, boolean stillTryToChangeCurrentLine, IGrammarVersionProvider nature, int currentLine, String moduleName, File file) throws MisconfigurationException{
-            this(document, stillTryToChangeCurrentLine, nature.getGrammarVersion(), currentLine, moduleName, file);
+        public ParserInfo(IDocument document, IGrammarVersionProvider nature, String moduleName, File file) throws MisconfigurationException{
+            this(document, nature.getGrammarVersion(), moduleName, file);
         }
         
-        public ParserInfo(IDocument document, boolean stillTryToChangeCurrentLine, IGrammarVersionProvider nature, int currentLine) throws MisconfigurationException{
-            this(document, stillTryToChangeCurrentLine, nature.getGrammarVersion(), currentLine, null, null);
-        }
 
-        public ParserInfo(IDocument document, boolean stillTryToChangeCurrentLine, int grammarVersion, 
-                int currentLine, String name, File f) {
+        public ParserInfo(IDocument document, int grammarVersion, String name, File f) {
             this.document = document;
-            this.stillTryToChangeCurrentLine = stillTryToChangeCurrentLine;
             this.grammarVersion = grammarVersion;
             this.moduleName = name;
             this.file = f;

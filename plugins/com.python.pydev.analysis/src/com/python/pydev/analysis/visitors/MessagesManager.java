@@ -236,17 +236,24 @@ public final class MessagesManager {
      *             unused message
      */
     public void addUnusedMessage(SimpleNode node, Found f) {
-        for (GenAndTok g : f) {
+        List<GenAndTok> all = f.getAll();
+        int len = all.size();
+        for (int i = 0; i < len; i++) {
+            GenAndTok g = all.get(i);
             if (g.generator instanceof SourceToken) {
                 SimpleNode ast = ((SourceToken) g.generator).getAst();
 
                 // it can be an unused import
-                if (ast instanceof Import || ast instanceof ImportFrom) {
-                    if (AbstractVisitor.isWildImport(ast)) {
+                boolean isFromImport = ast instanceof ImportFrom;
+                if (isFromImport || ast instanceof Import) {
+                    
+                    if (isFromImport && AbstractVisitor.isWildImport((ImportFrom)ast)) {
                         addMessage(IAnalysisPreferences.TYPE_UNUSED_WILD_IMPORT, g.generator, g.tok);
+                        
                     } else if(!(g.generator instanceof ImportPartSourceToken)){
                         addMessage(IAnalysisPreferences.TYPE_UNUSED_IMPORT, g.generator, g.tok);
                     }
+                    
                     continue; // finish it...
                 }
             }
@@ -340,9 +347,12 @@ public final class MessagesManager {
      * adds a message for a re-import
      */
     public void addReimportMessage(Found f) {
-        for (GenAndTok g : f){
+        List<GenAndTok> all = f.getAll();
+        int len = all.size();
+        for (int i = 0; i < len; i++) {
+            GenAndTok g = all.get(i);
             //we don't want to add reimport messages if they are found in a wild import
-            if(g.generator instanceof SourceToken && !(g.generator instanceof ImportPartSourceToken) && AbstractVisitor.isWildImport(g.generator) == false){
+            if(g.generator instanceof SourceToken && !(g.generator instanceof ImportPartSourceToken) && g.generator.isWildImport() == false){
                 addMessage(IAnalysisPreferences.TYPE_REIMPORT, g.generator, g.tok);
             }
         }

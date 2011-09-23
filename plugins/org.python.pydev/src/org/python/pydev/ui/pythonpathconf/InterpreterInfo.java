@@ -1059,9 +1059,9 @@ public class InterpreterInfo implements IInterpreterInfo{
     }
 
     public static String getExeAsFileSystemValidPath(String executableOrJar) {
-        return "v1_"+StringUtils.md5(executableOrJar);
-        
+        return StringUtils.getExeAsFileSystemValidPath(executableOrJar);
     }
+    
     public String getExeAsFileSystemValidPath() {
         return getExeAsFileSystemValidPath(executableOrJar);
     }

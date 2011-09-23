@@ -34,31 +34,31 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 /**
  * @author Fabio Zadrozny
  */
-public class CompletionState implements ICompletionState {
+public final class CompletionState implements ICompletionState {
     
-    public String activationToken; 
-    public int line = -1;
-    public int col = -1;
-    public IPythonNature nature;
-    public String qualifier;
+    private String activationToken; 
+    private int line = -1;
+    private int col = -1;
+    private IPythonNature nature;
+    private String qualifier;
     
-    public Memo<String> memory = new Memo<String>();
-    public Memo<Definition> definitionMemory = new Memo<Definition>();
-    public Memo<IModule> wildImportMemory = new Memo<IModule>();
-    public Memo<String> importedModsCalled = new Memo<String>();
-    public Memo<String> findMemory = new Memo<String>();
-    public Memo<String> resolveImportMemory = new Memo<String>();
-    public Memo<String> findDefinitionMemory = new Memo<String>();
-    public Memo<String> findLocalDefinedDefinitionMemory = new Memo<String>();
-    public Stack<Memo<IToken>> findResolveImportMemory = new Stack<Memo<IToken>>();
-    public Memo<String> findModuleCompletionsMemory = new Memo<String>();
-    public Memo<String> findSourceFromCompiledMemory = new Memo<String>(1); //max is 1 for this one!
+    private final Memo<String> memory = new Memo<String>();
+    private final Memo<Definition> definitionMemory = new Memo<Definition>();
+    private final Memo<IModule> wildImportMemory = new Memo<IModule>();
+    private final Memo<String> importedModsCalled = new Memo<String>();
+    private final Memo<String> findMemory = new Memo<String>();
+    private final Memo<String> resolveImportMemory = new Memo<String>();
+    private final Memo<String> findDefinitionMemory = new Memo<String>();
+    private final Memo<String> findLocalDefinedDefinitionMemory = new Memo<String>();
+    private Stack<Memo<IToken>> findResolveImportMemory = new Stack<Memo<IToken>>();
+    private final Memo<String> findModuleCompletionsMemory = new Memo<String>();
+    private final Memo<String> findSourceFromCompiledMemory = new Memo<String>(1); //max is 1 for this one!
     
-    public boolean builtinsGotten=false;
-    public boolean localImportsGotten=false;
-    public boolean isInCalltip=false;
+    private boolean builtinsGotten=false;
+    private boolean localImportsGotten=false;
+    private boolean isInCalltip=false;
     
-    public int lookingForInstance=LOOKING_FOR_INSTANCE_UNDEFINED;
+    private int lookingForInstance=LOOKING_FOR_INSTANCE_UNDEFINED;
     private List<IToken> tokenImportedModules;
     private ICompletionCache completionCache;
     private String fullActivationToken;
@@ -81,7 +81,7 @@ public class CompletionState implements ICompletionState {
      * 
      * @author Fabio Zadrozny
      */
-    static class Memo<E>{
+    private static class Memo<E>{
         
         private int max;
 

@@ -16,7 +16,9 @@ import org.python.pydev.core.IPythonNature;
  */
 public interface IWizardNewProjectNameAndLocationPage extends IWizardPage
 {
-    
+ 
+    public static final String PYDEV_NEW_PROJECT_CREATE_PREFERENCES = "PYDEV_NEW_PROJECT_CREATE_PREFERENCES";
+
     final int PYDEV_NEW_PROJECT_CREATE_SRC_FOLDER = 0; //also the default
     final int PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER = 1;
     final int PYDEV_NEW_PROJECT_NO_PYTHONPATH = 2;

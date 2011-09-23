@@ -29,17 +29,18 @@ public class PyCodeCompletionUtils {
     public static ICompletionProposal[] onlyValidSorted(List pythonAndTemplateProposals, String qualifier, boolean onlyForCalltips) {
         //FOURTH: Now, we have all the proposals, only thing is deciding which ones are valid (depending on
         //qualifier) and sorting them correctly.
-        Map<String, List<ICompletionProposal>> returnProposals = new HashMap<String, List<ICompletionProposal>>();
-        String lowerCaseQualifier = qualifier.toLowerCase();
+        final Map<String, List<ICompletionProposal>> returnProposals = new HashMap<String, List<ICompletionProposal>>();
+        final String lowerCaseQualifier = qualifier.toLowerCase();
         
-        for (Iterator iter = pythonAndTemplateProposals.iterator(); iter.hasNext();) {
-            Object o = iter.next();
+        int len = pythonAndTemplateProposals.size();
+        for (int i = 0; i < len; i++) {
+            Object o = pythonAndTemplateProposals.get(i);
             if (o instanceof ICompletionProposal) {
                 ICompletionProposal proposal = (ICompletionProposal) o;
             
                 String displayString;
-                if(proposal instanceof PyCompletionProposal){
-                    PyCompletionProposal pyCompletionProposal = (PyCompletionProposal) proposal;
+                if(proposal instanceof IPyCompletionProposal2){
+                    IPyCompletionProposal2 pyCompletionProposal = (IPyCompletionProposal2) proposal;
                     displayString = pyCompletionProposal.getInternalDisplayStringRepresentation();
                     
                 }else{

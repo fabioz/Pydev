@@ -194,7 +194,8 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant{
                                                 nature, new CompletionCache());
                                         
                                         found = nature.getAstManager().findModule(
-                                                foundFromImportStr, currentModule, state);
+                                                foundFromImportStr, currentModule, state,
+                                                new SourceModule(currentModule, edit.getEditorFile(), edit.getAST(), null));
                                     } catch (Exception e) {
                                         Log.log(e);
                                     }

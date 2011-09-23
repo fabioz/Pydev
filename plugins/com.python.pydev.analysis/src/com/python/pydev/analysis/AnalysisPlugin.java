@@ -171,15 +171,49 @@ public class AnalysisPlugin extends AbstractUIPlugin {
     }
 
 
+    private static final Object lock = new Object();
+    public static Image autoImportClassWithImportType;
+    public static Image autoImportMethodWithImportType;
+    public static Image autoImportAttributeWithImportType;
+    
     public static Image getImageForAutoImportTypeInfo(IInfo info){
-        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
         switch(info.getType()){
             case IInfo.CLASS_WITH_IMPORT_TYPE:
-                return imageCache.getImageDecorated(UIConstants.CLASS_ICON, UIConstants.CTX_INSENSITIVE_DECORATION_ICON, ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT); 
+                if(autoImportClassWithImportType == null){
+                    synchronized (lock) {
+                        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
+                        autoImportClassWithImportType = imageCache.getImageDecorated(
+                                UIConstants.CLASS_ICON, 
+                                UIConstants.CTX_INSENSITIVE_DECORATION_ICON, 
+                                ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT); 
+                    }
+                }
+                return autoImportClassWithImportType;
+                
             case IInfo.METHOD_WITH_IMPORT_TYPE:
-                return imageCache.getImageDecorated(UIConstants.METHOD_ICON, UIConstants.CTX_INSENSITIVE_DECORATION_ICON, ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT); 
+                if(autoImportMethodWithImportType == null){
+                    synchronized (lock) {
+                        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
+                        autoImportMethodWithImportType = imageCache.getImageDecorated(
+                                UIConstants.METHOD_ICON, 
+                                UIConstants.CTX_INSENSITIVE_DECORATION_ICON, 
+                                ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT);
+                    }
+                }
+                return autoImportMethodWithImportType; 
+                
             case IInfo.ATTRIBUTE_WITH_IMPORT_TYPE:
-                return imageCache.getImageDecorated(UIConstants.PUBLIC_ATTR_ICON, UIConstants.CTX_INSENSITIVE_DECORATION_ICON, ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT); 
+                if(autoImportAttributeWithImportType == null){
+                    synchronized (lock) {
+                        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
+                        autoImportAttributeWithImportType = imageCache.getImageDecorated(
+                                UIConstants.PUBLIC_ATTR_ICON, 
+                                UIConstants.CTX_INSENSITIVE_DECORATION_ICON, 
+                                ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT);
+                    }
+                }
+                return autoImportAttributeWithImportType; 
+                
             default:                  
                 throw new RuntimeException("Undefined type.");
 
@@ -188,15 +222,39 @@ public class AnalysisPlugin extends AbstractUIPlugin {
     }
     
     
+    public static Image classWithImportType;
+    public static Image methodWithImportType;
+    public static Image attributeWithImportType;
+
+    
     public static Image getImageForTypeInfo(IInfo info){
-        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
         switch(info.getType()){
             case IInfo.CLASS_WITH_IMPORT_TYPE:
-                return imageCache.get(UIConstants.CLASS_ICON); 
+                if(classWithImportType == null){
+                    synchronized (lock) {
+                        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
+                        classWithImportType = imageCache.get(UIConstants.CLASS_ICON);
+                    }
+                }
+                return classWithImportType; 
+                
             case IInfo.METHOD_WITH_IMPORT_TYPE:
-                return imageCache.get(UIConstants.METHOD_ICON);
+                if(methodWithImportType == null){
+                    synchronized (lock) {
+                        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
+                        methodWithImportType = imageCache.get(UIConstants.METHOD_ICON);
+                    }
+                }
+                return methodWithImportType;
+                
             case IInfo.ATTRIBUTE_WITH_IMPORT_TYPE:
-                return imageCache.get(UIConstants.PUBLIC_ATTR_ICON);
+                if(attributeWithImportType == null){
+                    synchronized (lock) {
+                        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
+                        attributeWithImportType = imageCache.get(UIConstants.PUBLIC_ATTR_ICON);
+                    }
+                }
+                return attributeWithImportType;
             default:                  
                 throw new RuntimeException("Undefined type.");
         

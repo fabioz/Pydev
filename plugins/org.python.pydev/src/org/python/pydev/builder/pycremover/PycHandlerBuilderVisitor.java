@@ -10,14 +10,16 @@
 package org.python.pydev.builder.pycremover;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.builder.PyDevBuilderVisitor;
@@ -32,8 +34,63 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor{
     
+    /**
+     * Job that actually deletes the files.
+     */
+    private static final class PycDeleteJob extends WorkspaceJob {
+        public PycDeleteJob() {
+            super("Delete .pyc/$py.class files");
+            
+        }
+
+        private final List<IFile> files = new ArrayList<IFile>();
+        
+        private final Object lock = new Object();
+
+        private void addFilesToDelete(IFile[] files){
+            synchronized (lock) {
+                for(IFile f: files){
+                    this.files.add(f);
+                }
+            }
+        }
+        
+
+        @Override
+        public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
+            IFile[] currentFilesToDelete = null;
+            synchronized (lock) {
+                currentFilesToDelete = files.toArray(new IFile[files.size()]);
+                files.clear();
+            }
+            monitor.beginTask("Delete .pyc/$py.class files", currentFilesToDelete.length);
+            try {
+                
+                for(final IFile workspaceFile : currentFilesToDelete){
+                    if (workspaceFile != null && workspaceFile.exists()) {
+                        try {
+                            workspaceFile.delete(true, monitor);
+                        } catch (CoreException e) {
+                            Log.log(e);
+                        }
+                    }
+                    monitor.worked(1);
+                }
+            } finally {
+                monitor.done();
+            }
+            return Status.OK_STATUS;
+        }
+
+
+    }
+    
+    private static final PycDeleteJob pycDeleteJob = new PycDeleteJob();
+
     private static final PySourceLocatorBase locator = new PySourceLocatorBase();
+    
     private int pycDeleteHandling;
+    
 
     @Override
     public void visitingWillStart(IProgressMonitor monitor, boolean isFullBuild, IPythonNature nature) {
@@ -48,7 +105,7 @@ public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor{
     
     
     /**
-     * When a .pyc file is found, we remove it if it doesn't have the correspondent .py or .pyw class.
+     * When a .pyc/$py.class file is found, we remove it if it doesn't have the correspondent .py or .pyw class.
      */
     @Override
     public void visitAddedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
@@ -64,7 +121,7 @@ public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor{
         }
         
         final String loc = resource.getLocation().toOSString();
-        if(loc != null && loc.endsWith(".pyc")){
+        if(loc != null && (loc.endsWith(".pyc") || loc.endsWith("$py.class"))){
             String dotPyLoc = null;
             
             final FastStringBuffer buf = new FastStringBuffer(StringUtils.stripExtension(loc), 8);
@@ -134,7 +191,9 @@ public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor{
         
         String loc = resource.getLocation().toOSString();
         if(PythonPathHelper.isValidSourceFile(loc)){
-            deletePycFile(StringUtils.stripExtension(loc)+".pyc");
+            String withoutExt = StringUtils.stripExtension(loc);
+            deletePycFile(withoutExt+".pyc");
+            deletePycFile(withoutExt+"$py.class");
         }
     }
     
@@ -143,7 +202,7 @@ public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor{
      * Deletes .pyc files
      */
     private void deletePycFile(String loc) {
-        if(loc.endsWith(".pyc")){
+        if(loc.endsWith(".pyc") || loc.endsWith("$py.class")){
             try {
                 File file = new File(loc);
                 
@@ -154,26 +213,8 @@ public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor{
                     return ;
                 }
 
-                new Job("Delete .pyc Files"){
-                    
-                    @Override
-                    protected IStatus run(IProgressMonitor monitor) {
-                        monitor.beginTask("Delete .pyc files", 1);
-
-                        for(final IFile workspaceFile : files){
-                            if (workspaceFile != null && workspaceFile.exists()) {
-                                try {
-                                    workspaceFile.delete(true, monitor);
-                                } catch (CoreException e) {
-                                    Log.log(e);
-                                }
-                            }
-                        }
-                        monitor.done();
-                        return Status.OK_STATUS;
-                    }
-                    
-                }.schedule();
+                pycDeleteJob.addFilesToDelete(files);
+                pycDeleteJob.schedule(200);
                 
             } catch (Exception e) {
                 Log.log(e);

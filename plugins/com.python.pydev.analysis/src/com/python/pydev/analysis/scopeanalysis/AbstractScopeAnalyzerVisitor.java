@@ -75,7 +75,7 @@ import com.python.pydev.analysis.visitors.Scope;
 import com.python.pydev.analysis.visitors.ScopeItems;
 
 /**
- * This is a visitor that transverses the scopes available and is able to provide information
+ * This is a visitor that traverses the scopes available and is able to provide information
  * on all the scopes (subclasses should implement the specifics about it).
  * 
  * @author Fabio
@@ -108,7 +108,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     /**
      * this is the module we are visiting
      */
-    protected IModule current;
+    public final IModule current;
     
     /**
      * To keep track of cancels
@@ -135,7 +135,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      * @param document 
      * @param monitor 
      */
-    @SuppressWarnings("unchecked")
     public AbstractScopeAnalyzerVisitor(IPythonNature nature, String moduleName, IModule current, IDocument document, IProgressMonitor monitor) {
         this.monitor = monitor;
         this.current = current;
@@ -151,7 +150,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         ICompletionState completionState = CompletionStateFactory.getEmptyCompletionState(nature, new CompletionCache());
         this.completionCache = completionState;
         
-        List<IToken> builtinCompletions = nature.getAstManager().getBuiltinCompletions(completionState, new ArrayList());
+        List<IToken> builtinCompletions = nature.getAstManager().getBuiltinCompletions(completionState, new ArrayList<IToken>());
         
         if(moduleName != null && moduleName.endsWith("__init__")){
             //__path__ should be added to modules that have __init__
@@ -1042,10 +1041,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             //    b = 2
             //    c = 3
             //    f1(**locals())
-            
-            for(Found f:currScopeItems.getAll()){
-                f.setUsed(true);
-            }
+            currScopeItems.setAllUsed();
             return true;
         }
         

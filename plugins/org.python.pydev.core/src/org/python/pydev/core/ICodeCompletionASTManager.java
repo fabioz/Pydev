@@ -94,8 +94,9 @@ public interface ICodeCompletionASTManager {
      * @param initial: this is the initial module (e.g.: foo.bar) or an empty string.
      * @return a Set with the imports as tuples with the name, the docstring.
      * @throws CompletionRecursionException 
+     * @throws MisconfigurationException 
      */
-    public abstract IToken[] getCompletionsForImport(ImportInfo original, ICompletionRequest request, boolean onlyGetDirectModules) throws CompletionRecursionException;
+    public abstract IToken[] getCompletionsForImport(ImportInfo original, ICompletionRequest request, boolean onlyGetDirectModules) throws CompletionRecursionException, MisconfigurationException;
 
 
     /**
@@ -117,12 +118,15 @@ public interface ICodeCompletionASTManager {
      * @throws CompletionRecursionException 
      * @throws MisconfigurationException 
      */
-    public abstract IToken[] getCompletionsForToken(File file, IDocument doc, ICompletionState state) throws CompletionRecursionException, MisconfigurationException;
+//    public abstract IToken[] getCompletionsForToken(File file, IDocument doc, ICompletionState state) throws CompletionRecursionException, MisconfigurationException;
+//    Clients must now do the createModule part themselves (and call the getCompletionsForModule)
+//    This is because some places were creating the module more than once from the request, so, now the request 
+//    creates the module and caches it.
+//    IModule module = createModule(file, doc, state, this);
+//    return getCompletionsForModule(module, state, true, true);
+
     
     /**
-     * 
-     * @param name
-     * @param nature
      * @return the module with the specified name.
      */
     public abstract IModule getModule(String name, IPythonNature nature, boolean dontSearchInit, boolean lookingForRelative);
@@ -155,7 +159,8 @@ public interface ICodeCompletionASTManager {
      * 2: actual tok
      * @throws CompletionRecursionException 
      */
-    public abstract Tuple3<IModule, String, IToken> findOnImportedMods( IToken[] importedModules, ICompletionState state, String currentModuleName) throws CompletionRecursionException;
+    public abstract Tuple3<IModule, String, IToken> findOnImportedMods(
+            IToken[] importedModules, ICompletionState state, String currentModuleName, IModule current) throws CompletionRecursionException;
     
     /**
      * Finds the tokens on the given imported modules
@@ -269,7 +274,7 @@ public interface ICodeCompletionASTManager {
      * able to find its actual definition
      * @throws CompletionRecursionException 
      */
-    public IToken resolveImport(ICompletionState state, IToken imported) throws CompletionRecursionException;
+    public ImmutableTuple<IModule, IToken> resolveImport(ICompletionState state, IToken imported, IModule current) throws CompletionRecursionException;
 
     /**
      * @return object to lock on.
@@ -294,8 +299,9 @@ public interface ICodeCompletionASTManager {
      * 'pack1.__init__' and the string as 'other_module'
      * 
      * @throws CompletionRecursionException 
+     * @throws MisconfigurationException 
      */
-    public Tuple<IModule, String> findModule(String fromImportStr, String currentModule, ICompletionState state) throws CompletionRecursionException;
+    public Tuple<IModule, String> findModule(String fromImportStr, String currentModule, ICompletionState state, IModule current) throws CompletionRecursionException, MisconfigurationException;
 
     /**
      * @param astOutputFile

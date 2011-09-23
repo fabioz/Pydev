@@ -14,19 +14,24 @@ package org.python.pydev.editor.codecompletion;
 import java.io.File;
 
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionRequest;
+import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
 import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.editor.codecompletion.revisited.AbstractASTManager;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 
 /**
  * This class defines the information used for a code completion request.
  * 
  * @author Fabio Zadrozny
  */
-public class CompletionRequest implements ICompletionRequest {
+public final class CompletionRequest implements ICompletionRequest {
 
     /**
      * This is used on the AssistOverride: the activationToken is pre-specified
@@ -45,6 +50,11 @@ public class CompletionRequest implements ICompletionRequest {
         this.qualifier = qualifier;
 
         // the full qualifier is not set here
+        this.fullQualifier = null;
+        
+        this.calltipOffset = 0;
+        this.alreadyHasParams = false;
+        this.offsetForKeywordParam = 0;
     }
 
     /**
@@ -109,7 +119,7 @@ public class CompletionRequest implements ICompletionRequest {
         return nature;
     }
     
-    public IDocument doc;
+    public final IDocument doc;
 
     /**
      * The activation token of this request.
@@ -126,28 +136,28 @@ public class CompletionRequest implements ICompletionRequest {
      * The qualifier found to the cursor (will be used to filter the found
      * completions)
      */
-    public String qualifier;
+    public final String qualifier;
 
     /**
      * The full qualifier found (this is the complete token over where we have
      * the cursor). May be null.
      */
-    public String fullQualifier;
+    public final String fullQualifier;
 
     /**
      * The offset in the document where this request was asked
      */
-    public int documentOffset;
+    public final int documentOffset;
 
     /**
      * The lenght of the qualifier (== qualifier.length())
      */
-    public int qlen;
+    public final int qlen;
 
     /**
      * The engine for doing the code-completion
      */
-    public IPyCodeCompletion codeCompletion;
+    public final IPyCodeCompletion codeCompletion;
 
     /**
      * Defines if we're getting the completions for a calltip
@@ -163,17 +173,17 @@ public class CompletionRequest implements ICompletionRequest {
     /**
      * Only really valid when isInMethodKeywordParam == true. Defines the offset of the method call.
      */
-    public int offsetForKeywordParam;
+    public final int offsetForKeywordParam;
     
     /**
      * Offset of the parens in a calltip.
      */
-    public int calltipOffset;
+    public final int calltipOffset;
 
     /**
      * Useful only if we're in a calltip
      */
-    public boolean alreadyHasParams;
+    public final boolean alreadyHasParams;
 
     /**
      * A selection object (cache) -- initialized on request
@@ -218,6 +228,11 @@ public class CompletionRequest implements ICompletionRequest {
      * Cache for the module name
      */
     private String initialModule;
+
+    /**
+     * Cache for the source module created.
+     */
+    private IModule module;
     
     /**
      * @return the module name where the completion request took place (may be null if there is no editor file associated)
@@ -228,6 +243,19 @@ public class CompletionRequest implements ICompletionRequest {
             initialModule = nature.resolveModule(editorFile);
         }
         return initialModule;
+    }
+
+    /**
+     * @param state 
+     * @param astManager 
+     * @return
+     * @throws MisconfigurationException 
+     */
+    public IModule getModule() throws MisconfigurationException {
+        if(module == null){
+            module = AbstractASTManager.createModule(this.editorFile, this.doc, this.nature);
+        }
+        return module;
     }
 
 }

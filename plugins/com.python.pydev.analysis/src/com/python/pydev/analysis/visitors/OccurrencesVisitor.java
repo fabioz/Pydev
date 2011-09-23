@@ -296,11 +296,15 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
         if(reportUnused){
             //so, now, we clear the unused
             int scopeType = m.getScopeType();
-            for (Found f : m.values()) {
-                if(!f.isUsed()){
-                    // we don't get unused at the global scope or class definition scope unless it's an import
-                    if((scopeType & Scope.ACCEPTED_METHOD_AND_LAMBDA) != 0 || f.isImport()){ //only within methods do we put things as unused 
-                        messagesManager.addUnusedMessage(node, f);
+            for (List<Found> list : m.getAll()) {
+                int len = list.size();
+                for (int i = 0; i < len; i++) {
+                    Found f=list.get(i);
+                    if(!f.isUsed()){
+                        // we don't get unused at the global scope or class definition scope unless it's an import
+                        if((scopeType & Scope.ACCEPTED_METHOD_AND_LAMBDA) != 0 || f.isImport()){ //only within methods do we put things as unused 
+                            messagesManager.addUnusedMessage(node, f);
+                        }
                     }
                 }
             }
@@ -312,7 +316,9 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
      */
     protected boolean isVirtual(FunctionDef node) {
         if(node.body != null){
-            for(SimpleNode n : node.body){
+            int len = node.body.length;
+            for (int i = 0; i < len; i++) {
+                SimpleNode n = node.body[i];
                 if(n instanceof Raise){
                     continue;
                 }

@@ -103,6 +103,9 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
         fReplacementLength= replacementLength;
         fCursorPosition= cursorPosition;
         fImage= image;
+        if(displayString == null){
+            displayString = replacementString;
+        }
         fDisplayString= displayString;
         fContextInformation= contextInformation;
         fAdditionalProposalInfo= additionalProposalInfo;
@@ -179,10 +182,11 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     /*
      * @see ICompletionProposal#getDisplayString()
      */
-    public String getDisplayString() {
-        if (fDisplayString != null)
-            return fDisplayString;
-        return fReplacementString;
+    public final String getDisplayString() {
+//        if (fDisplayString == null){
+//            throw new AssertionError("This should NEVER happen!");
+//        }
+        return fDisplayString;
     }
 
     /*
@@ -225,10 +229,6 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
         return onApplyAction == ON_APPLY_JUST_SHOW_CTX_INFO || onApplyAction == ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS;
     }
 
-    public String getInternalDisplayStringRepresentation() {
-        return getDisplayString();
-    }
-    
     public static final int BEHAVIOR_OVERRIDES = 0;
     public static final int BEHAVIOR_COEXISTS = 1;
     public static final int BEHAVIOR_IS_OVERRIDEN = 2;

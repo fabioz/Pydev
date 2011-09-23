@@ -27,6 +27,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
+import org.python.pydev.ui.wizards.project.IWizardNewProjectNameAndLocationPage;
 
 public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
 
@@ -52,6 +53,8 @@ public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
         node.putBoolean(PydevEditorPrefs.SMART_LINE_MOVE, PydevEditorPrefs.DEFAULT_SMART_LINE_MOVE);
     
         node.putInt(PydevEditorPrefs.TAB_WIDTH, PydevEditorPrefs.DEFAULT_TAB_WIDTH);
+        node.putInt(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES, 
+                IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER);
         
         //comment blocks
         node.put(CommentBlocksPreferences.MULTI_BLOCK_COMMENT_CHAR, CommentBlocksPreferences.DEFAULT_MULTI_BLOCK_COMMENT_CHAR);

@@ -41,6 +41,10 @@ public class EmptyModule extends AbstractModule implements Serializable {
         super(name);
         this.f = f;
     }
+    
+    public boolean hasFutureImportAbsoluteImportDeclared() {
+        throw new RuntimeException("Not intended to be called");
+    }
 
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getWildImportedModules()

@@ -68,7 +68,7 @@ public class PyRunToLineTarget implements IRunToLineTarget{
             }
             
             try{
-                sourceModule = (SourceModule) AbstractModule.createModuleFromDoc("", null, doc, nature, -1);
+                sourceModule = (SourceModule) AbstractModule.createModuleFromDoc("", null, doc, nature, true);
             }catch(MisconfigurationException e){
                 Log.log(e);
                 return;

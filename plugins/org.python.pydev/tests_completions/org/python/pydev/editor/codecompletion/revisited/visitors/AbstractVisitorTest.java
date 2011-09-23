@@ -121,7 +121,7 @@ public class AbstractVisitorTest extends TestCase {
 
     private Iterator<ASTEntry> createModuleAndGetImports(String strDoc, Class classToGet) throws Exception {
         Document document = new Document(strDoc);
-        SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc(MODULE_NAME, null, document, CodeCompletionTestsBase.createStaticNature(), 0);
+        SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc(MODULE_NAME, null, document, CodeCompletionTestsBase.createStaticNature(), true);
         
         
         EasyASTIteratorVisitor visitor = new EasyASTIteratorVisitor();

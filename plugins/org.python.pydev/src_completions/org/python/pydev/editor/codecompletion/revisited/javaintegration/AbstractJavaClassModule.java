@@ -60,6 +60,10 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
         replacementMap.put("[I", "int");
     }
 
+    public boolean hasFutureImportAbsoluteImportDeclared() {
+        return false;
+    }
+    
     protected AbstractJavaClassModule(String name) {
         super(name);
         checkJavaImageDescriptorCreated();

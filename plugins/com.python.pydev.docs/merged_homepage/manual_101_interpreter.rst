@@ -20,15 +20,34 @@ To configure the interpreter:
 
 
 1. Go to: **window > preferences > PyDev > Interpreter - (Python/Jython/IronPython)**.
+
 2. Choose the interpreter you have installed in your computer (such as python.exe, jython.jar or ipy.exe).
 
-   Note that the **Auto Config** will try to find it in your PATH, but it can fail if it's not there.
+   Note that the **Auto Config** will try to find it in your PATH, but it can fail if it's not there (or if you
+   want to configure a different interpreter).
+   
+   On **Windows** it'll also search the registry and provide a choice based on the multiple interpreters available
+   in your computer (searching in the registry).
+   
+   On **Linux/Mac**, usually you can do a 'which python' to know where the python executable is located.
+   
+   On **Mac** it's usually at some place resembling the image below (so, if you want to configure a different version
+   of the interpreter manually, that's where you'd want to search):
+   
+.. image:: images/interpreter_mac.png
+   :class: snap
+   :align: center   
+    
    
 3. Select the paths that will be in your **SYSTEM PYTHONPATH**. 
 
 **IMPORTANT**: Select only folders that will **NOT be used as source folders for any project** of yours 
 (those should be later configured as source folders in the project).
 
+**IMPORTANT for Mac users**: The Python version that usually ships with Mac doesn't seem to have the .py source files 
+available, which are required for PyDev, so, using a different interpreter is recommended (i.e.: Download it from 
+http://python.org). If you don't want to use a different interpreter, get the source files for the Python '/Lib' folder
+and add those to the system installation. 
 
 After those steps, you should have a screen as presented below:
 

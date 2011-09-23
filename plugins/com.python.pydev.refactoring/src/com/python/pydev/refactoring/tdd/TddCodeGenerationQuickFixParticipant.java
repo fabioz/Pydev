@@ -17,12 +17,13 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.ImmutableTuple;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.docutils.PySelection.TddPossibleMatches;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
@@ -54,6 +55,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
     }
     
     
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature, PyEdit edit, int offset) throws BadLocationException {
         List<ICompletionProposal> ret = super.getProps(ps, imageCache, f, nature, edit, offset);
         
@@ -66,7 +68,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
         List<TddPossibleMatches> callsAtLine = ps.getTddPossibleMatchesAtLine();
         if (callsAtLine.size() > 0) {
             //Make sure we don't check the same thing twice.
-            Map<String, TddPossibleMatches> callsToCheck = new HashMap<String, TddPossibleMatches>();
+            Map<String, TddPossibleMatches> callsToCheck = new HashMap();
             for(TddPossibleMatches call:callsAtLine){
                 String callString = call.initialPart+call.secondPart;
                 callsToCheck.put(callString, call);
@@ -113,15 +115,6 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                         //Don't look in additional info.
                         request.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
                         pointers = pyRefactoring.findDefinition(request);
-                        if(i == 1){
-                            if((pointers != null && pointers.length > 0)){
-                                //The use-case is the following:
-                                //We have self.bar.foo()
-                                //and we found self.bar, so, we have to create the 'foo()', meaning that the current match
-                                //should actually create a method and not a field as it was found now.
-                                possibleMatch.isCall = lastPossibleMatchNotFound.isCall;
-                            }
-                        }
                         
                         if(((pointers != null && pointers.length > 0) || StringUtils.count(possibleMatch.full, '.') <= 1)){
                             break;
@@ -143,19 +136,15 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
 
                         checkCreationBasedOnFoundPointers(
                                 edit, callPs, ret, possibleMatch, pointers, methodToCreate, newSelection);
-                        return ret;
+                        continue CONTINUE_FOR;
                     }
                     
-                    if(possibleMatch.isCall && pointers.length >= 1){
-                        //Ok, we found whatever was there, so, we don't need to create anything (except maybe do
-                        //the __init__).
-                        checkInitCreation(edit, callPs, pointers, ret);
+                    if(pointers.length >= 1){
                         
-                    }else{
-                        if(pointers.length == 0){
-                            checkMethodCreationAtClass(edit, pyRefactoring, callWithoutParens, callPs, ret, lineContents, possibleMatch);
-                            
-                        }else if(!possibleMatch.isCall){
+                        //Ok, we found whatever was there, so, we don't need to create anything (except maybe do
+                        //the __init__ or something at the class level).
+                        if(!checkInitCreation(edit, callPs, pointers, ret)){
+                            //This was called only when isCall == false
                             //Ok, if it's not a call and we found a field, it's still possible that we may want to create
                             //a field if it wasn't found in the __init__
                             boolean foundInInit = false;
@@ -178,6 +167,10 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                                 checkMethodCreationAtClass(edit, pyRefactoring, callWithoutParens, callPs, ret, lineContents, possibleMatch);
                             }
                         }
+                        
+                    }else if(pointers.length == 0){
+                        checkMethodCreationAtClass(edit, pyRefactoring, callWithoutParens, callPs, ret, lineContents, possibleMatch);
+                            
                     }
                 } catch (Exception e) {
                     Log.log(e);
@@ -203,20 +196,24 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                 //creating something in the current class -- note that if it was self.bar here, we'd treat it as regular
                 //(i.e.: no special support for self), so, we wouldn't enter here!
                 int firstCharPosition = PySelection.getFirstCharPosition(lineContents);
-                LineStartingScope scopeStart = callPs.getPreviousLineThatStartsScope(PySelection.CLASS_TOKEN, false, firstCharPosition);
+                LineStartingScope scopeStart = callPs.getPreviousLineThatStartsScope(
+                        PySelection.CLASS_TOKEN, false, firstCharPosition);
                 String classNameInLine = null;
                 if (scopeStart != null) {
-                    PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
-                    List<String> parametersAfterCall = null;
-                    parametersAfterCall = configCreateAsAndReturnParaetersAfterCall(callPs, possibleMatch.isCall, pyCreateMethod,
-                            parametersAfterCall, methodToCreate);
-                    String startingScopeLineContents = callPs.getLine(scopeStart.iLineStartingScope);
-                    classNameInLine = PySelection.getClassNameInLine(startingScopeLineContents);
-                    if (classNameInLine != null && classNameInLine.length() > 0) {
-                        pyCreateMethod.setCreateInClass(classNameInLine);
-
-                        addCreateMethodOption(
-                                callPs, edit, ret, methodToCreate, parametersAfterCall, pyCreateMethod, classNameInLine);
+                    for(Boolean isCall:new Boolean[]{true, false}){
+                        PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
+                        List<String> parametersAfterCall = null;
+                        parametersAfterCall = configCreateAsAndReturnParametersAfterCall(
+                                callPs, isCall, pyCreateMethod,
+                                parametersAfterCall, methodToCreate);
+                        String startingScopeLineContents = callPs.getLine(scopeStart.iLineStartingScope);
+                        classNameInLine = PySelection.getClassNameInLine(startingScopeLineContents);
+                        if (classNameInLine != null && classNameInLine.length() > 0) {
+                            pyCreateMethod.setCreateInClass(classNameInLine);
+    
+                            addCreateMethodOption(
+                                    callPs, edit, ret, methodToCreate, parametersAfterCall, pyCreateMethod, classNameInLine);
+                        }
                     }
                 }
                 return true;
@@ -230,7 +227,8 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
             request.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
             pointers = pyRefactoring.findDefinition(request);
             if(pointers.length == 1){
-                if(checkCreationBasedOnFoundPointers(edit, callPs, ret, possibleMatch, pointers, methodToCreate, newSelection)){
+                if(checkCreationBasedOnFoundPointers(
+                        edit, callPs, ret, possibleMatch, pointers, methodToCreate, newSelection)){
                     return true;
                 }
             }
@@ -268,31 +266,34 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
             if(definition != null && definition.ast instanceof ClassDef){
                 ClassDef d = (ClassDef) definition.ast;
                 
-                //Give the user a chance to create the method we didn't find.
-                PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
-                List<String> parametersAfterCall = null;
-                parametersAfterCall = configCreateAsAndReturnParaetersAfterCall(callPs, possibleMatch.isCall, pyCreateMethod,
-                        parametersAfterCall, methodToCreate);
-                String className = NodeUtils.getRepresentationString(d);
-                pyCreateMethod.setCreateInClass(className);
-                
-                String displayString = StringUtils.format("Create %s %s at %s (%s)", 
-                        methodToCreate, pyCreateMethod.getCreationStr(), className, definition.module.getName());
-                TddRefactorCompletionInModule completion = new TddRefactorCompletionInModule(
-                        methodToCreate, 
-                        tddQuickFixParticipant.imageMethod, 
-                        displayString, 
-                        null, 
-                        displayString, 
-                        IPyCompletionProposal.PRIORITY_CREATE, 
-                        edit,
-                        definition.module.getFile(),
-                        parametersAfterCall,
-                        pyCreateMethod,
-                        newSelection
-                );
-                completion.locationStrategy = AbstractPyCreateAction.LOCATION_STRATEGY_END;
-                ret.add(completion);
+                for(Boolean isCall:new Boolean[]{true, false}){
+                    //Give the user a chance to create the method we didn't find.
+                    PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
+                    List<String> parametersAfterCall = null;
+                    parametersAfterCall = configCreateAsAndReturnParametersAfterCall(
+                            callPs, isCall, pyCreateMethod,
+                            parametersAfterCall, methodToCreate);
+                    String className = NodeUtils.getRepresentationString(d);
+                    pyCreateMethod.setCreateInClass(className);
+                    
+                    String displayString = StringUtils.format("Create %s %s at %s (%s)", 
+                            methodToCreate, pyCreateMethod.getCreationStr(), className, definition.module.getName());
+                    TddRefactorCompletionInModule completion = new TddRefactorCompletionInModule(
+                            methodToCreate, 
+                            tddQuickFixParticipant.imageMethod, 
+                            displayString, 
+                            null, 
+                            displayString, 
+                            IPyCompletionProposal.PRIORITY_CREATE, 
+                            edit,
+                            definition.module.getFile(),
+                            parametersAfterCall,
+                            pyCreateMethod,
+                            newSelection
+                    );
+                    completion.locationStrategy = AbstractPyCreateAction.LOCATION_STRATEGY_END;
+                    ret.add(completion);
+                }
                 return true;
             }
         }
@@ -300,7 +301,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
     }
 
 
-    private List<String> configCreateAsAndReturnParaetersAfterCall(PySelection callPs, boolean isCall,
+    private List<String> configCreateAsAndReturnParametersAfterCall(PySelection callPs, boolean isCall,
             PyCreateMethodOrField pyCreateMethod, List<String> parametersAfterCall, String methodToCreate) {
         if(isCall){
             pyCreateMethod.setCreateAs(PyCreateMethodOrField.BOUND_METHOD);

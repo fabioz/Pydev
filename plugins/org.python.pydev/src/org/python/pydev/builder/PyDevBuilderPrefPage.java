@@ -139,7 +139,7 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
         
         addField(new ComboFieldEditor(
                 PYC_DELETE_HANDLING, 
-                "How to handle .pyc deletion?", 
+                "How to handle .pyc/$py.class deletion?", 
                 ENTRIES_AND_VALUES,
                 p
         ));
