@@ -134,19 +134,18 @@ public class PythonLabelProvider implements ILabelProvider{
         }
         if(element instanceof IProject){
             IProject project = (IProject) element;
-            Image image = provider.getImage(element);
             if(!project.isOpen()){
-                return image;
+                return null;
             }
             IMarker[] markers;
             try{
                 markers = project.findMarkers(PythonBaseModelProvider.PYDEV_PACKAGE_EXPORER_PROBLEM_MARKER, true, 0);
             }catch(CoreException e1){
                 Log.log(e1);
-                return image;
+                return null;
             }
             if(markers == null || markers.length == 0){
-                return image;
+                return null;
             }
             
             //We have errors: make them explicit.
@@ -155,6 +154,7 @@ public class PythonLabelProvider implements ILabelProvider{
                     //we must recheck again (if 2 got here and 1 got the lock while the other was waiting, when
                     //the other enters the lock, it does not need to recalculated).
                     if(projectWithError == null){
+                        Image image = provider.getImage(element);
                         try {
                             DecorationOverlayIcon decorationOverlayIcon = new DecorationOverlayIcon(
                                     image, 
@@ -171,7 +171,7 @@ public class PythonLabelProvider implements ILabelProvider{
             
             return projectWithError;
         }
-        return provider.getImage(element);
+        return null;
     }
 
     /**
