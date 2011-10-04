@@ -308,7 +308,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                                 isOperator = true;
                             }
                         }
-                        if(localC == '\'' || localC == ')'){
+                        if(localC == '\'' || localC == ')' || localC == ']'){
                             isOperator = true;
                         }
                         
