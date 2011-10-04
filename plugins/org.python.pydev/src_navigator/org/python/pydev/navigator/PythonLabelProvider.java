@@ -134,18 +134,19 @@ public class PythonLabelProvider implements ILabelProvider{
         }
         if(element instanceof IProject){
             IProject project = (IProject) element;
+            Image image = provider.getImage(element);
             if(!project.isOpen()){
-                return null;
+                return image;
             }
             IMarker[] markers;
             try{
                 markers = project.findMarkers(PythonBaseModelProvider.PYDEV_PACKAGE_EXPORER_PROBLEM_MARKER, true, 0);
             }catch(CoreException e1){
                 Log.log(e1);
-                return null;
+                return image;
             }
             if(markers == null || markers.length == 0){
-                return null;
+                return image;
             }
             
             //We have errors: make them explicit.
@@ -171,7 +172,7 @@ public class PythonLabelProvider implements ILabelProvider{
             
             return projectWithError;
         }
-        return null;
+        return provider.getImage(element);
     }
 
     /**
