@@ -154,7 +154,7 @@ public class PythonLabelProvider implements ILabelProvider{
                     //we must recheck again (if 2 got here and 1 got the lock while the other was waiting, when
                     //the other enters the lock, it does not need to recalculated).
                     if(projectWithError == null){
-                        image = provider.getImage(element);
+                        Image image = provider.getImage(element);
                         try {
                             DecorationOverlayIcon decorationOverlayIcon = new DecorationOverlayIcon(
                                     image, 
