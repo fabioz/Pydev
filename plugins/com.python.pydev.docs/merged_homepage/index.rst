@@ -94,6 +94,32 @@ First time users are strongly advised to read the `Getting started guide`_  whic
 
 
 
+Release 2.2.3
+===============
+
+* Performance improvements
+
+* Major: Fixed critical issue when dealing with zip files.
+
+* Added option to create method whenever a field would be created in quick fixes (and vice-versa), to properly deal with functional programming styles.
+
+* Fixed issue where PyDev was changing the image from another plugin in the Project Explorer (i.e.: removing error decorations from JSP).
+
+* Fixed issue: if the django models was opened in PyDev, the 'objects' object was not found in the code analysis.
+
+* Test runner no longer leaves exception visible.
+
+* Fixed issue on Py3: Relative imports are only relative if they have a leading dot (otherwise it always goes to the absolute).
+
+* Default is now set to create project with the projects itself as the source folder.
+
+* Handling deletion of .class files.
+
+* Fixed issue where loading class InterpreterInfo in AdditionalSystemInterpreterInfo.getPersistingFolder ended up raising a BundleStatusException in the initialization. 
+
+* Fixed some code formatting issues
+
+
 Release 2.2.2
 ===============
 

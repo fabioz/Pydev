@@ -16,7 +16,7 @@ d:\bin\Python265\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy
 
 		Update the versions on org.python.pydev.build/build_local.properties
 		Commit everything
-        Merge with master
+        Merge with master_pydev
 
 		Execute the build_cmd.txt in cmd.exe
 		- Note, the Aptana Red Core plugins must be available in the 'vanilla eclipse' so that pydev compiles properly (org.python.pydev.red_core)
