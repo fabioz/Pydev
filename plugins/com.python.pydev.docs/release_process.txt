@@ -78,13 +78,13 @@ d:\bin\Python265\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy
 W:\pydev\plugins\com.python.pydev.docs\merged_homepage\final to 173.45.225.54 (/var/www)
 
 
-		** Tag repository: git tag pydev_2_2_2 -a&git push --tags
+		** Tag repository: git tag pydev_2_2_3 -a&git push --tags
 		
 		** Add news in forum (same as e-mail)
 		
-		** Send e-mail
-		
 		** update version in eclipse marketplace: http://marketplace.eclipse.org/
+		
+		** Send e-mail
 		
 		** Add blog post / twitter
 
