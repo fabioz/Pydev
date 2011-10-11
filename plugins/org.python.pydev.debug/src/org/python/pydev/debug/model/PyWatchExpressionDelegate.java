@@ -120,7 +120,7 @@ public class PyWatchExpressionDelegate
             synchronized(variables) {
                 variables = XMLUtils.XMLToVariables(
                     (AbstractDebugTarget)context.getDebugTarget(), 
-                    ((PyStackFrame)context).getLocalsLocator(), payload);
+                    ((PyStackFrame)context).getExpressionLocator(), payload);
             }
         } catch (CoreException e) {
             synchronized(variables) {
@@ -132,7 +132,7 @@ public class PyWatchExpressionDelegate
         }
         synchronized(variables) {
             if (variables[0] instanceof PyVariableCollection) {
-                ((PyVariableCollection)variables[0]).networkState = PyVariableCollection.NETWORK_REQUEST_ARRIVED;
+                ((PyVariableCollection)variables[0]).isWatchExpression = true;
             }
         }
         
