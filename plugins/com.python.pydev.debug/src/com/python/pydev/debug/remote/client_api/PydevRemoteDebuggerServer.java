@@ -22,7 +22,7 @@ public class PydevRemoteDebuggerServer{
      * This method will start the debug server.
      */
     public static void startServer(){
-        RemoteDebuggerServer.getInstance(); //doing that, it will automatically start it
+        RemoteDebuggerServer.getInstance().startListening(); //doing that, it will automatically start it
         
         PydevdServerLaunchShortcut s = new PydevdServerLaunchShortcut();
         s.launch((FileOrResource[])null, "run");
