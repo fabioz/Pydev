@@ -48,6 +48,7 @@ each command has a format:
     120      CMD_GET_COMPLETIONS      JAVA
     121      CMD_SET_NEXT_STATEMENT
     122      CMD_SET_PY_EXCEPTION
+    124      CMD_SET_PROPERTY_TRACE
     
 500 series diagnostics/ok
     901      VERSION                  either      Version string (1.0)        Currently just used at startup
@@ -106,6 +107,7 @@ CMD_GET_COMPLETIONS = 120
 CMD_SET_NEXT_STATEMENT = 121
 CMD_SET_PY_EXCEPTION = 122
 CMD_GET_FILE_CONTENTS = 123
+CMD_SET_PROPERTY_TRACE = 124
 CMD_VERSION = 501
 CMD_RETURN = 502
 CMD_ERROR = 901 
@@ -133,6 +135,7 @@ ID_TO_MEANING = {
     '120':'CMD_GET_COMPLETIONS',
     '121':'CMD_SET_NEXT_STATEMENT',
     '122':'CMD_SET_PY_EXCEPTION',
+    '124':'CMD_SET_PROPERTY_TRACE',
     '501':'CMD_VERSION',
     '502':'CMD_RETURN',
     '901':'CMD_ERROR',
