@@ -755,7 +755,7 @@ class InternalEvaluateExpression(InternalThreadCommand):
         try:
             result = pydevd_vars.evaluateExpression(self.thread_id, self.frame_id, self.expression, self.doExec)
             xml = "<xml>"
-            xml += pydevd_vars.varToXML(result, "")
+            xml += pydevd_vars.varToXML(result, self.expression)
             xml += "</xml>"
             cmd = dbg.cmdFactory.makeEvaluateExpressionMessage(self.sequence, xml)
             dbg.writer.addCommand(cmd)
