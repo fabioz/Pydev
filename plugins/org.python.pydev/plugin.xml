@@ -240,6 +240,12 @@
             <keywordReference id="org.python.pydev.preferences.keywords"/>
       </page>
       <page
+            name="Overview Ruler Minimap"
+            category="org.python.pydev.prefs.editor"
+            class="org.python.pydev.overview_ruler.MinimapOverviewRulerPreferencesPage"
+            id="org.python.pydev.overview_ruler.minimapOverviewRulerPreferencesPage">
+      </page>
+      <page
             name="Typing"
             category="org.python.pydev.prefs.editor"
             class="org.python.pydev.editor.preferences.PydevTypingPrefs"

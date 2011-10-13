@@ -8,6 +8,7 @@
 	<classpathentry kind="src" path="tests_completions"/>
 	<classpathentry kind="src" path="src_dltk_console"/>
 	<classpathentry kind="src" path="tests_dltk_console"/>
+	<classpathentry kind="src" path="src_overview_ruler"/>
 	<classpathentry exported="true" kind="lib" path="libs/WinRegistry-4.4.jar"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
