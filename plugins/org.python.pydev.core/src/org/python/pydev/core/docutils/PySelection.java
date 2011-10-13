@@ -2109,7 +2109,7 @@ public final class PySelection {
     }
 
 
-	public boolean matchesFunctionLine(String line) {
+	public static boolean matchesFunctionLine(String line) {
 		return FunctionPattern.matcher(line.trim()).matches();
 	}
     
@@ -2123,7 +2123,7 @@ public final class PySelection {
     }
 
 
-    public boolean matchesClassLine(String line) {
+    public static boolean matchesClassLine(String line) {
         return ClassPattern.matcher(line).matches();
     }
     

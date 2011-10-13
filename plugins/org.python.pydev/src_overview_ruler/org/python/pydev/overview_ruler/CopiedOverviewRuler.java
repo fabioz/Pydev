@@ -850,7 +850,7 @@ public class CopiedOverviewRuler implements IOverviewRuler {
     /**
      * Redraws the overview ruler.
      */
-    private void redraw() {
+    protected void redraw() { //fabioz change: made protected
         if (fTextViewer == null || fModel == null)
             return;
 
