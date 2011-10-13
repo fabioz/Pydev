@@ -16,9 +16,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -32,9 +32,9 @@ import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.ImportHandle;
+import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.core.docutils.PyImportsHandling;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
@@ -207,7 +207,25 @@ public class PyOrganizeImports extends PyAction{
         }else{ //we have to group the imports!
             
             //import from to the imports that should be grouped given its 'from'
-            TreeMap<String, List<ImportHandleInfo>> importsWithFrom = new TreeMap<String, List<ImportHandleInfo>>();
+            TreeMap<String, List<ImportHandleInfo>> importsWithFrom = new TreeMap<String, List<ImportHandleInfo>>(new Comparator<String>() {
+
+                public int compare(String o1, String o2) {
+                    Tuple<String, String> splitted1 = StringUtils.splitOnFirst(o1, '.');
+                    Tuple<String, String> splitted2 = StringUtils.splitOnFirst(o2, '.');
+                    
+                    boolean isFuture1 = splitted1.o1.equals("__future__");
+                    boolean isFuture2 = splitted2.o1.equals("__future__");
+                    
+                    if(isFuture1 != isFuture2){
+                        if(isFuture1){
+                            return -1;
+                        }
+                        return 1;
+                    }
+                    
+                    return o1.compareTo(o2);
+                }
+            });
             List<ImportHandleInfo> importsWithoutFrom = new ArrayList<ImportHandleInfo>();
             
             fillImportStructures(list, importsWithFrom, importsWithoutFrom);
