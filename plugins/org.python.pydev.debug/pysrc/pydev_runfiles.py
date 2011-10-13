@@ -547,7 +547,7 @@ class PydevTestRunner(object):
 
             all_tests = self.filter_tests(all_tests)
             
-        test_suite = unittest.TestSuite(all_tests)
+        test_suite = pydev_runfiles_unittest.PydevTestSuite(all_tests)
         import pydev_runfiles_xml_rpc
         pydev_runfiles_xml_rpc.notifyTestsCollected(test_suite.countTestCases())
         
