@@ -10,6 +10,8 @@
  */
 package org.python.pydev.navigator.ui;
 
+import java.io.File;
+import java.net.URI;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,6 +30,7 @@ import org.eclipse.swt.widgets.Item;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IMemento;
+import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.internal.navigator.ContributorTrackingSet;
@@ -42,6 +45,7 @@ import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.navigator.actions.PythonLinkHelper;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.elements.PythonFile;
 import org.python.pydev.ui.IViewCreatedObserver;
@@ -144,6 +148,7 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
 	public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();
 	public final ICallbackWithListeners onControlDisposed = new CallbackWithListeners();
     private PydevCommonViewer viewer;
+    private final PythonLinkHelper pythonLinkHelper = new PythonLinkHelper();
 
 	public PydevPackageExplorer() {
 		super();
@@ -219,6 +224,12 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
         if (input instanceof IFileEditorInput) {
             return ((IFileEditorInput) input).getFile();
         }
+        if(input instanceof IURIEditorInput){
+            IURIEditorInput iuriEditorInput = (IURIEditorInput) input;
+            URI uri = iuriEditorInput.getURI();
+            return new File(uri);
+            
+        }
         return null;
     }
 
@@ -251,6 +262,16 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
     public boolean tryToReveal(Object element) {
         element = getPythonModelElement(element);
         
+        if(element instanceof File){
+            pythonLinkHelper.setCommonViewer(this.getCommonViewer());
+            IStructuredSelection externalFileSelectionInTree = pythonLinkHelper.findExternalFileSelection(
+                    (File) element);
+            if(externalFileSelectionInTree != null && !externalFileSelectionInTree.isEmpty()){
+                if(revealAndVerify(externalFileSelectionInTree)){
+                    return true;
+                }
+            }
+        }
         
         //null is checked in the revealAndVerify function
         if (revealAndVerify(element)) {
@@ -302,41 +323,16 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
         if (element == null){
             return false;
         }
-        
-        selectReveal(new StructuredSelection(element));
+        if(element instanceof ISelection){
+            selectReveal((ISelection) element);
+            
+        }else{
+            selectReveal(new StructuredSelection(element));
+        }
         return !getSite().getSelectionProvider().getSelection().isEmpty();
     }
 
     
-    /**
-     * Overriden to show a selection without expanding PythonFiles (only its parent)
-     */
-    @Override
-    public void selectReveal(ISelection selection) {
-        CommonViewer commonViewer = getCommonViewer();
-        if (commonViewer != null) {
-            if(selection instanceof IStructuredSelection) {
-                //we don't want to expand PythonFiles
-                Object[] newSelection = ((IStructuredSelection)selection).toArray();
-                for (int i = 0; i < newSelection.length; i++) {
-                    Object object = getPythonModelElement(newSelection[i]);
-                    if(object instanceof PythonFile){
-                        PythonFile file = (PythonFile) object;
-                        newSelection[i] = file.getParentElement();
-                    }
-                }
-                
-                //basically the same as in the superclass, but with those changed elements.
-                Object[] expandedElements = commonViewer.getExpandedElements();
-                Object[] newExpandedElements = new Object[newSelection.length + expandedElements.length];
-                System.arraycopy(expandedElements, 0, newExpandedElements, 0, expandedElements.length);
-                System.arraycopy(newSelection, 0, newExpandedElements, expandedElements.length, newSelection.length);
-                commonViewer.setExpandedElements(newExpandedElements);
-            }
-            commonViewer.setSelection(selection, true);
-        }
-    }
-
     public ICallbackWithListeners getOnControlCreated() {
         return onControlCreated;
     }

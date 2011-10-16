@@ -1139,6 +1139,7 @@
         <includes>
             <contentExtension pattern="org.python.pydev.navigator.pythoncontent"/>
             <contentExtension pattern="org.python.pydev.navigator.filters.*"/> 
+            <contentExtension pattern="org.python.pydev.navigator.actions.pythonLinkHelper"/>
         </includes>
     </viewerContentBinding>
 </extension>
