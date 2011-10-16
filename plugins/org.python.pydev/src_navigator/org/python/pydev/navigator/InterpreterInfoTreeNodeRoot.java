@@ -8,6 +8,7 @@ package org.python.pydev.navigator;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -67,6 +68,7 @@ public class InterpreterInfoTreeNodeRoot<X> extends InterpreterInfoTreeNode<X>{
         );
         
         List<String> pythonPath = interpreterInfo.getPythonPath();
+        Collections.sort(pythonPath);
         for (String string : pythonPath) {
             new PythonpathTreeNode(
                     systemLibs, 
@@ -85,6 +87,7 @@ public class InterpreterInfoTreeNodeRoot<X> extends InterpreterInfoTreeNode<X>{
         IPythonPathNature pythonPathNature = nature.getPythonPathNature();
         try {
             List<String> projectExternalSourcePath = pythonPathNature.getProjectExternalSourcePathAsList(true);
+            Collections.sort(projectExternalSourcePath);
             for (String string : projectExternalSourcePath) {
                 File f = new File(string);
                 new PythonpathTreeNode(
