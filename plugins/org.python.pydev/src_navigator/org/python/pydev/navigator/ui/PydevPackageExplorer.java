@@ -47,7 +47,6 @@ import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.navigator.actions.PythonLinkHelper;
 import org.python.pydev.navigator.elements.IWrappedResource;
-import org.python.pydev.navigator.elements.PythonFile;
 import org.python.pydev.ui.IViewCreatedObserver;
 import org.python.pydev.ui.IViewWithControls;
 
