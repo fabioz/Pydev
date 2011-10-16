@@ -1,5 +1,6 @@
 package org.python.pydev.overview_ruler;
 
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -20,6 +21,8 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -233,6 +236,18 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
         super(annotationAccess, 120, sharedColors);
 
     }
+    
+    private WeakReference<StyledText> styledText;
+    
+    private final PaintListener paintListener = new PaintListener() {
+        
+        public void paintControl(PaintEvent e) {
+            if(!fCanvas.isDisposed()){
+                MinimapOverviewRuler.this.redraw();
+            }
+        }
+    };
+
 
     @Override
     protected void doubleBufferPaint(GC dest) {
@@ -268,6 +283,12 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
                 onDispose();
             }
         });
+        
+        StyledText textWidget = textViewer.getTextWidget();
+        if(!textWidget.isDisposed()){
+            styledText = new WeakReference<StyledText>(textWidget);
+            textWidget.addPaintListener(paintListener);
+        }
 
         return ret;
     }
@@ -288,16 +309,31 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
     }
 
     private void onDispose() {
-        if (baseImage != null && !baseImage.isDisposed()) {
-            baseImage.dispose();
-            baseImage = null;
+        try {
+            if (baseImage != null && !baseImage.isDisposed()) {
+                baseImage.dispose();
+                baseImage = null;
+            }
+            if (lastImage != null && !lastImage.isDisposed()) {
+                lastImage.dispose();
+                lastImage = null;
+            }
+            if(styledText != null){
+                StyledText textWidget = styledText.get();
+                if(textWidget != null && !textWidget.isDisposed()){
+                    textWidget.removePaintListener(paintListener);
+                }
+                
+            }
+        } catch (Throwable e) {
+            Log.log(e);
         }
-        if (lastImage != null && !lastImage.isDisposed()) {
-            lastImage.dispose();
-            lastImage = null;
+        try {
+            redrawJob.cancel();
+            redrawJob.disposeStackedParameters();
+        } catch (Throwable e) {
+            Log.log(e);
         }
-        redrawJob.cancel();
-        redrawJob.disposeStackedParameters();
     }
 
     private volatile Image baseImage;
