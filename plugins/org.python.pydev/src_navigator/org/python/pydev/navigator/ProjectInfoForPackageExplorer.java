@@ -88,67 +88,14 @@ public class ProjectInfoForPackageExplorer{
         try{
             ImageCache imageCache = PydevPlugin.getImageCache();
             
-            InterpreterInfoTreeNodeRoot<LabelAndImage> root;
-            root = new InterpreterInfoTreeNodeRoot<LabelAndImage>(
+            //The root will create its children automatically.
+            interpreterInfoTreeRoot =  new InterpreterInfoTreeNodeRoot<LabelAndImage>(
                     interpreterInfo,
                     parent,
                     new LabelAndImage(interpreterInfo.getNameForUI(), imageCache.get(UIConstants.PY_INTERPRETER_ICON))
             );
             
-            String executableOrJar = interpreterInfo.getExecutableOrJar();
-            File file = new File(executableOrJar);
-            if(file.exists()){
-                new PythonpathTreeNode(
-                        root, 
-                        file.getParentFile(),
-                        imageCache.get(UIConstants.PY_INTERPRETER_ICON),
-                        true
-                );
-            }
-            
-            InterpreterInfoTreeNode<LabelAndImage> systemLibs = new InterpreterInfoTreeNode<LabelAndImage>(
-                    root, 
-                    new LabelAndImage("System Libs", imageCache.get(UIConstants.LIB_SYSTEM_ROOT))
-            );
-            
-            List<String> pythonPath = interpreterInfo.getPythonPath();
-            for (String string : pythonPath) {
-                new PythonpathTreeNode(
-                        systemLibs, 
-                        new File(string),
-                        imageCache.get(UIConstants.LIB_SYSTEM),
-                        true
-                );
-            }
-            
-            InterpreterInfoTreeNode<LabelAndImage> predefinedCompletions = new InterpreterInfoTreeNode<LabelAndImage>(
-                    root, 
-                    new LabelAndImage("Predefined Completions", imageCache.get(UIConstants.LIB_SYSTEM_ROOT))
-            );
-            
-            for (String string:interpreterInfo.getPredefinedCompletionsPath()) {
-                new PythonpathTreeNode(
-                        predefinedCompletions,
-                        new File(string),
-                        imageCache.get(UIConstants.LIB_SYSTEM),
-                        true
-                );
-            }
-            
-            InterpreterInfoTreeNode<LabelAndImage> forcedBuiltins = new InterpreterInfoTreeNode<LabelAndImage>(
-                    root, 
-                    new LabelAndImage("Forced builtins", imageCache.get(UIConstants.LIB_SYSTEM_ROOT))
-            );
-            
-            for (Iterator<String> it=interpreterInfo.forcedLibsIterator();it.hasNext();) {
-                String string = it.next();
-                new InterpreterInfoTreeNode<LabelAndImage>(
-                        forcedBuiltins, 
-                        new LabelAndImage(string, imageCache.get(UIConstants.LIB_FORCED_BUILTIN))
-                );
-            }
-            
-            interpreterInfoTreeRoot = root;
+
         }catch(Throwable e){
             Log.log(e);
             return null;
