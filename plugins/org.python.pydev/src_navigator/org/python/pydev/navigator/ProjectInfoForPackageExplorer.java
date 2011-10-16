@@ -6,11 +6,9 @@
  */
 package org.python.pydev.navigator;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -73,10 +71,12 @@ public class ProjectInfoForPackageExplorer{
     }
     
 
-    public synchronized InterpreterInfoTreeNodeRoot<LabelAndImage> getProjectInfoTreeStructure(Object parent) {
+    public synchronized InterpreterInfoTreeNodeRoot<LabelAndImage> getProjectInfoTreeStructure(IProject project, Object parent) {
         if(parent == null || this.interpreterInfo == null){
             return null;
         }
+        
+        PythonNature nature = PythonNature.getPythonNature(project);
         if(interpreterInfoTreeRoot != null){
             if(interpreterInfoTreeRoot.getParent().equals(parent) && 
                     interpreterInfoTreeRoot.interpreterInfo.equals(interpreterInfo)){
@@ -88,9 +88,11 @@ public class ProjectInfoForPackageExplorer{
         try{
             ImageCache imageCache = PydevPlugin.getImageCache();
             
+            
             //The root will create its children automatically.
             interpreterInfoTreeRoot =  new InterpreterInfoTreeNodeRoot<LabelAndImage>(
                     interpreterInfo,
+                    nature,
                     parent,
                     new LabelAndImage(interpreterInfo.getNameForUI(), imageCache.get(UIConstants.PY_INTERPRETER_ICON))
             );

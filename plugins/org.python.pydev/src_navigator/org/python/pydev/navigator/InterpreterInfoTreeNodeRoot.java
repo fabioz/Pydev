@@ -12,8 +12,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.bundle.ImageCache;
+import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.TreeNode;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
@@ -31,11 +36,13 @@ public class InterpreterInfoTreeNodeRoot<X> extends InterpreterInfoTreeNode<X>{
     
     private final InterpreterInfoTreeNode<LabelAndImage> systemLibs;
     
+    private final InterpreterInfoTreeNode<LabelAndImage> externalLibs;
+    
     private final InterpreterInfoTreeNode<LabelAndImage> predefinedCompletions;
     
     private final InterpreterInfoTreeNode<LabelAndImage> forcedBuiltins;
 
-    public InterpreterInfoTreeNodeRoot(IInterpreterInfo interpreterInfo, Object parent, X data) {
+    public InterpreterInfoTreeNodeRoot(IInterpreterInfo interpreterInfo, IPythonNature nature, Object parent, X data) {
         super(parent, data);
         this.interpreterInfo = interpreterInfo;
         Assert.isNotNull(interpreterInfo);
@@ -69,6 +76,29 @@ public class InterpreterInfoTreeNodeRoot<X> extends InterpreterInfoTreeNode<X>{
                     true
             );
         }
+        
+        
+        externalLibs = new InterpreterInfoTreeNode<LabelAndImage>(
+                root, 
+                new LabelAndImage("External Libs", imageCache.get(UIConstants.LIB_SYSTEM_ROOT))
+        );
+        
+        IPythonPathNature pythonPathNature = nature.getPythonPathNature();
+        try {
+            List<String> projectExternalSourcePath = pythonPathNature.getProjectExternalSourcePathAsList(true);
+            for (String string : projectExternalSourcePath) {
+                File f = new File(string);
+                new PythonpathTreeNode(
+                        externalLibs, 
+                        f,
+                        imageCache.get(UIConstants.LIB_SYSTEM),
+                        true
+                );
+            }
+        } catch (CoreException e) {
+            Log.log(e);
+        }
+        
         
         predefinedCompletions = new InterpreterInfoTreeNode<LabelAndImage>(
                 root, 
@@ -105,6 +135,7 @@ public class InterpreterInfoTreeNodeRoot<X> extends InterpreterInfoTreeNode<X>{
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public List<TreeNode> getNodesOrderedForFileSearch(){
         ArrayList<TreeNode> ret = new ArrayList();
+        ret.add(externalLibs);
         ret.add(systemLibs);
         if(belowRootFiles != null){
             ret.add(belowRootFiles);

@@ -143,7 +143,7 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
         ProjectInfoForPackageExplorer projectInfo = getProjectInfo(project);
         if(projectInfo != null){
             currentElements.addAll(projectInfo.configErrors);
-            InterpreterInfoTreeNode<LabelAndImage> projectInfoTreeStructure = projectInfo.getProjectInfoTreeStructure(parent);
+            InterpreterInfoTreeNode<LabelAndImage> projectInfoTreeStructure = projectInfo.getProjectInfoTreeStructure(project, parent);
             if(projectInfoTreeStructure != null){
                 currentElements.add(projectInfoTreeStructure);
             }

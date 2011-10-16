@@ -116,6 +116,10 @@ public class StringSubstitutionTest extends TestCase{
                     public String getProjectExternalSourcePath(boolean replace) throws CoreException{
                         throw new RuntimeException("Not implemented");
                     }
+                    
+                    public List<String> getProjectExternalSourcePathAsList(boolean replaceVariables) throws CoreException {
+                        throw new RuntimeException("Not implemented");
+                    }
                 
                     public String getOnlyProjectPythonPathStr(boolean b) throws CoreException{
                         throw new RuntimeException("Not implemented");
