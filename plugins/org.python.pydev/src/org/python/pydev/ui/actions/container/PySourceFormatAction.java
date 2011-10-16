@@ -28,6 +28,7 @@ import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
@@ -56,36 +57,13 @@ public class PySourceFormatAction extends PyContainerAction{
     protected boolean needsUIThread(){
         return false;
     }
-
-    /**
-     * @return a set with the currently opened files in the PyEdit editors.
-     */
-    private Set<IFile> getOpenFiles(){
-        Set<IFile> ret = new HashSet<IFile>();
-        IWorkbenchPage[] pages = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getPages();
-        for (int i = 0; i < pages.length; i++) {
-            IEditorReference[] editorReferences = pages[i].getEditorReferences();
-
-            for (int j = 0; j < editorReferences.length; j++) {
-                IEditorPart ed = editorReferences[j].getEditor(false);
-                if (ed instanceof PyEdit) {
-                    PyEdit e = (PyEdit) ed;
-                    IFile file = e.getIFile();
-                    if(file != null){
-                        ret.add(file);
-                    }
-                }
-            }
-        }
-        return ret;
-    }
     
     /**
      * Initialize the open files and the formatter to be used.
      */
     @Override
     protected void beforeRun() {
-        openFiles = getOpenFiles();
+        openFiles = PyAction.getOpenFiles();
         PyFormatStd std = new PyFormatStd();
         formatter = std.getFormatter();
     }

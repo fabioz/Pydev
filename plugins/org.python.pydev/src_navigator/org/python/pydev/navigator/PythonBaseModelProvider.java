@@ -467,6 +467,10 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
             
         }else if(element instanceof IWorkingSet){
             parent = ResourcesPlugin.getWorkspace().getRoot();
+            
+        }else if(element instanceof TreeNode){
+            TreeNode treeNode = (TreeNode) element;
+            return treeNode.getParent();
         }
 
         if(parent == null){
