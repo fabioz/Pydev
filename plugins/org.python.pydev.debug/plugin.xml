@@ -880,6 +880,41 @@
         <actionSet id="org.python.pydev.pyPropertyTrace"/>
     </perspectiveExtension>
 </extension>
+<extension
+      point="org.eclipse.ui.editors.annotationTypes">
+   <type
+         name="org.python.pydev.debug.pyStopBreakpointMarkerAnnotation">
+   </type>
+</extension>
+<extension
+      point="org.eclipse.ui.editors.markerAnnotationSpecification">
+   <specification
+         annotationType="org.python.pydev.debug.pyStopBreakpointMarkerAnnotation"
+         label="Breakpoints (PyDev)"
+         icon="icons/breakmarker.gif"
+         textPreferenceKey="pyStopBreakpointMarkerAnnotationIndication"
+         textPreferenceValue="false"
+         textStylePreferenceKey="pyStopBreakpointMarkerAnnotationIndicationTextStyle"
+         textStylePreferenceValue="NONE"
+         highlightPreferenceKey="pyStopBreakpointMarkerAnnotationHighlighting"
+         highlightPreferenceValue="false"
+         contributesToHeader="false"
+         overviewRulerPreferenceKey="pyStopBreakpointMarkerAnnotationIndicationInOverviewRuler"
+         overviewRulerPreferenceValue="false"
+         verticalRulerPreferenceKey="pyStopBreakpointMarkerAnnotationIndicationInVerticalRuler"
+         verticalRulerPreferenceValue="true"
+         colorPreferenceKey="pydevOccurrenceIndicationColor"
+         colorPreferenceValue="255,255,150"
+         presentationLayer="4"
+         showInNextPrevDropdownToolbarActionKey="pyStopBreakpointMarkerAnnotationInNextPrevDropdownToolbarAction"
+         showInNextPrevDropdownToolbarAction="false"
+         isGoToNextNavigationTargetKey="pyStopBreakpointMarkerAnnotationGoToNextNavigationTarget"
+         isGoToNextNavigationTarget="false"
+         isGoToPreviousNavigationTargetKey="pyStopBreakpointMarkerAnnotationGoToPreviousNavigationTarget"
+         isGoToPreviousNavigationTarget="false">
+         >
+   </specification>
+</extension>
 
 </plugin>
 

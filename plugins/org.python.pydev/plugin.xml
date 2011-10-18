@@ -31,6 +31,10 @@
             inputTypes="org.python.pydev.editorinput.PydevFileEditorInput"/>
       <provider
             class="org.python.pydev.editor.PyDocumentProvider"
+            id="org.python.pydev.editorinput.PydevFileEditorInput"
+            inputTypes="org.python.pydev.editorinput.PydevZipFileEditorInput"/>
+      <provider
+            class="org.python.pydev.editor.PyDocumentProvider"
             id="org.python.pydev.editor.PyDocumentProvider"
             extensions=".py,.pyw"/>
    </extension>
@@ -1117,7 +1121,14 @@
    </extension>
 
 
-
+   <extension
+         point="org.eclipse.ui.elementFactories">
+      <factory
+            class="org.python.pydev.editorinput.PyEditorInputFactory"
+            id="org.python.pydev.editorinput.pyEditorInputFactory">
+      </factory>
+   </extension>
+    
 <!-- ********************** PyDev Package Explorer ********************** --> 
 <!-- ********************** PyDev Package Explorer ********************** --> 
 <!-- ********************** PyDev Package Explorer ********************** --> 
