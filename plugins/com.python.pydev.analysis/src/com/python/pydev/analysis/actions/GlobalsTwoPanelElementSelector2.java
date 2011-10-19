@@ -17,6 +17,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -52,6 +53,7 @@ import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.model.ItemPointer;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.IViewCreatedObserver;
 import org.python.pydev.ui.IViewWithControls;
 
@@ -488,7 +490,20 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
             InfoFactory infoFactory = new InfoFactory();
             AdditionalInfoAndIInfo resource = (AdditionalInfoAndIInfo) infoFactory.createElement(element);
             if(resource != null){
-                for(IPythonNature pythonNature:pythonNatures){
+                List<IPythonNature> natures = pythonNatures;
+                if(resource.additionalInfo instanceof AdditionalProjectInterpreterInfo){
+                    AdditionalProjectInterpreterInfo projectInterpreterInfo = (AdditionalProjectInterpreterInfo) resource.additionalInfo;
+                    IProject project = projectInterpreterInfo.getProject();
+                    if(project != null){
+                        natures = new ArrayList<IPythonNature>();
+                        PythonNature n = PythonNature.getPythonNature(project);
+                        if(n != null){
+                            natures.add(n);
+                        }
+                    }
+                }
+                
+                for(IPythonNature pythonNature:natures){
                     //Try to find in one of the natures... if we don't find it, return null, as that means
                     //it doesn't exist anymore!
                     ICodeCompletionASTManager astManager = pythonNature.getAstManager();
