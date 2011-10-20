@@ -58,6 +58,11 @@ public interface IInfo {
     int NAME_WITH_IMPORT_TYPE = 4;
     
     /**
+     * The type when it is a module
+     */
+    int MOD_IMPORT_TYPE = 5;
+    
+    /**
      * @return the type of the information we are holding (given constants)
      */
     int getType();
