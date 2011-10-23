@@ -16,7 +16,6 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Pass;
@@ -86,8 +85,7 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField{
                         break;
                         
                     case CONSTANT:
-                        int nodeBodyIndent = targetClass.getNodeBodyIndent();
-                        String indent = makeIndentStr(nodeBodyIndent);
+                        String indent = targetClass.getNodeBodyIndent();
                         Pass replacePassStatement = getLastPassFromNode(targetClass.getASTNode());
                         
                         String constant = StringUtils.format("\n%s = ${None}${cursor}\n", actTok);
@@ -108,8 +106,7 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField{
                             
                             //Create the field as the last line in the __init__
                             int nodeLastLine = firstInit.getNodeLastLine()-1;
-                            nodeBodyIndent = firstInit.getNodeBodyIndent();
-                            indent = makeIndentStr(nodeBodyIndent);
+                            indent = firstInit.getNodeBodyIndent();
                             String pattern;
                             
                             if(replacePassStatement==null){
@@ -156,12 +153,6 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField{
             params = createParametersList(parametersAfterCall).toString();
         }
         
-        source = StringUtils.format("" +
-                "%sdef %s(%s):\n" +
-                "    %s${cursor}\n" +
-                "\n" +
-                "\n" +
-                "", decorators, actTok, params, body);
 
         
         Tuple<Integer, String> offsetAndIndent;
@@ -173,6 +164,13 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField{
         }else{
             offsetAndIndent = getLocationOffset(locationStrategy, pySelection, moduleAdapter);
         }
+        
+        source = StringUtils.format("" +
+                "%sdef %s(%s):\n" +
+                "%s%s${cursor}\n" +
+                "\n" +
+                "\n" +
+                "", decorators, actTok, params, refactoringInfo.indentPrefs.getIndentationString(), body);
         
         return createProposal(pySelection, source, offsetAndIndent, true, replacePassStatement);
     }
@@ -189,11 +187,6 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField{
              }
         }
         return replacePassStatement;
-    }
-
-
-    private String makeIndentStr(int nodeBodyIndent) {
-        return new FastStringBuffer(nodeBodyIndent).appendN(' ', nodeBodyIndent).toString();
     }
 
 

@@ -18,7 +18,6 @@ import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.ast.visitors.context.LocalAttributeVisitor;
 import org.python.pydev.refactoring.ast.visitors.context.PropertyVisitor;
 import org.python.pydev.refactoring.ast.visitors.context.ScopeAssignedVisitor;
-import org.python.pydev.refactoring.ast.visitors.position.IndentVisitor;
 
 public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements IClassDefAdapter {
 
@@ -122,11 +121,9 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements ICla
     /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#getNodeBodyIndent()
      */
-    public int getNodeBodyIndent() {
+    public String getNodeBodyIndent() {
         ClassDef classNode = getASTNode();
-        IndentVisitor visitor = VisitorFactory.createVisitor(IndentVisitor.class, classNode.body[0]);
-
-        return visitor.getIndent();
+        return getModule().getIndentationFromAst(classNode.body[0]);
     }
 
     /* (non-Javadoc)

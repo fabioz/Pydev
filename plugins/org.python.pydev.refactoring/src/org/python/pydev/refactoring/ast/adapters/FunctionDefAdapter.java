@@ -15,7 +15,6 @@ import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.ast.visitors.context.LocalFunctionDefVisitor;
 import org.python.pydev.refactoring.ast.visitors.context.ScopeAssignedVisitor;
-import org.python.pydev.refactoring.ast.visitors.position.IndentVisitor;
 
 public class FunctionDefAdapter extends AbstractScopeNode<FunctionDef> {
 
@@ -45,11 +44,9 @@ public class FunctionDefAdapter extends AbstractScopeNode<FunctionDef> {
         return arguments.getSignature();
     }
 
-    public int getNodeBodyIndent() {
+    public String getNodeBodyIndent() {
         FunctionDef functionNode = getASTNode();
-        IndentVisitor visitor = VisitorFactory.createVisitor(IndentVisitor.class, functionNode.body[0]);
-
-        return visitor.getIndent();
+        return getModule().getIndentationFromAst(functionNode.body[0]);
     }
 
     public List<FunctionDefAdapter> getFunctions() {

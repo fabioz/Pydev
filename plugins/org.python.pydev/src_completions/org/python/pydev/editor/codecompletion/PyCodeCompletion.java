@@ -11,10 +11,8 @@
  */
 package org.python.pydev.editor.codecompletion;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,7 +53,6 @@ import org.python.pydev.editor.codecompletion.revisited.AbstractASTManager;
 import org.python.pydev.editor.codecompletion.revisited.AssignAnalysis;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -65,7 +62,6 @@ import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.logging.DebugSettings;
-import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;

@@ -64,9 +64,8 @@ public abstract class AbstractTextEdit {
         return getIndentedSource(node, source, getIndent());
     }
 
-    private String getIndentedSource(SimpleNode node, String source, int indent) {
+    private String getIndentedSource(SimpleNode node, String source, String indentation) {
         StringBuilder indented = new StringBuilder();
-        String indentation = getIndentation(indent);
 
         if(nodeHelper.isFunctionDef(node)){
             indented.append(this.adapterPrefs.endLineDelim);
@@ -85,13 +84,6 @@ public abstract class AbstractTextEdit {
         return indented.toString();
     }
 
-    protected String getIndentation(int indent) {
-        StringBuilder buf = new StringBuilder();
-        for(int i = 0; i < indent; i++){
-            buf.append(WHITESPACE);
-        }
-        return buf.toString();
-    }
 
     public abstract int getOffsetStrategy();
 
@@ -99,7 +91,7 @@ public abstract class AbstractTextEdit {
         return moduleAdapter.getOffset(offsetAdapter, getOffsetStrategy(), this.scopeAdapter);
     }
 
-    public int getIndent() {
+    public String getIndent() {
         return offsetAdapter.getNodeBodyIndent();
     }
 
