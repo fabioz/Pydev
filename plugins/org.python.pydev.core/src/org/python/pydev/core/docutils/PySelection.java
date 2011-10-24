@@ -1374,6 +1374,10 @@ public final class PySelection {
             String line = (String) iterator.next();
             String trimmed = line.trim();
             
+            if(trimmed.startsWith("#")){
+                continue;
+            }
+            
             for (String dedent : indentTokens) {
                 if(trimmed.startsWith(dedent)){
                     if(isCompleteToken(trimmed, dedent)){
