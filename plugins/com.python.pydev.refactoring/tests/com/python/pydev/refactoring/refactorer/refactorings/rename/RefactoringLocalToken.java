@@ -46,8 +46,8 @@ public class RefactoringLocalToken extends RefactoringRenameTestBase {
         assertTrue(references.containsKey("reflib.renameclass.__init__") == false);
         
         //the modules with a duplicate definition here should not be in the results.
-        assertTrue(references.containsKey("reflib.renameclass.accessdup") == false);
-        assertTrue(references.containsKey("reflib.renameclass.duprenfoo") == false);
+        assertTrue(references.containsKey("reflib.renameclass.accessdup"));
+        assertTrue(references.containsKey("reflib.renameclass.duprenfoo"));
     }
 
     
