@@ -16,6 +16,7 @@ import java.util.ListResourceBundle;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
@@ -81,6 +82,7 @@ import org.eclipse.ui.texteditor.ITextEditorExtension2;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
+import org.python.pydev.changed_lines.ChangedLinesComputer;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IDefinition;
@@ -907,12 +909,27 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         try {
             if(PyCodeFormatterPage.getFormatBeforeSaving()){
                 IStatusLineManager statusLineManager = this.getStatusLineManager();
+                IDocumentProvider documentProvider = getDocumentProvider();
+                IRegion[] regionsForSave = null;
+                
+                if(PyCodeFormatterPage.getFormatOnlyChangedLines()){
+                    if(documentProvider instanceof PyDocumentProvider){
+                        PyDocumentProvider pyDocumentProvider = (PyDocumentProvider) documentProvider;
+                        ITextFileBuffer fileBuffer = pyDocumentProvider.getFileBuffer(getEditorInput());
+                        if(fileBuffer != null){
+                            regionsForSave = ChangedLinesComputer.calculateChangedLineRegions(fileBuffer, progressMonitor);
+                        }
+                    }else{
+                        Log.log("Was expecting PyDocumentProvider. Found: "+documentProvider);
+                    }
+                }
                 
                 PyFormatStd std = new PyFormatStd();
-                PySelection ps = new PySelection(document, (ITextSelection) this.getSelectionProvider().getSelection());
+                ITextSelection selection = (ITextSelection) this.getSelectionProvider().getSelection();
+                PySelection ps = new PySelection(document, selection);
                 boolean throwSyntaxError = true;
                 try{
-                    std.applyFormatAction(this, ps, true, throwSyntaxError);
+                    std.applyFormatAction(this, ps, regionsForSave, throwSyntaxError);
                     statusLineManager.setErrorMessage(null);
                 }catch(SyntaxErrorException e){
                     statusLineManager.setErrorMessage(e.getMessage());
@@ -1594,6 +1611,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         try{
             this.setPreferenceStore(PydevPrefs.getChainedPrefStore());
             setEditorContextMenuId(PY_EDIT_CONTEXT);
+            setDocumentProvider(PyDocumentProvider.instance);
         }catch (Throwable e) {
             Log.log(e);
         }
