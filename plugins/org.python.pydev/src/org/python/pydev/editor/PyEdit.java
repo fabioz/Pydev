@@ -153,6 +153,7 @@ import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.ColorAndStyleCache;
 import org.python.pydev.ui.UIConstants;
+import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * The TextWidget.
@@ -240,7 +241,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     /**
      * Those are the ones that register at runtime (not through extensions points).
      */
-    private volatile Collection<IPyEditListener> registeredEditListeners = new OrderedSet<IPyEditListener>();
+    private final Collection<IPyEditListener> registeredEditListeners = new OrderedSet<IPyEditListener>();
 
     /**
      * This is the scripting engine that is binded to this interpreter.
@@ -362,7 +363,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      */
     protected boolean initFinished = false;
 
-    private PyEditNotifier notifier;
+    private final PyEditNotifier notifier;
 
     private boolean disposed = false;
 
@@ -385,6 +386,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         synchronized (currentlyOpenedEditorsLock) {
             currentlyOpenedEditors.add(this);
         }
+        notifier = new PyEditNotifier(this);
         try {
             onPyEditCreated.call(this);
         } catch (Throwable e) {
@@ -395,7 +397,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             if (editListeners == null){
                 editListeners = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PYEDIT_LISTENER);
             }
-            notifier = new PyEditNotifier(this);
             notifier.notifyEditorCreated();
             
             
@@ -841,6 +842,14 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 	    }catch (Throwable e) {
 	    	Log.log(e);
 	    }
+	    
+	    try {
+            if(this.isCythonFile()){
+                this.setTitleImage(PydevPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON));
+            }
+        } catch (Throwable e) {
+            Log.log(e);
+        }
     }
     
 
@@ -907,7 +916,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         
         //Before saving, let's see if the auto-code formatting is turned on.
         try {
-            if(PyCodeFormatterPage.getFormatBeforeSaving()){
+            //TODO CYTHON: support code-formatter. 
+            if(PyCodeFormatterPage.getFormatBeforeSaving() && !isCythonFile()){
                 IStatusLineManager statusLineManager = this.getStatusLineManager();
                 IDocumentProvider documentProvider = getDocumentProvider();
                 IRegion[] regionsForSave = null;
@@ -1105,6 +1115,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                     this.resourceManager = null;
                 }
                 
+                synchronized (registeredEditListeners) {
+                    registeredEditListeners.clear();
+                }
+                
             }catch (Throwable e) {
                 Log.log(e);
             }
@@ -1240,6 +1254,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             return fOfflineActionTarget;
         }
 
+        if(ICodeScannerKeywords.class.equals(adapter)){
+            return new PyEditBasedCodeScannerKeywords(this);
+        }
+        
         if (IContentOutlinePage.class.equals(adapter)){
             return new PyOutlinePage(this);
         }else{
@@ -1549,6 +1567,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      * Only used if we weren't able
      */
     public int getGrammarVersion() throws MisconfigurationException{
+        if(isCythonFile()){
+            return IPythonNature.GRAMMAR_PYTHON_VERSION_CYTHON;
+        }
         IPythonNature nature;
         nature = getPythonNature();
         if(nature != null){
@@ -1559,17 +1580,27 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     }
 
     public IGrammarVersionProvider getGrammarVersionProvider(){
-        IPythonNature nature;
-        try{
-            nature = getPythonNature();
-        }catch(MisconfigurationException e){
-            return this;
+        return new IGrammarVersionProvider() {
+            
+            public int getGrammarVersion() throws MisconfigurationException {
+                //Always calculate at the present time based on the editor configuration.
+                return PyEdit.this.getGrammarVersion();
+            }
+        };
+    }
+
+    public boolean isCythonFile() {
+        IFile iFile = getIFile();
+        String fileName = null;
+        if(iFile != null){
+            fileName = iFile.getName();
+        }else{
+            File editorFile = getEditorFile();
+            if(editorFile != null){
+                fileName = editorFile.getName();
+            }
         }
-        if(nature != null){
-            return nature;
-        }
-        Tuple<SystemPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getEditorFile());
-        return infoForFile.o1;
+        return FileTypesPreferencesPage.isCythonFile(fileName);
     }
     
     /**

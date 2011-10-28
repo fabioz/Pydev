@@ -6,6 +6,7 @@
  */
 package org.python.pydev.editor;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -211,7 +212,15 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
 	            reconciler.setRepairer(dr, IPythonPartitions.PY_MULTILINE_STRING2);
 	
 	            // Default content is code, we need syntax highlighting
-	            codeScanner = new PyCodeScanner(colorCache);
+	            ICodeScannerKeywords codeScannerKeywords = null;
+	            if(sourceViewer instanceof IAdaptable){
+                    IAdaptable iAdaptable = (IAdaptable) sourceViewer;
+	                codeScannerKeywords = (ICodeScannerKeywords) iAdaptable.getAdapter(
+	                        ICodeScannerKeywords.class);
+	                codeScanner = new PyCodeScanner(colorCache, codeScannerKeywords);
+	            }else{
+	                codeScanner = new PyCodeScanner(colorCache);
+	            }
 	            dr = new DefaultDamagerRepairer(codeScanner);
 	            reconciler.setDamager(dr, IDocument.DEFAULT_CONTENT_TYPE);
 	            reconciler.setRepairer(dr, IDocument.DEFAULT_CONTENT_TYPE);

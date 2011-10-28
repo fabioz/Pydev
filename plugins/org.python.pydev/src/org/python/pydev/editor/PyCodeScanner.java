@@ -11,6 +11,7 @@
 package org.python.pydev.editor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,8 @@ import org.eclipse.jface.text.rules.RuleBasedScanner;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 import org.eclipse.jface.text.rules.WordRule;
+import org.python.pydev.core.ArrayUtils;
+import org.python.pydev.core.callbacks.ICallbackListener;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.ui.ColorAndStyleCache;
 
@@ -41,7 +44,21 @@ public class PyCodeScanner extends RuleBasedScanner {
         "finally","for","from","global",
         "if","import","in","is","lambda", "nonlocal", "not",
         "or","pass","print","raise","return",
-        "self", "try","while","with","yield","False", "None", "True" };
+        "self", "try","while","with","yield","False", "None", "True",
+    
+    };
+    
+    static public String[] CYTHON_KEYWORDS;
+    
+    static{
+        CYTHON_KEYWORDS = new String[]{
+            "cimport", "cdef", "ctypedef"
+        };
+        CYTHON_KEYWORDS = ArrayUtils.concatArrays(DEFAULT_KEYWORDS, CYTHON_KEYWORDS);
+        // keywords list has to be alphabetized for the keyword detector to work properly
+        Arrays.sort(CYTHON_KEYWORDS);
+    }
+    
 
     private ColorAndStyleCache colorCache;
 
@@ -56,6 +73,8 @@ public class PyCodeScanner extends RuleBasedScanner {
     private IToken operatorsToken;
 
     private String[] keywords;
+
+    private ICodeScannerKeywords codeScannerKeywords;
 
 
     
@@ -172,6 +191,29 @@ public class PyCodeScanner extends RuleBasedScanner {
         setupRules();
     }
     
+
+    /**
+     * @param colorCache2
+     * @param codeScannerKeywords
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public PyCodeScanner(ColorAndStyleCache colorCache, ICodeScannerKeywords codeScannerKeywords) {
+        super();
+        this.colorCache = colorCache;
+        this.codeScannerKeywords = codeScannerKeywords;
+        this.keywords = codeScannerKeywords.getKeywords();
+        
+        setupRules();
+        
+        codeScannerKeywords.getOnChangeCallbackWithListeners().registerListener(new ICallbackListener() {
+
+            public Object call(Object obj) {
+                keywords = PyCodeScanner.this.codeScannerKeywords.getKeywords();
+                setupRules();
+                return null;
+            }
+        });
+    }
 
     public void updateColors() {
         setupRules();

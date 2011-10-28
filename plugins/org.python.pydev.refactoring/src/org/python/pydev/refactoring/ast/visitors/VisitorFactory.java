@@ -37,6 +37,7 @@ import org.python.pydev.refactoring.ast.visitors.context.AbstractContextVisitor;
 import org.python.pydev.refactoring.ast.visitors.selection.SelectionException;
 import org.python.pydev.refactoring.ast.visitors.selection.SelectionExtenderVisitor;
 import org.python.pydev.refactoring.ast.visitors.selection.SelectionValidationVisitor;
+import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 public final class VisitorFactory {
     private VisitorFactory() {
@@ -96,6 +97,14 @@ public final class VisitorFactory {
 
     public static ModuleAdapter createModuleAdapter(PythonModuleManager pythonModuleManager, File file, IDocument doc, IPythonNature nature, IGrammarVersionProvider versionProvider) throws Throwable {
         if(file != null && file.exists()){
+            if(FileTypesPreferencesPage.isCythonFile(file.getName())){
+                versionProvider = new IGrammarVersionProvider() {
+                    
+                    public int getGrammarVersion() throws MisconfigurationException {
+                        return IPythonNature.GRAMMAR_PYTHON_VERSION_CYTHON;
+                    }
+                };
+            }
             if(pythonModuleManager != null){
                 IModulesManager modulesManager = pythonModuleManager.getIModuleManager();
                 if(modulesManager != null){

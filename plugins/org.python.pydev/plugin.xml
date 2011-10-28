@@ -8,7 +8,7 @@
             class="org.python.pydev.editor.PyEdit"
             contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
             default="true"
-            extensions="py,pyw"
+            extensions="py,pyw,pyx"
             icon="icons/python_file.gif"
             id="org.python.pydev.editor.PythonEditor"
             name="Python Editor">
@@ -36,20 +36,20 @@
       <provider
             class="org.python.pydev.editor.PyDocumentProvider"
             id="org.python.pydev.editor.PyDocumentProvider"
-            extensions=".py,.pyw"/>
+            extensions=".py,.pyw,.pyx"/>
    </extension>
    <extension
          id="PyDocumentSetupParticipant"
          point="org.eclipse.core.filebuffers.documentSetup">
       <participant
             class="org.python.pydev.editor.PyDocumentSetupParticipant"
-            extensions="py,pyw"/>
+            extensions="py,pyw,pyx"/>
    </extension>
 
 <!-- Python file content type (so that it is regarded as text) -->
   <extension point="org.eclipse.core.contenttype.contentTypes">
       <content-type
-            file-extensions="py,pyw"
+            file-extensions="py,pyw,pyx"
             name="Python File"
             id="org.python.pydev.pythonfile"
             file-names="SConstruct"
@@ -922,6 +922,7 @@
    <extension point="org.eclipse.team.core.fileTypes">
       <fileTypes type="text" extension="py"/>
       <fileTypes type="text" extension="pyw"/>
+      <fileTypes type="text" extension="pyx"/>
    </extension>
    <extension point="org.eclipse.team.core.ignore">
       <ignore enabled="true" pattern="*.pyc"/>
@@ -1524,7 +1525,7 @@
 <extension
 	point="org.eclipse.compare.contentMergeViewers">
 	<viewer
-		extensions="py,pyw"
+		extensions="py,pyw,pyx"
 		class="org.python.pydev.compare.PyContentViewerCreator"
 		id="org.python.pydev.compare.PyContentViewerCreator">
 	</viewer>
