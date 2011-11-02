@@ -10,12 +10,16 @@
  */
 package org.python.pydev.navigator.ui;
 
+import java.io.File;
+import java.net.URI;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IStorage;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.IElementComparer;
 import org.eclipse.jface.viewers.ISelection;
@@ -28,6 +32,7 @@ import org.eclipse.swt.widgets.Item;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IMemento;
+import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.internal.navigator.ContributorTrackingSet;
@@ -41,9 +46,14 @@ import org.eclipse.ui.part.ShowInContext;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.callbacks.ICallbackWithListeners;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.TreeNode;
+import org.python.pydev.editorinput.PydevZipFileEditorInput;
+import org.python.pydev.editorinput.PydevZipFileStorage;
+import org.python.pydev.navigator.LabelAndImage;
+import org.python.pydev.navigator.actions.PythonLinkHelper;
 import org.python.pydev.navigator.elements.IWrappedResource;
-import org.python.pydev.navigator.elements.PythonFile;
 import org.python.pydev.ui.IViewCreatedObserver;
 import org.python.pydev.ui.IViewWithControls;
 
@@ -144,6 +154,7 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
 	public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();
 	public final ICallbackWithListeners onControlDisposed = new CallbackWithListeners();
     private PydevCommonViewer viewer;
+    private final PythonLinkHelper pythonLinkHelper = new PythonLinkHelper();
 
 	public PydevPackageExplorer() {
 		super();
@@ -219,6 +230,26 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
         if (input instanceof IFileEditorInput) {
             return ((IFileEditorInput) input).getFile();
         }
+        if(input instanceof IURIEditorInput){
+            IURIEditorInput iuriEditorInput = (IURIEditorInput) input;
+            URI uri = iuriEditorInput.getURI();
+            return new File(uri);
+            
+        }
+        if(input instanceof PydevZipFileEditorInput){
+            PydevZipFileEditorInput pydevZipFileEditorInput = (PydevZipFileEditorInput) input;
+            try {
+                IStorage storage = pydevZipFileEditorInput.getStorage();
+                if(storage instanceof PydevZipFileStorage){
+                    PydevZipFileStorage pydevZipFileStorage = (PydevZipFileStorage) storage;
+                    return pydevZipFileStorage;
+                }
+            } catch (CoreException e) {
+                Log.log(e);
+            }
+            
+            
+        }
         return null;
     }
 
@@ -251,6 +282,52 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
     public boolean tryToReveal(Object element) {
         element = getPythonModelElement(element);
         
+        if(element instanceof PydevZipFileStorage){
+            pythonLinkHelper.setCommonViewer(this.getCommonViewer());
+            PydevZipFileStorage pydevZipFileStorage = (PydevZipFileStorage) element;
+            
+            IStructuredSelection externalFileSelectionInTree = pythonLinkHelper.findExternalFileSelection(
+                    (File) pydevZipFileStorage.zipFile);
+            if(externalFileSelectionInTree != null && !externalFileSelectionInTree.isEmpty()){
+                Object firstElement = externalFileSelectionInTree.getFirstElement();
+                if(firstElement instanceof TreeNode){
+                    TreeNode treeNode = (TreeNode) firstElement;
+                    //Ok, got to the zip file, let's try to find the path below it...
+                    String zipPath = pydevZipFileStorage.zipPath;
+                    List<String> split = StringUtils.split(zipPath, '/');
+                    for (String string : split) {
+                        List<TreeNode> children = treeNode.getChildren();
+                        for (TreeNode<LabelAndImage> child : children) {
+                            if(string.equals(child.getData().label)){
+                                treeNode = child;
+                                break; //Goes on to the next substring...
+                            }
+                        }
+                    }
+                    
+                    if(revealAndVerify(new StructuredSelection(treeNode))){
+                        return true;
+                    }
+                }else{
+                    Log.log("Expected a TreeNode. Found: "+firstElement);
+                    //Just go on to show the zip, not the internal contents...
+                    if(revealAndVerify(externalFileSelectionInTree)){
+                        return true;
+                    }
+                }
+            }
+            
+        } else if(element instanceof File) {
+            pythonLinkHelper.setCommonViewer(this.getCommonViewer());
+            
+            IStructuredSelection externalFileSelectionInTree = pythonLinkHelper.findExternalFileSelection(
+                    (File) element);
+            if(externalFileSelectionInTree != null && !externalFileSelectionInTree.isEmpty()){
+                if(revealAndVerify(externalFileSelectionInTree)){
+                    return true;
+                }
+            }
+        }
         
         //null is checked in the revealAndVerify function
         if (revealAndVerify(element)) {
@@ -302,41 +379,16 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
         if (element == null){
             return false;
         }
-        
-        selectReveal(new StructuredSelection(element));
+        if(element instanceof ISelection){
+            selectReveal((ISelection) element);
+            
+        }else{
+            selectReveal(new StructuredSelection(element));
+        }
         return !getSite().getSelectionProvider().getSelection().isEmpty();
     }
 
     
-    /**
-     * Overriden to show a selection without expanding PythonFiles (only its parent)
-     */
-    @Override
-    public void selectReveal(ISelection selection) {
-        CommonViewer commonViewer = getCommonViewer();
-        if (commonViewer != null) {
-            if(selection instanceof IStructuredSelection) {
-                //we don't want to expand PythonFiles
-                Object[] newSelection = ((IStructuredSelection)selection).toArray();
-                for (int i = 0; i < newSelection.length; i++) {
-                    Object object = getPythonModelElement(newSelection[i]);
-                    if(object instanceof PythonFile){
-                        PythonFile file = (PythonFile) object;
-                        newSelection[i] = file.getParentElement();
-                    }
-                }
-                
-                //basically the same as in the superclass, but with those changed elements.
-                Object[] expandedElements = commonViewer.getExpandedElements();
-                Object[] newExpandedElements = new Object[newSelection.length + expandedElements.length];
-                System.arraycopy(expandedElements, 0, newExpandedElements, 0, expandedElements.length);
-                System.arraycopy(newSelection, 0, newExpandedElements, expandedElements.length, newSelection.length);
-                commonViewer.setExpandedElements(newExpandedElements);
-            }
-            commonViewer.setSelection(selection, true);
-        }
-    }
-
     public ICallbackWithListeners getOnControlCreated() {
         return onControlCreated;
     }

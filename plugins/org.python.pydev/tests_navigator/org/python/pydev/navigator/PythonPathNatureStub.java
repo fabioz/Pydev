@@ -40,6 +40,10 @@ public class PythonPathNatureStub implements IPythonPathNature{
         throw new RuntimeException("Not impl");
         
     }
+    
+    public List<String> getProjectExternalSourcePathAsList(boolean replaceVariables) throws CoreException {
+        throw new RuntimeException("Not impl");
+    }
 
     public String getProjectSourcePath(boolean resolve) throws CoreException {
         throw new RuntimeException("Not impl");

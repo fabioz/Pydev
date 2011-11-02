@@ -140,7 +140,7 @@ public class CreateLocalVariableEdit extends AbstractInsertEdit {
     }
 
     @Override
-    protected String getIndentation(int indent) {
+    public String getIndent() {
         PySelection selection = new PySelection(info.getDocument(), calculateLineForLocal(), 0);
         return selection.getIndentationFromLine();
     }

@@ -8,7 +8,7 @@
             class="org.python.pydev.editor.PyEdit"
             contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
             default="true"
-            extensions="py,pyw"
+            extensions="py,pyw,pyx"
             icon="icons/python_file.gif"
             id="org.python.pydev.editor.PythonEditor"
             name="Python Editor">
@@ -31,21 +31,25 @@
             inputTypes="org.python.pydev.editorinput.PydevFileEditorInput"/>
       <provider
             class="org.python.pydev.editor.PyDocumentProvider"
+            id="org.python.pydev.editorinput.PydevFileEditorInput"
+            inputTypes="org.python.pydev.editorinput.PydevZipFileEditorInput"/>
+      <provider
+            class="org.python.pydev.editor.PyDocumentProvider"
             id="org.python.pydev.editor.PyDocumentProvider"
-            extensions=".py,.pyw"/>
+            extensions=".py,.pyw,.pyx"/>
    </extension>
    <extension
          id="PyDocumentSetupParticipant"
          point="org.eclipse.core.filebuffers.documentSetup">
       <participant
             class="org.python.pydev.editor.PyDocumentSetupParticipant"
-            extensions="py,pyw"/>
+            extensions="py,pyw,pyx"/>
    </extension>
 
 <!-- Python file content type (so that it is regarded as text) -->
   <extension point="org.eclipse.core.contenttype.contentTypes">
       <content-type
-            file-extensions="py,pyw"
+            file-extensions="py,pyw,pyx"
             name="Python File"
             id="org.python.pydev.pythonfile"
             file-names="SConstruct"
@@ -238,6 +242,12 @@
             category="org.python.pydev.prefs"
             id="org.python.pydev.prefs.editor">
             <keywordReference id="org.python.pydev.preferences.keywords"/>
+      </page>
+      <page
+            name="Overview Ruler Minimap"
+            category="org.python.pydev.prefs.editor"
+            class="org.python.pydev.overview_ruler.MinimapOverviewRulerPreferencesPage"
+            id="org.python.pydev.overview_ruler.minimapOverviewRulerPreferencesPage">
       </page>
       <page
             name="Typing"
@@ -912,6 +922,7 @@
    <extension point="org.eclipse.team.core.fileTypes">
       <fileTypes type="text" extension="py"/>
       <fileTypes type="text" extension="pyw"/>
+      <fileTypes type="text" extension="pyx"/>
    </extension>
    <extension point="org.eclipse.team.core.ignore">
       <ignore enabled="true" pattern="*.pyc"/>
@@ -1111,7 +1122,14 @@
    </extension>
 
 
-
+   <extension
+         point="org.eclipse.ui.elementFactories">
+      <factory
+            class="org.python.pydev.editorinput.PyEditorInputFactory"
+            id="org.python.pydev.editorinput.pyEditorInputFactory">
+      </factory>
+   </extension>
+    
 <!-- ********************** PyDev Package Explorer ********************** --> 
 <!-- ********************** PyDev Package Explorer ********************** --> 
 <!-- ********************** PyDev Package Explorer ********************** --> 
@@ -1139,6 +1157,7 @@
         <includes>
             <contentExtension pattern="org.python.pydev.navigator.pythoncontent"/>
             <contentExtension pattern="org.python.pydev.navigator.filters.*"/> 
+            <contentExtension pattern="org.python.pydev.navigator.actions.pythonLinkHelper"/>
         </includes>
     </viewerContentBinding>
 </extension>
@@ -1506,7 +1525,7 @@
 <extension
 	point="org.eclipse.compare.contentMergeViewers">
 	<viewer
-		extensions="py,pyw"
+		extensions="py,pyw,pyx"
 		class="org.python.pydev.compare.PyContentViewerCreator"
 		id="org.python.pydev.compare.PyContentViewerCreator">
 	</viewer>

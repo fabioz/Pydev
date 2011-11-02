@@ -196,9 +196,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * @param status object where the status can be set (to add errors/warnings)
      * @param request the request used for this check
      */
-    protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
-        throw new RuntimeException("Not implemented search on local scope:"+this.getClass().getName());
-    }
+    protected abstract void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status);
     
     /**
      * This function should be overridden to find the occurrences in the workspace scope
@@ -207,9 +205,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * @param status object where the status can be set (to add errors/warnings)
      * @param request the request used for this check
      */
-    protected void findReferencesToRenameOnWorkspace(RefactoringRequest request, RefactoringStatus status) {
-        throw new RuntimeException("Not implemented search on workspace:"+this.getClass().getName());
-    }
+    protected abstract void findReferencesToRenameOnWorkspace(RefactoringRequest request, RefactoringStatus status);
     
 
     

@@ -26,8 +26,8 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PydevZipFileStorage implements IStorage{
 
-    private final File zipFile;
-    private final String zipPath;
+    public final File zipFile;
+    public final String zipPath;
 
     public PydevZipFileStorage(File zipFile, String zipPath){
         this.zipFile = zipFile;

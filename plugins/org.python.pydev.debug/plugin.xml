@@ -777,7 +777,7 @@
     </extension> 
  
 
- <!-- Extension points for BreakOnException -->
+<!-- Extension points for BreakOnException -->
 <extension 
 	point="org.eclipse.ui.commands">
 	<command
@@ -829,6 +829,92 @@
     </perspectiveExtension>
 </extension>
 <!-- Extension points for BreakOnException -->
- 	
+
+<extension
+	point="org.eclipse.ui.commands">
+	<command
+        name="Disable Step into properties"
+        description="Disable Step into properties"
+        categoryId="org.python.pydev.ui.category.source"
+        id="org.python.pydev.debug.pyPropertyTrace">
+  </command>
+</extension>
+
+<extension point="org.eclipse.ui.menus">
+<menuContribution
+      locationURI="menu:org.eclipse.ui.run">
+      <command
+           commandId="org.python.pydev.debug.pyPropertyTrace"
+           label="Disable Step into properties"
+           id="org.python.pydev.debug.menu.run.pyPropertyTrace"
+           icon="icons/stepover_co.gif">
+      </command>
+  </menuContribution>
+</extension>
+
+<extension point="org.eclipse.ui.actionSets">
+  <actionSet
+        label="Disable Step into properties"
+        visible="false"
+        id="org.python.pydev.pyPropertyTrace">
+     <action
+           label="Disable Step into properties"
+           class="org.python.pydev.debug.ui.actions.PyPropertyTraceAction"
+           id="org.python.pydev.debug.pyPropertyTrace"
+           icon="icons/stepover_co.gif"
+           definitionId="org.python.pydev.debug.pyPropertyTrace"
+           >
+     </action>
+  </actionSet>
+</extension>
+
+<!-- Extension point for Show In Outline -->
+<extension point="org.eclipse.ui.perspectiveExtensions">
+    <perspectiveExtension targetID="org.eclipse.debug.ui.DebugPerspective">
+        <showInPart id="org.eclipse.ui.views.ContentOutline"/> 
+    </perspectiveExtension>
+</extension>
+
+<extension point="org.eclipse.ui.perspectiveExtensions">
+    <perspectiveExtension targetID="org.eclipse.debug.ui.DebugPerspective">
+        <actionSet id="org.python.pydev.pyPropertyTrace"/>
+    </perspectiveExtension>
+</extension>
+<extension
+      point="org.eclipse.ui.editors.annotationTypes">
+   <type
+         name="org.python.pydev.debug.pyStopBreakpointMarkerAnnotation">
+   </type>
+</extension>
+<extension
+      point="org.eclipse.ui.editors.markerAnnotationSpecification">
+   <specification
+         annotationType="org.python.pydev.debug.pyStopBreakpointMarkerAnnotation"
+         label="Breakpoints (PyDev)"
+         icon="icons/breakmarker.gif"
+         textPreferenceKey="pyStopBreakpointMarkerAnnotationIndication"
+         textPreferenceValue="false"
+         textStylePreferenceKey="pyStopBreakpointMarkerAnnotationIndicationTextStyle"
+         textStylePreferenceValue="NONE"
+         highlightPreferenceKey="pyStopBreakpointMarkerAnnotationHighlighting"
+         highlightPreferenceValue="false"
+         contributesToHeader="false"
+         overviewRulerPreferenceKey="pyStopBreakpointMarkerAnnotationIndicationInOverviewRuler"
+         overviewRulerPreferenceValue="false"
+         verticalRulerPreferenceKey="pyStopBreakpointMarkerAnnotationIndicationInVerticalRuler"
+         verticalRulerPreferenceValue="true"
+         colorPreferenceKey="pydevOccurrenceIndicationColor"
+         colorPreferenceValue="255,255,150"
+         presentationLayer="4"
+         showInNextPrevDropdownToolbarActionKey="pyStopBreakpointMarkerAnnotationInNextPrevDropdownToolbarAction"
+         showInNextPrevDropdownToolbarAction="false"
+         isGoToNextNavigationTargetKey="pyStopBreakpointMarkerAnnotationGoToNextNavigationTarget"
+         isGoToNextNavigationTarget="false"
+         isGoToPreviousNavigationTargetKey="pyStopBreakpointMarkerAnnotationGoToPreviousNavigationTarget"
+         isGoToPreviousNavigationTarget="false">
+         >
+   </specification>
+</extension>
+
 </plugin>
 

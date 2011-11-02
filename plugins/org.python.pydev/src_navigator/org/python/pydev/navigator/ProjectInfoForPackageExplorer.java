@@ -19,10 +19,13 @@ import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.ui.UIConstants;
 
 /**
  * This class contains information about the project (info we need to show in the tree).
@@ -43,6 +46,11 @@ public class ProjectInfoForPackageExplorer{
      * The interpreter info available (may be null)
      */
     public IInterpreterInfo interpreterInfo;
+    
+    /**
+     * Cache for the interpreter info tree root (so, if asked more than once this one will be reused).
+     */
+    private InterpreterInfoTreeNodeRoot<LabelAndImage> interpreterInfoTreeRoot;
 
     /**
      * Creates the info for the passed project.
@@ -55,10 +63,47 @@ public class ProjectInfoForPackageExplorer{
      * Recreates the information about the project.
      */
     public void recreateInfo(IProject project) {
+        interpreterInfoTreeRoot = null;
         configErrors.clear();
         Tuple<List<ProjectConfigError>, IInterpreterInfo> configErrorsAndInfo = getConfigErrorsAndInfo(project);
         configErrors.addAll(configErrorsAndInfo.o1);
         this.interpreterInfo = configErrorsAndInfo.o2;
+    }
+    
+
+    public synchronized InterpreterInfoTreeNodeRoot<LabelAndImage> getProjectInfoTreeStructure(IProject project, Object parent) {
+        if(parent == null || this.interpreterInfo == null){
+            return null;
+        }
+        
+        PythonNature nature = PythonNature.getPythonNature(project);
+        if(interpreterInfoTreeRoot != null){
+            if(interpreterInfoTreeRoot.getParent().equals(parent) && 
+                    interpreterInfoTreeRoot.interpreterInfo.equals(interpreterInfo)){
+                return interpreterInfoTreeRoot;
+            }
+        }
+        interpreterInfoTreeRoot = null;
+        
+        try{
+            ImageCache imageCache = PydevPlugin.getImageCache();
+            
+            
+            //The root will create its children automatically.
+            interpreterInfoTreeRoot =  new InterpreterInfoTreeNodeRoot<LabelAndImage>(
+                    interpreterInfo,
+                    nature,
+                    parent,
+                    new LabelAndImage(interpreterInfo.getNameForUI(), imageCache.get(UIConstants.PY_INTERPRETER_ICON))
+            );
+            
+
+        }catch(Throwable e){
+            Log.log(e);
+            return null;
+        }
+        
+        return interpreterInfoTreeRoot;
     }
     
     /**

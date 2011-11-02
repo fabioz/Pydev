@@ -15,6 +15,7 @@ import org.eclipse.debug.core.model.IProcess;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.debug.model.PyExceptionBreakPointManager;
+import org.python.pydev.debug.model.PyPropertyTraceManager;
 import org.python.pydev.debug.model.PyThread;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 
@@ -41,6 +42,7 @@ public class PyDebugTargetServer extends AbstractDebugTarget {
         
         debugger.addTarget(this);
         PyExceptionBreakPointManager.getInstance().addListener(this);
+        PyPropertyTraceManager.getInstance().addListener(this);
         
         IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
         breakpointManager.addBreakpointListener(this);
@@ -71,6 +73,7 @@ public class PyDebugTargetServer extends AbstractDebugTarget {
             IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
             breakpointManager.removeBreakpointListener(this);
             PyExceptionBreakPointManager.getInstance().removeListener(this);
+            PyPropertyTraceManager.getInstance().removeListener(this);
         }
     }
     

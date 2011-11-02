@@ -1374,6 +1374,10 @@ public final class PySelection {
             String line = (String) iterator.next();
             String trimmed = line.trim();
             
+            if(trimmed.startsWith("#")){
+                continue;
+            }
+            
             for (String dedent : indentTokens) {
                 if(trimmed.startsWith(dedent)){
                     if(isCompleteToken(trimmed, dedent)){
@@ -2109,7 +2113,7 @@ public final class PySelection {
     }
 
 
-	public boolean matchesFunctionLine(String line) {
+	public static boolean matchesFunctionLine(String line) {
 		return FunctionPattern.matcher(line.trim()).matches();
 	}
     
@@ -2123,7 +2127,7 @@ public final class PySelection {
     }
 
 
-    public boolean matchesClassLine(String line) {
+    public static boolean matchesClassLine(String line) {
         return ClassPattern.matcher(line).matches();
     }
     

@@ -40,6 +40,9 @@ public final class FastParser {
 
     //spaces* 'def' space+ identifier
     private static final Pattern FUNCTION_PATTERN = Pattern.compile("(\\s+|^)(def\\s+)(\\w*)");
+    
+    private static final Pattern FUNCTION_PATTERN_CYTHON = Pattern.compile("(\\s+|^)(cdef\\s+)(.*)");
+    private static final Pattern FUNCTION_PATTERN_CYTHON2 = Pattern.compile("(\\s+|^)(ctypedef\\s+)(.*)");
 
     //spaces* 'class' space+ identifier
     private static final Pattern CLASS_PATTERN = Pattern.compile("(\\s+|^)(class\\s+)(\\w*)");
@@ -79,6 +82,8 @@ public final class FastParser {
     private boolean findGloballyAccessiblePath;
 
     private int firstCharCol = -1;
+    
+    private boolean cythonParse = false;
 
     
     /**
@@ -97,6 +102,17 @@ public final class FastParser {
      */
     public static List<stmtType> parseClassesAndFunctions(IDocument doc) {
         return new FastParser(doc, 0, true, false).parse();
+    }
+    
+    
+    /**
+     * @param doc the document to be parsed
+     * @return a list of statements with the classes and functions for this document
+     */
+    public static List<stmtType> parseCython(IDocument doc) {
+        FastParser fastParser = new FastParser(doc, 0, true, false);
+        fastParser.cythonParse = true;
+        return fastParser.parse();
     }
     
 
@@ -133,10 +149,19 @@ public final class FastParser {
         DocIterator it = new PySelection.DocIterator(forward, ps, currentLine, false);
         
         Matcher functionMatcher = FUNCTION_PATTERN.matcher("");
+        List<Matcher> cythonMatchers = null;
+        if(this.cythonParse){
+            cythonMatchers = new ArrayList<Matcher>();
+            cythonMatchers.add(FUNCTION_PATTERN_CYTHON.matcher(""));
+            cythonMatchers.add(FUNCTION_PATTERN_CYTHON2.matcher(""));
+        }
+        
+        
         Matcher classMatcher = CLASS_PATTERN.matcher("");
         
         
         while(it.hasNext()){
+            Matcher functionFound = null;
             String line = it.next();
             
             //we don't care about empty lines
@@ -165,10 +190,21 @@ public final class FastParser {
             
             
             functionMatcher.reset(line);
-            
             if(functionMatcher.find()){
+                functionFound = functionMatcher;
+            }else if(cythonMatchers != null){
+                for (Matcher matcher : cythonMatchers) {
+                    matcher.reset(line);
+                    if(matcher.find()){
+                        functionFound = matcher;
+                        break;
+                    }
+                }
+            }
+            
+            if(functionFound != null){
                 int lastReturnedLine = it.getLastReturnedLine();
-                NameTok nameTok = createNameTok(functionMatcher, lastReturnedLine, NameTok.FunctionName, ps);
+                NameTok nameTok = createNameTok(functionFound, lastReturnedLine, NameTok.FunctionName, ps);
                 
                 if(nameTok != null){
                     FunctionDef functionDef = createFunctionDef(lastReturnedLine, nameTok, PySelection.getFirstCharPosition(line)); 
@@ -257,8 +293,11 @@ public final class FastParser {
      * current position.
      * @return the first class or function definition found on the given document
      */
-    public static stmtType firstClassOrFunction(IDocument doc, int currentLine, boolean forward) {
-        List<stmtType> found = parseClassesAndFunctions(doc, currentLine, forward, true);
+    public static stmtType firstClassOrFunction(IDocument doc, int currentLine, boolean forward, boolean isCython) {
+        boolean stopOnFirstMatch = true;
+        FastParser fastParser = new FastParser(doc, currentLine, forward, stopOnFirstMatch);
+        fastParser.cythonParse = isCython;
+        List<stmtType> found = fastParser.parse(); 
         if(found.size() > 0){
             return found.get(0);
         }

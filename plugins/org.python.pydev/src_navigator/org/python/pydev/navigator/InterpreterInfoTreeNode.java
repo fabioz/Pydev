@@ -11,7 +11,7 @@ import org.python.pydev.navigator.elements.ISortedElement;
 
 public class InterpreterInfoTreeNode<X> extends TreeNode<X> implements ISortedElement{
     
-    public InterpreterInfoTreeNode(InterpreterInfoTreeNode<X> parent, X data) {
+    public InterpreterInfoTreeNode(Object parent, X data) {
         super(parent, data);
     }
 

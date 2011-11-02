@@ -16,7 +16,9 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.SortedMap;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -46,20 +48,26 @@ import org.eclipse.ui.dialogs.FilteredItemsSelectionDialog;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.model.ItemPointer;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.IViewCreatedObserver;
 import org.python.pydev.ui.IViewWithControls;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
 import com.python.pydev.analysis.additionalinfo.InfoFactory;
+import com.python.pydev.analysis.additionalinfo.ModInfo;
 
 /**
  * Let us choose from a list of IInfo (and the related additional info)
@@ -365,6 +373,39 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
                 for(IInfo iInfo:allTokens){
                     contentProvider.add(new AdditionalInfoAndIInfo(additionalInfo, iInfo), itemsFilter);
                 }
+                
+                
+                //Also show to the user the modules available as globals (2.2.3)
+                IModulesManager modulesManager = null;
+                try {
+                    if(additionalInfo instanceof AdditionalProjectInterpreterInfo){
+                        AdditionalProjectInterpreterInfo projectInterpreterInfo = (AdditionalProjectInterpreterInfo) additionalInfo;
+                        IProject project = projectInterpreterInfo.getProject();
+                        PythonNature nature = PythonNature.getPythonNature(project);
+                        if(nature != null){
+                            ICodeCompletionASTManager astManager = nature.getAstManager();
+                            if(astManager != null){
+                                modulesManager = astManager.getModulesManager();
+                            }
+                            
+                        }
+                    }else if(additionalInfo instanceof AdditionalSystemInterpreterInfo){
+                        AdditionalSystemInterpreterInfo systemInterpreterInfo = (AdditionalSystemInterpreterInfo) additionalInfo;
+                        IInterpreterInfo defaultInterpreterInfo = systemInterpreterInfo.getManager().getDefaultInterpreterInfo(false);
+                        modulesManager = defaultInterpreterInfo.getModulesManager();
+                    }
+                } catch (Throwable e) {
+                    Log.log(e);
+                }
+                
+                if(modulesManager != null){
+                    SortedMap<ModulesKey, ModulesKey> allDirectModulesStartingWith = 
+                        modulesManager.getAllDirectModulesStartingWith("");
+                    Collection<ModulesKey> values = allDirectModulesStartingWith.values();
+                    for (ModulesKey modulesKey : values) {
+                        contentProvider.add(new AdditionalInfoAndIInfo(additionalInfo, new ModInfo(modulesKey.name)), itemsFilter);
+                    }
+                }
             }
         }
         
@@ -488,7 +529,20 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
             InfoFactory infoFactory = new InfoFactory();
             AdditionalInfoAndIInfo resource = (AdditionalInfoAndIInfo) infoFactory.createElement(element);
             if(resource != null){
-                for(IPythonNature pythonNature:pythonNatures){
+                List<IPythonNature> natures = pythonNatures;
+                if(resource.additionalInfo instanceof AdditionalProjectInterpreterInfo){
+                    AdditionalProjectInterpreterInfo projectInterpreterInfo = (AdditionalProjectInterpreterInfo) resource.additionalInfo;
+                    IProject project = projectInterpreterInfo.getProject();
+                    if(project != null){
+                        natures = new ArrayList<IPythonNature>();
+                        PythonNature n = PythonNature.getPythonNature(project);
+                        if(n != null){
+                            natures.add(n);
+                        }
+                    }
+                }
+                
+                for(IPythonNature pythonNature:natures){
                     //Try to find in one of the natures... if we don't find it, return null, as that means
                     //it doesn't exist anymore!
                     ICodeCompletionASTManager astManager = pythonNature.getAstManager();

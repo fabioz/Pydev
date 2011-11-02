@@ -10,9 +10,11 @@
 package com.python.pydev.refactoring.wizards;
 
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.KeywordParameterDefinition;
+import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -23,6 +25,7 @@ import com.python.pydev.refactoring.wizards.rename.PyRenameAnyLocalProcess;
 import com.python.pydev.refactoring.wizards.rename.PyRenameAttributeProcess;
 import com.python.pydev.refactoring.wizards.rename.PyRenameClassProcess;
 import com.python.pydev.refactoring.wizards.rename.PyRenameFunctionProcess;
+import com.python.pydev.refactoring.wizards.rename.PyRenameGlobalProcess;
 import com.python.pydev.refactoring.wizards.rename.PyRenameImportProcess;
 import com.python.pydev.refactoring.wizards.rename.PyRenameLocalProcess;
 import com.python.pydev.refactoring.wizards.rename.PyRenameParameterProcess;
@@ -32,9 +35,9 @@ public class RefactorProcessFactory {
 
     /**
      * Decides which process should take care of the request.
-     * @param nature 
+     * @param request 
      */
-    public static IRefactorRenameProcess getProcess(Definition definition, IPythonNature nature) {
+    public static IRefactorRenameProcess getProcess(Definition definition, RefactoringRequest request) {
         if(definition instanceof AssignDefinition){
             AssignDefinition d = (AssignDefinition) definition;
             if(d.target.indexOf('.') != -1){
@@ -51,8 +54,17 @@ public class RefactorProcessFactory {
                     if(definition.scope.isLastClassDef()){
                         return new PyRenameAttributeProcess(definition, d.target);
                     }
+                    FastStack scopeStack = definition.scope.getScopeStack();
+                    if(request.moduleName.equals(definition.module.getName())){
+                        if(!scopeStack.empty()){
+                            Object peek = scopeStack.peek();
+                            if(peek instanceof FunctionDef){
+                                return new PyRenameLocalProcess(definition);
+                            }
+                        }
+                    }
                 }
-                return new PyRenameLocalProcess(definition);
+                return new PyRenameGlobalProcess(definition);
             }
         }
         if(definition.ast != null){
@@ -68,7 +80,7 @@ public class RefactorProcessFactory {
             }
             
             if(definition instanceof KeywordParameterDefinition){
-                return new PyRenameParameterProcess((KeywordParameterDefinition)definition, nature);
+                return new PyRenameParameterProcess((KeywordParameterDefinition)definition, request.nature);
             }
             
             if(definition.ast instanceof FunctionDef){
@@ -90,8 +102,19 @@ public class RefactorProcessFactory {
             if(definition.scope.isLastClassDef()){
                 return new PyRenameAttributeProcess(definition, definition.value);
             }
+            
+            FastStack scopeStack = definition.scope.getScopeStack();
+            if(request.moduleName.equals(definition.module.getName())){
+                if(!scopeStack.empty()){
+                    Object peek = scopeStack.peek();
+                    if(peek instanceof FunctionDef){
+                        return new PyRenameLocalProcess(definition);
+                    }
+                }
+            }
+
         }
-        return new PyRenameLocalProcess(definition);
+        return new PyRenameGlobalProcess(definition);
     }
 
     public static IRefactorRenameProcess getRenameAnyProcess() {

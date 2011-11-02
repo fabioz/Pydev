@@ -70,9 +70,8 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
      * 
      * @see org.python.pydev.refactoring.ast.adapters.IASTNodeAdapte#getNodeBodyIndent()
      */
-    public int getNodeBodyIndent() {
-        IndentVisitor visitor = VisitorFactory.createVisitor(IndentVisitor.class, getASTNode());
-        return visitor.getIndent();
+    public String getNodeBodyIndent() {
+        return module.getIndentationFromAst(getASTNode());
     }
 
     /*

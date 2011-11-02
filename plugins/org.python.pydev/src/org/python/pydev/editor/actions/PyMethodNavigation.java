@@ -47,7 +47,7 @@ public abstract class PyMethodNavigation extends PyAction {
         }else{
             startLine -=1;
         }
-        stmtType goHere = FastParser.firstClassOrFunction(doc, startLine, searchForward);
+        stmtType goHere = FastParser.firstClassOrFunction(doc, startLine, searchForward, pyEdit.isCythonFile());
         
         NameTok node = getNameNode(goHere);
         if(node != null){

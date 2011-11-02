@@ -39,7 +39,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
     /**
      * This is the project that contains this info
      */
-    private IProject project;
+    private final IProject project;
     
     /**
      * holds nature info (project name points to info)
@@ -266,7 +266,20 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
         return ret;
     }
 
+    @Override
+    public int hashCode() {
+        return getProject().hashCode();
+    }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof AdditionalProjectInterpreterInfo)){
+            return false;
+        }
+        AdditionalProjectInterpreterInfo additionalProjectInterpreterInfo = (AdditionalProjectInterpreterInfo) obj;
+        return this.getProject().equals(additionalProjectInterpreterInfo.getProject());
+    }
+    
     
 
 }

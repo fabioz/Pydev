@@ -6,11 +6,14 @@
  */
 package org.python.pydev.editorinput;
 
+import java.io.File;
+
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorRegistry;
+import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.IPersistableElement;
 import org.eclipse.ui.IStorageEditorInput;
@@ -21,7 +24,7 @@ import org.eclipse.ui.PlatformUI;
  * 
  * @author Fabio
  */
-public class PydevZipFileEditorInput implements IStorageEditorInput, IPathEditorInput{
+public class PydevZipFileEditorInput implements IStorageEditorInput, IPathEditorInput, IPersistableElement{
 
     /**
      * This is the file that we're wrapping in this editor input.
@@ -34,6 +37,14 @@ public class PydevZipFileEditorInput implements IStorageEditorInput, IPathEditor
     
     public IStorage getStorage() throws CoreException {
         return this.storage;
+    }
+    
+    public File getFile(){
+        return this.storage.zipFile;
+    }
+    
+    public String getZipPath(){
+        return this.storage.zipPath;
     }
 
     public boolean exists() {
@@ -50,7 +61,7 @@ public class PydevZipFileEditorInput implements IStorageEditorInput, IPathEditor
     }
 
     public IPersistableElement getPersistable() {
-        return null;
+        return this;
     }
     
     public String getContentType() {
@@ -65,11 +76,50 @@ public class PydevZipFileEditorInput implements IStorageEditorInput, IPathEditor
     }
 
     public Object getAdapter(Class adapter) {
+        if(adapter.isInstance(this)){
+            return this;
+        }
         return null;
     }
 
 	public IPath getPath() {
 		return storage.getFullPath();
 	}
+
+    public void saveState(IMemento memento) {
+        PyEditorInputFactory.saveState(memento, this);
+    }
+
+    public String getFactoryId() {
+        return PyEditorInputFactory.FACTORY_ID;
+    }
+
+// It seems that it's not possible to define an URI to an element inside a zip file, 
+// so, we can't properly implement ILocationProvider nor ILocationProviderExtension (meaning that the document connect
+// needs to be overridden to deal with external files).
+//
+//    public IPath getPath(Object element) {
+//        if(element instanceof PydevZipFileEditorInput){
+//            PydevZipFileEditorInput editorInput = (PydevZipFileEditorInput) element;
+//            return editorInput.getPath();
+//            
+//        }
+//        return null;
+//    }
+//
+//    public URI getURI(Object element) {
+//        if(element instanceof PydevZipFileEditorInput){
+//            try {
+//                PydevZipFileEditorInput editorInput = (PydevZipFileEditorInput) element;
+//                URL url = editorInput.storage.zipFile.toURI().toURL();
+//                String externalForm = url.toExternalForm();
+//                return new URL("zip:"+externalForm+"!"+editorInput.storage.zipPath).toURI();
+//            } catch (Exception e) {
+//                Log.log(e);
+//            }
+//            
+//        }
+//        return null;
+//    }
 
 }

@@ -12,13 +12,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.ast.visitors.context.LocalAttributeVisitor;
 import org.python.pydev.refactoring.ast.visitors.context.PropertyVisitor;
 import org.python.pydev.refactoring.ast.visitors.context.ScopeAssignedVisitor;
-import org.python.pydev.refactoring.ast.visitors.position.IndentVisitor;
 
 public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements IClassDefAdapter {
 
@@ -122,11 +123,15 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements ICla
     /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#getNodeBodyIndent()
      */
-    public int getNodeBodyIndent() {
+    public String getNodeBodyIndent() {
         ClassDef classNode = getASTNode();
-        IndentVisitor visitor = VisitorFactory.createVisitor(IndentVisitor.class, classNode.body[0]);
-
-        return visitor.getIndent();
+        if(classNode.body == null || classNode.body.length == 0){
+            PySelection pySelection = new PySelection(getModule().getDoc());
+            String indentationFromLine = PySelection.getIndentationFromLine(pySelection.getLine(classNode.beginLine-1));
+            return indentationFromLine+DefaultIndentPrefs.get().getIndentationString();
+            
+        }
+        return getModule().getIndentationFromAst(classNode.body[0]);
     }
 
     /* (non-Javadoc)

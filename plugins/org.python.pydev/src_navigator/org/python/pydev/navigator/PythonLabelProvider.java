@@ -90,16 +90,22 @@ public class PythonLabelProvider implements ILabelProvider{
             Object actualObject = resource.getActualObject();
             if(actualObject instanceof IFile){
 				IFile iFile = (IFile) actualObject;
-				String name = iFile.getName();
+				final String name = iFile.getName();
 				
 				if(name.indexOf('.') == -1){
 				    try {
 				        if(PythonPathHelper.markAsPyDevFileIfDetected(iFile)){
+				            if(FileTypesPreferencesPage.isCythonFile(name)){
+				                return PydevPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON);
+				            }
 				            return PydevPlugin.getImageCache().get(UIConstants.PY_FILE_ICON);
                         }
                     } catch (Exception e) {
                         //Ignore
                     }
+				}
+				if(FileTypesPreferencesPage.isCythonFile(name)){
+				    return PydevPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON);
 				}
 				
 				if(name.startsWith("__init__.") && PythonPathHelper.isValidSourceFile(name)){
@@ -131,6 +137,14 @@ public class PythonLabelProvider implements ILabelProvider{
             TreeNode<?> treeNode = (TreeNode<?>) element;
             LabelAndImage data = (LabelAndImage) treeNode.getData();
             return data.image;
+        }
+        if(element instanceof IFile){
+            IFile iFile = (IFile) element;
+            String name = iFile.getName();
+            if(FileTypesPreferencesPage.isCythonFile(name)){
+                return PydevPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON); 
+            }
+            
         }
         if(element instanceof IProject){
             IProject project = (IProject) element;

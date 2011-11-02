@@ -49,6 +49,7 @@ public class PydevdServerLaunchShortcut extends AbstractLaunchShortcut {
             workingCopy.setAttribute(Constants.ATTR_RESOURCE_TYPE,1);
             
             workingCopy.setAttribute(IDebugUIConstants.ATTR_LAUNCH_IN_BACKGROUND, false);
+            workingCopy.setAttribute(IDebugUIConstants.ATTR_PRIVATE, true);
             
             ILaunchConfiguration ret = workingCopy.doSave();
             return ret;

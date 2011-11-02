@@ -83,6 +83,7 @@ public interface IPythonPathNature {
      * @throws CoreException
      */
     public String getProjectExternalSourcePath(boolean replaceVariables) throws CoreException;
+    public List<String> getProjectExternalSourcePathAsList(boolean replaceVariables) throws CoreException;
 
     /**
      * @param replaceVariables if true, any variables must be substituted (note that the return should still be always 

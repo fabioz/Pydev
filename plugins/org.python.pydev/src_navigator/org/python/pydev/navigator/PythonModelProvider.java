@@ -128,7 +128,7 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
             
         } else if(parent instanceof IProject){
             IProject project = (IProject) parent;
-            fillChildrenForProject(currentElements, project, project);
+            fillChildrenForProject(currentElements, project, getResourceInPythonModel(project));
         }        
         
         PipelinedShapeModification modification = new PipelinedShapeModification(parent, currentElements);
@@ -143,8 +143,9 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
         ProjectInfoForPackageExplorer projectInfo = getProjectInfo(project);
         if(projectInfo != null){
             currentElements.addAll(projectInfo.configErrors);
-            if(projectInfo.interpreterInfo != null){
-                currentElements.add(ProjectInfoToTreeStructure.createFrom(projectInfo.interpreterInfo, parent));
+            InterpreterInfoTreeNode<LabelAndImage> projectInfoTreeStructure = projectInfo.getProjectInfoTreeStructure(project, parent);
+            if(projectInfoTreeStructure != null){
+                currentElements.add(projectInfoTreeStructure);
             }
         }
     }

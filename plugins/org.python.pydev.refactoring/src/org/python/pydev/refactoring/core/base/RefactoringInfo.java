@@ -22,11 +22,14 @@ import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.python.pydev.core.IGrammarVersionProvider;
+import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
+import org.python.pydev.editor.autoedit.TestIndentPrefs;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
@@ -46,6 +49,7 @@ public class RefactoringInfo {
     private ModuleAdapter moduleAdapter;
     private final IPythonNature nature;
     private final IGrammarVersionProvider versionProvider;
+    public final IIndentPrefs indentPrefs;
     private PythonModuleManager moduleManager;
     private AbstractScopeNode<?> scopeAdapter;
     private IProject project;
@@ -56,17 +60,25 @@ public class RefactoringInfo {
         this(edit, (ITextSelection) edit.getSelectionProvider().getSelection());
     };
 
+    
+
+    /**
+     * Constructor to be used only in tests!
+     */
     public RefactoringInfo(IDocument document, ITextSelection selection, IGrammarVersionProvider versionProvider) {
         this.sourceFile = null;
         this.nature = null;
         this.versionProvider = versionProvider;
         this.doc = document;
+        
+        this.indentPrefs = PydevPlugin.getDefault() == null?new TestIndentPrefs(document.get().indexOf('\t') < 0, 4):DefaultIndentPrefs.get();
 
         initInfo(selection);
     }
 
     public RefactoringInfo(PyEdit edit, ITextSelection selection) throws MisconfigurationException {
         IEditorInput input = edit.getEditorInput();
+        this.indentPrefs = edit.getIndentPrefs();
         IPythonNature localNature = edit.getPythonNature();
         
         if(input instanceof IFileEditorInput){

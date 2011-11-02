@@ -38,7 +38,7 @@ public class FileTypesPreferencesPage extends FieldEditorPreferencePage implemen
     }
 
     public static final String VALID_SOURCE_FILES = "VALID_SOURCE_FILES";
-    public final static String DEFAULT_VALID_SOURCE_FILES = "py, pyw";
+    public final static String DEFAULT_VALID_SOURCE_FILES = "py, pyw, pyx";
     
     public static final String FIRST_CHOICE_PYTHON_SOURCE_FILE = "FIRST_CHOICE_PYTHON_SOURCE_FILE";
     public final static String DEFAULT_FIRST_CHOICE_PYTHON_SOURCE_FILE = "py";
@@ -235,7 +235,7 @@ public class FileTypesPreferencesPage extends FieldEditorPreferencePage implemen
         try {
             return PreferencesCacheHelper.get().getCacheWildcardValidSourceFiles();
         } catch (NullPointerException e) {
-            return new String[]{"*.py", "*.pyw"}; // in tests
+            return new String[]{"*.py", "*.pyw", "*.pyx"}; // in tests
         }
     }
 
@@ -244,7 +244,7 @@ public class FileTypesPreferencesPage extends FieldEditorPreferencePage implemen
         try {
             return PreferencesCacheHelper.get().getCacheDottedValidSourceFiles();
         } catch (NullPointerException e) {
-            return new String[]{".py", ".pyw"}; // in tests
+            return new String[]{".py", ".pyw", ".pyx"}; // in tests
         }
     }
 
@@ -253,7 +253,7 @@ public class FileTypesPreferencesPage extends FieldEditorPreferencePage implemen
         try {
             return PreferencesCacheHelper.get().getCacheValidSourceFiles();
         } catch (NullPointerException e) {
-            return new String[]{"py", "pyw"}; // in tests
+            return new String[]{"py", "pyw", "pyx"}; // in tests
         }
     }
     
@@ -261,8 +261,13 @@ public class FileTypesPreferencesPage extends FieldEditorPreferencePage implemen
         try {
             return PreferencesCacheHelper.get().getCacheValidInitFiles();
         } catch (NullPointerException e) {
-            return new String[]{"__init__.py", "__init__.pyw"}; // in tests
+            return new String[]{"__init__.py", "__init__.pyw", "__init__.pyx"}; // in tests
         }
+    }
+
+
+    public static boolean isCythonFile(String name) {
+        return name != null && name.endsWith(".pyx");
     }
 
     

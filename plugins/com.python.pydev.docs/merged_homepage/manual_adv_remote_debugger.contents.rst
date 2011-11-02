@@ -23,6 +23,10 @@ below. After doing that, it will show a message in the console
 (indicated by '2') to confirm that the server is listening for incoming
 connections.
 
+**Note**: Those buttons should be present at the debug perspective and they can be enabled in other perspectives through
+Window > Customize perspective > Command groups availability > PyDev debug.
+
+
 .. raw:: html
 
     <center>

@@ -32,6 +32,7 @@ public class RenameFunctionRefactoringTest extends RefactoringRenameTestBase {
             DEBUG_REFERENCES = true;
             RenameFunctionRefactoringTest test = new RenameFunctionRefactoringTest();
             test.setUp();
+            test.testRename1();
             test.tearDown();
 
             junit.textui.TestRunner.run(RenameFunctionRefactoringTest.class);
@@ -55,8 +56,10 @@ public class RenameFunctionRefactoringTest extends RefactoringRenameTestBase {
         assertFalse(references.containsKey("reflib.renamefunction.__init__"));
         
         //the modules with a duplicate definition here should not be in the results.
-        assertFalse(references.containsKey("reflib.renamefunction.accessdup"));
-        assertFalse(references.containsKey("reflib.renamefunction.duprenfoo"));
+        //CHANGE: Now, access even in those places (duck typing in python can
+        //make it valid).
+        assertTrue(references.containsKey("reflib.renamefunction.accessdup"));
+        assertTrue(references.containsKey("reflib.renamefunction.duprenfoo"));
         
         assertEquals(4, references.get(CURRENT_MODULE_IN_REFERENCES).size());
         assertContains(1, 5, references.get(CURRENT_MODULE_IN_REFERENCES));
@@ -70,7 +73,7 @@ public class RenameFunctionRefactoringTest extends RefactoringRenameTestBase {
         assertContains(5, 17, references.get("reflib.renamefunction.accessfoo"));
         assertContains(7, 5, references.get("reflib.renamefunction.accessfoo"));
         
-        assertEquals(2, references.size());
+        assertEquals(8, references.size());
     }
 
     
