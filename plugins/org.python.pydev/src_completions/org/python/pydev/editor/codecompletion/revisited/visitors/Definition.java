@@ -130,6 +130,12 @@ public class Definition implements IDefinition {
         buffer.append(line);
         buffer.append(" col=");
         buffer.append(col);
+        buffer.append(" module=");
+        if(module != null){
+            buffer.append(module.getName());
+        }else{
+            buffer.append("null");
+        }
         return buffer.toString();
     }
 

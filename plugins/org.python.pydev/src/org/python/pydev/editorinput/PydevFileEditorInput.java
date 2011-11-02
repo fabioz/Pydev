@@ -20,10 +20,12 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.IPersistableElement;
 import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.editors.text.ILocationProvider;
+import org.eclipse.ui.editors.text.ILocationProviderExtension;
 import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.python.pydev.core.REF;
@@ -36,7 +38,7 @@ import org.python.pydev.plugin.PydevPlugin;
  * 
  * @author Fabio
  */
-public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider {
+public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider, ILocationProviderExtension, IURIEditorInput, IPersistableElement {
 
     /**
      * The workbench adapter which simply provides the label.
@@ -90,15 +92,30 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
      * (i.e.: FileEditorInput, FileStoreEditorInput, PydevFileEditorInput, ...)
      */
     public static IEditorInput create(File file, boolean forceExternalFile){
+        IPath path = Path.fromOSString(REF.getFileAbsolutePath(file));
+        
     	if(!forceExternalFile){
-    		//May call again to this method (but with forceExternalFile = true)
-	        IEditorInput input = new PySourceLocatorBase().createEditorInput(
-	                Path.fromOSString(REF.getFileAbsolutePath(file)), false, null);
+    	    //May call again to this method (but with forceExternalFile = true)
+            IEditorInput input = new PySourceLocatorBase().createEditorInput(
+	                path, false, null);
 	        if(input != null){
 	        	return input;
 	        }
     	}
         
+        IPath zipPath = new Path("");
+        while(path.segmentCount() > 0){
+            if(path.toFile().exists()){
+                break;
+            }
+            zipPath = new Path(path.lastSegment()).append(zipPath);
+            path = path.uptoSegment(path.segmentCount()-1);
+        }
+        
+        if(zipPath.segmentCount() > 0 && path.segmentCount() > 0){
+            return new PydevZipFileEditorInput(new PydevZipFileStorage(path.toFile(), zipPath.toPortableString()));
+        }
+    	
 		try {
 			URI uri = file.toURI();
 			return new FileStoreEditorInput(EFS.getStore(uri));
@@ -133,7 +150,7 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
      * @see org.eclipse.ui.IEditorInput#getPersistable()
      */
     public IPersistableElement getPersistable() {
-        return null;
+        return this;
     }
 
     /*
@@ -147,10 +164,12 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
      * @see org.eclipse.core.runtime.IAdaptable#getAdapter(java.lang.Class)
      */
     public Object getAdapter(Class adapter) {
-        if (ILocationProvider.class.equals(adapter))
+        if(adapter.isInstance(this)){
             return this;
-        if (IWorkbenchAdapter.class.equals(adapter))
+        }
+        if (IWorkbenchAdapter.class.equals(adapter)){
             return fWorkbenchAdapter;
+        }
         return Platform.getAdapterManager().getAdapter(this, adapter);
     }
 
@@ -236,6 +255,26 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
     
     public File getFile() {
         return fFile;
+    }
+
+    public URI getURI(Object element) {
+        if(element instanceof IURIEditorInput){
+            IURIEditorInput editorInput = (IURIEditorInput) element;
+            return editorInput.getURI();
+        }
+        return null;
+    }
+
+    public URI getURI() {
+        return fFile.toURI();
+    }
+
+    public void saveState(IMemento memento) {
+        PyEditorInputFactory.saveState(memento, this);
+    }
+
+    public String getFactoryId() {
+        return PyEditorInputFactory.FACTORY_ID;
     }
 }
 

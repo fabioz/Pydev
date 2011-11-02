@@ -50,6 +50,7 @@ import org.python.pydev.core.parser.IParserObserver;
 import org.python.pydev.core.parser.IParserObserver2;
 import org.python.pydev.core.parser.IParserObserver3;
 import org.python.pydev.core.parser.IPyParser;
+import org.python.pydev.parser.fastparser.FastParser;
 import org.python.pydev.parser.grammar24.PythonGrammar24;
 import org.python.pydev.parser.grammar25.PythonGrammar25;
 import org.python.pydev.parser.grammar26.PythonGrammar26;
@@ -155,6 +156,9 @@ public class PyParser implements IPyParser {
         }else if(grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0){
         	return "grammar: Python 3.0";
         	
+        }else if(grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_CYTHON){
+            return "grammar: Cython";
+            
         }else{
             return "grammar: unrecognized: "+grammarVersion;
         }
@@ -568,6 +572,11 @@ public class PyParser implements IPyParser {
      *         if we are able to recover from a reparse, we have both, the root and the error.
      */
     public static Tuple<SimpleNode, Throwable> reparseDocument(ParserInfo info) {
+        if(info.grammarVersion == IPythonNature.GRAMMAR_PYTHON_VERSION_CYTHON){
+            IDocument doc = info.document;
+            return createCythonAst(doc);
+        }
+        
         // create a stream with document's data
         String startDoc = info.document.get();
         
@@ -625,6 +634,7 @@ public class PyParser implements IPyParser {
                 case IPythonNature.GRAMMAR_PYTHON_VERSION_3_0:
                     grammar = new PythonGrammar30(in);
                     break;
+                //case CYTHON: already treated in the beggining of this method.
                 default:
                     throw new RuntimeException("The grammar specified for parsing is not valid: "+info.grammarVersion);
             }
@@ -692,6 +702,12 @@ public class PyParser implements IPyParser {
         }
 //        System.out.println("Output grammar: "+returnVar);
         return returnVar;
+    }
+
+    public static Tuple<SimpleNode, Throwable> createCythonAst(IDocument doc) {
+        List<stmtType> classesAndFunctions = FastParser.parseCython(doc);
+        return new Tuple<SimpleNode, Throwable>(
+                new Module(classesAndFunctions.toArray(new stmtType[classesAndFunctions.size()])), null);
     }
 
     

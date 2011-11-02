@@ -51,6 +51,7 @@ import org.python.pydev.debug.model.remote.RemoveBreakpointCommand;
 import org.python.pydev.debug.model.remote.RunCommand;
 import org.python.pydev.debug.model.remote.SendPyExceptionCommand;
 import org.python.pydev.debug.model.remote.SetBreakpointCommand;
+import org.python.pydev.debug.model.remote.SetPropertyTraceCommand;
 import org.python.pydev.debug.model.remote.ThreadListCommand;
 import org.python.pydev.debug.model.remote.VersionCommand;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
@@ -61,7 +62,7 @@ import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
  * @author Fabio
  */
 @SuppressWarnings("restriction")
-public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmission implements IDebugTarget, ILaunchListener, IExceptionsBreakpointListener {
+public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmission implements IDebugTarget, ILaunchListener, IExceptionsBreakpointListener, IPropertyTraceListener {
     
     private static final boolean DEBUG = false;
 
@@ -246,6 +247,16 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         this.postCommand(sendCmd);
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.python.pydev.debug.model.IPropertyTraceListener#onSetPropertyTraceConfiguration()
+     */
+    public void onSetPropertyTraceConfiguration() {
+        // Sending whether to trace python property
+        SetPropertyTraceCommand sendCmd = new SetPropertyTraceCommand(this);
+        this.postCommand(sendCmd);
+    }
+
     /**
      * @return true if the given breakpoint is supported by this target
      */
@@ -590,8 +601,9 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         // now, register all the breakpoints in all projects
         addBreakpointsFor(ResourcesPlugin.getWorkspace().getRoot());
         
-        // Sending python exceptions before sending run command 
+        // Sending python exceptions and property trace state before sending run command
         this.onSetConfiguredExceptions();
+        this.onSetPropertyTraceConfiguration();
 
         // Send the run command, and we are off
         RunCommand run = new RunCommand(this);

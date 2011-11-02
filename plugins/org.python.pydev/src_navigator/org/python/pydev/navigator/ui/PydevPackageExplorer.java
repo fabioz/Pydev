@@ -18,6 +18,8 @@ import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IStorage;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.IElementComparer;
 import org.eclipse.jface.viewers.ISelection;
@@ -44,10 +46,14 @@ import org.eclipse.ui.part.ShowInContext;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.callbacks.ICallbackWithListeners;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.TreeNode;
+import org.python.pydev.editorinput.PydevZipFileEditorInput;
+import org.python.pydev.editorinput.PydevZipFileStorage;
+import org.python.pydev.navigator.LabelAndImage;
 import org.python.pydev.navigator.actions.PythonLinkHelper;
 import org.python.pydev.navigator.elements.IWrappedResource;
-import org.python.pydev.navigator.elements.PythonFile;
 import org.python.pydev.ui.IViewCreatedObserver;
 import org.python.pydev.ui.IViewWithControls;
 
@@ -230,6 +236,20 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
             return new File(uri);
             
         }
+        if(input instanceof PydevZipFileEditorInput){
+            PydevZipFileEditorInput pydevZipFileEditorInput = (PydevZipFileEditorInput) input;
+            try {
+                IStorage storage = pydevZipFileEditorInput.getStorage();
+                if(storage instanceof PydevZipFileStorage){
+                    PydevZipFileStorage pydevZipFileStorage = (PydevZipFileStorage) storage;
+                    return pydevZipFileStorage;
+                }
+            } catch (CoreException e) {
+                Log.log(e);
+            }
+            
+            
+        }
         return null;
     }
 
@@ -262,8 +282,44 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
     public boolean tryToReveal(Object element) {
         element = getPythonModelElement(element);
         
-        if(element instanceof File){
+        if(element instanceof PydevZipFileStorage){
             pythonLinkHelper.setCommonViewer(this.getCommonViewer());
+            PydevZipFileStorage pydevZipFileStorage = (PydevZipFileStorage) element;
+            
+            IStructuredSelection externalFileSelectionInTree = pythonLinkHelper.findExternalFileSelection(
+                    (File) pydevZipFileStorage.zipFile);
+            if(externalFileSelectionInTree != null && !externalFileSelectionInTree.isEmpty()){
+                Object firstElement = externalFileSelectionInTree.getFirstElement();
+                if(firstElement instanceof TreeNode){
+                    TreeNode treeNode = (TreeNode) firstElement;
+                    //Ok, got to the zip file, let's try to find the path below it...
+                    String zipPath = pydevZipFileStorage.zipPath;
+                    List<String> split = StringUtils.split(zipPath, '/');
+                    for (String string : split) {
+                        List<TreeNode> children = treeNode.getChildren();
+                        for (TreeNode<LabelAndImage> child : children) {
+                            if(string.equals(child.getData().label)){
+                                treeNode = child;
+                                break; //Goes on to the next substring...
+                            }
+                        }
+                    }
+                    
+                    if(revealAndVerify(new StructuredSelection(treeNode))){
+                        return true;
+                    }
+                }else{
+                    Log.log("Expected a TreeNode. Found: "+firstElement);
+                    //Just go on to show the zip, not the internal contents...
+                    if(revealAndVerify(externalFileSelectionInTree)){
+                        return true;
+                    }
+                }
+            }
+            
+        } else if(element instanceof File) {
+            pythonLinkHelper.setCommonViewer(this.getCommonViewer());
+            
             IStructuredSelection externalFileSelectionInTree = pythonLinkHelper.findExternalFileSelection(
                     (File) element);
             if(externalFileSelectionInTree != null && !externalFileSelectionInTree.isEmpty()){

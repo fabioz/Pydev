@@ -21,11 +21,28 @@ public class ArrayUtils {
     public static <T> List<T> filter(T[] listToFilter, ICallback<Boolean, T> callbackThatFilters) {
         ArrayList<T> lst = new ArrayList<T>();
         for (T marker : listToFilter) {
-            if(callbackThatFilters.call(marker)){
+            if (callbackThatFilters.call(marker)) {
                 lst.add(marker);
             }
         }
         return lst;
+    }
+
+    public static <T> T[] concatArrays(T[]... arrays) {
+        
+        int count = 0;
+        for (T[] array : arrays) {
+            count += array.length;
+        }
+
+        final T[] mergedArray = (T[]) java.lang.reflect.Array.newInstance(arrays[0].getClass().getComponentType(), count);
+
+        int start = 0;
+        for (T[] array : arrays) {
+            System.arraycopy(array, 0, mergedArray, start, array.length);
+            start += array.length;
+        }
+        return (T[]) mergedArray;
     }
 
 }

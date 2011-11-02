@@ -8,9 +8,12 @@ package com.python.pydev.analysis.actions;
 
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 
 import com.python.pydev.analysis.AnalysisPlugin;
+import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
+import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
 
 /**
@@ -19,31 +22,59 @@ import com.python.pydev.analysis.additionalinfo.IInfo;
  * @author Fabio
  */
 public final class ModuleIInfoLabelProvider extends LabelProvider {
-    
+
     @Override
     public String getText(Object element) {
-        if(element instanceof AdditionalInfoAndIInfo){
-            element = ((AdditionalInfoAndIInfo)element).info;
+        if (element instanceof AdditionalInfoAndIInfo) {
+            AdditionalInfoAndIInfo additional = (AdditionalInfoAndIInfo) element;
+            element = additional.info;
+            String suffix = null;
+            try {
+                if (additional.additionalInfo instanceof AdditionalProjectInterpreterInfo) {
+                    AdditionalProjectInterpreterInfo projectInterpreterInfo = (AdditionalProjectInterpreterInfo) additional.additionalInfo;
+                    suffix = projectInterpreterInfo.getProject().getName();
+
+                } else if (additional.additionalInfo instanceof AdditionalSystemInterpreterInfo) {
+                    AdditionalSystemInterpreterInfo systemInterpreterInfo = (AdditionalSystemInterpreterInfo) additional.additionalInfo;
+                    suffix = systemInterpreterInfo.getManager().getDefaultInterpreterInfo(false).getName();
+
+                }
+            } catch (Throwable e) {
+                Log.log(e);
+            }
+
+            String iInfoText = getIInfoText((IInfo) element, suffix);
+            return iInfoText;
         }
-        if(element instanceof String){
+        if (element instanceof String) {
             return (String) element;
         }
-        IInfo info = (IInfo) element;
+        return getIInfoText((IInfo) element, null);
+    }
+
+    private String getIInfoText(IInfo info, String suffix) {
         String path = info.getPath();
         int pathLen;
-        if(path != null && (pathLen = path.length()) > 0){
-            FastStringBuffer buf = new FastStringBuffer(info.getDeclaringModuleName(), pathLen+5);
-            buf.append("/");
-            buf.append(path);
+        if (path != null && (pathLen = path.length()) > 0) {
+            int suffixLen = suffix != null ? suffix.length() + 5 : 0;
+            FastStringBuffer buf = new FastStringBuffer(info.getDeclaringModuleName(), pathLen + 5 + suffixLen).append("/").append(path);
+            if (suffix != null) {
+                return buf.append("   (").append(suffix).append(")").toString();
+            }
             return buf.toString();
         }
-        return info.getDeclaringModuleName();
+
+        String declaringModuleName = info.getDeclaringModuleName();
+        if (suffix != null) {
+            return new FastStringBuffer(declaringModuleName, suffix.length() + 6).append("   (").append(suffix).append(")").toString();
+        }
+        return declaringModuleName;
     }
 
     @Override
     public Image getImage(Object element) {
         IInfo info = NameIInfoLabelProvider.getInfo(element);
-        if(info == null){
+        if (info == null) {
             return null;
         }
         return AnalysisPlugin.getImageForTypeInfo(info);

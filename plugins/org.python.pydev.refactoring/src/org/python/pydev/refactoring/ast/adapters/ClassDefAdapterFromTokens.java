@@ -102,7 +102,7 @@ public class ClassDefAdapterFromTokens implements IClassDefAdapter {
         return cache;
     }
 
-    public int getNodeBodyIndent() {
+    public String getNodeBodyIndent() {
         throw new RuntimeException("Not implemented");
     }
 

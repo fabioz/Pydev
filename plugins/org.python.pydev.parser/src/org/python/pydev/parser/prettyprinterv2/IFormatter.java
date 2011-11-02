@@ -10,6 +10,7 @@
 package org.python.pydev.parser.prettyprinterv2;
 
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.docutils.PySelection;
@@ -26,8 +27,8 @@ public interface IFormatter {
     void formatAll(IDocument doc, IPyEdit edit, boolean isOpenedFile, boolean throwSyntaxError) throws SyntaxErrorException;
 
     /**
-     * Formats the selection.
+     * Formats the passed regions.
      */
-    void formatSelection(IDocument doc, int startLine, int endLineIndex, IPyEdit edit, PySelection ps);
+    void formatSelection(IDocument doc, IRegion[] regionsToFormat, IPyEdit edit, PySelection ps);
 
 }

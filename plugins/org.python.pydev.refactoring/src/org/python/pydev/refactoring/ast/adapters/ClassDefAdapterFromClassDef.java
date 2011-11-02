@@ -82,7 +82,7 @@ public class ClassDefAdapterFromClassDef implements IClassDefAdapter {
         return ret;
     }
 
-    public int getNodeBodyIndent() {
+    public String getNodeBodyIndent() {
         throw new RuntimeException("Not implemented");
     }
 

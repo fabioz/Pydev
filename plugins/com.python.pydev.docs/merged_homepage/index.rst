@@ -29,6 +29,23 @@
     <br/>
     <br/>
     <img alt="PyDev" src="images/eclipse_award.png"/>
+    <br/>
+    <br/>
+    <br/>
+    
+    <br/>
+    <strong>Acknowledgements</strong>
+    <br/>
+    <br/>
+    <p class="italic">
+    "YourKit kindly supports PyDev (and other open source projects) with its full-featured Java Profiler.
+    <br/>
+    <br/>
+    YourKit, LLC is the creator of innovative and intelligent tools for profiling
+    Java and .NET applications. Take a look at YourKit's leading software products:
+    <a href="http://www.yourkit.com/java/profiler/index.jsp"><img src="images/yk.png" width="12" height="12" border="0"  /> YourKit Java Profiler</a> and
+    <a href="http://www.yourkit.com/.net/profiler/index.jsp"><img src="images/yk.png" width="12" height="12" border="0" /> YourKit .NET Profiler</a>."
+    </p>
     </right_area>
     
     
@@ -94,52 +111,55 @@ First time users are strongly advised to read the `Getting started guide`_  whic
 
 
 
-Release 2.2.2
+Release 2.2.4
 ===============
 
-**IPython / Interactive console**
+**Cython**
 
-    .. image:: images/index/ipython_console.png
-        :class: no_border
+    * Cython is now supported in PyDev (.pyx files may be opened with the PyDev editor).  
 
-    * IPython (0.10 or 0.11) is now used as the interactive console backend if PyDev can detect it in the PYTHONPATH.
-    * While waiting for the output of a command, intermediary results are printed in the console.
-    * ANSI color codes are supported in the interactive console.
 
-**Code Analysis**
+**Globals Token Browser (Ctrl+Shift+T)**
 
-    .. image:: images/index/assignment_to_builtin.png
-        :class: no_border
-
-    * Reporting variables that shadow builtins as warnings.
-    * Fixed issue where __dict__ was not found.
+    * Packages/Modules can now be reached through the globals browser (so, __init__.py files can now be easily gotten through the package they represent)
     
-**Code completion**
 
-    * Aliases have a better treatment (i.e.: unittest.assertEqual will show the proper type/parameters).
-    * Improved support for analyzing function builtins where the return type is known (i.e.: open, str.split, etc).
-    
-**Debugger**
+**Handling external files**
 
-    * When doing a remote debug session, if the files cannot be found in the local filesystem, PyDev will ask for files in the remote debugger.
+    * External libraries configured in a project appearing in the PyDev Package Explorer
+    * Show in > PyDev Package Explorer working for files that are under the interpreter or external libraries.
+    * Show in > PyDev Package Explorer working for files inside .zip archives.
+    * External files that were opened when Eclipse is closed are properly reopened.
 
 **Editor**
+
+    * New option in the code-formatter to only apply code-formatting on changed lines on save.
+    * from __future__ import now properly appears as first even if grouping is enabled.
+    * it's now possible to have a minimap of the code in the overview ruler (enable in preferences > PyDev > Editor > Overview Ruler Minimap).
     
-    * Files without extension that have a python shebang (e.g.: #!/usr/bin/python in the first line) are automatically opened with the PyDev editor (in the PyDev Package Explorer).
+**Unittest runner**
 
-**Django**
+    * exc_clear() no longer called if it's not available.
+    * Fixed issue where class tearDown was executed twice.
 
-    * When the shell command is used in the django custom commands, PyDev no longer uses 100% cpu while it doesn't complete.
 
-**Others** 
+**Debugger**
+
+    * It's now possible to enable/disable stepping into properties while in the debugger. Menu: Run > Disable step into properties (patch by Hussain Bohra)
+    * Show in outline view activated in debug perspective  (patch by Hussain Bohra)
+    * Watch expressions can be properly expanded in the watch view (patch by Hussain Bohra)
+    * Breakpoints in external files are properly shown.
+    * Remote debugger: starting the remote debugger no longer shows a launch configuration
+    * Remote debugger: when the server is stopped, the server socket is properly closed
     
-    * Fixed issue where the * operator was not properly formatted.
-    * When the quick outline dialog is deactivated, it's closed.
-    * Fixed heuristic for finding position for local import. 
-    * Fixed compare editor issue with Eclipse 3.2.
-    * Fixed integration issue with latest PyLint.
-    * Fixed deadlock issue on app engine manage window.
-    * More options added to configure the automatic deletion of .pyc files (delete always, never delete, delete only on .py delete).
+
+**Minors**
+
+    * Fixed issue in rename (Alt+Shift+R) / find references (Ctrl+Shift+G) on top level module variables.
+    * Fixed issue where create class/method/field action was not ok because of comment.
+    * Fixed issue where doing create class/method/field action on file with tabs ended up adding spaces.
+
+
 
 
 Development Info

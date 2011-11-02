@@ -1186,7 +1186,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 }
             }
             
-            List<String> externalPaths = StringUtils.splitAndRemoveEmptyTrimmed(this.getPythonPathNature().getProjectExternalSourcePath(true), '|');
+            List<String> externalPaths = this.getPythonPathNature().getProjectExternalSourcePathAsList(true);
             Collections.sort(externalPaths);
             for (String path : externalPaths) {
                 if(!new File(path).exists()){

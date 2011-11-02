@@ -23,5 +23,19 @@ public class AdditionalInfoAndIInfo{
         this.additionalInfo = additionalInfo;
         this.info = info;
     }
+    
+    @Override
+    public int hashCode() {
+        return this.info.hashCode()+this.additionalInfo.hashCode();
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof AdditionalInfoAndIInfo)){
+            return false;
+        }
+        AdditionalInfoAndIInfo other = (AdditionalInfoAndIInfo) obj;
+        return this.info.equals(other.info) && this.additionalInfo.equals(other.additionalInfo);
+    }
 
 }

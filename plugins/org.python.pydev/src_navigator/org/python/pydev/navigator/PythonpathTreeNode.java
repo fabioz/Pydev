@@ -114,7 +114,12 @@ public class PythonpathTreeNode extends TreeNode<LabelAndImage> implements ISort
 	
 	private static String getLabel(File file, boolean isPythonpathRoot) {
 		if(isPythonpathRoot){
-			return file.getAbsolutePath();
+		    File parent2 = file.getParentFile();
+		    if(parent2 != null){
+		        return parent2.getName() + "/" + file.getName();
+		        
+		    }
+			return file.getName();
 		}else{
 			return file.getName();
 		}

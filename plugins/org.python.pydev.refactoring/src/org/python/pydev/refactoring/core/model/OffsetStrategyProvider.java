@@ -48,7 +48,7 @@ public class OffsetStrategyProvider implements IStructuredContentProvider {
     private int updateLabel(AbstractScopeNode<?> scopeAdapter, int strategyOption) {
         if(scopeAdapter != null){
 
-            if(scopeAdapter.getNodeBodyIndent() == 0){
+            if(scopeAdapter.getNodeBodyIndent().length() == 0){
                 beginLabel = Messages.offsetStrategyBeginModule;
                 endLabel = Messages.offsetStrategyEndModule;
                 if((strategyOption & IOffsetStrategy.AFTERINIT) == IOffsetStrategy.AFTERINIT){

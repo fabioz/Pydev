@@ -15,7 +15,7 @@ public interface IASTNodeAdapter<T extends SimpleNode> extends INodeAdapter {
 
     SimpleNode getASTParent();
 
-    int getNodeBodyIndent();
+    String getNodeBodyIndent();
 
     int getNodeFirstLine();
 

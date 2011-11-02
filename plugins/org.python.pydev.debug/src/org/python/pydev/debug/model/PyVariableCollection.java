@@ -40,6 +40,11 @@ public class PyVariableCollection extends PyVariable implements ICommandResponse
      * Defines the network state
      */
     int networkState = NETWORK_REQUEST_NOT_REQUESTED; // Network request state: 0 did not request, 1 requested, 2 requested & arrived
+
+    /**
+     * Defines whether object is variable or watchExpression
+     */
+    boolean isWatchExpression = false; 
     
     private boolean fireChangeEvent = true;
     

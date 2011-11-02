@@ -335,11 +335,6 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
         }
         ArrayList<IModulesManager> list = new ArrayList<IModulesManager>();
         ISystemModulesManager systemModulesManager = getSystemModulesManager();
-        if(systemModulesManager == null){
-            //may happen in initialization
-//            PydevPlugin.log("System modules manager still not available (still initializing or not set).");
-            return new IModulesManager[]{};
-        }
         
         //add itself 1st
         list.add(this);
@@ -363,6 +358,9 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
         //the system is the last one we add 
         //http://sourceforge.net/tracker/index.php?func=detail&aid=1687018&group_id=85796&atid=577329
         if(checkSystemManager && systemModulesManager != null){
+            //may be null in initialization or if the project does not have a related interpreter manager at the present time
+            //(i.e.: misconfigured project)
+
             list.add(systemModulesManager);
         }
         

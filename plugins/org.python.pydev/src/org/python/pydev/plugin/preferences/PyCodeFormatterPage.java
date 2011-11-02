@@ -33,6 +33,9 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
     public static final String FORMAT_BEFORE_SAVING = "FORMAT_BEFORE_SAVING";
     public static final boolean DEFAULT_FORMAT_BEFORE_SAVING = false;
     
+    public static final String FORMAT_ONLY_CHANGED_LINES = "FORMAT_ONLY_CHANGED_LINES";
+    public static final boolean DEFAULT_FORMAT_ONLY_CHANGED_LINES = false;
+    
     
     public static final String TRIM_LINES = "TRIM_EMPTY_LINES";
     public static final boolean DEFAULT_TRIM_LINES = false;
@@ -62,6 +65,7 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
     public static final boolean DEFAULT_USE_OPERATORS_WITH_SPACE = true;
     private StyledText labelExample;
     private BooleanFieldEditor spaceAfterComma;
+    private BooleanFieldEditor onlyChangedLines;
     private BooleanFieldEditor spaceForParentesis;
     private BooleanFieldEditor assignWithSpaceInsideParentesis;
     private BooleanFieldEditor operatorsWithSpace;
@@ -82,6 +86,9 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
         Composite p = getFieldEditorParent();
 
         addField(new BooleanFieldEditor(FORMAT_BEFORE_SAVING, "Auto-Format editor contents before saving?", p));
+        
+        onlyChangedLines = new BooleanFieldEditor(FORMAT_ONLY_CHANGED_LINES, "On save, only apply formatting in changed lines?", p);
+        addField(onlyChangedLines);
         
         spaceAfterComma = new BooleanFieldEditor(USE_SPACE_AFTER_COMMA, "Use space after commas?", p);
         addField(spaceAfterComma);
@@ -151,6 +158,10 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
 
     public static boolean getFormatBeforeSaving() {
         return PydevPrefs.getPreferences().getBoolean(FORMAT_BEFORE_SAVING);
+    }
+    
+    public static boolean getFormatOnlyChangedLines() {
+        return PydevPrefs.getPreferences().getBoolean(FORMAT_ONLY_CHANGED_LINES);
     }
     
     public static boolean getAddNewLineAtEndOfFile() {

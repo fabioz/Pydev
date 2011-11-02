@@ -252,8 +252,8 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
             default:
                 throw new AssertionError("Unknown location strategy: "+locationStrategy);
             }
-            int nodeBodyIndent = targetClass.getNodeBodyIndent();
-            return new Tuple<Integer, String>(offset, new FastStringBuffer(nodeBodyIndent).appendN(' ', nodeBodyIndent).toString());
+            String nodeBodyIndent = targetClass.getNodeBodyIndent();
+            return new Tuple<Integer, String>(offset, nodeBodyIndent);
         } catch (BadLocationException e) {
             throw new RuntimeException(e);
         }

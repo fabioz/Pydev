@@ -215,7 +215,55 @@ class AbstractWriterThread(threading.Thread):
     def WriteKillThread(self, threadId):
         self.Write("104\t%s\t%s" % (self.NextSeq(), threadId,))
         
+#=======================================================================================================================
+# WriterThreadCase13
+#======================================================================================================================
+class WriterThreadCase13(AbstractWriterThread):
+    
+    TEST_FILE = NormFile('_debugger_case13.py')
+    
+    def run(self):
+        self.StartSocket()
+        self.WriteAddBreakpoint(35, 'main')
+        self.Write("124\t%s\t%s" % (self.NextSeq(), "true;false;false;true"))
+        self.WriteMakeInitialRun()
+        threadId, frameId, line = self.WaitForBreakpointHit('111', True)
 
+        self.WriteGetFrame(threadId, frameId)
+        
+        self.WriteStepIn(threadId)
+        threadId, frameId, line = self.WaitForBreakpointHit('107', True)
+        # Should go inside setter method
+        assert line == 25, 'Expected return to be in line 25, was: %s' % line
+        
+        self.WriteStepIn(threadId)
+        threadId, frameId, line = self.WaitForBreakpointHit('107', True)
+
+        self.WriteStepIn(threadId)
+        threadId, frameId, line = self.WaitForBreakpointHit('107', True)
+        # Should go inside getter method
+        assert line == 21, 'Expected return to be in line 21, was: %s' % line
+
+        self.WriteStepIn(threadId)
+        threadId, frameId, line = self.WaitForBreakpointHit('107', True)
+
+        # Disable property tracing
+        self.Write("124\t%s\t%s" % (self.NextSeq(), "true;true;true;true"))
+        self.WriteStepIn(threadId)
+        threadId, frameId, line = self.WaitForBreakpointHit('107', True)
+        # Should Skip step into properties setter
+        assert line == 39, 'Expected return to be in line 39, was: %s' % line
+
+        # Enable property tracing
+        self.Write("124\t%s\t%s" % (self.NextSeq(), "true;false;false;true"))
+        self.WriteStepIn(threadId)
+        threadId, frameId, line = self.WaitForBreakpointHit('107', True)
+        # Should go inside getter method
+        assert line == 8, 'Expected return to be in line 8, was: %s' % line
+
+        self.WriteRunThread(threadId)
+        
+        self.finishedOk = True
 
 #=======================================================================================================================
 # WriterThreadCase12
@@ -741,6 +789,9 @@ class Test(unittest.TestCase):
         
     def testCase12(self):
         self.CheckCase(WriterThreadCase12)
+        
+    def testCase13(self):
+        self.CheckCase(WriterThreadCase13)
 
             
     def testCase1a(self):
@@ -778,7 +829,9 @@ class Test(unittest.TestCase):
         
     def testCase12a(self):
         self.CheckCase(WriterThreadCase12, False)
-        
+
+    def testCase13a(self):
+        self.CheckCase(WriterThreadCase13, False)
 
 def GetLocationFromLine(line):
     loc = line.split('=')[1].strip()

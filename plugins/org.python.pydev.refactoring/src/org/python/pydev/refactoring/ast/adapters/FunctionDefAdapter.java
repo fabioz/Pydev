@@ -10,12 +10,13 @@ package org.python.pydev.refactoring.ast.adapters;
 
 import java.util.List;
 
+import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.ast.visitors.context.LocalFunctionDefVisitor;
 import org.python.pydev.refactoring.ast.visitors.context.ScopeAssignedVisitor;
-import org.python.pydev.refactoring.ast.visitors.position.IndentVisitor;
 
 public class FunctionDefAdapter extends AbstractScopeNode<FunctionDef> {
 
@@ -45,11 +46,16 @@ public class FunctionDefAdapter extends AbstractScopeNode<FunctionDef> {
         return arguments.getSignature();
     }
 
-    public int getNodeBodyIndent() {
+    public String getNodeBodyIndent() {
         FunctionDef functionNode = getASTNode();
-        IndentVisitor visitor = VisitorFactory.createVisitor(IndentVisitor.class, functionNode.body[0]);
+        if(functionNode.body == null || functionNode.body.length == 0){
+            PySelection pySelection = new PySelection(getModule().getDoc());
+            String indentationFromLine = PySelection.getIndentationFromLine(pySelection.getLine(functionNode.beginLine-1));
+            return indentationFromLine+DefaultIndentPrefs.get().getIndentationString();
+            
+        }
 
-        return visitor.getIndent();
+        return getModule().getIndentationFromAst(functionNode.body[0]);
     }
 
     public List<FunctionDefAdapter> getFunctions() {

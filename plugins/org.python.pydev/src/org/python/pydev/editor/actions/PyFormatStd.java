@@ -11,13 +11,21 @@
  */
 package org.python.pydev.editor.actions;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.DocumentRewriteSession;
+import org.eclipse.jface.text.DocumentRewriteSessionType;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.text.Region;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPyEdit;
+import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
@@ -82,7 +90,19 @@ public class PyFormatStd extends PyAction implements IFormatter {
             
             
             try{
-                applyFormatAction(pyEdit, ps, false, true);
+                IRegion[] regionsToFormat = null;
+                if(ps.getSelLength() > 0){
+                    //Create a region with the full lines selected for the formatting.
+                    IDocument doc = ps.getDoc();
+                    IRegion start = doc.getLineInformation(ps.getStartLineIndex());
+                    IRegion end = doc.getLineInformation(ps.getEndLineIndex());
+                
+                    int iStart = start.getOffset();
+                    int iEnd = end.getOffset() + end.getLength();
+                    regionsToFormat = new IRegion[]{new Region(iStart, iEnd-iStart)};
+                }
+
+                applyFormatAction(pyEdit, ps, regionsToFormat, true);
             }catch(SyntaxErrorException e){
                 pyEdit.getStatusLineManager().setErrorMessage(e.getMessage());
             }
@@ -98,21 +118,53 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * 
      * @param pyEdit used to restore the selection
      * @param ps the selection used (contains the document that'll be changed)
-     * @param forceFormatAll whether the full formatting (and not the selection formatting) should be applied.
-     * @param throwSyntaxError 
+     * @param regionsToFormat if null or empty, the whole document will be formatted, otherwise, only the passed ranges will
+     * be formatted. 
      * @throws SyntaxErrorException 
      */
-    public void applyFormatAction(PyEdit pyEdit, PySelection ps, boolean forceFormatAll, boolean throwSyntaxError) throws BadLocationException, SyntaxErrorException {
+    public void applyFormatAction(PyEdit pyEdit, PySelection ps, IRegion[] regionsToFormat, boolean throwSyntaxError) throws BadLocationException, SyntaxErrorException {
         final IFormatter participant = getFormatter();
         final IDocument doc = ps.getDoc();
-        final ITextSelection selection = ps.getTextSelection();
-        final int startLine = ps.getStartLineIndex();
         final SelectionKeeper selectionKeeper = new SelectionKeeper(ps);
         
-        if (selection.getLength() == 0 || forceFormatAll) {
-            participant.formatAll(doc, pyEdit, true, throwSyntaxError);
-        } else {
-            participant.formatSelection(doc, startLine, ps.getEndLineIndex(), pyEdit, ps);
+        DocumentRewriteSession session = null;
+        try{
+        
+            if (regionsToFormat == null || regionsToFormat.length == 0) {
+                if(doc instanceof IDocumentExtension4){
+                    IDocumentExtension4 ext = (IDocumentExtension4) doc;
+                    session = ext.startRewriteSession(DocumentRewriteSessionType.STRICTLY_SEQUENTIAL);
+                }
+                participant.formatAll(doc, pyEdit, true, throwSyntaxError);
+            } else {
+                if(doc instanceof IDocumentExtension4){
+                    IDocumentExtension4 ext = (IDocumentExtension4) doc;
+                    session = ext.startRewriteSession(DocumentRewriteSessionType.SEQUENTIAL);
+                }
+                participant.formatSelection(doc, regionsToFormat, pyEdit, ps);
+            }
+
+            //To finish, no matter what kind of formatting was done, check the end of line.
+            FormatStd std = getFormat();
+            if(std.addNewLineAtEndOfFile){
+                try {
+                    int len = doc.getLength();
+                    char lastChar = doc.getChar(len-1);
+                    if(len > 0){
+                        if(lastChar != '\r' && lastChar != '\n'){
+                            doc.replace(len, 0, PySelection.getDelimiter(doc));
+                        }
+                    }
+                } catch (Throwable e) {
+                    Log.log(e);
+                }
+            }
+
+            
+        }finally{
+            if(session != null){
+                ((IDocumentExtension4)doc).stopRewriteSession(session);
+            }
         }
 
         
@@ -136,28 +188,44 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * Formats the given selection
      * @see IFormatter
      */
-    public void formatSelection(IDocument doc, int startLine, int endLineIndex, IPyEdit edit, PySelection ps) {
+    public void formatSelection(IDocument doc, IRegion[] regionsForSave, IPyEdit edit, PySelection ps) {
 //        Formatter formatter = new Formatter();
 //        formatter.formatSelection(doc, startLine, endLineIndex, edit, ps);
         
+        @SuppressWarnings({ "rawtypes", "unchecked" })
+        List<Tuple3<Integer, Integer, String>> replaces = new ArrayList();
+        
+        
+        //Calculate all formatting to take place
         try {
-            IRegion start = doc.getLineInformation(startLine);
-            IRegion end = doc.getLineInformation(endLineIndex);
-        
-            int iStart = start.getOffset();
-            int iEnd = end.getOffset() + end.getLength();
-        
-            String d = doc.get(iStart, iEnd - iStart);
             FormatStd formatStd = getFormat();
-            String formatted = formatStr(d, formatStd, PySelection.getDelimiter(doc), false);
-        
-            doc.replace(iStart, iEnd - iStart, formatted);
-        
+            
+            for(IRegion r: regionsForSave){
+                int iStart = r.getOffset();
+                int iEnd = r.getOffset() + r.getLength();
+                
+                String d = doc.get(iStart, iEnd - iStart);
+                String formatted = formatStr(d, formatStd, PySelection.getDelimiter(doc), false);
+                replaces.add(new Tuple3<Integer, Integer, String>(iStart, iEnd - iStart, formatted));
+            }
+            
         } catch (BadLocationException e) {
             Log.log(e);
         }catch(SyntaxErrorException e){
             throw new RuntimeException(e);
         }
+        
+        
+        //Apply the formatting from bottom to top (so that the indexes are still valid).
+        Collections.reverse(replaces);
+        for (Tuple3<Integer, Integer, String> tup : replaces) {
+            try {
+                doc.replace(tup.o1, tup.o2, tup.o3);
+            } catch (BadLocationException e) {
+                Log.log(e);
+            }
+        }
+            
     }
 
     /**
@@ -441,13 +509,6 @@ public class PyFormatStd extends PyAction implements IFormatter {
         }
         if(parensLevel == 0){
             rightTrimIfNeeded(std, buf);
-            
-            if(std.addNewLineAtEndOfFile){
-                char tempC;
-                if(buf.length() == 0 || ((tempC = buf.lastChar()) != '\r' && tempC != '\n')){
-                    buf.append(delimiter);
-                }
-            }
         }
         return buf.toString();
     }

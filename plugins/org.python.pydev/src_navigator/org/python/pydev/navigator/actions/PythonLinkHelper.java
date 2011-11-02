@@ -323,9 +323,12 @@ public class PythonLinkHelper implements ILinkHelper {
         }
         infosSearched.add(treeNodeRoot.interpreterInfo);
         
-        PythonpathTreeNode match = findMatch(treeNodeRoot, element);
-        if(match != null){
-            return new StructuredSelection(match);
+        List<TreeNode> nodesOrderedForFileSearch = treeNodeRoot.getNodesOrderedForFileSearch();
+        for (TreeNode node : nodesOrderedForFileSearch) {
+            PythonpathTreeNode match = findMatch(node, element);
+            if(match != null){
+                return new StructuredSelection(match);
+            }
         }
         return null;
     }

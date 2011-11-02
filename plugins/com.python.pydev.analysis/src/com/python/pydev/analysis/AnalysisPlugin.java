@@ -119,6 +119,11 @@ public class AnalysisPlugin extends AbstractUIPlugin {
         String tok;
         mod = manager.getModule(info.getDeclaringModuleName(), nature, true);
         if(mod != null){
+            if(info.getType() == IInfo.MOD_IMPORT_TYPE){
+                Definition definition = new Definition(1, 1, "", null, null, mod);
+                PyRefactoringFindDefinition.getAsPointers(pointers, new Definition[]{definition});
+                return;
+            }
             //ok, now that we found the module, we have to get the actual definition
             tok = "";
             String path = info.getPath();
@@ -175,6 +180,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
     public static Image autoImportClassWithImportType;
     public static Image autoImportMethodWithImportType;
     public static Image autoImportAttributeWithImportType;
+    public static Image autoImportModImportType;
     
     public static Image getImageForAutoImportTypeInfo(IInfo info){
         switch(info.getType()){
@@ -214,6 +220,18 @@ public class AnalysisPlugin extends AbstractUIPlugin {
                 }
                 return autoImportAttributeWithImportType; 
                 
+            case IInfo.MOD_IMPORT_TYPE:
+                if(autoImportModImportType == null){
+                    synchronized (lock) {
+                        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
+                        autoImportModImportType = imageCache.getImageDecorated(
+                                UIConstants.FOLDER_PACKAGE_ICON, 
+                                UIConstants.CTX_INSENSITIVE_DECORATION_ICON, 
+                                ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT);
+                    }
+                }
+                return autoImportModImportType; 
+                
             default:                  
                 throw new RuntimeException("Undefined type.");
 
@@ -225,6 +243,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
     public static Image classWithImportType;
     public static Image methodWithImportType;
     public static Image attributeWithImportType;
+    public static Image modImportType;
 
     
     public static Image getImageForTypeInfo(IInfo info){
@@ -255,6 +274,15 @@ public class AnalysisPlugin extends AbstractUIPlugin {
                     }
                 }
                 return attributeWithImportType;
+                
+            case IInfo.MOD_IMPORT_TYPE:
+                if(modImportType == null){
+                    synchronized (lock) {
+                        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
+                        modImportType = imageCache.get(UIConstants.FOLDER_PACKAGE_ICON);
+                    }
+                }
+                return modImportType;
             default:                  
                 throw new RuntimeException("Undefined type.");
         

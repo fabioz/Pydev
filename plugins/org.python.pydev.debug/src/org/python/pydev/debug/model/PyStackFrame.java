@@ -53,6 +53,7 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
     private IVariableLocator localsLocator;
     private IVariableLocator globalsLocator;
     private IVariableLocator frameLocator;
+    private IVariableLocator expressionLocator;
     private AbstractDebugTarget target;
 
     public PyStackFrame(PyThread in_thread, String in_id, String name, IPath file, int line, AbstractDebugTarget target) {
@@ -75,6 +76,11 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
         globalsLocator = new IVariableLocator() {
             public String getPyDBLocation() {
                 return thread.getId() + "\t" + id + "\tGLOBAL"; 
+            }
+        };
+        expressionLocator = new IVariableLocator() {
+            public String getPyDBLocation() {
+                return thread.getId() + "\t" + id + "\tEXPRESSION"; 
             }
         };
         this.target = target;
@@ -104,6 +110,10 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
         return globalsLocator;
     }
     
+    public IVariableLocator getExpressionLocator() {
+        return expressionLocator;
+    }
+
     public void setName(String name) {
         this.name = name;
     }

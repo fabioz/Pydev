@@ -21,7 +21,6 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 
@@ -147,4 +146,17 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
                 additionalSystemInfoToSet);
     }
 
+    @Override
+    public int hashCode() {
+        return this.additionalInfoInterpreter.hashCode();
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof AdditionalSystemInterpreterInfo)){
+            return false;
+        }
+        AdditionalSystemInterpreterInfo additionalSystemInterpreterInfo = (AdditionalSystemInterpreterInfo) obj;
+        return this.additionalInfoInterpreter.equals(additionalSystemInterpreterInfo.additionalInfoInterpreter);
+    }
 }

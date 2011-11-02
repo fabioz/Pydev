@@ -11,7 +11,7 @@ for arg in args:
         version = arg[len('--version='):]
         LAST_VERSION_TAG = version
 else:
-    LAST_VERSION_TAG = '2.2.2' #Not specified (let's leave one there)
+    LAST_VERSION_TAG = '2.2.4' #Not specified (let's leave one there)
 
 
 import build_python_code_block

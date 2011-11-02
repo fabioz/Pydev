@@ -42,131 +42,170 @@ import org.python.pydev.editor.PyEdit;
  * 
  * @author Fabio
  */
-public class PyEditBreakpointSync implements IBreakpointListener, IPyEditListener, IPyEditListener4 {
+public class PyEditBreakpointSync implements IPyEditListener, IPyEditListener4 {
 
-    private PyEdit edit;
+    public static class PyEditBreakpointSyncImpl implements IBreakpointListener, IPyEditListener, IPyEditListener4{
 
-    // breakpoints listening -------------------------------------------------------------------------------------------
-    // breakpoints listening -------------------------------------------------------------------------------------------
-    // breakpoints listening -------------------------------------------------------------------------------------------
+        private PyEdit edit;
+        
+        public PyEditBreakpointSyncImpl(PyEdit edit){
+            this.edit = edit;
+        }
+        
     
-    public void breakpointAdded(IBreakpoint breakpoint) {
-        updateAnnotations();
+        // breakpoints listening ---------------------------------------------------------------------------------------
+        // breakpoints listening ---------------------------------------------------------------------------------------
+        // breakpoints listening ---------------------------------------------------------------------------------------
+        
+        public void breakpointAdded(IBreakpoint breakpoint) {
+            updateAnnotations();
+        }
+    
+        public void breakpointChanged(IBreakpoint breakpoint, IMarkerDelta delta) {
+        }
+    
+        public void breakpointRemoved(IBreakpoint breakpoint, IMarkerDelta delta) {
+            updateAnnotations();
+        }
+        
+        
+    
+        // pyedit listening --------------------------------------------------------------------------------------------
+        // pyedit listening --------------------------------------------------------------------------------------------
+        // pyedit listening --------------------------------------------------------------------------------------------
+        
+        public void onCreateActions(ListResourceBundle resources, PyEdit edit, IProgressMonitor monitor) {
+        }
+    
+        public void onDispose(PyEdit edit, IProgressMonitor monitor) {
+            if(this.edit != null){
+                this.edit = null;
+                IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
+                breakpointManager.removeBreakpointListener(this);
+            }
+        }
+        
+        public void onEditorCreated(PyEdit edit) {
+        }
+    
+        public void onSave(PyEdit edit, IProgressMonitor monitor) {
+            updateAnnotations();
+        }
+    
+        /**
+         * When the document is set, this class will start listening for the breakpoint manager, so that any changes in it
+         * will update the debug annotations.
+         */
+        public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
+            if(this.edit != null){
+                this.edit = null;
+                IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
+                breakpointManager.removeBreakpointListener(this);
+            }
+            
+            if(AbstractBreakpointRulerAction.isExternalFileEditor(edit)){
+                this.edit = edit;
+                IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
+                breakpointManager.addBreakpointListener(this);
+            }
+            
+            //initial update (the others will be on changes)
+            updateAnnotations();
+        }
+        
+        
+    
+        // update annotations ----------------------------------------------------------------------------------------------
+        // update annotations ----------------------------------------------------------------------------------------------
+        // update annotations ----------------------------------------------------------------------------------------------
+        
+        @SuppressWarnings("unchecked")
+        private void updateAnnotations() {
+            if(edit != null){
+                IDocumentProvider provider= edit.getDocumentProvider();
+                IAnnotationModel model = provider.getAnnotationModel(edit.getEditorInput());
+                IAnnotationModelExtension modelExtension = (IAnnotationModelExtension) model;
+                
+                if(model == null){
+                    return;
+                }
+                List<Annotation> existing = new ArrayList<Annotation>();
+                Iterator<Annotation> it = model.getAnnotationIterator();
+                if(it == null){
+                    return;
+                }
+                while(it.hasNext()){
+                    existing.add(it.next());
+                }
+                
+                
+                IDocument doc = edit.getDocument();
+                IResource resource = AbstractBreakpointRulerAction.getResourceForDebugMarkers(edit);
+                IEditorInput externalFileEditorInput = AbstractBreakpointRulerAction.getExternalFileEditorInput(edit);
+                List<IMarker> markers = AbstractBreakpointRulerAction.getMarkersFromEditorResource(
+                		resource, doc, externalFileEditorInput, 0, false);
+                
+                
+                Map<Annotation, Position> annotationsToAdd = new HashMap<Annotation, Position>();
+                for(IMarker m:markers){
+                    Position pos = AbstractBreakpointRulerAction.getMarkerPosition(doc, m);
+                    MarkerAnnotation newAnnotation = new MarkerAnnotation(m);
+                    annotationsToAdd.put(newAnnotation, pos);
+                }
+                
+                //update all in a single step
+                modelExtension.replaceAnnotations(existing.toArray(new Annotation[0]), annotationsToAdd);
+            }
+        }
     }
 
-    public void breakpointChanged(IBreakpoint breakpoint, IMarkerDelta delta) {
+    
+    
+    public void onSave(PyEdit edit, IProgressMonitor monitor) {
     }
 
-    public void breakpointRemoved(IBreakpoint breakpoint, IMarkerDelta delta) {
-        updateAnnotations();
-    }
-    
-    
-
-    // pyedit listening ------------------------------------------------------------------------------------------------
-    // pyedit listening ------------------------------------------------------------------------------------------------
-    // pyedit listening ------------------------------------------------------------------------------------------------
-    
     public void onCreateActions(ListResourceBundle resources, PyEdit edit, IProgressMonitor monitor) {
     }
 
     public void onDispose(PyEdit edit, IProgressMonitor monitor) {
-        if(this.edit != null){
-            this.edit = null;
-            IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
-            breakpointManager.removeBreakpointListener(this);
-        }
     }
 
-    public void onSave(PyEdit edit, IProgressMonitor monitor) {
-        updateAnnotations();
-    }
-
-    /**
-     * When the document is set, this class will start listening for the breakpoint manager, so that any changes in it
-     * will update the debug annotations.
-     */
     public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
-        if(this.edit != null){
-            this.edit = null;
-            IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
-            breakpointManager.removeBreakpointListener(this);
-        }
-        
-        if(AbstractBreakpointRulerAction.isExternalFileEditor(edit)){
-            this.edit = edit;
-            IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
-            breakpointManager.addBreakpointListener(this);
-        }
-        
-        //initial update (the others will be on changes)
-        updateAnnotations();
     }
     
     
-
-    // update annotations ----------------------------------------------------------------------------------------------
-    // update annotations ----------------------------------------------------------------------------------------------
-    // update annotations ----------------------------------------------------------------------------------------------
     
-    @SuppressWarnings("unchecked")
-    private void updateAnnotations() {
-        if(edit != null){
-            IDocumentProvider provider= edit.getDocumentProvider();
-            IAnnotationModel model = provider.getAnnotationModel(edit.getEditorInput());
-            IAnnotationModelExtension modelExtension = (IAnnotationModelExtension) model;
-            
-            if(model == null){
-                return;
-            }
-            List<Annotation> existing = new ArrayList<Annotation>();
-            Iterator<Annotation> it = model.getAnnotationIterator();
-            if(it == null){
-                return;
-            }
-            while(it.hasNext()){
-                existing.add(it.next());
-            }
-            
-            
-            IDocument doc = edit.getDocument();
-            IResource resource = AbstractBreakpointRulerAction.getResourceForDebugMarkers(edit);
-            IEditorInput externalFileEditorInput = AbstractBreakpointRulerAction.getExternalFileEditorInput(edit);
-            List<IMarker> markers = AbstractBreakpointRulerAction.getMarkersFromEditorResource(
-            		resource, doc, externalFileEditorInput, 0, false);
-            
-            
-            Map<Annotation, Position> annotationsToAdd = new HashMap<Annotation, Position>();
-            for(IMarker m:markers){
-                Position pos = AbstractBreakpointRulerAction.getMarkerPosition(doc, m);
-                MarkerAnnotation newAnnotation = new MarkerAnnotation(m);
-                annotationsToAdd.put(newAnnotation, pos);
-            }
-            
-            //update all in a single step
-            modelExtension.replaceAnnotations(existing.toArray(new Annotation[0]), annotationsToAdd);
+    public void onEditorCreated(final PyEdit edit) {
+        Map<String, Object> cache = edit.getCache();
+        
+        //Register listener that'll keep the breakpoints in sync for external files
+        String key = "PyEditBreakpointSync.PyEditBreakpointSyncImpl";
+        PyEditBreakpointSyncImpl syncImpl = (PyEditBreakpointSyncImpl) cache.get(key);
+        if(syncImpl == null){
+            syncImpl =  new PyEditBreakpointSyncImpl(edit);
+            edit.addPyeditListener(syncImpl);
+            cache.put(key, syncImpl);
         }
+        
+        
+        
+        //Register the adapter for IToggleBreakpointsTarget
+        edit.onGetAdapter.registerListener(new ICallbackListener<Class<?>>() {
+            
+            public Object call(Class<?> obj) {
+                if(IToggleBreakpointsTarget.class == obj){
+                    Map<String, Object> cache = edit.getCache();
+                    String key = "PyEditBreakpointSync.ToggleBreakpointsTarget";
+                    Object object = cache.get(key);
+                    if(object == null){
+                        object = new PyToggleBreakpointsTarget();
+                        cache.put(key, object);
+                    }
+                    
+                    return object;
+                }
+                return null;
+            }
+        });
     }
-
-    
-	public void onEditorCreated(final PyEdit edit) {
-		edit.onGetAdapter.registerListener(new ICallbackListener<Class<?>>() {
-			
-			public Object call(Class<?> obj) {
-		    	if(IToggleBreakpointsTarget.class == obj){
-		    		Map<String, Object> cache = edit.getCache();
-		    		String key = "PyEditBreakpointSync.ToggleBreakpointsTarget";
-					Object object = cache.get(key);
-		    		if(object == null){
-		    			object = new PyToggleBreakpointsTarget();
-		    			cache.put(key, object);
-		    		}
-		    		
-		    		return object;
-		    	}
-				return null;
-			}
-		});
-	}
-
 }

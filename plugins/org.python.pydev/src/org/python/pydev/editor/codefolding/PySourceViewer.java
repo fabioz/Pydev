@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.DocumentRewriteSession;
@@ -38,7 +39,7 @@ import org.python.pydev.editor.actions.PyShiftLeft;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 
 
-public class PySourceViewer extends ProjectionViewer {
+public class PySourceViewer extends ProjectionViewer implements IAdaptable {
 
 
     private WeakReference<PyEdit> projection;
@@ -258,6 +259,14 @@ public class PySourceViewer extends ProjectionViewer {
         
         pyAutoIndentStrategy.setBlockSelection(blockSelection);
         super.customizeDocumentCommand(command);
+    }
+
+    public Object getAdapter(Class adapter) {
+        PyEdit pyEdit = projection.get();
+        if(pyEdit != null){
+            return pyEdit.getAdapter(adapter);
+        }
+        return null;
     }
     
 
