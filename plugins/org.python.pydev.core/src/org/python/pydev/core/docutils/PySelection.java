@@ -2144,11 +2144,11 @@ public final class PySelection {
     public static boolean isCommentLine(String line) {
         for(int j=0;j<line.length();j++){
             char c = line.charAt(j);
-            if(c != ' '){
-                if(c=='#'){
-                    //ok, it starts with # (so, it is a comment)
-                    return true;
-                }
+            if(c=='#'){
+                //ok, it starts with # (so, it is a comment)
+                return true;
+            }else if(!Character.isWhitespace(c)){
+                return false;
             }
         }
         return false;
