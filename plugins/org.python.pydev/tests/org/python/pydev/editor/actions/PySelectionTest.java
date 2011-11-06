@@ -39,7 +39,7 @@ public class PySelectionTest extends TestCase {
         try {
             PySelectionTest test = new PySelectionTest();
             test.setUp();
-            test.testIntersects();
+            test.testGetCurrDottedStatement();
             test.tearDown();
             
             junit.textui.TestRunner.run(PySelectionTest.class);
@@ -447,6 +447,38 @@ public class PySelectionTest extends TestCase {
         ps = new PySelection(doc, doc.getLength()-1);
         assertEquals(new Tuple<String, Integer>("bb",6), ps.getCurrToken());
     }
+        
+    public void testGetCurrDottedStatement() throws BadLocationException {
+        ps = new PySelection(new Document("a"), 0);
+        assertEquals("a", ps.getCurrDottedStatement().o1);
+        
+        ps = new PySelection(new Document("aa.bb"), 0);
+        assertEquals("aa.bb", ps.getCurrDottedStatement().o1);
+        
+        ps = new PySelection(new Document("aa.bb"), 3);
+        assertEquals("aa.bb", ps.getCurrDottedStatement().o1);
+        
+        ps = new PySelection(new Document(" aa.bb"), 3);
+        assertEquals("aa.bb", ps.getCurrDottedStatement().o1);
+        
+        ps = new PySelection(new Document(" aa().bb"), 3);
+        assertEquals("aa().bb", ps.getCurrDottedStatement().o1);
+
+        ps = new PySelection(new Document(" aa().bb"), 0);
+        assertEquals("", ps.getCurrDottedStatement().o1);
+        
+        ps = new PySelection(new Document("a aa().bb"), 0);
+        assertEquals("a", ps.getCurrDottedStatement().o1);
+        
+        ps = new PySelection(new Document("a aa().bb"), 9);
+        assertEquals("aa().bb", ps.getCurrDottedStatement().o1);
+        
+        ps = new PySelection(new Document("a aa().bb"), 2);
+        assertEquals("aa().bb", ps.getCurrDottedStatement().o1);
+        
+        ps = new PySelection(new Document("a aa(1).bb"), 2);
+        assertEquals("aa(1).bb", ps.getCurrDottedStatement().o1);
+    }
     
     public void testGetLine() throws Exception {
         PySelection sel = new PySelection(new Document("foo\nbla"));
@@ -770,4 +802,6 @@ public class PySelectionTest extends TestCase {
         assertFalse(ps.intersects(3, 0));
         assertTrue(ps.intersects(2, 0));
     }
+    
+    
 }
