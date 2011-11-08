@@ -16,6 +16,20 @@ public class PyRemoveBlockCommentTest extends TestCase {
     private Document doc;
     private String expected;
     private PySelection ps;
+    
+    public static void main(String[] args) {
+        try {
+            PyRemoveBlockCommentTest test = new PyRemoveBlockCommentTest();
+            test.setUp();
+            test.test8();
+            test.tearDown();
+            junit.textui.TestRunner.run(PyRemoveBlockCommentTest.class);
+
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public void testUncommentBlock() throws Exception {
         doc = new Document(
@@ -96,4 +110,101 @@ public class PyRemoveBlockCommentTest extends TestCase {
         assertEquals(expected, doc.get());
         
     }
+    
+    public void test5() throws Exception {
+        
+        doc = new Document(
+                "\t#---- aa\n" +
+                "\t\t#---- b\n" +
+                "\t#---- c\n" +
+                "\n" +
+        "\n");
+        ps = new PySelection(doc, 0, 0, 0);
+        PyRemoveBlockComment pyRemoveBlockComment = new PyRemoveBlockComment();
+        pyRemoveBlockComment.perform(ps);
+        
+        expected = 
+            "\taa\n" +
+            "\t\tb\n" +
+            "\tc\n" +
+            "\n" +
+            "\n";
+        assertEquals(expected, doc.get());
+        
+    }
+    
+    public void test6() throws Exception {
+        
+        doc = new Document(
+                "\t#---- aa\n" +
+                "\t\t'--#--' b\n" + //Ignore this line when removing block comments
+                "\t#---- c\n" + //This won't be touched as the block broke on the previous line.
+                "\n" +
+        "\n");
+        ps = new PySelection(doc, 0, 0, 0);
+        PyRemoveBlockComment pyRemoveBlockComment = new PyRemoveBlockComment();
+        pyRemoveBlockComment.perform(ps);
+        
+        expected = 
+            "\taa\n" +
+            "\t\t'--#--' b\n" +
+            "\t#---- c\n" +
+            "\n" +
+            "\n";
+        assertEquals(expected, doc.get());
+    }
+    
+    
+    public void test7() throws Exception {
+        
+        doc = new Document(
+                "\t# aa\n" +
+                "\t# aa\n" +
+                "\n");
+        ps = new PySelection(doc, 0, 0, 0);
+        PyRemoveBlockComment pyRemoveBlockComment = new PyRemoveBlockComment();
+        pyRemoveBlockComment.perform(ps);
+        
+        expected = 
+            "\taa\n" +
+            "\taa\n" +
+            "\n";
+        assertEquals(expected, doc.get());
+    }
+    
+    public void test8() throws Exception {
+        
+        doc = new Document(
+                "# aa\n" +
+                "# aa\n" +
+        "\n");
+        ps = new PySelection(doc, 0, 0, 0);
+        PyRemoveBlockComment pyRemoveBlockComment = new PyRemoveBlockComment();
+        pyRemoveBlockComment.perform(ps);
+        
+        expected = 
+            "aa\n" +
+            "aa\n" +
+            "\n";
+        assertEquals(expected, doc.get());
+    }
+    
+    public void test9() throws Exception {
+        
+        doc = new Document(
+                "    #  aa\n" +
+                "    #  aa\n" +
+        "\n");
+        ps = new PySelection(doc, 0, 0, 0);
+        PyRemoveBlockComment pyRemoveBlockComment = new PyRemoveBlockComment();
+        pyRemoveBlockComment.perform(ps);
+        
+        expected = 
+            "    aa\n" +
+            "    aa\n" +
+            "\n";
+        assertEquals(expected, doc.get());
+    }
+    
+    
 }

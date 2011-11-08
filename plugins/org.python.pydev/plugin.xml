@@ -560,6 +560,12 @@
                class="org.python.pydev.editor.actions.PyGoToMatchingBracket"
                id="org.python.pydev.editor.actions.goToMatchingBracket">
          </action>
+         <action
+               definitionId="org.python.pydev.editor.actions.selectEnclosingScope"
+               label="Select Enclosing Scope"
+               class="org.python.pydev.editor.actions.PyScopeSelection"
+               id="org.python.pydev.editor.actions.selectEnclosingScope">
+         </action>
       </editorContribution>
    </extension>
 
@@ -773,6 +779,12 @@
             description="Go to Matching Bracket"
             categoryId="org.python.pydev.ui.category.source"
             id="org.python.pydev.editor.actions.goToMatchingBracket"/>
+  <!-- Select Enclosing Scope -->
+      <command
+            name="Select Enclosing Scope"
+            description="Select Enclosing Scope"
+            categoryId="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.selectEnclosingScope"/>
    </extension>
             
    <extension point="org.eclipse.ui.bindings">
@@ -911,6 +923,12 @@
             sequence="M1+M2+P"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.goToMatchingBracket"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            sequence="M2+M3+Arrow_Up"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.editor.actions.selectEnclosingScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
    </extension>
