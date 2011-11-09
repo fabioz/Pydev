@@ -22,7 +22,7 @@ public class PyScopeSelectionTest extends TestCase {
         try {
             PyScopeSelectionTest test = new PyScopeSelectionTest();
             test.setUp();
-            test.testWithSelection();
+            test.testWithStructures();
             test.tearDown();
             
             junit.textui.TestRunner.run(PyScopeSelectionTest.class);
@@ -59,7 +59,19 @@ public class PyScopeSelectionTest extends TestCase {
         check("aaa.b()", 4, 1, 0, 7);
         check("aaa.b().o", 4, 1, 0, 9);
         check("a().o", 1, 2, 0, 5);
-        check("a(call()).o", 1, 2, 0, 5);
+        check("a(call()).o", 2, 2, 2, 4);
+        check("a(call()).o", 2, 4, 2, 6);
+        check("a(call()).o", 2, 6, 0, 11);
+    }
+    
+    public void testWithStructures() {
+        String doc = "def m1():\n" +
+        	  "  if True:\n" + //True starts at 15
+        	  "    pass";
+        
+        check(doc, 15, 0, 15, 4);
+        check(doc, 15, 4, 12, 17);
+        check(doc, 12, 17, 0, doc.length());
     }
     
 }

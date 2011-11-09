@@ -7,6 +7,7 @@
 package org.python.pydev.parser.fastparser;
 
 import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.Region;
 import org.python.pydev.parser.fastparser.ScopesParser.Scopes;
 
 import junit.framework.TestCase;
@@ -21,7 +22,7 @@ public class ScopesParserTest extends TestCase {
         try {
             ScopesParserTest test = new ScopesParserTest();
             test.setUp();
-            test.testScopes1();
+            test.testScopes2();
             test.tearDown();
             junit.textui.TestRunner.run(ScopesParserTest.class);
 
@@ -48,6 +49,18 @@ public class ScopesParserTest extends TestCase {
         		"        ''' 8]\n" +
         		" 4] 7] 1]" +
         		"");
+    }
+    
+    public void testScopes2() throws Exception {
+        Document doc = new Document("a().o");
+        Scopes scopes = ScopesParser.createScopes(doc);
+        assertEquals(new Region(0, 5), scopes.getScopeForSelection(2, 0));
+    }
+    
+    public void testScopes3() throws Exception {
+        Document doc = new Document("a(.o");
+        Scopes scopes = ScopesParser.createScopes(doc);
+        assertEquals(new Region(2, 2), scopes.getScopeForSelection(2, 0));
     }
     
     public void testScopes1() throws Exception {
@@ -79,5 +92,8 @@ public class ScopesParserTest extends TestCase {
         		"    [12 else:\n" +
         		"        pass 10] 12] 1]" +
         		"");
+        
+        assertEquals(new Region(0, 8), scopes.getScopeForSelection(0, 2));
+        assertEquals(new Region(19, 6), scopes.getScopeForSelection(20, 0));
     }
 }
