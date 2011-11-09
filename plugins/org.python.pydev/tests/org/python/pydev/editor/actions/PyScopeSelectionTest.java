@@ -22,7 +22,7 @@ public class PyScopeSelectionTest extends TestCase {
         try {
             PyScopeSelectionTest test = new PyScopeSelectionTest();
             test.setUp();
-            test.testWithSelection2();
+            test.testWithSelection();
             test.tearDown();
             
             junit.textui.TestRunner.run(PyScopeSelectionTest.class);
@@ -34,7 +34,7 @@ public class PyScopeSelectionTest extends TestCase {
     public void check(String string, int initialOffset, int initialLenOffset, int finalOffset, int finalLenOffset){
         PyScopeSelection scopeSelection = new PyScopeSelection();
         Document doc = new Document(string);
-        ITextSelection selection = new TextSelection(initialOffset, initialLenOffset);
+        ITextSelection selection = new TextSelection(doc, initialOffset, initialLenOffset);
         
         ITextSelection newSelection = scopeSelection.getNewSelection(doc, selection);
         assertEquals("Expected offset to be: "+finalOffset+" actual offset: "+newSelection.getOffset()+" -- ", finalOffset, newSelection.getOffset());
@@ -59,8 +59,7 @@ public class PyScopeSelectionTest extends TestCase {
         check("aaa.b()", 4, 1, 0, 7);
         check("aaa.b().o", 4, 1, 0, 9);
         check("a().o", 1, 2, 0, 5);
+        check("a(call()).o", 1, 2, 0, 5);
     }
     
-    public void testWithSelection2() {
-    }
 }

@@ -86,6 +86,9 @@ public class PyScopeSelection extends PyAction {
                             return new TextSelection(currDottedToken.o2, currDottedToken.o1.length());
                         }
                     }
+                }else{
+                    ps.selectCompleteLine();
+                    return ps.getTextSelection();
                 }
             }
         } catch (BadLocationException e) {
