@@ -105,6 +105,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.parser.ISimpleNode;
+import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.actions.FirstCharAction;
 import org.python.pydev.editor.actions.OfflineAction;
 import org.python.pydev.editor.actions.OfflineActionTarget;
@@ -1404,6 +1405,19 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         }
 
         fireModelChanged(ast);
+        //Trying to fix issue where it seems that the text presentation is not properly updated after markers are
+        //changed (i.e.: red lines remain there when they shouldn't).
+        //I couldn't really reproduce this issue, so, this may not fix it...
+        //
+        //Details: https://sourceforge.net/projects/pydev/forums/forum/293649/topic/4477776
+        RunInUiThread.async(new Runnable() {
+            
+            public void run() {
+                if(!isDisposed()){
+                    getSourceViewer().invalidateTextPresentation();
+                }
+            }
+        });
     }
 
 
