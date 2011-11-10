@@ -39,7 +39,7 @@ public class TabNannyDocIterator{
     }
     
     public TabNannyDocIterator(Object doc, boolean yieldEmptyIndents, boolean yieldOnLinesWithoutContents) throws BadLocationException{
-        parsingUtils = ParsingUtils.create(doc);
+        parsingUtils = ParsingUtils.create(doc, true);
         docLen = parsingUtils.len();
         this.yieldEmptyIndents = yieldEmptyIndents;
         this.yieldOnLinesWithoutContents = yieldOnLinesWithoutContents;
@@ -129,7 +129,12 @@ public class TabNannyDocIterator{
                     
                 } else if (c == '{' || c == '[' || c == '(') {
                     //starting some call, dict, list, tuple... we're at the same indentation until it is finished
-                    offset = parsingUtils.eatPar(offset, null, c);
+                    try {
+                        offset = parsingUtils.eatPar(offset, null, c);
+                    } catch (SyntaxErrorException e) {
+                        //Ignore unbalanced parens.
+                        offset++;
+                    }
     
                     
                 } else if (c == '\r'){
@@ -170,7 +175,12 @@ public class TabNannyDocIterator{
                     
                 } else if (c == '\'' || c == '\"') {
                     //literal found... skip to the end of the literal
-                    offset = parsingUtils.getLiteralEnd(offset, c) + 1;
+                    try {
+                        offset = parsingUtils.getLiteralEnd(offset, c) + 1;
+                    } catch (SyntaxErrorException e) {
+                        //Ignore unbalanced string
+                        offset++;
+                    }
                     
                 } else {
                     // ok, a char is found... go to the end of the line and gather
@@ -221,8 +231,6 @@ public class TabNannyDocIterator{
             }
             throw e;
             
-        }catch(SyntaxErrorException e){
-            throw new RuntimeException(e);
         }
         return true;
     }

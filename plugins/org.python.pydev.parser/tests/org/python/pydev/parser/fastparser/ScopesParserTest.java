@@ -22,7 +22,7 @@ public class ScopesParserTest extends TestCase {
         try {
             ScopesParserTest test = new ScopesParserTest();
             test.setUp();
-            test.testScopes2();
+            test.testScopes4();
             test.tearDown();
             junit.textui.TestRunner.run(ScopesParserTest.class);
 
@@ -57,10 +57,25 @@ public class ScopesParserTest extends TestCase {
         assertEquals(new Region(0, 5), scopes.getScopeForSelection(2, 0));
     }
     
+    public void testScopes4() throws Exception {
+        Document doc = new Document( "(1\n" +
+                "\n" +
+                "class Bar(object):\n" +
+                "    call" +
+                "");
+        Scopes scopes = ScopesParser.createScopes(doc);
+        assertEquals("" +
+        		"[1 (1\n" +
+        		"\n" +
+        		"[3 class Bar([2 object 2]):\n" +
+        		"    call 3] 1]" +
+        		"", scopes.debugString(doc).toString());
+    }
+    
     public void testScopes3() throws Exception {
         Document doc = new Document("a(.o");
         Scopes scopes = ScopesParser.createScopes(doc);
-        assertEquals(new Region(2, 2), scopes.getScopeForSelection(2, 0));
+        assertEquals(new Region(0, 4), scopes.getScopeForSelection(2, 0));
     }
     
     public void testScopes1() throws Exception {

@@ -193,14 +193,14 @@ public class ScopesParser {
 
     private Scopes createScopes() throws SyntaxErrorException {
         int globalScope = this.scopes.startScope(0, Scopes.TYPE_MODULE);
-        int offset = createInternalScopes(ParsingUtils.create(doc), 0);
+        int offset = createInternalScopes(ParsingUtils.create(doc, true), 0);
         this.scopes.endScope(globalScope, offset, Scopes.TYPE_MODULE);
 
         return this.scopes;
 
     }
 
-    private int createInternalScopes(ParsingUtils parsingUtils, int offsetDelta) throws SyntaxErrorException {
+    private int createInternalScopes(ParsingUtils parsingUtils, int offsetDelta) {
         int docLen = parsingUtils.len();
         int offset = 0;
         FastStringBuffer buf = new FastStringBuffer();
@@ -222,33 +222,49 @@ public class ScopesParser {
             case '{':
             case '[':
             case '(':
-                id = this.scopes.startScope(offsetDelta + offset + 1, Scopes.TYPE_PEER);
                 int baseOffset = offset;
-                offset = parsingUtils.eatPar(offset, buf.clear(), ch);
-                
                 try {
-                    String cs = doc.get(offsetDelta+baseOffset+1, offset-baseOffset-1);
-                    createInternalScopes(ParsingUtils.create(cs), offsetDelta+baseOffset+1);
-                } catch (BadLocationException e1) {
-                    Log.log(e1);
+                    offset = parsingUtils.eatPar(offset, buf.clear(), ch); //If a SyntaxError is raised here, we won't create a scope!
+                    id = this.scopes.startScope(offsetDelta + baseOffset + 1, Scopes.TYPE_PEER);
+                    
+                    try {
+                        String cs = doc.get(offsetDelta+baseOffset+1, offset-baseOffset-1);
+                        createInternalScopes(ParsingUtils.create(cs, true), offsetDelta+baseOffset+1);
+                    } catch (BadLocationException e1) {
+                        Log.log(e1);
+                    }
+                    
+                    this.scopes.endScope(id, offsetDelta + offset, Scopes.TYPE_PEER);
+                    
+                } catch (SyntaxErrorException e2) {
+                    
                 }
                 
-                this.scopes.endScope(id, offsetDelta + offset, Scopes.TYPE_PEER);
                 break;
 
             case '\'':
                 //Fallthrough
 
             case '\"':
-                id = this.scopes.startScope(offsetDelta + offset, Scopes.TYPE_STRING);
-                offset = parsingUtils.eatLiterals(buf.clear(), offset);
-                this.scopes.endScope(id, offsetDelta + offset + 1, Scopes.TYPE_STRING);
+                baseOffset = offset;
+                
+                try {
+                    offset = parsingUtils.eatLiterals(buf.clear(), offset); //If a SyntaxError is raised here, we won't create a scope!
+                    id = this.scopes.startScope(offsetDelta + baseOffset, Scopes.TYPE_STRING);
+                    this.scopes.endScope(id, offsetDelta + offset + 1, Scopes.TYPE_STRING);
+                } catch (SyntaxErrorException e1) {
+                    
+                }
                 break;
 
             case ':':
                 if (PySelection.startsWithIndentToken(lineMemo.toString().trim())) {
                     SortedMap<Integer, Integer> subMap = lineOffsetToIndent.tailMap(offsetDelta + memoStart + 1);
-                    int level = lineOffsetToIndent.get(offsetDelta + memoStart);
+                    Integer level = lineOffsetToIndent.get(offsetDelta + memoStart);
+                    if(level == null){
+                        //It's a ':' inside a parens
+                        continue;
+                    }
 
                     Set<Entry<Integer, Integer>> entrySet = subMap.entrySet();
                     boolean found = false;
