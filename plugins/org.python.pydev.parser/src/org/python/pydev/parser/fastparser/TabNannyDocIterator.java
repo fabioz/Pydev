@@ -4,10 +4,9 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.python.pydev.analysis.tabnanny;
+package org.python.pydev.parser.fastparser;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
@@ -26,32 +25,46 @@ import org.python.pydev.core.structure.FastStringBuffer;
 public class TabNannyDocIterator{
     
     private int offset;
-    private IDocument doc;
     private Tuple3<String, Integer, Boolean> nextString;
     private int docLen;
     private boolean firstPass = true;
+    private ParsingUtils parsingUtils;
+    private final FastStringBuffer tempBuf = new FastStringBuffer();
+    private boolean yieldEmptyIndents;
+    private boolean yieldOnLinesWithoutContents;
+
     
-    public TabNannyDocIterator(IDocument doc) throws BadLocationException{
-        this.doc = doc;
-        docLen = doc.getLength();
-        buildNext();
+    public TabNannyDocIterator(Object doc) throws BadLocationException{
+        this(doc, false, true);
+    }
+    
+    public TabNannyDocIterator(Object doc, boolean yieldEmptyIndents, boolean yieldOnLinesWithoutContents) throws BadLocationException{
+        parsingUtils = ParsingUtils.create(doc, true);
+        docLen = parsingUtils.len();
+        this.yieldEmptyIndents = yieldEmptyIndents;
+        this.yieldOnLinesWithoutContents = yieldOnLinesWithoutContents;
+        buildNext(true);
     }
 
     public boolean hasNext() {
         return nextString != null;
     }
 
+    /**
+     * @return tuple with the indentation, the offset where it started and a boolean identifying if the line
+     * has more than only whitespaces (i.e.: there are contents in the line).
+     */
     public Tuple3<String, Integer, Boolean> next() throws BadLocationException {
         if(!hasNext()){
             throw new RuntimeException("Cannot iterate anymore.");
         }
         
         Tuple3<String, Integer, Boolean> ret = nextString;
-        buildNext();
+        buildNext(false);
         return ret;
     }
     
-    private void buildNext() throws BadLocationException {
+    private void buildNext(boolean first) throws BadLocationException {
         while(!internalBuildNext()){
             //just keep doing it... -- lot's of nothing ;-)
         }
@@ -62,7 +75,6 @@ public class TabNannyDocIterator{
             //System.out.println("buildNext");
             char c = '\0';
 
-            ParsingUtils parsingUtils = ParsingUtils.create(doc);
             int initial = -1; 
             while(true){
                 
@@ -89,15 +101,24 @@ public class TabNannyDocIterator{
                     nextString = null;
                     return true;
                 }
-                c = doc.getChar(offset);
+                c = parsingUtils.charAt(offset);
                 
                 
                 if (firstPass){
                     //that could happen if we have comments in the 1st line...
+                    firstPass = false;
                     if((c == ' ' || c == '\t')){
                         break;
                     }else{
-                        firstPass = false;
+                        if(yieldEmptyIndents){
+                            nextString = new Tuple3<String, Integer, Boolean>(tempBuf.toString(), offset, c != '\r' && c != '\n');
+                            if(!yieldOnLinesWithoutContents){
+                                if(!nextString.o3){
+                                    return false;
+                                }
+                            }
+                            return true;
+                        }
                     }
                     
                 }
@@ -108,13 +129,18 @@ public class TabNannyDocIterator{
                     
                 } else if (c == '{' || c == '[' || c == '(') {
                     //starting some call, dict, list, tuple... we're at the same indentation until it is finished
-                    offset = parsingUtils.eatPar(offset, null, c);
+                    try {
+                        offset = parsingUtils.eatPar(offset, null, c);
+                    } catch (SyntaxErrorException e) {
+                        //Ignore unbalanced parens.
+                        offset++;
+                    }
     
                     
                 } else if (c == '\r'){
                     //line end (time for a break to see if we have some indentation just after it...)
                     if(!continueAfterIncreaseOffset()){return true;}
-                    c = doc.getChar(offset);
+                    c = parsingUtils.charAt(offset);
                     if(c == '\n'){
                         if(!continueAfterIncreaseOffset()){return true;}
                     }
@@ -132,10 +158,10 @@ public class TabNannyDocIterator{
                     
                     if(!continueAfterIncreaseOffset()){return true;}
                     
-                    c = doc.getChar(offset);
+                    c = parsingUtils.charAt(offset);
                     if(c == '\r'){
                         if(!continueAfterIncreaseOffset()){return true;}
-                        c = doc.getChar(offset);
+                        c = parsingUtils.charAt(offset);
                         lastLineChar = true;
                     }
                     
@@ -149,7 +175,12 @@ public class TabNannyDocIterator{
                     
                 } else if (c == '\'' || c == '\"') {
                     //literal found... skip to the end of the literal
-                    offset = parsingUtils.getLiteralEnd(offset, c) + 1;
+                    try {
+                        offset = parsingUtils.getLiteralEnd(offset, c) + 1;
+                    } catch (SyntaxErrorException e) {
+                        //Ignore unbalanced string
+                        offset++;
+                    }
                     
                 } else {
                     // ok, a char is found... go to the end of the line and gather
@@ -160,37 +191,46 @@ public class TabNannyDocIterator{
             }
             
             if(offset < docLen){
-                c = doc.getChar(offset);
+                c = parsingUtils.charAt(offset);
             }else{
                 nextString = null;
                 return true;
             }
             
             //ok, if we got here, we're in a position to get the indentation string as spaces and tabs...
-            FastStringBuffer buf = new FastStringBuffer();
+            tempBuf.clear();
             int startingOffset = offset;
             while (c == ' ' || c == '\t') {
-                buf.append(c);
+                tempBuf.append(c);
                 offset++;
                 if(offset >= docLen){
                     break;
                 }
-                c = doc.getChar(offset);
+                c = parsingUtils.charAt(offset);
             }
             //true if we are in a line that has more contents than only the whitespaces/tabs
-            nextString = new Tuple3<String, Integer, Boolean>(buf.toString(), startingOffset, c != '\r' && c != '\n');
+            nextString = new Tuple3<String, Integer, Boolean>(tempBuf.toString(), startingOffset, c != '\r' && c != '\n');
             
+            if(!yieldOnLinesWithoutContents){
+                if(!nextString.o3){
+                    return false;
+                }
+            }
             //now, if we didn't have any indentation, try to make another build
             if(nextString.o1.length() == 0){
+                if(yieldEmptyIndents){
+                    return true;
+                }
                 return false;
             }
             
             
-        } catch (BadLocationException e) {
+        } catch (RuntimeException e) {
+            if(e.getCause() instanceof BadLocationException){
+                throw (BadLocationException)e.getCause();
+            }
             throw e;
             
-        }catch(SyntaxErrorException e){
-            throw new RuntimeException(e);
         }
         return true;
     }

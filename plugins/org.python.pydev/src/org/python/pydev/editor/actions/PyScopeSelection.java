@@ -9,6 +9,7 @@ package org.python.pydev.editor.actions;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.ui.texteditor.ITextEditor;
@@ -17,6 +18,8 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.parser.fastparser.ScopesParser;
+import org.python.pydev.parser.fastparser.ScopesParser.Scopes;
 
 /**
  * @author fabioz
@@ -51,7 +54,12 @@ public class PyScopeSelection extends PyAction {
                 if (currToken.o1.length() > 0) {
                     return new TextSelection(currToken.o2, currToken.o1.length());
                 } else {
-                    char c = ps.getCharAtCurrentOffset();
+                    char c = '\0';
+                    try {
+                        c = ps.getCharAtCurrentOffset();
+                    } catch (BadLocationException e) {
+                        //Ignore (end of document is selected).
+                    }
                     if (StringUtils.isClosingPeer(c)) {
                         PythonPairMatcher pairMatcher = new PythonPairMatcher();
                         int openingOffset = pairMatcher.searchForOpeningPeer(ps.getAbsoluteCursorOffset(), StringUtils.getPeer(c), c, doc);
@@ -88,9 +96,17 @@ public class PyScopeSelection extends PyAction {
                     }
                 }
             }
+            Scopes scopes = ScopesParser.createScopes(doc);
+//            System.out.println(scopes.debugString(doc));
+            IRegion scope = scopes.getScopeForSelection(selection.getOffset(), selection.getLength());
+            if(scope != null){
+                return new TextSelection(scope.getOffset(), scope.getLength());
+            }
+            
         } catch (BadLocationException e) {
             Log.log(e);
         }
+        
         return selection;
     }
 

@@ -22,7 +22,7 @@ public class PyScopeSelectionTest extends TestCase {
         try {
             PyScopeSelectionTest test = new PyScopeSelectionTest();
             test.setUp();
-            test.testWithSelection2();
+//            test.testWithParseError();
             test.tearDown();
             
             junit.textui.TestRunner.run(PyScopeSelectionTest.class);
@@ -34,7 +34,7 @@ public class PyScopeSelectionTest extends TestCase {
     public void check(String string, int initialOffset, int initialLenOffset, int finalOffset, int finalLenOffset){
         PyScopeSelection scopeSelection = new PyScopeSelection();
         Document doc = new Document(string);
-        ITextSelection selection = new TextSelection(initialOffset, initialLenOffset);
+        ITextSelection selection = new TextSelection(doc, initialOffset, initialLenOffset);
         
         ITextSelection newSelection = scopeSelection.getNewSelection(doc, selection);
         assertEquals("Expected offset to be: "+finalOffset+" actual offset: "+newSelection.getOffset()+" -- ", finalOffset, newSelection.getOffset());
@@ -59,8 +59,46 @@ public class PyScopeSelectionTest extends TestCase {
         check("aaa.b()", 4, 1, 0, 7);
         check("aaa.b().o", 4, 1, 0, 9);
         check("a().o", 1, 2, 0, 5);
+        check("a(call()).o", 2, 2, 2, 4);
+        check("a(call()).o", 2, 4, 2, 6);
+        check("a(call()).o", 2, 6, 0, 11);
     }
     
-    public void testWithSelection2() {
+    public void testWithStructures() {
+        String doc = "" +
+              "def m1():\n" +
+        	  "  if True:\n" + //True starts at 15
+        	  "    pass";
+        
+        check(doc, 15, 0, 15, 4);
+        check(doc, 15, 4, 12, 17);
+        check(doc, 12, 17, 0, doc.length());
     }
+    
+    public void testWithDictInParens() {
+        String doc = 
+            "(1,\n" +
+            " {a\n" +
+            ":b})\n" +
+            "\n" +
+            "class Bar(object):\n" +
+            "    call" +
+            "";
+        
+        check(doc, doc.length()-1, 0, doc.length()-4, 4);
+        check(doc, doc.length()-4, 4, 14, 27);
+    }
+    
+    public void testWithParseError() {
+        String doc = 
+            "(1\n" +
+            "\n" +
+            "class Bar(object):\n" +
+            "    call" +
+            "";
+        
+        check(doc, doc.length()-1, 0, doc.length()-4, 4);
+        check(doc, doc.length()-4, 4, 4, 27);
+    }
+    
 }

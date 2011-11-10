@@ -247,7 +247,10 @@ public final class PySelection {
         IRegion endLine = getEndLine();
         IRegion startLine = getStartLine();
         
-        this.textSelection = new TextSelection(doc, startLine.getOffset(), endLine.getOffset() + endLine.getLength() - startLine.getOffset());
+        this.textSelection = new TextSelection(
+                doc, 
+                startLine.getOffset(), 
+                endLine.getOffset() + endLine.getLength() - startLine.getOffset());
     }
 
     
@@ -1977,6 +1980,18 @@ public final class PySelection {
      */
     public static boolean startsWithDedentToken(String trimmedLine) {
         for (String dedent : PySelection.DEDENT_TOKENS) {
+            if(trimmedLine.startsWith(dedent)){
+                return isCompleteToken(trimmedLine, dedent);
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * @return true if this line starts with an indent token (the passed string should be already trimmed)
+     */
+    public static boolean startsWithIndentToken(String trimmedLine) {
+        for (String dedent : PySelection.INDENT_TOKENS) {
             if(trimmedLine.startsWith(dedent)){
                 return isCompleteToken(trimmedLine, dedent);
             }
