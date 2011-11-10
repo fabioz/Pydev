@@ -269,6 +269,21 @@ public class ScopesParser {
                     Set<Entry<Integer, Integer>> entrySet = subMap.entrySet();
                     boolean found = false;
                     id = this.scopes.startScope(memoStart + level, Scopes.TYPE_SUITE);
+                    
+                    int id2 = -1;
+                    for(int j=offset+1;j<docLen;j++ ){
+                        char c = parsingUtils.charAt(j);
+                        if(Character.isWhitespace(c)){
+                            continue;
+                        }
+                        if(c == '#'){
+                            j = parsingUtils.eatComments(null, j);
+                            continue;
+                        }
+                        id2 = this.scopes.startScope(offsetDelta + j, Scopes.TYPE_SUITE);
+                        break;
+                    }
+                    
                     for (Entry<Integer, Integer> entry : entrySet) {
                         if (level >= entry.getValue()) {
                             found = true;
@@ -284,12 +299,18 @@ public class ScopesParser {
                                 Log.log(e);
                             }
                             this.scopes.endScope(id, scopeEndOffset, Scopes.TYPE_SUITE);
+                            if(id2 >0){
+                                this.scopes.endScope(id2, scopeEndOffset, Scopes.TYPE_SUITE);
+                            }
                             break;
                         }
                     }
                     if (!found) {
                         //Ends at the end of the document!
                         this.scopes.endScope(id, offsetDelta + parsingUtils.len(), Scopes.TYPE_SUITE);
+                        if(id2 >0){
+                            this.scopes.endScope(id2,  offsetDelta + parsingUtils.len(), Scopes.TYPE_SUITE);
+                        }
                     }
                 }
                 break;
