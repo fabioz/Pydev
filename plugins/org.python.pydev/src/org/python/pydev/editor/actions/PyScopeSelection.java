@@ -6,11 +6,15 @@
  */
 package org.python.pydev.editor.actions;
 
+import java.util.Map;
+
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.Tuple;
@@ -18,6 +22,8 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.FastStack;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.fastparser.ScopesParser;
 import org.python.pydev.parser.fastparser.ScopesParser.Scopes;
 
@@ -26,6 +32,8 @@ import org.python.pydev.parser.fastparser.ScopesParser.Scopes;
  *
  */
 public class PyScopeSelection extends PyAction {
+
+    public static final String SELECTION_SCOPE_CACHE = "_SELECTION_SCOPE_CACHE_";
 
     public void run(IAction action) {
         try {
@@ -40,8 +48,25 @@ public class PyScopeSelection extends PyAction {
     }
 
     public void perform(IDocument doc, ITextSelection selection) {
+        PyEdit pyEdit = getPyEdit();
+        FastStack<IRegion> cache = getCache(pyEdit);
+        Region initialRegion = new Region(selection.getOffset(), selection.getLength());
+        if(cache.size() > 0){
+            IRegion peek = cache.peek();
+            if(!peek.equals(initialRegion)){
+                cache.clear();
+            }
+        }
+        if(cache.size() == 0){
+            cache.push(initialRegion);
+        }
         ITextSelection newSelection = getNewSelection(doc, selection);
-        getPyEdit().setSelection(newSelection.getOffset(), newSelection.getLength());
+        if(initialRegion.equals(new Region(newSelection.getOffset(), newSelection.getLength()))){
+            return;
+        }
+        
+        pyEdit.setSelection(newSelection.getOffset(), newSelection.getLength());
+        cache.push(new Region(newSelection.getOffset(), newSelection.getLength()));
     }
 
     public ITextSelection getNewSelection(IDocument doc, ITextSelection selection) {
@@ -108,6 +133,44 @@ public class PyScopeSelection extends PyAction {
         }
         
         return selection;
+    }
+
+
+    private static String getCurrentSelectionCacheKey(PyEdit pyEdit) {
+        IDocument doc = pyEdit.getDocument();
+        
+        int length = doc.getLength();
+        String key = Integer.toString(length);
+        if(doc instanceof IDocumentExtension4){
+            IDocumentExtension4 document = (IDocumentExtension4) doc;
+            long modificationStamp = document.getModificationStamp();
+            key += " - "+modificationStamp;
+        }
+        return key;
+    }
+    
+
+    @SuppressWarnings("unchecked")
+    public static FastStack<IRegion> getCache(PyEdit pyEdit) {
+        Map<String, Object> cache = pyEdit.getCache();
+        String key = getCurrentSelectionCacheKey(pyEdit);
+        try {
+            Tuple<String, FastStack<IRegion>> object = (Tuple<String, FastStack<IRegion>>) cache.get(
+                    PyScopeSelection.SELECTION_SCOPE_CACHE);
+            
+            
+            if(object != null){
+                if(key.equals(object.o1)){
+                    return object.o2;
+                }
+            }
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        
+        FastStack<IRegion> stack = new FastStack<IRegion>();
+        cache.put(PyScopeSelection.SELECTION_SCOPE_CACHE, new Tuple<String, FastStack<IRegion>>(key, stack));
+        return stack;
     }
 
 }
