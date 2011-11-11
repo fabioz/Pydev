@@ -40,15 +40,15 @@ public class ScopesParserTest extends TestCase {
         		"    multi string\n" +
         		"        '''\n");
         Scopes scopes = ScopesParser.createScopes(doc);
-        assertEquals(scopes.debugString(doc).toString(), "" +
+        assertEquals("" +
         		"[1 [2 #comment 2]\n" +
         		"[4 class Foo([3 object 3]):\n" +
-        		"    [7 def method([5 self, a=([6 10,20 6]) 5]):\n" +
-        		"        [8 '''\n" +
+        		"    [5 [8 def method([6 self, a=([7 10,20 7]) 6]):\n" +
+        		"        [9 [10 '''\n" +
         		"    multi string\n" +
-        		"        ''' 8]\n" +
-        		" 4] 7] 1]" +
-        		"");
+        		"        ''' 10]\n" +
+        		" 4] 5] 8] 9] 1]" +
+        		"", scopes.debugString(doc).toString());
     }
     
     public void testScopes2() throws Exception {
@@ -68,7 +68,7 @@ public class ScopesParserTest extends TestCase {
         		"[1 (1\n" +
         		"\n" +
         		"[3 class Bar([2 object 2]):\n" +
-        		"    call 3] 1]" +
+        		"    [4 call 3] 4] 1]" +
         		"", scopes.debugString(doc).toString());
     }
     
@@ -93,20 +93,20 @@ public class ScopesParserTest extends TestCase {
                 "    else:\n" +
                 "        pass");
         Scopes scopes = ScopesParser.createScopes(doc);
-        assertEquals(scopes.debugString(doc).toString(), "" +
+        assertEquals("" +
         		"[1 [2 #comment 2]\n" +
         		"[4 class Foo([3 object 3]):\n" +
-        		"    [8 def method([5 self, a=([6 bb,([7 cc,dd 7]) 6]) 5]):\n" +
-        		"        [9 '''\n" +
+        		"    [5 [9 def method([6 self, a=([7 bb,([8 cc,dd 8]) 7]) 6]):\n" +
+        		"        [10 [11 '''\n" +
         		"    multi string\n" +
-        		"        ''' 4] 8] 9]\n" +
-        		"[10 class Class2:\n" +
-        		"    [11 if True:\n" +
-        		"        a = \\\n" +
-        		"xx 11]\n" +
-        		"    [12 else:\n" +
-        		"        pass 10] 12] 1]" +
-        		"");
+        		"        ''' 4] 5] 9] 10] 11]\n" +
+        		"[12 class Class2:\n" +
+        		"    [13 [14 if True:\n" +
+        		"        [15 a = \\\n" +
+        		"xx 14] 15]\n" +
+        		"    [16 else:\n" +
+        		"        [17 pass 12] 13] 16] 17] 1]" +
+        		"", scopes.debugString(doc).toString());
         
         assertEquals(new Region(0, 8), scopes.getScopeForSelection(0, 2));
         assertEquals(new Region(19, 6), scopes.getScopeForSelection(20, 0));
