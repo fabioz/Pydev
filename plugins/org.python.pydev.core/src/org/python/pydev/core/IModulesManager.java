@@ -139,11 +139,6 @@ public interface IModulesManager {
     public abstract Object /*PythonPathHelper*/ getPythonPathHelper();
 
     /**
-     * Sets the pythonpath helper related to this modules manager. 
-     */
-    public abstract void setPythonPathHelper(Object /*PythonPathHelper*/ pathHelper);
-
-    /**
      * This method removes some module from this modules manager.
      * 
      * @param key the key that represents the module to be removed from this modules manager.

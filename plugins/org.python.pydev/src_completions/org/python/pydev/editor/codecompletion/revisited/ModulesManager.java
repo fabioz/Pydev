@@ -169,13 +169,6 @@ public abstract class ModulesManager implements IModulesManager {
     public PythonPathHelper getPythonPathHelper() {
         return pythonPathHelper;
     }
-
-    public void setPythonPathHelper(Object pathHelper) {
-        if (!(pathHelper instanceof PythonPathHelper)) {
-          throw new IllegalArgumentException();
-        }
-        pythonPathHelper = (PythonPathHelper)pathHelper;
-    }
     
 
     public void saveToFile(File workspaceMetadataFile) {
