@@ -336,28 +336,36 @@ public class PyParser implements IPyParser {
         }
         
 		for (IParserObserver l : temp) { 
-            //work on a copy (because listeners may want to remove themselves and we cannot afford concurrent modifications here)
-            if(l instanceof IParserObserver3){
-                ((IParserObserver3)l).parserChanged(info);
-                
-            }else if(l instanceof IParserObserver2){
-                ((IParserObserver2)l).parserChanged(info.root, info.file, info.doc, info.argsToReparse);
-                
-            }else{
-                l.parserChanged(info.root, info.file, info.doc);
+            try {
+                //work on a copy (because listeners may want to remove themselves and we cannot afford concurrent modifications here)
+                if(l instanceof IParserObserver3){
+                    ((IParserObserver3)l).parserChanged(info);
+                    
+                }else if(l instanceof IParserObserver2){
+                    ((IParserObserver2)l).parserChanged(info.root, info.file, info.doc, info.argsToReparse);
+                    
+                }else{
+                    l.parserChanged(info.root, info.file, info.doc);
+                }
+            } catch (Exception e) {
+                Log.log(e);
             }
         }
 
         List<IParserObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PARSER_OBSERVER);
         for (IParserObserver observer : participants) {
-            if(observer instanceof IParserObserver3){
-                ((IParserObserver3)observer).parserChanged(info);
-                
-            }else if(observer instanceof IParserObserver2){
-                ((IParserObserver2)observer).parserChanged(info.root, info.file, info.doc, info.argsToReparse);
-                
-            }else{
-                observer.parserChanged(info.root, info.file, info.doc);
+            try {
+                if(observer instanceof IParserObserver3){
+                    ((IParserObserver3)observer).parserChanged(info);
+                    
+                }else if(observer instanceof IParserObserver2){
+                    ((IParserObserver2)observer).parserChanged(info.root, info.file, info.doc, info.argsToReparse);
+                    
+                }else{
+                    observer.parserChanged(info.root, info.file, info.doc);
+                }
+            } catch (Exception e) {
+                Log.log(e);
             }
         }
     }

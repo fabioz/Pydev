@@ -883,11 +883,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         if(doRebuild){
             PythonNature nature = PythonNature.getPythonNature(project);
             if (nature != null) {
-                try {
-                    nature.rebuildPath();
-                } catch (CoreException e) {
-                    Log.log(e);
-                }
+                nature.rebuildPath();
             }
         }
         traceFunc("END resourceChanged -- rebuilt:", doRebuild);
