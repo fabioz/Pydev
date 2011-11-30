@@ -119,29 +119,35 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * @author Fabio
      */
     protected class RebuildPythonNatureModules extends Job {
-        private volatile String submittedPaths;
 
         protected RebuildPythonNatureModules() {
           super("Python Nature: rebuilding modules");
         }
     
-        private void setParams(String paths) {
-            submittedPaths = paths;
-        }
-
         @SuppressWarnings("unchecked")
-        protected IStatus run(IProgressMonitor monitorArg) {
+        protected IStatus run(IProgressMonitor monitor) {
 
             String paths;
-            paths = submittedPaths;
+            try {
+                paths = pythonPathNature.getOnlyProjectPythonPathStr(true);
+            } catch (CoreException e1) {
+                Log.log(e1);
+                return Status.OK_STATUS;
+            }
             
             try {
-                final JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Rebuilding modules", IProgressMonitor.UNKNOWN, this);
+                if(monitor.isCanceled()){
+                    return Status.OK_STATUS;
+                }
+                final JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitor, "Rebuilding modules", IProgressMonitor.UNKNOWN, this);
                 final PythonNature nature = PythonNature.this;
                 try {
                     ICodeCompletionASTManager tempAstManager = astManager;
                     if (tempAstManager == null) {
                         tempAstManager = new ASTManager();
+                    }
+                    if(monitor.isCanceled()){
+                        return Status.OK_STATUS;
                     }
                     synchronized(tempAstManager.getLock()){
                         astManager = tempAstManager;
@@ -149,10 +155,16 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
                         //begins task automatically
                         tempAstManager.changePythonPath(paths, project, jobProgressComunicator);
+                        if(monitor.isCanceled()){
+                            return Status.OK_STATUS;
+                        }
                         saveAstManager();
 
                         List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
                         for (IInterpreterObserver observer : participants) {
+                            if(monitor.isCanceled()){
+                                return Status.OK_STATUS;
+                            }
                             try {
                                 observer.notifyProjectPythonpathRestored(nature, jobProgressComunicator);
                             } catch (Exception e) {
@@ -165,6 +177,9 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                     Log.log(e);
                 }
 
+                if(monitor.isCanceled()){
+                    return Status.OK_STATUS;
+                }
                 PythonNatureListenersManager.notifyPythonPathRebuilt(project, nature); 
                 //end task
                 jobProgressComunicator.done();
@@ -623,18 +638,15 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      */
     public void rebuildPath() throws CoreException {
         clearCaches(true);
-        String paths = this.pythonPathNature.getOnlyProjectPythonPathStr(true);
-        synchronized(this.setParamsLock){
-		    this.rebuildJob.cancel();
-		    this.rebuildJob.setParams(paths);
-		    this.rebuildJob.schedule(20L);
-		}
+        //Note: pythonPathNature.getOnlyProjectPythonPathStr(true); cannot be called at this moment
+        //as it may trigger a refresh, which may trigger a build and could ask for PythonNature.getPythonNature (which
+        //could be the method that ended up calling rebuildPath in the first place, so, it'd deadlock).
+        this.rebuildJob.cancel();
+        this.rebuildJob.schedule(20L);
     }
 
 
     private RebuildPythonNatureModules rebuildJob = new RebuildPythonNatureModules();
-    
-    private Object setParamsLock = new Object();
     
     /**
      * @return Returns the completionsCache. Note that it can be null.
