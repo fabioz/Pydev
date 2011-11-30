@@ -111,6 +111,7 @@ public class NatureGroup extends ElementWithChildren {
         }
         
         IntegrityInfo info = new IntegrityInfo();
+        info.nature = nature;
         
         
         ModulesKey[] onlyDirectModules = projectModulesManager.getOnlyDirectModules();

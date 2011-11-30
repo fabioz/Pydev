@@ -17,6 +17,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +60,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.interpreters.IInterpreterObserver;
@@ -540,15 +542,12 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         if(updatePaths){
         	//If updating the paths, rebuild and return (don't try to load an existing ast manager
         	//and restore anything already there)
-        	try {
-				rebuildPath();
-			} catch (CoreException e) {
-				Log.log(e);
-			}
+			rebuildPath();
 			return;
         }
         
         if(monitor.isCanceled()){
+            checkPythonPathHelperPathsJob.schedule(500);
             return;
         }
         
@@ -595,9 +594,32 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             } catch (Exception e) {
                 Log.log(e);
             }
+        }else{
+            checkPythonPathHelperPathsJob.schedule(500);
         }
     }
 
+    private final Job checkPythonPathHelperPathsJob = new Job("Check restored pythonpath"){
+
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            try {
+                if(astManager != null){
+                    String pythonpath  = pythonPathNature.getOnlyProjectPythonPathStr(true);
+                    PythonPathHelper pythonPathHelper = (PythonPathHelper) astManager.getModulesManager().getPythonPathHelper();
+                    //If it doesn't match, rebuid the pythonpath!
+                    if(!new HashSet<String>(PythonPathHelper.parsePythonPathFromStr(pythonpath, null)).equals(
+                            new HashSet<String>(pythonPathHelper.getPythonpath()))){
+                        rebuildPath();
+                    }
+                }
+            } catch (CoreException e) {
+                Log.log(e);
+            }
+            return Status.OK_STATUS;
+        }
+        
+    };
 
     /**
      * Returns the directory that should store completions.
@@ -636,7 +658,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * Can be called to refresh internal info (or after changing the path in the preferences).
      * @throws CoreException 
      */
-    public void rebuildPath() throws CoreException {
+    public void rebuildPath() {
         clearCaches(true);
         //Note: pythonPathNature.getOnlyProjectPythonPathStr(true); cannot be called at this moment
         //as it may trigger a refresh, which may trigger a build and could ask for PythonNature.getPythonNature (which
