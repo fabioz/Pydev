@@ -224,7 +224,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
 	        	Long lastTimeChanged = predefinedFilesNotParsedToTimestamp.get(predefinedModule);
 	        	if(lastTimeChanged != null){
 	        		lastModified = predefinedModule.lastModified();
-	        		if(lastTimeChanged == lastModified){
+	        		if(lastTimeChanged.equals(lastModified)){
 	        			tryToParse = false;
 	        		}else{
 	        			predefinedFilesNotParsedToTimestamp.remove(predefinedModule);

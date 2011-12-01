@@ -529,9 +529,8 @@ public final class TreeBuilder26 extends AbstractTreeBuilder implements ITreeBui
         }
         ArrayList<SimpleNode> list = new ArrayList<SimpleNode>();
         for (int i = l-1; i >= 0; i--) {
-            SimpleNode popped = null;
+            SimpleNode popped = stack.popNode();
             try{
-                popped = stack.popNode();
                 list.add((DefaultArg) popped);
             }catch(ClassCastException e){
                 throw new ParseException("Internal error (ClassCastException):"+e.getMessage()+"\n"+popped, popped);

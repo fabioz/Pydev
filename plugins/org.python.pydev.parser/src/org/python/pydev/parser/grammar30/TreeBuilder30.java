@@ -583,9 +583,8 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
         
         ArrayList<SimpleNode> list = new ArrayList<SimpleNode>();
         for (int i = l-1; i >= 0; i--) {
-            SimpleNode popped = null;
+            SimpleNode popped = stack.popNode();
             try{
-                popped = stack.popNode();
                 if(popped.getId() == JJTEXTRAKEYWORDLIST){
                     ExtraArg node = (ExtraArg) popped;
                     kwarg = node.tok;

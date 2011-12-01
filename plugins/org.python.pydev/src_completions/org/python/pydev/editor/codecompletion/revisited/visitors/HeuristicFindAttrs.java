@@ -160,7 +160,7 @@ public class HeuristicFindAttrs extends AbstractVisitor {
             if(where == WHITIN_ANY){
                 node.traverse(this);
             
-            } else if(where == WHITIN_INIT && node.name.equals("__init__")){
+            } else if(where == WHITIN_INIT && node.name != null && ((NameTok)node.name).id.equals("__init__")){
                 node.traverse(this);
             }
             entryPointCorrect = false;

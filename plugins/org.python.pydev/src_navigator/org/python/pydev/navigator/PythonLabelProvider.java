@@ -45,7 +45,7 @@ public class PythonLabelProvider implements ILabelProvider{
 
     private WorkbenchLabelProvider provider;
     
-    private Image projectWithError = null;
+    private volatile Image projectWithError = null;
     
     private Object lock = new Object();
 
@@ -168,6 +168,8 @@ public class PythonLabelProvider implements ILabelProvider{
                     //we must recheck again (if 2 got here and 1 got the lock while the other was waiting, when
                     //the other enters the lock, it does not need to recalculated).
                     if(projectWithError == null){
+                        //Note on double-checked locking idiom: http://www.cs.umd.edu/~pugh/java/memoryModel/DoubleCheckedLocking.html.
+                        //(would not work as expected on java 1.4)
                         Image image = provider.getImage(element);
                         try {
                             DecorationOverlayIcon decorationOverlayIcon = new DecorationOverlayIcon(

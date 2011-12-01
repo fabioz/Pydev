@@ -12,7 +12,6 @@
 package org.python.pydev.editor.codecompletion.revisited.modules;
 
 import java.io.File;
-import java.io.Serializable;
 
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionCache;
@@ -24,7 +23,7 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 /**
  * @author Fabio Zadrozny
  */
-public class EmptyModule extends AbstractModule implements Serializable {
+public class EmptyModule extends AbstractModule {
 
     private static final long serialVersionUID = 1L;
     public File f;

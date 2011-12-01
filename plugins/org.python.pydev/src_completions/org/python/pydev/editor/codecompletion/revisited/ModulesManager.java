@@ -318,11 +318,11 @@ public abstract class ModulesManager implements IModulesManager {
             }
         }
         
-        modulesManager.pythonPathHelper.loadFromFile(pythonpatHelperFile);
-        
         if(modulesManager.pythonPathHelper == null){
             throw new IOException("Pythonpath helper not properly restored. "+modulesManager.getClass().getName()+" dir:"+workspaceMetadataFile);
         }
+        modulesManager.pythonPathHelper.loadFromFile(pythonpatHelperFile);
+        
         
         if(modulesManager.pythonPathHelper.getPythonpath() == null){
             throw new IOException("Pythonpath helper pythonpath not properly restored. "+modulesManager.getClass().getName()+" dir:"+workspaceMetadataFile);

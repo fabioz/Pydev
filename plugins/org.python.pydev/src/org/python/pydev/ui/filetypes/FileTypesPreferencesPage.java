@@ -156,6 +156,7 @@ public class FileTypesPreferencesPage extends FieldEditorPreferencePage implemen
                 for(int i=0;i<ret.length;i++){
                     ret[i] = "__init__."+cacheValidSourceFiles[i];
                 }
+                pythonValidInitFiles = ret;
             }
             return ret;
         }

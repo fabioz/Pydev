@@ -1101,6 +1101,18 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         
         return REF.getFileAbsolutePath(file).equals(REF.getFileAbsolutePath(m.file)) && this.name.equals(m.name); 
     }
+    
+    @Override
+    public int hashCode() {
+        int hash = 77;
+        if(file != null){
+            hash += file.hashCode();
+        }
+        if(name != null){
+            hash += name.hashCode();
+        }
+        return hash;
+    }
 
     public void setName(String n) {
         this.name = n;
