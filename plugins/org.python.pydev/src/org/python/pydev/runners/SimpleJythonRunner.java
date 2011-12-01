@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
+import org.python.pydev.core.ArrayUtils;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
@@ -46,7 +47,7 @@ public class SimpleJythonRunner extends SimpleRunner{
         
     }
     
-    public Tuple<String,String> runAndGetOutputWithJar(String script, String jythonJar, String args, 
+    public Tuple<String,String> runAndGetOutputWithJar(String script, String jythonJar, String[] args, 
             File workingDir, IProject project, IProgressMonitor monitor) {
         File javaExecutable = JavaVmLocationFinder.findDefaultJavaExecutable();
         if(javaExecutable == null){
@@ -61,7 +62,7 @@ public class SimpleJythonRunner extends SimpleRunner{
     }
     
     public Tuple<String,String> runAndGetOutputWithJar(File javaExecutable, String script, String jythonJar, 
-            String args, File workingDir, IProject project, IProgressMonitor monitor, String additionalPythonpath) {
+            String[] args, File workingDir, IProject project, IProgressMonitor monitor, String additionalPythonpath) {
         //"C:\Program Files\Java\jdk1.5.0_04\bin\java.exe" "-Dpython.home=C:\bin\jython21" 
         //-classpath "C:\bin\jython21\jython.jar;%CLASSPATH%" org.python.util.jython %ARGS%
         //used just for getting info without any classpath nor pythonpath
@@ -97,6 +98,10 @@ public class SimpleJythonRunner extends SimpleRunner{
                     "org.python.util.jython" 
                     ,script
                 };
+            }
+            
+            if(args != null && args.length > 0){
+                s = ArrayUtils.concatArrays(s, args);
             }
             
             return runAndGetOutput(s, workingDir, PythonNature.getPythonNature(project), monitor);
