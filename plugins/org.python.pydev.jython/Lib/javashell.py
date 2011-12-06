@@ -139,7 +139,7 @@ def _getOsType( os=None ):
     _osTypeMap = (
         ( "nt", ( 'nt', 'Windows NT', 'Windows NT 4.0', 'WindowsNT',
                   'Windows 2000', 'Windows 2003', 'Windows XP', 'Windows CE',
-                  'Windows Vista' )),
+                  'Windows Vista', 'Windows 7', 'Windows NT unknown' )),
         ( "dos", ( 'dos', 'Windows 95', 'Windows 98', 'Windows ME' )),
         ( "mac", ( 'mac', 'MacOS', 'Darwin' )),
         ( "None", ( 'None', )),
@@ -153,7 +153,10 @@ def _getOsType( os=None ):
         if foundType:
             break
     if not foundType:
-        foundType = "posix" # default - posix seems to vary most widely
+        if 'windows' in os.lower():
+            foundType = 'nt'
+        else:
+            foundType = "posix" # default - posix seems to vary most widely
 
     return foundType
 

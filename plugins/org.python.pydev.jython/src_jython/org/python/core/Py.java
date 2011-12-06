@@ -1978,7 +1978,7 @@ class FixedFileWrapper extends StdoutWrapper {
 /**
  * A code object wrapper for a python function.
  */
-class JavaCode extends PyCode {
+final class JavaCode extends PyCode {
     private PyObject func;
 
     public JavaCode(PyObject func) {
@@ -2036,7 +2036,7 @@ class JavaCode extends PyCode {
  * A function object wrapper for a java method which comply with the
  * PyArgsKeywordsCall standard.
  */
-class JavaFunc extends PyObject {
+final class JavaFunc extends PyObject {
      java.lang.reflect.Method method;
 
      public JavaFunc(java.lang.reflect.Method method) {
