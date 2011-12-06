@@ -21,71 +21,175 @@ and opendir), and leave all pathname manipulation to os.path
 """
 
 __all__ = ["altsep", "curdir", "pardir", "sep", "pathsep", "linesep",
-           "defpath", "name"]
+           "defpath", "name",
+           "system", "environ", "putenv", "getenv",
+           "popen", "popen2", "popen3", "popen4", "getlogin"
+           ]
 
-import java
-from java.io import File, BufferedReader, InputStreamReader, IOException
+from java.io import File
+import java.lang.System
 import javapath as path
 from UserDict import UserDict
-import string
-import exceptions
-import re
-import sys
-import thread
+import time
 
+class stat_result:
+  import stat as _stat
+
+  _stat_members = (
+    ('st_mode', _stat.ST_MODE),
+    ('st_ino', _stat.ST_INO),
+    ('st_dev', _stat.ST_DEV),
+    ('st_nlink', _stat.ST_NLINK),
+    ('st_uid', _stat.ST_UID),
+    ('st_gid', _stat.ST_GID),
+    ('st_size', _stat.ST_SIZE),
+    ('st_atime', _stat.ST_ATIME),
+    ('st_mtime', _stat.ST_MTIME),
+    ('st_ctime', _stat.ST_CTIME),
+  )
+
+  def __init__(self, results):
+    if len(results) != 10:
+      raise TypeError("stat_result() takes an a  10-sequence")
+    for (name, index) in stat_result._stat_members:
+      self.__dict__[name] = results[index]
+
+  def __getitem__(self, i):
+    if i < 0 or i > 9:
+      raise IndexError(i)
+    return getattr(self, stat_result._stat_members[i][0])
+  
+  def __setitem__(self, x, value):
+    raise TypeError("object doesn't support item assignment")
+  
+  def __setattr__(self, name, value):
+    if name in [x[0] for x in stat_result._stat_members]:
+      raise TypeError(name)
+    raise AttributeError("readonly attribute")
+  
+  def __len__(self):
+    return 10
+
+  def __cmp__(self, other):
+    if not isinstance(other, stat_result):
+      return 1
+    return cmp(self.__dict__, other.__dict__)
 
 error = OSError
 
 name = 'java' # discriminate based on JDK version?
 curdir = '.'  # default to Posix for directory behavior, override below
 pardir = '..' 
-sep = java.io.File.separator
+sep = File.separator
 altsep = None
-pathsep = java.io.File.pathSeparator
+pathsep = File.pathSeparator
 defpath = '.'
 linesep = java.lang.System.getProperty('line.separator')
+if sep=='.':
+    extsep = '/'
+else:
+    extsep = '.'
+path.curdir = curdir
+path.pardir = pardir
+path.sep = sep
+path.altsep = altsep
+path.pathsep = pathsep
+path.defpath = defpath
+path.extsep = extsep
 
 def _exit(n=0):
+    """_exit(status)
+
+    Exit to the system with specified status, without normal exit
+    processing.
+    """
     java.lang.System.exit(n)
 
 def getcwd():
+    """getcwd() -> path
+
+    Return a string representing the current working directory.
+    """
     foo = File(File("foo").getAbsolutePath())
     return foo.getParent()
 
 def chdir(path):
+    """chdir(path)
+
+    Change the current working directory to the specified path.
+    """
     raise OSError(0, 'chdir not supported in Java', path)
 
 def listdir(path):
+    """listdir(path) -> list_of_strings
+
+    Return a list containing the names of the entries in the directory.
+
+        path: path of directory to list
+
+    The list is in arbitrary order.  It does not include the special
+    entries '.' and '..' even if they are present in the directory.
+    """
     l = File(path).list()
     if l is None:
         raise OSError(0, 'No such directory', path)
     return list(l)
 
 def mkdir(path, mode='ignored'):
+    """mkdir(path [, mode=0777])
+
+    Create a directory.
+
+    The optional parameter is currently ignored.
+    """
     if not File(path).mkdir():
         raise OSError(0, "couldn't make directory", path)
 
 def makedirs(path, mode='ignored'):
+    """makedirs(path [, mode=0777])
+
+    Super-mkdir; create a leaf directory and all intermediate ones.
+
+    Works like mkdir, except that any intermediate path segment (not
+    just the rightmost) will be created if it does not exist.
+    The optional parameter is currently ignored.
+    """
     if not File(path).mkdirs():
         raise OSError(0, "couldn't make directories", path)
 
 def remove(path):
+    """remove(path)
+
+    Remove a file (same as unlink(path)).
+    """
     if not File(path).delete():
         raise OSError(0, "couldn't delete file", path)
 
 def rename(path, newpath):
+    """rename(old, new)
+
+    Rename a file or directory.
+    """
     if not File(path).renameTo(File(newpath)):
         raise OSError(0, "couldn't rename file", path)
 
 def rmdir(path):
+    """rmdir(path)
+
+    Remove a directory."""
     if not File(path).delete():
         raise OSError(0, "couldn't delete directory", path)
 
 unlink = remove
 
 def stat(path):
-    """The Java stat implementation only returns a small subset of
-    the standard fields"""
+    """stat(path) -> stat result
+
+    Perform a stat system call on the given path.
+
+    The Java stat implementation only returns a small subset of
+    the standard fields: size, modification time and change time.
+    """
     f = File(path)
     size = f.length()
     # Sadly, if the returned length is zero, we don't really know if the file
@@ -93,12 +197,25 @@ def stat(path):
     if size == 0 and not f.exists():
         raise OSError(0, 'No such file or directory', path)
     mtime = f.lastModified() / 1000.0
-    return (0, 0, 0, 0, 0, 0, size, mtime, mtime, 0)
+    return stat_result((0, 0, 0, 0, 0, 0, size, mtime, mtime, 0))
 
 def utime(path, times):
+    """utime(path, (atime, mtime))
+    utime(path, None)
+
+    Set the access and modified time of the file to the given values.
+    If the second form is used, set the access and modified times to the
+    current time.
+
+    Due to java limitations only the modification time is changed.
+    """
+    if times is not None:
+        mtime = times[1]
+    else:
+        mtime = time.time()
     # Only the modification time is changed (and only on java2).
-    if times and hasattr(File, "setLastModified"):
-        File(path).setLastModified(long(times[1] * 1000.0))
+    if hasattr(File, "setLastModified"):
+        File(path).setLastModified(long(mtime * 1000.0))
 
 class LazyDict( UserDict ):
     """A lazy-populating User Dictionary.
@@ -119,8 +236,10 @@ class LazyDict( UserDict ):
 
     def __populate( self ):
         if not self._populated:
+            # race condition - test, populate, set
+            # make sure you don't set _populated until __populateFunc completes...
             self.data = self.__populateFunc()
-            self._populated = 1 # race condition
+            self._populated = 1 
 
     ########## extend methods from UserDict by pre-populating
     def __repr__(self):
@@ -171,297 +290,106 @@ class LazyDict( UserDict ):
     def popitem(self):
         self.__populate()
         return UserDict.popitem( self )
+    def pop(self, *args):
+      self.__populate()
+      return UserDict.pop(self, *args)
+    def iteritems(self):
+      self.__populate()
+      return UserDict.iteritems(self)
+    def iterkeys(self):
+      self.__populate()
+      return UserDict.iterkeys(self)
+    def itervalues(self):
+      self.__populate()
+      return UserDict.itervalues(self)
+    def __contains__(self, key):
+      self.__populate()
+      return UserDict.__contains__(self, key)
 
+# Provide lazy environ, popen*, and system objects
+# Do these lazily, as most jython programs don't need them,
+# and they are very expensive to initialize
 
-class _ShellEnv:
-    """Provide environment derived by spawning a subshell and parsing its
-    environment.  Also supports system functions and provides empty
-    environment support for platforms with unknown shell
-    functionality.
-    """
-    def __init__( self, cmd=None, getEnv=None, keyTransform=None ):
-        """cmd: list of exec() arguments to run command in subshell, or None
-        getEnv: shell command to list environment variables, or None
-        keyTransform: normalization function for environment keys, or None
-        """
-        self.cmd = cmd
-        self.getEnv = getEnv
-        self.environment = LazyDict(populate=self._getEnvironment,
-                                    keyTransform=keyTransform)
-        self._keyTransform = self.environment._keyTransform
+def _getEnvironment():
+    import javashell
+    return javashell._shellEnv.environment
 
-    ########## system
-    def system( self, cmd ):
-        """Imitate the standard library 'system' call.
-        Execute 'cmd' in a shell, and send output to stdout & stderr.
-        """
-        p = self.execute( cmd )
-
-        def println( arg, write=sys.stdout.write ):
-            write( arg + "\n" )
-        def printlnStdErr( arg, write=sys.stderr.write ):
-            write( arg + "\n" )
-            
-        # read stderr in new thread
-        thread.start_new_thread( self._readLines,
-                                ( p.getErrorStream(), printlnStdErr ))
-        # read stdin in main thread
-        self._readLines( p.getInputStream(), println )
-        
-        return p.waitFor()
-
-    def execute( self, cmd ):
-        """Execute cmd in a shell, and return the process instance"""
-        shellCmd = self._formatCmd( cmd )
-        if self.environment._populated:
-            env = self._formatEnvironment( self.environment )
-        else:
-            env = None
-        try:
-            p = java.lang.Runtime.getRuntime().exec( shellCmd, env )
-            return p
-        except IOException, ex:
-            raise OSError(
-                0,
-                "Failed to execute command (%s): %s" % ( shellCmd, ex )
-                )
-
-    ########## utility methods
-    def _readLines( self, stream, func=None ):
-        """Read lines of stream, and either append them to return
-        array of lines, or call func on each line.
-        """
-        lines = []
-        func = func or lines.append
-        # should read both stderror and stdout in separate threads...
-        bufStream = BufferedReader( InputStreamReader( stream ))
-        while 1:
-            line = bufStream.readLine()
-            if line is None: break
-            func( line )
-        return lines or None
-
-    def _formatCmd( self, cmd ):
-        """Format a command for execution in a shell."""
-        if self.cmd is None:
-            msgFmt = "Unable to execute commands in subshell because shell" \
-                     " functionality not implemented for OS %s with shell"  \
-                     " setting %s. Failed command=%s""" 
-            raise OSError( 0, msgFmt % ( _osType, _envType, cmd ))
-            
-        return self.cmd + [cmd]
-
-    def _formatEnvironment( self, env ):
-        """Format enviroment in lines suitable for Runtime.exec"""
-        lines = []
-        for keyValue in env.items():
-            lines.append( "%s=%s" % keyValue )
-        return lines
-
-    def _getEnvironment( self ):
-        """Get the environment variables by spawning a subshell.
-        This allows multi-line variables as long as subsequent lines do
-        not have '=' signs.
-        """
-        env = {}
-        if self.getEnv:
-            try:
-                p = self.execute( self.getEnv )
-                lines = self._readLines( p.getInputStream() )
-                if '=' not in lines[0]:
-                    print "getEnv command (%s) did not print environment.\n" \
-                        "Output=%s" % (
-                        self.getEnv, '\n'.join( lines )
-                        )
-                    return env
-
-                for line in lines:
-                    try:
-                        i = line.index( '=' )
-                        key = self._keyTransform(line[:i])
-                        value = line[i+1:]
-                    except ValueError:
-                        # found no '=', so line is part of previous value
-                        value = '%s\n%s' % ( value, line )
-                    env[ key ] = value
-            except OSError, ex:
-                print "Failed to get environment, environ will be empty:", ex
-        return env
-
-def _getOsType( os=None ):
-    """Select the OS behavior based on os argument, 'python.os' registry
-    setting and 'os.name' Java property.
-    os: explicitly select desired OS. os=None to autodetect, os='None' to
-    disable 
-    """
-    os = os or sys.registry.getProperty( "python.os" ) or \
-               java.lang.System.getProperty( "os.name" )
-        
-    _osTypeMap = (
-        ( "nt", r"(nt)|(Windows NT)|(Windows NT 4.0)|(WindowsNT)|"
-                r"(Windows 2000)|(Windows XP)|(Windows CE)|(Windows Vista)|(Windows NT \\(unknown\\))|(Windows 7)" ),
-        ( "dos", r"(dos)|(Windows 95)|(Windows 98)|(Windows ME)" ),
-        ( "mac", r"(mac)|(MacOS.*)|(Darwin)" ),
-        ( "None", r"(None)" ),
-        ( "posix", r"(.*)" ), # default - posix seems to vary mast widely
-        )
-    for osType, pattern in _osTypeMap:
-        if re.match( pattern, os ):
-            break
-    return osType
-
-def _getShellEnv( envType, shellCmd, envCmd, envTransform ):
-    """Create the desired environment type.
-    envType: 'shell' or None
-    """
-    if envType == "shell":
-        return _ShellEnv( shellCmd, envCmd, envTransform )
-    else:
-        return _ShellEnv()
-    
-_osType = _getOsType()
-_envType = sys.registry.getProperty("python.environment", "shell")
-
-# default to None/empty for shell and environment behavior
-_shellCmd = None
-_envCmd = None
-_envTransform = None
-
-# override defaults based on _osType
-if _osType == "nt":
-    _shellCmd = ["cmd", "/c"]
-    _envCmd = "set"
-    _envTransform = string.upper
-elif _osType == "dos":
-    _shellCmd = ["command.com", "/c"]
-    _envCmd = "set"
-    _envTransform = string.upper
-elif _osType == "posix":
-    _shellCmd = ["sh", "-c"]
-    _envCmd = "env"
-elif _osType == "mac":
-    curdir = ':'  # override Posix directories
-    pardir = '::' 
-elif _osType == "None":
-    pass
-# else:
-#    # may want a warning, but only at high verbosity:
-#    warn( "Unknown os type '%s', using default behavior." % _osType )
-
-_shellEnv = _getShellEnv( _envType, _shellCmd, _envCmd, _envTransform )
-
-# provide environ, putenv, getenv
-environ = _shellEnv.environment
+environ = LazyDict( populate=_getEnvironment )
 putenv = environ.__setitem__
-getenv = environ.__getitem__
-# provide system
-system = _shellEnv.system
 
-########## test code
-def _testGetOsType():
-    testVals = {
-        "Windows NT": "nt",
-        "Windows 95": "dos",
-        "MacOS": "mac",
-        "Solaris": "posix",
-        "Linux": "posix",
-        "None": "None"
-        }
+def getenv(key, default=None):
+    """Get an environment variable, return None if it doesn't exist.
 
-    msgFmt = "_getOsType( '%s' ) should return '%s', not '%s'"
-    # test basic mappings
-    for key, val in testVals.items():
-        got = _getOsType( key )
-        assert got == val, msgFmt % ( key, val, got )
+    The optional second argument can specify an alternate default.
+    """
+    return environ.get(key, default)
 
-def _testCmds( _shellEnv, testCmds, whichEnv ):
-    # test commands (key) and compare output to expected output (value).
-    # this actually executes all the commands twice, testing the return
-    # code by calling system(), and testing some of the output by calling
-    # execute()
-    for cmd, pattern in testCmds:
-        print "\nExecuting '%s' with %s environment" % (cmd, whichEnv)
-        assert not _shellEnv.system( cmd ), \
-                "%s failed with %s environment" % (cmd, whichEnv)
-        line = _shellEnv._readLines(
-            _shellEnv.execute(cmd).getInputStream())[0]
-        assert re.match( pattern, line ), \
-                "expected match for %s, got %s" % ( pattern, line )
-    
-def _testSystem( shellEnv=_shellEnv ):
-    # test system and environment functionality
-    key, value = "testKey", "testValue"
-    org = environ
-    testCmds = [
-        # test commands and regexes to match first line of expected
-        # output on first and second runs
-        # Note that the validation is incomplete for several of these
-        # - they should validate depending on platform and pre-post, but
-        # they don't.
+def system( *args, **kwargs ):
+    """system(command) -> exit_status
 
-        # no quotes, should output both words
-        ("echo hello there", "hello there"),
-        # should print PATH (on NT)
-        ("echo PATH=%PATH%", "(PATH=.*;.*)|(PATH=%PATH%)"),
-        # should print 'testKey=%testKey%' on NT before initialization,
-        # should print 'testKey=' on 95 before initialization,
-        # and 'testKey=testValue' after
-        ("echo %s=%%%s%%" % (key,key),
-                "(%s=)" % (key,)),     
-        # should print PATH (on Unix)
-        ( "echo PATH=$PATH", "PATH=.*" ),
-        # should print 'testKey=testValue' on Unix after initialization
-        ( "echo %s=$%s" % (key,key),
-                "(%s=$%s)|(%s=)|(%s=%s)" % (key, key, key, key, value ) ), 
-        # should output quotes on NT but not on Unix
-        ( 'echo "hello there"', '"?hello there"?' ),
-        # should print 'why' to stdout. 
-        ( r'''jython -c "import sys;sys.stdout.write( 'why\n' )"''', "why" ),
-        # should print 'why' to stderr, but it won't right now.  Have
-        # to add the print to give some output...empty string matches every
-        # thing...
-        ( r'''jython -c "import sys;sys.stderr.write('why\n');print " ''',
-          "" )
-        ]
-    
-    assert not environ._populated, \
-            "before population, environ._populated should be false"
+    Execute the command (a string) in a subshell.
+    """
+    # allow lazy import of popen2 and javashell
+    import popen2
+    return popen2.system( *args, **kwargs )
 
-    _testCmds( _shellEnv, testCmds, "default" )
-    
-    # trigger initialization of environment
-    environ[ key ] = value
-    
-    assert environ._populated, \
-            "after population, environ._populated should be true"
-    assert org.get( key, None ) == value, \
-            "expected stub to have %s set" % key
-    assert environ.get( key, None ) == value, \
-            "expected real environment to have %s set" % key
+def popen( *args, **kwargs ):
+    """popen(command [, mode='r' [, bufsize]]) -> pipe
 
-    # test system using the non-default environment
-    _testCmds( _shellEnv, testCmds, "initialized" )
-    
-    assert environ.has_key( "PATH" ), \
-            "expected environment to have PATH attribute " \
-            "(this may not apply to all platforms!)"
+    Open a pipe to/from a command returning a file object.
+    """
+    # allow lazy import of popen2 and javashell
+    import popen2
+    return popen2.popen( *args, **kwargs )
 
-def _testBadShell():
-    # attempt to get an environment with a shell that is not startable
-    se2 = _ShellEnv( ["badshell", "-c"], "set" )
-    str(se2.environment) # trigger initialization
-    assert not se2.environment.items(), "environment should be empty"
+# os module versions of the popen# methods have different return value
+# order than popen2 functions
 
-def _testBadGetEnv():
-    # attempt to get an environment with a command that does not print an environment
-    se2 = _getShellEnv( "shell", _shellCmd, _envCmd, _envTransform )
-    se2.getEnv="echo This command does not print environment"
-    str(se2.environment) # trigger initialization
-    assert not se2.environment.items(), "environment should be empty"
-    
-def _test():
-    _testGetOsType()
-    _testBadShell()
-    _testBadGetEnv()
-    _testSystem()
-        
+def popen2(cmd, mode="t", bufsize=-1):
+    """Execute the shell command cmd in a sub-process.
+
+    On UNIX, 'cmd' may be a sequence, in which case arguments will be
+    passed directly to the program without shell intervention (as with
+    os.spawnv()).  If 'cmd' is a string it will be passed to the shell
+    (as with os.system()).  If 'bufsize' is specified, it sets the
+    buffer size for the I/O pipes.  The file objects (child_stdin,
+    child_stdout) are returned.
+    """
+    import popen2
+    stdout, stdin = popen2.popen2(cmd, bufsize)
+    return stdin, stdout
+
+def popen3(cmd, mode="t", bufsize=-1):
+    """Execute the shell command 'cmd' in a sub-process.
+
+    On UNIX, 'cmd' may be a sequence, in which case arguments will be
+    passed directly to the program without shell intervention
+    (as with os.spawnv()).  If 'cmd' is a string it will be passed
+    to the shell (as with os.system()).  If 'bufsize' is specified,
+    it sets the buffer size for the I/O pipes.  The file objects
+    (child_stdin, child_stdout, child_stderr) are returned.
+    """
+    import popen2
+    stdout, stdin, stderr = popen2.popen3(cmd, bufsize)
+    return stdin, stdout, stderr
+
+def popen4(cmd, mode="t", bufsize=-1):
+    """Execute the shell command 'cmd' in a sub-process.
+
+    On UNIX, 'cmd' may be a sequence, in which case arguments will be
+    passed directly to the program without shell intervention
+    (as with os.spawnv()).  If 'cmd' is a string it will be passed
+    to the shell (as with os.system()).  If 'bufsize' is specified,
+    it sets the buffer size for the I/O pipes.  The file objects
+    (child_stdin, child_stdout_stderr) are returned.
+    """
+    import popen2
+    stdout, stdin = popen2.popen4(cmd, bufsize)
+    return stdin, stdout
+
+def getlogin():
+    """getlogin() -> string
+
+    Return the actual login name.
+    """
+    return java.lang.System.getProperty("user.name")

@@ -31,6 +31,7 @@ are strings, not numbers, since they are rarely used for calculations.
 # Imports
 import re
 import socket
+import types
 
 __all__ = ["NNTP","NNTPReplyError","NNTPTemporaryError",
            "NNTPPermanentError","NNTPProtocolError","NNTPDataError",
@@ -178,7 +179,7 @@ class NNTP:
         """Internal: send one line to the server, appending CRLF."""
         line = line + CRLF
         if self.debugging > 1: print '*put*', `line`
-        self.sock.send(line)
+        self.sock.sendall(line)
 
     def putcmd(self, line):
         """Internal: send one command to the server (through putline())."""
@@ -210,20 +211,35 @@ class NNTP:
             raise NNTPProtocolError(resp)
         return resp
 
-    def getlongresp(self):
+    def getlongresp(self, file=None):
         """Internal: get a response plus following text from the server.
         Raise various errors if the response indicates an error."""
-        resp = self.getresp()
-        if resp[:3] not in LONGRESP:
-            raise NNTPReplyError(resp)
-        list = []
-        while 1:
-            line = self.getline()
-            if line == '.':
-                break
-            if line[:2] == '..':
-                line = line[1:]
-            list.append(line)
+
+        openedFile = None
+        try:
+            # If a string was passed then open a file with that name
+            if isinstance(file, types.StringType):
+                openedFile = file = open(file, "w")
+
+            resp = self.getresp()
+            if resp[:3] not in LONGRESP:
+                raise NNTPReplyError(resp)
+            list = []
+            while 1:
+                line = self.getline()
+                if line == '.':
+                    break
+                if line[:2] == '..':
+                    line = line[1:]
+                if file:
+                    file.write(line + "\n")
+                else:
+                    list.append(line)
+        finally:
+            # If this method created the file, then it must close it
+            if openedFile:
+                openedFile.close()
+
         return resp, list
 
     def shortcmd(self, line):
@@ -231,10 +247,10 @@ class NNTP:
         self.putcmd(line)
         return self.getresp()
 
-    def longcmd(self, line):
+    def longcmd(self, line, file=None):
         """Internal: send a command and get the response plus following text."""
         self.putcmd(line)
-        return self.getlongresp()
+        return self.getlongresp(file)
 
     def newgroups(self, date, time):
         """Process a NEWGROUPS command.  Arguments:
@@ -339,9 +355,9 @@ class NNTP:
         """Process a LAST command.  No arguments.  Return as for STAT."""
         return self.statcmd('LAST')
 
-    def artcmd(self, line):
+    def artcmd(self, line, file=None):
         """Internal: process a HEAD, BODY or ARTICLE command."""
-        resp, list = self.longcmd(line)
+        resp, list = self.longcmd(line, file)
         resp, nr, id = self.statparse(resp)
         return resp, nr, id, list
 
@@ -356,16 +372,18 @@ class NNTP:
 
         return self.artcmd('HEAD ' + id)
 
-    def body(self, id):
+    def body(self, id, file=None):
         """Process a BODY command.  Argument:
         - id: article number or message id
+        - file: Filename string or file object to store the article in
         Returns:
         - resp: server response if successful
         - nr: article number
         - id: message id
-        - list: the lines of the article's body"""
+        - list: the lines of the article's body or an empty list
+                if file was used"""
 
-        return self.artcmd('BODY ' + id)
+        return self.artcmd('BODY ' + id, file)
 
     def article(self, id):
         """Process an ARTICLE command.  Argument:

@@ -81,12 +81,23 @@ def help():
     for dirname in sys.path:
         fullname = os.path.join(dirname, 'profile.doc')
         if os.path.exists(fullname):
-            sts = os.system('${PAGER-more} '+fullname)
+            sts = os.system('${PAGER-more} ' + fullname)
             if sts: print '*** Pager exit status:', sts
             break
     else:
         print 'Sorry, can\'t find the help file "profile.doc"',
-        print 'along the Python search path'
+        print 'along the Python search path.'
+
+
+if os.name == "mac":
+    import MacOS
+    def _get_time_mac(timer=MacOS.GetTicks):
+        return timer() / 60.0
+
+if hasattr(os, "times"):
+    def _get_time_times(timer=os.times):
+        t = timer()
+        return t[0] + t[1]
 
 
 class Profile:
@@ -98,21 +109,22 @@ class Profile:
     avoid contaminating the program that we are profiling. (old profiler
     used to write into the frames local dictionary!!) Derived classes
     can change the definition of some entries, as long as they leave
-    [-2:] intact.
+    [-2:] intact (frame and previous tuple).  In case an internal error is
+    detected, the -3 element is used as the function name.
 
     [ 0] = Time that needs to be charged to the parent frame's function.
            It is used so that a function call will not have to access the
            timing data for the parent frame.
     [ 1] = Total time spent in this frame's function, excluding time in
-           subfunctions
-    [ 2] = Cumulative time spent in this frame's function, including time in
-           all subfunctions to this frame.
+           subfunctions (this latter is tallied in cur[2]).
+    [ 2] = Total time spent in subfunctions, excluding time executing the
+           frame's function (this latter is tallied in cur[1]).
     [-3] = Name of the function that corresponds to this frame.
-    [-2] = Actual frame that we correspond to (used to sync exception handling)
-    [-1] = Our parent 6-tuple (corresponds to frame.f_back)
+    [-2] = Actual frame that we correspond to (used to sync exception handling).
+    [-1] = Our parent 6-tuple (corresponds to frame.f_back).
 
     Timing data for each function is stored as a 5-tuple in the dictionary
-    self.timings[].  The index is always the name stored in self.cur[4].
+    self.timings[].  The index is always the name stored in self.cur[-3].
     The following are the definitions of the members:
 
     [0] = The number of times this function was called, not counting direct
@@ -123,144 +135,171 @@ class Profile:
           non-recursive functions, this is the total execution time from start
           to finish of each invocation of a function, including time spent in
           all subfunctions.
-    [5] = A dictionary indicating for each function name, the number of times
+    [4] = A dictionary indicating for each function name, the number of times
           it was called by us.
     """
 
-    def __init__(self, timer=None):
+    bias = 0  # calibration constant
+
+    def __init__(self, timer=None, bias=None):
         self.timings = {}
         self.cur = None
         self.cmd = ""
 
-        self.dispatch = {  \
-                  'call'     : self.trace_dispatch_call, \
-                  'return'   : self.trace_dispatch_return, \
-                  'exception': self.trace_dispatch_exception, \
-                  }
+        if bias is None:
+            bias = self.bias
+        self.bias = bias     # Materialize in local dict for lookup speed.
 
         if not timer:
             if os.name == 'mac':
-                import MacOS
                 self.timer = MacOS.GetTicks
                 self.dispatcher = self.trace_dispatch_mac
-                self.get_time = self.get_time_mac
+                self.get_time = _get_time_mac
             elif hasattr(time, 'clock'):
-                self.timer = time.clock
+                self.timer = self.get_time = time.clock
                 self.dispatcher = self.trace_dispatch_i
             elif hasattr(os, 'times'):
                 self.timer = os.times
                 self.dispatcher = self.trace_dispatch
+                self.get_time = _get_time_times
             else:
-                self.timer = time.time
+                self.timer = self.get_time = time.time
                 self.dispatcher = self.trace_dispatch_i
         else:
             self.timer = timer
             t = self.timer() # test out timer function
             try:
-                if len(t) == 2:
+                length = len(t)
+            except TypeError:
+                self.get_time = timer
+                self.dispatcher = self.trace_dispatch_i
+            else:
+                if length == 2:
                     self.dispatcher = self.trace_dispatch
                 else:
                     self.dispatcher = self.trace_dispatch_l
-            except TypeError:
-                self.dispatcher = self.trace_dispatch_i
+                # This get_time() implementation needs to be defined
+                # here to capture the passed-in timer in the parameter
+                # list (for performance).  Note that we can't assume
+                # the timer() result contains two values in all
+                # cases.
+                import operator
+                def get_time_timer(timer=timer,
+                                   reduce=reduce, reducer=operator.add):
+                    return reduce(reducer, timer(), 0)
+                self.get_time = get_time_timer
         self.t = self.get_time()
         self.simulate_call('profiler')
-
-
-    def get_time(self): # slow simulation of method to acquire time
-        t = self.timer()
-        if type(t) == type(()) or type(t) == type([]):
-            t = reduce(lambda x,y: x+y, t, 0)
-        return t
-
-    def get_time_mac(self):
-        return self.timer()/60.0
 
     # Heavily optimized dispatch routine for os.times() timer
 
     def trace_dispatch(self, frame, event, arg):
-        t = self.timer()
-        t = t[0] + t[1] - self.t        # No Calibration constant
-        # t = t[0] + t[1] - self.t - .00053 # Calibration constant
+        timer = self.timer
+        t = timer()
+        t = t[0] + t[1] - self.t - self.bias
 
-        if self.dispatch[event](frame,t):
-            t = self.timer()
+        if self.dispatch[event](self, frame,t):
+            t = timer()
             self.t = t[0] + t[1]
         else:
-            r = self.timer()
+            r = timer()
             self.t = r[0] + r[1] - t # put back unrecorded delta
-        return
 
-
-
-    # Dispatch routine for best timer program (return = scalar integer)
+    # Dispatch routine for best timer program (return = scalar, fastest if
+    # an integer but float works too -- and time.clock() relies on that).
 
     def trace_dispatch_i(self, frame, event, arg):
-        t = self.timer() - self.t # - 1 # Integer calibration constant
-        if self.dispatch[event](frame,t):
-            self.t = self.timer()
+        timer = self.timer
+        t = timer() - self.t - self.bias
+        if self.dispatch[event](self, frame,t):
+            self.t = timer()
         else:
-            self.t = self.timer() - t  # put back unrecorded delta
-        return
+            self.t = timer() - t  # put back unrecorded delta
 
-    # Dispatch routine for macintosh (timer returns time in ticks of 1/60th second)
+    # Dispatch routine for macintosh (timer returns time in ticks of
+    # 1/60th second)
 
     def trace_dispatch_mac(self, frame, event, arg):
-        t = self.timer()/60.0 - self.t # - 1 # Integer calibration constant
-        if self.dispatch[event](frame,t):
-            self.t = self.timer()/60.0
+        timer = self.timer
+        t = timer()/60.0 - self.t - self.bias
+        if self.dispatch[event](self, frame, t):
+            self.t = timer()/60.0
         else:
-            self.t = self.timer()/60.0 - t  # put back unrecorded delta
-        return
-
+            self.t = timer()/60.0 - t  # put back unrecorded delta
 
     # SLOW generic dispatch routine for timer returning lists of numbers
 
     def trace_dispatch_l(self, frame, event, arg):
-        t = self.get_time() - self.t
+        get_time = self.get_time
+        t = get_time() - self.t - self.bias
 
-        if self.dispatch[event](frame,t):
-            self.t = self.get_time()
+        if self.dispatch[event](self, frame, t):
+            self.t = get_time()
         else:
-            self.t = self.get_time()-t # put back unrecorded delta
-        return
+            self.t = get_time() - t # put back unrecorded delta
 
+    # In the event handlers, the first 3 elements of self.cur are unpacked
+    # into vrbls w/ 3-letter names.  The last two characters are meant to be
+    # mnemonic:
+    #     _pt  self.cur[0] "parent time"   time to be charged to parent frame
+    #     _it  self.cur[1] "internal time" time spent directly in the function
+    #     _et  self.cur[2] "external time" time spent in subfunctions
 
     def trace_dispatch_exception(self, frame, t):
-        rt, rtt, rct, rfn, rframe, rcur = self.cur
-        if (not rframe is frame) and rcur:
+        rpt, rit, ret, rfn, rframe, rcur = self.cur
+        if (rframe is not frame) and rcur:
             return self.trace_dispatch_return(rframe, t)
-        return 0
+        self.cur = rpt, rit+t, ret, rfn, rframe, rcur
+        return 1
 
 
     def trace_dispatch_call(self, frame, t):
+        if self.cur and frame.f_back is not self.cur[-2]:
+            rpt, rit, ret, rfn, rframe, rcur = self.cur
+            if not isinstance(rframe, Profile.fake_frame):
+                assert rframe.f_back is frame.f_back, ("Bad call", rfn,
+                                                       rframe, rframe.f_back,
+                                                       frame, frame.f_back)
+                self.trace_dispatch_return(rframe, 0)
+                assert (self.cur is None or \
+                        frame.f_back is self.cur[-2]), ("Bad call",
+                                                        self.cur[-3])
         fcode = frame.f_code
         fn = (fcode.co_filename, fcode.co_firstlineno, fcode.co_name)
         self.cur = (t, 0, 0, fn, frame, self.cur)
-        if self.timings.has_key(fn):
-            cc, ns, tt, ct, callers = self.timings[fn]
-            self.timings[fn] = cc, ns + 1, tt, ct, callers
+        timings = self.timings
+        if timings.has_key(fn):
+            cc, ns, tt, ct, callers = timings[fn]
+            timings[fn] = cc, ns + 1, tt, ct, callers
         else:
-            self.timings[fn] = 0, 0, 0, 0, {}
+            timings[fn] = 0, 0, 0, 0, {}
         return 1
 
     def trace_dispatch_return(self, frame, t):
-        # if not frame is self.cur[-2]: raise "Bad return", self.cur[3]
+        if frame is not self.cur[-2]:
+            assert frame is self.cur[-2].f_back, ("Bad return", self.cur[-3])
+            self.trace_dispatch_return(self.cur[-2], 0)
 
-        # Prefix "r" means part of the Returning or exiting frame
-        # Prefix "p" means part of the Previous or older frame
+        # Prefix "r" means part of the Returning or exiting frame.
+        # Prefix "p" means part of the Previous or Parent or older frame.
 
-        rt, rtt, rct, rfn, frame, rcur = self.cur
-        rtt = rtt + t
-        sft = rtt + rct
+        rpt, rit, ret, rfn, frame, rcur = self.cur
+        rit = rit + t
+        frame_total = rit + ret
 
-        pt, ptt, pct, pfn, pframe, pcur = rcur
-        self.cur = pt, ptt+rt, pct+sft, pfn, pframe, pcur
+        ppt, pit, pet, pfn, pframe, pcur = rcur
+        self.cur = ppt, pit + rpt, pet + frame_total, pfn, pframe, pcur
 
-        cc, ns, tt, ct, callers = self.timings[rfn]
+        timings = self.timings
+        cc, ns, tt, ct, callers = timings[rfn]
         if not ns:
-            ct = ct + sft
+            # This is the only occurrence of the function on the stack.
+            # Else this is a (directly or indirectly) recursive call, and
+            # its cumulative time will get updated when the topmost call to
+            # it returns.
+            ct = ct + frame_total
             cc = cc + 1
+
         if callers.has_key(pfn):
             callers[pfn] = callers[pfn] + 1  # hack: gather more
             # stats such as the amount of time added to ct courtesy
@@ -268,11 +307,20 @@ class Profile:
             # courtesy of this call.
         else:
             callers[pfn] = 1
-        self.timings[rfn] = cc, ns - 1, tt+rtt, ct, callers
+
+        timings[rfn] = cc, ns - 1, tt + rit, ct, callers
 
         return 1
 
-    # The next few function play with self.cmd. By carefully preloading
+
+    dispatch = {
+        "call": trace_dispatch_call,
+        "exception": trace_dispatch_exception,
+        "return": trace_dispatch_return,
+        }
+
+
+    # The next few functions play with self.cmd. By carefully preloading
     # our parallel stack, we can force the profiled result to include
     # an arbitrary string as the name of the calling function.
     # We use self.cmd as that string, and the resulting stats look
@@ -305,20 +353,20 @@ class Profile:
         else:
             pframe = None
         frame = self.fake_frame(code, pframe)
-        a = self.dispatch['call'](frame, 0)
-        return
+        self.dispatch['call'](self, frame, 0)
 
     # collect stats from pending stack, including getting final
     # timings for self.cmd frame.
 
     def simulate_cmd_complete(self):
-        t = self.get_time() - self.t
+        get_time = self.get_time
+        t = get_time() - self.t
         while self.cur[-1]:
             # We *can* cause assertion errors here if
             # dispatch_trace_return checks for a frame match!
-            a = self.dispatch['return'](self.cur[-2], t)
+            self.dispatch['return'](self, self.cur[-2], t)
             t = 0
-        self.t = self.get_time() - t
+        self.t = get_time() - t
 
 
     def print_stats(self):
@@ -365,11 +413,11 @@ class Profile:
         return self
 
     # This method is more useful to profile a single function call.
-    def runcall(self, func, *args):
+    def runcall(self, func, *args, **kw):
         self.set_cmd(`func`)
         sys.setprofile(self.dispatcher)
         try:
-            return apply(func, args)
+            return apply(func, args, kw)
         finally:
             sys.setprofile(None)
 
@@ -381,9 +429,9 @@ class Profile:
     # Similarly, there is a delay from the time that the profiler
     # re-starts the stopwatch before the user's code really gets to
     # continue.  The following code tries to measure the difference on
-    # a per-event basis. The result can the be placed in the
-    # Profile.dispatch_event() routine for the given platform.  Note
-    # that this difference is only significant if there are a lot of
+    # a per-event basis.
+    #
+    # Note that this difference is only significant if there are a lot of
     # events, and relatively little user code per event.  For example,
     # code with small functions will typically benefit from having the
     # profiler calibrated for the current platform.  This *could* be
@@ -412,150 +460,80 @@ class Profile:
     # that this additional feature will slow the heavily optimized
     # event/time ratio (i.e., the profiler would run slower, fur a very
     # low "value added" feature.)
-    #
-    # Plugging in the calibration constant doesn't slow down the
-    # profiler very much, and the accuracy goes way up.
     #**************************************************************
 
-    def calibrate(self, m):
-        # Modified by Tim Peters
-        n = m
-        s = self.get_time()
-        while n:
-            self.simple()
-            n = n - 1
-        f = self.get_time()
-        my_simple = f - s
-        #print "Simple =", my_simple,
+    def calibrate(self, m, verbose=0):
+        if self.__class__ is not Profile:
+            raise TypeError("Subclasses must override .calibrate().")
 
-        n = m
-        s = self.get_time()
-        while n:
-            self.instrumented()
-            n = n - 1
-        f = self.get_time()
-        my_inst = f - s
-        # print "Instrumented =", my_inst
-        avg_cost = (my_inst - my_simple)/m
-        #print "Delta/call =", avg_cost, "(profiler fixup constant)"
-        return avg_cost
+        saved_bias = self.bias
+        self.bias = 0
+        try:
+            return self._calibrate_inner(m, verbose)
+        finally:
+            self.bias = saved_bias
 
-    # simulate a program with no profiler activity
-    def simple(self):
-        a = 1
-        pass
+    def _calibrate_inner(self, m, verbose):
+        get_time = self.get_time
 
-    # simulate a program with call/return event processing
-    def instrumented(self):
-        a = 1
-        self.profiler_simulation(a, a, a)
+        # Set up a test case to be run with and without profiling.  Include
+        # lots of calls, because we're trying to quantify stopwatch overhead.
+        # Do not raise any exceptions, though, because we want to know
+        # exactly how many profile events are generated (one call event, +
+        # one return event, per Python-level call).
 
-    # simulate an event processing activity (from user's perspective)
-    def profiler_simulation(self, x, y, z):
-        t = self.timer()
-        ## t = t[0] + t[1]
-        self.ut = t
+        def f1(n):
+            for i in range(n):
+                x = 1
 
+        def f(m, f1=f1):
+            for i in range(m):
+                f1(100)
 
+        f(m)    # warm up the cache
 
-class OldProfile(Profile):
-    """A derived profiler that simulates the old style profile, providing
-    errant results on recursive functions. The reason for the usefulness of
-    this profiler is that it runs faster (i.e., less overhead).  It still
-    creates all the caller stats, and is quite useful when there is *no*
-    recursion in the user's code.
+        # elapsed_noprofile <- time f(m) takes without profiling.
+        t0 = get_time()
+        f(m)
+        t1 = get_time()
+        elapsed_noprofile = t1 - t0
+        if verbose:
+            print "elapsed time without profiling =", elapsed_noprofile
 
-    This code also shows how easy it is to create a modified profiler.
-    """
+        # elapsed_profile <- time f(m) takes with profiling.  The difference
+        # is profiling overhead, only some of which the profiler subtracts
+        # out on its own.
+        p = Profile()
+        t0 = get_time()
+        p.runctx('f(m)', globals(), locals())
+        t1 = get_time()
+        elapsed_profile = t1 - t0
+        if verbose:
+            print "elapsed time with profiling =", elapsed_profile
 
-    def trace_dispatch_exception(self, frame, t):
-        rt, rtt, rct, rfn, rframe, rcur = self.cur
-        if rcur and not rframe is frame:
-            return self.trace_dispatch_return(rframe, t)
-        return 0
+        # reported_time <- "CPU seconds" the profiler charged to f and f1.
+        total_calls = 0.0
+        reported_time = 0.0
+        for (filename, line, funcname), (cc, ns, tt, ct, callers) in \
+                p.timings.items():
+            if funcname in ("f", "f1"):
+                total_calls += cc
+                reported_time += tt
 
-    def trace_dispatch_call(self, frame, t):
-        fn = `frame.f_code`
+        if verbose:
+            print "'CPU seconds' profiler reported =", reported_time
+            print "total # calls =", total_calls
+        if total_calls != m + 1:
+            raise ValueError("internal error: total calls = %d" % total_calls)
 
-        self.cur = (t, 0, 0, fn, frame, self.cur)
-        if self.timings.has_key(fn):
-            tt, ct, callers = self.timings[fn]
-            self.timings[fn] = tt, ct, callers
-        else:
-            self.timings[fn] = 0, 0, {}
-        return 1
-
-    def trace_dispatch_return(self, frame, t):
-        rt, rtt, rct, rfn, frame, rcur = self.cur
-        rtt = rtt + t
-        sft = rtt + rct
-
-        pt, ptt, pct, pfn, pframe, pcur = rcur
-        self.cur = pt, ptt+rt, pct+sft, pfn, pframe, pcur
-
-        tt, ct, callers = self.timings[rfn]
-        if callers.has_key(pfn):
-            callers[pfn] = callers[pfn] + 1
-        else:
-            callers[pfn] = 1
-        self.timings[rfn] = tt+rtt, ct + sft, callers
-
-        return 1
-
-
-    def snapshot_stats(self):
-        self.stats = {}
-        for func in self.timings.keys():
-            tt, ct, callers = self.timings[func]
-            callers = callers.copy()
-            nc = 0
-            for func_caller in callers.keys():
-                nc = nc + callers[func_caller]
-            self.stats[func] = nc, nc, tt, ct, callers
-
-
-
-class HotProfile(Profile):
-    """The fastest derived profile example.  It does not calculate
-    caller-callee relationships, and does not calculate cumulative
-    time under a function.  It only calculates time spent in a
-    function, so it runs very quickly due to its very low overhead.
-    """
-
-    def trace_dispatch_exception(self, frame, t):
-        rt, rtt, rfn, rframe, rcur = self.cur
-        if rcur and not rframe is frame:
-            return self.trace_dispatch_return(rframe, t)
-        return 0
-
-    def trace_dispatch_call(self, frame, t):
-        self.cur = (t, 0, frame, self.cur)
-        return 1
-
-    def trace_dispatch_return(self, frame, t):
-        rt, rtt, frame, rcur = self.cur
-
-        rfn = `frame.f_code`
-
-        pt, ptt, pframe, pcur = rcur
-        self.cur = pt, ptt+rt, pframe, pcur
-
-        if self.timings.has_key(rfn):
-            nc, tt = self.timings[rfn]
-            self.timings[rfn] = nc + 1, rt + rtt + tt
-        else:
-            self.timings[rfn] =      1, rt + rtt
-
-        return 1
-
-
-    def snapshot_stats(self):
-        self.stats = {}
-        for func in self.timings.keys():
-            nc, tt = self.timings[func]
-            self.stats[func] = nc, nc, tt, 0, {}
-
-
+        # reported_time - elapsed_noprofile = overhead the profiler wasn't
+        # able to measure.  Divide by twice the number of calls (since there
+        # are two profiler events per call in this test) to get the hidden
+        # overhead per event.
+        mean = (reported_time - elapsed_noprofile) / 2.0 / total_calls
+        if verbose:
+            print "mean stopwatch overhead per profile event =", mean
+        return mean
 
 #****************************************************************************
 def Stats(*args):
@@ -564,8 +542,6 @@ def Stats(*args):
 
 # When invoked as main program, invoke the profiler on a script
 if __name__ == '__main__':
-    import sys
-    import os
     if not sys.argv[1:]:
         print "usage: profile.py scriptfile [arg] ..."
         sys.exit(2)

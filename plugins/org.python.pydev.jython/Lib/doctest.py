@@ -1,4 +1,4 @@
-# Module doctest version 0.9.7
+# Module doctest.
 # Released to the public domain 16-Jan-2001,
 # by Tim Peters (tim.one@home.com).
 
@@ -48,10 +48,10 @@ WHICH DOCSTRINGS ARE EXAMINED?
 + M.__doc__.
 
 + f.__doc__ for all functions f in M.__dict__.values(), except those
-  with private names.
+  with private names and those defined in other modules.
 
 + C.__doc__ for all classes C in M.__dict__.values(), except those with
-  private names.
+  private names and those defined in other modules.
 
 + If M.__test__ exists and "is true", it must be a dict, and
   each entry maps a (string) name to a function object, class object, or
@@ -74,28 +74,6 @@ If you want to test docstrings in objects with private names too, stuff
 them into an M.__test__ dict, or see ADVANCED USAGE below (e.g., pass your
 own isprivate function to Tester's constructor, or call the rundoc method
 of a Tester instance).
-
-Warning:  imports can cause trouble; e.g., if you do
-
-from XYZ import XYZclass
-
-then XYZclass is a name in M.__dict__ too, and doctest has no way to know
-that XYZclass wasn't *defined* in M.  So it may try to execute the examples
-in XYZclass's docstring, and those in turn may require a different set of
-globals to work correctly.  I prefer to do "import *"- friendly imports,
-a la
-
-import XYY
-_XYZclass = XYZ.XYZclass
-del XYZ
-
-or (Python 2.0)
-
-from XYZ import XYZclass as _XYZclass
-
-and then the leading underscore stops testmod from going nuts.  You may
-prefer the method in the next section.
-
 
 WHAT'S THE EXECUTION CONTEXT?
 
@@ -280,7 +258,7 @@ ok
    8 tests in doctest
    6 tests in doctest.Tester
   10 tests in doctest.Tester.merge
-   7 tests in doctest.Tester.rundict
+  14 tests in doctest.Tester.rundict
    3 tests in doctest.Tester.rundoc
    3 tests in doctest.Tester.runstring
    2 tests in doctest.__test__._TestClass
@@ -289,73 +267,19 @@ ok
    1 tests in doctest.__test__._TestClass.square
    2 tests in doctest.__test__.string
    7 tests in doctest.is_private
-53 tests in 17 items.
-53 passed and 0 failed.
+60 tests in 17 items.
+60 passed and 0 failed.
 Test passed.
 """
 
-# 0,0,1    06-Mar-1999
-#    initial version posted
-# 0,0,2    06-Mar-1999
-#    loosened parsing:
-#        cater to stinkin' tabs
-#        don't insist on a blank after PS2 prefix
-#            so trailing "... " line from a compound stmt no longer
-#            breaks if the file gets whitespace-trimmed
-#    better error msgs for inconsistent leading whitespace
-# 0,9,1    08-Mar-1999
-#    exposed the Tester class and added client methods
-#        plus docstring examples of their use (eww - head-twisting!)
-#    fixed logic error in reporting total # of tests & failures
-#    added __test__ support to testmod (a pale reflection of Christian
-#        Tismer's vision ...)
-#    removed the "deep" argument; fiddle __test__ instead
-#    simplified endcase logic for extracting tests, and running them.
-#        before, if no output was expected but some was produced
-#        anyway via an eval'ed result, the discrepancy wasn't caught
-#    made TestClass private and used __test__ to get at it
-#    many doc updates
-#    speed _SpoofOut for long expected outputs
-# 0,9,2    09-Mar-1999
-#    throw out comments from examples, enabling use of the much simpler
-#        exec compile(... "single") ...
-#        for simulating the runtime; that barfs on comment-only lines
-#    used the traceback module to do a much better job of reporting
-#        exceptions
-#    run __doc__ values thru str(), "just in case"
-#    privateness of names now determined by an overridable "isprivate"
-#        function
-#    by default a name now considered to be private iff it begins with
-#        an underscore but doesn't both begin & end with two of 'em; so
-#        e.g. Class.__init__ etc are searched now -- as they always
-#        should have been
-# 0,9,3    18-Mar-1999
-#    added .flush stub to _SpoofOut (JPython buglet diagnosed by
-#        Hugh Emberson)
-#    repaired ridiculous docs about backslashes in examples
-#    minor internal changes
-#    changed source to Unix line-end conventions
-#    moved __test__ logic into new Tester.run__test__ method
-# 0,9,4    27-Mar-1999
-#    report item name and line # in failing examples
-# 0,9,5    29-Jun-1999
-#    allow straightforward exceptions in examples - thanks to Mark Hammond!
-# 0,9,6    16-Jan-2001
-#    fiddling for changes in Python 2.0:  some of the embedded docstring
-#        examples no longer worked *exactly* as advertised, due to minor
-#        language changes, and running doctest on itself pointed that out.
-#        Hard to think of a better example of why this is useful <wink>.
-# 0,9,7    9-Feb-2001
-#    string method conversion
+__all__ = [
+    'testmod',
+    'run_docstring_examples',
+    'is_private',
+    'Tester',
+]
 
-__version__ = 0, 9, 7
-
-import types
-_FunctionType = types.FunctionType
-_ClassType    = types.ClassType
-_ModuleType   = types.ModuleType
-_StringType   = types.StringType
-del types
+import __future__
 
 import re
 PS1 = ">>>"
@@ -366,7 +290,12 @@ _isEmpty = re.compile(r"\s*$").match
 _isComment = re.compile(r"\s*#").match
 del re
 
-__all__ = []
+from types import StringTypes as _StringTypes
+
+from inspect import isclass    as _isclass
+from inspect import isfunction as _isfunction
+from inspect import ismodule   as _ismodule
+from inspect import classify_class_attrs as _classify_class_attrs
 
 # Extract interactive examples from a string.  Return a list of triples,
 # (source, outcome, lineno).  "source" is the source code, and ends
@@ -450,9 +379,15 @@ class _SpoofOut:
         # that a trailing newline is missing.
         if guts and not guts.endswith("\n"):
             guts = guts + "\n"
+        # Prevent softspace from screwing up the next test case, in
+        # case they used print with a trailing comma in an example.
+        if hasattr(self, "softspace"):
+            del self.softspace
         return guts
     def clear(self):
         self.buf = []
+        if hasattr(self, "softspace"):
+            del self.softspace
     def flush(self):
         # JPython calls flush
         pass
@@ -478,7 +413,8 @@ def _tag_out(printer, *tag_msg_pairs):
 # stuff to "the real" stdout, and fakeout is an instance of _SpoofOut
 # that captures the examples' std output.  Return (#failures, #tries).
 
-def _run_examples_inner(out, fakeout, examples, globs, verbose, name):
+def _run_examples_inner(out, fakeout, examples, globs, verbose, name,
+                        compileflags):
     import sys, traceback
     OK, BOOM, FAIL = range(3)
     NADA = "nothing"
@@ -490,7 +426,8 @@ def _run_examples_inner(out, fakeout, examples, globs, verbose, name):
                           ("Expecting", want or NADA))
         fakeout.clear()
         try:
-            exec compile(source, "<string>", "single") in globs
+            exec compile(source, "<string>", "single",
+                         compileflags, 1) in globs
             got = fakeout.get()
             state = OK
         except:
@@ -501,7 +438,7 @@ def _run_examples_inner(out, fakeout, examples, globs, verbose, name):
                 # the traceback isn't necessary.
                 want = want.split('\n')[-2] + '\n'
                 exc_type, exc_val = sys.exc_info()[:2]
-                got = traceback.format_exception_only(exc_type, exc_val)[0]
+                got = traceback.format_exception_only(exc_type, exc_val)[-1]
                 state = OK
             else:
                 # unexpected exception
@@ -529,23 +466,46 @@ def _run_examples_inner(out, fakeout, examples, globs, verbose, name):
 
     return failures, len(examples)
 
-# Run list of examples, in context globs.  Return (#failures, #tries).
+# Get the future-flags associated with the future features that have been
+# imported into globs.
 
-def _run_examples(examples, globs, verbose, name):
+def _extract_future_flags(globs):
+    flags = 0
+    for fname in __future__.all_feature_names:
+        feature = globs.get(fname, None)
+        if feature is getattr(__future__, fname):
+            flags |= feature.compiler_flag
+    return flags
+
+# Run list of examples, in a shallow copy of context (dict) globs.
+# Return (#failures, #tries).
+
+def _run_examples(examples, globs, verbose, name, compileflags):
     import sys
     saveout = sys.stdout
+    globs = globs.copy()
     try:
         sys.stdout = fakeout = _SpoofOut()
         x = _run_examples_inner(saveout.write, fakeout, examples,
-                                globs, verbose, name)
+                                globs, verbose, name, compileflags)
     finally:
         sys.stdout = saveout
+        # While Python gc can clean up most cycles on its own, it doesn't
+        # chase frame objects.  This is especially irksome when running
+        # generator tests that raise exceptions, because a named generator-
+        # iterator gets an entry in globs, and the generator-iterator
+        # object's frame's traceback info points back to globs.  This is
+        # easy to break just by clearing the namespace.  This can also
+        # help to break other kinds of cycles, and even for cycles that
+        # gc can break itself it's better to break them ASAP.
+        globs.clear()
     return x
 
-def run_docstring_examples(f, globs, verbose=0, name="NoName"):
+def run_docstring_examples(f, globs, verbose=0, name="NoName",
+                           compileflags=None):
     """f, globs, verbose=0, name="NoName" -> run examples from f.__doc__.
 
-    Use dict globs as the globals for execution.
+    Use (a shallow copy of) dict globs as the globals for execution.
     Return (#failures, #tries).
 
     If optional arg verbose is true, print stuff even if there are no
@@ -567,7 +527,9 @@ def run_docstring_examples(f, globs, verbose=0, name="NoName"):
     e = _extract_examples(doc)
     if not e:
         return 0, 0
-    return _run_examples(e, globs, verbose, name)
+    if compileflags is None:
+        compileflags = _extract_future_flags(globs)
+    return _run_examples(e, globs, verbose, name, compileflags)
 
 def is_private(prefix, base):
     """prefix, base -> true iff name prefix + "." + base is "private".
@@ -596,6 +558,15 @@ def is_private(prefix, base):
 
     return base[:1] == "_" and not base[:2] == "__" == base[-2:]
 
+# Determine if a class of function was defined in the given module.
+
+def _from_module(module, object):
+    if _isfunction(object):
+        return module.__dict__ is object.func_globals
+    if _isclass(object):
+        return module.__name__ == object.__module__
+    raise ValueError("object must be a class or function")
+
 class Tester:
     """Class Tester -- runs docstring examples and accumulates stats.
 
@@ -612,9 +583,10 @@ Methods:
         Search object.__doc__ for examples to run; use name (or
         object.__name__) for logging.  Return (#failures, #tries).
 
-    rundict(d, name)
+    rundict(d, name, module=None)
         Search for examples in docstrings in all of d.values(); use name
-        for logging.  Return (#failures, #tries).
+        for logging.  Exclude functions and classes not defined in module
+        if specified.  Return (#failures, #tries).
 
     run__test__(d, name)
         Treat dict d like module.__test__.  Return (#failures, #tries).
@@ -686,7 +658,7 @@ see its docs for details.
 
         if mod is None and globs is None:
             raise TypeError("Tester.__init__: must specify mod or globs")
-        if mod is not None and type(mod) is not _ModuleType:
+        if mod is not None and not _ismodule(mod):
             raise TypeError("Tester.__init__: mod must be a module; " +
                             `mod`)
         if globs is None:
@@ -703,6 +675,8 @@ see its docs for details.
         self.isprivate = isprivate
 
         self.name2ft = {}   # map name to (#failures, #trials) pair
+
+        self.compileflags = _extract_future_flags(globs)
 
     def runstring(self, s, name):
         """
@@ -735,7 +709,8 @@ see its docs for details.
         f = t = 0
         e = _extract_examples(s)
         if e:
-            f, t = _run_examples(e, self.globs.copy(), self.verbose, name)
+            f, t = _run_examples(e, self.globs, self.verbose, name,
+                                 self.compileflags)
         if self.verbose:
             print f, "of", t, "examples failed in string", name
         self.__record_outcome(name, f, t)
@@ -773,40 +748,118 @@ see its docs for details.
                     "when object.__name__ doesn't exist; " + `object`)
         if self.verbose:
             print "Running", name + ".__doc__"
-        f, t = run_docstring_examples(object, self.globs.copy(),
-                                      self.verbose, name)
+        f, t = run_docstring_examples(object, self.globs, self.verbose, name,
+                                      self.compileflags)
         if self.verbose:
             print f, "of", t, "examples failed in", name + ".__doc__"
         self.__record_outcome(name, f, t)
-        if type(object) is _ClassType:
-            f2, t2 = self.rundict(object.__dict__, name)
-            f = f + f2
-            t = t + t2
+        if _isclass(object):
+            # In 2.2, class and static methods complicate life.  Build
+            # a dict "that works", by hook or by crook.
+            d = {}
+            for tag, kind, homecls, value in _classify_class_attrs(object):
+
+                if homecls is not object:
+                    # Only look at names defined immediately by the class.
+                    continue
+
+                elif self.isprivate(name, tag):
+                    continue
+
+                elif kind == "method":
+                    # value is already a function
+                    d[tag] = value
+
+                elif kind == "static method":
+                    # value isn't a function, but getattr reveals one
+                    d[tag] = getattr(object, tag)
+
+                elif kind == "class method":
+                    # Hmm.  A classmethod object doesn't seem to reveal
+                    # enough.  But getattr turns it into a bound method,
+                    # and from there .im_func retrieves the underlying
+                    # function.
+                    d[tag] = getattr(object, tag).im_func
+
+                elif kind == "property":
+                    # The methods implementing the property have their
+                    # own docstrings -- but the property may have one too.
+                    if value.__doc__ is not None:
+                        d[tag] = str(value.__doc__)
+
+                elif kind == "data":
+                    # Grab nested classes.
+                    if _isclass(value):
+                        d[tag] = value
+
+                else:
+                    raise ValueError("teach doctest about %r" % kind)
+
+            f2, t2 = self.run__test__(d, name)
+            f += f2
+            t += t2
+
         return f, t
 
-    def rundict(self, d, name):
+    def rundict(self, d, name, module=None):
         """
-        d. name -> search for docstring examples in all of d.values().
+        d, name, module=None -> search for docstring examples in d.values().
 
         For k, v in d.items() such that v is a function or class,
         do self.rundoc(v, name + "." + k).  Whether this includes
         objects with private names depends on the constructor's
-        "isprivate" argument.
+        "isprivate" argument.  If module is specified, functions and
+        classes that are not defined in module are excluded.
         Return aggregate (#failures, #examples).
 
-        >>> def _f():
-        ...    '''>>> assert 1 == 1
-        ...    '''
-        >>> def g():
+        Build and populate two modules with sample functions to test that
+        exclusion of external functions and classes works.
+
+        >>> import new
+        >>> m1 = new.module('_m1')
+        >>> m2 = new.module('_m2')
+        >>> test_data = \"""
+        ... def _f():
+        ...     '''>>> assert 1 == 1
+        ...     '''
+        ... def g():
         ...    '''>>> assert 2 != 1
         ...    '''
-        >>> d = {"_f": _f, "g": g}
+        ... class H:
+        ...    '''>>> assert 2 > 1
+        ...    '''
+        ...    def bar(self):
+        ...        '''>>> assert 1 < 2
+        ...        '''
+        ... \"""
+        >>> exec test_data in m1.__dict__
+        >>> exec test_data in m2.__dict__
+        >>> m1.__dict__.update({"f2": m2._f, "g2": m2.g, "h2": m2.H})
+
+        Tests that objects outside m1 are excluded:
+
         >>> t = Tester(globs={}, verbose=0)
-        >>> t.rundict(d, "rundict_test")  # _f is skipped
-        (0, 1)
+        >>> t.rundict(m1.__dict__, "rundict_test", m1)  # _f, f2 and g2 and h2 skipped
+        (0, 3)
+
+        Again, but with a custom isprivate function allowing _f:
+
         >>> t = Tester(globs={}, verbose=0, isprivate=lambda x,y: 0)
-        >>> t.rundict(d, "rundict_test_pvt")  # both are searched
-        (0, 2)
+        >>> t.rundict(m1.__dict__, "rundict_test_pvt", m1)  # Only f2, g2 and h2 skipped
+        (0, 4)
+
+        And once more, not excluding stuff outside m1:
+
+        >>> t = Tester(globs={}, verbose=0, isprivate=lambda x,y: 0)
+        >>> t.rundict(m1.__dict__, "rundict_test_pvt")  # None are skipped.
+        (0, 8)
+
+        The exclusion of objects from outside the designated module is
+        meant to be invoked automagically by testmod.
+
+        >>> testmod(m1)
+        (0, 3)
+
         """
 
         if not hasattr(d, "items"):
@@ -819,7 +872,9 @@ see its docs for details.
         names.sort()
         for thisname in names:
             value = d[thisname]
-            if type(value) in (_FunctionType, _ClassType):
+            if _isfunction(value) or _isclass(value):
+                if module and not _from_module(module, value):
+                    continue
                 f2, t2 = self.__runone(value, name + "." + thisname)
                 f = f + f2
                 t = t + t2
@@ -844,9 +899,9 @@ see its docs for details.
             for k in keys:
                 v = d[k]
                 thisname = prefix + k
-                if type(v) is _StringType:
+                if type(v) in _StringTypes:
                     f, t = self.runstring(v, thisname)
-                elif type(v) in (_FunctionType, _ClassType):
+                elif _isfunction(v) or _isclass(v):
                     f, t = self.rundoc(v, thisname)
                 else:
                     raise TypeError("Tester.run__test__: values in "
@@ -1031,13 +1086,13 @@ def testmod(m, name=None, globs=None, verbose=None, isprivate=None,
 
     global master
 
-    if type(m) is not _ModuleType:
+    if not _ismodule(m):
         raise TypeError("testmod: module required; " + `m`)
     if name is None:
         name = m.__name__
     tester = Tester(m, globs=globs, verbose=verbose, isprivate=isprivate)
     failures, tries = tester.rundoc(m, name)
-    f, t = tester.rundict(m.__dict__, name)
+    f, t = tester.rundict(m.__dict__, name, m)
     failures = failures + f
     tries = tries + t
     if hasattr(m, "__test__"):

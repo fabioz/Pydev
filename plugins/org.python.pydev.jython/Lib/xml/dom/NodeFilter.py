@@ -1,26 +1,15 @@
-########################################################################
-#
-# File Name:            NodeFilter.py
-#
-# Documentation:        http://docs.4suite.com/4DOM/NodeFilter.py.html
-#
-"""
-WWW: http://4suite.com/4DOM         e-mail: support@4suite.com
-
-Copyright (c) 2000 Fourthought Inc, USA.   All Rights Reserved.
-See  http://4suite.com/COPYRIGHT  for license and copyright information
-"""
+# This is the Python mapping for interface NodeFilter from
+# DOM2-Traversal-Range. It contains only constants.
 
 class NodeFilter:
     """
-    This class is really just an abstract base.
-    All implementation must be provided in a derived class
+    This is the DOM2 NodeFilter interface. It contains only constants.
     """
     FILTER_ACCEPT = 1
     FILTER_REJECT = 2
     FILTER_SKIP   = 3
 
-    SHOW_ALL                    = 0xFFFFFFFF
+    SHOW_ALL                    = 0xFFFFFFFFL
     SHOW_ELEMENT                = 0x00000001
     SHOW_ATTRIBUTE              = 0x00000002
     SHOW_TEXT                   = 0x00000004
@@ -35,4 +24,4 @@ class NodeFilter:
     SHOW_NOTATION               = 0x00000800
 
     def acceptNode(self, node):
-        raise TypeError("Please define and use a subclass.")
+        raise NotImplementedError

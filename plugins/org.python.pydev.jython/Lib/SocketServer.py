@@ -5,7 +5,7 @@ This module tries to capture the various aspects of defining a server:
 For socket-based servers:
 
 - address family:
-        - AF_INET: IP (Internet Protocol) sockets (default)
+        - AF_INET{,6}: IP (Internet Protocol) sockets (default)
         - AF_UNIX: Unix domain sockets
         - others, e.g. AF_DECNET are conceivable (see <socket.h>
 - socket type:
@@ -448,10 +448,23 @@ class ForkingMixIn:
 class ThreadingMixIn:
     """Mix-in class to handle each request in a new thread."""
 
+    def process_request_thread(self, request, client_address):
+        """Same as in BaseServer but as a thread.
+
+        In addition, exception handling is done here.
+
+        """
+        try:
+            self.finish_request(request, client_address)
+            self.close_request(request)
+        except:
+            self.handle_error(request, client_address)
+            self.close_request(request)
+
     def process_request(self, request, client_address):
         """Start a new thread to process the request."""
         import threading
-        t = threading.Thread(target = self.finish_request,
+        t = threading.Thread(target = self.process_request_thread,
                              args = (request, client_address))
         t.start()
 
@@ -506,9 +519,6 @@ class BaseRequestHandler:
     def setup(self):
         pass
 
-    def __del__(self):
-        pass
-
     def handle(self):
         pass
 
@@ -560,7 +570,7 @@ class DatagramRequestHandler(BaseRequestHandler):
         import StringIO
         self.packet, self.socket = self.request
         self.rfile = StringIO.StringIO(self.packet)
-        self.wfile = StringIO.StringIO(self.packet)
+        self.wfile = StringIO.StringIO()
 
     def finish(self):
         self.socket.sendto(self.wfile.getvalue(), self.client_address)

@@ -23,7 +23,7 @@ Misc variables:
 
 """
 
-__version__ = "$Revision$"       # Code version
+__version__ = "$Revision: 1.56.4.4 $"       # Code version
 
 from types import *
 from copy_reg import dispatch_table, safe_constructors
@@ -53,6 +53,12 @@ try:
     from org.python.core import PyStringMap
 except ImportError:
     PyStringMap = None
+
+try:
+    UnicodeType
+except NameError:
+    UnicodeType = None
+
 
 MARK            = '('
 STOP            = '.'
@@ -160,6 +166,16 @@ class Pickler:
             pid = self.inst_persistent_id(object)
             if pid is not None:
                 self.save_pers(pid)
+                return
+
+            try:
+                # XXX: TypeType comparison broken in Jython so Kludging around this for now.
+                #issc = issubclass(t, TypeType)
+                issc = str(t) == "<type 'type'>"
+            except TypeError: # t is not a class
+                issc = 0
+            if issc:
+                self.save_global(object)
                 return
 
             try:
@@ -304,8 +320,8 @@ class Pickler:
             s = mdumps(l)[1:]
             self.write(BINUNICODE + s + encoding)
         else:
-            object = object.replace(u"\\", u"\\u005c")
-            object = object.replace(u"\n", u"\\u000a")
+            object = object.replace("\\", "\\u005c")
+            object = object.replace("\n", "\\u000a")
             self.write(UNICODE + object.encode('raw-unicode-escape') + '\n')
 
         memo_len = len(memo)
@@ -334,8 +350,8 @@ class Pickler:
                         self.write(BINSTRING + s + object)
             else:
                 if unicode:
-                    object = object.replace(u"\\", u"\\u005c")
-                    object = object.replace(u"\n", u"\\u000a")
+                    object = object.replace("\\", "\\u005c")
+                    object = object.replace("\n", "\\u000a")
                     object = object.encode('raw-unicode-escape')
                     self.write(UNICODE + object + '\n')
                 else:
@@ -497,6 +513,20 @@ class Pickler:
         except AttributeError:
             module = whichmodule(object, name)
 
+        try:
+            __import__(module)
+            mod = sys.modules[module]
+            klass = getattr(mod, name)
+        except (ImportError, KeyError, AttributeError):
+            raise PicklingError(
+                "Can't pickle %r: it's not found as %s.%s" %
+                (object, module, name))
+        else:
+            if klass is not object:
+                raise PicklingError(
+                    "Can't pickle %r: it's not the same object as %s.%s" %
+                    (object, module, name))
+
         memo_len = len(memo)
         write(GLOBAL + module + '\n' + name + '\n' +
             self.put(memo_len))
@@ -504,6 +534,7 @@ class Pickler:
     dispatch[ClassType] = save_global
     dispatch[FunctionType] = save_global
     dispatch[BuiltinFunctionType] = save_global
+    dispatch[TypeType] = save_global
 
 
 def _keep_alive(x, memo):
@@ -523,28 +554,29 @@ def _keep_alive(x, memo):
         memo[id(memo)]=[x]
 
 
-classmap = {}
+classmap = {} # called classmap for backwards compatibility
 
-# This is no longer used to find classes, but still for functions
-def whichmodule(cls, clsname):
-    """Figure out the module in which a class occurs.
+def whichmodule(func, funcname):
+    """Figure out the module in which a function occurs.
 
     Search sys.modules for the module.
     Cache in classmap.
     Return a module name.
-    If the class cannot be found, return __main__.
+    If the function cannot be found, return __main__.
     """
-    if classmap.has_key(cls):
-        return classmap[cls]
+    if classmap.has_key(func):
+        return classmap[func]
 
     for name, module in sys.modules.items():
+        if module is None:
+            continue # skip dummy package entries
         if name != '__main__' and \
-            hasattr(module, clsname) and \
-            getattr(module, clsname) is cls:
+            hasattr(module, funcname) and \
+            getattr(module, funcname) is func:
             break
     else:
         name = '__main__'
-    classmap[cls] = name
+    classmap[func] = name
     return name
 
 
@@ -556,7 +588,7 @@ class Unpickler:
         self.memo = {}
 
     def load(self):
-        self.mark = ['spam'] # Any new unique object
+        self.mark = object() # any new unique object
         self.stack = []
         self.append = self.stack.append
         read = self.read
@@ -600,7 +632,11 @@ class Unpickler:
     dispatch[NONE] = load_none
 
     def load_int(self):
-        self.append(int(self.readline()[:-1]))
+        data = self.readline()
+        try:
+            self.append(int(data))
+        except ValueError:
+            self.append(long(data))
     dispatch[INT] = load_int
 
     def load_binint(self):
@@ -744,6 +780,10 @@ class Unpickler:
                 pass
         if not instantiated:
             try:
+                #XXX: This test is deprecated in 2.3, so commenting out.
+                #if not hasattr(klass, '__safe_for_unpickling__'):
+                #    raise UnpicklingError('%s is not safe for unpickling' %
+                #                          klass)
                 value = apply(klass, args)
             except TypeError, err:
                 raise TypeError, "in constructor for %s: %s" % (
@@ -782,14 +822,9 @@ class Unpickler:
     dispatch[GLOBAL] = load_global
 
     def find_class(self, module, name):
-        try:
-            __import__(module)
-            mod = sys.modules[module]
-            klass = getattr(mod, name)
-        except (ImportError, KeyError, AttributeError):
-            raise SystemError, \
-                  "Failed to import class %s from module %s" % \
-                  (name, module)
+        __import__(module)
+        mod = sys.modules[module]
+        klass = getattr(mod, name)
         return klass
 
     def load_reduce(self):
@@ -799,16 +834,17 @@ class Unpickler:
         arg_tup  = stack[-1]
         del stack[-2:]
 
-        if type(callable) is not ClassType:
-            if not safe_constructors.has_key(callable):
-                try:
-                    safe = callable.__safe_for_unpickling__
-                except AttributeError:
-                    safe = None
-
-                if not safe:
-                    raise UnpicklingError, "%s is not safe for " \
-                                           "unpickling" % callable
+        #XXX: The __safe_for_unpickling__ test is deprecated in 2.3, so commenting out.
+        #if type(callable) is not ClassType:
+            #if not safe_constructors.has_key(callable):
+                #try:
+                #    safe = callable.__safe_for_unpickling__
+                #except AttributeError:
+                #    safe = None
+                #
+                #if not safe:
+                #    raise UnpicklingError, "%s is not safe for " \
+                #                           "unpickling" % callable
 
         if arg_tup is None:
             value = callable.__basicnew__()
@@ -933,7 +969,10 @@ class _EmptyClass:
 
 # Shorthands
 
-from StringIO import StringIO
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
 
 def dump(object, file, bin = 0):
     Pickler(file, bin).dump(object)
@@ -949,38 +988,3 @@ def load(file):
 def loads(str):
     file = StringIO(str)
     return Unpickler(file).load()
-
-
-# The rest is used for testing only
-
-class C:
-    def __cmp__(self, other):
-        return cmp(self.__dict__, other.__dict__)
-
-def test():
-    fn = 'out'
-    c = C()
-    c.foo = 1
-    c.bar = 2
-    x = [0, 1, 2, 3]
-    y = ('abc', 'abc', c, c)
-    x.append(y)
-    x.append(y)
-    x.append(5)
-    f = open(fn, 'w')
-    F = Pickler(f)
-    F.dump(x)
-    f.close()
-    f = open(fn, 'r')
-    U = Unpickler(f)
-    x2 = U.load()
-    print x
-    print x2
-    print x == x2
-    print map(id, x)
-    print map(id, x2)
-    print F.memo
-    print U.memo
-
-if __name__ == '__main__':
-    test()

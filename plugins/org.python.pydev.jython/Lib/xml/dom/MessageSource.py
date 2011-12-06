@@ -4,6 +4,7 @@ from xml.dom import WRONG_DOCUMENT_ERR, INVALID_CHARACTER_ERR, NO_DATA_ALLOWED_E
 from xml.dom import NO_MODIFICATION_ALLOWED_ERR, NOT_FOUND_ERR, NOT_SUPPORTED_ERR
 from xml.dom import INUSE_ATTRIBUTE_ERR, INVALID_STATE_ERR, SYNTAX_ERR
 from xml.dom import INVALID_MODIFICATION_ERR, NAMESPACE_ERR, INVALID_ACCESS_ERR
+from xml.dom import VALIDATION_ERR
 
 # EventException
 from xml.dom import UNSPECIFIED_EVENT_TYPE_ERR
@@ -15,13 +16,10 @@ from xml.dom import INVALID_NODE_TYPE_ERR
 # Fourthought Exceptions
 from xml.dom import XML_PARSE_ERR
 
-try:
-    import os, gettext
-    locale_dir = os.path.split(__file__)[0]
-    gettext.install('4Suite', locale_dir)
-except (ImportError, AttributeError, IOError):
-    def _(msg):
-        return msg
+from xml.FtCore import get_translator
+
+_ = get_translator("dom")
+
 
 DOMExceptionStrings = {
     INDEX_SIZE_ERR: _("Index error accessing NodeList or NamedNodeMap"),
@@ -39,6 +37,7 @@ DOMExceptionStrings = {
     INVALID_MODIFICATION_ERR: _("Attempt to modify the type of a node"),
     NAMESPACE_ERR: _("Invalid or illegal namespace operation"),
     INVALID_ACCESS_ERR: _("Object does not support this operation or parameter"),
+    VALIDATION_ERR: _("Operation would invalidate partial validity constraint"),
     }
 
 EventExceptionStrings = {

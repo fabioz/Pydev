@@ -28,7 +28,7 @@ Notes:
   bytes that occupy space in the buffer.
 - There's a simple test set (see end of this file).
 """
-
+import types
 try:
     from errno import EINVAL
 except ImportError:
@@ -37,7 +37,21 @@ except ImportError:
 __all__ = ["StringIO"]
 
 class StringIO:
+    """class StringIO([buffer])
+
+    When a StringIO object is created, it can be initialized to an existing
+    string by passing the string to the constructor. If no string is given,
+    the StringIO will start empty.
+
+    The StringIO object can accept either Unicode or 8-bit strings, but
+    mixing the two may take some care. If both are used, 8-bit strings that
+    cannot be interpreted as 7-bit ASCII (that use the 8th bit) will cause
+    a UnicodeError to be raised when getvalue() is called.
+    """
     def __init__(self, buf = ''):
+        # Force self.buf to be a string or unicode
+        if type(buf) not in types.StringTypes:
+            buf = str(buf)
         self.buf = buf
         self.len = len(buf)
         self.buflist = []
@@ -45,7 +59,11 @@ class StringIO:
         self.closed = 0
         self.softspace = 0
 
+    def __iter__(self):
+        return iter(self.readline, '')
+
     def close(self):
+        """Free the memory buffer."""
         if not self.closed:
             self.closed = 1
             del self.buf, self.pos
@@ -131,6 +149,9 @@ class StringIO:
         if self.closed:
             raise ValueError, "I/O operation on closed file"
         if not s: return
+        # Force s to be a string or unicode
+        if type(s) not in types.StringTypes:
+            s = str(s)
         if self.pos > self.len:
             self.buflist.append('\0'*(self.pos - self.len))
             self.len = self.pos
@@ -156,6 +177,16 @@ class StringIO:
             raise ValueError, "I/O operation on closed file"
 
     def getvalue(self):
+        """
+        Retrieve the entire contents of the "file" at any time before
+        the StringIO object's close() method is called.
+
+        The StringIO object can accept either Unicode or 8-bit strings,
+        but mixing the two may take some care. If both are used, 8-bit
+        strings that cannot be interpreted as 7-bit ASCII (that use the
+        8th bit) will cause a UnicodeError to be raised when getvalue()
+        is called.
+        """
         if self.buflist:
             self.buf += ''.join(self.buflist)
             self.buflist = []

@@ -6,7 +6,7 @@ Smalltalk testing framework.
 This module contains the core framework classes that form the basis of
 specific test cases and suites (TestCase, TestSuite etc.), and also a
 text-based utility class for running the tests and reporting the results
-(TextTestRunner).
+ (TextTestRunner).
 
 Simple usage:
 
@@ -16,7 +16,7 @@ Simple usage:
         def testAdd(self):  ## test method names begin 'test*'
             self.assertEquals((1 + 2), 3)
             self.assertEquals(0 + 1, 1)
-        def testMultiply(self);
+        def testMultiply(self):
             self.assertEquals((0 * 10), 0)
             self.assertEquals((5 * 8), 40)
 
@@ -46,7 +46,7 @@ SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steve Purcell"
 __email__ = "stephen_purcell at yahoo dot com"
-__version__ = "$Revision$"[11:-2]
+__version__ = "#Revision: 1.43 $"[11:-2]
 
 import time
 import sys
@@ -67,8 +67,8 @@ class TestResult:
 
     Each instance holds the total number of tests run, and collections of
     failures and errors that occurred among those test runs. The collections
-    contain tuples of (testcase, exceptioninfo), where exceptioninfo is a
-    tuple of values as returned by sys.exc_info().
+    contain tuples of (testcase, exceptioninfo), where exceptioninfo is the
+    formatted traceback of the error that occurred.
     """
     def __init__(self):
         self.failures = []
@@ -85,12 +85,15 @@ class TestResult:
         pass
 
     def addError(self, test, err):
-        "Called when an error has occurred"
-        self.errors.append((test, err))
+        """Called when an error has occurred. 'err' is a tuple of values as
+        returned by sys.exc_info().
+        """
+        self.errors.append((test, self._exc_info_to_string(err)))
 
     def addFailure(self, test, err):
-        "Called when a failure has occurred"
-        self.failures.append((test, err))
+        """Called when an error has occurred. 'err' is a tuple of values as
+        returned by sys.exc_info()."""
+        self.failures.append((test, self._exc_info_to_string(err)))
 
     def addSuccess(self, test):
         "Called when a test has completed successfully"
@@ -103,6 +106,10 @@ class TestResult:
     def stop(self):
         "Indicates that the tests should be aborted"
         self.shouldStop = 1
+
+    def _exc_info_to_string(self, err):
+        """Converts a sys.exc_info()-style tuple of values into a string."""
+        return string.join(apply(traceback.format_exception, err), '')
 
     def __repr__(self):
         return "<%s run=%i errors=%i failures=%i>" % \
@@ -195,8 +202,10 @@ class TestCase:
         try:
             try:
                 self.setUp()
+            except KeyboardInterrupt:
+                raise
             except:
-                result.addError(self,self.__exc_info())
+                result.addError(self, self.__exc_info())
                 return
 
             ok = 0
@@ -204,14 +213,18 @@ class TestCase:
                 testMethod()
                 ok = 1
             except self.failureException, e:
-                result.addFailure(self,self.__exc_info())
+                result.addFailure(self, self.__exc_info())
+            except KeyboardInterrupt:
+                raise
             except:
-                result.addError(self,self.__exc_info())
+                result.addError(self, self.__exc_info())
 
             try:
                 self.tearDown()
+            except KeyboardInterrupt:
+                raise
             except:
-                result.addError(self,self.__exc_info())
+                result.addError(self, self.__exc_info())
                 ok = 0
             if ok: result.addSuccess(self)
         finally:
@@ -270,14 +283,16 @@ class TestCase:
            operator.
         """
         if first != second:
-            raise self.failureException, (msg or '%s != %s' % (first, second))
+            raise self.failureException, \
+                  (msg or '%s != %s' % (`first`, `second`))
 
     def failIfEqual(self, first, second, msg=None):
         """Fail if the two objects are equal as determined by the '=='
            operator.
         """
         if first == second:
-            raise self.failureException, (msg or '%s == %s' % (first, second))
+            raise self.failureException, \
+                  (msg or '%s == %s' % (`first`, `second`))
 
     assertEqual = assertEquals = failUnlessEqual
 
@@ -432,18 +447,19 @@ class TestLoader:
         for part in parts:
             obj = getattr(obj, part)
 
+        import unittest
         if type(obj) == types.ModuleType:
             return self.loadTestsFromModule(obj)
-        elif type(obj) == types.ClassType and issubclass(obj, TestCase):
+        elif type(obj) == types.ClassType and issubclass(obj, unittest.TestCase):
             return self.loadTestsFromTestCase(obj)
         elif type(obj) == types.UnboundMethodType:
             return obj.im_class(obj.__name__)
         elif callable(obj):
             test = obj()
-            if not isinstance(test, TestCase) and \
-               not isinstance(test, TestSuite):
+            if not isinstance(test, unittest.TestCase) and \
+               not isinstance(test, unittest.TestSuite):
                 raise ValueError, \
-                      "calling %s returned %s, not a test" % obj,test
+                      "calling %s returned %s, not a test" % (obj,test)
             return test
         else:
             raise ValueError, "don't know how to make test from: %s" % obj
@@ -553,8 +569,6 @@ class _TextTestResult(TestResult):
             self.stream.writeln("ERROR")
         elif self.dots:
             self.stream.write('E')
-        if err[0] is KeyboardInterrupt:
-            self.shouldStop = 1
 
     def addFailure(self, test, err):
         TestResult.addFailure(self, test, err)
@@ -574,9 +588,7 @@ class _TextTestResult(TestResult):
             self.stream.writeln(self.separator1)
             self.stream.writeln("%s: %s" % (flavour,self.getDescription(test)))
             self.stream.writeln(self.separator2)
-            for line in apply(traceback.format_exception, err):
-                for l in string.split(line,"\n")[:-1]:
-                    self.stream.writeln("%s" % l)
+            self.stream.writeln("%s" % err)
 
 
 class TextTestRunner:
@@ -604,7 +616,7 @@ class TextTestRunner:
         self.stream.writeln(result.separator2)
         run = result.testsRun
         self.stream.writeln("Ran %d test%s in %.3fs" %
-                            (run, run == 1 and "" or "s", timeTaken))
+                            (run, run != 1 and "s" or "", timeTaken))
         self.stream.writeln()
         if not result.wasSuccessful():
             self.stream.write("FAILED (")

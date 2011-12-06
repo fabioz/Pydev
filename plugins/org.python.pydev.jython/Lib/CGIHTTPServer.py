@@ -26,6 +26,7 @@ import sys
 import urllib
 import BaseHTTPServer
 import SimpleHTTPServer
+import select
 
 
 class CGIHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
@@ -41,6 +42,7 @@ class CGIHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     # Determine platform specifics
     have_fork = hasattr(os, 'fork')
     have_popen2 = hasattr(os, 'popen2')
+    have_popen3 = hasattr(os, 'popen3')
 
     # Make rfile unbuffered -- we need to read one line and then pass
     # the rest to a subprocess, so we can't use buffered input.
@@ -123,7 +125,7 @@ class CGIHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             return
         ispy = self.is_python(scriptname)
         if not ispy:
-            if not (self.have_fork or self.have_popen2):
+            if not (self.have_fork or self.have_popen2 or self.have_popen3):
                 self.send_error(403, "CGI script is not a Python script (%s)" %
                                 `scriptname`)
                 return
@@ -181,6 +183,7 @@ class CGIHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             for k in ('QUERY_STRING', 'REMOTE_HOST', 'CONTENT_LENGTH',
                       'HTTP_USER_AGENT', 'HTTP_COOKIE'):
                 env.setdefault(k, "")
+        os.environ.update(env)
 
         self.send_response(200, "Script output follows")
 
@@ -197,6 +200,9 @@ class CGIHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             if pid != 0:
                 # Parent
                 pid, sts = os.waitpid(pid, 0)
+                # throw away additional data [see bug #427345]
+                while select.select([self.rfile], [], [], 0)[0]:
+                    waste = self.rfile.read(1)
                 if sts:
                     self.log_error("CGI script exit status %#x", sts)
                 return
@@ -213,39 +219,53 @@ class CGIHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 self.server.handle_error(self.request, self.client_address)
                 os._exit(127)
 
-        elif self.have_popen2:
-            # Windows -- use popen2 to create a subprocess
+        elif self.have_popen2 or self.have_popen3:
+            # Windows -- use popen2 or popen3 to create a subprocess
             import shutil
-            os.environ.update(env)
+            if self.have_popen3:
+                popenx = os.popen3
+            else:
+                popenx = os.popen2
             cmdline = scriptfile
             if self.is_python(scriptfile):
                 interp = sys.executable
                 if interp.lower().endswith("w.exe"):
-                    # On Windows, use python.exe, not python.exe
-                    interp = interp[:-5] = interp[-4:]
-                cmdline = "%s %s" % (interp, cmdline)
+                    # On Windows, use python.exe, not pythonw.exe
+                    interp = interp[:-5] + interp[-4:]
+                cmdline = "%s -u %s" % (interp, cmdline)
             if '=' not in query and '"' not in query:
                 cmdline = '%s "%s"' % (cmdline, query)
-            self.log_error("command: %s", cmdline)
+            self.log_message("command: %s", cmdline)
             try:
                 nbytes = int(length)
             except:
                 nbytes = 0
-            fi, fo = os.popen2(cmdline)
+            files = popenx(cmdline, 'b')
+            fi = files[0]
+            fo = files[1]
+            if self.have_popen3:
+                fe = files[2]
             if self.command.lower() == "post" and nbytes > 0:
                 data = self.rfile.read(nbytes)
                 fi.write(data)
+            # throw away additional data [see bug #427345]
+            while select.select([self.rfile._sock], [], [], 0)[0]:
+                waste = self.rfile._sock.recv(1)
             fi.close()
             shutil.copyfileobj(fo, self.wfile)
+            if self.have_popen3:
+                errors = fe.read()
+                fe.close()
+                if errors:
+                    self.log_error('%s', errors)
             sts = fo.close()
             if sts:
                 self.log_error("CGI script exit status %#x", sts)
             else:
-                self.log_error("CGI script exited OK")
+                self.log_message("CGI script exited OK")
 
         else:
             # Other O.S. -- execute script in this process
-            os.environ.update(env)
             save_argv = sys.argv
             save_stdin = sys.stdin
             save_stdout = sys.stdout
@@ -266,7 +286,7 @@ class CGIHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             except SystemExit, sts:
                 self.log_error("CGI script exit status %s", str(sts))
             else:
-                self.log_error("CGI script exited OK")
+                self.log_message("CGI script exited OK")
 
 
 nobody = None

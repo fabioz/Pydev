@@ -1,6 +1,4 @@
 "Read and write ZIP files."
-# Written by James C. Ahlstrom jim@interet.com
-# All rights transferred to CNRI pursuant to the Python contribution agreement
 
 import struct, os, time
 import binascii
@@ -66,7 +64,10 @@ _FH_FILENAME_LENGTH = 10
 _FH_EXTRA_FIELD_LENGTH = 11
 
 # Used to compare file passed to ZipFile
-_STRING_TYPES = (type('s'), type(u's'))
+import types
+_STRING_TYPES = (types.StringType,)
+if hasattr(types, "UnicodeType"):
+    _STRING_TYPES = _STRING_TYPES + (types.UnicodeType,)
 
 
 def is_zipfile(filename):
@@ -81,7 +82,7 @@ def is_zipfile(filename):
         fpin.close()
         if endrec[0:4] == "PK\005\006" and endrec[-2:] == "\000\000":
             return 1    # file has correct magic number
-    except:
+    except IOError:
         pass
 
 
@@ -89,7 +90,18 @@ class ZipInfo:
     """Class with attributes describing each file in the ZIP archive."""
 
     def __init__(self, filename="NoName", date_time=(1980,1,1,0,0,0)):
-        self.filename = filename        # Name of the file in the archive
+        self.orig_filename = filename   # Original file name in archive
+# Terminate the file name at the first null byte.  Null bytes in file
+# names are used as tricks by viruses in archives.
+        null_byte = filename.find(chr(0))
+        if null_byte >= 0:
+            filename = filename[0:null_byte]
+# This is used to ensure paths in generated ZIP files always use
+# forward slashes as the directory separator, as required by the
+# ZIP format specification.
+        if os.sep != "/":
+            filename = filename.replace(os.sep, "/")
+        self.filename = filename        # Normalized file name
         self.date_time = date_time      # year, month, day, hour, min, sec
         # Standard values:
         self.compress_type = ZIP_STORED # Type of compression for the file
@@ -114,7 +126,7 @@ class ZipInfo:
         """Return the per-file header as a string."""
         dt = self.date_time
         dosdate = (dt[0] - 1980) << 9 | dt[1] << 5 | dt[2]
-        dostime = dt[3] << 11 | dt[4] << 5 | dt[5] / 2
+        dostime = dt[3] << 11 | dt[4] << 5 | (dt[5] // 2)
         if self.flag_bits & 0x08:
             # Set these to zero because we write them after the file data
             CRC = compress_size = file_size = 0
@@ -267,10 +279,10 @@ class ZipFile:
                                 + fheader[_FH_FILENAME_LENGTH]
                                 + fheader[_FH_EXTRA_FIELD_LENGTH])
             fname = fp.read(fheader[_FH_FILENAME_LENGTH])
-            if fname != data.filename:
+            if fname != data.orig_filename:
                 raise RuntimeError, \
                       'File name in directory "%s" and header "%s" differ.' % (
-                          data.filename, fname)
+                          data.orig_filename, fname)
 
     def namelist(self):
         """Return a list of file names in the archive."""
@@ -406,7 +418,7 @@ class ZipFile:
         zinfo.CRC = CRC
         zinfo.file_size = file_size
         # Seek backwards and write CRC and file sizes
-        position = self.fp.tell()	# Preserve current position in file
+        position = self.fp.tell()       # Preserve current position in file
         self.fp.seek(zinfo.header_offset + 14, 0)
         self.fp.write(struct.pack("<lll", zinfo.CRC, zinfo.compress_size,
               zinfo.file_size))
@@ -440,13 +452,13 @@ class ZipFile:
 
     def __del__(self):
         """Call the "close()" method in case the user forgot."""
-        if self.fp and not self._filePassed:
-            self.fp.close()
-            self.fp = None
+        self.close()
 
     def close(self):
         """Close the file, and for mode "w" and "a" write the ending
         records."""
+        if self.fp is None:
+            return
         if self.mode in ("w", "a"):             # write ending records
             count = 0
             pos1 = self.fp.tell()
@@ -454,7 +466,7 @@ class ZipFile:
                 count = count + 1
                 dt = zinfo.date_time
                 dosdate = (dt[0] - 1980) << 9 | dt[1] << 5 | dt[2]
-                dostime = dt[3] << 11 | dt[4] << 5 | dt[5] / 2
+                dostime = dt[3] << 11 | dt[4] << 5 | (dt[5] // 2)
                 centdir = struct.pack(structCentralDir,
                   stringCentralDir, zinfo.create_version,
                   zinfo.create_system, zinfo.extract_version, zinfo.reserved,

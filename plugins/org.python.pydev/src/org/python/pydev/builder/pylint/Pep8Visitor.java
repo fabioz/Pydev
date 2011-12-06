@@ -7,6 +7,8 @@
 package org.python.pydev.builder.pylint;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 
 import org.eclipse.core.resources.IProject;
@@ -34,15 +36,16 @@ public class Pep8Visitor extends PyDevBuilderVisitor{
         PythonNature nature = PythonNature.getPythonNature(project);
         try {
 
-            File fileToExec = new File("D:/bin/Python265/Lib/site-packages/pep8-0.6.1-py2.6.egg/pep8.py");
+            File fileToExec = new File("w:/pep8/pep8.py");
             HashMap<String, Object> locals = new HashMap<String, Object>();
             locals.put("__name__", "__main__");
             
             //It's important that the interpreter is created in the Thread and not outside the thread (otherwise
             //it may be that the output ends up being shared, which is not what we want.)
             IPythonInterpreter interpreter = JythonPlugin.newPythonInterpreter(false, false);
-//            interpreter.setErr(errorStream.internalOutputStream);
-//            interpreter.setOut(outputStream.internalOutputStream);
+
+            interpreter.setErr(System.err);
+            interpreter.setOut(System.out);
             Throwable e = JythonPlugin.exec(
                     locals, 
                     interpreter, 

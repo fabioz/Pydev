@@ -2,7 +2,6 @@
 #
 # File Name:            __init__.py
 #
-# Documentation:        http://docs.4suite.com/4DOM/__init__.py.html
 #
 """
 WWW: http://4suite.org/4DOM         e-mail: support@4suite.org
@@ -13,7 +12,7 @@ See  http://4suite.org/COPYRIGHT  for license and copyright information
 
 
 class Node:
-    """Class giving the NodeType constants."""
+    """Class giving the nodeType and tree-position constants."""
 
     # DOM implementations may use this as a base class for their own
     # Node implementations.  If they don't, the constants defined here
@@ -35,6 +34,35 @@ class Node:
     DOCUMENT_FRAGMENT_NODE      = 11
     NOTATION_NODE               = 12
 
+    # Based on DOM Level 3 (WD 9 April 2002)
+
+    TREE_POSITION_PRECEDING    = 0x01
+    TREE_POSITION_FOLLOWING    = 0x02
+    TREE_POSITION_ANCESTOR     = 0x04
+    TREE_POSITION_DESCENDENT   = 0x08
+    TREE_POSITION_EQUIVALENT   = 0x10
+    TREE_POSITION_SAME_NODE    = 0x20
+    TREE_POSITION_DISCONNECTED = 0x00
+
+class UserDataHandler:
+    """Class giving the operation constants for UserDataHandler.handle()."""
+
+    # Based on DOM Level 3 (WD 9 April 2002)
+
+    NODE_CLONED   = 1
+    NODE_IMPORTED = 2
+    NODE_DELETED  = 3
+    NODE_RENAMED  = 4
+
+class DOMError:
+    """Class giving constants for error severity."""
+
+    # Based on DOM Level 3 (WD 9 April 2002)
+
+    SEVERITY_WARNING     = 0
+    SEVERITY_ERROR       = 1
+    SEVERITY_FATAL_ERROR = 2
+
 
 # DOMException codes
 INDEX_SIZE_ERR                 = 1
@@ -47,11 +75,14 @@ NO_MODIFICATION_ALLOWED_ERR    = 7
 NOT_FOUND_ERR                  = 8
 NOT_SUPPORTED_ERR              = 9
 INUSE_ATTRIBUTE_ERR            = 10
+# DOM Level 2
 INVALID_STATE_ERR              = 11
 SYNTAX_ERR                     = 12
 INVALID_MODIFICATION_ERR       = 13
 NAMESPACE_ERR                  = 14
 INVALID_ACCESS_ERR             = 15
+# DOM Level 3
+VALIDATION_ERR                 = 16
 
 # EventException codes
 UNSPECIFIED_EVENT_TYPE_ERR     = 0
@@ -101,9 +132,17 @@ class IndexSizeErr(DOMException):
     def __init__(self, msg=''):
         DOMException.__init__(self, INDEX_SIZE_ERR, msg)
 
-class DOMStringSizeErr(DOMException):
+class DomstringSizeErr(DOMException):
     def __init__(self, msg=''):
         DOMException.__init__(self, DOMSTRING_SIZE_ERR, msg)
+
+# DOMStringSizeErr was accidentally introduced in rev 1.14 of this
+# file, and was released as part of PyXML 0.6.4, 0.6.5, 0.6.6, 0.7,
+# and 0.7.1.  It has never been part of the Python DOM API, although
+# it better matches the W3C recommendation.  It should remain for
+# compatibility, unfortunately.
+#
+DOMStringSizeErr = DomstringSizeErr
 
 class HierarchyRequestErr(DOMException):
     def __init__(self, msg=''):
@@ -157,6 +196,10 @@ class InvalidAccessErr(DOMException):
     def __init__(self, msg=''):
         DOMException.__init__(self, INVALID_ACCESS_ERR, msg)
 
+class ValidationErr(DOMException):
+    def __init__(self, msg=''):
+        DOMException.__init__(self, VALIDATION_ERR, msg)
+
 class UnspecifiedEventTypeErr(EventException):
     def __init__(self, msg=''):
         EventException.__init__(self, UNSPECIFIED_EVENT_TYPE_ERR, msg)
@@ -174,19 +217,11 @@ class InvalidNodeTypeErr(RangeException):
     def __init__(self, msg=''):
         RangeException.__init__(self, INVALID_NODE_TYPE_ERR, msg)
 
-from xml.dom import DOMImplementation
-
-try:
-    from xml.dom.html import HTMLDOMImplementation
-    implementation =  HTMLDOMImplementation.HTMLDOMImplementation()
-    HTMLDOMImplementation.implementation = implementation
-except ImportError:
-    implementation = DOMImplementation.DOMImplementation()
-DOMImplementation.implementation = implementation
-
 XML_NAMESPACE = "http://www.w3.org/XML/1998/namespace"
 XMLNS_NAMESPACE = "http://www.w3.org/2000/xmlns/"
 XHTML_NAMESPACE = "http://www.w3.org/1999/xhtml"
+EMPTY_NAMESPACE = None
+EMPTY_PREFIX = None
 
 import MessageSource
 DOMExceptionStrings = MessageSource.__dict__['DOMExceptionStrings']
