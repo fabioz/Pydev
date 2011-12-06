@@ -14,6 +14,7 @@ import org.python.parser.ReaderCharStream;
 import org.python.parser.Token;
 import org.python.parser.TokenMgrError;
 import org.python.parser.ast.modType;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 /**
  * Facade for the classes in the org.python.parser package.
@@ -28,8 +29,29 @@ public class parser {
     static String getLine(ReaderCharStream reader, int line) {
         if (reader == null)
             return "";
-        return "";
-//        return reader.readLine(line); -- This feature was removed in the internal Jython version in PyDev (so, syntax errors may not have such a good report).
+        
+        reader.restorePos(0);
+        try {
+            reader.readChar();
+        } catch (IOException e1) {
+            return "";
+        }
+        try {
+            while(reader.getEndLine() < line){
+                reader.readChar();
+            }
+            reader.backup(1);
+            FastStringBuffer buf = new FastStringBuffer(128);
+            buf.append(reader.readChar());
+            
+            
+            while(reader.getEndLine() == line){
+                buf.append(reader.readChar());
+            }
+            return buf.toString();
+        } catch (IOException e) {
+            return "";
+        }
     }
 
 

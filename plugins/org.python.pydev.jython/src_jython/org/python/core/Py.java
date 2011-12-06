@@ -18,6 +18,7 @@ import org.python.compiler.Module;
 import org.python.core.adapter.ClassicPyObjectAdapter;
 import org.python.core.adapter.ExtensiblePyObjectAdapter;
 import org.python.parser.ast.modType;
+import org.python.pydev.jython.ExitScriptException;
 
 public final class Py
 {
@@ -194,26 +195,27 @@ public final class Py
     static void maybeSystemExit(PyException exc) {
         //System.err.println("maybeSystemExit: " + exc.type.toString());
         if (Py.matchException(exc, Py.SystemExit)) {
-            PyObject value = exc.value;
-            //System.err.println("exiting: "+value.getClass().getName());
-            if (value instanceof PyInstance) {
-                PyObject tmp = value.__findattr__("code");
-                if (tmp != null)
-                    value = tmp;
-            }
-            Py.getSystemState().callExitFunc();
-            if (value instanceof PyInteger) {
-                System.exit(((PyInteger)value).getValue());
-            } else {
-                if (value != Py.None) {
-                    try {
-                        Py.println(value);
-                        System.exit(1);
-                    }
-                    catch (Throwable t0) { }
-                }
-                System.exit(0);
-            }
+            throw new ExitScriptException(); //We don't want System.exit to actually be called in PyDev.
+//            PyObject value = exc.value;
+//            //System.err.println("exiting: "+value.getClass().getName());
+//            if (value instanceof PyInstance) {
+//                PyObject tmp = value.__findattr__("code");
+//                if (tmp != null)
+//                    value = tmp;
+//            }
+//            Py.getSystemState().callExitFunc();
+//            if (value instanceof PyInteger) {
+//                System.exit(((PyInteger)value).getValue());
+//            } else {
+//                if (value != Py.None) {
+//                    try {
+//                        Py.println(value);
+//                        System.exit(1);
+//                    }
+//                    catch (Throwable t0) { }
+//                }
+//                System.exit(0);
+//            }
         }
     }
 
