@@ -1662,7 +1662,7 @@ public final class Py
                              printResults, null);
     }
 
-    public static PyCode compile(InputStream istream, String filename,
+    public static PyCode compile(byte[] istream, String filename,
                                  String type)
     {
         return compile_flags(istream,filename,type,null);
@@ -1688,7 +1688,7 @@ public final class Py
         }
     }
 
-    public static PyCode compile_flags(InputStream istream, String filename,
+    public static PyCode compile_flags(byte[] istream, String filename,
                                  String type,CompilerFlags cflags)
     {
         modType node = parser.parse(istream, type, filename, cflags);
@@ -1703,7 +1703,7 @@ public final class Py
                                        String filename,
                                        String type,
                                        CompilerFlags cflags) {
-        return Py.compile_flags(new ByteArrayInputStream(PyString.to_bytes(data + "\n\n")),
+        return Py.compile_flags(PyString.to_bytes(data + "\n\n"),
                                 filename,
                                 type,
                                 cflags);

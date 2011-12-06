@@ -61,7 +61,7 @@ public class SyspathArchive extends PyString {
         return this.zipFile.getEntry(makeEntry(entryName));
     }
 
-    InputStream getInputStream(ZipEntry entry) throws IOException {
+    byte[] getInputStream(ZipEntry entry) throws IOException {
         InputStream istream = this.zipFile.getInputStream(entry);
 
         // Some jdk1.1 VMs have problems with detecting the end of a zip
@@ -83,7 +83,7 @@ public class SyspathArchive extends PyString {
             len -= l;
         }
         istream.close();
-        return new ByteArrayInputStream(buffer);
+        return buffer;
     }
 
 /*

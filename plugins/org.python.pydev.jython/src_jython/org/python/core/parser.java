@@ -1,12 +1,8 @@
 // Copyright (c) Corporation for National Research Initiatives
 package org.python.core;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.FilterReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 
@@ -29,34 +25,18 @@ public class parser {
 
     private parser() { ; }
 
-    static String getLine(BufferedReader reader, int line) {
+    static String getLine(ReaderCharStream reader, int line) {
         if (reader == null)
             return "";
-        try {
-            String text=null;
-            for(int i=0; i < line; i++) {
-                text = reader.readLine();
-            }
-            return text;
-        } catch (IOException ioe) {
-            return null;
-        }
+        return "";
+//        return reader.readLine(line); -- This feature was removed in the internal Jython version in PyDev (so, syntax errors may not have such a good report).
     }
 
 
     // if reader != null, reset it
-    public static PyException fixParseError(BufferedReader reader, Throwable t,
+    public static PyException fixParseError(ReaderCharStream reader, Throwable t,
                                      String filename)
     {
-        if (reader != null) {
-            // System.err.println("resetting istream");
-            try {
-                reader.reset();
-            } catch (IOException e) {
-                reader = null;
-            }
-        }
-        
         if (t instanceof ParseException) {
             ParseException e = (ParseException)t;
             Token tok = e.currentToken;
@@ -89,16 +69,17 @@ public class parser {
 
 
     public static Node parse(String string, String kind) {
-        return parse(new ByteArrayInputStream(PyString.to_bytes(string)),
+        return parse(PyString.to_bytes(string),
                      kind, "<string>", null);
     }
         
-    public static modType parse(InputStream istream, String kind,
+    public static modType parse(byte[] istream, String kind,
                                  String filename, CompilerFlags cflags) 
     {
-        BufferedReader bufreader = prepBufreader(istream, cflags);
+        char[] bufreader = prepBufreader(istream, cflags);
         
-        PythonGrammar g = new PythonGrammar(new ReaderCharStream(bufreader),
+        ReaderCharStream charStream = new ReaderCharStream(bufreader);
+        PythonGrammar g = new PythonGrammar(charStream,
                                             literalMkrForParser);
 
         modType node = null;
@@ -106,7 +87,7 @@ public class parser {
             node = doparse(kind, cflags, g);
         }
         catch (Throwable t) {
-            throw fixParseError(bufreader, t, filename);
+            throw fixParseError(charStream, t, filename);
         }
         return node;
     }
@@ -117,10 +98,11 @@ public class parser {
         modType node = null;        
         //System.err.println(new PyString(string).__repr__().toString());
 
-        BufferedReader bufreader = prepBufreader(new ByteArrayInputStream(PyString.to_bytes(string)),
+        char[] bufreader = prepBufreader(PyString.to_bytes(string),
                                                  cflags);
         
-        PythonGrammar g = new PythonGrammar(new ReaderCharStream(bufreader),
+        ReaderCharStream charStream = new ReaderCharStream(bufreader);
+        PythonGrammar g = new PythonGrammar(charStream,
                                             literalMkrForParser);
         
         g.token_source.partial = true;
@@ -142,7 +124,7 @@ public class parser {
             if (g.partial_valid_sentence(t)) {
                 return null;
             }            
-            throw fixParseError(bufreader, t, filename);
+            throw fixParseError(charStream, t, filename);
         }
         return node;
         
@@ -192,23 +174,13 @@ public class parser {
         return node;
     }
 
-    private static BufferedReader prepBufreader(InputStream istream,
+    private static char[] prepBufreader(byte[] istream,
                                                 CompilerFlags cflags) {
-        int nbytes;
-        try {
-            nbytes = istream.available();
-        }
-        catch (IOException ioe1) {
-            nbytes = 10000;
-        }
-        if (nbytes <= 0)
-            nbytes = 10000;
-        if (nbytes > 100000)
-            nbytes = 100000;
-        Reader reader;
+
+        String str;
         if(cflags != null && cflags.encoding != null) {
             try {
-                reader = new InputStreamReader(istream, cflags.encoding);
+                str = new String(istream, cflags.encoding);
             } catch(UnsupportedEncodingException exc) {
                 throw Py.SystemError("python.console.encoding, " + cflags.encoding
                         + ", isn't supported by this JVM so we can't parse this data.");
@@ -216,22 +188,14 @@ public class parser {
         } else {
             try {
                 // Use ISO-8859-1 to get bytes off the input stream since it leaves their values alone.
-                reader = new InputStreamReader(istream, "ISO-8859-1");
+                str = new String(istream, "ISO-8859-1");
             } catch(UnsupportedEncodingException e) {
                 // This JVM is whacked, it doesn't even have iso-8859-1
                 throw Py.SystemError("Java couldn't find the ISO-8859-1 encoding");
             }
         }
         
-        //if (Options.fixMacReaderBug);
-        reader = new FixMacReaderBug(reader);
-        
-        BufferedReader bufreader = new BufferedReader(reader);
-        
-        try {
-            bufreader.mark(nbytes);
-        } catch (IOException exc) { }
-        return bufreader;
+        return str.toCharArray();
     }
 
 }

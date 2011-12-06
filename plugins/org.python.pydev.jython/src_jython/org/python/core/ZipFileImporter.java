@@ -159,7 +159,7 @@ public class ZipFileImporter extends PyObject {
                 m.__dict__.__setitem__("__loader__", this);
             }
 
-            InputStream is = null; // should this be closed?
+            byte[] is = null; // should this be closed?
             ZipEntry entry = this._info.zipEntry;
             try {
                 is = this._info.archive.getInputStream(entry);

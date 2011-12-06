@@ -6,7 +6,7 @@ import java.io.Serializable;
 /**
  * A class representing the singleton None object,
  */
-public class PyNone extends PyObject implements Serializable
+final public class PyNone extends PyObject implements Serializable
 {
     
     //~ BEGIN GENERATED REGION -- DO NOT EDIT SEE gexpose.py

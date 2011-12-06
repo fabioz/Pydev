@@ -6,7 +6,7 @@ package org.python.core;
  * A python frame object.
  */
 
-public class PyFrame extends PyObject
+final public class PyFrame extends PyObject
 {
     public PyFrame f_back;
     public PyTableCode f_code;

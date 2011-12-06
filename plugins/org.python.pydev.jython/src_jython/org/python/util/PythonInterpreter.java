@@ -156,11 +156,11 @@ public class PythonInterpreter {
         __builtin__.execfile_flags(s, locals, locals, cflags);
     }
 
-    public void execfile(java.io.InputStream s) {
+    public void execfile(byte[] s) {
         execfile(s, "<iostream>");
     }
 
-    public void execfile(java.io.InputStream s, String name) {
+    public void execfile(byte[] s, String name) {
         setState();
         Py.runCode(Py.compile_flags(s, name, "exec",cflags), locals, locals);
     }

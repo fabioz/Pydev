@@ -69,17 +69,18 @@ public class imp {
         }
     }
 
-    private static InputStream makeStream(File file) {
+    private static byte[] makeStream(File file) {
         try {
-            return new FileInputStream(file);
+            FileInputStream fileInputStream = new FileInputStream(file);
+            return FileUtil.readBytes(fileInputStream);
         } catch (IOException ioe) {
             throw Py.IOError(ioe);
         }
     }
 
-    static PyObject createFromPyClass(String name, InputStream fp,
+    static PyObject createFromPyClass(String name, byte[] fp,
             boolean testing, String fileName) {
-        byte[] data = readBytes(fp);
+        byte[] data = fp;
         int n = data.length;
 
         int api = (data[n - 4] << 24) + (data[n - 3] << 16)
@@ -167,7 +168,7 @@ public class imp {
     }
 
     static byte[] compileSource(String name,
-                                InputStream fp,
+                                byte[] fp,
                                 String filename) {
         ByteArrayOutputStream ofp = new ByteArrayOutputStream();
         try {
@@ -175,11 +176,7 @@ public class imp {
                 filename = UNKNOWN_SOURCEFILE;
             }
             org.python.parser.ast.modType node;
-            try {
-                node = parser.parse(fp, "exec", filename, Py.getCompilerFlags());
-            } finally {
-                fp.close();
-            }
+            node = parser.parse(fp, "exec", filename, Py.getCompilerFlags());
             org.python.compiler.Module.compile(node,
                                                ofp,
                                                name + "$py",
@@ -194,12 +191,12 @@ public class imp {
         }
     }
 
-    public static PyObject createFromSource(String name, InputStream fp,
+    public static PyObject createFromSource(String name, byte[] fp,
             String filename) {
         return createFromSource(name, fp, filename, null);
     }
     
-    static PyObject createFromSource(String name, InputStream fp,
+    static PyObject createFromSource(String name, byte[] fp,
             String filename, String outFilename) {
         byte[] bytes = compileSource(name, fp, filename);
         outFilename = cacheCompiledSource(filename, outFilename, bytes);
@@ -399,7 +396,7 @@ public class imp {
         return load_module.__call__(new PyObject[] { new PyString(name) });
     }
 
-    public static PyObject loadFromCompiled(String name, InputStream stream,
+    public static PyObject loadFromCompiled(String name, byte[] stream,
             String filename) {
         return createFromPyClass(name, stream, false, filename);
     }

@@ -6,7 +6,7 @@ package org.python.core;
  * is stored as a PyFunctionTable instance and an integer index.
  */
 
-public class PyTableCode extends PyCode
+final public class PyTableCode extends PyCode
 {
     public int co_argcount;
     int nargs;

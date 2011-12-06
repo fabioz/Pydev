@@ -1,325 +1,236 @@
+/**
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package org.python.parser;
 
+import java.io.IOException;
+
+import org.python.pydev.core.ObjectsPool;
+import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
+import org.python.pydev.core.log.Log;
+
 /**
- * An implementation of interface CharStream, where the data is read from
- * a Reader.
- * This file started life as a copy of ASCII_CharStream.java.
+ * An implementation of interface CharStream, where the data is read from a Reader. Completely recreated so that we can read data directly from a String, as the
+ * initial implementation was highly inefficient when working only with a string (actually, if it was small, there would be no noticeable
+ * delays, but if it became big, then the improvement would be HUGE).
+ * 
+ * It keeps the same semantics for line and column stuff (and shares the previous approach of keeping a buffer for this info).
+ * If we wanted we could optimize it for also taking less memory, but as there is usually not so many concurrent parses, this 
+ * is probably not worth it -- and it would probably be a little slower)
  */
 
-public final class ReaderCharStream implements CharStream
-{
-  public static final boolean staticFlag = false;
-  int bufsize;
-  int available;
-  int tokenBegin;
-  public int bufpos = -1;
-  private int bufline[];
-  private int bufcolumn[];
+public final class ReaderCharStream implements CharStream {
 
-  private int column = 0;
-  private int line = 1;
+    private char[] buffer;
 
-  private boolean prevCharIsCR = false;
-  private boolean prevCharIsLF = false;
+    private int bufline[];
 
-  private java.io.Reader inputStream;
+    private int bufcolumn[];
 
-  private char[] buffer;
-  private int maxNextCharInd = 0;
-  private int inBuf = 0;
+    private boolean prevCharIsCR = false;
 
-  private final void ExpandBuff(boolean wrapAround)
-  {
-     char[] newbuffer = new char[bufsize + 2048];
-     int newbufline[] = new int[bufsize + 2048];
-     int newbufcolumn[] = new int[bufsize + 2048];
+    private boolean prevCharIsLF = false;
 
-     try
-     {
-        if (wrapAround)
-        {
-           System.arraycopy(buffer, tokenBegin, newbuffer, 0, bufsize - tokenBegin);
-           System.arraycopy(buffer, 0, newbuffer,
-                                             bufsize - tokenBegin, bufpos);
-           buffer = newbuffer;
+    private int column = 0;
 
-           System.arraycopy(bufline, tokenBegin, newbufline, 0, bufsize - tokenBegin);
-           System.arraycopy(bufline, 0, newbufline, bufsize - tokenBegin, bufpos);
-           bufline = newbufline;
+    private int line = 1;
 
-           System.arraycopy(bufcolumn, tokenBegin, newbufcolumn, 0, bufsize - tokenBegin);
-           System.arraycopy(bufcolumn, 0, newbufcolumn, bufsize - tokenBegin, bufpos);
-           bufcolumn = newbufcolumn;
+    private int bufpos = -1;
 
-           maxNextCharInd = (bufpos += (bufsize - tokenBegin));
+    private int updatePos;
+    
+    private int tokenBegin;
+    
+    private static IOException ioException;
+
+    private static final boolean DEBUG = false;
+
+    public ReaderCharStream(char cs[]) {
+        this.buffer = cs;
+        this.bufline = new int[cs.length];
+        this.bufcolumn = new int[cs.length];
+    }
+    
+    public int getCurrentPos() {
+        return bufpos;
+    }
+    
+    public void restorePos(int pos) {
+        bufpos = pos;
+    }
+    
+    /**
+     * Restores a previous position.
+     * Don't forget to restore the level if eof was already found!
+     */
+    public void restoreLineColPos(final int endLine, final int endColumn) {
+        final int initialBufPos = bufpos;
+        final int currLine = getEndLine();
+        
+        int attempts = 0;
+        if(currLine < endLine){
+            //note: we could do it, but it's not what we want!
+            Log.log("Cannot backtrack to a later position -- current line: "+getEndLine()+" requested line:"+endLine);
+            return;
+        }else if(currLine == endLine && getEndColumn() < endColumn){
+            Log.log("Cannot backtrack to a later position -- current col: "+getEndColumn()+" requested col:"+endColumn);
+            return;
         }
-        else
-        {
-           System.arraycopy(buffer, tokenBegin, newbuffer, 0, bufsize - tokenBegin);
-           buffer = newbuffer;
-
-           System.arraycopy(bufline, tokenBegin, newbufline, 0, bufsize - tokenBegin);
-           bufline = newbufline;
-
-           System.arraycopy(bufcolumn, tokenBegin, newbufcolumn, 0, bufsize - tokenBegin);
-           bufcolumn = newbufcolumn;
-
-           maxNextCharInd = (bufpos -= tokenBegin);
+        
+        while((getEndLine() != endLine || getEndColumn() != endColumn) && bufpos >=0){
+            attempts += 1;
+            bufpos--;
         }
-     }
-     catch (Throwable t)
-     {
-        throw new Error(t.getMessage());
-     }
-
-
-     bufsize += 2048;
-     available = bufsize;
-     tokenBegin = 0;
-  }
-
-  private final void FillBuff() throws java.io.IOException
-  {
-     if (maxNextCharInd == available)
-     {
-        if (available == bufsize)
-        {
-           if (tokenBegin > 2048)
-           {
-              bufpos = maxNextCharInd = 0;
-              available = tokenBegin;
-           }
-           else if (tokenBegin < 0)
-              bufpos = maxNextCharInd = 0;
-           else
-              ExpandBuff(false);
+        
+        if(bufpos < 0 || getEndLine() != endLine){
+            //we couldn't find it. Let's restore the position when we started it.
+            bufpos = initialBufPos;
+            Log.log("Couldn't backtrack to position: line"+endLine+ " -- col:"+endColumn);
         }
-        else if (available > tokenBegin)
-           available = bufsize;
-        else if ((tokenBegin - available) < 2048)
-           ExpandBuff(true);
-        else
-           available = tokenBegin;
-     }
+    }
 
-     int i;
-     try {
-        if ((i = inputStream.read(buffer, maxNextCharInd,
-                                    available - maxNextCharInd)) == -1)
-        {
-           inputStream.close();
-           throw new java.io.IOException();
+
+
+    public final char readChar() throws IOException {
+        try {
+            bufpos++;
+            char r = this.buffer[bufpos];
+            
+            if(bufpos >= updatePos){
+                updatePos++;
+                
+                //start UpdateLineCol
+                column++;
+                
+                if (prevCharIsLF) {
+                    prevCharIsLF = false;
+                    line += (column = 1);
+                    
+                } else if (prevCharIsCR) {
+                    
+                    prevCharIsCR = false;
+                    if (r == '\n') {
+                        prevCharIsLF = true;
+                    } else {
+                        line += (column = 1);
+                    }
+                }
+                
+                if(r == '\r'){
+                    prevCharIsCR = true;
+                    
+                }else if(r == '\n'){
+                    prevCharIsLF = true;
+                    
+                }
+                
+                bufline[bufpos] = line;
+                bufcolumn[bufpos] = column;
+                //end UpdateLineCol
+            }
+            
+            return r;
+        } catch (ArrayIndexOutOfBoundsException e) {
+            bufpos--;
+            if (ioException == null){
+                ioException = new IOException();
+            }
+            throw ioException;
         }
-        else
-           maxNextCharInd += i;
-        return;
-     }
-     catch(java.io.IOException e) {
-        --bufpos;
-        backup(0);
-        if (tokenBegin == -1)
-           tokenBegin = bufpos;
-        throw e;
-     }
-  }
+    }
 
-  public final char BeginToken() throws java.io.IOException
-  {
-     tokenBegin = -1;
-     char c = readChar();
-     tokenBegin = bufpos;
+    /**
+     * @deprecated
+     * @see #getEndColumn
+     */
 
-     return c;
-  }
+    public final int getColumn() {
+        return bufcolumn[bufpos];
+    }
 
-  private final void UpdateLineColumn(char c)
-  {
-     column++;
+    /**
+     * @deprecated
+     * @see #getEndLine
+     */
 
-     if (prevCharIsLF)
-     {
-        prevCharIsLF = false;
-        line += (column = 1);
-     }
-     else if (prevCharIsCR)
-     {
-        prevCharIsCR = false;
-        if (c == '\n')
-        {
-           prevCharIsLF = true;
+    public final int getLine() {
+        return bufline[bufpos];
+    }
+
+    public final int getEndColumn() {
+        return bufcolumn[bufpos];
+    }
+
+    public final int getEndLine() {
+        return bufline[bufpos];
+    }
+
+    public final int getBeginColumn() {
+        return bufcolumn[tokenBegin];
+    }
+
+    public final int getBeginLine() {
+        return bufline[tokenBegin];
+    }
+
+    public final void backup(int amount) {
+        if(DEBUG){
+            System.out.println("FastCharStream: backup >>"+amount+"<<");
         }
-        else
-           line += (column = 1);
-     }
+        bufpos -= amount;
+    }
 
-     switch (c)
-     {
-        case '\r' :
-           prevCharIsCR = true;
-           break;
-        case '\n' :
-           prevCharIsLF = true;
-           break;
-        case '\t' :
-           column--;
-           column += (8 - (column & 07));
-           break;
-        default :
-           break;
-     }
-
-     bufline[bufpos] = line;
-     bufcolumn[bufpos] = column;
-  }
-
-  public final char readChar() throws java.io.IOException
-  {
-     if (inBuf > 0)
-     {
-        --inBuf;
-        return buffer[(bufpos == bufsize - 1) ? (bufpos = 0) : ++bufpos];
-     }
-
-     if (++bufpos >= maxNextCharInd)
-        FillBuff();
-
-     char c = buffer[bufpos];
-
-     UpdateLineColumn(c);
-     return (c);
-  }
-
-  /**
-   * @deprecated
-   * @see #getEndColumn
-   */
-
-  public final int getColumn() {
-     return bufcolumn[bufpos];
-  }
-
-  /**
-   * @deprecated
-   * @see #getEndLine
-   */
-
-  public final int getLine() {
-     return bufline[bufpos];
-  }
-
-  public final int getEndColumn() {
-     return bufcolumn[bufpos];
-  }
-
-  public final int getEndLine() {
-     return bufline[bufpos];
-  }
-
-  public final int getBeginColumn() {
-     return bufcolumn[tokenBegin];
-  }
-
-  public final int getBeginLine() {
-     return bufline[tokenBegin];
-  }
-
-  public final void backup(int amount) {
-
-    inBuf += amount;
-    if ((bufpos -= amount) < 0)
-       bufpos += bufsize;
-  }
-
-  public ReaderCharStream(java.io.Reader dstream)
-  {
-    inputStream = dstream;
-    line = 1;
-    column = 0;
-
-    available = bufsize = 4096;
-    buffer = new char[bufsize];
-    bufline = new int[bufsize];
-    bufcolumn = new int[bufsize];
-  }
-
-  public final String GetImage()
-  {
-     if (bufpos >= tokenBegin)
-        return new String(buffer, tokenBegin, bufpos - tokenBegin + 1);
-     else
-        return new String(buffer, tokenBegin, bufsize - tokenBegin) +
-                              new String(buffer, 0, bufpos + 1);
-  }
-
-  public final char[] GetSuffix(int len)
-  {
-     char[] ret = new char[len];
-
-     if ((bufpos + 1) >= len)
-        System.arraycopy(buffer, bufpos - len + 1, ret, 0, len);
-     else
-     {
-        System.arraycopy(buffer, bufsize - (len - bufpos - 1), ret, 0,
-                                                          len - bufpos - 1);
-        System.arraycopy(buffer, 0, ret, len - bufpos - 1, bufpos + 1);
-     }
-
-     return ret;
-  }
-
-  public void Done()
-  {
-     buffer = null;
-     bufline = null;
-     bufcolumn = null;
-  }
-
-  /**
-   * Method to adjust line and column numbers for the start of a token.<BR>
-   */
-  public void adjustBeginLineColumn(int newLine, int newCol)
-  {
-     int start = tokenBegin;
-     int len;
-
-     if (bufpos >= tokenBegin)
-     {
-        len = bufpos - tokenBegin + inBuf + 1;
-     }
-     else
-     {
-        len = bufsize - tokenBegin + bufpos + 1 + inBuf;
-     }
-
-     int i = 0, j = 0, k = 0;
-     int nextColDiff = 0, columnDiff = 0;
-
-     while (i < len &&
-            bufline[j = start % bufsize] == bufline[k = ++start % bufsize])
-     {
-        bufline[j] = newLine;
-        nextColDiff = columnDiff + bufcolumn[k] - bufcolumn[j];
-        bufcolumn[j] = newCol + columnDiff;
-        columnDiff = nextColDiff;
-        i++;
-     }
-
-     if (i < len)
-     {
-        bufline[j] = newLine++;
-        bufcolumn[j] = newCol + columnDiff;
-
-        while (i++ < len)
-        {
-           if (bufline[j = start % bufsize] != bufline[++start % bufsize])
-              bufline[j] = newLine++;
-           else
-              bufline[j] = newLine;
+    public final char BeginToken() throws IOException {
+        char c = readChar();
+        tokenBegin = bufpos;
+        if(DEBUG){
+            System.out.println("FastCharStream: BeginToken >>"+(int)c+"<<");
         }
-     }
+        return c;
+    }
 
-     line = bufline[j];
-     column = bufcolumn[j];
-  }
+    private final ObjectsPoolMap interned = new ObjectsPoolMap(); 
+    
+    public final String GetImage() {
+        if (bufpos >= tokenBegin) {
+            return ObjectsPool.internLocal(interned, new String(buffer, tokenBegin, bufpos - tokenBegin+1));
+        } else {
+            return ObjectsPool.internLocal(interned, new String(buffer, tokenBegin, buffer.length - tokenBegin+1));
+        }
+    }
+
+    public final char[] GetSuffix(int len) {
+
+        char[] ret = new char[len];
+        if (len > 0) {
+            try {
+                int initial = bufpos - len +1;
+                if(initial < 0){
+                    int initial0 = initial;
+                    len += initial;
+                    initial = 0;
+                    System.arraycopy(buffer, initial, ret, -initial0, len);
+                }else{
+                    System.arraycopy(buffer, initial, ret, 0, len);
+                }
+            } catch (Exception e) {
+                Log.log(e);
+            }
+        }
+        if(DEBUG){
+            System.out.println("FastCharStream: GetSuffix:"+len+" >>"+new String(ret)+"<<");
+        }
+        return ret;
+    }
+
+    public final void Done() {
+        buffer = null;
+        bufline = null;
+        bufcolumn = null;
+    }
+
 
 }

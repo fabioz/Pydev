@@ -1,6 +1,7 @@
 
 package org.python.modules;
 
+import org.python.core.FileUtil;
 import org.python.core.Py;
 import org.python.core.PyFile;
 import org.python.core.PyList;
@@ -130,9 +131,13 @@ public class imp {
         if (o == Py.NoConversion) {
             throw Py.TypeError("must be a file-like object");
         }
-        mod = org.python.core.imp.createFromSource(modname.intern(),
-                                                   (InputStream)o,
-                                                   filename.toString());
+        try {
+            mod = org.python.core.imp.createFromSource(modname.intern(),
+                                                       FileUtil.readBytes((InputStream)o),
+                                                       filename.toString());
+        } catch (IOException e) {
+            throw Py.IOError(e);
+        }
         PyObject modules = Py.getSystemState().modules;
         modules.__setitem__(modname.intern(), mod);
         return mod;
@@ -172,12 +177,20 @@ public class imp {
             }
             switch (type) {
                 case PY_SOURCE:
+                try {
                     mod = org.python.core.imp.createFromSource(
-                        name.intern(), (InputStream)o, filename.toString());
+                        name.intern(), FileUtil.readBytes((InputStream)o), filename.toString());
+                } catch (IOException e1) {
+                    throw Py.IOError(e1);
+                }
                     break;
                 case PY_COMPILED:
-                    mod = org.python.core.imp.loadFromCompiled(
-                        name.intern(), (InputStream)o, filename.toString());
+                    try {
+                        mod = org.python.core.imp.loadFromCompiled(
+                            name.intern(), FileUtil.readBytes((InputStream)o), filename.toString());
+                    } catch (IOException e) {
+                        throw Py.IOError(e);
+                    }
                     break;
                 case PKG_DIRECTORY:
                     PyModule m = org.python.core.imp.addModule(name);

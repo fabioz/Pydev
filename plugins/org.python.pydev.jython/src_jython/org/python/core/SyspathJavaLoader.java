@@ -4,6 +4,7 @@
 package org.python.core;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -53,7 +54,7 @@ public class SyspathJavaLoader extends ClassLoader {
                 ZipEntry ze = archive.getEntry(entryRes);
                 if (ze != null) {
                     try {
-                        return archive.getInputStream(ze);
+                        return new ByteArrayInputStream(archive.getInputStream(ze));
                     } catch (IOException e) {
                         ;
                     }
@@ -107,7 +108,7 @@ public class SyspathJavaLoader extends ClassLoader {
                 ZipEntry ze = archive.getEntry(entryname);
                 if(ze != null) {
                     try {
-                        fis = archive.getInputStream(ze);
+                        fis = new ByteArrayInputStream(archive.getInputStream(ze));
                         size = (int)ze.getSize();
                     } catch(IOException exc) {
                         ;

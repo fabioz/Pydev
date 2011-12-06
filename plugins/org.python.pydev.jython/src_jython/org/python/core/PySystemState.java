@@ -28,7 +28,7 @@ import org.python.modules.Setup;
  */
 
 // xxx this should really be a module!
-public class PySystemState extends PyObject
+final public class PySystemState extends PyObject
 {
     public static final String JYTHON_JAR = "jython.jar";
 

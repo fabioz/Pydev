@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
+import org.python.core.FileUtil;
 import org.python.core.Options;
 import org.python.core.Py;
 import org.python.core.PyCode;
@@ -74,7 +76,7 @@ public class jython
             InputStream file = zip.getInputStream(runit);
             PyCode code;
             try {
-                code = Py.compile(file, "__run__", "exec");
+                code = Py.compile(FileUtil.readBytes(file), "__run__", "exec");
             } finally {
                 file.close();
             }
@@ -191,9 +193,10 @@ public class jython
                 runJar(opts.filename);
             } else if (opts.filename.equals("-")) {
                 try {
-                    interp.locals.__setitem__(new PyString("__file__"),
-                                              new PyString("<stdin>"));
-                    interp.execfile(System.in, "<stdin>");
+                    throw new RuntimeException("Can not run from <stdin> in internal PyDev version.");
+//                    interp.locals.__setitem__(new PyString("__file__"),
+//                                              new PyString("<stdin>"));
+//                    interp.execfile(System.in, "<stdin>");
                 } catch (Throwable t) {
                     Py.printException(t);
                 }

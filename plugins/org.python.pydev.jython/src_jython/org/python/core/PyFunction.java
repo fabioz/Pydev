@@ -5,7 +5,7 @@ package org.python.core;
  * A python function.
  */
 
-public class PyFunction extends PyObject
+final public class PyFunction extends PyObject
 {
     public String __name__;
     public PyObject __doc__;

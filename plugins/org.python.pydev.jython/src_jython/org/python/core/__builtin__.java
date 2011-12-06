@@ -1,9 +1,10 @@
 // Copyright (c) Corporation for National Research Initiatives
 package org.python.core;
 
+import java.io.IOException;
 import java.util.Hashtable;
 
-class BuiltinFunctions extends PyBuiltinFunctionSet {
+final class BuiltinFunctions extends PyBuiltinFunctionSet {
 
 	public BuiltinFunctions(String name, int index, int argcount) {
 		this(name, index, argcount, argcount);
@@ -535,7 +536,11 @@ public class __builtin__  {
 		PyCode code;
 
 		try {
-			code = Py.compile_flags(file, name, "exec", cflags);
+			try {
+                code = Py.compile_flags(FileUtil.readBytes(file), name, "exec", cflags);
+            } catch (IOException e) {
+                throw Py.IOError(e);
+            }
 		} finally {
 			try {
 				file.close();
