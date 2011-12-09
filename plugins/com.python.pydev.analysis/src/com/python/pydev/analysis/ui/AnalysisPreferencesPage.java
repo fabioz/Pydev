@@ -100,8 +100,15 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_INDENTATION_PROBLEM, "Indentation problems and mixing of tabs/spaces", 3,values,p, true));
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_ASSIGNMENT_TO_BUILT_IN_SYMBOL, "Redefinition of builtin symbols", 3,values,p, true));
         
-        p = createTab(tabFolder, "pep8.py Validations");
-        addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_PEP8, "Pep8", 3,values,p, true){
+        p = createTab(tabFolder, "pep8.py");
+        
+        String[][] pep8values = new String[][]{
+                {"Error"  , String.valueOf(IMarker.SEVERITY_ERROR)},
+                {"Warning", String.valueOf(IMarker.SEVERITY_WARNING)},
+                {"Don't run" , String.valueOf(IMarker.SEVERITY_INFO)}
+        };
+        
+        addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_PEP8, "Pep8", 3,pep8values,p, true){
             protected void doFillIntoGrid(Composite parent, int numColumns){
                 super.doFillIntoGrid(parent, 3);
                 adjustForNumColumns(3);

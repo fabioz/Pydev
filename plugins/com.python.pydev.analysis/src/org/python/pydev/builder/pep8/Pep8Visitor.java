@@ -16,6 +16,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.core.Py;
 import org.python.core.PyObject;
+import org.python.pydev.core.NullOutputStream;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -59,10 +60,11 @@ public class Pep8Visitor {
             //It's important that the interpreter is created in the Thread and not outside the thread (otherwise
             //it may be that the output ends up being shared, which is not what we want.)
             boolean useConsole = AnalysisPreferencesPage.useConsole();
-            if(true){
-                throw new RuntimeException("consider useConsole!!");
+            IPythonInterpreter interpreter = JythonPlugin.newPythonInterpreter(useConsole, false);
+            if(!useConsole){
+                interpreter.setErr(NullOutputStream.singleton);
+                interpreter.setOut(NullOutputStream.singleton);
             }
-            IPythonInterpreter interpreter = JythonPlugin.newPythonInterpreter(true, false);
             String file = StringUtils.replaceAllSlashes(module.getFile().getAbsolutePath());
             interpreter.set("visitor", this);
             

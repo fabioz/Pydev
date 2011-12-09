@@ -2,7 +2,7 @@
 <?eclipse version="3.0"?>
 <plugin>
     <extension point="org.eclipse.ui.keywords" name="Analysis Preferences">
-        <keyword id="com.python.pydev.analysis.keywords"  label="pep8 builtins globals"/>
+        <keyword id="com.python.pydev.analysis.keywords"  label="pep8 builtins globals tokens"/>
     </extension>    
 
    <extension point="org.eclipse.ui.preferencePages">
@@ -11,7 +11,7 @@
             category="org.python.pydev.prefs.editor"
             id="org.python.pydev.prefs.extensions.analysis"
             name="Code Analysis">
-            <keywordReference id="org.python.pydev.preferences.keywords"/>
+            <keywordReference id="com.python.pydev.analysis.keywords"/>
       </page>
    </extension>
    
