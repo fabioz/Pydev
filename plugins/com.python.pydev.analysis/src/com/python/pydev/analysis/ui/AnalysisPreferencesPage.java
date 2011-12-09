@@ -12,6 +12,7 @@ package com.python.pydev.analysis.ui;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.FileFieldEditor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
@@ -29,6 +30,9 @@ import com.python.pydev.analysis.AnalysisPreferenceInitializer;
 import com.python.pydev.analysis.IAnalysisPreferences;
 
 public class AnalysisPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
+
+    public static final String USE_PEP8_CONSOLE = "USE_PEP8_CONSOLE";
+    public static final String PEP8_FILE_LOCATION = "PEP8_FILE_LOCATION";
 
     public AnalysisPreferencesPage() {
         super(FLAT);
@@ -95,6 +99,21 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_NO_EFFECT_STMT, "Statement has no effect", 3,values,p, true));
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_INDENTATION_PROBLEM, "Indentation problems and mixing of tabs/spaces", 3,values,p, true));
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_ASSIGNMENT_TO_BUILT_IN_SYMBOL, "Redefinition of builtin symbols", 3,values,p, true));
+        
+        p = createTab(tabFolder, "pep8.py Validations");
+        addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_PEP8, "Pep8", 3,values,p, true){
+            protected void doFillIntoGrid(Composite parent, int numColumns){
+                super.doFillIntoGrid(parent, 3);
+                adjustForNumColumns(3);
+            }
+        });
+        addField(new BooleanFieldEditor(USE_PEP8_CONSOLE, "Redirect pep8 output to console?", p){
+            protected void doFillIntoGrid(Composite parent, int numColumns){
+                super.doFillIntoGrid(parent, 3);
+                adjustForNumColumns(3);
+            }
+        });
+        addField(new FileFieldEditor(PEP8_FILE_LOCATION, "Location of pep8.py", true, p));
 
     }
 
@@ -114,4 +133,12 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
     public void init(IWorkbench workbench) {
     }
 
+    
+    public static String getPep8Location() {
+        return  AnalysisPlugin.getDefault().getPreferenceStore().getString(PEP8_FILE_LOCATION);
+    }
+    
+    public static boolean useConsole() {
+        return  AnalysisPlugin.getDefault().getPreferenceStore().getBoolean(USE_PEP8_CONSOLE);
+    }
 }

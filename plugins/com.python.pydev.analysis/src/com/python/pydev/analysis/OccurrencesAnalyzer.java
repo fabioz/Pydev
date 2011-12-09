@@ -14,15 +14,15 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.builder.pep8.Pep8Visitor;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.SimpleNode;
+
 import com.python.pydev.analysis.messages.IMessage;
 import com.python.pydev.analysis.tabnanny.TabNanny;
 import com.python.pydev.analysis.visitors.OccurrencesVisitor;
@@ -32,16 +32,8 @@ import com.python.pydev.analysis.visitors.OccurrencesVisitor;
  * 
  * @author Fabio
  */
-public class OccurrencesAnalyzer implements IAnalyzer {
+public class OccurrencesAnalyzer {
 
-
-    public IMessage[] analyzeDocument(IPythonNature nature, SourceModule module, IAnalysisPreferences prefs, IDocument document) {
-        return analyzeDocument(nature, module, prefs, document, new NullProgressMonitor());
-    }
-    
-    public IMessage[] analyzeDocument(IPythonNature nature, SourceModule module, IAnalysisPreferences prefs, IDocument document, IProgressMonitor monitor) {
-        return analyzeDocument(nature, module, prefs, document, monitor, DefaultIndentPrefs.get());
-    }
     
     public IMessage[] analyzeDocument(IPythonNature nature, SourceModule module, IAnalysisPreferences prefs, IDocument document, 
             IProgressMonitor monitor, IIndentPrefs indentPrefs) {
@@ -72,6 +64,11 @@ public class OccurrencesAnalyzer implements IAnalyzer {
                 Log.log(e); //just to be safe... (could happen if the document changes during the process).
             }
         }
+        
+        if(!monitor.isCanceled()){
+            messages.addAll(new Pep8Visitor().getMessages(module, document, monitor, prefs));
+        }
+        
         return messages.toArray(new IMessage[messages.size()]);
     }
 

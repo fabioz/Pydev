@@ -19,7 +19,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.editors,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.search,
- org.eclipse.ui.ide
+ org.eclipse.ui.ide,
+ org.python.pydev.jython
 Eclipse-LazyStart: true
 Bundle-ClassPath: analysis.jar
 Export-Package: com.python.pydev.analysis,

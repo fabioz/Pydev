@@ -1,0 +1,143 @@
+/**
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
+package org.python.pydev.builder.pep8;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
+import org.python.core.Py;
+import org.python.core.PyObject;
+import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.jython.IPythonInterpreter;
+import org.python.pydev.jython.JythonPlugin;
+
+import com.python.pydev.analysis.IAnalysisPreferences;
+import com.python.pydev.analysis.messages.IMessage;
+import com.python.pydev.analysis.messages.Message;
+import com.python.pydev.analysis.ui.AnalysisPreferencesPage;
+
+/**
+ * @author Fabio
+ *
+ */
+public class Pep8Visitor {
+
+    
+    private final List<IMessage> messages = new ArrayList<IMessage>();
+    private IAnalysisPreferences prefs;
+    private IDocument document;
+    private volatile static PyObject pep8;
+    private static final Object lock = new Object();
+    
+    public List<IMessage> getMessages (SourceModule module, IDocument document, IProgressMonitor monitor, IAnalysisPreferences prefs) {
+        try {
+
+            if(prefs.getSeverityForType(IAnalysisPreferences.TYPE_PEP8) < IMarker.SEVERITY_WARNING){
+                return messages;
+            }
+            String pep8Location = AnalysisPreferencesPage.getPep8Location();
+            File pep8Loc = new File(pep8Location);
+            if(!pep8Loc.exists()){
+                Log.log("Specified location for pep8.py does not exist ("+pep8Location+").");
+                return messages;
+            }
+            
+            this.prefs = prefs;
+            this.document = document;
+            
+            //It's important that the interpreter is created in the Thread and not outside the thread (otherwise
+            //it may be that the output ends up being shared, which is not what we want.)
+            boolean useConsole = AnalysisPreferencesPage.useConsole();
+            if(true){
+                throw new RuntimeException("consider useConsole!!");
+            }
+            IPythonInterpreter interpreter = JythonPlugin.newPythonInterpreter(true, false);
+            String file = StringUtils.replaceAllSlashes(module.getFile().getAbsolutePath());
+            interpreter.set("visitor", this);
+            
+            
+            List<String> splitInLines = StringUtils.splitInLines(document.get());
+            interpreter.set("lines", splitInLines);
+            PyObject tempPep8 = pep8;
+            if(tempPep8 != null){
+                interpreter.set("pep8", tempPep8);
+            }else{
+                interpreter.set("pep8", Py.None);
+            }
+            
+            interpreter.exec(StringUtils.format(
+            		"import sys\n" +
+            		"sys.argv = ['', '%s']\n" +
+            		"\n" +
+            		"\n" +
+            		"if pep8 == None:\n" + //Optimization: if possible pass pep8 (the import was the slowest thing in this code).
+            		"    add_to_pythonpath = '%s'\n" +
+            		"    if add_to_pythonpath not in sys.path:\n" +
+            		"        sys.path.append(add_to_pythonpath)\n" +
+            		"    import pep8\n" +
+            		"\n" +
+            		"\n" +
+            		"def report_error(line_number, offset, text, check):\n" +
+            		"    visitor.reportError(line_number, offset, text, check)\n" +
+            		"    return original(line_number, offset, text, check)\n" +
+            		"\n" +
+            		"\n" +
+            		"options, args = pep8.process_options(['', '-r', '%s'])\n" +
+            		"pep8.options = options\n" +
+            		"\n" +
+            		"checker = pep8.Checker('%s', lines)\n" +
+            		"\n" +
+            		"original = checker.report_error\n" +
+            		"checker.report_error = report_error\n" +
+            		"\n" +
+            		"checker.check_all()\n" +
+            		"\n" +
+            		"", 
+            		file,
+            		StringUtils.replaceAllSlashes(pep8Loc.getParentFile().getAbsolutePath()), //put the parent dir of pep8.py in the pythonpath.
+            		file,
+            		file
+            ));
+            if(pep8 == null){
+                synchronized (lock) {
+                    if(pep8 == null){
+                        pep8 = interpreter.get("pep8");
+                    }
+                }
+            }
+            
+
+        } catch (Exception e) {
+            Log.log(e);
+        }
+
+        return messages;
+    }
+    
+    
+    /**
+     * 
+     */
+    public void reportError(int lineNumber, int offset, String text, Object check) {
+        int len;
+        try {
+            len = this.document.getLineLength(lineNumber-1);
+        } catch (BadLocationException e) {
+            return; // the document changed in the meanwhile...
+        }
+        messages.add(new Message(IAnalysisPreferences.TYPE_PEP8, text, lineNumber, lineNumber, offset+1, len, prefs));
+    }
+    
+
+}

@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Utility functions for "import" support.
  */
-public class imp {
+public final class imp {
     private static final String IMPORT_LOG = "import";
 
     private static final String UNKNOWN_SOURCEFILE = "<unknown>";
