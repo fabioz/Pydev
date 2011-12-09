@@ -583,7 +583,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 }
             }
         } catch (Exception e) {
-            Log.logInfo("Info: Rebuilding internal caches for: "+this.project, e);
+            //Log.logInfo("Info: Rebuilding internal caches for: "+this.project, e);
             astManager = null;
         }
         

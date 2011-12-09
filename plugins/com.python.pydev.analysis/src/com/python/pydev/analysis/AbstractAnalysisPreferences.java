@@ -12,7 +12,7 @@ import java.util.Map;
 public abstract class AbstractAnalysisPreferences implements IAnalysisPreferences{
 
 
-    private Map<Integer, String> typeToIgnoreMessage;
+    private volatile Map<Integer, String> typeToIgnoreMessage;
     public String getRequiredMessageToIgnore(int type) {
         if(typeToIgnoreMessage == null){
             typeToIgnoreMessage = new HashMap<Integer, String>();

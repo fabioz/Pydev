@@ -17,6 +17,7 @@ import org.eclipse.jface.text.IDocument;
 import org.python.core.Py;
 import org.python.core.PyObject;
 import org.python.pydev.core.NullOutputStream;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -40,6 +41,7 @@ public class Pep8Visitor {
     private IDocument document;
     private volatile static PyObject pep8;
     private static final Object lock = new Object();
+    private String messageToIgnore;
     
     public List<IMessage> getMessages (SourceModule module, IDocument document, IProgressMonitor monitor, IAnalysisPreferences prefs) {
         try {
@@ -47,6 +49,7 @@ public class Pep8Visitor {
             if(prefs.getSeverityForType(IAnalysisPreferences.TYPE_PEP8) < IMarker.SEVERITY_WARNING){
                 return messages;
             }
+            messageToIgnore = prefs.getRequiredMessageToIgnore(IAnalysisPreferences.TYPE_PEP8);
             String pep8Location = AnalysisPreferencesPage.getPep8Location();
             File pep8Loc = new File(pep8Location);
             if(!pep8Loc.exists()){
@@ -138,6 +141,16 @@ public class Pep8Visitor {
         } catch (BadLocationException e) {
             return; // the document changed in the meanwhile...
         }
+        if(messageToIgnore != null){
+            int startLine = lineNumber - 1;
+            String line = PySelection.getLine(document, startLine);
+            if(line.indexOf(messageToIgnore) != -1){
+                //keep going... nothing to see here...
+                return;
+            }
+        }
+
+        
         messages.add(new Message(IAnalysisPreferences.TYPE_PEP8, text, lineNumber, lineNumber, offset+1, len, prefs));
     }
     

@@ -43,7 +43,7 @@ public interface IAnalysisPreferences {
     public static final String MSG_TO_IGNORE_TYPE_NO_EFFECT_STMT             		= "@NoEffect";
     public static final String MSG_TO_IGNORE_TYPE_INDENTATION_PROBLEM        		= "@IndentOk";
     public static final String MSG_TO_IGNORE_TYPE_ASSIGNMENT_TO_BUILT_IN_SYMBOL     = "@ReservedAssignment";
-    public static final String MSG_TO_IGNORE_TYPE_PEP8                              = "@Pep8";
+    public static final String MSG_TO_IGNORE_TYPE_PEP8                              = "@IgnorePep8";
 
     
     /**
