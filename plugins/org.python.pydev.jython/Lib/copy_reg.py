@@ -29,7 +29,50 @@ def constructor(object):
 
 # Example: provide pickling support for complex numbers.
 
-def pickle_complex(c):
-    return complex, (c.real, c.imag)
+try:
+    complex
+except NameError:
+    pass
+else:
 
-pickle(type(1j), pickle_complex, complex)
+    def pickle_complex(c):
+        return complex, (c.real, c.imag)
+
+    pickle(complex, pickle_complex, complex)
+
+# Support for picking new-style objects
+
+def _reconstructor(cls, base, state):
+    obj = base.__new__(cls, state)
+    base.__init__(obj, state)
+    return obj
+_reconstructor.__safe_for_unpickling__ = 1
+
+_HEAPTYPE = 1<<9
+
+def _reduce(self):
+    for base in self.__class__.__mro__:
+        if hasattr(base, '__flags__') and not base.__flags__ & _HEAPTYPE:
+            break
+    else:
+        base = object # not really reachable
+    if base is object:
+        state = None
+    else:
+        if base is self.__class__:
+            raise TypeError, "can't pickle %s objects" % base.__name__
+        state = base(self)
+    args = (self.__class__, base, state)
+    try:
+        getstate = self.__getstate__
+    except AttributeError:
+        try:
+            dict = self.__dict__
+        except AttributeError:
+            dict = None
+    else:
+        dict = getstate()
+    if dict:
+        return _reconstructor, args, dict
+    else:
+        return _reconstructor, args

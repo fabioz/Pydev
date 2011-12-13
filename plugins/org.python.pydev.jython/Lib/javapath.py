@@ -8,23 +8,23 @@ module as os.path.
 # Incompletely implemented:
 # islink -- How?
 # ismount -- How?
-# splitdrive -- How?
 # normcase -- How?
 
 # Missing:
 # sameopenfile -- Java doesn't have fstat nor file descriptors?
 # samestat -- How?
 
-import java
 from java.io import File
+import java.io.IOException
 from java.lang import System
 import os
 
+
 def _tostr(s, method):
-    if isinstance(s, "".__class__):
+    if isinstance(s, basestring):
         return s
     import org
-    raise TypeError, "%s() argument must be a string object, not %s" % (
+    raise TypeError, "%s() argument must be a str or unicode object, not %s" % (
                 method, org.python.core.Py.safeRepr(s))
         
 def dirname(path):
@@ -71,13 +71,15 @@ def splitext(path):
         return (path[:n], path[n:])
 
 def splitdrive(path):
-    """Split a pathname into drive and path.
+    """Split a pathname into drive and path specifiers. 
 
-    On JDK, drive is always empty.
-    XXX This isn't correct for JDK on DOS/Windows!
-
+    Returns a 2-tuple "(drive,path)"; either part may be empty.
     """
-    return ("", path)
+    # Algorithm based on CPython's ntpath.splitdrive and ntpath.isabs.
+    if path[1:2] == ':' and path[0].lower() in 'abcdefghijklmnopqrstuvwxyz' \
+            and (path[2:] == '' or path[2] in '/\\'):
+        return path[:2], path[2:]
+    return '', path
 
 def exists(path):
     """Test whether a path exists.
@@ -149,9 +151,7 @@ def samefile(path, path2):
     """Test whether two pathnames reference the same actual file"""
     path = _tostr(path, "samefile")
     path2 = _tostr(path2, "samefile")
-    f = File(path)
-    f2 = File(path2)
-    return f.getCanonicalPath() == f2.getCanonicalPath()
+    return _realpath(path) == _realpath(path2)
 
 def ismount(path):
     """Test whether a path is a mount point.
@@ -160,7 +160,6 @@ def ismount(path):
 
     """
     return 0
-
 
 def walk(top, func, arg):
     """Walk a directory tree.
@@ -233,11 +232,26 @@ def normpath(path):
         comps.append(curdir)
     return slashes + string.joinfields(comps, sep)
 
-# Return an absolute path.
 def abspath(path):
+    """Return an absolute path normalized but symbolic links not eliminated"""
     path = _tostr(path, "abspath")
-    return File(path).getAbsolutePath()
+    return _abspath(path)
 
+def _abspath(path):
+    # Must use normpath separately because getAbsolutePath doesn't normalize
+    # and getCanonicalPath would eliminate symlinks.
+    return normpath(File(path).getAbsolutePath())
+
+def realpath(path):
+    """Return an absolute path normalized and symbolic links eliminated"""
+    path = _tostr(path, "realpath")
+    return _realpath(path)
+    
+def _realpath(path):
+    try:
+        return File(path).getCanonicalPath()
+    except java.io.IOException:
+        return _abspath(path)
 
 def getsize(path):
     path = _tostr(path, "getsize")
@@ -252,6 +266,8 @@ def getsize(path):
 def getmtime(path):
     path = _tostr(path, "getmtime")
     f = File(path)
+    if not f.exists():
+        raise OSError(0, 'No such file or directory', path)
     return f.lastModified() / 1000.0
 
 def getatime(path):
@@ -259,6 +275,8 @@ def getatime(path):
     # matches the behaviour in os.stat().
     path = _tostr(path, "getatime")
     f = File(path)
+    if not f.exists():
+        raise OSError(0, 'No such file or directory', path)
     return f.lastModified() / 1000.0
 
 

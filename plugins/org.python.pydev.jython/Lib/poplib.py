@@ -75,22 +75,35 @@ class POP3:
     def __init__(self, host, port = POP3_PORT):
         self.host = host
         self.port = port
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.connect((self.host, self.port))
+        msg = "getaddrinfo returns an empty list"
+        self.sock = None
+        for res in socket.getaddrinfo(self.host, self.port, 0, socket.SOCK_STREAM):
+            af, socktype, proto, canonname, sa = res
+            try:
+                self.sock = socket.socket(af, socktype, proto)
+                self.sock.connect(sa)
+            except socket.error, msg:
+                if self.sock:
+                    self.sock.close()
+                self.sock = None
+                continue
+            break
+        if not self.sock:
+            raise socket.error, msg
         self.file = self.sock.makefile('rb')
         self._debugging = 0
         self.welcome = self._getresp()
 
 
     def _putline(self, line):
-        #if self._debugging > 1: print '*put*', `line`
-        self.sock.send('%s%s' % (line, CRLF))
+        if self._debugging > 1: print '*put*', `line`
+        self.sock.sendall('%s%s' % (line, CRLF))
 
 
     # Internal: send one command to the server (through _putline())
 
     def _putcmd(self, line):
-        #if self._debugging: print '*cmd*', `line`
+        if self._debugging: print '*cmd*', `line`
         self._putline(line)
 
 
@@ -100,7 +113,7 @@ class POP3:
 
     def _getline(self):
         line = self.file.readline()
-        #if self._debugging > 1: print '*get*', `line`
+        if self._debugging > 1: print '*get*', `line`
         if not line: raise error_proto('-ERR EOF')
         octets = len(line)
         # server can send any combination of CR & LF
@@ -118,7 +131,7 @@ class POP3:
 
     def _getresp(self):
         resp, o = self._getline()
-        #if self._debugging > 1: print '*resp*', `resp`
+        if self._debugging > 1: print '*resp*', `resp`
         c = resp[:1]
         if c != '+':
             raise error_proto(resp)
@@ -192,7 +205,7 @@ class POP3:
         """
         retval = self._shortcmd('STAT')
         rets = retval.split()
-        #if self._debugging: print '*stat*', `rets`
+        if self._debugging: print '*stat*', `rets`
         numMessages = int(rets[1])
         sizeMessages = int(rets[2])
         return (numMessages, sizeMessages)

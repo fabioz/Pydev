@@ -12,7 +12,7 @@ import java.util.Map;
 public abstract class AbstractAnalysisPreferences implements IAnalysisPreferences{
 
 
-    private Map<Integer, String> typeToIgnoreMessage;
+    private volatile Map<Integer, String> typeToIgnoreMessage;
     public String getRequiredMessageToIgnore(int type) {
         if(typeToIgnoreMessage == null){
             typeToIgnoreMessage = new HashMap<Integer, String>();
@@ -29,6 +29,7 @@ public abstract class AbstractAnalysisPreferences implements IAnalysisPreference
             typeToIgnoreMessage.put( TYPE_NO_EFFECT_STMT              	    , MSG_TO_IGNORE_TYPE_NO_EFFECT_STMT              	);
             typeToIgnoreMessage.put( TYPE_INDENTATION_PROBLEM         	    , MSG_TO_IGNORE_TYPE_INDENTATION_PROBLEM         	);
             typeToIgnoreMessage.put( TYPE_ASSIGNMENT_TO_BUILT_IN_SYMBOL     , MSG_TO_IGNORE_TYPE_ASSIGNMENT_TO_BUILT_IN_SYMBOL	);
+            typeToIgnoreMessage.put( TYPE_PEP8                              , MSG_TO_IGNORE_TYPE_PEP8                       	);
         }
         return typeToIgnoreMessage.get(type);
     }

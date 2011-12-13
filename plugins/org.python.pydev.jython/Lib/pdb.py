@@ -8,9 +8,15 @@ import sys
 import linecache
 import cmd
 import bdb
-from repr import repr as _saferepr
+from repr import Repr
 import os
 import re
+
+# Create a custom safe Repr instance and increase its maxstring.
+# The default of 30 truncates error messages too easily.
+_repr = Repr()
+_repr.maxstring = 200
+_saferepr = _repr.repr
 
 __all__ = ["run", "pm", "Pdb", "runeval", "runctx", "runcall", "set_trace",
            "post_mortem", "help"]
@@ -151,7 +157,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
 
     def precmd(self, line):
         """Handle alias expansion and ';;' separator."""
-        if not line:
+        if not line.strip():
             return line
         args = line.split()
         while self.aliases.has_key(args[0]):
@@ -179,9 +185,6 @@ class Pdb(bdb.Bdb, cmd.Cmd):
     # Return true to exit from the command loop
 
     do_h = cmd.Cmd.do_help
-
-    def do_EOF(self, arg):
-        return 0        # Don't die on EOF
 
     def do_break(self, arg, temporary = 0):
         # break [ ([filename:]lineno | function) [, "condition"] ]
@@ -364,14 +367,34 @@ class Pdb(bdb.Bdb, cmd.Cmd):
     def do_enable(self, arg):
         args = arg.split()
         for i in args:
-            bp = bdb.Breakpoint.bpbynumber[int(i)]
+            try:
+                i = int(i)
+            except ValueError:
+                print 'Breakpoint index %r is not a number' % i
+                continue
+
+            if not (0 <= i < len(bdb.Breakpoint.bpbynumber)):
+                print 'No breakpoint numbered', i
+                continue
+
+            bp = bdb.Breakpoint.bpbynumber[i]
             if bp:
                 bp.enable()
 
     def do_disable(self, arg):
         args = arg.split()
         for i in args:
-            bp = bdb.Breakpoint.bpbynumber[int(i)]
+            try:
+                i = int(i)
+            except ValueError:
+                print 'Breakpoint index %r is not a number' % i
+                continue
+            
+            if not (0 <= i < len(bdb.Breakpoint.bpbynumber)):
+                print 'No breakpoint numbered', i
+                continue
+
+            bp = bdb.Breakpoint.bpbynumber[i]
             if bp:
                 bp.disable()
 
@@ -497,6 +520,12 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         self.set_quit()
         return 1
     do_q = do_quit
+    do_exit = do_quit
+
+    def do_EOF(self, arg):
+        print
+        self.set_quit()
+        return 1
 
     def do_args(self, arg):
         f = self.curframe
@@ -819,8 +848,10 @@ command with a 'global' command, e.g.:
         self.help_q()
 
     def help_q(self):
-        print """q(uit) Quit from the debugger.
+        print """q(uit) or exit - Quit from the debugger.
 The program being executed is aborted."""
+
+    help_exit = help_q
 
     def help_whatis(self):
         print """whatis arg

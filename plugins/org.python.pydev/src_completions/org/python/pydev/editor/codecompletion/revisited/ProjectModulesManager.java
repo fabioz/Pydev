@@ -33,6 +33,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
@@ -493,36 +494,41 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
                     
                     boolean forceCheck = false;
                     ProjectModulesManager m2 = null;
+                    String onlyProjectPythonPathStr = null;
                     if(m instanceof ProjectModulesManager){
                         long currentTimeMillis = System.currentTimeMillis();
                         m2 = (ProjectModulesManager) m;
                         //check at most once every 20 seconds (or every time if the pythonpath is empty... in which case
                         //it should be fast to get it too if it's consistent).
                         if(pythonpath.size() == 0 || currentTimeMillis - m2.checkedPythonpathConsistency > 20 * 1000){ 
-                            m2.checkedPythonpathConsistency = currentTimeMillis;
-                            forceCheck = true;
+                            try {
+                                IPythonNature n = m.getNature();
+                                if(n != null){
+                                    IPythonPathNature pythonPathNature = n.getPythonPathNature();
+                                    if(pythonPathNature != null){
+                                        onlyProjectPythonPathStr = pythonPathNature.getOnlyProjectPythonPathStr(true);
+                                        m2.checkedPythonpathConsistency = currentTimeMillis;
+                                        forceCheck = true;
+                                    }
+                                }
+                            } catch (Exception e) {
+                                Log.log(e);
+                            }
                         }
                     }
                     
                     if(forceCheck){
                         //Check if it's actually correct and auto-fix if it's not.
-                        try {
-                            String onlyProjectPythonPathStr = m.getNature().
-                                getPythonPathNature().getOnlyProjectPythonPathStr(true);
+                        List<String> parsed = PythonPathHelper.parsePythonPathFromStr(onlyProjectPythonPathStr, null);
+                        if(m2.nature!= null && !new HashSet<String>(parsed).equals(new HashSet<String>(pythonpath))){
+                            // Make it right at this moment (so any other place that calls it before the restore 
+                            //takes place has the proper version).
+                            h.setPythonPath(parsed);  
                             
-                            List<String> parsed = PythonPathHelper.parsePythonPathFromStr(onlyProjectPythonPathStr, null);
-                            if(m2.nature!= null && !new HashSet<String>(parsed).equals(new HashSet<String>(pythonpath))){
-                                // Make it right at this moment (so any other place that calls it before the restore 
-                                //takes place has the proper version).
-                                h.setPythonPath(parsed);  
-                                
-                                // Force a rebuild as the PythonPathHelper paths are not up to date.
-                                m2.nature.rebuildPath();
-                            }
-                            l.addAll(parsed); //add the proper paths
-                        } catch (CoreException e) {
-                            Log.log(e);
+                            // Force a rebuild as the PythonPathHelper paths are not up to date.
+                            m2.nature.rebuildPath();
                         }
+                        l.addAll(parsed); //add the proper paths
                     }else{
                         l.addAll(pythonpath);
                     }

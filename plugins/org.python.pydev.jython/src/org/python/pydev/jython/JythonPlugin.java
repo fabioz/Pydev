@@ -25,6 +25,7 @@ import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.python.core.PyClass;
 import org.python.core.PyException;
 import org.python.core.PyJavaClass;
 import org.python.core.PyObject;
@@ -474,6 +475,11 @@ public class JythonPlugin extends AbstractUIPlugin {
                 if (pE.type instanceof PyJavaClass){
                     PyJavaClass t = (PyJavaClass) pE.type;
                     if(t.__name__ != null && t.__name__.equals("org.python.pydev.jython.ExitScriptException")){
+                        return null;
+                    }
+                }else if(pE.type instanceof PyClass){
+                    PyClass t = (PyClass) pE.type;
+                    if(t.__name__ != null && t.__name__.equals("SystemExit")){
                         return null;
                     }
                 }

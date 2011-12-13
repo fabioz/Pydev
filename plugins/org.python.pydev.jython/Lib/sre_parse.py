@@ -8,6 +8,8 @@
 # See the sre.py file for information on usage and redistribution.
 #
 
+"""Internal support module for sre"""
+
 # XXX: show string offset and offending character for all errors
 
 # this module works under 1.5.2 and later.  don't use string methods
@@ -79,6 +81,10 @@ class Pattern:
         gid = self.groups
         self.groups = gid + 1
         if name:
+            ogid = self.groupdict.get(name, None)
+            if ogid is not None:
+                raise error, ("redefinition of group name %s as group %d; "
+                              "was group %d" % (repr(name), gid,  ogid))
             self.groupdict[name] = gid
         self.open.append(gid)
         return gid
@@ -187,7 +193,7 @@ class Tokenizer:
             try:
                 c = self.string[self.index + 1]
             except IndexError:
-                raise error, "bogus escape"
+                raise error, "bogus escape (end of line)"
             char = char + c
         self.index = self.index + len(char)
         self.next = char
@@ -248,7 +254,7 @@ def _class_escape(source, escape):
             if len(escape) != 2:
                 raise error, "bogus escape: %s" % repr("\\" + escape)
             return LITERAL, atoi(escape, 16) & 0xff
-        elif str(escape[1:2]) in OCTDIGITS:
+        elif escape[1:2] in OCTDIGITS:
             # octal escape (up to three digits)
             while source.next in OCTDIGITS and len(escape) < 5:
                 escape = escape + source.get()
@@ -645,9 +651,9 @@ def parse_template(source, pattern):
             p.append((LITERAL, literal))
     sep = source[:0]
     if type(sep) is type(""):
-        char = chr
+        makechar = chr
     else:
-        char = unichr
+        makechar = unichr
     while 1:
         this = s.get()
         if this is None:
@@ -691,14 +697,14 @@ def parse_template(source, pattern):
                         break
                 if not code:
                     this = this[1:]
-                    code = LITERAL, char(atoi(this[-6:], 8) & 0xff)
+                    code = LITERAL, makechar(atoi(this[-6:], 8) & 0xff)
                 if code[0] is LITERAL:
                     literal(code[1])
                 else:
                     a(code)
             else:
                 try:
-                    this = char(ESCAPES[this][1])
+                    this = makechar(ESCAPES[this][1])
                 except KeyError:
                     pass
                 literal(this)

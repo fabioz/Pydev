@@ -17,7 +17,7 @@ __all__ = ["normcase","isabs","join","splitdrive","split","splitext",
            "basename","dirname","commonprefix","getsize","getmtime",
            "getatime","islink","exists","isdir","isfile","ismount",
            "walk","expanduser","expandvars","normpath","abspath",
-           "samefile","sameopenfile","samestat"]
+           "samefile","sameopenfile","samestat","realpath"]
 
 # Normalize the case of a pathname.  Trivial in Posix, string.lower on Mac.
 # On MS-DOS this may also turn slashes into backslashes; however, other
@@ -258,10 +258,20 @@ def ismount(path):
 # or to impose a different order of visiting.
 
 def walk(top, func, arg):
-    """walk(top,func,arg) calls func(arg, d, files) for each directory "d"
-    in the tree  rooted at "top" (including "top" itself).  "files" is a list
-    of all the files and subdirs in directory "d".
-    """
+    """Directory tree walk with callback function.
+
+    For each directory in the directory tree rooted at top (including top
+    itself, but excluding '.' and '..'), call func(arg, dirname, fnames).
+    dirname is the name of the directory, and fnames a list of the names of
+    the files and subdirectories in dirname (excluding '.' and '..').  func
+    may modify the fnames list in-place (e.g. via del or slice assignment),
+    and walk will only recurse into the subdirectories whose names remain in
+    fnames; this can be used to implement a filter, or to impose a specific
+    order of visiting.  No semantics are defined for, or required of, arg,
+    beyond that arg is always passed to func.  It can be used, e.g., to pass
+    a filename pattern, or a mutable object designed to accumulate
+    statistics.  Passing None for arg is common."""
+
     try:
         names = os.listdir(top)
     except os.error:
@@ -296,8 +306,10 @@ def expanduser(path):
         i = i + 1
     if i == 1:
         if not os.environ.has_key('HOME'):
-            return path
-        userhome = os.environ['HOME']
+            import pwd
+            userhome = pwd.getpwuid(os.getuid())[5]
+        else:
+            userhome = os.environ['HOME']
     else:
         import pwd
         try:
@@ -379,3 +391,24 @@ def abspath(path):
     if not isabs(path):
         path = join(os.getcwd(), path)
     return normpath(path)
+
+
+# Return a canonical path (i.e. the absolute location of a file on the
+# filesystem).
+
+def realpath(filename):
+    """Return the canonical path of the specified filename, eliminating any
+symbolic links encountered in the path."""
+    filename = abspath(filename)
+
+    bits = ['/'] + filename.split('/')[1:]
+    for i in range(2, len(bits)+1):
+        component = join(*bits[0:i])
+        if islink(component):
+            resolved = os.readlink(component)
+            (dir, file) = split(component)
+            resolved = normpath(join(dir, resolved))
+            newpath = join(*([resolved] + bits[i:]))
+            return realpath(newpath)
+
+    return filename

@@ -21,6 +21,7 @@ class PullDOM(xml.sax.ContentHandler):
     document = None
 
     def __init__(self, documentFactory=None):
+        from xml.dom import XML_NAMESPACE
         self.documentFactory = documentFactory
         self.firstEvent = [None, None]
         self.lastEvent = self.firstEvent
@@ -31,7 +32,7 @@ class PullDOM(xml.sax.ContentHandler):
         except AttributeError:
             # use class' pop instead
             pass
-        self._ns_contexts = [{}] # contains uri -> prefix dicts
+        self._ns_contexts = [{XML_NAMESPACE:'xml'}] # contains uri -> prefix dicts
         self._current_context = self._ns_contexts[-1]
         self.pending_events = []
 
@@ -48,19 +49,12 @@ class PullDOM(xml.sax.ContentHandler):
             self._xmlns_attrs = []
         self._xmlns_attrs.append((prefix or 'xmlns', uri))
         self._ns_contexts.append(self._current_context.copy())
-        self._current_context[uri] = prefix or ''
+        self._current_context[uri] = prefix or None
 
     def endPrefixMapping(self, prefix):
         self._current_context = self._ns_contexts.pop()
 
     def startElementNS(self, name, tagName , attrs):
-        # Retrieve xml namespace declaration attributes.
-        xmlns_uri = 'http://www.w3.org/2000/xmlns/'
-        xmlns_attrs = getattr(self, '_xmlns_attrs', None)
-        if xmlns_attrs is not None:
-            for aname, value in xmlns_attrs:
-                attrs._attrs[(xmlns_uri, aname)] = value
-            self._xmlns_attrs = []
         uri, localname = name
         if uri:
             # When using namespaces, the reader may or may not
@@ -84,16 +78,22 @@ class PullDOM(xml.sax.ContentHandler):
             else:
                 node = self.buildDocument(None, localname)
 
+        # Retrieve xml namespace declaration attributes.
+        xmlns_uri = 'http://www.w3.org/2000/xmlns/'
+        xmlns_attrs = getattr(self, '_xmlns_attrs', None)
+        if xmlns_attrs is not None:
+            for aname, value in xmlns_attrs:
+                if aname == 'xmlns':
+                    qname = aname
+                else:
+                    qname = 'xmlns:' + aname
+                attr = self.document.createAttributeNS(xmlns_uri, qname)
+		attr.value = value
+                node.setAttributeNodeNS(attr)
+            self._xmlns_attrs = []
         for aname,value in attrs.items():
             a_uri, a_localname = aname
-            if a_uri == xmlns_uri:
-                if a_localname == 'xmlns':
-                    qname = a_localname
-                else:
-                    qname = 'xmlns:' + a_localname
-                attr = self.document.createAttributeNS(a_uri, qname)
-                node.setAttributeNodeNS(attr)
-            elif a_uri:
+            if a_uri:
                 prefix = self._current_context[a_uri]
                 if prefix:
                     qname = prefix + ":" + a_localname
@@ -211,6 +211,8 @@ class DOMEventStream:
         self.stream = stream
         self.parser = parser
         self.bufsize = bufsize
+        if not hasattr(self.parser, 'feed'):
+            self.getEvent = self._slurp
         self.reset()
 
     def reset(self):
@@ -225,6 +227,15 @@ class DOMEventStream:
             return rc
         raise IndexError
 
+    def next(self):
+        rc = self.getEvent()
+        if rc:
+            return rc
+        raise StopIteration
+
+    def __iter__(self):
+        return self
+    
     def expandNode(self, node):
         event = self.getEvent()
         parents = [node]
@@ -241,6 +252,8 @@ class DOMEventStream:
             event = self.getEvent()
 
     def getEvent(self):
+        # use IncrementalParser interface, so we get the desired
+        # pull effect
         if not self.pulldom.firstEvent[1]:
             self.pulldom.lastEvent = self.pulldom.firstEvent
         while not self.pulldom.firstEvent[1]:
@@ -253,8 +266,26 @@ class DOMEventStream:
         self.pulldom.firstEvent[1] = self.pulldom.firstEvent[1][1]
         return rc
 
+    def _slurp(self):
+        """ Fallback replacement for getEvent() using the
+            standard SAX2 interface, which means we slurp the
+            SAX events into memory (no performance gain, but
+            we are compatible to all SAX parsers).
+        """
+        self.parser.parse(self.stream)
+        self.getEvent = self._emit
+        return self._emit()
+
+    def _emit(self):
+        """ Fallback replacement for getEvent() that emits
+            the events that _slurp() read previously.
+        """
+        rc = self.pulldom.firstEvent[1][0]
+        self.pulldom.firstEvent[1] = self.pulldom.firstEvent[1][1]
+        return rc
+
     def clear(self):
-        "clear(): Explicitly release parsing objects"
+        """clear(): Explicitly release parsing objects"""
         self.pulldom.clear()
         del self.pulldom
         self.parser = None

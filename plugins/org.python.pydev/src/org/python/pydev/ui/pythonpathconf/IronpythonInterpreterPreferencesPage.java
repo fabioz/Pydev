@@ -10,6 +10,7 @@
 package org.python.pydev.ui.pythonpathconf;
 
 import org.eclipse.jface.preference.StringFieldEditor;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.plugin.PydevPlugin;
@@ -37,7 +38,15 @@ public class IronpythonInterpreterPreferencesPage extends AbstractInterpreterPre
     
     protected void createFieldEditors() {
         super.createFieldEditors();
-        addField(new StringFieldEditor(IInterpreterManager.IRONPYTHON_INTERNAL_SHELL_VM_ARGS, "Vm arguments for internal shell", getFieldEditorParent()));
+        addField(new StringFieldEditor(IInterpreterManager.IRONPYTHON_INTERNAL_SHELL_VM_ARGS, "Vm arguments for internal shell", getFieldEditorParent()){
+            @Override
+            protected void adjustForNumColumns(int numColumns) {
+                GridData gd = (GridData) getTextControl().getLayoutData();
+                gd.horizontalSpan = numColumns; //We want it in a separate line!
+                gd.grabExcessHorizontalSpace = true;
+
+            }
+        });
     }
     
     @Override

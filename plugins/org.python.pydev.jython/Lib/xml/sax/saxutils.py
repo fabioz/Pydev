@@ -2,16 +2,25 @@
 A library of useful helper classes to the saxlib classes, for the
 convenience of application and driver writers.
 
-$Id$
+$Id: saxutils.py,v 1.37 2005/04/13 14:02:08 syt Exp $
 """
+import os, urlparse, urllib2, types
+import handler
+import xmlreader
+import sys, _exceptions, saxlib
 
-import types, sys, urllib, urlparse, os, string
-import handler, _exceptions, xmlreader
+from xml.Uri import Absolutize, MakeUrllibSafe,IsAbsolute
 
 try:
     _StringTypes = [types.StringType, types.UnicodeType]
 except AttributeError: # 1.5 compatibility:UnicodeType not defined
     _StringTypes = [types.StringType]
+
+def __dict_replace(s, d):
+    """Replace substrings of a string using a dictionary."""
+    for key, value in d.items():
+        s = s.replace(key, value)
+    return s
 
 def escape(data, entities={}):
     """Escape &, <, and > in a string of data.
@@ -20,11 +29,46 @@ def escape(data, entities={}):
     the optional entities parameter.  The keys and values must all be
     strings; each key will be replaced with its corresponding value.
     """
-    data = string.replace(data, "&", "&amp;")
-    data = string.replace(data, "<", "&lt;")
-    data = string.replace(data, ">", "&gt;")
-    for chars, entity in entities.items():
-        data = string.replace(data, chars, entity)
+    data = data.replace("&", "&amp;")
+    data = data.replace("<", "&lt;")
+    data = data.replace(">", "&gt;")
+    if entities:
+        data = __dict_replace(data, entities)
+    return data
+
+def unescape(data, entities={}):
+    """Unescape &amp;, &lt;, and &gt; in a string of data.
+
+    You can unescape other strings of data by passing a dictionary as
+    the optional entities parameter.  The keys and values must all be
+    strings; each key will be replaced with its corresponding value.
+    """
+    data = data.replace("&lt;", "<")
+    data = data.replace("&gt;", ">")
+    if entities:
+        data = __dict_replace(data, entities)
+    # must do ampersand last
+    return data.replace("&amp;", "&")
+
+def quoteattr(data, entities={}):
+    """Escape and quote an attribute value.
+
+    Escape &, <, and > in a string of data, then quote it for use as
+    an attribute value.  The \" character will be escaped as well, if
+    necessary.
+
+    You can escape other strings of data by passing a dictionary as
+    the optional entities parameter.  The keys and values must all be
+    strings; each key will be replaced with its corresponding value.
+    """
+    data = escape(data, entities)
+    if '"' in data:
+        if "'" in data:
+            data = '"%s"' % data.replace('"', "&quot;")
+        else:
+            data = "'%s'" % data
+    else:
+        data = '"%s"' % data
     return data
 
 # --- DefaultHandler
@@ -60,6 +104,19 @@ class Location:
 
     def getSystemId(self):
         return self.__sysid
+
+    def __str__(self):
+        if self.__line is None:
+            line = "?"
+        else:
+            line = self.__line
+        if self.__col is None:
+            col = "?"
+        else:
+            col = self.__col
+        return "%s:%s:%s" % (
+            self.__sysid or self.__pubid or "<unknown>",
+            line, col)
 
 # --- ErrorPrinter
 
@@ -120,16 +177,49 @@ class ErrorRaiser:
 from xmlreader import AttributesImpl
 
 # --- XMLGenerator is the SAX2 ContentHandler for writing back XML
-try:
-    import codecs
-    def _outputwrapper(stream,encoding):
-        writerclass = codecs.lookup(encoding)[3]
-        return writerclass(stream)
-except ImportError: # 1.5 compatibility: fall back to do-nothing
-    def _outputwrapper(stream,encoding):
-        return stream
+import codecs
+
+def _outputwrapper(stream,encoding):
+    writerclass = codecs.lookup(encoding)[3]
+    return writerclass(stream)
+
+if hasattr(codecs, "register_error"):
+    def writetext(stream, text, entities={}):
+        stream.errors = "xmlcharrefreplace"
+        stream.write(escape(text, entities))
+        stream.errors = "strict"
+else:
+    def writetext(stream, text, entities={}):
+        text = escape(text, entities)
+        try:
+            stream.write(text)
+        except UnicodeError:
+            for c in text:
+                try:
+                    stream.write(c)
+                except UnicodeError:
+                    stream.write("&#%d;" % ord(c))
+
+def writeattr(stream, text):
+    countdouble = text.count('"')
+    if countdouble:
+        countsingle = text.count("'")
+        if countdouble <= countsingle:
+            entities = {'"': "&quot;"}
+            quote = '"'
+        else:
+            entities = {"'": "&apos;"}
+            quote = "'"
+    else:
+        entities = {}
+        quote = '"'
+    stream.write(quote)
+    writetext(stream, text, entities)
+    stream.write(quote)
+
 
 class XMLGenerator(handler.ContentHandler):
+    GENERATED_PREFIX = "xml.sax.saxutils.prefix%s"
 
     def __init__(self, out=None, encoding="iso-8859-1"):
         if out is None:
@@ -141,6 +231,8 @@ class XMLGenerator(handler.ContentHandler):
         self._current_context = self._ns_contexts[-1]
         self._undeclared_ns_maps = []
         self._encoding = encoding
+        self._generated_prefix_ctr = 0
+        return
 
     # ContentHandler methods
 
@@ -160,7 +252,8 @@ class XMLGenerator(handler.ContentHandler):
     def startElement(self, name, attrs):
         self._out.write('<' + name)
         for (name, value) in attrs.items():
-            self._out.write(' %s="%s"' % (name, escape(value)))
+            self._out.write(' %s=' % name)
+            writeattr(self._out, value)
         self._out.write('>')
 
     def endElement(self, name):
@@ -178,14 +271,27 @@ class XMLGenerator(handler.ContentHandler):
 
         for k,v in self._undeclared_ns_maps:
             if k is None:
-                self._out.write(' xmlns="%s"' % v)
+                self._out.write(' xmlns="%s"' % (v or ''))
             else:
                 self._out.write(' xmlns:%s="%s"' % (k,v))
         self._undeclared_ns_maps = []
 
         for (name, value) in attrs.items():
-            name = self._current_context[name[0]] + ":" + name[1]
-            self._out.write(' %s="%s"' % (name, escape(value)))
+            if name[0] is None:
+                name = name[1]
+            elif self._current_context[name[0]] is None:
+                # default namespace
+                #If an attribute has a nsuri but not a prefix, we must
+                #create a prefix and add a nsdecl
+                prefix = self.GENERATED_PREFIX % self._generated_prefix_ctr
+                self._generated_prefix_ctr = self._generated_prefix_ctr + 1
+                name = prefix + ':' + name[1]
+                self._out.write(' xmlns:%s=%s' % (prefix, quoteattr(name[0])))
+                self._current_context[name[0]] = prefix
+            else:
+                name = self._current_context[name[0]] + ":" + name[1]
+            self._out.write(' %s=' % name)
+            writeattr(self._out, value)
         self._out.write('>')
 
     def endElementNS(self, name, qname):
@@ -201,13 +307,56 @@ class XMLGenerator(handler.ContentHandler):
         self._out.write('</%s>' % qname)
 
     def characters(self, content):
-        self._out.write(escape(content))
+        writetext(self._out, content)
 
     def ignorableWhitespace(self, content):
         self._out.write(content)
 
     def processingInstruction(self, target, data):
         self._out.write('<?%s %s?>' % (target, data))
+
+
+class LexicalXMLGenerator(XMLGenerator, saxlib.LexicalHandler):
+    """A XMLGenerator that also supports the LexicalHandler interface"""
+
+    def __init__(self, out=None, encoding="iso-8859-1"):
+        XMLGenerator.__init__(self, out, encoding)
+        self._in_cdata = 0
+
+    def characters(self, content):
+        if self._in_cdata:
+            self._out.write(content.replace(']]>', ']]>]]&gt;<![CDATA['))
+        else:
+            self._out.write(escape(content))
+
+    # LexicalHandler methods
+    # (we only support the most important ones and inherit the rest)
+
+    def startDTD(self, name, public_id, system_id):
+        self._out.write('<!DOCTYPE %s' % name)
+        if public_id:
+            self._out.write(' PUBLIC %s %s' % (
+                quoteattr(public_id or ""), quoteattr(system_id or "")
+            ))
+        elif system_id:
+            self._out.write(' SYSTEM %s' % quoteattr(system_id or ""))
+
+    def endDTD(self):
+        self._out.write('>')
+
+    def comment(self, content):
+        self._out.write('<!--')
+        self._out.write(content)
+        self._out.write('-->')
+
+    def startCDATA(self):
+        self._in_cdata = 1
+        self._out.write('<![CDATA[')
+
+    def endCDATA(self):
+        self._in_cdata = 0
+        self._out.write(']]>')
+
 
 # --- ContentGenerator is the SAX1 DocumentHandler for writing back XML
 class ContentGenerator(XMLGenerator):
@@ -218,7 +367,7 @@ class ContentGenerator(XMLGenerator):
         return XMLGenerator.characters(self, str[start:start+end])
 
 # --- XMLFilterImpl
-class XMLFilterBase(xmlreader.XMLReader):
+class XMLFilterBase(saxlib.XMLFilter):
     """This class is designed to sit between an XMLReader and the
     client application's event handlers.  By default, it does nothing
     but pass requests up to the reader and events on to the handlers
@@ -289,7 +438,7 @@ class XMLFilterBase(xmlreader.XMLReader):
     # EntityResolver methods
 
     def resolveEntity(self, publicId, systemId):
-        self._ent_handler.resolveEntity(publicId, systemId)
+        return self._ent_handler.resolveEntity(publicId, systemId)
 
     # XMLReader methods
 
@@ -362,22 +511,25 @@ def prepare_input_source(source, base = ""):
         source = xmlreader.InputSource()
         source.setByteStream(f)
         if hasattr(f, "name"):
-            source.setSystemId(f.name)
+            source.setSystemId(absolute_system_id(f.name, base))
 
     if source.getByteStream() is None:
-        sysid = source.getSystemId()
-        if os.path.isfile(sysid):
-            basehead = os.path.split(os.path.normpath(base))[0]
-            source.setSystemId(os.path.join(basehead, sysid))
-            f = open(sysid, "rb")
-        else:
-            source.setSystemId(urlparse.urljoin(base, sysid))
-            f = urllib.urlopen(source.getSystemId())
-
+        sysid = absolute_system_id(source.getSystemId(), base)
+        source.setSystemId(sysid)
+        f = urllib2.urlopen(sysid)
         source.setByteStream(f)
 
     return source
 
+
+def absolute_system_id(sysid, base=''):
+    if os.path.exists(sysid):
+        sysid = 'file:%s' % os.path.abspath(sysid)
+    elif base:        
+        sysid = Absolutize(sysid, base)
+    assert IsAbsolute(sysid)
+    return MakeUrllibSafe(sysid)
+    
 # ===========================================================================
 #
 # DEPRECATED SAX 1.0 CLASSES
@@ -534,13 +686,13 @@ class Canonizer(saxlib.HandlerBase):
 
     def write_data(self,data):
         "Writes datachars to writer."
-        data=string.replace(data,"&","&amp;")
-        data=string.replace(data,"<","&lt;")
-        data=string.replace(data,"\"","&quot;")
-        data=string.replace(data,">","&gt;")
-        data=string.replace(data,chr(9),"&#9;")
-        data=string.replace(data,chr(10),"&#10;")
-        data=string.replace(data,chr(13),"&#13;")
+        data=data.replace("&","&amp;")
+        data=data.replace("<","&lt;")
+        data=data.replace("\"","&quot;")
+        data=data.replace(">","&gt;")
+        data=data.replace(chr(9),"&#9;")
+        data=data.replace(chr(10),"&#10;")
+        data=data.replace(chr(13),"&#13;")
         self.writer.write(data)
 
 # --- mllib

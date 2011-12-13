@@ -37,6 +37,7 @@ public interface IMessage {
      * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_USED_WILD_IMPORT
      * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_NO_EFFECT_STMT
      * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_INDENTATION_PROBLEM
+     * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_PEP8
      * 
      * @return this message type
      */

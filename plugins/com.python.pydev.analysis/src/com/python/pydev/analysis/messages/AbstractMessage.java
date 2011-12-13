@@ -87,6 +87,7 @@ public abstract class AbstractMessage implements IMessage{
             messages.put(IAnalysisPreferences.TYPE_NO_EFFECT_STMT, "Statement apppears to have no effect");
             messages.put(IAnalysisPreferences.TYPE_INDENTATION_PROBLEM, "%s");
             messages.put(IAnalysisPreferences.TYPE_ASSIGNMENT_TO_BUILT_IN_SYMBOL, "Assignment to reserved built-in symbol: %s");
+            messages.put(IAnalysisPreferences.TYPE_PEP8, "%s");
         }
         return messages.get(getType());
 

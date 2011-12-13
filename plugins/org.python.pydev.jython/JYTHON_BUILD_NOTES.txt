@@ -1,0 +1,13 @@
+Jython 2.2.1 is now compiled directly with PyDev (sources copyright maintained):
+
+    - as PyDev cannot upgrade to the latest Jython (2.5) because it became too big (the jar has 8MB from 1MB in Jython 2.2.1), an upgrade
+      was done for Jython 2.2.1 (with sources), so, performance improvements can be done in the Jython internal version of PyDev
+      (and some things not needed in PyDev may be stripped out -- such as the servlet and sql support).
+
+    - The Lib is available in Jython 2.2.1 (installed it with sources and added the sources under src_jython). 
+    
+    optparse.py and textwrap.py were gotten from Python 2.4/Lib.
+    
+    
+Also, it seems this was the last version with a grammar close to the PyDev grammar, so, some performance improvements 
+from the PyDev grammar were added to it (i.e.: FastCharStream).
