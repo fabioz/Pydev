@@ -93,7 +93,7 @@ for space.
 """
 #Note: Version integrated in PyDev from: Sep 11, 2010
 #Git: 8d2d68790b6931833277cd671dfb8158962fac0c ( https://github.com/jcrocholl/pep8/commits/master/pep8.py )
-__version__ = '0.5.1dev'
+__version__ = '0.5.1dev' #Actually, released version for this one is 0.6.1
 
 import os
 import sys

@@ -17,9 +17,13 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
@@ -27,6 +31,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.utils.LabelFieldEditor;
+import org.python.pydev.utils.LinkFieldEditor;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.AnalysisPreferenceInitializer;
@@ -125,15 +130,23 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
             }
         });
         
-        addField(new LabelFieldEditor(PEP8_COMMAND_LINE, "Additional command line arguments (i.e.: --ignore=E5,W391). See pep8 docs for details.", p){
+        addField(new LinkFieldEditor(PEP8_COMMAND_LINE, "Additional command line arguments (i.e.: --ignore=E5,W391). See <a>pep8 docs</a> for details.", p, new SelectionListener() {
+            
+            public void widgetSelected(SelectionEvent e) {
+                Program.launch("http://pypi.python.org/pypi/pep8");
+            }
+            
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+        }){
             
             protected void doFillIntoGrid(Composite parent, int numColumns) {
                 numColumns = 3;
-                Label labelControl = getLabelControl(parent);
-                Object layoutData = labelControl.getLayoutData();
+                Link linkControl = getLinkControl(parent);
+                Object layoutData = linkControl.getLayoutData();
                 if(layoutData == null){
                     layoutData = new GridData();
-                    labelControl.setLayoutData(layoutData);
+                    linkControl.setLayoutData(layoutData);
                 }
                 ((GridData) layoutData).horizontalSpan = numColumns;
                 adjustForNumColumns(3);
