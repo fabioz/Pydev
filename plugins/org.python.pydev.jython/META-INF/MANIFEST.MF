@@ -3,8 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Jython Plug-in
 Bundle-SymbolicName: org.python.pydev.jython; singleton:=true
 Bundle-Version: 0.9.7.1
-Bundle-ClassPath: pydev-jython.jar,
- jython.jar
+Bundle-ClassPath: pydev-jython.jar
 Bundle-Activator: org.python.pydev.jython.JythonPlugin
 Bundle-Vendor: Aptana
 Bundle-Localization: plugin

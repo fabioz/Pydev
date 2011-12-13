@@ -72,6 +72,14 @@ class UserString:
     def center(self, width): return self.__class__(self.data.center(width))
     def count(self, sub, start=0, end=sys.maxint):
         return self.data.count(sub, start, end)
+    def decode(self, encoding=None, errors=None): # XXX improve this?
+        if encoding:
+            if errors:
+                return self.__class__(self.data.decode(encoding, errors))
+            else:
+                return self.__class__(self.data.decode(encoding))
+        else:
+            return self.__class__(self.data.decode())
     def encode(self, encoding=None, errors=None): # XXX improve this?
         if encoding:
             if errors:
@@ -100,7 +108,7 @@ class UserString:
     def join(self, seq): return self.data.join(seq)
     def ljust(self, width): return self.__class__(self.data.ljust(width))
     def lower(self): return self.__class__(self.data.lower())
-    def lstrip(self): return self.__class__(self.data.lstrip())
+    def lstrip(self, chars=None): return self.__class__(self.data.lstrip(chars))
     def replace(self, old, new, maxsplit=-1):
         return self.__class__(self.data.replace(old, new, maxsplit))
     def rfind(self, sub, start=0, end=sys.maxint):
@@ -108,18 +116,19 @@ class UserString:
     def rindex(self, sub, start=0, end=sys.maxint):
         return self.data.rindex(sub, start, end)
     def rjust(self, width): return self.__class__(self.data.rjust(width))
-    def rstrip(self): return self.__class__(self.data.rstrip())
+    def rstrip(self, chars=None): return self.__class__(self.data.rstrip(chars))
     def split(self, sep=None, maxsplit=-1):
         return self.data.split(sep, maxsplit)
     def splitlines(self, keepends=0): return self.data.splitlines(keepends)
     def startswith(self, prefix, start=0, end=sys.maxint):
         return self.data.startswith(prefix, start, end)
-    def strip(self): return self.__class__(self.data.strip())
+    def strip(self, chars=None): return self.__class__(self.data.strip(chars))
     def swapcase(self): return self.__class__(self.data.swapcase())
     def title(self): return self.__class__(self.data.title())
     def translate(self, *args):
         return self.__class__(self.data.translate(*args))
     def upper(self): return self.__class__(self.data.upper())
+    def zfill(self, width): return self.__class__(self.data.zfill(width))
 
 class MutableString(UserString):
     """mutable string objects

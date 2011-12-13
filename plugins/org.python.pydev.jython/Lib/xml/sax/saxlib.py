@@ -6,7 +6,7 @@ functionality, from which drivers and applications can be subclassed.
 Many of these classes are empty and are included only as documentation
 of the interfaces.
 
-$Id$
+$Id: saxlib.py,v 1.12 2002/05/10 14:49:21 akuchling Exp $
 """
 
 version = '2.0beta'
@@ -155,7 +155,7 @@ class DeclHandler:
     occur between the startDTD and endDTD events of the
     LexicalHandler.
 
-    To se the DeclHandler for an XMLReader, use the setProperty method
+    To set the DeclHandler for an XMLReader, use the setProperty method
     with the identifier http://xml.org/sax/handlers/DeclHandler."""
 
     def attributeDecl(self, elem_name, attr_name, type, value_def, value):

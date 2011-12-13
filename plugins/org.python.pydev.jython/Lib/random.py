@@ -75,6 +75,7 @@ used to "move backward in time":
 
 from math import log as _log, exp as _exp, pi as _pi, e as _e
 from math import sqrt as _sqrt, acos as _acos, cos as _cos, sin as _sin
+from math import floor as _floor
 
 __all__ = ["Random","seed","random","uniform","randint","choice",
            "randrange","shuffle","normalvariate","lognormvariate",
@@ -106,6 +107,19 @@ del _verify
 # Adrian Baddeley.
 
 class Random:
+    """Random number generator base class used by bound module functions.
+
+    Used to instantiate instances of Random to get generators that don't
+    share state.  Especially useful for multi-threaded programs, creating
+    a different instance of Random for each thread, and using the jumpahead()
+    method to ensure that the generated sequences seen by each thread don't
+    overlap.
+
+    Class Random can also be subclassed if you want to use a different basic
+    generator of your own devising: in that case, override the following
+    methods:  random(), seed(), getstate(), setstate() and jumpahead().
+
+    """
 
     VERSION = 1     # used by getstate/setstate
 
@@ -116,7 +130,6 @@ class Random:
         """
 
         self.seed(x)
-        self.gauss_next = None
 
 ## -------------------- core generator -------------------
 
@@ -149,6 +162,8 @@ class Random:
         a, y = divmod(a, 30306)
         a, z = divmod(a, 30322)
         self._seed = int(x)+1, int(y)+1, int(z)+1
+
+        self.gauss_next = None
 
     def random(self):
         """Get the next random number in the range [0.0, 1.0)."""
@@ -238,6 +253,8 @@ class Random:
         # Zero is a poor seed, so substitute 1
         self._seed = (x or 1, y or 1, z or 1)
 
+        self.gauss_next = None
+
     def whseed(self, a=None):
         """Seed from hashable object's hash code.
 
@@ -283,7 +300,7 @@ class Random:
         """
 
         # This code is a bit messy to make it fast for the
-        # common case while still doing adequate error checking
+        # common case while still doing adequate error checking.
         istart = int(start)
         if istart != start:
             raise ValueError, "non-integer arg 1 for randrange()"
@@ -291,14 +308,26 @@ class Random:
             if istart > 0:
                 return int(self.random() * istart)
             raise ValueError, "empty range for randrange()"
+
+        # stop argument supplied.
         istop = int(stop)
         if istop != stop:
             raise ValueError, "non-integer stop for randrange()"
+        if step == 1 and istart < istop:
+            try:
+                return istart + int(self.random()*(istop - istart))
+            except OverflowError:
+                # This can happen if istop-istart > sys.maxint + 1, and
+                # multiplying by random() doesn't reduce it to something
+                # <= sys.maxint.  We know that the overall result fits
+                # in an int, and can still do it correctly via math.floor().
+                # But that adds another function call, so for speed we
+                # avoided that whenever possible.
+                return int(istart + _floor(self.random()*(istop - istart)))
         if step == 1:
-            if istart < istop:
-                return istart + int(self.random() *
-                                   (istop - istart))
             raise ValueError, "empty range for randrange()"
+
+        # Non-unit step argument supplied.
         istep = int(step)
         if istep != step:
             raise ValueError, "non-integer step for randrange()"
@@ -315,8 +344,6 @@ class Random:
 
     def randint(self, a, b):
         """Return random integer in range [a, b], including both end points.
-
-        (Deprecated; use randrange(a, b+1).)
         """
 
         return self.randrange(a, b+1)
@@ -357,6 +384,11 @@ class Random:
 ## -------------------- normal distribution --------------------
 
     def normalvariate(self, mu, sigma):
+        """Normal distribution.
+
+        mu is the mean, and sigma is the standard deviation.
+
+        """
         # mu = mean, sigma = standard deviation
 
         # Uses Kinderman and Monahan method. Reference: Kinderman,
@@ -367,7 +399,7 @@ class Random:
         random = self.random
         while 1:
             u1 = random()
-            u2 = random()
+            u2 = 1.0 - random()
             z = NV_MAGICCONST*(u1-0.5)/u2
             zz = z*z/4.0
             if zz <= -_log(u2):
@@ -377,11 +409,29 @@ class Random:
 ## -------------------- lognormal distribution --------------------
 
     def lognormvariate(self, mu, sigma):
+        """Log normal distribution.
+
+        If you take the natural logarithm of this distribution, you'll get a
+        normal distribution with mean mu and standard deviation sigma.
+        mu can have any value, and sigma must be greater than zero.
+
+        """
         return _exp(self.normalvariate(mu, sigma))
 
 ## -------------------- circular uniform --------------------
 
     def cunifvariate(self, mean, arc):
+        """Circular uniform distribution.
+
+        mean is the mean angle, and arc is the range of the distribution,
+        centered around the mean angle.  Both values must be expressed in
+        radians.  Returned values range between mean - arc/2 and
+        mean + arc/2 and are normalized to between 0 and pi.
+
+        Deprecated in version 2.3.  Use:
+            (mean + arc * (Random.random() - 0.5)) % Math.pi
+
+        """
         # mean: mean angle (in radians between 0 and pi)
         # arc:  range of distribution (in radians between 0 and pi)
 
@@ -390,6 +440,13 @@ class Random:
 ## -------------------- exponential distribution --------------------
 
     def expovariate(self, lambd):
+        """Exponential distribution.
+
+        lambd is 1.0 divided by the desired mean.  (The parameter would be
+        called "lambda", but that is a reserved word in Python.)  Returned
+        values range from 0 to positive infinity.
+
+        """
         # lambd: rate lambd = 1/mean
         # ('lambda' is a Python reserved word)
 
@@ -402,6 +459,14 @@ class Random:
 ## -------------------- von Mises distribution --------------------
 
     def vonmisesvariate(self, mu, kappa):
+        """Circular data distribution.
+
+        mu is the mean angle, expressed in radians between 0 and 2*pi, and
+        kappa is the concentration parameter, which must be greater than or
+        equal to zero.  If kappa is equal to zero, this distribution reduces
+        to a uniform random angle over the range 0 to 2*pi.
+
+        """
         # mu:    mean angle (in radians between 0 and 2*pi)
         # kappa: concentration parameter kappa (>= 0)
         # if kappa = 0 generate uniform random angle
@@ -444,41 +509,48 @@ class Random:
 ## -------------------- gamma distribution --------------------
 
     def gammavariate(self, alpha, beta):
-        # beta times standard gamma
-        ainv = _sqrt(2.0 * alpha - 1.0)
-        return beta * self.stdgamma(alpha, ainv, alpha - LOG4, alpha + ainv)
+        """Gamma distribution.  Not the gamma function!
 
-    def stdgamma(self, alpha, ainv, bbb, ccc):
-        # ainv = sqrt(2 * alpha - 1)
-        # bbb = alpha - log(4)
-        # ccc = alpha + ainv
+        Conditions on the parameters are alpha > 0 and beta > 0.
+
+        """
+
+        # alpha > 0, beta > 0, mean is alpha*beta, variance is alpha*beta**2
+
+        # Warning: a few older sources define the gamma distribution in terms
+        # of alpha > -1.0
+        if alpha <= 0.0 or beta <= 0.0:
+            raise ValueError, 'gammavariate: alpha and beta must be > 0.0'
 
         random = self.random
-        if alpha <= 0.0:
-            raise ValueError, 'stdgamma: alpha must be > 0.0'
-
         if alpha > 1.0:
 
             # Uses R.C.H. Cheng, "The generation of Gamma
             # variables with non-integral shape parameters",
             # Applied Statistics, (1977), 26, No. 1, p71-74
 
+            ainv = _sqrt(2.0 * alpha - 1.0)
+            bbb = alpha - LOG4
+            ccc = alpha + ainv
+
             while 1:
                 u1 = random()
-                u2 = random()
+                if not 1e-7 < u1 < .9999999:
+                    continue
+                u2 = 1.0 - random()
                 v = _log(u1/(1.0-u1))/ainv
                 x = alpha*_exp(v)
                 z = u1*u1*u2
                 r = bbb+ccc*v-x
                 if r + SG_MAGICCONST - 4.5*z >= 0.0 or r >= _log(z):
-                    return x
+                    return x * beta
 
         elif alpha == 1.0:
             # expovariate(1)
             u = random()
             while u <= 1e-7:
                 u = random()
-            return -_log(u)
+            return -_log(u) * beta
 
         else:   # alpha is between 0 and 1 (exclusive)
 
@@ -497,12 +569,40 @@ class Random:
                 if not (((p <= 1.0) and (u1 > _exp(-x))) or
                           ((p > 1)  and  (u1 > pow(x, alpha - 1.0)))):
                     break
-            return x
+            return x * beta
+
+
+    def stdgamma(self, alpha, ainv, bbb, ccc):
+        # This method was (and shall remain) undocumented.
+        # This method is deprecated
+        # for the following reasons:
+        # 1. Returns same as .gammavariate(alpha, 1.0)
+        # 2. Requires caller to provide 3 extra arguments
+        #    that are functions of alpha anyway
+        # 3. Can't be used for alpha < 0.5
+
+        # ainv = sqrt(2 * alpha - 1)
+        # bbb = alpha - log(4)
+        # ccc = alpha + ainv
+        import warnings
+        warnings.warn("The stdgamma function is deprecated; "
+                      "use gammavariate() instead",
+                      DeprecationWarning)
+        return self.gammavariate(alpha, 1.0)
+
 
 
 ## -------------------- Gauss (faster alternative) --------------------
 
     def gauss(self, mu, sigma):
+        """Gaussian distribution.
+
+        mu is the mean, and sigma is the standard deviation.  This is
+        slightly faster than the normalvariate() function.
+
+        Not thread-safe without a lock around calls.
+
+        """
 
         # When x and y are two variables from [0, 1), uniformly
         # distributed, then
@@ -548,6 +648,13 @@ class Random:
 ## was dead wrong, and how it probably got that way.
 
     def betavariate(self, alpha, beta):
+        """Beta distribution.
+
+        Conditions on the parameters are alpha > -1 and beta} > -1.
+        Returned values range between 0 and 1.
+
+        """
+
         # This version due to Janne Sinkkonen, and matches all the std
         # texts (e.g., Knuth Vol 2 Ed 3 pg 134 "the beta distribution").
         y = self.gammavariate(alpha, 1.)
@@ -559,17 +666,23 @@ class Random:
 ## -------------------- Pareto --------------------
 
     def paretovariate(self, alpha):
+        """Pareto distribution.  alpha is the shape parameter."""
         # Jain, pg. 495
 
-        u = self.random()
+        u = 1.0 - self.random()
         return 1.0 / pow(u, 1.0/alpha)
 
 ## -------------------- Weibull --------------------
 
     def weibullvariate(self, alpha, beta):
+        """Weibull distribution.
+
+        alpha is the scale parameter and beta is the shape parameter.
+
+        """
         # Jain, pg. 499; bug fix courtesy Bill Arms
 
-        u = self.random()
+        u = 1.0 - self.random()
         return alpha * pow(-_log(u), 1.0/beta)
 
 ## -------------------- test program --------------------
@@ -596,7 +709,7 @@ def _test_generator(n, funccall):
     print 'avg %g, stddev %g, min %g, max %g' % \
               (avg, stddev, smallest, largest)
 
-def _test(N=200):
+def _test(N=20000):
     print 'TWOPI         =', TWOPI
     print 'LOG4          =', LOG4
     print 'NV_MAGICCONST =', NV_MAGICCONST
@@ -607,6 +720,9 @@ def _test(N=200):
     _test_generator(N, 'cunifvariate(0.0, 1.0)')
     _test_generator(N, 'expovariate(1.0)')
     _test_generator(N, 'vonmisesvariate(0.0, 1.0)')
+    _test_generator(N, 'gammavariate(0.01, 1.0)')
+    _test_generator(N, 'gammavariate(0.1, 1.0)')
+    _test_generator(N, 'gammavariate(0.1, 2.0)')
     _test_generator(N, 'gammavariate(0.5, 1.0)')
     _test_generator(N, 'gammavariate(0.9, 1.0)')
     _test_generator(N, 'gammavariate(1.0, 1.0)')

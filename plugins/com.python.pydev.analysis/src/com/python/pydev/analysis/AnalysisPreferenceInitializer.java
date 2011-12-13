@@ -10,9 +10,15 @@
 package com.python.pydev.analysis;
 
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.osgi.service.prefs.Preferences;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.plugin.PydevPlugin;
+
+import com.python.pydev.analysis.ui.AnalysisPreferencesPage;
 
 public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer{
 
@@ -72,6 +78,9 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
     public static final String SEVERITY_ASSIGNMENT_TO_BUILT_IN_SYMBOL = "SEVERITY_ASSIGNMENT_TO_BUILT_IN_SYMBOL";
     public static final int DEFAULT_SEVERITY_ASSIGNMENT_TO_BUILT_IN_SYMBOL = IMarker.SEVERITY_WARNING;
 
+    public static final String SEVERITY_PEP8 = "SEVERITY_PEP8";
+    public static final int DEFAULT_SEVERITY_PEP8 = IMarker.SEVERITY_INFO;
+    
     public static final String DO_AUTO_IMPORT = "DO_AUTO_IMPORT";
     public static final boolean DEFAULT_DO_AUT_IMPORT = true;
     
@@ -99,6 +108,15 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
         node.putBoolean(DO_AUTO_IMPORT, DEFAULT_DO_AUT_IMPORT);
         node.putBoolean(DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS, DEFAULT_DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS);
         node.putBoolean(DO_IGNORE_IMPORTS_STARTING_WITH_UNDER, DEFAULT_DO_IGNORE_FIELDS_WITH_UNDER);
+        
+        //pep8 related.
+        node.putBoolean(AnalysisPreferencesPage.USE_PEP8_CONSOLE, false);
+        try {
+            node.put(AnalysisPreferencesPage.PEP8_FILE_LOCATION, 
+                    PydevPlugin.getScriptWithinPySrc(new Path("ThirdParty").append("pep8").append("pep8.py").toString()).toString());
+        } catch (CoreException e) {
+            Log.log(e);
+        }
     }
 
 

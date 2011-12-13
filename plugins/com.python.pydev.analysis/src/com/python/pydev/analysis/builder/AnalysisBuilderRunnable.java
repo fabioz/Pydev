@@ -23,6 +23,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.logging.DebugSettings;
 
@@ -238,8 +239,8 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
             //ok, let's do it
             OccurrencesAnalyzer analyzer = new OccurrencesAnalyzer();
             checkStop();
-            IMessage[] messages = analyzer.analyzeDocument(nature, module, analysisPreferences, 
-                    document, this.internalCancelMonitor);
+            IMessage[] messages = analyzer.analyzeDocument(
+                    nature, module, analysisPreferences, document, this.internalCancelMonitor, DefaultIndentPrefs.get());
             
             checkStop();
             if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){

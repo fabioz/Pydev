@@ -433,6 +433,7 @@ public final class MessagesManager {
         return type == IAnalysisPreferences.TYPE_UNUSED_PARAMETER || 
            type == IAnalysisPreferences.TYPE_INDENTATION_PROBLEM ||
            type == IAnalysisPreferences.TYPE_NO_EFFECT_STMT || 
+           type == IAnalysisPreferences.TYPE_PEP8 || 
            type == IAnalysisPreferences.TYPE_ASSIGNMENT_TO_BUILT_IN_SYMBOL
            ;
     }

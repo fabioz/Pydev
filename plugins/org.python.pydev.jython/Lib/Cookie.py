@@ -51,7 +51,7 @@ Importing is easy..
    >>> import Cookie
 
 Most of the time you start by creating a cookie.  Cookies come in
-three flavors, each with slighly different encoding semanitcs, but
+three flavors, each with slightly different encoding semanitcs, but
 more on that later.
 
    >>> C = Cookie.SimpleCookie()
@@ -70,8 +70,8 @@ a dictionary.
    >>> C["fig"] = "newton"
    >>> C["sugar"] = "wafer"
    >>> print C
-   Set-Cookie: sugar=wafer;
    Set-Cookie: fig=newton;
+   Set-Cookie: sugar=wafer;
 
 Notice that the printable representation of a Cookie is the
 appropriate format for a Set-Cookie: header.  This is the
@@ -93,8 +93,8 @@ HTTP_COOKIE environment variable.
    >>> C = Cookie.SmartCookie()
    >>> C.load("chips=ahoy; vienna=finger")
    >>> print C
-   Set-Cookie: vienna=finger;
    Set-Cookie: chips=ahoy;
+   Set-Cookie: vienna=finger;
 
 The load() method is darn-tootin smart about identifying cookies
 within a string.  Escaped quotation marks, nested semicolons, and other
@@ -215,7 +215,7 @@ Finis.
 #
 # Import our required modules
 #
-import string, sys
+import string
 from UserDict import UserDict
 
 try:
@@ -249,7 +249,7 @@ class CookieError(Exception):
 #       _LegalChars       is the list of chars which don't require "'s
 #       _Translator       hash-table for fast quoting
 #
-_LegalChars       = string.letters + string.digits + "!#$%&'*+-.^_`|~"
+_LegalChars       = string.ascii_letters + string.digits + "!#$%&'*+-.^_`|~"
 _Translator       = {
     '\000' : '\\000',  '\001' : '\\001',  '\002' : '\\002',
     '\003' : '\\003',  '\004' : '\\004',  '\005' : '\\005',
@@ -493,7 +493,9 @@ class Morsel(UserDict):
         # Now add any defined attributes
         if attrs is None:
             attrs = self._reserved_keys
-        for K,V in self.items():
+        items = self.items()
+        items.sort()
+        for K,V in items:
             if V == "": continue
             if K not in attrs: continue
             if K == "expires" and type(V) == type(1):
@@ -586,7 +588,9 @@ class BaseCookie(UserDict):
     def output(self, attrs=None, header="Set-Cookie:", sep="\n"):
         """Return a string suitable for HTTP."""
         result = []
-        for K,V in self.items():
+        items = self.items()
+        items.sort()
+        for K,V in items:
             result.append( V.output(attrs, header) )
         return string.join(result, sep)
     # end output
@@ -595,14 +599,18 @@ class BaseCookie(UserDict):
 
     def __repr__(self):
         L = []
-        for K,V in self.items():
+        items = self.items()
+        items.sort()
+        for K,V in items:
             L.append( '%s=%s' % (K,repr(V.value) ) )
         return '<%s: %s>' % (self.__class__.__name__, string.join(L))
 
     def js_output(self, attrs=None):
         """Return a string suitable for JavaScript."""
         result = []
-        for K,V in self.items():
+        items = self.items()
+        items.sort()
+        for K,V in items:
             result.append( V.js_output(attrs) )
         return string.join(result, "")
     # end js_output

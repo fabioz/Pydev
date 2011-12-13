@@ -11,7 +11,8 @@ import stat
 __all__ = ["normcase","isabs","join","splitdrive","split","splitext",
            "basename","dirname","commonprefix","getsize","getmtime",
            "getatime","islink","exists","isdir","isfile","ismount",
-           "walk","expanduser","expandvars","normpath","abspath","splitunc"]
+           "walk","expanduser","expandvars","normpath","abspath","splitunc",
+           "realpath"]
 
 # Normalize the case of a pathname and map slashes to backslashes.
 # Other normalizations (such as optimizing '../' away) are not done
@@ -42,12 +43,53 @@ def join(a, *p):
     """Join two or more pathname components, inserting "\\" as needed"""
     path = a
     for b in p:
-        if isabs(b):
+        b_wins = 0  # set to 1 iff b makes path irrelevant
+        if path == "":
+            b_wins = 1
+
+        elif isabs(b):
+            # This probably wipes out path so far.  However, it's more
+            # complicated if path begins with a drive letter:
+            #     1. join('c:', '/a') == 'c:/a'
+            #     2. join('c:/', '/a') == 'c:/a'
+            # But
+            #     3. join('c:/a', '/b') == '/b'
+            #     4. join('c:', 'd:/') = 'd:/'
+            #     5. join('c:/', 'd:/') = 'd:/'
+            if path[1:2] != ":" or b[1:2] == ":":
+                # Path doesn't start with a drive letter, or cases 4 and 5.
+                b_wins = 1
+
+            # Else path has a drive letter, and b doesn't but is absolute.
+            elif len(path) > 3 or (len(path) == 3 and
+                                   path[-1] not in "/\\"):
+                # case 3
+                b_wins = 1
+
+        if b_wins:
             path = b
-        elif path == '' or path[-1:] in '/\\:':
-            path = path + b
         else:
-            path = path + "\\" + b
+            # Join, and ensure there's a separator.
+            assert len(path) > 0
+            if path[-1] in "/\\":
+                if b and b[0] in "/\\":
+                    path += b[1:]
+                else:
+                    path += b
+            elif path[-1] == ":":
+                path += b
+            elif b:
+                if b[0] in "/\\":
+                    path += b
+                else:
+                    path += "\\" + b
+            else:
+                # path is not empty and does not end with a backslash,
+                # but b is empty; since, e.g., split('a/') produces
+                # ('a', ''), it's best if join() adds a backslash in
+                # this case.
+                path += '\\'
+
     return path
 
 
@@ -256,11 +298,20 @@ def ismount(path):
 # or to impose a different order of visiting.
 
 def walk(top, func, arg):
-    """Directory tree walk whth callback function.
+    """Directory tree walk with callback function.
 
-    walk(top, func, arg) calls func(arg, d, files) for each directory d
-    in the tree rooted at top (including top itself); files is a list
-    of all the files and subdirs in directory d."""
+    For each directory in the directory tree rooted at top (including top
+    itself, but excluding '.' and '..'), call func(arg, dirname, fnames).
+    dirname is the name of the directory, and fnames a list of the names of
+    the files and subdirectories in dirname (excluding '.' and '..').  func
+    may modify the fnames list in-place (e.g. via del or slice assignment),
+    and walk will only recurse into the subdirectories whose names remain in
+    fnames; this can be used to implement a filter, or to impose a specific
+    order of visiting.  No semantics are defined for, or required of, arg,
+    beyond that arg is always passed to func.  It can be used, e.g., to pass
+    a filename pattern, or a mutable object designed to accumulate
+    statistics.  Passing None for arg is common."""
+
     try:
         names = os.listdir(top)
     except os.error:
@@ -324,7 +375,7 @@ def expandvars(path):
     if '$' not in path:
         return path
     import string
-    varchars = string.letters + string.digits + '_-'
+    varchars = string.ascii_letters + string.digits + '_-'
     res = ''
     index = 0
     pathlen = len(path)
@@ -372,7 +423,7 @@ def expandvars(path):
     return res
 
 
-# Normalize a path, e.g. A//B, A/./B and A/foo/../B all become A/B.
+# Normalize a path, e.g. A//B, A/./B and A/foo/../B all become A\B.
 # Previously, this function also truncated pathnames to 8+3 format,
 # but as this module is called "ntpath", that's obviously wrong!
 
@@ -386,15 +437,18 @@ def normpath(path):
     comps = path.split("\\")
     i = 0
     while i < len(comps):
-        if comps[i] == '.':
+        if comps[i] in ('.', ''):
             del comps[i]
-        elif comps[i] == '..' and i > 0 and comps[i-1] not in ('', '..'):
-            del comps[i-1:i+1]
-            i = i - 1
-        elif comps[i] == '' and i > 0 and comps[i-1] != '':
-            del comps[i]
+        elif comps[i] == '..':
+            if i > 0 and comps[i-1] != '..':
+                del comps[i-1:i+1]
+                i -= 1
+            elif i == 0 and prefix.endswith("\\"):
+                del comps[i]
+            else:
+                i += 1
         else:
-            i = i + 1
+            i += 1
     # If the path is now empty, substitute '.'
     if not prefix and not comps:
         comps.append('.')
@@ -405,8 +459,8 @@ def normpath(path):
 def abspath(path):
     """Return the absolute version of a path"""
     try:
-        import win32api
-    except ImportError:
+        from nt import _getfullpathname
+    except ImportError: # Not running on Windows - mock up something sensible.
         global abspath
         def _abspath(path):
             if not isabs(path):
@@ -414,11 +468,15 @@ def abspath(path):
             return normpath(path)
         abspath = _abspath
         return _abspath(path)
+
     if path: # Empty path must return current working directory.
         try:
-            path = win32api.GetFullPathName(path)
-        except win32api.error:
+            path = _getfullpathname(path)
+        except WindowsError:
             pass # Bad path - return unchanged.
     else:
         path = os.getcwd()
     return normpath(path)
+
+# realpath is a no-op on systems without islink support
+realpath = abspath

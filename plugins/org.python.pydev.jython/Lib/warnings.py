@@ -24,7 +24,10 @@ def warn(message, category=None, stacklevel=1):
     else:
         globals = caller.f_globals
         lineno = caller.f_lineno
-    module = globals['__name__']
+    if globals.has_key('__name__'):
+        module = globals['__name__']
+    else:
+        module = "<string>"
     filename = globals.get('__file__')
     if filename:
         fnl = filename.lower()
@@ -95,7 +98,10 @@ def showwarning(message, category, filename, lineno, file=None):
     """Hook to write a warning to a file; replace if you like."""
     if file is None:
         file = sys.stderr
-    file.write(formatwarning(message, category, filename, lineno))
+    try:
+        file.write(formatwarning(message, category, filename, lineno))
+    except IOError:
+        pass # the file (probably stderr) is invalid - this warning gets lost.
 
 def formatwarning(message, category, filename, lineno):
     """Function to format a warning the standard way."""
@@ -127,7 +133,7 @@ def filterwarnings(action, message="", category=Warning, module="", lineno=0,
         filters.insert(0, item)
 
 def resetwarnings():
-    """Reset the list of warnings filters to its default state."""
+    """Clear the list of warning filters, so that no filters are active."""
     filters[:] = []
 
 class _OptionError(Exception):
@@ -249,3 +255,4 @@ if __name__ == "__main__":
     _test()
 else:
     _processoptions(sys.warnoptions)
+    filterwarnings("ignore", category=OverflowWarning, append=1)

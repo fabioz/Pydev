@@ -70,7 +70,8 @@ public class IgnoreErrorParticipant implements IAnalysisMarkersParticipant {
         }
         
         String strToAdd = messageToIgnore;
-        char lastChar = line.charAt(line.length()-1);
+        int lineLen = line.length();
+        char lastChar = lineLen==0?' ':line.charAt(lineLen-1);
         
         if(line.indexOf("#") == -1){
             strToAdd = "#"+strToAdd;
