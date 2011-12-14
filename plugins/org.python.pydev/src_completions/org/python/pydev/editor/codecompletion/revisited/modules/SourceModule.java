@@ -33,7 +33,6 @@ import org.python.pydev.core.ISourceModule;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.cache.Cache;
@@ -1086,20 +1085,36 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             return false;
         }
         SourceModule m = (SourceModule) obj;
-        if(file == null || m.file == null){
-            if(file != null){
+        
+        if(name == null || m.name == null){
+            if(name != m.name){
                 return false;
             }
-            if(m.file != null){
-                return false;
-            }
-            if(this.name == null){
-                return this.name == m.name;
-            }
-            return this.name.equals(m.name);
+            //both null at this point
+        }else if(!name.equals(m.name)){
+            return false;
         }
         
-        return REF.getFileAbsolutePath(file).equals(REF.getFileAbsolutePath(m.file)) && this.name.equals(m.name); 
+        if(zipFilePath == null || m.zipFilePath == null){
+            if(zipFilePath != m.zipFilePath){
+                return false;
+            }
+            //both null at this point
+        }else if(!zipFilePath.equals(m.zipFilePath)){
+            return false;
+        }
+        
+        if(file == null || m.file == null){
+            if(file != m.file){
+                return false;
+            }
+            //both null at this point
+        }else if(!file.equals(m.file)){
+            return false;
+        }
+        
+        
+        return true; 
     }
     
     @Override
@@ -1110,6 +1125,9 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         }
         if(name != null){
             hash += name.hashCode();
+        }
+        if(zipFilePath != null){
+            hash += zipFilePath.hashCode();
         }
         return hash;
     }

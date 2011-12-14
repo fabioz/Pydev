@@ -36,6 +36,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModuleForZi
  */
 public class JavaZipModule extends AbstractJavaClassModule {
 
+
     public static final boolean DEBUG_JARS = false;
 
     private File file;
@@ -178,5 +179,52 @@ public class JavaZipModule extends AbstractJavaClassModule {
         return ret;
     }
 
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof JavaZipModule)) {
+            return false;
+        }
+        JavaZipModule m = (JavaZipModule) obj;
+        
+        if(name == null || m.name == null){
+            if(name != m.name){
+                return false;
+            }
+            //both null at this point
+        }else if(!name.equals(m.name)){
+            return false;
+        }
+        
+        
+        if(file == null || m.file == null){
+            if(file != m.file){
+                return false;
+            }
+            //both null at this point
+        }else if(!file.equals(m.file)){
+            return false;
+        }
+        
+        if(isFileInZip != m.isFileInZip){
+            return false;
+        }
+        
+        return true; 
+    }
     
+    @Override
+    public int hashCode() {
+        int hash = 23;
+        if(file != null){
+            hash += file.hashCode();
+        }
+        if(name != null){
+            hash += name.hashCode();
+        }
+        if(isFileInZip){
+            hash *= 2;
+        }
+        return hash;
+    }
 }
