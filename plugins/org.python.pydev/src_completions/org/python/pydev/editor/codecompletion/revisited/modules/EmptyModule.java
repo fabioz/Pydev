@@ -95,5 +95,46 @@ public class EmptyModule extends AbstractModule {
     public boolean isInDirectImportTokens(String tok) {
         throw new RuntimeException("Not implemented");
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof EmptyModule)) {
+            return false;
+        }
+        EmptyModule m = (EmptyModule) obj;
+        
+        if(name == null || m.name == null){
+            if(name != m.name){
+                return false;
+            }
+            //both null at this point
+        }else if(!name.equals(m.name)){
+            return false;
+        }
+        
+        if(f == null || m.f == null){
+            if(f != m.f){
+                return false;
+            }
+            //both null at this point
+        }else if(!f.equals(m.f)){
+            return false;
+        }
+        
+        
+        return true; 
+    }
+    
+    @Override
+    public int hashCode() {
+        int hash = 71;
+        if(f != null){
+            hash += f.hashCode();
+        }
+        if(name != null){
+            hash += name.hashCode();
+        }
+        return hash;
+    }
 
 }

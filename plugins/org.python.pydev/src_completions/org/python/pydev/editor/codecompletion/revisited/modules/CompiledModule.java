@@ -45,6 +45,7 @@ import org.python.pydev.editor.codecompletion.shell.AbstractShell;
  */
 public class CompiledModule extends AbstractModule{
     
+
     public static boolean COMPILED_MODULES_ENABLED = true; 
 
     public static final boolean TRACE_COMPILED_MODULES = false; 
@@ -484,6 +485,49 @@ public class CompiledModule extends AbstractModule{
             this.definitionsFoundCache.add(token, definitions);
             return definitions;
         }
+    }
+
+    
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof CompiledModule)) {
+            return false;
+        }
+        CompiledModule m = (CompiledModule) obj;
+        
+        if(name == null || m.name == null){
+            if(name != m.name){
+                return false;
+            }
+            //both null at this point
+        }else if(!name.equals(m.name)){
+            return false;
+        }
+        
+        if(file == null || m.file == null){
+            if(file != m.file){
+                return false;
+            }
+            //both null at this point
+        }else if(!file.equals(m.file)){
+            return false;
+        }
+        
+        
+        return true; 
+    }
+    
+    @Override
+    public int hashCode() {
+        int hash = 33;
+        if(file != null){
+            hash += file.hashCode();
+        }
+        if(name != null){
+            hash += name.hashCode();
+        }
+        return hash;
     }
 
 }
