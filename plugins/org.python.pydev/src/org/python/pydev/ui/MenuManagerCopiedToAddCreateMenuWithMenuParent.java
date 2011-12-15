@@ -436,14 +436,14 @@ public class MenuManagerCopiedToAddCreateMenuWithMenuParent extends Contribution
                     }
 
                     public Boolean getEnabled(IContributionItem item) {
-                        return null;
+                        return false;
                     }
 
                     public String getText(IContributionItem item) {
                         return null;
                     }
     				public Boolean getVisible(IContributionItem item) {
-    					return null;
+    					return false;
     				}
                 };
             } else {

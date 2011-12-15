@@ -164,17 +164,10 @@ public abstract class ModulesManager implements IModulesManager {
     /**
      * Helper for using the pythonpath. Also persisted.
      */
-    protected PythonPathHelper pythonPathHelper = new PythonPathHelper();
+    protected final PythonPathHelper pythonPathHelper = new PythonPathHelper();
 
     public PythonPathHelper getPythonPathHelper() {
         return pythonPathHelper;
-    }
-
-    public void setPythonPathHelper(Object pathHelper) {
-        if (!(pathHelper instanceof PythonPathHelper)) {
-          throw new IllegalArgumentException();
-        }
-        pythonPathHelper = (PythonPathHelper)pathHelper;
     }
     
 
@@ -325,14 +318,11 @@ public abstract class ModulesManager implements IModulesManager {
             }
         }
         
-        PythonPathHelper helper = new PythonPathHelper();
-        helper.loadFromFile(pythonpatHelperFile);
-        
-        modulesManager.pythonPathHelper = helper;
-        
         if(modulesManager.pythonPathHelper == null){
             throw new IOException("Pythonpath helper not properly restored. "+modulesManager.getClass().getName()+" dir:"+workspaceMetadataFile);
         }
+        modulesManager.pythonPathHelper.loadFromFile(pythonpatHelperFile);
+        
         
         if(modulesManager.pythonPathHelper.getPythonpath() == null){
             throw new IOException("Pythonpath helper pythonpath not properly restored. "+modulesManager.getClass().getName()+" dir:"+workspaceMetadataFile);
@@ -342,7 +332,7 @@ public abstract class ModulesManager implements IModulesManager {
             throw new IOException("Pythonpath helper pythonpath restored with no contents. "+modulesManager.getClass().getName()+" dir:"+workspaceMetadataFile);
         }
         
-        if(modulesManager.modulesKeys.size() < 2){ //if we have to few modules, that may indicate a problem... 
+        if(modulesManager.modulesKeys.size() < 2){ //if we have few modules, that may indicate a problem... 
             //if the project is really small, modulesManager will be fast, otherwise, it'll fix the problem.
             //Note: changed to a really low value because we now make a check after it's restored anyways.
             throw new IOException("Only "+modulesManager.modulesKeys.size()+" modules restored in I/O. "+modulesManager.getClass().getName()+" dir:"+workspaceMetadataFile);
@@ -908,13 +898,6 @@ public abstract class ModulesManager implements IModulesManager {
      */
     public String resolveModule(String full) {
         return pythonPathHelper.resolveModule(full, false);
-    }
-
-    public List<String> getPythonPath() {
-        if(pythonPathHelper == null){
-            return new ArrayList<String>();
-        }
-        return pythonPathHelper.getPythonpath();
     }
 
 }

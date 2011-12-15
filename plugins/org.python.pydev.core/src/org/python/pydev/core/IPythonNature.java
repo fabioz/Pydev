@@ -193,7 +193,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
      * Rebuilds the path with the current path information (just to refresh it).
      * @throws CoreException 
      */
-    void rebuildPath() throws CoreException;
+    void rebuildPath();
 
     
     /**

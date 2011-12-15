@@ -121,41 +121,46 @@ public class PyEditBreakpointSync implements IPyEditListener, IPyEditListener4 {
         
         @SuppressWarnings("unchecked")
         private void updateAnnotations() {
-            if(edit != null){
-                IDocumentProvider provider= edit.getDocumentProvider();
-                IAnnotationModel model = provider.getAnnotationModel(edit.getEditorInput());
-                IAnnotationModelExtension modelExtension = (IAnnotationModelExtension) model;
-                
-                if(model == null){
-                    return;
-                }
-                List<Annotation> existing = new ArrayList<Annotation>();
-                Iterator<Annotation> it = model.getAnnotationIterator();
-                if(it == null){
-                    return;
-                }
-                while(it.hasNext()){
-                    existing.add(it.next());
-                }
-                
-                
-                IDocument doc = edit.getDocument();
-                IResource resource = AbstractBreakpointRulerAction.getResourceForDebugMarkers(edit);
-                IEditorInput externalFileEditorInput = AbstractBreakpointRulerAction.getExternalFileEditorInput(edit);
-                List<IMarker> markers = AbstractBreakpointRulerAction.getMarkersFromEditorResource(
-                		resource, doc, externalFileEditorInput, 0, false);
-                
-                
-                Map<Annotation, Position> annotationsToAdd = new HashMap<Annotation, Position>();
-                for(IMarker m:markers){
-                    Position pos = AbstractBreakpointRulerAction.getMarkerPosition(doc, m);
-                    MarkerAnnotation newAnnotation = new MarkerAnnotation(m);
-                    annotationsToAdd.put(newAnnotation, pos);
-                }
-                
-                //update all in a single step
-                modelExtension.replaceAnnotations(existing.toArray(new Annotation[0]), annotationsToAdd);
+            if(edit == null){
+                return;
             }
+            IDocumentProvider provider= edit.getDocumentProvider();
+            if(provider == null){
+                return;
+            }
+            IAnnotationModel model = provider.getAnnotationModel(edit.getEditorInput());
+            if(model == null){
+                return;
+            }
+            
+            IAnnotationModelExtension modelExtension = (IAnnotationModelExtension) model;
+            
+            List<Annotation> existing = new ArrayList<Annotation>();
+            Iterator<Annotation> it = model.getAnnotationIterator();
+            if(it == null){
+                return;
+            }
+            while(it.hasNext()){
+                existing.add(it.next());
+            }
+            
+            
+            IDocument doc = edit.getDocument();
+            IResource resource = AbstractBreakpointRulerAction.getResourceForDebugMarkers(edit);
+            IEditorInput externalFileEditorInput = AbstractBreakpointRulerAction.getExternalFileEditorInput(edit);
+            List<IMarker> markers = AbstractBreakpointRulerAction.getMarkersFromEditorResource(
+            		resource, doc, externalFileEditorInput, 0, false);
+            
+            
+            Map<Annotation, Position> annotationsToAdd = new HashMap<Annotation, Position>();
+            for(IMarker m:markers){
+                Position pos = AbstractBreakpointRulerAction.getMarkerPosition(doc, m);
+                MarkerAnnotation newAnnotation = new MarkerAnnotation(m);
+                annotationsToAdd.put(newAnnotation, pos);
+            }
+            
+            //update all in a single step
+            modelExtension.replaceAnnotations(existing.toArray(new Annotation[0]), annotationsToAdd);
         }
     }
 

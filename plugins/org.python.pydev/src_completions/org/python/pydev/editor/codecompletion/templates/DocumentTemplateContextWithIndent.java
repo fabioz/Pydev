@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.templates.DocumentTemplateContext;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateBuffer;
@@ -27,8 +26,8 @@ public class DocumentTemplateContextWithIndent extends DocumentTemplateContext{
 
     private final String indentTo;
     private IIndentPrefs indentPrefs;
-    public ITextViewer viewer; //May be null
 
+    
     /**
      * Note that it's in the default context because it should be used on subclasses.
      */

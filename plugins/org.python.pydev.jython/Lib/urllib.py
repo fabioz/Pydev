@@ -25,6 +25,8 @@ used to query various info about the object, if available.
 import string
 import socket
 import os
+import stat
+import time
 import sys
 import types
 
@@ -132,7 +134,7 @@ class URLopener:
             for file in self.__tempfiles:
                 try:
                     self.__unlink(file)
-                except:
+                except OSError:
                     pass
             del self.__tempfiles[:]
         if self.tempcache:
@@ -191,7 +193,7 @@ class URLopener:
 
     # External interface
     def retrieve(self, url, filename=None, reporthook=None, data=None):
-        """retrieve(url) returns (filename, None) for a local object
+        """retrieve(url) returns (filename, headers) for a local object
         or (tempfilename, headers) for a remote object."""
         url = unwrap(toBytes(url))
         if self.tempcache and self.tempcache.has_key(url):
@@ -267,6 +269,9 @@ class URLopener:
                     user_passwd, realhost = splituser(realhost)
                 if user_passwd:
                     selector = "%s://%s%s" % (urltype, realhost, rest)
+                if proxy_bypass(realhost):
+                    host = realhost
+
             #print "proxy via http:", host, selector
         if not host: raise IOError, ('http error', 'no host given')
         if user_passwd:
@@ -368,7 +373,7 @@ class URLopener:
             errcode, errmsg, headers = h.getreply()
             fp = h.getfile()
             if errcode == 200:
-                return addinfourl(fp, headers, url)
+                return addinfourl(fp, headers, "https:" + url)
             else:
                 if data is None:
                     return self.http_error(url, fp, errcode, errmsg, headers)
@@ -394,23 +399,31 @@ class URLopener:
 
     def open_file(self, url):
         """Use local file or FTP depending on form of URL."""
-        if url[:2] == '//' and url[2:3] != '/':
+        if url[:2] == '//' and url[2:3] != '/' and url[2:12].lower() != 'localhost/':
             return self.open_ftp(url)
         else:
             return self.open_local_file(url)
 
     def open_local_file(self, url):
         """Use local file."""
-        import mimetypes, mimetools, StringIO
+        import mimetypes, mimetools, rfc822, StringIO
+        host, file = splithost(url)
+        localname = url2pathname(file)
+        try:
+            stats = os.stat(localname)
+        except OSError, e:
+            raise IOError(e.errno, e.strerror, e.filename)
+        size = stats[stat.ST_SIZE]
+        modified = rfc822.formatdate(stats[stat.ST_MTIME])
         mtype = mimetypes.guess_type(url)[0]
         headers = mimetools.Message(StringIO.StringIO(
-            'Content-Type: %s\n' % (mtype or 'text/plain')))
-        host, file = splithost(url)
+            'Content-Type: %s\nContent-Length: %d\nLast-modified: %s\n' %
+            (mtype or 'text/plain', size, modified)))
         if not host:
             urlfile = file
             if file[:1] == '/':
                 urlfile = 'file://' + file
-            return addinfourl(open(url2pathname(file), 'rb'),
+            return addinfourl(open(localname, 'rb'),
                               headers, urlfile)
         host, port = splitport(host)
         if not port \
@@ -418,12 +431,13 @@ class URLopener:
             urlfile = file
             if file[:1] == '/':
                 urlfile = 'file://' + file
-            return addinfourl(open(url2pathname(file), 'rb'),
+            return addinfourl(open(localname, 'rb'),
                               headers, urlfile)
         raise IOError, ('local file error', 'not on local host')
 
     def open_ftp(self, url):
         """Use FTP protocol."""
+        import mimetypes, mimetools, StringIO
         host, path = splithost(url)
         if not host: raise IOError, ('ftp error', 'no host given')
         host, port = splitport(host)
@@ -466,12 +480,13 @@ class URLopener:
                    value in ('a', 'A', 'i', 'I', 'd', 'D'):
                     type = value.upper()
             (fp, retrlen) = self.ftpcache[key].retrfile(file, type)
+            mtype = mimetypes.guess_type("ftp:" + url)[0]
+            headers = ""
+            if mtype:
+                headers += "Content-Type: %s\n" % mtype
             if retrlen is not None and retrlen >= 0:
-                import mimetools, StringIO
-                headers = mimetools.Message(StringIO.StringIO(
-                    'Content-Length: %d\n' % retrlen))
-            else:
-                headers = noheaders()
+                headers += "Content-Length: %d\n" % retrlen
+            headers = mimetools.Message(StringIO.StringIO(headers))
             return addinfourl(fp, headers, "ftp:" + url)
         except ftperrors(), msg:
             raise IOError, ('ftp error', msg), sys.exc_info()[2]
@@ -566,13 +581,17 @@ class FancyURLopener(URLopener):
         """Error 301 -- also relocated (permanently)."""
         return self.http_error_302(url, fp, errcode, errmsg, headers, data)
 
+    def http_error_303(self, url, fp, errcode, errmsg, headers, data=None):
+        """Error 303 -- also relocated (essentially identical to 302)."""
+        return self.http_error_302(url, fp, errcode, errmsg, headers, data)
+
     def http_error_401(self, url, fp, errcode, errmsg, headers, data=None):
         """Error 401 -- authentication required.
         See this URL for a description of the basic authentication scheme:
         http://www.ics.uci.edu/pub/ietf/http/draft-ietf-http-v10-spec-00.txt"""
         if not headers.has_key('www-authenticate'):
             URLopener.http_error_default(self, url, fp,
-                                         errmsg, headers)
+                                         errcode, errmsg, headers)
         stuff = headers['www-authenticate']
         import re
         match = re.match('[ \t]*([^ \t]+)[ \t]+realm="([^"]*)"', stuff)
@@ -939,7 +958,7 @@ def splituser(host):
     global _userprog
     if _userprog is None:
         import re
-        _userprog = re.compile('^([^@]*)@(.*)$')
+        _userprog = re.compile('^(.*)@(.*)$')
 
     match = _userprog.match(host)
     if match: return map(unquote, match.group(1, 2))
@@ -1053,7 +1072,7 @@ def unquote(s):
             try:
                 myappend(mychr(myatoi(item[:2], 16))
                      + item[2:])
-            except:
+            except ValueError:
                 myappend('%' + item)
         else:
             myappend('%' + item)
@@ -1239,6 +1258,9 @@ if os.name == 'mac':
         # Gopher: XXXX To be done.
         return proxies
 
+    def proxy_bypass(x):
+        return 0
+
 elif os.name == 'nt':
     def getproxies_registry():
         """Return a dictionary of scheme -> proxy server URL mappings.
@@ -1265,7 +1287,11 @@ elif os.name == 'nt':
                     # Per-protocol settings
                     for p in proxyServer.split(';'):
                         protocol, address = p.split('=', 1)
-                        proxies[protocol] = '%s://%s' % (protocol, address)
+                        # See if address has a type:// prefix
+                        import re
+                        if not re.match('^([^/:]+)://', address):
+                            address = '%s://%s' % (protocol, address)
+                        proxies[protocol] = address
                 else:
                     # Use one setting for all protocols
                     if proxyServer[:5] == 'http:':
@@ -1289,10 +1315,66 @@ elif os.name == 'nt':
 
         """
         return getproxies_environment() or getproxies_registry()
+
+    def proxy_bypass(host):
+        try:
+            import _winreg
+            import re
+            import socket
+        except ImportError:
+            # Std modules, so should be around - but you never know!
+            return 0
+        try:
+            internetSettings = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER,
+                r'Software\Microsoft\Windows\CurrentVersion\Internet Settings')
+            proxyEnable = _winreg.QueryValueEx(internetSettings,
+                                               'ProxyEnable')[0]
+            proxyOverride = str(_winreg.QueryValueEx(internetSettings,
+                                                     'ProxyOverride')[0])
+            # ^^^^ Returned as Unicode but problems if not converted to ASCII
+        except WindowsError:
+            return 0
+        if not proxyEnable or not proxyOverride:
+            return 0
+        # try to make a host list from name and IP address.
+        host = [host]
+        try:
+            addr = socket.gethostbyname(host[0])
+            if addr != host:
+                host.append(addr)
+        except socket.error:
+            pass
+        # make a check value list from the registry entry: replace the
+        # '<local>' string by the localhost entry and the corresponding
+        # canonical entry.
+        proxyOverride = proxyOverride.split(';')
+        i = 0
+        while i < len(proxyOverride):
+            if proxyOverride[i] == '<local>':
+                proxyOverride[i:i+1] = ['localhost',
+                                        '127.0.0.1',
+                                        socket.gethostname(),
+                                        socket.gethostbyname(
+                                            socket.gethostname())]
+            i += 1
+        # print proxyOverride
+        # now check if we match one of the registry values.
+        for test in proxyOverride:
+            test = test.replace(".", r"\.")     # mask dots
+            test = test.replace("*", r".*")     # change glob sequence
+            test = test.replace("?", r".")      # change glob char
+            for val in host:
+                # print "%s <--> %s" %( test, val )
+                if re.match(test, val, re.I):
+                    return 1
+        return 0
+
 else:
     # By default use environment variables
     getproxies = getproxies_environment
 
+    def proxy_bypass(host):
+        return 0
 
 # Test and time quote() and unquote()
 def test1():
@@ -1324,7 +1406,7 @@ def test(args=[]):
             '/etc/passwd',
             'file:/etc/passwd',
             'file://localhost/etc/passwd',
-            'ftp://ftp.python.org/etc/passwd',
+            'ftp://ftp.python.org/pub/python/README',
 ##          'gopher://gopher.micro.umn.edu/1/',
             'http://www.python.org/index.html',
             ]

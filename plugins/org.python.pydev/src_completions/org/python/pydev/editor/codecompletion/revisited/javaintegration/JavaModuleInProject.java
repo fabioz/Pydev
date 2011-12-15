@@ -30,6 +30,9 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class JavaModuleInProject extends AbstractJavaClassModule {
 
+
+
+
     private static final boolean DEBUG_CLASS_MODULE_IN_PROJECT = false;
     
     private static final int UNKNOWN = -1; 
@@ -169,6 +172,46 @@ public class JavaModuleInProject extends AbstractJavaClassModule {
         type.codeComplete(StringUtils.format(contents, name).toCharArray(), -1, 0, new char[0][0], new char[0][0], new int[0], false, collector);
     }
     
-    
 
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof JavaModuleInProject)) {
+            return false;
+        }
+        JavaModuleInProject m = (JavaModuleInProject) obj;
+        
+        if(name == null || m.name == null){
+            if(name != m.name){
+                return false;
+            }
+            //both null at this point
+        }else if(!name.equals(m.name)){
+            return false;
+        }
+        
+        
+        if(file == null || m.file == null){
+            if(file != m.file){
+                return false;
+            }
+            //both null at this point
+        }else if(!file.equals(m.file)){
+            return false;
+        }
+        
+        return true; 
+    }
+    
+    @Override
+    public int hashCode() {
+        int hash = 31;
+        if(file != null){
+            hash += file.hashCode();
+        }
+        if(name != null){
+            hash += name.hashCode();
+        }
+        return hash;
+    }
 }

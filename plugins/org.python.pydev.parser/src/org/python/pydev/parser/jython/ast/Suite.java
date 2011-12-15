@@ -7,6 +7,10 @@ public final class Suite extends suiteType {
 
     public Suite(stmtType[] body) {
         this.body = body;
+        if(body != null && body.length > 0){
+            beginColumn = body[0].beginColumn;
+            beginLine = body[0].beginLine;
+        }
     }
 
 

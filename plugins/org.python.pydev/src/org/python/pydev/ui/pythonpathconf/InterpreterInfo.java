@@ -236,6 +236,11 @@ public class InterpreterInfo implements IInterpreterInfo{
         return true;
     }
 
+    public int hashCode() {
+        assert false : "hashCode not designed";
+        return 42; // any arbitrary constant will do
+    }
+    
     
     /**
      * Format we receive should be:

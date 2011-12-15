@@ -211,8 +211,16 @@ class JavaVisitor(EmitVisitor):
         fpargs = ", ".join([self.fieldDef(f) for f in fields])
 
         self.emit("public %s(%s) {" % (ctorname, fpargs), depth)
+        
         for f in fields:
             self.emit("this.%s = %s;" % (f.name, f.name), depth+1)
+                
+        if str(ctorname) == 'Suite':
+            self.emit("if(body != null && body.length > 0){", depth+1)
+            self.emit("beginColumn = body[0].beginColumn;", depth+2)
+            self.emit("beginLine = body[0].beginLine;", depth+2)
+            self.emit("}", depth+1)
+            
         self.emit("}", depth)
         self.emit("", 0)
 

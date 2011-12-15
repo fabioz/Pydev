@@ -488,7 +488,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     	node.context_expr.accept(this);
     	
 		exprType optional = node.optional_vars;
-		if (optional != null && optional != null){
+		if (optional != null && lastNode != null){
 			doc.addRequire("as", lastNode);
 			optional.accept(this);
 		}
@@ -628,8 +628,10 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
             doc.addRequire(":", node);
             doc.addRequireIndent(":", node);
         }
-        for(stmtType st:body){
-            st.accept(this);
+        if(body != null){
+            for(stmtType st:body){
+                st.accept(this);
+            }
         }
         if(indent){
             dedent();
@@ -1407,7 +1409,9 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         }
 
         doc.add(node.beginLine, node.beginColumn, str, node);
-        this.handleArguments(node.args);
+        if(node.args != null){
+            this.handleArguments(node.args);
+        }
         
         doc.addRequire(":", lastNode);
         if (node.body != null)

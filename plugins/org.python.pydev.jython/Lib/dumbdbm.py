@@ -21,7 +21,7 @@ is read when the database is opened, and some updates rewrite the whole index)
 
 """
 
-_os = __import__('os')
+import os as _os
 import __builtin__
 
 _open = __builtin__.open
@@ -32,19 +32,16 @@ error = IOError                         # For anydbm
 
 class _Database:
 
-    def __init__(self, file):
-        if _os.sep == '.':
-            endsep = '/'
-        else:
-            endsep = '.'
-        self._dirfile = file + endsep + 'dir'
-        self._datfile = file + endsep + 'dat'
-        self._bakfile = file + endsep + 'bak'
+    def __init__(self, file, mode):
+        self._mode = mode
+        self._dirfile = file + _os.extsep + 'dir'
+        self._datfile = file + _os.extsep + 'dat'
+        self._bakfile = file + _os.extsep + 'bak'
         # Mod by Jack: create data file if needed
         try:
             f = _open(self._datfile, 'r')
         except IOError:
-            f = _open(self._datfile, 'w')
+            f = _open(self._datfile, 'w', self._mode)
         f.close()
         self._update()
 
@@ -67,7 +64,7 @@ class _Database:
         except _os.error: pass
         try: _os.rename(self._dirfile, self._bakfile)
         except _os.error: pass
-        f = _open(self._dirfile, 'w')
+        f = _open(self._dirfile, 'w', self._mode)
         for key, (pos, siz) in self._index.items():
             f.write("%s, (%s, %s)\n" % (`key`, `pos`, `siz`))
         f.close()
@@ -87,7 +84,7 @@ class _Database:
 ## Does not work under MW compiler
 ##              pos = ((pos + _BLOCKSIZE - 1) / _BLOCKSIZE) * _BLOCKSIZE
 ##              f.seek(pos)
-        npos = ((pos + _BLOCKSIZE - 1) / _BLOCKSIZE) * _BLOCKSIZE
+        npos = ((pos + _BLOCKSIZE - 1) // _BLOCKSIZE) * _BLOCKSIZE
         f.write('\0'*(npos-pos))
         pos = npos
 
@@ -104,7 +101,7 @@ class _Database:
 
     def _addkey(self, key, (pos, siz)):
         self._index[key] = (pos, siz)
-        f = _open(self._dirfile, 'a')
+        f = _open(self._dirfile, 'a', self._mode)
         f.write("%s, (%s, %s)\n" % (`key`, `pos`, `siz`))
         f.close()
 
@@ -135,14 +132,39 @@ class _Database:
     def has_key(self, key):
         return self._index.has_key(key)
 
+    def __contains__(self, key):
+        return self._index.has_key(key)
+
+    def iterkeys(self):
+        return self._index.iterkeys()
+    __iter__ = iterkeys
+
     def __len__(self):
         return len(self._index)
 
     def close(self):
+        self._commit()
         self._index = None
         self._datfile = self._dirfile = self._bakfile = None
 
+    def __del__(self):
+        if self._index is not None:
+            self._commit()
 
-def open(file, flag = None, mode = None):
+
+
+def open(file, flag=None, mode=0666):
+    """Open the database file, filename, and return corresponding object.
+
+    The flag argument, used to control how the database is opened in the
+    other DBM implementations, is ignored in the dumbdbm module; the
+    database is always opened for update, and will be created if it does
+    not exist.
+
+    The optional mode argument is the UNIX mode of the file, used only when
+    the database has to be created.  It defaults to octal code 0666 (and
+    will be modified by the prevailing umask).
+
+    """
     # flag, mode arguments are currently ignored
-    return _Database(file)
+    return _Database(file, mode)

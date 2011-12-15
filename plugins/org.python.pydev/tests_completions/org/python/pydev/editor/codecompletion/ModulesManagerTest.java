@@ -68,7 +68,7 @@ public class ModulesManagerTest extends CodeCompletionTestsBase{
         
         PythonPathHelper pythonPathHelper = manager.getPythonPathHelper();
         pythonPathHelper.setPythonPath("rara|boo");
-        assertEquals(Arrays.asList("rara", "boo"), manager.getPythonPath());
+        assertEquals(Arrays.asList("rara", "boo"), manager.getPythonPathHelper().getPythonpath());
         
         File f = new File("modules_manager_testing.temporary_dir");
         try {
@@ -101,7 +101,7 @@ public class ModulesManagerTest extends CodeCompletionTestsBase{
             set.add("empty");
             set.add("zip");
             assertEquals(set, loaded.getAllModuleNames(true, ""));
-            assertEquals(Arrays.asList("rara", "boo"), loaded.getPythonPath());
+            assertEquals(Arrays.asList("rara", "boo"), loaded.getPythonPathHelper().getPythonpath());
         } finally {
             REF.deleteDirectoryTree(f);
         }

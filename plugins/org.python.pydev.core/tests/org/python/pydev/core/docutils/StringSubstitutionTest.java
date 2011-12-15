@@ -176,7 +176,7 @@ public class StringSubstitutionTest extends TestCase{
             	throw new RuntimeException("Not implemented");
             }
 
-            public void rebuildPath() throws CoreException{
+            public void rebuildPath(){
                 throw new RuntimeException("Not implemented");
             }
 

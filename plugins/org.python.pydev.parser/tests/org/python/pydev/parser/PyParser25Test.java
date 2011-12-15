@@ -14,6 +14,8 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.NameTok;
@@ -33,7 +35,7 @@ public class PyParser25Test extends PyParserTestBase{
         try {
             PyParser25Test test = new PyParser25Test();
             test.setUp();
-            test.testWith2();
+            test.testSuiteLineNumber();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser25Test.class);
@@ -302,5 +304,29 @@ public class PyParser25Test extends PyParserTestBase{
 		assertEquals(2, body.length);
 		assertEquals(8, test.beginLine);
     }
+
     
+    public void testSuiteLineNumber() throws Exception {
+        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
+        String str = "" +
+        		"class Process:\n" +
+        		"\n" +
+        		"    def Foo(self):\n" +
+        		"        if a == 1:\n" +
+        		"            pass\n" +
+        		"        elif a == 1:\n" +
+        		"            pass\n" +
+        		"\n" +
+        		"";
+        SimpleNode ast = parseLegalDocStr(str);
+        stmtType[] body = ((Module)ast).body;
+        assertEquals(1, body.length);
+        ClassDef classFound = (ClassDef) body[0];
+        body = classFound.body;
+        assertEquals(1, body.length);
+        FunctionDef func = (FunctionDef) body[0];
+        If ifFound = (If) func.body[0];
+        assertEquals(6, ifFound.orelse.beginLine);
+        
+    }
 }

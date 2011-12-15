@@ -14,6 +14,86 @@
 # other compatibility work.
 #
 
+r"""Support for regular expressions (RE).
+
+This module provides regular expression matching operations similar to
+those found in Perl.  It supports both 8-bit and Unicode strings; both
+the pattern and the strings being processed can contain null bytes and
+characters outside the US ASCII range.
+
+Regular expressions can contain both special and ordinary characters.
+Most ordinary characters, like "A", "a", or "0", are the simplest
+regular expressions; they simply match themselves.  You can
+concatenate ordinary characters, so last matches the string 'last'.
+
+The special characters are:
+    "."      Matches any character except a newline.
+    "^"      Matches the start of the string.
+    "$"      Matches the end of the string.
+    "*"      Matches 0 or more (greedy) repetitions of the preceding RE.
+             Greedy means that it will match as many repetitions as possible.
+    "+"      Matches 1 or more (greedy) repetitions of the preceding RE.
+    "?"      Matches 0 or 1 (greedy) of the preceding RE.
+    *?,+?,?? Non-greedy versions of the previous three special characters.
+    {m,n}    Matches from m to n repetitions of the preceding RE.
+    {m,n}?   Non-greedy version of the above.
+    "\\"      Either escapes special characters or signals a special sequence.
+    []       Indicates a set of characters.
+             A "^" as the first character indicates a complementing set.
+    "|"      A|B, creates an RE that will match either A or B.
+    (...)    Matches the RE inside the parentheses.
+             The contents can be retrieved or matched later in the string.
+    (?iLmsux) Set the I, L, M, S, U, or X flag for the RE (see below).
+    (?:...)  Non-grouping version of regular parentheses.
+    (?P<name>...) The substring matched by the group is accessible by name.
+    (?P=name)     Matches the text matched earlier by the group named name.
+    (?#...)  A comment; ignored.
+    (?=...)  Matches if ... matches next, but doesn't consume the string.
+    (?!...)  Matches if ... doesn't match next.
+
+The special sequences consist of "\\" and a character from the list
+below.  If the ordinary character is not on the list, then the
+resulting RE will match the second character.
+    \number  Matches the contents of the group of the same number.
+    \A       Matches only at the start of the string.
+    \Z       Matches only at the end of the string.
+    \b       Matches the empty string, but only at the start or end of a word.
+    \B       Matches the empty string, but not at the start or end of a word.
+    \d       Matches any decimal digit; equivalent to the set [0-9].
+    \D       Matches any non-digit character; equivalent to the set [^0-9].
+    \s       Matches any whitespace character; equivalent to [ \t\n\r\f\v].
+    \S       Matches any non-whitespace character; equiv. to [^ \t\n\r\f\v].
+    \w       Matches any alphanumeric character; equivalent to [a-zA-Z0-9_].
+             With LOCALE, it will match the set [0-9_] plus characters defined
+             as letters for the current locale.
+    \W       Matches the complement of \w.
+    \\       Matches a literal backslash.
+
+This module exports the following functions:
+    match    Match a regular expression pattern to the beginning of a string.
+    search   Search a string for the presence of a pattern.
+    sub      Substitute occurrences of a pattern found in a string.
+    subn     Same as sub, but also return the number of substitutions made.
+    split    Split a string by the occurrences of a pattern.
+    findall  Find all occurrences of a pattern in a string.
+    compile  Compile a pattern into a RegexObject.
+    purge    Clear the regular expression cache.
+    escape   Backslash all non-alphanumerics in a string.
+
+Some of the functions in this module takes flags as optional parameters:
+    I  IGNORECASE  Perform case-insensitive matching.
+    L  LOCALE      Make \w, \W, \b, \B, dependent on the current locale.
+    M  MULTILINE   "^" matches the beginning of lines as well as the string.
+                   "$" matches the end of lines as well as the string.
+    S  DOTALL      "." matches any character at all, including the newline.
+    X  VERBOSE     Ignore whitespace and comments for nicer looking RE's.
+    U  UNICODE     Make \w, \W, \b, \B, dependent on the Unicode locale.
+
+This module also defines an exception 'error'.
+
+"""
+
+import sys
 import sre_compile
 import sre_parse
 
@@ -23,7 +103,7 @@ __all__ = [ "match", "search", "sub", "subn", "split", "findall",
     "U", "IGNORECASE", "LOCALE", "MULTILINE", "DOTALL", "VERBOSE",
     "UNICODE", "error" ]
 
-__version__ = "2.1b2"
+__version__ = "2.2.1"
 
 # this module works under 1.5.2 and later.  don't use string methods
 import string
@@ -75,7 +155,7 @@ def split(pattern, string, maxsplit=0):
     returning a list containing the resulting substrings."""
     return _compile(pattern, 0).split(string, maxsplit)
 
-def findall(pattern, string, maxsplit=0):
+def findall(pattern, string):
     """Return a list of all non-overlapping matches in the string.
 
     If one or more groups are present in the pattern, return a
@@ -83,7 +163,16 @@ def findall(pattern, string, maxsplit=0):
     has more than one group.
 
     Empty matches are included in the result."""
-    return _compile(pattern, 0).findall(string, maxsplit)
+    return _compile(pattern, 0).findall(string)
+
+if sys.hexversion >= 0x02020000:
+    __all__.append("finditer")
+    def finditer(pattern, string):
+        """Return an iterator over all non-overlapping matches in the
+        string.  For each match, the iterator returns a match object.
+
+        Empty matches are included in the result."""
+        return _compile(pattern, 0).finditer(string)
 
 def compile(pattern, flags=0):
     "Compile a regular expression pattern, returning a pattern object."
@@ -116,6 +205,8 @@ def escape(pattern):
 _cache = {}
 _cache_repl = {}
 
+_pattern_type = type(sre_compile.compile("", 0))
+
 _MAXCACHE = 100
 
 def _join(seq, sep):
@@ -128,8 +219,10 @@ def _compile(*key):
     if p is not None:
         return p
     pattern, flags = key
-    if type(pattern) not in sre_compile.STRING_TYPES:
+    if type(pattern) is _pattern_type:
         return pattern
+    if type(pattern) not in sre_compile.STRING_TYPES:
+        raise TypeError, "first argument must be string or compiled pattern"
     try:
         p = sre_compile.compile(pattern, flags)
     except error, v:
@@ -159,59 +252,15 @@ def _expand(pattern, match, template):
     template = sre_parse.parse_template(template, pattern)
     return sre_parse.expand_template(template, match)
 
-def _sub(pattern, template, string, count=0):
-    # internal: pattern.sub implementation hook
-    return _subn(pattern, template, string, count)[0]
-
-def _subn(pattern, template, string, count=0):
-    # internal: pattern.subn implementation hook
-    if callable(template):
-        filter = template
-    else:
-        template = _compile_repl(template, pattern)
-        def filter(match, template=template):
-            return sre_parse.expand_template(template, match)
-    n = i = 0
-    s = []
-    append = s.append
-    c = pattern.scanner(string)
-    while not count or n < count:
-        m = c.search()
-        if not m:
-            break
-        b, e = m.span()
-        if i < b:
-            append(string[i:b])
-        append(filter(m))
-        i = e
-        n = n + 1
-    append(string[i:])
-    return _join(s, string[:0]), n
-
-def _split(pattern, string, maxsplit=0):
-    # internal: pattern.split implementation hook
-    n = i = 0
-    s = []
-    append = s.append
-    extend = s.extend
-    c = pattern.scanner(string)
-    g = pattern.groups
-    while not maxsplit or n < maxsplit:
-        m = c.search()
-        if not m:
-            break
-        b, e = m.span()
-        if b == e:
-            if i >= len(string):
-                break
-            continue
-        append(string[i:b])
-        if g and b != e:
-            extend(list(m.groups()))
-        i = e
-        n = n + 1
-    append(string[i:])
-    return s
+def _subx(pattern, template):
+    # internal: pattern.sub/subn implementation helper
+    template = _compile_repl(template, pattern)
+    if not template[0] and len(template[1]) == 1:
+        # literal replacement
+        return template[1][0]
+    def filter(match, template=template):
+        return sre_parse.expand_template(template, match)
+    return filter
 
 # register myself for pickling
 
@@ -220,21 +269,22 @@ import copy_reg
 def _pickle(p):
     return _compile, (p.pattern, p.flags)
 
-copy_reg.pickle(type(_compile("", 0)), _pickle, _compile)
+copy_reg.pickle(_pattern_type, _pickle, _compile)
 
 # --------------------------------------------------------------------
 # experimental stuff (see python-dev discussions for details)
 
 class Scanner:
-    def __init__(self, lexicon):
+    def __init__(self, lexicon, flags=0):
         from sre_constants import BRANCH, SUBPATTERN
         self.lexicon = lexicon
         # combine phrases into a compound pattern
         p = []
         s = sre_parse.Pattern()
+        s.flags = flags
         for phrase, action in lexicon:
             p.append(sre_parse.SubPattern(s, [
-                (SUBPATTERN, (len(p), sre_parse.parse(phrase))),
+                (SUBPATTERN, (len(p)+1, sre_parse.parse(phrase, flags))),
                 ]))
         p = sre_parse.SubPattern(s, [(BRANCH, (None, p))])
         s.groups = len(p)
@@ -242,16 +292,16 @@ class Scanner:
     def scan(self, string):
         result = []
         append = result.append
-        match = self.scanner.match
+        match = self.scanner.scanner(string).match
         i = 0
         while 1:
-            m = match(string, i)
+            m = match()
             if not m:
                 break
             j = m.end()
             if i == j:
                 break
-            action = self.lexicon[m.lastindex][1]
+            action = self.lexicon[m.lastindex-1][1]
             if callable(action):
                 self.match = m
                 action = action(self, m.group())

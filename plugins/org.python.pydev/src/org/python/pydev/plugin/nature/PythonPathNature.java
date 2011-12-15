@@ -362,6 +362,8 @@ public class PythonPathNature implements IPythonPathNature {
 
     
     public void clearCaches() {
+        doFullSynchAt = -1;
+        directMembersChecked.clear();
     }
 
     

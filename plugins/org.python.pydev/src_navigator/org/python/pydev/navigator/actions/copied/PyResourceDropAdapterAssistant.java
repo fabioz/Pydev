@@ -137,7 +137,7 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
      *      DropTargetEvent, Object)
      */
     public IStatus handleDrop(CommonDropAdapter aDropAdapter, DropTargetEvent aDropTargetEvent, Object aTarget) {
-        aTarget = getActual(aTarget);
+//        aTarget = getActual(aTarget);
         if (DEBUG) {
             System.out.println("ResourceDropAdapterAssistant.handleDrop (begin)"); //$NON-NLS-1$
         }

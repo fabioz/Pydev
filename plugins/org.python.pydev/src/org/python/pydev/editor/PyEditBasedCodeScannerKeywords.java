@@ -39,7 +39,11 @@ public class PyEditBasedCodeScannerKeywords implements ICodeScannerKeywords{
         public CythonStatusChangeNotifier(PyEditBasedCodeScannerKeywords pyEditBasedCodeScannerKeywords) {
             this.ref = new WeakReference<CallbackWithListeners>(pyEditBasedCodeScannerKeywords.callbackWithListeners);
             PyEdit pyEdit = pyEditBasedCodeScannerKeywords.edit.get();
-            currentIsCythonFile = pyEdit.isCythonFile();
+            if(pyEdit == null){
+                currentIsCythonFile = false;
+            }else{
+                currentIsCythonFile = pyEdit.isCythonFile();
+            }
         }
 
         @SuppressWarnings("unchecked")
@@ -82,6 +86,9 @@ public class PyEditBasedCodeScannerKeywords implements ICodeScannerKeywords{
 
     public String[] getKeywords() {
         PyEdit pyEdit = edit.get();
+        if(pyEdit == null){
+            return PyCodeScanner.DEFAULT_KEYWORDS;
+        }
         if(pyEdit.isCythonFile()){
             return PyCodeScanner.CYTHON_KEYWORDS;
             

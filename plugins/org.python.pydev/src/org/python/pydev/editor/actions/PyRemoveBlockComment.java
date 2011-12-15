@@ -12,10 +12,16 @@
 package org.python.pydev.editor.actions;
 
 import java.util.HashSet;
+import java.util.List;
 
 import org.eclipse.jface.action.IAction;
+import org.python.pydev.core.IIndentPrefs;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 
 /**
  * Removes a comment block. Comment blocks are slightly different than regular
@@ -85,15 +91,18 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
                 boolean addDelim = true;
                 String spacesBefore = "";
                 String line = ps.getLine(i);
-                for(int j=0;j<line.length();j++){
+                int lineLen = line.length();
+                for(int j=0;j<lineLen;j++){
                     char c = line.charAt(j);
-                    if(c != ' '){
-                        if(c=='#'){
-                            //ok, it starts with # (so, remove the whitespaces before it)
-                            if(j > 0){
-                                spacesBefore = line.substring(0, j);
-                            }
-                            line = line.substring(j);
+                    if(c=='#'){
+                        //ok, it starts with # (so, remove the whitespaces before it)
+                        if(j > 0){
+                            spacesBefore = line.substring(0, j);
+                        }
+                        line = line.substring(j);
+                        break;
+                    }else{
+                        if(!Character.isWhitespace(c)){
                             break;
                         }
                     }
@@ -140,7 +149,88 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
                     }
                 }
             }
+            
+            
+            //Ok, at this point things should be correct, but make sure than on uncomment,
+            //the code goes to a proper indent position (remove spaces we may have added when creating a block).
+            String string = strbuf.toString();
+            List<String> lines = StringUtils.splitInLines(string);
+            Tuple<Integer, String> posAndLine = new Tuple<Integer, String>(-1, "");
+            for(String line:lines){
+                int firstCharPosition = PySelection.getFirstCharPosition(line);
+                if(firstCharPosition < posAndLine.o1 || posAndLine.o1 < 0){
+                    posAndLine.o1 = firstCharPosition;
+                    posAndLine.o2 = line;
+                }
+            }
+            if(posAndLine.o1 > 0){
+                final String sub = posAndLine.o2.substring(0, posAndLine.o1);
+                if(sub.endsWith(" ")){ //If it ends with a tab, we won't change anything (only spaces are removed -- which we may have introduced)
+                    boolean allEqual = true;
+                    for(String line:lines){
+                        if(!line.startsWith(sub)){
+                            allEqual = false;
+                            break;
+                        }
+                    }
+                    if(allEqual){
+                        if(sub.startsWith("\t")){
+                            //Tabs based indent: remove any ending spaces (and at this point we know a string ends with a space)
+                            int j;
+                            for(j=sub.length()-1;j>=0;j--){
+                                char c = sub.charAt(j);
+                                if(c != ' '){
+                                    j++;
+                                    break;
+                                }
+                            }
+                            String newSub = sub.substring(0, j);
+                            strbuf.clear();
+                            for(String line:lines){
+                                strbuf.append(newSub);
+                                strbuf.append(line.substring(sub.length()));
+                            }
+                            
+                        }else{
+                            IIndentPrefs indentPrefs;
+                            if(targetEditor instanceof PyEdit){
+                                PyEdit pyEdit = (PyEdit) targetEditor;
+                                indentPrefs = pyEdit.getIndentPrefs();
+                            }else{
+                                indentPrefs = DefaultIndentPrefs.get();
+                            }
+                            
+                            String indentationString = indentPrefs.getIndentationString();
 
+                            int subLen = sub.length();
+                            int indentLen = indentationString.length();
+                            int mod = subLen % indentLen;
+                            if(mod != 0){
+                                String substring = sub.substring(subLen-mod, subLen);
+                                boolean onlyWhitespaces = true;
+                                for(int k=0;k<substring.length();k++){
+                                    if(substring.charAt(k) != ' '){
+                                        onlyWhitespaces = false;
+                                        break;
+                                    }
+                                }
+                                if(onlyWhitespaces){
+                                    String newSub = sub.substring(0, subLen-mod);
+                                    strbuf.clear();
+                                    for(String line:lines){
+                                        strbuf.append(newSub);
+                                        strbuf.append(line.substring(sub.length()));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            
+            
+            
             // Replace the text with the modified information
             int startLineOffset = ps.getLineOffset(startLineIndex);
             int endLineOffset = ps.getEndLineOffset(endLineIndex);

@@ -28,10 +28,14 @@ Written by Marc-Andre Lemburg (mal@lemburg.com).
 
 """#"
 
-import codecs,aliases
+import codecs,aliases,exceptions
 
 _cache = {}
 _unknown = '--unknown--'
+
+class CodecRegistryError(exceptions.LookupError,
+                         exceptions.SystemError):
+    pass
 
 def search_function(encoding):
     
@@ -49,21 +53,28 @@ def search_function(encoding):
         # cache misses
         _cache[encoding] = None
         return None
+
+    try:
+        getregentry = mod.getregentry
+    except AttributeError:
+        # Not a codec module
+        _cache[encoding] = None
+        return None
     
     # Now ask the module for the registry entry
     try:
-        entry = tuple(mod.getregentry())
+        entry = tuple(getregentry())
     except AttributeError:
         entry = ()
     if len(entry) != 4:
-        raise SystemError,\
-              'module "%s.%s" failed to register' % \
-              (__name__,modname)
+        raise CodecRegistryError,\
+              'module "%s" (%s) failed to register' % \
+              (mod.__name__, mod.__file__)
     for obj in entry:
         if not callable(obj):
-            raise SystemError,\
-                  'incompatible codecs in module "%s.%s"' % \
-                  (__name__,modname)
+            raise CodecRegistryError,\
+                  'incompatible codecs in module "%s" (%s)' % \
+                  (mod.__name__, mod.__file__)
 
     # Cache the codec registry entry
     _cache[encoding] = entry

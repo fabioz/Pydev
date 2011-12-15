@@ -287,6 +287,7 @@ class BaseHTTPRequestHandler(SocketServer.StreamRequestHandler):
         explain = long
         self.log_error("code %d, message %s", code, message)
         self.send_response(code, message)
+        self.send_header("Content-Type", "text/html")
         self.end_headers()
         self.wfile.write(self.error_message_format %
                          {'code': code,
@@ -474,7 +475,8 @@ def test(HandlerClass = BaseHTTPRequestHandler,
 
     httpd = ServerClass(server_address, HandlerClass)
 
-    print "Serving HTTP on port", port, "..."
+    sa = httpd.socket.getsockname()
+    print "Serving HTTP on", sa[0], "port", sa[1], "..."
     httpd.serve_forever()
 
 

@@ -88,6 +88,11 @@ public class LocalScope implements ILocalScope {
         return checkIfScopesMatch(s);
     }
     
+    public int hashCode() {
+        assert false : "hashCode not designed";
+        return 42; // any arbitrary constant will do
+    }
+    
     /** 
      * @see org.python.pydev.core.ILocalScope#isOuterOrSameScope(org.python.pydev.editor.codecompletion.revisited.visitors.LocalScope)
      */

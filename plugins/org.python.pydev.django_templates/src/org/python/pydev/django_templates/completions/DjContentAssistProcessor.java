@@ -298,4 +298,12 @@ public class DjContentAssistProcessor implements IContentAssistProcessor, ICommo
 	{
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see com.aptana.editor.common.contentassist.ICommonContentAssistProcessor#getActiveUserAgentIds()
+	 */
+	public String[] getActiveUserAgentIds() {
+		return new String[0];
+	}
+
 }

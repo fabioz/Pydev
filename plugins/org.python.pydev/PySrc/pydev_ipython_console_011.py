@@ -60,7 +60,7 @@ class PyDevFrontEnd:
         
         
     def complete(self, string):
-        return self.ipython.complete(string)
+        return self.ipython.complete(None, line=string)
     
     
         

@@ -6,7 +6,7 @@ Example:
 
 >>> from ftplib import FTP
 >>> ftp = FTP('ftp.python.org') # connect to host, default port
->>> ftp.login() # default, i.e.: user anonymous, passwd user@hostname
+>>> ftp.login() # default, i.e.: user anonymous, passwd anonymous@
 '230 Guest login ok, access restrictions apply.'
 >>> ftp.retrlines('LIST') # list directory contents
 total 9
@@ -108,14 +108,27 @@ class FTP:
             self.connect(host)
             if user: self.login(user, passwd, acct)
 
-    def connect(self, host='', port=0):
+    def connect(self, host = '', port = 0):
         '''Connect to host.  Arguments are:
         - host: hostname to connect to (string, default previous host)
         - port: port to connect to (integer, default previous port)'''
         if host: self.host = host
         if port: self.port = port
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.connect((self.host, self.port))
+        msg = "getaddrinfo returns an empty list"
+        for res in socket.getaddrinfo(self.host, self.port, 0, socket.SOCK_STREAM):
+            af, socktype, proto, canonname, sa = res
+            try:
+                self.sock = socket.socket(af, socktype, proto)
+                self.sock.connect(sa)
+            except socket.error, msg:
+                if self.sock:
+                    self.sock.close()
+                self.sock = None
+                continue
+            break
+        if not self.sock:
+            raise socket.error, msg
+        self.af = af
         self.file = self.sock.makefile('rb')
         self.welcome = self.getresp()
         return self.welcome
@@ -155,7 +168,7 @@ class FTP:
     def putline(self, line):
         line = line + CRLF
         if self.debugging > 1: print '*put*', self.sanitize(line)
-        self.sock.send(line)
+        self.sock.sendall(line)
 
     # Internal: send one command to the server (through putline())
     def putcmd(self, line):
@@ -218,7 +231,7 @@ class FTP:
         tried.  Instead, just send the ABOR command as OOB data.'''
         line = 'ABOR' + CRLF
         if self.debugging > 1: print '*put urgent*', self.sanitize(line)
-        self.sock.send(line, MSG_OOB)
+        self.sock.sendall(line, MSG_OOB)
         resp = self.getmultiline()
         if resp[:3] not in ('426', '226'):
             raise error_proto, resp
@@ -243,15 +256,51 @@ class FTP:
         cmd = 'PORT ' + ','.join(bytes)
         return self.voidcmd(cmd)
 
+    def sendeprt(self, host, port):
+        '''Send a EPRT command with the current host and the given port number.'''
+        af = 0
+        if self.af == socket.AF_INET:
+            af = 1
+        if self.af == socket.AF_INET6:
+            af = 2
+        if af == 0:
+            raise error_proto, 'unsupported address family'
+        fields = ['', `af`, host, `port`, '']
+        cmd = 'EPRT ' + string.joinfields(fields, '|')
+        return self.voidcmd(cmd)
+
     def makeport(self):
         '''Create a new socket and send a PORT command for it.'''
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.bind(('', 0))
+        msg = "getaddrinfo returns an empty list"
+        sock = None
+        for res in socket.getaddrinfo(None, 0, self.af, socket.SOCK_STREAM, 0, socket.AI_PASSIVE):
+            af, socktype, proto, canonname, sa = res
+            try:
+                sock = socket.socket(af, socktype, proto)
+                sock.bind(sa)
+            except socket.error, msg:
+                if sock:
+                    sock.close()
+                sock = None
+                continue
+            break
+        if not sock:
+            raise socket.error, msg
         sock.listen(1)
-        dummyhost, port = sock.getsockname() # Get proper port
-        host, dummyport = self.sock.getsockname() # Get proper host
-        resp = self.sendport(host, port)
+        port = sock.getsockname()[1] # Get proper port
+        host = self.sock.getsockname()[0] # Get proper host
+        if self.af == socket.AF_INET:
+            resp = self.sendport(host, port)
+        else:
+            resp = self.sendeprt(host, port)
         return sock
+
+    def makepasv(self):
+        if self.af == socket.AF_INET:
+            host, port = parse227(self.sendcmd('PASV'))
+        else:
+            host, port = parse229(self.sendcmd('EPSV'), self.sock.getpeername())
+        return host, port
 
     def ntransfercmd(self, cmd, rest=None):
         """Initiate a transfer over the data connection.
@@ -270,9 +319,10 @@ class FTP:
         """
         size = None
         if self.passiveserver:
-            host, port = parse227(self.sendcmd('PASV'))
-            conn=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            conn.connect((host, port))
+            host, port = self.makepasv()
+            af, socktype, proto, canon, sa = socket.getaddrinfo(host, port, 0, socket.SOCK_STREAM)[0]
+            conn = socket.socket(af, socktype, proto)
+            conn.connect(sa)
             if rest is not None:
                 self.sendcmd("REST %s" % rest)
             resp = self.sendcmd(cmd)
@@ -292,7 +342,7 @@ class FTP:
         return conn, size
 
     def transfercmd(self, cmd, rest=None):
-        """Like nstransfercmd() but returns only the socket."""
+        """Like ntransfercmd() but returns only the socket."""
         return self.ntransfercmd(cmd, rest)[0]
 
     def login(self, user = '', passwd = '', acct = ''):
@@ -301,19 +351,14 @@ class FTP:
         if not passwd: passwd = ''
         if not acct: acct = ''
         if user == 'anonymous' and passwd in ('', '-'):
-            # get fully qualified domain name of local host
-            thishost = socket.getfqdn()
-            try:
-                if os.environ.has_key('LOGNAME'):
-                    realuser = os.environ['LOGNAME']
-                elif os.environ.has_key('USER'):
-                    realuser = os.environ['USER']
-                else:
-                    realuser = 'anonymous'
-            except AttributeError:
-                # Not all systems have os.environ....
-                realuser = 'anonymous'
-            passwd = passwd + realuser + '@' + thishost
+	    # If there is no anonymous ftp password specified
+	    # then we'll just use anonymous@
+	    # We don't send any other thing because:
+	    # - We want to remain anonymous
+	    # - We want to stop SPAM
+	    # - We don't want to let ftp sites to discriminate by the user,
+	    #   host or country.
+            passwd = passwd + 'anonymous@'
         resp = self.sendcmd('USER ' + user)
         if resp[0] == '3': resp = self.sendcmd('PASS ' + passwd)
         if resp[0] == '3': resp = self.sendcmd('ACCT ' + acct)
@@ -372,7 +417,7 @@ class FTP:
         while 1:
             buf = fp.read(blocksize)
             if not buf: break
-            conn.send(buf)
+            conn.sendall(buf)
         conn.close()
         return self.voidresp()
 
@@ -386,7 +431,7 @@ class FTP:
             if buf[-2:] != CRLF:
                 if buf[-1] in CRLF: buf = buf[:-1]
                 buf = buf + CRLF
-            conn.send(buf)
+            conn.sendall(buf)
         conn.close()
         return self.voidresp()
 
@@ -442,8 +487,8 @@ class FTP:
             try:
                 return self.voidcmd('CDUP')
             except error_perm, msg:
-                if msg[:3] != '500':
-                    raise error_perm, msg
+                if msg.args[0][:3] != '500':
+                    raise
         elif dirname == '':
             dirname = '.'  # does nothing, but could return error
         cmd = 'CWD ' + dirname
@@ -454,7 +499,11 @@ class FTP:
         # Note that the RFC doesn't say anything about 'SIZE'
         resp = self.sendcmd('SIZE ' + filename)
         if resp[:3] == '213':
-            return int(resp[3:].strip())
+            s = resp[3:].strip()
+            try:
+                return int(s)
+            except (OverflowError, ValueError):
+                return long(s)
 
     def mkd(self, dirname):
         '''Make a directory, return its full pathname.'''
@@ -498,10 +547,16 @@ def parse150(resp):
         import re
         _150_re = re.compile("150 .* \((\d+) bytes\)", re.IGNORECASE)
     m = _150_re.match(resp)
-    if m:
-        return int(m.group(1))
-    return None
+    if not m:
+        return None
+    s = m.group(1)
+    try:
+        return int(s)
+    except (OverflowError, ValueError):
+        return long(s)
 
+
+_227_re = None
 
 def parse227(resp):
     '''Parse the '227' response for a PASV request.
@@ -510,16 +565,38 @@ def parse227(resp):
 
     if resp[:3] != '227':
         raise error_reply, resp
-    left = resp.find('(')
-    if left < 0: raise error_proto, resp
-    right = resp.find(')', left + 1)
-    if right < 0:
-        raise error_proto, resp # should contain '(h1,h2,h3,h4,p1,p2)'
-    numbers = resp[left+1:right].split(',')
-    if len(numbers) != 6:
+    global _227_re
+    if _227_re is None:
+        import re
+        _227_re = re.compile(r'(\d+),(\d+),(\d+),(\d+),(\d+),(\d+)')
+    m = _227_re.search(resp)
+    if not m:
         raise error_proto, resp
+    numbers = m.groups()
     host = '.'.join(numbers[:4])
     port = (int(numbers[4]) << 8) + int(numbers[5])
+    return host, port
+
+
+def parse229(resp, peer):
+    '''Parse the '229' response for a EPSV request.
+    Raises error_proto if it does not contain '(|||port|)'
+    Return ('host.addr.as.numbers', port#) tuple.'''
+
+    if resp[:3] <> '229':
+        raise error_reply, resp
+    left = string.find(resp, '(')
+    if left < 0: raise error_proto, resp
+    right = string.find(resp, ')', left + 1)
+    if right < 0:
+        raise error_proto, resp # should contain '(|||port|)'
+    if resp[left + 1] <> resp[right - 1]:
+        raise error_proto, resp
+    parts = string.split(resp[left + 1:right], resp[left+1])
+    if len(parts) <> 5:
+        raise error_proto, resp
+    host = peer[0]
+    port = string.atoi(parts[3])
     return host, port
 
 
