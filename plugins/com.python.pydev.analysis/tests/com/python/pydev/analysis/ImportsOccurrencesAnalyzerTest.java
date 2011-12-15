@@ -123,7 +123,7 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testQtInit() throws Exception {
-        if(TestDependent.HAS_QT_INSTALLED){
+        if(TestDependent.PYTHON_QT_PACKAGES != null){
             doc = new Document(
                     "import qt\n"+
                     "print qt.QWidget.__init__\n"+
@@ -296,7 +296,7 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
     
     public void testQt() throws Exception {
-        if(TestDependent.HAS_QT_INSTALLED){
+        if(TestDependent.PYTHON_QT_PACKAGES != null){
             doc = new Document(
                     "import qt\n"+ 
                     "print qt.Qt.red\n" +   

@@ -176,6 +176,19 @@ public class REF {
             try { if(stream != null) stream.close(); } catch (Exception e) {Log.log(e);}
         }
     }
+    
+    /**
+     * Gets the contents from the stream and closes it!
+     */
+    public static String getStreamContents(InputStream stream, String encoding, IProgressMonitor monitor){
+        try {
+            return (String) getStreamContents(stream, encoding, monitor, String.class);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }finally{
+            try { if(stream != null) stream.close(); } catch (Exception e) {Log.log(e);}
+        }
+    }
 
     /**
      * Get the contents from a given stream.

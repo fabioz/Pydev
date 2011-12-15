@@ -377,15 +377,6 @@ public class PyParserTest extends PyParserTestBase{
         });
     }
     
-    public void testOnNumarray() throws Throwable {
-        if(TestDependent.HAS_NUMARRAY_INSTALLED){
-            
-            File file = new File(TestDependent.PYTHON_NUMARRAY_PACKAGES);
-            parseFilesInDir(file);
-            file = new File(TestDependent.PYTHON_NUMARRAY_PACKAGES+"linear_algebra/");
-            parseFilesInDir(file);
-        }
-    }
     
     public void testOnWxPython() throws Throwable {
         if(TestDependent.PYTHON_WXPYTHON_PACKAGES != null){
