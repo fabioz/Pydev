@@ -111,6 +111,29 @@ First time users are strongly advised to read the `Getting started guide`_  whic
 
 
 
+Release 2.3.0
+===============
+
+* **Pep8.py** integrated.
+
+* **Faster PyDev startup** (internal Jython upgraded to version 2.2.1 -- and also optimized for PyDev).
+
+* Action to select/deselect scope (**Shift+Alt+Up/Down**).
+
+* Fix: cache issue where the PYTHONPATH in memory became different from the PYTHONPATH configured for a project.
+
+* Fix: OutOfMemoryError when dealing with PyOpenGL.
+
+* Fix: deadlock (could occur in a race condition when importing a project with an existing Python configuration).
+
+* Fix: code-completion integration issue with IPython 011 (patch from jonahkichwacoders).
+
+* Fix: annotation could remain in editor after removing a marker.
+
+* Fix: BadLocationException on extract local refactoring.
+
+
+
 Release 2.2.4
 ===============
 
