@@ -32,7 +32,7 @@ import java.util.SortedSet;
  * @param <K>
  * @param <V>
  */
-public class ModulesKeyTreeMap<K,V>
+public final class ModulesKeyTreeMap<K,V>
     extends AbstractMap<K,V>
     implements SortedMap<K,V>, Cloneable, java.io.Serializable
 {
@@ -1487,7 +1487,7 @@ public class ModulesKeyTreeMap<K,V>
      * @throws ClassNotFoundException propagated from readObject.
      *         This cannot occur if str is null.
      */
-    private
+    /*default changed in PyDev!!*/
     void buildFromSorted(int size, Iterator it,
              java.io.ObjectInputStream str,
              V defaultVal)

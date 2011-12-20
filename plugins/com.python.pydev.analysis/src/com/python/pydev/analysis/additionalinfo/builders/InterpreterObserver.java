@@ -15,6 +15,8 @@ import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.concurrency.IRunnableWithMonitor;
+import org.python.pydev.core.concurrency.RunnableAsJobsPoolThread;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
@@ -206,19 +208,32 @@ public class InterpreterObserver implements IInterpreterObserver {
     }
 
     public void notifyNatureRecreated(final PythonNature nature, IProgressMonitor monitor) {
-        boolean loadAdditionalInfoForProject;
-		try {
-			loadAdditionalInfoForProject = AdditionalProjectInterpreterInfo.loadAdditionalInfoForProject(nature);
-		} catch (MisconfigurationException e) {
-		    Log.log(e);
-			loadAdditionalInfoForProject = false;
-		}
-		if(!loadAdditionalInfoForProject){
-            if(DEBUG_INTERPRETER_OBSERVER){
-                System.out.println("Unable to load the info correctly... restoring info from the pythonpath");
+        IRunnableWithMonitor r = new IRunnableWithMonitor() {
+            
+            
+            private IProgressMonitor monitor;
+
+            public void setMonitor(IProgressMonitor monitor){
+                this.monitor = monitor;
             }
-            notifyProjectPythonpathRestored(nature, monitor);
-        }
+            
+            public void run() {
+                boolean loadAdditionalInfoForProject;
+                try {
+                    loadAdditionalInfoForProject = AdditionalProjectInterpreterInfo.loadAdditionalInfoForProject(nature);
+                } catch (MisconfigurationException e) {
+                    Log.log(e);
+                    loadAdditionalInfoForProject = false;
+                }
+                if(!loadAdditionalInfoForProject){
+                    if(DEBUG_INTERPRETER_OBSERVER){
+                        System.out.println("Unable to load the info correctly... restoring info from the pythonpath");
+                    }
+                    notifyProjectPythonpathRestored(nature, monitor);
+                }
+            }
+        };
+        RunnableAsJobsPoolThread.getSingleton().scheduleToRun(r, "Load info for: "+nature.getProject());
     }
 
 }

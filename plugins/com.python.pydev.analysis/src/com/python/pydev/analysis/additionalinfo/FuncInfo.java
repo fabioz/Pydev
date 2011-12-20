@@ -10,7 +10,7 @@
 package com.python.pydev.analysis.additionalinfo;
 
 
-public class FuncInfo extends AbstractInfo{
+public final class FuncInfo extends AbstractInfo{
     
     /**
      * Changed for 2.1
