@@ -19,6 +19,8 @@ other way to get the changes applied is restarting eclipse).
 The concept is the same as the default scripting engine in pydev. The only difference is that it'll
 only get files starting with 'pytemplate', so, it's also worth checking 
 http://pydev.org/manual_articles_scripting.html
+
+context passed as parameter: org.python.pydev.editor.codecompletion.templates.PyDocumentTemplateContext
 '''
 
 import template_helper
@@ -202,7 +204,7 @@ def _GetPreviousOrNextClassOrMethod(context, searchForward):
     selection = _CreateSelection(context)
     startLine = selection.getStartLineIndex()
     
-    found = FastParser.firstClassOrFunction(doc, startLine, searchForward)
+    found = FastParser.firstClassOrFunction(doc, startLine, searchForward, context.isCythonFile())
     if found:
         return NodeUtils.getRepresentationString(found)
     return ''
