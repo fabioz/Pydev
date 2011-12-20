@@ -78,8 +78,8 @@ public final class StringUtils {
                     i++;
                     next = string.substring(start, i);
                     return true;
-                }
-                if (c == '\n') {
+                    
+                }else if (c == '\n') {
                     i++;
                     next = string.substring(start, i);
                     return  true;

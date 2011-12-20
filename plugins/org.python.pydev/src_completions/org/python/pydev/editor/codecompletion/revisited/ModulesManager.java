@@ -156,12 +156,6 @@ public abstract class ModulesManager implements IModulesManager {
     protected static final ModulesManagerCache cache = new ModulesManagerCache();
 
     /**
-     * This is the set of files that was found just right after unpickle (it should not be changed after that,
-     * and serves only as a reference cache).
-     */
-    protected final Set<File> files = new HashSet<File>();
-
-    /**
      * Helper for using the pythonpath. Also persisted.
      */
     protected final PythonPathHelper pythonPathHelper = new PythonPathHelper();
@@ -287,36 +281,7 @@ public abstract class ModulesManager implements IModulesManager {
             }
         }
         
-        for(String line:StringUtils.iterLines(fileContents)){
-            line = line.trim();
-            List<String> split = StringUtils.split(line, '|');
-            ModulesKey key = null;
-            if(split.size() == 1){
-                key = new ModulesKey(split.get(0), null);
-                
-            }else if(split.size() == 2){
-                key = new ModulesKey(split.get(0), new File(split.get(1)));
-                
-            }else if(split.size() == 4){
-                try {
-                    key = new ModulesKeyForZip(
-                            split.get(0), 
-                            new File(intToString.get(Integer.parseInt(split.get(1)))), 
-                            split.get(2), 
-                            split.get(3).equals("1"));
-                } catch (NumberFormatException e) {
-                    Log.log(e);
-                }
-                
-            }
-            if(key != null){
-                //restore with empty modules.
-                modulesManager.modulesKeys.put(key, key);
-                if (key.file != null) {
-                    modulesManager.files.add(key.file);
-                }
-            }
-        }
+        handleFileContents(modulesManager, fileContents, intToString);
         
         if(modulesManager.pythonPathHelper == null){
             throw new IOException("Pythonpath helper not properly restored. "+modulesManager.getClass().getName()+" dir:"+workspaceMetadataFile);
@@ -338,6 +303,149 @@ public abstract class ModulesManager implements IModulesManager {
             throw new IOException("Only "+modulesManager.modulesKeys.size()+" modules restored in I/O. "+modulesManager.getClass().getName()+" dir:"+workspaceMetadataFile);
         }
         
+    }
+
+    
+    /**
+     * This method was simply: 
+     * 
+     *  for(String line:StringUtils.iterLines(fileContents)){
+     *      line = line.trim();
+     *      List<String> split = StringUtils.split(line, '|');
+     *      handleLineParts(modulesManager, intToString, split);
+     *  }
+     *  
+     *  and was changed to be faster (as this was one of the slow things in startup).
+     */
+    /*default*/ @SuppressWarnings("rawtypes")
+    static void handleFileContents(ModulesManager modulesManager, String fileContents, HashMap<Integer, String> intToString) {
+        String string = fileContents;
+        int len = string.length();
+
+        final ArrayList<ModulesKey> lst = new ArrayList<ModulesKey>();
+        
+        char c;
+        int start = 0;
+        int i = 0;
+        
+        String [] parts = new String[4];
+        int partsFound = 0;
+
+        for (; i < len; i++) {
+            c = string.charAt(i);
+
+            if (c == '\r') {
+                String trimmed = string.substring(start, i).trim();
+                if(trimmed.length() > 0){
+                    parts [partsFound] = trimmed;
+                    partsFound++;
+                }
+                handleLineParts(modulesManager, intToString, parts, partsFound, lst);
+                partsFound = 0;
+                
+                if (i < len - 1 && string.charAt(i+1) == '\n') {
+                    i++;
+                }
+                start = i+1;
+                
+            }else if (c == '\n') {
+                String trimmed = string.substring(start, i).trim();
+                if(trimmed.length() > 0){
+                    parts [partsFound] = trimmed;
+                    partsFound++;
+                }
+                handleLineParts(modulesManager, intToString, parts, partsFound, lst);
+                partsFound = 0;
+                
+                start = i+1;
+                
+            }else if(c == '|'){
+                String trimmed = string.substring(start, i).trim();
+                if(trimmed.length() > 0){
+                    parts [partsFound] = trimmed;
+                    partsFound++;
+                }
+                start = i+1;
+            }
+        }
+        
+        if (start < len && start != i) {
+            String trimmed = string.substring(start, i).trim();
+            if(trimmed.length() > 0){
+                parts [partsFound] = trimmed;
+                partsFound++;
+            }
+            handleLineParts(modulesManager, intToString, parts, partsFound, lst);
+        }
+        
+        try {
+            final int size = lst.size();
+            //As we saved in sorted order, we can build in sorted order too (which is MUCH faster than adding items one
+            //by one).
+            modulesManager.modulesKeys.buildFromSorted(size, new Iterator() {
+
+                private int i = 0;
+                
+                public boolean hasNext() {
+                    return i < size;
+                }
+
+                public Object next() {
+                    final ModulesKey next = lst.get(i);
+                    i++;
+                    return new Map.Entry() {
+
+                        public Object getKey() {
+                            return next;
+                        }
+
+                        public Object getValue() {
+                            return next;
+                        }
+
+                        public Object setValue(Object value) {
+                            throw new UnsupportedOperationException();
+                        }
+                    };
+                }
+
+                public void remove() {
+                    throw new UnsupportedOperationException();
+                }
+            }, null, null);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    
+    private static void handleLineParts(ModulesManager modulesManager, HashMap<Integer, String> intToString, String[] split, int size, ArrayList<ModulesKey> lst) {
+        if(size > 0 && split[0].length() > 0){ //Just making sure we have something there.
+            ModulesKey key;
+            if(size == 1){
+                key = new ModulesKey(split[0], null);
+                //restore with empty modules.
+                lst.add(key);
+                
+            }else if(size == 2){
+                key = new ModulesKey(split[0], new File(split[1]));
+                //restore with empty modules.
+                lst.add(key);
+                
+            }else if(size == 4){
+                try {
+                    key = new ModulesKeyForZip(
+                            split[0], //module name
+                            new File(intToString.get(Integer.parseInt(split[1]))), //zip file (usually repeated over and over again) 
+                            split[2], //path in zip
+                            split[3].equals("1")); //is file (false = folder)
+                    //restore with empty modules.
+                    lst.add(key);
+                } catch (NumberFormatException e) {
+                    Log.log(e);
+                }
+            }
+        }
     }
 
 

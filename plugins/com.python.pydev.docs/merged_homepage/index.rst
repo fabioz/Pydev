@@ -114,7 +114,7 @@ First time users are strongly advised to read the `Getting started guide`_  whic
 Release 2.3.0
 ===============
 
-* **Pep8.py** integrated.
+* **Pep8.py** integrated (must be enabled in PyDev > Editor > Code Analysis > pep8.py).
 
 * **Faster PyDev startup** (internal Jython upgraded to version 2.2.1 -- and also optimized for PyDev).
 

@@ -11,7 +11,7 @@ package com.python.pydev.analysis.additionalinfo;
 
 
 
-public class ClassInfo extends AbstractInfo{
+public final class ClassInfo extends AbstractInfo{
 
     /**
      * Changed for 2.1

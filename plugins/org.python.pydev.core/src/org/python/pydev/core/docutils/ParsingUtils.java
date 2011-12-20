@@ -607,19 +607,20 @@ public abstract class ParsingUtils implements IPythonPartitions{
      */
     public static void removeCommentsWhitespacesAndLiterals(FastStringBuffer buf, boolean whitespacesToo, boolean throwSyntaxError) throws SyntaxErrorException {
         ParsingUtils parsingUtils = create(buf, throwSyntaxError);
-        for (int i = 0; i < buf.length(); i++) {
+        for (int i = 0; i < buf.length(); i++) { //The length can'n be extracted at this point as the buffer may change its size.
             char ch = buf.charAt(i);
             if(ch == '#'){
                 
                 int j = i;
-                while(j < buf.length() && ch != '\n' && ch != '\r'){
+                int len = buf.length();
+                while(j < len && ch != '\n' && ch != '\r'){
                     ch = buf.charAt(j);
                     j++;
                 }
                 buf.delete(i, j);
-            }
-            
-            if(ch == '\'' || ch == '"'){
+                i--;
+                
+            }else if(ch == '\'' || ch == '"'){
                 int j = parsingUtils.getLiteralEnd(i, ch);
                 if(whitespacesToo){
                       buf.delete(i, j+1);
@@ -632,13 +633,7 @@ public abstract class ParsingUtils implements IPythonPartitions{
         }
         
         if(whitespacesToo){
-            int length = buf.length();
-            for (int i = length -1; i >= 0; i--) {
-                char ch = buf.charAt(i);
-                if(Character.isWhitespace(ch)){
-                    buf.deleteCharAt(i);
-                }
-            }
+            buf.removeWhitespaces();
         }
     }
     

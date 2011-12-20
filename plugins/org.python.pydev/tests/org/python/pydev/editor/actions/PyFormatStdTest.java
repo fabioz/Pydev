@@ -14,6 +14,9 @@ package org.python.pydev.editor.actions;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.Region;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
@@ -32,7 +35,7 @@ public class PyFormatStdTest extends TestCase {
             PyFormatStdTest n = new PyFormatStdTest();
             n.setUp();
             DEBUG = true;
-            n.testOperator6();
+            n.testFormatSelection();
             n.tearDown();
             
             junit.textui.TestRunner.run(PyFormatStdTest.class);
@@ -780,6 +783,53 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults(s, s1);
     }
     
+    public void testFormatSelection(){
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = false;
+        std.operatorsWithSpace = true;
+        std.addNewLineAtEndOfFile = true;
+        std.trimLines = true;
+        
+        final PyFormatStd pyFormatStd = new PyFormatStd();
+        String s = "" +
+        		"a  =  10  \n" +
+        		"a  =  10  " +
+        		"";
+        String expected = "" +
+                "a = 10\n" +
+                "a  =  10  \n" +
+                "";
+        Document doc = new Document(s);
+        
+        IRegion[] regionsForSave = new IRegion[]{new Region(0, 10)};
+        pyFormatStd.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
+        assertEquals(expected, doc.get());
+    }
+    
+    public void testFormatSelection2(){
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = false;
+        std.operatorsWithSpace = true;
+        std.addNewLineAtEndOfFile = true;
+        std.trimLines = true;
+        
+        final PyFormatStd pyFormatStd = new PyFormatStd();
+        String s = "" +
+        "a,b,c\n" +
+        "a  =  10  " +
+        "";
+        String expected = "" +
+        "a, b, c\n" +
+        "a  =  10  \n" +
+        "";
+        Document doc = new Document(s);
+        
+        IRegion[] regionsForSave = new IRegion[]{new Region(0, 5)};
+        pyFormatStd.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
+        assertEquals(expected, doc.get());
+    }
+    
+    
     public void testTrimAndNewLineEOL3(){
         std.spaceAfterComma = true;
         std.parametersWithSpace = false;
@@ -798,8 +848,8 @@ public class PyFormatStdTest extends TestCase {
         
         checkFormatResults("c = 30\n", "c = 30\n");
         checkFormatResults("c = 30", "c = 30\n");
-        checkFormatResults("", "\n");
-        checkFormatResults("  \t  ", "\n");
+        checkFormatResults("", "");
+        checkFormatResults("  \t  ", "");
     }
     
     
@@ -888,32 +938,44 @@ public class PyFormatStdTest extends TestCase {
         //default check (defined with \n)
         try{
             final PyFormatStd pyFormatStd = new PyFormatStd();
-            String formatStr = pyFormatStd.formatStr(s, std, "\n", false);
+            Document doc = new Document(s);
+            pyFormatStd.formatAll(doc, null, true, std, false);
+            String formatStr = doc.get();
             
             if(DEBUG){
                 System.out.println(">>"+s.replace(' ', '.')+"<<");
                 System.out.println(">>"+formatStr.replace(' ', '.')+"<<");
             }
+            if(!s.contains("\n")){
+                expected = StringUtils.replaceAll(expected, "\n", PySelection.getDelimiter(new Document()));
+            }
             assertEquals(expected, formatStr);
+            if(!s.contains("\n")){
+                return;
+            }
             
             //second check (defined with \r)
             s = s.replace('\n', '\r');
             expected = expected.replace('\n', '\r');
             
-            formatStr = pyFormatStd.formatStr(s, std, "\r", false);
+            doc = new Document(s);
+            pyFormatStd.formatAll(doc, null, true, std, false);
+            formatStr = doc.get();
             assertEquals(expected, formatStr);
             
             //third check (defined with \r\n)
             s = StringUtils.replaceAll(s, "\r", "\r\n");
             expected = StringUtils.replaceAll(expected, "\r", "\r\n");
             
-            formatStr = pyFormatStd.formatStr(s, std, "\r\n", false);
+            doc = new Document(s);
+            pyFormatStd.formatAll(doc, null, true, std, false);
+            formatStr = doc.get();
             assertEquals(expected, formatStr);
             
             
             
             //now, same thing with different API
-            Document doc = new Document();
+            doc = new Document();
             doc.set(s);
             pyFormatStd.formatAll(doc, null, true, std, false);
             assertEquals(expected, doc.get());
@@ -1082,7 +1144,7 @@ public class PyFormatStdTest extends TestCase {
         "";
         final PyFormatStd pyFormatStd = new PyFormatStd();
         try {
-            pyFormatStd.formatStr(s, std, "\n", true);
+            pyFormatStd.formatAll(new Document(s), null, false, std, true);
             fail("Expecting exception!");
         } catch (Exception e) {
         }
@@ -1096,6 +1158,6 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults(s, expected);
 
     }
-    
+
 
 }

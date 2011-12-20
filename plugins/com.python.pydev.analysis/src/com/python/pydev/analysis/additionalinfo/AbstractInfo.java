@@ -77,11 +77,11 @@ public abstract class AbstractInfo implements IInfo, Serializable{
             return false;
         }
 
-        if(!otherInfo.getDeclaringModuleName().equals(getDeclaringModuleName())){
+        if(!otherInfo.getDeclaringModuleName().equals(this.moduleDeclared)){
             return false;
         }
         
-        if(!otherInfo.getName().equals(getName())){
+        if(!otherInfo.getName().equals(this.name)){
             return false;
         }
         
@@ -105,11 +105,11 @@ public abstract class AbstractInfo implements IInfo, Serializable{
     
     @Override
     public int hashCode() {
-        return 7* getName().hashCode() + getDeclaringModuleName().hashCode() * getType();
+        return 7* this.name.hashCode() + this.moduleDeclared.hashCode() * getType();
     }
     
     @Override
     public String toString() {
-        return getName()+ " ("+getDeclaringModuleName()+") - Path:"+getPath();
+        return this.name+ " ("+this.moduleDeclared+") - Path:"+getPath();
     }
 }

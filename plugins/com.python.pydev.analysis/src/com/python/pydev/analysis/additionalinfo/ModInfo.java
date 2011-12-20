@@ -12,7 +12,7 @@ import org.python.pydev.core.FullRepIterable;
  * @author fabioz
  *
  */
-public class ModInfo extends AbstractInfo{
+public final class ModInfo extends AbstractInfo{
 
     private static final long serialVersionUID = 1L;
 
