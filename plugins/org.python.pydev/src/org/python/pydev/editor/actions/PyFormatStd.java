@@ -149,8 +149,8 @@ public class PyFormatStd extends PyAction implements IFormatter {
             if(std.addNewLineAtEndOfFile){
                 try {
                     int len = doc.getLength();
-                    char lastChar = doc.getChar(len-1);
                     if(len > 0){
+                        char lastChar = doc.getChar(len-1);
                         if(lastChar != '\r' && lastChar != '\n'){
                             doc.replace(len, 0, PySelection.getDelimiter(doc));
                         }
