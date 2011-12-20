@@ -585,6 +585,23 @@ public final class FastStringBuffer{
         return lastWordBuf.toString();
     }
 
+    
+    public void removeWhitespaces() {
+        int length = this.count;
+        char[] newVal = new char[length];
+        
+        int j=0;
+        for (int i = 0; i < length; i++) {
+            char ch = this.value[i];
+            if(!Character.isWhitespace(ch)){
+                newVal[j] = ch;
+                j++;
+            }
+        }
+        this.count = j;
+        this.value = newVal;
+    }
+
 
     
 }

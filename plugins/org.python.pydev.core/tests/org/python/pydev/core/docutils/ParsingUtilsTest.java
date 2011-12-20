@@ -22,7 +22,7 @@ public class ParsingUtilsTest extends TestCase {
         try {
             ParsingUtilsTest test = new ParsingUtilsTest();
             test.setUp();
-            test.testEatLiteralBackwards();
+            test.testRemoveCommentsWhitespacesAndLiterals();
             test.tearDown();
             junit.textui.TestRunner.run(ParsingUtilsTest.class);
         } catch (Throwable e) {
@@ -553,5 +553,22 @@ public class ParsingUtilsTest extends TestCase {
         parsingUtils = ParsingUtils.create(str, true);
         parsingUtils.eatLiteralsBackwards(buf.clear(), str.length()-1);
         assertEquals("'  \\'  \\'ue'", buf.toString());
+    }
+    
+    public void testRemoveCommentsWhitespacesAndLiterals() throws Exception {
+        FastStringBuffer buf = new FastStringBuffer();
+        buf.append("#c\n#f\n#c\n");
+        ParsingUtils.removeCommentsWhitespacesAndLiterals(buf, false, false);
+        assertEquals(buf.toString(), "");
+        
+        buf = new FastStringBuffer();
+        buf.append("#\n#\n#\n");
+        ParsingUtils.removeCommentsWhitespacesAndLiterals(buf, false, false);
+        assertEquals(buf.toString(), "");
+        
+        buf = new FastStringBuffer();
+        buf.append("#\n#f\n#\n");
+        ParsingUtils.removeCommentsWhitespacesAndLiterals(buf, false, false);
+        assertEquals(buf.toString(), "");
     }
 }
