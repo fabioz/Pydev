@@ -16,7 +16,6 @@ import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.concurrency.IRunnableWithMonitor;
-import org.python.pydev.core.concurrency.RunnableAsJobsPoolThread;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
@@ -233,7 +232,9 @@ public class InterpreterObserver implements IInterpreterObserver {
                 }
             }
         };
-        RunnableAsJobsPoolThread.getSingleton().scheduleToRun(r, "Load info for: "+nature.getProject());
+        r.setMonitor(monitor);
+        r.run();
+        //RunnableAsJobsPoolThread.getSingleton().scheduleToRun(r, "Load info for: "+nature.getProject());
     }
 
 }
