@@ -602,6 +602,10 @@ public final class FastStringBuffer{
         this.value = newVal;
     }
 
+    public char[] getInternalCharsArray() {
+        return this.value;
+    }
+
 
     
 }
