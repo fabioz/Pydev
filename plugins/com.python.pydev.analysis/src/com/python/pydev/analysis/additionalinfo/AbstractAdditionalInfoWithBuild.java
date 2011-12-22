@@ -9,14 +9,24 @@ package com.python.pydev.analysis.additionalinfo;
 import java.io.File;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.DeltaSaver;
 import org.python.pydev.core.IDeltaProcessor;
+import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
+import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.parser.ErrorDescription;
+import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * @author fabioz
@@ -200,5 +210,68 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
         }
     }
     
+
+    /**
+     * Restores the info for a module manager
+     * 
+     * @param monitor a monitor to keep track of the progress
+     * @param m the module manager
+     * @param nature the associated nature (may be null if there is no associated nature -- as is the case when
+     * restoring system info).
+     * 
+     * @return the info generated from the module manager
+     */
+    public static AbstractAdditionalTokensInfo restoreInfoForModuleManager(IProgressMonitor monitor, IModulesManager m, String additionalFeedback, 
+            AbstractAdditionalTokensInfo info, PythonNature nature, int grammarVersion) {
+        if(monitor == null){
+            monitor = new NullProgressMonitor();
+        }
+        //TODO: Check if keeping a zip file open makes things faster...
+        //Timer timer = new Timer();
+        ModulesKey[] allModules = m.getOnlyDirectModules();
+        int i = 0;
+        
+        FastStringBuffer msgBuffer = new FastStringBuffer();
+
+        for (ModulesKey key : allModules) {
+            if(monitor.isCanceled()){
+                return null;
+            }
+            i++;
+
+            if (PythonPathHelper.canAddAstInfoFor(key)) { //otherwise it should be treated as a compiled module (no ast generation)
+
+                if(i % 17 == 0){
+                    msgBuffer.clear();
+                    msgBuffer.append("Creating ");
+                    msgBuffer.append(additionalFeedback);
+                    msgBuffer.append(" additional info (" );
+                    msgBuffer.append(i );
+                    msgBuffer.append(" of " );
+                    msgBuffer.append(allModules.length );
+                    msgBuffer.append(") for " );
+                    msgBuffer.append(key.file.getName());
+                    monitor.setTaskName(msgBuffer.toString());
+                    monitor.worked(1);
+                }
+
+                try {
+                    if (info.addAstInfo(key, false) == null) {
+                        String str = "Unable to generate ast -- using %s.\nError:%s";
+                        ErrorDescription errorDesc = null;
+                        throw new RuntimeException(StringUtils.format(str, 
+                                PyParser.getGrammarVersionStr(grammarVersion),
+                                (errorDesc!=null && errorDesc.message!=null)?
+                                        errorDesc.message:"unable to determine"));
+                    }
+
+                } catch (Throwable e) {
+                    Log.log(IStatus.ERROR, "Problem parsing the file :" + key.file + ".", e);
+                }
+            }
+        }
+        //timer.printDiff("Time to restore additional info");
+        return info;
+    }
     
 }

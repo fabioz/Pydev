@@ -20,6 +20,8 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
@@ -278,6 +280,48 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
         }
         AdditionalProjectInterpreterInfo additionalProjectInterpreterInfo = (AdditionalProjectInterpreterInfo) obj;
         return this.getProject().equals(additionalProjectInterpreterInfo.getProject());
+    }
+
+    public static void recreateAllInfo(PythonNature nature, IProgressMonitor monitor) {
+        try {
+            //Note: at this point we're 100% certain that the ast manager is there.
+            IModulesManager m = nature.getAstManager().getModulesManager();
+            IProject project = nature.getProject();
+            
+            AbstractAdditionalDependencyInfo currInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
+            if(currInfo != null){
+                currInfo.clearAllInfo();
+            }
+            
+            AdditionalProjectInterpreterInfo newProjectInfo = new AdditionalProjectInterpreterInfo(project);
+            String feedback = "(project:" + project.getName() + ")";
+            synchronized(m){
+                AbstractAdditionalDependencyInfo info = (AbstractAdditionalDependencyInfo) restoreInfoForModuleManager(
+                        monitor, m, feedback, newProjectInfo, nature, nature.getGrammarVersion());
+    
+                if (info != null) {
+                    //ok, set it and save it
+                    AdditionalProjectInterpreterInfo.setAdditionalInfoForProject(project, info);
+                    AdditionalProjectInterpreterInfo.saveAdditionalInfoForProject(nature);
+                }
+            }
+        } catch (Exception e) {
+            Log.log(e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void loadPreviousInfo(PythonNature nature, IProgressMonitor monitor) {
+        boolean loadAdditionalInfoForProject;
+        try {
+            loadAdditionalInfoForProject = AdditionalProjectInterpreterInfo.loadAdditionalInfoForProject(nature);
+        } catch (MisconfigurationException e) {
+            Log.log(e);
+            loadAdditionalInfoForProject = false;
+        }
+        if(!loadAdditionalInfoForProject){
+            recreateAllInfo(nature, monitor);
+        }
     }
     
     

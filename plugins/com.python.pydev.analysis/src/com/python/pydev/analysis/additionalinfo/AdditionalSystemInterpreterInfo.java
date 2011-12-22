@@ -16,11 +16,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 
@@ -158,5 +163,46 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
         }
         AdditionalSystemInterpreterInfo additionalSystemInterpreterInfo = (AdditionalSystemInterpreterInfo) obj;
         return this.additionalInfoInterpreter.equals(additionalSystemInterpreterInfo.additionalInfoInterpreter);
+    }
+
+    public static void recreateAllInfo(IInterpreterManager manager, String interpreter, IProgressMonitor monitor) {
+        try {
+            final IInterpreterInfo interpreterInfo = manager.getInterpreterInfo(interpreter, new NullProgressMonitor());
+            int grammarVersion = interpreterInfo.getGrammarVersion();
+            AbstractAdditionalTokensInfo currInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager, interpreter);
+            if(currInfo != null){
+                currInfo.clearAllInfo();
+            }
+            InterpreterInfo defaultInterpreterInfo = (InterpreterInfo) manager.getInterpreterInfo(interpreter, monitor);
+            ISystemModulesManager m = defaultInterpreterInfo.getModulesManager();
+            AbstractAdditionalTokensInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m, 
+                    "(system: " + manager.getManagerRelatedName() + " - " + interpreter + ")",
+                    new AdditionalSystemInterpreterInfo(manager, interpreter), null, grammarVersion);
+
+            if (additionalSystemInfo != null) {
+                //ok, set it and save it
+                AdditionalSystemInterpreterInfo.setAdditionalSystemInfo(manager, interpreter, additionalSystemInfo);
+                AbstractAdditionalTokensInfo.saveAdditionalSystemInfo(manager, interpreter);
+            }
+        } catch (Throwable e) {
+            Log.log(e);
+        }
+    }
+
+    public static void loadPreviousInfo(IInterpreterManager iManager, String executableOrJar) {
+        boolean loadedAdditionalSystemInfo;
+        try {
+            loadedAdditionalSystemInfo = AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(iManager, executableOrJar);
+        } catch (MisconfigurationException e1) {
+            loadedAdditionalSystemInfo = false;
+        }
+        if (!loadedAdditionalSystemInfo) {
+        
+            try {
+                recreateAllInfo(iManager, executableOrJar, new NullProgressMonitor());
+            } catch (Exception e) {
+                Log.log(e);
+            }
+        }
     }
 }
