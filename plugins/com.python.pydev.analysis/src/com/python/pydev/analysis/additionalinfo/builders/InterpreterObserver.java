@@ -7,15 +7,12 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.concurrency.IRunnableWithMonitor;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
@@ -25,7 +22,6 @@ import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.interpreters.IInterpreterObserver;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
-import org.python.pydev.utils.JobProgressComunicator;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
@@ -37,8 +33,6 @@ public class InterpreterObserver implements IInterpreterObserver {
 
     private static final boolean DEBUG_INTERPRETER_OBSERVER = false;
     
-    private Object lock = new Object();
-    
     /**
      * @see org.python.pydev.ui.interpreters.IInterpreterObserver#notifyDefaultPythonpathRestored(org.python.pydev.ui.interpreters.AbstractInterpreterManager, org.eclipse.core.runtime.IProgressMonitor)
      */
@@ -46,28 +40,26 @@ public class InterpreterObserver implements IInterpreterObserver {
         if(DEBUG_INTERPRETER_OBSERVER){
             System.out.println("notifyDefaultPythonpathRestored "+ interpreter);
         }
-        synchronized(lock){
-	        try {
-	            final IInterpreterInfo interpreterInfo = manager.getInterpreterInfo(interpreter, new NullProgressMonitor());
-	            int grammarVersion = interpreterInfo.getGrammarVersion();
-	            AbstractAdditionalTokensInfo currInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager, interpreter);
-	            if(currInfo != null){
-	                currInfo.clearAllInfo();
-	            }
-	            InterpreterInfo defaultInterpreterInfo = (InterpreterInfo) manager.getInterpreterInfo(interpreter, monitor);
-	            ISystemModulesManager m = defaultInterpreterInfo.getModulesManager();
-	            AbstractAdditionalTokensInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m, 
-	                    "(system: " + manager.getManagerRelatedName() + " - " + interpreter + ")",
-	                    new AdditionalSystemInterpreterInfo(manager, interpreter), null, grammarVersion);
-	
-	            if (additionalSystemInfo != null) {
-	                //ok, set it and save it
-	                AdditionalSystemInterpreterInfo.setAdditionalSystemInfo(manager, interpreter, additionalSystemInfo);
-	                AbstractAdditionalTokensInfo.saveAdditionalSystemInfo(manager, interpreter);
-	            }
-	        } catch (Throwable e) {
-	            Log.log(e);
-	        }
+        try {
+            final IInterpreterInfo interpreterInfo = manager.getInterpreterInfo(interpreter, new NullProgressMonitor());
+            int grammarVersion = interpreterInfo.getGrammarVersion();
+            AbstractAdditionalTokensInfo currInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager, interpreter);
+            if(currInfo != null){
+                currInfo.clearAllInfo();
+            }
+            InterpreterInfo defaultInterpreterInfo = (InterpreterInfo) manager.getInterpreterInfo(interpreter, monitor);
+            ISystemModulesManager m = defaultInterpreterInfo.getModulesManager();
+            AbstractAdditionalTokensInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m, 
+                    "(system: " + manager.getManagerRelatedName() + " - " + interpreter + ")",
+                    new AdditionalSystemInterpreterInfo(manager, interpreter), null, grammarVersion);
+
+            if (additionalSystemInfo != null) {
+                //ok, set it and save it
+                AdditionalSystemInterpreterInfo.setAdditionalSystemInfo(manager, interpreter, additionalSystemInfo);
+                AbstractAdditionalTokensInfo.saveAdditionalSystemInfo(manager, interpreter);
+            }
+        } catch (Throwable e) {
+            Log.log(e);
         }
     }
 
@@ -80,36 +72,20 @@ public class InterpreterObserver implements IInterpreterObserver {
      */
     public void notifyInterpreterManagerRecreated(final IInterpreterManager iManager) {
         for(final IInterpreterInfo interpreterInfo:iManager.getInterpreterInfos()){
-            Job j = new Job("PyDev... Restoring indexes for: "+interpreterInfo.getNameForUI()) {
-
-                @Override
-                protected IStatus run(IProgressMonitor monitorArg) {
-                	synchronized(lock){
-	                    boolean loadedAdditionalSystemInfo;
-	        			try {
-	        				loadedAdditionalSystemInfo = AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(iManager, interpreterInfo.getExecutableOrJar());
-	        			} catch (MisconfigurationException e1) {
-	        				loadedAdditionalSystemInfo = false;
-	        			}
-	        			if (!loadedAdditionalSystemInfo) {
-	                	
-		                    try {
-		                        JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(
-		                        		monitorArg, "PyDev... Restoring indexes for: "+interpreterInfo.getNameForUI(), 
-		                        		IProgressMonitor.UNKNOWN, this);
-		                        notifyDefaultPythonpathRestored(iManager, interpreterInfo.getExecutableOrJar(), jobProgressComunicator);
-		                        jobProgressComunicator.done();
-		                    } catch (Exception e) {
-		                        Log.log(e);
-		                    }
-	        			}
-        			}
-                    return Status.OK_STATUS;
+            boolean loadedAdditionalSystemInfo;
+    		try {
+    			loadedAdditionalSystemInfo = AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(iManager, interpreterInfo.getExecutableOrJar());
+    		} catch (MisconfigurationException e1) {
+    			loadedAdditionalSystemInfo = false;
+    		}
+    		if (!loadedAdditionalSystemInfo) {
+        	
+                try {
+                    notifyDefaultPythonpathRestored(iManager, interpreterInfo.getExecutableOrJar(), new NullProgressMonitor());
+                } catch (Exception e) {
+                    Log.log(e);
                 }
-
-            };
-            j.setPriority(Job.SHORT);
-            j.schedule();
+    		}
         }
     }
 
@@ -207,34 +183,19 @@ public class InterpreterObserver implements IInterpreterObserver {
     }
 
     public void notifyNatureRecreated(final PythonNature nature, IProgressMonitor monitor) {
-        IRunnableWithMonitor r = new IRunnableWithMonitor() {
-            
-            
-            private IProgressMonitor monitor;
-
-            public void setMonitor(IProgressMonitor monitor){
-                this.monitor = monitor;
+        boolean loadAdditionalInfoForProject;
+        try {
+            loadAdditionalInfoForProject = AdditionalProjectInterpreterInfo.loadAdditionalInfoForProject(nature);
+        } catch (MisconfigurationException e) {
+            Log.log(e);
+            loadAdditionalInfoForProject = false;
+        }
+        if(!loadAdditionalInfoForProject){
+            if(DEBUG_INTERPRETER_OBSERVER){
+                System.out.println("Unable to load the info correctly... restoring info from the pythonpath");
             }
-            
-            public void run() {
-                boolean loadAdditionalInfoForProject;
-                try {
-                    loadAdditionalInfoForProject = AdditionalProjectInterpreterInfo.loadAdditionalInfoForProject(nature);
-                } catch (MisconfigurationException e) {
-                    Log.log(e);
-                    loadAdditionalInfoForProject = false;
-                }
-                if(!loadAdditionalInfoForProject){
-                    if(DEBUG_INTERPRETER_OBSERVER){
-                        System.out.println("Unable to load the info correctly... restoring info from the pythonpath");
-                    }
-                    notifyProjectPythonpathRestored(nature, monitor);
-                }
-            }
-        };
-        r.setMonitor(monitor);
-        r.run();
-        //RunnableAsJobsPoolThread.getSingleton().scheduleToRun(r, "Load info for: "+nature.getProject());
+            notifyProjectPythonpathRestored(nature, monitor);
+        }
     }
 
 }
