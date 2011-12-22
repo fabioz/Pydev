@@ -9,6 +9,7 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -835,18 +836,20 @@ public abstract class AbstractAdditionalTokensInfo {
 
 class IOUtils {
 
-    /**
-     * @param astOutputFile
-     * @return
-     */
     public static Object readFromFile(File astOutputFile) {
         try {
-            InputStream input = new FileInputStream(astOutputFile);
-            ObjectInputStream in = new ObjectInputStream(input);
-            Object o = in.readObject();
-            in.close();
-            input.close();
-            return o;
+            InputStream in = new BufferedInputStream(new FileInputStream(astOutputFile));
+            try {
+                ObjectInputStream stream = new ObjectInputStream(in);
+                try {
+                    Object o = stream.readObject();
+                    return o;
+                } finally {
+                    stream.close();
+                }
+            } finally {
+                in.close();
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

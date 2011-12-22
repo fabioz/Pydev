@@ -42,7 +42,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
-import org.python.pydev.editor.codecompletion.revisited.ModulesKeyTreeMap.Entry;
+import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap.Entry;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JythonModulesManagerUtils;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
@@ -150,7 +150,7 @@ public abstract class ModulesManager implements IModulesManager {
      * 
      * It is sorted so that we can get things in a 'subtree' faster
      */
-    protected final ModulesKeyTreeMap<ModulesKey, ModulesKey> modulesKeys = new ModulesKeyTreeMap<ModulesKey, ModulesKey>();
+    protected final PyPublicTreeMap<ModulesKey, ModulesKey> modulesKeys = new PyPublicTreeMap<ModulesKey, ModulesKey>();
     protected final Object modulesKeysLock = new Object();
 
     protected static final ModulesManagerCache cache = new ModulesManagerCache();
@@ -471,7 +471,7 @@ public abstract class ModulesManager implements IModulesManager {
         pythonPathHelper.setPythonPath(pythonpath);
         ModulesFoundStructure modulesFound = pythonPathHelper.getModulesFoundStructure(monitor);
 
-        ModulesKeyTreeMap<ModulesKey, ModulesKey> keys = buildKeysFromModulesFound(monitor, modulesFound);
+        PyPublicTreeMap<ModulesKey, ModulesKey> keys = buildKeysFromModulesFound(monitor, modulesFound);
 
         synchronized (modulesKeysLock) {
             //assign to instance variable
@@ -487,7 +487,7 @@ public abstract class ModulesManager implements IModulesManager {
      * modules manager) and the keys to be removed from the modules manager (i.e.: found in the modules manager but
      * not in the keysFound) 
      */
-    public Tuple<List<ModulesKey>, List<ModulesKey>> diffModules(ModulesKeyTreeMap<ModulesKey, ModulesKey> keysFound) {
+    public Tuple<List<ModulesKey>, List<ModulesKey>> diffModules(PyPublicTreeMap<ModulesKey, ModulesKey> keysFound) {
         ArrayList<ModulesKey> newKeys = new ArrayList<ModulesKey>();
         ArrayList<ModulesKey> removedKeys = new ArrayList<ModulesKey>();
         Iterator<ModulesKey> it = keysFound.keySet().iterator();
@@ -516,9 +516,9 @@ public abstract class ModulesManager implements IModulesManager {
     }
 
 
-    public ModulesKeyTreeMap<ModulesKey, ModulesKey> buildKeysFromModulesFound(IProgressMonitor monitor, ModulesFoundStructure modulesFound) {
+    public PyPublicTreeMap<ModulesKey, ModulesKey> buildKeysFromModulesFound(IProgressMonitor monitor, ModulesFoundStructure modulesFound) {
         //now, on to actually filling the module keys
-        ModulesKeyTreeMap<ModulesKey, ModulesKey> keys = new ModulesKeyTreeMap<ModulesKey, ModulesKey>();
+        PyPublicTreeMap<ModulesKey, ModulesKey> keys = new PyPublicTreeMap<ModulesKey, ModulesKey>();
         int j = 0;
 
         FastStringBuffer buffer = new FastStringBuffer();
@@ -664,7 +664,7 @@ public abstract class ModulesManager implements IModulesManager {
             synchronized (modulesKeysLock) {
                 //we don't want it to be backed up by the same set (because it may be changed, so, we may get
                 //a java.util.ConcurrentModificationException on places that use it)
-                return new ModulesKeyTreeMap<ModulesKey, ModulesKey>(modulesKeys);
+                return new PyPublicTreeMap<ModulesKey, ModulesKey>(modulesKeys);
             }
         }
         ModulesKey startingWith = new ModulesKey(strStartingWith, null);
@@ -672,7 +672,7 @@ public abstract class ModulesManager implements IModulesManager {
         synchronized (modulesKeysLock) {
             //we don't want it to be backed up by the same set (because it may be changed, so, we may get
             //a java.util.ConcurrentModificationException on places that use it)
-            return new ModulesKeyTreeMap<ModulesKey, ModulesKey>(modulesKeys.subMap(startingWith, endingWith));
+            return new PyPublicTreeMap<ModulesKey, ModulesKey>(modulesKeys.subMap(startingWith, endingWith));
         }
     }
 
