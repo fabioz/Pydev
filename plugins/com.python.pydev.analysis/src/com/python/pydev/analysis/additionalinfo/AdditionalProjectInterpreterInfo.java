@@ -21,6 +21,7 @@ import java.util.Set;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -42,64 +43,60 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
      * This is the project that contains this info
      */
     private final IProject project;
+
+    private final File persistingFolder;
+    
+    private final File persistingLocation;
     
     /**
      * holds nature info (project name points to info)
      */
-    private static Map<String, AbstractAdditionalDependencyInfo> additionalNatureInfo = new HashMap<String, AbstractAdditionalDependencyInfo>();
+    private final static Map<String, AbstractAdditionalDependencyInfo> additionalNatureInfo = new HashMap<String, AbstractAdditionalDependencyInfo>();
+    
+    private final static Object additionalNatureInfoLock = new Object();
 
     public IProject getProject(){
         return project;
     }
     
-    //----------------------------------------------------------------------------- START DELTA RELATED 
     
     /**
      * @return the path to the folder we want to keep things on
      */
     @Override
     protected File getPersistingFolder() {
-        try {
-            Assert.isNotNull(project);
-            return AnalysisPlugin.getStorageDirForProject(project);
-        } catch (NullPointerException e) {
-            //it may fail in tests... (save it in default folder in this cases)
-            Log.logInfo("Error getting persisting folder", e);
-            return new File(".");
-        }
-    }
-    
-
-
-    //----------------------------------------------------------------------------- END DELTA RELATED
-    
-    
-    public AdditionalProjectInterpreterInfo(IProject project) throws MisconfigurationException {
-        super(false);
-        this.project = project;
-        init();
+        return persistingFolder;
     }
 
-    private File persistingLocation;
     
     @Override
     protected File getPersistingLocation() {
-        if(persistingLocation == null){
-            persistingLocation = new File(getPersistingFolder(), "AdditionalProjectInterpreterInfo.pydevinfo");
-        }
         return persistingLocation;
     }
+
+
+    public AdditionalProjectInterpreterInfo(IProject project) throws MisconfigurationException {
+        super(false);
+        Assert.isNotNull(project);
+        this.project = project;
+        
+        File f;
+        try {
+            f = AnalysisPlugin.getStorageDirForProject(project);
+        } catch (NullPointerException e) {
+            //it may fail in tests... (save it in default folder in this cases)
+            Log.logInfo("Error getting persisting folder", e);
+            f = new File(".");
+        }
+        persistingFolder = f;
+
+        persistingLocation = new File(persistingFolder, "AdditionalProjectInterpreterInfo.pydevinfo");
+        
+        init();
+    }
+
     
-    @Override
-    protected void setAsDefaultInfo() {
-        AdditionalProjectInterpreterInfo.setAdditionalInfoForProject(project, this);
-    }
-
-    public static void saveAdditionalInfoForProject(IPythonNature nature) throws MisconfigurationException {
-        AbstractAdditionalTokensInfo info = getAdditionalInfoForProject(nature);
-        info.save();
-    }
-
+    
     public static List<AbstractAdditionalTokensInfo> getAdditionalInfo(IPythonNature nature) throws MisconfigurationException {
         return getAdditionalInfo(nature, true, false);
     }
@@ -202,28 +199,21 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
             return null;
         }
         String name = REF.getValidProjectName(project);
-        AbstractAdditionalDependencyInfo info = additionalNatureInfo.get(name);
-        if(info == null){
-            info = new AdditionalProjectInterpreterInfo(project);
-            additionalNatureInfo.put(name, info);
+        
+        synchronized (additionalNatureInfoLock) {
+            AbstractAdditionalDependencyInfo info = additionalNatureInfo.get(name);
+            if(info == null){
+                info = new AdditionalProjectInterpreterInfo(project);
+                additionalNatureInfo.put(name, info);
+                
+                if(!info.load()){
+                    recreateAllInfo(nature, new NullProgressMonitor());
+                }
+                
+            }
+            return info;
         }
-        return info;
     }
-
-    /**
-     * sets the additional info (overrides if already set)
-     * @param project the project we want to set info on
-     * @param info the info to set
-     */
-    public static void setAdditionalInfoForProject(IProject project, AbstractAdditionalDependencyInfo info) {
-        additionalNatureInfo.put(REF.getValidProjectName(project), info);
-    }
-
-    public static boolean loadAdditionalInfoForProject(IPythonNature nature) throws MisconfigurationException {
-        AbstractAdditionalDependencyInfo info = getAdditionalInfoForProject(nature);
-        return info.load();
-    }
-
 
     //interfaces that iterate through all of them
     public static List<IInfo> getTokensEqualTo(String qualifier, IPythonNature nature, int getWhat) throws MisconfigurationException {
@@ -268,41 +258,28 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
         return ret;
     }
 
-    @Override
-    public int hashCode() {
-        return getProject().hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if(!(obj instanceof AdditionalProjectInterpreterInfo)){
-            return false;
-        }
-        AdditionalProjectInterpreterInfo additionalProjectInterpreterInfo = (AdditionalProjectInterpreterInfo) obj;
-        return this.getProject().equals(additionalProjectInterpreterInfo.getProject());
-    }
-
-    public static void recreateAllInfo(PythonNature nature, IProgressMonitor monitor) {
+    public static void recreateAllInfo(IPythonNature nature, IProgressMonitor monitor) {
         try {
-            //Note: at this point we're 100% certain that the ast manager is there.
-            IModulesManager m = nature.getAstManager().getModulesManager();
-            IProject project = nature.getProject();
-            
-            AbstractAdditionalDependencyInfo currInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
-            if(currInfo != null){
-                currInfo.clearAllInfo();
-            }
-            
-            AdditionalProjectInterpreterInfo newProjectInfo = new AdditionalProjectInterpreterInfo(project);
-            String feedback = "(project:" + project.getName() + ")";
-            synchronized(m){
-                AbstractAdditionalDependencyInfo info = (AbstractAdditionalDependencyInfo) restoreInfoForModuleManager(
-                        monitor, m, feedback, newProjectInfo, nature, nature.getGrammarVersion());
-    
-                if (info != null) {
-                    //ok, set it and save it
-                    AdditionalProjectInterpreterInfo.setAdditionalInfoForProject(project, info);
-                    AdditionalProjectInterpreterInfo.saveAdditionalInfoForProject(nature);
+            synchronized (additionalNatureInfoLock) {
+                //Note: at this point we're 100% certain that the ast manager is there.
+                IModulesManager m = nature.getAstManager().getModulesManager();
+                IProject project = nature.getProject();
+                
+                AbstractAdditionalDependencyInfo currInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
+                if(currInfo != null){
+                    currInfo.clearAllInfo();
+                }
+                
+                String feedback = "(project:" + project.getName() + ")";
+                synchronized(m){
+                    AbstractAdditionalDependencyInfo info = (AbstractAdditionalDependencyInfo) restoreInfoForModuleManager(
+                            monitor, m, feedback, new AdditionalProjectInterpreterInfo(project), nature, nature.getGrammarVersion());
+                    
+                    if (info != null) {
+                        //ok, set it and save it
+                        additionalNatureInfo.put(REF.getValidProjectName(project), info);
+                        info.save();
+                    }
                 }
             }
         } catch (Exception e) {
@@ -311,19 +288,22 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
         }
     }
 
-    public static void loadPreviousInfo(PythonNature nature, IProgressMonitor monitor) {
-        boolean loadAdditionalInfoForProject;
-        try {
-            loadAdditionalInfoForProject = AdditionalProjectInterpreterInfo.loadAdditionalInfoForProject(nature);
-        } catch (MisconfigurationException e) {
-            Log.log(e);
-            loadAdditionalInfoForProject = false;
-        }
-        if(!loadAdditionalInfoForProject){
-            recreateAllInfo(nature, monitor);
-        }
+    
+    
+    //Make it available for being in a HashSet.
+    
+    
+    @Override
+    public int hashCode() {
+        return getProject().hashCode();
     }
     
-    
-
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof AdditionalProjectInterpreterInfo)){
+            return false;
+        }
+        AdditionalProjectInterpreterInfo additionalProjectInterpreterInfo = (AdditionalProjectInterpreterInfo) obj;
+        return this.getProject().equals(additionalProjectInterpreterInfo.getProject());
+    }
 }

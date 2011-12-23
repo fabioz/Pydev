@@ -4,7 +4,6 @@
 package com.python.pydev.analysis.additionalinfo.builders;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.interpreters.IInterpreterObserver;
@@ -34,14 +33,12 @@ public class InterpreterObserver implements IInterpreterObserver {
      * @see org.python.pydev.ui.interpreters.IInterpreterObserver#notifyInterpreterManagerRecreated(org.python.pydev.ui.interpreters.AbstractInterpreterManager)
      */
     public void notifyInterpreterManagerRecreated(final IInterpreterManager iManager) {
-        for(final IInterpreterInfo interpreterInfo:iManager.getInterpreterInfos()){
-            AdditionalSystemInterpreterInfo.loadPreviousInfo(iManager, interpreterInfo.getExecutableOrJar());
-        }
+        //no-op: the additional info is recreated lazily now (so, the first time it's asked for, it's restored).
     }
 
 
     public void notifyNatureRecreated(final PythonNature nature, IProgressMonitor monitor) {
-        AdditionalProjectInterpreterInfo.loadPreviousInfo(nature, monitor);
+        //no-op: the additional info is recreated lazily now (so, the first time it's asked for, it's restored).
     }
 
 }

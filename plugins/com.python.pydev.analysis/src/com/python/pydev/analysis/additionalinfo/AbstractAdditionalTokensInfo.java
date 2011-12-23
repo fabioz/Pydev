@@ -687,20 +687,6 @@ public abstract class AbstractAdditionalTokensInfo {
 
 
     /**
-     * save the information contained for the given manager
-     */
-    public static void saveAdditionalSystemInfo(IInterpreterManager manager, String interpreter) {
-        AbstractAdditionalTokensInfo info;
-		try {
-			info = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager, interpreter);
-			info.save();
-		} catch (MisconfigurationException e) {
-			Log.log(e);
-			return;
-		}
-    }
-
-    /**
      * @return the path to the folder we want to keep things on
      * @throws MisconfigurationException 
      */
@@ -745,7 +731,6 @@ public abstract class AbstractAdditionalTokensInfo {
             if(file.exists() && file.isFile()){
                 try {
                     restoreSavedInfo(IOUtils.readFromFile(file));
-                    setAsDefaultInfo();
                     return true;
                 } catch (Throwable e) {
                     try {
@@ -778,11 +763,6 @@ public abstract class AbstractAdditionalTokensInfo {
         }
     }
 
-    /**
-     * this method should be overridden so that the info sets itself as the default info given the info it holds
-     * (e.g. default for a project, default for python interpreter, etc.)
-     */
-    protected abstract void setAsDefaultInfo();
 
 
     @Override

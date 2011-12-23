@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.DeltaSaver;
 import org.python.pydev.core.IDeltaProcessor;
 import org.python.pydev.core.IModulesManager;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.Tuple;
@@ -26,7 +27,6 @@ import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.parser.ErrorDescription;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * @author fabioz
@@ -222,7 +222,7 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
      * @return the info generated from the module manager
      */
     public static AbstractAdditionalTokensInfo restoreInfoForModuleManager(IProgressMonitor monitor, IModulesManager m, String additionalFeedback, 
-            AbstractAdditionalTokensInfo info, PythonNature nature, int grammarVersion) {
+            AbstractAdditionalTokensInfo info, IPythonNature nature, int grammarVersion) {
         if(monitor == null){
             monitor = new NullProgressMonitor();
         }
