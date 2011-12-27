@@ -136,28 +136,13 @@ public class PyFormatStd extends PyAction implements IFormatter {
                     session = ext.startRewriteSession(DocumentRewriteSessionType.STRICTLY_SEQUENTIAL);
                 }
                 participant.formatAll(doc, pyEdit, true, throwSyntaxError);
+                
             } else {
                 if(doc instanceof IDocumentExtension4){
                     IDocumentExtension4 ext = (IDocumentExtension4) doc;
                     session = ext.startRewriteSession(DocumentRewriteSessionType.SEQUENTIAL);
                 }
                 participant.formatSelection(doc, regionsToFormat, pyEdit, ps);
-            }
-
-            //To finish, no matter what kind of formatting was done, check the end of line.
-            FormatStd std = getFormat();
-            if(std.addNewLineAtEndOfFile){
-                try {
-                    int len = doc.getLength();
-                    char lastChar = doc.getChar(len-1);
-                    if(len > 0){
-                        if(lastChar != '\r' && lastChar != '\n'){
-                            doc.replace(len, 0, PySelection.getDelimiter(doc));
-                        }
-                    }
-                } catch (Throwable e) {
-                    Log.log(e);
-                }
             }
 
             
@@ -184,11 +169,16 @@ public class PyFormatStd extends PyAction implements IFormatter {
     }
     
 
+    public void formatSelection(IDocument doc, IRegion[] regionsForSave, IPyEdit edit, PySelection ps) {
+        FormatStd formatStd = getFormat();
+        formatSelection(doc, regionsForSave, edit, ps, formatStd);
+    }
+    
     /**
      * Formats the given selection
      * @see IFormatter
      */
-    public void formatSelection(IDocument doc, IRegion[] regionsForSave, IPyEdit edit, PySelection ps) {
+    public void formatSelection(IDocument doc, IRegion[] regionsForSave, IPyEdit edit, PySelection ps, FormatStd formatStd) {
 //        Formatter formatter = new Formatter();
 //        formatter.formatSelection(doc, startLine, endLineIndex, edit, ps);
         
@@ -198,8 +188,6 @@ public class PyFormatStd extends PyAction implements IFormatter {
         
         //Calculate all formatting to take place
         try {
-            FormatStd formatStd = getFormat();
-            
             for(IRegion r: regionsForSave){
                 int iStart = r.getOffset();
                 int iEnd = r.getOffset() + r.getLength();
@@ -226,6 +214,19 @@ public class PyFormatStd extends PyAction implements IFormatter {
             }
         }
             
+        if(formatStd.addNewLineAtEndOfFile){
+            try {
+                int len = doc.getLength();
+                if(len > 0){
+                    char lastChar = doc.getChar(len-1);
+                    if(lastChar != '\r' && lastChar != '\n'){
+                        doc.replace(len, 0, PySelection.getDelimiter(doc));
+                    }
+                }
+            } catch (Throwable e) {
+                Log.log(e);
+            }
+        }
     }
 
     /**
@@ -239,12 +240,29 @@ public class PyFormatStd extends PyAction implements IFormatter {
         
         FormatStd formatStd = getFormat();
         formatAll(doc, edit, isOpenedFile, formatStd, throwSyntaxError);
+        
+
     }
     
     public void formatAll(IDocument doc, IPyEdit edit, boolean isOpenedFile, FormatStd formatStd, boolean throwSyntaxError) throws SyntaxErrorException {
         String d = doc.get();
         String delimiter = PySelection.getDelimiter(doc);
         String formatted = formatStr(d, formatStd, delimiter, throwSyntaxError);
+        
+        //To finish, check the end of line.
+        if(formatStd.addNewLineAtEndOfFile){
+            try {
+                int len = formatted.length();
+                if(len > 0){
+                    char lastChar = formatted.charAt(len-1);
+                    if(lastChar != '\r' && lastChar != '\n'){
+                        formatted += delimiter;
+                    }
+                }
+            } catch (Throwable e) {
+                Log.log(e);
+            }
+        }
         
         String contents = doc.get();
         if(contents.equals(formatted)){
@@ -302,7 +320,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @return a new (formatted) string
      * @throws SyntaxErrorException 
      */
-    public String formatStr(String str, FormatStd std, String delimiter, boolean throwSyntaxError) throws SyntaxErrorException {
+    private String formatStr(String str, FormatStd std, String delimiter, boolean throwSyntaxError) throws SyntaxErrorException {
         return formatStr(str, std, 0, delimiter, throwSyntaxError);
     }
     

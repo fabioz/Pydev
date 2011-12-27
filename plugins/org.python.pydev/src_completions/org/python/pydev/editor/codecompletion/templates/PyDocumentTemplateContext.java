@@ -44,6 +44,13 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
     }
     
     
+    public boolean isCythonFile(){
+        if(this.viewer instanceof PySourceViewer){
+            return ((PySourceViewer) this.viewer).getEdit().isCythonFile();
+        }
+        return false;
+    }
+    
     public File getEditorFile() {
 		if(this.viewer instanceof PySourceViewer){
 			return ((PySourceViewer) this.viewer).getEdit().getEditorFile();

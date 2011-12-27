@@ -23,7 +23,7 @@ public class StringUtilsTest extends TestCase {
         try {
             StringUtilsTest test = new StringUtilsTest();
             test.setUp();
-            test.testFormat();
+            test.testIterLines();
             test.tearDown();
             junit.textui.TestRunner.run(StringUtilsTest.class);
         } catch (Throwable e) {
@@ -185,6 +185,13 @@ public class StringUtilsTest extends TestCase {
             arrayList.add(s);
         }
         assertEquals(Arrays.asList("a\n", "\r\n", "\r", "\r"), arrayList);
+        arrayList.clear();
+        
+        
+        for(String s:StringUtils.iterLines("a\n\r")){
+            arrayList.add(s);
+        }
+        assertEquals(Arrays.asList("a\n", "\r"), arrayList);
         arrayList.clear();
     }
     

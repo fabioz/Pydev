@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -110,24 +111,33 @@ public class JythonPlugin extends AbstractUIPlugin {
 
         private Bundle[] bundles;
 
-        public AllBundleClassLoader(Bundle[] bundles, ClassLoader parent) {
+        public AllBundleClassLoader(ClassLoader parent) {
             super(parent);
-            this.bundles = bundles;
-            setPackageNames(bundles);
         }
 
+        
         @SuppressWarnings("unchecked")
         public Class loadClass(String className) throws ClassNotFoundException {
             try {
                 return super.loadClass(className);
             } catch (ClassNotFoundException e) {
-                // Look for the class from the bundles.
-                for (int i = 0; i < bundles.length; ++i) {
-                    try {
-                        if(bundles[i].getState() == Bundle.ACTIVE){ 
-                            return bundles[i].loadClass(className);
+                String searchedClass = e.getMessage();
+                for (int i = 0; i < PACKAGES_MUST_START_WITH.length; i++) {
+                    if (searchedClass.startsWith(PACKAGES_MUST_START_WITH[i])) {
+
+                        // Look for the class from the bundles.
+                        int len = bundles.length;
+                        for (int j = 0; j < len; ++j) {
+                            try {
+                                Bundle bundle = bundles[j];
+                                if (bundle.getState() == Bundle.ACTIVE) {
+                                    return bundle.loadClass(className);
+                                }
+                            } catch (Throwable e2) {
+                            }
                         }
-                    } catch (Throwable e2) {
+
+                        break;
                     }
                 }
                 // Didn't find the class anywhere, rethrow e.
@@ -135,46 +145,74 @@ public class JythonPlugin extends AbstractUIPlugin {
             }
         }
         
-        
         /**
-         * The package names the bundles provide
+         * Only the packages listed here will be added as Jython packages (less memory allocated).
          */
-        private String[] packageNames;
+        private final String[] PACKAGES_MUST_START_WITH = new String[]{
+                "org.python.pydev", 
+                "com.python.pydev", 
+                "org.eclipse.ui",
+                "org.eclipse.core",
+                "org.eclipse.debug",
+                "org.eclipse.jface",
+                "org.eclipse.swt",
+                "org.eclipse.text",
+                "org.junit",
+                "org.python",
+                
+                //No need to add those.
+                //"javax.",
+                //"java."
+        };
         
-        /**
-         * Set the package names available given the bundles that we can access
-         */
-        private void setPackageNames(Bundle[] bundles) {
-            List<String> names = new ArrayList<String>();
-            for (int i = 0; i < bundles.length; ++i) {
-                String packages = (String) bundles[i].getHeaders().get("Provide-Package");
-                if (packages != null) {
-                    String[] pnames = packages.split(",");
-                    for (int j = 0; j < pnames.length; ++j) {
-                        names.add(pnames[j].trim());
-                    }
-                }
-                packages = (String) bundles[i].getHeaders().get("Export-Package");
-                if (packages != null) {
-                    String[] pnames = packages.split(",");
-                    for (int j = 0; j < pnames.length; ++j) {
-                        names.add(pnames[j].trim());
+
+        private boolean addPackageNames(Bundle bundle, List<String> addNamesToThisList, String commaSeparatedPackages) {
+            boolean addedSomePackage = false;
+            if (commaSeparatedPackages != null) {
+                List<String> packageNames = StringUtils.split(commaSeparatedPackages, ',');
+                int size = packageNames.size();
+                for (int i = 0; i < size; ++i) {
+                    String pname = packageNames.get(i).trim();
+                    
+                    for(int j=0;j<PACKAGES_MUST_START_WITH.length;j++){
+                        if(pname.startsWith(PACKAGES_MUST_START_WITH[j])){
+                            addedSomePackage = true;
+                            addNamesToThisList.add(pname); // and the name
+                            //System.out.println("Added "+bundle.getHeaders().get("Bundle-Name")+" - "+pname);
+                            break; // and break inner for
+                        }
                     }
                 }
             }
-            packageNames = (String[]) names.toArray(new String[names.size()]);
+            return addedSomePackage;
         }
         
         /**
          * @return the package names available for the passed bundles
          */
-        public String[] getPackageNames() {
-            return packageNames;
+        @SuppressWarnings("unchecked")
+        public List<String> setBundlesAndGetPackageNames(Bundle[] bundles) {
+            List<Bundle> acceptedBundles = new ArrayList<Bundle>();
+            List<String> names = new ArrayList<String>();
+            for (int i = 0; i < bundles.length; ++i) {
+                boolean addedSomePackage = false;
+                Bundle bundle = bundles[i];
+                Dictionary<String, String> headers = bundle.getHeaders();
+                addedSomePackage |= addPackageNames(bundle, names, headers.get("Provide-Package"));
+                addedSomePackage |= addPackageNames(bundle, names, headers.get("Export-Package"));
+                if(addedSomePackage){
+                    acceptedBundles.add(bundle);
+                }
+            }
+            this.bundles = acceptedBundles.toArray(new Bundle[acceptedBundles.size()]);
+            //for(Bundle b:this.bundles){
+            //    System.out.println("Accepted:"+b.getHeaders().get("Bundle-Name"));
+            //}
+            return names;
         }
     }    
 
-    //------------------------------------------
-    AllBundleClassLoader allBundleClassLoader;
+    
     /**
      * This method is called upon plug-in activation
      */
@@ -187,18 +225,20 @@ public class JythonPlugin extends AbstractUIPlugin {
         prop2.put("python.security.respectJavaAccessibility", "false"); //don't respect java accessibility, so that we can access protected members on subclasses
         
         try {
-            allBundleClassLoader = new AllBundleClassLoader(context.getBundles(), this.getClass().getClassLoader());
+            AllBundleClassLoader allBundleClassLoader = new AllBundleClassLoader(this.getClass().getClassLoader());
+            
+            
             PySystemState.initialize(System.getProperties(), prop2, new String[0], allBundleClassLoader);
-            String[] packageNames = getDefault().allBundleClassLoader.getPackageNames();
-            for (int i = 0; i < packageNames.length; ++i) {
-                PySystemState.add_package(packageNames[i]);
+            List<String> packageNames = allBundleClassLoader.setBundlesAndGetPackageNames(context.getBundles());
+            int size = packageNames.size();
+            for (int i = 0; i < size; ++i) {
+                PySystemState.add_package(packageNames.get(i));
             }
         } catch (Exception e) {
             Log.log(e);
         }
-        
-
     }
+    
 
     private File getPluginRootDir() {
         try {

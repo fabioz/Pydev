@@ -163,21 +163,16 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
                 String defaultInterpreter = interpreterManager.getDefaultInterpreterInfo(false).getExecutableOrJar();
                 boolean recreate = forceAdditionalInfoRecreation;
                 if(!recreate){
-                    if(!AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(
-                            interpreterManager, defaultInterpreter)){
-                        recreate = true;
-                    }else{
-                        //one last check: if TestCase is not found, recreate it!
-                        AbstractAdditionalDependencyInfo additionalSystemInfo = 
-                            AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(interpreterManager, defaultInterpreter);
-                        Collection<IInfo> tokensStartingWith = additionalSystemInfo.getTokensStartingWith("TestCase", AbstractAdditionalTokensInfo.TOP_LEVEL);
-                        recreate = true;
-                        for (IInfo info : tokensStartingWith) {
-                            if(info.getName().equals("TestCase")){
-                                if(info.getDeclaringModuleName().equals("unittest")){
-                                    recreate = false; 
-                                    break;
-                                }
+                    //one last check: if TestCase is not found, recreate it!
+                    AbstractAdditionalDependencyInfo additionalSystemInfo = 
+                        AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(interpreterManager, defaultInterpreter);
+                    Collection<IInfo> tokensStartingWith = additionalSystemInfo.getTokensStartingWith("TestCase", AbstractAdditionalTokensInfo.TOP_LEVEL);
+                    recreate = true;
+                    for (IInfo info : tokensStartingWith) {
+                        if(info.getName().equals("TestCase")){
+                            if(info.getDeclaringModuleName().equals("unittest")){
+                                recreate = false; 
+                                break;
                             }
                         }
                     }
@@ -198,15 +193,10 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
     protected boolean restoreProjectPythonPath(boolean force, String path) {
         boolean ret = super.restoreProjectPythonPath(force, path);
         if(ret){
-            //try to load it from previous session
-            boolean loaded;
 			try {
-				loaded = AdditionalProjectInterpreterInfo.loadAdditionalInfoForProject(nature);
-			} catch (MisconfigurationException e) {
-				throw new RuntimeException(e);
-			}
-			if(forceAdditionalInfoRecreation || !loaded){
-                observer.notifyProjectPythonpathRestored(nature, new NullProgressMonitor());
+                AdditionalProjectInterpreterInfo.getAdditionalInfo(nature);
+            } catch (MisconfigurationException e) {
+                throw new RuntimeException(e);
             }
         }
         return ret;

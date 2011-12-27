@@ -397,7 +397,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
     /**
      * @param keysFound
      */
-    public void updateKeysAndSave(ModulesKeyTreeMap<ModulesKey, ModulesKey> keysFound) {
+    public void updateKeysAndSave(PyPublicTreeMap<ModulesKey, ModulesKey> keysFound) {
         synchronized (modulesKeysLock) {
             modulesKeys.clear();
             modulesKeys.putAll(keysFound);

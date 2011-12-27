@@ -33,7 +33,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
-import org.python.pydev.editor.codecompletion.revisited.ModulesKeyTreeMap;
+import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -168,7 +168,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     }
 
     
-    public void updateKeysIfNeededAndSave(ModulesKeyTreeMap<ModulesKey, ModulesKey> keysFound) {
+    public void updateKeysIfNeededAndSave(PyPublicTreeMap<ModulesKey, ModulesKey> keysFound) {
         Map<CompleteIndexKey, CompleteIndexKey> keys = this.completeIndex.keys();
         
         ArrayList<ModulesKey> newKeys = new ArrayList<ModulesKey>();
