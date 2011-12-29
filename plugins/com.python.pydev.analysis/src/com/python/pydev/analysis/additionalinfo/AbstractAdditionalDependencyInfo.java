@@ -9,7 +9,12 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -18,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
@@ -450,14 +456,19 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     
 
     @Override
-    protected Object getInfoToSave() {
+    protected void saveTo(OutputStreamWriter writer, FastStringBuffer tempBuf, File pathToSave) throws IOException {
         synchronized (lock) {
-            return new Tuple<Object, Object>(super.getInfoToSave(), completeIndex);
+            completeIndex.writeTo(tempBuf);
+            writer.write(tempBuf.getInternalCharsArray(), 0, tempBuf.length());
+            tempBuf.clear();
+
+            super.saveTo(writer, tempBuf, pathToSave);
         }
     }
     
     
     @Override
+    @SuppressWarnings("rawtypes")
     protected void restoreSavedInfo(Object o) throws MisconfigurationException{
         synchronized (lock) {
             Tuple readFromFile = (Tuple) o;
@@ -482,6 +493,106 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         }
     }
 
+    
+    /**
+     * actually does the load
+     * @return true if it was successfully loaded and false otherwise
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    protected boolean load() {
+        
+        synchronized (lock) {
+            File file;
+            try {
+                file = getPersistingLocation();
+            } catch (MisconfigurationException e) {
+                Log.log("Unable to restore previous info... (persisting location not available).", e);
+                return false;
+            }
+            if(file.exists() && file.isFile()){
+                try {
+                    FileInputStream fileInputStream = new FileInputStream(file);
+                    try {
+                        String expected = "-- VERSION_"+AbstractAdditionalTokensInfo.version; //X is the version
+                        InputStreamReader reader = new InputStreamReader(fileInputStream);
+                        BufferedReader bufferedReader = new BufferedReader(reader);
+                        String string = bufferedReader.readLine();
+                        
+                        if(string.startsWith("-- VERSION_")){
+                            Tuple tupWithResults  = new Tuple(new Tuple3(null, null, null), null);
+                            Tuple3 superTupWithResults = (Tuple3) tupWithResults.o1;
+                            //tupWithResults.o2 = DiskCache
+                            if(string.equals(expected)){
+                                //OK, proceed with new I/O format!
+                                try {
+                                    try {
+                                        String line;
+                                        Map<Integer, String> dictionary = null;
+                                        while ((line = bufferedReader.readLine()) != null) {
+                                            if (line.startsWith("-- ")) {
+                                                String sub = line.substring(3);
+
+                                                if (sub.startsWith("START TREE 1")) {
+                                                    superTupWithResults.o1 = TreeIO.loadTreeFrom(bufferedReader, dictionary);
+
+                                                } else if (sub.startsWith("START TREE 2")) {
+                                                    superTupWithResults.o2 = TreeIO.loadTreeFrom(bufferedReader, dictionary);
+
+                                                } else if (sub.startsWith("START DICTIONARY")) {
+                                                    dictionary = TreeIO.loadDictFrom(bufferedReader);
+
+                                                } else if (sub.startsWith("START DISKCACHE")) {
+                                                    tupWithResults.o2 = DiskCache.loadFrom(bufferedReader);
+
+                                                } else if (sub.startsWith("VERSION_")) {
+                                                    if (!sub.endsWith("3")) {
+                                                        throw new RuntimeException("Expected the version to be 3.");
+                                                    }
+                                                } else if (sub.startsWith("END TREE")) {
+                                                    //just skip it in this situation.
+                                                } else {
+                                                    throw new RuntimeException("Unexpected line: " + line);
+                                                }
+                                            }
+                                        }
+                                    } finally {
+                                        bufferedReader.close();
+                                    }
+                                } finally {
+                                    reader.close();
+                                }
+                                
+                                restoreSavedInfo(tupWithResults);
+                            }else{
+                                throw new RuntimeException("Version does not match. Found: "+string);
+                            }
+                            
+                        }else{
+                            //Try the old way of loading it (backward compatibility).
+                            fileInputStream.close();
+                            restoreSavedInfo(IOUtils.readFromFile(file));
+                        }
+                        
+                    } finally {
+                        try {
+                            fileInputStream.close();
+                        } catch (Exception e) {
+                            //Ignore error closing.
+                        }
+                    }
+                    
+                    return true;
+                } catch (Throwable e) {
+                    try {
+                        Log.log(IStatus.INFO, "Info: Rebuilding internal caches: "+this.getPersistingLocation(), e);
+                    } catch (Exception e1) {
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    
     protected void addInfoToModuleOnRestoreInsertCommand(Tuple<ModulesKey, List<IInfo>> data) {
         completeIndex.add(new CompleteIndexKey(data.o1), null);
         

@@ -6,6 +6,7 @@
  */
 package org.python.pydev.core.cache;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -25,6 +26,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 /**
  * This is a cache that will put its values in the disk for low-memory consumption, so that its size never passes
@@ -45,7 +47,7 @@ public final class DiskCache implements Serializable{
 
     private static final boolean DEBUG = false;
     
-    private transient Object lock = new Object();
+    private transient Object lock;
     
     /**
      * Maximum number of modules to have in memory (when reaching that limit, a module will have to be removed
@@ -101,6 +103,8 @@ public final class DiskCache implements Serializable{
         
     }
 
+
+    
     /**
      * Custom deserialization is needed.
      */
@@ -122,6 +126,94 @@ public final class DiskCache implements Serializable{
     protected Cache<CompleteIndexKey, CompleteIndexValue> createCache() {
         return new SoftHashMapCache<CompleteIndexKey, CompleteIndexValue>();
 //        return new LRUCache<CompleteIndexKey, CompleteIndexValue>(DISK_CACHE_IN_MEMORY);
+    }
+    
+    /**
+     * @param tempBuf
+     */
+    public void writeTo(FastStringBuffer tempBuf) {
+        tempBuf.append("-- START DISKCACHE\n");
+        tempBuf.append(folderToPersist);
+        tempBuf.append('\n');
+        tempBuf.append(suffix);
+        tempBuf.append('\n');
+        for(CompleteIndexKey key:keys.values()){
+            tempBuf.append(key.key.name);
+            tempBuf.append('|');
+            tempBuf.append(key.lastModified);
+            if(key.key.file != null){
+                tempBuf.append('|');
+                tempBuf.append(key.key.file.toString());
+            }
+            tempBuf.append('\n');
+        }
+        tempBuf.append("-- END DISKCACHE\n");
+    }
+    
+    public static DiskCache loadFrom(BufferedReader reader) throws IOException{
+        DiskCache diskCache = new DiskCache();
+        
+        String line = reader.readLine();
+        if(line.startsWith("-- ")){
+            throw new RuntimeException("Unexpected line: "+line);
+        }
+        diskCache.folderToPersist = line;
+        
+        line = reader.readLine();
+        if(line.startsWith("-- ")){
+            throw new RuntimeException("Unexpected line: "+line);
+        }
+        diskCache.suffix = line;
+        
+        Map<CompleteIndexKey, CompleteIndexKey> diskKeys = diskCache.keys;
+        FastStringBuffer buf = new FastStringBuffer();
+        CompleteIndexKey key = null;
+        while(true){
+            line = reader.readLine();
+            key = null;
+            if(line.startsWith("-- ")){
+                if(line.substring(3).startsWith("END DISKCACHE")){
+                    return diskCache;
+                }
+                throw new RuntimeException("Unexpected line: "+line);
+            }else{
+                int length = line.length();
+                int part = 0;
+                for(int i=0;i<length;i++){
+                    char c = line.charAt(i);
+                    if(c == '|'){
+                        switch(part){
+                            case 0:
+                                key = new CompleteIndexKey(buf.toString());
+                                break;
+                            case 1:
+                                key.lastModified = StringUtils.parsePositiveLong(buf);
+                                break;
+                            default:
+                                throw new RuntimeException("Unexpected part in line: "+line);
+                        }
+                        part ++;
+                        buf.clear();
+                    }else{
+                        buf.append(c);
+                    }
+                }
+                
+                if(buf.length() > 0){
+                    switch(part){
+                        case 1:
+                            key.lastModified = StringUtils.parsePositiveLong(buf);
+                            break;
+                        case 2:
+                            //File also written.
+                            key.key.file = new File(buf.toString());
+                            break;
+                    
+                    }
+                    buf.clear();
+                }
+            }
+        }
     }
 
     /**
@@ -145,9 +237,15 @@ public final class DiskCache implements Serializable{
         }
     }
     
-    public DiskCache(File folderToPersist, String suffix, ICallback<CompleteIndexValue, String> readFromFileMethod, ICallback<String, CompleteIndexValue> toFileMethod) {
+    private DiskCache(){
+        //private constructor (only used for internal restore of data).
+        lock = new Object(); //It's transient, so, we must restore it.
         this.scheduleRemoveStale = new JobRemoveStale();
         this.cache = createCache();
+    }
+    
+    public DiskCache(File folderToPersist, String suffix, ICallback<CompleteIndexValue, String> readFromFileMethod, ICallback<String, CompleteIndexValue> toFileMethod) {
+        this();
         this.folderToPersist = REF.getFileAbsolutePath(folderToPersist);
         this.suffix = suffix;
         this.readFromFileMethod = readFromFileMethod;
@@ -307,4 +405,5 @@ public final class DiskCache implements Serializable{
             return folderToPersist;
         }
     }
+
 }
