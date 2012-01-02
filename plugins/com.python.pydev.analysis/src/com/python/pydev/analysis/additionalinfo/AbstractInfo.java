@@ -86,8 +86,10 @@ public abstract class AbstractInfo implements IInfo, Serializable{
         }
         
         //if one of them is null, the other must also be null...
-        if((otherInfo.getPath() == null || getPath() == null)){
-            if(otherInfo.getPath() != getPath()){
+        String otherPath = otherInfo.getPath();
+        String myPath = getPath();
+        if((otherPath == null || myPath == null)){
+            if(otherPath != myPath){
                 //one of them is not null
                 return false;
             }
@@ -96,7 +98,7 @@ public abstract class AbstractInfo implements IInfo, Serializable{
         }
         
         //they're not null
-        if(!otherInfo.getPath().equals(getPath())){
+        if(!otherPath.equals(myPath)){
             return false;
         }
         
@@ -111,5 +113,13 @@ public abstract class AbstractInfo implements IInfo, Serializable{
     @Override
     public String toString() {
         return this.name+ " ("+this.moduleDeclared+") - Path:"+getPath();
+    }
+    
+    public int compareTo(IInfo o) {
+        int r = name.compareTo(o.getName());
+        if(r != 0){
+            return r;
+        }
+        return moduleDeclared.compareTo(o.getDeclaringModuleName());
     }
 }

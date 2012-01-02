@@ -342,15 +342,18 @@ public class REF {
         writeStrToFile(str, new File(file));
     }
     
+    public static void writeStrToFile(String str, File file) {
+        writeBytesToFile(str.getBytes(), file);
+    }
     
     /**
      * Writes the contents of the passed string to the given file.
      */
-    public static void writeStrToFile(String str, File file) {
+    public static void writeBytesToFile(byte[] bytes, File file) {
         try {
             FileOutputStream stream = new FileOutputStream(file);
             try {
-                stream.write(str.getBytes());
+                stream.write(bytes);
             } finally{
                 stream.close();
             }
