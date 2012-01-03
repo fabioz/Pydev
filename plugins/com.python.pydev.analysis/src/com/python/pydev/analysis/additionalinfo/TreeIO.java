@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedMap;
 
@@ -150,153 +149,131 @@ public class TreeIO {
     
     
     
-    public static PyPublicTreeMap<String, Set<IInfo>> loadTreeFrom(final BufferedReader reader, final Map<Integer, String> dictionary) throws IOException {
+    public static PyPublicTreeMap<String, Set<IInfo>> loadTreeFrom(final BufferedReader reader, final Map<Integer, String> dictionary, FastStringBuffer buf) throws IOException {
         PyPublicTreeMap<String, Set<IInfo>> tree = new PyPublicTreeMap<String, Set<IInfo>>();
-        int size = Integer.parseInt(reader.readLine());
+        final int size = Integer.parseInt(reader.readLine());
         
         try {
-            tree.buildFromSorted(size, new Iterator() {
 
-                private final FastStringBuffer buf = new FastStringBuffer();
-                private boolean calculatedNext = false;
-                private Entry next;
+            final Entry[] entries = new Entry[size];
+            //each line is something as: cub|CubeColourDialog!13&999@CUBIC!263@cube!202&999@
+            //note: the path (2nd int in record) is optional
+            for(int iEntry=0;iEntry<size;iEntry++){
+                buf.clear();
+                String line = reader.readLine();
+                if(line.startsWith("-- ")){
+                    throw new RuntimeException("Unexpected line: "+line);
+                }
+                int length = line.length();
+                String key = null;
+                String infoName = null;
+                String path = null;
                 
-                public boolean hasNext() {
-                    if(!calculatedNext){
-                        calculatedNext = true;
-                        try {
-                            next = calculateNext(reader, buf);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
+                int i=0;
+                
+                OUT:
+                for(;i<length;i++){
+                    char c = line.charAt(i);
+                    switch(c){
+                        case '|':
+                            key = buf.toString();
+                            buf.clear();
+                            i++;
+                            break OUT;
+                        default:
+                            buf.appendResizeOnExc(c);
                     }
-                    return next != null;
+                }
+
+                int hashSize = 0;
+                OUT2:
+                for(;i<length;i++){
+                    char c = line.charAt(i);
+                    switch(c){
+                        case '|':
+                            hashSize = StringUtils.parsePositiveInt(buf);
+                            buf.clear();
+                            i++;
+                            break OUT2;
+                        default:
+                            buf.appendResizeOnExc(c);
+                    }
+                }
+                HashSet<IInfo> set = new HashSet<IInfo>(hashSize);
+                
+                for(;i<length;i++){
+                    char c = line.charAt(i);
+                    switch(c){
+                        case '!':
+                            infoName = buf.toString();
+                            buf.clear();
+                            break;
+                            
+                            
+                        case '&':
+                            path = dictionary.get(StringUtils.parsePositiveInt(buf));
+                            buf.clear();
+                            break;
+                            
+                        case '@':
+                            int dictKey = StringUtils.parsePositiveInt(buf);
+                            byte type = (byte)dictKey;
+                            type &= 0x07; //leave only the 3 least significant bits there (this is the type -- value from 0 - 8).
+                            
+                            dictKey = (dictKey >> 3); // the entry in the dict doesn't have the least significant bits there.
+                            buf.clear();
+                            String moduleDeclared = dictionary.get(dictKey);
+                            if(moduleDeclared == null){
+                                throw new AssertionError("Unable to find key: "+dictKey);
+                            }
+                            if(infoName == null){
+                                throw new AssertionError("Info name may not be null. Line: "+line);
+                            }
+                            switch(type){
+                                case IInfo.CLASS_WITH_IMPORT_TYPE:
+                                    set.add(new ClassInfo(infoName, moduleDeclared, path, false));
+                                    break;
+                                case IInfo.METHOD_WITH_IMPORT_TYPE:
+                                    set.add(new FuncInfo(infoName, moduleDeclared, path, false));
+                                    break;
+                                case IInfo.ATTRIBUTE_WITH_IMPORT_TYPE:
+                                    set.add(new AttrInfo(infoName, moduleDeclared, path, false));
+                                    break;
+                                case IInfo.NAME_WITH_IMPORT_TYPE:
+                                    set.add(new NameInfo(infoName, moduleDeclared, path, false));
+                                    break;
+                                case IInfo.MOD_IMPORT_TYPE:
+                                    set.add(new ModInfo(infoName, false));
+                                    break;
+                                default:
+                                    Log.log("Unexpected type: "+type);    
+                            }
+                            break;
+                        default:
+                            buf.appendResizeOnExc(c);
+                    }
+                }
+                
+                entries[iEntry] = new MapEntry(key, set);
+            }
+            
+            
+            tree.buildFromSorted(size, new Iterator() {
+                private int iNext;
+
+                public boolean hasNext() {
+                    return iNext > size;
                 }
 
                 public Object next() {
-                    if(!calculatedNext){
-                        calculatedNext = true;
-                        try {
-                            next = calculateNext(reader, buf);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                    if(next == null){
-                        throw new NoSuchElementException();
-                    }
-                    calculatedNext = false;
-                    return next;
+                    Object o = entries[iNext];
+                    iNext++;
+                    return o;
                 }
 
                 public void remove() {
-                    throw new UnsupportedOperationException();
                 }
-                
-                
 
-                //each line is something as: cub|CubeColourDialog!13&999@CUBIC!263@cube!202&999@
-                //note: the path (2nd int in record) is optional
-                private Entry calculateNext(final BufferedReader reader, FastStringBuffer buf) throws IOException {
-                    String line = reader.readLine();
-                    if(line.startsWith("-- ")){
-                        if(!line.substring(3).startsWith("END TREE")){
-                            throw new RuntimeException("Unexpected line: "+line);
-                        }
-                        return null;
-                    }
-                    int length = line.length();
-                    String key = null;
-                    String infoName = null;
-                    String path = null;
-                    
-                    int i=0;
-                    
-                    OUT:
-                    for(;i<length;i++){
-                        char c = line.charAt(i);
-                        switch(c){
-                            case '|':
-                                key = buf.toString();
-                                buf.clear();
-                                i++;
-                                break OUT;
-                            default:
-                                buf.append(c);
-                        }
-                    }
-
-                    int hashSize = 0;
-                    OUT2:
-                    for(;i<length;i++){
-                        char c = line.charAt(i);
-                        switch(c){
-                            case '|':
-                                hashSize = StringUtils.parsePositiveInt(buf);
-                                buf.clear();
-                                i++;
-                                break OUT2;
-                            default:
-                                buf.append(c);
-                        }
-                    }
-                    HashSet<IInfo> set = new HashSet<IInfo>(hashSize);
-                    
-                    for(;i<length;i++){
-                        char c = line.charAt(i);
-                        switch(c){
-                            case '!':
-                                infoName = buf.toString();
-                                buf.clear();
-                                break;
-                                
-                                
-                            case '&':
-                                path = dictionary.get(StringUtils.parsePositiveInt(buf));
-                                buf.clear();
-                                break;
-                                
-                            case '@':
-                                int dictKey = StringUtils.parsePositiveInt(buf);
-                                byte type = (byte)dictKey;
-                                type &= 0x07; //leave only the 3 least significant bits there (this is the type -- value from 0 - 8).
-                                
-                                dictKey = (dictKey >> 3); // the entry in the dict doesn't have the least significant bits there.
-                                buf.clear();
-                                String moduleDeclared = dictionary.get(dictKey);
-                                if(moduleDeclared == null){
-                                    throw new AssertionError("Unable to find key: "+dictKey);
-                                }
-                                if(infoName == null){
-                                    throw new AssertionError("Info name may not be null. Line: "+line);
-                                }
-                                switch(type){
-                                    case IInfo.CLASS_WITH_IMPORT_TYPE:
-                                        set.add(new ClassInfo(infoName, moduleDeclared, path));
-                                        break;
-                                    case IInfo.METHOD_WITH_IMPORT_TYPE:
-                                        set.add(new FuncInfo(infoName, moduleDeclared, path));
-                                        break;
-                                    case IInfo.ATTRIBUTE_WITH_IMPORT_TYPE:
-                                        set.add(new AttrInfo(infoName, moduleDeclared, path));
-                                        break;
-                                    case IInfo.NAME_WITH_IMPORT_TYPE:
-                                        set.add(new NameInfo(infoName, moduleDeclared, path));
-                                        break;
-                                    case IInfo.MOD_IMPORT_TYPE:
-                                        set.add(new ModInfo(infoName));
-                                        break;
-                                    default:
-                                        Log.log("Unexpected type: "+type);    
-                                }
-                                break;
-                            default:
-                                buf.append(c);
-                        }
-                    }
-                    
-                    return new MapEntry(key, set);
-                }
                 
             }, null, null);
         } catch (ClassNotFoundException e) {
@@ -307,10 +284,9 @@ public class TreeIO {
 
     
 
-    public static Map<Integer, String> loadDictFrom(BufferedReader reader) throws IOException {
+    public static Map<Integer, String> loadDictFrom(BufferedReader reader, FastStringBuffer buf) throws IOException {
         int size = Integer.parseInt(reader.readLine());
         HashMap<Integer, String> map = new HashMap<Integer, String>(size+5);
-        FastStringBuffer buf = new FastStringBuffer();
 
         String line;
         int val = 0;
@@ -330,7 +306,7 @@ public class TreeIO {
                         val = StringUtils.parsePositiveInt(buf);
                         buf.clear();
                     }else{
-                        buf.append(c);
+                        buf.appendResizeOnExc(c);
                     }
                 }
                 map.put(val, buf.toString());

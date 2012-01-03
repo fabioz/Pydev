@@ -529,18 +529,19 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                                     try {
                                         String line;
                                         Map<Integer, String> dictionary = null;
+                                        FastStringBuffer tempBuf = new FastStringBuffer(1024);
                                         while ((line = bufferedReader.readLine()) != null) {
                                             if (line.startsWith("-- ")) {
                                                 String sub = line.substring(3);
 
                                                 if (sub.startsWith("START TREE 1")) {
-                                                    superTupWithResults.o1 = TreeIO.loadTreeFrom(bufferedReader, dictionary);
+                                                    superTupWithResults.o1 = TreeIO.loadTreeFrom(bufferedReader, dictionary, tempBuf.clear());
 
                                                 } else if (sub.startsWith("START TREE 2")) {
-                                                    superTupWithResults.o2 = TreeIO.loadTreeFrom(bufferedReader, dictionary);
+                                                    superTupWithResults.o2 = TreeIO.loadTreeFrom(bufferedReader, dictionary, tempBuf.clear());
 
                                                 } else if (sub.startsWith("START DICTIONARY")) {
-                                                    dictionary = TreeIO.loadDictFrom(bufferedReader);
+                                                    dictionary = TreeIO.loadDictFrom(bufferedReader, tempBuf.clear());
 
                                                 } else if (sub.startsWith("START DISKCACHE")) {
                                                     tupWithResults.o2 = DiskCache.loadFrom(bufferedReader);
