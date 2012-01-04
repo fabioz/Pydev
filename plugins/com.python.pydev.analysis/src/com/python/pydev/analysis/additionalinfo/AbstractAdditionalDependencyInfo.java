@@ -41,7 +41,6 @@ import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.performanceeval.Timer;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
@@ -541,7 +540,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     private Object loadContentsFromFile(File file) throws FileNotFoundException, IOException, MisconfigurationException {
         FileInputStream fileInputStream = new FileInputStream(file);
         try {
-            Timer timer = new Timer();
+//            Timer timer = new Timer();
             String expected = "-- VERSION_"+AbstractAdditionalTokensInfo.version; //X is the version
             InputStreamReader reader = new InputStreamReader(fileInputStream);
             FastBufferedReader bufferedReader = new FastBufferedReader(reader);
@@ -592,7 +591,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                     }
                     
                     restoreSavedInfo(tupWithResults);
-                    timer.printDiff("Time taken");
+//                    timer.printDiff("Time taken");
                     return tupWithResults;
                 }else{
                     throw new RuntimeException("Version does not match. Found: "+string);
@@ -601,10 +600,10 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             }else{
                 //Try the old way of loading it (backward compatibility).
                 fileInputStream.close();
-                Timer timer2 = new Timer();
+//                Timer timer2 = new Timer();
                 Object tupWithResults = IOUtils.readFromFile(file);
                 restoreSavedInfo(tupWithResults);
-                timer2.printDiff("IOUtils time");
+//                timer2.printDiff("IOUtils time");
                 save(); //Save in new format!
                 return tupWithResults;
             }
