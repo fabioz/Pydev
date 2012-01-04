@@ -22,6 +22,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.core.FastBufferedReader;
+import org.python.pydev.core.ObjectsPool;
+import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
@@ -153,8 +155,9 @@ public final class DiskCache implements Serializable{
 
     /**
      * Loads from a reader a string that was acquired from writeTo.
+     * @param objectsPoolMap 
      */
-    public static DiskCache loadFrom(FastBufferedReader reader) throws IOException{
+    public static DiskCache loadFrom(FastBufferedReader reader, ObjectsPoolMap objectsPoolMap) throws IOException{
         DiskCache diskCache = new DiskCache();
         
         FastStringBuffer line = reader.readLine();
@@ -189,7 +192,7 @@ public final class DiskCache implements Serializable{
                     if(c == '|'){
                         switch(part){
                             case 0:
-                                key = new CompleteIndexKey(buf.toString());
+                                key = new CompleteIndexKey(ObjectsPool.internLocal(objectsPoolMap, buf.toString()));
                                 break;
                             case 1:
                                 key.lastModified = StringUtils.parsePositiveLong(buf);
@@ -211,7 +214,7 @@ public final class DiskCache implements Serializable{
                             break;
                         case 2:
                             //File also written.
-                            key.key.file = new File(buf.toString());
+                            key.key.file = new File(ObjectsPool.internLocal(objectsPoolMap, buf.toString()));
                             break;
                     
                     }

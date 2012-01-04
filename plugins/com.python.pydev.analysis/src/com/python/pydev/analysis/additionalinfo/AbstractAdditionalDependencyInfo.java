@@ -29,6 +29,8 @@ import org.python.pydev.core.FastBufferedReader;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
+import org.python.pydev.core.ObjectsPool;
+import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
@@ -544,7 +546,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             InputStreamReader reader = new InputStreamReader(fileInputStream);
             FastBufferedReader bufferedReader = new FastBufferedReader(reader);
             FastStringBuffer string = bufferedReader.readLine();
-            
+            ObjectsPoolMap objectsPoolMap = new ObjectsPool.ObjectsPoolMap();
             if(string != null && string.startsWith("-- VERSION_")){
                 Tuple tupWithResults  = new Tuple(new Tuple3(null, null, null), null);
                 Tuple3 superTupWithResults = (Tuple3) tupWithResults.o1;
@@ -560,16 +562,16 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                                 if (line.startsWith("-- ")) {
 
                                     if (line.startsWith("-- START TREE 1")) {
-                                        superTupWithResults.o1 = TreeIO.loadTreeFrom(bufferedReader, dictionary, tempBuf.clear());
+                                        superTupWithResults.o1 = TreeIO.loadTreeFrom(bufferedReader, dictionary, tempBuf.clear(), objectsPoolMap);
 
                                     } else if (line.startsWith("-- START TREE 2")) {
-                                        superTupWithResults.o2 = TreeIO.loadTreeFrom(bufferedReader, dictionary, tempBuf.clear());
+                                        superTupWithResults.o2 = TreeIO.loadTreeFrom(bufferedReader, dictionary, tempBuf.clear(), objectsPoolMap);
 
                                     } else if (line.startsWith("-- START DICTIONARY")) {
-                                        dictionary = TreeIO.loadDictFrom(bufferedReader, tempBuf.clear());
+                                        dictionary = TreeIO.loadDictFrom(bufferedReader, tempBuf.clear(), objectsPoolMap);
 
                                     } else if (line.startsWith("-- START DISKCACHE")) {
-                                        tupWithResults.o2 = DiskCache.loadFrom(bufferedReader);
+                                        tupWithResults.o2 = DiskCache.loadFrom(bufferedReader, objectsPoolMap);
 
                                     } else if (line.startsWith("-- VERSION_")) {
                                         if (!line.endsWith("3")) {

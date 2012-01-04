@@ -6,7 +6,6 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,6 +16,8 @@ import java.util.Set;
 import java.util.SortedMap;
 
 import org.python.pydev.core.FastBufferedReader;
+import org.python.pydev.core.ObjectsPool;
+import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
@@ -150,7 +151,7 @@ public class TreeIO {
     
     
     
-    public static PyPublicTreeMap<String, Set<IInfo>> loadTreeFrom(final FastBufferedReader reader, final Map<Integer, String> dictionary, FastStringBuffer buf) throws IOException {
+    public static PyPublicTreeMap<String, Set<IInfo>> loadTreeFrom(final FastBufferedReader reader, final Map<Integer, String> dictionary, FastStringBuffer buf, ObjectsPoolMap objectsPoolMap) throws IOException {
         PyPublicTreeMap<String, Set<IInfo>> tree = new PyPublicTreeMap<String, Set<IInfo>>();
         final int size = StringUtils.parsePositiveInt(reader.readLine());
         
@@ -178,7 +179,7 @@ public class TreeIO {
                     char c = internalCharsArray[i];
                     switch(c){
                         case '|':
-                            key = buf.toString();
+                            key = ObjectsPool.internLocal(objectsPoolMap, buf.toString());
                             buf.clear();
                             i++;
                             break OUT;
@@ -207,7 +208,7 @@ public class TreeIO {
                     char c = internalCharsArray[i];
                     switch(c){
                         case '!':
-                            infoName = buf.toString();
+                            infoName = ObjectsPool.internLocal(objectsPoolMap, buf.toString());
                             buf.clear();
                             break;
                             
@@ -286,7 +287,7 @@ public class TreeIO {
 
     
 
-    public static Map<Integer, String> loadDictFrom(FastBufferedReader reader, FastStringBuffer buf) throws IOException {
+    public static Map<Integer, String> loadDictFrom(FastBufferedReader reader, FastStringBuffer buf, ObjectsPoolMap objectsPoolMap) throws IOException {
         int size = StringUtils.parsePositiveInt(reader.readLine());
         HashMap<Integer, String> map = new HashMap<Integer, String>(size+5);
 
@@ -315,7 +316,7 @@ public class TreeIO {
                         buf.appendResizeOnExc(c);
                     }
                 }
-                map.put(val, buf.toString());
+                map.put(val, ObjectsPool.internLocal(objectsPoolMap, buf.toString()));
                 buf.clear();
             }
         }
