@@ -9,9 +9,9 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -25,6 +25,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.core.FastBufferedReader;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
@@ -38,6 +39,7 @@ import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.performanceeval.Timer;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
@@ -512,80 +514,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             }
             if(file.exists() && file.isFile()){
                 try {
-                    FileInputStream fileInputStream = new FileInputStream(file);
-                    try {
-                        String expected = "-- VERSION_"+AbstractAdditionalTokensInfo.version; //X is the version
-                        InputStreamReader reader = new InputStreamReader(fileInputStream);
-                        BufferedReader bufferedReader = new BufferedReader(reader);
-                        String string = bufferedReader.readLine();
-                        
-                        if(string.startsWith("-- VERSION_")){
-                            Tuple tupWithResults  = new Tuple(new Tuple3(null, null, null), null);
-                            Tuple3 superTupWithResults = (Tuple3) tupWithResults.o1;
-                            //tupWithResults.o2 = DiskCache
-                            if(string.equals(expected)){
-                                //OK, proceed with new I/O format!
-                                try {
-                                    try {
-                                        String line;
-                                        Map<Integer, String> dictionary = null;
-                                        FastStringBuffer tempBuf = new FastStringBuffer(1024);
-                                        while ((line = bufferedReader.readLine()) != null) {
-                                            if (line.startsWith("-- ")) {
-                                                String sub = line.substring(3);
-
-                                                if (sub.startsWith("START TREE 1")) {
-                                                    superTupWithResults.o1 = TreeIO.loadTreeFrom(bufferedReader, dictionary, tempBuf.clear());
-
-                                                } else if (sub.startsWith("START TREE 2")) {
-                                                    superTupWithResults.o2 = TreeIO.loadTreeFrom(bufferedReader, dictionary, tempBuf.clear());
-
-                                                } else if (sub.startsWith("START DICTIONARY")) {
-                                                    dictionary = TreeIO.loadDictFrom(bufferedReader, tempBuf.clear());
-
-                                                } else if (sub.startsWith("START DISKCACHE")) {
-                                                    tupWithResults.o2 = DiskCache.loadFrom(bufferedReader);
-
-                                                } else if (sub.startsWith("VERSION_")) {
-                                                    if (!sub.endsWith("3")) {
-                                                        throw new RuntimeException("Expected the version to be 3.");
-                                                    }
-                                                } else if (sub.startsWith("END TREE")) {
-                                                    //just skip it in this situation.
-                                                } else {
-                                                    throw new RuntimeException("Unexpected line: " + line);
-                                                }
-                                            }
-                                        }
-                                    } finally {
-                                        bufferedReader.close();
-                                    }
-                                } finally {
-                                    reader.close();
-                                }
-                                
-                                restoreSavedInfo(tupWithResults);
-                                return true;
-                            }else{
-                                throw new RuntimeException("Version does not match. Found: "+string);
-                            }
-                            
-                        }else{
-                            //Try the old way of loading it (backward compatibility).
-                            fileInputStream.close();
-                            restoreSavedInfo(IOUtils.readFromFile(file));
-                            save(); //Save in new format!
-                            return true;
-                        }
-                        
-                    } finally {
-                        try {
-                            fileInputStream.close();
-                        } catch (Exception e) {
-                            //Ignore error closing.
-                        }
-                    }
-                    
+                    return loadContentsFromFile(file) != null;
                 } catch (Throwable e) {
                     errorFound = e;
                 }
@@ -604,6 +533,87 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             Log.log("Rebuilding internal caches (error getting persisting location).");
         }
         return false;
+    }
+
+    
+    private Object loadContentsFromFile(File file) throws FileNotFoundException, IOException, MisconfigurationException {
+        FileInputStream fileInputStream = new FileInputStream(file);
+        try {
+            Timer timer = new Timer();
+            String expected = "-- VERSION_"+AbstractAdditionalTokensInfo.version; //X is the version
+            InputStreamReader reader = new InputStreamReader(fileInputStream);
+            FastBufferedReader bufferedReader = new FastBufferedReader(reader);
+            FastStringBuffer string = bufferedReader.readLine();
+            
+            if(string != null && string.startsWith("-- VERSION_")){
+                Tuple tupWithResults  = new Tuple(new Tuple3(null, null, null), null);
+                Tuple3 superTupWithResults = (Tuple3) tupWithResults.o1;
+                //tupWithResults.o2 = DiskCache
+                if(string.toString().equals(expected)){
+                    //OK, proceed with new I/O format!
+                    try {
+                        try {
+                            FastStringBuffer line;
+                            Map<Integer, String> dictionary = null;
+                            FastStringBuffer tempBuf = new FastStringBuffer(1024);
+                            while ((line = bufferedReader.readLine()) != null) {
+                                if (line.startsWith("-- ")) {
+
+                                    if (line.startsWith("-- START TREE 1")) {
+                                        superTupWithResults.o1 = TreeIO.loadTreeFrom(bufferedReader, dictionary, tempBuf.clear());
+
+                                    } else if (line.startsWith("-- START TREE 2")) {
+                                        superTupWithResults.o2 = TreeIO.loadTreeFrom(bufferedReader, dictionary, tempBuf.clear());
+
+                                    } else if (line.startsWith("-- START DICTIONARY")) {
+                                        dictionary = TreeIO.loadDictFrom(bufferedReader, tempBuf.clear());
+
+                                    } else if (line.startsWith("-- START DISKCACHE")) {
+                                        tupWithResults.o2 = DiskCache.loadFrom(bufferedReader);
+
+                                    } else if (line.startsWith("-- VERSION_")) {
+                                        if (!line.endsWith("3")) {
+                                            throw new RuntimeException("Expected the version to be 3.");
+                                        }
+                                    } else if (line.startsWith("-- END TREE")) {
+                                        //just skip it in this situation.
+                                    } else {
+                                        throw new RuntimeException("Unexpected line: " + line);
+                                    }
+                                }
+                            }
+                        } finally {
+                            bufferedReader.close();
+                        }
+                    } finally {
+                        reader.close();
+                    }
+                    
+                    restoreSavedInfo(tupWithResults);
+                    timer.printDiff("Time taken");
+                    return tupWithResults;
+                }else{
+                    throw new RuntimeException("Version does not match. Found: "+string);
+                }
+                
+            }else{
+                //Try the old way of loading it (backward compatibility).
+                fileInputStream.close();
+                Timer timer2 = new Timer();
+                Object tupWithResults = IOUtils.readFromFile(file);
+                restoreSavedInfo(tupWithResults);
+                timer2.printDiff("IOUtils time");
+                save(); //Save in new format!
+                return tupWithResults;
+            }
+            
+        } finally {
+            try {
+                fileInputStream.close();
+            } catch (Exception e) {
+                //Ignore error closing.
+            }
+        }
     }
     
     protected void addInfoToModuleOnRestoreInsertCommand(Tuple<ModulesKey, List<IInfo>> data) {

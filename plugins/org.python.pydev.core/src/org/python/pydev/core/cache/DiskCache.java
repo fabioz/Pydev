@@ -6,7 +6,6 @@
  */
 package org.python.pydev.core.cache;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -22,6 +21,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.python.pydev.core.FastBufferedReader;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
@@ -154,29 +154,30 @@ public final class DiskCache implements Serializable{
     /**
      * Loads from a reader a string that was acquired from writeTo.
      */
-    public static DiskCache loadFrom(BufferedReader reader) throws IOException{
+    public static DiskCache loadFrom(FastBufferedReader reader) throws IOException{
         DiskCache diskCache = new DiskCache();
         
-        String line = reader.readLine();
+        FastStringBuffer line = reader.readLine();
         if(line.startsWith("-- ")){
             throw new RuntimeException("Unexpected line: "+line);
         }
-        diskCache.folderToPersist = line;
+        diskCache.folderToPersist = line.toString();
         
         line = reader.readLine();
         if(line.startsWith("-- ")){
             throw new RuntimeException("Unexpected line: "+line);
         }
-        diskCache.suffix = line;
+        diskCache.suffix = line.toString();
         
         Map<CompleteIndexKey, CompleteIndexKey> diskKeys = diskCache.keys;
         FastStringBuffer buf = new FastStringBuffer();
         CompleteIndexKey key = null;
+        char[] internalCharsArray = line.getInternalCharsArray();
         while(true){
             line = reader.readLine();
             key = null;
-            if(line.startsWith("-- ")){
-                if(line.substring(3).startsWith("END DISKCACHE")){
+            if(line == null || line.startsWith("-- ")){
+                if(line != null && line.startsWith("-- END DISKCACHE")){
                     return diskCache;
                 }
                 throw new RuntimeException("Unexpected line: "+line);
@@ -184,7 +185,7 @@ public final class DiskCache implements Serializable{
                 int length = line.length();
                 int part = 0;
                 for(int i=0;i<length;i++){
-                    char c = line.charAt(i);
+                    char c = internalCharsArray[i];
                     if(c == '|'){
                         switch(part){
                             case 0:

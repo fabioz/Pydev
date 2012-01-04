@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 
+import org.python.pydev.core.FastBufferedReader;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
@@ -149,9 +150,9 @@ public class TreeIO {
     
     
     
-    public static PyPublicTreeMap<String, Set<IInfo>> loadTreeFrom(final BufferedReader reader, final Map<Integer, String> dictionary, FastStringBuffer buf) throws IOException {
+    public static PyPublicTreeMap<String, Set<IInfo>> loadTreeFrom(final FastBufferedReader reader, final Map<Integer, String> dictionary, FastStringBuffer buf) throws IOException {
         PyPublicTreeMap<String, Set<IInfo>> tree = new PyPublicTreeMap<String, Set<IInfo>>();
-        final int size = Integer.parseInt(reader.readLine());
+        final int size = StringUtils.parsePositiveInt(reader.readLine());
         
         try {
 
@@ -160,10 +161,11 @@ public class TreeIO {
             //note: the path (2nd int in record) is optional
             for(int iEntry=0;iEntry<size;iEntry++){
                 buf.clear();
-                String line = reader.readLine();
-                if(line.startsWith("-- ")){
+                FastStringBuffer line = reader.readLine();
+                if(line == null || line.startsWith("-- ")){
                     throw new RuntimeException("Unexpected line: "+line);
                 }
+                char[] internalCharsArray = line.getInternalCharsArray();
                 int length = line.length();
                 String key = null;
                 String infoName = null;
@@ -173,7 +175,7 @@ public class TreeIO {
                 
                 OUT:
                 for(;i<length;i++){
-                    char c = line.charAt(i);
+                    char c = internalCharsArray[i];
                     switch(c){
                         case '|':
                             key = buf.toString();
@@ -188,7 +190,7 @@ public class TreeIO {
                 int hashSize = 0;
                 OUT2:
                 for(;i<length;i++){
-                    char c = line.charAt(i);
+                    char c = internalCharsArray[i];
                     switch(c){
                         case '|':
                             hashSize = StringUtils.parsePositiveInt(buf);
@@ -202,7 +204,7 @@ public class TreeIO {
                 HashSet<IInfo> set = new HashSet<IInfo>(hashSize);
                 
                 for(;i<length;i++){
-                    char c = line.charAt(i);
+                    char c = internalCharsArray[i];
                     switch(c){
                         case '!':
                             infoName = buf.toString();
@@ -284,19 +286,23 @@ public class TreeIO {
 
     
 
-    public static Map<Integer, String> loadDictFrom(BufferedReader reader, FastStringBuffer buf) throws IOException {
-        int size = Integer.parseInt(reader.readLine());
+    public static Map<Integer, String> loadDictFrom(FastBufferedReader reader, FastStringBuffer buf) throws IOException {
+        int size = StringUtils.parsePositiveInt(reader.readLine());
         HashMap<Integer, String> map = new HashMap<Integer, String>(size+5);
 
-        String line;
+        FastStringBuffer line;
         int val = 0;
         while(true){
             line = reader.readLine();
-            if(line.startsWith("-- ")){
-                if(line.substring(3).startsWith("END DICTIONARY")){
+            if(line == null){
+                return map;
+                
+            }else if(line.startsWith("-- ")){
+                if(line.startsWith("-- END DICTIONARY")){
                     return map;
                 }
                 throw new RuntimeException("Unexpected line: "+line);
+                
             }else{
                 int length = line.length();
                 //line is str=int

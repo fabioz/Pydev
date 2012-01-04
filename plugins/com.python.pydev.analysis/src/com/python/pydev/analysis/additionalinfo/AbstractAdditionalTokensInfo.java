@@ -10,14 +10,11 @@
 package com.python.pydev.analysis.additionalinfo;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
@@ -32,10 +29,8 @@ import java.util.Set;
 import java.util.SortedMap;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FullRepIterable;
-import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
@@ -685,6 +680,11 @@ public abstract class AbstractAdditionalTokensInfo {
             System.out.println("Saving to "+persistingLocation);
         }
         
+        save(persistingLocation);
+
+    }
+
+    protected void save(File persistingLocation) {
         try {
             FileOutputStream stream = new FileOutputStream(persistingLocation);
             OutputStreamWriter writer = new OutputStreamWriter(stream);
@@ -707,7 +707,6 @@ public abstract class AbstractAdditionalTokensInfo {
         } catch (Exception e) {
             Log.log(e);
         }
-
     }
 
     /**
