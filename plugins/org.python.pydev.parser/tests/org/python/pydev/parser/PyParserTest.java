@@ -50,7 +50,7 @@ public class PyParserTest extends PyParserTestBase{
 //                test.parseFilesInDir(new File("D:/bin/Python251/Lib/"), false);
 //            }
 //            timer.printDiff();
-            test.testParserAs1();
+            test.testOnWxPython();
             test.tearDown();
             
             
@@ -380,9 +380,9 @@ public class PyParserTest extends PyParserTestBase{
     
     public void testOnWxPython() throws Throwable {
         if(TestDependent.PYTHON_WXPYTHON_PACKAGES != null){
-            File file = new File(TestDependent.PYTHON_WXPYTHON_PACKAGES+"wxPython");
+            File file = new File(TestDependent.PYTHON_WXPYTHON_PACKAGES, "wxPython");
             parseFilesInDir(file);
-            file = new File(TestDependent.PYTHON_WXPYTHON_PACKAGES+"wx");
+            file = new File(TestDependent.PYTHON_WXPYTHON_PACKAGES, "wx");
             parseFilesInDir(file);
         }
     }

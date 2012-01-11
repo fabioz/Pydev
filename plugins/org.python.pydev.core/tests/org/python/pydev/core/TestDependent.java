@@ -133,7 +133,10 @@ public class TestDependent {
                         try {
                             Field field = TestDependent.class.getField(key);
                             if (field != null) {
-                                field.set(null, entry.getValue());
+                                String value = entry.getValue();
+                                if(!value.equals("null")){
+                                    field.set(null, value);
+                                }
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
