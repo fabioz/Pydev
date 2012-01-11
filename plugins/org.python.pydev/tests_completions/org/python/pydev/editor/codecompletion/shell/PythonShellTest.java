@@ -114,7 +114,7 @@ public class PythonShellTest extends CodeCompletionTestsBase{
     
 
     public void testGlu() throws IOException, CoreException {
-        if(TestDependent.HAS_GLU_INSTALLED){
+        if(TestDependent.PYTHON_OPENGL_PACKAGES != null){
             List<String[]> list = shell.getImportCompletions("OpenGL.GLUT", getPythonpath()).o2;
             
             assertTrue(list.size() > 10);
