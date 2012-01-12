@@ -52,11 +52,11 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
-import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.IViewCreatedObserver;
 import org.python.pydev.ui.IViewWithControls;
@@ -95,11 +95,11 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
     private List createdCallbacksForControls;
 
 
-    public GlobalsTwoPanelElementSelector2(Shell shell, boolean multi, String selectedText, List<IPythonNature> pythonNatures) {
+    public GlobalsTwoPanelElementSelector2(Shell shell, boolean multi, String selectedText) {
         super(shell, multi);
         this.selectedText = selectedText;
 
-        setSelectionHistory(new InfoSelectionHistory(pythonNatures));
+        setSelectionHistory(new InfoSelectionHistory());
 
         setTitle("PyDev: Globals Browser");
         setMessage(
@@ -517,46 +517,77 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
      */
     private class InfoSelectionHistory extends SelectionHistory{
 
-        private List<IPythonNature> pythonNatures;
-        private CompletionCache completionCache;
 
-        public InfoSelectionHistory(List<IPythonNature> pythonNatures) {
-            this.pythonNatures = pythonNatures;
-            this.completionCache = new CompletionCache();
+        public InfoSelectionHistory() {
         }
 
         protected Object restoreItemFromMemento(IMemento element){
             InfoFactory infoFactory = new InfoFactory();
             AdditionalInfoAndIInfo resource = (AdditionalInfoAndIInfo) infoFactory.createElement(element);
             if(resource != null){
-                List<IPythonNature> natures = pythonNatures;
-                if(resource.additionalInfo instanceof AdditionalProjectInterpreterInfo){
+                if(resource.additionalInfo instanceof AdditionalSystemInterpreterInfo){
+                    AdditionalInfoAndIInfo found = checkAdditionalInfo(
+                            resource, resource.info.getName(), (AdditionalSystemInterpreterInfo) resource.additionalInfo);
+                    if(found != null){
+                        return found;
+                    }
+                    
+                    
+                    
+                }else if(resource.additionalInfo instanceof AdditionalProjectInterpreterInfo){
                     AdditionalProjectInterpreterInfo projectInterpreterInfo = (AdditionalProjectInterpreterInfo) resource.additionalInfo;
                     IProject project = projectInterpreterInfo.getProject();
                     if(project != null){
-                        natures = new ArrayList<IPythonNature>();
+                        List<IPythonNature> natures = new ArrayList<IPythonNature>();
                         PythonNature n = PythonNature.getPythonNature(project);
                         if(n != null){
                             natures.add(n);
+                            try {
+                                List<Tuple<AbstractAdditionalTokensInfo, IPythonNature>> additionalInfoAndNature = 
+                                    AdditionalProjectInterpreterInfo.getAdditionalInfoAndNature(n, true, false);
+                                
+                                for (Tuple<AbstractAdditionalTokensInfo, IPythonNature> tuple : additionalInfoAndNature) {
+                                    AdditionalInfoAndIInfo found = checkAdditionalInfo(resource, resource.info.getName(), tuple.o1);
+                                    if(found != null){
+                                        return found;
+                                    }
+                                }
+                                
+                            } catch (Exception e) {
+                                Log.log(e);
+                            }
                         }
                     }
+                    
                 }
                 
-                for(IPythonNature pythonNature:natures){
-                    //Try to find in one of the natures... if we don't find it, return null, as that means
-                    //it doesn't exist anymore!
-                    ICodeCompletionASTManager astManager = pythonNature.getAstManager();
-                    if(astManager == null){
-                        continue;
-                    }
-                    List<ItemPointer> pointers = new ArrayList<ItemPointer>();
-                    AnalysisPlugin.getDefinitionFromIInfo(pointers, astManager, pythonNature, resource.info, completionCache);
-                    if(pointers.size() > 0){
-                        return resource;
-                    }
-                }
+//                for(IPythonNature pythonNature:natures){
+//                    //Try to find in one of the natures... if we don't find it, return null, as that means
+//                    //it doesn't exist anymore!
+//                    ICodeCompletionASTManager astManager = pythonNature.getAstManager();
+//                    if(astManager == null){
+//                        continue;
+//                    }
+//                    List<ItemPointer> pointers = new ArrayList<ItemPointer>();
+//                    AnalysisPlugin.getDefinitionFromIInfo(pointers, astManager, pythonNature, resource.info, completionCache);
+//                    if(pointers.size() > 0){
+//                        return resource;
+//                    }
+//                }
             }
 
+            return null;
+        }
+
+        private AdditionalInfoAndIInfo checkAdditionalInfo(AdditionalInfoAndIInfo resource, String name, AbstractAdditionalTokensInfo additionalInfoToSearch) {
+            Collection<IInfo> tokensEqualTo = 
+                additionalInfoToSearch.getTokensEqualTo(
+                        name, AbstractAdditionalTokensInfo.TOP_LEVEL | AbstractAdditionalTokensInfo.INNER);
+            for (IInfo iInfo : tokensEqualTo) {
+                if(iInfo.equals(resource.info)){
+                    return resource;
+                }
+            }
             return null;
         }
 

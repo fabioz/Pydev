@@ -1488,7 +1488,7 @@ public final class PyPublicTreeMap<K,V>
      *         This cannot occur if str is null.
      */
     /*default changed in PyDev!!*/
-    void buildFromSorted(int size, Iterator it,
+    public void buildFromSorted(int size, Iterator it,
              java.io.ObjectInputStream str,
              V defaultVal)
         throws  java.io.IOException, ClassNotFoundException {
