@@ -11,7 +11,7 @@ import org.python.pydev.core.structure.FastStringBuffer;
 
 public class WriterEraserV2 implements IWriterEraser{
 
-    FastStack<FastStringBuffer> buf = new FastStack<FastStringBuffer>();
+    FastStack<FastStringBuffer> buf = new FastStack<FastStringBuffer>(30);
     
     public WriterEraserV2(){
         pushTempBuffer(); //this is the initial buffer (should never be removed)

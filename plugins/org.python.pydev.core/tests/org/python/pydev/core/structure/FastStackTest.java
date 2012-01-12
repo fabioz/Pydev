@@ -68,11 +68,11 @@ public class FastStackTest extends TestCase {
         
         assertTrue(stack.empty());
         
-        FastStack<Integer> stack2 = new FastStack<Integer>();
+        FastStack<Integer> stack2 = new FastStack<Integer>(5);
         stack2.push(1);
         stack2.push(2);
         
-        FastStack<Integer> stack3 = new FastStack<Integer>();
+        FastStack<Integer> stack3 = new FastStack<Integer>(1);
         stack3.push(3);
         stack3.push(4);
         

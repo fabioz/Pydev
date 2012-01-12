@@ -33,7 +33,7 @@ public final class DuplicationChecker {
     /**
      * used to know the defined signatures
      */
-    private FastStack<Map<String,String>> stack = new FastStack<Map<String,String>>();
+    private FastStack<Map<String,String>> stack = new FastStack<Map<String,String>>(10);
     private AbstractScopeAnalyzerVisitor visitor;
     
     /**
