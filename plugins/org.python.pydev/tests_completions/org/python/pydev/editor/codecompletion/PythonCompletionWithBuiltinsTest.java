@@ -47,7 +47,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testDjango();
+            builtins.testCompleteImportBuiltinReference();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -102,6 +102,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
                 TestDependent.PYTHON_WXPYTHON_PACKAGES+"|"+
                 TestDependent.PYTHON_MX_PACKAGES+"|"+
                 TestDependent.PYTHON_NUMPY_PACKAGES+"|"+
+                TestDependent.PYTHON_OPENGL_PACKAGES+"|"+
                 TestDependent.PYTHON_DJANGO_PACKAGES
                 
                 , false);
@@ -406,14 +407,14 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         "os.";         
         requestCompl(s, s.length(), -1, new String[]{"path"});
         
-        if(TestDependent.PYTHON_QT_PACKAGES != null){ //we can only test what we have
+        if(TestDependent.PYTHON_QT4_PACKAGES != null){ //we can only test what we have
             //check for builtins with reference..3
             s = "" +
-            "from qt import *\n"+
+            "from PyQt4.QtGui import *\n"+
             "                \n"+   
             "q = QLabel()    \n"+     
             "q.";         
-            requestCompl(s, s.length(), -1, new String[]{"AlignAuto"});
+            requestCompl(s, s.length(), -1, new String[]{"acceptDrops()", "childEvent()"});
         }
 
         //check for builtins with reference..3

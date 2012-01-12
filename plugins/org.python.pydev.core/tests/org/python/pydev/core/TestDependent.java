@@ -37,7 +37,7 @@ public class TestDependent {
     public static String PYTHON_WXPYTHON_PACKAGES = null;
     public static String PYTHON_NUMPY_PACKAGES = null;
     public static String PYTHON_DJANGO_PACKAGES = null;
-    public static String PYTHON_QT_PACKAGES = null;
+    public static String PYTHON_QT4_PACKAGES = null;
     public static String PYTHON_OPENGL_PACKAGES = null;
     public static String PYTHON_MX_PACKAGES = null;
     public static String PYTHON_PIL_PACKAGES = null;
