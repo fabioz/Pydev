@@ -9,7 +9,7 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
-public interface IInfo {
+public interface IInfo extends Comparable<IInfo> {
 
     /**
      * @return the name of the representing token

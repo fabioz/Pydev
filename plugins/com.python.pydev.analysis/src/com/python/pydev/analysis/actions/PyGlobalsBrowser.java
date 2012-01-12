@@ -155,7 +155,7 @@ public class PyGlobalsBrowser extends PyAction{
     public static void doSelect(List<IPythonNature> pythonNatures, List<AbstractAdditionalTokensInfo> additionalInfo, 
             String selectedText) {
         
-        SelectionDialog dialog = GlobalsDialogFactory.create(getShell(), additionalInfo, selectedText, pythonNatures);
+        SelectionDialog dialog = GlobalsDialogFactory.create(getShell(), additionalInfo, selectedText);
 
         dialog.open();
         Object[] result = dialog.getResult();
@@ -165,6 +165,8 @@ public class PyGlobalsBrowser extends PyAction{
                 if(obj instanceof AdditionalInfoAndIInfo){
                     AdditionalInfoAndIInfo additional = (AdditionalInfoAndIInfo)obj;
                     try {
+                        //Change the pythonNatures given the selection done (so, just investigate the passed nature, not
+                        //all of the input natures).
                         if(additional.additionalInfo instanceof AdditionalProjectInterpreterInfo){
                             AdditionalProjectInterpreterInfo projectInterpreterInfo = (AdditionalProjectInterpreterInfo) additional.additionalInfo;
                             IProject project = projectInterpreterInfo.getProject();

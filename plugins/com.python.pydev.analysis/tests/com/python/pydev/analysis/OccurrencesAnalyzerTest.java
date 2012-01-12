@@ -566,7 +566,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
     
     public void testGlu(){
-        if(TestDependent.HAS_GLU_INSTALLED){
+        if(TestDependent.PYTHON_OPENGL_PACKAGES != null){
             doc = new Document(
                     "from OpenGL.GL import glPushMatrix\n" +
                     "print glPushMatrix\n" +
@@ -578,7 +578,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
     
     public void testGlu2(){
-        if(TestDependent.HAS_GLU_INSTALLED){
+        if(TestDependent.PYTHON_OPENGL_PACKAGES != null){
             doc = new Document(
                     "from OpenGL.GL import * #@UnusedWildImport\n" +
                     "print glPushMatrix\n" +
@@ -590,7 +590,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
     
     public void testGlu3(){
-        if(TestDependent.HAS_GLU_INSTALLED){
+        if(TestDependent.PYTHON_OPENGL_PACKAGES != null){
             doc = new Document(
                     "from OpenGL.GL import glRotatef\n" +
                     "print glRotatef\n" +
@@ -602,7 +602,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
     
     public void testGlu4(){
-        if(TestDependent.HAS_GLU_INSTALLED){
+        if(TestDependent.PYTHON_OPENGL_PACKAGES != null){
             doc = new Document(
                     "from OpenGL.GLU import gluLookAt\n" +
                     "print gluLookAt" +

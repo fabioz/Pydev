@@ -48,7 +48,7 @@ import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 public class LocalScope implements ILocalScope {
 
     //the first node from the stack is always the module itself (if it's not there, it means it is a compiled module scope)
-    public FastStack<SimpleNode> scope = new FastStack<SimpleNode>();
+    public FastStack<SimpleNode> scope = new FastStack<SimpleNode>(20);
     
     public int scopeEndLine = -1;
 

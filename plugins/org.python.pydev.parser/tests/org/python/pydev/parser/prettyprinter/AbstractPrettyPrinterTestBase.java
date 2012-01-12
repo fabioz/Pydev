@@ -115,7 +115,7 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
      * @throws Exception 
      */
     protected void parseAndReparsePrettyPrintedFilesInDir(File file) throws Exception {
-        assertTrue(file.exists());
+        assertTrue("Dir does not exist: "+file, file.exists());
         assertTrue(file.isDirectory());
         File[] files = file.listFiles();
         for (int i = 0; i < files.length; i++) {

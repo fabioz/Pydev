@@ -47,7 +47,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testDjango();
+            builtins.testCompleteImportBuiltinReference();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -102,6 +102,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
                 TestDependent.PYTHON_WXPYTHON_PACKAGES+"|"+
                 TestDependent.PYTHON_MX_PACKAGES+"|"+
                 TestDependent.PYTHON_NUMPY_PACKAGES+"|"+
+                TestDependent.PYTHON_OPENGL_PACKAGES+"|"+
                 TestDependent.PYTHON_DJANGO_PACKAGES
                 
                 , false);
@@ -219,7 +220,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
     }
     
     public void testPreferForcedBuiltin() throws BadLocationException, IOException, Exception{
-        if(TestDependent.HAS_MX_DATETIME){
+        if(TestDependent.PYTHON_MX_PACKAGES != null){
             String s = ""+
             "from mx import DateTime\n"+
             "DateTime.";
@@ -360,14 +361,14 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
     }
     
     public void testGlu() throws IOException, Exception {
-        if(TestDependent.HAS_GLU_INSTALLED){
+        if(TestDependent.PYTHON_OPENGL_PACKAGES != null){
             final String s = "from OpenGL import ";
             requestCompl(s, s.length(), -1, new String[]{"GLU", "GLUT"});
         }
     }
     
     public void testGlu2() throws IOException, Exception {
-        if(TestDependent.HAS_GLU_INSTALLED){
+        if(TestDependent.PYTHON_OPENGL_PACKAGES != null){
             final String s = "from OpenGL.GL import ";
             requestCompl(s, s.length(), -1, new String[]{"glPushMatrix"});
         }
@@ -406,14 +407,14 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         "os.";         
         requestCompl(s, s.length(), -1, new String[]{"path"});
         
-        if(TestDependent.HAS_QT_INSTALLED){ //we can only test what we have
+        if(TestDependent.PYTHON_QT4_PACKAGES != null){ //we can only test what we have
             //check for builtins with reference..3
             s = "" +
-            "from qt import *\n"+
+            "from PyQt4.QtGui import *\n"+
             "                \n"+   
             "q = QLabel()    \n"+     
             "q.";         
-            requestCompl(s, s.length(), -1, new String[]{"AlignAuto"});
+            requestCompl(s, s.length(), -1, new String[]{"acceptDrops()", "childEvent()"});
         }
 
         //check for builtins with reference..3

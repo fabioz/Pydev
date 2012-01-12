@@ -16,6 +16,7 @@ import java.util.Iterator;
 import junit.framework.TestCase;
 
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 public class StringUtilsTest extends TestCase {
 
@@ -23,7 +24,7 @@ public class StringUtilsTest extends TestCase {
         try {
             StringUtilsTest test = new StringUtilsTest();
             test.setUp();
-            test.testIterLines();
+            test.testParseInt();
             test.tearDown();
             junit.textui.TestRunner.run(StringUtilsTest.class);
         } catch (Throwable e) {
@@ -391,6 +392,41 @@ public class StringUtilsTest extends TestCase {
     public void testJoin() throws Exception {
         assertEquals(";", StringUtils.join(";", "", ""));
         
+    }
+    
+    public void testParseInt() throws Exception {
+        FastStringBuffer buf = new FastStringBuffer();
+        try {
+            StringUtils.parsePositiveLong(buf);
+            fail("Expecting exception");
+        } catch (NumberFormatException e) {
+            //empty
+        }
+        
+        buf.append("0");
+        assertEquals(0, StringUtils.parsePositiveLong(buf));
+        
+        buf.append("10");
+        assertEquals(10, StringUtils.parsePositiveLong(buf));
+        
+        buf.append("1");
+        assertEquals(101, StringUtils.parsePositiveLong(buf));
+        
+        buf.append("a");
+        try {
+            StringUtils.parsePositiveLong(buf);
+            fail("Expecting exception");
+        } catch (NumberFormatException e) {
+            //empty
+        }
+        buf.deleteLast();
+        assertEquals(101, StringUtils.parsePositiveLong(buf));
+        
+        buf.append("4");
+        assertEquals(1014, StringUtils.parsePositiveLong(buf));
+        
+        buf.append("9");
+        assertEquals(10149, StringUtils.parsePositiveLong(buf));
     }
 }
 

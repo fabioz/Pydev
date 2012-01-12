@@ -20,6 +20,10 @@ public final class LRUMap<Key, Val> extends LinkedHashMap<Key, Val>{
     private int maxSize;
 
     public LRUMap(int maxSize){
+        super(maxSize < 8?maxSize:8); //initial capacity = max size or 8 if max size is big.
+        if(maxSize <= 0){
+            throw new AssertionError("Max size must be > 0.");
+        }
         this.maxSize = maxSize;
     }
     

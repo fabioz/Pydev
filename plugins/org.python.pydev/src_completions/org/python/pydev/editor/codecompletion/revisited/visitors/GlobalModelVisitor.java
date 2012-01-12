@@ -43,7 +43,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
     private SourceToken __all__;
     private Assign __all__Assign;
     private exprType[] __all__AssignTargets;
-    private FastStack<Assign> lastAssign = new FastStack<Assign>();
+    private FastStack<Assign> lastAssign = new FastStack<Assign>(20);
     private boolean onlyAllowTokensIn__all__;
     private final Map<String, SourceToken> repToTokenWithArgs = new HashMap<String, SourceToken>();
 

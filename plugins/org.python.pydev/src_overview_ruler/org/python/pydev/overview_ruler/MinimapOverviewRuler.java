@@ -93,7 +93,7 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
             this.setSystem(true);
         }
 
-        private FastStack<Object[]> stackedParameters = new FastStack<Object[]>();
+        private FastStack<Object[]> stackedParameters = new FastStack<Object[]>(20);
 
         /**
          * Note: the GC and marginColor need to be disposed after they're used.

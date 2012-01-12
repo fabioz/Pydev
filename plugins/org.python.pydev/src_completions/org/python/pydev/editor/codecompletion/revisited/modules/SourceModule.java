@@ -775,7 +775,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                             
                             SimpleNode ast2 = ((SourceToken)token).getAst();
                             Tuple<Integer, Integer> def = getLineColForDefinition(ast2);
-                            FastStack<SimpleNode> stack = new FastStack<SimpleNode>();
+                            FastStack<SimpleNode> stack = new FastStack<SimpleNode>(5);
                             if(module instanceof SourceModule){
                                 stack.push(((SourceModule)module).getAst());
                             }
@@ -930,7 +930,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                         return new Definition(def.o1, def.o2, rep, a, scopeVisitor.scope, module);
                     }else{
                         //line, col
-                        return new Definition(def.o1, def.o2, rep, a, new LocalScope(new FastStack<SimpleNode>()), module);
+                        return new Definition(def.o1, def.o2, rep, a, new LocalScope(new FastStack<SimpleNode>(5)), module);
                     }
                 }else if(token instanceof ConcreteToken){
                     //a contrete token represents a module

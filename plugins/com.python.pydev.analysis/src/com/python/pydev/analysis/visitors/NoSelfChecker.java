@@ -40,13 +40,13 @@ public final class NoSelfChecker {
         }
     }
     
-    private FastStack<Integer> scope = new FastStack<Integer>();
-    private FastStack<HashMap<String, Tuple<Expected, FunctionDef>>> maybeNoSelfDefinedItems = new FastStack<HashMap<String, Tuple<Expected, FunctionDef>>>();
+    private FastStack<Integer> scope = new FastStack<Integer>(10);
+    private FastStack<HashMap<String, Tuple<Expected, FunctionDef>>> maybeNoSelfDefinedItems = new FastStack<HashMap<String, Tuple<Expected, FunctionDef>>>(10);
     
     /**
      * Stack with the names of the classes
      */
-    private FastStack<String> classBases = new FastStack<String>();
+    private FastStack<String> classBases = new FastStack<String>(10);
     
     private String moduleName;
     private AbstractScopeAnalyzerVisitor visitor;

@@ -58,12 +58,12 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
     /**
      * Stack of classes / methods to get to a definition.
      */
-    private FastStack<SimpleNode> defsStack = new FastStack<SimpleNode>();
+    private FastStack<SimpleNode> defsStack = new FastStack<SimpleNode>(20);
     
     /**
      * This is a stack that will keep the globals for each stack
      */
-    private FastStack<Set<String>> globalDeclarationsStack = new FastStack<Set<String>>();
+    private FastStack<Set<String>> globalDeclarationsStack = new FastStack<Set<String>>(20);
     
     /**
      * This is the module we are visiting: just a weak reference so that we don't create a cycle (let's

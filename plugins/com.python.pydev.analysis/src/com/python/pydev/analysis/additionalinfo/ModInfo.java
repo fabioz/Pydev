@@ -21,6 +21,10 @@ public final class ModInfo extends AbstractInfo{
         super(getNameFromModule(moduleDeclared), moduleDeclared, null);
     }
     
+    public ModInfo(String moduleDeclared, boolean doNotInternOnThisContstruct) {
+        super(getNameFromModule(moduleDeclared), moduleDeclared, null, doNotInternOnThisContstruct);
+    }
+    
     private static String getNameFromModule(String moduleDeclared) {
         String lastPart = FullRepIterable.getLastPart(moduleDeclared);
         if(lastPart.equals("__init__")){

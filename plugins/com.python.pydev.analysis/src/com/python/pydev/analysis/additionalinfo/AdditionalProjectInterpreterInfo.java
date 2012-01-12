@@ -217,10 +217,10 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
 
     //interfaces that iterate through all of them
     public static List<IInfo> getTokensEqualTo(String qualifier, IPythonNature nature, int getWhat) throws MisconfigurationException {
-        ArrayList<IInfo> ret = new ArrayList<IInfo>();
+        ArrayList<IInfo> ret = new ArrayList<IInfo>(50);
         List<AbstractAdditionalTokensInfo> additionalInfo = getAdditionalInfo(nature);
         for (AbstractAdditionalTokensInfo info : additionalInfo) {
-            ret.addAll(info.getTokensEqualTo(qualifier, getWhat));
+            info.getTokensEqualTo(qualifier, getWhat, ret);
         }
         return ret;
     }
@@ -229,7 +229,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
         ArrayList<IInfo> ret = new ArrayList<IInfo>();
         List<AbstractAdditionalTokensInfo> additionalInfo = getAdditionalInfo(nature);
         for (AbstractAdditionalTokensInfo info : additionalInfo) {
-            ret.addAll(info.getTokensStartingWith(qualifier, getWhat));
+            info.getTokensStartingWith(qualifier, getWhat, ret);
         }
         return ret;
     }

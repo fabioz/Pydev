@@ -27,10 +27,10 @@ public class GlobalsDialogFactory{
      * Creates the dialog according to the Eclipse version we have (on 3.2, the old API is used)
      * @param pythonNatures 
      */
-    public static SelectionDialog create(Shell shell, List<AbstractAdditionalTokensInfo> additionalInfo, String selectedText, List<IPythonNature> pythonNatures){
+    public static SelectionDialog create(Shell shell, List<AbstractAdditionalTokensInfo> additionalInfo, String selectedText){
         boolean expectedError = true;
         try{
-            GlobalsTwoPanelElementSelector2 newDialog = new GlobalsTwoPanelElementSelector2(shell, true, selectedText, pythonNatures);
+            GlobalsTwoPanelElementSelector2 newDialog = new GlobalsTwoPanelElementSelector2(shell, true, selectedText);
             //If we were able to instance it, the error is no longer expected!
             expectedError = false;
             

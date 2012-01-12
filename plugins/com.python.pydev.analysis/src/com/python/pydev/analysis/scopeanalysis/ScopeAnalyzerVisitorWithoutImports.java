@@ -246,7 +246,7 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
     @Override
     protected void onAfterStartScope(int newScopeType, SimpleNode node) {
         if(parents == null){
-            parents = new FastStack<ASTEntry>();
+            parents = new FastStack<ASTEntry>(10);
         }
         if(parents.size() == 0){
             parents.push(new ASTEntry(null, node));
