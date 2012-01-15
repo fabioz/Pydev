@@ -81,38 +81,39 @@ public class ExtensionHelper {
         return extensions;
     }
     
-    @SuppressWarnings("unchecked")
-    public static Object getParticipant(String type) {
-        //only one participant may be used for this
+    /**
+     * @param type  the name of the extension
+     * @param allowOverride  if true, the last registered participant will be
+     *                       returned, thus "overriding" any previously
+     *                       registered participants. If false, an exception
+     *                       is thrown if more than one participant is
+     *                       registered.
+     * @return  the participant for the given extension type, or null if none
+     *          is registered.
+     */
+    public static Object getParticipant(String type, boolean allowOverride) {
         List<Object> participants = getParticipants(type);
-        if(participants.size() == 1){
-            return participants.get(0);
-        }
-        
-        if(participants.size() == 0){
+        if (participants.isEmpty()){
             return null;
         }
-        
-        if(participants.size() > 1){
+        if (!allowOverride && participants.size() > 1) {
+            // only one participant may be used for this
             throw new RuntimeException("More than one participant is registered for type:"+type);
         }
-        
-        throw new RuntimeException("Should never get here!");
-        
+        return participants.get(participants.size() - 1);
     }
     
     /**
      * @param type the extension we want to get
      * @return a list of classes created from those extensions
      */
-    @SuppressWarnings("unchecked")
     public static List getParticipants(String type) {
         if(testingParticipants != null){
-            List<Object> list = testingParticipants.get(type);
+            List list = testingParticipants.get(type);
             if(list == null){
-            	list = new ArrayList();
+                list = new ArrayList();
             }
-			return list;
+            return list;
         }
         
         ArrayList list = new ArrayList();
