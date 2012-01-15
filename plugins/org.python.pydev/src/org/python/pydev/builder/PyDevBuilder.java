@@ -63,7 +63,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
         list.add(new PycHandlerBuilderVisitor());
         list.add(new PySyntaxChecker());
 
-        list.addAll(ExtensionHelper.<PyDevBuilderVisitor>getParticipants(ExtensionHelper.PYDEV_BUILDER));
+        list.addAll(ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_BUILDER));
         return list;
     }
 

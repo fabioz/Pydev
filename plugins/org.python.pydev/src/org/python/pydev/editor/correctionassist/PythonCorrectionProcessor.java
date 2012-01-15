@@ -166,7 +166,7 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
                 assists.add(new AssistAssign());
         //        assists.add(new AssistOverride()); -- Not ready!
         
-                assists.addAll(ExtensionHelper.<IAssistProps>getParticipants(ExtensionHelper.PYDEV_CTRL_1));
+                assists.addAll(ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_CTRL_1));
                 ImageCache imageCache = PydevPlugin.getImageCache();
                 File editorFile = edit.getEditorFile();
                 IPythonNature pythonNature = null;
@@ -272,7 +272,7 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
         assists.add(new AssistAssign());
 //        assists.add(new AssistOverride()); -- Not ready!
 
-        assists.addAll(ExtensionHelper.<IAssistProps>getParticipants(ExtensionHelper.PYDEV_CTRL_1));
+        assists.addAll(ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_CTRL_1));
         ImageCache imageCache = PydevPlugin.getImageCache();
         File editorFile = edit.getEditorFile();
         IPythonNature pythonNature = null;

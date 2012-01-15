@@ -107,18 +107,17 @@ public class ExtensionHelper {
      * @param type the extension we want to get
      * @return a list of classes created from those extensions
      */
-    @SuppressWarnings("unchecked")
-    public static <T> List<T> getParticipants(String type) {
-        List<T> list = null;
+    public static List getParticipants(String type) {
+        List<Object> list = null;
         if (testingParticipants != null) {
-            list = (List<T>) testingParticipants.get(type);
+            list = testingParticipants.get(type);
             if (list == null) {
-                list = new ArrayList<T>();
+                list = new ArrayList<Object>();
             }
             return list;
         }
 
-        list = new ArrayList<T>();
+        list = new ArrayList<Object>();
         // For each extension ...
         for (IExtension extension : getExtensions(type)) {
             IConfigurationElement[] elements = extension
@@ -126,7 +125,7 @@ public class ExtensionHelper {
             // For each member of the extension ...
             for (IConfigurationElement element : elements) {
                 try {
-                    list.add((T) element.createExecutableExtension("class"));
+                    list.add(element.createExecutableExtension("class"));
                 } catch (Exception e) {
                     Log.log(e);
                 }
