@@ -107,27 +107,26 @@ public class ExtensionHelper {
      * @param type the extension we want to get
      * @return a list of classes created from those extensions
      */
-    public static List getParticipants(String type) {
-        if(testingParticipants != null){
-            List list = testingParticipants.get(type);
-            if(list == null){
-                list = new ArrayList();
+    @SuppressWarnings("unchecked")
+    public static <T> List<T> getParticipants(String type) {
+        List<T> list = null;
+        if (testingParticipants != null) {
+            list = (List<T>) testingParticipants.get(type);
+            if (list == null) {
+                list = new ArrayList<T>();
             }
             return list;
         }
-        
-        ArrayList list = new ArrayList();
-        IExtension[] extensions = getExtensions(type);
+
+        list = new ArrayList<T>();
         // For each extension ...
-        for (int i = 0; i < extensions.length; i++) {
-            IExtension extension = extensions[i];
-            IConfigurationElement[] elements = extension.getConfigurationElements();
+        for (IExtension extension : getExtensions(type)) {
+            IConfigurationElement[] elements = extension
+                    .getConfigurationElements();
             // For each member of the extension ...
-            for (int j = 0; j < elements.length; j++) {
-                IConfigurationElement element = elements[j];
-                
+            for (IConfigurationElement element : elements) {
                 try {
-                    list.add(element.createExecutableExtension("class"));
+                    list.add((T) element.createExecutableExtension("class"));
                 } catch (Exception e) {
                     Log.log(e);
                 }
@@ -135,6 +134,4 @@ public class ExtensionHelper {
         }
         return list;
     }
-    
-
 }

@@ -55,7 +55,6 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
      * 
      * @return a list of visitors for building the application.
      */
-    @SuppressWarnings("unchecked")
     public List<PyDevBuilderVisitor> getVisitors() {
         List<PyDevBuilderVisitor> list = new ArrayList<PyDevBuilderVisitor>();
         list.add(new PyTodoVisitor());
@@ -64,7 +63,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
         list.add(new PycHandlerBuilderVisitor());
         list.add(new PySyntaxChecker());
 
-        list.addAll(ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_BUILDER));
+        list.addAll(ExtensionHelper.<PyDevBuilderVisitor>getParticipants(ExtensionHelper.PYDEV_BUILDER));
         return list;
     }
 
