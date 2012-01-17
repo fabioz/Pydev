@@ -176,7 +176,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @return the source code formatter to be used.
      */
     public IFormatter getFormatter() {
-        IFormatter participant = (IFormatter) ExtensionHelper.getParticipant(ExtensionHelper.PYDEV_FORMATTER);
+        IFormatter participant = (IFormatter) ExtensionHelper.getParticipant(ExtensionHelper.PYDEV_FORMATTER, false);
         if (participant == null) {
             participant = this;
         }
