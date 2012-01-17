@@ -201,6 +201,10 @@ public final class FastStringBuffer{
     public int length() {
         return this.count;
     }
+    
+    public boolean isEmpty() {
+        return this.count == 0;
+    }
 
     /**
      * @return a new string with the contents of this buffer.
@@ -441,11 +445,8 @@ public final class FastStringBuffer{
     }
 
     public void rightTrim() {
-        if (this.count == 0) {
-            return;
-        }
         char c;
-        while (((c = this.lastChar()) == ' ' || c == '\t')) {
+        while (!isEmpty() && ((c = this.lastChar()) == ' ' || c == '\t')) {
             this.deleteLast();
         }
     }

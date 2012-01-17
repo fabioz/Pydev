@@ -173,6 +173,26 @@ public class FastStringBufferTest extends TestCase{
         assertEquals("some1", buf.getLastWord());
     }
     
+    public void testRightTrim() throws Exception {
+        FastStringBuffer buf = new FastStringBuffer("", 0);
+        buf.rightTrim();
+        assertEquals("", buf.toString());
+        buf = new FastStringBuffer("   ", 0);
+        buf.rightTrim();
+        assertEquals("", buf.toString());
+        buf = new FastStringBuffer("foo", 0);
+        buf.rightTrim();
+        assertEquals("foo", buf.toString());
+        buf = new FastStringBuffer("foo   ", 0);
+        buf.rightTrim();
+        assertEquals("foo", buf.toString());
+        buf = new FastStringBuffer("foo bar", 0);
+        buf.rightTrim();
+        assertEquals("foo bar", buf.toString());
+        buf = new FastStringBuffer("foo bar   ", 0);
+        buf.rightTrim();
+        assertEquals("foo bar", buf.toString());
+    }
     
 //    public void testFastString() throws Exception {
 //        
