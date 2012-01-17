@@ -327,7 +327,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                 case '\'':
                 case '"':
                   //ignore comments or multiline comments...
-                    i = parsingUtils.eatLiterals(buf, i);
+                    i = parsingUtils.eatLiterals(buf, i, std.trimLines);
                     break;
 
                     
@@ -499,7 +499,9 @@ public class PyFormatStd extends PyAction implements IFormatter {
                         if (lastChar == ',' && std.spaceAfterComma && buf.lastChar() == ' ') {
                             buf.deleteLast();
                         }
-                        rightTrimIfNeeded(std, buf);
+                        if (std.trimLines) {
+                            buf.rightTrim();
+                        }
                     }
                     buf.append(c);
                     
@@ -507,22 +509,11 @@ public class PyFormatStd extends PyAction implements IFormatter {
             lastChar = c;
 
         }
-        if(parensLevel == 0){
-            rightTrimIfNeeded(std, buf);
+        if (parensLevel == 0 && std.trimLines) {
+            buf.rightTrim();
         }
         return buf.toString();
     }
-
-
-    private void rightTrimIfNeeded(FormatStd std, FastStringBuffer buf) {
-        if(std.trimLines){
-            char tempC;
-            while(buf.length() > 0 && ((tempC=buf.lastChar()) ==' ' || tempC == '\t')){
-                buf.deleteLast();
-            }
-        }
-    }
-
 
     /**
      * Handles having an operator
@@ -708,7 +699,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
             j++;
 
             if (c == '\'' || c == '"') { //ignore comments or multiline comments...
-                j = parsingUtils.eatLiterals(null, j - 1) + 1;
+                j = parsingUtils.eatLiterals(null, j - 1, std.trimLines) + 1;
                 end = j;
 
             } else if (c == '#') {
