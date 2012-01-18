@@ -207,35 +207,35 @@ Corrupted install
 --------------------
 
 
-	Eclipse sometimes is not able to correctly get the plugin, from the update site but will do no checking
-	on whether it is really correct (no md5 checking), and when this happens, you'll usually get a ClassNotFoundException
-	(similar to the example below).
+Eclipse sometimes is not able to correctly get the plugin, from the update site but will do no checking
+on whether it is really correct (no md5 checking), and when this happens, you'll usually get a ClassNotFoundException
+(similar to the example below).
 
-	When that happens, **you should uninstall it and reinstall again** with the update site... 
-	if that still fails, you could try to get the zip files, as it will at least give you a warning when it is corrupt.
-	
-	Note that the chance of the files being corrupt in the server is pretty low, as that's something that's always checked 
-	in a new release -- but if you're suspicious about it, please ask in the forum, so that it can be double-checked.
+When that happens, **you should uninstall it and reinstall again** with the update site... 
+if that still fails, you could try to get the zip files, as it will at least give you a warning when it is corrupt.
 
-	Also, there have been reports with that error where the only solution that
-	has been consistent has been **removing all** previous versions of pydev and then installing 
-	the latest version.
+Note that the chance of the files being corrupt in the server is pretty low, as that's something that's always checked 
+in a new release -- but if you're suspicious about it, please ask in the forum, so that it can be double-checked.
+
+Also, there have been reports with that error where the only solution that
+has been consistent has been **removing all** previous versions of pydev and then installing 
+the latest version.
 	
 
 **EXAMPLE**
 
-	Unable to create this part due to an internal error. Reason for the failure:
-	The editor class could not be instantiated. This usually indicates that the
-	editor's class name was mistyped in plugin.xml.
+Unable to create this part due to an internal error. Reason for the failure:
+The editor class could not be instantiated. This usually indicates that the
+editor's class name was mistyped in plugin.xml.
+
+
+::
 	
-	
-    ::
-    	
-    	java.lang.ClassNotFoundException: org.python.pydev.editor.PyEdit 
-    	at org.eclipse.osgi.framework.internal.core.BundleLoader.findClass(BundleLoader.java:405)       
-    	at org.eclipse.osgi.framework.internal.core.BundleLoader.findClass(BundleLoader.java:350)
-    	at org.eclipse.osgi.framework.adaptor.core.AbstractClassLoader.loadClass(AbstractClassLoader.java:78)
-    	at java.lang.ClassLoader.loadClass(ClassLoader.java:235)       
-    	at org.eclipse.osgi.framework.internal.core.BundleLoader.loadClass(BundleLoader.java:275)
-    	...
+	java.lang.ClassNotFoundException: org.python.pydev.editor.PyEdit 
+	at org.eclipse.osgi.framework.internal.core.BundleLoader.findClass(BundleLoader.java:405)       
+	at org.eclipse.osgi.framework.internal.core.BundleLoader.findClass(BundleLoader.java:350)
+	at org.eclipse.osgi.framework.adaptor.core.AbstractClassLoader.loadClass(AbstractClassLoader.java:78)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:235)       
+	at org.eclipse.osgi.framework.internal.core.BundleLoader.loadClass(BundleLoader.java:275)
+	...
 	
