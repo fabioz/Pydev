@@ -12,7 +12,7 @@
     
 .. contents::
 
-_`Aptana Studio 3`: http://aptana.com/products/studio3
+.. _`Aptana Studio 3`: http://aptana.com/products/studio3
 
 
 Note for users with Aptana Studio 3 (Beta)
@@ -43,7 +43,7 @@ the certificate (which should be OK for most users).
 Now, if you don't want that dialog to appear, it's possible to import the certificate before starting the installation process
 (this is actually a requirement for those that want to install PyDev from the command line because of a bug in the Eclipse p2 director).
 
-.. _PyDev certificate: pydev_certificate.cer
+.. _`PyDev certificate`: pydev_certificate.cer
 
 The first step for that is downloading the `PyDev certificate`_. 
 
@@ -71,7 +71,7 @@ menu (note that in older versions, this would be the 'Find and Install' menu).
    :align: center   
 
    
-In the next screen, add the update site(s) you want to work with (**See below for a list with the** `available update sites`_).
+In the next screen, add the update site(s) you want to work with (**See below for a list with the** available update sites).
 
 .. image:: images/update_sites.png
    :class: snap
@@ -80,10 +80,10 @@ In the next screen, add the update site(s) you want to work with (**See below fo
    
 .. _http://pydev.org/updates: http://pydev.org/updates
 .. _http://pydev.org/nightly: http://pydev.org/nightly
-.. _SourceForge download: http://sourceforge.net/projects/pydev/files/
+.. _`SourceForge download`: http://sourceforge.net/projects/pydev/files/
 
 
-_`Available update sites`
+Available update sites
 -------------------------------
 
     
@@ -229,12 +229,13 @@ Corrupted install
 	editor's class name was mistyped in plugin.xml.
 	
 	
-	
-	java.lang.ClassNotFoundException: org.python.pydev.editor.PyEdit 
-	at org.eclipse.osgi.framework.internal.core.BundleLoader.findClass(BundleLoader.java:405)       
-	at org.eclipse.osgi.framework.internal.core.BundleLoader.findClass(BundleLoader.java:350)
-	at org.eclipse.osgi.framework.adaptor.core.AbstractClassLoader.loadClass(AbstractClassLoader.java:78)
-	at java.lang.ClassLoader.loadClass(ClassLoader.java:235)       
-	at org.eclipse.osgi.framework.internal.core.BundleLoader.loadClass(BundleLoader.java:275)
-	...
+    ::
+    	
+    	java.lang.ClassNotFoundException: org.python.pydev.editor.PyEdit 
+    	at org.eclipse.osgi.framework.internal.core.BundleLoader.findClass(BundleLoader.java:405)       
+    	at org.eclipse.osgi.framework.internal.core.BundleLoader.findClass(BundleLoader.java:350)
+    	at org.eclipse.osgi.framework.adaptor.core.AbstractClassLoader.loadClass(AbstractClassLoader.java:78)
+    	at java.lang.ClassLoader.loadClass(ClassLoader.java:235)       
+    	at org.eclipse.osgi.framework.internal.core.BundleLoader.loadClass(BundleLoader.java:275)
+    	...
 	
