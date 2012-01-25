@@ -12,17 +12,20 @@
 package org.python.pydev.builder.todo;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IRegion;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
+import org.python.pydev.core.docutils.ParsingUtils;
+import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.logging.DebugSettings;
 
@@ -41,6 +44,7 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
             List<String> todoTags = PyTodoPrefPage.getTodoTags();
             try {
 				if(!isResourceInPythonpathProjectSources(resource, this.getPythonNature(resource), false)){
+				    PydevMarkerUtils.removeMarkers(resource, IMarker.TASK);
 					return;
 				}
 			} catch (Exception e1) {
@@ -48,52 +52,98 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
 				return;
 			}
 			
-            if(todoTags.size() > 0){
-
-                int numberOfLines = document.getNumberOfLines();
-    
-                try {
-                    //Timer timer = new Timer();
-                    List<PydevMarkerUtils.MarkerInfo> lst = new ArrayList<PydevMarkerUtils.MarkerInfo>();
-                    
-                    int line = 0;
-                    while (line < numberOfLines) {
-                        IRegion region = document.getLineInformation(line);
-                        String tok = document.get(region.getOffset(), region.getLength());
-                        int index;
-    
-                        for (String element : todoTags) {
-    
-                            if ((index = tok.indexOf(element)) != -1) {
-                                
-                                String message=tok.substring(index).trim();
-                                String markerType=IMarker.TASK;
-                                int severity=IMarker.SEVERITY_WARNING;
-                                boolean userEditable=false;
-                                boolean isTransient=false;
-                                int absoluteStart=region.getOffset()+index;
-                                int absoluteEnd=absoluteStart+message.length();
-                                Map<String, Object> additionalInfo = null;
-                                
-                                
-                                MarkerInfo markerInfo = new PydevMarkerUtils.MarkerInfo(document, message, markerType, severity, userEditable, 
-                                        isTransient, line, absoluteStart, absoluteEnd, additionalInfo);
-                                lst.add(markerInfo);
-                            }
-                        }
-                        line++;
-                    }
-                    if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-                        Log.toLogFile(this, "Adding todo markers");
-                    }
-                    PydevMarkerUtils.replaceMarkers(lst, resource, IMarker.TASK, false, monitor);
-                    //timer.printDiff("Total time to put markers: "+lst.size());
-                } catch (Exception e) {
-                    Log.log(e);
-                } 
-            }
+    		try {
+                PydevMarkerUtils.replaceMarkers(computeTodoMarkers(document, todoTags), resource, IMarker.TASK, false, monitor);
+                //timer.printDiff("Total time to put markers: "+lst.size());
+            } catch (Exception e) {
+                Log.log(e);
+            } 
         }
 
+    }
+
+    /**
+     * Computes the TODO markers available for this document.
+     * Considers only TODO flags in strings and comments.
+     */
+    /*default*/ List<MarkerInfo> computeTodoMarkers(IDocument document, List<String> todoTags)
+            throws BadLocationException {
+        List<PydevMarkerUtils.MarkerInfo> lst = new ArrayList<PydevMarkerUtils.MarkerInfo>();
+        if(todoTags.size() > 0){
+   
+            ParsingUtils utils = ParsingUtils.create(document);
+            int len = utils.len();
+            try {
+                for(int i=0;i<len;i++){
+                    char c = utils.charAt(i);
+                    switch(c){
+                    case '\'':
+                    case '\"':
+                        int j = utils.eatLiterals(null, i);
+                        check(i, j, document, lst, todoTags);
+                        i = j;
+                        break;
+                        
+                    case '#':
+                        j = utils.eatComments(null, i);
+                        check(i, j, document, lst, todoTags);
+                        i = j;
+                        break;
+                    }
+                }
+            } catch (BadLocationException e) {
+                //ignore (if document changed in the iteration).
+            } catch (SyntaxErrorException e) {
+                Log.log(e); //Should not happen!
+            }
+            
+            if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+                Log.toLogFile(this, "Adding todo markers");
+            }
+        }
+        return lst;
+    }
+    
+    /**
+     * Checks a partition of a document for todo tags (filling lst with the markers to be created).
+     */
+    private void check(int i, int j, IDocument document, List<MarkerInfo> lst, List<String> todoTags) throws BadLocationException {
+        String tok = document.get(i, j-i);
+        int index;
+        HashSet<Integer> lines = new HashSet<Integer>();
+        for (String element : todoTags) {
+        
+            if(element.length() == 0){
+                continue;
+            }
+            int start = 0;
+            while ((index = tok.indexOf(element, start)) != -1) {
+                
+                start = index+element.length();
+                
+                int absoluteStart=i+index;
+                int line = document.getLineOfOffset(absoluteStart);
+                if(lines.contains(line)){
+                    //Only 1 TASK per line!
+                    continue;
+                }else{
+                    lines.add(line);
+                }
+                
+                String message = tok.substring(index).trim();
+                String markerType=IMarker.TASK;
+                int severity=IMarker.SEVERITY_WARNING;
+                boolean userEditable=false;
+                boolean isTransient=false;
+                int absoluteEnd=absoluteStart+message.length();
+                Map<String, Object> additionalInfo = null;
+                
+                
+                MarkerInfo markerInfo = new PydevMarkerUtils.MarkerInfo(document, message, markerType, severity, userEditable, 
+                        isTransient, line, absoluteStart, absoluteEnd, additionalInfo);
+                lst.add(markerInfo);
+            }
+        }
     }
 
     /**
