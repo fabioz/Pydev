@@ -35,7 +35,7 @@ public class PyFormatStdTest extends TestCase {
             PyFormatStdTest n = new PyFormatStdTest();
             n.setUp();
             DEBUG = true;
-            n.testFormatSelection();
+            n.testLambdaWithArgs();
             n.tearDown();
             
             junit.textui.TestRunner.run(PyFormatStdTest.class);
@@ -1133,6 +1133,20 @@ public class PyFormatStdTest extends TestCase {
         "[2]*4";
         std.operatorsWithSpace = true;
         checkFormatResults(s, "[2] * 4");
+    }
+    
+    public void testLambdaWithArgs() throws Exception{
+        String s = "" +
+        "a = lamda *args:10";
+        std.operatorsWithSpace = true;
+        checkFormatResults(s, s);
+    }
+    
+    public void testLambdaWithArgs2() throws Exception{
+        String s = "" +
+        "a = lamda a,*args:10";
+        std.operatorsWithSpace = true;
+        checkFormatResults(s, s);
     }
     
     public void testFormatError() throws Exception{
