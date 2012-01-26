@@ -281,13 +281,14 @@ public abstract class ParsingUtils implements IPythonPartitions{
      *            object.
      * @param startPos
      *            The position of the initial ' or "
-     * @param rightTrim
-     *            Whether to right trim the whitespace of each line in the
-     *            literal when appending to buf .
+     * @param rightTrimMultiline
+     *            Whether to right trim the whitespace of each line in multi-
+     *            line literals when appending to buf .
      * @return The position of the last ' or " character of the literal (or the
      *         end of the document).
      */
-    public int eatLiterals(FastStringBuffer buf, int startPos, boolean rightTrim)
+    public int eatLiterals(FastStringBuffer buf, int startPos,
+            boolean rightTrimMultiline)
             throws SyntaxErrorException {
         char startChar = charAt(startPos);
 
@@ -297,14 +298,16 @@ public abstract class ParsingUtils implements IPythonPartitions{
         }
 
         // Retrieves the correct end position for single- and multi-line
-        // comments.
+        // string literals.
         int endPos = getLiteralEnd(startPos, startChar);
+        boolean rightTrim = rightTrimMultiline
+                && isMultiLiteral(startPos, startChar);
 
         if (buf != null) {
             int lastPos = Math.min(endPos, len() - 1);
             for (int i = startPos; i <= lastPos; i++) {
                 char ch = charAt(i);
-                if ((ch == '\r' || ch == '\n') && rightTrim) {
+                if (rightTrim && (ch == '\r' || ch == '\n')) {
                     buf.rightTrim();
                 }
                 buf.append(ch);

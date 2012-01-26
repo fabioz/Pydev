@@ -72,6 +72,8 @@ public class PyFormatStd extends PyAction implements IFormatter {
         public boolean addNewLineAtEndOfFile;
 
         public boolean trimLines;
+        
+        public boolean trimMultilineLiterals;
     }
     
     
@@ -291,6 +293,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         formatStd.spaceAfterComma = PyCodeFormatterPage.useSpaceAfterComma();
         formatStd.addNewLineAtEndOfFile = PyCodeFormatterPage.getAddNewLineAtEndOfFile();
         formatStd.trimLines = PyCodeFormatterPage.getTrimLines();
+        formatStd.trimMultilineLiterals = PyCodeFormatterPage.getTrimMultilineLiterals();
         return formatStd;
     }
 
@@ -326,8 +329,8 @@ public class PyFormatStd extends PyAction implements IFormatter {
             switch(c){
                 case '\'':
                 case '"':
-                  //ignore comments or multiline comments...
-                    i = parsingUtils.eatLiterals(buf, i, std.trimLines);
+                    //ignore literals and multi-line literals, including comments...
+                    i = parsingUtils.eatLiterals(buf, i, std.trimMultilineLiterals);
                     break;
 
                     
@@ -699,7 +702,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
             j++;
 
             if (c == '\'' || c == '"') { //ignore comments or multiline comments...
-                j = parsingUtils.eatLiterals(null, j - 1, std.trimLines) + 1;
+                j = parsingUtils.eatLiterals(null, j - 1, std.trimMultilineLiterals) + 1;
                 end = j;
 
             } else if (c == '#') {
