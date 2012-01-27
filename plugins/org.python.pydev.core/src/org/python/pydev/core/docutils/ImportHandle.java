@@ -286,12 +286,46 @@ public class ImportHandle {
      * Constructor.
      * 
      * Assigns parameters to fields.
+     * @throws ImportNotRecognizedException 
      */
-    public ImportHandle(IDocument doc, String importFound, int startFoundLine, int endFoundLine) {
+    public ImportHandle(IDocument doc, String importFound, int startFoundLine, int endFoundLine) throws ImportNotRecognizedException {
         this.doc = doc;
         this.importFound = importFound;
         this.startFoundLine = startFoundLine;
         this.endFoundLine = endFoundLine;
+        
+        this.importInfo = new ArrayList<ImportHandleInfo>();
+        
+        int line = startFoundLine;
+        boolean startedInMiddle = false;
+        
+        FastStringBuffer imp = new FastStringBuffer();
+        ImportHandleInfo found = null;
+        for(int i=0;i<importFound.length();i++){
+            char c = importFound.charAt(i);
+            
+            if(c == '#'){
+                i = ParsingUtils.create(importFound).eatComments(imp, i);
+                
+            }else if(c == ';'){
+                String impStr = imp.toString();
+                int endLine = line+StringUtils.countLineBreaks(impStr);
+                found = new ImportHandleInfo(impStr, line, endLine, startedInMiddle);
+                this.importInfo.add(found);
+                line = endLine;
+                imp = imp.clear();
+                startedInMiddle = true;
+            }else{
+                if(c == '\r' || c == '\n'){
+                    startedInMiddle = false;
+                }
+                imp.append(c);
+            }
+            
+        }
+        String impStr = imp.toString();
+        this.importInfo.add(new ImportHandleInfo(impStr, line, line+StringUtils.countLineBreaks(impStr), startedInMiddle));
+
     }
 
     /**
@@ -333,45 +367,6 @@ public class ImportHandle {
      * @return a list with the import information generated from the import this handle is wrapping.
      */
     public List<ImportHandleInfo> getImportInfo() {
-        if(this.importInfo == null){
-            this.importInfo = new ArrayList<ImportHandleInfo>();
-            
-            int line = startFoundLine;
-            boolean startedInMiddle = false;
-            
-            FastStringBuffer imp = new FastStringBuffer();
-            for(int i=0;i<importFound.length();i++){
-                char c = importFound.charAt(i);
-                
-                if(c == '#'){
-                    i = ParsingUtils.create(importFound).eatComments(imp, i);
-                    
-                }else if(c == ';'){
-                    try {
-                        String impStr = imp.toString();
-                        int endLine = line+StringUtils.countLineBreaks(impStr);
-                        this.importInfo.add(new ImportHandleInfo(impStr, line, endLine, startedInMiddle));
-                        line = endLine;
-                    } catch (ImportNotRecognizedException e) {
-                        //that's ok, not a valid import (at least, we couldn't parse it)
-                    }
-                    imp = imp.clear();
-                    startedInMiddle = true;
-                }else{
-                    if(c == '\r' || c == '\n'){
-                        startedInMiddle = false;
-                    }
-                    imp.append(c);
-                }
-                
-            }
-            try {
-                String impStr = imp.toString();
-                this.importInfo.add(new ImportHandleInfo(impStr, line, line+StringUtils.countLineBreaks(impStr), startedInMiddle));
-            } catch (ImportNotRecognizedException e) {
-                //that's ok, not a valid import (at least, we couldn't parse it)
-            }
-        }
         return this.importInfo;
     }
 

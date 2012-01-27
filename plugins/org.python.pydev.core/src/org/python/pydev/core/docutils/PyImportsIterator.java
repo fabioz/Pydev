@@ -71,11 +71,11 @@ public class PyImportsIterator implements Iterator<ImportHandle> {
             //only pre-calculate if there's something to pre-calculate.
             return;
         }
-        String importFound = null;
         int startFoundLine=-1;
         int endFoundLine=-1;
         
-        
+        hasNext = false;
+        nextImport = null;
         while(docIterator.hasNext()){
             String str = docIterator.next();
             
@@ -100,18 +100,17 @@ public class PyImportsIterator implements Iterator<ImportHandle> {
                         str += delimiter+docIterator.next();
                     }
                 }
-                importFound = str;
+                try {
+                    nextImport = new ImportHandle(doc, str, startFoundLine, endFoundLine);
+                } catch (ImportNotRecognizedException e) {
+                    continue;
+                }
+                hasNext = true;
                 endFoundLine = docIterator.getLastReturnedLine();
                 break; //ok, import found
             }
         }
         
-        hasNext = importFound != null;
-        if(hasNext){
-            nextImport = new ImportHandle(doc, importFound, startFoundLine, endFoundLine);
-        }else{
-            nextImport = null;
-        }
     }
 
     /**
