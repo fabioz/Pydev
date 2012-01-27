@@ -391,7 +391,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                                 localC = buf.charAt(j);
                             }
                             String reversed = localBufToCheckWildImport.reverse().toString();
-                            if(!reversed.equals("import") && !reversed.equals("lamda")){
+                            if(!reversed.equals("import") && !reversed.equals("lambda")){
                                 isOperator = true;
                             }
                         }

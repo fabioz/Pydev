@@ -35,7 +35,7 @@ public class PyFormatStdTest extends TestCase {
             PyFormatStdTest n = new PyFormatStdTest();
             n.setUp();
             DEBUG = true;
-            n.testLambdaWithArgs();
+            n.testLambdaWithArgs3();
             n.tearDown();
             
             junit.textui.TestRunner.run(PyFormatStdTest.class);
@@ -1137,14 +1137,21 @@ public class PyFormatStdTest extends TestCase {
     
     public void testLambdaWithArgs() throws Exception{
         String s = "" +
-        "a = lamda *args:10";
+        "a = lambda *args:10";
         std.operatorsWithSpace = true;
         checkFormatResults(s, s);
     }
     
     public void testLambdaWithArgs2() throws Exception{
         String s = "" +
-        "a = lamda a,*args:10";
+        "a = lambda a,*args:10";
+        std.operatorsWithSpace = true;
+        checkFormatResults(s, s);
+    }
+    
+    public void testLambdaWithArgs3() throws Exception{
+        String s = "" +
+        "foo = lambda *args,**kwargs: True";
         std.operatorsWithSpace = true;
         checkFormatResults(s, s);
     }
