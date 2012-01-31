@@ -102,7 +102,7 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
             
             
             nature.setVersion(IPythonNature.PYTHON_VERSION_LATEST, IPythonNature.DEFAULT_INTERPRETER);
-            assertEquals(manager.getDefaultInterpreterInfo(false), nature.getProjectInterpreter().getExecutableOrJar());
+            assertEquals(manager.getDefaultInterpreterInfo(false).getExecutableOrJar(), nature.getProjectInterpreter().getExecutableOrJar());
             runnerConfig = createConfig();
             argv = runnerConfig.getCommandLine(false); 
             assertEquals(manager.getDefaultInterpreterInfo(false).getExecutableOrJar(), argv[0]);
