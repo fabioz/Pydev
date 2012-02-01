@@ -14,11 +14,11 @@ package org.python.pydev.parser;
 import org.python.pydev.core.log.Log;
 
 public class ParsingThread extends Thread {
-    boolean okToGo;
-    boolean force = false;
+    volatile boolean okToGo;
+    volatile boolean force = false;
 
-    private ParserScheduler parser;
-    private Object[] argsToReparse;
+    private final ParserScheduler parser;
+    private final Object[] argsToReparse;
     
     /**
      * Identifies whether this parsing thread is disposed.

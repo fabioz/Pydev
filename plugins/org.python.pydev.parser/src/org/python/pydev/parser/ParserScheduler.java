@@ -41,19 +41,19 @@ public class ParserScheduler {
     /**
      * initially we're waiting
      */
-    int state = STATE_WAITING;
+    volatile int state = STATE_WAITING;
     
     /**
      * this is the exact time a parse later was requested
      */
-    private long timeParseLaterRequested = 0;
+    private volatile long timeParseLaterRequested = 0;
     
     /**
      * this is the exact time the last parse was requested
      */
-    private long timeLastParse = 0;
+    private volatile long timeLastParse = 0;
 
-    private PyParser parser;
+    private volatile PyParser parser;
 
     public ParserScheduler(PyParser parser) {
         super();
@@ -94,7 +94,7 @@ public class ParserScheduler {
                     parserThreadLocal = new ParsingThread(this, argsToReparse);
                     parsingThread = parserThreadLocal;
                     parserThreadLocal.force = true;
-                    parserThreadLocal.setPriority(Thread.MIN_PRIORITY); //parsing is low priority
+                    parserThreadLocal.setPriority(Thread.NORM_PRIORITY-1); //parsing is lower than normal priority
                     parserThreadLocal.start();
                 }else{
                     //force it to run
