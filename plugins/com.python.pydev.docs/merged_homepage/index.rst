@@ -111,10 +111,39 @@ First time users are strongly advised to read the `Getting started guide`_  whic
 
 
 
+Release 2.4.0
+===============
+
+**PyDev is now faster and uses less memory** (many performance and memory improvements were done)!
+
+The contents of the homepage are now migrated to a wiki at https://wiki.appcelerator.org/display/tis/Python+Development ... (later most of the homepage will become a mirror of the wiki).
+
+**Others**
+
+* Organize imports: Fixed issue where other statements in a commit line got lost (now such a line is ignored).
+
+* PyDev Package Explorer: closed project no longer remains with old icons.
+
+* Fixed deadlock when setting project as Django.
+
+* Fixed issue in code formatting \*args on lambda statement.
+
+* TODO tags: only searched now in a string/comment partition.
+
+* Fixed issue when saving empty document (bad location on code-formatter).
+
+* Fixed issue removing comments from document.
+
+* Applied patch for internal Jython 2.2.1 to fix list.sort (http://bugs.jython.org/issue1835099).
+
+* Fixed resolution of template variable prev_class_or_method and next_class_or_method.
+
+
+
 Release 2.3.0
 ===============
 
-* **Pep8.py** integrated.
+* **Pep8.py** integrated (must be enabled in PyDev > Editor > Code Analysis > pep8.py).
 
 * **Faster PyDev startup** (internal Jython upgraded to version 2.2.1 -- and also optimized for PyDev).
 

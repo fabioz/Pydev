@@ -9,25 +9,28 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.TreeMap;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FullRepIterable;
-import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
@@ -39,6 +42,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.fastparser.FastDefinitionsParser;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -111,12 +115,12 @@ public abstract class AbstractAdditionalTokensInfo {
      * 
      * This map is persisted.
      */
-    protected TreeMap<String, Set<IInfo>> topLevelInitialsToInfo = new TreeMap<String, Set<IInfo>>();
+    protected SortedMap<String, Set<IInfo>> topLevelInitialsToInfo = new PyPublicTreeMap<String, Set<IInfo>>();
     
     /**
      * indexes so that we can get 'inner information' from classes, such as methods or inner classes from a class 
      */
-    protected TreeMap<String, Set<IInfo>> innerInitialsToInfo = new TreeMap<String, Set<IInfo>>();
+    protected SortedMap<String, Set<IInfo>> innerInitialsToInfo = new PyPublicTreeMap<String, Set<IInfo>>();
     
 
     /**
@@ -175,7 +179,7 @@ public abstract class AbstractAdditionalTokensInfo {
      * 2: because we've removed some info (the hash is no longer saved)
      * 3: Changed from string-> list to string->set
      */
-    private static final int version = 3;
+    protected static final int version = 3;
 
     public AbstractAdditionalTokensInfo(){
     }
@@ -189,7 +193,7 @@ public abstract class AbstractAdditionalTokensInfo {
         synchronized (lock) {
             String name = info.getName();
             String initials = getInitials(name);
-            TreeMap<String, Set<IInfo>> initialsToInfo;
+            SortedMap<String, Set<IInfo>> initialsToInfo;
             
             if(doOn == TOP_LEVEL){
                 if(info.getPath() != null && info.getPath().length() > 0){
@@ -227,7 +231,7 @@ public abstract class AbstractAdditionalTokensInfo {
      * @param initialsToInfo this is the list we should use (top level or inner)
      * @return the list of tokens with the specified initials (must be exact match)
      */
-    protected Set<IInfo> getAndCreateListForInitials(String initials, TreeMap<String, Set<IInfo>> initialsToInfo) {
+    protected Set<IInfo> getAndCreateListForInitials(String initials, SortedMap<String, Set<IInfo>> initialsToInfo) {
         Set<IInfo> lInfo = initialsToInfo.get(initials);
         if(lInfo == null){
             lInfo = new HashSet<IInfo>();
@@ -332,7 +336,7 @@ public abstract class AbstractAdditionalTokensInfo {
 			try {
 			    Iterator<ASTEntry> entries = tup.o2;
 			
-			    FastStack<SimpleNode> tempStack = new FastStack<SimpleNode>();
+			    FastStack<SimpleNode> tempStack = new FastStack<SimpleNode>(10);
 			    
 			    synchronized (this.lock) {
 			        synchronized (ObjectsPool.lock) {
@@ -556,7 +560,7 @@ public abstract class AbstractAdditionalTokensInfo {
      * @param moduleName
      * @param initialsToInfo
      */
-    private void removeInfoFromMap(String moduleName, TreeMap<String, Set<IInfo>> initialsToInfo) {
+    private void removeInfoFromMap(String moduleName, SortedMap<String, Set<IInfo>> initialsToInfo) {
         Iterator<Set<IInfo>> itListOfInfo = initialsToInfo.values().iterator();
         while (itListOfInfo.hasNext()) {
 
@@ -583,28 +587,42 @@ public abstract class AbstractAdditionalTokensInfo {
      */
     public Collection<IInfo> getTokensStartingWith(String qualifier, int getWhat) {
         synchronized (lock) {
-            return getWithFilter(qualifier, getWhat, startingWithFilter, true);
+            return getWithFilter(qualifier, getWhat, startingWithFilter, true, null);
         }
     }
 
-
-    public Collection<IInfo> getTokensEqualTo(String qualifier, int getWhat) {
+    public Collection<IInfo> getTokensStartingWith(String qualifier, int getWhat, Collection<IInfo> result) {
         synchronized (lock) {
-            return getWithFilter(qualifier, getWhat, equalsFilter, false);
+            return getWithFilter(qualifier, getWhat, startingWithFilter, true, result);
         }
     }
     
-    protected Collection<IInfo> getWithFilter(String qualifier, int getWhat, Filter filter, boolean useLowerCaseQual) {
+
+    public Collection<IInfo> getTokensEqualTo(String qualifier, int getWhat) {
         synchronized (lock) {
-            List<IInfo> toks = new ArrayList<IInfo>();
+            return getWithFilter(qualifier, getWhat, equalsFilter, false, null);
+        }
+    }
+    
+    public Collection<IInfo> getTokensEqualTo(String qualifier, int getWhat, Collection<IInfo> result) {
+        synchronized (lock) {
+            return getWithFilter(qualifier, getWhat, equalsFilter, false, result);
+        }
+    }
+    
+    protected Collection<IInfo> getWithFilter(String qualifier, int getWhat, Filter filter, boolean useLowerCaseQual, Collection<IInfo> result) {
+        synchronized (lock) {
+            if(result == null){
+                result = new ArrayList<IInfo>();
+            }
             
             if((getWhat & TOP_LEVEL) != 0){
-                getWithFilter(qualifier, topLevelInitialsToInfo, toks, filter, useLowerCaseQual);
+                getWithFilter(qualifier, topLevelInitialsToInfo, result, filter, useLowerCaseQual);
             }
             if((getWhat & INNER) != 0){
-                getWithFilter(qualifier, innerInitialsToInfo, toks, filter, useLowerCaseQual);
+                getWithFilter(qualifier, innerInitialsToInfo, result, filter, useLowerCaseQual);
             }
-            return toks;
+            return result;
         }
     }
         
@@ -616,7 +634,7 @@ public abstract class AbstractAdditionalTokensInfo {
      * @param toks (out) the tokens will be added to this list
      * @return
      */
-    protected void getWithFilter(String qualifier, TreeMap<String, Set<IInfo>> initialsToInfo, Collection<IInfo> toks, Filter filter, boolean useLowerCaseQual) {
+    protected void getWithFilter(String qualifier, SortedMap<String, Set<IInfo>> initialsToInfo, Collection<IInfo> toks, Filter filter, boolean useLowerCaseQual) {
         String initials = getInitials(qualifier);
         String qualToCompare = qualifier;
         if(useLowerCaseQual){
@@ -675,7 +693,34 @@ public abstract class AbstractAdditionalTokensInfo {
         if(DEBUG_ADDITIONAL_INFO){
             System.out.println("Saving to "+persistingLocation);
         }
-        saveTo(persistingLocation);
+        
+        save(persistingLocation);
+
+    }
+
+    protected void save(File persistingLocation) {
+        try {
+            FileOutputStream stream = new FileOutputStream(persistingLocation);
+            OutputStreamWriter writer = new OutputStreamWriter(stream);
+            try {
+                FastStringBuffer tempBuf = new FastStringBuffer();
+                tempBuf.append("-- VERSION_");
+                tempBuf.append(AbstractAdditionalTokensInfo.version);
+                tempBuf.append('\n');
+                writer.write(tempBuf.getInternalCharsArray(), 0, tempBuf.length());
+                tempBuf.clear();
+
+                saveTo(writer, tempBuf, persistingLocation);
+            } finally {
+                try {
+                    writer.close();
+                } finally {
+                    stream.close();
+                }
+            }
+        } catch (Exception e) {
+            Log.log(e);
+        }
     }
 
     /**
@@ -686,76 +731,42 @@ public abstract class AbstractAdditionalTokensInfo {
 
 
     /**
-     * save the information contained for the given manager
-     */
-    public static void saveAdditionalSystemInfo(IInterpreterManager manager, String interpreter) {
-        AbstractAdditionalTokensInfo info;
-		try {
-			info = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager, interpreter);
-			info.save();
-		} catch (MisconfigurationException e) {
-			Log.log(e);
-			return;
-		}
-    }
-
-    /**
      * @return the path to the folder we want to keep things on
      * @throws MisconfigurationException 
      */
     protected abstract File getPersistingFolder();
     
 
-    private void saveTo(File pathToSave) {
+    protected void saveTo(OutputStreamWriter writer, FastStringBuffer tempBuf, File pathToSave) throws IOException{
         synchronized (lock) {
             if(DEBUG_ADDITIONAL_INFO){
                 System.out.println("Saving info "+this.getClass().getName()+" to file (size = "+getAllTokens().size()+") "+pathToSave);
             }
-            REF.writeToFile(getInfoToSave(), pathToSave);
+            
+            Map<String, Integer> dictionary = new HashMap<String, Integer>();
+            tempBuf.append("-- START TREE 1\n");
+            TreeIO.dumpTreeToBuffer(this.topLevelInitialsToInfo, tempBuf, dictionary);
+            
+            tempBuf.append("-- START TREE 2\n");
+            TreeIO.dumpTreeToBuffer(this.innerInitialsToInfo, tempBuf, dictionary);
+            
+            FastStringBuffer buf2 = new FastStringBuffer(50*(dictionary.size()+4));
+            TreeIO.dumpDictToBuffer(dictionary, buf2);
+            
+            //Write the dictionary before the actual trees.
+            writer.write(buf2.getInternalCharsArray(), 0, buf2.length());
+            buf2 = null;
+            
+
+            //Note: tried LZFFileInputStream from https://github.com/ning/compress
+            //and Snappy from https://github.com/dain/snappy checking to see if by writing less we'd
+            //get a better time but it got a bit slower (gzip was slowest, then snappy and the faster was LZFFileInputStream)
+            writer.write(tempBuf.getInternalCharsArray(), 0, tempBuf.length());
         }
     }
 
-    /**
-     * @return the information to be saved (if overridden, restoreSavedInfo should be overridden too)
-     */
-    @SuppressWarnings("unchecked")
-    protected Object getInfoToSave(){
-        synchronized (lock) {
-            return new Tuple3(
-                this.topLevelInitialsToInfo, 
-                this.innerInitialsToInfo, 
-                AbstractAdditionalTokensInfo.version);
-        }
-    }
     
-    /**
-     * actually does the load
-     * @return true if it was successfully loaded and false otherwise
-     */
-    protected boolean load() {
-        synchronized (lock) {
-            File file;
-			try {
-				file = getPersistingLocation();
-			} catch (MisconfigurationException e) {
-				Log.log("Unable to restore previous info... (persisting location not available).", e);
-				return false;
-			}
-            if(file.exists() && file.isFile()){
-                try {
-                    restoreSavedInfo(IOUtils.readFromFile(file));
-                    setAsDefaultInfo();
-                    return true;
-                } catch (Throwable e) {
-                    try {
-                        Log.log(IStatus.INFO, "Info: Rebuilding internal caches: "+this.getPersistingLocation(), e);
-                    } catch (Exception e1) {
-                    }
-                }
-            }
-        }
-        return false;
-    }
+
 
     /**
      * Restores the saved info in the object (if overridden, getInfoToSave should be overridden too)
@@ -766,22 +777,20 @@ public abstract class AbstractAdditionalTokensInfo {
     protected void restoreSavedInfo(Object o) throws MisconfigurationException{
         synchronized (lock) {
             Tuple3 readFromFile = (Tuple3) o;
-            TreeMap o1 = (TreeMap) readFromFile.o1;
-            TreeMap o2 = (TreeMap) readFromFile.o2;
+            SortedMap o1 = (SortedMap) readFromFile.o1;
+            SortedMap o2 = (SortedMap) readFromFile.o2;
             
-            this.topLevelInitialsToInfo = (TreeMap<String, Set<IInfo>>) o1;
-            this.innerInitialsToInfo = (TreeMap<String, Set<IInfo>>) o2;
-            if(AbstractAdditionalTokensInfo.version != (Integer)readFromFile.o3){
-                throw new RuntimeException("I/O version doesn't match. Rebuilding internal info.");
+            this.topLevelInitialsToInfo = (SortedMap<String, Set<IInfo>>) o1;
+            this.innerInitialsToInfo = (SortedMap<String, Set<IInfo>>) o2;
+            if(readFromFile.o3 != null){
+                //may be null in new format (where that's checked during load time).
+                if(AbstractAdditionalTokensInfo.version != (Integer)readFromFile.o3){
+                    throw new RuntimeException("I/O version doesn't match. Rebuilding internal info.");
+                }
             }
         }
     }
 
-    /**
-     * this method should be overridden so that the info sets itself as the default info given the info it holds
-     * (e.g. default for a project, default for python interpreter, etc.)
-     */
-    protected abstract void setAsDefaultInfo();
 
 
     @Override
@@ -835,18 +844,20 @@ public abstract class AbstractAdditionalTokensInfo {
 
 class IOUtils {
 
-    /**
-     * @param astOutputFile
-     * @return
-     */
     public static Object readFromFile(File astOutputFile) {
         try {
-            InputStream input = new FileInputStream(astOutputFile);
-            ObjectInputStream in = new ObjectInputStream(input);
-            Object o = in.readObject();
-            in.close();
-            input.close();
-            return o;
+            InputStream in = new BufferedInputStream(new FileInputStream(astOutputFile));
+            try {
+                ObjectInputStream stream = new ObjectInputStream(in);
+                try {
+                    Object o = stream.readObject();
+                    return o;
+                } finally {
+                    stream.close();
+                }
+            } finally {
+                in.close();
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

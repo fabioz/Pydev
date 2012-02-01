@@ -28,12 +28,12 @@ public class FindScopeVisitor extends AbstractVisitor {
     /**
      * Stack of classes / methods representing the scope.
      */
-    protected FastStack<SimpleNode> stackScope = new FastStack<SimpleNode>();
+    protected FastStack<SimpleNode> stackScope = new FastStack<SimpleNode>(20);
 
     /**
      * This is the scope.
      */
-    public ILocalScope scope = new LocalScope(new FastStack<SimpleNode>());
+    public ILocalScope scope = new LocalScope(new FastStack<SimpleNode>(20));
     
     /**
      * Variable to mark if we found scope.

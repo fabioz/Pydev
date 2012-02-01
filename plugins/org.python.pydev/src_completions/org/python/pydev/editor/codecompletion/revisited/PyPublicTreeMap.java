@@ -32,7 +32,7 @@ import java.util.SortedSet;
  * @param <K>
  * @param <V>
  */
-public class ModulesKeyTreeMap<K,V>
+public final class PyPublicTreeMap<K,V>
     extends AbstractMap<K,V>
     implements SortedMap<K,V>, Cloneable, java.io.Serializable
 {
@@ -72,7 +72,7 @@ public class ModulesKeyTreeMap<K,V>
      *
      * @see Comparable
      */
-    public ModulesKeyTreeMap() {
+    public PyPublicTreeMap() {
     }
 
     /**
@@ -88,7 +88,7 @@ public class ModulesKeyTreeMap<K,V>
      *        <tt>null</tt> value indicates that the keys' <i>natural
      *        ordering</i> should be used.
      */
-    public ModulesKeyTreeMap(Comparator<? super K> c) {
+    public PyPublicTreeMap(Comparator<? super K> c) {
         this.comparator = c;
     }
 
@@ -106,7 +106,7 @@ public class ModulesKeyTreeMap<K,V>
      *         are not mutually comparable.
      * @throws NullPointerException if the specified map is null.
      */
-    public ModulesKeyTreeMap(Map<? extends K, ? extends V> m) {
+    public PyPublicTreeMap(Map<? extends K, ? extends V> m) {
         putAll(m);
     }
 
@@ -119,7 +119,7 @@ public class ModulesKeyTreeMap<K,V>
      *         and whose comparator is to be used to sort this map.
      * @throws NullPointerException if the specified sorted map is null.
      */
-    public ModulesKeyTreeMap(SortedMap<K, ? extends V> m) {
+    public PyPublicTreeMap(SortedMap<K, ? extends V> m) {
         comparator = m.comparator();
         try {
             buildFromSorted(m.size(), m.entrySet().iterator(), null, null);
@@ -482,9 +482,9 @@ public class ModulesKeyTreeMap<K,V>
      * @return a shallow copy of this Map.
      */
     public Object clone() {
-        ModulesKeyTreeMap<K,V> clone = null;
+        PyPublicTreeMap<K,V> clone = null;
         try {
-            clone = (ModulesKeyTreeMap<K,V>) super.clone();
+            clone = (PyPublicTreeMap<K,V>) super.clone();
         } catch (CloneNotSupportedException e) {
             throw new InternalError();
         }
@@ -534,7 +534,7 @@ public class ModulesKeyTreeMap<K,V>
                 }
 
                 public int size() {
-                    return ModulesKeyTreeMap.this.size();
+                    return PyPublicTreeMap.this.size();
                 }
 
                 public boolean contains(Object o) {
@@ -543,12 +543,12 @@ public class ModulesKeyTreeMap<K,V>
 
                 public boolean remove(Object o) {
                     int oldSize = size;
-                    ModulesKeyTreeMap.this.remove(o);
+                    PyPublicTreeMap.this.remove(o);
                     return size != oldSize;
                 }
 
                 public void clear() {
-                    ModulesKeyTreeMap.this.clear();
+                    PyPublicTreeMap.this.clear();
                 }
             };
     }
@@ -573,7 +573,7 @@ public class ModulesKeyTreeMap<K,V>
                 }
 
                 public int size() {
-                    return ModulesKeyTreeMap.this.size();
+                    return PyPublicTreeMap.this.size();
                 }
 
                 public boolean contains(Object o) {
@@ -594,7 +594,7 @@ public class ModulesKeyTreeMap<K,V>
                 }
 
                 public void clear() {
-                    ModulesKeyTreeMap.this.clear();
+                    PyPublicTreeMap.this.clear();
                 }
             };
     }
@@ -643,11 +643,11 @@ public class ModulesKeyTreeMap<K,V>
                 }
 
                 public int size() {
-                    return ModulesKeyTreeMap.this.size();
+                    return PyPublicTreeMap.this.size();
                 }
 
                 public void clear() {
-                    ModulesKeyTreeMap.this.clear();
+                    PyPublicTreeMap.this.clear();
                 }
             };
         }
@@ -825,19 +825,19 @@ public class ModulesKeyTreeMap<K,V>
         }
 
         public boolean containsKey(Object key) {
-            return inRange((K) key) && ModulesKeyTreeMap.this.containsKey(key);
+            return inRange((K) key) && PyPublicTreeMap.this.containsKey(key);
         }
 
         public V get(Object key) {
             if (!inRange((K) key))
                 return null;
-            return ModulesKeyTreeMap.this.get(key);
+            return PyPublicTreeMap.this.get(key);
         }
 
         public V put(K key, V value) {
             if (!inRange(key))
                 throw new IllegalArgumentException("key out of range");
-            return ModulesKeyTreeMap.this.put(key, value);
+            return PyPublicTreeMap.this.put(key, value);
         }
 
         public Comparator<? super K> comparator() {
@@ -845,7 +845,7 @@ public class ModulesKeyTreeMap<K,V>
         }
 
         public K firstKey() {
-        ModulesKeyTreeMap.Entry<K,V> e = fromStart ? firstEntry() : getCeilEntry(fromKey);
+        PyPublicTreeMap.Entry<K,V> e = fromStart ? firstEntry() : getCeilEntry(fromKey);
             K first = key(e);
             if (!toEnd && compare(first, toKey) >= 0)
                 throw(new NoSuchElementException());
@@ -853,7 +853,7 @@ public class ModulesKeyTreeMap<K,V>
         }
 
         public K lastKey() {
-        ModulesKeyTreeMap.Entry<K,V> e = toEnd ? lastEntry() : getPrecedingEntry(toKey);
+        PyPublicTreeMap.Entry<K,V> e = toEnd ? lastEntry() : getPrecedingEntry(toKey);
             K last = key(e);
             if (!fromStart && compare(last, fromKey) < 0)
                 throw(new NoSuchElementException());
@@ -870,8 +870,8 @@ public class ModulesKeyTreeMap<K,V>
             private transient int size = -1, sizeModCount;
 
             public int size() {
-                if (size == -1 || sizeModCount != ModulesKeyTreeMap.this.modCount) {
-                    size = 0;  sizeModCount = ModulesKeyTreeMap.this.modCount;
+                if (size == -1 || sizeModCount != PyPublicTreeMap.this.modCount) {
+                    size = 0;  sizeModCount = PyPublicTreeMap.this.modCount;
                     Iterator i = iterator();
                     while (i.hasNext()) {
                         size++;
@@ -892,7 +892,7 @@ public class ModulesKeyTreeMap<K,V>
                 K key = entry.getKey();
                 if (!inRange(key))
                     return false;
-                ModulesKeyTreeMap.Entry node = getEntry(key);
+                PyPublicTreeMap.Entry node = getEntry(key);
                 return node != null &&
                        valEquals(node.getValue(), entry.getValue());
             }
@@ -904,7 +904,7 @@ public class ModulesKeyTreeMap<K,V>
                 K key = entry.getKey();
                 if (!inRange(key))
                     return false;
-                ModulesKeyTreeMap.Entry<K,V> node = getEntry(key);
+                PyPublicTreeMap.Entry<K,V> node = getEntry(key);
                 if (node!=null && valEquals(node.getValue(),entry.getValue())){
                     deleteEntry(node);
                     return true;
@@ -955,7 +955,7 @@ public class ModulesKeyTreeMap<K,V>
      * ModulesKeyTreeMap Iterator.
      */
     private abstract class PrivateEntryIterator<T> implements Iterator<T> {
-        private int expectedModCount = ModulesKeyTreeMap.this.modCount;
+        private int expectedModCount = PyPublicTreeMap.this.modCount;
         private Entry<K,V> lastReturned = null;
         Entry<K,V> next;
 
@@ -1487,8 +1487,8 @@ public class ModulesKeyTreeMap<K,V>
      * @throws ClassNotFoundException propagated from readObject.
      *         This cannot occur if str is null.
      */
-    private
-    void buildFromSorted(int size, Iterator it,
+    /*default changed in PyDev!!*/
+    public void buildFromSorted(int size, Iterator it,
              java.io.ObjectInputStream str,
              V defaultVal)
         throws  java.io.IOException, ClassNotFoundException {

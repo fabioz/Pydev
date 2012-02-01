@@ -85,7 +85,7 @@ public final class ScopeItems {
     public Map<String, Tuple<IToken, Found>> namesToIgnore = new HashMap<String, Tuple<IToken, Found>>();
     
     public int ifSubScope = 0;
-    public FastStack<TryExceptInfo> tryExceptSubScope = new FastStack<TryExceptInfo>();
+    public FastStack<TryExceptInfo> tryExceptSubScope = new FastStack<TryExceptInfo>(10);
     private int scopeId;
     private int scopeType;
 

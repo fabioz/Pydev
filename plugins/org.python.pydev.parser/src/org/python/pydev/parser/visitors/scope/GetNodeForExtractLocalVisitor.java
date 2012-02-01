@@ -18,7 +18,7 @@ import org.python.pydev.parser.prettyprinterv2.PrettyPrinterUtilsV2;
  */
 public class GetNodeForExtractLocalVisitor extends VisitorBase{
 
-    protected final FastStack<FastStack<SimpleNode>> contextStack = new FastStack<FastStack<SimpleNode>>();
+    protected final FastStack<FastStack<SimpleNode>> contextStack = new FastStack<FastStack<SimpleNode>>(10);
     private int initialExtractLocalLine;
     private boolean keepGoing = true;
     private stmtType lastStmt;
@@ -26,7 +26,7 @@ public class GetNodeForExtractLocalVisitor extends VisitorBase{
     
     public GetNodeForExtractLocalVisitor(int initialExtractLocalLine){
         this.initialExtractLocalLine = initialExtractLocalLine;
-        contextStack.push(new FastStack<SimpleNode>()); //start with a stack.
+        contextStack.push(new FastStack<SimpleNode>(10)); //start with a stack.
     }
     
     @Override
@@ -40,7 +40,7 @@ public class GetNodeForExtractLocalVisitor extends VisitorBase{
         if(node instanceof stmtType){
             multiLineStmt = PrettyPrinterUtilsV2.isMultiLineStmt((stmtType) node);
             if(multiLineStmt){
-                contextStack.push(new FastStack<SimpleNode>());
+                contextStack.push(new FastStack<SimpleNode>(10));
             }
             lastStmt = (stmtType) node;
             node.traverse(this);

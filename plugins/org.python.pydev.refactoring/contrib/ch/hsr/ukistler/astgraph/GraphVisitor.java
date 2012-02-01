@@ -45,7 +45,7 @@ public class GraphVisitor extends VisitorBase {
 
     public GraphVisitor() throws IOException {
         cells = new ArrayList<DefaultGraphCell>();
-        stack = new FastStack<DefaultGraphCell>();
+        stack = new FastStack<DefaultGraphCell>(50);
         depth = 0;
         indent = 0;
         nodeColor = Color.GRAY;

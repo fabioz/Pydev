@@ -168,7 +168,7 @@ public class PyScopeSelection extends PyAction {
             Log.log(e);
         }
         
-        FastStack<IRegion> stack = new FastStack<IRegion>();
+        FastStack<IRegion> stack = new FastStack<IRegion>(20);
         cache.put(PyScopeSelection.SELECTION_SCOPE_CACHE, new Tuple<String, FastStack<IRegion>>(key, stack));
         return stack;
     }

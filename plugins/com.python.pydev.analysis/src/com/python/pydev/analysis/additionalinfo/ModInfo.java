@@ -12,13 +12,17 @@ import org.python.pydev.core.FullRepIterable;
  * @author fabioz
  *
  */
-public class ModInfo extends AbstractInfo{
+public final class ModInfo extends AbstractInfo{
 
     private static final long serialVersionUID = 1L;
 
 
     public ModInfo(String moduleDeclared) {
         super(getNameFromModule(moduleDeclared), moduleDeclared, null);
+    }
+    
+    public ModInfo(String moduleDeclared, boolean doNotInternOnThisContstruct) {
+        super(getNameFromModule(moduleDeclared), moduleDeclared, null, doNotInternOnThisContstruct);
     }
     
     private static String getNameFromModule(String moduleDeclared) {

@@ -12,7 +12,7 @@
     
 .. contents::
 
-_`Aptana Studio 3`: http://aptana.com/products/studio3
+.. _`Aptana Studio 3`: http://aptana.com/products/studio3
 
 
 Note for users with Aptana Studio 3 (Beta)
@@ -43,7 +43,7 @@ the certificate (which should be OK for most users).
 Now, if you don't want that dialog to appear, it's possible to import the certificate before starting the installation process
 (this is actually a requirement for those that want to install PyDev from the command line because of a bug in the Eclipse p2 director).
 
-.. _PyDev certificate: pydev_certificate.cer
+.. _`PyDev certificate`: pydev_certificate.cer
 
 The first step for that is downloading the `PyDev certificate`_. 
 
@@ -71,7 +71,7 @@ menu (note that in older versions, this would be the 'Find and Install' menu).
    :align: center   
 
    
-In the next screen, add the update site(s) you want to work with (**See below for a list with the** `available update sites`_).
+In the next screen, add the update site(s) you want to work with (**See below for a list with the** available update sites).
 
 .. image:: images/update_sites.png
    :class: snap
@@ -80,10 +80,10 @@ In the next screen, add the update site(s) you want to work with (**See below fo
    
 .. _http://pydev.org/updates: http://pydev.org/updates
 .. _http://pydev.org/nightly: http://pydev.org/nightly
-.. _SourceForge download: http://sourceforge.net/projects/pydev/files/
+.. _`SourceForge download`: http://sourceforge.net/projects/pydev/files/
 
 
-_`Available update sites`
+Available update sites
 -------------------------------
 
     
@@ -207,28 +207,29 @@ Corrupted install
 --------------------
 
 
-	Eclipse sometimes is not able to correctly get the plugin, from the update site but will do no checking
-	on whether it is really correct (no md5 checking), and when this happens, you'll usually get a ClassNotFoundException
-	(similar to the example below).
+Eclipse sometimes is not able to correctly get the plugin, from the update site but will do no checking
+on whether it is really correct (no md5 checking), and when this happens, you'll usually get a ClassNotFoundException
+(similar to the example below).
 
-	When that happens, **you should uninstall it and reinstall again** with the update site... 
-	if that still fails, you could try to get the zip files, as it will at least give you a warning when it is corrupt.
-	
-	Note that the chance of the files being corrupt in the server is pretty low, as that's something that's always checked 
-	in a new release -- but if you're suspicious about it, please ask in the forum, so that it can be double-checked.
+When that happens, **you should uninstall it and reinstall again** with the update site... 
+if that still fails, you could try to get the zip files, as it will at least give you a warning when it is corrupt.
 
-	Also, there have been reports with that error where the only solution that
-	has been consistent has been **removing all** previous versions of pydev and then installing 
-	the latest version.
+Note that the chance of the files being corrupt in the server is pretty low, as that's something that's always checked 
+in a new release -- but if you're suspicious about it, please ask in the forum, so that it can be double-checked.
+
+Also, there have been reports with that error where the only solution that
+has been consistent has been **removing all** previous versions of pydev and then installing 
+the latest version.
 	
 
 **EXAMPLE**
 
-	Unable to create this part due to an internal error. Reason for the failure:
-	The editor class could not be instantiated. This usually indicates that the
-	editor's class name was mistyped in plugin.xml.
-	
-	
+Unable to create this part due to an internal error. Reason for the failure:
+The editor class could not be instantiated. This usually indicates that the
+editor's class name was mistyped in plugin.xml.
+
+
+::
 	
 	java.lang.ClassNotFoundException: org.python.pydev.editor.PyEdit 
 	at org.eclipse.osgi.framework.internal.core.BundleLoader.findClass(BundleLoader.java:405)       

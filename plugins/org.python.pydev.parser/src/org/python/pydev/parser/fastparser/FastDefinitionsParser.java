@@ -88,12 +88,12 @@ public final class FastDefinitionsParser {
      * Holds a stack of classes so that we create a new one in each new scope to be filled and when the scope is ended,
      * it should have its body filled with the stackBody contents related to each
      */
-    private final FastStack<ClassDef> stack = new FastStack<ClassDef>();
+    private final FastStack<ClassDef> stack = new FastStack<ClassDef>(20);
     
     /**
      * For each item in the stack, there's a stackBody that has the contents to be added later to that class.
      */
-    private final FastStack<List<stmtType>> stackBody = new FastStack<List<stmtType>>();
+    private final FastStack<List<stmtType>> stackBody = new FastStack<List<stmtType>>(20);
 
     /**
      * Buffer with the contents of a line.

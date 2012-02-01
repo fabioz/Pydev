@@ -38,6 +38,9 @@
    <extension point="org.python.pydev.pydev_pyedit_listener">
   		<pyedit_listener_participant class="com.python.pydev.analysis.builder.ClearAnalysisMarkersPyEditListener"/>
    </extension>
+   <extension point="org.python.pydev.pydev_pyedit_listener">
+  		<pyedit_listener_participant class="com.python.pydev.analysis.builder.PreloadAdditionalInfoPyEditListener"/>
+   </extension>
 
    <extension point="org.python.pydev.pydev_builder">
    		<!--Also does the ctx insensitive builder part (which was removed)-->

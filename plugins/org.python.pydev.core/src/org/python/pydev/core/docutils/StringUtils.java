@@ -78,8 +78,8 @@ public final class StringUtils {
                     i++;
                     next = string.substring(start, i);
                     return true;
-                }
-                if (c == '\n') {
+                    
+                }else if (c == '\n') {
                     i++;
                     next = string.substring(start, i);
                     return  true;
@@ -1355,6 +1355,64 @@ public final class StringUtils {
             }
         }
         return lineBreaks;
+    }
+
+    
+    /**
+     * A faster alternative for parsing positive ints (without exponential notation and only on decimal notation).
+     * Attempting to parse an ints that's negative or has exponential notation will throw a NumberFormatException.
+     * 
+     * Note that it doesn't check for ints overflow (so, values higher than MAX_INT will overflow silently).
+     */
+    public static int parsePositiveInt(FastStringBuffer buf) {
+        char[] array = buf.getInternalCharsArray();
+        int len = buf.length();
+        if(len == 0){
+            throw new NumberFormatException("Empty string received");
+        }
+        
+        int result = 0;
+        int zeroAsInt = (int)'0';
+        
+        for(int i=0;i<len;i++){
+            result *= 10;
+            int c = array[i]-zeroAsInt;
+            if(c < 0 || c > 9){
+                throw new NumberFormatException("Error getting positive int from: "+buf);
+            }
+            result += c;
+
+        }
+        return result;
+    }
+    
+    
+    /**
+     * A faster alternative for parsing positive longs (without exponential notation and only on decimal notation).
+     * Attempting to parse an longs that's negative or has exponential notation will throw a NumberFormatException.
+     * 
+     * Note that it doesn't check for longs overflow (so, values higher than MAX_LONG will overflow silently).
+     */
+    public static long parsePositiveLong(FastStringBuffer buf) {
+        char[] array = buf.getInternalCharsArray();
+        int len = buf.length();
+        if(len == 0){
+            throw new NumberFormatException("Empty string received");
+        }
+        
+        long result = 0;
+        int zeroAsInt = (int)'0';
+        
+        for(int i=0;i<len;i++){
+            result *= 10;
+            int c = array[i]-zeroAsInt;
+            if(c < 0 || c > 9){
+                throw new NumberFormatException("Error getting positive int from: "+buf);
+            }
+            result += c;
+            
+        }
+        return result;
     }
 
 }

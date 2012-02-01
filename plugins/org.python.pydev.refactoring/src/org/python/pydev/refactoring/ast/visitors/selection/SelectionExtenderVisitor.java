@@ -48,7 +48,7 @@ public class SelectionExtenderVisitor extends VisitorBase {
     public SelectionExtenderVisitor(ModuleAdapter module, ITextSelection selection) {
         this.module = module;
         this.selection = selection;
-        this.stmtExprStack = new FastStack<SimpleNode>();
+        this.stmtExprStack = new FastStack<SimpleNode>(20);
         this.extendNodeInSelection = null;
     }
 

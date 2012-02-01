@@ -39,7 +39,6 @@ public class PrettyPrinter30LibTest extends AbstractPrettyPrinterTestBase{
     }
 
     public void testOnCompleteLib() throws Exception {
-        parseAndPrettyPrintFile(new File("D:/bin/Python301/Lib/aifc"));
         File file = new File(TestDependent.PYTHON_30_LIB);
         if(MAKE_COMPLETE_PARSE){
             parseAndReparsePrettyPrintedFilesInDir(file);

@@ -130,8 +130,12 @@ class MergeState {
 
         this.data[dest++] = this.data[pb++];
         --nb;
-        if (nb == 0)
+        if (nb == 0) {
+            // Succeed; (falls through to Fail)
+            if (na != 0)
+                System.arraycopy(this.a, pa, this.data, dest, na);
             return;
+        }
         if (na == 1) {
             // CopyB;
             System.arraycopy(this.data, pb, this.data, dest, nb);
@@ -255,8 +259,12 @@ class MergeState {
 
         this.data[dest--] = this.data[pa--];
         --na;
-        if (na == 0)
+        if (na == 0) {
+            // Succeed; (falls through to Fail)
+            if (nb != 0)
+                System.arraycopy(this.a, 0, this.data, dest-(nb-1), nb);
             return;
+        }
         if (nb == 1) {
             // CopyA;
             dest -= na;

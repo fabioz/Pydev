@@ -115,6 +115,21 @@ public final class FastStringBuffer{
         count++;
         return this;
     }
+    
+    /**
+     * Appends a char to the buffer. Use when the size allocated is usually already ok (will only resize on exception 
+     * instead of doing a size check all the time).
+     */
+    public void appendResizeOnExc(char n) {
+        try {
+            value[count] = n;
+        } catch (Exception e) {
+            //System.out.println("Had to resze for minimun: "+(count+1));
+            resizeForMinimum(count + 1);
+            value[count] = n;
+        }
+        count++;
+    }
 
     /**
      * Appends a long to the buffer.
@@ -583,6 +598,27 @@ public final class FastStringBuffer{
         }
         lastWordBuf.reverse();
         return lastWordBuf.toString();
+    }
+
+    
+    public void removeWhitespaces() {
+        int length = this.count;
+        char[] newVal = new char[length];
+        
+        int j=0;
+        for (int i = 0; i < length; i++) {
+            char ch = this.value[i];
+            if(!Character.isWhitespace(ch)){
+                newVal[j] = ch;
+                j++;
+            }
+        }
+        this.count = j;
+        this.value = newVal;
+    }
+
+    public char[] getInternalCharsArray() {
+        return this.value;
     }
 
 

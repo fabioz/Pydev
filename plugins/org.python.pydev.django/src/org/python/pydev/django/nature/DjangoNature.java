@@ -73,19 +73,25 @@ public class DjangoNature implements IProjectNature {
         }
 	}
 
-	
+    private static final Object lockGetNature = new Object();
+
     /**
      * @param project the project we want to know about (if it is null, null is returned)
      * @return the django nature for a project (or null if it does not exist for the project)
+     * 
+     * @note: it's synchronized because more than 1 place could call getDjangoNature at the same time and more
+     * than one nature ended up being created from project.getNature().
      */
-    public static synchronized DjangoNature getDjangoNature(IProject project) {
+    public static DjangoNature getDjangoNature(IProject project) {
         if(project != null && project.isOpen()){
             try {
             	if(project.hasNature(DJANGO_NATURE_ID)){
-	                IProjectNature n = project.getNature(DJANGO_NATURE_ID);
-	                if(n instanceof DjangoNature){
-	                    return (DjangoNature) n;
-	                }
+            	    synchronized (lockGetNature) {
+            	        IProjectNature n = project.getNature(DJANGO_NATURE_ID);
+            	        if(n instanceof DjangoNature){
+            	            return (DjangoNature) n;
+            	        }
+                    }
             	}
             } catch (CoreException e) {
                 Log.logInfo(e);

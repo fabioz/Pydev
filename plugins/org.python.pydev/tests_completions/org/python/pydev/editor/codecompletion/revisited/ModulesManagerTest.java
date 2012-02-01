@@ -7,17 +7,18 @@
 /*
  * Created on May 21, 2006
  */
-package org.python.pydev.editor.codecompletion;
+package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
-import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
+import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
@@ -28,7 +29,7 @@ public class ModulesManagerTest extends CodeCompletionTestsBase{
         try {
             ModulesManagerTest test = new ModulesManagerTest();
             test.setUp();
-            test.testLoad();
+            test.testRestoreContents2();
             test.tearDown();
             
             junit.textui.TestRunner.run(ModulesManagerTest.class);
@@ -105,6 +106,75 @@ public class ModulesManagerTest extends CodeCompletionTestsBase{
         } finally {
             REF.deleteDirectoryTree(f);
         }
+        
+    }
+    
+    
+    public void testRestoreContents() throws Exception {
+        String contents = "" +
+        		"A|A.py\n" +
+        		"B\r\n" +
+        		"D|0|E|1" +
+        		"";
+        
+        ProjectModulesManager manager = new ProjectModulesManager();
+        HashMap<Integer, String> intToString = new HashMap<Integer, String>();
+        intToString.put(0, "W.py");
+        ModulesManager.handleFileContents(manager, contents, intToString);
+        
+        assertEquals(3, manager.modulesKeys.size());
+        
+        ModulesKey key = manager.modulesKeys.get(new ModulesKey("A", null));
+        assertEquals(key, new ModulesKey("A", null));
+        assertEquals(key.file, new File("A.py"));
+        assertTrue(!(key instanceof ModulesKeyForZip));
+        
+        key = manager.modulesKeys.get(new ModulesKey("B", null));
+        assertEquals(key, new ModulesKey("B", null));
+        assertNull(key.file);
+        assertTrue(!(key instanceof ModulesKeyForZip));
+        
+        key = manager.modulesKeys.get(new ModulesKey("D", null));
+        assertEquals(key, new ModulesKey("D", null));
+        assertEquals(key.file, new File("W.py"));
+        assertTrue(key instanceof ModulesKeyForZip);
+        ModulesKeyForZip kz = (ModulesKeyForZip) key;
+        assertTrue(kz.isFile);
+        assertEquals(kz.zipModulePath, "E");
+        
+    }
+    
+    public void testRestoreContents2() throws Exception {
+        String contents = "" +
+        "A||A.py||\n" +
+        "B|\r\n" +
+        "D|0|E|1\n" +
+        "";
+        
+        ProjectModulesManager manager = new ProjectModulesManager();
+        HashMap<Integer, String> intToString = new HashMap<Integer, String>();
+        intToString.put(0, "W.py");
+        ModulesManager.handleFileContents(manager, contents, intToString);
+        
+        assertEquals(3, manager.modulesKeys.size());
+        
+        ModulesKey key = manager.modulesKeys.get(new ModulesKey("A", null));
+        assertEquals(key, new ModulesKey("A", null));
+        assertEquals(key.file, new File("A.py"));
+        assertTrue(!(key instanceof ModulesKeyForZip));
+        
+        key = manager.modulesKeys.get(new ModulesKey("B", null));
+        assertEquals(key, new ModulesKey("B", null));
+        assertNull(key.file);
+        assertTrue(!(key instanceof ModulesKeyForZip));
+        
+        key = manager.modulesKeys.get(new ModulesKey("D", null));
+        assertEquals(key, new ModulesKey("D", null));
+        assertEquals(key.file, new File("W.py"));
+        assertTrue(key instanceof ModulesKeyForZip);
+        ModulesKeyForZip kz = (ModulesKeyForZip) key;
+        assertTrue(kz.isFile);
+        assertEquals(kz.zipModulePath, "E");
         
     }
 }

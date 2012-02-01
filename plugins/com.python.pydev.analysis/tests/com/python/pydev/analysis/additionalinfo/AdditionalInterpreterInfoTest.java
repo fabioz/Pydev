@@ -51,10 +51,6 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
             }
 
             @Override
-            protected void setAsDefaultInfo() {
-            }
-
-            @Override
             protected File getPersistingFolder() {
                 return null;
             }

@@ -12,7 +12,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.VisitorBase;
 
 public class ParentVisitor extends VisitorBase {
-    protected FastStack<SimpleNode> stack = new FastStack<SimpleNode>();
+    protected FastStack<SimpleNode> stack = new FastStack<SimpleNode>(20);
 
     public ParentVisitor() {
         stack.push(null);
