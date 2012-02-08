@@ -1,0 +1,89 @@
+<doc>
+<contents_area>
+<div id="Content" style="padding: 5px;">
+<h1><a name="PyDevDjango-Django"></a>Django</h1>
+
+
+<h1><a name="PyDevDjango-Prerequisites"></a>Pre-requisites</h1>
+
+<p>To get started with Django in PyDev, the pre-requisite is that Django is installed in the Python/Jython/IronPython interpreter you want to use (so, "import django" must properly work).</p>
+
+<p>If you don't have Django installed, follow the steps from <a href="http://www.djangoproject.com/" class="external-link" rel="nofollow">http://www.djangoproject.com/</a>.</p>
+
+<p>Note that this tutorial won't teach you Django, only how the Django integration is available in PyDev, so, if you're not familiar with Django, it's useful to learn a bit about how it works and then use this help to know how the PyDev Django integration can help you. </p>
+
+
+<h1><a name="PyDevDjango-Abitoninternals"></a>A bit on internals</h1>
+
+<p>The Django integration in PyDev works through 3 main configurations:</p>
+
+<p>1. The project must be marked as a Django project inside of PyDev.</p>
+
+<p>2. A 'DJANGO_MANAGE_LOCATION' string substitution variable must point to the project-relative location of manage.py.</p>
+
+<p>3. A 'DJANGO_SETTINGS_MODULE' string substitution variable must contain the name of the settings module in that project.</p>
+
+<p>And that's it, with those properly configured, all the Django-related actions should work (and the steps below will explain how those can be configured).</p>
+
+
+<h1><a name="PyDevDjango-Creatinganewproject"></a>Creating a new project</h1>
+
+<p>Use the new project wizard through <b>Ctrl+N &gt; PyDev Django Project</b> to create a new Django based project.</p>
+
+<p><span class="image-wrap" style=""><img src="http://pydev.org/images/django/pydev_django_project.png" style="border: 1px solid black" /></span></p>
+
+<p>That wizard will use <b>django-admin.py startproject</b> to create the project and will properly set the string substitution variables used inside of PyDev so that <b>DJANGO_MANAGE_LOCATION</b> points to the created manage.py location and the <b>DJANGO_SETTINGS_MODULE</b> points to the settings module.</p>
+
+
+<h1><a name="PyDevDjango-UsingtheDjangointegrationinanexistingproject"></a>Using the Django integration in an existing project</h1>
+
+<p>For an existing project, just right click it and choose 'PyDev &gt; Set as Django project'. </p>
+
+<p><span class="image-wrap" style=""><img src="http://pydev.org/images/django/set_as_pydev_django_project.png" style="border: 1px solid black" /></span></p>
+
+<p>Note that the <b>DJANGO_MANAGE_LOCATION</b> and <b>DJANGO_SETTINGS_MODULE</b> will not be set at this time, but when executing an action that needs it, PyDev will ask about it.</p>
+
+
+<h1><a name="PyDevDjango-Djangoactions"></a>Django actions</h1>
+
+<p>Django actions can be accessed right clicking a project with the Django configuration and choosing Django &gt; action.</p>
+
+<p><span class="image-wrap" style=""><img src="http://pydev.org/images/django/django_actions.png" style="border: 1px solid black" /></span></p>
+
+<p>Another option is using (with focus on a PyDev editor):</p>
+
+<ul>
+	<li><b>ctrl+2+dj &lt;enter&gt;</b> to open a dialog with the history of entered actions</li>
+	<li><b>ctrl+2+dj action_to_execute &lt;enter&gt;</b> to already pass the action to be executed (e.g.: ctrl+2+dj help &lt;enter&gt;)</li>
+</ul>
+
+
+<p><span class="image-wrap" style=""><img src="http://pydev.org/images/django/django_ctrl_2.png" style="border: 1px solid black" /></span></p>
+
+<h1><a name="PyDevDjango-InteractiveshellwithDjango"></a>Interactive shell with Django</h1>
+
+<p>Note that the <b>Shell with django environment</b> action will create a shell properly configured with your settings, providing the default features from the PyDev shell, such as code completion, history, context assistants (ctrl+1), making an execfile of the editor, etc (see: <a href="manual_adv_interactive_console.html" title="PyDev Interactive Console">Interactive Console</a> for more details).</p>
+
+<p>It can be activated through <b>ctrl+2+dj shell</b> (if on a PyDev Editor) or right-clicking the project &gt; <b>Django &gt; Shell with django environment</b>.</p>
+
+<p><span class="image-wrap" style=""><img src="http://pydev.org/images/django/django_shell.png" style="border: 1px solid black" /></span></p>
+
+<h1><a name="PyDevDjango-Run%2FDebugasDjango"></a>Run/Debug as Django</h1>
+
+<p>Run as Django/Debug as Django are available (note that they set the --noreload by default).</p>
+
+<p><span class="image-wrap" style=""><img src="http://pydev.org/images/django/run_as_django.png" style="border: 1px solid black" /></span></p>
+
+<p>This will create a default Run configuration, so, you may edit it later through run &gt; run configurations (or debug &gt; debug configurations) if you want to change a parameter.</p>
+
+<p>Note: to know how to rerun the last launch see: Rerun Last Launch on Launching_</p>
+
+<p>Note 2: if the --noreload is not passed, only the parent process will be killed from Eclipse and the others will only be killed when they'd be reloaded (i.e.: on a code-change). </p>
+
+<h1><a name="PyDevDjango-Run%2FDebugasDjangowithautoreload"></a>Run/Debug as Django with autoreload</h1>
+
+<p>If you don't want to se the --noreload flag, please take a look at the <a href="manual_adv_remote_debugger.html" title="PyDev Remote Debugger">Remote Debugger</a> for instructions on how to make the debugging work properly with the auto reload feature.</p>
+</div>
+<br/><br/><a href="https://wiki.appcelerator.org/display/tis/PyDev+Django">See wiki page</a>
+</contents_area>
+</doc>
