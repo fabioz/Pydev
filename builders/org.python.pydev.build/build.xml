@@ -96,7 +96,7 @@
     <target name="categorize" description="categorize the update site">
     	<java jar="${baseLocation}/plugins/${launcher.plugin}.jar" fork="true" failonerror="yes">
     		<!-- regenerates the content.jar with proper categories -->
-            <arg line="-application org.eclipse.equinox.p2.metadata.generator.EclipseGenerator -nosplash -consoleLog -updateSite ${deploy.dir} -site file:${deploy.dir}/site.xml -metadataRepository file:${deploy.dir} -metadataRepositoryName &quot;Pydev Update Site&quot; -artifactRepository file:${deploy.dir} -artifactRepositoryName &quot;Pydev Artifacts&quot; -publishArtifacts -publishArtifactRepository -compress -reusePack200Files -noDefaultIUs -vmargs -Xmx256m" />
+            <arg line="-application org.eclipse.equinox.p2.publisher.EclipseGenerator -nosplash -consoleLog -updateSite ${deploy.dir} -site file:${deploy.dir}/site.xml -metadataRepository file:${deploy.dir} -metadataRepositoryName &quot;Pydev Update Site&quot; -artifactRepository file:${deploy.dir} -artifactRepositoryName &quot;Pydev Artifacts&quot; -publishArtifacts -publishArtifactRepository -compress -reusePack200Files -noDefaultIUs -vmargs -Xmx256m" />
     	</java>
     </target>
 
