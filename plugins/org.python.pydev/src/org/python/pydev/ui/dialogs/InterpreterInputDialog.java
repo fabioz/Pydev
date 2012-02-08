@@ -41,7 +41,7 @@ public class InterpreterInputDialog extends AbstractKeyValueDialog {
 	
 
     protected String getInitialMessage(){
-        return "Please, inform the name and executable of your intepreter";
+        return "Please supply a name and executable for your interpreter";
     }
     
 

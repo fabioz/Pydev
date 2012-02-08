@@ -38,7 +38,7 @@ public final class JJTPythonGrammarState implements IJJTPythonGrammarState{
 
     public JJTPythonGrammarState(Class<?> treeBuilderClass, AbstractPythonGrammar grammar) {
         this.grammar = grammar;
-        nodes = new FastStack<SimpleNode>();
+        nodes = new FastStack<SimpleNode>(73);
         marks = new IntStack();
         lines = new IntStack();
         columns = new IntStack();

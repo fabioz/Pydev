@@ -39,8 +39,8 @@ import com.python.pydev.ui.search.LineElement;
 
 public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
 
-    private IPyRefactoring2 pyRefactoring;
-    private RefactoringRequest req;
+    private final IPyRefactoring2 pyRefactoring;
+    private final RefactoringRequest req;
     private FindOccurrencesSearchResult findOccurrencesSearchResult;
 
     public FindOccurrencesSearchQuery(IPyRefactoring2 r, RefactoringRequest req) {

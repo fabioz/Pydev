@@ -9,6 +9,7 @@ package org.python.pydev.core.resource_stubs;
 import java.net.URI;
 import java.util.Map;
 
+import org.eclipse.core.resources.IBuildConfiguration;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -22,9 +23,6 @@ import org.eclipse.core.runtime.content.IContentTypeMatcher;
 
 public class AbstractIProjectStub extends AbstractIContainerStub implements IProject{
 
-    public void build(int kind, String builderName, Map args, IProgressMonitor monitor) throws CoreException {
-        throw new RuntimeException("Not implemented");
-    }
 
     public void build(int kind, IProgressMonitor monitor) throws CoreException {
         throw new RuntimeException("Not implemented");
@@ -127,6 +125,34 @@ public class AbstractIProjectStub extends AbstractIContainerStub implements IPro
 			throws CoreException {
 		throw new RuntimeException("Not implemented");
 	}
+
+    public void build(int kind, String builderName, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public void build(IBuildConfiguration config, int kind, IProgressMonitor monitor) throws CoreException {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public IBuildConfiguration getActiveBuildConfig() throws CoreException {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public IBuildConfiguration getBuildConfig(String configName) throws CoreException {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public IBuildConfiguration[] getBuildConfigs() throws CoreException {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public IBuildConfiguration[] getReferencedBuildConfigs(String configName, boolean includeMissing) throws CoreException {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public boolean hasBuildConfig(String configName) throws CoreException {
+        throw new RuntimeException("Not implemented");
+    }
 
 
 }

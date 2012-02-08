@@ -25,7 +25,7 @@ public class PyOrganizeImportsTest extends TestCase {
         try {
             PyOrganizeImportsTest test = new PyOrganizeImportsTest();
             test.setUp();
-            test.testPerform9();
+            test.testPerform11();
             test.tearDown();
             junit.textui.TestRunner.run(PyOrganizeImportsTest.class);
         } catch (Throwable e) {
@@ -454,6 +454,37 @@ String result = ""+header+
         String d = ""+
         "from __future__ import division\n"+ //the __future__ imports must always come first
         "from .backends.common import NoSuchObject\n";
+        
+        Document doc = new Document(d);
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        
+        assertEquals(d, doc.get());
+    }
+    
+    public void testPerform10() {
+        ImportsPreferencesPage.groupImportsForTests = true;
+        String d = ""+
+        "from a import b\n" +
+        "from a import c ;something\n" +
+        "from a import c\n" +
+        "";
+        
+        Document doc = new Document(d);
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        
+        String expected = "" +
+        		"from a import b, c\n" +
+        		"from a import c ;something\n" +
+        		"";
+        assertEquals(expected, doc.get());
+    }
+    
+    public void testPerform11() {
+        ImportsPreferencesPage.groupImportsForTests = true;
+        String d = ""+
+        "a = 10; from a import b\n" +
+        "from a import c ;something\n" +
+        "";
         
         Document doc = new Document(d);
         PyOrganizeImports.performArrangeImports(doc, "\n", "    ");

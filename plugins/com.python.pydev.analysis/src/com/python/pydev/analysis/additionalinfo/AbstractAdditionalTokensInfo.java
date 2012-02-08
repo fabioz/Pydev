@@ -336,7 +336,7 @@ public abstract class AbstractAdditionalTokensInfo {
 			try {
 			    Iterator<ASTEntry> entries = tup.o2;
 			
-			    FastStack<SimpleNode> tempStack = new FastStack<SimpleNode>();
+			    FastStack<SimpleNode> tempStack = new FastStack<SimpleNode>(10);
 			    
 			    synchronized (this.lock) {
 			        synchronized (ObjectsPool.lock) {
@@ -587,28 +587,42 @@ public abstract class AbstractAdditionalTokensInfo {
      */
     public Collection<IInfo> getTokensStartingWith(String qualifier, int getWhat) {
         synchronized (lock) {
-            return getWithFilter(qualifier, getWhat, startingWithFilter, true);
+            return getWithFilter(qualifier, getWhat, startingWithFilter, true, null);
         }
     }
 
-
-    public Collection<IInfo> getTokensEqualTo(String qualifier, int getWhat) {
+    public Collection<IInfo> getTokensStartingWith(String qualifier, int getWhat, Collection<IInfo> result) {
         synchronized (lock) {
-            return getWithFilter(qualifier, getWhat, equalsFilter, false);
+            return getWithFilter(qualifier, getWhat, startingWithFilter, true, result);
         }
     }
     
-    protected Collection<IInfo> getWithFilter(String qualifier, int getWhat, Filter filter, boolean useLowerCaseQual) {
+
+    public Collection<IInfo> getTokensEqualTo(String qualifier, int getWhat) {
         synchronized (lock) {
-            List<IInfo> toks = new ArrayList<IInfo>();
+            return getWithFilter(qualifier, getWhat, equalsFilter, false, null);
+        }
+    }
+    
+    public Collection<IInfo> getTokensEqualTo(String qualifier, int getWhat, Collection<IInfo> result) {
+        synchronized (lock) {
+            return getWithFilter(qualifier, getWhat, equalsFilter, false, result);
+        }
+    }
+    
+    protected Collection<IInfo> getWithFilter(String qualifier, int getWhat, Filter filter, boolean useLowerCaseQual, Collection<IInfo> result) {
+        synchronized (lock) {
+            if(result == null){
+                result = new ArrayList<IInfo>();
+            }
             
             if((getWhat & TOP_LEVEL) != 0){
-                getWithFilter(qualifier, topLevelInitialsToInfo, toks, filter, useLowerCaseQual);
+                getWithFilter(qualifier, topLevelInitialsToInfo, result, filter, useLowerCaseQual);
             }
             if((getWhat & INNER) != 0){
-                getWithFilter(qualifier, innerInitialsToInfo, toks, filter, useLowerCaseQual);
+                getWithFilter(qualifier, innerInitialsToInfo, result, filter, useLowerCaseQual);
             }
-            return toks;
+            return result;
         }
     }
         
