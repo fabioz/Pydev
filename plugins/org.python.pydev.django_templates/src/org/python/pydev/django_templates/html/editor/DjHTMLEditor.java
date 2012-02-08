@@ -13,19 +13,13 @@ import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.django_templates.DjPlugin;
-import org.python.pydev.django_templates.IDjConstants;
 import org.python.pydev.django_templates.editor.DjEditor;
 import org.python.pydev.django_templates.html.outline.DjHTMLOutlineContentProvider;
 import org.python.pydev.django_templates.html.outline.DjHTMLOutlineLabelProvider;
 import org.python.pydev.utils.ICallback;
 
-import com.aptana.editor.common.parsing.FileService;
-import com.aptana.editor.common.validator.IValidationManager;
-import com.aptana.editor.css.ICSSConstants;
 import com.aptana.editor.html.HTMLEditor;
 import com.aptana.editor.html.IHTMLConstants;
-import com.aptana.editor.html.parsing.HTMLParseState;
-import com.aptana.editor.js.IJSConstants;
 
 /**
  * @author Fabio Zadrozny
@@ -71,16 +65,11 @@ public class DjHTMLEditor extends HTMLEditor
 		super.dispose();
 		djEditor.dispose();
 	}
-
+	
 	@Override
-	protected FileService createFileService()
+	public String getContentType()
 	{
-		FileService fileService = new FileService(IHTMLConstants.CONTENT_TYPE_HTML, new HTMLParseState());
-		IValidationManager validationManager = fileService.getValidationManager();
-		validationManager.addNestedLanguage(ICSSConstants.CONTENT_TYPE_CSS);
-		validationManager.addNestedLanguage(IJSConstants.CONTENT_TYPE_JS);
-		validationManager.addNestedLanguage(IDjConstants.CONTENT_TYPE_DJANGO_HTML);
-		return fileService;
+		return IHTMLConstants.CONTENT_TYPE_HTML;
 	}
 
 	@Override
@@ -92,7 +81,7 @@ public class DjHTMLEditor extends HTMLEditor
 	@Override
 	public ILabelProvider getOutlineLabelProvider()
 	{
-		return new DjHTMLOutlineLabelProvider(getFileService().getParseState());
+		return new DjHTMLOutlineLabelProvider(getDocument());
 	}
 
 	@Override

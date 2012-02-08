@@ -14,7 +14,6 @@ import org.python.pydev.django_templates.IDjConstants;
 import org.python.pydev.django_templates.editor.DjEditor;
 import org.python.pydev.utils.ICallback;
 
-import com.aptana.editor.common.parsing.FileService;
 import com.aptana.editor.css.CSSSourceEditor;
 
 /**
@@ -65,7 +64,8 @@ public class DjCssEditor extends CSSSourceEditor {
     }
 
     @Override
-    protected FileService createFileService() {
-    	return new FileService(IDjConstants.CONTENT_TYPE_DJANGO_CSS);
+    public String getContentType()
+    {
+    	return IDjConstants.CONTENT_TYPE_DJANGO_CSS;
     }
 }
