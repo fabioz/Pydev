@@ -1,151 +1,92 @@
 <doc>
 <contents_area>
+<div id="Content" style="padding: 5px;">
+<h1><a name="PyDevCodeAnalysis-PyDevCodeAnalysis"></a>PyDev Code Analysis</h1>
 
-	<h3>PyDev Code Analysis</h3>
-	<p>
-		Code analysis provides error finding in python programs. It finds common errors such as undefined tokens, 
-		duplicated signatures and warns about things such as unused variables or unused imports.<br/>
-	</p>
-	
-	<p>
-		<strong>PyDev</strong> can currently find:<br/>
-	</p>
-	<ul>
-		<li>
-			Undefined variables
-		</li>
-		<li>
-			Undefined variable from import
-		</li>
-		<li>
-			Unused variables
-		</li>
-		<li>
-			Unused imports
-		</li>
-		<li>
-			Unused wild imports
-		</li>
-		<li>
-			Duplicated signatures
-		</li>
-		<li>
-			Import redefinition
-		</li>
-		<li>
-			Unresolved imports
-		</li>
-		<li>
-			No 'self' token declared in a class method
-		</li>
-		<li>
-			Mixing indentation with tabs and spaces 
-		</li>
-		<li>
-			Bad indentation (incorrect number of spaces when indenting).
-		</li>
-	</ul>
-	<p>
-		<strong>Advantages</strong> of the <strong>PyDev Code Analysis</strong>
-		<ul>
-			<li>
-				It can analyze your modules <strong>while you are coding</strong>, 
-				and not just when you have the module saved in your disk. 
-			</li>
-			<li>
-				It is <strong>'very' fast</strong> when compared to current alternatives.
-			</li>
-		</ul>
-	</p>	
-	<p>
-		<strong>NOTE 1:</strong> You may still configure PyDev to analyze your code only when you save a file if you want.
-	</p>
-	<p>
-		<strong>NOTE 2:</strong> You have to disable PyLint manually if you don't want to use it anymore.
-	</p>
-	<p>
-		<strong>NOTE 3:</strong> If you want information on how to configure PyLint, you can check the PyDev 'Open-Source' homepage:
-		<a href="http://pydev.sf.net/pylint.html">http://pydev.sf.net/pylint.html</a>
-	</p>
-	
-	<hr/>
-	<h3>Configuring it</h3>
-	<p>PyDev allows you to tweak-around the code analysis settings to suit your coding-style. To do that, go to:
-		window > preferences > PyDev > Code Analysis. The image below shows it...
-	</p>
+<p>Code analysis provides error finding in python programs. It finds common errors such as undefined tokens, duplicated signatures and warns about things such as unused variables or unused imports.</p>
 
-	<p align="center"><IMG src="images/codeanalysis/analysis_prefs.png" border="1"/></p><br/>
-	<p>
-		Its options should be self-explanatory, so, if you have some doubt, please drop a note in the PyDev forum.
-	</p>
-	
-	
-	<hr/>
-	<h3>Seeing the output</h3>
-	<p>
-		The output is shown as error markers in the editor itself (you may hover over it to see the description).
-	</p><br/>
-	<p align="center"><IMG src="images/codeanalysis/code_analysis1.png" border="1"/></p><br/>
-	<p>
-		You may also view the output in the 'problems view':
-	</p><br/>
-	<p align="center"><IMG src="images/codeanalysis/code_analysis_problems.png" border="1"/></p><br/>
-	<hr/>
-	<h3>Important notes to effectively use code-analysis</h3>
-	<p>
-		<strong>IMPORTANT 1:</strong> The undefined variable errors produced are used as an input for a <a href="manual_adv_assistants.html">content assistant</a> that
-		allows you to fix it. Check the <a href="manual_adv_assistants.html">content assistants</a> page for more information on that (it also
-		explains how you can give 'notes' to the code analysis so that it ignores some error or warning).
-	</p><br/>
-	<p>
-		<strong>IMPORTANT 2:</strong> You are advised to leave the 'auto-build' turned on (in the menu: <strong>project > build automatically</strong>). If
-		you however want to leave it off, you have to remember to make a build when you want your changes analyzed.
-	</p><br/>
-	<p>
-		<strong>IMPORTANT 3:</strong> When you change the interpreter or change your pythonpath, your files are not automatically 
-		analyzed. If you want them analyzed after that, you have to manually do a 'clear' on the projects you want analyzed (in the menu: <strong>project > clean...</strong>).
-	</p><br/>
-	
-<hr/>
-	<a name="Passing_info_to_code_analysis"></a>
-	<h3>Passing info to code-analysis</h3>
-	<p>
-		Currently code-analysis does lots of analysis so that invalid signs are not raised, but some signs are nearly impossible to detect
-		when doing static analysis, so, in some cases some flags may be added to the code to give more info to the code-analysis and make
-		it behave better.<br/>
-		<br/>
+<p><b>PyDev</b> can currently find:</p>
 
-	Currently, the supported flags are:<br/><br/>
-<p>
-  <strong>Flag: @DynamicAttrs</strong><br/>
-  <strong>Location:</strong> Should be added anywhere within a class docstring<br/>
-  <strong>Description:</strong> Used to indicate that a class has dynamic attributes (so, code analysis won't complain about undefined variables when accessing any attribute from that class.<br/>
-  <strong>Example:</strong> 
-  <p>
-class Struct:<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;'''Attributes passed in constructor.<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>@DynamicAttrs</strong><br/>
-&nbsp;&nbsp;&nbsp;&nbsp;'''<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;def __init__(self, **entries):<br/> 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.__dict__.update(entries)<br/>
-  </p>
+<ul class="alternate" type="square">
+	<li>Undefined variables</li>
+	<li>Undefined variable from import</li>
+	<li>Unused variables</li>
+	<li>Unused imports</li>
+	<li>Unused wild imports</li>
+	<li>Duplicated signatures</li>
+	<li>Import redefinition</li>
+	<li>Unresolved imports</li>
+	<li>No 'self' token declared in a class method</li>
+	<li>Mixing indentation with tabs and spaces</li>
+	<li>Bad indentation (incorrect number of spaces when indenting).</li>
+</ul>
 
-</p>
 
- 	</p><br/>
-	
+<p><b>Advantages</b> of the <b>PyDev Code Analysis</b></p>
+
+<ul class="alternate" type="square">
+	<li>It can analyze your modules <b>while you are coding</b>, and not just when you have the module saved in your disk.</li>
+	<li>It is <b>'very' fast</b> when compared to current alternatives.</li>
+</ul>
+
+
+<p><b>NOTE 1:</b> You may still configure PyDev to analyze your code only when you save a file if you want.</p>
+
+<p><b>NOTE 2:</b> You have to disable PyLint manually if you don't want to use it anymore.</p>
+
+<p><b>NOTE 3:</b> If you want information on how to configure PyLint, you can check: <a href="manual_adv_pylint.html" title="PyDev PyLint">PyDev PyLint</a></p>
+
+
+<h1><a name="PyDevCodeAnalysis-Configuringit"></a>Configuring it</h1>
+
+<p>PyDev allows you to tweak-around the code analysis settings to suit your coding-style. To do that, go to: window &gt; preferences &gt; PyDev &gt; Code Analysis. The image below shows it...</p>
+
+<p><span class="image-wrap" style=""><img src="http://pydev.org/images/codeanalysis/analysis_prefs.png" style="border: 1px solid black" /></span></p>
+
+<p>Its options should be self-explanatory, so, if you have some doubt, please drop a note in the PyDev forum.</p>
+
+
+<h1><a name="PyDevCodeAnalysis-Seeingtheoutput"></a>Seeing the output</h1>
+
+<p>The output is shown as error markers in the editor itself (you may hover over it to see the description).</p>
+
+<p><span class="image-wrap" style=""><img src="http://pydev.org/images/codeanalysis/code_analysis1.png" style="border: 1px solid black" /></span></p>
+
+<p>You may also view the output in the 'problems view':</p>
+
+<p><span class="image-wrap" style=""><img src="http://pydev.org/images/codeanalysis/code_analysis_problems.png" style="border: 1px solid black" /></span></p>
+
+<h1><a name="PyDevCodeAnalysis-Importantnotestoeffectivelyusecodeanalysis"></a>Important notes to effectively use code-analysis</h1>
+
+<p><b>IMPORTANT 1:</b> The undefined variable errors produced are used as an input for a <a href="manual_adv_assistants.html" title="PyDev Content Assistants">content assistant</a> that allows you to fix it. Check the <a href="manual_adv_assistants.html" title="PyDev Content Assistants">PyDev Content Assistants</a> page for more information on that (it also explains how you can give 'notes' to the code analysis so that it ignores some error or warning).</p>
+
+<p><b>IMPORTANT 2:</b> You are advised to leave the 'auto-build' turned on (in the menu: <b>project &gt; build automatically</b>). If you however want to leave it off, you have to remember to make a build when you want your changes analyzed.</p>
+
+<p><b>IMPORTANT 3:</b> When you change the interpreter or change your pythonpath, your files are not automatically analyzed. If you want them analyzed after that, you have to manually do a 'clear' on the projects you want analyzed (in the menu: <b>project &gt; clean...</b>).</p>
+
+
+
+<h1><a name="PyDevCodeAnalysis-Passinginfotocodeanalysis"></a>Passing info to code-analysis</h1>
+
+<p>Currently code-analysis does lots of analysis so that invalid signs are not raised, but some signs are nearly impossible to detect when doing static analysis, so, in some cases some flags may be added to the code to give more info to the code-analysis and make it behave better.</p>
+
+<p>Currently, the supported flags are:</p>
+
+<p><b>Flag: @DynamicAttrs</b><br/>
+ <b>Location:</b> Should be added anywhere within a class docstring<br/>
+ <b>Description:</b> Used to indicate that a class has dynamic attributes (so, code analysis won't complain about undefined variables when accessing any attribute from that class.</p>
+
+<p> <b>Example:</b></p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<script type="syntaxhighlighter" class="theme: Default; brush: python; gutter: false"><![CDATA[class Struct:
+    '''Attributes passed in constructor.
+    *@DynamicAttrs*
+    '''
+    def __init__(self, *entries):
+        self.__dict__.update(entries)]]></script>
+</div></div>
+</div>
+<br/><br/><a href="https://wiki.appcelerator.org/display/tis/PyDev+Code+Analysis">See wiki page</a>
 </contents_area>
-
-
-
-<right_area>
-<p>Code analysis</p>
-</right_area>
-
-
-<image_area>manual.png</image_area>
-
-
-<quote_area><strong>PyDev 101</strong></quote_area>
-
 </doc>

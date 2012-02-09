@@ -1,701 +1,439 @@
-
 <doc>
 <contents_area>
-<a name="top"><h4><a href="#how_do_i_report_a_bug">How do I Report a BUG?
-</a></h4>
+<div id="Content" style="padding: 5px;">
+<div>
+<ul>
+    <li><a href='#PyDevFAQ-HowdoIReportaBUG%3F'>How do I Report a BUG?</a></li>
+    <li><a href='#PyDevFAQ-HowdoIReportaFeatureRequest%3F'>How do I Report a Feature Request?</a></li>
+    <li><a href='#PyDevFAQ-IhavesomedoubtIcouldn%27tfindintheFAQ%2CwhatdoIdo%3F'>I have some doubt I couldn't find in the FAQ, what do I do?</a></li>
+    <li><a href='#PyDevFAQ-HowdoIgetstartedwithPyDev%3F'>How do I get started with PyDev?</a></li>
+    <li><a href='#PyDevFAQ-CanIhaveEclipseinstalledanywheretousePyDev%3F'>Can I have Eclipse installed anywhere to use PyDev?</a></li>
+    <li><a href='#PyDevFAQ-HowdoIimportexistingprojects%2FsourcesintoPyDev%3F'>How do I import existing projects/sources into PyDev?</a></li>
+    <li><a href='#PyDevFAQ-HowdoIimportexistingprojects%2FsourcesforaDjangoprojectintoPyDev%3F'>How do I import existing projects/sources for a Django project into PyDev?</a></li>
+    <li><a href='#PyDevFAQ-HowdoIconfiguremyPYTHONPATH%3F'>How do I configure my PYTHONPATH?</a></li>
+    <li><a href='#PyDevFAQ-WhenIdoacodecompletion%2CPyDevhangs%2CwhatcanIdo%3F'>When I do a code-completion, PyDev hangs, what can I do?</a></li>
+    <li><a href='#PyDevFAQ-Whyrawinput%28%29%2Finput%28%29doesnotworkcorrectlyinPyDev%3F'>Why raw_input() / input() does not work correctly in PyDev?</a></li>
+    <li><a href='#PyDevFAQ-Mytodotasksarenotshowing%2Cistheresomethingwrong%3F'>My todo-tasks are not showing, is there something wrong?</a></li>
+    <li><a href='#PyDevFAQ-SomekeybindingsCtrl%5C09%5Cdon%27tworkunderUbuntu.WhatcanIdoaboutit%3F'>Some keybindings Ctrl+[0-9] don't work under Ubuntu. What can I do about it?</a></li>
+    <li><a href='#PyDevFAQ-Variablesviewdoesn%27tshowlettersinGNU%2FLinux%28whiledebugging%29'>Variables view doesn't show letters in GNU/Linux (while debugging)</a></li>
+    <li><a href='#PyDevFAQ-IhavealibraryinstalledandPyDevdoesnotfindit'>I have a library installed and PyDev does not find it</a></li>
+    <li><a href='#PyDevFAQ-Whatisthat%27Forcedbuiltinlibs%27inthePythonInterpreterspreferences%3F'>What is that 'Forced builtin libs' in the Python Interpreters preferences?</a></li>
+    <li><a href='#PyDevFAQ-HowdoIconfigureapythonshellforexperimentingwithPython%3F'>How do I configure a python shell for experimenting with Python?</a></li>
+    <li><a href='#PyDevFAQ-ThePyDevbuilderistakingtoomuchofmytime%2CwhatcanIdoaboutit%3F'>The PyDev builder is taking too much of my time, what can I do about it?</a></li>
+    <li><a href='#PyDevFAQ-WhythePyDevpropertiesdonotshow%3F'>Why the PyDev properties do not show?</a></li>
+    <li><a href='#PyDevFAQ-WhynothingshowsinthePyDevPackageExplorer%3F'>Why nothing shows in the PyDev Package Explorer?</a></li>
+    <li><a href='#PyDevFAQ-IcanseenonewPythonproject%2ChowamIsupposedtousePyDev%3F'>I can see no new Python project, how am I supposed to use PyDev?</a></li>
+    <li><a href='#PyDevFAQ-HowdoIrunamodulefromwithineclipseusingPyDev%28eitherPythonorJython%29%3F'>How do I run a module from within eclipse using PyDev (either Python or Jython)?</a></li>
+    <li><a href='#PyDevFAQ-HowdoIknowwhichisthecommandlineandPYTHONPATHusedtomakeapythonorjythonrun%3F'>How do I know which is the command-line and PYTHONPATH used to make a python or jython run?</a></li>
+    <li><a href='#PyDevFAQ-Codecompletionisnotworkingcorrectlyforsomelibrary'>Code completion is not working correctly for some library</a></li>
+    <li><a href='#PyDevFAQ-Ican%27tmake%5Cbuiltins.xxx%3Dsomethingwhiledebugging'>I can't make _ <em>builtins</em>_.xxx = something while debugging</a></li>
+    <li><a href='#PyDevFAQ-PyLintisnotworking%2CwhatshouldIdo%3F'>PyLint is not working, what should I do?</a></li>
+    <li><a href='#PyDevFAQ-IhaveaCORBAprogramandIcannotdebugitsmethods%2CwhatcanIdo%3F'>I have a CORBA program and I cannot debug its methods, what can I do?</a></li>
+    <li><a href='#PyDevFAQ-OK%2CIknowthatmanyfeaturesareavailable%2CbutIjustdon%27tknowhowcanIaccessthemthroughmykeyboard%5C%21%5C%21'>OK, I know that many features are available, but I just don't know how can I access them through my keyboard!!</a></li>
+    <li><a href='#PyDevFAQ-HowdoIuninstallPyDev'>How do I uninstall PyDev</a></li>
+</ul></div>
 
-<h4><a href="#how_do_i_report_a_feature_request">How do I Report a Feature Request?
-</a></h4>
+<h2><a name="PyDevFAQ-HowdoIReportaBUG%3F"></a>How do I Report a BUG?</h2>
 
-<h4><a href="#i_have_some_doubt_i_couldn_t_find_in_the_faq_what">I have some doubt I couldn't find in the FAQ, what do I do?
-</a></h4>
+<p>The place to search and report BUGS is at <a href="http://sourceforge.net/tracker/?group_id=85796&amp;atid=577329" class="external-link" rel="nofollow">http://sourceforge.net/tracker/?group_id=85796&amp;atid=577329</a></p>
 
-<h4><a href="#how_do_i_get_started_with_pydev">How do I get started with PyDev?
-</a></h4>
+<p>When reporting a bug, the following information must be given:</p>
 
-<h4><a href="#can_i_have_eclipse_installed_anywhere_to_use_pydev">Can I have Eclipse installed anywhere to use PyDev?
-</a></h4>
+<p>&#45; System (e.g windows XP)<br/>
+&#45; Eclipse version (e.g. 3.5)<br/>
+&#45; PyDev version (e.g. 1.5.1)<br/>
+&#45; PyDev <b>error log</b> (if any): go to <b>window &gt; show view &gt; other &gt; PDE Runtime &gt; Error log</b>. (if you have the SDK installed, otherwise, you have to find the log file at <b>your_workspace/.metadata/.log</b>)<br/>
+&#45; Eclipse install location (e.g. D:\eclipse_3\352\eclipse)<br/>
+&#45; Project location where the bug appears (e.g. D:\eclipse\workspace\my project)<br/>
+&#45; What were you doing when the bug appeared</p>
 
-<h4><a href="#how_do_i_import_existing_projects_sources_into_pyd">How do I import existing projects/sources into PyDev?
-</a></h4>
 
-<h4><a href="#how_do_i_import_existing_projects_sources_for_a_dj">How do I import existing projects/sources for a Django project into PyDev?
-</a></h4>
+<p> <b>IMPORTANT</b>:  If you're having a bug where there's a <b>halting condition</b>, it's important to give the information on  the available threads when that happens and whether there's actually a deadlock.</p>
 
-<h4><a href="#how_do_i_configure_my_pythonpath">How do I configure my PYTHONPATH?
-</a></h4>
+<p>To get that info, start eclipse with the <b>java executable (not javaw)</b> and add the <b>&#45;Dcom.sun.management.jmxremote</b> flag to vmargs (note that the sun java 1.6 should be used).</p>
 
-<h4><a href="#when_i_do_a_code_completion_pydev_hangs_what_can">When I do a code-completion, PyDev hangs, what can I do?
-</a></h4>
+<p>E.g.: d:\bin\eclipse_350\eclipse.exe &#45;vm D:\bin\jdk_1_6_11\bin\java.exe &#45;vmargs &#45;Dcom.sun.management.jmxremote</p>
 
-<h4><a href="#why_raw_input_input_does_not_work_correctly">Why raw_input() / input() does not work correctly in PyDev?
-</a></h4>
+<p>Now, open up jconsole (e.g.: d:\bin\jdk_1_6_11\bin\jconsole.exe) and press 'detect deadlock' &#45;&#45; if a deadlock is found,  paste the info on the deadlocked threads and that should be enough.</p>
 
-<h4><a href="#my_todo_tasks_are_not_showing_is_there_something">My todo-tasks are not showing, is there something wrong?
-</a></h4>
+<p>If no deadlock is found, the bug should have the info on all the threads running attached to it  (below are instructions on how to get that info &#45;&#45; as it's too troublesome to pass every thread in jconsole copying it).</p>
 
-<h4><a href="#some_keybindings_ctrl_don_t_work_under_ubunt">Some keybindings Ctrl+[0-9] don't work under Ubuntu. What can I do about it?
-</a></h4>
+<p>If you're on windows, press <b>Ctrl+Break</b> to get a list of  all the running threads (which should be attached to the bug). Note that you may have to increase the buffer of the console to get all  info (so, in the console open the properties menu &#45;&#45;  Alt+Space &#45;&#45; select the 'properties' and in 'screen buffer size: height'  raise it to something as 9999 &#45;&#45; and only then press Ctrl+Break)</p>
 
-<h4><a href="#variables_view_doesn_t_show_letters_in_gnu_linux">Variables view doesn't show letters in GNU/Linux (while debugging)
-</a></h4>
+<p>On Linux (and other unix variants) that info is gotten with <b>kill pid &#45;-QUIT</b></p>
 
-<h4><a href="#i_have_a_library_installed_and_pydev_does_not_find">I have a library installed and PyDev does not find it
-</a></h4>
+<p> <b>NOTE</b>: the <a href="http://sourceforge.net/forum/forum.php?forum_id=293649" class="external-link" rel="nofollow">Users Forum</a> may be used for some doubts, but if you have a bug, that's not the place to go (even though, it might be useful searching it to see if what you have is not really a bug or if someone has already asked about it).</p>
 
-<h4><a href="#what_is_that_forced_builtin_libs_in_the_python_i">What is that 'Forced builtin libs' in the Python Interpreters preferences?
-</a></h4>
 
-<h4><a href="#how_do_i_configure_a_python_shell_for_experimentin">How do I configure a python shell for experimenting with Python?
-</a></h4>
 
-<h4><a href="#the_pydev_builder_is_taking_too_much_of_my_time_w">The PyDev builder is taking too much of my time, what can I do about it?
-</a></h4>
 
-<h4><a href="#why_the_pydev_properties_do_not_show">Why the PyDev properties do not show?
-</a></h4>
 
-<h4><a href="#why_nothing_shows_in_the_pydev_package_explorer">Why nothing shows in the PyDev Package Explorer?
-</a></h4>
+<h2><a name="PyDevFAQ-HowdoIReportaFeatureRequest%3F"></a>How do I Report a Feature Request?</h2>
 
-<h4><a href="#i_can_see_no_new_python_project_how_am_i_supposed">I can see no new Python project, how am I supposed to use PyDev?
-</a></h4>
+<p>Do it <a href="http://sourceforge.net/tracker/?group_id=85796&amp;atid=577332" class="external-link" rel="nofollow">here (feature tracker at sourceforge)</a> </p>
 
-<h4><a href="#how_do_i_run_a_module_from_within_eclipse_using_py">How do I run a module from within eclipse using PyDev (either Python or Jython)? 
-</a></h4>
 
-<h4><a href="#how_do_i_know_which_is_the_command_line_and_python">How do I know which is the command-line and PYTHONPATH used to make a python or jython run? 
-</a></h4>
 
-<h4><a href="#code_completion_is_not_working_correctly_for_some">Code completion is not working correctly for some library 
-</a></h4>
+<h2><a name="PyDevFAQ-IhavesomedoubtIcouldn%27tfindintheFAQ%2CwhatdoIdo%3F"></a>I have some doubt I couldn't find in the FAQ, what do I do?</h2>
 
-<h4><a href="#i_can_t_make_builtins_xxx_something_while_de">I can't make __builtins__.xxx = something while debugging
-</a></h4>
+<p>You can check the <a href="http://sourceforge.net/forum/forum.php?forum_id=293649" class="external-link" rel="nofollow">Users Forum</a> for some doubts, but please, try to find what you're looking for in the homepage first. </p>
 
-<h4><a href="#pylint_is_not_working_what_should_i_do">PyLint is not working, what should I do?
-</a></h4>
 
-<h4><a href="#i_have_a_corba_program_and_i_cannot_debug_its_meth">I have a CORBA program and I cannot debug its methods, what can I do?
-</a></h4>
 
-<h4><a href="#ok_i_know_that_many_features_are_available_but_i">OK, I know that many features are available, but I just don't know how can I access them through my keyboard!!
-</a></h4>
+<h2><a name="PyDevFAQ-HowdoIgetstartedwithPyDev%3F"></a>How do I get started with PyDev?</h2>
 
-<h4><a href="#how_do_i_uninstall_pydev">How do I uninstall PyDev
-</a></h4>
+<p>Check the getting started manual at: <a href="manual_101_root.html" title="PyDev Getting Started">PyDev Getting Started</a></p>
 
-<br/><hr/><a name="how_do_i_report_a_bug"></a>
-<h2>How do I Report a BUG?
-</h2><br>
-The place to search and report BUGS is at <a href="http://sourceforge.net/tracker/?group_id=85796&atid=577329">http://sourceforge.net/tracker/?group_id=85796&atid=577329</a><br>
-<br>
-When reporting a bug, the following information must be given:<br><br>
+<p>Also, there are some videos available at: <a href="http://www.youtube.com/user/pydev" class="external-link" rel="nofollow">http://www.youtube.com/user/pydev</a> which may help you in getting started. </p>
 
-- System (e.g windows XP)<br>
-- Eclipse version (e.g. 3.5)<br>
-- PyDev version (e.g. 1.5.1)<br>
-- PyDev <strong>error log</strong> (if any): go to <strong>window > show view > other > PDE Runtime > Error log</strong>. (if you have the SDK installed, otherwise,
-you have to find the log file at <strong>your_workspace/.metadata/.log</strong>)<br>
-- Eclipse install location (e.g. D:\eclipse_3\352\eclipse)<br>
-- Project location where the bug appears (e.g. D:\eclipse\workspace\my project)<br>
-- What were you doing when the bug appeared<br>
 
-<br>
-<br>
 
-<strong>IMPORTANT</strong>: 
-If you're having a bug where there's a <strong>halting condition</strong>, it's important to give the information on 
-the available threads when that happens and whether there's actually a deadlock.
-<br>
-<br>
+<h2><a name="PyDevFAQ-CanIhaveEclipseinstalledanywheretousePyDev%3F"></a>Can I have Eclipse installed anywhere to use PyDev?</h2>
 
-To get that info, start eclipse with the <strong>java executable (not javaw)</strong> and add the <strong>-Dcom.sun.management.jmxremote</strong> flag to vmargs
-(note that the sun java 1.6 should be used).
+<p>Yes (note that some previous versions had a bug in which it didn't work if the Eclipse installation had spaces in the path). </p>
 
-<br>
-<br>
 
-E.g.: d:\bin\eclipse_350\eclipse.exe -vm D:\bin\jdk_1_6_11\bin\java.exe -vmargs -Dcom.sun.management.jmxremote
 
-<br>
-<br>
+<h2><a name="PyDevFAQ-HowdoIimportexistingprojects%2FsourcesintoPyDev%3F"></a>How do I import existing projects/sources into PyDev?</h2>
 
-Now, open up jconsole (e.g.: d:\bin\jdk_1_6_11\bin\jconsole.exe) and press 'detect deadlock' -- if a deadlock is found, 
-paste the info on the deadlocked threads and that should be enough.
+<p>If the project was already in Eclipse (i.e.: has the .project and .pydevproject files), use File &gt; Import &gt; Existing Projects into Workspace.</p>
 
-<br>
-<br>
+<p>Now, if the project never had the .project nor .pydevproject files, there are 2 choices:</p>
 
-If no deadlock is found, the bug should have the info on all the threads running attached to it 
-(below are instructions on how to get that info -- as it's too troublesome to pass every thread in jconsole copying it).
+<p> <b>Option 1</b>:</p>
 
-<br>
-<br>
+<p>Just go through the File &gt; New &gt; PyDev Project wizard and select as the directory the directory with your sources.</p>
 
-If you're on windows, press <strong>Ctrl+Break</strong> to get a list of all the running threads (which should be attached to the bug).
-Note that you may have to increase the buffer of the console to get all info (so, in the console open the properties menu -- 
-Alt+Space -- select the 'properties' and in 'screen buffer size: height' raise it to something as 9999 -- and only then press Ctrl+Break) 
+<p> <b>Option 2</b>:</p>
 
-<br>
-<br>
+<p>Create the .project and .pydevproject files from the template below and  use File &gt; Import &gt; Existing Projects into Workspace to import it.   Note that this option is more a reference for people that want to  automate creating multiple projects at once.</p>
 
-On Linux (and other unix variants) that info is gotten with <strong>kill pid --QUIT</strong>
+<p> <b>.project</b> contents (must replace the <b>MyProject</b> with the project name)</p>
 
-<br>
-<br>
+<p>&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br/>
+&lt;projectDescription&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;name&gt;MyProject&lt;/name&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;comment&gt;&lt;/comment&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;projects&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/projects&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;buildSpec&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;buildCommand&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;name&gt;org.python.pydev.PyDevBuilder&lt;/name&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;arguments&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/arguments&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/buildCommand&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/buildSpec&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;natures&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;nature&gt;org.python.pydev.pythonNature&lt;/nature&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/natures&gt;<br/>
+&lt;/projectDescription&gt;</p>
 
 
+<p> <b>.pydevproject</b> contents (must replace the path (<b>/MyProject/src</b>)  with the actual folders to be in the PYTHONPATH)</p>
 
-<strong>NOTE</strong>: the <A href="http://sourceforge.net/forum/forum.php?forum_id=293649">Users Forum</A> may be used for
-some doubts, but if you have a bug, that's not the place to go (even though, it might be useful searching it to
-see if what you have is not really a bug or if someone has already asked about it).
-<br><br>
+<p>&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br/>
+&lt;?eclipse-pydev version="1.0"?&gt;<br/>
+&lt;pydev_project&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;pydev_property name="org.python.pydev.PYTHON_PROJECT_INTERPRETER"&gt;Default&lt;/pydev_property&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;pydev_property name="org.python.pydev.PYTHON_PROJECT_VERSION"&gt;python 2.7&lt;/pydev_property&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;pydev_variables_property name="org.python.pydev.PROJECT_VARIABLE_SUBSTITUTION"&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/pydev_variables_property&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH"&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;path&gt;/MyProject/src&lt;/path&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/pydev_pathproperty&gt;<br/>
+&lt;/pydev_project&gt;</p>
 
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="how_do_i_report_a_feature_request"></a>
-<h2>How do I Report a Feature Request?
-</h2><br>
-Do it <a href="http://sourceforge.net/tracker/?group_id=85796&atid=577332">here (feature tracker at sourceforge)</a>
 
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="i_have_some_doubt_i_couldn_t_find_in_the_faq_what"></a>
-<h2>I have some doubt I couldn't find in the FAQ, what do I do?
-</h2><br>
-You can check the <A href="http://sourceforge.net/forum/forum.php?forum_id=293649">Users Forum</A> for some doubts,
-but please, try to find what you're looking for in the homepage first.
+<h2><a name="PyDevFAQ-HowdoIimportexistingprojects%2FsourcesforaDjangoprojectintoPyDev%3F"></a>How do I import existing projects/sources for a Django project into PyDev?</h2>
 
+<p>Follow the same steps in the FAQ above to import a PyDev project, then  right click the project &gt; PyDev &gt; Set as Django project and  add 2 String substitution variables (on right click project &gt;  properties &gt; PyDev PYTHONPATH)</p>
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="how_do_i_get_started_with_pydev"></a>
-<h2>How do I get started with PyDev?
-</h2><br>
-Check the getting started manual at: <a href="http://pydev.org/manual_101_root.html">http://pydev.org/manual_101_root.html</a>
-<br/><br/>
-Also, there are some videos available at: <a href="http://www.youtube.com/user/pydev">http://www.youtube.com/user/pydev</a> which
-may help you in getting started.
+<p> <b>DJANGO_MANAGE_LOCATION</b>, which is the relative path to manage.py. i.e.: <b>src/my_project/manage.py</b><br/>
+ <b>DJANGO_SETTINGS_MODULE</b>, which is the name of the settings module. i.e.: <b>my_project.settings</b></p>
 
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="can_i_have_eclipse_installed_anywhere_to_use_pydev"></a>
-<h2>Can I have Eclipse installed anywhere to use PyDev?
-</h2><br>
-Yes (note that some previous versions had a bug in which it didn't work if the Eclipse installation had spaces in the path).
+<p>Note that if the .pydevproject file was created, those values could  already be added to it in the entry  org.python.pydev.PROJECT_VARIABLE_SUBSTITUTION:</p>
 
+<p>&lt;pydev_variables_property name="org.python.pydev.PROJECT_VARIABLE_SUBSTITUTION"&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;key&gt;DJANGO_MANAGE_LOCATION&lt;/key&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;value&gt;src/my_project/manage.py&lt;/value&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;key&gt;DJANGO_SETTINGS_MODULE&lt;/key&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;value&gt;my_project.settings&lt;/value&gt;<br/>
+&lt;/pydev_variables_property&gt;</p>
 
 
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="how_do_i_import_existing_projects_sources_into_pyd"></a>
-<h2>How do I import existing projects/sources into PyDev?
-</h2><br>
-If the project was already in Eclipse (i.e.: has the .project and .pydevproject files),
-use File > Import > Existing Projects into Workspace.<br/><br/>
 
-Now, if the project never had the .project nor .pydevproject files, there are 2 choices:<br><br>
+<h2><a name="PyDevFAQ-HowdoIconfiguremyPYTHONPATH%3F"></a>How do I configure my PYTHONPATH?</h2>
 
-<strong>Option 1</strong>:<br><br>
+<p>Please refer to the Getting Started Guide at <a href="manual_101_root.html" title="PyDev Getting Started">PyDev Getting Started</a> for up-to-date information on how to correctly install and configure your PYTHONPATH.</p>
 
-Just go through the File > New > PyDev Project wizard and select as the directory the directory with your sources.<br><br>
 
 
-<strong>Option 2</strong>:<br><br>
 
-Create the .project and .pydevproject files from the template below and use File > Import > Existing Projects into Workspace
-to import it. 
 
-Note that this option is more a reference for people that want to automate creating multiple projects at once.<br/><br/>
+<h2><a name="PyDevFAQ-WhenIdoacodecompletion%2CPyDevhangs%2CwhatcanIdo%3F"></a>When I do a code-completion, PyDev hangs, what can I do?</h2>
 
- 
-<strong>.project</strong> contents (must replace the <strong>MyProject</strong> with the project name)<br><br>
+<p>PyDev does most of its things in the java side, but some information can only be gotten from the python side (mainly builtins), so, in order to get that info, PyDev creates a shell and communicates with it through sockets.</p>
 
-&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>
-&lt;projectDescription&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;name&gt;MyProject&lt;/name&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;comment&gt;&lt;/comment&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;projects&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;/projects&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;buildSpec&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;buildCommand&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;name&gt;org.python.pydev.PyDevBuilder&lt;/name&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;arguments&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/arguments&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/buildCommand&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;/buildSpec&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;natures&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;nature&gt;org.python.pydev.pythonNature&lt;/nature&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;/natures&gt;<br>
-&lt;/projectDescription&gt;<br><br><br>
+<p>The main problems when that happens are:</p>
 
+<p>1. There's a firewall blocking the communication to the shell</p>
 
-<strong>.pydevproject</strong> contents (must replace the path (<strong>/MyProject/src</strong>) 
-with the actual folders to be in the PYTHONPATH)<br><br>
+<p>2. In Linux, some kernels do not allow ipv4 utilization, which may make PyDev fail.</p>
 
-&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>
-&lt;?eclipse-pydev version="1.0"?&gt;<br>
+<p>To enable it, do: echo 0 &gt; /proc/sys/net/ipv6/bindv6only</p>
 
-&lt;pydev_project&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;pydev_property name="org.python.pydev.PYTHON_PROJECT_INTERPRETER"&gt;Default&lt;/pydev_property&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;pydev_property name="org.python.pydev.PYTHON_PROJECT_VERSION"&gt;python 2.7&lt;/pydev_property&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;pydev_variables_property name="org.python.pydev.PROJECT_VARIABLE_SUBSTITUTION"&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;/pydev_variables_property&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH"&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;path&gt;/MyProject/src&lt;/path&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;/pydev_pathproperty&gt;<br>
-&lt;/pydev_project&gt;<br>
+<p>3. The timeout to connect is too smal.</p>
 
+<p>It depends upon the "Timeout to connect to shell" in the code-completion preferences  (window &gt; preferences &gt; PyDev &gt; Code completion)</p>
 
+<p>If nothing works, please report a bug (also, check if there is anything on the error log (window &gt; show view &gt; PDE Runtime &gt; Error log) and on the eclipse '.log', which is located at the .metadata folder of the workspace location.</p>
 
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="how_do_i_import_existing_projects_sources_for_a_dj"></a>
-<h2>How do I import existing projects/sources for a Django project into PyDev?
-</h2><br>
-Follow the same steps in the FAQ above to import a PyDev project, then right click the project > PyDev > Set as Django project and 
-add 2 String substitution variables (on right click project > properties > PyDev PYTHONPATH)<br><br>
 
-<strong>DJANGO_MANAGE_LOCATION</strong>, which is the relative path to manage.py. i.e.: <strong>src/my_project/manage.py</strong><br>
-<strong>DJANGO_SETTINGS_MODULE</strong>, which is the name of the settings module. i.e.: <strong>my_project.settings</strong><br>
-<br><br>
 
-Note that if the .pydevproject file was created, those values could already be added to it in the entry org.python.pydev.PROJECT_VARIABLE_SUBSTITUTION:<br><br>
 
-&lt;pydev_variables_property name="org.python.pydev.PROJECT_VARIABLE_SUBSTITUTION"&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;key&gt;DJANGO_MANAGE_LOCATION&lt;/key&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;value&gt;src/my_project/manage.py&lt;/value&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;key&gt;DJANGO_SETTINGS_MODULE&lt;/key&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;value&gt;my_project.settings&lt;/value&gt;<br>
-&lt;/pydev_variables_property&gt;<br>
+<h2><a name="PyDevFAQ-Whyrawinput%28%29%2Finput%28%29doesnotworkcorrectlyinPyDev%3F"></a>Why raw_input() / input() does not work correctly in PyDev?</h2>
 
+<p>The eclipse console is not an exact copy of a shell... one of  the changes is that when you press &lt;ENTER&gt; in a shell, it may give you a <b>\r, \n</b> or <b>\r\n</b> as an end-line char, depending on your platform.  Python does not expect this &#45;&#45; from the docs it says that it will remove the last <b>\n</b> (checked in version 2.4),  but, in some platforms that will leave a <b>\r</b> there.  This means that the <b>raw_input()</b> should usually be used as <b>raw_input().replace('\r', '')</b>,  and <b>input()</b> should be changed for: <b>eval(raw_input().replace('\r', ''))</b>. </p>
 
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="how_do_i_configure_my_pythonpath"></a>
-<h2>How do I configure my PYTHONPATH?
-</h2><br>
-Please refer to the Getting Started Guide at 
-<a href="http://pydev.org/manual_101_root.html">http://pydev.org/manual_101_root.html</a>
-for up-to-date information on how to correctly install and configure your PYTHONPATH.
-<br><br>
 
+<h2><a name="PyDevFAQ-Mytodotasksarenotshowing%2Cistheresomethingwrong%3F"></a>My todo-tasks are not showing, is there something wrong?</h2>
 
+<p>Check the <a href="manual_adv_tasks.html" title="PyDev Tasks">tasks</a> page for info on tasks. </p>
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="when_i_do_a_code_completion_pydev_hangs_what_can"></a>
-<h2>When I do a code-completion, PyDev hangs, what can I do?
-</h2><br>PyDev does most of its things in the java side, but some information can only be gotten from the python side
-(mainly builtins), so, in order to get that info, PyDev creates a shell and communicates with it through sockets.<br/><br/>
 
-The main problems when that happens are:<br/><br/>
 
+<h2><a name="PyDevFAQ-SomekeybindingsCtrl%5C09%5Cdon%27tworkunderUbuntu.WhatcanIdoaboutit%3F"></a>Some keybindings Ctrl+[0-9] don't work under Ubuntu. What can I do about it?</h2>
 
-1. There's a firewall blocking the communication to the shell<br/><br/>
+<p>That's a known bug in Eclipse. You can see more details on and vote for it if you want it fixed at: <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=179628" class="external-link" rel="nofollow">https://bugs.eclipse.org/bugs/show_bug.cgi?id=179628</a></p>
 
+<p>And details at the PyDev bugtracker: <a href="https://sourceforge.net/tracker/index.php?func=detail&amp;aid=1595998&amp;group_id=85796&amp;atid=577329" class="external-link" rel="nofollow">https://sourceforge.net/tracker/index.php?func=detail&amp;aid=1595998&amp;group_id=85796&amp;atid=577329</a></p>
 
-2. In Linux, some kernels do not allow ipv4 utilization, which may make PyDev fail.<br/><br/>
+<p>Basically, Ctrl+[0-9] does not work if a Ctrl+Shift+[0-9] is also set.</p>
 
+<p>The proposed workaround until this is fixed is using Ctrl+/ and Ctrl+\ for comment/uncomment &#45;&#45; which are set  by default, and changing Ctrl+Shift+4 to Ctrl+6 &#45;&#45; or removing it altogether if you don't use it. </p>
 
-To enable it, do: echo 0 > /proc/sys/net/ipv6/bindv6only<br/><br/>
 
 
+<h2><a name="PyDevFAQ-Variablesviewdoesn%27tshowlettersinGNU%2FLinux%28whiledebugging%29"></a>Variables view doesn't show letters in GNU/Linux (while debugging)</h2>
 
-3. The timeout to connect is too smal. <br/><br/>
+<p>Aparently, this bug is related only to GNOME (and no fix is provided for it).</p>
 
+<p>The good news is there is a work around. In gnome font prefs, set your DPI to less that 76. it works on the fly.</p>
 
-It depends upon the "Timeout to connect to shell" in the code-completion preferences 
-(window > preferences > PyDev > Code completion)<br/><br/>
+<p>This bug is closed in the PyDev bugtracker, but the bug was added on other places such as gnome and eclipse. The PyDev bug that points to those (and where this thread took place is <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1286315&amp;group_id=85796&amp;atid=577329" class="external-link" rel="nofollow">HERE</a>) </p>
 
-If nothing works, please report a bug (also, check if there is anything on the error log (window > show view >
-PDE Runtime > Error log) and on the eclipse '.log', which is located at the .metadata folder of the workspace location.<br/><br/>
 
 
+<h2><a name="PyDevFAQ-IhavealibraryinstalledandPyDevdoesnotfindit"></a>I have a library installed and PyDev does not find it</h2>
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="why_raw_input_input_does_not_work_correctly"></a>
-<h2>Why raw_input() / input() does not work correctly in PyDev?
-</h2><br>The eclipse console is not an exact copy of a shell... one of the changes is that when you press &lt;ENTER&gt; in a shell, it may
-give you a <strong>\r, \n</strong> or <strong>\r\n</strong> as an end-line char, depending on your platform. 
-Python does not expect this -- from the docs it says that it will remove the last <strong>\n</strong> (checked in version 2.4), 
-but, in some platforms that will leave a <strong>\r</strong> there.
+<p>Well, problems have been reported on Mac and Linux, and the main reason seems to be symlinks. PyDev will only find extensions that are 'really' below the python install directory. This happens because the 'less common denominator', which in this case is windows, does not have symlinks. A workaround to this problem includes manually adding the given folder installation to the pythonpath or changing the installation of the package to be under the site-packages folder. </p>
 
-This means that the <strong>raw_input()</strong> should usually be used as <strong>raw_input().replace('\r', '')</strong>, 
-and <strong>input()</strong> should be changed for: <strong>eval(raw_input().replace('\r', ''))</strong>.
 
 
+<h2><a name="PyDevFAQ-Whatisthat%27Forcedbuiltinlibs%27inthePythonInterpreterspreferences%3F"></a>What is that 'Forced builtin libs' in the Python Interpreters preferences?</h2>
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="my_todo_tasks_are_not_showing_is_there_something"></a>
-<h2>My todo-tasks are not showing, is there something wrong?
-</h2><br>Check the <a href="manual_adv_tasks.html">tasks</a> page for info on tasks.
+<p>Well, some libraries once installed do not really show in code completion because they do not have a corresponding module (such as &#95;<em>builtin</em>&#95; and datetime) or they do have a  corresponding module but it cannot be really used in code completion because most of its information is only gotten at runtime (such as sys and os), so, in order for code completion to get its information, you have to manually add it to those libs (and by doing so, its information is gotten with a python shell).</p>
 
 
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="some_keybindings_ctrl_don_t_work_under_ubunt"></a>
-<h2>Some keybindings Ctrl+[0-9] don't work under Ubuntu. What can I do about it?
-</h2><br>That's a known bug in Eclipse. You can see more details on and vote for it if you want it fixed at:
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=179628">https://bugs.eclipse.org/bugs/show_bug.cgi?id=179628</a>
-<br/>
-<br/>
-And details at the PyDev bugtracker:
-<a href="https://sourceforge.net/tracker/index.php?func=detail&aid=1595998&group_id=85796&atid=577329">https://sourceforge.net/tracker/index.php?func=detail&aid=1595998&group_id=85796&atid=577329</a>
-<br/><br/>
-Basically, Ctrl+[0-9] does not work if a Ctrl+Shift+[0-9] is also set.
-<br/><br/>
-The proposed workaround until this is fixed is using Ctrl+/ and Ctrl+\ for comment/uncomment -- which are set 
-by default, and changing Ctrl+Shift+4 to Ctrl+6 -- or removing it altogether if you don't use it.
 
 
+<h2><a name="PyDevFAQ-HowdoIconfigureapythonshellforexperimentingwithPython%3F"></a>How do I configure a python shell for experimenting with Python?</h2>
 
+<p>PyDev has an interactive console you can use. See: <a href="manual_adv_interactive_console.html" title="PyDev Interactive Console">PyDev Interactive Console</a></p>
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="variables_view_doesn_t_show_letters_in_gnu_linux"></a>
-<h2>Variables view doesn't show letters in GNU/Linux (while debugging)
-</h2><br>
-Aparently, this bug is related only to GNOME (and no fix is provided for it).<br/><br/>
 
-The good news is there is a work around. In gnome font prefs, set your DPI to less that 76. it works on the fly. <br/><br/>
 
-This bug is closed in the PyDev bugtracker, but the bug was added on other places such as gnome and eclipse. The PyDev
-bug that points to those (and where this thread took place is
-<a href="http://sourceforge.net/tracker/index.php?func=detail&aid=1286315&group_id=85796&atid=577329"> HERE </a>)
 
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="i_have_a_library_installed_and_pydev_does_not_find"></a>
-<h2>I have a library installed and PyDev does not find it
-</h2><br>Well, problems have been reported on Mac and Linux, and the main reason seems to be symlinks. PyDev will
-only find extensions that are 'really' below the python install directory. This happens because the 'less
-common denominator', which in this case is windows, does not have symlinks. A workaround to this problem includes
-manually adding the given folder installation to the pythonpath or changing the installation of the package to
-be under the site-packages folder.
+<h2><a name="PyDevFAQ-ThePyDevbuilderistakingtoomuchofmytime%2CwhatcanIdoaboutit%3F"></a>The PyDev builder is taking too much of my time, what can I do about it?</h2>
 
+<p>Well, if you have PyLint active, you can disable it, as it is the process that takes most time when building.<br/>
+Another alternative is disabling the builder altogether. To do it you can go to window &gt; preferences &gt; PyDev &gt; builder  and disable it.<br/>
+NOTE: Disabling the builders may have many side-effects, such as code completion not working, pylint, tasks, etc. So, if you really want it, you can disable it, but do it with care.</p>
 
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="what_is_that_forced_builtin_libs_in_the_python_i"></a>
-<h2>What is that 'Forced builtin libs' in the Python Interpreters preferences?
-</h2><br>Well, some libraries once installed do not really show in code completion because they do
-not have a corresponding module (such as __builtin__ and datetime) or they do have a 
-corresponding module but it cannot be really used in code completion because most of
-its information is only gotten at runtime (such as sys and os), so, in order for code completion
-to get its information, you have to manually add it to those libs (and by doing so, its information
-is gotten with a python shell).
-<br><br>
 
 
 
+<h2><a name="PyDevFAQ-WhythePyDevpropertiesdonotshow%3F"></a>Why the PyDev properties do not show?</h2>
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="how_do_i_configure_a_python_shell_for_experimentin"></a>
-<h2>How do I configure a python shell for experimenting with Python?
-</h2><br>PyDev has an interactive console you can use. See: <a href="manual_adv_interactive_console.html">manual_adv_interactive_console.html</a>
-<br><br>
+<p>Probably you are in the JAVA package explorer or something similar. You have to use the default navigator so that it shows its properties.<br/>
+Also note that you have to open a python file with PyDev in the project before it appears in the properties too  (the project python nature appears only after you do that).</p>
 
 
 
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="the_pydev_builder_is_taking_too_much_of_my_time_w"></a>
-<h2>The PyDev builder is taking too much of my time, what can I do about it?
-</h2><br>Well, if you have PyLint active, you can disable it, as it is the process that takes most time when building.<br>
-Another alternative is disabling the builder altogether. To do it you can go to window > preferences > PyDev > builder 
-and disable it. <br>
-NOTE: Disabling the builders may have many side-effects, such as code completion not working, pylint, tasks, etc. So,
-if you really want it, you can disable it, but do it with care.
-<br><br>
 
+<h2><a name="PyDevFAQ-WhynothingshowsinthePyDevPackageExplorer%3F"></a>Why nothing shows in the PyDev Package Explorer?</h2>
 
+<p>Usually this means that you have some misconfiguration in the PyDev Package Explorer working set selection or filters.</p>
 
+<p>Note: you can access the PyDev Package Explorer menu, with ctrl+F10 or by clicking in in the triangle that's upside down in the PyDev Package Explorer.</p>
 
+<p>The usual checks are:</p>
 
+<p>1. In the PyDev Package Explorer menu, the <b>top level elements</b> is pointing to working sets?</p>
 
+<p>2. In the PyDev Package Explorer menu, customize view, the content has both, PyDev Navigator Content and Resources checked?</p>
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="why_the_pydev_properties_do_not_show"></a>
-<h2>Why the PyDev properties do not show?
-</h2><br>
-Probably you are in the JAVA package explorer or something similar. You have to use the default navigator so
-that it shows its properties.<br>
-Also note that you have to open a python file with PyDev in the project before it appears in the properties too 
-(the project python nature appears only after you do that).<br><br>
+<p>3. In the PyDev Package Explorer menu, customize view, is it possible that the filters selected are hiding all your elements?</p>
 
+<p>If all of these are correct, please ask in the users forum, as it could be a bug (please check your error log and if there's something there, add it to your post &#45;&#45; see: How do I Report a Bug? (in the top of this FAQ) for details on getting the error log).</p>
 
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="why_nothing_shows_in_the_pydev_package_explorer"></a>
-<h2>Why nothing shows in the PyDev Package Explorer?
-</h2><br>
-Usually this means that you have some misconfiguration in the PyDev Package Explorer working set selection or filters.<br/>
-<br/>
-Note: you can access the PyDev Package Explorer menu, with ctrl+F10 or by clicking in in the triangle
-that's upside down in the PyDev Package Explorer.<br/><br/>
 
-The usual checks are:<br/><br/>
+<h2><a name="PyDevFAQ-IcanseenonewPythonproject%2ChowamIsupposedtousePyDev%3F"></a>I can see no new Python project, how am I supposed to use PyDev?</h2>
 
-1. In the PyDev Package Explorer menu, the <strong>top level elements</strong> is pointing to working sets?<br/>
- 
-	<ul>
-	If it is, do you have a working set? 
-		<ul>
-		If you don't have a working set and selected to show working sets, no elements are shown.
-		</ul>
-		<br/>
-	Does you working set actually contain elements?
-		<ul>
-		If no elements are contained, in your working set, no elements will be shown.
-		</ul>
-	</ul>
-		
-<br/><br/>
+<p> <b>UPDATE</b>: As of version 0.9.8.6, a new 'PyDev Project' was introduced, so, you can already use the 'new PyDev project' (but the way described below will still work).</p>
 
-2. In the PyDev Package Explorer menu, customize view, the content has both, PyDev Navigator Content and Resources
-checked?
+<p>Well, you basically have to do a simple project and use create simple file / folder to create python modules.</p>
 
-<br/><br/>
+<p>You may also have to associate the &#42;.py with the PyDev editor (even though that is probably automatic).<br/>
+Anyway, if you need it, go to window &gt; preferences &gt; workbench &gt; file associations and associate &#42;.py with PyDev.</p>
 
-3. In the PyDev Package Explorer menu, customize view, is it possible that the filters selected are hiding all
-your elements? 
-<br/><br/>
+<p>p.s. Don't forget to put it into both of your PYTHONPATHs (enviroment and in the project properties).</p>
 
-If all of these are correct, please ask in the users forum, as it could be a bug (please check your error log
-and if there's something there, add it to your post -- see: <a href="#how_do_i_report_a_bug">How do I Report a Bug?</a>
-for details on getting the error log) 
 
 
 
 
+<h2><a name="PyDevFAQ-HowdoIrunamodulefromwithineclipseusingPyDev%28eitherPythonorJython%29%3F"></a>How do I run a module from within eclipse using PyDev (either Python or Jython)?</h2>
 
+<p>To do that, the easiest way is going to the Run menu (Run &gt;  Run As &gt; Python or Jython). If it is not available in your current eclipse perspective, you can enable it by going to window &gt; customize  perspective &gt; commands and checking the "Lauch" item (in this way, you can go only with the keyboard).</p>
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="i_can_see_no_new_python_project_how_am_i_supposed"></a>
-<h2>I can see no new Python project, how am I supposed to use PyDev?
-</h2><br>
-<strong>UPDATE</strong>: As of version 0.9.8.6, a new 'PyDev Project' was introduced, so, you can already
-use the 'new PyDev project' (but the way described below will still work).
-<br/>
-<br/>
-Well, you basically have to do a simple project and use create simple file / folder to create python modules.<br>
-<br>
-You may also have to associate the *.py with the PyDev editor (even though that is probably automatic).<br>
-Anyway, if you need it, go to window > preferences > workbench > file associations and associate *.py with PyDev.<br><br>
-p.s. Don't forget to put it into both of your PYTHONPATHs (enviroment and in the project properties).
-<br><br>
+<p>Another way to run a module is right clicking the module in the  navigator and choosing python &gt; run (when a .py file is selected). </p>
 
 
 
+<h2><a name="PyDevFAQ-HowdoIknowwhichisthecommandlineandPYTHONPATHusedtomakeapythonorjythonrun%3F"></a>How do I know which is the command-line and PYTHONPATH used to make a python or jython run?</h2>
 
+<p>If you are in doubt what is actually being passed to the run, you can go to the run menu (Run &gt; Run...) and on the given run (python or jython), click on 'See resulting command-line for the given parameters' and check the command-line, as well as the PYTHONPATH that will be used for the run. </p>
 
 
 
+<h2><a name="PyDevFAQ-Codecompletionisnotworkingcorrectlyforsomelibrary"></a>Code completion is not working correctly for some library</h2>
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="how_do_i_run_a_module_from_within_eclipse_using_py"></a>
-<h2>How do I run a module from within eclipse using PyDev (either Python or Jython)? 
-</h2><br>To do that, the easiest way is going to the Run menu (Run > Run As > Python or Jython). If it is not available in your current
-eclipse perspective, you can enable it by going to window > customize perspective > commands and checking the "Lauch" item
-(in this way, you can go only with the keyboard).<br><br>
-Another way to run a module is right clicking the module in the navigator and choosing python > run (when a .py file is selected).
+<p>Well, code completion works by default by analyzing the source code, but, sometimes, most information is only really available at runtime (the os module and wxPython are good examples here). So, you can specify that you want to treat those as builtin libraries. For that, go to the python interpreters and add it as  a 'forced builtin lib'. More information may be found at the faq:</p>
 
+<p>'What is that 'Forced builtin libs' in the Python Interpreters preferences?' </p>
 
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="how_do_i_know_which_is_the_command_line_and_python"></a>
-<h2>How do I know which is the command-line and PYTHONPATH used to make a python or jython run? 
-</h2><br>If you are in doubt what is actually being passed to the run, you can go to the run menu (Run > Run...) and on
-the given run (python or jython), click on 'See resulting command-line for the given parameters' and check the command-line,
-as well as the PYTHONPATH that will be used for the run.
 
+<h2><a name="PyDevFAQ-Ican%27tmake%5Cbuiltins.xxx%3Dsomethingwhiledebugging"></a>I can't make &#95;<em>builtins</em>_.xxx = something while debugging</h2>
 
+<p>The problem is that PyDev passes a dict as the &#95;<em>builtins</em>&#95; module to execfile while debugging (so, regular attribute access is not available on that object).</p>
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="code_completion_is_not_working_correctly_for_some"></a>
-<h2>Code completion is not working correctly for some library 
-</h2><br>Well, code completion works by default by analyzing the source code, but, sometimes, most information is
-only really available at runtime (the os module and wxPython are good examples here). So, you can specify
-that you want to treat those as builtin libraries. For that, go to the python interpreters and add it as 
-a 'forced builtin lib'. More information may be found at the faq: <br/>
-<br/>
-'What is that 'Forced builtin libs' in the Python Interpreters preferences?'
 
+<p>Simply use:<br/>
+import &#95;<em>builtin</em>&#95;<br/>
+&#95;<em>builtin</em>_.xxx = something</p>
 
+<p>It's basically the same thing, but works when debugging. </p>
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="i_can_t_make_builtins_xxx_something_while_de"></a>
-<h2>I can't make __builtins__.xxx = something while debugging
-</h2><br>The problem is that PyDev passes a dict as the __builtins__ module to execfile while debugging (so, regular
-attribute access is not available on that object).<br><br>
-<br>
-Simply use:<br>
-import __builtin__<br>
-__builtin__.xxx = something<br>
-<br>
-It's basically the same thing, but works when debugging.
 
 
+<h2><a name="PyDevFAQ-PyLintisnotworking%2CwhatshouldIdo%3F"></a>PyLint is not working, what should I do?</h2>
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="pylint_is_not_working_what_should_i_do"></a>
-<h2>PyLint is not working, what should I do?
-</h2><br>1. make sure that PyLint is correctly installed in your site-packages (try running it at least once
-on a command-line to make sure your installation is correct). <br/>
-<br/>
-2. Check if your project and your pythonpath are correctly configured 
--- pylint is only passed in files in the pythonpath for a project, so if any of those are not well configured,
-pylint won't work correctly.<br/>
-<br/>
-3. If your installation is all ok, try reading the <a href="pylint.html">PyLint</a> provided page to see if it is
-corretly configured in the eclipse side.<br/>
-<br/>
-4. If everything fails, you can ask in the forum or submit a bug report for it (don't forget to add the following
-information: pylint installation path, pylint version and the other information requested on the 
-'How do I Report a BUG?' faq.
+<p>1. make sure that PyLint is correctly installed in your site-packages (try running it at least once on a command-line to make sure your installation is correct).</p>
 
+<p>2. Check if your project and your pythonpath are correctly configured  &#45;&#45; pylint is only passed in files in the pythonpath for a project, so if any of those are not well configured, pylint won't work correctly.</p>
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="i_have_a_corba_program_and_i_cannot_debug_its_meth"></a>
-<h2>I have a CORBA program and I cannot debug its methods, what can I do?
-</h2><br>Thanks for Petru Lauric for the following explanation:<br/><br/>
+<p>3. If your installation is all ok, try reading the <a href="manual_adv_pylint.html" title="PyDev PyLint">PyLint</a> provided page to see if it is corretly configured in the eclipse side.</p>
 
-The ORB I use (omniORB) creates its own worker threads inside the python world, whenever a
-python function is called via CORBA. These threads are not created by using
-the 'threading' module so the PyDev debugger's trace function is not automatically
-set for the ORB worker threads.<br/><br/>
+<p>4. If everything fails, you can ask in the forum or submit a bug report for it (don't forget to add the following information: pylint installation path, pylint version and the other information requested on the  'How do I Report a BUG?' faq. </p>
 
-The solution is to explicitly set the trace function for the ORB threads.<br/><br/>
 
-1)  Open folder [eclipse sdk path]\plugins\org.python.pydev.debug_0.9.8.4\pysrc(or similar)<br/><br/>
 
-2) Remove file pydevd.pyc, make a backup copy of file pydevd.py and make this
-change to the PyDB::run() method from file pydevd.py:<br/><br/>
- ...<br/>
- if globals is None:<br/>
- ...<br/>
- globals = m.__dict__<br/>
-<br/>
- # <begin change><br/>
- # Hack: keep a reference to the PyDev debugger's<br/>
- # trace function in a global variable. This can<br/>
- # be used by the debugged script to set up the<br/>
- # trace function for the ORB worker threads.<br/>
- #<br/>
- globals['pydev_hook'] = self.trace_dispatch<br/>
-<br/>
- # <end change><br/>
- ...<br/>
-<br/>
-3) Make changes similar to those below to your python app.<br/><br/>
+<h2><a name="PyDevFAQ-IhaveaCORBAprogramandIcannotdebugitsmethods%2CwhatcanIdo%3F"></a>I have a CORBA program and I cannot debug its methods, what can I do?</h2>
 
-Note 1: the "pydev_hook" global variable will *only* exist in the global namespace
-of the "main" module of your app (the script launched by PyDev when you debug
-your app). Feel free to pass it as an argument to functions from other modules,
-if that's where you need to use it.<br/><br/>
+<p>Thanks for Petru Lauric for the following explanation:</p>
 
-Note 2: the trace function for the ORB worker threads MUST be set before the
-ORB creates the first worker thread.<br/><br/>
+<p>The ORB I use (omniORB) creates its own worker threads inside the python world, whenever a python function is called via CORBA. These threads are not created by using the 'threading' module so the PyDev debugger's trace function is not automatically set for the ORB worker threads.</p>
 
-a) import this undocumented ORB function<br/>
+<p>The solution is to explicitly set the trace function for the ORB threads.</p>
+
+<p>1)  Open folder [eclipse sdk path]\plugins\org.python.pydev.debug_0.9.8.4\pysrc(or similar)</p>
+
+<p>2) Remove file pydevd.pyc, make a backup copy of file pydevd.py and make this change to the PyDB::run() method from file pydevd.py:</p>
+
+<p>...<br/>
+if globals is None:<br/>
+...<br/>
+globals = m._<em>dict</em>&#95;</p>
+
+<p>&#35;<br/>
+&#35; Hack: keep a reference to the PyDev debugger's<br/>
+&#35; trace function in a global variable. This can<br/>
+&#35; be used by the debugged script to set up the<br/>
+&#35; trace function for the ORB worker threads.<br/>
+&#35;<br/>
+globals['pydev_hook'] = self.trace_dispatch</p>
+
+<p>&#35;<br/>
+...</p>
+
+<p>3) Make changes similar to those below to your python app.</p>
+
+<p>Note 1: the "pydev_hook" global variable will &#42;only&#42; exist in the global namespace of the "main" module of your app (the script launched by PyDev when you debug your app). Feel free to pass it as an argument to functions from other modules, if that's where you need to use it.</p>
+
+<p>Note 2: the trace function for the ORB worker threads MUST be set before the ORB creates the first worker thread.</p>
+
+<p>a) import this undocumented ORB function<br/>
 from omniORB import addWThreadHook<br/>
+b)add this function</p>
 
-b)add this function<br/><br/>
+<p>def dbg_trace(flag=0, wt=None):<br/>
+"""This function is called whenever the ORB     creates a worker thread (i.e. when a client     calls a CORBA interface of the engine).     The ORB worker threads are not created with     the functions from the 'threading' module so,     if we want to debug them with PyDev, we need     to "manually" set the trace function for     them."""<br/>
+if flag == 0: # WTHREAD_CREATED<br/>
+sys.settrace(pydev_trace_func)</p>
 
-def dbg_trace(flag=0, wt=None):<br/>
- """This function is called whenever the ORB
-    creates a worker thread (i.e. when a client
-    calls a CORBA interface of the engine).
-    The ORB worker threads are not created with
-    the functions from the 'threading' module so,
-    if we want to debug them with PyDev, we need
-    to "manually" set the trace function for
-    them."""<br/>
- if flag == 0: # WTHREAD_CREATED<br/>
- sys.settrace(pydev_trace_func)<br/><br/>
+<p>c) finally, make these changes</p>
 
-c) finally, make these changes<br/><br/>
-
-try:<br/>
- # check if pydev_hook is defined<br/>
- hook = pydev_hook<br/>
+<p>try:<br/>
+&#35; check if pydev_hook is defined<br/>
+hook = pydev_hook<br/>
 except:<br/>
- hook = None<br/>
-
+hook = None<br/>
 if hook is not None:<br/>
- # keep a copy of the pydev_hook in a global<br/>
- # variable, so that dbg_trace() can find it later<br/>
- # on<br/>
- global pydev_trace_func<br/>
- pydev_trace_func = pydev_hook<br/><br/>
+&#35; keep a copy of the pydev_hook in a global<br/>
+&#35; variable, so that dbg_trace() can find it later<br/>
+&#35; on<br/>
+global pydev_trace_func<br/>
+pydev_trace_func = pydev_hook</p>
 
- # NOTE: the ORB will call dbg_trace each time it<br/>
- # creates a worker thread. The function below<br/>
- # MUST be used *before* the ORB creates the first<br/>
- # worker thread.<br/>
- addWThreadHook(dbg_trace)<br/><br/>
+<p>&#35; NOTE: the ORB will call dbg_trace each time it<br/>
+&#35; creates a worker thread. The function below<br/>
+&#35; MUST be used &#42;before&#42; the ORB creates the first<br/>
+&#35; worker thread.<br/>
+addWThreadHook(dbg_trace)</p>
 
-I hope this helps.<br/><br/>
+<p>I hope this helps.</p>
 
-Regards,<br/>
-Petru Lauric<br/>
-
-
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="ok_i_know_that_many_features_are_available_but_i"></a>
-<h2>OK, I know that many features are available, but I just don't know how can I access them through my keyboard!!
-</h2><br>
-Please refer to: <a href="http://pydev.org/manual_adv_keybindings.html">http://pydev.org/manual_adv_keybindings.html</a>
-for up-to-date info on the most useful keybindings provided by PyDev and Eclipse.
-
-<br><br>
+<p>Regards,<br/>
+Petru Lauric</p>
 
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-<a name="how_do_i_uninstall_pydev"></a>
-<h2>How do I uninstall PyDev
-</h2><br>
-To uninstall you should either go on and remove the org.python.pydev* from eclipse/plugins and eclipse/features or 
-you can go to help > software updates > manage configuration, choose the PyDev plugin and disable it (after that, 
-to completely remove it, you must restart Eclipse and only then select it for uninstall). Note that this process
-is the same for any Eclipse plugin.
 
-<br><br>
+
+<h2><a name="PyDevFAQ-OK%2CIknowthatmanyfeaturesareavailable%2CbutIjustdon%27tknowhowcanIaccessthemthroughmykeyboard%5C%21%5C%21"></a>OK, I know that many features are available, but I just don't know how can I access them through my keyboard&#33;&#33;</h2>
+
+<p>Please refer to: <a href="manual_adv_keybindings.html" title="PyDev Keybindings">PyDev Keybindings</a> for up-to-date info on the most useful keybindings provided by PyDev and Eclipse.</p>
 
 
 
 
 
+<h2><a name="PyDevFAQ-HowdoIuninstallPyDev"></a>How do I uninstall PyDev</h2>
 
-<a href="#top"><p align="right">Return to top&nbsp;&nbsp;</p></a>
-<hr>
-
+<p>To uninstall you should either go on and remove the org.python.pydev&#42; from eclipse/plugins and eclipse/features or  you can go to help &gt; software updates &gt; manage configuration, choose the PyDev plugin and disable it (after that,  to completely remove it, you must restart Eclipse and only then select it for uninstall). Note that this process is the same for any Eclipse plugin. </p>
+</div>
+<br/><br/><a href="https://wiki.appcelerator.org/display/tis/PyDev+FAQ">See wiki page</a>
 </contents_area>
 </doc>
-
