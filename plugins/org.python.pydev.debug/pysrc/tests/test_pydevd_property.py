@@ -70,20 +70,20 @@ class Test(unittest.TestCase):
                 self._set = 0
                 self._del = 0
             
-            @property
             def name(self):
                 self._get += 1
                 return self.__name
+            name = property(name)
             
-            @name.setter
             def set_name(self, value):
                 self._set += 1
                 self.__name = value
+            name.setter(set_name)
                 
-            @name.deleter
             def del_name(self):
                 self._del += 1
                 del self.__name
+            name.deleter(del_name)
 
         testObj = TestProperty()
         self._check(testObj)
@@ -98,9 +98,9 @@ class Test(unittest.TestCase):
             def __init__(self):
                 self._name = 'foo'
             
-            @property
             def name(self):
                 return self._name
+            name = property(name)
 
         testObj = TestProperty()
         self.assertRaises(AttributeError, setattr, testObj, 'name', 'bar')

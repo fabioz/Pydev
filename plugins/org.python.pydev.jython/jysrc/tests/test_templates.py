@@ -39,6 +39,8 @@ class Context:
     def getDocument(self):
         return self.doc
 
+    def isCythonFile(self):
+        return False
 
 #===================================================================================================
 # Test

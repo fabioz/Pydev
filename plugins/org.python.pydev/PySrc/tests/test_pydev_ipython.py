@@ -7,7 +7,7 @@ sys.argv[0] = os.path.dirname(sys.argv[0])
 #twice the dirname to get the previous level from this file.
 sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0])))
 
-    
+IS_JYTHON = sys.platform.find('java') != -1    
 
 #=======================================================================================================================
 # TestCase
@@ -21,7 +21,11 @@ class TestCase(unittest.TestCase):
         unittest.TestCase.tearDown(self)
         
     def testIPython(self):
-        from pydev_ipython_console import PyDevFrontEnd
+        try:
+            from pydev_ipython_console import PyDevFrontEnd
+        except:
+            if IS_JYTHON:
+                return
         front_end = PyDevFrontEnd()
         
         front_end.input_buffer = 'if True:'

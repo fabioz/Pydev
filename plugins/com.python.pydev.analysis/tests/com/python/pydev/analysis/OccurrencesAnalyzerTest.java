@@ -565,53 +565,6 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         checkNoError();
     }
     
-    public void testGlu(){
-        if(TestDependent.PYTHON_OPENGL_PACKAGES != null){
-            doc = new Document(
-                    "from OpenGL.GL import glPushMatrix\n" +
-                    "print glPushMatrix\n" +
-                    ""
-            );
-            checkNoError();
-        }
-        
-    }
-    
-    public void testGlu2(){
-        if(TestDependent.PYTHON_OPENGL_PACKAGES != null){
-            doc = new Document(
-                    "from OpenGL.GL import * #@UnusedWildImport\n" +
-                    "print glPushMatrix\n" +
-                    ""
-            );
-            checkNoError();
-        }
-        
-    }
-    
-    public void testGlu3(){
-        if(TestDependent.PYTHON_OPENGL_PACKAGES != null){
-            doc = new Document(
-                    "from OpenGL.GL import glRotatef\n" +
-                    "print glRotatef\n" +
-                    ""
-            );
-            checkNoError();
-        }
-        
-    }
-    
-    public void testGlu4(){
-        if(TestDependent.PYTHON_OPENGL_PACKAGES != null){
-            doc = new Document(
-                    "from OpenGL.GLU import gluLookAt\n" +
-                    "print gluLookAt" +
-                    ""
-            );
-            checkNoError();
-        }
-        
-    }
     
     public void testCompiledUnusedImports5(){
         

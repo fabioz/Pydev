@@ -773,11 +773,13 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 //any locks, and just lock if it's not (which is needed to avoid a racing condition creating more
                 //than 1 nature).
                 try {
-                    Project p = (Project) project;
-                    ProjectInfo info = (ProjectInfo)p.getResourceInfo(false, false);
-                    IProjectNature nature = info.getNature(PYTHON_NATURE_ID);
-                    if(nature instanceof PythonNature){
-                        return (PythonNature) nature;
+                    if(project instanceof Project){
+                        Project p = (Project) project;
+                        ProjectInfo info = (ProjectInfo)p.getResourceInfo(false, false);
+                        IProjectNature nature = info.getNature(PYTHON_NATURE_ID);
+                        if(nature instanceof PythonNature){
+                            return (PythonNature) nature;
+                        }
                     }
                 } catch (Throwable e) {
                     //Shouldn't really happen, but as using internal methods of project, who knows if it may change

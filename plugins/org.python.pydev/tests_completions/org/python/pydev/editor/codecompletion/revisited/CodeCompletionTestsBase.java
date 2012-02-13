@@ -407,6 +407,23 @@ public class CodeCompletionTestsBase extends TestCase {
         checkSize();
     }
     
+    public void restorePythonPathWithCustomSystemPath(boolean force, String systemPath){
+        if(DEBUG_TESTS_BASE){
+            System.out.println("-------------- Restoring system pythonpath");
+        }
+        restoreSystemPythonPath(force, systemPath);
+        if(DEBUG_TESTS_BASE){
+            System.out.println("-------------- Restoring project pythonpath");
+        }
+        restoreProjectPythonPath(force, TestDependent.TEST_PYSRC_LOC);
+        restoreProjectPythonPath2(force, TestDependent.TEST_PYSRC_LOC2);
+        if(DEBUG_TESTS_BASE){
+            System.out.println("-------------- Checking size (for proj1 and proj2)");
+        }
+        
+        checkSize();
+    }
+    
     /**
      * checks if the size of the system modules manager and the project moule manager are coherent
      * (we must have more modules in the system than in the project)

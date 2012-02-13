@@ -35,7 +35,7 @@ public class PythonShellTest extends CodeCompletionTestsBase{
         try {
             PythonShellTest test = new PythonShellTest();
             test.setUp();
-            test.testGetGlobalCompletions();
+            test.testGlu();
             test.tearDown();
             junit.textui.TestRunner.run(PythonShellTest.class);
         } catch (Exception e) {
@@ -48,7 +48,12 @@ public class PythonShellTest extends CodeCompletionTestsBase{
      */
     public void setUp() throws Exception {
         super.setUp();
-        restorePythonPathWithSitePackages(false);
+        if(TestDependent.PYTHON_OPENGL_PACKAGES == null){
+            restorePythonPathWithSitePackages(false);
+        }else{
+            restorePythonPathWithCustomSystemPath(false, 
+                    TestDependent.GetCompletePythonLib(true)+"|"+TestDependent.PYTHON_OPENGL_PACKAGES);
+        }
         this.shell = startShell();
     }
 
@@ -117,7 +122,8 @@ public class PythonShellTest extends CodeCompletionTestsBase{
         if(TestDependent.PYTHON_OPENGL_PACKAGES != null){
             List<String[]> list = shell.getImportCompletions("OpenGL.GLUT", getPythonpath()).o2;
             
-            assertTrue(list.size() > 10);
+            
+            assertTrue("Expected the number of completions to be > 10. Found: \n"+list, list.size() > 10);
             assertIsIn(list, "glutInitDisplayMode");
         }
     }

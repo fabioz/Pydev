@@ -83,7 +83,7 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
                 return severityForNoEffectStmt;
             
             case TYPE_PEP8:
-                throw new RuntimeException("Pep8 not handled.");
+                return IMarker.SEVERITY_INFO;
                 
             case TYPE_INDENTATION_PROBLEM:
                 return severityForIndentationProblem;
