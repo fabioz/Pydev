@@ -157,7 +157,7 @@ module Python
 	--decorators work as '@' dotted_name [ '(' [arglist] ')' ] NEWLINE
 	--changed so that we have the name separated from the arguments for each decorator (fabioz)
 	--it works basically equal to the call.
-	decorators = (expr func, expr* args, keyword* keywords, expr? starargs, expr? kwargs)
+	decorators = (expr func, expr* args, keyword* keywords, expr? starargs, expr? kwargs, bool? isCall)
 
 	comment = (identifier id)
 }

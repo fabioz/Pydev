@@ -424,7 +424,7 @@ void decorated():{}
 //decorator: '@' dotted_name [ '(' [arglist] ')' ] NEWLINE
 void decorators(): {}
 {
-    (begin_decorator() [$LPAREN1 insidetuporcall() $RPAREN ] $NEWLINE )+ 
+    (begin_decorator() [{this.markDecoratorWithCall();} $LPAREN1 insidetuporcall() $RPAREN ] $NEWLINE )+ 
 }
 void begin_decorator(): {}
 { $AT dotted_name()

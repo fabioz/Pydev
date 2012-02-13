@@ -21,6 +21,7 @@ import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.commentType;
+import org.python.pydev.parser.jython.ast.decoratorsType;
 
 public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers implements ITreeConstants, IGrammar{
 
@@ -48,6 +49,10 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
     protected static WithNameInvalidException withNameInvalidException = 
         new WithNameInvalidException("With cannot be used as identifier when future with_statement is available.");
     
+    protected final void markDecoratorWithCall(){
+        decoratorsType d = (decoratorsType) this.prev;
+        d.isCall = true;
+    }
     
     //---------------------------- Helpers to add special tokens.
     

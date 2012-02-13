@@ -21,7 +21,7 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinter30Test test = new PrettyPrinter30Test();
             test.setUp();
-            test.testTupleInDict();
+            test.testCalledDecorator();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinter30Test.class);
@@ -488,5 +488,15 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
     	"NAME_MAPPING = {(1,2):(3,4)}\n" +
     	"";
     	checkPrettyPrintEqual(s);
+    }
+    
+    public void testCalledDecorator() throws Throwable {
+        final String s = "" +
+                "class foo:\n" +
+                "    @decorator()\n" +
+                "    def method(self):\n" +
+                "        pass\n" +
+                "";
+        checkPrettyPrintEqual(s);
     }
 }
