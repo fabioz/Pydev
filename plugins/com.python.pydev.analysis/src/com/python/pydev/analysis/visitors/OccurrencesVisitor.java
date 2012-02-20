@@ -258,6 +258,11 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
         messagesManager.onAddAssignmentToBuiltinMessage(foundTok, representation);
     }
 
+    @Override
+    public void onArgumentsMismatch(IToken node, Call callNode){
+        messagesManager.onArgumentsMismatch(node, callNode);
+    }
+    
     /**
      * @param token
      */

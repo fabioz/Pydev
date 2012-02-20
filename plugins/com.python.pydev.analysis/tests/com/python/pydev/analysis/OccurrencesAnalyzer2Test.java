@@ -30,7 +30,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testNoLeakageInGenerator();
+            analyzer2.testParameterAnalysis14();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -314,4 +314,174 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
     
     
     
+    public void testParameterAnalysis() throws IOException{
+        doc = new Document(
+                "def m1():\n"+
+                "    pass\n" +
+                "m1(20)"
+                );
+        IMessage[] messages = checkError(1);
+        assertContainsMsg("m1: arguments don't match", messages);
+    }
+    
+    public void testParameterAnalysis2() throws IOException{
+        doc = new Document(
+                "def m1(a):\n"+
+                "    pass\n" +
+                "m1()"
+                );
+        IMessage[] messages = checkError(1);
+        assertContainsMsg("m1: arguments don't match", messages);
+    }
+    
+    public void testParameterAnalysis3() throws IOException{
+        doc = new Document(
+                "def m1(*args):\n"+
+                "    pass\n" +
+                "m1()"
+                );
+        checkNoError();
+    }
+    
+    public void testParameterAnalysis4() throws IOException{
+        doc = new Document(
+                "def m1(**args):\n"+
+                "    pass\n" +
+                "m1()"
+                );
+        checkNoError();
+    }
+    
+    
+    public void testParameterAnalysis5() throws IOException{
+        doc = new Document(
+                "def m1(a=10):\n"+
+                "    pass\n" +
+                "m1()"
+                );
+        checkNoError();
+    }
+    
+    
+    public void testParameterAnalysis6() throws IOException{
+        doc = new Document(
+                        "def m1(a=10):\n"+
+                        "    pass\n" +
+                        "m1(a=20)"
+                );
+        checkNoError();
+    }
+    
+    public void testParameterAnalysis7() throws IOException{
+        doc = new Document(
+                        "def m1(a=10):\n"+
+                        "    pass\n" +
+                        "m1(b=20)"
+                );
+        checkError(1);
+    }
+    
+    public void testParameterAnalysis8() throws IOException{
+        doc = new Document(
+                    "from extendable.calltips.mod1.sub1 import method1\n"+
+                    "method1(10)"
+                );
+        IMessage[] errors = checkError(1);
+        IMessage msg = errors[0];
+        assertEquals(msg.getMessage(), "method1: arguments don't match");
+        assertEquals(msg.getStartCol(doc), 8);
+        assertEquals(msg.getEndCol(doc), 12);
+        assertEquals(msg.getStartLine(doc), 2);
+        assertEquals(msg.getEndLine(doc), 2);
+    }
+    
+    public void testParameterAnalysis8a() throws IOException{
+        doc = new Document(
+                        "from extendable.calltips.mod1.sub1 import method1\n"+
+                        "method1(\n" +
+                        "       10)"
+                );
+        IMessage[] errors = checkError(1);
+        IMessage msg = errors[0];
+        assertEquals(msg.getMessage(), "method1: arguments don't match");
+        assertEquals(msg.getStartCol(doc), 8);
+        assertEquals(msg.getEndCol(doc), 11);
+        assertEquals(msg.getStartLine(doc), 2);
+        assertEquals(msg.getEndLine(doc), 3);
+    }
+    
+    public void testParameterAnalysis9() throws IOException{
+        doc = new Document(
+                "from extendable.calltips.mod1.sub1 import method1\n"+
+                "method1(10, 20)"
+                );
+        checkNoError();
+    }
+    
+    
+    public void testParameterAnalysis10() throws IOException{
+        doc = new Document(
+                    "def m1(a):\n"+
+                    "    pass\n" +
+                    "\n" +
+                    "d={'a':20}\n" +
+                    "m1(**d)"
+                );
+        checkNoError();
+    }
+    
+    public void testParameterAnalysis11() throws IOException{
+        doc = new Document(
+                "def m1(a):\n"+
+                "    pass\n" +
+                "\n" +
+                "d=[20]\n" +
+                "m1(*d)"
+                );
+        checkNoError();
+    }
+    
+
+    public void testParameterAnalysis12() throws IOException{
+        doc = new Document(
+                "def m1(a, **kwargs):\n"+
+                "    pass\n" +
+                "\n" +
+                "d=[20]\n" +
+                "m1(10, *d)"
+                );
+        checkError(1);
+    }
+
+    
+    public void testParameterAnalysis13() throws IOException{
+        doc = new Document(
+                "def m1(a, *args):\n"+
+                "    pass\n" +
+                "\n" +
+                "d=[20]\n" +
+                "m1(10, *d)"
+                );
+        checkNoError();
+    }
+    
+    public void testParameterAnalysis14() throws IOException{
+        doc = new Document(
+                "def m1(a=10, **args):\n"+
+                "    pass\n" +
+                "\n" +
+                "d=[20]\n" +
+                "m1(*d)"
+                );
+        checkNoError();
+    }
+    
+//    public void testNonDefaultAfterDefault() throws IOException{
+//        doc = new Document(
+//                "def m1(a=20, 20):\n"+ //non-default after default
+//                "    pass\n"
+//        );
+//        checkError(1);
+//    }
 }
+

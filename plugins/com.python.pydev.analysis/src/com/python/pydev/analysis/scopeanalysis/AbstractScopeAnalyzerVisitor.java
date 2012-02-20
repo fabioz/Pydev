@@ -27,8 +27,10 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.OrderedSet;
 import org.python.pydev.core.TupleN;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -192,6 +194,171 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     }
     
     
+    @Override
+    public Object visitCall(Call callNode) throws Exception {
+        FunctionDef functionDefinitionReferenced = null;
+        IToken nameToken = null;
+        if (callNode.func != null){
+            if(callNode.func instanceof Name){
+                Name name = (Name) callNode.func;
+                startRecordFound();
+                nameToken = (IToken) visitName(name);
+                IToken found = popFound();
+                if(found instanceof SourceToken){
+                    SourceToken sourceToken = (SourceToken) found;
+                    SimpleNode ast = sourceToken.getAst();
+                    if(ast instanceof FunctionDef){
+                        functionDefinitionReferenced = (FunctionDef) ast; 
+                    }
+                }
+            }else{
+                callNode.func.accept(this);
+            }
+        }
+        
+        if (callNode.args != null) {
+            for (int i = 0; i < callNode.args.length; i++) {
+                if (callNode.args[i] != null){
+                    callNode.args[i].accept(this);
+                }
+            }
+        }
+        if (callNode.keywords != null) {
+            for (int i = 0; i < callNode.keywords.length; i++) {
+                if (callNode.keywords[i] != null){
+                    callNode.keywords[i].accept(this);
+                }
+            }
+        }
+        if (callNode.starargs != null){
+            callNode.starargs.accept(this);
+        }
+        if (callNode.kwargs != null){
+            callNode.kwargs.accept(this);
+        }
+        
+        
+        if(functionDefinitionReferenced != null && nameToken != null){
+            analyzeCallAndFunctionMatch(callNode, functionDefinitionReferenced, nameToken);
+        }
+        
+        
+        return null;
+    }
+
+    private void analyzeCallAndFunctionMatch(Call callNode, FunctionDef functionDefinitionReferenced, IToken nameToken) throws Exception {
+        int functionArgsLen = functionDefinitionReferenced.args.args != null?functionDefinitionReferenced.args.args.length:0;
+        Collection<String> functionRequiredArgs = new OrderedSet<String>(functionArgsLen);
+        Collection<String> functionOptionalArgs = new OrderedSet<String>(functionArgsLen);
+        
+        for(int i=0;i<functionArgsLen;i++){
+            String rep = NodeUtils.getRepresentationString(functionDefinitionReferenced.args.args[i]);
+            if(functionDefinitionReferenced.args.defaults == null || 
+               functionDefinitionReferenced.args.defaults.length < i || 
+               functionDefinitionReferenced.args.defaults[i] == null){
+                //it's null, so, it's required
+                functionRequiredArgs.add(rep);
+            }else{
+                //not null: optional with default value
+                functionOptionalArgs.add(rep);
+            }
+        }
+
+        
+        int callArgsLen = callNode.args != null?callNode.args.length:0;
+        
+        for(int i=0;i<callArgsLen;i++){
+
+            if(functionRequiredArgs.size() > 0){
+                //Remove first one (no better api in collection...)
+                Iterator<String> it = functionRequiredArgs.iterator();
+                it.next();
+                it.remove();
+                continue;
+                
+            }else if(functionOptionalArgs.size() > 0){
+                Iterator<String> it = functionOptionalArgs.iterator();
+                it.next();
+                it.remove();
+                continue;
+            }
+            
+            //All 'regular' and 'optional' arguments consumed (i.e.: def m1(a, b, c=10)), so, it'll only
+            //be possible to accept an item that's in *args at this point.
+            if(functionDefinitionReferenced.args.vararg == null){
+                onArgumentsMismatch(nameToken, callNode);
+                return; //Error reported, so, bail out of function!
+            }
+                
+        }
+        
+        
+        int callKeywordArgsLen = callNode.keywords != null?callNode.keywords.length:0;
+        for(int i=0;i<callKeywordArgsLen;i++){
+            String rep = NodeUtils.getRepresentationString(callNode.keywords[i].arg);
+            //keyword argument (i.e.: call(a=10)), so, only accepted in kwargs or with some argument with that name.
+            if(functionRequiredArgs.remove(rep)){
+                continue;
+                
+            }else if(functionOptionalArgs.remove(rep)){
+                continue;
+                
+            }else{
+                //An argument with that name was not found, so, it may only be handled through kwargs at this point!
+                if(functionDefinitionReferenced.args.kwarg == null){
+                    onArgumentsMismatch(nameToken, callNode); 
+                    return; //Error reported, so, bail out of function!
+                }
+            }
+        }
+        
+        if(functionRequiredArgs.size() > 0){
+            if(callNode.kwargs == null && callNode.starargs == null){
+                //Not all required parameters were consumed!
+                onArgumentsMismatch(nameToken, callNode); 
+                return; //Error reported, so, bail out of function!
+            }
+        }else if(functionOptionalArgs.size() > 0){
+        }else{
+            //required and optional size == 0
+            
+            if(callNode.kwargs != null && functionDefinitionReferenced.args.kwarg == null){
+                //We have more things that were not handled
+                onArgumentsMismatch(nameToken, callNode); 
+                return; //Error reported, so, bail out of function!
+            }
+            if(callNode.starargs != null && functionDefinitionReferenced.args.vararg == null){
+                //We have more things that were not handled
+                onArgumentsMismatch(nameToken, callNode); 
+                return; //Error reported, so, bail out of function!
+            }
+        }
+    }
+    
+    
+
+
+    private final FastStack<IToken> recordedFounds = new FastStack<IToken>(4);
+    private int recordFounds = 0;
+    
+    private void onFound(IToken o1){
+        if(recordFounds > 0){
+            recordedFounds.push(o1);
+        }
+    }
+    
+    private IToken popFound() {
+        recordFounds -= 1;
+        if(recordedFounds.size() > 0){
+            return recordedFounds.pop();
+        }
+        return null;
+    }
+
+    private void startRecordFound() {
+        recordFounds += 1;
+    }
+
     /**
      * we are starting a new scope when visiting a class 
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitClassDef(org.python.pydev.parser.jython.ast.ClassDef)
@@ -543,9 +710,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         	    // Overriding builtin...
         		onAddAssignmentToBuiltinMessage(token, rep);
         	}
-            boolean inNamesToIgnore = doCheckIsInNamesToIgnore(rep, token);
+            org.python.pydev.core.Tuple<IToken, Found> foundInNamesToIgnore = findInNamesToIgnore(rep, token);
             
-            if(!inNamesToIgnore){
+            if(foundInNamesToIgnore == null){
                 
                 if(!rep.equals("self") && !rep.equals("cls")){ 
                     scope.addToken(token,token);
@@ -555,16 +722,16 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             }
         } 
         
-        return null;
+        return token;
     }
 
     /**
      * @param rep the representation we're looking for
      * @return whether the representation is in the names to ignore
      */
-    protected boolean doCheckIsInNamesToIgnore(String rep, IToken token) {
-        org.python.pydev.core.Tuple<IToken, Found> found = scope.isInNamesToIgnore(rep);
-        return found != null;
+    protected org.python.pydev.core.Tuple<IToken, Found> findInNamesToIgnore(String rep, IToken token) {
+        org.python.pydev.core.Tuple<IToken, Found> found = scope.findInNamesToIgnore(rep);
+        return found;
     }
     
     
@@ -1054,6 +1221,24 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             if(found){
                 foundAsStr = nextTokToSearch;
                 foundAs.getSingle().references.add(token);
+                boolean reportFound = true;
+                try {
+                    if(foundAs.importInfo != null){
+                        IDefinition[] definition = foundAs.importInfo.getDefinitions(nature, completionCache);
+                        for (IDefinition iDefinition : definition) {
+                            Definition d = (Definition) iDefinition;
+                            if(d.ast instanceof FunctionDef){
+                                onFound(AbstractVisitor.makeToken(d.ast, d.module != null?d.module.getName():""));
+                                reportFound = false;
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.log(e);
+                }
+                if(reportFound){
+                    onFound(token);
+                }
             }
         }
         
@@ -1065,13 +1250,18 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                 //if it is an attribute, we have to check the names to ignore just with its first part
                 rep = rep.substring(0, i);
             }
-            if(addToNotDefined && !doCheckIsInNamesToIgnore(rep, token)){
-                if(scope.size() > 1){ //if we're not in the global scope, it might be defined later
-                    Found foundForProbablyNotDefined = makeFound(token);
-                    probablyNotDefined.add(foundForProbablyNotDefined); //we are not in the global scope, so it might be defined later...
-                    onAddToProbablyNotDefined(token, foundForProbablyNotDefined);
+            if(addToNotDefined){
+                org.python.pydev.core.Tuple<IToken, Found> foundInNamesToIgnore = findInNamesToIgnore(rep, token);
+                if(foundInNamesToIgnore == null){
+                    if(scope.size() > 1){ //if we're not in the global scope, it might be defined later
+                        Found foundForProbablyNotDefined = makeFound(token);
+                        probablyNotDefined.add(foundForProbablyNotDefined); //we are not in the global scope, so it might be defined later...
+                        onAddToProbablyNotDefined(token, foundForProbablyNotDefined);
+                    }else{
+                        onAddUndefinedMessage(token, makeFound(token)); //it is in the global scope, so, it is undefined.
+                    }
                 }else{
-                    onAddUndefinedMessage(token, makeFound(token)); //it is in the global scope, so, it is undefined.
+                    onFound(foundInNamesToIgnore.o1);
                 }
             }
         }else if(checkIfIsValidImportToken){
@@ -1279,6 +1469,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
 
     protected abstract void onAddUndefinedVarInImportMessage(IToken foundTok, Found foundAs);
 
+    public abstract void onArgumentsMismatch(IToken node, Call callNode);
+    
     public abstract void onAddUnusedMessage(SimpleNode node, Found found);
 
     public abstract void onAddReimportMessage(Found newFound);

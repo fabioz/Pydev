@@ -90,6 +90,9 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
     public static final String DO_IGNORE_IMPORTS_STARTING_WITH_UNDER = "DO_IGNORE_FIELDS_WITH_UNDER";
     public static final boolean DEFAULT_DO_IGNORE_FIELDS_WITH_UNDER = false;
     
+    public static final String SEVERITY_ARGUMENTS_MISMATCH = "SEVERITY_ARGUMENTS_MISMATCH";
+    public static final int DEFAULT_SEVERITY_ARGUMENTS_MISMATCH = IMarker.SEVERITY_ERROR;
+    
 
     @Override
     public void initializeDefaultPreferences() {

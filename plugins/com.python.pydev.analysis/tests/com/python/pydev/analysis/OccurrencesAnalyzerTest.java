@@ -2521,7 +2521,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     
     public void testNoEffectOk5() {
         doc = new Document("" +
-                "def check():\n" +
+                "def check(a):\n" +
                 "    pass\n" +
                 "check(1 in [1,2])\n" +
         "");

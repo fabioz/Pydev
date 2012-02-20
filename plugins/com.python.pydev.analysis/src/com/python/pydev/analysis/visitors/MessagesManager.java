@@ -16,15 +16,21 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.SyntaxErrorException;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor.ImportPartSourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Import;
@@ -116,6 +122,7 @@ public final class MessagesManager {
         List<IMessage> msgs = getMsgsList(token);
         doAddMessage(msgs, type, token.getRepresentation(),token);
     }
+    
 
     /**
      * checks if the message should really be added and does the add.
@@ -127,8 +134,12 @@ public final class MessagesManager {
             }
         }
 
-        Message messageToAdd = new Message(type, string,token, prefs);
+        Message messageToAdd = new Message(type, string, token, prefs);
         
+        doAddMessage(msgs, messageToAdd);
+    }
+
+    private void doAddMessage(List<IMessage> msgs, Message messageToAdd) {
         String messageToIgnore = prefs.getRequiredMessageToIgnore(messageToAdd.getType());
         if(messageToIgnore != null){
             int startLine = messageToAdd.getStartLine(document) - 1;
@@ -141,6 +152,7 @@ public final class MessagesManager {
 
         msgs.add(messageToAdd);
     }
+    
     /**
      * adds a message of some type for some Found instance
      */
@@ -228,6 +240,52 @@ public final class MessagesManager {
         }
         return new Tuple<Boolean, String>(isActuallyUndefined, rep);
     }
+    
+    
+    public void onArgumentsMismatch(IToken token, Call callNode) {
+        FastStringBuffer buf = new FastStringBuffer(128);
+        buf.append(token.getRepresentation());
+        buf.append(": arguments don't match");
+        List<IMessage> msgs = getMsgsList(token);
+        
+        //Code that'll gather the position of the start/end parenthesis and will create a message at that location
+        //(otherwise, it'd create the message at the name location, which may be a bit confusing).
+        ParsingUtils parsingUtils = ParsingUtils.create(document);
+        try{
+            int offset = PySelection.getAbsoluteCursorOffset(document, callNode.func.beginLine-1, callNode.func.beginColumn-1); //-1: from ast to document coords
+            int openParensPos = parsingUtils.findNextChar(offset, '(');
+            if(openParensPos != -1){
+                int closeParensPos = parsingUtils.eatPar(openParensPos, null);
+                if(closeParensPos != -1){
+                    int startLine = PySelection.getLineOfOffset(document, openParensPos)+1; //+1: from document to ast 
+                    int endLine = PySelection.getLineOfOffset(document, closeParensPos)+1; 
+                    int startCol = openParensPos - document.getLineInformationOfOffset(openParensPos).getOffset() + 1; 
+                    
+                    //+1 doc to ast +1 because we also want to get the closing ')' char.
+                    int endCol = closeParensPos - document.getLineInformationOfOffset(closeParensPos).getOffset() + 1 + 1; 
+                    Message messageToAdd = new Message(
+                            IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH, 
+                            buf.toString(), 
+                            startLine, 
+                            endLine, 
+                            startCol, 
+                            endCol, 
+                            prefs
+                    );
+                    doAddMessage(msgs, messageToAdd);
+                    return;
+                }
+            }
+        }catch(BadLocationException e){
+            Log.log(e);
+        }catch(SyntaxErrorException e){
+            //Just ignore
+        }
+        
+        //If some error happened getting the parens position, just add it to the name.
+        doAddMessage(msgs, IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH, buf.toString(), token);
+    }
+
 
     /**
      * adds a message for something that was not used
@@ -434,7 +492,8 @@ public final class MessagesManager {
            type == IAnalysisPreferences.TYPE_INDENTATION_PROBLEM ||
            type == IAnalysisPreferences.TYPE_NO_EFFECT_STMT || 
            type == IAnalysisPreferences.TYPE_PEP8 || 
-           type == IAnalysisPreferences.TYPE_ASSIGNMENT_TO_BUILT_IN_SYMBOL
+           type == IAnalysisPreferences.TYPE_ASSIGNMENT_TO_BUILT_IN_SYMBOL ||
+           type == IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH
            ;
     }
 
@@ -499,5 +558,6 @@ public final class MessagesManager {
     public void setLastScope(ScopeItems m) {
         this.lastScope = m;
     }
+
 
 }

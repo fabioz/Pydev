@@ -28,6 +28,7 @@ public interface IAnalysisPreferences {
     public static final int TYPE_UNDEFINED_VARIABLE_IN_SELF 	= 13; //Generated on demand by the tdd actions
     public static final int TYPE_ASSIGNMENT_TO_BUILT_IN_SYMBOL 	= 14;
     public static final int TYPE_PEP8 	                        = 15;
+    public static final int TYPE_ARGUMENTS_MISATCH              = 16;
     
     
     public static final String MSG_TO_IGNORE_TYPE_UNUSED_IMPORT              		= "@UnusedImport";
@@ -44,6 +45,7 @@ public interface IAnalysisPreferences {
     public static final String MSG_TO_IGNORE_TYPE_INDENTATION_PROBLEM        		= "@IndentOk";
     public static final String MSG_TO_IGNORE_TYPE_ASSIGNMENT_TO_BUILT_IN_SYMBOL     = "@ReservedAssignment";
     public static final String MSG_TO_IGNORE_TYPE_PEP8                              = "@IgnorePep8";
+    public static final String MSG_TO_IGNORE_TYPE_ARGUMENTS_MISATCH                 = "@ArgumentMismatch";
 
     
     /**

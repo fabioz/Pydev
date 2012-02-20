@@ -85,6 +85,9 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
             case TYPE_PEP8:
                 return IMarker.SEVERITY_INFO;
                 
+            case TYPE_ARGUMENTS_MISATCH:
+                return IMarker.SEVERITY_ERROR;
+                
             case TYPE_INDENTATION_PROBLEM:
                 return severityForIndentationProblem;
 
