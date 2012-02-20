@@ -15,6 +15,7 @@ import java.io.IOException;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
@@ -30,7 +31,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testParameterAnalysis14();
+            analyzer2.testParameterAnalysis15();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -474,6 +475,38 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
                 "m1(*d)"
                 );
         checkNoError();
+    }
+    
+    public void testParameterAnalysis15() throws IOException{
+        int original = GRAMMAR_TO_USE_FOR_PARSING;
+        GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+        try {
+            doc = new Document(
+                    "def w(a=10, *, b):\n"+
+                    "    pass\n" +
+                    "\n" +
+                    "w(20, b=10)\n"
+            );
+            checkNoError();
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = original;
+        }
+    }
+    
+    public void testParameterAnalysis16() throws IOException{
+        int original = GRAMMAR_TO_USE_FOR_PARSING;
+        GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+        try {
+            doc = new Document(
+                    "def w(a=10, *, b):\n"+
+                    "    pass\n" +
+                    "\n" +
+                    "w(20, 10)\n" //b must be keyword parameter
+            );
+            checkError(1);
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = original;
+        }
     }
     
 //    public void testNonDefaultAfterDefault() throws IOException{

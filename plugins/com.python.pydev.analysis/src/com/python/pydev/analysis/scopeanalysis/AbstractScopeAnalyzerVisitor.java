@@ -263,6 +263,16 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                 functionOptionalArgs.add(rep);
             }
         }
+        exprType[] kwonlyargs = functionDefinitionReferenced.args.kwonlyargs;
+        Collection<String> functionKeywordOnlyArgs = null;
+        if(kwonlyargs != null){
+            functionKeywordOnlyArgs =  new OrderedSet<String>(kwonlyargs.length);
+            for (exprType exprType : kwonlyargs) {
+                if(exprType != null){
+                    functionKeywordOnlyArgs.add(NodeUtils.getRepresentationString(exprType));
+                }
+            }
+        }
 
         
         int callArgsLen = callNode.args != null?callNode.args.length:0;
@@ -303,6 +313,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             }else if(functionOptionalArgs.remove(rep)){
                 continue;
                 
+            }else if(functionKeywordOnlyArgs != null && functionKeywordOnlyArgs.remove(rep)){
+                continue;
+                
             }else{
                 //An argument with that name was not found, so, it may only be handled through kwargs at this point!
                 if(functionDefinitionReferenced.args.kwarg == null){
@@ -312,13 +325,14 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             }
         }
         
-        if(functionRequiredArgs.size() > 0){
+        if(functionRequiredArgs.size() > 0 || (functionKeywordOnlyArgs != null && functionKeywordOnlyArgs.size() > 0)){
             if(callNode.kwargs == null && callNode.starargs == null){
                 //Not all required parameters were consumed!
                 onArgumentsMismatch(nameToken, callNode); 
                 return; //Error reported, so, bail out of function!
             }
         }else if(functionOptionalArgs.size() > 0){
+            
         }else{
             //required and optional size == 0
             
