@@ -143,6 +143,31 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
         printMessages(msgs,numberOfErrors);
         return msgs;
     }
+    
+    /**
+     * Uses the doc attribute as the module and makes the analysis, checking if no error is found.
+     * @return the messages that were reported as errors
+     */
+    protected IMessage[] checkError(String ... errors) {
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyze();
+        
+        printMessages(msgs,errors.length);
+        
+        HashSet<String> found = new HashSet<String>();
+        for (IMessage msg : msgs) {
+            found.add(msg.getMessage());
+        }
+        
+        for(String s:errors){
+            if(!found.remove(s)){
+                printMessages(msgs);
+                fail("Could not find error: "+s+" in current errors.");
+            }
+        }
+        
+        return msgs;
+    }
 
     private IMessage[] analyze() {
         try{

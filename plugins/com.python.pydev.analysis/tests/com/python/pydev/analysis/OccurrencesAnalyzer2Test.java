@@ -31,7 +31,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testParameterAnalysis15();
+            analyzer2.testParameterAnalysis18();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -507,6 +507,24 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         } finally {
             GRAMMAR_TO_USE_FOR_PARSING = original;
         }
+    }
+    
+    public void testParameterAnalysis17() throws IOException{
+        doc = new Document(
+                "class Foo:\n"+
+                "    def __init__(self, a):\n" +
+                "        pass\n" +
+                "Foo()\n"
+                );
+        checkError(1);
+    }
+    
+    public void testParameterAnalysis18() throws IOException{
+        doc = new Document(
+                "from testOtherImports.f2 import SomeOtherTest\n" + //class with __init__ == __init__(self, a, b)
+                "SomeOtherTest()\n"
+                );
+        checkError("SomeOtherTest: arguments don't match");
     }
     
 //    public void testNonDefaultAfterDefault() throws IOException{

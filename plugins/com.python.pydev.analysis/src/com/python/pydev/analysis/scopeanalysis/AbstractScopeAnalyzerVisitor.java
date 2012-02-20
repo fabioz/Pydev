@@ -209,6 +209,26 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                     SimpleNode ast = sourceToken.getAst();
                     if(ast instanceof FunctionDef){
                         functionDefinitionReferenced = (FunctionDef) ast; 
+                        
+                    }else if(ast instanceof ClassDef){
+                        ClassDef classDef = (ClassDef) ast;
+                        String className = ((NameTok)classDef.name).id;
+                        
+                        Definition foundDef = sourceToken.getDefinition();
+                        IModule mod = this.current;
+                        if(foundDef != null){
+                            mod = foundDef.module;
+                        }
+                        
+                        IDefinition[] definition = mod.findDefinition(
+                                CompletionStateFactory.getEmptyCompletionState(className+".__init__", nature, completionCache), -1, -1, nature);
+                        for (IDefinition iDefinition : definition) {
+                            Definition d = (Definition) iDefinition;
+                            if(d.ast instanceof FunctionDef){
+                                functionDefinitionReferenced = (FunctionDef) d.ast;
+                                break;
+                            }
+                        }
                     }
                 }
             }else{
@@ -1241,9 +1261,12 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                         IDefinition[] definition = foundAs.importInfo.getDefinitions(nature, completionCache);
                         for (IDefinition iDefinition : definition) {
                             Definition d = (Definition) iDefinition;
-                            if(d.ast instanceof FunctionDef){
-                                onFound(AbstractVisitor.makeToken(d.ast, d.module != null?d.module.getName():""));
+                            if(d.ast instanceof FunctionDef || d.ast instanceof ClassDef){
+                                SourceToken tok = AbstractVisitor.makeToken(d.ast, d.module != null?d.module.getName():"");
+                                tok.setDefinition(d);
+                                onFound(tok);
                                 reportFound = false;
+                                break;
                             }
                         }
                     }

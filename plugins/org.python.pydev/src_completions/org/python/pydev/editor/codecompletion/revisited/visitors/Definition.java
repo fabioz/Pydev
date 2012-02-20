@@ -132,7 +132,7 @@ public class Definition implements IDefinition {
         buffer.append(col);
         buffer.append(" module=");
         if(module != null){
-            buffer.append(module.getName());
+            buffer.appendObject(module.getName());
         }else{
             buffer.append("null");
         }
