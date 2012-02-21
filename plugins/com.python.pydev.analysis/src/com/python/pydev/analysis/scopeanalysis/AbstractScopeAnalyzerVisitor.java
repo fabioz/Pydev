@@ -131,6 +131,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     
     private Set<String> builtinTokens = new HashSet<String>();
     
+    protected boolean analyzeArgumentsMismatch;
+    
     /**
      * Constructor
      * @param prefs 
@@ -144,6 +146,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         this.moduleName = moduleName;
         this.document = document;
         this.scope = new Scope(this, nature, moduleName);
+        analyzeArgumentsMismatch = false;
         if(current instanceof SourceModule){
             this.currentLocalScope.getScopeStack().push(((SourceModule) current).getAst());
         }
@@ -199,42 +202,78 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         FunctionDef functionDefinitionReferenced = null;
         IToken nameToken = null;
         boolean callingBoundMethod = false;
-        if (callNode.func != null){
-            if(callNode.func instanceof Name){
-                Name name = (Name) callNode.func;
-                startRecordFound();
-                nameToken = (IToken) visitName(name);
-                IToken found = popFound();
-                if(found instanceof SourceToken){
-                    SourceToken sourceToken = (SourceToken) found;
-                    SimpleNode ast = sourceToken.getAst();
-                    if(ast instanceof FunctionDef){
-                        functionDefinitionReferenced = (FunctionDef) ast; 
-                        
-                    }else if(ast instanceof ClassDef){
-                        ClassDef classDef = (ClassDef) ast;
-                        String className = ((NameTok)classDef.name).id;
-                        
-                        Definition foundDef = sourceToken.getDefinition();
-                        IModule mod = this.current;
-                        if(foundDef != null){
-                            mod = foundDef.module;
+        
+        if(!analyzeArgumentsMismatch){
+            callNode.func.accept(this);
+        }else{
+            if (callNode.func != null){
+                if(callNode.func instanceof Name){
+                    Name name = (Name) callNode.func;
+                    startRecordFound();
+                    nameToken = (IToken) visitName(name);
+                    IToken found = popFound();
+                    if(found instanceof SourceToken){
+                        SourceToken sourceToken = (SourceToken) found;
+                        SimpleNode ast = sourceToken.getAst();
+                        if(ast instanceof FunctionDef){
+                            functionDefinitionReferenced = (FunctionDef) ast; 
+                            
+                        }else if(ast instanceof ClassDef){
+                            ClassDef classDef = (ClassDef) ast;
+                            String className = ((NameTok)classDef.name).id;
+                            
+                            Definition foundDef = sourceToken.getDefinition();
+                            IModule mod = this.current;
+                            if(foundDef != null){
+                                mod = foundDef.module;
+                            }
+                            
+                            IDefinition[] definition = mod.findDefinition(
+                                    CompletionStateFactory.getEmptyCompletionState(className+".__init__", nature, completionCache), -1, -1, nature);
+                            callingBoundMethod = true;
+                            for (IDefinition iDefinition : definition) {
+                                Definition d = (Definition) iDefinition;
+                                if(d.ast instanceof FunctionDef){
+                                    functionDefinitionReferenced = (FunctionDef) d.ast;
+                                    break;
+                                }
+                            }
                         }
-                        
-                        IDefinition[] definition = mod.findDefinition(
-                                CompletionStateFactory.getEmptyCompletionState(className+".__init__", nature, completionCache), -1, -1, nature);
-                        callingBoundMethod = true;
+                    }
+                }else{
+                    startRecordFound();
+                    callNode.func.accept(this);
+                    nameToken = popFound();
+                    if(nameToken instanceof SourceToken){
+                        String rep = nameToken.getRepresentation();
+                        IDefinition[] definition = this.current.findDefinition(
+                                CompletionStateFactory.getEmptyCompletionState(rep, nature, completionCache), -1, -1, nature);
                         for (IDefinition iDefinition : definition) {
                             Definition d = (Definition) iDefinition;
                             if(d.ast instanceof FunctionDef){
                                 functionDefinitionReferenced = (FunctionDef) d.ast;
+                                
+                                FastStack scopeStack = d.scope.getScopeStack();
+                                if(scopeStack.size() > 1 && scopeStack.peek(1) instanceof ClassDef){
+                                    callingBoundMethod = true;
+                                    String withoutLast = FullRepIterable.getWithoutLastPart(rep);
+                                    definition = this.current.findDefinition(
+                                            CompletionStateFactory.getEmptyCompletionState(withoutLast, nature, completionCache), -1, -1, nature);
+                                    for (IDefinition iDefinition2 : definition) {
+                                        Definition d2 = (Definition) iDefinition2;
+                                        if(d2.ast instanceof ClassDef){
+                                            callingBoundMethod = false;
+                                            break;
+                                        }
+                                    }
+                                }else{
+                                    callingBoundMethod = false;
+                                }
                                 break;
                             }
                         }
                     }
                 }
-            }else{
-                callNode.func.accept(this);
             }
         }
         
@@ -279,8 +318,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             }
             String rep = NodeUtils.getRepresentationString(functionDefinitionReferenced.args.args[i]);
             if(functionDefinitionReferenced.args.defaults == null || 
-               functionDefinitionReferenced.args.defaults.length < i || 
-               functionDefinitionReferenced.args.defaults[i] == null){
+               (functionDefinitionReferenced.args.defaults.length > i && 
+               functionDefinitionReferenced.args.defaults[i] == null)){
                 //it's null, so, it's required
                 functionRequiredArgs.add(rep);
             }else{
@@ -1267,7 +1306,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                         for (IDefinition iDefinition : definition) {
                             Definition d = (Definition) iDefinition;
                             if(d.ast instanceof FunctionDef || d.ast instanceof ClassDef){
-                                SourceToken tok = AbstractVisitor.makeToken(d.ast, d.module != null?d.module.getName():"");
+                                SourceToken tok = AbstractVisitor.makeToken(d.ast, token.getRepresentation(), d.module != null?d.module.getName():"");
                                 tok.setDefinition(d);
                                 onFound(tok);
                                 reportFound = false;

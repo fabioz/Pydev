@@ -31,7 +31,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testParameterAnalysis17a();
+            analyzer2.testParameterAnalysis19b();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -384,7 +384,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
     
     public void testParameterAnalysis8() throws IOException{
         doc = new Document(
-                    "from extendable.calltips.mod1.sub1 import method1\n"+
+                    "from extendable.calltips.mod1.sub1 import method1\n"+ //method1(a, b)
                     "method1(10)"
                 );
         IMessage[] errors = checkError(1);
@@ -536,14 +536,31 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         checkError("SomeOtherTest: arguments don't match");
     }
 
-//    public void testParameterAnalysis19() throws IOException{
-//        doc = new Document(
-//                "from extendable.parameters.check import Foo\n" + //class with __init__ == __init__(self, a, b)
-//                "foo = Foo(10, 20)\n" +
-//                "foo.Method()\n" //Method(self, a)
-//                );
-//        checkError("Method: arguments don't match");
-//    }
+    public void testParameterAnalysis19() throws IOException{
+        doc = new Document(
+                "from extendable.parameters.check import Foo\n" + //class with __init__ == __init__(self, a, b)
+                "foo = Foo(10, 20)\n" +
+                "foo.Method()\n" //Method(self, a)
+                );
+        checkError("foo.Method: arguments don't match");
+    }
+    
+    public void testParameterAnalysis19a() throws IOException{
+        doc = new Document(
+                "from extendable.parameters.check import Foo\n" + //class with __init__ == __init__(self, a, b)
+                "foo = Foo(10, 20)\n" +
+                "Foo.Method(foo, 10)\n" //Method(self, a)
+                );
+        checkNoError();
+    }
+    
+    public void testParameterAnalysis19b() throws IOException{
+        doc = new Document(
+                "from extendable.parameters.check import Foo\n" + //class with __init__ == __init__(self, a, b)
+                "Foo.Method(10)\n" //Method(self, a)
+                );
+        checkError("Foo.Method: arguments don't match");
+    }
     
     public void testParameterAnalysis20() throws IOException{
         doc = new Document(

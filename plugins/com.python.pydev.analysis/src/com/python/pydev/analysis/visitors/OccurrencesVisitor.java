@@ -70,6 +70,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
     
     public OccurrencesVisitor(IPythonNature nature, String moduleName, IModule current, IAnalysisPreferences prefs, IDocument document, IProgressMonitor monitor) {
         super(nature, moduleName, current, document, monitor);
+        this.analyzeArgumentsMismatch = true;
         this.messagesManager = new MessagesManager(prefs, moduleName, document);
         this.duplicationChecker = new DuplicationChecker(this);
         this.noSelfChecker = new NoSelfChecker(this, moduleName);
