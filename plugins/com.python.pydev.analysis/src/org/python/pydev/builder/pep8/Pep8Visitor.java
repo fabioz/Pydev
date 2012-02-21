@@ -144,7 +144,7 @@ public class Pep8Visitor {
             
 
         } catch (Exception e) {
-            Log.log(e);
+            Log.log("Error analyzing: "+module, e);
         }
 
         return messages;

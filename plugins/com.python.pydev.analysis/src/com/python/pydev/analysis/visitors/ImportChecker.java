@@ -95,7 +95,7 @@ public final class ImportChecker {
                 buffer.append(" Rep:");
                 buffer.append(rep);
                 buffer.append(" Mod:");
-                buffer.append(mod.getName());
+                buffer.append(mod!= null?mod.getName():"null");
             }
             buffer.append(")");
             return buffer.toString();
@@ -107,8 +107,14 @@ public final class ImportChecker {
             }
             useActualDefinitionCache = true;
             
-            definitionCache = this.mod.findDefinition(
-                    CompletionStateFactory.getEmptyCompletionState(this.rep, nature, completionCache), -1, -1, nature);
+            if(this.mod != null){
+                definitionCache = this.mod.findDefinition(
+                        CompletionStateFactory.getEmptyCompletionState(this.rep, nature, completionCache), -1, -1, nature);
+            }else{
+                definitionCache = new IDefinition[0]; 
+                
+            }
+            
             return definitionCache;
         }
 
