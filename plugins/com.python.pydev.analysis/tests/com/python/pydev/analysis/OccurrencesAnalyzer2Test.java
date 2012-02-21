@@ -31,7 +31,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testParameterAnalysis18();
+            analyzer2.testParameterAnalysis17a();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -518,13 +518,40 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
                 );
         checkError(1);
     }
-    
+    public void testParameterAnalysis17a() throws IOException{
+        doc = new Document(
+                "class Foo:\n"+
+                "    def __init__(self, a):\n" +
+                "        pass\n" +
+                "Foo(10)\n"
+                );
+        checkNoError();
+    }
+
     public void testParameterAnalysis18() throws IOException{
         doc = new Document(
                 "from testOtherImports.f2 import SomeOtherTest\n" + //class with __init__ == __init__(self, a, b)
                 "SomeOtherTest()\n"
                 );
         checkError("SomeOtherTest: arguments don't match");
+    }
+
+//    public void testParameterAnalysis19() throws IOException{
+//        doc = new Document(
+//                "from extendable.parameters.check import Foo\n" + //class with __init__ == __init__(self, a, b)
+//                "foo = Foo(10, 20)\n" +
+//                "foo.Method()\n" //Method(self, a)
+//                );
+//        checkError("Method: arguments don't match");
+//    }
+    
+    public void testParameterAnalysis20() throws IOException{
+        doc = new Document(
+                "from extendable.parameters.check import Foo\n" + //class with __init__ == __init__(self, a, b)
+                "foo = Foo(10, 20)\n" +
+                "foo.Method(10)\n"
+                );
+        checkNoError();
     }
     
 //    public void testNonDefaultAfterDefault() throws IOException{

@@ -198,6 +198,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     public Object visitCall(Call callNode) throws Exception {
         FunctionDef functionDefinitionReferenced = null;
         IToken nameToken = null;
+        boolean callingBoundMethod = false;
         if (callNode.func != null){
             if(callNode.func instanceof Name){
                 Name name = (Name) callNode.func;
@@ -222,6 +223,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                         
                         IDefinition[] definition = mod.findDefinition(
                                 CompletionStateFactory.getEmptyCompletionState(className+".__init__", nature, completionCache), -1, -1, nature);
+                        callingBoundMethod = true;
                         for (IDefinition iDefinition : definition) {
                             Definition d = (Definition) iDefinition;
                             if(d.ast instanceof FunctionDef){
@@ -259,19 +261,22 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         
         
         if(functionDefinitionReferenced != null && nameToken != null){
-            analyzeCallAndFunctionMatch(callNode, functionDefinitionReferenced, nameToken);
+            analyzeCallAndFunctionMatch(callNode, functionDefinitionReferenced, nameToken, callingBoundMethod);
         }
         
         
         return null;
     }
 
-    private void analyzeCallAndFunctionMatch(Call callNode, FunctionDef functionDefinitionReferenced, IToken nameToken) throws Exception {
+    private void analyzeCallAndFunctionMatch(Call callNode, FunctionDef functionDefinitionReferenced, IToken nameToken, boolean callingBoundMethod) throws Exception {
         int functionArgsLen = functionDefinitionReferenced.args.args != null?functionDefinitionReferenced.args.args.length:0;
         Collection<String> functionRequiredArgs = new OrderedSet<String>(functionArgsLen);
         Collection<String> functionOptionalArgs = new OrderedSet<String>(functionArgsLen);
         
         for(int i=0;i<functionArgsLen;i++){
+            if(i==0 && callingBoundMethod){
+                continue; //Ignore first parameter when calling a bound method.
+            }
             String rep = NodeUtils.getRepresentationString(functionDefinitionReferenced.args.args[i]);
             if(functionDefinitionReferenced.args.defaults == null || 
                functionDefinitionReferenced.args.defaults.length < i || 
