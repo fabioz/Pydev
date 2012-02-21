@@ -263,8 +263,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getCompletionProposalAutoActivationCharacters()
      */
     public char[] getCompletionProposalAutoActivationCharacters() {
-        return getStaticAutoActivationCharacters(
-                defaultPythonProcessor.getCompletionProposalAutoActivationCharacters(), this.participants.size());
+        return getStaticAutoActivationCharacters(defaultPythonProcessor.getCompletionProposalAutoActivationCharacters());
     }
 
     /**
@@ -275,7 +274,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
     /**
      * @return the auto-activation chars that should be used.
      */
-    public synchronized static char[] getStaticAutoActivationCharacters(char[] defaultChars, int participantsLen) {
+    public synchronized static char[] getStaticAutoActivationCharacters(char[] defaultChars) {
         if (!listenerToClearAutoActivationAlreadySetup) {
             PydevPlugin.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
                 public void propertyChange(PropertyChangeEvent event) {
@@ -292,7 +291,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
                     && PyCodeCompletionPreferencesPage.useAutocomplete();
 
             char[] c2;
-            if (participantsLen == 0 && !useAutocompleteOnAllAsciiCharsCache) {
+            if (!useAutocompleteOnAllAsciiCharsCache) {
                 c2 = defaultAutoActivationCharacters;
             } else {
                 //just use the extension for the simple if we do have it
