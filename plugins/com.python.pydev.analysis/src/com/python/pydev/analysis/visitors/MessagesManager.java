@@ -458,7 +458,21 @@ public final class MessagesManager {
                 } else{
                     //the generator token has many associated messages - the messages may have different types,
                     //so, we need to get them by types
-                    CompositeMessage compositeMessage = new CompositeMessage(message.getType(), message.getGenerator(), prefs);
+                    IToken generator = message.getGenerator();
+                    CompositeMessage compositeMessage;
+                    if(generator != null){
+                        compositeMessage = new CompositeMessage(message.getType(), generator, prefs);
+                    }else{
+                        compositeMessage = new CompositeMessage(
+                                message.getType(), 
+                                message.getStartLine(document), 
+                                message.getEndLine(document), 
+                                message.getStartCol(document), 
+                                message.getEndCol(document), 
+                                prefs
+                        );
+                        
+                    }
                     for(IMessage m : l){
                         compositeMessage.addMessage(m);
                     }

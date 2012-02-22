@@ -9,6 +9,7 @@
  */
 package com.python.pydev.analysis.messages;
 
+import org.eclipse.core.runtime.Assert;
 import org.python.pydev.core.IToken;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
@@ -33,6 +34,7 @@ public class Message extends AbstractMessage {
     public Message(int type, Object message, IToken generator, IAnalysisPreferences prefs) {
         super(type, generator, prefs);
         this.message = message;
+        Assert.isNotNull(generator);
     }
 
     public Object getShortMessage() {

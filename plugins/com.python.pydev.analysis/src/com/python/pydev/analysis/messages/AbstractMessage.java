@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -54,6 +55,11 @@ public abstract class AbstractMessage implements IMessage{
         this.severity = prefs.getSeverityForType(type);
         this.type = type;
         this.generator = generator;
+        try {
+            Assert.isNotNull(generator);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
     
@@ -66,6 +72,8 @@ public abstract class AbstractMessage implements IMessage{
     public AbstractMessage(int type, int startLine, int endLine, int startCol, int endCol, IAnalysisPreferences prefs) {
         this.severity = prefs.getSeverityForType(type);
         this.type = type;
+        Assert.isTrue(startLine >= 0);
+        Assert.isTrue(startCol >= 0);
         this.startLine = startLine;
         this.startCol = startCol;
         this.endLine = endLine;

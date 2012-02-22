@@ -49,13 +49,12 @@ public class Pep8Visitor {
                 		"    import pep8\n" +
                 		"\n" +
                 		"options, args = pep8.process_options(argv[1:])\n" + //don't use sys.argv (it seems it doesn't get updated as it should).
-                		"pep8.options = options\n" +
                 		//"print options\n" + uncomment for debugging options
-                		"checker = pep8.Checker('%s', lines)\n" +
+                		"checker = pep8.Checker(options, '%s', lines)\n" +
                 		"\n" +
                 		"def report_error(line_number, offset, text, check):\n" +
                 		"    code = text[:4]\n" +
-                		"    if pep8.ignore_code(code) or code in checker.expected:\n" +
+                		"    if pep8.ignore_code(checker.options, code) or code in checker.expected:\n" +
                 		"        return\n" +
                         "    visitor.reportError(line_number, offset, text, check)\n" +
                 		"    return original(line_number, offset, text, check)\n" +
