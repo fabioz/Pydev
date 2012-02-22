@@ -31,7 +31,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testParameterAnalysis19b();
+            analyzer2.testParameterAnalysis23b();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -570,6 +570,73 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
                 );
         checkNoError();
     }
+    
+    public void testParameterAnalysis21() throws IOException{
+        doc = new Document(
+                "class Bar(object):\n" +
+                "    @classmethod\n" +
+                "    def Method(cls, a, b):\n" +
+                "        pass\n" +
+                "Bar.Method(10, 20)\n"
+        );
+        checkNoError();
+    }
+
+    public void testParameterAnalysis22() throws IOException{
+        doc = new Document(
+                "class Bar(object):\n" +
+                "    @classmethod\n" +
+                "    def Method(cls, a, b):\n" +
+                "        pass\n" +
+                "Bar.Method(20)\n"
+        );
+        checkError("Bar.Method: arguments don't match");
+    }
+    
+    public void testParameterAnalysis23() throws IOException{
+        doc = new Document(
+                "class Bar(object):\n" +
+                "    def Method(cls, a, b):\n" +
+                "        pass\n" +
+                "    Method = classmethod(Method)\n" +
+                "Bar.Method(20, 20, 20)\n"
+                );
+        checkError("Bar.Method: arguments don't match");
+    }
+
+    public void testParameterAnalysis22a() throws IOException{
+        doc = new Document(
+                "class Bar(object):\n" +
+                "    @staticmethod\n" +
+                "    def Method(cls, a, b):\n" +
+                "        pass\n" +
+                "Bar.Method(20, 21)\n"
+        );
+        checkError("Bar.Method: arguments don't match");
+    }
+
+    public void testParameterAnalysis23a() throws IOException{
+        doc = new Document(
+                "class Bar(object):\n" +
+                "    def Method(cls, a, b):\n" +
+                "        pass\n" +
+                "    Method = staticmethod(Method)\n" +
+                "Bar.Method(20, 20, 20)\n"
+                );
+        checkNoError();
+    }
+    
+    public void testParameterAnalysis23b() throws IOException{
+        doc = new Document(
+                "class Bar(object):\n" +
+                "    @staticmethod\n" +
+                "    def Method(cls, a, b):\n" +
+                "        pass\n" +
+                "Bar.Method(20, 20, 20)\n"
+                );
+        checkNoError();
+    }
+
     
 //    public void testNonDefaultAfterDefault() throws IOException{
 //        doc = new Document(

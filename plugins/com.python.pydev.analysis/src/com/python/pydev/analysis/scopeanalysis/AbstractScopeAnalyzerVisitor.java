@@ -27,7 +27,6 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.OrderedSet;
 import org.python.pydev.core.TupleN;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStack;
@@ -253,7 +252,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                             if(d.ast instanceof FunctionDef){
                                 functionDefinitionReferenced = (FunctionDef) d.ast;
                                 
-                                FastStack scopeStack = d.scope.getScopeStack();
+                                @SuppressWarnings("unchecked")
+                                FastStack<SimpleNode> scopeStack = d.scope.getScopeStack();
                                 if(scopeStack.size() > 1 && scopeStack.peek(1) instanceof ClassDef){
                                     callingBoundMethod = true;
                                     String withoutLast = FullRepIterable.getWithoutLastPart(rep);
@@ -306,114 +306,16 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         
         return null;
     }
-
-    private void analyzeCallAndFunctionMatch(Call callNode, FunctionDef functionDefinitionReferenced, IToken nameToken, boolean callingBoundMethod) throws Exception {
-        int functionArgsLen = functionDefinitionReferenced.args.args != null?functionDefinitionReferenced.args.args.length:0;
-        Collection<String> functionRequiredArgs = new OrderedSet<String>(functionArgsLen);
-        Collection<String> functionOptionalArgs = new OrderedSet<String>(functionArgsLen);
+    
+    /**
+     * Subclasses interested in analyzing call/function signature match should override this method.
+     */
+    protected void analyzeCallAndFunctionMatch(
+            Call callNode, FunctionDef functionDefinitionReferenced, IToken nameToken, boolean callingBoundMethod) throws Exception {
         
-        for(int i=0;i<functionArgsLen;i++){
-            if(i==0 && callingBoundMethod){
-                continue; //Ignore first parameter when calling a bound method.
-            }
-            String rep = NodeUtils.getRepresentationString(functionDefinitionReferenced.args.args[i]);
-            if(functionDefinitionReferenced.args.defaults == null || 
-               (functionDefinitionReferenced.args.defaults.length > i && 
-               functionDefinitionReferenced.args.defaults[i] == null)){
-                //it's null, so, it's required
-                functionRequiredArgs.add(rep);
-            }else{
-                //not null: optional with default value
-                functionOptionalArgs.add(rep);
-            }
-        }
-        exprType[] kwonlyargs = functionDefinitionReferenced.args.kwonlyargs;
-        Collection<String> functionKeywordOnlyArgs = null;
-        if(kwonlyargs != null){
-            functionKeywordOnlyArgs =  new OrderedSet<String>(kwonlyargs.length);
-            for (exprType exprType : kwonlyargs) {
-                if(exprType != null){
-                    functionKeywordOnlyArgs.add(NodeUtils.getRepresentationString(exprType));
-                }
-            }
-        }
-
-        
-        int callArgsLen = callNode.args != null?callNode.args.length:0;
-        
-        for(int i=0;i<callArgsLen;i++){
-
-            if(functionRequiredArgs.size() > 0){
-                //Remove first one (no better api in collection...)
-                Iterator<String> it = functionRequiredArgs.iterator();
-                it.next();
-                it.remove();
-                continue;
-                
-            }else if(functionOptionalArgs.size() > 0){
-                Iterator<String> it = functionOptionalArgs.iterator();
-                it.next();
-                it.remove();
-                continue;
-            }
-            
-            //All 'regular' and 'optional' arguments consumed (i.e.: def m1(a, b, c=10)), so, it'll only
-            //be possible to accept an item that's in *args at this point.
-            if(functionDefinitionReferenced.args.vararg == null){
-                onArgumentsMismatch(nameToken, callNode);
-                return; //Error reported, so, bail out of function!
-            }
-                
-        }
-        
-        
-        int callKeywordArgsLen = callNode.keywords != null?callNode.keywords.length:0;
-        for(int i=0;i<callKeywordArgsLen;i++){
-            String rep = NodeUtils.getRepresentationString(callNode.keywords[i].arg);
-            //keyword argument (i.e.: call(a=10)), so, only accepted in kwargs or with some argument with that name.
-            if(functionRequiredArgs.remove(rep)){
-                continue;
-                
-            }else if(functionOptionalArgs.remove(rep)){
-                continue;
-                
-            }else if(functionKeywordOnlyArgs != null && functionKeywordOnlyArgs.remove(rep)){
-                continue;
-                
-            }else{
-                //An argument with that name was not found, so, it may only be handled through kwargs at this point!
-                if(functionDefinitionReferenced.args.kwarg == null){
-                    onArgumentsMismatch(nameToken, callNode); 
-                    return; //Error reported, so, bail out of function!
-                }
-            }
-        }
-        
-        if(functionRequiredArgs.size() > 0 || (functionKeywordOnlyArgs != null && functionKeywordOnlyArgs.size() > 0)){
-            if(callNode.kwargs == null && callNode.starargs == null){
-                //Not all required parameters were consumed!
-                onArgumentsMismatch(nameToken, callNode); 
-                return; //Error reported, so, bail out of function!
-            }
-        }else if(functionOptionalArgs.size() > 0){
-            
-        }else{
-            //required and optional size == 0
-            
-            if(callNode.kwargs != null && functionDefinitionReferenced.args.kwarg == null){
-                //We have more things that were not handled
-                onArgumentsMismatch(nameToken, callNode); 
-                return; //Error reported, so, bail out of function!
-            }
-            if(callNode.starargs != null && functionDefinitionReferenced.args.vararg == null){
-                //We have more things that were not handled
-                onArgumentsMismatch(nameToken, callNode); 
-                return; //Error reported, so, bail out of function!
-            }
-        }
     }
-    
-    
+
+
 
 
     private final FastStack<IToken> recordedFounds = new FastStack<IToken>(4);
@@ -1342,7 +1244,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                         onAddUndefinedMessage(token, makeFound(token)); //it is in the global scope, so, it is undefined.
                     }
                 }else{
-                    onFound(foundInNamesToIgnore.o1);
+                    if(foundInNamesToIgnore.o1 instanceof SourceToken){
+                        SourceToken sourceToken = (SourceToken) foundInNamesToIgnore.o1;
+                        onFound(AbstractVisitor.makeToken(sourceToken.getAst(), token.getRepresentation(), sourceToken.getParentPackage()));
+                    }
                 }
             }
         }else if(checkIfIsValidImportToken){
