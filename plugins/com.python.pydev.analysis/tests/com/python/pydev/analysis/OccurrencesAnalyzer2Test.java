@@ -31,7 +31,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testParameterAnalysis23b();
+            analyzer2.testParameterAnalysis19c();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -538,7 +538,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
 
     public void testParameterAnalysis19() throws IOException{
         doc = new Document(
-                "from extendable.parameters.check import Foo\n" + //class with __init__ == __init__(self, a, b)
+                "from extendable.parameters_check.check import Foo\n" + //class with __init__ == __init__(self, a, b)
                 "foo = Foo(10, 20)\n" +
                 "foo.Method()\n" //Method(self, a)
                 );
@@ -547,7 +547,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
     
     public void testParameterAnalysis19a() throws IOException{
         doc = new Document(
-                "from extendable.parameters.check import Foo\n" + //class with __init__ == __init__(self, a, b)
+                "from extendable.parameters_check.check import Foo\n" + //class with __init__ == __init__(self, a, b)
                 "foo = Foo(10, 20)\n" +
                 "Foo.Method(foo, 10)\n" //Method(self, a)
                 );
@@ -556,15 +556,51 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
     
     public void testParameterAnalysis19b() throws IOException{
         doc = new Document(
-                "from extendable.parameters.check import Foo\n" + //class with __init__ == __init__(self, a, b)
+                "from extendable.parameters_check.check import Foo\n" + //class with __init__ == __init__(self, a, b)
+                "Foo.Method(10)\n" //Method(self, a)
+                );
+        checkError("Foo.Method: arguments don't match");
+    }
+
+    public void testParameterAnalysis19c() throws IOException{
+        doc = new Document(
+                "from extendable.parameters_check import Foo\n" + //class with __init__ == __init__(self, a, b)
+                "foo = Foo(10, 20)\n" +
+                "Foo.Method(foo, 10)\n" //Method(self, a)
+                );
+        checkNoError();
+    }
+    
+    public void testParameterAnalysis19d() throws IOException{
+        doc = new Document(
+                "from extendable.parameters_check import Foo\n" + //class with __init__ == __init__(self, a, b)
+                "foo = Foo(10, 20)\n" +
+                "foo.Method(10)\n" //Method(self, a)
+                );
+        checkNoError();
+    }
+
+    public void testParameterAnalysis19e() throws IOException{
+        doc = new Document(
+                "from extendable.parameters_check import Foo\n" + //class with __init__ == __init__(self, a, b)
+                "foo = Foo(10, 20)\n" +
                 "Foo.Method(10)\n" //Method(self, a)
                 );
         checkError("Foo.Method: arguments don't match");
     }
     
+    public void testParameterAnalysis19f() throws IOException{
+        doc = new Document(
+                "from extendable.parameters_check import Foo\n" + //class with __init__ == __init__(self, a, b)
+                "foo = Foo(10, 20)\n" +
+                "foo.Method(foo, 10)\n" //Method(self, a)
+                );
+        checkError("foo.Method: arguments don't match");
+    }
+    
     public void testParameterAnalysis20() throws IOException{
         doc = new Document(
-                "from extendable.parameters.check import Foo\n" + //class with __init__ == __init__(self, a, b)
+                "from extendable.parameters_check.check import Foo\n" + //class with __init__ == __init__(self, a, b)
                 "foo = Foo(10, 20)\n" +
                 "foo.Method(10)\n"
                 );

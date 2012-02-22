@@ -38,6 +38,7 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.LocalScope;
+import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -245,8 +246,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                     nameToken = popFound();
                     if(nameToken instanceof SourceToken){
                         String rep = nameToken.getRepresentation();
-                        IDefinition[] definition = this.current.findDefinition(
-                                CompletionStateFactory.getEmptyCompletionState(rep, nature, completionCache), -1, -1, nature);
+                        
+                        ArrayList<IDefinition> definition = new ArrayList<IDefinition>();
+                        PyRefactoringFindDefinition.findActualDefinition(null, this.current, rep, definition, -1, -1, nature, completionCache);
+                        
                         for (IDefinition iDefinition : definition) {
                             Definition d = (Definition) iDefinition;
                             if(d.ast instanceof FunctionDef){
@@ -257,9 +260,11 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                                 if(scopeStack.size() > 1 && scopeStack.peek(1) instanceof ClassDef){
                                     callingBoundMethod = true;
                                     String withoutLast = FullRepIterable.getWithoutLastPart(rep);
-                                    definition = this.current.findDefinition(
-                                            CompletionStateFactory.getEmptyCompletionState(withoutLast, nature, completionCache), -1, -1, nature);
-                                    for (IDefinition iDefinition2 : definition) {
+                                    ArrayList<IDefinition> definition2 = new ArrayList<IDefinition>();
+                                    PyRefactoringFindDefinition.findActualDefinition(
+                                            null, this.current, withoutLast, definition2, -1, -1, nature, completionCache);
+                                    
+                                    for (IDefinition iDefinition2 : definition2) {
                                         Definition d2 = (Definition) iDefinition2;
                                         if(d2.ast instanceof ClassDef){
                                             callingBoundMethod = false;
