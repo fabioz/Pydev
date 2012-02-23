@@ -30,7 +30,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.texteditor.ITextEditor;
-import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.log.Log;
@@ -453,23 +452,22 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                         if (name.length() > 0) {
 
                             //magic ipython stuff (starting with %)
-                            if (name.charAt(0) == '%') {
+                            // Decrement the replacement offset _only_ if the token begins with %
+                            // as ipthon completes a<tab> to %alias etc.
+                            if (name.charAt(0) == '%' && text.charAt(0) == '%') {
                                 replacementOffset -= 1;
 
-                            } else if (name.charAt(0) == '/') {
-                                //Should be something as cd c:/temp/foo (and name is /temp/foo)
-                                char[] chars = text.toCharArray();
-                                for (int i = 0; i < chars.length; i++) {
-                                    char c = chars[i];
-                                    if (c == name.charAt(0)) {
-                                        String sub = text.substring(i, text.length());
-                                        if (name.startsWith(sub)) {
-                                            replacementOffset -= (sub.length() - FullRepIterable.getLastPart(actTok)
-                                                    .length());
-                                            break;
-                                        }
-                                    }
-                                }
+                                // handle cd -- we handle this by returning the full path from ipython
+                                // TODO: perhaps we could do this for all completions
+                            } else if (text.trim().equals("cd") || text.trim().startsWith("cd ")) {
+
+                                // text == the full search e.g. "cd works"   ; "cd workspaces/foo"
+                                // actTok == the last segment of the path e.g. "foo"  ; 
+                                // nameAndArgs == full completion e.g. "workspaces/foo/"
+
+                                // Want to replace the segment after the cd with the proposed completion
+                                replacementOffset = 0;
+                                length = text.length();
                             }
                         }
                     }

@@ -55,6 +55,9 @@ public class PydevConsolePreferencesInitializer extends AbstractPreferenceInitia
         node.putBoolean(PydevConsoleConstants.INTERACTIVE_CONSOLE_FOCUS_ON_SEND_COMMAND,
                 PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_FOCUS_ON_SEND_COMMAND);
 
+        node.putBoolean(PydevConsoleConstants.INTERACTIVE_CONSOLE_TAB_COMPLETION,
+                PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_TAB_COMPLETION);
+
         node.putBoolean(PydevConsoleConstants.INTERACTIVE_CONSOLE_CONNECT_DEBUG_SESSION,
                 PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_CONNECT_DEBUG_SESSION);
 
