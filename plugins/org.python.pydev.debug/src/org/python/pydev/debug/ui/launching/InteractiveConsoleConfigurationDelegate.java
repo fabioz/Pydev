@@ -6,8 +6,6 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.internal.console.OpenConsoleAction;
-import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.PydevConsoleFactory;
 
 public class InteractiveConsoleConfigurationDelegate extends LaunchConfigurationDelegate {
