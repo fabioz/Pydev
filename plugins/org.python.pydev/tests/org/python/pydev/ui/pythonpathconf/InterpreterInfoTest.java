@@ -162,10 +162,14 @@ public class InterpreterInfoTest extends TestCase {
         assertEquals(obtained, info);
     }
 
-    private void compareArray(String []a, String[] b) {
-        if(!Arrays.equals(a, b)){
-            fail(Arrays.asList(a)+" != "+ Arrays.asList(b));
-        }
+
+    /**
+     * Compare whether the environment in envA is the same as envB
+     * @param envA
+     * @param envB
+     */
+    private void compareEnvironments(String []envA, String[] envB) {
+        assertEquals(new HashSet<String>(Arrays.asList(envA)), new HashSet<String>(Arrays.asList(envB)));
     }
     
     public void testInfo3() throws Exception {
@@ -183,7 +187,7 @@ public class InterpreterInfoTest extends TestCase {
         assertEquals(info.getStringSubstitutionVariables(), newInfo.getStringSubstitutionVariables());
         assertEquals(info, newInfo);
         assertEquals(newInfo, info);
-        compareArray(info.getEnvVariables(), newInfo.getEnvVariables());
+        compareEnvironments(info.getEnvVariables(), newInfo.getEnvVariables());
         newInfo.setEnvVariables(null);
         newInfo.setStringSubstitutionVariables(null);
         assertFalse(info.equals(newInfo));
@@ -198,14 +202,39 @@ public class InterpreterInfoTest extends TestCase {
         String[] original1 = new String[]{"LIBPATH=k:\\foo", "PATH=c:\\bin;d:\\bin"};
         info.setEnvVariables(original1);
         
-        compareArray(info.updateEnv(null), original1);
+        compareEnvironments(info.updateEnv(null), original1);
         
-        compareArray(info.updateEnv(new String[0]), original1);
+        compareEnvironments(info.updateEnv(new String[0]), original1);
         
         String[] original2 = new String[]{"LIBPATH=k:\\foo", "boo=boo", "PATH=c:\\bin;d:\\bin2"};
         String[] expected2 = new String[]{"LIBPATH=k:\\foo", "boo=boo", "PATH=c:\\bin;d:\\bin"};
-        assertEquals(new HashSet<String>(Arrays.asList(info.updateEnv(original2))), new HashSet<String>(Arrays.asList(expected2)));
+        compareEnvironments(info.updateEnv(original2), expected2);
         check(info);
+    }
+    
+
+    public void testVariableExpansion() throws Exception {
+        InterpreterInfo info = new InterpreterInfo("2.5", "c:\\bin\\python.exe", new ArrayList<String>());
+        MockStringVariableManager manager = new MockStringVariableManager();
+        manager.addMockVariable("var1", "value1");
+        info.stringVariableManager = manager;
+        String[] variableInInfo = new String[]{"LIBPATH=k:\\foo", "PATH=c:\\bin;d:\\bin", "ENV1=${var1}"};
+        info.setEnvVariables(variableInInfo);
+        
+        // echeck expected output when no environment is being added to
+        String[] expected1 = new String[]{"LIBPATH=k:\\foo", "PATH=c:\\bin;d:\\bin", "ENV1=value1"};
+        compareEnvironments(info.updateEnv(null), expected1);
+        compareEnvironments(info.updateEnv(new String[0]), expected1);
+        
+        // check expected output when there is an input environment
+        String[] inputEnv = new String[]{"LIBPATH=k:\\foo", "boo=boo", "PATH=c:\\bin;d:\\bin2", "ENV1=some_other_value"};
+        String[] expected2 = new String[]{"LIBPATH=k:\\foo", "boo=boo", "PATH=c:\\bin;d:\\bin", "ENV1=value1"};
+        compareEnvironments(info.updateEnv(inputEnv), expected2);
+        
+        // make sure that variables in the input (system) environment are not expanded
+        String[] original3 = new String[]{"LIBPATH=k:\\foo", "boo=boo", "PATH=c:\\bin;d:\\bin2", "ENV2=${var1}"};
+        String[] expected3 = new String[]{"LIBPATH=k:\\foo", "boo=boo", "PATH=c:\\bin;d:\\bin", "ENV2=${var1}", "ENV1=value1"};
+        compareEnvironments(info.updateEnv(original3), expected3);
     }
     
     
