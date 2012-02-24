@@ -17,7 +17,6 @@ public class ConsoleActivateDebugContext implements IConsolePageParticipant, IDe
 	private IPageBookViewPage page;
     private IConsoleView view;
 
-	@Override
 	public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
 		return null;
 	}
@@ -26,7 +25,6 @@ public class ConsoleActivateDebugContext implements IConsolePageParticipant, IDe
         return console != null ? console.getProcess() : null;
     }
 
-    @Override
 	public void debugContextChanged(DebugContextEvent event) {
 		if ((event.getFlags() & DebugContextEvent.ACTIVATED) > 0) {
 			if (view != null && getProcess() != null && getProcess().equals(DebugUITools.getCurrentProcess())) {
@@ -36,7 +34,6 @@ public class ConsoleActivateDebugContext implements IConsolePageParticipant, IDe
 		
 	}
 
-	@Override
 	public void init(IPageBookViewPage page, IConsole console) {
 		this.page = page;
 		this.console = (PydevConsole) console;
@@ -45,17 +42,14 @@ public class ConsoleActivateDebugContext implements IConsolePageParticipant, IDe
         DebugUITools.getDebugContextManager().getContextService(page.getSite().getWorkbenchWindow()).addDebugContextListener(this);
 	}
 
-	@Override
 	public void dispose() {
         DebugUITools.getDebugContextManager().getContextService(this.page.getSite().getWorkbenchWindow()).removeDebugContextListener(this);
         console = null;
 	}
 
-	@Override
 	public void activated() {
 	}
 
-	@Override
 	public void deactivated() {
 	}
 

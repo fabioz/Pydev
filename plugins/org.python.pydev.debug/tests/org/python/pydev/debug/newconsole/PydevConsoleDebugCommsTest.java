@@ -112,12 +112,10 @@ public class PydevConsoleDebugCommsTest extends TestCase {
 			System.out.println(sCmdCode + ":" + sSeqCode + ":" + payload);
 		}
 
-		@Override
 		public IProcess getProcess() {
 			return null;
 		}
 
-		@Override
 		public void launchRemoved(ILaunch launch) {
 		}
 
@@ -178,7 +176,6 @@ public class PydevConsoleDebugCommsTest extends TestCase {
 		final Boolean done[] = new Boolean[1];
 		ICallback<Object, InterpreterResponse> onResponseReceived = new ICallback<Object, InterpreterResponse>() {
 
-			@Override
 			public Object call(InterpreterResponse arg) {
 				done[0] = true;
 				return null;
@@ -186,7 +183,6 @@ public class PydevConsoleDebugCommsTest extends TestCase {
 		};
 		ICallback<Object, Tuple<String, String>> onContentsReceived = new ICallback<Object, Tuple<String, String>>() {
 
-			@Override
 			public Object call(Tuple<String, String> arg) {
 				return null;
 			}
