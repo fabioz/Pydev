@@ -76,7 +76,7 @@ public class EvaluateActionSetter implements IPyEditListener{
                             cmd = "\n"+cmd;
                         }
                     }
-                    console = factory.createConsole(cmd);
+                    factory.createConsole(cmd);
                     
                     
                 }else{
