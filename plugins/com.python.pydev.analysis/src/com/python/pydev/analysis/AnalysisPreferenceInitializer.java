@@ -91,7 +91,7 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
     public static final boolean DEFAULT_DO_IGNORE_FIELDS_WITH_UNDER = false;
     
     public static final String SEVERITY_ARGUMENTS_MISMATCH = "SEVERITY_ARGUMENTS_MISMATCH";
-    public static final int DEFAULT_SEVERITY_ARGUMENTS_MISMATCH = IMarker.SEVERITY_ERROR;
+    public static final int DEFAULT_SEVERITY_ARGUMENTS_MISMATCH = IMarker.SEVERITY_INFO; //Currently does not run by default!
     
 
     @Override

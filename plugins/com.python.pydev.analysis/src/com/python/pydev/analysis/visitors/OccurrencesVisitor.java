@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IModule;
@@ -77,7 +78,8 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
     
     public OccurrencesVisitor(IPythonNature nature, String moduleName, IModule current, IAnalysisPreferences prefs, IDocument document, IProgressMonitor monitor) {
         super(nature, moduleName, current, document, monitor);
-        this.analyzeArgumentsMismatch = true;
+        
+        this.analyzeArgumentsMismatch = prefs.getSeverityForType(IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH) > IMarker.SEVERITY_INFO; //Don't even run checks if we don't raise at least a warning.
         this.messagesManager = new MessagesManager(prefs, moduleName, document);
         this.duplicationChecker = new DuplicationChecker(this);
         this.noSelfChecker = new NoSelfChecker(this, moduleName);

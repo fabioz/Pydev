@@ -29,6 +29,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.TupleN;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
@@ -199,9 +200,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     
     @Override
     public Object visitCall(Call callNode) throws Exception {
-        FunctionDef functionDefinitionReferenced = null;
-        IToken nameToken = null;
-        boolean callingBoundMethod = false;
         
         if(!analyzeArgumentsMismatch){
             callNode.func.accept(this);
@@ -210,74 +208,14 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                 if(callNode.func instanceof Name){
                     Name name = (Name) callNode.func;
                     startRecordFound();
-                    nameToken = (IToken) visitName(name);
-                    IToken found = popFound();
-                    if(found instanceof SourceToken){
-                        SourceToken sourceToken = (SourceToken) found;
-                        SimpleNode ast = sourceToken.getAst();
-                        if(ast instanceof FunctionDef){
-                            functionDefinitionReferenced = (FunctionDef) ast; 
-                            
-                        }else if(ast instanceof ClassDef){
-                            ClassDef classDef = (ClassDef) ast;
-                            String className = ((NameTok)classDef.name).id;
-                            
-                            Definition foundDef = sourceToken.getDefinition();
-                            IModule mod = this.current;
-                            if(foundDef != null){
-                                mod = foundDef.module;
-                            }
-                            
-                            IDefinition[] definition = mod.findDefinition(
-                                    CompletionStateFactory.getEmptyCompletionState(className+".__init__", nature, completionCache), -1, -1, nature);
-                            callingBoundMethod = true;
-                            for (IDefinition iDefinition : definition) {
-                                Definition d = (Definition) iDefinition;
-                                if(d.ast instanceof FunctionDef){
-                                    functionDefinitionReferenced = (FunctionDef) d.ast;
-                                    break;
-                                }
-                            }
-                        }
-                    }
+                    visitName(name);
+                    org.python.pydev.core.Tuple<IToken, Boolean> found = popFound();
+                    checkNameFound(callNode, found);
                 }else{
                     startRecordFound();
                     callNode.func.accept(this);
-                    nameToken = popFound();
-                    if(nameToken instanceof SourceToken){
-                        String rep = nameToken.getRepresentation();
-                        
-                        ArrayList<IDefinition> definition = new ArrayList<IDefinition>();
-                        PyRefactoringFindDefinition.findActualDefinition(null, this.current, rep, definition, -1, -1, nature, completionCache);
-                        
-                        for (IDefinition iDefinition : definition) {
-                            Definition d = (Definition) iDefinition;
-                            if(d.ast instanceof FunctionDef){
-                                functionDefinitionReferenced = (FunctionDef) d.ast;
-                                
-                                @SuppressWarnings("unchecked")
-                                FastStack<SimpleNode> scopeStack = d.scope.getScopeStack();
-                                if(scopeStack.size() > 1 && scopeStack.peek(1) instanceof ClassDef){
-                                    callingBoundMethod = true;
-                                    String withoutLast = FullRepIterable.getWithoutLastPart(rep);
-                                    ArrayList<IDefinition> definition2 = new ArrayList<IDefinition>();
-                                    PyRefactoringFindDefinition.findActualDefinition(
-                                            null, this.current, withoutLast, definition2, -1, -1, nature, completionCache);
-                                    
-                                    for (IDefinition iDefinition2 : definition2) {
-                                        Definition d2 = (Definition) iDefinition2;
-                                        if(d2.ast instanceof ClassDef){
-                                            callingBoundMethod = false;
-                                            break;
-                                        }
-                                    }
-                                }else{
-                                    callingBoundMethod = false;
-                                }
-                                break;
-                            }
-                        }
-                    }
+                    org.python.pydev.core.Tuple<IToken, Boolean> found = popFound();
+                    checkAttrFound(callNode, found);
                 }
             }
         }
@@ -304,12 +242,90 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         }
         
         
-        if(functionDefinitionReferenced != null && nameToken != null){
-            analyzeCallAndFunctionMatch(callNode, functionDefinitionReferenced, nameToken, callingBoundMethod);
-        }
         
         
         return null;
+    }
+
+    private void checkAttrFound(Call callNode, org.python.pydev.core.Tuple<IToken, Boolean> found) throws Exception,
+            CompletionRecursionException {
+        FunctionDef functionDefinitionReferenced;
+        IToken nameToken;
+        boolean callingBoundMethod;
+        if(found != null && found.o2 && found.o1 instanceof SourceToken){
+            nameToken = found.o1;
+            String rep = nameToken.getRepresentation();
+            
+            ArrayList<IDefinition> definition = new ArrayList<IDefinition>();
+            PyRefactoringFindDefinition.findActualDefinition(null, this.current, rep, definition, -1, -1, nature, completionCache);
+            
+            for (IDefinition iDefinition : definition) {
+                Definition d = (Definition) iDefinition;
+                if(d.ast instanceof FunctionDef){
+                    functionDefinitionReferenced = (FunctionDef) d.ast;
+                    
+                    @SuppressWarnings("unchecked")
+                    FastStack<SimpleNode> scopeStack = d.scope.getScopeStack();
+                    if(scopeStack.size() > 1 && scopeStack.peek(1) instanceof ClassDef){
+                        callingBoundMethod = true;
+                        String withoutLast = FullRepIterable.getWithoutLastPart(rep);
+                        ArrayList<IDefinition> definition2 = new ArrayList<IDefinition>();
+                        PyRefactoringFindDefinition.findActualDefinition(
+                                null, this.current, withoutLast, definition2, -1, -1, nature, completionCache);
+                        
+                        for (IDefinition iDefinition2 : definition2) {
+                            Definition d2 = (Definition) iDefinition2;
+                            if(d2.ast instanceof ClassDef){
+                                callingBoundMethod = false;
+                                break;
+                            }
+                        }
+                    }else{
+                        callingBoundMethod = false;
+                    }
+                    analyzeCallAndFunctionMatch(callNode, functionDefinitionReferenced, nameToken, callingBoundMethod);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void checkNameFound(Call callNode, org.python.pydev.core.Tuple<IToken, Boolean> found)
+            throws Exception {
+        boolean callingBoundMethod = false;
+        FunctionDef functionDefinitionReferenced;
+        IToken nameToken;
+        if(found != null && found.o2 && found.o1 instanceof SourceToken){
+            nameToken = found.o1;
+            SourceToken sourceToken = (SourceToken) found.o1;
+            SimpleNode ast = sourceToken.getAst();
+            if(ast instanceof FunctionDef){
+                functionDefinitionReferenced = (FunctionDef) ast; 
+                analyzeCallAndFunctionMatch(callNode, functionDefinitionReferenced, nameToken, callingBoundMethod);
+                
+            }else if(ast instanceof ClassDef){
+                ClassDef classDef = (ClassDef) ast;
+                String className = ((NameTok)classDef.name).id;
+                
+                Definition foundDef = sourceToken.getDefinition();
+                IModule mod = this.current;
+                if(foundDef != null){
+                    mod = foundDef.module;
+                }
+                
+                IDefinition[] definition = mod.findDefinition(
+                        CompletionStateFactory.getEmptyCompletionState(className+".__init__", nature, completionCache), -1, -1, nature);
+                callingBoundMethod = true;
+                for (IDefinition iDefinition : definition) {
+                    Definition d = (Definition) iDefinition;
+                    if(d.ast instanceof FunctionDef){
+                        functionDefinitionReferenced = (FunctionDef) d.ast;
+                        analyzeCallAndFunctionMatch(callNode, functionDefinitionReferenced, nameToken, callingBoundMethod);
+                        break;
+                    }
+                }
+            }
+        }
     }
     
     /**
@@ -323,19 +339,35 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
 
 
 
-    private final FastStack<IToken> recordedFounds = new FastStack<IToken>(4);
+    private final FastStack<org.python.pydev.core.Tuple<IToken, Boolean>> recordedFounds = new FastStack<org.python.pydev.core.Tuple<IToken, Boolean>>(4);
     private int recordFounds = 0;
     
+    private void onFoundProbablyNotDefined(IToken o1){
+        onFound(o1, false);
+        
+    }
+    
     private void onFound(IToken o1){
+        onFound(o1, true);
+    }
+    
+    private void onFound(IToken o1, boolean defined){
         if(recordFounds > 0){
-            recordedFounds.push(o1);
+            recordedFounds.push(new org.python.pydev.core.Tuple<IToken, Boolean>(o1, defined));
         }
     }
     
-    private IToken popFound() {
+    /**
+     * Gets the token which was found and whether it was actually defined at that time (otherwise, it may be that
+     * it'll only be defined later on, in which case the check will have to be done later on too -- and only if it
+     * was really defined).
+     */
+    private org.python.pydev.core.Tuple<IToken, Boolean> popFound() {
         recordFounds -= 1;
         if(recordedFounds.size() > 0){
-            return recordedFounds.pop();
+            org.python.pydev.core.Tuple<IToken, Boolean> ret = recordedFounds.peek();
+            recordedFounds.clear();
+            return ret;
         }
         return null;
     }
@@ -1241,16 +1273,18 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             if(addToNotDefined){
                 org.python.pydev.core.Tuple<IToken, Found> foundInNamesToIgnore = findInNamesToIgnore(rep, token);
                 if(foundInNamesToIgnore == null){
+                    Found foundForProbablyNotDefined = makeFound(token);
                     if(scope.size() > 1){ //if we're not in the global scope, it might be defined later
-                        Found foundForProbablyNotDefined = makeFound(token);
                         probablyNotDefined.add(foundForProbablyNotDefined); //we are not in the global scope, so it might be defined later...
                         onAddToProbablyNotDefined(token, foundForProbablyNotDefined);
+                        onFoundProbablyNotDefined(token);
                     }else{
-                        onAddUndefinedMessage(token, makeFound(token)); //it is in the global scope, so, it is undefined.
+                        onAddUndefinedMessage(token, foundForProbablyNotDefined); //it is in the global scope, so, it is undefined.
                     }
                 }else{
                     if(foundInNamesToIgnore.o1 instanceof SourceToken){
                         SourceToken sourceToken = (SourceToken) foundInNamesToIgnore.o1;
+                        //Make a new token because we want the ast to be the FunctionDef or ClassDef, not the name which is the reference.
                         onFound(AbstractVisitor.makeToken(sourceToken.getAst(), token.getRepresentation(), sourceToken.getParentPackage()));
                     }
                 }

@@ -31,7 +31,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testParameterAnalysis19c();
+            analyzer2.testParameterAnalysis24a();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -671,6 +671,53 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
                 "Bar.Method(20, 20, 20)\n"
                 );
         checkNoError();
+    }
+
+    public void testParameterAnalysis24() throws IOException{
+        doc = new Document(
+            "from extendable.parameters_check import Foo\n" + //class with __init__ == __init__(self, a, b)
+            "\n" +
+            "class X(object):\n" +
+            "\n" +
+            "    def __init__(self, a, b):\n" +
+            "        Foo.__init__(self, a, b)\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "class B(object):\n" +
+            "\n" +
+            "    def __init__(self, a, b, c):\n" +
+            "        pass\n" +
+            "\n" +
+            "    @classmethod\n" +
+            "    def Create(cls):\n" +
+            "        return B(1, 2, 3)\n"
+        );
+        checkNoError();
+    }
+
+
+    public void testParameterAnalysis24a() throws IOException{
+        doc = new Document(
+            "from extendable.parameters_check import Foo\n" + //class with __init__ == __init__(self, a, b)
+            "\n" +
+            "class X(object):\n" +
+            "\n" +
+            "    def __init__(self, a, b):\n" +
+            "        Foo.__init__(self, a, b)\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "class B(object):\n" +
+            "\n" +
+            "    def __init__(self, a, b, c):\n" +
+            "        pass\n" +
+            "\n" +
+            "    @classmethod\n" +
+            "    def Create(cls):\n" +
+            "        return B(1, 2)\n"
+        );
+//        checkError("B: arguments don't match");
     }
 
     
