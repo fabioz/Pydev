@@ -59,7 +59,9 @@ public final class Found {
      * being a definition from the actual module later on).
      */
     public void reportDefined(Found laterFound) {
-        onDefined.call(laterFound);
+        if(onDefined != null){
+            onDefined.call(laterFound);
+        }
     }
 
     /**

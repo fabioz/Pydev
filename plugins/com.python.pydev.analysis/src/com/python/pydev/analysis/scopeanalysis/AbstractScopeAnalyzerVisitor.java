@@ -28,9 +28,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.TupleN;
-import org.python.pydev.core.callbacks.ICallbackListener;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
@@ -40,7 +38,6 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.LocalScope;
-import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -89,7 +86,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     /**
      * nature is needed for imports
      */
-    protected IPythonNature nature;
+    public final IPythonNature nature;
     
     /**
      * this is the name of the module we are visiting
@@ -127,7 +124,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     /**
      * Helper so that we can keep a cache among the many requests to the code-completion engine.
      */
-    protected volatile ICompletionCache completionCache;
+    public final ICompletionCache completionCache;
 
     private LocalScope currentLocalScope = new LocalScope();
     
@@ -201,57 +198,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     
     @Override
     public Object visitCall(final Call callNode) throws Exception {
-        
-        if(!analyzeArgumentsMismatch){
-            callNode.func.accept(this);
-        }else{
-            if (callNode.func != null){
-                if(callNode.func instanceof Name){
-                    Name name = (Name) callNode.func;
-                    startRecordFound();
-                    visitName(name);
-                    
-                    //Check if the name was actually found in some way...
-                    TokenFoundStructure found = popFound();
-                    if(found != null && found.token instanceof SourceToken){
-                        final SourceToken sourceToken = (SourceToken) found.token;
-                        if(found.defined){
-                            checkNameFound(callNode, sourceToken);
-                        }else if(found.found != null){
-                            //Still not found: register a callback to be called if it's found later on.
-                            found.found.registerCallOnDefined(new ICallbackListener<Found>() {
-                    
-                                public Object call(Found f) {
-                                    try {
-                                        List<GenAndTok> all = f.getAll();
-                                        for (GenAndTok genAndTok : all) {
-                                            if(genAndTok.tok instanceof SourceToken){
-                                                SourceToken sourceToken2 = (SourceToken) genAndTok.tok;
-                                                if(sourceToken2.getAst() instanceof FunctionDef || sourceToken2.getAst() instanceof ClassDef){
-                                                    checkNameFound(callNode, sourceToken2);
-                                                    return null;
-                                                }
-                                            }
-                                        }
-                                    } catch (Exception e) {
-                                        Log.log(e);
-                                    }
-                                    return null;
-                                }
-                            });
-                        }
-                    }
-                    
-                    
-                    
-                }else{
-                    startRecordFound();
-                    callNode.func.accept(this);
-                    TokenFoundStructure found = popFound();
-                    checkAttrFound(callNode, found);
-                }
-            }
+        if (callNode.func != null){
+            onVisitCallFunc(callNode);
         }
+        
         
         if (callNode.args != null) {
             for (int i = 0; i < callNode.args.length; i++) {
@@ -280,92 +230,13 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         return null;
     }
 
-    private void checkAttrFound(Call callNode, TokenFoundStructure found) throws Exception,
-            CompletionRecursionException {
-        FunctionDef functionDefinitionReferenced;
-        IToken nameToken;
-        boolean callingBoundMethod;
-        if(found != null && found.defined && found.token instanceof SourceToken){
-            nameToken = found.token;
-            String rep = nameToken.getRepresentation();
-            
-            ArrayList<IDefinition> definition = new ArrayList<IDefinition>();
-            PyRefactoringFindDefinition.findActualDefinition(null, this.current, rep, definition, -1, -1, nature, completionCache);
-            
-            for (IDefinition iDefinition : definition) {
-                Definition d = (Definition) iDefinition;
-                if(d.ast instanceof FunctionDef){
-                    functionDefinitionReferenced = (FunctionDef) d.ast;
-                    
-                    @SuppressWarnings("unchecked")
-                    FastStack<SimpleNode> scopeStack = d.scope.getScopeStack();
-                    if(scopeStack.size() > 1 && scopeStack.peek(1) instanceof ClassDef){
-                        callingBoundMethod = true;
-                        String withoutLast = FullRepIterable.getWithoutLastPart(rep);
-                        ArrayList<IDefinition> definition2 = new ArrayList<IDefinition>();
-                        PyRefactoringFindDefinition.findActualDefinition(
-                                null, this.current, withoutLast, definition2, -1, -1, nature, completionCache);
-                        
-                        for (IDefinition iDefinition2 : definition2) {
-                            Definition d2 = (Definition) iDefinition2;
-                            if(d2.ast instanceof ClassDef){
-                                callingBoundMethod = false;
-                                break;
-                            }
-                        }
-                    }else{
-                        callingBoundMethod = false;
-                    }
-                    analyzeCallAndFunctionMatch(callNode, functionDefinitionReferenced, nameToken, callingBoundMethod);
-                    break;
-                }
-            }
-        }
-    }
 
-    private void checkNameFound(Call callNode, SourceToken sourceToken) throws Exception {
-        FunctionDef functionDefinitionReferenced;
-        boolean callingBoundMethod = false;
-        SimpleNode ast = sourceToken.getAst();
-        if(ast instanceof FunctionDef){
-            functionDefinitionReferenced = (FunctionDef) ast; 
-            analyzeCallAndFunctionMatch(callNode, functionDefinitionReferenced, sourceToken, callingBoundMethod);
-            
-        }else if(ast instanceof ClassDef){
-            ClassDef classDef = (ClassDef) ast;
-            String className = ((NameTok)classDef.name).id;
-            
-            Definition foundDef = sourceToken.getDefinition();
-            IModule mod = this.current;
-            if(foundDef != null){
-                mod = foundDef.module;
-            }
-            
-            IDefinition[] definition = mod.findDefinition(
-                    CompletionStateFactory.getEmptyCompletionState(className+".__init__", nature, completionCache), -1, -1, nature);
-            callingBoundMethod = true;
-            for (IDefinition iDefinition : definition) {
-                Definition d = (Definition) iDefinition;
-                if(d.ast instanceof FunctionDef){
-                    functionDefinitionReferenced = (FunctionDef) d.ast;
-                    analyzeCallAndFunctionMatch(callNode, functionDefinitionReferenced, sourceToken, callingBoundMethod);
-                    break;
-                }
-            }
-        }
-    }
-    
-    /**
-     * Subclasses interested in analyzing call/function signature match should override this method.
-     */
-    protected void analyzeCallAndFunctionMatch(
-            Call callNode, FunctionDef functionDefinitionReferenced, IToken nameToken, boolean callingBoundMethod) throws Exception {
-        
+    protected void onVisitCallFunc(Call callNode) throws Exception {
+        callNode.func.accept(this);
     }
 
 
-
-    protected static class TokenFoundStructure{
+    public static class TokenFoundStructure{
 
         public final IToken token;
         public final boolean defined;
@@ -397,7 +268,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      * it'll only be defined later on, in which case the check will have to be done later on too -- and only if it
      * was really defined).
      */
-    private TokenFoundStructure popFound() {
+    protected TokenFoundStructure popFound() {
         recordFounds -= 1;
         if(recordedFounds.size() > 0){
             TokenFoundStructure ret = recordedFounds.peek();
@@ -407,7 +278,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         return null;
     }
 
-    private void startRecordFound() {
+    protected void startRecordFound() {
         recordFounds += 1;
     }
 
@@ -1532,8 +1403,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     }
 
     protected abstract void onAddUndefinedVarInImportMessage(IToken foundTok, Found foundAs);
-
-    public abstract void onArgumentsMismatch(IToken node, Call callNode);
     
     public abstract void onAddUnusedMessage(SimpleNode node, Found found);
 

@@ -172,9 +172,6 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
         return found;
     }
     
-    @Override
-    public void onArgumentsMismatch(IToken node, Call callNode) {
-    }
 
     @Override
     protected void onFoundUnresolvedImportPart(IToken token, String rep, Found foundAs) {
