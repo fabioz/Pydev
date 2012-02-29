@@ -699,15 +699,6 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
 
     public void testParameterAnalysis24a() throws IOException{
         doc = new Document(
-            "from extendable.parameters_check import Foo\n" + //class with __init__ == __init__(self, a, b)
-            "\n" +
-            "class X(object):\n" +
-            "\n" +
-            "    def __init__(self, a, b):\n" +
-            "        Foo.__init__(self, a, b)\n" +
-            "\n" +
-            "\n" +
-            "\n" +
             "class B(object):\n" +
             "\n" +
             "    def __init__(self, a, b, c):\n" +
@@ -717,7 +708,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
             "    def Create(cls):\n" +
             "        return B(1, 2)\n"
         );
-//        checkError("B: arguments don't match");
+        checkError("B: arguments don't match");
     }
 
     
