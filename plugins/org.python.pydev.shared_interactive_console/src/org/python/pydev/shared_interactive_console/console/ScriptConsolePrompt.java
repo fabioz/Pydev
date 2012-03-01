@@ -46,6 +46,11 @@ public class ScriptConsolePrompt {
         this.mode = mode;
     }
 
+    public boolean getMode() {
+        return mode;
+    }
+
+    @Override
     public String toString() {
         if (needInput) {
             return "";
@@ -58,5 +63,9 @@ public class ScriptConsolePrompt {
      */
     public void setNeedInput(boolean needInput) {
         this.needInput = needInput;
+    }
+
+    public boolean getNeedInput() {
+        return needInput;
     }
 }

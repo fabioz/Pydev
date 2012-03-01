@@ -32,3 +32,7 @@ try:
     from urllib import quote
 except:
     from urllib.parse import quote #@UnresolvedImport
+try:
+    import thread
+except:
+    import _thread as thread

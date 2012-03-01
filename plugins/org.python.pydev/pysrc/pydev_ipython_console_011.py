@@ -16,6 +16,7 @@
 from __future__ import print_function
 
 import os
+from functools import partial
 
 from IPython.core.error import UsageError
 from IPython.core.inputsplitter import IPythonInputSplitter
@@ -293,7 +294,8 @@ InteractiveShellABC.register(PyDevTerminalInteractiveShell)  # @UndefinedVariabl
 #=======================================================================================================================
 class PyDevFrontEnd:
 
-    def __init__(self, pydev_host, pydev_client_port, *args, **kwarg):
+    def __init__(self, pydev_host, pydev_client_port, exec_queue, *args, **kwarg):
+        self.exec_queue = exec_queue
 
         # Create and initialize our IPython instance.
         self.ipython = PyDevTerminalInteractiveShell.instance()
@@ -345,6 +347,8 @@ class PyDevFrontEnd:
             import traceback;traceback.print_exc()
             return []
 
+    def interrupt(self):
+        self.input_splitter.reset()
 
     def getNamespace(self):
         return self.ipython.user_ns
@@ -352,7 +356,7 @@ class PyDevFrontEnd:
     def addExec(self, line):
         self.input_splitter.push(line)
         if not self.input_splitter.push_accepts_more():
-            self.ipython.run_cell(self.input_splitter.source_reset(), store_history=True)
+            self.exec_queue.put(partial(self.ipython.run_cell, self.input_splitter.source_reset(), store_history=True))
             return False
         else:
             return True

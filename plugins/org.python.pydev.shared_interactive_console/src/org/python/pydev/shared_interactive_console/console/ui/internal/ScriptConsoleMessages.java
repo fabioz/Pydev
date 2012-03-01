@@ -23,6 +23,10 @@ public class ScriptConsoleMessages extends NLS {
 
     public static String TerminateConsoleTooltip;
 
+    public static String InterruptConsoleAction;
+
+    public static String InterruptConsoleTooltip;
+
     public static String LinkWithDebugAction;
 
     public static String LinkWithDebugToolTip;

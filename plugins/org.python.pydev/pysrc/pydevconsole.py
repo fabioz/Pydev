@@ -5,6 +5,9 @@ except ImportError:
 
 import os
 import sys
+import traceback
+from functools import partial
+from pydev_imports import Queue, xmlrpclib
 
 try:
     False
@@ -15,6 +18,7 @@ except NameError:  # version < 2.3 -- didn't have the True/False builtins
     setattr(__builtin__, 'False', 0)
 
 from pydev_console_utils import BaseStdIn, StdIn, BaseInterpreterInterface
+from pydev_ipython.inputhook import get_inputhook, set_return_control_callback, pre_prompt
 
 
 try:
@@ -92,13 +96,13 @@ except:
 #=======================================================================================================================
 # InterpreterInterface
 #=======================================================================================================================
-class InterpreterInterface(BaseInterpreterInterface):
+class InterpreterInterface(InteractiveConsole, BaseInterpreterInterface):
     '''
         The methods in this class should be registered in the xml-rpc server.
     '''
 
-    def __init__(self, host, client_port, server):
-        BaseInterpreterInterface.__init__(self, server)
+    def __init__(self, host, client_port, server, exec_queue):
+        BaseInterpreterInterface.__init__(self, server, exec_queue)
         self.client_port = client_port
         self.host = host
         try:
@@ -106,7 +110,7 @@ class InterpreterInterface(BaseInterpreterInterface):
             if pydevd.GetGlobalDebugger() is None:
                 raise RuntimeError()  # Work as if the debugger does not exist as it's not connected.
         except:
-            self.namespace = globals()
+            ns = globals()
         else:
             # Adapted from the code in pydevd
             # patch provided by: Scott Schlesier - when script is run, it does not
@@ -123,25 +127,28 @@ class InterpreterInterface(BaseInterpreterInterface):
                 ns['__builtins__'] = __builtins__
             except NameError:
                 pass  # Not there on Jython...
-            self.namespace = ns
-        self.interpreter = InteractiveConsole(self.namespace)
+        InteractiveConsole.__init__(self, ns)
         self._input_error_printed = False
 
 
     def doAddExec(self, line):
-        command = Command(self.interpreter, line)
+        command = Command(self, line)
         Sync(command)
         return command.more
 
 
+    def runcode(self, code):
+        self.exec_queue.put(partial(InteractiveConsole.runcode, self, code))
+
+
     def getNamespace(self):
-        return self.namespace
+        return self.locals
 
 
     def getCompletions(self, text, act_tok):
         try:
             from _pydev_completer import Completer
-            completer = Completer(self.namespace, None)
+            completer = Completer(self.locals, None)
             return completer.complete(act_tok)
         except:
             import traceback;traceback.print_exc()
@@ -192,7 +199,9 @@ def StartServer(host, port, client_port):
         from pydev_imports import SimpleXMLRPCServer as XMLRPCServer  #@Reimport
     try:
         server = XMLRPCServer((host, port), logRequests=False)
-        interpreter = InterpreterInterface(host, client_port, server)
+        exec_queue = Queue.Queue()
+        interpreter = InterpreterInterface(host, client_port, server, exec_queue)
+        client_server = xmlrpclib.Server('http://%s:%s' % (host, client_port))
     except:
         sys.stderr.write('Error starting server with host: %s, port: %s, client_port: %s\n' % (host, port, client_port))
         raise
@@ -205,6 +214,7 @@ def StartServer(host, port, client_port):
     server.register_function(interpreter.getCompletions)
     server.register_function(interpreter.getDescription)
     server.register_function(interpreter.close)
+    server.register_function(interpreter.interrupt)
 
     # Functions so that the console can work as a debugger (i.e.: variables view, expressions...)
     server.register_function(interpreter.connectToDebugger)
@@ -213,8 +223,9 @@ def StartServer(host, port, client_port):
     # Functions for GUI main loop integration
     server.register_function(interpreter.enableGui)
 
-
-    server.serve_forever()
+    from threading import Thread
+    Thread(target=server.serve_forever).start()
+    return server, exec_queue, interpreter, client_server
 
 #=======================================================================================================================
 # main
@@ -223,5 +234,39 @@ if __name__ == '__main__':
     sys.stdin = BaseStdIn()
     port, client_port = sys.argv[1:3]
     import pydev_localhost
-    StartServer(pydev_localhost.get_localhost(), int(port), int(client_port))
+    server, exec_queue, interpreter, client_server = StartServer(pydev_localhost.get_localhost(), int(port), int(client_port))
 
+    def return_control():
+        ''' A function that the inputhooks can call (via inputhook.stdin_ready()) to find 
+            out if they should cede control and return '''
+        return not exec_queue.empty()
+    # Tell the inputhook mechanisms when control should be returned
+    set_return_control_callback(return_control)
+
+    while True:
+        try:
+            pre_prompt()
+            # Block for default 1/2 second when no GUI is in progress
+            timeout = 0.5
+            inputhook = get_inputhook()
+            if inputhook:
+                try:
+                    inputhook()
+                    # The GUI has given us an opportunity to try receiving, normally
+                    # this happens because the input hook has already polled the
+                    # server has knows something is waiting
+                    timeout = 0.020
+                except:
+                    inputhook = None
+            try:
+                callable = exec_queue.get(timeout=timeout)
+            except Queue.Empty:
+                pass
+            else:
+                if callable is not None:
+                    try:
+                        interpreter.callExec(callable)
+                    finally:
+                        client_server.PromptReady()
+        except KeyboardInterrupt:
+            sys.stderr.write('\n'.join(traceback.format_exception_only(*sys.exc_info()[:2])))
