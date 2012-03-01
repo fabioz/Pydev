@@ -123,7 +123,10 @@ public final class ImportChecker {
          */
         public Definition getModuleDefinitionFromImportInfo(IPythonNature nature, ICompletionCache completionCache) {
             try {
-                for (IDefinition definition : getDefinitions(nature, completionCache)) {
+                IDefinition[] definitions = getDefinitions(nature, completionCache);
+                int len = definitions.length;
+                for (int i = 0; i < len; i++) {
+                    IDefinition definition = definitions[i];
                     if(definition instanceof Definition){
                         Definition d = (Definition) definition;
                         if(d.module != null && d.value.length() == 0 && d.ast == null){

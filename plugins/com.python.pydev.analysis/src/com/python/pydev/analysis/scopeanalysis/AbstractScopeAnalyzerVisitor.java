@@ -669,7 +669,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
 
         
     /**
-     * In this function, the visitor will transverse the value of the attribute as needed,
+     * In this function, the visitor will traverse the value of the attribute as needed,
      * if it is a subscript, call, etc, as those things are not actually a part of the attribute,
      * but are rather 'in' the attribute.
      * 
