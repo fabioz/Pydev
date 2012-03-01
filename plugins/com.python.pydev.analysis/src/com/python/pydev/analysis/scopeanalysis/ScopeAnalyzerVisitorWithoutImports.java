@@ -148,14 +148,6 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
     }
 
     @Override
-    public void onAddDuplicatedSignature(SourceToken token, String name) {
-    }
-
-    @Override
-    public void onAddNoSelf(SourceToken token, Object[] objects) {
-    }
-    
-    @Override
     protected void onAfterAddToNamesToIgnore(ScopeItems currScopeItems, Tuple<IToken, Found> tup) {
         if(tup.o1 instanceof SourceToken){
             checkFound(tup.o2, peekParent());

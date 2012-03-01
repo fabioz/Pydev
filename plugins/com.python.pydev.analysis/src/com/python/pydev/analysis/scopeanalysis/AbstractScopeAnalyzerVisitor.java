@@ -91,12 +91,12 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     /**
      * this is the name of the module we are visiting
      */
-    protected String moduleName;
+    public final String moduleName;
     
     /**
      * manage the scopes...
      */
-    public Scope scope;
+    public final Scope scope;
     
     /**
      * this should get the tokens that are probably not used, but may be if they are defined
@@ -104,7 +104,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      * 
      * objects should not be added to it if we are at the global scope.
      */
-    protected List<Found> probablyNotDefined = new ArrayList<Found>();
+    protected final List<Found> probablyNotDefined = new ArrayList<Found>();
     
     /**
      * this is the module we are visiting
@@ -114,30 +114,22 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     /**
      * To keep track of cancels
      */
-    protected volatile IProgressMonitor monitor;
+    protected final IProgressMonitor monitor;
     
     /**
      * Document we're working on.
      */
-    protected IDocument document;
+    protected final IDocument document;
     
     /**
      * Helper so that we can keep a cache among the many requests to the code-completion engine.
      */
     public final ICompletionCache completionCache;
 
-    private LocalScope currentLocalScope = new LocalScope();
+    private final LocalScope currentLocalScope = new LocalScope();
     
-    private Set<String> builtinTokens = new HashSet<String>();
+    private final Set<String> builtinTokens = new HashSet<String>();
     
-    protected boolean analyzeArgumentsMismatch;
-    
-    /**
-     * Constructor
-     * @param prefs 
-     * @param document 
-     * @param monitor 
-     */
     public AbstractScopeAnalyzerVisitor(IPythonNature nature, String moduleName, IModule current, IDocument document, IProgressMonitor monitor) {
         this.monitor = monitor;
         this.current = current;
@@ -145,7 +137,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         this.moduleName = moduleName;
         this.document = document;
         this.scope = new Scope(this, nature, moduleName);
-        analyzeArgumentsMismatch = false;
         if(current instanceof SourceModule){
             this.currentLocalScope.getScopeStack().push(((SourceModule) current).getAst());
         }
@@ -1410,10 +1401,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
 
     public abstract void onAddUnresolvedImport(IToken token);
 
-    public abstract void onAddDuplicatedSignature(SourceToken token, String name);
-
-    public abstract void onAddNoSelf(SourceToken token, Object[] objects);
-
     protected abstract void onAddAssignmentToBuiltinMessage(IToken foundTok, String representation);
 
     /**
@@ -1431,6 +1418,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      */
     public void onImportInfoSetOnFound(Found found) {
     }
+
 
 
 }

@@ -12,6 +12,7 @@ package com.python.pydev.analysis.visitors;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IModule;
@@ -75,17 +76,30 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
      * Used to check arguments.
      */
     private final ArgumentsChecker argumentsChecker;
+
+    /**
+     * Determines whether we should check if function call arguments actually match the signature of the object being 
+     * called.
+     */
+    private final boolean analyzeArgumentsMismatch;
     
     public OccurrencesVisitor(IPythonNature nature, String moduleName, IModule current, IAnalysisPreferences prefs, IDocument document, IProgressMonitor monitor) {
         super(nature, moduleName, current, document, monitor);
-        
-        this.argumentsChecker = new ArgumentsChecker(this, prefs, moduleName);
-        this.analyzeArgumentsMismatch = this.argumentsChecker.getAnalyzeArgumentsMismatch();
-        
         this.messagesManager = new MessagesManager(prefs, moduleName, document);
+        
+        this.analyzeArgumentsMismatch = prefs.getSeverityForType(IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH) > IMarker.SEVERITY_INFO; //Don't even run checks if we don't raise at least a warning.
+        if(this.analyzeArgumentsMismatch){
+            this.argumentsChecker = new ArgumentsChecker(this);
+        }else{
+            //Don't even create it if we're not going to use it.
+            this.argumentsChecker = null;
+        }
+        
         this.duplicationChecker = new DuplicationChecker(this);
-        this.noSelfChecker = new NoSelfChecker(this, moduleName);
+        this.noSelfChecker = new NoSelfChecker(this);
     }
+    
+
 
     private int isInTestScope = 0;
     
@@ -129,21 +143,20 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
     
     public void traverse(While node) throws Exception {
         checkStop();
-        OccurrencesVisitor visitor = this;
         if (node.test != null){
             isInTestScope += 1;
-            node.test.accept(visitor);
+            node.test.accept(this);
             isInTestScope -= 1;
         }
         
         if (node.body != null) {
             for (int i = 0; i < node.body.length; i++) {
                 if (node.body[i] != null)
-                    node.body[i].accept(visitor);
+                    node.body[i].accept(this);
             }
         }
         if (node.orelse != null)
-            node.orelse.accept(visitor);
+            node.orelse.accept(this);
     }
     
     @Override
@@ -294,7 +307,6 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
                 onAddUndefinedMessage(n.getSingle().tok, n);
             }
         }
-        messagesManager.setLastScope(m);
     }
     /**
      * @param reportUnused
@@ -385,16 +397,6 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
         messagesManager.addMessage(IAnalysisPreferences.TYPE_UNRESOLVED_IMPORT, token);
     }
 
-    @Override
-    public void onAddDuplicatedSignature(SourceToken token, String name) {
-        messagesManager.addMessage(IAnalysisPreferences.TYPE_DUPLICATED_SIGNATURE, token, name );
-    }
-
-    @Override
-    public void onAddNoSelf(SourceToken token, Object[] objects) {
-        messagesManager.addMessage(IAnalysisPreferences.TYPE_NO_SELF, token, objects);
-   }
-
 
     @Override
     protected void onAfterVisitAssign(Assign node) {
@@ -454,6 +456,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
         }
 
     }
+
 
     
 }

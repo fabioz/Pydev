@@ -37,14 +37,14 @@ public final class ImportChecker {
     /**
      * This is the nature we are analyzing
      */
-    private IPythonNature nature;
+    private final IPythonNature nature;
 
     /**
      * this is the name of the module that we are analyzing
      */
-    private String moduleName;
+    private final String moduleName;
 
-    private AbstractScopeAnalyzerVisitor visitor;
+    private final AbstractScopeAnalyzerVisitor visitor;
 
     /**
      * This is the information stored about some import:

@@ -37,6 +37,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.cache.Cache;
 import org.python.pydev.core.cache.LRUCache;
+import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
@@ -641,10 +642,19 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     }
     
     /**
+     * Used for tests: tests should initialize this attribute and add listeners to it (and when it finishes, it should
+     * be set to null again).
+     */
+    public static CallbackWithListeners<ICompletionState> onFindDefinition;
+    
+    /**
      * @param line: starts at 1
      * @param col: starts at 1
      */
     public Definition[] findDefinition(ICompletionState state, int line, int col, final IPythonNature nature) throws Exception{
+        if(onFindDefinition != null){
+            onFindDefinition.call(state);
+        }
         String rep = state.getActivationToken();
         //the line passed in starts at 1 and the lines for the visitor start at 0
         ArrayList<Definition> toRet = new ArrayList<Definition>();

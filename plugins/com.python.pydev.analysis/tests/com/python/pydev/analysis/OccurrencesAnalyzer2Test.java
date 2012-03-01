@@ -12,13 +12,19 @@ package com.python.pydev.analysis;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.callbacks.CallbackWithListeners;
+import org.python.pydev.core.callbacks.ICallbackListener;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.autoedit.TestIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -31,7 +37,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testParameterAnalysis24a();
+            analyzer2.testParameterAnalysisOptimization2();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -710,7 +716,79 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         );
         checkError("B: arguments don't match");
     }
+    
+    
+    List<String> findDefinitionDone = new ArrayList<String>();
+    private ICallbackListener<ICompletionState> listener = new ICallbackListener<ICompletionState>() {
+        
+        public Object call(ICompletionState obj) {
+            findDefinitionDone.add(obj.getActivationToken());
+            return null;
+        }
+    };
+    
+    
+    private void registerOnFindDefinitionListener() {
+        SourceModule.onFindDefinition = new CallbackWithListeners<ICompletionState>();
+        SourceModule.onFindDefinition.registerListener(listener);
+    }
+    
+    
+    private void unregisterFindDefinitionListener(int expected) {
+        SourceModule.onFindDefinition = null;
+        if(expected != findDefinitionDone.size()){
+            fail(StringUtils.format("Expected: %s find definition calls. Found: %s (%s)", expected, findDefinitionDone.size(), findDefinitionDone));
+        }
+    }
+    
+    
+    public void testParameterAnalysisOptimization() throws IOException{
+        registerOnFindDefinitionListener();
+        try {
+            doc = new Document(
+            "def method():\n" +
+            "    \n" +
+            "method()\n" + //
+            "method()\n"
+            );
+            checkNoError();
+        } finally {
+            unregisterFindDefinitionListener(0);
+        }
+    }
 
+    public void testParameterAnalysisOptimization2() throws IOException{
+        registerOnFindDefinitionListener();
+        try {
+            doc = new Document(
+                    "def method():\n" +
+                    "    \n" +
+                    "b = method\n" +
+                    "b()\n" + //
+                    "b()\n"
+                    );
+            checkNoError();
+        } finally {
+            unregisterFindDefinitionListener(0);
+        }
+    }
+    
+    public void testParameterAnalysisOptimization3() throws IOException{
+        registerOnFindDefinitionListener();
+        try {
+            doc = new Document(
+                    "class Foo():\n" +
+                    "    def __init__(self, 1):\n" +
+                    "        pass\n" +
+                    "Foo(1)\n" + 
+                    "Foo()\n"
+                    );
+            checkError("Foo: arguments don't match");
+        } finally {
+            unregisterFindDefinitionListener(1);
+        }
+    }
+    
     
 //    public void testNonDefaultAfterDefault() throws IOException{
 //        doc = new Document(

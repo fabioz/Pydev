@@ -52,25 +52,25 @@ public final class MessagesManager {
     /**
      * preferences for indicating the severities
      */
-    private IAnalysisPreferences prefs;
+    private final IAnalysisPreferences prefs;
 
     /**
      * this map should hold the generator source token and the messages that are generated for it
      */
-    public Map<IToken, List<IMessage>> messages = new HashMap<IToken, List<IMessage>>();
+    public final Map<IToken, List<IMessage>> messages = new HashMap<IToken, List<IMessage>>();
 
 
-    public List<IMessage> independentMessages = new ArrayList<IMessage>();
+    public final List<IMessage> independentMessages = new ArrayList<IMessage>();
 
     /**
      * Should be used to give the name of the module we are visiting
      */
-    private String moduleName;
+    private final String moduleName;
 
     /**
      * This is the document
      */
-    private IDocument document;
+    private final IDocument document;
 
     public MessagesManager(IAnalysisPreferences prefs, String moduleName, IDocument doc) {
         this.prefs = prefs;
@@ -375,11 +375,6 @@ public final class MessagesManager {
      */
     private Set<String> namesToIgnoreCache = null;
 
-    /**
-     * This is the last scope. It is set after all the analysis ended, so that we can generate some
-     * additional info based on it.
-     */
-    private ScopeItems lastScope;
     
     /**
      * @param g the generater that will generate an unused variable message
@@ -567,10 +562,6 @@ public final class MessagesManager {
             messages.add(message);
         }
         return messagesByType;
-    }
-
-    public void setLastScope(ScopeItems m) {
-        this.lastScope = m;
     }
 
 

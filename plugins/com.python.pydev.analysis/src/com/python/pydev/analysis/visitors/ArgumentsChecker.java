@@ -10,10 +10,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.eclipse.core.resources.IMarker;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.OrderedSet;
 import org.python.pydev.core.structure.CompletionRecursionException;
@@ -33,21 +34,24 @@ import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
-import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.scopeanalysis.AbstractScopeAnalyzerVisitor.TokenFoundStructure;
 
 /**
  * @author Fabio
  *
  */
-public class ArgumentsChecker {
+public final class ArgumentsChecker {
 
-    private OccurrencesVisitor occurrencesVisitor;
-    private IAnalysisPreferences prefs;
+    private final IModule current;
+    private final IPythonNature nature;
+    private final ICompletionCache completionCache;
+    private final MessagesManager messagesManager;
 
-    public ArgumentsChecker(OccurrencesVisitor occurrencesVisitor, IAnalysisPreferences prefs, String moduleName) {
-        this.occurrencesVisitor = occurrencesVisitor;
-        this.prefs = prefs;
+    public ArgumentsChecker(OccurrencesVisitor occurrencesVisitor) {
+        this.current = occurrencesVisitor.current;
+        this.nature = occurrencesVisitor.nature;
+        this.completionCache = occurrencesVisitor.completionCache;
+        this.messagesManager = occurrencesVisitor.messagesManager;
     }
 
     private static final int NO_STATIC_NOR_CLASSMETHOD = 0;
@@ -131,8 +135,8 @@ public class ArgumentsChecker {
             String rep = nameToken.getRepresentation();
 
             ArrayList<IDefinition> definition = new ArrayList<IDefinition>();
-            PyRefactoringFindDefinition.findActualDefinition(null, this.occurrencesVisitor.current, rep, definition, -1, -1,
-                    this.occurrencesVisitor.nature, this.occurrencesVisitor.completionCache);
+            PyRefactoringFindDefinition.findActualDefinition(null, this.current, rep, definition, -1, -1,
+                    this.nature, this.completionCache);
 
             for (IDefinition iDefinition : definition) {
                 Definition d = (Definition) iDefinition;
@@ -145,8 +149,8 @@ public class ArgumentsChecker {
                         callingBoundMethod = true;
                         String withoutLast = FullRepIterable.getWithoutLastPart(rep);
                         ArrayList<IDefinition> definition2 = new ArrayList<IDefinition>();
-                        PyRefactoringFindDefinition.findActualDefinition(null, this.occurrencesVisitor.current, withoutLast, definition2,
-                                -1, -1, this.occurrencesVisitor.nature, this.occurrencesVisitor.completionCache);
+                        PyRefactoringFindDefinition.findActualDefinition(null, this.current, withoutLast, definition2,
+                                -1, -1, this.nature, this.completionCache);
 
                         for (IDefinition iDefinition2 : definition2) {
                             Definition d2 = (Definition) iDefinition2;
@@ -178,13 +182,13 @@ public class ArgumentsChecker {
             String className = ((NameTok) classDef.name).id;
 
             Definition foundDef = sourceToken.getDefinition();
-            IModule mod = this.occurrencesVisitor.current;
+            IModule mod = this.current;
             if (foundDef != null) {
                 mod = foundDef.module;
             }
 
             IDefinition[] definition = mod.findDefinition(CompletionStateFactory.getEmptyCompletionState(className + ".__init__",
-                    this.occurrencesVisitor.nature, this.occurrencesVisitor.completionCache), -1, -1, this.occurrencesVisitor.nature);
+                    this.nature, this.completionCache), -1, -1, this.nature);
             callingBoundMethod = true;
             for (IDefinition iDefinition : definition) {
                 Definition d = (Definition) iDefinition;
@@ -316,11 +320,7 @@ public class ArgumentsChecker {
     }
 
     private void onArgumentsMismatch(IToken node, Call callNode) {
-        this.occurrencesVisitor.messagesManager.onArgumentsMismatch(node, callNode);
-    }
-
-    public boolean getAnalyzeArgumentsMismatch() {
-        return this.prefs.getSeverityForType(IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH) > IMarker.SEVERITY_INFO; //Don't even run checks if we don't raise at least a warning.
+        this.messagesManager.onArgumentsMismatch(node, callNode);
     }
 
 }
