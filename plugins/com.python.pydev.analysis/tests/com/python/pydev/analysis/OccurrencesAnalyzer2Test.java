@@ -39,7 +39,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testParameterAnalysisOptimization5();
+            analyzer2.testParameterAnalysisOptimization6();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -833,11 +833,25 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
             doc = new Document(
                     "from extendable.parameters_check.check import Foo\n" + //class with __init__ == __init__(self, a, b)
                     "foo = Foo(10, 20, 20)\n" +
-                    "foo.Method(10, 30)\n"
+                    "foo.Method(10, 30)\n" //error here, but check is disabled!
             );
             checkNoError();
         } finally {
             unregisterFindDefinitionListener();
+        }
+    }
+    
+    public void testParameterAnalysisOptimization6() throws IOException{
+        registerOnFindDefinitionListener();
+        try {
+            doc = new Document(
+                    "from extendable.parameters_check import check\n" + //class with __init__ == __init__(self, a, b)
+                    "foo = check.Foo(10, 20, 20)\n" +
+                    "foo.Method(10, 20)\n"
+            );
+            checkError("foo.Method: arguments don't match");
+        } finally {
+            unregisterFindDefinitionListener("", "check.Foo", "foo.Method", "foo", "foo");
         }
     }
     

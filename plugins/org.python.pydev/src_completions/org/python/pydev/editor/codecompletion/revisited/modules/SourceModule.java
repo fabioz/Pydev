@@ -655,6 +655,12 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             onFindDefinition.call(state);
         }
         String rep = state.getActivationToken();
+        
+        if (rep.length() == 0) {
+            //No activation token means the module itself.
+            return new Definition[] { new Definition(1, 1, "", null, null, this) };
+        }
+        
         //the line passed in starts at 1 and the lines for the visitor start at 0
         ArrayList<Definition> toRet = new ArrayList<Definition>();
         
@@ -692,7 +698,10 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         
         //now, check for locals
         IToken[] localTokens = scopeVisitor.scope.getAllLocalTokens();
-        for (IToken tok : localTokens) {
+        int len = localTokens.length;
+        for (int i = 0; i < len; i++) {
+            IToken tok = localTokens[i];
+            
             String tokenRep = tok.getRepresentation();
 			if(tokenRep.equals(rep)){
                 return new Definition[]{new Definition(tok, scopeVisitor.scope, this, true)};
