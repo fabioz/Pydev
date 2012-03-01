@@ -44,9 +44,9 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
-import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommunication;
 import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
+import org.python.pydev.shared_interactive_console.console.ui.internal.IStreamListener;
 import org.python.pydev.shared_ui.bindings.KeyBindingHelper;
 
 /**
@@ -140,8 +140,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
             return temp;
         }
 
-        public void execInterpreter(String command, ICallback<Object, InterpreterResponse> onResponseReceived,
-                ICallback<Object, Tuple<String, String>> onContentsReceived) {
+        public void execInterpreter(String command, ICallback<Object, InterpreterResponse> onResponseReceived) {
             throw new RuntimeException("Not implemented");
 
         }
@@ -170,6 +169,16 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
         }
 
         public void linkWithDebugSelection(boolean isLinkedWithDebug) {
+            throw new RuntimeException("Not implemented");
+        }
+
+        public void addListener(IStreamListener listener) {
+            // Should never have any stdout/stderr to report to users, so ignore.
+            throw new RuntimeException("Not implemented");
+        }
+
+        public void removeListener(IStreamListener listener) {
+            // Should never have any stdout/stderr to report to users, so ignore.
             throw new RuntimeException("Not implemented");
         }
 

@@ -11,17 +11,11 @@ package org.python.pydev.shared_interactive_console.console;
 
 public class InterpreterResponse {
 
-    public final String out;
-
-    public final String err;
-
     public final boolean more;
 
     public final boolean need_input;
 
-    public InterpreterResponse(String out, String err, boolean more, boolean need_input) {
-        this.out = out;
-        this.err = err;
+    public InterpreterResponse(boolean more, boolean need_input) {
         this.more = more;
         this.need_input = need_input;
     }

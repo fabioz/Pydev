@@ -11,25 +11,23 @@ package org.python.pydev.shared_interactive_console.console;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.shared_core.callbacks.ICallback;
-import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_interactive_console.console.ui.internal.IStreamMonitor;
 
 /**
  * Interface for the console communication.
  * 
  * This interface is meant to be the way to communicate with the shell.
  */
-public interface IScriptConsoleCommunication {
+public interface IScriptConsoleCommunication extends IStreamMonitor {
 
     /**
      * Executes a given command in the interpreter (push a line)
      * 
      * @param command the command to be executed
-     * @param onContentsReceived 
-     * @return the response from the interpreter (contains the stdout, stderr, etc).
+     * @return the response from the interpreter.
      * @throws Exception
      */
-    void execInterpreter(String command, ICallback<Object, InterpreterResponse> onResponseReceived,
-            ICallback<Object, Tuple<String, String>> onContentsReceived);
+    void execInterpreter(String command, ICallback<Object, InterpreterResponse> onResponseReceived);
 
     /**
      * Creates the completions to be applied in the interpreter.

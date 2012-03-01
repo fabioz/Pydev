@@ -17,7 +17,6 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.autoedit.TestIndentPrefs;
 import org.python.pydev.shared_core.callbacks.ICallback;
-import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
 import org.python.pydev.shared_interactive_console.console.ScriptConsoleHistory;
 import org.python.pydev.shared_interactive_console.console.ScriptConsolePrompt;
@@ -64,10 +63,9 @@ public class ScriptConsoleDocumentListenerTest extends TestCase {
                 new ICommandHandler() {
 
                     public void handleCommand(String userInput,
-                            ICallback<Object, InterpreterResponse> onResponseReceived,
-                            ICallback<Object, Tuple<String, String>> onContentsReceived) {
+                            ICallback<Object, InterpreterResponse> onResponseReceived) {
                         commandsHandled.add(userInput);
-                        onResponseReceived.call(new InterpreterResponse("", "", false, false));
+                        onResponseReceived.call(new InterpreterResponse(false, false));
                     }
                 },
 
