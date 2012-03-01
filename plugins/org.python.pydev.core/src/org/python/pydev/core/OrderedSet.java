@@ -14,5 +14,10 @@ public class OrderedSet<E> extends LinkedHashSet<E>{
     public OrderedSet(Collection<? extends E> c){
         super(c);
     }
+    
+    
+    public OrderedSet(int initialCapacity){
+        super(initialCapacity);
+    }
 
 }

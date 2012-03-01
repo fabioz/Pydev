@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -36,13 +37,15 @@ public abstract class AbstractMessage implements IMessage{
 
     public static final Map<Integer, String> messages = new HashMap<Integer, String>();
 
-    private int type;
+    private final int type;
 
-    private int severity;
+    private final int severity;
 
     private IToken generator;
 
     private List<String> additionalInfo;
+    
+    private int startLine = -1;
 
     /**
      * @param generator needed to get the lines/cols for the message (an alternate constructor is given if 
@@ -52,6 +55,11 @@ public abstract class AbstractMessage implements IMessage{
         this.severity = prefs.getSeverityForType(type);
         this.type = type;
         this.generator = generator;
+        try {
+            Assert.isNotNull(generator);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
     
@@ -64,6 +72,8 @@ public abstract class AbstractMessage implements IMessage{
     public AbstractMessage(int type, int startLine, int endLine, int startCol, int endCol, IAnalysisPreferences prefs) {
         this.severity = prefs.getSeverityForType(type);
         this.type = type;
+        Assert.isTrue(startLine >= 0);
+        Assert.isTrue(startCol >= 0);
         this.startLine = startLine;
         this.startCol = startCol;
         this.endLine = endLine;
@@ -88,6 +98,7 @@ public abstract class AbstractMessage implements IMessage{
             messages.put(IAnalysisPreferences.TYPE_INDENTATION_PROBLEM, "%s");
             messages.put(IAnalysisPreferences.TYPE_ASSIGNMENT_TO_BUILT_IN_SYMBOL, "Assignment to reserved built-in symbol: %s");
             messages.put(IAnalysisPreferences.TYPE_PEP8, "%s");
+            messages.put(IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH, "%s");
         }
         return messages.get(getType());
 
@@ -101,7 +112,6 @@ public abstract class AbstractMessage implements IMessage{
         return type;
     }
 
-    int startLine = -1;
     public int getStartLine(IDocument doc) {
         if(startLine < 0){
             startLine = getStartLine(generator, doc);

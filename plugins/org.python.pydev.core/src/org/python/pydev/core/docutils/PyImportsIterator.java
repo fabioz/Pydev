@@ -72,7 +72,6 @@ public class PyImportsIterator implements Iterator<ImportHandle> {
             return;
         }
         int startFoundLine=-1;
-        int endFoundLine=-1;
         
         hasNext = false;
         nextImport = null;
@@ -101,12 +100,12 @@ public class PyImportsIterator implements Iterator<ImportHandle> {
                     }
                 }
                 try {
-                    nextImport = new ImportHandle(doc, str, startFoundLine, endFoundLine);
+                    nextImport = new ImportHandle(doc, str, startFoundLine, -1); //-1 == endFoundLine (which will be properly set later on).
                 } catch (ImportNotRecognizedException e) {
                     continue;
                 }
                 hasNext = true;
-                endFoundLine = docIterator.getLastReturnedLine();
+                nextImport.endFoundLine = docIterator.getLastReturnedLine();
                 break; //ok, import found
             }
         }

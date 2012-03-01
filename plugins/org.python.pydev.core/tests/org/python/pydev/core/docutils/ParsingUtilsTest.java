@@ -22,7 +22,7 @@ public class ParsingUtilsTest extends TestCase {
         try {
             ParsingUtilsTest test = new ParsingUtilsTest();
             test.setUp();
-            test.testRemoveCommentsWhitespacesAndLiterals();
+            test.testFindNextChar();
             test.tearDown();
             junit.textui.TestRunner.run(ParsingUtilsTest.class);
         } catch (Throwable e) {
@@ -570,5 +570,12 @@ public class ParsingUtilsTest extends TestCase {
         buf.append("#\n#f\n#\n");
         ParsingUtils.removeCommentsWhitespacesAndLiterals(buf, false, false);
         assertEquals(buf.toString(), "");
+    }
+    
+    public void testFindNextChar() throws Exception {
+        String s = "aaaaaa()";
+        ParsingUtils parsingUtils = ParsingUtils.create(s);
+        assertEquals(6, parsingUtils.findNextChar(0, '('));
+        assertEquals(7, parsingUtils.eatPar(6, null));
     }
 }

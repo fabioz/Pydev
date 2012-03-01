@@ -29,6 +29,7 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
     public int severityForIndentationProblem;
     public int severityForInvalidModuleName;
     public int severityForAssignmentToBuiltInSymbol;
+    public int severityForArgumentsMismatch;
 
     public AnalysisPreferencesStub(){
         severityForUnusedImport = IMarker.SEVERITY_WARNING;
@@ -45,6 +46,7 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
         severityForIndentationProblem = IMarker.SEVERITY_WARNING;
         severityForInvalidModuleName = IMarker.SEVERITY_WARNING;
         severityForAssignmentToBuiltInSymbol = IMarker.SEVERITY_WARNING;
+        severityForArgumentsMismatch = IMarker.SEVERITY_INFO;
     }
     
     public int getSeverityForType(int type) {
@@ -83,7 +85,10 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
                 return severityForNoEffectStmt;
             
             case TYPE_PEP8:
-                throw new RuntimeException("Pep8 not handled.");
+                return IMarker.SEVERITY_INFO;
+                
+            case TYPE_ARGUMENTS_MISATCH:
+                return severityForArgumentsMismatch;
                 
             case TYPE_INDENTATION_PROBLEM:
                 return severityForIndentationProblem;

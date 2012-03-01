@@ -31,6 +31,7 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
@@ -147,14 +148,6 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
     }
 
     @Override
-    public void onAddDuplicatedSignature(SourceToken token, String name) {
-    }
-
-    @Override
-    public void onAddNoSelf(SourceToken token, Object[] objects) {
-    }
-    
-    @Override
     protected void onAfterAddToNamesToIgnore(ScopeItems currScopeItems, Tuple<IToken, Found> tup) {
         if(tup.o1 instanceof SourceToken){
             checkFound(tup.o2, peekParent());
@@ -162,13 +155,13 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
     }
     
     @Override
-    protected boolean doCheckIsInNamesToIgnore(String rep, IToken token) {
-        org.python.pydev.core.Tuple<IToken, Found> found = scope.isInNamesToIgnore(rep);
+    protected Tuple<IToken, Found> findInNamesToIgnore(String rep, IToken token) {
+        org.python.pydev.core.Tuple<IToken, Found> found = scope.findInNamesToIgnore(rep);
         if(found != null){
             found.o2.getSingle().references.add(token);
             checkToken(found.o2, token, peekParent());
         }
-        return found != null;
+        return found;
     }
     
 

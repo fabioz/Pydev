@@ -14,6 +14,7 @@ package org.python.pydev.editor.codecompletion.revisited.modules;
 import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
+import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -245,6 +246,16 @@ public class SourceToken extends AbstractToken{
      */
     public FunctionDef getAliased() {
         return aliased;
+    }
+
+    private Definition definition;
+    
+    public void setDefinition(Definition d) {
+        this.definition = d;
+    }
+    
+    public Definition getDefinition(){
+        return this.definition;
     }
 
 }

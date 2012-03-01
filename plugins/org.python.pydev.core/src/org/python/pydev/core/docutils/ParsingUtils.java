@@ -869,6 +869,22 @@ public abstract class ParsingUtils implements IPythonPartitions{
 				;
 	}
 
+	/**
+	 * Finds the next char that matches the passed char. If not found, returns -1.
+	 */
+    public int findNextChar(int offset, char findChar) {
+        char c;
+        int l = len();
+        
+        for(int i=offset;i<l;i++){
+            c = charAt(i);
+            if(c == findChar){
+                return i;
+            }
+        }
+        return -1;
+    }
+
 
 
 

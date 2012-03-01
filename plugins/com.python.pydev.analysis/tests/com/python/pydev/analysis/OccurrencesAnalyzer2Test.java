@@ -12,12 +12,21 @@ package com.python.pydev.analysis;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.callbacks.CallbackWithListeners;
+import org.python.pydev.core.callbacks.ICallbackListener;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.autoedit.TestIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -30,7 +39,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testNoLeakageInGenerator();
+            analyzer2.testParameterAnalysisOptimization5();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -42,6 +51,12 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         System.exit(0);
     }
 
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        prefs.severityForArgumentsMismatch = IMarker.SEVERITY_ERROR;
+    }
+    
     public void testErrorNotShownOnDynamicClass() {
         doc = new Document(
                 "from extendable.noerr import importer\n"+
@@ -314,4 +329,524 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
     
     
     
+    public void testParameterAnalysis() throws IOException{
+        doc = new Document(
+                "def m1():\n"+
+                "    pass\n" +
+                "m1(20)"
+                );
+        IMessage[] messages = checkError(1);
+        assertContainsMsg("m1: arguments don't match", messages);
+    }
+    
+    public void testParameterAnalysis2() throws IOException{
+        doc = new Document(
+                "def m1(a):\n"+
+                "    pass\n" +
+                "m1()"
+                );
+        IMessage[] messages = checkError(1);
+        assertContainsMsg("m1: arguments don't match", messages);
+    }
+    
+    public void testParameterAnalysis3() throws IOException{
+        doc = new Document(
+                "def m1(*args):\n"+
+                "    pass\n" +
+                "m1()"
+                );
+        checkNoError();
+    }
+    
+    public void testParameterAnalysis4() throws IOException{
+        doc = new Document(
+                "def m1(**args):\n"+
+                "    pass\n" +
+                "m1()"
+                );
+        checkNoError();
+    }
+    
+    
+    public void testParameterAnalysis5() throws IOException{
+        doc = new Document(
+                "def m1(a=10):\n"+
+                "    pass\n" +
+                "m1()"
+                );
+        checkNoError();
+    }
+    
+    
+    public void testParameterAnalysis6() throws IOException{
+        doc = new Document(
+                        "def m1(a=10):\n"+
+                        "    pass\n" +
+                        "m1(a=20)"
+                );
+        checkNoError();
+    }
+    
+    public void testParameterAnalysis7() throws IOException{
+        doc = new Document(
+                        "def m1(a=10):\n"+
+                        "    pass\n" +
+                        "m1(b=20)"
+                );
+        checkError(1);
+    }
+    
+    public void testParameterAnalysis8() throws IOException{
+        doc = new Document(
+                    "from extendable.calltips.mod1.sub1 import method1\n"+ //method1(a, b)
+                    "method1(10)"
+                );
+        IMessage[] errors = checkError(1);
+        IMessage msg = errors[0];
+        assertEquals(msg.getMessage(), "method1: arguments don't match");
+        assertEquals(msg.getStartCol(doc), 8);
+        assertEquals(msg.getEndCol(doc), 12);
+        assertEquals(msg.getStartLine(doc), 2);
+        assertEquals(msg.getEndLine(doc), 2);
+    }
+    
+    public void testParameterAnalysis8a() throws IOException{
+        doc = new Document(
+                        "from extendable.calltips.mod1.sub1 import method1\n"+
+                        "method1(\n" +
+                        "       10)"
+                );
+        IMessage[] errors = checkError(1);
+        IMessage msg = errors[0];
+        assertEquals(msg.getMessage(), "method1: arguments don't match");
+        assertEquals(msg.getStartCol(doc), 8);
+        assertEquals(msg.getEndCol(doc), 11);
+        assertEquals(msg.getStartLine(doc), 2);
+        assertEquals(msg.getEndLine(doc), 3);
+    }
+    
+    public void testParameterAnalysis9() throws IOException{
+        doc = new Document(
+                "from extendable.calltips.mod1.sub1 import method1\n"+
+                "method1(10, 20)"
+                );
+        checkNoError();
+    }
+    
+    
+    public void testParameterAnalysis10() throws IOException{
+        doc = new Document(
+                    "def m1(a):\n"+
+                    "    pass\n" +
+                    "\n" +
+                    "d={'a':20}\n" +
+                    "m1(**d)"
+                );
+        checkNoError();
+    }
+    
+    public void testParameterAnalysis11() throws IOException{
+        doc = new Document(
+                "def m1(a):\n"+
+                "    pass\n" +
+                "\n" +
+                "d=[20]\n" +
+                "m1(*d)"
+                );
+        checkNoError();
+    }
+    
+
+    public void testParameterAnalysis12() throws IOException{
+        doc = new Document(
+                "def m1(a, **kwargs):\n"+
+                "    pass\n" +
+                "\n" +
+                "d=[20]\n" +
+                "m1(10, *d)"
+                );
+        checkError(1);
+    }
+
+    
+    public void testParameterAnalysis13() throws IOException{
+        doc = new Document(
+                "def m1(a, *args):\n"+
+                "    pass\n" +
+                "\n" +
+                "d=[20]\n" +
+                "m1(10, *d)"
+                );
+        checkNoError();
+    }
+    
+    public void testParameterAnalysis14() throws IOException{
+        doc = new Document(
+                "def m1(a=10, **args):\n"+
+                "    pass\n" +
+                "\n" +
+                "d=[20]\n" +
+                "m1(*d)"
+                );
+        checkNoError();
+    }
+    
+    public void testParameterAnalysis15() throws IOException{
+        int original = GRAMMAR_TO_USE_FOR_PARSING;
+        GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+        try {
+            doc = new Document(
+                    "def w(a=10, *, b):\n"+
+                    "    pass\n" +
+                    "\n" +
+                    "w(20, b=10)\n"
+            );
+            checkNoError();
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = original;
+        }
+    }
+    
+    public void testParameterAnalysis16() throws IOException{
+        int original = GRAMMAR_TO_USE_FOR_PARSING;
+        GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+        try {
+            doc = new Document(
+                    "def w(a=10, *, b):\n"+
+                    "    pass\n" +
+                    "\n" +
+                    "w(20, 10)\n" //b must be keyword parameter
+            );
+            checkError(1);
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = original;
+        }
+    }
+    
+    public void testParameterAnalysis17() throws IOException{
+        doc = new Document(
+                "class Foo:\n"+
+                "    def __init__(self, a):\n" +
+                "        pass\n" +
+                "Foo()\n"
+                );
+        checkError(1);
+    }
+    public void testParameterAnalysis17a() throws IOException{
+        doc = new Document(
+                "class Foo:\n"+
+                "    def __init__(self, a):\n" +
+                "        pass\n" +
+                "Foo(10)\n"
+                );
+        checkNoError();
+    }
+
+    public void testParameterAnalysis18() throws IOException{
+        doc = new Document(
+                "from testOtherImports.f2 import SomeOtherTest\n" + //class with __init__ == __init__(self, a, b)
+                "SomeOtherTest()\n"
+                );
+        checkError("SomeOtherTest: arguments don't match");
+    }
+
+    public void testParameterAnalysis19() throws IOException{
+        doc = new Document(
+                "from extendable.parameters_check.check import Foo\n" + //class with __init__ == __init__(self, a, b)
+                "foo = Foo(10, 20)\n" +
+                "foo.Method()\n" //Method(self, a)
+                );
+        checkError("foo.Method: arguments don't match");
+    }
+    
+    public void testParameterAnalysis19a() throws IOException{
+        doc = new Document(
+                "from extendable.parameters_check.check import Foo\n" + //class with __init__ == __init__(self, a, b)
+                "foo = Foo(10, 20)\n" +
+                "Foo.Method(foo, 10)\n" //Method(self, a)
+                );
+        checkNoError();
+    }
+    
+    public void testParameterAnalysis19b() throws IOException{
+        doc = new Document(
+                "from extendable.parameters_check.check import Foo\n" + //class with __init__ == __init__(self, a, b)
+                "Foo.Method(10)\n" //Method(self, a)
+                );
+        checkError("Foo.Method: arguments don't match");
+    }
+
+    public void testParameterAnalysis19c() throws IOException{
+        doc = new Document(
+                "from extendable.parameters_check import Foo\n" + //class with __init__ == __init__(self, a, b)
+                "foo = Foo(10, 20)\n" +
+                "Foo.Method(foo, 10)\n" //Method(self, a)
+                );
+        checkNoError();
+    }
+    
+    public void testParameterAnalysis19d() throws IOException{
+        doc = new Document(
+                "from extendable.parameters_check import Foo\n" + //class with __init__ == __init__(self, a, b)
+                "foo = Foo(10, 20)\n" +
+                "foo.Method(10)\n" //Method(self, a)
+                );
+        checkNoError();
+    }
+
+    public void testParameterAnalysis19e() throws IOException{
+        doc = new Document(
+                "from extendable.parameters_check import Foo\n" + //class with __init__ == __init__(self, a, b)
+                "foo = Foo(10, 20)\n" +
+                "Foo.Method(10)\n" //Method(self, a)
+                );
+        checkError("Foo.Method: arguments don't match");
+    }
+    
+    public void testParameterAnalysis19f() throws IOException{
+        doc = new Document(
+                "from extendable.parameters_check import Foo\n" + //class with __init__ == __init__(self, a, b)
+                "foo = Foo(10, 20)\n" +
+                "foo.Method(foo, 10)\n" //Method(self, a)
+                );
+        checkError("foo.Method: arguments don't match");
+    }
+    
+    public void testParameterAnalysis20() throws IOException{
+        doc = new Document(
+                "from extendable.parameters_check.check import Foo\n" + //class with __init__ == __init__(self, a, b)
+                "foo = Foo(10, 20)\n" +
+                "foo.Method(10)\n"
+                );
+        checkNoError();
+    }
+    
+    public void testParameterAnalysis21() throws IOException{
+        doc = new Document(
+                "class Bar(object):\n" +
+                "    @classmethod\n" +
+                "    def Method(cls, a, b):\n" +
+                "        pass\n" +
+                "Bar.Method(10, 20)\n"
+        );
+        checkNoError();
+    }
+
+    public void testParameterAnalysis22() throws IOException{
+        doc = new Document(
+                "class Bar(object):\n" +
+                "    @classmethod\n" +
+                "    def Method(cls, a, b):\n" +
+                "        pass\n" +
+                "Bar.Method(20)\n"
+        );
+        checkError("Bar.Method: arguments don't match");
+    }
+    
+    public void testParameterAnalysis23() throws IOException{
+        doc = new Document(
+                "class Bar(object):\n" +
+                "    def Method(cls, a, b):\n" +
+                "        pass\n" +
+                "    Method = classmethod(Method)\n" +
+                "Bar.Method(20, 20, 20)\n"
+                );
+        checkError("Bar.Method: arguments don't match");
+    }
+
+    public void testParameterAnalysis22a() throws IOException{
+        doc = new Document(
+                "class Bar(object):\n" +
+                "    @staticmethod\n" +
+                "    def Method(cls, a, b):\n" +
+                "        pass\n" +
+                "Bar.Method(20, 21)\n"
+        );
+        checkError("Bar.Method: arguments don't match");
+    }
+
+    public void testParameterAnalysis23a() throws IOException{
+        doc = new Document(
+                "class Bar(object):\n" +
+                "    def Method(cls, a, b):\n" +
+                "        pass\n" +
+                "    Method = staticmethod(Method)\n" +
+                "Bar.Method(20, 20, 20)\n"
+                );
+        checkNoError();
+    }
+    
+    public void testParameterAnalysis23b() throws IOException{
+        doc = new Document(
+                "class Bar(object):\n" +
+                "    @staticmethod\n" +
+                "    def Method(cls, a, b):\n" +
+                "        pass\n" +
+                "Bar.Method(20, 20, 20)\n"
+                );
+        checkNoError();
+    }
+
+    public void testParameterAnalysis24() throws IOException{
+        doc = new Document(
+            "from extendable.parameters_check import Foo\n" + //class with __init__ == __init__(self, a, b)
+            "\n" +
+            "class X(object):\n" +
+            "\n" +
+            "    def __init__(self, a, b):\n" +
+            "        Foo.__init__(self, a, b)\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "class B(object):\n" +
+            "\n" +
+            "    def __init__(self, a, b, c):\n" +
+            "        pass\n" +
+            "\n" +
+            "    @classmethod\n" +
+            "    def Create(cls):\n" +
+            "        return B(1, 2, 3)\n"
+        );
+        checkNoError();
+    }
+
+
+    public void testParameterAnalysis24a() throws IOException{
+        doc = new Document(
+            "class B(object):\n" +
+            "\n" +
+            "    def __init__(self, a, b, c):\n" +
+            "        pass\n" +
+            "\n" +
+            "    @classmethod\n" +
+            "    def Create(cls):\n" +
+            "        return B(1, 2)\n"
+        );
+        checkError("B: arguments don't match");
+    }
+    
+    
+    List<String> findDefinitionDone = new ArrayList<String>();
+    private ICallbackListener<ICompletionState> listener = new ICallbackListener<ICompletionState>() {
+        
+        public Object call(ICompletionState obj) {
+            findDefinitionDone.add(obj.getActivationToken());
+            return null;
+        }
+    };
+    
+    
+    private void registerOnFindDefinitionListener() {
+        SourceModule.onFindDefinition = new CallbackWithListeners<ICompletionState>();
+        SourceModule.onFindDefinition.registerListener(listener);
+    }
+    
+    
+    private void unregisterFindDefinitionListener(String ... expected) {
+        SourceModule.onFindDefinition = null;
+        if(expected.length != findDefinitionDone.size()){
+            fail(StringUtils.format("Expected: %s (%s) find definition call(s). Found: %s (%s)", expected.length, Arrays.asList(expected), findDefinitionDone.size(), findDefinitionDone));
+        }
+    }
+    
+    
+    public void testParameterAnalysisOptimization() throws IOException{
+        registerOnFindDefinitionListener();
+        try {
+            doc = new Document(
+            "def method():\n" +
+            "    \n" +
+            "method()\n" + //
+            "method()\n"
+            );
+            checkNoError();
+        } finally {
+            unregisterFindDefinitionListener();
+        }
+    }
+
+    public void testParameterAnalysisOptimization2() throws IOException{
+        registerOnFindDefinitionListener();
+        try {
+            doc = new Document(
+                    "def method():\n" +
+                    "    \n" +
+                    "b = method\n" +
+                    "b()\n" + //
+                    "b()\n"
+                    );
+            checkNoError();
+        } finally {
+            unregisterFindDefinitionListener();
+        }
+    }
+    
+    public void testParameterAnalysisOptimization3() throws IOException{
+        registerOnFindDefinitionListener();
+        try {
+            doc = new Document(
+                    "class Foo:\n" +
+                    "    def __init__(self, a):\n" +
+                    "        pass\n" +
+                    "Foo()\n"
+                    );
+            checkError("Foo: arguments don't match");
+        } finally {
+            unregisterFindDefinitionListener();
+        }
+    }
+    
+    public void testParameterAnalysisOptimization4() throws IOException{
+        registerOnFindDefinitionListener();
+        try {
+            doc = new Document(
+                    "class Foo:\n" +
+                    "    def __init__(self, a):\n" +
+                    "        pass\n" +
+                    "Bar = Foo\n" +
+                    "Bar(1)\n"
+                    );
+            checkNoError();
+        } finally {
+            unregisterFindDefinitionListener();
+        }
+    }
+    
+    public void testParameterAnalysisOptimization5a() throws IOException{
+        registerOnFindDefinitionListener();
+        try {
+            doc = new Document(
+                    "from extendable.parameters_check.check import Foo\n" + //class with __init__ == __init__(self, a, b)
+                    "foo = Foo(10, 20)\n" +
+                    "foo.Method(10)\n"
+                    );
+            checkNoError();
+        } finally {
+            unregisterFindDefinitionListener("Foo", "foo.Method", "foo", "foo"); //TODO: This must be improved!
+        }
+    }
+    
+    public void testParameterAnalysisOptimization5() throws IOException{
+        prefs.severityForArgumentsMismatch = IMarker.SEVERITY_INFO; //Nothing will be analyzed and the checks should be skipped!
+        registerOnFindDefinitionListener();
+        try {
+            doc = new Document(
+                    "from extendable.parameters_check.check import Foo\n" + //class with __init__ == __init__(self, a, b)
+                    "foo = Foo(10, 20, 20)\n" +
+                    "foo.Method(10, 30)\n"
+            );
+            checkNoError();
+        } finally {
+            unregisterFindDefinitionListener();
+        }
+    }
+    
+//    public void testNonDefaultAfterDefault() throws IOException{
+//        doc = new Document(
+//                "def m1(a=20, 20):\n"+ //non-default after default
+//                "    pass\n"
+//        );
+//        checkError(1);
+//    }
 }
+

@@ -29,6 +29,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.TupleN;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -85,17 +86,17 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     /**
      * nature is needed for imports
      */
-    protected IPythonNature nature;
+    public final IPythonNature nature;
     
     /**
      * this is the name of the module we are visiting
      */
-    protected String moduleName;
+    public final String moduleName;
     
     /**
      * manage the scopes...
      */
-    public Scope scope;
+    public final Scope scope;
     
     /**
      * this should get the tokens that are probably not used, but may be if they are defined
@@ -103,7 +104,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      * 
      * objects should not be added to it if we are at the global scope.
      */
-    protected List<Found> probablyNotDefined = new ArrayList<Found>();
+    protected final List<Found> probablyNotDefined = new ArrayList<Found>();
     
     /**
      * this is the module we are visiting
@@ -113,28 +114,22 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     /**
      * To keep track of cancels
      */
-    protected volatile IProgressMonitor monitor;
+    protected final IProgressMonitor monitor;
     
     /**
      * Document we're working on.
      */
-    protected IDocument document;
+    protected final IDocument document;
     
     /**
      * Helper so that we can keep a cache among the many requests to the code-completion engine.
      */
-    protected volatile ICompletionCache completionCache;
+    public final ICompletionCache completionCache;
 
-    private LocalScope currentLocalScope = new LocalScope();
+    private final LocalScope currentLocalScope = new LocalScope();
     
-    private Set<String> builtinTokens = new HashSet<String>();
+    private final Set<String> builtinTokens = new HashSet<String>();
     
-    /**
-     * Constructor
-     * @param prefs 
-     * @param document 
-     * @param monitor 
-     */
     public AbstractScopeAnalyzerVisitor(IPythonNature nature, String moduleName, IModule current, IDocument document, IProgressMonitor monitor) {
         this.monitor = monitor;
         this.current = current;
@@ -192,6 +187,47 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     }
     
     
+    @Override
+    public Object visitCall(final Call callNode) throws Exception {
+        if (callNode.func != null){
+            onVisitCallFunc(callNode);
+        }
+        
+        
+        if (callNode.args != null) {
+            for (int i = 0; i < callNode.args.length; i++) {
+                if (callNode.args[i] != null){
+                    callNode.args[i].accept(this);
+                }
+            }
+        }
+        if (callNode.keywords != null) {
+            for (int i = 0; i < callNode.keywords.length; i++) {
+                if (callNode.keywords[i] != null){
+                    callNode.keywords[i].accept(this);
+                }
+            }
+        }
+        if (callNode.starargs != null){
+            callNode.starargs.accept(this);
+        }
+        if (callNode.kwargs != null){
+            callNode.kwargs.accept(this);
+        }
+        
+        
+        
+        
+        return null;
+    }
+
+
+    protected void onVisitCallFunc(Call callNode) throws Exception {
+        callNode.func.accept(this);
+    }
+
+
+
     /**
      * we are starting a new scope when visiting a class 
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitClassDef(org.python.pydev.parser.jython.ast.ClassDef)
@@ -543,9 +579,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         	    // Overriding builtin...
         		onAddAssignmentToBuiltinMessage(token, rep);
         	}
-            boolean inNamesToIgnore = doCheckIsInNamesToIgnore(rep, token);
+            org.python.pydev.core.Tuple<IToken, Found> foundInNamesToIgnore = findInNamesToIgnore(rep, token);
             
-            if(!inNamesToIgnore){
+            if(foundInNamesToIgnore == null){
                 
                 if(!rep.equals("self") && !rep.equals("cls")){ 
                     scope.addToken(token,token);
@@ -555,16 +591,16 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             }
         } 
         
-        return null;
+        return token;
     }
 
     /**
      * @param rep the representation we're looking for
      * @return whether the representation is in the names to ignore
      */
-    protected boolean doCheckIsInNamesToIgnore(String rep, IToken token) {
-        org.python.pydev.core.Tuple<IToken, Found> found = scope.isInNamesToIgnore(rep);
-        return found != null;
+    protected org.python.pydev.core.Tuple<IToken, Found> findInNamesToIgnore(String rep, IToken token) {
+        org.python.pydev.core.Tuple<IToken, Found> found = scope.findInNamesToIgnore(rep);
+        return found;
     }
     
     
@@ -633,7 +669,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
 
         
     /**
-     * In this function, the visitor will transverse the value of the attribute as needed,
+     * In this function, the visitor will traverse the value of the attribute as needed,
      * if it is a subscript, call, etc, as those things are not actually a part of the attribute,
      * but are rather 'in' the attribute.
      * 
@@ -737,17 +773,17 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      */
     public Object visitAssign(Assign node) throws Exception {
         unhandled_node(node);
-        AbstractScopeAnalyzerVisitor visitor = this;
-        
-        //in 'm = a', this is 'a'
-        if (node.value != null)
-            node.value.accept(visitor);
+        //in 'm = value', this is 'value'
+        if (node.value != null){
+            node.value.accept(this);
+        }
 
-        //in 'm = a', this is 'm'
+        //in 'target1 = target2 = a', this is 'target1, target2'
         if (node.targets != null) {
             for (int i = 0; i < node.targets.length; i++) {
-                if (node.targets[i] != null)
-                    node.targets[i].accept(visitor);
+                if (node.targets[i] != null){
+                    node.targets[i].accept(this);
+                }
             }
         }
         onAfterVisitAssign(node);
@@ -1054,6 +1090,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             if(found){
                 foundAsStr = nextTokToSearch;
                 foundAs.getSingle().references.add(token);
+                onFoundTokenAs(token, foundAs);
             }
         }
         
@@ -1065,13 +1102,19 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                 //if it is an attribute, we have to check the names to ignore just with its first part
                 rep = rep.substring(0, i);
             }
-            if(addToNotDefined && !doCheckIsInNamesToIgnore(rep, token)){
-                if(scope.size() > 1){ //if we're not in the global scope, it might be defined later
+            if(addToNotDefined){
+                org.python.pydev.core.Tuple<IToken, Found> foundInNamesToIgnore = findInNamesToIgnore(rep, token);
+                if(foundInNamesToIgnore == null){
                     Found foundForProbablyNotDefined = makeFound(token);
-                    probablyNotDefined.add(foundForProbablyNotDefined); //we are not in the global scope, so it might be defined later...
-                    onAddToProbablyNotDefined(token, foundForProbablyNotDefined);
+                    if(scope.size() > 1){ //if we're not in the global scope, it might be defined later
+                        probablyNotDefined.add(foundForProbablyNotDefined); //we are not in the global scope, so it might be defined later...
+                        onAddToProbablyNotDefined(token, foundForProbablyNotDefined);
+                    }else{
+                        onAddUndefinedMessage(token, foundForProbablyNotDefined); //it is in the global scope, so, it is undefined.
+                    }
                 }else{
-                    onAddUndefinedMessage(token, makeFound(token)); //it is in the global scope, so, it is undefined.
+                    IToken tokenInNamesToIgnore = foundInNamesToIgnore.o1;
+                    onFoundInNamesToIgnore(token, tokenInNamesToIgnore);
                 }
             }
         }else if(checkIfIsValidImportToken){
@@ -1132,6 +1175,14 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             }
         }
         return found;
+    }
+
+    protected void onFoundInNamesToIgnore(IToken token, IToken tokenInNamesToIgnore) {
+
+    }
+
+    protected void onFoundTokenAs(IToken token, Found foundAs) {
+
     }
 
 
@@ -1267,27 +1318,25 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     protected abstract void onAddUndefinedMessage(IToken token, Found foundAs);
     
     /**
-     * This one is not abstract, but is provided as a hook, as the others.
+     * Called when a token is not found.
      */
     protected void onAddToProbablyNotDefined(IToken token, Found foundForProbablyNotDefined){
     }
+    
     /**
-     * This one is not abstract, but is provided as a hook, as the others.
+     * Called when a token that was thought to be not defined is found later on in the visiting process.
      */
     protected void onNotDefinedFoundLater(Found foundInProbablyNotDefined, Found laterFound) {
+        foundInProbablyNotDefined.reportDefined(laterFound);
     }
 
     protected abstract void onAddUndefinedVarInImportMessage(IToken foundTok, Found foundAs);
-
+    
     public abstract void onAddUnusedMessage(SimpleNode node, Found found);
 
     public abstract void onAddReimportMessage(Found newFound);
 
     public abstract void onAddUnresolvedImport(IToken token);
-
-    public abstract void onAddDuplicatedSignature(SourceToken token, String name);
-
-    public abstract void onAddNoSelf(SourceToken token, Object[] objects);
 
     protected abstract void onAddAssignmentToBuiltinMessage(IToken foundTok, String representation);
 
@@ -1306,6 +1355,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      */
     public void onImportInfoSetOnFound(Found found) {
     }
+
 
 
 }

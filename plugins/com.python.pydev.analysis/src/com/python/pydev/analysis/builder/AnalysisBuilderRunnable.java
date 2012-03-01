@@ -284,7 +284,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
             try{
                 nature.endRequests();
             }catch(Throwable e){
-                Log.log(e);
+                Log.log("Error when analyzing: "+moduleName, e);
             }
             try{
                 AnalysisBuilderRunnableFactory.removeFromThreads(key, this);

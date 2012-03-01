@@ -17,7 +17,7 @@ public class TabNannyIteratorTest extends TestCase {
         try {
             TabNannyIteratorTest analyzer2 = new TabNannyIteratorTest();
             analyzer2.setUp();
-            analyzer2.testIterator11a();
+            analyzer2.testIterator10();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -243,6 +243,8 @@ public class TabNannyIteratorTest extends TestCase {
             "    pass";
         Document d = new Document(str);
         TabNannyDocIterator it = new TabNannyDocIterator(d);
+        assertEquals(" ", it.next().o1);
+        assertEquals("    ", it.next().o1);
         assertTrue(!it.hasNext()); 
     }
     

@@ -9,14 +9,16 @@ public final class decoratorsType extends SimpleNode {
     public keywordType[] keywords;
     public exprType starargs;
     public exprType kwargs;
+    public boolean isCall;
 
     public decoratorsType(exprType func, exprType[] args, keywordType[] keywords, exprType
-    starargs, exprType kwargs) {
+    starargs, exprType kwargs, boolean isCall) {
         this.func = func;
         this.args = args;
         this.keywords = keywords;
         this.starargs = starargs;
         this.kwargs = kwargs;
+        this.isCall = isCall;
     }
 
 
@@ -28,6 +30,7 @@ public final class decoratorsType extends SimpleNode {
         result = prime * result + Arrays.hashCode(keywords);
         result = prime * result + ((starargs == null) ? 0 : starargs.hashCode());
         result = prime * result + ((kwargs == null) ? 0 : kwargs.hashCode());
+        result = prime * result + (isCall ? 17 : 137);
     return result;
     }
     public boolean equals(Object obj) {
@@ -43,6 +46,7 @@ public final class decoratorsType extends SimpleNode {
         else if (!starargs.equals(other.starargs)) return false;
         if (kwargs == null) { if (other.kwargs != null) return false;}
         else if (!kwargs.equals(other.kwargs)) return false;
+        if(this.isCall != other.isCall) return false;
         return true;
     }
     public decoratorsType createCopy() {
@@ -71,7 +75,7 @@ public final class decoratorsType extends SimpleNode {
         decoratorsType temp = new
         decoratorsType(func!=null?(exprType)func.createCopy(copyComments):null, new0, new1,
         starargs!=null?(exprType)starargs.createCopy(copyComments):null,
-        kwargs!=null?(exprType)kwargs.createCopy(copyComments):null);
+        kwargs!=null?(exprType)kwargs.createCopy(copyComments):null, isCall);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if(this.specialsBefore != null && copyComments){
@@ -109,6 +113,9 @@ public final class decoratorsType extends SimpleNode {
         sb.append(", ");
         sb.append("kwargs=");
         sb.append(dumpThis(this.kwargs));
+        sb.append(", ");
+        sb.append("isCall=");
+        sb.append(dumpThis(this.isCall));
         sb.append("]");
         return sb.toString();
     }
