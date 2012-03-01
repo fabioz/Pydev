@@ -227,51 +227,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     }
 
 
-    public static class TokenFoundStructure{
-
-        public final IToken token;
-        public final boolean defined;
-        public final Found found;
-
-        /**
-         * @param foundForProbablyNotDefined if not defined, the token used is passed on so that if it gets later defined,
-         * a notification may be gotten.
-         */
-        public TokenFoundStructure(IToken token, boolean defined, Found found) {
-            this.token = token;
-            this.defined = defined;
-            this.found = found;
-        }
-        
-    }
-
-    private final FastStack<TokenFoundStructure> recordedFounds = new FastStack<TokenFoundStructure>(4);
-    private int recordFounds = 0;
-    
-    private void onFound(IToken o1){
-        if(recordFounds > 0){
-            recordedFounds.push(new TokenFoundStructure(o1, true, null));
-        }
-    }
-    
-    /**
-     * Gets the token which was found and whether it was actually defined at that time (otherwise, it may be that
-     * it'll only be defined later on, in which case the check will have to be done later on too -- and only if it
-     * was really defined).
-     */
-    protected TokenFoundStructure popFound() {
-        recordFounds -= 1;
-        if(recordedFounds.size() > 0){
-            TokenFoundStructure ret = recordedFounds.peek();
-            recordedFounds.clear();
-            return ret;
-        }
-        return null;
-    }
-
-    protected void startRecordFound() {
-        recordFounds += 1;
-    }
 
     /**
      * we are starting a new scope when visiting a class 
@@ -818,17 +773,17 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      */
     public Object visitAssign(Assign node) throws Exception {
         unhandled_node(node);
-        AbstractScopeAnalyzerVisitor visitor = this;
-        
-        //in 'm = a', this is 'a'
-        if (node.value != null)
-            node.value.accept(visitor);
+        //in 'm = value', this is 'value'
+        if (node.value != null){
+            node.value.accept(this);
+        }
 
-        //in 'm = a', this is 'm'
+        //in 'target1 = target2 = a', this is 'target1, target2'
         if (node.targets != null) {
             for (int i = 0; i < node.targets.length; i++) {
-                if (node.targets[i] != null)
-                    node.targets[i].accept(visitor);
+                if (node.targets[i] != null){
+                    node.targets[i].accept(this);
+                }
             }
         }
         onAfterVisitAssign(node);
@@ -1135,27 +1090,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             if(found){
                 foundAsStr = nextTokToSearch;
                 foundAs.getSingle().references.add(token);
-                boolean reportFound = true;
-                try {
-                    if(foundAs.importInfo != null){
-                        IDefinition[] definition = foundAs.importInfo.getDefinitions(nature, completionCache);
-                        for (IDefinition iDefinition : definition) {
-                            Definition d = (Definition) iDefinition;
-                            if(d.ast instanceof FunctionDef || d.ast instanceof ClassDef){
-                                SourceToken tok = AbstractVisitor.makeToken(d.ast, token.getRepresentation(), d.module != null?d.module.getName():"");
-                                tok.setDefinition(d);
-                                onFound(tok);
-                                reportFound = false;
-                                break;
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    Log.log(e);
-                }
-                if(reportFound){
-                    onFound(token);
-                }
+                onFoundTokenAs(token, foundAs);
             }
         }
         
@@ -1178,11 +1113,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                         onAddUndefinedMessage(token, foundForProbablyNotDefined); //it is in the global scope, so, it is undefined.
                     }
                 }else{
-                    if(foundInNamesToIgnore.o1 instanceof SourceToken){
-                        SourceToken sourceToken = (SourceToken) foundInNamesToIgnore.o1;
-                        //Make a new token because we want the ast to be the FunctionDef or ClassDef, not the name which is the reference.
-                        onFound(AbstractVisitor.makeToken(sourceToken.getAst(), token.getRepresentation(), sourceToken.getParentPackage()));
-                    }
+                    IToken tokenInNamesToIgnore = foundInNamesToIgnore.o1;
+                    onFoundInNamesToIgnore(token, tokenInNamesToIgnore);
                 }
             }
         }else if(checkIfIsValidImportToken){
@@ -1243,6 +1175,14 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             }
         }
         return found;
+    }
+
+    protected void onFoundInNamesToIgnore(IToken token, IToken tokenInNamesToIgnore) {
+
+    }
+
+    protected void onFoundTokenAs(IToken token, Found foundAs) {
+
     }
 
 
@@ -1381,9 +1321,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      * Called when a token is not found.
      */
     protected void onAddToProbablyNotDefined(IToken token, Found foundForProbablyNotDefined){
-        if(recordFounds > 0){
-            recordedFounds.push(new TokenFoundStructure(token, false, foundForProbablyNotDefined));
-        }
     }
     
     /**

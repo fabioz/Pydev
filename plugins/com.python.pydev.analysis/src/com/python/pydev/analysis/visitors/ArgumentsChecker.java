@@ -8,7 +8,9 @@ package com.python.pydev.analysis.visitors;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICompletionCache;
@@ -34,7 +36,7 @@ import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
-import com.python.pydev.analysis.scopeanalysis.AbstractScopeAnalyzerVisitor.TokenFoundStructure;
+import com.python.pydev.analysis.visitors.OccurrencesVisitor.TokenFoundStructure;
 
 /**
  * @author Fabio
@@ -168,6 +170,8 @@ public final class ArgumentsChecker {
             }
         }
     }
+    
+    private final Map<ClassDef, SimpleNode> defToConsideredInit = new HashMap<ClassDef, SimpleNode>(); 
 
     /*default*/ void checkNameFound(Call callNode, SourceToken sourceToken) throws Exception {
         FunctionDef functionDefinitionReferenced;
@@ -179,24 +183,37 @@ public final class ArgumentsChecker {
 
         } else if (ast instanceof ClassDef) {
             ClassDef classDef = (ClassDef) ast;
-            String className = ((NameTok) classDef.name).id;
-
-            Definition foundDef = sourceToken.getDefinition();
-            IModule mod = this.current;
-            if (foundDef != null) {
-                mod = foundDef.module;
-            }
-
-            IDefinition[] definition = mod.findDefinition(CompletionStateFactory.getEmptyCompletionState(className + ".__init__",
-                    this.nature, this.completionCache), -1, -1, this.nature);
-            callingBoundMethod = true;
-            for (IDefinition iDefinition : definition) {
-                Definition d = (Definition) iDefinition;
-                if (d.ast instanceof FunctionDef) {
-                    functionDefinitionReferenced = (FunctionDef) d.ast;
-                    analyzeCallAndFunctionMatch(callNode, functionDefinitionReferenced, sourceToken, callingBoundMethod);
-                    break;
+            SimpleNode initNode = defToConsideredInit.get(classDef);
+            if(initNode == null){
+                String className = ((NameTok) classDef.name).id;
+    
+                Definition foundDef = sourceToken.getDefinition();
+                IModule mod = this.current;
+                if (foundDef != null) {
+                    mod = foundDef.module;
                 }
+                SimpleNode n = NodeUtils.getNodeFromPath(classDef, "__init__");
+                callingBoundMethod = true;
+                if(n instanceof FunctionDef){
+                    initNode = n;
+                    
+                }else {
+                    IDefinition[] definition = mod.findDefinition(CompletionStateFactory.getEmptyCompletionState(className + ".__init__",
+                            this.nature, this.completionCache), -1, -1, this.nature);
+                    for (IDefinition iDefinition : definition) {
+                        Definition d = (Definition) iDefinition;
+                        if (d.ast instanceof FunctionDef) {
+                            initNode = d.ast;
+                            defToConsideredInit.put(classDef, initNode);
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            if(initNode instanceof FunctionDef){
+                functionDefinitionReferenced = (FunctionDef) initNode;
+                analyzeCallAndFunctionMatch(callNode, functionDefinitionReferenced, sourceToken, callingBoundMethod);
             }
         }
     }

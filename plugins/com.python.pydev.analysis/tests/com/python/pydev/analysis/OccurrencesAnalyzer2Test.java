@@ -13,8 +13,10 @@ package com.python.pydev.analysis;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.ICompletionState;
@@ -37,7 +39,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testParameterAnalysisOptimization2();
+            analyzer2.testParameterAnalysisOptimization5();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -49,6 +51,12 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         System.exit(0);
     }
 
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        prefs.severityForArgumentsMismatch = IMarker.SEVERITY_ERROR;
+    }
+    
     public void testErrorNotShownOnDynamicClass() {
         doc = new Document(
                 "from extendable.noerr import importer\n"+
@@ -734,10 +742,10 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
     }
     
     
-    private void unregisterFindDefinitionListener(int expected) {
+    private void unregisterFindDefinitionListener(String ... expected) {
         SourceModule.onFindDefinition = null;
-        if(expected != findDefinitionDone.size()){
-            fail(StringUtils.format("Expected: %s find definition calls. Found: %s (%s)", expected, findDefinitionDone.size(), findDefinitionDone));
+        if(expected.length != findDefinitionDone.size()){
+            fail(StringUtils.format("Expected: %s (%s) find definition call(s). Found: %s (%s)", expected.length, Arrays.asList(expected), findDefinitionDone.size(), findDefinitionDone));
         }
     }
     
@@ -753,7 +761,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
             );
             checkNoError();
         } finally {
-            unregisterFindDefinitionListener(0);
+            unregisterFindDefinitionListener();
         }
     }
 
@@ -769,7 +777,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
                     );
             checkNoError();
         } finally {
-            unregisterFindDefinitionListener(0);
+            unregisterFindDefinitionListener();
         }
     }
     
@@ -777,18 +785,61 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         registerOnFindDefinitionListener();
         try {
             doc = new Document(
-                    "class Foo():\n" +
-                    "    def __init__(self, 1):\n" +
+                    "class Foo:\n" +
+                    "    def __init__(self, a):\n" +
                     "        pass\n" +
-                    "Foo(1)\n" + 
                     "Foo()\n"
                     );
             checkError("Foo: arguments don't match");
         } finally {
-            unregisterFindDefinitionListener(1);
+            unregisterFindDefinitionListener();
         }
     }
     
+    public void testParameterAnalysisOptimization4() throws IOException{
+        registerOnFindDefinitionListener();
+        try {
+            doc = new Document(
+                    "class Foo:\n" +
+                    "    def __init__(self, a):\n" +
+                    "        pass\n" +
+                    "Bar = Foo\n" +
+                    "Bar(1)\n"
+                    );
+            checkNoError();
+        } finally {
+            unregisterFindDefinitionListener();
+        }
+    }
+    
+    public void testParameterAnalysisOptimization5a() throws IOException{
+        registerOnFindDefinitionListener();
+        try {
+            doc = new Document(
+                    "from extendable.parameters_check.check import Foo\n" + //class with __init__ == __init__(self, a, b)
+                    "foo = Foo(10, 20)\n" +
+                    "foo.Method(10)\n"
+                    );
+            checkNoError();
+        } finally {
+            unregisterFindDefinitionListener("Foo", "foo.Method", "foo", "foo"); //TODO: This must be improved!
+        }
+    }
+    
+    public void testParameterAnalysisOptimization5() throws IOException{
+        prefs.severityForArgumentsMismatch = IMarker.SEVERITY_INFO; //Nothing will be analyzed and the checks should be skipped!
+        registerOnFindDefinitionListener();
+        try {
+            doc = new Document(
+                    "from extendable.parameters_check.check import Foo\n" + //class with __init__ == __init__(self, a, b)
+                    "foo = Foo(10, 20, 20)\n" +
+                    "foo.Method(10, 30)\n"
+            );
+            checkNoError();
+        } finally {
+            unregisterFindDefinitionListener();
+        }
+    }
     
 //    public void testNonDefaultAfterDefault() throws IOException{
 //        doc = new Document(

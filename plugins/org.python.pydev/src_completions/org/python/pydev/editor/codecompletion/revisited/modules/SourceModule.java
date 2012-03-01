@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -665,11 +664,12 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         //this visitor checks for assigns for the token
         FindDefinitionModelVisitor visitor = getFindDefinitionsScopeVisitor(rep, line, col);
         
-        if(visitor.definitions.size() > 0){
+        List<Definition> defs = visitor.definitions;
+        int size = defs.size();
+        if(size > 0){
             //ok, it is an assign, so, let's get it
-
-            for (Iterator iter = visitor.definitions.iterator(); iter.hasNext();) {
-                Object next = iter.next();
+            for (int i=0; i<size;i++) {
+                Object next = defs.get(i);
                 if(next instanceof AssignDefinition){
                     AssignDefinition element = (AssignDefinition) next;
                     if(element.target.startsWith("self") == false){
@@ -1169,7 +1169,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         if(bootstrap == null){
             IToken[] ret = getGlobalTokens();
             if(ret != null && (ret.length == 1 || ret.length == 2 || ret.length == 3) && this.file != null){ //also checking 2 or 3 tokens because of __file__ and __name__
-                for(IToken tok:ret){
+                for (int i = 0; i < ret.length; i++) {
+                    IToken tok = ret[i];
                     if("__bootstrap__".equals(tok.getRepresentation())){
                         //if we get here, we already know that it defined a __bootstrap__, so, let's see if it was also called
                         SimpleNode ast = this.getAst();

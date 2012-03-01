@@ -15,14 +15,17 @@ import java.util.Map;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallbackListener;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
+import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assert;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -457,6 +460,102 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
 
     }
 
+    
+    public static class TokenFoundStructure{
+
+        public final IToken token;
+        public final boolean defined;
+        public final Found found;
+
+        /**
+         * @param foundForProbablyNotDefined if not defined, the token used is passed on so that if it gets later defined,
+         * a notification may be gotten.
+         */
+        public TokenFoundStructure(IToken token, boolean defined, Found found) {
+            this.token = token;
+            this.defined = defined;
+            this.found = found;
+        }
+        
+    }
+
+    private final FastStack<TokenFoundStructure> recordedFounds = new FastStack<TokenFoundStructure>(4);
+    private int recordFounds = 0;
+    
+    private void onPushToRecordedFounds(IToken o1){
+        if(recordFounds > 0){
+            recordedFounds.push(new TokenFoundStructure(o1, true, null));
+        }
+    }
+    
+    /**
+     * Called when a token is not found.
+     */
+    @Override
+    protected void onAddToProbablyNotDefined(IToken token, Found foundForProbablyNotDefined){
+        if(recordFounds > 0){
+            recordedFounds.push(new TokenFoundStructure(token, false, foundForProbablyNotDefined));
+        }
+    }
+    
+    
+    /**
+     * Gets the token which was found and whether it was actually defined at that time (otherwise, it may be that
+     * it'll only be defined later on, in which case the check will have to be done later on too -- and only if it
+     * was really defined).
+     */
+    protected TokenFoundStructure popFound() {
+        recordFounds -= 1;
+        if(recordedFounds.size() > 0){
+            TokenFoundStructure ret = recordedFounds.peek();
+            recordedFounds.clear();
+            return ret;
+        }
+        return null;
+    }
+
+    protected void startRecordFound() {
+        recordFounds += 1;
+    }
+    
+    @Override
+    protected void onFoundTokenAs(IToken token, Found foundAs) {
+        if(analyzeArgumentsMismatch){
+            boolean reportFound = true;
+            try {
+                if(foundAs.importInfo != null){
+                    IDefinition[] definition = foundAs.importInfo.getDefinitions(nature, completionCache);
+                    for (IDefinition iDefinition : definition) {
+                        Definition d = (Definition) iDefinition;
+                        if(d.ast instanceof FunctionDef || d.ast instanceof ClassDef){
+                            SourceToken tok = AbstractVisitor.makeToken(d.ast, token.getRepresentation(), d.module != null?d.module.getName():"");
+                            tok.setDefinition(d);
+                            onPushToRecordedFounds(tok);
+                            reportFound = false;
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                Log.log(e);
+            }
+            if(reportFound){
+                onPushToRecordedFounds(token);
+            }
+        }
+    }
+
+    
+    @Override
+    protected void onFoundInNamesToIgnore(IToken token, IToken tokenInNamesToIgnore) {
+        if(analyzeArgumentsMismatch){
+            if(tokenInNamesToIgnore instanceof SourceToken){
+                SourceToken sourceToken = (SourceToken) tokenInNamesToIgnore;
+                //Make a new token because we want the ast to be the FunctionDef or ClassDef, not the name which is the reference.
+                onPushToRecordedFounds(AbstractVisitor.makeToken(sourceToken.getAst(), token.getRepresentation(), sourceToken.getParentPackage()));
+            }
+        }
+    }
 
     
 }
