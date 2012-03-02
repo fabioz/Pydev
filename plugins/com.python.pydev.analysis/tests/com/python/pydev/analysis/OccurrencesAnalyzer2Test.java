@@ -39,7 +39,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testParameterAnalysis26a();
+            analyzer2.testErrorNotShownOnDynamicClass4();
             analyzer2.tearDown();
             System.out.println("finished");
             
