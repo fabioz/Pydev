@@ -39,7 +39,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testParameterAnalysis25();
+            analyzer2.testParameterAnalysis26a();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -740,6 +740,32 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
                 "Foo()\n"
         );
         checkNoError();
+    }
+    
+    
+    public void testParameterAnalysis26() throws IOException{
+        doc = new Document(
+                "class Foo(object):\n" +
+                "    def Method(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "    def Method2(self):\n" +
+                "        self.Method()\n"
+        );
+        checkNoError();
+    }
+    
+    
+    public void testParameterAnalysis26a() throws IOException{
+        doc = new Document(
+                "class Foo(object):\n" +
+                "    def Method(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "    def Method2(self):\n" +
+                "        self.Method(1)\n"
+        );
+        checkError("self.Method: arguments don't match");
     }
     
     

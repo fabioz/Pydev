@@ -1216,10 +1216,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             return false;
         }
         IDefinition[] definitions = m.findDefinition(CompletionStateFactory.getEmptyCompletionState(repToCheck, nature, this.completionCache), -1, -1, nature);
-        if(definitions.length == 1){
-            IDefinition foundDefinition = definitions[0];
+        for (int i = 0; i < definitions.length; i++) {
+            IDefinition foundDefinition = definitions[i];
             if(foundDefinition instanceof AssignDefinition){
-                AssignDefinition d = (AssignDefinition) definitions[0];
+                AssignDefinition d = (AssignDefinition) foundDefinition;
                 
                 //if the value is currently None, it will be set later on
                 if(d.value.equals("None")){

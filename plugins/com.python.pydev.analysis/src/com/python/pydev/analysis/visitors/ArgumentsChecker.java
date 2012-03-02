@@ -128,6 +128,7 @@ public final class ArgumentsChecker {
         return NO_STATIC_NOR_CLASSMETHOD;
     }
 
+    @SuppressWarnings("unchecked")
     /*default*/ void checkAttrFound(Call callNode, TokenFoundStructure found) throws Exception, CompletionRecursionException {
         FunctionDef functionDefinitionReferenced;
         IToken nameToken;
@@ -145,24 +146,33 @@ public final class ArgumentsChecker {
                 if (d.ast instanceof FunctionDef) {
                     functionDefinitionReferenced = (FunctionDef) d.ast;
 
-                    @SuppressWarnings("unchecked")
-                    FastStack<SimpleNode> scopeStack = d.scope.getScopeStack();
-                    if (scopeStack.size() > 1 && scopeStack.peek(1) instanceof ClassDef) {
-                        callingBoundMethod = true;
-                        String withoutLast = FullRepIterable.getWithoutLastPart(rep);
-                        ArrayList<IDefinition> definition2 = new ArrayList<IDefinition>();
-                        PyRefactoringFindDefinition.findActualDefinition(null, this.current, withoutLast, definition2,
-                                -1, -1, this.nature, this.completionCache);
-
-                        for (IDefinition iDefinition2 : definition2) {
-                            Definition d2 = (Definition) iDefinition2;
-                            if (d2.ast instanceof ClassDef) {
-                                callingBoundMethod = false;
-                                break;
-                            }
+                    if(rep.startsWith("self.")){
+                        FastStack<SimpleNode> scopeStack = d.scope.getScopeStack();
+                        if (scopeStack.size() > 0 && scopeStack.peek() instanceof ClassDef) {
+                            callingBoundMethod = true;
+                        }else{
+                            callingBoundMethod = false;
                         }
-                    } else {
-                        callingBoundMethod = false;
+                        
+                    }else{
+                        FastStack<SimpleNode> scopeStack = d.scope.getScopeStack();
+                        if (scopeStack.size() > 1 && scopeStack.peek(1) instanceof ClassDef) {
+                            callingBoundMethod = true;
+                            String withoutLast = FullRepIterable.getWithoutLastPart(rep);
+                            ArrayList<IDefinition> definition2 = new ArrayList<IDefinition>();
+                            PyRefactoringFindDefinition.findActualDefinition(null, this.current, withoutLast, definition2,
+                                    -1, -1, this.nature, this.completionCache);
+                            
+                            for (IDefinition iDefinition2 : definition2) {
+                                Definition d2 = (Definition) iDefinition2;
+                                if (d2.ast instanceof ClassDef) {
+                                    callingBoundMethod = false;
+                                    break;
+                                }
+                            }
+                        } else {
+                            callingBoundMethod = false;
+                        }
                     }
                     analyzeCallAndFunctionMatch(callNode, functionDefinitionReferenced, nameToken, callingBoundMethod);
                     break;

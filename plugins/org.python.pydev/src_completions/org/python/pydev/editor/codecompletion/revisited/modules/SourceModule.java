@@ -787,7 +787,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                         String parentPackage = token.getParentPackage();
                         IModule module = astManager.getModule(parentPackage, nature, true);
                         
-                        if(token instanceof SourceToken && (module != null || this.name.equals(parentPackage))){
+                        if(token instanceof SourceToken && (module != null || this.name == null || this.name.equals(parentPackage))){
                             if(module == null){
                                 module = this;
                             }
