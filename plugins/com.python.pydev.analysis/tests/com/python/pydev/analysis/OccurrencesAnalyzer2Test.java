@@ -39,7 +39,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testParameterAnalysisOptimization6();
+            analyzer2.testParameterAnalysis25();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -723,6 +723,23 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
             "        return B(1, 2)\n"
         );
         checkError("B: arguments don't match");
+    }
+    
+    
+    public void testParameterAnalysis25() throws IOException{
+        doc = new Document(
+                "class Bar(object):\n" +
+                "\n" +
+                "    def __init__(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "class Foo(Bar):\n" +
+                "    pass\n" +
+                "\n" +
+                "Foo()\n" +
+                "Foo()\n"
+        );
+        checkNoError();
     }
     
     

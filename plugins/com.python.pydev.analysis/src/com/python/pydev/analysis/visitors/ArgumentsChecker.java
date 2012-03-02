@@ -184,6 +184,7 @@ public final class ArgumentsChecker {
         } else if (ast instanceof ClassDef) {
             ClassDef classDef = (ClassDef) ast;
             SimpleNode initNode = defToConsideredInit.get(classDef);
+            callingBoundMethod = true;
             if(initNode == null){
                 String className = ((NameTok) classDef.name).id;
     
@@ -193,7 +194,6 @@ public final class ArgumentsChecker {
                     mod = foundDef.module;
                 }
                 SimpleNode n = NodeUtils.getNodeFromPath(classDef, "__init__");
-                callingBoundMethod = true;
                 if(n instanceof FunctionDef){
                     initNode = n;
                     
