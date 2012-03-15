@@ -30,6 +30,7 @@ public abstract class AbstractAnalysisPreferences implements IAnalysisPreference
             typeToIgnoreMessage.put( TYPE_INDENTATION_PROBLEM         	    , MSG_TO_IGNORE_TYPE_INDENTATION_PROBLEM         	);
             typeToIgnoreMessage.put( TYPE_ASSIGNMENT_TO_BUILT_IN_SYMBOL     , MSG_TO_IGNORE_TYPE_ASSIGNMENT_TO_BUILT_IN_SYMBOL	);
             typeToIgnoreMessage.put( TYPE_PEP8                              , MSG_TO_IGNORE_TYPE_PEP8                       	);
+            typeToIgnoreMessage.put( TYPE_ARGUMENTS_MISATCH                 , MSG_TO_IGNORE_TYPE_ARGUMENTS_MISATCH              );
         }
         return typeToIgnoreMessage.get(type);
     }

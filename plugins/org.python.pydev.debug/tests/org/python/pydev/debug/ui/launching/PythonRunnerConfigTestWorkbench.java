@@ -18,6 +18,9 @@ import junit.framework.TestSuite;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.variables.IStringVariableManager;
+import org.eclipse.core.variables.IValueVariable;
+import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
@@ -85,16 +88,25 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
     
     public void testPythonCommandLine() throws Exception {
         PythonNature nature = PythonNature.getPythonNature(mod1);
-        
-        try{
+
+        // Create a temporary variable for testing
+        IStringVariableManager variableManager = VariablesPlugin.getDefault().getStringVariableManager();
+        IValueVariable myCustomVariable = variableManager.newValueVariable("pydev_python_runner_config_test_var", "", true, "my_custom_value");
+		variableManager.addVariables(new IValueVariable[]{ myCustomVariable});
+
+		try{
             IInterpreterManager manager = PydevPlugin.getPythonInterpreterManager(true);
             InterpreterInfo info = (InterpreterInfo) manager.getDefaultInterpreterInfo(false);
-            info.setEnvVariables(new String[]{"MY_CUSTOM_VAR_FOR_TEST=FOO", "MY_CUSTOM_VAR_FOR_TEST2=FOO2"});
+            info.setEnvVariables(new String[]{"MY_CUSTOM_VAR_FOR_TEST=FOO", "MY_CUSTOM_VAR_FOR_TEST2=FOO2", "MY_CUSTOM_VAR_WITH_VAR=${pydev_python_runner_config_test_var}"});
             
+            // Make sure variable hasn't been expanded too early
+            assertTrue(arrayContains(info.getEnvVariables(), "MY_CUSTOM_VAR_WITH_VAR=${pydev_python_runner_config_test_var}"));
+
             
             PythonRunnerConfig runnerConfig = createConfig();
             assertTrue(arrayContains(runnerConfig.envp, "MY_CUSTOM_VAR_FOR_TEST=FOO"));
             assertTrue(arrayContains(runnerConfig.envp, "MY_CUSTOM_VAR_FOR_TEST2=FOO2"));
+            assertTrue(arrayContains(runnerConfig.envp, "MY_CUSTOM_VAR_WITH_VAR=my_custom_value"));
             
             String[] argv = runnerConfig.getCommandLine(false); 
             assertFalse(arrayContains(argv, PythonRunnerConfig.getRunFilesScript()));
@@ -102,7 +114,7 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
             
             
             nature.setVersion(IPythonNature.PYTHON_VERSION_LATEST, IPythonNature.DEFAULT_INTERPRETER);
-            assertEquals(manager.getDefaultInterpreterInfo(false), nature.getProjectInterpreter().getExecutableOrJar());
+            assertEquals(manager.getDefaultInterpreterInfo(false).getExecutableOrJar(), nature.getProjectInterpreter().getExecutableOrJar());
             runnerConfig = createConfig();
             argv = runnerConfig.getCommandLine(false); 
             assertEquals(manager.getDefaultInterpreterInfo(false).getExecutableOrJar(), argv[0]);
@@ -120,7 +132,6 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
             nature.setVersion(IPythonNature.PYTHON_VERSION_LATEST, IPythonNature.DEFAULT_INTERPRETER);
 
             ILaunchConfiguration config;
-            
             config = new LaunchShortcut().createDefaultLaunchConfiguration(FileOrResource.createArray(new IResource[] { mod1 }));
             ILaunchConfigurationWorkingCopy workingCopy = config.getWorkingCopy();
             HashMap<String, String> map = new HashMap<String, String>();
@@ -133,12 +144,14 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
             assertTrue(arrayContains(runnerConfig.envp, "VAR_SPECIFIED_IN_LAUNCH=BAR"));
             assertTrue(arrayContains(runnerConfig.envp, "MY_CUSTOM_VAR_FOR_TEST=FOO"));
             assertTrue(arrayContains(runnerConfig.envp, "MY_CUSTOM_VAR_FOR_TEST2=BAR2"));
+            assertTrue(arrayContains(runnerConfig.envp, "MY_CUSTOM_VAR_WITH_VAR=my_custom_value"));
         }catch (Throwable e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }finally{
             //restore the default!
             nature.setVersion(IPythonNature.PYTHON_VERSION_LATEST, IPythonNature.DEFAULT_INTERPRETER);
+            variableManager.removeVariables(new IValueVariable[]{ myCustomVariable});
         }
     }
 

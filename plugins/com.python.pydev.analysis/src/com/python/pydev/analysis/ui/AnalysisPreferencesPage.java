@@ -22,7 +22,6 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
@@ -108,6 +107,7 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_NO_EFFECT_STMT, "Statement has no effect", 3,values,p, true));
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_INDENTATION_PROBLEM, "Indentation problems and mixing of tabs/spaces", 3,values,p, true));
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_ASSIGNMENT_TO_BUILT_IN_SYMBOL, "Redefinition of builtin symbols", 3,values,p, true));
+        addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_ARGUMENTS_MISMATCH, "Arguments mismatch", 3,values,p, true));
         
         p = createTab(tabFolder, "pep8.py");
         

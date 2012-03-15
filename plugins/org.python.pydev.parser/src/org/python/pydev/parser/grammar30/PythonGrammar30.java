@@ -338,8 +338,9 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         begin_decorator();
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case LPAREN:
+                         this.markDecoratorWithCall();
           jj_consume_token(LPAREN);
-                                   this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);
+                                                                   this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case LPAREN:
           case LBRACE:
@@ -377,10 +378,10 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
             ;
           }
           try {
-                                                                                                      this.findTokenAndAdd(")");
+                                                                                                                                      this.findTokenAndAdd(")");
             jj_consume_token(RPAREN);
           } catch (ParseException e) {
-                                                                                                                                                                   handleRParensNearButNotCurrent(e);
+                                                                                                                                                                                                   handleRParensNearButNotCurrent(e);
           }
           break;
         default:
@@ -390,7 +391,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         try {
           jj_consume_token(NEWLINE);
         } catch (ParseException e) {
-                                                                                                                                                                                                                                               handleNoNewline(e);
+                                                                                                                                                                                                                                                                               handleNoNewline(e);
         }
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case AT:

@@ -830,8 +830,9 @@ class Test(unittest.TestCase):
     def testCase12a(self):
         self.CheckCase(WriterThreadCase12, False)
 
-    def testCase13a(self):
-        self.CheckCase(WriterThreadCase13, False)
+#This case requires decorators to work (which are not present on Jython 2.1), so, this test is just removed from the jython run.
+#    def testCase13a(self):
+#        self.CheckCase(WriterThreadCase13, False)
 
 def GetLocationFromLine(line):
     loc = line.split('=')[1].strip()

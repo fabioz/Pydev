@@ -962,10 +962,14 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
             node.func.accept(this);
         
         this.pushTupleNeedsParens();
+        if(node.isCall){
+            doc.addRequire("(", lastNode);
+        }
         if((node.args != null && node.args.length > 0) || (node.keywords != null && node.keywords.length > 0) || 
                 node.starargs != null || node.kwargs != null){
-            doc.addRequire("(", lastNode);
             handleArguments(reverseNodeArray(node.args), reverseNodeArray(node.keywords), node.starargs, node.kwargs);
+        }
+        if(node.isCall){
             doc.addRequire(")", lastNode);
         }
         this.popTupleNeedsParens();

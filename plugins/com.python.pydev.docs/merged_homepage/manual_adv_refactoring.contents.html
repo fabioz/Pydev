@@ -1,109 +1,56 @@
 <doc>
 <contents_area>
+<div id="Content" style="padding: 5px;">
+<p>Well, let's see how refactoring works... and let's make it by example <img class="emoticon" src="/images/icons/emoticons/smile.gif" height="20" width="20" align="absmiddle" alt="" border="0"/></p>
 
-	<p>
-		Well, let's see how refactoring works... and let's make it by example :-P
-	</p>
+<p>As our 'base', we will use the example below:</p>
 
-		
-	<p>
-		As our 'base', we will use the example below:
-	</p>
-	<p align="center"><IMG src="images/refactor/refactor_base.png" border="1"/></p><br/>
+<p><span class="image-wrap" style=""><img src="http://pydev.org/images/refactor/refactor_base.png" style="border: 1px solid black" /></span></p>
+
+<p>Features:</p>
+
+<ul class="alternate" type="square">
+	<li>Keybinding: <b>Alt+Shift+R</b></li>
+	<li>Supports <b>preview</b></li>
+	<li>Integrated in the editor (but not in the package explorer, so, it can rename a module, but only through an import to that module)</li>
+	<li>Supports <b>undo/redo</b> in the workspace</li>
+	<li>Rename class</li>
+	<li>Rename method</li>
+	<li>Rename attribute</li>
+	<li>Rename imports</li>
+	<li>Rename local variable</li>
+</ul>
 
 
-	<p>
-		<strong>Renaming</strong>: This refactoring is provided by PyDev and provides a 
-		<strong>preview</strong> and <strong>undo/redo</strong> (the others are provided by BRM and have undo/redo only for the current editor
-		-- which should be ok as they are refactorings that work only in the local scope).<br/>
+<p>Let's say we want to rename our 'newVar', and call it 'renamedVar'. To do that, mark it and press <b>Alt+Shift+R</b> and set the name to 'renamedVar'</p>
 
-		<ul>
-			<li>Features: </li>		
-			<ul>
-				<li>Keybinding: <strong>Alt+Shift+R</strong></li>
-				<li>Supports <strong>preview</strong></li>
-				<li>Integrated in the editor (but not in the package explorer, so, it can rename a module, but only through an import to that module)</li>
-				<li>Supports <strong>undo/redo</strong> in the workspace</li>
-				<li>Rename class</li>
-				<li>Rename method</li>
-				<li>Rename attribute</li>
-				<li>Rename imports</li>
-				<li>Rename local variable</li>
-			</ul>	
-		</ul>	
-		Let's say we want to rename our 'newVar', and call it 'renamedVar'. To do that, mark it and press <strong>Alt+Shift+R</strong>
-		and set the name to 'renamedVar'
-	</p>
-	<br/><p align="center"><IMG src="images/refactor/refactor_rename1.png" border="1"/></p><br/>
+<p><span class="image-wrap" style=""><img src="http://pydev.org/images/refactor/refactor_rename1.png" style="border: 1px solid black" /></span><br/>
+That would give us the following result:</p>
 
-	
-	<p>
-		That would give us the following result:
-	</p>
-	<br/><p align="center"><IMG src="images/refactor/refactor_rename2.png" border="1"/></p><br/>
-	<hr/>
+<h1><a name="PyDevRefactoring-%21"></a><span class="image-wrap" style=""><img src="http://pydev.org/images/refactor/refactor_rename2.png" style="border: 1px solid black" /></span></h1>
 
-	
-	
-	<p>
-		<strong>Extracting a method</strong>: Let's mark the '100+500' and press <strong>Alt+Shift+M</strong> (alternatively,
-		you could use a context menu: press the right button and select: refactoring > Extract Method). And set the name of the
-		new method to 'newMethod'.
-	</p>
-	<br/><p align="center"><IMG src="images/refactor/refactor_extract_method1.png" border="1"/></p><br/>
+<p><b>Extracting a method</b>: Let's mark the '100+500' and press <b>Alt+Shift+M</b> (alternatively, you could use a context menu: press the right button and select: refactoring &gt; Extract Method). And set the name of the new method to 'newMethod'.</p>
 
-	
-	<p>
-		That would give us the following result:
-	</p>
-	<br/><p align="center"><IMG src="images/refactor/refactor_extract_method2.png" border="1"/></p><br/>
+<p><span class="image-wrap" style=""><img src="http://pydev.org/images/refactor/refactor_extract_method1.png" style="border: 1px solid black" /></span><br/>
+That would give us the following result:</p>
 
-	<hr/>
-	<p>
-		<strong>Inlining a variable</strong>: Let's say that we are still not satisfied with that, we wouldn't like that 'var'
-		variable, so, we want to remove the reference to it and call the method directly. To do that, mark the 'var' and press
-		<strong>Alt+Shift+I</strong>.
-	</p>
-	<br/><p align="center"><IMG src="images/refactor/refactor_inline1.png" border="1"/></p><br/>
+<h1><a name="PyDevRefactoring-%21"></a><span class="image-wrap" style=""><img src="http://pydev.org/images/refactor/refactor_extract_method2.png" style="border: 1px solid black" /></span></h1>
 
-	
-	<p>
-		That would give us the following result:
-	</p>
-	<br/><p align="center"><IMG src="images/refactor/refactor_inline2.png" border="1"/></p><br/>
+<p><b>Inlining a variable</b>: Let's say that we are still not satisfied with that, we wouldn't like that 'var' variable, so, we want to remove the reference to it and call the method directly. To do that, mark the 'var' and press <b>Alt+Shift+I</b>.</p>
 
-	
-	<hr/>
-	<p>
-		<strong>Extracting a variable</strong>: Ok, it just wasn't what we wanted, so, let's make the opposite refactoring,
-		let's extract a variable from the self.newMethod() call. Mark it and press <strong>Alt+Shift+L</strong> and set the
-		name to 'newVar'
-	</p>
-	<br/><p align="center"><IMG src="images/refactor/refactor_extract_var1.png" border="1"/></p><br/>
+<p><span class="image-wrap" style=""><img src="http://pydev.org/images/refactor/refactor_inline1.png" style="border: 1px solid black" /></span><br/>
+That would give us the following result:</p>
 
-	
-	<p>
-		That would give us the following result:
-	</p>
-	<br/><p align="center"><IMG src="images/refactor/refactor_extract_var2.png" border="1"/></p><br/>
+<h1><a name="PyDevRefactoring-%21"></a><span class="image-wrap" style=""><img src="http://pydev.org/images/refactor/refactor_inline2.png" style="border: 1px solid black" /></span></h1>
 
-	
-	<p>
-		And that's it for the refactoring... hope you enjoy it.
-	</p>
+<p><b>Extracting a variable</b>: Ok, it just wasn't what we wanted, so, let's make the opposite refactoring, let's extract a variable from the self.newMethod() call. Mark it and press <b>Alt+Shift+L</b> and set the name to 'newVar'</p>
 
+<p><span class="image-wrap" style=""><img src="http://pydev.org/images/refactor/refactor_extract_var1.png" style="border: 1px solid black" /></span><br/>
+That would give us the following result:</p>
+
+<p><span class="image-wrap" style=""><img src="http://pydev.org/images/refactor/refactor_extract_var2.png" style="border: 1px solid black" /></span><br/>
+And that's it for the refactoring... hope you enjoy it.</p>
+</div>
+<br/><br/><a href="https://wiki.appcelerator.org/display/tis/PyDev+Refactoring">See wiki page</a>
 </contents_area>
-
-
-
-<right_area>
-<p>Refactoring!</p>
-</right_area>
-
-
-<image_area>manual.png</image_area>
-
-
-<quote_area><strong>PyDev 101</strong></quote_area>
-
 </doc>

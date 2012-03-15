@@ -37,14 +37,14 @@ public final class ImportChecker {
     /**
      * This is the nature we are analyzing
      */
-    private IPythonNature nature;
+    private final IPythonNature nature;
 
     /**
      * this is the name of the module that we are analyzing
      */
-    private String moduleName;
+    private final String moduleName;
 
-    private AbstractScopeAnalyzerVisitor visitor;
+    private final AbstractScopeAnalyzerVisitor visitor;
 
     /**
      * This is the information stored about some import:
@@ -54,19 +54,29 @@ public final class ImportChecker {
         /**
          * This is the module where this info was found
          */
-        public IModule mod;
+        public final IModule mod;
         /**
          * This is the token that relates to this import info (in the module it was found)
          */
-        public IToken token;
+        public final IToken token;
         /**
          * This is the representation where it was found 
          */
-        public String rep;
+        public final String rep;
         /**
          * Determines whether it was resolved or not (if not resolved, the other attributes may be null)
          */
-        public boolean wasResolved;
+        public final boolean wasResolved;
+        
+        /**
+         * Should we use the definition cache?
+         */
+        private boolean useActualDefinitionCache = false;
+        
+        /**
+         * This is the cache for the definitions.
+         */
+        private IDefinition[] definitionCache;
             
         public ImportInfo(IModule mod, String rep, IToken token, boolean wasResolved){
             this.mod = mod;
@@ -85,21 +95,38 @@ public final class ImportChecker {
                 buffer.append(" Rep:");
                 buffer.append(rep);
                 buffer.append(" Mod:");
-                buffer.append(mod.getName());
+                buffer.append(mod!= null?mod.getName():"null");
             }
             buffer.append(")");
             return buffer.toString();
         }
+        
+        public IDefinition[] getDefinitions(IPythonNature nature, ICompletionCache completionCache) throws Exception{
+            if(useActualDefinitionCache){
+                return definitionCache;
+            }
+            useActualDefinitionCache = true;
+            
+            if(this.mod != null){
+                definitionCache = this.mod.findDefinition(
+                        CompletionStateFactory.getEmptyCompletionState(this.rep, nature, completionCache), -1, -1, nature);
+            }else{
+                definitionCache = new IDefinition[0]; 
+                
+            }
+            
+            return definitionCache;
+        }
 
         /**
-         * @return the definition that matches this
+         * @return the definition that matches this import info.
          */
         public Definition getModuleDefinitionFromImportInfo(IPythonNature nature, ICompletionCache completionCache) {
             try {
-                IDefinition[] definitions = this.mod.findDefinition(
-                        CompletionStateFactory.getEmptyCompletionState(this.rep, nature, completionCache), -1, -1, nature);
-                
-                for (IDefinition definition : definitions) {
+                IDefinition[] definitions = getDefinitions(nature, completionCache);
+                int len = definitions.length;
+                for (int i = 0; i < len; i++) {
+                    IDefinition definition = definitions[i];
                     if(definition instanceof Definition){
                         Definition d = (Definition) definition;
                         if(d.module != null && d.value.length() == 0 && d.ast == null){

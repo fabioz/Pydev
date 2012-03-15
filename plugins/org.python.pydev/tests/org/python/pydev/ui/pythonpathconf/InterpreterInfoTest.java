@@ -72,15 +72,16 @@ public class InterpreterInfoTest extends TestCase {
         //with the version 2.5
         s = "Version2.5EXECUTABLE:C:\\bin\\Python24\\python.exe|| c:\\bin\\python24\\lib\\lib-tkINS_PATH\n| \n@\n$\n| __builtin__| __main__\n| _bisect\n";
         assertEquals("Version2.5Executable:C:\\bin\\Python24\\python.exe|c:\\bin\\python24\\lib\\lib-tk@$|__builtin__|__main__|_bisect", 
-                InterpreterInfo.fromString(s, false).toString());
+                InterpreterInfo.fromString(s, false).toStringOld());
         
         assertEquals("Version2.5Executable:C:\\bin\\Python24\\python.exe|c:\\bin\\python24\\lib\\lib-tk@$|__builtin__|__main__|_bisect", 
-                InterpreterInfo.fromString(s, false).toString());
+                InterpreterInfo.fromString(s, false).toStringOld());
         
         s = "Name:MyInterpreter:EndName:Version2.4EXECUTABLE:C:\\bin\\Python24\\python.exe|| c:\\bin\\python24\\lib\\lib-tkINS_PATH\n| \n@\n$\n| __builtin__| __main__\n| _bisect\n";
         info8.setName("MyInterpreter");
         assertEquals(info8, InterpreterInfo.fromString(s, false));
-        assertTrue(info8.toString().startsWith("Name:MyInterpreter:EndName:"));
+        assertTrue(info8.toStringOld().startsWith("Name:MyInterpreter:EndName:"));
+        check(info8);
     }
     
     /**
@@ -114,20 +115,13 @@ public class InterpreterInfoTest extends TestCase {
         assertFalse(info5.equals(info6));
         assertEquals(info6, info6);
         
-        String toString1 = info.toString();
-        assertEquals(info, InterpreterInfo.fromString(toString1, false));
-        
-        String toString4 = info4.toString();
-        assertEquals(info4, InterpreterInfo.fromString(toString4, false));
-        
-        String toString5 = info5.toString();
-        assertEquals(info5, InterpreterInfo.fromString(toString5, false));
-        
-        String toString6 = info6.toString();
-        assertEquals(info6, InterpreterInfo.fromString(toString6, false));
-        
-        String toString7 = info7.toString();
-        assertEquals(info7, InterpreterInfo.fromString(toString7, false));
+        check(info);
+        check(info2);
+        check(info3);
+        check(info4);
+        check(info5);
+        check(info6);
+        check(info7);
         
         List<String> l1 = new ArrayList<String>();
         l1.add("c:\\bin\\python24\\lib\\lib-tk");
@@ -141,13 +135,41 @@ public class InterpreterInfoTest extends TestCase {
         
         String s = "EXECUTABLE:C:\\bin\\Python24\\python.exe|| c:\\bin\\python24\\lib\\lib-tk\n| c:\\bin\\python24\n@\n$\n| __builtin__| __main__\n| _bisect\n";
         assertEquals(info8, InterpreterInfo.fromString(s, false));
+        check(info8);
         
     }
     
-    private void compareArray(String []a, String[] b) {
-        if(!Arrays.equals(a, b)){
-            fail(Arrays.asList(a)+" != "+ Arrays.asList(b));
-        }
+    /**
+     * @param info
+     */
+    private void check(final InterpreterInfo info) {
+        String toStringOld = info.toStringOld();
+        InterpreterInfo obtained = InterpreterInfo.fromString(toStringOld, false);
+        assertEquals(info, obtained);
+        assertEquals(obtained, info);
+
+        
+        String toString1 = info.toString();
+//        System.out.println("\n\n");
+//        System.out.println(toString1);
+//        System.out.println("\n\n");
+        obtained = InterpreterInfo.fromString(toString1, false);
+        
+//        System.out.println("\n\n");
+//        System.out.println(obtained);
+//        System.out.println("\n\n");
+        assertEquals(info, obtained);
+        assertEquals(obtained, info);
+    }
+
+
+    /**
+     * Compare whether the environment in envA is the same as envB
+     * @param envA
+     * @param envB
+     */
+    private void compareEnvironments(String []envA, String[] envB) {
+        assertEquals(new HashSet<String>(Arrays.asList(envA)), new HashSet<String>(Arrays.asList(envB)));
     }
     
     public void testInfo3() throws Exception {
@@ -160,18 +182,19 @@ public class InterpreterInfoTest extends TestCase {
         info.setStringSubstitutionVariables(stringSubstitutionOriginal);
 
         
-        String string = info.toString();
+        String string = info.toStringOld();
         InterpreterInfo newInfo = InterpreterInfo.fromString(string, false);
         assertEquals(info.getStringSubstitutionVariables(), newInfo.getStringSubstitutionVariables());
         assertEquals(info, newInfo);
         assertEquals(newInfo, info);
-        compareArray(info.getEnvVariables(), newInfo.getEnvVariables());
+        compareEnvironments(info.getEnvVariables(), newInfo.getEnvVariables());
         newInfo.setEnvVariables(null);
         newInfo.setStringSubstitutionVariables(null);
         assertFalse(info.equals(newInfo));
         assertFalse(newInfo.equals(info));
         
-        assertEquals(newInfo, InterpreterInfo.fromString(newInfo.toString(), false));
+        assertEquals(newInfo, InterpreterInfo.fromString(newInfo.toStringOld(), false));
+        check(info);
     }
     
     public void testInfo4() throws Exception {
@@ -179,13 +202,39 @@ public class InterpreterInfoTest extends TestCase {
         String[] original1 = new String[]{"LIBPATH=k:\\foo", "PATH=c:\\bin;d:\\bin"};
         info.setEnvVariables(original1);
         
-        compareArray(info.updateEnv(null), original1);
+        compareEnvironments(info.updateEnv(null), original1);
         
-        compareArray(info.updateEnv(new String[0]), original1);
+        compareEnvironments(info.updateEnv(new String[0]), original1);
         
         String[] original2 = new String[]{"LIBPATH=k:\\foo", "boo=boo", "PATH=c:\\bin;d:\\bin2"};
         String[] expected2 = new String[]{"LIBPATH=k:\\foo", "boo=boo", "PATH=c:\\bin;d:\\bin"};
-        assertEquals(new HashSet<String>(Arrays.asList(info.updateEnv(original2))), new HashSet<String>(Arrays.asList(expected2)));
+        compareEnvironments(info.updateEnv(original2), expected2);
+        check(info);
+    }
+    
+
+    public void testVariableExpansion() throws Exception {
+        InterpreterInfo info = new InterpreterInfo("2.5", "c:\\bin\\python.exe", new ArrayList<String>());
+        MockStringVariableManager manager = new MockStringVariableManager();
+        manager.addMockVariable("var1", "value1");
+        info.stringVariableManagerForTests = manager;
+        String[] variableInInfo = new String[]{"LIBPATH=k:\\foo", "PATH=c:\\bin;d:\\bin", "ENV1=${var1}"};
+        info.setEnvVariables(variableInInfo);
+        
+        // echeck expected output when no environment is being added to
+        String[] expected1 = new String[]{"LIBPATH=k:\\foo", "PATH=c:\\bin;d:\\bin", "ENV1=value1"};
+        compareEnvironments(info.updateEnv(null), expected1);
+        compareEnvironments(info.updateEnv(new String[0]), expected1);
+        
+        // check expected output when there is an input environment
+        String[] inputEnv = new String[]{"LIBPATH=k:\\foo", "boo=boo", "PATH=c:\\bin;d:\\bin2", "ENV1=some_other_value"};
+        String[] expected2 = new String[]{"LIBPATH=k:\\foo", "boo=boo", "PATH=c:\\bin;d:\\bin", "ENV1=value1"};
+        compareEnvironments(info.updateEnv(inputEnv), expected2);
+        
+        // make sure that variables in the input (system) environment are not expanded
+        String[] original3 = new String[]{"LIBPATH=k:\\foo", "boo=boo", "PATH=c:\\bin;d:\\bin2", "ENV2=${var1}"};
+        String[] expected3 = new String[]{"LIBPATH=k:\\foo", "boo=boo", "PATH=c:\\bin;d:\\bin", "ENV2=${var1}", "ENV1=value1"};
+        compareEnvironments(info.updateEnv(original3), expected3);
     }
     
     
@@ -202,6 +251,8 @@ public class InterpreterInfoTest extends TestCase {
         List<String> asList = Arrays.asList(info.getBuiltins());
         assertTrue(!asList.contains("django"));
         assertTrue(!asList.contains("django.db"));
+        
+        check(info);
     }
     
     

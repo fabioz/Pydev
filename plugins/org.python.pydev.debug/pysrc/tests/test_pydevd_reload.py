@@ -3,7 +3,7 @@ Changed the doctest frome the xreload to actual unittest.
 '''
 
 import sys
-import os
+import os.path
 
 import sys
 IS_JYTHON = sys.platform.find('java') != -1

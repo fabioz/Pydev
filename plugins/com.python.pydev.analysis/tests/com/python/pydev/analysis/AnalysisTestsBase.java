@@ -100,11 +100,15 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
     }
 
     protected String getSystemPythonpathPaths() {
-        final String paths;
+        String paths;
+        paths = TestDependent.PYTHON_LIB+"|"+
+                TestDependent.PYTHON_SITE_PACKAGES+"|"+
+                TestDependent.PYTHON_DLLS;
         if(TestDependent.PYTHON_WXPYTHON_PACKAGES != null){
-            paths = TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES+"|"+TestDependent.PYTHON_WXPYTHON_PACKAGES;
-        }else{
-            paths = TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES;
+            paths += "|"+TestDependent.PYTHON_WXPYTHON_PACKAGES;
+        }
+        if(TestDependent.PYTHON_OPENGL_PACKAGES != null){
+            paths += "|"+TestDependent.PYTHON_OPENGL_PACKAGES;
         }
         return paths;
     }
@@ -137,6 +141,31 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
         msgs = analyze();
         
         printMessages(msgs,numberOfErrors);
+        return msgs;
+    }
+    
+    /**
+     * Uses the doc attribute as the module and makes the analysis, checking if no error is found.
+     * @return the messages that were reported as errors
+     */
+    protected IMessage[] checkError(String ... errors) {
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyze();
+        
+        printMessages(msgs,errors.length);
+        
+        HashSet<String> found = new HashSet<String>();
+        for (IMessage msg : msgs) {
+            found.add(msg.getMessage());
+        }
+        
+        for(String s:errors){
+            if(!found.remove(s)){
+                printMessages(msgs);
+                fail("Could not find error: "+s+" in current errors.");
+            }
+        }
+        
         return msgs;
     }
 

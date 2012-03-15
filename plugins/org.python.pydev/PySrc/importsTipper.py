@@ -20,6 +20,8 @@ def _imp(name, log=None):
             
             if log is not None:
                 log.AddContent('Unable to import', name, 'trying with', sub)
+                #log.AddContent('PYTHONPATH:')
+                #log.AddContent('\n'.join(sorted(sys.path)))
                 log.AddException()
             
             return _imp(sub, log)

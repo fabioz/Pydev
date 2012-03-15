@@ -28,22 +28,22 @@ public class RunnableAsJobsPoolThread extends Thread{
      * 
      * We cannot have more than XX jobs scheduled at any time. 
      */
-    private Semaphore jobsCreationSemaphore;
+    private final Semaphore jobsCreationSemaphore;
     
     /**
      * Semaphore to run: only let it go if there's a release() acknowledging something happened.
      */
-    private Semaphore canRunSemaphore = new Semaphore(0);
+    private final Semaphore canRunSemaphore = new Semaphore(0);
 
     /**
      * List of runnables and their names to run.
      */
-    private List<Tuple<Runnable, String>> runnables = new ArrayList<Tuple<Runnable, String>>();
+    private final List<Tuple<Runnable, String>> runnables = new ArrayList<Tuple<Runnable, String>>();
     
     /**
      * Lock to access the runnables field.
      */
-    private Object lockRunnables = new Object();
+    private final Object lockRunnables = new Object();
     
     /**
      * Constructor

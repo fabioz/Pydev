@@ -22,27 +22,27 @@ public final class GenAndTok{
      * 
      * May be equal to tok
      */
-    public IToken generator;
+    public final IToken generator;
 
     /**
      * This is the token that has been added to the namespace (may have been created on the current module or not).
      */
-    public IToken tok;
+    public final IToken tok;
     
     /**
      * These are the tokens that refer this generator
      */
-    public List<IToken> references = new ArrayList<IToken>();
+    public final List<IToken> references = new ArrayList<IToken>();
     
     /**
      * the scope id of the definition
      */
-    public int scopeId;
+    public final int scopeId;
 
     /**
      * this is the scope where it was found
      */
-    public ScopeItems scopeFound;
+    public final ScopeItems scopeFound;
     
     public GenAndTok(IToken generator, IToken tok, int scopeId, ScopeItems scopeFound) {
         this.generator = generator;

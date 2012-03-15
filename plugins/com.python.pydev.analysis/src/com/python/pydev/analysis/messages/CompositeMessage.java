@@ -31,6 +31,10 @@ public class CompositeMessage extends AbstractMessage{
         super(type, generator, prefs);
     }
 
+    public CompositeMessage(int type, int startLine, int endLine, int startCol, int endCol, IAnalysisPreferences prefs) {
+        super(type, startLine, endLine, startCol, endCol, prefs);
+    }
+    
     List<IMessage> msgs = new ArrayList<IMessage>();
     
     /**

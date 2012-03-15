@@ -23,7 +23,7 @@ public class ParsingThread extends Thread {
     /**
      * Identifies whether this parsing thread is disposed.
      */
-    private boolean disposed;
+    private volatile boolean disposed;
 
     ParsingThread(ParserScheduler parser, Object ... argsToReparse) {
         super();

@@ -8,23 +8,23 @@ package org.python.pydev.django_templates.outline;
 
 import java.util.StringTokenizer;
 
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.django_templates.DjPlugin;
 import org.python.pydev.django_templates.comon.parsing.DjangoTemplatesNode;
 
 import com.aptana.editor.common.outline.CommonOutlineItem;
-import com.aptana.parsing.IParseState;
 import com.aptana.parsing.ast.IParseNode;
 import com.aptana.parsing.ast.ParseNode;
 
 public class DjOutlineLabelProvider {
 
-    private IParseState fParseState;
+    private IDocument fDocument;
     
     private static final int TRIM_TO_LENGTH = 20;
 
-    public DjOutlineLabelProvider(IParseState parseState) {
-        this.fParseState = parseState;
+    public DjOutlineLabelProvider(IDocument document) {
+        this.fDocument = document;
     }
 
 
@@ -43,7 +43,7 @@ public class DjOutlineLabelProvider {
     private String getDisplayText(DjangoTemplatesNode script) {
         StringBuilder text = new StringBuilder();
         text.append(script.getStartTag()).append(" "); //$NON-NLS-1$
-        String source = new String(fParseState.getSource());
+        String source = new String(fDocument.get());
         // locates the source
         ParseNode node = script.getNode();
         source = source.substring(node.getStartingOffset(), node.getEndingOffset() + 1);
