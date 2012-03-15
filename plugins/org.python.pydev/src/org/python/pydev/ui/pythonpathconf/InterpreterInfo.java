@@ -31,10 +31,12 @@ import java.util.zip.ZipFile;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.variables.IStringVariableManager;
+import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.python.pydev.core.ExtensionHelper;
@@ -125,6 +127,7 @@ public class InterpreterInfo implements IInterpreterInfo{
     
     private final Set<String> predefinedCompletionsPath = new TreeSet<String>();
     
+    
     /**
      * This is the way that the interpreter should be referred. Can be null (in which case the executable is
      * used as the name)
@@ -133,6 +136,19 @@ public class InterpreterInfo implements IInterpreterInfo{
 
     public ISystemModulesManager getModulesManager() {
         return modulesManager;
+    }
+
+    /**
+     * Variables manager to resolve variables in the interpreters environment.
+     * initStringVariableManager() creates an appropriate version when running 
+     * within Eclipse, for test the stringVariableManager can be set to
+     * an appropriate mock object
+     */
+    /*default*/ IStringVariableManager stringVariableManager;
+    {
+    	if (VariablesPlugin.getDefault() != null) {
+    		stringVariableManager = VariablesPlugin.getDefault().getStringVariableManager();
+    	}
     }
 
     /**
@@ -1394,17 +1410,11 @@ public class InterpreterInfo implements IInterpreterInfo{
             return env; //nothing to change
         }
         //Ok, it's not null... 
-        
-        if(env == null || env.length == 0){
-            //if the passed was null, just repass the ones contained here
-            return this.envVariables;
-        }
-        
-        //both not null, let's merge them
+        //let's merge them (env may be null/zero-length but we need to apply variable resolver to envVariables anyway)
         HashMap<String, String> hashMap = new HashMap<String, String>();
         
-        fillMapWithEnv(env, hashMap);
-        fillMapWithEnv(envVariables, hashMap, keysThatShouldNotBeUpdated); //will override the keys already there unless they're in keysThatShouldNotBeUpdated
+        fillMapWithEnv(env, hashMap, null, null);
+        fillMapWithEnv(envVariables, hashMap, keysThatShouldNotBeUpdated, stringVariableManager); //will override the keys already there unless they're in keysThatShouldNotBeUpdated
         
         String[] ret = createEnvWithMap(hashMap);
         
@@ -1422,19 +1432,28 @@ public class InterpreterInfo implements IInterpreterInfo{
         return ret;
     }
 
-    public static void fillMapWithEnv(String[] env, HashMap<String, String> hashMap) {
-        fillMapWithEnv(env, hashMap, null);
-    }
-    
-    public static void fillMapWithEnv(String[] env, HashMap<String, String> hashMap, Set<String> keysThatShouldNotBeUpdated) {
+    public static void fillMapWithEnv(String[] env, HashMap<String, String> hashMap, Set<String> keysThatShouldNotBeUpdated, IStringVariableManager manager) {
+    	if (env == null || env.length == 0) {
+    		// nothing to do
+    		return;
+    	}
+    	
         if(keysThatShouldNotBeUpdated == null){
-            keysThatShouldNotBeUpdated = new HashSet<String>();
+            keysThatShouldNotBeUpdated = Collections.emptySet();
         }
 
         for(String s: env){
             Tuple<String, String> sp = StringUtils.splitOnFirst(s, '=');
             if(sp.o1.length() != 0 && sp.o2.length() != 0 && !keysThatShouldNotBeUpdated.contains(sp.o1)){
-                hashMap.put(sp.o1, sp.o2);
+            	String value = sp.o2;
+            	if (manager != null) {
+            		try {
+						value = manager.performStringSubstitution(value, false);
+					} catch (CoreException e) {
+						// Unreachable as false passed to reportUndefinedVariables above
+					}
+            	}
+                hashMap.put(sp.o1, value);
             }
         }
     }
