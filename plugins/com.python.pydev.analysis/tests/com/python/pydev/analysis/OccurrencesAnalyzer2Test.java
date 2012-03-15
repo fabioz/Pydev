@@ -768,6 +768,25 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         checkError("self.Method: arguments don't match");
     }
     
+    public void testParameterAnalysis27() throws IOException{
+        doc = new Document(
+                "class Bounds(object):\n" +
+                "\n" +
+                "    def Method(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "class Bar(object):\n" +
+                "\n" +
+                "    def __init__(self):\n" +
+                "        self.bounds = Bounds()\n" +
+                "\n" +
+                "    def testGetDiagonalLength(self):\n" +
+                "        self.bounds.Method()\n" +
+                "\n"
+        );
+        checkError("self.Method: arguments don't match");
+    }
+    
     
     List<String> findDefinitionDone = new ArrayList<String>();
     private ICallbackListener<ICompletionState> listener = new ICallbackListener<ICompletionState>() {
