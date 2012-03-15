@@ -18,6 +18,7 @@ import org.apache.xmlrpc.server.XmlRpcHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcNoSuchHandlerException;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.webserver.WebServer;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -29,6 +30,10 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.debug.model.PyDebugTargetConsole;
+import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
+import org.python.pydev.debug.newconsole.env.UserCanceledException;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.dltk.console.IScriptConsoleCommunication;
 import org.python.pydev.dltk.console.InterpreterResponse;
@@ -163,7 +168,11 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
      */
     private volatile boolean firstCommWorked = false;
 
-    
+    /**
+     * When non-null, the Debug Target to notify when the underlying process is suspended or running.
+     */
+	private IPydevConsoleDebugTarget debugTarget = null;
+
     /**
      * Called when the server is requesting some input from this class.
      */
@@ -176,8 +185,8 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
         String stderrContents = stdErrReader.getAndClearContents();
         //let the busy loop from execInterpreter free and enter a busy loop
         //in this function until execInterpreter gives us an input
-        nextResponse = new InterpreterResponse(stdOutContents, 
-                stderrContents, false, needInput);
+        setNextResponse(new InterpreterResponse(stdOutContents, 
+                stderrContents, false, needInput));
         
         //busy loop until we have an input
         while(inputReceived == null){
@@ -201,7 +210,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
             final String command, 
             final ICallback<Object, InterpreterResponse> onResponseReceived,
             final ICallback<Object, Tuple<String, String>> onContentsReceived){
-        nextResponse = null;
+        setNextResponse(null);
         if(waitingForInput){
             inputReceived = command;
             waitingForInput = false;
@@ -307,12 +316,12 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                             errorContents += "\n"+stdErrReader.getAndClearContents();
                         }
                         stdOutContents = stdOutReader.getAndClearContents();
-                        nextResponse = new InterpreterResponse(stdOutContents, 
-                                errorContents, more, needInput);
+                        setNextResponse(new InterpreterResponse(stdOutContents, 
+                                errorContents, more, needInput));
                         
                     }catch(Exception e){
-                        nextResponse = new InterpreterResponse("", "Exception while pushing line to console:"+e.getMessage(), 
-                                false, needInput);
+                        setNextResponse(new InterpreterResponse("", "Exception while pushing line to console:"+e.getMessage(), 
+                                false, needInput));
                     }
                     return Status.OK_STATUS;
                 }
@@ -474,5 +483,143 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
         return client.execute("getDescription", new Object[]{text}).toString();
     }
 
+	/**
+	 * The Debug Target to notify when the underlying process is suspended or
+	 * running.
+	 * 
+	 * @param debugTarget
+	 */
+	public void setDebugTarget(IPydevConsoleDebugTarget debugTarget) {
+		this.debugTarget = debugTarget;
+	}
+
+	/**
+	 * The Debug Target to notify when the underlying process is suspended or
+	 * running.
+	 */
+	public IPydevConsoleDebugTarget getDebugTarget() {
+		return debugTarget;
+	}
+
+	/**
+	 * Common code to handle all cases of setting nextResponse so that the
+	 * attached debug target can be notified of effective state.
+	 * 
+	 * @param nextResponse new next response
+	 */
+	private void setNextResponse(InterpreterResponse nextResponse) {
+		this.nextResponse = nextResponse;
+		updateDebugTarget();
+	}
+
+	/**
+	 * Update the debug target (if non-null) of suspended state of console.
+	 */
+	private void updateDebugTarget() {
+		if (debugTarget != null) {
+			if (nextResponse == null || nextResponse.need_input == true)
+				debugTarget.setSuspended(false);
+			else
+				debugTarget.setSuspended(true);
+		}
+	}
+
+	/**
+	 * Request that pydevconsole connect (with pydevd) to the specified port
+	 * 
+	 * @param localPort
+	 *            port for pydevd to connect to.
+	 * @throws Exception if connection fails
+	 */
+	public void connectToDebugger(int localPort) throws Exception {
+        if(waitingForInput){
+            throw new Exception("Can't connect debugger now, waiting for input");
+        }
+        Object result = client.execute("connectToDebugger", new Object[]{localPort});
+        Exception exception = null;
+        if (result instanceof Object[]) {
+        	Object[] resultarray = (Object[])result;
+        	if (resultarray.length == 1) {
+        		if ("connect complete".equals(resultarray[0])) {
+        			return;
+        		}
+        		if (resultarray[0] instanceof String) {
+        			exception = new Exception((String)resultarray[0]);
+        		}
+        		if (resultarray[0] instanceof Exception) {
+        			exception = (Exception)resultarray[0];
+        		}
+        	}
+        }
+        throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "pydevconsole failed to execute connectToDebugger", exception));
+	}
+
+	/**
+	 * Send a debugger command to the pydevconsole's instantiation of pydevd.
+	 * 
+	 * It is necessary to use postCommand here as the write path, see {@link PyDebugTargetConsole#postCommand(AbstractDebuggerCommand)}
+	 * 
+	 * @param cmd
+	 * @throws Exception
+	 */
+	public void postCommand(AbstractDebuggerCommand cmd) throws Exception {
+        if(waitingForInput){
+            throw new Exception("Can't connect debugger now, waiting for input");
+        }
+        cmd.aboutToSend();
+        client.execute("postCommand", new Object[]{cmd.getOutgoing()});
+	}
+
+	/**
+	 * Wait for an established connection.
+	 * @param monitor 
+	 * @throws Exception if no suitable response is received before the timeout
+	 * @throws UserCanceledException if user cancelled with monitor
+	 */
+	public void hello(IProgressMonitor monitor) throws Exception, UserCanceledException {
+		int maximumAttempts = InteractiveConsolePrefs.getMaximumAttempts();
+		monitor.beginTask("Establishing Connection To Console Process", maximumAttempts);
+		try {
+			if (firstCommWorked) {
+				return;
+			}
+			
+			// We'll do a connection attempt, we can try to
+			// connect n times (until the 1st time the connection
+			// is accepted) -- that's mostly because the server may take
+			// a while to get started. 
+	
+			for (int commAttempts = 0; commAttempts < maximumAttempts; commAttempts++) {
+				if (monitor.isCanceled())
+					throw new UserCanceledException("Canceled before hello was successful");
+				String result = null;
+				try {
+					Object[] resulta;
+					resulta = (Object[]) client.execute("hello", new Object[] { "Hello pydevconsole" });
+					result = resulta[0].toString();
+				} catch (XmlRpcException e) {
+					// We'll retry in a moment
+				}
+	
+				if ("Hello eclipse".equals(result)) {
+					firstCommWorked = true;
+					break;
+				}
+	
+				try {
+					Thread.sleep(250);
+				} catch (InterruptedException e) {
+					// Retry now
+				}
+				monitor.worked(1);
+			}
+			
+			if (!firstCommWorked) {
+				throw new Exception("Failed to recive suitable Hello response from pydevconsole");
+			}
+		} finally {
+			monitor.done();
+		}
+	}
 
 }

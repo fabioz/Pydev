@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.eclipse.debug.core.ILaunch;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
@@ -61,6 +62,10 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
     private List<IPythonNature> naturesUsed = new ArrayList<IPythonNature>();
 
 	private IInterpreterInfo interpreterInfo;
+
+	private ILaunch launch;
+
+	private Process process;
 
     @SuppressWarnings("unchecked")
     public PydevConsoleInterpreter() {
@@ -254,6 +259,9 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         this.consoleCommunication = protocol;
     }
 
+    public IScriptConsoleCommunication getConsoleCommunication() {
+		return consoleCommunication;
+	}
     
     public void addCloseOperation(Runnable runnable) {
         this.closeRunnables.add(runnable);
@@ -272,6 +280,22 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
 	
 	public IInterpreterInfo getInterpreterInfo() {
 		return this.interpreterInfo;
+	}
+
+	public void setLaunch(ILaunch launch) {
+		this.launch = launch;
+	}
+	
+	public ILaunch getLaunch() {
+		return launch;
+	}
+
+	public void setProcess(Process process) {
+		this.process = process;
+	}
+	
+	public Process getProcess() {
+		return process;
 	}
 
 

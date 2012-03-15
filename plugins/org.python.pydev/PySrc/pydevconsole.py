@@ -1,4 +1,9 @@
 try:
+    import pydevd
+except:
+    # This happens on Jython embedded in host eclipse 
+    pydevd = None
+try:
     from code import InteractiveConsole
 except ImportError:
     from pydevconsole_code_for_ironpython import InteractiveConsole 
@@ -93,7 +98,26 @@ class InterpreterInterface(BaseInterpreterInterface):
     def __init__(self, host, client_port):
         self.client_port = client_port
         self.host = host
-        self.namespace = globals()
+        if pydevd is None:
+            self.namespace = globals()
+        else:
+            #Adapted from the code in pydevd
+            #patch provided by: Scott Schlesier - when script is run, it does not 
+            #pretend pydevconsole is not the main module, and
+            #convince the file to be debugged that it was loaded as main
+            sys.modules['pydevconsole'] = sys.modules['__main__']
+            sys.modules['pydevconsole'].__name__ = 'pydevconsole'            
+            
+            from imp import new_module
+            m = new_module('__main__')
+            sys.modules['__main__'] = m
+            m.__file__ = file
+            ns = m.__dict__
+            try:
+                ns['__builtins__'] = __builtins__
+            except NameError:
+                pass #Not there on Jython...
+            self.namespace = ns
         self.interpreter = InteractiveConsole(self.namespace)
         self._input_error_printed = False
 
@@ -169,6 +193,9 @@ def StartServer(host, port, client_port):
         server.register_function(interpreter.getCompletions)
         server.register_function(interpreter.getDescription)
         server.register_function(interpreter.close)
+        server.register_function(interpreter.connectToDebugger)
+        server.register_function(interpreter.postCommand)
+        server.register_function(interpreter.hello)
         server.serve_forever()
         
     else:

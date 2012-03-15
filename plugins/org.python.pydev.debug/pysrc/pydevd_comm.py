@@ -358,9 +358,8 @@ def StartClient(host, port):
         PydevdLog(1, "Connected.")
         return s
     except:
-        sys.stderr.write("Could not connect to %s: %s\n" % (host, port))
-        traceback.print_exc()
-        sys.exit(1)
+        PydevdLog(1, "Could not connect to %s: %s\n" % (host, port))
+        raise
 
 
     

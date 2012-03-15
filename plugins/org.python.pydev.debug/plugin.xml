@@ -153,6 +153,13 @@
         sourceLocatorId="org.eclipse.jdt.launching.sourceLocator.JavaSourceLookupDirector"
         sourcePathComputerId="org.eclipse.jdt.launching.sourceLookup.javaSourcePathComputer">
      </launchConfigurationType>
+    <launchConfigurationType
+          delegate="org.python.pydev.debug.ui.launching.InteractiveConsoleConfigurationDelegate"
+          id="org.python.pydev.debug.interactiveConsoleConfigurationType"
+          modes="run, debug, interactive"
+          name="PyDev Interactive Console"
+          public="false">
+    </launchConfigurationType>
 
 </extension>
 <!--- the launcher icon  -->
@@ -186,6 +193,12 @@
 		icon="icons/jython_run.png"
 		configTypeID="org.python.pydev.debug.jythonLaunchConfigurationType"
 		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
+	</launchConfigurationTypeImage>
+	<!-- TODO find more appropriate icon for interactive console -->
+	<launchConfigurationTypeImage
+		configTypeID="org.python.pydev.debug.interactiveConsoleConfigurationType"
+		icon="icons/python_coverage.png" 
+		id="org.python.pydev.debug.ui.interactiveConsoleLaunchConfigurationTypeImage">
 	</launchConfigurationTypeImage>
 </extension>
 <!--- launcher tab group -->
@@ -697,6 +710,17 @@
             class="org.python.pydev.debug.console.ConsoleRestartLaunchPageParticipant"
             id="org.python.pydev.debug.console.consoleRestartLaunchPageParticipant">
          <enablement></enablement>
+      </consolePageParticipant>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.console.consolePageParticipants">
+      <consolePageParticipant
+            class="org.python.pydev.debug.console.ConsoleActivateDebugContext"
+            id="org.python.pydev.debug.console.consoleActivateDebugContext">
+         <enablement>
+            <instanceof value="org.python.pydev.debug.newconsole.PydevConsole"/>
+         </enablement>
       </consolePageParticipant>
    </extension>
    

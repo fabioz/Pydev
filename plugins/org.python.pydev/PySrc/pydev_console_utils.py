@@ -1,3 +1,12 @@
+try:
+    # Try to import the packages needed to attach the debugger
+    import pydevd
+    import pydevd_vars
+    from pydevd_comm import PydevQueue
+    import threading
+except:
+    # This happens on Jython embedded in host eclipse 
+    pydevd = None
 from pydev_imports import xmlrpclib
 import sys
 
@@ -246,3 +255,54 @@ class BaseInterpreterInterface:
         except:
             import traceback;traceback.print_exc()
             return ''
+
+    def _findFrame(self, thread_id, frame_id):
+        f = FakeFrame()
+        f.f_locals = self.getNamespace()
+        f.f_globals = self.getNamespace()
+        return f
+        
+    def connectToDebugger(self, debuggerPort):
+        if pydevd is None:
+            return ('pydevd is not available, cannot connect',)
+        import pydev_localhost
+        threading.currentThread().__pydevd_id__ = "console_main"
+        
+        pydevd_vars.findFrame = self._findFrame
+        
+        self.debugger = pydevd.PyDB()
+        try:
+            self.debugger.connect(pydev_localhost.get_localhost(), debuggerPort)
+        except Exception, e:
+            return ('Failed to connect to target debugger: ' + str(e),)
+        return ('connect complete',)
+    
+    def postCommand(self, cmd_str):
+        if self.debugger is None:
+            raise Exception('connectToDebugger must be called before postCommand')
+        try:
+            args = cmd_str.split('\t', 2)
+            self.debugger.processNetCommand(int(args[0]), int(args[1]), args[2])
+            self.debugger._main_lock.acquire()
+            try:
+                queue = self.debugger.getInternalQueue("console_main")
+                try:
+                    while True:
+                        int_cmd = queue.get(False)
+                        if int_cmd.canBeExecutedBy("console_main"):
+                            int_cmd.doIt(self.debugger)
+                            
+                except PydevQueue.Empty: #@UndefinedVariable
+                    pass
+            finally:
+                self.debugger._main_lock.release()
+        except:
+            import traceback;traceback.print_exc()
+        return ('',)
+        
+    def hello(self, input_str):
+        # Don't care what the input string is
+        return ("Hello eclipse",)
+
+class FakeFrame:
+    pass

@@ -1300,8 +1300,13 @@ if __name__ == '__main__':
     DebugInfoHolder.DEBUG_RECORD_SOCKET_READS = setup.get('DEBUG_RECORD_SOCKET_READS', False)
 
     debugger = PyDB()
-    debugger.connect(setup['client'], setup['port'])
-    
+    try:
+        debugger.connect(setup['client'], setup['port'])
+    except:
+        sys.stderr.write("Could not connect to %s: %s\n" % (setup['client'], setup['port']))
+        traceback.print_exc()
+        sys.exit(1)    
+        
     connected = True #Mark that we're connected when started from inside eclipse.
     
     debugger.run(setup['file'], None, None)

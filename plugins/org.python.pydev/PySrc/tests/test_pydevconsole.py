@@ -5,7 +5,6 @@ import os
 
 sys.argv[0] = os.path.dirname(sys.argv[0]) 
 sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0])))
-
 import pydevconsole
 from pydev_imports import xmlrpclib, SimpleXMLRPCServer, StringIO
 
@@ -29,6 +28,19 @@ class Test(unittest.TestCase):
         ret = sys.stdout #@UnusedVariable
         sys.stdout = self.original_stdout
         #print_ ret.getvalue() -- use to see test output
+
+    def testConsoleHello(self):
+        client_port, _server_port = self.getFreeAddresses()
+        client_thread = self.startClientThread(client_port) #@UnusedVariable
+        import time
+        time.sleep(.3) #let's give it some time to start the threads
+        
+        import pydev_localhost
+        interpreter = pydevconsole.InterpreterInterface(pydev_localhost.get_localhost(), client_port)
+
+        (result,) = interpreter.hello("Hello pydevconsole")
+        self.assertEqual(result, "Hello eclipse")      
+        
 
     def testConsoleRequests(self):
         client_port, _server_port = self.getFreeAddresses()
@@ -128,6 +140,26 @@ class Test(unittest.TestCase):
         client_thread.setDaemon(True)
         client_thread.start()
         return client_thread
+
+        
+    def startDebuggerServerThread(self, debugger_port, socket_code):
+        class DebuggerServerThread(threading.Thread):
+            def __init__(self, debugger_port, socket_code):
+                threading.Thread.__init__(self)
+                self.debugger_port = debugger_port
+                self.socket_code = socket_code
+            def run(self):
+                import socket
+                s = socket.socket()
+                s.bind(('',debugger_port))
+                s.listen(1)
+                socket, unused_addr = s.accept()
+                socket_code(socket)
+                
+        debugger_thread = DebuggerServerThread(debugger_port, socket_code)
+        debugger_thread.setDaemon(True)
+        debugger_thread.start()
+        return debugger_thread
 
         
     def getFreeAddresses(self):
