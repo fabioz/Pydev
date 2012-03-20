@@ -36,13 +36,11 @@ public class ClipboardHandler {
      */
     public void putIntoClipboard(IDocument doc, Point selectedRange, int clipboardType, Display display) {
         
-        ScriptConsolePartitioner scriptConsolePartitioner = (ScriptConsolePartitioner) doc.getDocumentPartitioner();
-
         Clipboard clipboard = new Clipboard(display);
         try {
             TextTransfer plainTextTransfer = TextTransfer.getInstance();
 
-            String plainText = getPlainText(doc, selectedRange, scriptConsolePartitioner);
+            String plainText = getPlainText(doc, selectedRange);
             if(plainText.length() == 0){
                 return;
             }
@@ -70,10 +68,10 @@ public class ClipboardHandler {
     /**
      * @return the text in the given range that's related to actual code / output (but not the prompt)
      */
-    private String getPlainText(IDocument doc, Point selectedRange,
-            ScriptConsolePartitioner scriptConsolePartitioner) {
+    public String getPlainText(IDocument doc, Point selectedRange) {
         StringBuffer plainText = new StringBuffer();
         
+        ScriptConsolePartitioner scriptConsolePartitioner = (ScriptConsolePartitioner) doc.getDocumentPartitioner();
         ScriptStyleRange[] ranges = scriptConsolePartitioner.getStyleRanges(selectedRange.x, selectedRange.y);
         if(ranges.length == 0){
             return "";

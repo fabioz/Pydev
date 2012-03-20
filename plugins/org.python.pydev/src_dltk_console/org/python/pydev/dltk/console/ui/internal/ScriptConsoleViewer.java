@@ -29,6 +29,14 @@ import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.DragSourceListener;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.DropTargetListener;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyEvent;
@@ -201,6 +209,11 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         private volatile int internalCaretSet = -1;
         
         /**
+         * Set to true when drag source/target are the same console
+         */
+        private boolean thisConsoleInitiatedDrag = false;
+        
+        /**
          * Constructor.
          * 
          * @param parent parent for the styled text
@@ -229,7 +242,6 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
             addExtendedModifyListener(new ExtendedModifyListener(){
 
                 public void modifyText(ExtendedModifyEvent event) {
-
                     if(internalCaretSet != -1){
                         if(internalCaretSet != getCaretOffset()){
                             setCaretOffset(internalCaretSet);
@@ -239,10 +251,137 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                 }}
             );
             
+            initDragDrop();
+            
             handleBackspaceAction = new HandleBackspaceAction();
             handleDeletePreviousWord = new HandleDeletePreviousWord();
             handleLineStartAction = new HandleLineStartAction();
         }
+
+    	private void initDragDrop() {
+    		DragSource dragSource = new DragSource(this, DND.DROP_COPY | DND.DROP_MOVE);
+    		dragSource.addDragListener(new DragSourceAdapter());
+    		dragSource.setTransfer(new Transfer[] {org.eclipse.swt.dnd.TextTransfer.getInstance()});
+    		
+    		DropTarget dropTarget = new DropTarget(this, DND.DROP_COPY | DND.DROP_MOVE);
+    		dropTarget.setTransfer(new Transfer[] {org.eclipse.swt.dnd.TextTransfer.getInstance()});
+    		dropTarget.addDropListener(new DragTargetAdapter());
+    	}
+
+		private final class DragSourceAdapter implements DragSourceListener {
+    		private Point selection;
+			private String selectionText = null;
+			private boolean selectionIsEditable;
+
+			public void dragStart(DragSourceEvent event) {
+				thisConsoleInitiatedDrag = false;
+				selectionText = null;
+				event.doit = false;
+				if (getSelectedRange().y > 0) {
+					String temp_selection = new ClipboardHandler().getPlainText(getDocument(), getSelectedRange());
+					if (temp_selection != null && temp_selection.length() > 0) {
+						event.doit = true;
+						selectionText = temp_selection;
+						selection = getSelection();
+						selectionIsEditable = isSelectedRangeEditable();
+					}
+				}
+			}
+			
+
+			public void dragSetData(DragSourceEvent event) {
+				if (TextTransfer.getInstance().isSupportedType(event.dataType)) {
+					event.data = selectionText;
+					thisConsoleInitiatedDrag = true;
+				}
+			}
+
+			public void dragFinished(DragSourceEvent event) {
+				try {
+					if (event.detail == DND.DROP_MOVE && selectionIsEditable) {
+						Point newSelection = getSelection();
+						int length = selection.y - selection.x;
+						int delta = 0;
+						if (newSelection.x < selection.x)
+							delta = length;
+						replaceTextRange(selection.x + delta, length, "");
+					}
+				} finally {
+    				thisConsoleInitiatedDrag = false;
+    			}
+    		}
+    	}
+
+		private final class DragTargetAdapter implements DropTargetListener {
+			public void dragEnter(DropTargetEvent event) {
+				thisConsoleInitiatedDrag = false;
+				if ((event.operations & DND.DROP_MOVE) != 0) {
+					event.detail = DND.DROP_MOVE;
+				} else if ((event.operations & DND.DROP_COPY) != 0) {
+					event.detail = DND.DROP_COPY;
+				} else {
+					event.detail = DND.DROP_NONE;
+				}
+			}
+
+			public void dragOver(DropTargetEvent event) {
+
+				event.feedback |= DND.FEEDBACK_SCROLL;
+
+			}
+
+			public void dragOperationChanged(DropTargetEvent event) {
+				if ((event.operations & DND.DROP_MOVE) != 0) {
+					event.detail = DND.DROP_MOVE;
+				} else if ((event.operations & DND.DROP_COPY) != 0) {
+					event.detail = DND.DROP_COPY;
+				} else {
+					event.detail = DND.DROP_NONE;
+				}
+			}
+
+			public void dropAccept(DropTargetEvent event) {
+
+			}
+
+			public void drop(DropTargetEvent event) {
+
+				if (TextTransfer.getInstance().isSupportedType(event.currentDataType)) {
+					String text = (String) event.data;
+
+					Point selectedRange = getSelectedRange();
+					if (selectedRange.x < getLastLineOffset()) {
+						changeSelectionToEditableRange();
+					} else {
+						int commandLineOffset = getCommandLineOffset();
+						if (selectedRange.x < commandLineOffset) {
+							setSelectedRange(commandLineOffset, 0);
+						}
+					}
+					// else, is in range
+
+					if (!thisConsoleInitiatedDrag && event.detail == DND.DROP_MOVE) {
+						event.detail = DND.DROP_COPY;
+					}
+
+					Point newSelection = getSelection();
+					try {
+						getDocument().replace(newSelection.x, 0, text);
+					} catch (BadLocationException e) {
+						return;
+					}
+					setSelectionRange(newSelection.x, text.length());
+					changeSelectionToEditableRange();
+				}
+
+			}
+
+			public void dragLeave(DropTargetEvent event) {
+			}
+    	}
+
+
+
 
         /**
          * Overridden to keep track of changes in the caret.
@@ -664,6 +803,19 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         }
     }
 
+
+    /**
+     * @return the offset where the line containing the current buffer starts (editable area of the document)
+     */
+    public int getLastLineOffset() {
+        try {
+            return listener.getLastLineOffset();
+        } catch (BadLocationException e) {
+            return -1;
+        }
+    }
+    
+	
     /**
      * Used to clear the contents of the document
      */
