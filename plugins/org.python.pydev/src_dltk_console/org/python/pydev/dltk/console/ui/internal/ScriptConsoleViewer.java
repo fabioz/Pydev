@@ -12,6 +12,7 @@ package org.python.pydev.dltk.console.ui.internal;
 
 import java.util.List;
 
+import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
@@ -22,6 +23,8 @@ import org.eclipse.jface.text.contentassist.ICompletionListener;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistantExtension2;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
+import org.eclipse.jface.util.LocalSelectionTransfer;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ExtendedModifyEvent;
 import org.eclipse.swt.custom.ExtendedModifyListener;
@@ -54,6 +57,9 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.dltk.console.ScriptConsoleHistory;
+import org.python.pydev.dltk.console.codegen.IScriptConsoleCodeGenerator;
+import org.python.pydev.dltk.console.codegen.PythonSnippetUtils;
+import org.python.pydev.dltk.console.codegen.SafeScriptConsoleCodeGenerator;
 import org.python.pydev.dltk.console.ui.IConsoleStyleProvider;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
 import org.python.pydev.dltk.console.ui.ScriptConsole;
@@ -264,10 +270,11 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
     		dragSource.setTransfer(new Transfer[] {org.eclipse.swt.dnd.TextTransfer.getInstance()});
     		
     		DropTarget dropTarget = new DropTarget(this, DND.DROP_COPY | DND.DROP_MOVE);
-    		dropTarget.setTransfer(new Transfer[] {org.eclipse.swt.dnd.TextTransfer.getInstance()});
+			dropTarget.setTransfer(new Transfer[] { LocalSelectionTransfer.getTransfer(),
+					org.eclipse.swt.dnd.TextTransfer.getInstance() });
     		dropTarget.addDropListener(new DragTargetAdapter());
     	}
-
+    	
 		private final class DragSourceAdapter implements DragSourceListener {
     		private Point selection;
 			private String selectionText = null;
@@ -313,42 +320,75 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
     	}
 
 		private final class DragTargetAdapter implements DropTargetListener {
-			public void dragEnter(DropTargetEvent event) {
-				thisConsoleInitiatedDrag = false;
-				if ((event.operations & DND.DROP_MOVE) != 0) {
+
+			private SafeScriptConsoleCodeGenerator getSafeGenerator() {
+				ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
+				IScriptConsoleCodeGenerator codeGenerator = PythonSnippetUtils.getScriptConsoleCodeGeneratorAdapter(selection);
+				return new SafeScriptConsoleCodeGenerator(codeGenerator);
+			}
+
+			/**
+			 * We cancel the drop if we don't have anything to drop
+			 */
+			private boolean forceDropNone(DropTargetEvent event) {
+				if (LocalSelectionTransfer.getTransfer().isSupportedType(event.currentDataType)) {
+					IScriptConsoleCodeGenerator codeGenerator = getSafeGenerator();
+					if (codeGenerator == null || codeGenerator.hasPyCode() == false) {
+						return true;
+					}
+				}
+				return false;
+			}
+
+			private void adjustEventDetail(DropTargetEvent event) {
+				if (forceDropNone(event)) {
+					event.detail = DND.DROP_NONE;
+				} else if (!thisConsoleInitiatedDrag && (event.operations & DND.DROP_COPY) != 0) {
+					event.detail = DND.DROP_COPY;
+				} else if ((event.operations & DND.DROP_MOVE) != 0) {
 					event.detail = DND.DROP_MOVE;
 				} else if ((event.operations & DND.DROP_COPY) != 0) {
 					event.detail = DND.DROP_COPY;
 				} else {
 					event.detail = DND.DROP_NONE;
 				}
+			}
+
+			public void dragEnter(DropTargetEvent event) {
+				thisConsoleInitiatedDrag = false;
+				adjustEventDetail(event);
 			}
 
 			public void dragOver(DropTargetEvent event) {
-
 				event.feedback |= DND.FEEDBACK_SCROLL;
-
 			}
 
 			public void dragOperationChanged(DropTargetEvent event) {
-				if ((event.operations & DND.DROP_MOVE) != 0) {
-					event.detail = DND.DROP_MOVE;
-				} else if ((event.operations & DND.DROP_COPY) != 0) {
-					event.detail = DND.DROP_COPY;
-				} else {
-					event.detail = DND.DROP_NONE;
-				}
+				adjustEventDetail(event);
 			}
 
 			public void dropAccept(DropTargetEvent event) {
-
+				adjustEventDetail(event);
 			}
 
 			public void drop(DropTargetEvent event) {
+				if (event.operations == DND.DROP_NONE) {
+					// nothing to do
+					return;
+				}
 
+				String text = null;
 				if (TextTransfer.getInstance().isSupportedType(event.currentDataType)) {
-					String text = (String) event.data;
+					text = (String) event.data;
 
+				} else if (LocalSelectionTransfer.getTransfer().isSupportedType(event.currentDataType)) {
+					IScriptConsoleCodeGenerator codeGenerator = getSafeGenerator();
+					if (codeGenerator != null) {
+						text = codeGenerator.getPyCode();
+					}
+				}
+
+				if (text != null && text.length() > 0) {
 					Point selectedRange = getSelectedRange();
 					if (selectedRange.x < getLastLineOffset()) {
 						changeSelectionToEditableRange();
@@ -359,10 +399,6 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 						}
 					}
 					// else, is in range
-
-					if (!thisConsoleInitiatedDrag && event.detail == DND.DROP_MOVE) {
-						event.detail = DND.DROP_COPY;
-					}
 
 					Point newSelection = getSelection();
 					try {
