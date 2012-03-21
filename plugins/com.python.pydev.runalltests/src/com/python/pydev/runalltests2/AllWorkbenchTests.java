@@ -16,6 +16,7 @@ import org.python.pydev.debug.pyunit.PyUnitViewTestTestWorkbench;
 import org.python.pydev.debug.ui.DebuggerTestWorkbench;
 import org.python.pydev.debug.ui.SourceLocatorTestWorkbench;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfigTestWorkbench;
+import org.python.pydev.dltk.console.codegen.StructuredSelectionGeneratorTestWorkbench;
 import org.python.pydev.editor.PyEditTitleTestWorkbench;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaClassModuleTestWorkbench;
 import org.python.pydev.editor.codecompletion.revisited.jython.JythonCompletionWithBuiltinsTestWorkbench;
@@ -60,6 +61,7 @@ public class AllWorkbenchTests {
         suite.addTestSuite(PyUnitView2TestTestWorkbench.class); 
         
         suite.addTestSuite(PyCodeCoverageTestWorkbench.class); 
+        suite.addTestSuite(StructuredSelectionGeneratorTestWorkbench.class); 
         
         if (suite.countTestCases() == 0) {
             throw new Error("There are no test cases to run");
