@@ -848,17 +848,17 @@ def GetLocationFromLine(line):
 # Main        
 #=======================================================================================================================
 if __name__ == '__main__':
-    test_dependent = os.path.join('../../../', 'org.python.pydev.core', 'tests', 'org', 'python', 'pydev', 'core', 'TestDependent.java')
+    import platform
+    sysname = platform.system().lower()
+    test_dependent = os.path.join('../../../', 'org.python.pydev.core', 'tests', 'org', 'python', 'pydev', 'core', 'TestDependent.' + sysname + '.properties')
+    f = open(test_dependent)
     try:
-        f = open(test_dependent)
         for line in f.readlines():
             if 'JYTHON_JAR_LOCATION' in line:
                 JYTHON_JAR_LOCATION = GetLocationFromLine(line)
                 
             if 'JAVA_LOCATION' in line:
                 JAVA_LOCATION = GetLocationFromLine(line)
-                
-        
     finally:
         f.close()
         

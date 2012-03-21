@@ -11,10 +11,18 @@ package org.python.pydev.debug.newconsole.env;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationType;
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.Launch;
+import org.eclipse.debug.core.model.IProcess;
+import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
@@ -29,6 +37,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
+import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.SocketUtil;
@@ -43,7 +52,7 @@ import org.python.pydev.ui.pythonpathconf.AbstractInterpreterPreferencesPage;
  */
 public class IProcessFactory {
     
-    public static final class PydevConsoleLaunchInfo{
+	public static final class PydevConsoleLaunchInfo{
         public final Launch launch;
         public final Process process;
         public final int clientPort;
@@ -162,7 +171,23 @@ public class IProcessFactory {
 		return null;
     }
     
-    public PydevConsoleLaunchInfo createLaunch(
+    private static ILaunchConfiguration createLaunchConfig() {
+        ILaunchManager manager = DebugPlugin.getDefault().getLaunchManager();
+		ILaunchConfigurationType launchConfigurationType = manager
+				.getLaunchConfigurationType("org.python.pydev.debug.interactiveConsoleConfigurationType");
+		ILaunchConfigurationWorkingCopy newInstance;
+		try {
+			newInstance = launchConfigurationType
+					.newInstance(
+							null,
+							manager.generateLaunchConfigurationName("PyDev Interactive Launch"));
+		} catch (CoreException e) {
+			return null;
+		}
+		newInstance.setAttribute(IDebugUIConstants.ATTR_PRIVATE, true);
+        return newInstance;
+    }
+   public PydevConsoleLaunchInfo createLaunch(
     		IInterpreterManager interpreterManager, IInterpreterInfo interpreter, 
     		Collection<String> pythonpath, IPythonNature nature, List<IPythonNature> naturesUsed) throws Exception {
     	Process process = null;
@@ -171,12 +196,20 @@ public class IProcessFactory {
         int port = ports[0];
         int clientPort = ports[1];
         
-        final Launch launch = new Launch(null, "interactive", null);
+        final Launch launch = new Launch(createLaunchConfig(), "interactive", null);
         launch.setAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT, "false");
         launch.setAttribute(INTERACTIVE_LAUNCH_PORT, ""+port);
 
-        File scriptWithinPySrc = PydevPlugin.getScriptWithinPySrc("pydevconsole.py");
-        String pythonpathEnv = SimpleRunner.makePythonPathEnvFromPaths(pythonpath);
+		File scriptWithinPySrc = PydevPlugin.getScriptWithinPySrc("pydevconsole.py");
+		Collection<String> extraPath = pythonpath;
+		if (InteractiveConsolePrefs.getConsoleConnectVariableView()
+				&& interpreterManager.getInterpreterType() != IInterpreterManager.INTERPRETER_TYPE_JYTHON_ECLIPSE) {
+			// Add PydevDebugPlugin's PySrc so we can access pydevd
+			extraPath = new HashSet<String>();
+			extraPath.addAll(pythonpath);
+			extraPath.add(PydevDebugPlugin.getPySrcPath().getAbsolutePath());
+		}
+        String pythonpathEnv = SimpleRunner.makePythonPathEnvFromPaths(extraPath);
         String[] commandLine;
         switch(interpreterManager.getInterpreterType()){
         
@@ -215,10 +248,10 @@ public class IProcessFactory {
                     pythonpathEnv, interpreter.getExecutableOrJar(), interpreterManager, nature);
             process = SimpleRunner.createProcess(commandLine, env, null);
         }
-        PydevSpawnedInterpreterProcess spawnedInterpreterProcess = 
-            new PydevSpawnedInterpreterProcess(process, launch);
         
-        launch.addProcess(spawnedInterpreterProcess);
+        IProcess newProcess = new PydevSpawnedInterpreterProcess(launch, process, interpreter.getNameForUI(), null);
+        
+        launch.addProcess(newProcess);
         
         return new PydevConsoleLaunchInfo(launch, process, clientPort, interpreter);
     }

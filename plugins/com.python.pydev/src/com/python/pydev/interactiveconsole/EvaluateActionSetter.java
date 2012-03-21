@@ -76,13 +76,10 @@ public class EvaluateActionSetter implements IPyEditListener{
                             cmd = "\n"+cmd;
                         }
                     }
-                    console = factory.createConsole(cmd);
+                    factory.createConsole(cmd);
                     
                     
                 }else{
-                    //Note: we can't use the return of the console from the createConsole() at this point
-                    //because the viewer is still not properly set up (i.e.: console.getViewer() == null)
-                    //So, if we had something to send to the user, it would be sent in the initial commands.
                     if(console instanceof PydevConsole){
                         //ok, console available 
                         sendCommandToConsole(selection, console, this.edit);
