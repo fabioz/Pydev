@@ -2308,5 +2308,14 @@ if __name__ == "__main__":
 
 
    </extension>
-	
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="org.eclipse.jface.viewers.ISelection"
+            class="org.python.pydev.dltk.console.codegen.ScriptConsoleCodeGeneratorFactory">
+         <adapter
+               type="org.python.pydev.dltk.console.codegen.IScriptConsoleCodeGenerator">
+         </adapter>
+      </factory>
+   </extension>
  </plugin>
