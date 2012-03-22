@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICompletionCache;
+import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
@@ -173,8 +174,9 @@ public class PyRefactoringFindDefinition {
     public static void findActualDefinition(IProgressMonitor monitor, IModule mod, String tok, ArrayList<IDefinition> selected, 
             int beginLine, int beginCol, IPythonNature pythonNature, ICompletionCache completionCache) throws Exception, CompletionRecursionException {
         
-        IDefinition[] definitions = mod.findDefinition(CompletionStateFactory.getEmptyCompletionState(tok, pythonNature, 
-                beginLine-1, beginCol-1, completionCache), beginLine, beginCol, pythonNature);
+        ICompletionState completionState = CompletionStateFactory.getEmptyCompletionState(tok, pythonNature, 
+                        beginLine-1, beginCol-1, completionCache);
+        IDefinition[] definitions = mod.findDefinition(completionState, beginLine, beginCol, pythonNature);
         
         if(monitor != null){
             monitor.setTaskName("Found:"+definitions.length+ " definitions");
@@ -184,7 +186,9 @@ public class PyRefactoringFindDefinition {
             }
         }
         
-        for (IDefinition definition : definitions) {
+        int len = definitions.length;
+        for (int i = 0; i < len; i++) {
+            IDefinition definition = definitions[i];
             boolean doAdd = true;
             if(definition instanceof Definition){
                 Definition d = (Definition) definition;

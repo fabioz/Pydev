@@ -39,7 +39,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testErrorNotShownOnDynamicClass4();
+            analyzer2.testParameterAnalysis27a();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -784,7 +784,26 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
                 "        self.bounds.Method()\n" +
                 "\n"
         );
-        checkError("self.Method: arguments don't match");
+        checkNoError();
+    }
+    
+    public void testParameterAnalysis27a() throws IOException{
+        doc = new Document(
+                "class Bounds(object):\n" +
+                "\n" +
+                "    def Method(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "class Bar(object):\n" +
+                "\n" +
+                "    def __init__(self):\n" +
+                "        self.Bounds = Bounds\n" +
+                "\n" +
+                "    def testGetDiagonalLength(self):\n" +
+                "        self.Bounds.Method()\n" +
+                "\n"
+                );
+        checkError("self.Bounds.Method: arguments don't match");
     }
     
     
@@ -884,7 +903,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
                     );
             checkNoError();
         } finally {
-            unregisterFindDefinitionListener("Foo", "foo.Method", "foo", "foo"); //TODO: This must be improved!
+            unregisterFindDefinitionListener("Foo", "foo.Method", "foo"); //TODO: This must be improved!
         }
     }
     
@@ -913,7 +932,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
             );
             checkError("foo.Method: arguments don't match");
         } finally {
-            unregisterFindDefinitionListener("", "check.Foo", "foo.Method", "foo", "foo");
+            unregisterFindDefinitionListener("", "check.Foo", "foo.Method","foo");
         }
     }
     

@@ -19,6 +19,8 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.OrderedSet;
+import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
@@ -131,47 +133,61 @@ public final class ArgumentsChecker {
     @SuppressWarnings("unchecked")
     /*default*/ void checkAttrFound(Call callNode, TokenFoundStructure found) throws Exception, CompletionRecursionException {
         FunctionDef functionDefinitionReferenced;
-        IToken nameToken;
+        SourceToken nameToken;
         boolean callingBoundMethod;
         if (found != null && found.defined && found.token instanceof SourceToken) {
-            nameToken = found.token;
+            nameToken = (SourceToken) found.token;
             String rep = nameToken.getRepresentation();
 
             ArrayList<IDefinition> definition = new ArrayList<IDefinition>();
-            PyRefactoringFindDefinition.findActualDefinition(null, this.current, rep, definition, -1, -1,
-                    this.nature, this.completionCache);
+            SimpleNode ast = nameToken.getAst();
+            try {
+                PyRefactoringFindDefinition.findActualDefinition(null, this.current, rep, definition, ast.beginLine, ast.beginColumn,
+                        this.nature, this.completionCache);
+            } catch (Exception e) {
+                Log.log(e);
+                return;
+            }
 
             for (IDefinition iDefinition : definition) {
                 Definition d = (Definition) iDefinition;
                 if (d.ast instanceof FunctionDef) {
                     functionDefinitionReferenced = (FunctionDef) d.ast;
-
-                    if(rep.startsWith("self.")){
-                        FastStack<SimpleNode> scopeStack = d.scope.getScopeStack();
-                        if (scopeStack.size() > 0 && scopeStack.peek() instanceof ClassDef) {
-                            callingBoundMethod = true;
-                        }else{
-                            callingBoundMethod = false;
-                        }
-                        
+                    
+                    String withoutLastPart = FullRepIterable.getWithoutLastPart(rep);
+                    Boolean b = valToBounded.get(withoutLastPart);
+                    if(b != null){
+                        callingBoundMethod = b;
                     }else{
-                        FastStack<SimpleNode> scopeStack = d.scope.getScopeStack();
-                        if (scopeStack.size() > 1 && scopeStack.peek(1) instanceof ClassDef) {
-                            callingBoundMethod = true;
-                            String withoutLast = FullRepIterable.getWithoutLastPart(rep);
-                            ArrayList<IDefinition> definition2 = new ArrayList<IDefinition>();
-                            PyRefactoringFindDefinition.findActualDefinition(null, this.current, withoutLast, definition2,
-                                    -1, -1, this.nature, this.completionCache);
-                            
-                            for (IDefinition iDefinition2 : definition2) {
-                                Definition d2 = (Definition) iDefinition2;
-                                if (d2.ast instanceof ClassDef) {
-                                    callingBoundMethod = false;
-                                    break;
-                                }
+                        int count = StringUtils.count(rep, '.');
+                        
+                        if(count == 1 && rep.startsWith("self.")){
+                            FastStack<SimpleNode> scopeStack = d.scope.getScopeStack();
+                            if (scopeStack.size() > 0 && scopeStack.peek() instanceof ClassDef) {
+                                callingBoundMethod = true;
+                            }else{
+                                callingBoundMethod = false;
                             }
-                        } else {
-                            callingBoundMethod = false;
+                            
+                        }else{
+                            FastStack<SimpleNode> scopeStack = d.scope.getScopeStack();
+                            if (scopeStack.size() > 1 && scopeStack.peek(1) instanceof ClassDef) {
+                                callingBoundMethod = true;
+                                String withoutLast = FullRepIterable.getWithoutLastPart(rep);
+                                ArrayList<IDefinition> definition2 = new ArrayList<IDefinition>();
+                                PyRefactoringFindDefinition.findActualDefinition(null, this.current, withoutLast, definition2,
+                                        -1, -1, this.nature, this.completionCache);
+                                
+                                for (IDefinition iDefinition2 : definition2) {
+                                    Definition d2 = (Definition) iDefinition2;
+                                    if (d2.ast instanceof ClassDef) {
+                                        callingBoundMethod = false;
+                                        break;
+                                    }
+                                }
+                            } else {
+                                callingBoundMethod = false;
+                            }
                         }
                     }
                     analyzeCallAndFunctionMatch(callNode, functionDefinitionReferenced, nameToken, callingBoundMethod);
@@ -348,6 +364,28 @@ public final class ArgumentsChecker {
 
     private void onArgumentsMismatch(IToken node, Call callNode) {
         this.messagesManager.onArgumentsMismatch(node, callNode);
+    }
+
+    
+    private Map<String, Boolean> valToBounded = new HashMap<String, Boolean>();
+    
+    public void visitAssign(Assign node) {
+        boolean bounded = false;
+        exprType[] targets = node.targets;
+        if(node.value != null){
+            if(node.value instanceof Call){
+                bounded = true;
+            }
+        }
+        
+        if(targets != null){
+            int len = targets.length;
+            for(int i=0;i<len;i++){
+                exprType expr = targets[i];
+                valToBounded.put(NodeUtils.getFullRepresentationString(expr), bounded);
+            }
+        }
+        
     }
 
 }

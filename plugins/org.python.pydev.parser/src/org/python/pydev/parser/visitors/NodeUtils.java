@@ -27,6 +27,7 @@ import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.BinOp;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Compare;
@@ -216,6 +217,14 @@ public class NodeUtils {
             return val;
         }
 
+        if(node instanceof BinOp){
+            BinOp binOp = (BinOp) node;
+            if(binOp.left instanceof Str && binOp.op == BinOp.Mod){
+                node = binOp.left;
+                //Just change the node... the check below will work with the Str already.
+            }
+        }
+        
         if (node instanceof Str){
             String val;
             if(useTypeRepr){
@@ -225,6 +234,7 @@ public class NodeUtils {
             }
             return val;
         }
+        
 
         if (node instanceof Tuple){
             StringBuffer buf = new StringBuffer();
@@ -383,6 +393,15 @@ public class NodeUtils {
             return buf.toString();
 
         }
+        
+        if(node instanceof BinOp){
+            BinOp binOp = (BinOp) node;
+            if(binOp.left instanceof Str && binOp.op == BinOp.Mod){
+                //It's something as 'aaa' % (1,2), so, we know it's a string.
+                return getRepresentationString(node, true);
+            }
+        }
+        
 
         return getRepresentationString(node, true);
     }
