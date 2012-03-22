@@ -200,6 +200,10 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
         isInTestScope+=1;
         Object r = super.visitAssign(node);
         isInTestScope-=1;
+        
+        if(analyzeArgumentsMismatch){
+            argumentsChecker.visitAssign(node);
+        }
         return r;
     }
     
@@ -461,7 +465,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
     }
 
     
-    public static class TokenFoundStructure{
+    public static final class TokenFoundStructure{
 
         public final IToken token;
         public final boolean defined;

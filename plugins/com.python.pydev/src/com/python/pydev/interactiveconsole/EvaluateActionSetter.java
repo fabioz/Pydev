@@ -29,19 +29,17 @@ import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsoleView;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.newconsole.PydevConsole;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.debug.newconsole.PydevConsoleFactory;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
+import org.python.pydev.dltk.console.codegen.PythonSnippetUtils;
 import org.python.pydev.dltk.console.ui.ScriptConsole;
 import org.python.pydev.dltk.console.ui.internal.ScriptConsoleViewer;
 import org.python.pydev.dltk.console.ui.internal.actions.IInteractiveConsoleConstants;
 import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.runners.SimpleRunner;
 
 /**
  * This class will setup the editor so that we can create interactive consoles, send code to it or make an execfile.
@@ -76,13 +74,10 @@ public class EvaluateActionSetter implements IPyEditListener{
                             cmd = "\n"+cmd;
                         }
                     }
-                    console = factory.createConsole(cmd);
+                    factory.createConsole(cmd);
                     
                     
                 }else{
-                    //Note: we can't use the return of the console from the createConsole() at this point
-                    //because the viewer is still not properly set up (i.e.: console.getViewer() == null)
-                    //So, if we had something to send to the user, it would be sent in the initial commands.
                     if(console instanceof PydevConsole){
                         //ok, console available 
                         sendCommandToConsole(selection, console, this.edit);
@@ -133,29 +128,12 @@ public class EvaluateActionSetter implements IPyEditListener{
             File editorFile = edit.getEditorFile();
             
             if(editorFile != null){
-                String fileStr = SimpleRunner.getArgumentsAsStr(new String[]{editorFile.toString()});
-                
-                char[] characters = fileStr.trim().toCharArray();
-                FastStringBuffer buf = new FastStringBuffer(characters.length+characters.length/2);
-                for (int i = 0; i < characters.length; i++) {
-                    char character= characters[i];
-                    if (character == '\\') {
-                        buf.append("\\");
-                    }
-                    buf.append(character);
-                }
-                if(buf.startsWith('"')){
-                    buf.deleteFirst();
-                }
-                if(buf.endsWith('"')){
-                    buf.deleteLast();
-                }
-                cmd = StringUtils.format("execfile('%s')\n", buf.toString());
+            	cmd = PythonSnippetUtils.getExecfileCommand(editorFile); 
             }
         }
         return cmd;
     }
-
+    
     /**
      * @param consoleType the console type we're searching for
      * @return the currently active console.

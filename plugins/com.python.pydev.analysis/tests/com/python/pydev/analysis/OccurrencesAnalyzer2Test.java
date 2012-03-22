@@ -39,7 +39,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testParameterAnalysisOptimization5();
+            analyzer2.testParameterAnalysis27a();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -726,6 +726,87 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
     }
     
     
+    public void testParameterAnalysis25() throws IOException{
+        doc = new Document(
+                "class Bar(object):\n" +
+                "\n" +
+                "    def __init__(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "class Foo(Bar):\n" +
+                "    pass\n" +
+                "\n" +
+                "Foo()\n" +
+                "Foo()\n"
+        );
+        checkNoError();
+    }
+    
+    
+    public void testParameterAnalysis26() throws IOException{
+        doc = new Document(
+                "class Foo(object):\n" +
+                "    def Method(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "    def Method2(self):\n" +
+                "        self.Method()\n"
+        );
+        checkNoError();
+    }
+    
+    
+    public void testParameterAnalysis26a() throws IOException{
+        doc = new Document(
+                "class Foo(object):\n" +
+                "    def Method(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "    def Method2(self):\n" +
+                "        self.Method(1)\n"
+        );
+        checkError("self.Method: arguments don't match");
+    }
+    
+    public void testParameterAnalysis27() throws IOException{
+        doc = new Document(
+                "class Bounds(object):\n" +
+                "\n" +
+                "    def Method(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "class Bar(object):\n" +
+                "\n" +
+                "    def __init__(self):\n" +
+                "        self.bounds = Bounds()\n" +
+                "\n" +
+                "    def testGetDiagonalLength(self):\n" +
+                "        self.bounds.Method()\n" +
+                "\n"
+        );
+        checkNoError();
+    }
+    
+    public void testParameterAnalysis27a() throws IOException{
+        doc = new Document(
+                "class Bounds(object):\n" +
+                "\n" +
+                "    def Method(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "class Bar(object):\n" +
+                "\n" +
+                "    def __init__(self):\n" +
+                "        self.Bounds = Bounds\n" +
+                "\n" +
+                "    def testGetDiagonalLength(self):\n" +
+                "        self.Bounds.Method()\n" +
+                "\n"
+                );
+        checkError("self.Bounds.Method: arguments don't match");
+    }
+    
+    
     List<String> findDefinitionDone = new ArrayList<String>();
     private ICallbackListener<ICompletionState> listener = new ICallbackListener<ICompletionState>() {
         
@@ -822,7 +903,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
                     );
             checkNoError();
         } finally {
-            unregisterFindDefinitionListener("Foo", "foo.Method", "foo", "foo"); //TODO: This must be improved!
+            unregisterFindDefinitionListener("Foo", "foo.Method", "foo"); //TODO: This must be improved!
         }
     }
     
@@ -833,11 +914,25 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
             doc = new Document(
                     "from extendable.parameters_check.check import Foo\n" + //class with __init__ == __init__(self, a, b)
                     "foo = Foo(10, 20, 20)\n" +
-                    "foo.Method(10, 30)\n"
+                    "foo.Method(10, 30)\n" //error here, but check is disabled!
             );
             checkNoError();
         } finally {
             unregisterFindDefinitionListener();
+        }
+    }
+    
+    public void testParameterAnalysisOptimization6() throws IOException{
+        registerOnFindDefinitionListener();
+        try {
+            doc = new Document(
+                    "from extendable.parameters_check import check\n" + //class with __init__ == __init__(self, a, b)
+                    "foo = check.Foo(10, 20, 20)\n" +
+                    "foo.Method(10, 20)\n"
+            );
+            checkError("foo.Method: arguments don't match");
+        } finally {
+            unregisterFindDefinitionListener("", "check.Foo", "foo.Method","foo");
         }
     }
     

@@ -1336,5 +1336,16 @@ public class REF {
     public static boolean getSupportsOpenDirectory() {
         return getOpenDirectoryExecutable() != null;
     }
+
+    
+    public static File createFileFromParts(String ... parts) {
+        String part0 = parts[0];
+        File f = new File(part0);
+        for(int i=1;i<parts.length;i++){
+            String part = parts[i];
+            f = new File(f, part);
+        }
+        return f;
+    }
 }
 

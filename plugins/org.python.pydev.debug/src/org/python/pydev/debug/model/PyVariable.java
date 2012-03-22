@@ -22,6 +22,7 @@ import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 import org.python.pydev.debug.model.remote.ChangeVariableCommand;
+import org.python.pydev.dltk.console.codegen.IScriptConsoleCodeGenerator;
 
 /**
  * Represents a python variable.
@@ -139,6 +140,9 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
             
         }else if(adapter.equals(org.eclipse.debug.ui.actions.IRunToLineTarget.class)){
             return this.target.getRunToLineTarget();
+            
+        }else if(adapter.equals(IScriptConsoleCodeGenerator.class)) {
+        	return new PyConsoleCodeGeneratorVariable(this);
 
         }else if (adapter.equals(IPropertySource.class) ||
                 adapter.equals(ITaskListResourceAdapter.class) ||

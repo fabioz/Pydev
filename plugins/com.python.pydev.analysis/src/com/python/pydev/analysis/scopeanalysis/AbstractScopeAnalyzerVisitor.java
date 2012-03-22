@@ -768,12 +768,12 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     }
     
     /**
-     * overriden because we want the value to be visited before the targets 
+     * Overridden because we want the value to be visited before the targets 
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
     public Object visitAssign(Assign node) throws Exception {
         unhandled_node(node);
-        //in 'm = value', this is 'value'
+        //in 'target1 = target2 = value', this is 'value'
         if (node.value != null){
             node.value.accept(this);
         }
@@ -792,7 +792,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     
 
     /**
-     * overriden because we need to know about if scopes
+     * Overridden because we need to know about if scopes
      */
     public Object visitIf(If node) throws Exception {
         scope.addIfSubScope();
@@ -802,7 +802,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     }
     
     /**
-     * overriden because we need to know about while scopes
+     * Overridden because we need to know about while scopes
      */
     public Object visitWhile(While node) throws Exception {
         scope.addIfSubScope();
@@ -863,7 +863,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     }
     
     /**
-     * overriden because we need to visit the generators first
+     * Overridden because we need to visit the generators first
      * 
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitListComp(org.python.pydev.parser.jython.ast.ListComp)
      */
@@ -1216,10 +1216,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             return false;
         }
         IDefinition[] definitions = m.findDefinition(CompletionStateFactory.getEmptyCompletionState(repToCheck, nature, this.completionCache), -1, -1, nature);
-        if(definitions.length == 1){
-            IDefinition foundDefinition = definitions[0];
+        for (int i = 0; i < definitions.length; i++) {
+            IDefinition foundDefinition = definitions[i];
             if(foundDefinition instanceof AssignDefinition){
-                AssignDefinition d = (AssignDefinition) definitions[0];
+                AssignDefinition d = (AssignDefinition) foundDefinition;
                 
                 //if the value is currently None, it will be set later on
                 if(d.value.equals("None")){
@@ -1303,7 +1303,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     }
     
     
-    //these are the methods that should be overriden. Those are hooks to subclasses do whatever they need to do
+    //these are the methods that should be overridden. Those are hooks to subclasses do whatever they need to do
     //on those cases
     protected abstract void onAfterVisitAssign(Assign node);
 

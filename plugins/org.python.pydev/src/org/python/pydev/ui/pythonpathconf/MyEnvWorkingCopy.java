@@ -38,7 +38,8 @@ public class MyEnvWorkingCopy implements ILaunchConfigurationWorkingCopy {
         HashMap<String, String> map = new HashMap<String, String>();
         String[] envVariables = info.getEnvVariables();
         if(envVariables != null){
-            InterpreterInfo.fillMapWithEnv(envVariables, map);
+            // We don't want to perform string substitution here nor exclude any variables
+            InterpreterInfo.fillMapWithEnv(envVariables, map, null, null);
             this.attributes.put(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES, map);
         }else{
             this.attributes.remove(ILaunchManager.ATTR_APPEND_ENVIRONMENT_VARIABLES);
