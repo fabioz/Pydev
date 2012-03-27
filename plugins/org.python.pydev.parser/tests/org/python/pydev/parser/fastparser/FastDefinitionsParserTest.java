@@ -35,7 +35,7 @@ public class FastDefinitionsParserTest extends TestCase {
         try {
             FastDefinitionsParserTest test = new FastDefinitionsParserTest();
             test.setUp();
-            test.testDefinitionsParser12();
+            test.testDefinitionsParser14();
 //            test.NotestGlobalAttributesWX();
             
             
@@ -1036,6 +1036,84 @@ public class FastDefinitionsParserTest extends TestCase {
                 "" //empty
         );
         assertEquals(0, m.body.length);
+    }
+    
+
+    public void testDefinitionsParser13() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "\n" +
+                "def get_validation_errors(outfile, app=None):\n" +
+                "    '''\n" +
+                "    Validates all models that are part of the specified app. If no app name is provided,\n" +
+                "    validates all models of all installed apps. Writes errors, if any, to outfile.\n" +
+                "    Returns number of errors.\n" +
+                "    '''\n" +
+                "    e = ModelErrorCollection(outfile)\n" +
+                "    for (app_name, error) in get_app_errors().items():\n" +
+                "        e.add(app_name, error)\n" +
+                "\n" +
+                "    for cls in models.get_models(app):\n" +
+                "        opts = cls._meta\n" +
+                "\n" +
+                "        # Do field-specific validation.\n" +
+                "        for f in opts.local_fields:\n" +
+                "            if f.name == 'id' and not f.primary_key and opts.pk.name == 'id':\n" +
+                "                e.add(opts, ''%s': You can\'t use 'id' as a field name, because each model automatically gets an 'id' field if none of the fields have primary_key=True. You need to either remove/rename your 'id' field or add primary_key=True to a field.' % f.name)\n" +
+                "            if f.name.endswith('_'):\n" +
+                "                e.add(opts, ''%s': Field names cannot end with underscores, because this would lead to ambiguous queryset filters.' % f.name)\n" +
+                "            if isinstance(f, models.CharField):\n" +
+                "                try:\n" +
+                "                    max_length = int(f.max_length)\n" +
+                "                    if max_length <= 0:\n" +
+                "                        e.add(opts, ''%s': CharFields require a 'max_length' attribute that is a positive integer.' % f.name)\n" +
+                "                except (ValueError, TypeError):\n" +
+                "                    e.add(opts, ''%s': CharFields require a 'max_length' attribute that is a positive integer.' % f.name)\n" +
+                "            if isinstance(f, models.DecimalField):\n" +
+                "                decimalp_ok, mdigits_ok = False, False\n" +
+                "                decimalp_msg = ''%s': DecimalFields require a 'decimal_places' attribute that is a non-negative integer.'\n" +
+                "                try:\n" +
+                "                    decimal_places = int(f.decimal_places)\n" +
+                "                    if decimal_places < 0:\n" +
+                "                        e.add(opts, decimalp_msg % f.name)\n" +
+                "                    else:\n" +
+                "                        decimalp_ok = True\n" +
+                "                except (ValueError, TypeError):\n" +
+                "                    e.add(opts, decimalp_msg % f.name)\n" +
+                "                mdigits_msg = ''%s': DecimalFields require a 'max_digits' attribute that is a positive integer.'\n" +
+                "" +
+                "" 
+                );
+        assertEquals(1, m.body.length);
+        FunctionDef d = (FunctionDef) m.body[0];
+        assertEquals("get_validation_errors", NodeUtils.getRepresentationString(d.name));
+        assertNull(d.body);
+    }
+    
+
+    public void testDefinitionsParser14() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "\n" +
+                "def method():\n" +
+                "    a = 10\n" +
+                "class F:\n" +
+                "    def method2(self):\n" +
+                "        self.bar = 10\n" +
+                "def another():\n" +
+                "    b = 20\n" +
+                "" 
+                );
+        assertEquals(3, m.body.length);
+        FunctionDef d = (FunctionDef) m.body[0];
+        assertEquals("method", NodeUtils.getRepresentationString(d.name));
+        assertNull(d.body);
+        
+        ClassDef cd = (ClassDef) m.body[1];
+        assertEquals("F", NodeUtils.getRepresentationString(cd.name));
+        assertEquals(1, cd.body.length);
+        
+        d = (FunctionDef) m.body[2];
+        assertEquals("another", NodeUtils.getRepresentationString(d.name));
+        
     }
     
     public void testEmpty() {
