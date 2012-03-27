@@ -290,26 +290,32 @@ public abstract class AbstractAdditionalTokensInfo {
         }
         
         char [] charArray;
+        int len;
         if(doc instanceof IDocument){
             IDocument document = (IDocument) doc;
             charArray = document.get().toCharArray();
+            len = charArray.length;
             
         }else if(doc instanceof FastStringBuffer){
             FastStringBuffer fastStringBuffer = (FastStringBuffer) doc;
-            charArray = fastStringBuffer.toCharArray();
+            //In this case, we can actually get the internal array without doing any copies (and just specifying the len).
+            charArray = fastStringBuffer.getInternalCharsArray();
+            len = fastStringBuffer.length();
             
         }else if(doc instanceof String){
             String str = (String) doc;
             charArray = str.toCharArray();
+            len = charArray.length;
             
         }else if(doc instanceof char[]){
             charArray = (char[]) doc;
+            len = charArray.length;
             
         }else{
             throw new RuntimeException("Don't know how to handle: "+doc+" -- "+doc.getClass());
         }
         
-        SimpleNode node = FastDefinitionsParser.parse(charArray, key.file.getName());
+        SimpleNode node = FastDefinitionsParser.parse(charArray, key.file.getName(), len);
         if(node == null){
             return null;
         }

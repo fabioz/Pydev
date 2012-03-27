@@ -38,14 +38,16 @@ public abstract class ParsingUtils implements IPythonPartitions{
      *
      * @author Fabio
      */
-    private static final class CharArrayParsingUtils extends ParsingUtils{
-        private char[] cs;
-        public CharArrayParsingUtils(char[] cs, boolean throwSyntaxError) {
+    private static final class FixedLenCharArrayParsingUtils extends ParsingUtils{
+        private final char[] cs;
+        private final int len;
+        public FixedLenCharArrayParsingUtils(char[] cs, boolean throwSyntaxError, int len) {
             super(throwSyntaxError);
             this.cs = cs;
+            this.len = len;
         }
         public int len() {
-            return cs.length;
+            return len;
         }
         public char charAt(int i) {
             return cs[i];
@@ -58,8 +60,98 @@ public abstract class ParsingUtils implements IPythonPartitions{
      *
      * @author Fabio
      */
+    private static final class FixedLenFastStringBufferParsingUtils extends ParsingUtils{
+        private final FastStringBuffer cs;
+        private final int len;
+        public FixedLenFastStringBufferParsingUtils(FastStringBuffer cs, boolean throwSyntaxError, int len) {
+            super(throwSyntaxError);
+            this.cs = cs;
+            this.len = len;
+        }
+        public int len() {
+            return len;
+        }
+        public char charAt(int i) {
+            return cs.charAt(i);
+        }
+    }
+    
+    /**
+     * Class that handles StringBuffer
+     *
+     * @author Fabio
+     */
+    private static final class FixedLenStringBufferParsingUtils extends ParsingUtils{
+        private final StringBuffer cs;
+        private final int len;
+        public FixedLenStringBufferParsingUtils(StringBuffer cs, boolean throwSyntaxError, int len) {
+            super(throwSyntaxError);
+            this.cs = cs;
+            this.len = len;
+        }
+        public int len() {
+            return len;
+        }
+        public char charAt(int i) {
+            return cs.charAt(i);
+        }
+    }
+    
+    /**
+     * Class that handles String
+     *
+     * @author Fabio
+     */
+    private static final class FixedLenStringParsingUtils extends ParsingUtils{
+        private final String cs;
+        private final int len;
+        public FixedLenStringParsingUtils(String cs, boolean throwSyntaxError, int len) {
+            super(throwSyntaxError);
+            this.cs = cs;
+            this.len = len;
+        }
+        public int len() {
+            return len;
+        }
+        public char charAt(int i) {
+            return cs.charAt(i);
+        }
+    }
+    
+    /**
+     * Class that handles String
+     *
+     * @author Fabio
+     */
+    private static final class FixedLenIDocumentParsingUtils extends ParsingUtils{
+        private final IDocument cs;
+        private final int len;
+        public FixedLenIDocumentParsingUtils(IDocument cs, boolean throwSyntaxError, int len) {
+            super(throwSyntaxError);
+            this.cs = cs;
+            this.len = len;
+        }
+        public int len() {
+            return len;
+        }
+        public char charAt(int i) {
+            try {
+                return cs.getChar(i);
+            } catch (BadLocationException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+  
+    
+    
+    /**
+     * Class that handles FastStringBuffer
+     *
+     * @author Fabio
+     */
     private static final class FastStringBufferParsingUtils extends ParsingUtils{
-        private FastStringBuffer cs;
+        private final FastStringBuffer cs;
         public FastStringBufferParsingUtils(FastStringBuffer cs, boolean throwSyntaxError) {
             super(throwSyntaxError);
             this.cs = cs;
@@ -78,7 +170,7 @@ public abstract class ParsingUtils implements IPythonPartitions{
      * @author Fabio
      */
     private static final class StringBufferParsingUtils extends ParsingUtils{
-        private StringBuffer cs;
+        private final StringBuffer cs;
         public StringBufferParsingUtils(StringBuffer cs, boolean throwSyntaxError) {
             super(throwSyntaxError);
             this.cs = cs;
@@ -96,27 +188,8 @@ public abstract class ParsingUtils implements IPythonPartitions{
      *
      * @author Fabio
      */
-    private static final class StringParsingUtils extends ParsingUtils{
-        private String cs;
-        public StringParsingUtils(String cs, boolean throwSyntaxError) {
-            super(throwSyntaxError);
-            this.cs = cs;
-        }
-        public int len() {
-            return cs.length();
-        }
-        public char charAt(int i) {
-            return cs.charAt(i);
-        }
-    }
-    
-    /**
-     * Class that handles String
-     *
-     * @author Fabio
-     */
     private static final class IDocumentParsingUtils extends ParsingUtils{
-        private IDocument cs;
+        private final IDocument cs;
         public IDocumentParsingUtils(IDocument cs, boolean throwSyntaxError) {
             super(throwSyntaxError);
             this.cs = cs;
@@ -141,23 +214,56 @@ public abstract class ParsingUtils implements IPythonPartitions{
     }
     
     /**
+     * Factory method to create it. Object len may not be changed afterwards.
+     */
+    public static ParsingUtils create(Object cs, boolean throwSyntaxError, int len) {
+        if(cs instanceof char[]){
+            char[] cs2 = (char[])cs;
+            return new FixedLenCharArrayParsingUtils(cs2, throwSyntaxError, len);
+        }
+        if(cs instanceof FastStringBuffer){
+            FastStringBuffer cs2 = (FastStringBuffer)cs;
+            return new FixedLenFastStringBufferParsingUtils(cs2, throwSyntaxError, len);
+        }
+        if(cs instanceof StringBuffer){
+            StringBuffer cs2 = (StringBuffer)cs;
+            return new FixedLenStringBufferParsingUtils(cs2, throwSyntaxError, len);
+        }
+        if(cs instanceof String){
+            String cs2 = (String)cs;
+            return new FixedLenStringParsingUtils(cs2, throwSyntaxError, len);
+        }
+        if(cs instanceof IDocument){
+            IDocument cs2 = (IDocument)cs;
+            return new FixedLenIDocumentParsingUtils(cs2, throwSyntaxError, len);
+        }
+        throw new RuntimeException("Don't know how to create instance for: "+cs.getClass());
+    }
+    
+    
+    /**
      * Factory method to create it.
      */
     public static ParsingUtils create(Object cs, boolean throwSyntaxError) {
         if(cs instanceof char[]){
-            return new CharArrayParsingUtils((char[])cs, throwSyntaxError);
+            char[] cs2 = (char[])cs;
+            return new FixedLenCharArrayParsingUtils(cs2, throwSyntaxError, cs2.length);
         }
         if(cs instanceof FastStringBuffer){
-            return new FastStringBufferParsingUtils((FastStringBuffer)cs, throwSyntaxError);
+            FastStringBuffer cs2 = (FastStringBuffer)cs;
+            return new FastStringBufferParsingUtils(cs2, throwSyntaxError);
         }
         if(cs instanceof StringBuffer){
-            return new StringBufferParsingUtils((StringBuffer)cs, throwSyntaxError);
+            StringBuffer cs2 = (StringBuffer)cs;
+            return new StringBufferParsingUtils(cs2, throwSyntaxError);
         }
         if(cs instanceof String){
-            return new StringParsingUtils((String)cs, throwSyntaxError);
+            String cs2 = (String)cs;
+            return new FixedLenStringParsingUtils(cs2, throwSyntaxError, cs2.length());
         }
         if(cs instanceof IDocument){
-            return new IDocumentParsingUtils((IDocument)cs, throwSyntaxError);
+            IDocument cs2 = (IDocument)cs;
+            return new IDocumentParsingUtils(cs2, throwSyntaxError);
         }
         throw new RuntimeException("Don't know how to create instance for: "+cs.getClass());
     }

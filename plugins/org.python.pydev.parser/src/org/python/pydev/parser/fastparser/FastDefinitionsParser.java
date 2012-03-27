@@ -88,7 +88,7 @@ public final class FastDefinitionsParser {
      * Holds a stack of classes so that we create a new one in each new scope to be filled and when the scope is ended,
      * it should have its body filled with the stackBody contents related to each
      */
-    private final FastStack<ClassDef> stack = new FastStack<ClassDef>(20);
+    private final FastStack<SimpleNode> stack = new FastStack<SimpleNode>(20);
     
     /**
      * For each item in the stack, there's a stackBody that has the contents to be added later to that class.
@@ -106,14 +106,18 @@ public final class FastDefinitionsParser {
     private final static boolean DEBUG = false;
     
     
+    private FastDefinitionsParser(char[] cs){
+        this(cs, cs.length);
+    }
     /**
      * Constructor
      * 
-     * @param cs array of chars that should be filled.
+     * @param cs array of chars that should be considered.
+     * @param len the number of chars to be used (usually cs.length).
      */
-    private FastDefinitionsParser(char[] cs){
+    private FastDefinitionsParser(char[] cs, int len){
         this.cs = cs;
-        this.length = cs.length;
+        this.length = len;
     }
     
     
@@ -122,7 +126,7 @@ public final class FastDefinitionsParser {
      * @throws SyntaxErrorException 
      */
     private void extractBody() throws SyntaxErrorException {
-        ParsingUtils parsingUtils = ParsingUtils.create(cs);
+        ParsingUtils parsingUtils = ParsingUtils.create(cs, false, length);
         
         if(currIndex < length){
             handleNewLine(parsingUtils);
@@ -272,7 +276,7 @@ public final class FastDefinitionsParser {
 
     public void updateCountRow(int initialIndex, int currIndex) {
         char c;
-        int len = cs.length;
+        int len = length;
         for (int k = initialIndex; k < len && k <= currIndex; k++) {
             c = cs[k];
             switch(c){
@@ -468,6 +472,9 @@ public final class FastDefinitionsParser {
         functionDef.beginColumn = startMethodCol;
 
         addToPertinentScope(functionDef);
+        if(stack.size() == 0){
+            stack.push(functionDef);
+        }
     }
 
     
@@ -495,7 +502,11 @@ public final class FastDefinitionsParser {
      * May close many scopes in a single call depending on where the class should be added to.
      */
     private void endScope(){
-        ClassDef def = stack.pop();
+        SimpleNode pop = stack.pop();
+        if(!(pop instanceof ClassDef)){
+            return;
+        }
+        ClassDef def = (ClassDef) pop;
         List<stmtType> body = stackBody.pop();
         def.body = body.toArray(new stmtType[body.size()]);
         addToPertinentScope(def);
@@ -512,8 +523,11 @@ public final class FastDefinitionsParser {
     private void addToPertinentScope(stmtType newStmt) {
         //see where it should be added (global or class scope)
         while(stack.size() > 0){
-            ClassDef parent = stack.peek();
+            SimpleNode parent = stack.peek();
             if(parent.beginColumn < newStmt.beginColumn){
+                if(parent instanceof FunctionDef){
+                    return;
+                }
                 List<stmtType> peek = stackBody.peek();
                 
                 if(newStmt instanceof FunctionDef){
@@ -639,14 +653,18 @@ public final class FastDefinitionsParser {
      * @return a Module node with the structure found
      */
     public static SimpleNode parse(char[] cs, String moduleName) {
-        FastDefinitionsParser parser = new FastDefinitionsParser(cs);
+        return parse(cs, moduleName, cs.length);
+    }
+    
+    public static SimpleNode parse(char[] cs, String moduleName, int len) {
+        FastDefinitionsParser parser = new FastDefinitionsParser(cs, len);
         try{
             parser.extractBody();
         }catch(SyntaxErrorException e){
             throw new RuntimeException(e);
         }catch(StackOverflowError e){
             RuntimeException runtimeException = new RuntimeException(e);
-            Log.log("Error parsing: "+moduleName+"\nContents:\n"+new String(cs, 0, cs.length>1000?1000:cs.length), runtimeException); //report at most 1000 chars...
+            Log.log("Error parsing: "+moduleName+"\nContents:\n"+new String(cs, 0, len>1000?1000:len), runtimeException); //report at most 1000 chars...
             throw runtimeException;
         }
         List<stmtType> body = parser.body;
