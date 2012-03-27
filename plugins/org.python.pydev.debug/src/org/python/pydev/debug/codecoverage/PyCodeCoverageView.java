@@ -234,7 +234,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
      */
     /*default for tests*/ void executeRefreshAction(IProgressMonitor monitor) {
         if(viewer == null){ //Safeguard: if the view containing this one was removed and for some reason not properly disposed, this would occur.
-            return null;
+            return;
         }
         if(monitor == null){
             monitor = new NullProgressMonitor();
