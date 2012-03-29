@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -24,23 +25,49 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.plugin.nature.SystemPythonNature;
+import org.python.pydev.runners.UniversalRunner;
+import org.python.pydev.runners.UniversalRunner.AbstractRunner;
 import org.python.pydev.ui.wizards.project.IWizardNewProjectNameAndLocationPage;
 
+@SuppressWarnings("serial")
 public class DjangoSettingsPage extends WizardPage {
 
 	public static final String CPYTHON = "cpython";
 	public static final String JYTHON = "jython";
 	
+	public static String DJANGO_14 = "1.4 or later";
+	public static String DJANGO_12_OR_13 = "1.2 or 1.3";
+	public static String DJANGO_11_OR_EARLIER = "1.1 or earlier";
+
+   protected static final String GET_DJANGO_VERSION =
+            "import django;print(django.get_version());";
+	    
+	/**
+	 * The default version to be used.
+	 */
+    private String defaultVersion = DJANGO_14;
+	
+	private void setDefaultVersion(String defaultVersion){
+	    this.defaultVersion = defaultVersion;
+	}
+	
 	static final ArrayList<String> DJANGO_VERSIONS = new ArrayList<String>() {{
-	    add("1.2 or later");
-	    add("1.1");
-	    add("1.0");
-		add("pre-1.0");
+	    add(DJANGO_14);
+	    add(DJANGO_12_OR_13);
+	    add(DJANGO_11_OR_EARLIER);
 	}};
 
-	static final Map<String, List<String>> DB_ENGINES = new HashMap<String, List<String>>() {{
+    static final Map<String, List<String>> DB_ENGINES = new HashMap<String, List<String>>() {{
 		put(CPYTHON, new ArrayList<String>() {{
 		    add("sqlite3");
 			add("postgresql_psycopg2");
@@ -69,6 +96,7 @@ public class DjangoSettingsPage extends WizardPage {
     private Text passText;
 	private ICallback0<IWizardNewProjectNameAndLocationPage> projectPageCallback;
 	private String previousProjectType = "";
+	private String previousProjectInterpreter = "";
 
     public DjangoSettingsPage(String pageName, ICallback0<IWizardNewProjectNameAndLocationPage> projectPage) {
         super(pageName);
@@ -97,6 +125,7 @@ public class DjangoSettingsPage extends WizardPage {
     public void setPreviousPage(IWizardPage page) {
     	super.setPreviousPage(page);
         final IWizardNewProjectNameAndLocationPage projectPage = projectPageCallback.call();
+        final String projectType = projectPage.getProjectType();
         
         if(djVersionCombo.getItemCount() == 0){
             //fill it only if it's still not properly filled
@@ -105,12 +134,15 @@ public class DjangoSettingsPage extends WizardPage {
     			djVersionCombo.add(version);
     		}
         
-            djVersionCombo.setText(DJANGO_VERSIONS.get(0));
         }
-        
-		String projectType = projectPage.getProjectType();
+		
+        final String projectInterpreter = projectPage.getProjectInterpreter();
+        if(!projectType.equals(previousProjectType) || !projectInterpreter.equals(previousProjectInterpreter)){
+            discoverDefaultVersion(projectType, projectInterpreter);
+        }
+        djVersionCombo.setText(defaultVersion);
+
 		if(!projectType.equals(previousProjectType)){
-		    previousProjectType = projectType;
     		List<String> engines = DB_ENGINES.get(
     				projectType.startsWith("jython") ? DjangoSettingsPage.JYTHON : DjangoSettingsPage.CPYTHON);
     		engineCombo.removeAll();
@@ -120,12 +152,74 @@ public class DjangoSettingsPage extends WizardPage {
     		
             engineCombo.setText(engines.get(0));
 		}
+		
+		this.previousProjectType = projectType;
+		this.previousProjectInterpreter = projectInterpreter;
         
         //Always update the sqlite path if needed.
         updateSqlitePathIfNeeded(projectPage);
     }
+
+
+    protected void discoverDefaultVersion(final String projectType, final String projectInterpreter) {
+        defaultVersion = DJANGO_14; //It should be discovered below, but if not found for some reason, this will be the default.
+        
+        SystemPythonNature nature;
+        try {
+            final int interpreterType = PythonNature.getInterpreterTypeFromVersion(projectType);
+            IInterpreterManager interpreterManagerFromType = PydevPlugin.getInterpreterManagerFromType(interpreterType);
+            IInterpreterInfo interpreterInfo;
+            if(IPythonNature.DEFAULT_INTERPRETER.equals(projectInterpreter)){
+                interpreterInfo = interpreterManagerFromType.getDefaultInterpreterInfo(false);
+                
+            }else{
+                interpreterInfo = interpreterManagerFromType.getInterpreterInfo(projectInterpreter, null);
+                
+            }
+            nature = new SystemPythonNature(interpreterManagerFromType, interpreterInfo);
+            AbstractRunner runner = UniversalRunner.getRunner(nature);
+            
+            Tuple<String, String> output = runner.runCodeAndGetOutput(
+                GET_DJANGO_VERSION, 
+                new String[]{
+                }, 
+                null, 
+                new NullProgressMonitor()
+            );
+                
+        
+            String err = output.o2.trim();
+            String out = output.o1.trim();
+            if(err.length() > 0){
+                Log.log("Error attempting to determine Django version: "+err);
+                
+            }else{
+                //System.out.println("Gotten version: "+out);
+                if(out.startsWith("0.")){
+                    setDefaultVersion(DjangoSettingsPage.DJANGO_11_OR_EARLIER);
+                    
+                }else if(out.startsWith("1.")){
+                    out = out.substring(2);
+                    if(out.startsWith("0") || out.startsWith("1")){
+                        setDefaultVersion(DjangoSettingsPage.DJANGO_11_OR_EARLIER);
+                        
+                    }else if(out.startsWith("2") || out.startsWith("3")){
+                        setDefaultVersion(DjangoSettingsPage.DJANGO_12_OR_13);
+                        
+                    }else{
+                        //Later version
+                        setDefaultVersion(DjangoSettingsPage.DJANGO_14);
+                    }
+                }
+            }
+            
+        } catch (Exception e) {
+            Log.log("Unable to determine Django version.", e);
+        }
+    }
 	
-	public void createControl(Composite parent) {
+	@SuppressWarnings("unused")
+    public void createControl(Composite parent) {
         Composite topComp= new Composite(parent, SWT.NONE);
         GridLayout innerLayout= new GridLayout();
         innerLayout.numColumns= 1;
@@ -147,7 +241,7 @@ public class DjangoSettingsPage extends WizardPage {
         
         Label versionLabel = newLabel(general_grp, "Django version");
 
-        djVersionCombo = new Combo(general_grp, 0);
+        djVersionCombo = new Combo(general_grp, SWT.READ_ONLY);
         
         gd= new GridData(GridData.FILL_HORIZONTAL);
         djVersionCombo.setLayoutData(gd);
@@ -219,7 +313,7 @@ public class DjangoSettingsPage extends WizardPage {
 	public DjangoSettings getSettings() {
 		DjangoSettings s = new DjangoSettings();
 		//make it suitable to be written
-		s.djangoVersion = escapeSlashes(djVersionCombo.getText());
+		s.djangoVersion = djVersionCombo.getText();
 		s.databaseEngine = escapeSlashes(engineCombo.getText());
 		s.databaseName = escapeSlashes(nameText.getText());
 		s.databaseHost = escapeSlashes(hostText.getText());

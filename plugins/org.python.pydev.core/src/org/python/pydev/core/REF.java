@@ -1021,6 +1021,10 @@ public class REF {
     }
 
 
+    public static void copyFile(String srcFilename, String dstFilename){
+        copyFile(new File(srcFilename), new File(dstFilename));
+    }
+    
     /**
      * Copy a file from one place to another.
      * 
@@ -1029,7 +1033,7 @@ public class REF {
      * @param srcFilename the source file
      * @param dstFilename the destination
      */
-    public static void copyFile(String srcFilename, String dstFilename){
+    public static void copyFile(File srcFilename, File dstFilename){
         FileChannel srcChannel = null;
         FileChannel dstChannel = null;
         try {
