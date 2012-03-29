@@ -839,16 +839,25 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     public int getInterpreterType() throws CoreException {
         if(interpreterType == null){
             String version = getVersion();
-            if(IPythonNature.Versions.ALL_JYTHON_VERSIONS.contains(version)){
-                interpreterType = INTERPRETER_TYPE_JYTHON;
-                
-            }else if(IPythonNature.Versions.ALL_IRONPYTHON_VERSIONS.contains(version)){
-                interpreterType = INTERPRETER_TYPE_IRONPYTHON;
-                
-            }else{
-                //if others fail, consider it python
-                interpreterType = INTERPRETER_TYPE_PYTHON;
-            }
+            interpreterType = getInterpreterTypeFromVersion(version);
+        }
+        
+        return interpreterType;
+        
+    }
+    
+    
+    public static int getInterpreterTypeFromVersion(String version) throws CoreException {
+        int interpreterType;
+        if(IPythonNature.Versions.ALL_JYTHON_VERSIONS.contains(version)){
+            interpreterType = INTERPRETER_TYPE_JYTHON;
+            
+        }else if(IPythonNature.Versions.ALL_IRONPYTHON_VERSIONS.contains(version)){
+            interpreterType = INTERPRETER_TYPE_IRONPYTHON;
+            
+        }else{
+            //if others fail, consider it python
+            interpreterType = INTERPRETER_TYPE_PYTHON;
         }
         
         return interpreterType;
