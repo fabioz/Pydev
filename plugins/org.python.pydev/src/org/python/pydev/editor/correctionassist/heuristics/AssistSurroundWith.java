@@ -47,7 +47,7 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature, PyEdit edit, int offset) throws BadLocationException {
         
         ArrayList<ICompletionProposal> l = new ArrayList<ICompletionProposal>();
-        String indentation = PyAction.getStaticIndentationString(edit);
+        String indentation = edit.getIndentPrefs().getIndentationString();
         
         ps.selectCompleteLine();
         String selectedText = ps.getSelectedText();

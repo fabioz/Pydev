@@ -85,7 +85,7 @@ class RegexBasedAssistProposal(assist_proposal.AssistProposal):
         m = self.regex.match(current_line)
         if not m:
             return False
-        self.vars = {'indent': PyAction.getStaticIndentationString(editor)}
+        self.vars = {'indent': editor.getIndentPrefs().getIndentationString()}
         self.vars.update(self.base_vars)
         self.vars.update(m.groupdict())
         self.selection = selection

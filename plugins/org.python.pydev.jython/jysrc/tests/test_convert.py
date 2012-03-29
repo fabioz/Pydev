@@ -1,3 +1,5 @@
+#Note that this test is run from org.python.pydev.jythontests.JythonTest
+
 from convert_api_to_pypredef import Convert, Contains
 try:
     import unittest

@@ -49,7 +49,7 @@ public class AssistDocString implements IAssistProps {
 
         String initial = PySelection.getIndentationFromLine(ps.getCursorLineContents());
         String delimiter = PyAction.getDelimiter(ps.getDoc());
-        String indentation = PyAction.getStaticIndentationString(edit);
+        String indentation = edit.getIndentPrefs().getIndentationString();
         String inAndIndent = delimiter + initial + indentation;
 
         FastStringBuffer buf = new FastStringBuffer();
