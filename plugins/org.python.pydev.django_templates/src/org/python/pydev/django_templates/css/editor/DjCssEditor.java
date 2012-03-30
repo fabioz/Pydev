@@ -59,7 +59,7 @@ public class DjCssEditor extends CSSSourceEditor {
     }
 
     @Override
-    protected char[] getPairMatchingCharacters() {
+    public char[] getPairMatchingCharacters() {
         return this.djEditor.getPairMatchingCharacters(super.getPairMatchingCharacters());
     }
 
