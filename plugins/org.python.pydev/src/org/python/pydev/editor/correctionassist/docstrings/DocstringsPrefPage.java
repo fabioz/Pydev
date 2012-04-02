@@ -178,7 +178,6 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements
 
 
         addField(typeDoctagEditor);
-        typeDoctagEditor.setPropertyChangeListener(this);
         addField(new ParameterNamePrefixListEditor(P_DONT_GENERATE_TYPETAGS,
                 "Don't create for parameters with prefix", typeDoctagGroup));
     }
@@ -191,16 +190,6 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements
     public void init(IWorkbench workbench) {
     }
     
-
-    public void propertyChange(PropertyChangeEvent event) {
-        InputDialog d = new InputDialog(getShell(), 
-                "Type doctag generation", 
-                "Enter a parameter prefix",
-                null, 
-                null);
-        d.open();
-    }
-
 
     private RadioGroupFieldEditor typeDoctagEditor;
 }
