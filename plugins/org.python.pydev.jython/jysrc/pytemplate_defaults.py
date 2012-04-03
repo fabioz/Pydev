@@ -176,6 +176,28 @@ def GetCurrentClass(context):
 template_helper.AddTemplateVariable(py_context_type, 'current_class', 'Current class', GetCurrentClass)    
 
 
+#===================================================================================================
+# GetPydevdFileLocation
+#===================================================================================================
+def GetPydevdFileLocation(context):
+    from org.python.pydev.debug.ui.launching import PythonRunnerConfig
+    return PythonRunnerConfig.getDebugScript()
+
+template_helper.AddTemplateVariable(
+    py_context_type, 'pydevd_file_location', 'pydevd.py File Location', GetPydevdFileLocation)    
+
+#===================================================================================================
+# GetPydevdDirLocation
+#===================================================================================================
+def GetPydevdDirLocation(context):
+    from org.python.pydev.debug.ui.launching import PythonRunnerConfig
+    import os
+    return os.path.split(PythonRunnerConfig.getDebugScript())[0]
+
+template_helper.AddTemplateVariable(
+    py_context_type, 'pydevd_dir_location', 'pydevd.py Directory Location', GetPydevdDirLocation)    
+
+
 
 #===================================================================================================
 # GetCurrentMethod

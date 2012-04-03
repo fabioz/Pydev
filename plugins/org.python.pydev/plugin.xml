@@ -1707,7 +1707,8 @@ if __name__ == '__main__':
             description="pydevd.settrace()"
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.pydevd">
-         <pattern>import pydevd;pydevd.settrace()</pattern>
+<pattern>import sys;sys.path.append(r'${pydevd_dir_location}')
+import pydevd;pydevd.settrace()</pattern>
       </template>
       <template
             autoinsert="true"
