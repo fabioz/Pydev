@@ -288,7 +288,6 @@ public abstract class ParsingUtils implements IPythonPartitions{
 
     
     /**
-     * @param cs the char array we are parsing
      * @param buf used to add the comments contents (out) -- if it's null, it'll simply advance to the position and 
      * return it.
      * @param i the # position
@@ -319,7 +318,6 @@ public abstract class ParsingUtils implements IPythonPartitions{
 
     
     /**
-     * @param cs the char array we are parsing
      * @param buf used to add the spaces (out) -- if it's null, it'll simply advance to the position and 
      * return it.
      * @param i the first ' ' position
@@ -367,34 +365,64 @@ public abstract class ParsingUtils implements IPythonPartitions{
     }
     
     /**
-     * @param cs the char array we are parsing
-     * @param buf used to add the literal contents (out)
-     * @param i the ' or " position
-     * @return the end of the literal position (or end of document) -- so, the final char is the ' or " position
+     * Equivalent to eatLiterals(buf, startPos, false) .
+     * 
+     * @param buf
+     * @param startPos
+     * @return
+     * @throws SyntaxErrorException
      */
-    public int eatLiterals(FastStringBuffer buf, int i) throws SyntaxErrorException{
-        //ok, current pos is ' or "
-        //check if we're starting a single or multiline comment...
-        char curr = charAt(i);
-        
-        if(curr != '"' && curr != '\''){
-            throw new RuntimeException("Wrong location to eat literals. Expecting ' or \" ");
-        }
-        
-        int j = getLiteralEnd(i, curr);
-        
-        if(buf != null){
-            int len = len();
-            for (int k = i; k < len && k <= j; k++) {
-                buf.append(charAt(k));
-            }
-        }
-        return j;
-        
+    public int eatLiterals(FastStringBuffer buf, int startPos)
+            throws SyntaxErrorException {
+        return eatLiterals(buf, startPos, false);
     }
     
     /**
-     * @param cs object whith len and charAt
+     * Returns the index of the last character of the current string literal
+     * beginning at startPos, optionally copying the contents of the literal to
+     * an output buffer.
+     * 
+     * @param buf
+     *            If non-null, the contents of the literal are appended to this
+     *            object.
+     * @param startPos
+     *            The position of the initial ' or "
+     * @param rightTrimMultiline
+     *            Whether to right trim the whitespace of each line in multi-
+     *            line literals when appending to buf .
+     * @return The position of the last ' or " character of the literal (or the
+     *         end of the document).
+     */
+    public int eatLiterals(FastStringBuffer buf, int startPos,
+            boolean rightTrimMultiline)
+            throws SyntaxErrorException {
+        char startChar = charAt(startPos);
+
+        if (startChar != '"' && startChar != '\'') {
+            throw new RuntimeException(
+                    "Wrong location to eat literals. Expecting ' or \" ");
+        }
+
+        // Retrieves the correct end position for single- and multi-line
+        // string literals.
+        int endPos = getLiteralEnd(startPos, startChar);
+        boolean rightTrim = rightTrimMultiline
+                && isMultiLiteral(startPos, startChar);
+
+        if (buf != null) {
+            int lastPos = Math.min(endPos, len() - 1);
+            for (int i = startPos; i <= lastPos; i++) {
+                char ch = charAt(i);
+                if (rightTrim && (ch == '\r' || ch == '\n')) {
+                    buf.rightTrim();
+                }
+                buf.append(ch);
+            }
+        }
+        return endPos;
+    }
+    
+    /**
      * @param i index we are analyzing it
      * @param curr current char
      * @return the end of the multiline literal
@@ -413,7 +441,6 @@ public abstract class ParsingUtils implements IPythonPartitions{
     }
 
     /**
-     * @param cs object whith len and charAt
      * @param i index we are analyzing it
      * @param curr current char
      * @return the end of the multiline literal
@@ -432,9 +459,8 @@ public abstract class ParsingUtils implements IPythonPartitions{
     }
 
     /**
-     * @param cs the char array we are parsing
-     * @param buf used to add the comments contents (out)
      * @param i the ' or " position
+     * @param buf used to add the comments contents (out)
      * @return the end of the literal position (or end of document)
      * @throws SyntaxErrorException 
      */
@@ -662,7 +688,6 @@ public abstract class ParsingUtils implements IPythonPartitions{
     
     
     /**
-     * @param cs may be a string, a string buffer or a char array
      * @param i current position (should have a ' or ")
      * @param curr the current char (' or ")
      * @return whether we are at the end of a multi line literal or not.
@@ -679,8 +704,6 @@ public abstract class ParsingUtils implements IPythonPartitions{
     
     
     /**
-     * 
-     * @param cs may be a string, a string buffer or a char array
      * @param i current position (should have a ' or ")
      * @param curr the current char (' or ")
      * @return whether we are at the start of a multi line literal or not.

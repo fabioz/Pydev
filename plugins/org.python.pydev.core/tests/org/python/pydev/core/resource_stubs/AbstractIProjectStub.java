@@ -47,7 +47,7 @@ public class AbstractIProjectStub extends AbstractIContainerStub implements IPro
     public void delete(boolean deleteContent, boolean force, IProgressMonitor monitor) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
-
+    
     public IContentTypeMatcher getContentTypeMatcher() throws CoreException {
         throw new RuntimeException("Not implemented");
     }
@@ -83,6 +83,7 @@ public class AbstractIProjectStub extends AbstractIContainerStub implements IPro
     public IProject[] getReferencingProjects() {
         throw new RuntimeException("Not implemented");
     }
+    
 
     public boolean hasNature(String natureId) throws CoreException {
         throw new RuntimeException("Not implemented");

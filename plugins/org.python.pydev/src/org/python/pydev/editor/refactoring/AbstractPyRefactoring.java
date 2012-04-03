@@ -30,7 +30,7 @@ public abstract class AbstractPyRefactoring implements IPyRefactoring{
      */
     public synchronized static IPyRefactoring getPyRefactoring(){
         if (AbstractPyRefactoring.pyRefactoring == null){
-            IPyRefactoring r = (IPyRefactoring) ExtensionHelper.getParticipant(ExtensionHelper.PYDEV_REFACTORING);
+            IPyRefactoring r = (IPyRefactoring) ExtensionHelper.getParticipant(ExtensionHelper.PYDEV_REFACTORING, true);
             if(r != null){
                 AbstractPyRefactoring.pyRefactoring = r;
             }else{

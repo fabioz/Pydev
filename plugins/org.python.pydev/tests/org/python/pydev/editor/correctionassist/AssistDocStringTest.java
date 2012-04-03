@@ -199,7 +199,7 @@ public class AssistDocStringTest extends TestCase {
     private void check(String expected, String initial, int proposals) throws BadLocationException {
         Document doc = new Document(initial);
         PySelection ps = new PySelection(doc, 0, 0);
-        AssistDocString assist = new AssistDocString();
+        AssistDocString assist = new AssistDocString("@");
         List<ICompletionProposal> props = assist.getProps(ps, null, null, null, null, ps.getAbsoluteCursorOffset());
         assertEquals(proposals, props.size());
         if(props.size() > 0){

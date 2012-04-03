@@ -34,8 +34,8 @@ public class PyFormatStdTest extends TestCase {
         try {
             PyFormatStdTest n = new PyFormatStdTest();
             n.setUp();
-            DEBUG = true;
-            n.testLambdaWithArgs3();
+//            DEBUG = true;
+            n.testTrimAndNewLineEOL2();
             n.tearDown();
             
             junit.textui.TestRunner.run(PyFormatStdTest.class);
@@ -757,6 +757,7 @@ public class PyFormatStdTest extends TestCase {
     
     
     public void testTrimAndNewLineEOL2(){
+        std.trimMultilineLiterals = false;
         std.spaceAfterComma = true;
         std.parametersWithSpace = false;
         std.operatorsWithSpace = true;
@@ -851,7 +852,6 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults("", "");
         checkFormatResults("  \t  ", "");
     }
-    
     
     public void testEqualsWithSpace(){
         std.spaceAfterComma = true;
@@ -955,8 +955,8 @@ public class PyFormatStdTest extends TestCase {
             }
             
             //second check (defined with \r)
-            s = s.replace('\n', '\r');
-            expected = expected.replace('\n', '\r');
+            String s2 = s.replace('\n', '\r');
+            String expected2 = expected.replace('\n', '\r');
             
             doc = new Document(s);
             pyFormatStd.formatAll(doc, null, true, std, false);
@@ -972,7 +972,21 @@ public class PyFormatStdTest extends TestCase {
             formatStr = doc.get();
             assertEquals(expected, formatStr);
             
+            formatStr = pyFormatStd.formatStr(s2, std, "\r", false);
+            if(expected2.endsWith("\r") && !formatStr.endsWith("\r")){
+                expected2 = expected2.substring(0, expected2.length()-1);
+            }
+            assertEquals(expected2, formatStr);
             
+            //third check (defined with \r\n)
+            String s3 = StringUtils.replaceAll(s, "\n", "\r\n");
+            String expected3 = StringUtils.replaceAll(expected, "\n", "\r\n");
+            
+            formatStr = pyFormatStd.formatStr(s3, std, "\r\n", false);
+            if(expected3.endsWith("\r\n") && !formatStr.endsWith("\r\n")){
+                expected3 = expected3.substring(0, expected3.length()-2);
+            }
+            assertEquals(expected3, formatStr);
             
             //now, same thing with different API
             doc = new Document();
@@ -1177,8 +1191,39 @@ public class PyFormatStdTest extends TestCase {
         "";
         
         checkFormatResults(s, expected);
-
     }
 
+    
+    public void testTrimMultilineLiterals() throws Exception {
+        String input = ""
+            + "class Foo:\n"
+            + "    '''Class docstring   '''\n"
+            + "    def __init__(self):\n"
+            + "        '''   \n"
+            + "        Method docstring   \n"
+            + "        \n"
+            + "        with multiple lines   \n"
+            + "        '''\n"
+            + "        print 'Some information   '\n"
+            + "        print '''More\n"
+            + "              information   \n"
+            + "              '''\n";
+        String expected = ""
+            + "class Foo:\n"
+            + "    '''Class docstring   '''\n"
+            + "    def __init__(self):\n"
+            + "        '''\n"
+            + "        Method docstring\n"
+            + "\n"
+            + "        with multiple lines\n"
+            + "        '''\n"
+            + "        print 'Some information   '\n"
+            + "        print '''More\n"
+            + "              information\n"
+            + "              '''\n";
+        
+        std.trimMultilineLiterals = true;
+        checkFormatResults(input, expected);
+    }
 
 }

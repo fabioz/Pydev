@@ -72,6 +72,8 @@ public class PyFormatStd extends PyAction implements IFormatter {
         public boolean addNewLineAtEndOfFile;
 
         public boolean trimLines;
+        
+        public boolean trimMultilineLiterals;
     }
     
     
@@ -161,7 +163,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @return the source code formatter to be used.
      */
     public IFormatter getFormatter() {
-        IFormatter participant = (IFormatter) ExtensionHelper.getParticipant(ExtensionHelper.PYDEV_FORMATTER);
+        IFormatter participant = (IFormatter) ExtensionHelper.getParticipant(ExtensionHelper.PYDEV_FORMATTER, false);
         if (participant == null) {
             participant = this;
         }
@@ -309,6 +311,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         formatStd.spaceAfterComma = PyCodeFormatterPage.useSpaceAfterComma();
         formatStd.addNewLineAtEndOfFile = PyCodeFormatterPage.getAddNewLineAtEndOfFile();
         formatStd.trimLines = PyCodeFormatterPage.getTrimLines();
+        formatStd.trimMultilineLiterals = PyCodeFormatterPage.getTrimMultilineLiterals();
         return formatStd;
     }
 
@@ -320,7 +323,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @return a new (formatted) string
      * @throws SyntaxErrorException 
      */
-    private String formatStr(String str, FormatStd std, String delimiter, boolean throwSyntaxError) throws SyntaxErrorException {
+    /*default*/ String formatStr(String str, FormatStd std, String delimiter, boolean throwSyntaxError) throws SyntaxErrorException {
         return formatStr(str, std, 0, delimiter, throwSyntaxError);
     }
     
@@ -344,8 +347,8 @@ public class PyFormatStd extends PyAction implements IFormatter {
             switch(c){
                 case '\'':
                 case '"':
-                  //ignore comments or multiline comments...
-                    i = parsingUtils.eatLiterals(buf, i);
+                    //ignore literals and multi-line literals, including comments...
+                    i = parsingUtils.eatLiterals(buf, i, std.trimMultilineLiterals);
                     break;
 
                     
@@ -518,7 +521,9 @@ public class PyFormatStd extends PyAction implements IFormatter {
                         if (lastChar == ',' && std.spaceAfterComma && buf.lastChar() == ' ') {
                             buf.deleteLast();
                         }
-                        rightTrimIfNeeded(std, buf);
+                        if (std.trimLines) {
+                            buf.rightTrim();
+                        }
                     }
                     buf.append(c);
                     
@@ -526,22 +531,11 @@ public class PyFormatStd extends PyAction implements IFormatter {
             lastChar = c;
 
         }
-        if(parensLevel == 0){
-            rightTrimIfNeeded(std, buf);
+        if (parensLevel == 0 && std.trimLines) {
+            buf.rightTrim();
         }
         return buf.toString();
     }
-
-
-    private void rightTrimIfNeeded(FormatStd std, FastStringBuffer buf) {
-        if(std.trimLines){
-            char tempC;
-            while(buf.length() > 0 && ((tempC=buf.lastChar()) ==' ' || tempC == '\t')){
-                buf.deleteLast();
-            }
-        }
-    }
-
 
     /**
      * Handles having an operator
@@ -727,7 +721,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
             j++;
 
             if (c == '\'' || c == '"') { //ignore comments or multiline comments...
-                j = parsingUtils.eatLiterals(null, j - 1) + 1;
+                j = parsingUtils.eatLiterals(null, j - 1, std.trimMultilineLiterals) + 1;
                 end = j;
 
             } else if (c == '#') {

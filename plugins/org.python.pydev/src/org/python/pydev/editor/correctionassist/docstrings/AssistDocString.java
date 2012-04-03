@@ -33,6 +33,19 @@ import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
 import org.python.pydev.ui.UIConstants;
 
 public class AssistDocString implements IAssistProps {
+    
+    private final String docStringStyle;
+
+    public AssistDocString(){
+        this(null);
+    }
+    
+    /**
+     * @param docStringStyle the doc string prefix to be used (i.e.: '@' or ':'). If null, it's gotten from the preferences.
+     */
+    public AssistDocString(String docStringStyle){
+        this.docStringStyle = docStringStyle;
+    }
 
     /**
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection,
@@ -60,7 +73,10 @@ public class AssistDocString implements IAssistProps {
 
         int newOffset = buf.length();
         if (ps.isInFunctionLine(true)) {
-            final String preferredDocstringStyle = DocstringsPrefPage.getPreferredDocstringStyle();
+            String preferredDocstringStyle = this.docStringStyle;
+            if(preferredDocstringStyle == null){
+                preferredDocstringStyle = DocstringsPrefPage.getPreferredDocstringStyle();
+            }
             for (String paramName : params) {
                 if(!PySelection.isIdentifier(paramName)){
                     continue;
