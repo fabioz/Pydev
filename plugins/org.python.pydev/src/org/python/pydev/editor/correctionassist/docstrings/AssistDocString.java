@@ -60,19 +60,20 @@ public class AssistDocString implements IAssistProps {
 
         int newOffset = buf.length();
         if (ps.isInFunctionLine(true)) {
+            final String preferredDocstringStyle = DocstringsPrefPage.getPreferredDocstringStyle();
             for (String paramName : params) {
                 if(!PySelection.isIdentifier(paramName)){
                     continue;
                 }
-                buf.append(inAndIndent + "@param " + paramName + ":");
+                buf.append(inAndIndent).append(preferredDocstringStyle).append("param ").append(paramName).append(":");
                 if (DocstringsPrefPage.getTypeTagShouldBeGenerated(paramName)) {
-                    buf.append(inAndIndent + "@type " + paramName + ":");
+                    buf.append(inAndIndent).append(preferredDocstringStyle).append("type ").append(paramName).append(":");
                 }
             }
         } else {
             // It's a class declaration - do nothing.
         }
-        buf.append(inAndIndent + docStringMarker);
+        buf.append(inAndIndent).append(docStringMarker);
 
         int lineOfOffset = ps.getLineOfOffset(tuple.o2);
         String comp = buf.toString();
