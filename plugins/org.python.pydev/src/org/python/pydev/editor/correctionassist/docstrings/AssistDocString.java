@@ -64,9 +64,9 @@ public class AssistDocString implements IAssistProps {
                 if(!PySelection.isIdentifier(paramName)){
                     continue;
                 }
-                buf.append(inAndIndent + "@param " + paramName + ":");
+                buf.append(inAndIndent + DocstringsPrefPage.getPreferredDocstringStyle() + "param " + paramName + ":");
                 if (DocstringsPrefPage.getTypeTagShouldBeGenerated(paramName)) {
-                    buf.append(inAndIndent + "@type " + paramName + ":");
+                    buf.append(inAndIndent + ":type " + paramName + ":");
                 }
             }
         } else {
