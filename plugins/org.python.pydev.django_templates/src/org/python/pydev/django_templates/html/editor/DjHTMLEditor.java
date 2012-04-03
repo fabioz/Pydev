@@ -85,7 +85,7 @@ public class DjHTMLEditor extends HTMLEditor
 	}
 
 	@Override
-	protected char[] getPairMatchingCharacters()
+	public char[] getPairMatchingCharacters()
 	{
 		return this.djEditor.getPairMatchingCharacters(super.getPairMatchingCharacters());
 	}
