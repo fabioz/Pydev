@@ -81,7 +81,9 @@
          ================================= -->
 	<target name="doit" description="Builds the PyDev feature" depends="generate.build.properties,get.revision,generate.base">
 		<java jar="${baseLocation}/plugins/${launcher.plugin}.jar" fork="true" failonerror="yes">
-			<arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/${builder.plugin}/scripts/build.xml -Dbuilder=${basedir} -Dbuild.revision=${build.revision} -nosplash" />
+			<jvmarg value="-Xmx512m" />
+			<jvmarg value="-XX:MaxPermSize=256m" />
+			<arg line="-nosplash -application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/${builder.plugin}/scripts/build.xml -Dbuilder=${basedir} -Dbuild.revision=${build.revision}" />
 		</java>
 		<antcall target="categorize" />
 	</target>
@@ -146,7 +148,7 @@
 	<!-- - - - - - - - - - - - - - - - - - 
           target: clean.after                      
          - - - - - - - - - - - - - - - - - -->
-	<target name="build" depends="doit" if="${cleanAfter}">
+	<target name="build" depends="doit" if="cleanAfter">
 		<antcall target="clean" />
 	</target>
 
