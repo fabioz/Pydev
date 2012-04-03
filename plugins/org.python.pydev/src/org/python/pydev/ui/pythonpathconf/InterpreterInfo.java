@@ -1380,7 +1380,7 @@ public class InterpreterInfo implements IInterpreterInfo{
         synchronized (builderLock) {
             if(this.builder == null){
                 IInterpreterInfoBuilder builder = (IInterpreterInfoBuilder) ExtensionHelper.getParticipant(
-                        ExtensionHelper.PYDEV_INTERPRETER_INFO_BUILDER);
+                        ExtensionHelper.PYDEV_INTERPRETER_INFO_BUILDER, false);
                 if(builder != null){
                     builder.setInfo(this);
                     this.builder = builder;
