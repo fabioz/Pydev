@@ -144,7 +144,8 @@ public class AssistDocStringTest extends TestCase {
         "    '''";
         check(expected, "def f( x y ):");
         
-        expected = "def f( (x,y=10) ):\r\n" +
+        expected = 
+        "def f( x,y=10 ):\r\n" +
         "    '''\r\n" +
         "    \r\n" +
         "    @param x:\r\n" +
@@ -152,7 +153,7 @@ public class AssistDocStringTest extends TestCase {
         "    @param y:\r\n" +
         "    @type y:\r\n" +
         "    '''";
-        check(expected, "def f( (x,y=10) ):");
+        check(expected, "def f( x,y=10 ):");
         
         
         expected = "def f( , ):\r\n" +
@@ -203,7 +204,15 @@ public class AssistDocStringTest extends TestCase {
         assertEquals(proposals, props.size());
         if(props.size() > 0){
             props.get(0).apply(doc);
-            assertEquals(StringUtils.replaceNewLines(expected, "\n"), StringUtils.replaceNewLines(doc.get(), "\n"));
+            String expect = StringUtils.replaceNewLines(expected, "\n");
+            String obtained = StringUtils.replaceNewLines(doc.get(), "\n");
+            if(!expect.equals(obtained)){
+                System.out.println("====Expected====");
+                System.out.println(expect);
+                System.out.println("====Obtained====");
+                System.out.println(obtained);
+                assertEquals(expect, obtained);
+            }
         }
     }
     

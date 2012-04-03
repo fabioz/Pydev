@@ -31,6 +31,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codecompletion.AbstractTemplateCodeCompletion;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.ui.UIConstants;
@@ -47,7 +48,7 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature, PyEdit edit, int offset) throws BadLocationException {
         
         ArrayList<ICompletionProposal> l = new ArrayList<ICompletionProposal>();
-        String indentation = edit.getIndentPrefs().getIndentationString();
+        String indentation = edit!=null?edit.getIndentPrefs().getIndentationString():DefaultIndentPrefs.get().getIndentationString();
         
         ps.selectCompleteLine();
         String selectedText = ps.getSelectedText();
