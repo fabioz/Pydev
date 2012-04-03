@@ -21,8 +21,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.Region;
 import org.python.pydev.core.log.Log;
 
 /**
@@ -31,17 +29,14 @@ import org.python.pydev.core.log.Log;
 public class ChangedLinesComputer {
 
     /**
-     * Return the regions of all lines which have changed in the given buffer since the last save
-     * occurred. Each region in the result spans over the size of at least one line. If successive
-     * lines have changed a region spans over the size of all successive lines. The regions include
-     * line delimiters.
+     * Return the lines which have changed in the given buffer since the last save occurred. 
      * 
      * @param buffer the buffer to compare contents from
      * @param monitor to report progress to
      * @return the regions of the changed lines or null if something went wrong.
      */
-    public static IRegion[] calculateChangedLineRegions(final ITextFileBuffer buffer, final IProgressMonitor monitor) throws CoreException {
-        IRegion[] result = null;
+    public static int[] calculateChangedLines(final ITextFileBuffer buffer, final IProgressMonitor monitor) throws CoreException {
+        int[] result = null;
 
         try {
             monitor.beginTask("Calculating changed lines", 20);
@@ -53,7 +48,7 @@ public class ChangedLinesComputer {
                 IDocument currentDocument = buffer.getDocument();
                 IDocument oldDocument = ((ITextFileBuffer) fileBufferManager.getFileStoreFileBuffer(fileStore)).getDocument();
 
-                result = getChangedLineRegions(oldDocument, currentDocument);
+                result = getChangedLines(oldDocument, currentDocument);
             } finally {
                 fileBufferManager.disconnectFileStore(fileStore, getSubProgressMonitor(monitor, 5));
                 monitor.done();
@@ -67,16 +62,14 @@ public class ChangedLinesComputer {
     }
 
     /**
-     * Return regions of all lines which differ comparing <code>oldDocument</code>s
-     * content with <code>currentDocument</code>s content. Successive lines are merged
-     * into one region.
+     * Return all the changed lines.
      * 
      * @param oldDocument a document containing the old content
      * @param currentDocument a document containing the current content
      * @return the changed regions
      * @throws BadLocationException if fetching the line information fails
      */
-    private static IRegion[] getChangedLineRegions(IDocument oldDocument, IDocument currentDocument) throws BadLocationException {
+    private static int[] getChangedLines(IDocument oldDocument, IDocument currentDocument) throws BadLocationException {
         /*
          * Do not change the type of those local variables. We use Object
          * here in order to prevent loading of the Compare plug-in at load
@@ -93,26 +86,29 @@ public class ChangedLinesComputer {
         //2. Successive changed lines are merged into on RangeDifference
         //     forAll r1,r2 element differences: r1.rightStart()<r2.rightStart() -> r1.rightEnd()<r2.rightStart
 
-        ArrayList<IRegion> regions = new ArrayList<IRegion>();
+        ArrayList<Integer> regions = new ArrayList<Integer>();
         for (int i = 0; i < differences.length; i++) {
             RangeDifference curr = differences[i];
             if (curr.kind() == RangeDifference.CHANGE && curr.rightLength() > 0) {
                 int startLine = curr.rightStart();
                 int endLine = curr.rightEnd() - 1;
 
-                IRegion startLineRegion = currentDocument.getLineInformation(startLine);
                 if (startLine == endLine) {
-                    regions.add(startLineRegion);
+                    regions.add(startLine);
                 } else {
-                    IRegion endLineRegion = currentDocument.getLineInformation(endLine);
-                    int startOffset = startLineRegion.getOffset();
-                    int endOffset = endLineRegion.getOffset() + endLineRegion.getLength();
-                    regions.add(new Region(startOffset, endOffset - startOffset));
+                    for(int iLine=startLine;iLine<=endLine;iLine++){
+                        regions.add(iLine);
+                    }
                 }
             }
         }
 
-        return (IRegion[]) regions.toArray(new IRegion[regions.size()]);
+        int size = regions.size();
+        int [] ret = new int[size];
+        for(int i=0;i<size;i++){
+            ret[i] = regions.get(i);
+        }
+        return ret;
     }
 
     /**

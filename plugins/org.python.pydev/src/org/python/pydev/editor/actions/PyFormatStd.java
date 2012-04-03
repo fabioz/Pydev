@@ -17,12 +17,12 @@ import java.util.List;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentRewriteSession;
 import org.eclipse.jface.text.DocumentRewriteSessionType;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.Region;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.Tuple3;
@@ -92,16 +92,14 @@ public class PyFormatStd extends PyAction implements IFormatter {
             
             
             try{
-                IRegion[] regionsToFormat = null;
+                int[] regionsToFormat = null;
                 if(ps.getSelLength() > 0){
-                    //Create a region with the full lines selected for the formatting.
-                    IDocument doc = ps.getDoc();
-                    IRegion start = doc.getLineInformation(ps.getStartLineIndex());
-                    IRegion end = doc.getLineInformation(ps.getEndLineIndex());
-                
-                    int iStart = start.getOffset();
-                    int iEnd = end.getOffset() + end.getLength();
-                    regionsToFormat = new IRegion[]{new Region(iStart, iEnd-iStart)};
+                    int startLineIndex = ps.getStartLineIndex();
+                    int endLineIndex = ps.getEndLineIndex();
+                    regionsToFormat = new int[endLineIndex-startLineIndex+1];
+                    for(int i=startLineIndex,j=0;i<=endLineIndex;i++,j++){
+                        regionsToFormat[j]=i;
+                    }
                 }
 
                 applyFormatAction(pyEdit, ps, regionsToFormat, true);
@@ -124,7 +122,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * be formatted. 
      * @throws SyntaxErrorException 
      */
-    public void applyFormatAction(PyEdit pyEdit, PySelection ps, IRegion[] regionsToFormat, boolean throwSyntaxError) throws BadLocationException, SyntaxErrorException {
+    public void applyFormatAction(PyEdit pyEdit, PySelection ps, int[] regionsToFormat, boolean throwSyntaxError) throws BadLocationException, SyntaxErrorException {
         final IFormatter participant = getFormatter();
         final IDocument doc = ps.getDoc();
         final SelectionKeeper selectionKeeper = new SelectionKeeper(ps);
@@ -171,7 +169,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
     }
     
 
-    public void formatSelection(IDocument doc, IRegion[] regionsForSave, IPyEdit edit, PySelection ps) {
+    public void formatSelection(IDocument doc, int[] regionsForSave, IPyEdit edit, PySelection ps) {
         FormatStd formatStd = getFormat();
         formatSelection(doc, regionsForSave, edit, ps, formatStd);
     }
@@ -180,29 +178,35 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * Formats the given selection
      * @see IFormatter
      */
-    public void formatSelection(IDocument doc, IRegion[] regionsForSave, IPyEdit edit, PySelection ps, FormatStd formatStd) {
+    public void formatSelection(IDocument doc, int[] regionsForSave, IPyEdit edit, PySelection ps, FormatStd formatStd) {
 //        Formatter formatter = new Formatter();
 //        formatter.formatSelection(doc, startLine, endLineIndex, edit, ps);
         
         @SuppressWarnings({ "rawtypes", "unchecked" })
         List<Tuple3<Integer, Integer, String>> replaces = new ArrayList();
         
-        
-        //Calculate all formatting to take place
+        String docContents = doc.get();
+        String delimiter = PySelection.getDelimiter(doc);
+        IDocument formatted;
         try {
-            for(IRegion r: regionsForSave){
+            formatted = new Document(formatAll(formatStd, true, docContents, delimiter));
+        } catch (SyntaxErrorException e) {
+            return;
+        }
+        //Actually replace the formatted lines: in our formatting, lines don't change, so, this is OK :)
+        try {
+            for(int i:regionsForSave){
+                IRegion r = doc.getLineInformation(i);
                 int iStart = r.getOffset();
                 int iEnd = r.getOffset() + r.getLength();
-                
-                String d = doc.get(iStart, iEnd - iStart);
-                String formatted = formatStr(d, formatStd, PySelection.getDelimiter(doc), false);
-                replaces.add(new Tuple3<Integer, Integer, String>(iStart, iEnd - iStart, formatted));
+
+                String line = PySelection.getLine(formatted, i);
+                replaces.add(new Tuple3<Integer, Integer, String>(iStart, iEnd - iStart, line));
             }
             
         } catch (BadLocationException e) {
             Log.log(e);
-        }catch(SyntaxErrorException e){
-            throw new RuntimeException(e);
+            return;
         }
         
         
@@ -249,22 +253,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
     public void formatAll(IDocument doc, IPyEdit edit, boolean isOpenedFile, FormatStd formatStd, boolean throwSyntaxError) throws SyntaxErrorException {
         String d = doc.get();
         String delimiter = PySelection.getDelimiter(doc);
-        String formatted = formatStr(d, formatStd, delimiter, throwSyntaxError);
-        
-        //To finish, check the end of line.
-        if(formatStd.addNewLineAtEndOfFile){
-            try {
-                int len = formatted.length();
-                if(len > 0){
-                    char lastChar = formatted.charAt(len-1);
-                    if(lastChar != '\r' && lastChar != '\n'){
-                        formatted += delimiter;
-                    }
-                }
-            } catch (Throwable e) {
-                Log.log(e);
-            }
-        }
+        String formatted = formatAll(formatStd, throwSyntaxError, d, delimiter);
         
         String contents = doc.get();
         if(contents.equals(formatted)){
@@ -297,6 +286,27 @@ public class PyFormatStd extends PyAction implements IFormatter {
                 Log.log(e);
             }
         }
+    }
+
+
+    private String formatAll(FormatStd formatStd, boolean throwSyntaxError, String d, String delimiter) throws SyntaxErrorException {
+        String formatted = formatStr(d, formatStd, delimiter, throwSyntaxError);
+        
+        //To finish, check the end of line.
+        if(formatStd.addNewLineAtEndOfFile){
+            try {
+                int len = formatted.length();
+                if(len > 0){
+                    char lastChar = formatted.charAt(len-1);
+                    if(lastChar != '\r' && lastChar != '\n'){
+                        formatted += delimiter;
+                    }
+                }
+            } catch (Throwable e) {
+                Log.log(e);
+            }
+        }
+        return formatted;
     }
 
     

@@ -35,7 +35,7 @@ public class PyFormatStdTest extends TestCase {
             PyFormatStdTest n = new PyFormatStdTest();
             n.setUp();
 //            DEBUG = true;
-            n.testTrimAndNewLineEOL2();
+            n.testFormatSelectionNotOnStrings();
             n.tearDown();
             
             junit.textui.TestRunner.run(PyFormatStdTest.class);
@@ -802,7 +802,7 @@ public class PyFormatStdTest extends TestCase {
                 "";
         Document doc = new Document(s);
         
-        IRegion[] regionsForSave = new IRegion[]{new Region(0, 10)};
+        int[] regionsForSave = new int[]{0};
         pyFormatStd.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
         assertEquals(expected, doc.get());
     }
@@ -825,9 +825,28 @@ public class PyFormatStdTest extends TestCase {
         "";
         Document doc = new Document(s);
         
-        IRegion[] regionsForSave = new IRegion[]{new Region(0, 5)};
+        int[] regionsForSave = new int[]{0};
         pyFormatStd.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
         assertEquals(expected, doc.get());
+    }
+    
+    public void testFormatSelectionNotOnStrings(){
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = true;
+        std.operatorsWithSpace = true;
+        std.addNewLineAtEndOfFile = true;
+        std.trimLines = true;
+        
+        final PyFormatStd pyFormatStd = new PyFormatStd();
+        final String s = "" +
+                "'a,b,c'\n" +
+                "a  =  10\n" +
+                "";
+        Document doc = new Document(s);
+        
+        int[] regionsForSave = new int[]{0};
+        pyFormatStd.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
+        assertEquals(s, doc.get());
     }
     
     
