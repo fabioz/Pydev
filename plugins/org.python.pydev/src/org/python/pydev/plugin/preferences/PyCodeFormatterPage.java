@@ -40,6 +40,8 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
     public static final String TRIM_LINES = "TRIM_EMPTY_LINES";
     public static final boolean DEFAULT_TRIM_LINES = false;
     
+    public static final String TRIM_MULTILINE_LITERALS = "TRIM_MULTILINE_LITERALS";
+    public static final boolean DEFAULT_TRIM_MULTILINE_LITERALS = false;
     
     public static final String ADD_NEW_LINE_AT_END_OF_FILE = "ADD_NEW_LINE_AT_END_OF_FILE";
     public static final boolean DEFAULT_ADD_NEW_LINE_AT_END_OF_FILE = true;
@@ -70,6 +72,7 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
     private BooleanFieldEditor assignWithSpaceInsideParentesis;
     private BooleanFieldEditor operatorsWithSpace;
     private BooleanFieldEditor rightTrimLines;
+    private BooleanFieldEditor rightTrimMultilineLiterals;
     private BooleanFieldEditor addNewLineAtEndOfFile;
     private StyledTextForShowingCodeFactory formatAndStyleRangeHelper;
     
@@ -104,6 +107,9 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
         
         rightTrimLines = new BooleanFieldEditor(TRIM_LINES, "Right trim lines?", p);
         addField(rightTrimLines);
+        
+        rightTrimMultilineLiterals = new BooleanFieldEditor(TRIM_MULTILINE_LITERALS, "Right trim multi-line string literals?", p);
+        addField(rightTrimMultilineLiterals);
         
         addNewLineAtEndOfFile = new BooleanFieldEditor(ADD_NEW_LINE_AT_END_OF_FILE, "Add new line at end of file?", p);
         addField(addNewLineAtEndOfFile);
@@ -145,6 +151,7 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
         formatStd.spaceAfterComma = spaceAfterComma.getBooleanValue();
         formatStd.addNewLineAtEndOfFile = addNewLineAtEndOfFile.getBooleanValue();
         formatStd.trimLines = rightTrimLines.getBooleanValue();
+        formatStd.trimMultilineLiterals = rightTrimMultilineLiterals.getBooleanValue();
         updateLabelExample(formatStd);
     }
 
@@ -170,6 +177,10 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
     
     public static boolean getTrimLines() {
         return PydevPrefs.getPreferences().getBoolean(TRIM_LINES);
+    }
+    
+    public static boolean getTrimMultilineLiterals() {
+        return PydevPrefs.getPreferences().getBoolean(TRIM_MULTILINE_LITERALS);
     }
     
     public static boolean useSpaceAfterComma() {

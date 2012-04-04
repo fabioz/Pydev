@@ -26,12 +26,26 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
 import org.python.pydev.ui.UIConstants;
 
 public class AssistDocString implements IAssistProps {
+    
+    private final String docStringStyle;
+
+    public AssistDocString(){
+        this(null);
+    }
+    
+    /**
+     * @param docStringStyle the doc string prefix to be used (i.e.: '@' or ':'). If null, it's gotten from the preferences.
+     */
+    public AssistDocString(String docStringStyle){
+        this.docStringStyle = docStringStyle;
+    }
 
     /**
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection,
@@ -49,7 +63,7 @@ public class AssistDocString implements IAssistProps {
 
         String initial = PySelection.getIndentationFromLine(ps.getCursorLineContents());
         String delimiter = PyAction.getDelimiter(ps.getDoc());
-        String indentation = PyAction.getStaticIndentationString(edit);
+        String indentation = edit!=null?edit.getIndentPrefs().getIndentationString():DefaultIndentPrefs.get().getIndentationString();
         String inAndIndent = delimiter + initial + indentation;
 
         FastStringBuffer buf = new FastStringBuffer();
@@ -59,19 +73,23 @@ public class AssistDocString implements IAssistProps {
 
         int newOffset = buf.length();
         if (ps.isInFunctionLine(true)) {
+            String preferredDocstringStyle = this.docStringStyle;
+            if(preferredDocstringStyle == null){
+                preferredDocstringStyle = DocstringsPrefPage.getPreferredDocstringStyle();
+            }
             for (String paramName : params) {
                 if(!PySelection.isIdentifier(paramName)){
                     continue;
                 }
-                buf.append(inAndIndent + "@param " + paramName + ":");
+                buf.append(inAndIndent).append(preferredDocstringStyle).append("param ").append(paramName).append(":");
                 if (DocstringsPrefPage.getTypeTagShouldBeGenerated(paramName)) {
-                    buf.append(inAndIndent + "@type " + paramName + ":");
+                    buf.append(inAndIndent).append(preferredDocstringStyle).append("type ").append(paramName).append(":");
                 }
             }
         } else {
             // It's a class declaration - do nothing.
         }
-        buf.append(inAndIndent + docStringMarker);
+        buf.append(inAndIndent).append(docStringMarker);
 
         int lineOfOffset = ps.getLineOfOffset(tuple.o2);
         String comp = buf.toString();

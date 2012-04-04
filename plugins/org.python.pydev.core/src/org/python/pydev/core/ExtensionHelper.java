@@ -81,50 +81,49 @@ public class ExtensionHelper {
         return extensions;
     }
     
-    @SuppressWarnings("unchecked")
-    public static Object getParticipant(String type) {
-        //only one participant may be used for this
+    /**
+     * @param type  the name of the extension
+     * @param allowOverride  if true, the last registered participant will be
+     *                       returned, thus "overriding" any previously
+     *                       registered participants. If false, an exception
+     *                       is thrown if more than one participant is
+     *                       registered.
+     * @return  the participant for the given extension type, or null if none
+     *          is registered.
+     */
+    public static Object getParticipant(String type, boolean allowOverride) {
         List<Object> participants = getParticipants(type);
-        if(participants.size() == 1){
-            return participants.get(0);
-        }
-        
-        if(participants.size() == 0){
+        if (participants.isEmpty()){
             return null;
         }
-        
-        if(participants.size() > 1){
+        if (!allowOverride && participants.size() > 1) {
+            // only one participant may be used for this
             throw new RuntimeException("More than one participant is registered for type:"+type);
         }
-        
-        throw new RuntimeException("Should never get here!");
-        
+        return participants.get(participants.size() - 1);
     }
     
     /**
      * @param type the extension we want to get
      * @return a list of classes created from those extensions
      */
-    @SuppressWarnings("unchecked")
     public static List getParticipants(String type) {
-        if(testingParticipants != null){
-            List<Object> list = testingParticipants.get(type);
-            if(list == null){
-            	list = new ArrayList();
+        List<Object> list = null;
+        if (testingParticipants != null) {
+            list = testingParticipants.get(type);
+            if (list == null) {
+                list = new ArrayList<Object>();
             }
-			return list;
+            return list;
         }
-        
-        ArrayList list = new ArrayList();
-        IExtension[] extensions = getExtensions(type);
+
+        list = new ArrayList<Object>();
         // For each extension ...
-        for (int i = 0; i < extensions.length; i++) {
-            IExtension extension = extensions[i];
-            IConfigurationElement[] elements = extension.getConfigurationElements();
+        for (IExtension extension : getExtensions(type)) {
+            IConfigurationElement[] elements = extension
+                    .getConfigurationElements();
             // For each member of the extension ...
-            for (int j = 0; j < elements.length; j++) {
-                IConfigurationElement element = elements[j];
-                
+            for (IConfigurationElement element : elements) {
                 try {
                     list.add(element.createExecutableExtension("class"));
                 } catch (Exception e) {
@@ -134,6 +133,4 @@ public class ExtensionHelper {
         }
         return list;
     }
-    
-
 }

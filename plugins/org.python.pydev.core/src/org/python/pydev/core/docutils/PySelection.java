@@ -1137,48 +1137,61 @@ public final class PySelection {
     * the second the offset of the end of the parenthesis it may return null if no starting parenthesis was found at the current line
     */
     public Tuple<List<String>, Integer> getInsideParentesisToks(boolean addSelf, int offset, boolean isCall) {
-        List<String> l = new ArrayList<String>();
+        List<String> params = new ArrayList<String>();
         String docContents = doc.get();
         int j;
-        ParsingUtils parsingUtils = ParsingUtils.create(docContents);
         try{
-            j = parsingUtils.eatPar(offset, null);
-            String insideParentesisTok = docContents.substring(offset + 1, j);
-            ParsingUtils insideParensParsingUtils = ParsingUtils.create(insideParentesisTok);
-    
             if(isCall){
-                int len = insideParentesisTok.length();
-                FastStringBuffer buf = new FastStringBuffer(len);
+                ParsingUtils parsingUtils = ParsingUtils.create(docContents);
+                j = parsingUtils.eatPar(offset, null);
+                final String insideParentesisTok = docContents.substring(offset + 1, j);
+                final ParsingUtils insideParensParsingUtils = ParsingUtils.create(insideParentesisTok);
+                final int len = insideParentesisTok.length();
+                final FastStringBuffer buf = new FastStringBuffer(len);
                 
                 for(int i=0;i<len;i++){
                     char c = insideParentesisTok.charAt(i);
                     if(c == ','){
                         String trim = buf.toString().trim();
                         if(trim.length() > 0){
-                            l.add(trim);
+                            params.add(trim);
                         }
                         buf.clear();
                     }else{
-                        if(c == '\'' || c == '"'){
-                            j = insideParensParsingUtils.eatLiterals(null, i);
-                            buf.append(insideParentesisTok.substring(i, j+1));
-                            i = j;
-                        }else if(c == '{' || c == '(' || c == '['){
-                            j = insideParensParsingUtils.eatPar(i, null, c);
-                            buf.append(insideParentesisTok.substring(i, j+1));
-                            i = j;
-                        }else{
-                            buf.append(c);
+                        switch(c){
+                            case '\'':
+                            case '"':
+                                j = insideParensParsingUtils.eatLiterals(null, i);
+                                buf.append(insideParentesisTok.substring(i, j+1));
+                                i = j;
+                                break;
+                                
+                            case '{':
+                            case '(':
+                            case '[':
+                                j = insideParensParsingUtils.eatPar(i, null, c);
+                                buf.append(insideParentesisTok.substring(i, j+1));
+                                i = j;
+                                break;
+                                
+                            default:
+                                buf.append(c);
                         }
                     }
                 }
                 String trim = buf.toString().trim();
                 if(trim.length() > 0){
-                    l.add(trim);
+                    params.add(trim);
                 }
                 
                 
             }else{
+                ParsingUtils parsingUtils = ParsingUtils.create(docContents);
+                final FastStringBuffer buf = new FastStringBuffer();
+                j = parsingUtils.eatPar(offset, buf);
+                
+                final String insideParentesisTok = buf.toString();
+                
                 StringTokenizer tokenizer = new StringTokenizer(insideParentesisTok, ",");
                 while (tokenizer.hasMoreTokens()) {
                     String tok = tokenizer.nextToken();
@@ -1194,7 +1207,7 @@ public final class PySelection {
                             trimmed = trimmed.trim();
                         }
                         if(trimmed.length() > 0){
-                            l.add(trimmed);
+                            params.add(trimmed);
                         }
                     }
                 }
@@ -1203,7 +1216,7 @@ public final class PySelection {
             throw new RuntimeException(e);
 
         }
-        return new Tuple<List<String>, Integer>(l, j);
+        return new Tuple<List<String>, Integer>(params, j);
     }
 
 

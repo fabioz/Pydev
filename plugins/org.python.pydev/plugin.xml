@@ -1707,7 +1707,18 @@ if __name__ == '__main__':
             description="pydevd.settrace()"
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.pydevd">
-         <pattern>import pydevd;pydevd.settrace()</pattern>
+<pattern>import sys;sys.path.append(r'${pydevd_dir_location}')
+import pydevd;pydevd.settrace()</pattern>
+      </template>
+      <template
+            autoinsert="true"
+            name="pydevd_patch_django_auto_reload"
+            icon="icons/template.gif"
+            description="pydevd.patch_django_autoreload()"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            id="org.python.pydev.editor.templates.python.pydevd_patch_django_auto_reload">
+<pattern>import sys;sys.path.append(r'${pydevd_dir_location}')
+import pydevd;pydevd.patch_django_autoreload()</pattern>
       </template>
       <template
             autoinsert="true"

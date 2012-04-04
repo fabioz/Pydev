@@ -10,7 +10,6 @@
 package org.python.pydev.parser.prettyprinterv2;
 
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
@@ -47,7 +46,7 @@ public class Formatter implements IFormatter{
             }
     }
 
-    public void formatSelection(IDocument doc, IRegion[] regionsToFormat, IPyEdit edit, PySelection ps) {
+    public void formatSelection(IDocument doc, int[] regionsToFormat, IPyEdit edit, PySelection ps) {
     }
 
 }
