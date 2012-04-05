@@ -54,12 +54,17 @@ public class AssistDocString implements IAssistProps {
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature, PyEdit edit, int offset)
             throws BadLocationException {
         ArrayList<ICompletionProposal> l = new ArrayList<ICompletionProposal>();
-        Tuple<List<String>, Integer> tuple = ps.getInsideParentesisToks(false);
 
+        Tuple<List<String>, Integer> tuple = ps.getInsideParentesisToks(false);
         if (tuple == null) {
-            return l;
+            if(ps.isInClassLine()){
+                tuple = new Tuple<List<String>, Integer>(new ArrayList<String>(), offset);
+            }else{
+                return l;
+            }
         }
         List<String> params = tuple.o1;
+        int lineOfOffset = ps.getLineOfOffset(tuple.o2);
 
         String initial = PySelection.getIndentationFromLine(ps.getCursorLineContents());
         String delimiter = PyAction.getDelimiter(ps.getDoc());
@@ -91,7 +96,6 @@ public class AssistDocString implements IAssistProps {
         }
         buf.append(inAndIndent).append(docStringMarker);
 
-        int lineOfOffset = ps.getLineOfOffset(tuple.o2);
         String comp = buf.toString();
         int offsetPosToAdd = ps.getEndLineOffset(lineOfOffset);
 
