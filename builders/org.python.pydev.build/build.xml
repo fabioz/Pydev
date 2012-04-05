@@ -148,7 +148,7 @@
 	<!-- - - - - - - - - - - - - - - - - - 
           target: clean.after                      
          - - - - - - - - - - - - - - - - - -->
-	<target name="build" depends="doit" if="cleanAfter">
+	<target name="build" depends="doit" if="cleanAfter.set">
 		<antcall target="clean" />
 	</target>
 
