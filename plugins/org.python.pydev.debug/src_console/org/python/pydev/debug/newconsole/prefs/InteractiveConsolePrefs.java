@@ -20,6 +20,8 @@ import org.python.pydev.utils.MultiStringFieldEditor;
 
 public class InteractiveConsolePrefs extends FieldEditorPreferencePage implements IWorkbenchPreferencePage{
 
+    public static final String PREFERENCES_ID = "org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs";
+    
     public InteractiveConsolePrefs() {
         super(FLAT);
     }

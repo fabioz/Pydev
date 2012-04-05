@@ -1133,8 +1133,8 @@ public final class PySelection {
     * b
     * c
     * 
-    * @return a Tuple so that the first param is the list and 
-    * the second the offset of the end of the parenthesis it may return null if no starting parenthesis was found at the current line
+    * @return a Tuple so that the first param is the list and the second the offset of the end of the parenthesis.
+    * It may return null if no starting parenthesis was found at the current line
     */
     public Tuple<List<String>, Integer> getInsideParentesisToks(boolean addSelf, int offset, boolean isCall) {
         List<String> params = new ArrayList<String>();
