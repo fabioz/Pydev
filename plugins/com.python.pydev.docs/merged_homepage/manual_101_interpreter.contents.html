@@ -124,26 +124,28 @@ and add those to the system installation. </p>
 <p>    Example for a <b>my.source.module</b> (must be declared in a <b>my.source.module.pypredef</b> file):</p>
 
 <div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
-<script type="syntaxhighlighter" class="theme: Default; brush: python; gutter: false"><![CDATA[MyConstantA = int
-MyConstantB = int
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%">MyConstantA <span style="color: #666666">=</span> <span style="color: #008000">int</span>
+MyConstantB <span style="color: #666666">=</span> <span style="color: #008000">int</span>
 
-class MyClass:
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
     
-    instanceAttribute = QObject
+    instanceAttribute <span style="color: #666666">=</span> QObject
     
-    def __init__(self, parent=None):
-        '''
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">__init__</span>(<span style="color: #008000">self</span>, parent<span style="color: #666666">=</span><span style="color: #008000">None</span>):
+        <span style="color: #BA2121; font-style: italic">&#39;&#39;&#39;</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        @type parent: QObject</span>
+<span style="color: #BA2121; font-style: italic">        &#39;&#39;&#39;</span>
         
-        @type parent: QObject
-        '''
-        
-    def registerTimer(interval, object):
-        '''
-        
-        @type interval: int
-        @type object: QObject
-        '''
-        return int]]></script>
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">registerTimer</span>(interval, <span style="color: #008000">object</span>):
+        <span style="color: #BA2121; font-style: italic">&#39;&#39;&#39;</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        @type interval: int</span>
+<span style="color: #BA2121; font-style: italic">        @type object: QObject</span>
+<span style="color: #BA2121; font-style: italic">        &#39;&#39;&#39;</span>
+        <span style="color: #008000; font-weight: bold">return</span> <span style="color: #008000">int</span>
+</pre></div>
+
 </div></div>
 <p>    <b>Note 1</b>: the name of the file is the exact name of the module</p>
 

@@ -12,7 +12,12 @@ d:\bin\Python265\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy
 
 		Update homepage
 			- index.rst
-			- history_pydev.contents.html if needed
+			- history_pydev.rst (move contents from index.rst if needed)
+			
+		Run:
+		    - W:\ConfluenceWikiAndRST\src\pydev_wiki_to_rst.py to update the contents from the homepage from the wiki.
+		    - Update version at W:\pydev\plugins\com.python.pydev.docs\build_both.py
+		    - W:\pydev\plugins\com.python.pydev.docs\build_both.py
 
 		Update the versions on org.python.pydev.build/build_local.properties
 		Commit everything
@@ -88,4 +93,4 @@ W:\pydev\plugins\com.python.pydev.docs\merged_homepage\final to 173.45.225.54 (/
 		
 		** Add blog post / twitter
 
-
+        ** Update the versions on org.python.pydev.build/build_local.properties to the next build
