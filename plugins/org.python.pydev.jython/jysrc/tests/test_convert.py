@@ -1,5 +1,14 @@
+#Note that this test is run from org.python.pydev.jythontests.JythonTest
+
 from convert_api_to_pypredef import Convert, Contains
-import unittest
+try:
+    import unittest
+except:
+    import sys
+    sys.stderr.write('--- PYTHONPATH FOUND:\n')
+    sys.stderr.write('\n'.join(sys.path))
+    sys.stderr.write('\n--- END PYTHONPATH\n')
+    raise
 from StringIO import StringIO
 
 #===================================================================================================

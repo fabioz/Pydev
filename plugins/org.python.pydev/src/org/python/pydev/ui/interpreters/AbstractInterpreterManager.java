@@ -25,6 +25,7 @@ import java.util.Set;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
@@ -495,31 +496,42 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                             try {
                                 //if it does not work it (probably) means that the internal storage format changed among versions,
                                 //so, we have to recreate that info.
-                                final Display def = Display.getDefault();
-                                def.syncExec(new Runnable(){
-   
-                                    public void run() {
-                                        Shell shell = def.getActiveShell();
-                                        ProgressMonitorDialog dialog = new AsynchronousProgressMonitorDialog(shell);
-                                        dialog.setBlockOnOpen(false);
-                                        try {
-                                            dialog.run(false, false, new IRunnableWithProgress(){
+                                
+                                IProgressMonitor monitor = new NullProgressMonitor();
+                                //ok, maybe its file-format changed... let's re-create it then.
+                                info.restorePythonpath(monitor);
+                                //after restoring it, let's save it.
+                                info.getModulesManager().save();
 
-                                                public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-                                                    monitor.beginTask("Updating the interpreter info.", 100);
-                                                    //ok, maybe its file-format changed... let's re-create it then.
-                                                    info.restorePythonpath(monitor);
-                                                    //after restoring it, let's save it.
-                                                    info.getModulesManager().save();
-                                                    monitor.done();
-                                                }}
-                                            );
-                                        } catch (Exception e) {
-                                            throw new RuntimeException(e);
-                                        }
-                                    }
-                                    
-                                });
+                                //Note: All the code below is the same as the 2 lines above. It's no longer done needing the
+                                //UI access because of issue: https://sourceforge.net/tracker/?func=detail&aid=3515102&group_id=85796&atid=577329
+                                //(Can hang Eclipse at startup updating interpreter info)
+                                
+//                                final Display def = Display.getDefault();
+//                                def.syncExec(new Runnable(){
+//   
+//                                    public void run() {
+//                                        Shell shell = def.getActiveShell();
+//                                        ProgressMonitorDialog dialog = new AsynchronousProgressMonitorDialog(shell);
+//                                        dialog.setBlockOnOpen(false);
+//                                        try {
+//                                            dialog.run(false, false, new IRunnableWithProgress(){
+//
+//                                                public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+//                                                    monitor.beginTask("Updating the interpreter info.", 100);
+//                                                    //ok, maybe its file-format changed... let's re-create it then.
+//                                                    info.restorePythonpath(monitor);
+//                                                    //after restoring it, let's save it.
+//                                                    info.getModulesManager().save();
+//                                                    monitor.done();
+//                                                }}
+//                                            );
+//                                        } catch (Exception e) {
+//                                            throw new RuntimeException(e);
+//                                        }
+//                                    }
+//                                    
+//                                });
                             } finally {
                                 info.setLoadFinished(true);
                             }

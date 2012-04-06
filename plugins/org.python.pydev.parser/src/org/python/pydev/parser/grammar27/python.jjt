@@ -54,7 +54,7 @@ public final class PythonGrammar27 extends AbstractPythonGrammar implements IGra
 
 
     
-    FastStringBuffer dottedNameStringBuffer = new FastStringBuffer();
+    private final FastStringBuffer dottedNameStringBuffer = new FastStringBuffer();
     
     /**
      * @return the current token found.
@@ -548,7 +548,7 @@ void decorated():{}
 //decorator: '@' dotted_name [ '(' [arglist] ')' ] NEWLINE
 void decorators(): {}
 {
-    (begin_decorator() [{temporaryToken=createSpecialStr("(");}<LPAREN>  {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} insidetuporcall() try{{this.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);} ] try{<NEWLINE>}catch(ParseException e){handleNoNewline(e);} )+ 
+    (begin_decorator() [{this.markDecoratorWithCall();} {temporaryToken=createSpecialStr("(");}<LPAREN>  {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} insidetuporcall() try{{this.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);} ] try{<NEWLINE>}catch(ParseException e){handleNoNewline(e);} )+ 
 }
 void begin_decorator(): {}
 { temporaryToken=<AT>  {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} dotted_name()

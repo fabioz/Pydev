@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.callbacks.CallbackWithListeners;
+import org.python.pydev.core.callbacks.ICallbackListener;
 import org.python.pydev.core.structure.FastStringBuffer;
 
 import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
@@ -32,11 +34,34 @@ public final class Found {
     public ImportInfo importInfo;
     
     private GenAndTok lastGenAndTok;
+
+    private CallbackWithListeners<Found> onDefined;
     
     public Found(IToken tok, IToken generator, int scopeId, ScopeItems scopeFound){
         GenAndTok o = new GenAndTok(generator, tok, scopeId, scopeFound);
         lastGenAndTok = o;
         this.found.add(o);
+    }
+
+    /**
+     * Registers a callback to be called if it's later defined.
+     */
+    public void registerCallOnDefined(final ICallbackListener<Found> listener) {
+        if(onDefined == null){
+            onDefined = new CallbackWithListeners<Found>();
+        }
+        onDefined.registerListener(listener);
+    }
+
+
+    /**
+     * Called to report how it was found later on (only called if it was initially undefined and was found as
+     * being a definition from the actual module later on).
+     */
+    public void reportDefined(Found laterFound) {
+        if(onDefined != null){
+            onDefined.call(laterFound);
+        }
     }
 
     /**

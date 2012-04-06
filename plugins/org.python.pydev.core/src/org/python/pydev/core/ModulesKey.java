@@ -16,6 +16,7 @@ import java.io.Serializable;
 
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.StringUtils.ICallbackOnSplit;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 /**
  * This class defines the key to use for some module. All its operations are based on its name.
@@ -85,9 +86,9 @@ public class ModulesKey implements Comparable<ModulesKey>, Serializable{
     @Override
     public String toString() {
         if(file != null){
-            StringBuffer ret = new StringBuffer(name);
+            FastStringBuffer ret = new FastStringBuffer(name, 40);
             ret.append(" - ");
-            ret.append(file);
+            ret.appendObject(file);
             return ret.toString();
         }
         return name;

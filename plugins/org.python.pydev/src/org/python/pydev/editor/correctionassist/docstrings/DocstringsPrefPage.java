@@ -36,6 +36,14 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements
     public static final String P_DOCSTRINGCHARACTER = "DOCSTRING CHARACTER";
 
     public static final String DEFAULT_P_DOCSTRINGCHARACTER = "'";
+    
+    public static final String P_DOCSTRINGSTYLE = "DOCSTRING STYLE";
+    
+    public static final String DOCSTRINGSTYLE_SPHINX = ":";
+    
+    public static final String DOCSTRINGSTYLE_EPYDOC = "@";
+    
+    public static final String DEFAULT_P_DOCSTIRNGSTYLE = DOCSTRINGSTYLE_SPHINX; 
 
     public static final String TYPETAG_GENERATION_NEVER = "Never";
 
@@ -72,6 +80,14 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements
         return preferences.getString(P_DOCSTRINGCHARACTER);
     }
     
+    public static String getPreferredDocstringStyle() {
+    	PydevPlugin plugin = PydevPlugin.getDefault();
+    	if(plugin == null){
+    		return ":"; //testing
+    	}
+    	IPreferenceStore preferences = PydevPrefs.getPreferences();
+    	return preferences.getString(P_DOCSTRINGSTYLE);
+    }
     private final static Map<String, String> strToMarker = new HashMap<String, String>();
     static{
         strToMarker.put("'", "'''");
@@ -144,6 +160,14 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements
                         { "Apostrophe (')", "'" } }, p2, true);
         addField(docstringCharEditor);
         
+        RadioGroupFieldEditor docstringStyleEditor =
+        		new RadioGroupFieldEditor(P_DOCSTRINGSTYLE, "Docstring style", 1,
+        				new String[][] {
+        				{"Sphinx (:tag name:)", DOCSTRINGSTYLE_SPHINX},
+        				{"EpyDoc (@tag name:)", DOCSTRINGSTYLE_EPYDOC}
+        		}, p2, true);
+        addField(docstringStyleEditor);
+        
         Group typeDoctagGroup = new Group(p2, 0);
         typeDoctagGroup.setText("Type doctag generation (@type x:...)");
         typeDoctagEditor = new RadioGroupFieldEditor(P_TYPETAGGENERATION,
@@ -154,7 +178,6 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements
 
 
         addField(typeDoctagEditor);
-        typeDoctagEditor.setPropertyChangeListener(this);
         addField(new ParameterNamePrefixListEditor(P_DONT_GENERATE_TYPETAGS,
                 "Don't create for parameters with prefix", typeDoctagGroup));
     }
@@ -167,16 +190,6 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements
     public void init(IWorkbench workbench) {
     }
     
-
-    public void propertyChange(PropertyChangeEvent event) {
-        InputDialog d = new InputDialog(getShell(), 
-                "Type doctag generation", 
-                "Enter a parameter prefix",
-                null, 
-                null);
-        d.open();
-    }
-
 
     private RadioGroupFieldEditor typeDoctagEditor;
 }

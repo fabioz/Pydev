@@ -1,6 +1,7 @@
 <project name="jython-parser" default="parser">
 
     <property name="javaccHome" value="D:\bin\javacc-5.0" />
+    <property name="python" value="D:\bin\Python265\python.exe" />
     <property name="basedir" value="." />
     <property name="parser.dir" value="${basedir}" />
 
@@ -94,8 +95,12 @@ Current setting is: ${javaccHome}
         <replace file="${parser.dir}/PythonGrammar26.java" token="PythonGrammar26TreeConstants," value=""/>
         <replace file="${parser.dir}/PythonGrammar26.java" token="protected JJTPythonGrammar26State jjtree = new JJTPythonGrammar26State();" 
         	value="protected JJTPythonGrammarState jjtree = new JJTPythonGrammarState(TreeBuilder26.class, this);"/>
-        <replace file="${parser.dir}/PythonGrammar26TokenManager.java" token=" StringBuffer" value=" FastStringBuffer"/>
-        <replace file="${parser.dir}/PythonGrammar26TokenManager.java" token=" StringBuilder" value=" FastStringBuffer"/>
+        
+        <exec executable="${python}" dir="${parser.dir}">
+            <arg value="${parser.dir}/../grammarcommon/optimize_generated_grammar.py" />
+            <arg value="${parser.dir}" />
+        </exec>
+        
         <fixcrlf srcdir="${parser.dir}"></fixcrlf>
     </target>
 

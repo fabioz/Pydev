@@ -100,7 +100,7 @@ public final class ObjectsPool {
     /**
      * Class used to store items interned locally in a map (without weak references)
      */
-    public static class ObjectsPoolMap extends HashMap<String, String>{
+    public static final class ObjectsPoolMap extends HashMap<String, String>{
 
         private static final long serialVersionUID = 1L;
         

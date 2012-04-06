@@ -144,7 +144,8 @@ public class AssistDocStringTest extends TestCase {
         "    '''";
         check(expected, "def f( x y ):");
         
-        expected = "def f( (x,y=10) ):\r\n" +
+        expected = 
+        "def f( x,y=10 ):\r\n" +
         "    '''\r\n" +
         "    \r\n" +
         "    @param x:\r\n" +
@@ -152,7 +153,7 @@ public class AssistDocStringTest extends TestCase {
         "    @param y:\r\n" +
         "    @type y:\r\n" +
         "    '''";
-        check(expected, "def f( (x,y=10) ):");
+        check(expected, "def f( x,y=10 ):");
         
         
         expected = "def f( , ):\r\n" +
@@ -174,6 +175,13 @@ public class AssistDocStringTest extends TestCase {
         "    \r\n" +
         "    '''";
         check(expected, "def f(:"     );
+        
+        
+        expected = "class f:\r\n" +
+                "    '''\r\n" +
+                "    \r\n" +
+                "    '''";
+        check(expected, "class f:"     );
         
         check("def f):", "def f):", 0     );
         
@@ -198,12 +206,20 @@ public class AssistDocStringTest extends TestCase {
     private void check(String expected, String initial, int proposals) throws BadLocationException {
         Document doc = new Document(initial);
         PySelection ps = new PySelection(doc, 0, 0);
-        AssistDocString assist = new AssistDocString();
+        AssistDocString assist = new AssistDocString("@");
         List<ICompletionProposal> props = assist.getProps(ps, null, null, null, null, ps.getAbsoluteCursorOffset());
         assertEquals(proposals, props.size());
         if(props.size() > 0){
             props.get(0).apply(doc);
-            assertEquals(StringUtils.replaceNewLines(expected, "\n"), StringUtils.replaceNewLines(doc.get(), "\n"));
+            String expect = StringUtils.replaceNewLines(expected, "\n");
+            String obtained = StringUtils.replaceNewLines(doc.get(), "\n");
+            if(!expect.equals(obtained)){
+                System.out.println("====Expected====");
+                System.out.println(expect);
+                System.out.println("====Obtained====");
+                System.out.println(obtained);
+                assertEquals(expect, obtained);
+            }
         }
     }
     

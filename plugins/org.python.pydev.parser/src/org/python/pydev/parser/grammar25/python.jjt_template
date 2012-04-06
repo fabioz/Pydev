@@ -381,7 +381,7 @@ void funcdef(): {}
 //@ call, name, attr ... <nl>
 void decorators(): {}
 {
-    (begin_decorator() [<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} insidetuporcall() $RPAREN ] $NEWLINE )* 
+    (begin_decorator() [{this.markDecoratorWithCall();} <LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} insidetuporcall() $RPAREN ] $NEWLINE )* 
 }
 void begin_decorator(): {}
 { $AT dotted_name()

@@ -18,7 +18,8 @@ import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.debug.model.remote.RemoteDebugger;
+import org.python.pydev.debug.console.ConsoleCompletionsPageParticipant;
+import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
 /**
  * Debugger class that represents a single python process.
  * 
@@ -28,10 +29,15 @@ import org.python.pydev.debug.model.remote.RemoteDebugger;
 public class PyDebugTarget extends AbstractDebugTarget {
     //private ILaunch launch;
     public volatile IProcess process;  
+	/** 
+	 * TODO consider instead of global access to project, have {@link ConsoleCompletionsPageParticipant#init(org.eclipse.ui.part.IPageBookViewPage, org.eclipse.ui.console.IConsole)
+	 * instead call something like getInterpreterInfo which then PyDebugTargetConsole (which isn't connected to a project)
+	 * has some hope of resolving 
+	 */
     public final IProject project;
     public volatile boolean finishedInit = false;
 
-    public PyDebugTarget(ILaunch launch, IProcess process, IPath[] file, RemoteDebugger debugger, IProject project) {
+    public PyDebugTarget(ILaunch launch, IProcess process, IPath[] file, AbstractRemoteDebugger debugger, IProject project) {
         this.launch = launch;
         this.process = process;
         this.file = file;
@@ -95,7 +101,8 @@ public class PyDebugTarget extends AbstractDebugTarget {
             process = null;
         }
         super.terminate();
-    }        
-    
+    }
+
+
 
 }

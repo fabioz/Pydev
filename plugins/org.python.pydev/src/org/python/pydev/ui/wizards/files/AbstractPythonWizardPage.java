@@ -33,6 +33,10 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
+import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -240,10 +244,21 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
                         public void keyReleased(KeyEvent e) {
                             if(e.keyCode == SWT.ARROW_DOWN){
                                 templateList.setFocus();
+                                e.doit = false;
                             }
                         }}
                     );
     
+                    textName.addTraverseListener(new TraverseListener() {
+                        
+                        public void keyTraversed(TraverseEvent e) {
+                            if(e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR){
+                                templateList.setFocus();
+                                e.doit = false;
+                            }
+                        }
+                    });
+                    
                     
                     Link link = new Link(topLevel, SWT.NONE);
                     link.setText("<a>Config...</a>");

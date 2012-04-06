@@ -406,7 +406,7 @@ public final class Scope implements Iterable<ScopeItems>{
     /**
      * checks if there is some token in the names that are defined (but should be ignored)
      */
-    public Tuple<IToken, Found> isInNamesToIgnore(String rep) {
+    public Tuple<IToken, Found> findInNamesToIgnore(String rep) {
         int currScopeType = getCurrScopeItems().getScopeType();
         
         for(ScopeItems s : this.scope){

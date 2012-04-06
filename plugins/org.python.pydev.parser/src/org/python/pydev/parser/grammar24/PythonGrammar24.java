@@ -2,21 +2,27 @@
 package org.python.pydev.parser.grammar24;
 
 import java.util.List;
+import java.util.ArrayList;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
+import org.python.pydev.parser.grammarcommon.AbstractTokenManager;
 import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
-import org.python.pydev.parser.jython.CharStream;
+import org.python.pydev.parser.grammarcommon.JfpDef;
+import org.python.pydev.parser.grammarcommon.WithNameInvalidException;
+import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.ast.Import;
+import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
+import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.parser.grammarcommon.JJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.EmptySuiteException;
 
@@ -26,7 +32,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
   protected JJTPythonGrammarState jjtree = new JJTPythonGrammarState(TreeBuilder24.class, this);
 
 
-    FastStringBuffer dottedNameStringBuffer = new FastStringBuffer();
+    private final FastStringBuffer dottedNameStringBuffer = new FastStringBuffer();
 
     /**
      * @return the current token found.
@@ -279,15 +285,16 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
         begin_decorator();
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case LPAREN:
-                         temporaryToken=createSpecialStr("(");
+                         this.markDecoratorWithCall();
+                                                         temporaryToken=createSpecialStr("(");
           jj_consume_token(LPAREN);
-                                                                          this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);
+                                                                                                          this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);
           insidetuporcall();
           try {
-                                                                                                                                                              this.findTokenAndAdd(")");
+                                                                                                                                                                                              this.findTokenAndAdd(")");
             jj_consume_token(RPAREN);
           } catch (ParseException e) {
-                                                                                                                                                                                                                           handleRParensNearButNotCurrent(e);
+                                                                                                                                                                                                                                                           handleRParensNearButNotCurrent(e);
           }
           break;
         default:
@@ -297,7 +304,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
         try {
           jj_consume_token(NEWLINE);
         } catch (ParseException e) {
-                                                                                                                                                                                                                                                                                                       handleNoNewline(e);
+                                                                                                                                                                                                                                                                                                                                       handleNoNewline(e);
         }
       }
     } catch (Throwable jjte000) {
@@ -6562,8 +6569,8 @@ else
   private boolean jj_rescan = false;
   private int jj_gc = 0;
 
-  /** Constructor with user supplied CharStream. */
-  public PythonGrammar24(CharStream stream) {
+  /** Constructor with user supplied FastCharStream. */
+  public PythonGrammar24(FastCharStream stream) {
     token_source = new PythonGrammar24TokenManager(stream);
     token = new Token();
     jj_ntk = -1;
@@ -6573,15 +6580,7 @@ else
   }
 
   /** Reinitialise. */
-  public void ReInit(CharStream stream) {
-    token_source.ReInit(stream);
-    token = new Token();
-    jj_ntk = -1;
-    jjtree.reset();
-    jj_gen = 0;
-    for (int i = 0; i < 106; i++) jj_la1[i] = -1;
-    for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
-  }
+  //Removed Reinit}
 
   /** Constructor with generated Token Manager. */
   public PythonGrammar24(PythonGrammar24TokenManager tm) {
@@ -6594,15 +6593,7 @@ else
   }
 
   /** Reinitialise. */
-  public void ReInit(PythonGrammar24TokenManager tm) {
-    token_source = tm;
-    token = new Token();
-    jj_ntk = -1;
-    jjtree.reset();
-    jj_gen = 0;
-    for (int i = 0; i < 106; i++) jj_la1[i] = -1;
-    for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
-  }
+  //Removed Reinit}
 
   private Token jj_consume_token(int kind) throws ParseException {
     Token oldToken;

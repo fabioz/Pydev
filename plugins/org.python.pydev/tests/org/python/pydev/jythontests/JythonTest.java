@@ -42,6 +42,7 @@ public class JythonTest extends TestCase {
 			new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"pysrc/"),
 			new File(TestDependent.JYTHON_ANT_JAR_LOCATION),
 			new File(TestDependent.JYTHON_JUNIT_JAR_LOCATION),
+			new File(TestDependent.JYTHON_LIB_LOCATION),
 	};
 	
 	private static final boolean RUN_TESTS_ON_SEPARATE_PROCESS = true;
@@ -51,6 +52,7 @@ public class JythonTest extends TestCase {
         try {
             JythonTest builtins = new JythonTest();
             builtins.setUp();
+            builtins.testJythonTests();
             builtins.testJythonTestsOnSeparateProcess();
             builtins.tearDown();
             

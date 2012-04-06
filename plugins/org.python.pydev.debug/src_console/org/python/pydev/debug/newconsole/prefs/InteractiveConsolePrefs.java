@@ -20,6 +20,8 @@ import org.python.pydev.utils.MultiStringFieldEditor;
 
 public class InteractiveConsolePrefs extends FieldEditorPreferencePage implements IWorkbenchPreferencePage{
 
+    public static final String PREFERENCES_ID = "org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs";
+    
     public InteractiveConsolePrefs() {
         super(FLAT);
     }
@@ -59,6 +61,9 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
         addField(new BooleanFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_FOCUS_ON_SEND_COMMAND, 
                 "Focus console when an evaluate\ncommand is sent from the editor?", BooleanFieldEditor.SEPARATE_LABEL, p));
         
+        addField(new BooleanFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_CONNECT_VARIABLE_VIEW, 
+                "Connect console to Variables Debug View?", BooleanFieldEditor.SEPARATE_LABEL, p));
+        
     }
 
     public void init(IWorkbench workbench) {
@@ -90,6 +95,15 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
             return plugin.getPreferenceStore().getBoolean(PydevConsoleConstants.INTERACTIVE_CONSOLE_FOCUS_ON_SEND_COMMAND);
         }else{
             return PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_FOCUS_ON_SEND_COMMAND;
+        }
+    }
+    
+    public static boolean getConsoleConnectVariableView() {
+        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
+        if(plugin != null){
+            return plugin.getPreferenceStore().getBoolean(PydevConsoleConstants.INTERACTIVE_CONSOLE_CONNECT_VARIABLE_VIEW);
+        }else{
+            return PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_CONNECT_VARIABLE_VIEW;
         }
     }
     

@@ -141,7 +141,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
                 
             case JJTCONTINUE_STMT:ret = new Continue();break;
 
-            case JJTBEGIN_DECORATOR:ret = new decoratorsType(null,null,null,null, null);break;
+            case JJTBEGIN_DECORATOR:ret = new decoratorsType(null,null,null,null, null, false);break;
                 
             case JJTIF_STMT:ret = new If(null, null, null);break;
                 

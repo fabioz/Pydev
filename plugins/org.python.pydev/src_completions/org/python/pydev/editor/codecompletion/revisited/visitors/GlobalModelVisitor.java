@@ -13,7 +13,6 @@ package org.python.pydev.editor.codecompletion.revisited.visitors;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.python.pydev.core.IToken;
@@ -37,15 +36,16 @@ import org.python.pydev.parser.visitors.NodeUtils;
  * 
  * @author Fabio Zadrozny
  */
-public class GlobalModelVisitor extends AbstractVisitor {
+public final class GlobalModelVisitor extends AbstractVisitor {
 
-    private int visitWhat;
+    private final int visitWhat;
+    private final FastStack<Assign> lastAssign = new FastStack<Assign>(20);
+    private final boolean onlyAllowTokensIn__all__;
+    private final Map<String, SourceToken> repToTokenWithArgs = new HashMap<String, SourceToken>();
+    
     private SourceToken __all__;
     private Assign __all__Assign;
     private exprType[] __all__AssignTargets;
-    private FastStack<Assign> lastAssign = new FastStack<Assign>(20);
-    private boolean onlyAllowTokensIn__all__;
-    private final Map<String, SourceToken> repToTokenWithArgs = new HashMap<String, SourceToken>();
 
     public GlobalModelVisitor(int visitWhat, String moduleName, boolean onlyAllowTokensIn__all__) {
         this(visitWhat, moduleName, onlyAllowTokensIn__all__, false);
@@ -237,7 +237,9 @@ public class GlobalModelVisitor extends AbstractVisitor {
                 }
                 
                 if(elts != null){
-	                for(exprType elt:elts){
+                    int len = elts.length;
+                    for (int i = 0; i < len; i++) {
+                        exprType elt = elts[i];
 	                    if(elt instanceof Str){
 	                        Str str = (Str) elt;
 	                        validTokensInAll.add(str.s);
@@ -247,10 +249,14 @@ public class GlobalModelVisitor extends AbstractVisitor {
 
                 
                 if(validTokensInAll.size() > 0){
-                    for(Iterator<IToken> it = tokens.iterator();it.hasNext();){
-                        IToken tok = it.next();
+                    int len = tokens.size();
+                    for (int i = 0; i < len; i++) {
+                        IToken tok = tokens.get(i);
                         if(!validTokensInAll.contains(tok.getRepresentation())){
-                            it.remove();
+                            tokens.remove(i);
+                            //update the len and current pos to reflect the removal.
+                            i--; 
+                            len--;
                         }
                     }
                 }

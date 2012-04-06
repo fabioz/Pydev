@@ -68,7 +68,7 @@ if __name__ == '__main__':
 
     
     try:
-        s = 'Version%s.%s' % (sys.version_info[0], sys.version_info[1])
+        s = '%s.%s' % (sys.version_info[0], sys.version_info[1])
     except AttributeError:
         #older versions of python don't have version_info
         import string
@@ -76,11 +76,12 @@ if __name__ == '__main__':
         s = string.split(s, '.')
         major = s[0]
         minor = s[1]
-        s = 'Version%s.%s' % (major, minor)
+        s = '%s.%s' % (major, minor)
         
-    sys.stdout.write('%s\n' % (s,))
+    contents = ['<xml>']
+    contents.append('<version>%s</version>' % (s,))
             
-    sys.stdout.write('EXECUTABLE:%s|\n' % executable)
+    contents.append('<executable>%s</executable>' % executable)
     
     #this is the new implementation to get the system folders 
     #(still need to check if it works in linux)
@@ -116,16 +117,19 @@ if __name__ == '__main__':
             
     for p, b in result:
         if b:
-            sys.stdout.write('|%s%s\n' % (p, 'INS_PATH'))
+            contents.append('<lib path="ins">%s</lib>' % (p,))
         else:
-            sys.stdout.write('|%s%s\n' % (p, 'OUT_PATH'))
+            contents.append('<lib path="out">%s</lib>' % (p,))
     
-    sys.stdout.write('@\n') #no compiled libs
-    sys.stdout.write('$\n') #the forced libs
+    #no compiled libs
+    #nor forced libs
     
     for builtinMod in sys.builtin_module_names:
-        sys.stdout.write('|%s\n' % builtinMod)
+        contents.append('<forced_lib>%s</forced_lib>' % builtinMod)
         
+        
+    contents.append('</xml>')
+    sys.stdout.write('\n'.join(contents))
     
     try:
         sys.stdout.flush()

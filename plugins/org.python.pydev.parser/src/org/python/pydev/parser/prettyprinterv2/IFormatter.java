@@ -29,6 +29,6 @@ public interface IFormatter {
     /**
      * Formats the passed regions.
      */
-    void formatSelection(IDocument doc, IRegion[] regionsToFormat, IPyEdit edit, PySelection ps);
+    void formatSelection(IDocument doc, int[] regionsToFormat, IPyEdit edit, PySelection ps);
 
 }

@@ -773,11 +773,13 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 //any locks, and just lock if it's not (which is needed to avoid a racing condition creating more
                 //than 1 nature).
                 try {
-                    Project p = (Project) project;
-                    ProjectInfo info = (ProjectInfo)p.getResourceInfo(false, false);
-                    IProjectNature nature = info.getNature(PYTHON_NATURE_ID);
-                    if(nature instanceof PythonNature){
-                        return (PythonNature) nature;
+                    if(project instanceof Project){
+                        Project p = (Project) project;
+                        ProjectInfo info = (ProjectInfo)p.getResourceInfo(false, false);
+                        IProjectNature nature = info.getNature(PYTHON_NATURE_ID);
+                        if(nature instanceof PythonNature){
+                            return (PythonNature) nature;
+                        }
                     }
                 } catch (Throwable e) {
                     //Shouldn't really happen, but as using internal methods of project, who knows if it may change
@@ -928,16 +930,25 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     public int getInterpreterType() throws CoreException {
         if(interpreterType == null){
             String version = getVersion();
-            if(IPythonNature.Versions.ALL_JYTHON_VERSIONS.contains(version)){
-                interpreterType = INTERPRETER_TYPE_JYTHON;
-                
-            }else if(IPythonNature.Versions.ALL_IRONPYTHON_VERSIONS.contains(version)){
-                interpreterType = INTERPRETER_TYPE_IRONPYTHON;
-                
-            }else{
-                //if others fail, consider it python
-                interpreterType = INTERPRETER_TYPE_PYTHON;
-            }
+            interpreterType = getInterpreterTypeFromVersion(version);
+        }
+        
+        return interpreterType;
+        
+    }
+    
+    
+    public static int getInterpreterTypeFromVersion(String version) throws CoreException {
+        int interpreterType;
+        if(IPythonNature.Versions.ALL_JYTHON_VERSIONS.contains(version)){
+            interpreterType = INTERPRETER_TYPE_JYTHON;
+            
+        }else if(IPythonNature.Versions.ALL_IRONPYTHON_VERSIONS.contains(version)){
+            interpreterType = INTERPRETER_TYPE_IRONPYTHON;
+            
+        }else{
+            //if others fail, consider it python
+            interpreterType = INTERPRETER_TYPE_PYTHON;
         }
         
         return interpreterType;

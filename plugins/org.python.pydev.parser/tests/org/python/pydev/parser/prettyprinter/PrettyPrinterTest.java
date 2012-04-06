@@ -25,7 +25,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testArgs3();
+            test.testDecorator2();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -3057,5 +3057,19 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         
     }
     
-    
+    public void testCalledDecorator() throws Throwable {
+        final String s = "" +
+                "class foo:\n" +
+                "    @decorator()\n" +
+                "    def method(self):\n" +
+                "        pass\n" +
+                "";
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s, s);
+                return true;
+            }
+        });
+    }    
 }

@@ -140,7 +140,7 @@ if sys.platform.find('java') == -1:
                     self.assertArgs('walk', '(tree, visitor, walker, verbose)', tip)
                     self.assertIn('parseFile'      , tip)
                 else:
-                    self.assertArgs('parse', '(expr, filename, mode)', tip)
+                    self.assertArgs('parse', '(source, filename, mode)', tip)
                     self.assertArgs('walk', '(node)', tip)
                 self.assertIn('parse'          , tip)
             

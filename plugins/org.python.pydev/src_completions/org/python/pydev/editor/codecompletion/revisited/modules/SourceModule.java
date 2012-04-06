@@ -17,8 +17,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.python.pydev.core.FullRepIterable;
@@ -37,6 +38,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.cache.Cache;
 import org.python.pydev.core.cache.LRUCache;
+import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
@@ -641,11 +643,44 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     }
     
     /**
+     * Used for tests: tests should initialize this attribute and add listeners to it (and when it finishes, it should
+     * be set to null again).
+     */
+    public static CallbackWithListeners<ICompletionState> onFindDefinition;
+    
+    
+    @SuppressWarnings("rawtypes")
+    public Definition[] findDefinition(ICompletionState state, int line, int col, final IPythonNature nature) throws Exception{
+        return findDefinition(state, line, col, nature, new HashSet());
+    }
+    
+    /**
      * @param line: starts at 1
      * @param col: starts at 1
      */
-    public Definition[] findDefinition(ICompletionState state, int line, int col, final IPythonNature nature) throws Exception{
-        String rep = state.getActivationToken();
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public Definition[] findDefinition(ICompletionState state, int line, int col, final IPythonNature nature, Set innerFindPaths) throws Exception{
+        if(onFindDefinition != null){
+            onFindDefinition.call(state);
+        }
+        final String actTok = state.getActivationToken();
+        
+        Object key = new Tuple3("findDefinition", this.getName(), actTok);
+        if(!innerFindPaths.add(key)){
+            // We're already in the middle of this path, i.e.:
+            //a = result.find
+            //result = a
+            //So, we can't go on this way as it'd recurse!
+            return new Definition[0];
+            
+        }
+
+        
+        if (actTok.length() == 0) {
+            //No activation token means the module itself.
+            return new Definition[] { new Definition(1, 1, "", null, null, this) };
+        }
+        
         //the line passed in starts at 1 and the lines for the visitor start at 0
         ArrayList<Definition> toRet = new ArrayList<Definition>();
         
@@ -653,13 +688,14 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         FindScopeVisitor scopeVisitor = getScopeVisitor(line, col);
         
         //this visitor checks for assigns for the token
-        FindDefinitionModelVisitor visitor = getFindDefinitionsScopeVisitor(rep, line, col);
+        FindDefinitionModelVisitor visitor = getFindDefinitionsScopeVisitor(actTok, line, col);
         
-        if(visitor.definitions.size() > 0){
+        List<Definition> defs = visitor.definitions;
+        int size = defs.size();
+        if(size > 0){
             //ok, it is an assign, so, let's get it
-
-            for (Iterator iter = visitor.definitions.iterator(); iter.hasNext();) {
-                Object next = iter.next();
+            for (int i=0; i<size;i++) {
+                Object next = defs.get(i);
                 if(next instanceof AssignDefinition){
                     AssignDefinition element = (AssignDefinition) next;
                     if(element.target.startsWith("self") == false){
@@ -682,11 +718,15 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         
         //now, check for locals
         IToken[] localTokens = scopeVisitor.scope.getAllLocalTokens();
-        for (IToken tok : localTokens) {
-            String tokenRep = tok.getRepresentation();
-			if(tokenRep.equals(rep)){
+        int len = localTokens.length;
+        for (int i = 0; i < len; i++) {
+            IToken tok = localTokens[i];
+            
+            final String tokenRep = tok.getRepresentation();
+			if(tokenRep.equals(actTok)){
                 return new Definition[]{new Definition(tok, scopeVisitor.scope, this, true)};
-            }else if(rep.startsWith(tokenRep+".") && !rep.startsWith("self.")){
+            }else if(actTok.startsWith(tokenRep+".") && !actTok.startsWith("self.")){
+                final int tokenRepLen = tokenRep.length();
             	//this means we have a declaration in the local scope and we're accessing a part of it
             	//e.g.:
                 //class B:            
@@ -696,19 +736,37 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             	state.checkFindLocalDefinedDefinitionMemory(this, tokenRep);
             	ICompletionState copyWithActTok = state.getCopyWithActTok(tokenRep);
         		
-            	Definition[] definitions = this.findDefinition(copyWithActTok, tok.getLineDefinition(), tok.getColDefinition(), nature);
+            	Definition[] definitions = this.findDefinition(
+            	        copyWithActTok, tok.getLineDefinition(), tok.getColDefinition(), nature, innerFindPaths);
             	ArrayList<Definition> ret = new ArrayList<Definition>();
             	for (Definition definition : definitions) {
 					if(definition.module != null){
-						String checkFor = definition.value+rep.substring(tokenRep.length());
-						if(checkFor.equals(rep) && definition.module.equals(this)){
-							//no point in finding the starting point
-							continue;
-						}
+					    if(definition.value.length() == 0){
+					        continue;
+					    }
+                        String checkFor = definition.value+actTok.substring(tokenRepLen);
+					    if(this.equals(definition.module)){
+					        //no point in finding the starting point
+    					    if(actTok.equals(definition.value)){
+    					        continue;
+    					    }
+    						if(checkFor.equals(actTok)){
+    							continue;
+    						}
+    						if(checkFor.startsWith(actTok+'.')){
+    						    //This means that to find some symbol we have a construct such as:
+    						    //a = a.strip().rjust()
+    						    //So, if we look for a.strip, and we resolve a as a.strip.rjust, we'll try to find:
+    						    //a.strip.rjust.strip, in which case we'd recurse.
+    						    continue; 
+    						}
+					    }
+					    
 						//Note: I couldn't really reproduce this case, so, this fix is just a theoretical
 						//workaround. Hopefully sometime someone will provide some code to reproduce this.
 						//see: http://sourceforge.net/tracker/?func=detail&aid=2992629&group_id=85796&atid=577329
-						if(StringUtils.count(checkFor, '.') > 30){
+						int dotsFound = StringUtils.count(checkFor, '.');
+                        if(dotsFound > 15){
 							throw new CompletionRecursionException(
 									"Trying to go to deep to find definition.\n" +
 									"We probably started entering a recursion.\n" +
@@ -716,10 +774,20 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 									"Token: "+checkFor
 									);
 						}
-						
-						Definition[] realDefinitions = (Definition[]) definition.module.findDefinition(
-								state.getCopyWithActTok(checkFor), 
-								definition.line, definition.col, nature);
+
+                        Definition[] realDefinitions;
+                        if(definition.module instanceof SourceModule){
+                            SourceModule sourceModule = (SourceModule) definition.module;
+                            realDefinitions = (Definition[]) sourceModule.findDefinition(
+                                    state.getCopyWithActTok(checkFor), 
+                                    definition.line, definition.col, nature, innerFindPaths);
+                            
+                        }else{
+                            realDefinitions = (Definition[]) definition.module.findDefinition(
+                                    state.getCopyWithActTok(checkFor), 
+                                    definition.line, definition.col, nature);
+                            
+                        }
 						for (Definition realDefinition : realDefinitions) {
 							ret.add(realDefinition);
 						}
@@ -732,11 +800,13 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         //not found... check as local imports
         List<IToken> localImportedModules = scopeVisitor.scope.getLocalImportedModules(line, col, this.name);
         ICodeCompletionASTManager astManager = nature.getAstManager();
-        for (IToken tok : localImportedModules) {
+        int lenImportedModules = localImportedModules.size();
+        for (int i = 0; i < lenImportedModules; i++) {
+            IToken tok = localImportedModules.get(i);
             String importRep = tok.getRepresentation();
-            if(importRep.equals(rep) || rep.startsWith(importRep+".")){
+            if(importRep.equals(actTok) || actTok.startsWith(importRep+".")){
                 Tuple3<IModule, String, IToken> o = astManager.findOnImportedMods(
-                        new IToken[]{tok}, state.getCopyWithActTok(rep), this.getName(), this);
+                        new IToken[]{tok}, state.getCopyWithActTok(actTok), this.getName(), this);
                 if(o != null && o.o1 instanceof SourceModule){
                     ICompletionState copy = state.getCopy();
                     copy.setActivationToken(o.o2);
@@ -752,7 +822,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         
         //ok, not assign nor import, let's check if it is some self (we do not check for only 'self' because that would map to a
         //local (which has already been covered).
-        if (rep.startsWith("self.")){
+        if (actTok.startsWith("self.")){
             //ok, it is some self, now, that is only valid if we are in some class definition
             ClassDef classDef = (ClassDef) scopeVisitor.scope.getClassDef();
             if(classDef != null){
@@ -762,13 +832,13 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                         new CompletionState(line-1, col-1, classRep, nature,"", state), //use the old state as the cache 
                         astManager);
                 
-                String withoutSelf = rep.substring(5);
+                String withoutSelf = actTok.substring(5);
                 for (IToken token : globalTokens) {
                     if(token.getRepresentation().equals(withoutSelf)){
                         String parentPackage = token.getParentPackage();
                         IModule module = astManager.getModule(parentPackage, nature, true);
                         
-                        if(token instanceof SourceToken && (module != null || this.name.equals(parentPackage))){
+                        if(token instanceof SourceToken && (module != null || this.name == null || this.name.equals(parentPackage))){
                             if(module == null){
                                 module = this;
                             }
@@ -793,10 +863,10 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         
             
         //ok, it is not an assign, so, let's search the global tokens (and imports)
-        String tok = rep;
+        String tok = actTok;
         SourceModule mod = this;
 
-        Tuple3<IModule, String, IToken> o = astManager.findOnImportedMods(state.getCopyWithActTok(rep), this);
+        Tuple3<IModule, String, IToken> o = astManager.findOnImportedMods(state.getCopyWithActTok(actTok), this);
         
         if(o != null){
             if(o.o1 instanceof SourceModule){
@@ -1159,7 +1229,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         if(bootstrap == null){
             IToken[] ret = getGlobalTokens();
             if(ret != null && (ret.length == 1 || ret.length == 2 || ret.length == 3) && this.file != null){ //also checking 2 or 3 tokens because of __file__ and __name__
-                for(IToken tok:ret){
+                for (int i = 0; i < ret.length; i++) {
+                    IToken tok = ret[i];
                     if("__bootstrap__".equals(tok.getRepresentation())){
                         //if we get here, we already know that it defined a __bootstrap__, so, let's see if it was also called
                         SimpleNode ast = this.getAst();

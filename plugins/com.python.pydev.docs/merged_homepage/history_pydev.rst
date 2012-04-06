@@ -1,6 +1,80 @@
 History For PyDev
 ~~~~~~~~~~~~~~~~~
 
+
+Release 2.3.0
+===============
+
+* **Pep8.py** integrated (must be enabled in PyDev > Editor > Code Analysis > pep8.py).
+
+* **Faster PyDev startup** (internal Jython upgraded to version 2.2.1 -- and also optimized for PyDev).
+
+* Action to select/deselect scope (**Shift+Alt+Up/Down**).
+
+* Fix: cache issue where the PYTHONPATH in memory became different from the PYTHONPATH configured for a project.
+
+* Fix: OutOfMemoryError when dealing with PyOpenGL.
+
+* Fix: deadlock (could occur in a race condition when importing a project with an existing Python configuration).
+
+* Fix: code-completion integration issue with IPython 011 (patch from jonahkichwacoders).
+
+* Fix: annotation could remain in editor after removing a marker.
+
+* Fix: BadLocationException on extract local refactoring.
+
+
+Release 2.2.4
+===============
+
+**Cython**
+
+    * Cython is now supported in PyDev (.pyx files may be opened with the PyDev editor).  
+
+
+**Globals Token Browser (Ctrl+Shift+T)**
+
+    * Packages/Modules can now be reached through the globals browser (so, __init__.py files can now be easily gotten through the package they represent)
+    
+
+**Handling external files**
+
+    * External libraries configured in a project appearing in the PyDev Package Explorer
+    * Show in > PyDev Package Explorer working for files that are under the interpreter or external libraries.
+    * Show in > PyDev Package Explorer working for files inside .zip archives.
+    * External files that were opened when Eclipse is closed are properly reopened.
+
+**Editor**
+
+    * New option in the code-formatter to only apply code-formatting on changed lines on save.
+    * from __future__ import now properly appears as first even if grouping is enabled.
+    * it's now possible to have a minimap of the code in the overview ruler (enable in preferences > PyDev > Editor > Overview Ruler Minimap).
+    
+**Unittest runner**
+
+    * exc_clear() no longer called if it's not available.
+    * Fixed issue where class tearDown was executed twice.
+
+
+**Debugger**
+
+    * It's now possible to enable/disable stepping into properties while in the debugger. Menu: Run > Disable step into properties (patch by Hussain Bohra)
+    * Show in outline view activated in debug perspective  (patch by Hussain Bohra)
+    * Watch expressions can be properly expanded in the watch view (patch by Hussain Bohra)
+    * Breakpoints in external files are properly shown.
+    * Remote debugger: starting the remote debugger no longer shows a launch configuration
+    * Remote debugger: when the server is stopped, the server socket is properly closed
+    
+
+**Minors**
+
+    * Fixed issue in rename (Alt+Shift+R) / find references (Ctrl+Shift+G) on top level module variables.
+    * Fixed issue where create class/method/field action was not ok because of comment.
+    * Fixed issue where doing create class/method/field action on file with tabs ended up adding spaces.
+
+
+
+
 Release 2.2.3
 ===============
 

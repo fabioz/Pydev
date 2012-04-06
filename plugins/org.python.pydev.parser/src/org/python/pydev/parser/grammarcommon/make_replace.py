@@ -182,7 +182,7 @@ void stmt() #void: {}
 def CreateCommomMethods():
     return '''
     
-    FastStringBuffer dottedNameStringBuffer = new FastStringBuffer();
+    private final FastStringBuffer dottedNameStringBuffer = new FastStringBuffer();
     
     /**
      * @return the current token found.

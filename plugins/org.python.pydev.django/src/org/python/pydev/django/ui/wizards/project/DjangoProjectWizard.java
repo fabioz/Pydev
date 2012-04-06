@@ -7,6 +7,7 @@
 package org.python.pydev.django.ui.wizards.project;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +33,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.callbacks.ICallback0;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.django.DjangoPlugin;
 import org.python.pydev.django.launching.DjangoConstants;
@@ -60,9 +62,9 @@ public class DjangoProjectWizard extends PythonProjectWizard {
 
 	protected DjangoSettingsPage settingsPage;
 
+	
 	protected static final String RUN_DJANGO_ADMIN =
-		"from django.core import management\n" +
-		"management.execute_from_command_line()";
+	        "from django.core import management;management.execute_from_command_line();";
 
 	public DjangoProjectWizard() {
 		super();
@@ -93,6 +95,7 @@ public class DjangoProjectWizard extends PythonProjectWizard {
     	super.addPages();
     	addPage(settingsPage);
     }
+    
 
     @Override
     protected void createAndConfigProject(
@@ -136,7 +139,14 @@ public class DjangoProjectWizard extends PythonProjectWizard {
             
             public Map<String, String> call(IProject projectHandle){
                 Map<String, String> variableSubstitution = new HashMap<String, String>();
-                String manageLocation = projectHandle.getName()+"/manage.py";
+                String manageLocation;
+                if (djSettings.djangoVersion.equals(DjangoSettingsPage.DJANGO_14)){
+                    manageLocation = "manage.py";
+                    
+                }else{
+                    //Before 1.4
+                    manageLocation = projectHandle.getName()+"/manage.py";
+                }
                 
                 switch(sourceFolderConfigurationStyle){
                     case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER:
@@ -194,11 +204,12 @@ public class DjangoProjectWizard extends PythonProjectWizard {
                     projectContainer = projectHandle.getFolder("src");
             }
             
-			Tuple<String, String> output = runner.runCodeAndGetOutput(
+			String projectName = projectHandle.getName();
+            Tuple<String, String> output = runner.runCodeAndGetOutput(
 				RUN_DJANGO_ADMIN, 
 				new String[]{
 						"startproject", 
-						projectHandle.getName()
+						projectName
 				}, 
 				projectContainer.getLocation().toFile(), 
 				new NullProgressMonitor()
@@ -219,11 +230,51 @@ public class DjangoProjectWizard extends PythonProjectWizard {
 				return;
 			}
 			
-            IFile settingsFile = projectContainer.getFile(new Path(
-            		projectHandle.getName() + "/settings.py"));
+			
+			
+			IDocument docFromResource = null;
+			IFile settingsFile = null;
+			if (djSettings.djangoVersion.equals(DjangoSettingsPage.DJANGO_14)){
+			    
+			    //Ok, Django 1.4 is now as follows:
+			    //It'll create a structure
+			    //   /projectName
+			    //   /projectName/manage.py
+			    //   /projectName/projectName
+			    //   /projectName/projectName/__init__.py
+			    //   /projectName/projectName/settings.py
+			    
+			    //So, what pydev did before (i.e.: creating the projectName inital folder) is repeated in its process.
+			    //Thus, we have to go on and get rid of it, moving the manage.py and projectName to the projectContainer
+			    //and removing the root projectName altoghether.
+			    File copyTo = projectContainer.getLocation().toFile();
+			    File copyFrom = new File(copyTo, projectName);
+			    for(File f:copyFrom.listFiles()){
+			        if(f.isFile()){
+			            try {
+                            REF.copyFile(f, new File(copyTo, f.getName()));
+                            REF.deleteFile(f);
+                        } catch (Exception e) {
+                            Log.log(e);
+                        }
+			        }else{
+			            try {
+			                REF.copyDirectory(f, new File(copyTo, f.getName()), null, null);
+                            REF.deleteDirectoryTree(f);
+                        } catch (Exception e) {
+                            Log.log(e);
+                        }
+			        }
+			    }
+			    
+			    
+			}
+		    //Before 1.4
+            settingsFile = projectContainer.getFile(new Path(
+            		projectName + "/settings.py"));
 
             settingsFile.refreshLocal(IResource.DEPTH_ZERO, null);
-            IDocument docFromResource = REF.getDocFromResource(settingsFile);
+            docFromResource = REF.getDocFromResource(settingsFile);
             if(docFromResource == null){
             	throw new RuntimeException(
             			"Error creating Django project.\n" +
@@ -233,7 +284,8 @@ public class DjangoProjectWizard extends PythonProjectWizard {
             }
 
 			String settings = docFromResource.get();
-            if (djSettings.djangoVersion.contains("1.2")){
+			if (djSettings.djangoVersion.equals(DjangoSettingsPage.DJANGO_12_OR_13)|| djSettings.djangoVersion.equals(DjangoSettingsPage.DJANGO_14)){
+			    //1.2, 1.3 or 1.4
             	settings = settings.replaceFirst(
             			"'ENGINE': 'django.db.backends.'",
             			"'ENGINE': 'django.db.backends." + djSettings.databaseEngine + "'");
@@ -253,6 +305,7 @@ public class DjangoProjectWizard extends PythonProjectWizard {
                 		"'PASSWORD': ''",
                 		"'PASSWORD': '" + djSettings.databasePassword + "'");
             } else {
+                //Before 1.2
             	settings = settings.replaceFirst(
             			"DATABASE_ENGINE = ''",
             			"DATABASE_ENGINE = '" + djSettings.databaseEngine + "'");
@@ -274,8 +327,12 @@ public class DjangoProjectWizard extends PythonProjectWizard {
             }
             
             
-            settingsFile.setContents(new ByteArrayInputStream(settings.getBytes()), 0, monitor);
+			if(settingsFile != null){
+			    settingsFile.setContents(new ByteArrayInputStream(settings.getBytes()), 0, monitor);
+			}
 
+        } catch(Exception e) {
+            Log.log(e);
         } finally {
             monitor.done();
         }

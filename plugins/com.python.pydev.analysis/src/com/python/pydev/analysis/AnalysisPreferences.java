@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.Preferences;
 
 public class AnalysisPreferences extends AbstractAnalysisPreferences{
@@ -61,6 +62,7 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences{
         {IAnalysisPreferences.TYPE_INDENTATION_PROBLEM               , AnalysisPreferenceInitializer.SEVERITY_INDENTATION_PROBLEM                 , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_INDENTATION_PROBLEM          },
         {IAnalysisPreferences.TYPE_ASSIGNMENT_TO_BUILT_IN_SYMBOL     , AnalysisPreferenceInitializer.SEVERITY_ASSIGNMENT_TO_BUILT_IN_SYMBOL   	  , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_ASSIGNMENT_TO_BUILT_IN_SYMBOL},
         {IAnalysisPreferences.TYPE_PEP8                              , AnalysisPreferenceInitializer.SEVERITY_PEP8                             	  , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_PEP8                         },
+        {IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH                 , AnalysisPreferenceInitializer.SEVERITY_ARGUMENTS_MISMATCH                  , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_ARGUMENTS_MISMATCH           },
     };
     
 
@@ -83,6 +85,9 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences{
                     Object[] s = completeSeverityMap[i];
                     severityTypeMapCache.put((Integer)s[0], pluginPreferences.getInt((String)s[1]));
                 }
+                
+                //TODO: Add ARGUMENTS_MISMATCH again later on
+                severityTypeMapCache.put(IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH, IMarker.SEVERITY_INFO); //Force it to be disabled for now!
             }        
             return severityTypeMapCache;
         }

@@ -12,10 +12,16 @@ d:\bin\Python265\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy
 
 		Update homepage
 			- index.rst
-			- history_pydev.contents.html if needed
+			- history_pydev.rst (move contents from index.rst if needed)
+			
+		Run:
+		    - W:\ConfluenceWikiAndRST\src\pydev_wiki_to_rst.py to update the contents from the homepage from the wiki.
+		    - Update version at W:\pydev\plugins\com.python.pydev.docs\build_both.py
+		    - W:\pydev\plugins\com.python.pydev.docs\build_both.py
 
 		Update the versions on org.python.pydev.build/build_local.properties
 		Commit everything
+        Merge with release
         Merge with master_pydev
 
 		Execute the build_cmd.txt in cmd.exe
@@ -78,7 +84,7 @@ d:\bin\Python265\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy
 W:\pydev\plugins\com.python.pydev.docs\merged_homepage\final to 173.45.225.54 (/var/www)
 
 
-		** Tag repository: git tag pydev_2_3_0 -a&git push --tags
+		** Tag repository: git tag pydev_2_4_0 -a&git push --tags
 		
 		** Add news in forum (same as e-mail)
 		
@@ -88,4 +94,4 @@ W:\pydev\plugins\com.python.pydev.docs\merged_homepage\final to 173.45.225.54 (/
 		
 		** Add blog post / twitter
 
-
+        ** Update the versions on org.python.pydev.build/build_local.properties to the next build

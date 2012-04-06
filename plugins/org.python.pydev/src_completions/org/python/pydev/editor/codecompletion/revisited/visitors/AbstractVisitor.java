@@ -69,14 +69,14 @@ public abstract class AbstractVisitor extends VisitorBase{
     }
 
 
-    /**
-     * @param node
-     * @return
-     */
     public static SourceToken makeToken(SimpleNode node, String moduleName) {
         return new SourceToken(node, NodeUtils.getRepresentationString(node), NodeUtils.getNodeArgs(node), NodeUtils.getNodeDocString(node), moduleName);
     }
 
+    public static SourceToken makeToken(SimpleNode node, String rep, String moduleName) {
+        return new SourceToken(node, rep, NodeUtils.getNodeArgs(node), NodeUtils.getNodeDocString(node), moduleName);
+    }
+    
     /**
      * same as make token, but returns the full representation for a token, instead of just a 'partial' name
      */

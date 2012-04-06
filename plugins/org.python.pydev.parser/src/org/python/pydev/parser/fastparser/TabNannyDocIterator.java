@@ -7,6 +7,7 @@
 package org.python.pydev.parser.fastparser;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
@@ -24,23 +25,26 @@ import org.python.pydev.core.structure.FastStringBuffer;
  */
 public class TabNannyDocIterator{
     
+    //Mutable on iteration.
     private int offset;
     private Tuple3<String, Integer, Boolean> nextString;
-    private int docLen;
     private boolean firstPass = true;
-    private ParsingUtils parsingUtils;
+    
+    //Final fields.
+    private final ParsingUtils parsingUtils;
     private final FastStringBuffer tempBuf = new FastStringBuffer();
-    private boolean yieldEmptyIndents;
-    private boolean yieldOnLinesWithoutContents;
+    private final boolean yieldEmptyIndents;
+    private final boolean yieldOnLinesWithoutContents;
+    private final IDocument doc;
 
     
-    public TabNannyDocIterator(Object doc) throws BadLocationException{
+    public TabNannyDocIterator(IDocument doc) throws BadLocationException{
         this(doc, false, true);
     }
     
-    public TabNannyDocIterator(Object doc, boolean yieldEmptyIndents, boolean yieldOnLinesWithoutContents) throws BadLocationException{
+    public TabNannyDocIterator(IDocument doc, boolean yieldEmptyIndents, boolean yieldOnLinesWithoutContents) throws BadLocationException{
         parsingUtils = ParsingUtils.create(doc, true);
-        docLen = parsingUtils.len();
+        this.doc = doc;
         this.yieldEmptyIndents = yieldEmptyIndents;
         this.yieldOnLinesWithoutContents = yieldOnLinesWithoutContents;
         buildNext(true);
@@ -87,7 +91,7 @@ public class TabNannyDocIterator{
                                 "Curr char:"+c+"\n" +
                                 "Curr char (as int):"+(int)c+"\n" +
                                 "Offset:"+offset+"\n" +
-                                "DocLen:"+docLen+"\n"
+                                "DocLen:"+doc.getLength()+"\n"
                                 );
                         offset++;
                         return true;
@@ -97,11 +101,11 @@ public class TabNannyDocIterator{
                 }
                 
                 //keep in this loop until we finish the document or until we're able to find some indent string...
-                if(offset >= docLen){
+                if(offset >= doc.getLength()){
                     nextString = null;
                     return true;
                 }
-                c = parsingUtils.charAt(offset);
+                c = doc.getChar(offset);
                 
                 
                 if (firstPass){
@@ -140,7 +144,7 @@ public class TabNannyDocIterator{
                 } else if (c == '\r'){
                     //line end (time for a break to see if we have some indentation just after it...)
                     if(!continueAfterIncreaseOffset()){return true;}
-                    c = parsingUtils.charAt(offset);
+                    c = doc.getChar(offset);
                     if(c == '\n'){
                         if(!continueAfterIncreaseOffset()){return true;}
                     }
@@ -158,10 +162,10 @@ public class TabNannyDocIterator{
                     
                     if(!continueAfterIncreaseOffset()){return true;}
                     
-                    c = parsingUtils.charAt(offset);
+                    c = doc.getChar(offset);
                     if(c == '\r'){
                         if(!continueAfterIncreaseOffset()){return true;}
-                        c = parsingUtils.charAt(offset);
+                        c = doc.getChar(offset);
                         lastLineChar = true;
                     }
                     
@@ -190,8 +194,8 @@ public class TabNannyDocIterator{
 
             }
             
-            if(offset < docLen){
-                c = parsingUtils.charAt(offset);
+            if(offset < doc.getLength()){
+                c = doc.getChar(offset);
             }else{
                 nextString = null;
                 return true;
@@ -203,10 +207,10 @@ public class TabNannyDocIterator{
             while (c == ' ' || c == '\t') {
                 tempBuf.append(c);
                 offset++;
-                if(offset >= docLen){
+                if(offset >= doc.getLength()){
                     break;
                 }
-                c = parsingUtils.charAt(offset);
+                c = doc.getChar(offset);
             }
             //true if we are in a line that has more contents than only the whitespaces/tabs
             nextString = new Tuple3<String, Integer, Boolean>(tempBuf.toString(), startingOffset, c != '\r' && c != '\n');
@@ -242,7 +246,7 @@ public class TabNannyDocIterator{
     private boolean continueAfterIncreaseOffset() {
         offset++;
         boolean ret = true;
-        if(offset >= docLen){
+        if(offset >= doc.getLength()){
             nextString = null;
             ret = false;
         }

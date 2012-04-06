@@ -11,7 +11,7 @@ for arg in args:
         version = arg[len('--version='):]
         LAST_VERSION_TAG = version
 else:
-    LAST_VERSION_TAG = '2.4.0' #Not specified (let's leave one there)
+    LAST_VERSION_TAG = '2.5.0' #Not specified (let's leave one there)
 
 
 import build_python_code_block
@@ -130,6 +130,7 @@ if __name__ == '__main__':
     shutil.copytree('nightly', os.path.join('final', 'nightly'))
     
     shutil.copyfile('stylesheet.css', os.path.join('final', 'stylesheet.css'))
+    shutil.copyfile('favicon.ico', os.path.join('final', 'favicon.ico'))
     shutil.copyfile('pydev_certificate.cer', os.path.join('final', 'pydev_certificate.cer'))
     shutil.copyfile('video_pydev_20.html', os.path.join('final', 'video_pydev_20.html'))
     shutil.copyfile('video_swfobject.js', os.path.join('final', 'video_swfobject.js'))

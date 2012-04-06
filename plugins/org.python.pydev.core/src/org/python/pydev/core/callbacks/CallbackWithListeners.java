@@ -14,7 +14,11 @@ public class CallbackWithListeners<X> implements ICallbackWithListeners<X>{
 	private final OrderedSet<ICallbackListener<X>> listeners;
 
 	public CallbackWithListeners() {
-		this.listeners = new OrderedSet<ICallbackListener<X>>();
+	    this.listeners = new OrderedSet<ICallbackListener<X>>();
+	}
+	
+	public CallbackWithListeners(int initialCapacity) {
+		this.listeners = new OrderedSet<ICallbackListener<X>>(initialCapacity);
 	}
 	
 	public Object call(X obj) {

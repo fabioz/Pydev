@@ -37,9 +37,6 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
-import org.python.pydev.editor.preferences.PydevEditorPrefs;
-import org.python.pydev.plugin.preferences.PydevPrefs;
 
 /**
  * @author Fabio Zadrozny
@@ -364,44 +361,6 @@ public abstract class PyAction extends Action implements IEditorActionDelegate {
         return c != '\n' && c != '\r' && c != ' ' && c != '.' && c != '(' && c != ')' && c != ',' && c != ']' && c != '[' && c != '#';
     }
 
-    /**
-     * 
-     * @return indentation string (always recreated) 
-     */
-    public static String getStaticIndentationString(PyEdit edit) {
-        try {
-            int tabWidth = DefaultIndentPrefs.getStaticTabWidth();
-            boolean useSpaces = PydevPrefs.getPreferences().getBoolean(PydevEditorPrefs.SUBSTITUTE_TABS);
-            boolean forceTabs = false;
-            if (edit != null){
-                forceTabs = edit.getIndentPrefs().getForceTabs();
-            }
-            
-            String identString;
-
-            if (useSpaces && !forceTabs){
-                identString = PyAction.createStaticSpaceString(tabWidth);
-            }else{
-                identString = "\t";
-            }
-            
-            return identString;
-        } catch (Exception e) {
-            
-            Log.logInfo(e); //Happens regularly when doing unit-tests without the eclipse env
-            return "    "; //default
-        }
-    }
-
-    private static String createStaticSpaceString(int tabWidth) {
-        FastStringBuffer b = new FastStringBuffer(tabWidth);
-        while (tabWidth-- > 0){
-            b.append(" ");
-        }
-        return b.toString();
-    }
-    
-    
 
     /**
      * @param ps the selection that contains the document

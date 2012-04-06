@@ -110,6 +110,42 @@ Important
 First time users are strongly advised to read the `Getting started guide`_  which explains how to properly configure PyDev
 
 
+Release 2.5.0
+===============
+
+
+* **Django**: 
+
+ * Project wizard now properly supports Django 1.4.
+
+* **Django with auto-reload**:
+ 
+ * pydevd.patch_django_auto_reload() now properly patches Django 1.4 for the remote debugger.
+ * pydevd.patch_django_auto_reload() now patches the Django reload to show a console out of Eclipse so that Ctrl+C can be used.
+ * Created code template to pydevd.patch_django_auto_reload().
+ 
+* **Interactive Console**:
+
+ * The interactive console may be attached to the variables view (patch from Jonah Graham).
+   See: `Interactive console`_ for details.
+ * Drag and Drop may be used to drag code from the editor to the interactive console (patch from Jonah Graham).
+ * When starting an interactive console, a link to configure the preferences is shown in the dialog.
+
+* **Code formatter**:
+ 
+ * Multi-lines may be right-trimmed (patch from Haw-Bin Chai) -- option must be enabled in the code-formatting settings.
+ * Fixed issue where the auto code-formatting would end up formatting strings as regular code when the "format only changed lines" setting was on.
+   
+* **Others**:
+
+ * pydevd.settrace() template now adds the debugger to the PYTHONPATH before actually doing the settrace().
+ * ${pydevd_file_location} and ${pydevd_dir_location} variables were added to the templates.
+ * The style of generated docstrings (EpyDoc or Sphinx) may be chosen in the preferences (patch from Paul Collins).
+ * Some performance improvements were done on the parser.
+
+Aside from the features above, **lots** of bugs were fixed in this release (including a deadlock in a race condition).
+
+
 
 Release 2.4.0
 ===============
@@ -137,80 +173,6 @@ The contents of the homepage are now migrated to a wiki at https://wiki.appceler
 * Applied patch for internal Jython 2.2.1 to fix list.sort (http://bugs.jython.org/issue1835099).
 
 * Fixed resolution of template variable prev_class_or_method and next_class_or_method.
-
-
-
-Release 2.3.0
-===============
-
-* **Pep8.py** integrated (must be enabled in PyDev > Editor > Code Analysis > pep8.py).
-
-* **Faster PyDev startup** (internal Jython upgraded to version 2.2.1 -- and also optimized for PyDev).
-
-* Action to select/deselect scope (**Shift+Alt+Up/Down**).
-
-* Fix: cache issue where the PYTHONPATH in memory became different from the PYTHONPATH configured for a project.
-
-* Fix: OutOfMemoryError when dealing with PyOpenGL.
-
-* Fix: deadlock (could occur in a race condition when importing a project with an existing Python configuration).
-
-* Fix: code-completion integration issue with IPython 011 (patch from jonahkichwacoders).
-
-* Fix: annotation could remain in editor after removing a marker.
-
-* Fix: BadLocationException on extract local refactoring.
-
-
-
-Release 2.2.4
-===============
-
-**Cython**
-
-    * Cython is now supported in PyDev (.pyx files may be opened with the PyDev editor).  
-
-
-**Globals Token Browser (Ctrl+Shift+T)**
-
-    * Packages/Modules can now be reached through the globals browser (so, __init__.py files can now be easily gotten through the package they represent)
-    
-
-**Handling external files**
-
-    * External libraries configured in a project appearing in the PyDev Package Explorer
-    * Show in > PyDev Package Explorer working for files that are under the interpreter or external libraries.
-    * Show in > PyDev Package Explorer working for files inside .zip archives.
-    * External files that were opened when Eclipse is closed are properly reopened.
-
-**Editor**
-
-    * New option in the code-formatter to only apply code-formatting on changed lines on save.
-    * from __future__ import now properly appears as first even if grouping is enabled.
-    * it's now possible to have a minimap of the code in the overview ruler (enable in preferences > PyDev > Editor > Overview Ruler Minimap).
-    
-**Unittest runner**
-
-    * exc_clear() no longer called if it's not available.
-    * Fixed issue where class tearDown was executed twice.
-
-
-**Debugger**
-
-    * It's now possible to enable/disable stepping into properties while in the debugger. Menu: Run > Disable step into properties (patch by Hussain Bohra)
-    * Show in outline view activated in debug perspective  (patch by Hussain Bohra)
-    * Watch expressions can be properly expanded in the watch view (patch by Hussain Bohra)
-    * Breakpoints in external files are properly shown.
-    * Remote debugger: starting the remote debugger no longer shows a launch configuration
-    * Remote debugger: when the server is stopped, the server socket is properly closed
-    
-
-**Minors**
-
-    * Fixed issue in rename (Alt+Shift+R) / find references (Ctrl+Shift+G) on top level module variables.
-    * Fixed issue where create class/method/field action was not ok because of comment.
-    * Fixed issue where doing create class/method/field action on file with tabs ended up adding spaces.
-
 
 
 

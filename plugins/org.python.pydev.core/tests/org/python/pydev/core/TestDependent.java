@@ -28,6 +28,7 @@ public class TestDependent {
     
     //Python (implicitly resolved based on the Python variables above if not specified).
     public static String PYTHON_LIB = null;
+    public static String PYTHON_DLLS = null;
     public static String PYTHON_EXE = null;
     public static String PYTHON_SITE_PACKAGES = null;
     public static String PYTHON_TEST_PACKAGES = null;
@@ -63,8 +64,8 @@ public class TestDependent {
     //Jython (required)
     public static String JYTHON_JAR_LOCATION = "d:/bin/jython2.2.1/jython.jar";
     public static String JYTHON_LIB_LOCATION = "d:/bin/jython2.2.1/lib/";
-    public static String JYTHON_ANT_JAR_LOCATION = "D:/bin/eclipse_36_final/plugins/org.apache.ant_1.7.1.v20100518-1145/lib/ant.jar";
-    public static String JYTHON_JUNIT_JAR_LOCATION = "D:/bin/eclipse_36_final/plugins/org.junit_3.8.2.v3_8_2_v20100427-1100/junit.jar";
+    public static String JYTHON_ANT_JAR_LOCATION = null;
+    public static String JYTHON_JUNIT_JAR_LOCATION = null;
 
     //Iron Python (optional)
     public static String IRONPYTHON_EXE = null;
@@ -81,9 +82,9 @@ public class TestDependent {
 
     public static String GetCompletePythonLib(boolean addSitePackages) {
         if (!addSitePackages) {
-            return PYTHON_LIB;
+            return PYTHON_LIB+"|"+PYTHON_DLLS;
         } else {
-            return PYTHON_LIB + "|" + PYTHON_SITE_PACKAGES;
+            return PYTHON_LIB + "|" + PYTHON_SITE_PACKAGES+"|"+PYTHON_DLLS;
         }
     }
     
@@ -178,6 +179,9 @@ public class TestDependent {
 
             if (PYTHON_LIB == null) {
                 PYTHON_LIB = PYTHON_INSTALL + "Lib/";
+            }
+            if (PYTHON_DLLS == null) {
+                PYTHON_DLLS = PYTHON_INSTALL + "DLLs/";
             }
             if (PYTHON_SITE_PACKAGES == null) {
                 PYTHON_SITE_PACKAGES = PYTHON_LIB + "site-packages/";
