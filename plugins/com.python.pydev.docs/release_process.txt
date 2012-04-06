@@ -21,6 +21,7 @@ d:\bin\Python265\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy
 
 		Update the versions on org.python.pydev.build/build_local.properties
 		Commit everything
+        Merge with release
         Merge with master_pydev
 
 		Execute the build_cmd.txt in cmd.exe
