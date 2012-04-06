@@ -30,7 +30,6 @@ public class PyParser26Test extends PyParserTestBase{
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        PyParser.USE_FAST_STREAM = true;
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_6);
     }
     

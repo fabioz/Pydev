@@ -54,7 +54,7 @@ public final class PythonGrammar27 extends AbstractPythonGrammar implements IGra
 
 
     
-    FastStringBuffer dottedNameStringBuffer = new FastStringBuffer();
+    private final FastStringBuffer dottedNameStringBuffer = new FastStringBuffer();
     
     /**
      * @return the current token found.

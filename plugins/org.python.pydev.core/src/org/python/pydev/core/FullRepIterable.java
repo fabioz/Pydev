@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 /**
  * iterates through a string so that parts of it are gotten each time in a progressive way based on dots
@@ -236,7 +237,7 @@ public class FullRepIterable implements Iterable<String>{
 
     
     public static String joinParts(List<String> actToks, int parts) {
-        StringBuffer buffer = new StringBuffer();
+        FastStringBuffer buffer = new FastStringBuffer();
         for (int i = 0; i < parts; i++) {
             if(i > 0){
                 buffer.append('.');

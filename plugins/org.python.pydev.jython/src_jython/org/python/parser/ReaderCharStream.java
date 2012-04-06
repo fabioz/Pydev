@@ -8,7 +8,6 @@ package org.python.parser;
 
 import java.io.IOException;
 
-import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
 import org.python.pydev.core.log.Log;
 
@@ -195,11 +194,18 @@ public final class ReaderCharStream implements CharStream {
     private final ObjectsPoolMap interned = new ObjectsPoolMap(); 
     
     public final String GetImage() {
+        String string;
         if (bufpos >= tokenBegin) {
-            return ObjectsPool.internLocal(interned, new String(buffer, tokenBegin, bufpos - tokenBegin+1));
+            string = new String(buffer, tokenBegin, bufpos - tokenBegin+1);
         } else {
-            return ObjectsPool.internLocal(interned, new String(buffer, tokenBegin, buffer.length - tokenBegin+1));
+            string = new String(buffer, tokenBegin, buffer.length - tokenBegin+1);
         }
+        String existing = interned.get(string);
+        if(existing == null){
+            existing = string;
+            interned.put(string, string);
+        }
+        return existing;
     }
 
     public final char[] GetSuffix(int len) {

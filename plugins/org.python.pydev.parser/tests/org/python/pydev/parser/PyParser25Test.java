@@ -47,7 +47,6 @@ public class PyParser25Test extends PyParserTestBase{
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        PyParser.USE_FAST_STREAM = true;
     }
 
     public void testForWithCondExp() {

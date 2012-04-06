@@ -8,9 +8,9 @@ package org.python.pydev.parser.jython;
 
 import java.io.IOException;
 
-import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 /**
  * An implementation of interface CharStream, where the data is read from a Reader. Completely recreated so that we can read data directly from a String, as the
@@ -70,7 +70,6 @@ public final class FastCharStream implements CharStream {
         final int initialBufPos = bufpos;
         final int currLine = getEndLine();
         
-        int attempts = 0;
         if(currLine < endLine){
             //note: we could do it, but it's not what we want!
             Log.log("Cannot backtrack to a later position -- current line: "+getEndLine()+" requested line:"+endLine);
@@ -81,7 +80,6 @@ public final class FastCharStream implements CharStream {
         }
         
         while((getEndLine() != endLine || getEndColumn() != endColumn) && bufpos >=0){
-            attempts += 1;
             bufpos--;
         }
         
@@ -195,15 +193,46 @@ public final class FastCharStream implements CharStream {
     private final ObjectsPoolMap interned = new ObjectsPoolMap(); 
     
     public final String GetImage() {
+        String string;
         if (bufpos >= tokenBegin) {
-            return ObjectsPool.internLocal(interned, new String(buffer, tokenBegin, bufpos - tokenBegin+1));
+            string = new String(buffer, tokenBegin, bufpos - tokenBegin+1);
         } else {
-            return ObjectsPool.internLocal(interned, new String(buffer, tokenBegin, buffer.length - tokenBegin+1));
+            string = new String(buffer, tokenBegin, buffer.length - tokenBegin+1);
         }
+        
+        String existing = interned.get(string);
+        if(existing != null){
+            return existing;
+        }
+        interned.put(string, string);
+        return string;
     }
 
+    public final void AppendSuffix(FastStringBuffer buf, int len) {
+        if (len > 0) {
+            try {
+                int initial = bufpos - len +1;
+                if(initial < 0){
+                    int initial0 = initial;
+                    len += initial;
+                    initial = 0;
+                    buf.appendN('\u0000', -initial0);
+                    buf.append(buffer, initial, len);
+                }else{
+                    buf.append(buffer, initial, len);
+                }
+            } catch (Exception e) {
+                Log.log(e);
+            }
+        }
+    }
+    
+    public static boolean ACCEPT_GET_SUFFIX = false;
+    
     public final char[] GetSuffix(int len) {
-
+        if(!ACCEPT_GET_SUFFIX){
+            throw new RuntimeException("This method should not be used (AppendSuffix should be used instead).");
+        }
         char[] ret = new char[len];
         if (len > 0) {
             try {

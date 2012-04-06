@@ -2153,9 +2153,10 @@ public final class PySelection {
      * @return the contents from the document starting at the cursor line until a colon is reached. 
      */
     public String getToColon() {
-        StringBuffer buffer = new StringBuffer();
+        FastStringBuffer buffer = new FastStringBuffer();
         
-        for(int i = getLineOffset(); i < doc.getLength();i++){
+        int docLen = doc.getLength();
+        for(int i = getLineOffset(); i < docLen;i++){
             try {
                 char c = doc.getChar(i);
                 buffer.append(c);
