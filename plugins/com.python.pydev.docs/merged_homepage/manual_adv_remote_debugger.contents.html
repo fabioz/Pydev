@@ -58,11 +58,13 @@
 <p>To do that, edit the launch that PyDev created (run &gt; run configurations &gt; PyDev Django) and remove the noreload flag and edit your manage.py so that the lines:</p>
 
 <div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
-<script type="syntaxhighlighter" class="theme: Default; brush: python; gutter: false"><![CDATA[#Add pydevd to the PYTHONPATH (may be skipped if that path is already added in the PyDev configurations)
-import sys;sys.path.append(r'path_to\pydev\plugins\org.python.pydev.debug\pysrc')
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span style="color: #408080; font-style: italic">#Add pydevd to the PYTHONPATH (may be skipped if that path is already added in the PyDev configurations)</span>
+<span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">sys</span>;sys<span style="color: #666666">.</span>path<span style="color: #666666">.</span>append(<span style="color: #BA2121">r&#39;path_to\pydev\plugins\org.python.pydev.debug\pysrc&#39;</span>)
 
-import pydevd
-pydevd.patch_django_autoreload()]]></script>
+<span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">pydevd</span>
+pydevd<span style="color: #666666">.</span>patch_django_autoreload()
+</pre></div>
+
 </div></div>
 
 <p>are added <b>BEFORE</b> the <b>if _<em>name</em>_ == "_<em>main</em>_"</b>. Note: this was added in PyDev 2.1.1.</p>

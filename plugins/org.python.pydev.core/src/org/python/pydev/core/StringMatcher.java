@@ -13,6 +13,8 @@ package org.python.pydev.core;
 
 import java.util.Vector;
 
+import org.python.pydev.core.structure.FastStringBuffer;
+
 /**
  * A string pattern matcher suppporting &#39;*&#39; and &#39;&#63;&#39; wildcards.
  */
@@ -285,7 +287,7 @@ public class StringMatcher {
         Vector<String> temp = new Vector<String>();
 
         int pos = 0;
-        StringBuffer buf = new StringBuffer();
+        FastStringBuffer buf = new FastStringBuffer();
         while (pos < fLength) {
             char c = fPattern.charAt(pos++);
             switch (c) {

@@ -176,6 +176,13 @@ public class AssistDocStringTest extends TestCase {
         "    '''";
         check(expected, "def f(:"     );
         
+        
+        expected = "class f:\r\n" +
+                "    '''\r\n" +
+                "    \r\n" +
+                "    '''";
+        check(expected, "class f:"     );
+        
         check("def f):", "def f):", 0     );
         
         

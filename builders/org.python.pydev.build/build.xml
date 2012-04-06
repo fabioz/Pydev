@@ -138,7 +138,7 @@
         <delete dir="${buildDirectory}/features/org.eclipse.pde.build.container.feature" failonerror="false" />
         <delete dir="${p2.repo.dir}" failonerror="false" />
         <!-- Do an git checkout of the build directory -->
-        <exec executable="/bin/bash" dir="${buildDirectory}">
+        <exec executable="/bin/bash" dir="${buildDirectory}" failifexecutionfails="false">
             <arg value="-c" />
             <arg value="${git.executable} checkout -f" />
         </exec>
@@ -148,7 +148,7 @@
 	<!-- - - - - - - - - - - - - - - - - - 
           target: clean.after                      
          - - - - - - - - - - - - - - - - - -->
-	<target name="build" depends="doit" if="cleanAfter">
+	<target name="build" depends="doit" if="cleanAfter.set">
 		<antcall target="clean" />
 	</target>
 

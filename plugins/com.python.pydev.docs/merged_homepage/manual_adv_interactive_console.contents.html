@@ -3,6 +3,20 @@
 <div id="Content" style="padding: 5px;">
 <h1><a name="PyDevInteractiveConsole-InteractiveConsole"></a>Interactive Console</h1>
 
+<h2><a name="PyDevInteractiveConsole-NewonPyDev2.5.0%3AInteractionwithVariablesView"></a>New on PyDev 2.5.0: Interaction with Variables View</h2>
+
+<p>From PyDev 2.5.0 onwards, the interactive console may be connected to the variables/expressions view (as if it was a debug process... but without breakpoints).</p>
+
+<p>To enable that feature, go to window &gt; preferences &gt; PyDev &gt; Interactive Console and check 'Connect console to Variables Debug View?'.</p>
+
+<p><span class="image-wrap" style=""><img src="http://pydev.org/images/interactiveconsole/interactive_console_variables_view_preference.png" style="border: 1px solid black" /></span></p>
+
+<p>With that setting in place, when a new interactive console is created and the debug perspective is shown, it's possible to see the variables available in the console through the variables view and even add expressions to be resolved in the expressions view.</p>
+
+<p><span class="image-wrap" style=""><img src="http://pydev.org/images/interactiveconsole/interactive_console_variables_view.png" style="border: 1px solid black" /></span></p>
+
+
+<h2><a name="PyDevInteractiveConsole-UsingtheInteractiveConsole"></a>Using the Interactive Console</h2>
 
 <p><b>Note</b>: From PyDev 2.2.2 onwards, if IPython (0.10 or 0.11) is found in the PYTHONPATH, <br/>
 PyDev will use it as the backend for the console.</p>

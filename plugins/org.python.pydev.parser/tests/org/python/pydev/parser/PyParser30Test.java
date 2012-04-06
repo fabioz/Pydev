@@ -44,7 +44,6 @@ public class PyParser30Test extends PyParserTestBase{
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        PyParser.USE_FAST_STREAM = true;
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_3_0);
     }
 
@@ -507,7 +506,7 @@ public class PyParser30Test extends PyParserTestBase{
     
     public void testUnicodeIdentifiers() {
         String s = "" +
-        "class ву(object):\n" +
+        "class пїЅпїЅ(object):\n" +
         "    pass\n" +
         "";
         parseLegalDocStr(s);

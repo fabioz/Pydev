@@ -11,6 +11,8 @@ package org.python.pydev.core;
 
 import java.io.Serializable;
 
+import org.python.pydev.core.structure.FastStringBuffer;
+
 /**
  * Defines a tuple of some object, adding equals and hashCode operations
  * 
@@ -65,15 +67,15 @@ public final class Tuple4<X ,Y, Z, T> implements Serializable{
     
     @Override
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
+        FastStringBuffer buffer = new FastStringBuffer();
         buffer.append("Tuple [");
-        buffer.append(o1);
+        buffer.appendObject(o1);
         buffer.append(" -- ");
-        buffer.append(o2);
+        buffer.appendObject(o2);
         buffer.append(" -- ");
-        buffer.append(o3);
+        buffer.appendObject(o3);
         buffer.append(" -- ");
-        buffer.append(o4);
+        buffer.appendObject(o4);
         buffer.append("]");
         return buffer.toString();
     }

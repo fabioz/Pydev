@@ -1133,8 +1133,8 @@ public final class PySelection {
     * b
     * c
     * 
-    * @return a Tuple so that the first param is the list and 
-    * the second the offset of the end of the parenthesis it may return null if no starting parenthesis was found at the current line
+    * @return a Tuple so that the first param is the list and the second the offset of the end of the parenthesis.
+    * It may return null if no starting parenthesis was found at the current line
     */
     public Tuple<List<String>, Integer> getInsideParentesisToks(boolean addSelf, int offset, boolean isCall) {
         List<String> params = new ArrayList<String>();
@@ -2153,9 +2153,10 @@ public final class PySelection {
      * @return the contents from the document starting at the cursor line until a colon is reached. 
      */
     public String getToColon() {
-        StringBuffer buffer = new StringBuffer();
+        FastStringBuffer buffer = new FastStringBuffer();
         
-        for(int i = getLineOffset(); i < doc.getLength();i++){
+        int docLen = doc.getLength();
+        for(int i = getLineOffset(); i < docLen;i++){
             try {
                 char c = doc.getChar(i);
                 buffer.append(c);
