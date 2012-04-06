@@ -22,13 +22,13 @@ import org.python.pydev.core.structure.FastStringBuffer;
  * is probably not worth it -- and it would probably be a little slower)
  */
 
-public final class FastCharStream implements CharStream {
+public final class FastCharStream {
 
-    private char[] buffer;
+    public final char[] buffer;
 
-    private int bufline[];
+    public final int bufline[];
 
-    private int bufcolumn[];
+    public final int bufcolumn[];
 
     private boolean prevCharIsCR = false;
 
@@ -38,11 +38,11 @@ public final class FastCharStream implements CharStream {
 
     private int line = 1;
 
-    private int bufpos = -1;
+    public int bufpos = -1;
 
     private int updatePos;
     
-    private int tokenBegin;
+    public int tokenBegin;
     
     private static IOException ioException;
 
@@ -140,23 +140,6 @@ public final class FastCharStream implements CharStream {
         }
     }
 
-    /**
-     * @deprecated
-     * @see #getEndColumn
-     */
-
-    public final int getColumn() {
-        return bufcolumn[bufpos];
-    }
-
-    /**
-     * @deprecated
-     * @see #getEndLine
-     */
-
-    public final int getLine() {
-        return bufline[bufpos];
-    }
 
     public final int getEndColumn() {
         return bufcolumn[bufpos];
@@ -255,10 +238,17 @@ public final class FastCharStream implements CharStream {
         return ret;
     }
 
-    public final void Done() {
-        buffer = null;
-        bufline = null;
-        bufcolumn = null;
+
+    public void setBeginEndCharsEqual(Token t) {
+        t.beginLine = t.endLine = bufline[tokenBegin];
+        t.beginColumn = t.endColumn = bufcolumn[tokenBegin];
+    }
+
+    public void setBeginEndChars(Token t) {
+        t.beginLine = bufline[tokenBegin];
+        t.beginColumn = bufcolumn[tokenBegin];
+        t.endLine = bufline[bufpos];
+        t.endColumn = bufcolumn[bufpos];
     }
 
 

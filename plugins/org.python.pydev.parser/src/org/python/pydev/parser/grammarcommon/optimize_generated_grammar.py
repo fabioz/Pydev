@@ -1,3 +1,21 @@
+def ReplaceContents(contents, start, end, obtain_new_contents):
+    i_start = contents.find(start)
+    found = 0
+    while i_start >= 0:
+        i_end = contents.find(end, i_start+len(start))
+        if i_end >= 0:
+            found += 1
+            new_contents = obtain_new_contents(contents[i_start + len(start):i_end])
+            converted = new_contents
+            contents = list(contents)
+            contents[i_start:i_end+len(end)] = converted
+            contents = ''.join(contents)
+            i_start = contents.find(start, i_start+len(new_contents))
+        else:
+            break
+    assert found == 1, 'Found: %s' % (found,)
+    return contents
+    
 def main():
     import sys
     if len(sys.argv) < 1:
@@ -29,6 +47,41 @@ def main():
                     
                     regexp_to_match = re.compile(r'public void ReInit[^}]*')
                     contents = re.sub(regexp_to_match, '//Removed Reinit', contents)
+                    
+                    i = contents.find('Token jjFillToken')
+                    regexp_to_match = re.compile(r'Token jjFillToken[^}]*')
+                    
+                    if 'tokenmanager' in f.lower():
+                        new_jj_fill_token = '''
+Token jjFillToken()
+{
+   final Token t;
+   final String curTokenImage;
+   if (jjmatchedPos < 0)
+   {
+      if (image == null)
+         curTokenImage = "";
+      else
+         curTokenImage = image.toString();
+      t = Token.newToken(jjmatchedKind, curTokenImage);
+      t.beginLine = t.endLine = input_stream.bufline[input_stream.tokenBegin];
+    t.beginColumn = t.endColumn = input_stream.bufcolumn[input_stream.tokenBegin];
+   }
+   else
+   {
+      String im = jjstrLiteralImages[jjmatchedKind];
+      curTokenImage = (im == null) ? input_stream.GetImage() : im;
+      t = Token.newToken(jjmatchedKind, curTokenImage);
+      t.beginLine = input_stream.bufline[input_stream.tokenBegin];
+    t.beginColumn = input_stream.bufcolumn[input_stream.tokenBegin];
+    t.endLine = input_stream.bufline[input_stream.bufpos];
+    t.endColumn = input_stream.bufcolumn[input_stream.bufpos];
+      
+   }
+
+   return t;
+'''
+                        contents = ReplaceContents(contents, 'Token jjFillToken', 'return t;', lambda *args:new_jj_fill_token)
                     
                     lines = []
                     for line in contents.splitlines():

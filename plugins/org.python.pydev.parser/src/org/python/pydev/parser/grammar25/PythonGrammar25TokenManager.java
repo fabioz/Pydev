@@ -3226,40 +3226,35 @@ public void SwitchTo(int lexState)
       curLexState = lexState;
 }
 
-protected Token jjFillToken()
+protected 
+Token jjFillToken()
 {
    final Token t;
    final String curTokenImage;
-   final int beginLine;
-   final int endLine;
-   final int beginColumn;
-   final int endColumn;
    if (jjmatchedPos < 0)
    {
       if (image == null)
          curTokenImage = "";
       else
          curTokenImage = image.toString();
-      beginLine = endLine = input_stream.getBeginLine();
-      beginColumn = endColumn = input_stream.getBeginColumn();
+      t = Token.newToken(jjmatchedKind, curTokenImage);
+      t.beginLine = t.endLine = input_stream.bufline[input_stream.tokenBegin];
+    t.beginColumn = t.endColumn = input_stream.bufcolumn[input_stream.tokenBegin];
    }
    else
    {
       String im = jjstrLiteralImages[jjmatchedKind];
       curTokenImage = (im == null) ? input_stream.GetImage() : im;
-      beginLine = input_stream.getBeginLine();
-      beginColumn = input_stream.getBeginColumn();
-      endLine = input_stream.getEndLine();
-      endColumn = input_stream.getEndColumn();
+      t = Token.newToken(jjmatchedKind, curTokenImage);
+      t.beginLine = input_stream.bufline[input_stream.tokenBegin];
+    t.beginColumn = input_stream.bufcolumn[input_stream.tokenBegin];
+    t.endLine = input_stream.bufline[input_stream.bufpos];
+    t.endColumn = input_stream.bufcolumn[input_stream.bufpos];
+      
    }
-   t = Token.newToken(jjmatchedKind, curTokenImage);
-
-   t.beginLine = beginLine;
-   t.endLine = endLine;
-   t.beginColumn = beginColumn;
-   t.endColumn = endColumn;
 
    return t;
+
 }
 
 int curLexState = 0;

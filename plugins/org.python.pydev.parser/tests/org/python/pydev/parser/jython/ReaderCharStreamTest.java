@@ -86,7 +86,7 @@ public class ReaderCharStreamTest extends TestCase {
         doTests2(in);
     }
 
-    private void doTests2(CharStream in) throws IOException {
+    private void doTests2(FastCharStream in) throws IOException {
         assertEquals('a', in.readChar());
         assertEquals("a", in.GetImage());
         
@@ -228,7 +228,7 @@ public class ReaderCharStreamTest extends TestCase {
     /**
      * @param in
      */
-    private void checkStart(CharStream in, int line, int col) {
+    private void checkStart(FastCharStream in, int line, int col) {
         assertEquals(1, in.getBeginColumn());
         assertEquals(1, in.getBeginLine());
     }
