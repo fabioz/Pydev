@@ -110,6 +110,40 @@ Important
 First time users are strongly advised to read the `Getting started guide`_  which explains how to properly configure PyDev
 
 
+Release 2.5.0
+===============
+
+
+* **Django**: 
+
+ * Project wizard now properly supports Django 1.4.
+
+* **Django with auto-reload**:
+ 
+ * pydevd.patch_django_auto_reload() now properly patches Django 1.4 for the remote debugger
+ * pydevd.patch_django_auto_reload() now patches the Django reload to show a console out of Eclipse so that Ctrl+C works.
+ * Created code template to pydevd.patch_django_auto_reload()
+ 
+* **Interactive Console**:
+
+ * The interactive console may be attached to the variables view (patch from Jonah Graham)
+   See: `Interactive console`_ for details.
+ * Drag and Drop may be used to drag code from the editor to the interactive console (patch from Jonah Graham)
+
+* **Code formatter**:
+ 
+ * Multi-lines may be right-trimmed (patch from Haw-Bin Chai) -- option must be enabled in the code-formatting settings.
+ * Fixed issue where the auto code-formatting only with changed lines would end up formatting strings as regular code.
+   
+* **Others**:
+
+ * pydevd.settrace() template now adds the debugger to the PYTHONPATH before actually doing the settrace().
+ * The style of generated docstrings may be chosen in the preferences (EpyDoc or Sphinx) (patch from Paul Collins).
+
+
+Aside from that **lots** of bugs were fixed in this release.
+
+
 
 Release 2.4.0
 ===============
