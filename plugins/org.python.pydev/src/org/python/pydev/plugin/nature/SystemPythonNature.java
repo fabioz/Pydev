@@ -7,6 +7,11 @@
 package org.python.pydev.plugin.nature;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -20,6 +25,8 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.PropertiesHelper;
+import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.editor.codecompletion.revisited.SystemASTManager;
 
 /**
@@ -28,6 +35,78 @@ import org.python.pydev.editor.codecompletion.revisited.SystemASTManager;
  * exactly we're dealing with: it's usually only used for external files)
  */
 public class SystemPythonNature extends AbstractPythonNature implements IPythonNature{
+
+    /**
+     * @author Fabio
+     *
+     */
+    private final class SystePythonPathNature implements IPythonPathNature {
+        public void setVariableSubstitution(Map<String, String> variableSubstitution) throws CoreException {
+            throw new RuntimeException("Not implemented");
+        }
+
+        public void setProjectSourcePath(String newSourcePath) throws CoreException {
+            throw new RuntimeException("Not implemented");
+        }
+
+        public void setProjectExternalSourcePath(String newExternalSourcePath) throws CoreException {
+            throw new RuntimeException("Not implemented");
+        }
+
+        public void setProject(IProject project, IPythonNature nature) {
+            throw new RuntimeException("Not implemented");
+        }
+
+        public Map<String, String> getVariableSubstitution(boolean addInterpreterInfoSubstitutions) throws CoreException,
+                MisconfigurationException, PythonNatureWithoutProjectException {
+            return getVariableSubstitution();
+        }
+
+        public Map<String, String> getVariableSubstitution() throws CoreException, MisconfigurationException,
+                PythonNatureWithoutProjectException {
+            Properties stringSubstitutionVariables = SystemPythonNature.this.info.getStringSubstitutionVariables();
+            Map<String, String> variableSubstitution;
+            if(stringSubstitutionVariables == null){
+                variableSubstitution = new HashMap<String, String>();
+            }else{
+                variableSubstitution = PropertiesHelper.createMapFromProperties(stringSubstitutionVariables);
+            }
+            return variableSubstitution;
+
+        }
+
+        public Set<String> getProjectSourcePathSet(boolean replaceVariables) throws CoreException {
+            throw new RuntimeException("Not implemented");
+        }
+
+        public String getProjectSourcePath(boolean replaceVariables) throws CoreException {
+            throw new RuntimeException("Not implemented");
+        }
+
+        public List<String> getProjectExternalSourcePathAsList(boolean replaceVariables) throws CoreException {
+            throw new RuntimeException("Not implemented");
+        }
+
+        public String getProjectExternalSourcePath(boolean replaceVariables) throws CoreException {
+            throw new RuntimeException("Not implemented");
+        }
+
+        public String getOnlyProjectPythonPathStr(boolean addExternal) throws CoreException {
+            throw new RuntimeException("Not implemented");
+        }
+
+        public IPythonNature getNature() {
+            return SystemPythonNature.this;
+        }
+
+        public List<String> getCompleteProjectPythonPath(IInterpreterInfo interpreter, IInterpreterManager info) {
+            return interpreter.getPythonPath();
+        }
+
+        public void clearCaches() {
+            //No caches anyways
+        }
+    }
 
     private final IInterpreterManager manager;
     public final IInterpreterInfo info;
@@ -120,7 +199,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
     }
 
     public IPythonPathNature getPythonPathNature() {
-        throw new RuntimeException("Not Implemented");
+        return new SystePythonPathNature();
     }
 
     public String resolveModule(String file) throws MisconfigurationException {

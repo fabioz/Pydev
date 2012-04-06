@@ -10,7 +10,7 @@ import junit.framework.TestCase;
 
 import org.python.pydev.core.docutils.StringUtils;
 
-public class TestCaseUtils extends TestCase{
+public abstract class TestCaseUtils extends TestCase{
     
     public static final boolean DEBUG = false;
     

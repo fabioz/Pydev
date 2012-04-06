@@ -39,7 +39,7 @@ public class PySelectionTest extends TestCase {
         try {
             PySelectionTest test = new PySelectionTest();
             test.setUp();
-            test.testGetCurrDottedStatement();
+            test.testGetInsideParentesis();
             test.tearDown();
             
             junit.textui.TestRunner.run(PySelectionTest.class);
@@ -345,14 +345,13 @@ public class PySelectionTest extends TestCase {
         assertEquals("a", insideParentesisToks.get(0));
         assertEquals("b", insideParentesisToks.get(1));
         
+        //Note: as Python dropped this support, so did PyDev: in this situation (b,c) is ignored.
         s = "def m1(self, a, (b,c) )";
         doc = new Document(s);
         ps = new PySelection(doc, new TextSelection(doc, 0,0));
         insideParentesisToks = ps.getInsideParentesisToks(false).o1;
-        assertEquals(3, insideParentesisToks.size());
+        assertEquals(1, insideParentesisToks.size());
         assertEquals("a", insideParentesisToks.get(0));
-        assertEquals("b", insideParentesisToks.get(1));
-        assertEquals("c", insideParentesisToks.get(2));
         
         s = "def m1(self, a, b, \nc,\nd )";
         doc = new Document(s);
@@ -363,6 +362,13 @@ public class PySelectionTest extends TestCase {
         assertEquals("b", insideParentesisToks.get(1));
         assertEquals("c", insideParentesisToks.get(2));
         assertEquals("d", insideParentesisToks.get(3));
+        
+        s = "def m1(self, a=(1,2))";
+        doc = new Document(s);
+        ps = new PySelection(doc, new TextSelection(doc, 0,0));
+        insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        assertEquals(1, insideParentesisToks.size());
+        assertEquals("a", insideParentesisToks.get(0));
         
         
     }

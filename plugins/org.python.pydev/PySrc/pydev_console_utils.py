@@ -246,3 +246,90 @@ class BaseInterpreterInterface:
         except:
             import traceback;traceback.print_exc()
             return ''
+
+
+    def _findFrame(self, *args, **kwargs):
+        '''
+        Used to show console with variables connection.
+        Always return a frame where the locals map to our internal namespace.
+        '''
+        f = FakeFrame()
+        f.f_globals = {} #As globals=locals here, let's simply let it empty (and save a bit of network traffic).
+        f.f_locals = self.getNamespace()
+        return f
+        
+        
+    def connectToDebugger(self, debuggerPort):
+        '''
+        Used to show console with variables connection.
+        Mainly, monkey-patches things in the debugger structure so that the debugger protocol works.
+        '''
+        try:
+            # Try to import the packages needed to attach the debugger
+            import pydevd
+            import pydevd_vars
+            import threading
+        except:
+            # This happens on Jython embedded in host eclipse 
+            import traceback;traceback.print_exc()
+            return ('pydevd is not available, cannot connect',)
+        
+        import pydev_localhost
+        threading.currentThread().__pydevd_id__ = "console_main"
+        
+        pydevd_vars.findFrame = self._findFrame
+        
+        self.debugger = pydevd.PyDB()
+        try:
+            self.debugger.connect(pydev_localhost.get_localhost(), debuggerPort)
+        except:
+            import traceback;traceback.print_exc()
+            return ('Failed to connect to target debugger.')
+        return ('connect complete',)
+    
+    
+    def postCommand(self, cmd_str):
+        '''
+        Used to show console with variables connection.
+        This does what 2 threads would be actually doing in the debugger: it posts commands to be consumed and just
+        after posting the command, it executes it.
+        '''
+        if getattr(self, 'debugger', None) is None:
+            msg = 'Error on pydevd_console_utils.py: connectToDebugger was not called (or did not work).\n'
+            sys.stderr.write(msg)
+            return(msg,)
+        
+        from pydevd_comm import PydevQueue
+        try:
+            args = cmd_str.split('\t', 2)
+            self.debugger.processNetCommand(int(args[0]), int(args[1]), args[2])
+            self.debugger._main_lock.acquire()
+            try:
+                queue = self.debugger.getInternalQueue("console_main")
+                try:
+                    while True:
+                        int_cmd = queue.get(False)
+                        if int_cmd.canBeExecutedBy("console_main"):
+                            int_cmd.doIt(self.debugger)
+                            
+                except PydevQueue.Empty: #@UndefinedVariable
+                    pass
+            finally:
+                self.debugger._main_lock.release()
+        except:
+            import traceback;traceback.print_exc()
+        return ('',)
+        
+        
+    def hello(self, input_str):
+        # Don't care what the input string is
+        return ("Hello eclipse",)
+
+#=======================================================================================================================
+# FakeFrame
+#=======================================================================================================================
+class FakeFrame:
+    '''
+    Used to show console with variables connection.
+    A class to be used as a mock of a frame.
+    '''

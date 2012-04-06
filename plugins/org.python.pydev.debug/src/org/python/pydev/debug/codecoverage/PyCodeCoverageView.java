@@ -233,6 +233,9 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
      *      ProgressOperation.startAction(getSite().getShell(), action, true);
      */
     /*default for tests*/ void executeRefreshAction(IProgressMonitor monitor) {
+        if(viewer == null){ //Safeguard: if the view containing this one was removed and for some reason not properly disposed, this would occur.
+            return;
+        }
         if(monitor == null){
             monitor = new NullProgressMonitor();
         }
@@ -262,6 +265,59 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
             onSelectedFileInTree(null);
         }
     }
+    
+    
+    private final ICallbackListener<Process> afterCreatedProcessListener = new ICallbackListener<Process>() {
+
+        public Object call(final Process obj) {
+            if(viewer == null){ //Safeguard: if the view containing this one was removed and for some reason not properly disposed, this would occur.
+                return null;
+            }
+            new Thread(){
+                @Override
+                public void run() {
+                    boolean finished = false;
+                    while(!finished){
+                        try {
+                            obj.waitFor();
+                            finished = true;
+                        } catch (InterruptedException e) {
+                            //ignore
+                        }
+                    }
+                    //If it got here, the process was finished (so, check the setting on refresh and do it if 
+                    //needed).
+                    if(PyCoveragePreferences.getRefreshAfterNextLaunch()){
+                        RunInUiThread.async(new Runnable() {
+                            
+                            public void run() {
+                                ProgressOperation.startAction(getSite().getShell(), refreshAction, true);
+                            }
+                        });
+                    }
+                }
+            }.start();
+            return null;
+        }
+    };
+    
+    private final ICallbackListener<PythonRunnerCallbacks.CreatedCommandLineParams> onCreatedCommandLineListener = new ICallbackListener<PythonRunnerCallbacks.CreatedCommandLineParams>() {
+        public Object call(CreatedCommandLineParams arg) {
+            if(viewer == null){ //Safeguard: if the view containing this one was removed and for some reason not properly disposed, this would occur.
+                return null;
+            }
+            if(arg.coverageRun){
+                if(PyCoveragePreferences.getClearCoverageInfoOnNextLaunch()){
+                    try {
+                        PyCoverage.getPyCoverage().clearInfo();
+                    } catch (Exception e) {
+                        Log.log(e);
+                    }
+                }
+            }
+            return null;
+        }
+    };
     
     public static IContainer getChosenDir() {
         return PyCoveragePreferences.getLastChosenDir();
@@ -598,20 +654,8 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
                 PyCoveragePreferences.setClearCoverageInfoOnNextLaunch(clearCoverageInfoOnNextLaunch.getSelection());
             }
         });
-        PythonRunnerCallbacks.onCreatedCommandLine.registerListener(new ICallbackListener<PythonRunnerCallbacks.CreatedCommandLineParams>() {
-            public Object call(CreatedCommandLineParams arg) {
-                if(arg.coverageRun){
-                    if(PyCoveragePreferences.getClearCoverageInfoOnNextLaunch()){
-                        try {
-                            PyCoverage.getPyCoverage().clearInfo();
-                        } catch (Exception e) {
-                            Log.log(e);
-                        }
-                    }
-                }
-                return null;
-            }
-        });
+
+        PythonRunnerCallbacks.onCreatedCommandLine.registerListener(onCreatedCommandLineListener);
         layoutData = new GridData();
         layoutData.grabExcessHorizontalSpace = true;
         layoutData.horizontalAlignment = GridData.FILL;
@@ -643,36 +687,8 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
                 PyCoveragePreferences.setRefreshAfterNextLaunch(refreshCoverageInfoOnNextLaunch.getSelection());
             }
         });
-        PythonRunnerCallbacks.afterCreatedProcess.registerListener(new ICallbackListener<Process>() {
 
-            public Object call(final Process obj) {
-                new Thread(){
-                    @Override
-                    public void run() {
-                        boolean finished = false;
-                        while(!finished){
-                            try {
-                                obj.waitFor();
-                                finished = true;
-                            } catch (InterruptedException e) {
-                                //ignore
-                            }
-                        }
-                        //If it got here, the process was finished (so, check the setting on refresh and do it if 
-                        //needed).
-                        if(PyCoveragePreferences.getRefreshAfterNextLaunch()){
-                            RunInUiThread.async(new Runnable() {
-                                
-                                public void run() {
-                                    ProgressOperation.startAction(getSite().getShell(), refreshAction, true);
-                                }
-                            });
-                        }
-                    }
-                }.start();
-                return null;
-            }
-        });
+        PythonRunnerCallbacks.afterCreatedProcess.registerListener(afterCreatedProcessListener);
         layoutData = new GridData();
         layoutData.grabExcessHorizontalSpace = true;
         layoutData.horizontalAlignment = GridData.FILL;
@@ -889,6 +905,8 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
     @Override
     public void dispose() {
         try {
+            PythonRunnerCallbacks.afterCreatedProcess.unregisterListener(afterCreatedProcessListener);
+            PythonRunnerCallbacks.onCreatedCommandLine.unregisterListener(onCreatedCommandLineListener);
             PyCoveragePreferences.setInternalAllRunsDoCoverage(false);
             PyCoveragePreferences.setLastChosenDir(null);
             if(text != null){

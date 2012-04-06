@@ -48,6 +48,12 @@ public class PydevConsole extends ScriptConsole  {
     public static int nextId = -1;
     
     private String additionalInitialComands;
+
+	/**
+	 * Eclipse process that this console is viewing. Only non-null if there is a
+	 * corresponding Launch/Debug Target connected to the same console
+	 */
+	private IProcess process = null;
     
     
     private static String getNextId() {
@@ -196,5 +202,23 @@ public class PydevConsole extends ScriptConsole  {
         }
     }
 
+	/**
+	 * Eclipse process that this console is viewing. Only non-null if there is a
+	 * corresponding Launch/Debug Target connected to the same console
+	 * 
+	 * @return IProcess of viewed process
+	 */
+	public IProcess getProcess() {
+		return process;
+	}
 
+	/**
+	 * Eclipse process that this console is viewing.
+	 * 
+	 * @param process
+	 *            being viewed
+	 */
+	public void setProcess(IProcess process) {
+		this.process = process;
+	}
 }

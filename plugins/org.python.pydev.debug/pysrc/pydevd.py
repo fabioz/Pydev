@@ -1108,36 +1108,70 @@ def usage(doExit=0):
 #=======================================================================================================================
 # patch_django_autoreload
 #=======================================================================================================================
-def patch_django_autoreload():
+def patch_django_autoreload(patch_remote_debugger=True, patch_show_console=True):
     '''
     Patch Django to work with remote debugger without adding an explicit 
-    pydevd.settrace to set a breakpoint (i.e.: setup the remote debugger machinery
+    pydevd.settrace to set a breakpoint (i.e.: it'll setup the remote debugger machinery
     and don't suspend now -- this will load the breakpoints and will listen to 
     changes in them so that we do stop on the breakpoints set in the editor).
     
     Checked with with Django 1.2.5.
     Checked with with Django 1.3.
+    Checked with with Django 1.4.
+    
+    @param patch_remote_debugger: if True, the debug tracing mechanism will be put into place.
+    @param patch_show_console: if True, each new process created in Django will allocate a new console 
+                               outside of Eclipse (so, it can be killed with a Ctrl+C in that console).
     '''
-    if ('runserver' in sys.argv or 'testserver' in sys.argv):
+    if 'runserver' in sys.argv or 'testserver' in sys.argv:
     
         from django.utils import autoreload
-        original_main = autoreload.main
         
-        def main(main_func, args=None, kwargs=None):
+        if patch_remote_debugger:
+            original_main = autoreload.main
             
-            if os.environ.get("RUN_MAIN") == "true":
-                original_main_func = main_func
+            def main(main_func, args=None, kwargs=None):
                 
-                def pydev_debugger_main_func(*args, **kwargs):
-                    settrace(suspend=False)
-                    return original_main_func(*args, **kwargs)
+                if os.environ.get("RUN_MAIN") == "true":
+                    original_main_func = main_func
                     
-                main_func = pydev_debugger_main_func
+                    def pydev_debugger_main_func(*args, **kwargs):
+                        settrace(
+                            suspend=False,  #Don't suspend now (but put the debugger structure in place).
+                            trace_only_current_thread=False, #Trace any created thread.
+                        )
+                        return original_main_func(*args, **kwargs)
+                        
+                    main_func = pydev_debugger_main_func
+        
+                return original_main(main_func, args, kwargs)
+        
+            autoreload.main = main
+        
+        
+        if patch_show_console:
+            def restart_with_reloader():
+                while True:
+                    args = [sys.executable] + ['-W%s' % o for o in sys.warnoptions] + sys.argv
+                    
+                    #Commented out: not needed with Popen (in fact, it fails if that's done).
+                    #if sys.platform == "win32":
+                    #    args = ['"%s"' % arg for arg in args]
+                    
+                    new_environ = os.environ.copy()
+                    new_environ["RUN_MAIN"] = 'true'
+                    
+                    #Changed to Popen variant so that the creation flag can be passed.
+                    #exit_code = os.spawnve(os.P_WAIT, sys.executable, args, new_environ)
+                    import subprocess
+                    popen = subprocess.Popen(args, env=new_environ, creationflags=subprocess.CREATE_NEW_CONSOLE)
+                    exit_code = popen.wait()
+                    
+                    #Kept the same
+                    if exit_code != 3:
+                        return exit_code
     
-            return original_main(main_func, args, kwargs)
-    
-        autoreload.main = main
-
+            autoreload.restart_with_reloader = restart_with_reloader
 
 
 #=======================================================================================================================
@@ -1300,8 +1334,13 @@ if __name__ == '__main__':
     DebugInfoHolder.DEBUG_RECORD_SOCKET_READS = setup.get('DEBUG_RECORD_SOCKET_READS', False)
 
     debugger = PyDB()
-    debugger.connect(setup['client'], setup['port'])
-    
+    try:
+        debugger.connect(setup['client'], setup['port'])
+    except:
+        sys.stderr.write("Could not connect to %s: %s\n" % (setup['client'], setup['port']))
+        traceback.print_exc()
+        sys.exit(1)    
+        
     connected = True #Mark that we're connected when started from inside eclipse.
     
     debugger.run(setup['file'], None, None)

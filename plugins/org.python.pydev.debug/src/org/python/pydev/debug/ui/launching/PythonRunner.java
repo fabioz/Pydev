@@ -97,8 +97,8 @@ public class PythonRunner {
         subMonitor.beginTask("Launching python", 1);
         
         // Launch & connect to the debugger        
-        RemoteDebugger debugger = new RemoteDebugger(config);
-        debugger.startConnect(subMonitor);
+        RemoteDebugger debugger = new RemoteDebugger();
+        debugger.startConnect(subMonitor, config);
         subMonitor.subTask("Constructing command_line...");
         String[] cmdLine = config.getCommandLine(true);
 

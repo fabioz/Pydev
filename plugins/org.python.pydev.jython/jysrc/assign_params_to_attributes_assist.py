@@ -14,19 +14,22 @@ http://pydev.sourceforge.net
 
 from org.python.pydev.editor.correctionassist.heuristics import IAssistProps #@UnresolvedImport
 from org.python.pydev.editor.codecompletion import PyCompletionProposal #@UnresolvedImport
-import assign_params_to_attributes_action as helper 
+import assign_params_to_attributes_action 
 from org.python.pydev.ui import UIConstants #@UnresolvedImport
 from org.python.pydev.editor.codecompletion import IPyCompletionProposal #@UnresolvedImport
 from java.util import ArrayList
-True, False = 1,0
+True, False = 1, 0
 
 
+#=======================================================================================================================
+# Prop
+#=======================================================================================================================
 class Prop(PyCompletionProposal):
     '''This is the proposal that Ctrl+1 will require
     '''
     
 
-    def __init__(self,assignToAttribsOfSelf,*args):
+    def __init__(self, assignToAttribsOfSelf, *args):
         PyCompletionProposal.__init__(self, *args)
         self.assignToAttribsOfSelf = assignToAttribsOfSelf
 
@@ -39,22 +42,28 @@ class Prop(PyCompletionProposal):
         return None
         
 
+#=======================================================================================================================
+# AssistAssignParamsToAttributes
+#=======================================================================================================================
 class AssistAssignParamsToAttributes(IAssistProps):
     '''This is the assistant class, that will check if we can apply the action and actually apply it
     (really: it just repasses all to AssignToAttribsOfSelf)
     '''
     
-    def getImage(self,imageCache, c):
+    
+    def getImage(self, imageCache, c):
         if imageCache is not None:
             return imageCache.get(c)
         
         return None
 
+
     def isValid(self, ps, sel, editor, offset):
         '''java: boolean isValid(PySelection ps, String sel, PyEdit edit, int offset);
         '''
-        self.assignToAttribsOfSelf = helper.AssignToAttribsOfSelf(editor)
+        self.assignToAttribsOfSelf = assign_params_to_attributes_action.AssignToAttribsOfSelf(editor)
         return self.assignToAttribsOfSelf.isScriptApplicable(ps, False)
+        
         
     def getProps(self, ps, imageCache, f, nature, editor, offset):
         '''java: List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, 

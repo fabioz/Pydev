@@ -65,7 +65,6 @@ public class ParseBigFile extends PyParserTestBase {
             @SuppressWarnings("unused") long curr = System.currentTimeMillis();
             SimpleNode node = parseLegalDocStr(s);
             
-            PyParser.USE_FAST_STREAM = true;
             //uncomment line below to see the time for parsing
             //System.out.println(StringUtils.format("Took: %s secs", (System.currentTimeMillis()-curr)/1000.0));
             SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(node);

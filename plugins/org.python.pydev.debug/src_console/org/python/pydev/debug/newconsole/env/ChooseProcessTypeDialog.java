@@ -15,11 +15,16 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
@@ -27,6 +32,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NotConfiguredInterpreterException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -51,6 +57,8 @@ final class ChooseProcessTypeDialog extends Dialog {
     private IInterpreterManager interpreterManager;
     
     private List<IPythonNature> natures = new ArrayList<IPythonNature>();
+
+    private Link link;
 
     ChooseProcessTypeDialog(Shell shell, PyEdit activeEditor) {
         super(shell);
@@ -81,6 +89,26 @@ final class ChooseProcessTypeDialog extends Dialog {
         checkboxJythonEclipse = new Button(area, SWT.RADIO);
         checkboxJythonEclipse.setToolTipText("Creates a Jython console using the running Eclipse environment (can potentially halt Eclipse depending on what's done).");
         configureButton(checkboxJythonEclipse, "Jython using VM running Eclipse", new JythonEclipseInterpreterManager());
+        
+        
+        link = new Link(area, SWT.LEFT | SWT.WRAP);
+        link.setText(
+                "<a>Configure interactive console preferences.</a>\n" +
+                "I.e.: send contents to console on creation,\n" +
+                "connect to variables view, initial commands, etc."
+        );
+
+        link.addSelectionListener(new SelectionListener() {
+            public void widgetSelected(SelectionEvent e) {
+                PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(
+                        null, InteractiveConsolePrefs.PREFERENCES_ID, null, null);
+                dialog.open(); 
+            }
+
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+        });
+        
         
         return area;
     }

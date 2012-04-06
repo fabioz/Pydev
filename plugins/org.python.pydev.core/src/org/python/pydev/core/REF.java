@@ -1021,6 +1021,10 @@ public class REF {
     }
 
 
+    public static void copyFile(String srcFilename, String dstFilename){
+        copyFile(new File(srcFilename), new File(dstFilename));
+    }
+    
     /**
      * Copy a file from one place to another.
      * 
@@ -1029,7 +1033,7 @@ public class REF {
      * @param srcFilename the source file
      * @param dstFilename the destination
      */
-    public static void copyFile(String srcFilename, String dstFilename){
+    public static void copyFile(File srcFilename, File dstFilename){
         FileChannel srcChannel = null;
         FileChannel dstChannel = null;
         try {
@@ -1335,6 +1339,17 @@ public class REF {
 
     public static boolean getSupportsOpenDirectory() {
         return getOpenDirectoryExecutable() != null;
+    }
+
+    
+    public static File createFileFromParts(String ... parts) {
+        String part0 = parts[0];
+        File f = new File(part0);
+        for(int i=1;i<parts.length;i++){
+            String part = parts[i];
+            f = new File(f, part);
+        }
+        return f;
     }
 }
 

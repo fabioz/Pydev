@@ -140,7 +140,7 @@ public class SimpleJythonRunner extends SimpleRunner{
         
         
         if(!new File(jythonJar).exists()){
-            throw new RuntimeException(StringUtils.format("Error. The default configured interpreter: %s is does not exist!", jythonJar));
+            throw new RuntimeException(StringUtils.format("Error. The default configured interpreter: %s does not exist!", jythonJar));
         }
         InterpreterInfo info = (InterpreterInfo) interpreterManager.getInterpreterInfo(jythonJar, new NullProgressMonitor());
 

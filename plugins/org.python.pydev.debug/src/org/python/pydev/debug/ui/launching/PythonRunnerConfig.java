@@ -586,7 +586,8 @@ public class PythonRunnerConfig {
     }
 
     /** 
-     * gets location of jpydaemon.py
+     * Gets location of pydevd.py
+     * @note: Used on scripting (variables related to debugger location). 
      */
     public static String getDebugScript() throws CoreException {
         return REF.getFileAbsolutePath(PydevDebugPlugin.getScriptWithinPySrc("pydevd.py"));

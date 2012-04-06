@@ -316,7 +316,13 @@ public class TreeIO {
                         buf.appendResizeOnExc(c);
                     }
                 }
-                map.put(val, ObjectsPool.internLocal(objectsPoolMap, buf.toString()));
+                String bufStr = buf.toString();
+                String interned = objectsPoolMap.get(bufStr);
+                if(interned == null){
+                    interned = bufStr;
+                    objectsPoolMap.put(bufStr, bufStr);
+                }
+                map.put(val, interned);
                 buf.clear();
             }
         }

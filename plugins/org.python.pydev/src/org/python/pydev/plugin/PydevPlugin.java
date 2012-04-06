@@ -129,7 +129,15 @@ public class PydevPlugin extends AbstractUIPlugin  {
      */
     public static IInterpreterManager getInterpreterManager(IPythonNature nature) {
         try {
-            switch(nature.getInterpreterType()){
+            return getInterpreterManagerFromType(nature.getInterpreterType());
+        } catch (CoreException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    public static IInterpreterManager getInterpreterManagerFromType(int interpreterType) {
+        try {
+            switch(interpreterType){
                 case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
                     return jythonInterpreterManager;
                 case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
@@ -137,7 +145,7 @@ public class PydevPlugin extends AbstractUIPlugin  {
                 case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
                     return ironpythonInterpreterManager;
                 default:
-                    throw new RuntimeException("Unable to get the interpreter manager for unknown interpreter type: "+nature.getInterpreterType());
+                    throw new RuntimeException("Unable to get the interpreter manager for unknown interpreter type: "+interpreterType);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
