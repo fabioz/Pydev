@@ -1120,8 +1120,11 @@ def patch_django_autoreload(patch_remote_debugger=True, patch_show_console=True)
     Checked with with Django 1.4.
     
     @param patch_remote_debugger: if True, the debug tracing mechanism will be put into place.
+    
     @param patch_show_console: if True, each new process created in Django will allocate a new console 
                                outside of Eclipse (so, it can be killed with a Ctrl+C in that console).
+                               Note: when on Linux, even Ctrl+C will do a reload, so, the parent process
+                               (inside Eclipse) must be killed before issuing the Ctrl+C (see TODO in code).
     '''
     if 'runserver' in sys.argv or 'testserver' in sys.argv:
     
@@ -1151,8 +1154,14 @@ def patch_django_autoreload(patch_remote_debugger=True, patch_show_console=True)
         
         if patch_show_console:
             def restart_with_reloader():
+                import subprocess
+                create_new_console_supported = hasattr(subprocess, 'CREATE_NEW_CONSOLE')
+                if not create_new_console_supported:
+                    sys.stderr.write('Warning: to actually kill the created console, the parent process (in Eclipse console) must be killed first.\n')
+                    
                 while True:
                     args = [sys.executable] + ['-W%s' % o for o in sys.warnoptions] + sys.argv
+                    sys.stdout.write('Executing process on new console: %s\n' % (' '.join(args),))
                     
                     #Commented out: not needed with Popen (in fact, it fails if that's done).
                     #if sys.platform == "win32":
@@ -1163,9 +1172,21 @@ def patch_django_autoreload(patch_remote_debugger=True, patch_show_console=True)
                     
                     #Changed to Popen variant so that the creation flag can be passed.
                     #exit_code = os.spawnve(os.P_WAIT, sys.executable, args, new_environ)
-                    import subprocess
-                    popen = subprocess.Popen(args, env=new_environ, creationflags=subprocess.CREATE_NEW_CONSOLE)
-                    exit_code = popen.wait()
+                    if create_new_console_supported:
+                        popen = subprocess.Popen(args, env=new_environ, creationflags=subprocess.CREATE_NEW_CONSOLE)
+                        exit_code = popen.wait()
+                    else:
+                        #On Linux, CREATE_NEW_CONSOLE is not available, thus, we use xterm itself. There is a problem
+                        #here: xterm does not return the return code of the executable, so, we keep things running all
+                        #the time, even when Ctrl+c is issued (which means that the user must first stop the parent
+                        #process and only after that do a Ctrl+C in the terminal).
+                        #
+                        #TODO: It should be possible to create a 'wrapper' program to store this value and then read it
+                        #to know if Ctrl+C was indeed used or a reload took place, but this is kept for the future :)
+                        args = ['xterm', '-e'] + args
+                        popen = subprocess.Popen(args, env=new_environ)
+                        popen.wait() #This exit code will always be 0 when xterm is executed.
+                        exit_code = 3 
                     
                     #Kept the same
                     if exit_code != 3:

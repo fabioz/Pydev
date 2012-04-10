@@ -1718,7 +1718,7 @@ import pydevd;pydevd.settrace()</pattern>
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.pydevd_patch_django_auto_reload">
 <pattern>import sys;sys.path.append(r'${pydevd_dir_location}')
-import pydevd;pydevd.patch_django_autoreload()</pattern>
+import pydevd;pydevd.patch_django_autoreload(patch_remote_debugger=True, patch_show_console=True)</pattern>
       </template>
       <template
             autoinsert="true"
