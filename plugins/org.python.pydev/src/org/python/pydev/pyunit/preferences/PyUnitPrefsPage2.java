@@ -75,13 +75,24 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
         String s2 = "Parameters for PyDev test runner:\n\n" +
         		"    --verbosity=number\n" +
         		"        Sets the verbosity level for the run\n\n" +
+        		
         		"    --jobs=number\n" +
         		"        The number of processes to be used to run the tests\n\n" +
+        		
         		"    --split_jobs=tests|module\n" +
         		"        if tests is passed (default), the tests will be split\n" +
         		"        independently to each process if module is passed, a\n" +
-        		"        given job will always receive all the tests from a module" +
-        		"\n" +
+        		"        given job will always receive all the tests from a module\n\n" +
+        		
+        		"    --include_files=comma separated list of patterns (i.e.: test*.py)\n" +
+        		"        Patterns to match filenames to be included during test discovery\n\n" +
+        		
+        		"    --exclude_files=comma separated list of patterns\n" +
+        		"        Patterns to match filenames to be excluded during test discovery\n\n" +
+        		
+        		"    --exclude_tests=comma separated list of patterns\n" +
+        		"        Patterns to match test names to be ignored during test discovery\n\n" +
+        		
         		"";
         addField(new LabelFieldEditor("LabelFieldEditor2", s2, p));
         

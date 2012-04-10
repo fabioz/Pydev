@@ -120,9 +120,9 @@ Release 2.5.0
 
 * **Django with auto-reload**:
  
- * pydevd.patch_django_auto_reload() now properly patches Django 1.4 for the remote debugger.
- * pydevd.patch_django_auto_reload() now patches the Django reload to show a console out of Eclipse so that Ctrl+C can be used.
- * Created code template to pydevd.patch_django_auto_reload().
+ * pydevd.patch_django_autoreload() now properly patches Django 1.4 for the remote debugger.
+ * pydevd.patch_django_autoreload() now patches the Django reload to show a console out of Eclipse so that Ctrl+C can be used.
+ * Created code template to pydevd.patch_django_autoreload().
  
 * **Interactive Console**:
 
