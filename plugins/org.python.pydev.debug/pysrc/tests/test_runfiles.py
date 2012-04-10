@@ -39,7 +39,16 @@ sys.path.remove(desired_runfiles_path)
 
 class RunfilesTest(unittest.TestCase):
     
-    def _setup_scenario(self, path, t_filter=None, tests=None, files_to_tests=None):
+    def _setup_scenario(
+        self, 
+        path, 
+        t_filter=None, 
+        tests=None, 
+        files_to_tests=None, 
+        exclude_files=None, 
+        exclude_tests=None, 
+        include_files=None, 
+        ):
         self.MyTestRunner = pydev_runfiles.PydevTestRunner(
             pydev_runfiles.Configuration(
                 files_or_dirs=path,
@@ -47,6 +56,9 @@ class RunfilesTest(unittest.TestCase):
                 verbosity=1,
                 tests=tests,
                 files_to_tests=files_to_tests,
+                exclude_files=exclude_files,
+                exclude_tests=exclude_tests,
+                include_files=include_files,
             )
         )
         self.files = self.MyTestRunner.find_import_files()
@@ -102,6 +114,14 @@ class RunfilesTest(unittest.TestCase):
         self.assertEquals(sys.argv[5:], configuration.files_or_dirs)
         self.assertEquals(int(sys.argv[2]), configuration.verbosity)
         self.assertEquals([sys.argv[4]], configuration.test_filter)
+
+        sys.argv = "pydev_runfiles.py --exclude_files=*.txt,a*.py".split()
+        configuration = pydev_runfiles.parse_cmdline()
+        self.assertEquals(['*.txt', 'a*.py'], configuration.exclude_files)
+
+        sys.argv = "pydev_runfiles.py --exclude_tests=*__todo,test*bar".split()
+        configuration = pydev_runfiles.parse_cmdline()
+        self.assertEquals(['*__todo', 'test*bar'], configuration.exclude_tests)
 
     
     def test___adjust_python_path_works_for_directories(self):
@@ -244,6 +264,49 @@ class RunfilesTest(unittest.TestCase):
         self._setup_scenario(self.file_dir, None, ['StillYetAnotherSampleTest', 'SampleTest.test_xxxxxx1'])
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         self.assertEqual(2, self.count_tests(filtered_tests))
+        
+        self._setup_scenario(self.file_dir, None, exclude_tests=['*'])
+        filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
+        self.assertEqual(self.count_tests(filtered_tests), 0)
+        
+        
+        self._setup_scenario(self.file_dir, None, exclude_tests=['*a*'])
+        filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
+        self.assertEqual(self.count_tests(filtered_tests), 6)
+        
+        self.assertEqual(
+            set(self.MyTestRunner.list_test_names(filtered_tests)), 
+            set(['test_1', 'test_2', 'test_xxxxxx1', 'test_xxxxxx2', 'test_xxxxxx3', 'test_xxxxxx4'])
+        )
+        
+        self._setup_scenario(self.file_dir, None, exclude_tests=['*a*', '*x*'])
+        filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
+        self.assertEqual(self.count_tests(filtered_tests), 2)
+        
+        self.assertEqual(
+            set(self.MyTestRunner.list_test_names(filtered_tests)), 
+            set(['test_1', 'test_2'])
+        )
+        
+        self._setup_scenario(self.file_dir, None, exclude_files=['simple_test.py'])
+        filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
+        names = self.MyTestRunner.list_test_names(filtered_tests)
+        self.assert_('test_xxxxxx1' not in names, 'Found: %s' % (names,))
+        
+        self.assertEqual(
+            set(['test_abc', 'test_non_unique_name', 'test_non_unique_name', 'test_asdf2', 'test_i_am_a_unique_test_name', 'test_non_unique_name']), 
+            set(names)
+        )
+        
+        self._setup_scenario(self.file_dir, None, include_files=['simple3_test.py'])
+        filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
+        names = self.MyTestRunner.list_test_names(filtered_tests)
+        self.assert_('test_xxxxxx1' not in names, 'Found: %s' % (names,))
+        
+        self.assertEqual(
+            set(['test_non_unique_name']), 
+            set(names)
+        )
         
     def test_xml_rpc_communication(self):
         notifications = []

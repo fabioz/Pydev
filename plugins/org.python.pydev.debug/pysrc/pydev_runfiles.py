@@ -26,6 +26,9 @@ class Configuration:
         coverage_output_dir=None, 
         coverage_include=None,
         coverage_output_file=None, 
+        exclude_files=None,
+        exclude_tests=None,
+        include_files=None,
         ):
         self.files_or_dirs = files_or_dirs
         self.verbosity = verbosity
@@ -36,6 +39,16 @@ class Configuration:
         self.jobs = jobs
         self.split_jobs = split_jobs
         
+        if exclude_files:
+            assert isinstance(exclude_files, (list, tuple))
+            
+        if exclude_tests:
+            assert isinstance(exclude_tests, (list, tuple))
+            
+        self.exclude_files = exclude_files
+        self.include_files = include_files
+        self.exclude_tests = exclude_tests
+        
         self.coverage_output_dir = coverage_output_dir 
         self.coverage_include = coverage_include
         self.coverage_output_file = coverage_output_file
@@ -45,19 +58,27 @@ class Configuration:
 # parse_cmdline
 #=======================================================================================================================
 def parse_cmdline(argv=None):
-    """ parses command line and returns test directories, verbosity, test filter and test suites
-        usage: 
-            runfiles.py  -v|--verbosity <level>  -f|--filter <regex>  -t|--tests <Test.test1,Test2>  dirs|files
+    """ 
+    Parses command line and returns test directories, verbosity, test filter and test suites
+    
+    usage: 
+        runfiles.py  -v|--verbosity <level>  -t|--tests <Test.test1,Test2>  dirs|files
+        
+    Multiprocessing options:
+    jobs=number (with the number of jobs to be used to run the tests)
+    split_jobs='module'|'tests' 
+        if == module, a given job will always receive all the tests from a module
+        if == tests, the tests will be split independently of their originating module (default)
             
-        Multiprocessing options:
-        jobs=number (with the number of jobs to be used to run the tests)
-        split_jobs='module'|'tests' 
-            if == module, a given job will always receive all the tests from a module
-            if == tests, the tests will be split independently of their originating module (default)
+    --exclude_files  = comma-separated list of patterns with files to exclude (fnmatch style)
+    --include_files = comma-separated list of patterns with files to include (fnmatch style)
+    --exclude_tests = comma-separated list of patterns with test names to exclude (fnmatch style)
+    
+    Note: if --tests is given, --exclude_files, --include_files and --exclude_tests are ignored!
     """
     if argv is None:
         argv = sys.argv
-        
+    
     verbosity = 2
     test_filter = None
     tests = None
@@ -67,14 +88,20 @@ def parse_cmdline(argv=None):
     files_to_tests = {}
     coverage_output_dir = None
     coverage_include = None
+    exclude_files = None
+    exclude_tests = None
+    include_files = None
 
     from _pydev_getopt import gnu_getopt
     optlist, dirs = gnu_getopt(
-        argv[1:], "v:f:t:p:c:j:s:d:i", 
+        argv[1:], "v:f:t:F:I:e:p:c:j:s:d:i", 
         [
             "verbosity=", 
             "filter=", 
             "tests=", 
+            "include_files=", 
+            "exclude_files=", 
+            "exclude_tests=", 
             "port=", 
             "config_file=", 
             "jobs=", 
@@ -107,6 +134,15 @@ def parse_cmdline(argv=None):
             
         elif opt in ("-f", "--filter"):
             test_filter = value.split(',')
+
+        elif opt in ("-I", "--exclude_files"):
+            exclude_files = value.split(',')
+
+        elif opt in ("-F", "--include_files"):
+            include_files = value.split(',')
+
+        elif opt in ("-e", "--exclude_tests"):
+            exclude_tests = value.split(',')
 
         elif opt in ("-t", "--tests"):
             tests = value.split(',')
@@ -147,9 +183,14 @@ def parse_cmdline(argv=None):
         else:
             ret_dirs.append(d)
 
+    verbosity = int(verbosity)
+    
+    if tests:
+        exclude_files = exclude_tests = include_files = None
+        
     return Configuration(
         ret_dirs, 
-        int(verbosity), 
+        verbosity, 
         test_filter, 
         tests, 
         port, 
@@ -158,6 +199,9 @@ def parse_cmdline(argv=None):
         split_jobs, 
         coverage_output_dir, 
         coverage_include, 
+        exclude_files=exclude_files,
+        exclude_tests=exclude_tests,
+        include_files=include_files,
     )
 
             
@@ -281,22 +325,59 @@ class PydevTestRunner(object):
     def find_import_files(self):
         """ return a list of files to import """
         if self.files_to_tests:
-            return self.files_to_tests.keys()
-        
-        pyfiles = []
-
-        for base_dir in self.files_or_dirs:
-            if os.path.isdir(base_dir):
-                if hasattr(os, 'walk'):
-                    for root, dirs, files in os.walk(base_dir):
-                        self.__add_files(pyfiles, root, files)
-                else:
-                    # jython2.1 is too old for os.walk!
-                    os.path.walk(base_dir, self.__add_files, pyfiles)
-
-            elif os.path.isfile(base_dir):
-                pyfiles.append(base_dir)
-
+            pyfiles = self.files_to_tests.keys()
+        else:
+            pyfiles = []
+    
+            for base_dir in self.files_or_dirs:
+                if os.path.isdir(base_dir):
+                    if hasattr(os, 'walk'):
+                        for root, dirs, files in os.walk(base_dir):
+                            self.__add_files(pyfiles, root, files)
+                    else:
+                        # jython2.1 is too old for os.walk!
+                        os.path.walk(base_dir, self.__add_files, pyfiles)
+    
+                elif os.path.isfile(base_dir):
+                    pyfiles.append(base_dir)
+    
+        if self.configuration.exclude_files or self.configuration.include_files:
+            ret = []
+            for f in pyfiles:
+                add = True
+                basename = os.path.basename(f)
+                if self.configuration.include_files:
+                    add = False
+                    
+                    for pat in self.configuration.include_files:
+                        if fnmatch.fnmatchcase(basename, pat):
+                            add = True
+                            break
+                
+                if not add:
+                    if self.verbosity > 3:
+                        sys.stdout.write('Skipped file: %s (did not match any include_files pattern: %s)\n' % (f, self.configuration.include_files))
+                
+                elif self.configuration.exclude_files:
+                    for pat in self.configuration.exclude_files:
+                        if fnmatch.fnmatchcase(basename, pat):
+                            if self.verbosity > 3:
+                                sys.stdout.write('Skipped file: %s (matched exclude_files pattern: %s)\n' % (f, pat))
+                                
+                            elif self.verbosity > 2:
+                                sys.stdout.write('Skipped file: %s\n' % (f,))
+                                
+                            add = False
+                            break
+                        
+                if add:
+                    if self.verbosity > 3:
+                        sys.stdout.write('Adding file: %s for test discovery.\n' % (f,))
+                    ret.append(f)
+                        
+            pyfiles = ret
+                
+                
         return pyfiles
 
     def __get_module_from_str(self, modname, print_exception, pyfile):
@@ -469,25 +550,60 @@ class PydevTestRunner(object):
         for test_obj in test_objs:
 
             if isinstance(test_obj, unittest.TestSuite):
-                
+                #Note: keep the suites as they are and just 'fix' the tests (so, don't use the iter_tests).
                 if test_obj._tests:
                     test_obj._tests = self.filter_tests(test_obj._tests)
-                    if test_obj._tests:
+                    if test_obj._tests: #Only add the suite if we still have tests there.
                         test_suite.append(test_obj)
 
             elif isinstance(test_obj, unittest.TestCase):
-                test_cases = []
-                for tc in test_objs:
-                    try:
-                        testMethodName = tc._TestCase__testMethodName
-                    except AttributeError:
-                        #changed in python 2.5
-                        testMethodName = tc._testMethodName
+                try:
+                    testMethodName = test_obj._TestCase__testMethodName
+                except AttributeError:
+                    #changed in python 2.5
+                    testMethodName = test_obj._testMethodName
 
-                    if self.__match(self.test_filter, testMethodName) and self.__match_tests(self.tests, tc, testMethodName):
-                        test_cases.append(tc)
-                return test_cases
+                add = True
+                if self.configuration.exclude_tests:
+                    for pat in self.configuration.exclude_tests:
+                        if fnmatch.fnmatchcase(testMethodName, pat):
+                            if self.verbosity > 3:
+                                sys.stdout.write('Skipped test: %s (matched exclude_tests pattern: %s)\n' % (testMethodName, pat))
+                                
+                            elif self.verbosity > 2:
+                                sys.stdout.write('Skipped test: %s\n' % (testMethodName,))
+                                
+                            add = False
+                            break
+                        
+                if add:
+                    if self.__match(self.test_filter, testMethodName) and self.__match_tests(self.tests, test_obj, testMethodName):
+                        test_suite.append(test_obj)
         return test_suite
+
+
+    def iter_tests(self, test_objs):
+        #Note: not using yield because of Jython 2.1.
+        tests = []
+        for test_obj in test_objs:
+            if isinstance(test_obj, unittest.TestSuite):
+                tests.extend(self.iter_tests(test_obj._tests))
+                    
+            elif isinstance(test_obj, unittest.TestCase):
+                tests.append(test_obj)
+        return tests
+            
+        
+    def list_test_names(self, test_objs):
+        names = []
+        for tc in self.iter_tests(test_objs):
+            try:
+                testMethodName = tc._TestCase__testMethodName
+            except AttributeError:
+                #changed in python 2.5
+                testMethodName = tc._testMethodName
+            names.append(testMethodName)
+        return names
 
 
     def __match_tests(self, tests, test_case, test_method_name):
