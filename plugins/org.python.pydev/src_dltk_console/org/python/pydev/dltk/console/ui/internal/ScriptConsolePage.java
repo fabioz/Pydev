@@ -25,6 +25,7 @@ import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.console.actions.TextViewerAction;
 import org.python.pydev.dltk.console.ui.ScriptConsole;
 import org.python.pydev.dltk.console.ui.internal.actions.CloseScriptConsoleAction;
+import org.python.pydev.dltk.console.ui.internal.actions.LinkWithDebugSelectionAction;
 import org.python.pydev.dltk.console.ui.internal.actions.SaveConsoleSessionAction;
 
 public class ScriptConsolePage extends TextConsolePage implements IScriptConsoleContentHandler {
@@ -68,6 +69,8 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
 
     private CloseScriptConsoleAction closeConsoleAction;
 
+    private LinkWithDebugSelectionAction linkWithDebugSelectionAction;
+
     protected void createActions() {
         super.createActions();
 
@@ -91,6 +94,14 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
 
         toolbarManager.appendToGroup(SCRIPT_GROUP, saveSessionAction);
 
+		if (getConsole().getType().contains("PydevDebugConsole")) {
+			// initialize LinkWithFrameAction only for Debug Console
+			linkWithDebugSelectionAction = new LinkWithDebugSelectionAction(
+					(ScriptConsole) getConsole(), ScriptConsoleMessages.LinkWithDebugAction,
+					ScriptConsoleMessages.LinkWithDebugToolTip);
+	        toolbarManager.appendToGroup(SCRIPT_GROUP, linkWithDebugSelectionAction);
+		}
+ 
         bars.updateActionBars();
     }
     

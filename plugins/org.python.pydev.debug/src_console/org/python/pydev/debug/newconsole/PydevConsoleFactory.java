@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.List;
+import java.util.UUID;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -28,6 +29,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyDebugTargetConsole;
+import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.model.remote.ListenConnector;
 import org.python.pydev.debug.model.remote.RemoteDebuggerConsole;
 import org.python.pydev.debug.newconsole.env.IProcessFactory;
@@ -82,21 +84,29 @@ public class PydevConsoleFactory implements IConsoleFactory {
                 monitor.beginTask("Create Interactive Console", 10);
                 IStatus returnStatus = Status.OK_STATUS;
                 try {
-                    ScriptConsoleManager manager = ScriptConsoleManager.getInstance();
-                    monitor.worked(1);
-                    final PydevConsole console = new PydevConsole(interpreter, additionalInitialComands);
-                    monitor.worked(1);
-                    try {
-                        createDebugTarget(interpreter, console, new SubProgressMonitor(monitor, 8));
-                    } catch (UserCanceledException uce) {
-                        return Status.CANCEL_STATUS;
-
-                    } catch (Exception e) {
-                        //Just set the return status, but keep on going to add the console to the manager (as the message says).
-                        returnStatus = PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to connect debugger to Interactive Console\n"
-                                + "The interactive console will continue to operate without the additional debugger features", e);
-                    }
-                    manager.add(console, true);
+                	if (interpreter != null){
+	                    ScriptConsoleManager manager = ScriptConsoleManager.getInstance();
+	                	PydevConsole console;
+	        			if (interpreter.getFrame() == null) {
+		                    monitor.worked(1);
+		                    console = new PydevConsole(interpreter, additionalInitialComands);
+		                    monitor.worked(1);
+		                    try {
+		                        createDebugTarget(interpreter, console, new SubProgressMonitor(monitor, 8));
+		                    } catch (UserCanceledException uce) {
+		                        return Status.CANCEL_STATUS;
+		
+		                    } catch (Exception e) {
+		                        //Just set the return status, but keep on going to add the console to the manager (as the message says).
+		                        returnStatus = PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to connect debugger to Interactive Console\n"
+		                                + "The interactive console will continue to operate without the additional debugger features", e);
+		                    }
+        				} else {
+        					// Debug Console
+        					console = new PydevDebugConsole(interpreter, additionalInitialComands);
+        				}
+	                    manager.add(console, true);
+                	}
                     
                 } catch (Exception e) {
                     Log.log(e);
@@ -229,8 +239,11 @@ public class PydevConsoleFactory implements IConsoleFactory {
         if(launchAndProcess == null){
             return null;
         }
-        return createPydevInterpreter(launchAndProcess, iprocessFactory.getNaturesUsed());
-
+        if (launchAndProcess.frame == null){
+        	return createPydevInterpreter(launchAndProcess, iprocessFactory.getNaturesUsed());
+        } else {
+        	return createPydevDebugInterpreter(launchAndProcess, iprocessFactory.getNaturesUsed());
+        }
         
     }
     
@@ -265,5 +278,22 @@ public class PydevConsoleFactory implements IConsoleFactory {
 
     	
     }
+	
+    public static PydevConsoleInterpreter createPydevDebugInterpreter(
+			PydevConsoleLaunchInfo info, List<IPythonNature> natures)
+			throws Exception {
+		// Unique Id for pydev debug console
+		UUID consoleId = UUID.randomUUID();
 
+		PyStackFrame frame = info.frame;
+		IInterpreterInfo interpreterInfo = info.interpreter;
+
+		PydevConsoleInterpreter consoleInterpreter = new PydevConsoleInterpreter();
+		consoleInterpreter.setFrame(frame);
+		consoleInterpreter.setInterpreterInfo(interpreterInfo);
+
+		// pydev console uses running debugger as a backend
+		consoleInterpreter.setConsoleCommunication(new PydevDebugConsoleCommunication(consoleId.toString()));
+		return consoleInterpreter;
+	}
 }

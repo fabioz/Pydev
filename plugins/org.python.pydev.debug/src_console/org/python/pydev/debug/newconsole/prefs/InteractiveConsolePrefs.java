@@ -35,6 +35,7 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
         ColorFieldEditor sysin = new ColorFieldEditor(PydevConsoleConstants.CONSOLE_INPUT_COLOR, "Stdin color", p);
         ColorFieldEditor prompt = new ColorFieldEditor(PydevConsoleConstants.CONSOLE_PROMPT_COLOR, "Prompt color", p);
         ColorFieldEditor background = new ColorFieldEditor(PydevConsoleConstants.CONSOLE_BACKGROUND_COLOR, "Background color", p);
+        ColorFieldEditor debugBackground = new ColorFieldEditor(PydevConsoleConstants.DEBUG_CONSOLE_BACKGROUND_COLOR, "Debug console background color", p);
         
         
         addField(sysout);
@@ -42,7 +43,8 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
         addField(sysin);
         addField(prompt);
         addField(background);
-        
+        addField(debugBackground);
+       
         addField(new MultiStringFieldEditor(PydevConsoleConstants.INITIAL_INTERPRETER_CMDS, 
                 "Initial\ninterpreter\ncommands:\n", p));
         
