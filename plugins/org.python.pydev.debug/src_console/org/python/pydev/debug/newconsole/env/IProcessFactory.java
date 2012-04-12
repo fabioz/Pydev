@@ -36,6 +36,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.editor.PyEdit;
@@ -57,6 +58,7 @@ public class IProcessFactory {
         public final Process process;
         public final int clientPort;
         public final IInterpreterInfo interpreter;
+        public final PyStackFrame frame;
 
         /**
          * @param launch
@@ -64,11 +66,12 @@ public class IProcessFactory {
          * @param clientPort
          * @param interpreter
          */
-        public PydevConsoleLaunchInfo(Launch launch, Process process, int clientPort, IInterpreterInfo interpreter) {
+        public PydevConsoleLaunchInfo(Launch launch, Process process, int clientPort, IInterpreterInfo interpreter, PyStackFrame frame) {
             this.launch = launch;
             this.process = process;
             this.clientPort = clientPort;
             this.interpreter = interpreter;
+            this.frame = frame;
         }
     }
 
@@ -161,12 +164,13 @@ public class IProcessFactory {
                 return null;
             }
             
-	        return createLaunch(interpreterManager, 
-	        		            interpreter,
-	        		            pythonpathAndNature.o1,
-	        		            pythonpathAndNature.o2,
-	        		            dialog.getNatures());
-			
+            return createLaunch(interpreterManager, 
+        			interpreter,
+        			pythonpathAndNature.o1,
+        			pythonpathAndNature.o2,
+        			dialog.getNatures(),
+        			dialog.getSelectedFrame());
+
 		}   
 		return null;
     }
@@ -187,6 +191,34 @@ public class IProcessFactory {
 		newInstance.setAttribute(IDebugUIConstants.ATTR_PRIVATE, true);
         return newInstance;
     }
+    
+	/**
+	 * Creates the launch info for normal (non debug) pydev console.
+	 * 
+	 * @param interpreterManager
+	 * @param interpreter
+	 * @param pythonpath
+	 * @param nature
+	 * @param naturesUsed
+	 * @param frame
+	 * @return
+	 * @throws Exception
+	 */
+	public PydevConsoleLaunchInfo createLaunch(
+			IInterpreterManager interpreterManager,
+			IInterpreterInfo interpreter, Collection<String> pythonpath,
+			IPythonNature nature, List<IPythonNature> naturesUsed,
+			PyStackFrame frame) throws Exception {
+		if (frame == null) {
+			return createLaunch(interpreterManager, interpreter, pythonpath,
+					nature, naturesUsed);
+		} else {
+			// Launch and process are needed for debug console.
+			// Debug console will launch inside already running debugger
+			return new PydevConsoleLaunchInfo(null, null, 0, interpreter, frame);
+		}
+	}
+
    public PydevConsoleLaunchInfo createLaunch(
     		IInterpreterManager interpreterManager, IInterpreterInfo interpreter, 
     		Collection<String> pythonpath, IPythonNature nature, List<IPythonNature> naturesUsed) throws Exception {
@@ -253,7 +285,7 @@ public class IProcessFactory {
         
         launch.addProcess(newProcess);
         
-        return new PydevConsoleLaunchInfo(launch, process, clientPort, interpreter);
+        return new PydevConsoleLaunchInfo(launch, process, clientPort, interpreter, null);
     }
 
     

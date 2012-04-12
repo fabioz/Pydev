@@ -3,6 +3,7 @@ from pydevd_constants import * #@UnusedWildImport
 import pydev_imports
 from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          CMD_EVALUATE_EXPRESSION, \
+                         CMD_EVALUATE_CONSOLE_EXPRESSION, \
                          CMD_EXEC_EXPRESSION, \
                          CMD_GET_COMPLETIONS, \
                          CMD_GET_FRAME, \
@@ -31,6 +32,10 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          InternalEvaluateExpression, \
                          InternalGetFrame, \
                          InternalGetVariable, \
+                         InternalInitializeConsole, \
+                         InternalCloseConsole, \
+                         InternalEvaluateConsoleExpression, \
+                         InternalConsoleGetCompletions, \
                          InternalTerminateThread, \
                          InternalRunThread, \
                          InternalStepThread, \
@@ -712,6 +717,23 @@ class PyDB:
                     else:
                         # User hasn't configured any settings for property tracing
                         pass
+
+                elif cmd_id == CMD_EVALUATE_CONSOLE_EXPRESSION:
+                    # Command which takes care for the debug console communication
+                    if text != "":
+                        console_id, thread_id, frame_id, console_command = text.split('\t', 3)
+                        if console_command == 'INITIALIZE':
+                            # Initialize the console
+                            int_cmd = InternalInitializeConsole(seq, console_id, thread_id, frame_id)
+                        elif console_command == 'CLOSE':
+                            int_cmd = InternalCloseConsole(seq, console_id, thread_id, frame_id)
+                        else:
+                            console_command, line = console_command.split('\t')
+                            if console_command == 'EVALUATE':
+                                int_cmd = InternalEvaluateConsoleExpression(seq, console_id, thread_id, frame_id, line)
+                            elif console_command == 'GET_COMPLETIONS':
+                                int_cmd = InternalConsoleGetCompletions(seq, console_id, thread_id, frame_id, line)
+                        self.postInternalCommand(int_cmd, thread_id)
 
                 else:
                     #I have no idea what this is all about

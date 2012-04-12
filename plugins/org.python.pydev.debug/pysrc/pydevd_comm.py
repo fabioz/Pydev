@@ -51,11 +51,11 @@ each command has a format:
     124      CMD_SET_PROPERTY_TRACE
     
 500 series diagnostics/ok
-    901      VERSION                  either      Version string (1.0)        Currently just used at startup
-    902      RETURN                   either      Depends on caller    -
+    501      VERSION                  either      Version string (1.0)        Currently just used at startup
+    502      RETURN                   either      Depends on caller    -
     
 900 series: errors
-    501      ERROR                    either      -                           This is reserved for unexpected errors.
+    901      ERROR                    either      -                           This is reserved for unexpected errors.
                                   
     * JAVA - remote debugger, the java end
     * PYDB - pydevd, the python end
@@ -75,6 +75,7 @@ try:
     from urllib import quote
 except:
     from urllib.parse import quote #@Reimport @UnresolvedImport
+import pydevd_console
 import pydevd_vars
 import pydevd_tracing
 import pydevd_vm_type
@@ -108,6 +109,8 @@ CMD_SET_NEXT_STATEMENT = 121
 CMD_SET_PY_EXCEPTION = 122
 CMD_GET_FILE_CONTENTS = 123
 CMD_SET_PROPERTY_TRACE = 124
+# Pydev debug console commands
+CMD_EVALUATE_CONSOLE_EXPRESSION = 126
 CMD_VERSION = 501
 CMD_RETURN = 502
 CMD_ERROR = 901 
@@ -137,6 +140,7 @@ ID_TO_MEANING = {
     '122':'CMD_SET_PY_EXCEPTION',
     '123':'CMD_GET_FILE_CONTENTS',
     '124':'CMD_SET_PROPERTY_TRACE',
+    '126':'CMD_EVALUATE_CONSOLE_EXPRESSION',
     '501':'CMD_VERSION',
     '502':'CMD_RETURN',
     '901':'CMD_ERROR',
@@ -561,6 +565,11 @@ class NetCommandFactory:
         except Exception:
             return self.makeErrorMessage(seq, GetExceptionTracebackStr())
         
+    def makeSendConsoleMessage(self, seq, payload):
+        try:
+            return NetCommand(CMD_EVALUATE_CONSOLE_EXPRESSION, seq, payload)
+        except Exception:
+            return self.makeErrorMessage(seq, GetExceptionTracebackStr())
 
 INTERNAL_TERMINATE_THREAD = 1
 INTERNAL_SUSPEND_THREAD = 2
@@ -832,6 +841,125 @@ class InternalGetCompletions(InternalThreadCommand):
             cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error evaluating expression " + exc)
             dbg.writer.addCommand(cmd)
 
+#=======================================================================================================================
+# InternalInitializeConsole
+#=======================================================================================================================
+class InternalInitializeConsole(InternalThreadCommand):
+    """ Initialize the debug console """
+    def __init__(self, seq, console_id, thread_id, frame_id):
+        self.sequence = seq
+        self.console_id = console_id
+        self.thread_id = thread_id
+        self.frame_id = frame_id
+
+    def doIt(self, dbg):
+        """ Create an XML for console output, error and more (true/false)
+        <xml>
+            <output message=output_meesage></output>
+            <error message=error_meesage></error>
+            <more>true/false</more>
+        </xml>
+        """
+        error_message = "Unable to initialize the interactive console "
+        console_message = pydevd_console.ConsoleMessage()
+        try:
+            frame = pydevd_vars.findFrame(self.thread_id, self.frame_id)
+            if frame is not None:
+                console_message = pydevd_console.create_interactive_console(self.console_id, frame, self.thread_id, self.frame_id)
+                cmd = dbg.cmdFactory.makeSendConsoleMessage(self.sequence, console_message.toXML())
+            else:
+                console_message.add_console_message(pydevd_console.CONSOLE_ERROR, error_message + "(Invalid Frame)")
+                cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, console_message.toXML())
+        except Exception:
+            exc = GetExceptionTracebackStr()
+            console_message.add_console_message(pydevd_console.CONSOLE_ERROR, error_message + exc)
+            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, console_message.toXML())
+        dbg.writer.addCommand(cmd)
+
+#=======================================================================================================================
+# InternalEvaluateConsoleExpression
+#=======================================================================================================================
+class InternalEvaluateConsoleExpression(InternalThreadCommand):
+    """ Execute the given command in the debug console """
+
+    def __init__(self, seq, console_id, thread_id, frame_id, line):
+        self.sequence = seq
+        self.console_id = console_id
+        self.thread_id = thread_id
+        self.frame_id = frame_id
+        self.line = line
+
+    def doIt(self, dbg):
+        """ Create an XML for console output, error and more (true/false)
+        <xml>
+            <output message=output_message></output>
+            <error message=error_message></error>
+            <more>true/false</more>
+        </xml>
+        """
+        try:
+            frame = pydevd_vars.findFrame(self.thread_id, self.frame_id)
+            if frame is not None:
+                console_message = pydevd_console.execute_console_command(self.console_id, frame, self.thread_id, self.frame_id, self.line)
+                cmd = dbg.cmdFactory.makeSendConsoleMessage(self.sequence, console_message.toXML())
+            else:
+                console_message.add_console_message(pydevd_console.CONSOLE_ERROR, "Select the valid frame in the debug view")
+                cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, console_message.toXML())
+        except:
+            exc = GetExceptionTracebackStr()
+            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error evaluating expression " + exc)
+        dbg.writer.addCommand(cmd)
+
+#=======================================================================================================================
+# InternalConsoleGetCompletions
+#=======================================================================================================================
+class InternalConsoleGetCompletions(InternalThreadCommand):
+    """ Fetch the completions in the debug console
+    """
+    def __init__(self, seq, console_id, thread_id, frame_id, act_tok):
+        self.sequence = seq
+        self.console_id = console_id
+        self.thread_id = thread_id
+        self.frame_id = frame_id
+        self.act_tok = act_tok
+
+    def doIt(self, dbg):
+        """ Get completions and write back to the client
+        """
+        try:
+            frame = pydevd_vars.findFrame(self.thread_id, self.frame_id)
+            completions_xml = pydevd_console.get_completions(self.console_id, frame, self.act_tok)
+            cmd = dbg.cmdFactory.makeSendConsoleMessage(self.sequence, completions_xml)
+            dbg.writer.addCommand(cmd)
+        except:
+            exc = GetExceptionTracebackStr()
+            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error in fetching completions" + exc)
+            dbg.writer.addCommand(cmd)
+
+#=======================================================================================================================
+# InternalCloseConsole
+#=======================================================================================================================
+class InternalCloseConsole(InternalThreadCommand):
+    """Delete the console instance
+    """
+    def __init__(self, seq, console_id, thread_id, frame_id):
+        self.sequence = seq
+        self.console_id = console_id
+        self.thread_id = thread_id
+        self.frame_id = frame_id
+
+    def doIt(self, dbg):
+        """call pydevd_console.remove_console
+        """
+        try:
+            pydevd_console.remove_console(self.console_id)
+            xml = "<xml>Interactive console closed</xml>"
+            cmd = dbg.cmdFactory.makeSendConsoleMessage(self.sequence, xml)
+            dbg.writer.addCommand(cmd)
+        except:
+            exc = GetExceptionTracebackStr()
+            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error in closing console" + exc)
+            dbg.writer.addCommand(cmd)
 
 #=======================================================================================================================
 # PydevdFindThreadById

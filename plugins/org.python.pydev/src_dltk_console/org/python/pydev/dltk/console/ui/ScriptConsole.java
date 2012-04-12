@@ -274,4 +274,11 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
      * @return
      */
     public abstract boolean getFocusOnStart();
+
+    /**
+     * Enable/Disable linking of the debug console with the suspended frame.
+     */
+    public void linkWithDebugSelection(boolean isLinkedWithDebug){
+    	this.interpreter.linkWithDebugSelection(isLinkedWithDebug);
+    }
 }

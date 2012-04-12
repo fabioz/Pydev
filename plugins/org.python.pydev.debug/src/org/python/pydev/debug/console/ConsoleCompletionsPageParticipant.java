@@ -176,6 +176,11 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
             }
             
         }
+
+		public void linkWithDebugSelection(boolean isLinkedWithDebug) {
+			throw new RuntimeException("Not implemented");
+		}
+
     }
     
 

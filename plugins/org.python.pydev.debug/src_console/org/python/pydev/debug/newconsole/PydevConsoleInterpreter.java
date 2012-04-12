@@ -21,6 +21,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IModule;
@@ -28,11 +29,11 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
+import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.dltk.console.IScriptConsoleCommunication;
 import org.python.pydev.dltk.console.IScriptConsoleInterpreter;
 import org.python.pydev.dltk.console.InterpreterResponse;
@@ -63,6 +64,8 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
 
 	private IInterpreterInfo interpreterInfo;
 
+	private PyStackFrame frame;
+
 	private ILaunch launch;
 
 	private Process process;
@@ -90,6 +93,15 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         consoleCommunication.execInterpreter(command, onResponseReceived, onContentsReceived);
     }
 
+    /**
+     * Set frame context for the new pydev console interpreter
+     * 
+     * @param frame
+     */
+    public void setFrame(PyStackFrame frame) throws Exception{
+		this.frame = frame;
+    }
+    
     @SuppressWarnings("unchecked")
     public ICompletionProposal[] getCompletions(IScriptConsoleViewer viewer, String commandLine, 
             int position, int offset, int whatToShow) throws Exception {
@@ -297,6 +309,16 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
 	public Process getProcess() {
 		return process;
 	}
+	
+	public PyStackFrame getFrame() {
+		return frame;
+	}
 
+	/**
+	 * Enable/Disable linking of the debug console with the suspended frame.
+	 */
+	public void linkWithDebugSelection(boolean isLinkedWithDebug) {
+		this.consoleCommunication.linkWithDebugSelection(isLinkedWithDebug);
+	}
 
 }
