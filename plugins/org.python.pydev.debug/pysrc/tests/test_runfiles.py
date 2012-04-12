@@ -26,6 +26,11 @@ import unittest
 import tempfile
 import re
 
+try:
+    set
+except:
+    from sets import Set as set
+
 #this is an early test because it requires the sys.path changed
 orig_syspath = sys.path
 a_file = pydev_runfiles.__file__
