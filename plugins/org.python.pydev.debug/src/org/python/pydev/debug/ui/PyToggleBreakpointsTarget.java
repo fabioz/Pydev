@@ -15,7 +15,7 @@ import org.eclipse.debug.ui.actions.IToggleBreakpointsTargetExtension;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchPart;
-import org.python.pydev.debug.ui.actions.BreakpointRulerAction;
+import org.python.pydev.debug.ui.actions.PyBreakpointRulerAction;
 import org.python.pydev.editor.PyEdit;
 
 public class PyToggleBreakpointsTarget implements IToggleBreakpointsTarget,IToggleBreakpointsTargetExtension {
@@ -32,11 +32,11 @@ public class PyToggleBreakpointsTarget implements IToggleBreakpointsTarget,ITogg
 			PyEdit pyEdit = (PyEdit) part;
 			int startLine = textSelection.getStartLine();
 			
-			List<IMarker> markersFromCurrentFile = BreakpointRulerAction.getMarkersFromCurrentFile(pyEdit, startLine);
+			List<IMarker> markersFromCurrentFile = PyBreakpointRulerAction.getMarkersFromCurrentFile(pyEdit, startLine);
 			if(markersFromCurrentFile.size() > 0){
-				BreakpointRulerAction.removeMarkers(markersFromCurrentFile);
+				PyBreakpointRulerAction.removeMarkers(markersFromCurrentFile);
 			}else{
-				BreakpointRulerAction.addBreakpointMarker(pyEdit.getDocument(), startLine+1, pyEdit);
+				PyBreakpointRulerAction.addBreakpointMarker(pyEdit.getDocument(), startLine+1, pyEdit);
 			}
 			
 		}

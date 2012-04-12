@@ -149,12 +149,12 @@ public class PyEditBreakpointSync implements IPyEditListener, IPyEditListener4 {
             IResource resource = AbstractBreakpointRulerAction.getResourceForDebugMarkers(edit);
             IEditorInput externalFileEditorInput = AbstractBreakpointRulerAction.getExternalFileEditorInput(edit);
             List<IMarker> markers = AbstractBreakpointRulerAction.getMarkersFromEditorResource(
-            		resource, doc, externalFileEditorInput, 0, false);
+            		resource, doc, externalFileEditorInput, 0, false, model);
             
             
             Map<Annotation, Position> annotationsToAdd = new HashMap<Annotation, Position>();
             for(IMarker m:markers){
-                Position pos = AbstractBreakpointRulerAction.getMarkerPosition(doc, m);
+                Position pos = AbstractBreakpointRulerAction.getMarkerPosition(doc, m, model);
                 MarkerAnnotation newAnnotation = new MarkerAnnotation(m);
                 annotationsToAdd.put(newAnnotation, pos);
             }

@@ -56,14 +56,14 @@ public class PythonBreakpointPropertiesRulerAction extends AbstractBreakpointRul
     }
 
     public void update() {
-        IBreakpoint breakpoint = determineBreakpoint();
-        setBreakpoint(breakpoint);
+        IBreakpoint breakpoint = getBreakpointFromLastLineOfActivityInCurrentEditor();
         if (breakpoint == null || !(breakpoint instanceof PyBreakpoint)) {
             setBreakpoint(null);
             setEnabled(false);
-            return;
+        }else{
+            setBreakpoint(breakpoint);
+            setEnabled(true);
         }
-        setEnabled(true);
     }
 
 }
