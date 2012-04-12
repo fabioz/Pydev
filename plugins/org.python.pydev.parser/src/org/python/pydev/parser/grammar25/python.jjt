@@ -747,7 +747,7 @@ void dotted_as_name(): {}
 //dotted_name: NAME ('.' NAME)*
 String dotted_name(): { Token t; FastStringBuffer sb = dottedNameStringBuffer.clear(); }
 { t=Name() { sb.append(t.image); }
-    (<DOT> t=Name() { sb.append(".").append(t.image); } )*
+    (<DOT> t=Name2() { sb.append(".").append(t.image); } )*
         { return sb.toString(); }
 }
 
@@ -1053,7 +1053,7 @@ atom()
     {spStr2 = createSpecialStr("]", false);} <RBRACKET>  
     #Index_Op(2) {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
-|   <DOT> Name() #Dot_Op(2) 
+|   <DOT> Name2() #Dot_Op(2) 
 )*
 }
 
@@ -1248,6 +1248,28 @@ Token Name() #Name:
 {
     try{
         (t = <NAME>)|(t=<AS>)|(t=<WITH>) 
+    }catch(ParseException e){
+        t = handleErrorInName(e);
+    }
+    
+        {
+            if(acceptWithStmt && "with".equals(t.image)){
+                throw withNameInvalidException;
+            } 
+        }
+        
+
+        { ((Name)jjtThis).id = t.image; return t; } {}
+
+}
+
+Token Name2() #Name:
+{
+    Token t;
+}
+{
+    try{
+        (t = <NAME>)|(t=<AS>)|(t=<WITH>)|(t=<PRINT>) 
     }catch(ParseException e){
         t = handleErrorInName(e);
     }

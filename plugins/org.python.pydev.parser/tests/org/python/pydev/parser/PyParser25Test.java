@@ -35,7 +35,7 @@ public class PyParser25Test extends PyParserTestBase{
         try {
             PyParser25Test test = new PyParser25Test();
             test.setUp();
-            test.testSuiteLineNumber();
+            test.testJythonParsing1a();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser25Test.class);
@@ -328,4 +328,34 @@ public class PyParser25Test extends PyParserTestBase{
         assertEquals(6, ifFound.orelse.beginLine);
         
     }
+    
+    public void testJythonParsing1() throws Exception {
+        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
+        String str = "" +
+                "import os.as.os\n" +
+                "print(os.as.os)\n" +
+                "";
+        parseLegalDocStr(str);
+    }
+    
+    public void testJythonParsing1a() throws Exception {
+        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
+        String str = "" +
+                "import com.tibco.as.space as AS\n" +
+                "";
+        parseLegalDocStr(str);
+    }
+    
+    public void testJythonParsing2() throws Exception {
+        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
+        String str = "" +
+                "import os.print.os\n" +
+                "print(os.print.os)\n" +
+                "";
+        parseLegalDocStr(str);
+    }
+    
+    
+    
+    
 }
