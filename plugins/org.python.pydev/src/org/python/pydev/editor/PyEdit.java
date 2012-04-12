@@ -1599,7 +1599,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         if(nature != null){
             return nature.getGrammarVersion();
         }
-        Tuple<SystemPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getEditorFile());
+        Tuple<IPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getEditorFile());
         return infoForFile.o1.getGrammarVersion();
     }
 
@@ -1648,7 +1648,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             return pythonNature;
         }
         
-        Tuple<SystemPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getEditorFile());
+        Tuple<IPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getEditorFile());
         if(infoForFile == null){
             NotConfiguredInterpreterException e = new NotConfiguredInterpreterException();
             ErrorDialog.openError(PyAction.getShell(), 
