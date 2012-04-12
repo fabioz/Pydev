@@ -9,6 +9,7 @@ package org.python.pydev.plugin;
 import java.io.File;
 import java.net.URL;
 import java.util.HashSet;
+import java.util.List;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -426,11 +427,11 @@ public class PydevPlugin extends AbstractUIPlugin  {
      * @param file the file we want to get info on.
      * @return a tuple with the nature to be used and the name of the module represented by the file in that scenario.
      */
-    public static Tuple<SystemPythonNature, String> getInfoForFile(File file){
+    public static Tuple<IPythonNature, String> getInfoForFile(File file){
         
         //Check if we can resolve the manager for the passed file...
         IInterpreterManager pythonInterpreterManager2 = getPythonInterpreterManager(false);
-        Tuple<SystemPythonNature, String> infoForManager = getInfoForManager(file, pythonInterpreterManager2);
+        Tuple<IPythonNature, String> infoForManager = getInfoForManager(file, pythonInterpreterManager2);
         if(infoForManager != null){
             return infoForManager;
         }
@@ -446,10 +447,30 @@ public class PydevPlugin extends AbstractUIPlugin  {
         if(infoForManager != null){
             return infoForManager;
         }
+        
+        
+        //Ok, the file is not part of the interpreter configuration, but it's still possible that it's part of a
+        //project... (external projects), so, let's go on and see if there's some match there.
+        
+        List<IPythonNature> allPythonNatures = PythonNature.getAllPythonNatures();
+        int size = allPythonNatures.size();
+        for (int i = 0; i < size; i++) {
+            IPythonNature nature = allPythonNatures.get(i);
+            try {
+                //Note: only resolve in the project sources, as we've already checked the system and we'll be 
+                //checking all projects anyways.
+                String modName = nature.resolveModuleOnlyInProjectSources(REF.getFileAbsolutePath(file), true);
+                if(modName != null){
+                    return new Tuple<IPythonNature, String>(nature, modName);
+                }
+            } catch (Exception e) {
+                Log.log(e);
+            }
+        }
 
         if(pythonInterpreterManager2.isConfigured()){
             try {
-                return new Tuple<SystemPythonNature, String>(new SystemPythonNature(pythonInterpreterManager2), 
+                return new Tuple<IPythonNature, String>(new SystemPythonNature(pythonInterpreterManager2), 
                         getModNameFromFile(file));
             } catch (MisconfigurationException e) {
             }
@@ -457,7 +478,7 @@ public class PydevPlugin extends AbstractUIPlugin  {
         
         if(jythonInterpreterManager2.isConfigured()){
             try {
-                return new Tuple<SystemPythonNature, String>(new SystemPythonNature(jythonInterpreterManager2), 
+                return new Tuple<IPythonNature, String>(new SystemPythonNature(jythonInterpreterManager2), 
                         getModNameFromFile(file));
             } catch (MisconfigurationException e) {
             }
@@ -465,7 +486,7 @@ public class PydevPlugin extends AbstractUIPlugin  {
         
         if(ironpythonInterpreterManager2.isConfigured()){
             try {
-                return new Tuple<SystemPythonNature, String>(new SystemPythonNature(ironpythonInterpreterManager2), 
+                return new Tuple<IPythonNature, String>(new SystemPythonNature(ironpythonInterpreterManager2), 
                         getModNameFromFile(file));
             } catch (MisconfigurationException e) {
             }
@@ -485,7 +506,7 @@ public class PydevPlugin extends AbstractUIPlugin  {
      * @return 
      * 
      */
-    private static Tuple<SystemPythonNature, String> getInfoForManager(File file, IInterpreterManager pythonInterpreterManager) {
+    private static Tuple<IPythonNature, String> getInfoForManager(File file, IInterpreterManager pythonInterpreterManager) {
         if(pythonInterpreterManager != null){
             if(pythonInterpreterManager.isConfigured()){
                 IInterpreterInfo[] interpreterInfos = pythonInterpreterManager.getInterpreterInfos();
@@ -494,7 +515,7 @@ public class PydevPlugin extends AbstractUIPlugin  {
                         SystemPythonNature systemPythonNature = new SystemPythonNature(pythonInterpreterManager, iInterpreterInfo);
                         String modName = systemPythonNature.resolveModule(file);
                         if(modName != null){
-                            return new Tuple<SystemPythonNature, String>(systemPythonNature, modName);
+                            return new Tuple<IPythonNature, String>(systemPythonNature, modName);
                         }
                     } catch (Exception e) {
                         // that's ok

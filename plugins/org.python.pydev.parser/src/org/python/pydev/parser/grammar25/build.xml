@@ -101,7 +101,7 @@ Current setting is: ${javaccHome}
             <arg value="${parser.dir}" />
         </exec>
     	
-    	<fixcrlf srcdir="${parser.dir}"></fixcrlf>
+    	<fixcrlf srcdir="${parser.dir}" eol="unix"></fixcrlf>
     </target>
 
     <!-- confirmation -->

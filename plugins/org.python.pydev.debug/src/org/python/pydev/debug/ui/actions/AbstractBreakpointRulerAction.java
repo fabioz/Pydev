@@ -24,21 +24,28 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.Position;
+import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.IVerticalRulerInfo;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.IURIEditorInput;
+import org.eclipse.ui.texteditor.AbstractMarkerAnnotationModel;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.IUpdate;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyBreakpoint;
-import org.python.pydev.debug.model.PyDebugModelPresentation;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editorinput.PydevFileEditorInput;
 
+/**
+ * Some things similar to: org.eclipse.ui.texteditor.MarkerRulerAction
+ */
 public abstract class AbstractBreakpointRulerAction extends Action implements IUpdate {
 
     protected IVerticalRulerInfo fInfo;
@@ -69,23 +76,27 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
         fInfo = info;
     }
 
-    protected IBreakpoint determineBreakpoint() {
-        IBreakpoint[] breakpoints= DebugPlugin.getDefault().getBreakpointManager().getBreakpoints(PyDebugModelPresentation.PY_DEBUG_MODEL_ID);
-        for (int i= 0; i < breakpoints.length; i++) {
-            IBreakpoint breakpoint= breakpoints[i];
-            if (breakpoint instanceof PyBreakpoint ) {
-                PyBreakpoint pyBreakpoint= (PyBreakpoint)breakpoint;
-                try {
-                    if (breakpointAtRulerLine(pyBreakpoint, getExternalFileEditorInput())) {
-                        return pyBreakpoint;
-                    }
-                } catch (CoreException ce) {
-                    PydevDebugPlugin.log(IStatus.ERROR,ce.getLocalizedMessage(),ce);
-                    continue;
-                }
-            }
+    /**
+     * @return the breakpoint in the line the user clicked last or null if there is no such breakpoint.
+     */
+    protected IBreakpoint getBreakpointFromLastLineOfActivityInCurrentEditor() {
+        List<IBreakpoint> breakpoints = getBreakpointsFromCurrentFile(true);
+        int size = breakpoints.size();
+        if(size == 0){
+            return null;
+            
+        }else if(size == 1){
+            return breakpoints.get(0);
+            
+        }else if(size > 1){
+            Log.log("Did not expect more than one breakpoint in the current line. Returning first.");
+            return breakpoints.get(0);
+            
+            
+        }else{
+            Log.log("Unexpected condition!");
+            return null;
         }
-        return null;
     }
 
     /**
@@ -96,31 +107,6 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
         return provider.getDocument(fTextEditor.getEditorInput());
     }
 
-    protected boolean breakpointAtRulerLine(PyBreakpoint pyBreakpoint, IEditorInput externalFileEditorInput) throws CoreException {
-        IDocument doc = getDocument();
-        IMarker marker = pyBreakpoint.getMarker();
-        Position position= getMarkerPosition(doc, marker);
-        if (position != null) {
-            try {
-                int markerLineNumber= doc.getLineOfOffset(position.getOffset());
-                if(getResourceForDebugMarkers() instanceof IFile){
-                    //workspace file
-                    int rulerLine= getInfo().getLineOfLastMouseButtonActivity();
-                    if (rulerLine == markerLineNumber) {
-                        if (getTextEditor().isDirty()) {
-                            return pyBreakpoint.getLineNumber() == markerLineNumber + 1;
-                        }
-                        return true;
-                    }
-                }else if(isInSameExternalEditor(marker, externalFileEditorInput)){
-                    return true;
-                }
-            } catch (BadLocationException x) {
-            }
-        }
-        
-        return false;
-    }
     
     protected IResource getResourceForDebugMarkers() {
         return getResourceForDebugMarkers(fTextEditor);
@@ -209,30 +195,36 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
     /**
      * @return the position for a marker.
      */
-    public static Position getMarkerPosition(IDocument document, IMarker marker) {
-        int start = MarkerUtilities.getCharStart(marker);
-        int end = MarkerUtilities.getCharEnd(marker);
-
-        if (start > end) {
-            end = start + end;
-            start = end - start;
-            end = end - start;
-        }
-
-        if (start == -1 && end == -1) {
-            // marker line number is 1-based
-            int line = MarkerUtilities.getLineNumber(marker);
-            if (line > 0 && document != null) {
-                try {
-                    start = document.getLineOffset(line - 1);
-                    end = start;
-                } catch (BadLocationException x) {
+    public static Position getMarkerPosition(IDocument document, IMarker marker, IAnnotationModel model) {
+        if (model instanceof AbstractMarkerAnnotationModel){
+            return ((AbstractMarkerAnnotationModel) model).getMarkerPosition(marker);
+            
+        }else{
+            int start = MarkerUtilities.getCharStart(marker);
+            int end = MarkerUtilities.getCharEnd(marker);
+    
+            if (start > end) {
+                end = start + end;
+                start = end - start;
+                end = end - start;
+            }
+    
+            if (start == -1 && end == -1) {
+                // marker line number is 1-based
+                int line = MarkerUtilities.getLineNumber(marker);
+                if (line > 0 && document != null) {
+                    try {
+                        start = document.getLineOffset(line - 1);
+                        end = start;
+                    } catch (BadLocationException x) {
+                    }
                 }
             }
+    
+            if (start > -1 && end > -1){
+                return new Position(start, end - start);
+            }
         }
-
-        if (start > -1 && end > -1)
-            return new Position(start, end - start);
 
         return null;
     }
@@ -258,27 +250,107 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
 
     
 
+    
+    public static List<IMarker> getMarkersFromCurrentFile(PyEdit edit, int line) {
+        return getMarkersFromEditorResource(
+                getResourceForDebugMarkers(edit), 
+                edit.getDocument(), 
+                getExternalFileEditorInput(edit), 
+                line, 
+                true,
+                edit.getAnnotationModel()
+        );
+        
+    }
+    
+    
+    protected List<IBreakpoint> getBreakpointsFromCurrentFile(boolean onlyIncludeLastLineActivity) {
+        List<Tuple<IMarker, IBreakpoint>> markersAndBreakpointsFromEditorResource = getMarkersAndBreakpointsFromEditorResource(
+                getResourceForDebugMarkers(), 
+                getDocument(), 
+                getExternalFileEditorInput(), 
+                getInfo().getLineOfLastMouseButtonActivity(), 
+                onlyIncludeLastLineActivity,
+                getAnnotationModel()
+        );
+        
+        int size = markersAndBreakpointsFromEditorResource.size();
+        ArrayList<IBreakpoint> r = new ArrayList<IBreakpoint>(size);
+        for(int i=0;i<size;i++){
+            r.add(markersAndBreakpointsFromEditorResource.get(i).o2);
+        }
+        return r;
+    }
+    
+    
+    private IAnnotationModel getAnnotationModel() {
+        if(fTextEditor == null){
+            return null;
+        }
+        final IDocumentProvider documentProvider= fTextEditor.getDocumentProvider();
+        if (documentProvider == null){
+            return null;
+        }
+        return documentProvider.getAnnotationModel(fTextEditor.getEditorInput());
+    }
+    
+
     /**
-     * Checks whether a position includes the ruler's line of activity.
-     * 
-     * @param position the position to be checked
-     * @param document the document the position refers to
-     * @return <code>true</code> if the line is included by the given position
+     * @return all the breakpoint markers from the current file or only the ones which match the last line of
+     * activity (i.e.: the one the user clicked).
      */
-    public static boolean includesRulerLine(Position position, IDocument document, int lastLineActivity) {
-        if (position != null && lastLineActivity >= 0 && document != null) {
+    protected List<IMarker> getMarkersFromCurrentFile(boolean onlyIncludeLastLineActivity) {
+        return getMarkersFromEditorResource(
+                getResourceForDebugMarkers(), 
+                getDocument(), 
+                getExternalFileEditorInput(), 
+                getInfo().getLineOfLastMouseButtonActivity(), 
+                onlyIncludeLastLineActivity,
+                getAnnotationModel()
+        );
+    }
+
+    
+    public static List<IMarker> getMarkersFromEditorResource(
+            IResource resource, 
+            IDocument document, 
+            IEditorInput externalFileEditorInput, 
+            int lastLineActivity,
+            boolean onlyIncludeLastLineActivity,
+            IAnnotationModel annotationModel
+        ) {
+        List<Tuple<IMarker, IBreakpoint>> markersAndBreakpointsFromEditorResource = getMarkersAndBreakpointsFromEditorResource(
+                resource,
+                document, 
+                externalFileEditorInput, 
+                lastLineActivity, 
+                onlyIncludeLastLineActivity,
+                annotationModel
+        );
+        
+        int size = markersAndBreakpointsFromEditorResource.size();
+        ArrayList<IMarker> r = new ArrayList<IMarker>(size);
+        for(int i=0;i<size;i++){
+            r.add(markersAndBreakpointsFromEditorResource.get(i).o1);
+        }
+        return r;
+    }
+    
+    protected static boolean includesRulerLine(Position position, IDocument document, int line) {
+
+        if (position != null) {
             try {
                 int markerLine = document.getLineOfOffset(position.getOffset());
-                if (lastLineActivity == markerLine) {
+                if (line == markerLine) {
                     return true;
                 }
             } catch (BadLocationException x) {
             }
         }
+
         return false;
     }
-    
-    
+            
     /**
      * @param resource may be the file open in the editor or the workspace root (if it is an external file)
      * @param document is the document opened in the editor
@@ -288,11 +360,16 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
      *  
      * @return the markers that correspond to the markers from the current editor.
      */
-    public static List<IMarker> getMarkersFromEditorResource(IResource resource, IDocument document, 
-            IEditorInput externalFileEditorInput, int lastLineActivity,
-            boolean onlyIncludeLastLineActivity) {
-
-        List<IMarker> breakpoints = new ArrayList<IMarker>();
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static List<Tuple<IMarker, IBreakpoint>> getMarkersAndBreakpointsFromEditorResource(
+            IResource resource, 
+            IDocument document, 
+            IEditorInput externalFileEditorInput, 
+            int lastLineActivity,
+            boolean onlyIncludeLastLineActivity,
+            IAnnotationModel annotationModel
+        ) {
+        List<Tuple<IMarker, IBreakpoint>> breakpoints = new ArrayList<Tuple<IMarker,IBreakpoint>>();
 
         try {
             List<IMarker> markers = new ArrayList<IMarker>();
@@ -313,21 +390,21 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
                 }
                 IBreakpoint breakpoint = breakpointManager.getBreakpoint(marker);
                 if (breakpoint != null && breakpointManager.isRegistered(breakpoint)) {
-                    Position pos = getMarkerPosition(document, marker);
+                    Position pos = getMarkerPosition(document, marker, annotationModel);
                     
                     if(!isExternalFile){
                         if(!onlyIncludeLastLineActivity){
-                            breakpoints.add(marker);
+                            breakpoints.add(new Tuple(marker, breakpoint));
                         }else if (includesRulerLine(pos, document, lastLineActivity)) {
-                            breakpoints.add(marker);
+                            breakpoints.add(new Tuple(marker, breakpoint));
                         }
                     }else{
                         
                         if(isInSameExternalEditor(marker, externalFileEditorInput)){
                             if(!onlyIncludeLastLineActivity){
-                                breakpoints.add(marker);
+                                breakpoints.add(new Tuple(marker, breakpoint));
                             }else if (includesRulerLine(pos, document, lastLineActivity)) {
-                                breakpoints.add(marker);
+                                breakpoints.add(new Tuple(marker, breakpoint));
                             }
                         }
                     }

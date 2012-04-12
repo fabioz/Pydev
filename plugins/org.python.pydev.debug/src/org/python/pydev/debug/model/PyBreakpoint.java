@@ -118,7 +118,7 @@ public class PyBreakpoint extends LineBreakpoint {
             try {
                 String externalPath = (String) marker.getAttribute(PyBreakpoint.PY_BREAK_EXTERNAL_PATH_ID);
                 if(externalPath != null){
-                    Tuple<SystemPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(new File(externalPath));
+                    Tuple<IPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(new File(externalPath));
                     if(infoForFile != null){
                         nature = infoForFile.o1;
                     }

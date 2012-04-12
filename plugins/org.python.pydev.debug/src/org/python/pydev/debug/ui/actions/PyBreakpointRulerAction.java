@@ -5,7 +5,7 @@
  * Any modifications to this file must keep this entire header intact.
  */
 /*
- * Author: atotic
+ * Author: atotic, fabioz
  * Created on Apr 30, 2004
  */
 package org.python.pydev.debug.ui.actions;
@@ -37,7 +37,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyBreakpoint;
 import org.python.pydev.debug.model.PyDebugModelPresentation;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editorinput.PydevFileEditorInput;
 
 /**
@@ -48,7 +47,7 @@ import org.python.pydev.editorinput.PydevFileEditorInput;
  * @see org.eclipse.jdt.internal.debug.ui.actions.ManageBreakpointRulerAction
  */
 
-public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
+public class PyBreakpointRulerAction extends AbstractBreakpointRulerAction {
 
     public static final String PYDEV_BREAKPOINT = "PyDev breakpoint";
 
@@ -58,7 +57,7 @@ public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
 
     private String fRemoveLabel;
 
-    public BreakpointRulerAction(ITextEditor editor, IVerticalRulerInfo ruler) {
+    public PyBreakpointRulerAction(ITextEditor editor, IVerticalRulerInfo ruler) {
         setInfo(ruler);
         setTextEditor(editor);
         setText("Breakpoint &Properties...");
@@ -71,7 +70,7 @@ public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
      * @see IUpdate#update()
      */
     public void update() {
-        fMarkers = getMarkersFromCurrentFile();
+        fMarkers = getMarkersFromCurrentFile(true);
         setText(fMarkers.isEmpty() ? fAddLabel : fRemoveLabel);
     }
     
@@ -84,17 +83,6 @@ public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
         } else {
             removeMarkers(fMarkers);
         }
-    }
-    public static List<IMarker> getMarkersFromCurrentFile(PyEdit edit, int line) {
-    	return getMarkersFromEditorResource(
-    			getResourceForDebugMarkers(edit), edit.getDocument(), getExternalFileEditorInput(edit), 
-    			line, true);
-    	
-    }
-    protected List<IMarker> getMarkersFromCurrentFile() {
-        return getMarkersFromEditorResource(
-        		getResourceForDebugMarkers(), getDocument(), getExternalFileEditorInput(), 
-        		getInfo().getLineOfLastMouseButtonActivity(), true);
     }
 
     
@@ -164,12 +152,12 @@ public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
     /**
      * @param markers the markers that will be removed in this function (they may be in any editor, not only in the current one)
      */
-    public static void removeMarkers(List markers) {
+    public static void removeMarkers(List<IMarker> markers) {
         IBreakpointManager breakpointManager = DebugPlugin.getDefault().getBreakpointManager();
         try {
-            Iterator e = markers.iterator();
+            Iterator<IMarker> e = markers.iterator();
             while (e.hasNext()) {
-                IBreakpoint breakpoint = breakpointManager.getBreakpoint((IMarker) e.next());
+                IBreakpoint breakpoint = breakpointManager.getBreakpoint(e.next());
                 breakpointManager.removeBreakpoint(breakpoint, true);
             }
         } catch (CoreException e) {

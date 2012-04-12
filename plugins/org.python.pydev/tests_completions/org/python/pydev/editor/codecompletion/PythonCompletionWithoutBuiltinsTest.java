@@ -58,7 +58,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             //DEBUG_TESTS_BASE = true;
             PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
             test.setUp();
-            test.testConfigObjEgg();
+            test.testGrammar2AbsoluteAndRelativeImports();
             test.tearDown();
             System.out.println("Finished");
 
@@ -146,6 +146,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         };
         
         
+        requestCompl("import zipf"                         , new String[]{"zipfile"});
         requestCompl("from testl"                          , testLibAndSubmodules);
         requestCompl("import testl"                        , testLibAndSubmodules);
         requestCompl("from testlib import "                , new String[]{"__file__", "__name__", "__init__", "unittest", "__path__", "__dict__"});
@@ -1762,6 +1763,13 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertNotContains("DTest", codeCompletionProposals);
     }
     
+    
+    public void testGrammar2GetRootsOnImport() throws Exception {
+        String file = TestDependent.TEST_PYSRC_LOC+"extendable/grammar3/sub1.py";
+        String strDoc = "import zipf";
+        requestCompl(new File(file), strDoc, strDoc.length(), -1, new String[]{"zipfile"});   
+    }
+
     public void testGrammar2AbsoluteAndRelativeImportsWithFromFuture() throws Exception {
         String file = TestDependent.TEST_PYSRC_LOC+"extendable/grammar3/sub1.py";
         

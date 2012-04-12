@@ -46,6 +46,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.LineNumberRulerColumn;
@@ -210,6 +211,14 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         return super.getSourceViewer();
     }
     
+
+    public IAnnotationModel getAnnotationModel() {
+        final IDocumentProvider documentProvider = getDocumentProvider();
+        if (documentProvider == null){
+            return null;
+        }
+        return documentProvider.getAnnotationModel(getEditorInput());    
+    }
 
     public ColorAndStyleCache getColorCache() {
         return colorCache;
@@ -1245,6 +1254,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     /**
      * @return an outline view
      */
+    @SuppressWarnings("rawtypes")
     public Object getAdapter(Class adapter) {
         if (OfflineActionTarget.class.equals(adapter)) {
             if (fOfflineActionTarget == null) {
@@ -1589,7 +1599,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         if(nature != null){
             return nature.getGrammarVersion();
         }
-        Tuple<SystemPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getEditorFile());
+        Tuple<IPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getEditorFile());
         return infoForFile.o1.getGrammarVersion();
     }
 
@@ -1638,7 +1648,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             return pythonNature;
         }
         
-        Tuple<SystemPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getEditorFile());
+        Tuple<IPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getEditorFile());
         if(infoForFile == null){
             NotConfiguredInterpreterException e = new NotConfiguredInterpreterException();
             ErrorDialog.openError(PyAction.getShell(), 
@@ -1741,5 +1751,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         }
         return false;
     }
+
 }
 
