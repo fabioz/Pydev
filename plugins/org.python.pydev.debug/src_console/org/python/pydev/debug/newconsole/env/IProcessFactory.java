@@ -60,11 +60,13 @@ public class IProcessFactory {
         public final IInterpreterInfo interpreter;
         public final PyStackFrame frame;
 
+
         /**
          * @param launch
          * @param process
          * @param clientPort
          * @param interpreter
+         * @param frame
          */
         public PydevConsoleLaunchInfo(Launch launch, Process process, int clientPort, IInterpreterInfo interpreter, PyStackFrame frame) {
             this.launch = launch;
@@ -118,6 +120,11 @@ public class IProcessFactory {
 		ChooseProcessTypeDialog dialog = new ChooseProcessTypeDialog(getShell(), edit);
 		if(dialog.open() == ChooseProcessTypeDialog.OK){
     
+			if (dialog.getSelectedFrame() != null) {
+				// Interpreter not required for Debug Console
+				return new PydevConsoleLaunchInfo(null, null, 0, null, dialog.getSelectedFrame());
+			}
+
 			IInterpreterManager interpreterManager = dialog.getInterpreterManager();
 			if(interpreterManager == null){
 				MessageDialog.openError(workbenchWindow.getShell(), 
@@ -168,9 +175,7 @@ public class IProcessFactory {
         			interpreter,
         			pythonpathAndNature.o1,
         			pythonpathAndNature.o2,
-        			dialog.getNatures(),
-        			dialog.getSelectedFrame());
-
+                    dialog.getNatures());
 		}   
 		return null;
     }
@@ -192,32 +197,6 @@ public class IProcessFactory {
         return newInstance;
     }
     
-	/**
-	 * Creates the launch info for normal (non debug) pydev console.
-	 * 
-	 * @param interpreterManager
-	 * @param interpreter
-	 * @param pythonpath
-	 * @param nature
-	 * @param naturesUsed
-	 * @param frame
-	 * @return
-	 * @throws Exception
-	 */
-	public PydevConsoleLaunchInfo createLaunch(
-			IInterpreterManager interpreterManager,
-			IInterpreterInfo interpreter, Collection<String> pythonpath,
-			IPythonNature nature, List<IPythonNature> naturesUsed,
-			PyStackFrame frame) throws Exception {
-		if (frame == null) {
-			return createLaunch(interpreterManager, interpreter, pythonpath,
-					nature, naturesUsed);
-		} else {
-			// Launch and process are needed for debug console.
-			// Debug console will launch inside already running debugger
-			return new PydevConsoleLaunchInfo(null, null, 0, interpreter, frame);
-		}
-	}
 
    public PydevConsoleLaunchInfo createLaunch(
     		IInterpreterManager interpreterManager, IInterpreterInfo interpreter, 

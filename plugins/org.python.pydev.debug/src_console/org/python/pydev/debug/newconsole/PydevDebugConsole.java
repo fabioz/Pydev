@@ -22,10 +22,4 @@ public class PydevDebugConsole extends PydevConsole {
         this.setPydevConsoleBackground(ColorManager.getDefault().getDebugConsoleBackgroundColor());
 	}
 
-
-    @Override
-    public String getInitialCommands() {
-    	return super.getInitialCommands();
-    }
-    
 }

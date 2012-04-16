@@ -55,11 +55,8 @@ public class PydevDebugConsoleCommunication implements
      */
     private volatile InterpreterResponse nextResponse;
     
-    private String consoleId;
-	
-	public PydevDebugConsoleCommunication(String consoleId){
+	public PydevDebugConsoleCommunication(){
         
-		this.consoleId = consoleId;
 		this.evaluateConsoleExpression = new EvaluateDebugConsoleExpression();
 	}
 	
@@ -71,7 +68,7 @@ public class PydevDebugConsoleCommunication implements
 	public EvaluateDebugConsoleExpression.PydevDebugConsoleMessage intializeConsole(){
 		isConsoleInitialized = false;
 		EvaluateDebugConsoleExpression.PydevDebugConsoleMessage consoleMessage = null;
-		this.evaluateConsoleExpression.initializeConsole(this.consoleId);
+		this.evaluateConsoleExpression.initializeConsole();
 		String result = this.evaluateConsoleExpression.waitForCommand();
 		if (result == null) {
 			// Timeout occured
@@ -124,15 +121,13 @@ public class PydevDebugConsoleCommunication implements
 							}
 						}
 					} else {
-						nextResponse = new InterpreterResponse(
-								EMPTY,
-								"[Invalid Frame]: Debug server is currently running. " +
-								"Debug consoles may only submit commands when the debug server is paused."
+						nextResponse = new InterpreterResponse(EMPTY,
+								"[Invalid Frame]: Please select frame to connect the console."
 										+ "\n", false, false);
 						return Status.CANCEL_STATUS;
 					}
                     evaluateConsoleExpression.resetPayload();
-                    evaluateConsoleExpression.executeCommand(consoleId, command);
+                    evaluateConsoleExpression.executeCommand(command);
                     String result = evaluateConsoleExpression.waitForCommand();
                     try {
 						EvaluateDebugConsoleExpression.PydevDebugConsoleMessage consoleMessage = XMLUtils
@@ -176,8 +171,8 @@ public class PydevDebugConsoleCommunication implements
 		if (waitingForInput) {
 			return new ICompletionProposal[0];
 		}
-		String result = evaluateConsoleExpression.getCompletions(
-				this.consoleId, actTok, offset);
+		String result = evaluateConsoleExpression
+				.getCompletions(actTok, offset);
 		if (!result.isEmpty()) {
 			List<Object[]> fromServer = XMLUtils.XMLToCompletions(result);
 			List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>();
@@ -194,7 +189,7 @@ public class PydevDebugConsoleCommunication implements
 	}
 
 	public void close() throws Exception {
-		evaluateConsoleExpression.close(this.consoleId);
+		evaluateConsoleExpression.close();
 	}
 
 	/**

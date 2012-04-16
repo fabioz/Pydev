@@ -36,7 +36,7 @@ public class EvaluateDebugConsoleExpression implements ICommandResponseListener 
 	/**
      * @return the currently selected / suspended frame.
      */
-    private PyStackFrame getCurrentSuspendedPyStackFrame(){
+    public static PyStackFrame getCurrentSuspendedPyStackFrame(){
         IAdaptable context = DebugUITools.getDebugContext();
         
         if(context instanceof PyStackFrame){
@@ -102,11 +102,11 @@ public class EvaluateDebugConsoleExpression implements ICommandResponseListener 
 	 * 
 	 * @param consoleId
 	 */
-	public void initializeConsole(String consoleId) {
+	public void initializeConsole() {
 		PyStackFrame frame = getLastSelectedFrame();
 		if (frame != null) {
 			AbstractDebugTarget target = frame.getTarget();
-			String locator = getLocator(consoleId, frame.getThreadId(),
+			String locator = getLocator(frame.getThreadId(),
 					frame.getId(), "INITIALIZE");
 			AbstractDebuggerCommand cmd = new EvaluateConsoleExpressionCommand(
 					target, locator, this);
@@ -120,11 +120,11 @@ public class EvaluateDebugConsoleExpression implements ICommandResponseListener 
 	 * @param consoleId
 	 * @param command
 	 */
-	public void executeCommand(String consoleId, String command) {
+	public void executeCommand(String command) {
 		PyStackFrame frame = getLastSelectedFrame();
 		if (frame != null) {
 			AbstractDebugTarget target = frame.getTarget();
-			String locator = getLocator(consoleId, frame.getThreadId(),
+			String locator = getLocator(frame.getThreadId(),
 					frame.getId(), "EVALUATE", command);
 			AbstractDebuggerCommand cmd = new EvaluateConsoleExpressionCommand(
 					target, locator, this);
@@ -139,12 +139,12 @@ public class EvaluateDebugConsoleExpression implements ICommandResponseListener 
 	 * @param actTok
 	 * @param offset
 	 */
-	public String getCompletions(String consoleId, String actTok, int offset){
+	public String getCompletions(String actTok, int offset){
 		String result = EMPTY;
 		PyStackFrame frame = getLastSelectedFrame();
 		if (frame != null) {
 			AbstractDebugTarget target = frame.getTarget();
-			String locator = getLocator(consoleId, frame.getThreadId(),
+			String locator = getLocator(frame.getThreadId(),
 					frame.getId(), "GET_COMPLETIONS", actTok);
 			AbstractDebuggerCommand cmd = new EvaluateConsoleExpressionCommand(
 					target, locator, this);
@@ -159,10 +159,10 @@ public class EvaluateDebugConsoleExpression implements ICommandResponseListener 
 	 * 
 	 * @param consoleId
 	 */
-	public void close(String consoleId){
+	public void close(){
 		if (lastSelectedFrame != null) {
 			AbstractDebugTarget target = lastSelectedFrame.getTarget();
-			String locator = getLocator(consoleId, lastSelectedFrame.getThreadId(),
+			String locator = getLocator(lastSelectedFrame.getThreadId(),
 					lastSelectedFrame.getId(), "CLOSE");
 			AbstractDebuggerCommand cmd = new EvaluateConsoleExpressionCommand(
 					target, locator, this);
@@ -200,17 +200,7 @@ public class EvaluateDebugConsoleExpression implements ICommandResponseListener 
 	 * @return
 	 */
 	private String getLocator(String... locators){
-		StringBuilder locator = new StringBuilder();
-		boolean isFirst = false;
-		for (String loc : locators) {
-			if(!isFirst){
-				isFirst = true;
-			} else {
-				locator.append("\t");
-			}
-			locator.append(loc);
-		}
-		return locator.toString();
+		return StringUtils.join("\t", locators);
 	}
 	
 	/**
