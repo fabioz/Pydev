@@ -11,6 +11,7 @@
 package org.python.pydev.debug.model.remote;
 
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 
 /**
@@ -42,8 +43,8 @@ public class SetBreakpointCommand extends AbstractDebuggerCommand {
     }
 
     public String getOutgoing() {
-        StringBuffer cmd = new StringBuffer().
-        append(file).append("\t").append(line);
+        FastStringBuffer cmd = new FastStringBuffer().
+        append(file).append("\t").appendObject(line);
         
         if(functionName != null){
             cmd.append("\t**FUNC**").append(FullRepIterable.getLastPart(functionName).trim());

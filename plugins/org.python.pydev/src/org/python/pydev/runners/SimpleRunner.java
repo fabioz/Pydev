@@ -73,25 +73,21 @@ public class SimpleRunner {
      * default PYTHONPATH added).
      */
     public static String[] getEnvironment(
-            IPythonNature pythonNature, IInterpreterInfo interpreter, IInterpreterManager manager, boolean removePythonpathFromDefaultEnv) throws CoreException {
+            IPythonNature pythonNature, IInterpreterInfo interpreter, IInterpreterManager manager) throws CoreException {
         String[] env;
         
-        if(pythonNature == null){ //no associated nature in the project... just get the default env
-            env = getDefaultSystemEnvAsArray(null, removePythonpathFromDefaultEnv);
-        }else{
-            String pythonPathEnvStr = "";
-            try {
-                
-                if (interpreter != null){ //check if we have a default interpreter.
-                    pythonPathEnvStr = makePythonPathEnvString(pythonNature, interpreter, manager);
-                }
-                env = createEnvWithPythonpath(pythonPathEnvStr, pythonNature, manager);
-                
-            } catch (Exception e) {
-                Log.log(e);
-                //We cannot get it. Log it and keep with the default.
-                env = getDefaultSystemEnvAsArray(pythonNature, removePythonpathFromDefaultEnv);
+        String pythonPathEnvStr = "";
+        try {
+            
+            if (interpreter != null){ //check if we have a default interpreter.
+                pythonPathEnvStr = makePythonPathEnvString(pythonNature, interpreter, manager);
             }
+            env = createEnvWithPythonpath(pythonPathEnvStr, pythonNature, manager);
+            
+        } catch (Exception e) {
+            Log.log(e);
+            //We cannot get it. Log it and keep with the default.
+            env = getDefaultSystemEnvAsArray(pythonNature);
         }
         
         if(interpreter != null){
@@ -117,7 +113,7 @@ public class SimpleRunner {
     private static String[] createEnvWithPythonpath(String pythonPathEnvStr, IPythonNature nature, IInterpreterManager manager) throws CoreException {
         DebugPlugin defaultPlugin = DebugPlugin.getDefault();
         if(defaultPlugin != null){
-            Map<String,String> env = getDefaultSystemEnv(defaultPlugin, nature, false); //no need to remove as it'll be updated        
+            Map<String,String> env = getDefaultSystemEnv(defaultPlugin, nature); //no need to remove as it'll be updated        
     
             env.put("PYTHONPATH", pythonPathEnvStr); //put the environment
             switch(manager.getInterpreterType()){
@@ -142,8 +138,8 @@ public class SimpleRunner {
     /**
      * @return an array with the env variables for the system with the format xx=yy  
      */
-    public static String[] getDefaultSystemEnvAsArray(IPythonNature nature, boolean removePythonpathFromDefaultEnv) throws CoreException {
-        Map<String,String> defaultSystemEnv = getDefaultSystemEnv(nature, removePythonpathFromDefaultEnv);
+    public static String[] getDefaultSystemEnvAsArray(IPythonNature nature) throws CoreException {
+        Map<String,String> defaultSystemEnv = getDefaultSystemEnv(nature);
         if(defaultSystemEnv != null){
             return getMapEnvAsArray(defaultSystemEnv);
         }
@@ -153,16 +149,16 @@ public class SimpleRunner {
     /**
      * @return a map with the env variables for the system  
      */
-    public static Map<String,String> getDefaultSystemEnv(IPythonNature nature, boolean removePythonpathFromDefaultEnv) throws CoreException {
+    public static Map<String,String> getDefaultSystemEnv(IPythonNature nature) throws CoreException {
         DebugPlugin defaultPlugin = DebugPlugin.getDefault();
-        return getDefaultSystemEnv(defaultPlugin, nature, removePythonpathFromDefaultEnv);
+        return getDefaultSystemEnv(defaultPlugin, nature);
     }
 
     /**
      * @return a map with the env variables for the system  
      */
     @SuppressWarnings("unchecked")
-    private static Map<String,String> getDefaultSystemEnv(DebugPlugin defaultPlugin, IPythonNature nature, boolean removePythonpathFromDefaultEnv) throws CoreException {
+    private static Map<String,String> getDefaultSystemEnv(DebugPlugin defaultPlugin, IPythonNature nature) throws CoreException {
         if(defaultPlugin != null){
             ILaunchManager launchManager = defaultPlugin.getLaunchManager();
     
@@ -194,9 +190,6 @@ public class SimpleRunner {
             
             //Always remove PYTHONHOME from the default system env, as it doesn't work well with multiple interpreters.
             env.remove("PYTHONHOME");
-            if(removePythonpathFromDefaultEnv){
-                env.remove("PYTHONPATH");
-            }
             return env;
         }
         return null;
@@ -259,7 +252,12 @@ public class SimpleRunner {
      */
     public static String makePythonPathEnvString(IPythonNature pythonNature, IInterpreterInfo interpreter, IInterpreterManager manager) {
         if(pythonNature == null){
-            return makePythonPathEnvFromPaths(new ArrayList<String>()); //no pythonpath can be gotten (set to empty, so that the default is gotten)
+            if(interpreter == null){
+                return makePythonPathEnvFromPaths(new ArrayList<String>()); //no pythonpath can be gotten (set to empty, so that the default is gotten)
+            }else{
+                List<String> pythonPath = interpreter.getPythonPath();
+                return makePythonPathEnvFromPaths(pythonPath);
+            }
         }
         
         List<String> paths;
@@ -300,18 +298,7 @@ public class SimpleRunner {
         }
         
         String separator = getPythonPathSeparator();
-        StringBuffer pythonpath = new StringBuffer();
-        boolean first = true;
-        for (String path:paths) {
-            if (first){
-                first = false;
-            }else{
-                pythonpath.append(separator);
-            }
-            
-            pythonpath.append(path);
-        }
-        return pythonpath.toString();
+        return StringUtils.join(separator, paths);
     }
     
     /**
@@ -359,7 +346,7 @@ public class SimpleRunner {
             monitor.setTaskName("Making pythonpath environment..."+executionString);
             String[] envp = null;
             if(nature != null){
-                envp = getEnvironment(nature, nature.getProjectInterpreter(), nature.getRelatedInterpreterManager(), false); //Don't remove as it *should* be updated based on the nature)
+                envp = getEnvironment(nature, nature.getProjectInterpreter(), nature.getRelatedInterpreterManager()); //Don't remove as it *should* be updated based on the nature)
             }
             //Otherwise, use default (used when configuring the interpreter for instance).
             monitor.setTaskName("Making exec..."+executionString);
