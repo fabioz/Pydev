@@ -15,8 +15,6 @@ except NameError: # version < 2.3 -- didn't have the True/False builtins
     setattr(__builtin__, 'False', 0)
 
 from pydev_console_utils import BaseStdIn, StdIn, BaseInterpreterInterface
-sys.stdin = BaseStdIn()
-    
 
         
 try:
@@ -95,8 +93,9 @@ class InterpreterInterface(BaseInterpreterInterface):
         self.host = host
         try:
             import pydevd #@UnresolvedImport
+            if pydevd.GetGlobalDebugger() is None:
+                raise RuntimeError() #Work as if the debugger does not exist as it's not connected.
         except:
-            # This happens on Jython embedded in host eclipse 
             self.namespace = globals()
         else:
             #Adapted from the code in pydevd
@@ -269,6 +268,7 @@ def StartServer(host, port, client_port):
 # main
 #=======================================================================================================================
 if __name__ == '__main__':
+    sys.stdin = BaseStdIn()
     port, client_port = sys.argv[1:3]
     import pydev_localhost
     StartServer(pydev_localhost.get_localhost(), int(port), int(client_port))
