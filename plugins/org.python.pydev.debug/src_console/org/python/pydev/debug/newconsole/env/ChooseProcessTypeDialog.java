@@ -76,6 +76,14 @@ final class ChooseProcessTypeDialog extends Dialog {
     protected Control createDialogArea(Composite parent) {
         Composite area = (Composite) super.createDialogArea(parent);
 
+		boolean debugButtonCreated = false;
+		if (getSuspendedFrame() != null) {
+			// when debugger is running and valid frame is selected then
+			// displaying debug console as first option
+			createDebugButton(area);
+			debugButtonCreated = true;
+		}
+
         checkboxForCurrentEditor = new Button(area, SWT.RADIO);
         checkboxForCurrentEditor.setToolTipText("Creates a console with the PYTHONPATH used by the current editor (and jython/python/iron python depending on the project type).");
         configureEditorButton();
@@ -85,9 +93,6 @@ final class ChooseProcessTypeDialog extends Dialog {
         checkboxPython.setToolTipText("Creates a Python console with the PYTHONPATH containing all the python projects in the workspace.");
         configureButton(checkboxPython, "Python", PydevPlugin.getPythonInterpreterManager());
 
-        checkboxPythonDebug = new Button(area, SWT.RADIO);
-        checkboxPythonDebug.setToolTipText("Creates a Python debug console assosciated with the frame selected in the debug view");
-        configureDebugButton();
        
         checkboxJython = new Button(area, SWT.RADIO);
         checkboxJython.setToolTipText("Creates a Jython console with the PYTHONPATH containing all the python projects in the workspace.");
@@ -101,6 +106,9 @@ final class ChooseProcessTypeDialog extends Dialog {
         checkboxJythonEclipse.setToolTipText("Creates a Jython console using the running Eclipse environment (can potentially halt Eclipse depending on what's done).");
         configureButton(checkboxJythonEclipse, "Jython using VM running Eclipse", new JythonEclipseInterpreterManager());
         
+        if(!debugButtonCreated){
+            createDebugButton(area);
+        }
         
         link = new Link(area, SWT.LEFT | SWT.WRAP);
         link.setText(
@@ -123,6 +131,12 @@ final class ChooseProcessTypeDialog extends Dialog {
         
         return area;
     }
+
+	private void createDebugButton(Composite area) {
+		checkboxPythonDebug = new Button(area, SWT.RADIO);
+        checkboxPythonDebug.setToolTipText("Creates a Python debug console associated with the frame selected in the debug view");
+        configureDebugButton();
+	}
     
     /**
      * Configures a button related to a given interpreter manager.

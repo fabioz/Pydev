@@ -846,9 +846,8 @@ class InternalGetCompletions(InternalThreadCommand):
 #=======================================================================================================================
 class InternalInitializeConsole(InternalThreadCommand):
     """ Initialize the debug console """
-    def __init__(self, seq, console_id, thread_id, frame_id):
+    def __init__(self, seq, thread_id, frame_id):
         self.sequence = seq
-        self.console_id = console_id
         self.thread_id = thread_id
         self.frame_id = frame_id
 
@@ -865,7 +864,7 @@ class InternalInitializeConsole(InternalThreadCommand):
         try:
             frame = pydevd_vars.findFrame(self.thread_id, self.frame_id)
             if frame is not None:
-                console_message = pydevd_console.create_interactive_console(self.console_id, frame, self.thread_id, self.frame_id)
+                console_message = pydevd_console.create_interactive_console(frame, self.thread_id, self.frame_id)
                 cmd = dbg.cmdFactory.makeSendConsoleMessage(self.sequence, console_message.toXML())
             else:
                 console_message.add_console_message(pydevd_console.CONSOLE_ERROR, error_message + "(Invalid Frame)")
@@ -882,9 +881,8 @@ class InternalInitializeConsole(InternalThreadCommand):
 class InternalEvaluateConsoleExpression(InternalThreadCommand):
     """ Execute the given command in the debug console """
 
-    def __init__(self, seq, console_id, thread_id, frame_id, line):
+    def __init__(self, seq, thread_id, frame_id, line):
         self.sequence = seq
-        self.console_id = console_id
         self.thread_id = thread_id
         self.frame_id = frame_id
         self.line = line
@@ -900,7 +898,7 @@ class InternalEvaluateConsoleExpression(InternalThreadCommand):
         try:
             frame = pydevd_vars.findFrame(self.thread_id, self.frame_id)
             if frame is not None:
-                console_message = pydevd_console.execute_console_command(self.console_id, frame, self.thread_id, self.frame_id, self.line)
+                console_message = pydevd_console.execute_console_command(frame, self.thread_id, self.frame_id, self.line)
                 cmd = dbg.cmdFactory.makeSendConsoleMessage(self.sequence, console_message.toXML())
             else:
                 console_message.add_console_message(pydevd_console.CONSOLE_ERROR, "Select the valid frame in the debug view")
@@ -916,9 +914,8 @@ class InternalEvaluateConsoleExpression(InternalThreadCommand):
 class InternalConsoleGetCompletions(InternalThreadCommand):
     """ Fetch the completions in the debug console
     """
-    def __init__(self, seq, console_id, thread_id, frame_id, act_tok):
+    def __init__(self, seq, thread_id, frame_id, act_tok):
         self.sequence = seq
-        self.console_id = console_id
         self.thread_id = thread_id
         self.frame_id = frame_id
         self.act_tok = act_tok
@@ -928,7 +925,7 @@ class InternalConsoleGetCompletions(InternalThreadCommand):
         """
         try:
             frame = pydevd_vars.findFrame(self.thread_id, self.frame_id)
-            completions_xml = pydevd_console.get_completions(self.console_id, frame, self.act_tok)
+            completions_xml = pydevd_console.get_completions(frame, self.act_tok)
             cmd = dbg.cmdFactory.makeSendConsoleMessage(self.sequence, completions_xml)
             dbg.writer.addCommand(cmd)
         except:
@@ -942,17 +939,16 @@ class InternalConsoleGetCompletions(InternalThreadCommand):
 class InternalCloseConsole(InternalThreadCommand):
     """Delete the console instance
     """
-    def __init__(self, seq, console_id, thread_id, frame_id):
+    def __init__(self, seq, thread_id, frame_id):
         self.sequence = seq
-        self.console_id = console_id
         self.thread_id = thread_id
         self.frame_id = frame_id
 
     def doIt(self, dbg):
-        """call pydevd_console.remove_console
+        """call pydevd_console.clear_interactive_console
         """
         try:
-            pydevd_console.remove_console(self.console_id)
+            pydevd_console.clear_interactive_console()
             xml = "<xml>Interactive console closed</xml>"
             cmd = dbg.cmdFactory.makeSendConsoleMessage(self.sequence, xml)
             dbg.writer.addCommand(cmd)

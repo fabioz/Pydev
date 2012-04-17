@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.List;
-import java.util.UUID;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -61,21 +60,27 @@ public class PydevConsoleFactory implements IConsoleFactory {
         createConsole(null);
     }
     
+
     /**
      * @return a new PydevConsole or null if unable to create it (user cancels it)
      */
     public void createConsole(String additionalInitialComands) {
         try {
-            createConsole(createDefaultPydevInterpreter(), additionalInitialComands);
+            PydevConsoleInterpreter interpreter = createDefaultPydevInterpreter();
+            if (interpreter == null) {
+                return;
+            }
+            if (interpreter.getFrame() == null) {
+				createConsole(interpreter, additionalInitialComands);
+			} else {
+				createDebugConsole(interpreter.getFrame(), additionalInitialComands);
+			}
         } catch (Exception e) {
             Log.log(e);
         }
     }
     
 	public void createConsole(final PydevConsoleInterpreter interpreter, final String additionalInitialComands) {
-	    if (interpreter == null) {
-	        return;
-	    }
 	    
 		Job job = new Job("Create Interactive Console") {
 
@@ -84,7 +89,6 @@ public class PydevConsoleFactory implements IConsoleFactory {
                 monitor.beginTask("Create Interactive Console", 10);
                 IStatus returnStatus = Status.OK_STATUS;
                 try {
-                	if (interpreter != null){
 	                    ScriptConsoleManager manager = ScriptConsoleManager.getInstance();
 	                	PydevConsole console;
 	        			if (interpreter.getFrame() == null) {
@@ -101,10 +105,6 @@ public class PydevConsoleFactory implements IConsoleFactory {
 		                        returnStatus = PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to connect debugger to Interactive Console\n"
 		                                + "The interactive console will continue to operate without the additional debugger features", e);
 		                    }
-        				} else {
-        					// Debug Console
-        					console = new PydevDebugConsole(interpreter, additionalInitialComands);
-        				}
 	                    manager.add(console, true);
                 	}
                     
@@ -123,6 +123,7 @@ public class PydevConsoleFactory implements IConsoleFactory {
 		job.setUser(true);
 		job.schedule();
 	}
+
 
 	private void createDebugTarget(PydevConsoleInterpreter interpreter, PydevConsole console, IProgressMonitor monitor) throws IOException, CoreException, DebugException, UserCanceledException {
 		monitor.beginTask("Connect Debug Target", 2);
@@ -215,6 +216,24 @@ public class PydevConsoleFactory implements IConsoleFactory {
 		}
 	}
 
+	/**
+	 * Create a new Debug Console
+	 *
+	 * @param interpreter
+	 * @param additionalInitialComands
+	 */
+	public void createDebugConsole(PyStackFrame frame, String additionalInitialComands)
+			throws Exception {
+		PydevConsoleLaunchInfo launchAndProcess = new PydevConsoleLaunchInfo(
+				null, null, 0, null, frame);
+
+		PydevConsoleInterpreter interpreter = createPydevDebugInterpreter(launchAndProcess);
+		ScriptConsoleManager manager = ScriptConsoleManager.getInstance();
+		PydevDebugConsole console = new PydevDebugConsole(interpreter,
+				additionalInitialComands);
+		manager.add(console, true);
+	}
+
     /**
      * @return A PydevConsoleInterpreter with its communication configured.
      * 
@@ -239,10 +258,10 @@ public class PydevConsoleFactory implements IConsoleFactory {
         if(launchAndProcess == null){
             return null;
         }
-        if (launchAndProcess.frame == null){
+        if (launchAndProcess.interpreter != null){
         	return createPydevInterpreter(launchAndProcess, iprocessFactory.getNaturesUsed());
         } else {
-        	return createPydevDebugInterpreter(launchAndProcess, iprocessFactory.getNaturesUsed());
+            return createPydevDebugInterpreter(launchAndProcess);
         }
         
     }
@@ -279,21 +298,25 @@ public class PydevConsoleFactory implements IConsoleFactory {
     	
     }
 	
+    /**
+     * Initialize Console Interpreter and Console Communication for the Debug Console
+     * 
+     * @param info
+     * @param natures
+     * @return
+     * @throws Exception
+     */
     public static PydevConsoleInterpreter createPydevDebugInterpreter(
-			PydevConsoleLaunchInfo info, List<IPythonNature> natures)
+			PydevConsoleLaunchInfo info)
 			throws Exception {
-		// Unique Id for pydev debug console
-		UUID consoleId = UUID.randomUUID();
 
 		PyStackFrame frame = info.frame;
-		IInterpreterInfo interpreterInfo = info.interpreter;
 
 		PydevConsoleInterpreter consoleInterpreter = new PydevConsoleInterpreter();
 		consoleInterpreter.setFrame(frame);
-		consoleInterpreter.setInterpreterInfo(interpreterInfo);
 
 		// pydev console uses running debugger as a backend
-		consoleInterpreter.setConsoleCommunication(new PydevDebugConsoleCommunication(consoleId.toString()));
+		consoleInterpreter.setConsoleCommunication(new PydevDebugConsoleCommunication());
 		return consoleInterpreter;
 	}
 }

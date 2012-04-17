@@ -4,7 +4,7 @@ from code import InteractiveConsole
 import sys
 import traceback
 
-import _completer
+import copied_completer
 from pydevd_tracing import GetExceptionTracebackStr
 from pydevd_vars import makeValidXmlValue
 
@@ -104,7 +104,7 @@ class DebugConsole(InteractiveConsole):
         try:
             sys.stdout = self.new_stdout
             sys.stderr = self.new_stderr 
-            more = super().push(line)
+            more = InteractiveConsole.push(self, line)
             output_messages = self.new_stdout.get_messages()
             error_messages = self.new_stderr.get_messages()
         except Exception:
@@ -133,47 +133,39 @@ class DebugConsole(InteractiveConsole):
         """
         self.thread_id = thread_id
 
-class DebugConsoleMap:
-    """    
-    This map will store all initialized interactive consoles
-    key: unique_id for console
-    value: InteractiveConsole (Object of DebugConsole class)
-    """
-    debug_console_map = {}    
 
+interactive_console = None
 
-def add_interactive_console(console_id, interpreter):
+def update_interactive_console(interpreter):
     """add new interpreter in the debug_console_map
     """
-    DebugConsoleMap.debug_console_map[console_id] = interpreter
+    global interactive_console
+    interactive_console = interpreter
 
 
-def get_interactive_console(console_id):
-    """returns the interactive console associated with console_id
+def get_interactive_console():
+    """returns the global interactive console.
     interactive console should have been initialized by this time 
     """
-    interpreter = DebugConsoleMap.debug_console_map.get(console_id)
-    return interpreter
+    return interactive_console
 
 
-def remove_console(console_id):
-    """delete the InteractiveConsole associated with the provided console_id
+def clear_interactive_console():
+    """set global InteractiveConsole to None
     """
-    try:
-        del DebugConsoleMap.debug_console_map[console_id]
-    except KeyError:
-        sys.stderr.write("There is no Interactive consoles associated for the provided console_id: %s"%(console_id))
+    global interactive_console
+    interactive_console = None
 
 
-def create_interactive_console(console_id, frame, thread_id, frame_id):
+def create_interactive_console(frame, thread_id, frame_id):
     """Creates an interactive console for the received frame
     """
     console_message = ConsoleMessage()
     try:
         interpreter = DebugConsole(frame.f_locals, thread_id, frame_id)
-        add_interactive_console(console_id, interpreter)
+        update_interactive_console(interpreter)
         console_message.add_console_message(CONSOLE_OUTPUT, "Connected to interactive console for selected frame")
-        add_stacktrace_details(frame, console_message, message="Current callstack: ")
+        add_stacktrace_details(frame, console_message, init_message="[Current context]")
     except Exception:
         exc = GetExceptionTracebackStr()
         console_message.add_console_message(CONSOLE_ERROR, "Internal Error: Unable to initialize the interactive console" + exc)
@@ -181,7 +173,7 @@ def create_interactive_console(console_id, frame, thread_id, frame_id):
     return console_message
 
 
-def execute_console_command(console_id, frame, thread_id, frame_id, line):
+def execute_console_command(frame, thread_id, frame_id, line):
     """fetch an interactive console instance from the cache and 
     push the received command to the console.
     
@@ -191,38 +183,37 @@ def execute_console_command(console_id, frame, thread_id, frame_id, line):
     error_messages = []
     console_message = ConsoleMessage()
    
-    interpreter = get_interactive_console(console_id)
+    interpreter = get_interactive_console()
     if interpreter != None:
         if(interpreter.thread_id != thread_id or interpreter.frame_id != frame_id):
             # Context changed, update the InteractiveConsole locals
             interpreter.update_locals(frame.f_locals)
             interpreter.update_frame_id(frame_id)
             interpreter.update_thread_id(thread_id)
-            add_stacktrace_details(frame, console_message, message="Console context changed to:")
-
-        more, output_messages, error_messages = interpreter.push(line)
-        console_message.update_more(more);
-        for message in output_messages:
-            console_message.add_console_message(CONSOLE_OUTPUT, message)
-        for message in error_messages:
-            console_message.add_console_message(CONSOLE_ERROR, message)
+            add_stacktrace_details(frame, console_message, init_message="[Context changed]")
     else:
-        console_message.add_console_message(CONSOLE_ERROR, "Internal Error: Console is not initialized yet")
+        # No console exists, possibly a new debug server get started
+        create_interactive_console(frame, thread_id, frame_id)
+        interpreter = get_interactive_console()
+        add_stacktrace_details(frame, console_message, init_message="[Console reinitialized. Current context]")
+
+    more, output_messages, error_messages = interpreter.push(line)
+    console_message.update_more(more);
+    for message in output_messages:
+        console_message.add_console_message(CONSOLE_OUTPUT, message)
+    for message in error_messages:
+        console_message.add_console_message(CONSOLE_ERROR, message)
 
     return console_message
 
 
-def get_completions(console_id, frame, act_tok):
+def get_completions(frame, act_tok):
     """ fetch all completions, create xml for the same
     return the completions xml
     """
     msg = ""
     if frame is not None:
-        updated_globals = {}
-        updated_globals.update(frame.f_globals)
-        updated_globals.update(frame.f_locals) #locals later because it has precedence over the actual globals
-
-        completer = _completer.Completer(updated_globals, None)
+        completer = copied_completer.Completer(get_frame_variables(frame), None)
         completions = completer.complete(act_tok) #return list of tuple(name, description, parameters, type)
 
         msg = "<xml>"
@@ -234,13 +225,23 @@ def get_completions(console_id, frame, act_tok):
     return msg
 
 
-def add_stacktrace_details(frame, console_message, message=""):
+def add_stacktrace_details(frame, console_message, init_message=""):
     """fetch and reverse the stacktrace for the provided frame.
     Update the details in the console_message
     """
-    console_stacktrace = traceback.format_stack(frame)
+    console_stacktrace = traceback.extract_stack(frame)
     console_stacktrace.reverse()
-    console_message.add_console_message(CONSOLE_OUTPUT, message)
-    for trace in console_stacktrace:
-        console_message.add_console_message(CONSOLE_OUTPUT, trace)              
+    if console_stacktrace:
+        current_context = console_stacktrace[0] # top entry from stacktrace
+        context_message = 'File "%s", line %s, in %s'%(current_context[0], current_context[1], current_context[2])
+        console_message.add_console_message(CONSOLE_OUTPUT, "%s: %s"%(init_message, context_message))
 
+
+def get_frame_variables(frame):
+    """Create and return the new dictionary which contains frame locals and frame globals
+    """
+    updated_globals = {}
+    if frame is not None:
+        updated_globals.update(frame.f_globals)
+        updated_globals.update(frame.f_locals) #locals later because it has precedence over the actual globals
+    return updated_globals
