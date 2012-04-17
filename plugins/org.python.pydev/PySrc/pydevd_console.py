@@ -4,7 +4,7 @@ from code import InteractiveConsole
 import sys
 import traceback
 
-import copied_completer
+import _pydev_completer
 from pydevd_tracing import GetExceptionTracebackStr
 from pydevd_vars import makeValidXmlValue
 
@@ -213,7 +213,7 @@ def get_completions(frame, act_tok):
     """
     msg = ""
     if frame is not None:
-        completer = copied_completer.Completer(get_frame_variables(frame), None)
+        completer = _pydev_completer.Completer(get_frame_variables(frame), None)
         completions = completer.complete(act_tok) #return list of tuple(name, description, parameters, type)
 
         msg = "<xml>"

@@ -32,6 +32,7 @@ import org.osgi.framework.BundleContext;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * The main plugin for Python Debugger.
@@ -130,21 +131,7 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
      * @throws CoreException
      */
     public static File getScriptWithinPySrc(String targetExec) throws CoreException {
-
-        IPath relative = new Path("pysrc").addTrailingSeparator().append(targetExec);
-
-        Bundle bundle = getDefault().getBundle();
-
-        URL bundleURL = Platform.find(bundle, relative);
-        URL fileURL;
-        try {
-            fileURL = Platform.asLocalURL(bundleURL);
-            File f = new File(fileURL.getPath());
-
-            return f;
-        } catch (IOException e) {
-            throw new CoreException(makeStatus(IStatus.ERROR, "Can't find python debug script", null));
-        }
+        return PydevPlugin.getScriptWithinPySrc(targetExec);
     }
 
     /**
@@ -154,21 +141,7 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
      * @throws CoreException
      */
     public static File getPySrcPath() throws CoreException {
-
-        IPath relative = new Path("pysrc");
-
-        Bundle bundle = getDefault().getBundle();
-
-        URL bundleURL = Platform.find(bundle, relative);
-        URL fileURL;
-        try {
-            fileURL = Platform.asLocalURL(bundleURL);
-            File f = new File(fileURL.getPath());
-
-            return f;
-        } catch (IOException e) {
-            throw new CoreException(makeStatus(IStatus.ERROR, "Can't find python debug script", null));
-        }
+        return PydevPlugin.getPySrcPath();
     }
 
 

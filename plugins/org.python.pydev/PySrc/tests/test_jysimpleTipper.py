@@ -1,5 +1,5 @@
 #line to run:
-#java -classpath D:\bin\jython-2.1\jython.jar;D:\bin\eclipse331_1\plugins\org.junit_3.8.2.v200706111738\junit.jar;D:\bin\eclipse331_1\plugins\org.apache.ant_1.7.0.v200706080842\lib\ant.jar org.python.util.jython w:\org.python.pydev\PySrc\tests\test_jysimpleTipper.py
+#java -classpath D:\bin\jython-2.1\jython.jar;D:\bin\eclipse331_1\plugins\org.junit_3.8.2.v200706111738\junit.jar;D:\bin\eclipse331_1\plugins\org.apache.ant_1.7.0.v200706080842\lib\ant.jar org.python.util.jython w:\org.python.pydev\pysrc\tests\test_jysimpleTipper.py
 
 import unittest
 import os
@@ -15,10 +15,10 @@ sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0])))
 #sys.path.insert(1, r"D:\bin\eclipse331_1\plugins\org.apache.ant_1.7.0.v200706080842\lib\ant.jar" ) #some late loading jar tests
 
 if sys.platform.find('java') != -1:
-    from jyimportsTipper import ismethod
-    from jyimportsTipper import isclass
-    from jyimportsTipper import dirObj
-    import jyimportsTipper
+    from _pydev_jy_imports_tipper import ismethod
+    from _pydev_jy_imports_tipper import isclass
+    from _pydev_jy_imports_tipper import dirObj
+    import _pydev_jy_imports_tipper
     from java.lang.reflect import Method #@UnresolvedImport
     from java.lang import System #@UnresolvedImport
     from java.lang import String #@UnresolvedImport
@@ -56,89 +56,89 @@ class TestMod(unittest.TestCase):
         raise AssertionError('%s not in %s' % (tok, s))
 
     def testImports1a(self):
-        f, tip = jyimportsTipper.GenerateTip('java.util.HashMap')
+        f, tip = _pydev_jy_imports_tipper.GenerateTip('java.util.HashMap')
         assert f.endswith('rt.jar')
 
     def testImports1c(self):
-        f, tip = jyimportsTipper.GenerateTip('java.lang.Class')
+        f, tip = _pydev_jy_imports_tipper.GenerateTip('java.lang.Class')
         assert f.endswith('rt.jar')
         
     def testImports1b(self):
         try:
-            f, tip = jyimportsTipper.GenerateTip('__builtin__.m')
+            f, tip = _pydev_jy_imports_tipper.GenerateTip('__builtin__.m')
             self.fail('err')
         except:
             pass
 
     def testImports1(self):
-        f, tip = jyimportsTipper.GenerateTip('junit.framework.TestCase')
+        f, tip = _pydev_jy_imports_tipper.GenerateTip('junit.framework.TestCase')
         assert f.endswith('junit.jar')
         ret = self.assertIn('assertEquals', tip)
 #        self.assertEquals('', ret[2])
         
     def testImports2(self):
-        f, tip = jyimportsTipper.GenerateTip('junit.framework')
+        f, tip = _pydev_jy_imports_tipper.GenerateTip('junit.framework')
         assert f.endswith('junit.jar')
         ret = self.assertIn('TestCase', tip)
         self.assertEquals('', ret[2])
         
     def testImports2a(self):
-        f, tip = jyimportsTipper.GenerateTip('org.apache.tools.ant')
+        f, tip = _pydev_jy_imports_tipper.GenerateTip('org.apache.tools.ant')
         assert f.endswith('ant.jar')
         ret = self.assertIn('Task', tip)
         self.assertEquals('', ret[2])
         
     def testImports3(self):
-        f, tip = jyimportsTipper.GenerateTip('os')
+        f, tip = _pydev_jy_imports_tipper.GenerateTip('os')
         assert f.endswith('os.py')
         ret = self.assertIn('path', tip)
         self.assertEquals('', ret[2])
         
     def testTipOnString(self):
-        f, tip = jyimportsTipper.GenerateTip('string')
+        f, tip = _pydev_jy_imports_tipper.GenerateTip('string')
         self.assertIn('join', tip)
         self.assertIn('uppercase', tip)
         
     def testImports(self):
-        tip = jyimportsTipper.GenerateTip('__builtin__')[1]
+        tip = _pydev_jy_imports_tipper.GenerateTip('__builtin__')[1]
         self.assertIn('tuple'          , tip)
         self.assertIn('RuntimeError'   , tip)
         self.assertIn('RuntimeWarning' , tip)
 
     def testImports5(self):
-        f, tip = jyimportsTipper.GenerateTip('java.lang')
+        f, tip = _pydev_jy_imports_tipper.GenerateTip('java.lang')
         assert f.endswith('rt.jar')
         tup = self.assertIn('String' , tip)
-        self.assertEquals(str(jyimportsTipper.TYPE_CLASS), tup[3])
+        self.assertEquals(str(_pydev_jy_imports_tipper.TYPE_CLASS), tup[3])
         
-        tip = jyimportsTipper.GenerateTip('java')[1]
+        tip = _pydev_jy_imports_tipper.GenerateTip('java')[1]
         tup = self.assertIn('lang' , tip)
-        self.assertEquals(str(jyimportsTipper.TYPE_IMPORT), tup[3])
+        self.assertEquals(str(_pydev_jy_imports_tipper.TYPE_IMPORT), tup[3])
         
-        tip = jyimportsTipper.GenerateTip('java.lang.String')[1]
+        tip = _pydev_jy_imports_tipper.GenerateTip('java.lang.String')[1]
         tup = self.assertIn('indexOf'          , tip)
-        self.assertEquals(str(jyimportsTipper.TYPE_FUNCTION), tup[3])
+        self.assertEquals(str(_pydev_jy_imports_tipper.TYPE_FUNCTION), tup[3])
 
-        tip = jyimportsTipper.GenerateTip('java.lang.String')[1]
+        tip = _pydev_jy_imports_tipper.GenerateTip('java.lang.String')[1]
         tup = self.assertIn('charAt'          , tip)
-        self.assertEquals(str(jyimportsTipper.TYPE_FUNCTION), tup[3])
+        self.assertEquals(str(_pydev_jy_imports_tipper.TYPE_FUNCTION), tup[3])
         self.assertEquals('(int)', tup[2])
 
         tup = self.assertIn('format'          , tip)
-        self.assertEquals(str(jyimportsTipper.TYPE_FUNCTION), tup[3])
+        self.assertEquals(str(_pydev_jy_imports_tipper.TYPE_FUNCTION), tup[3])
         self.assertEquals('(string, objectArray)', tup[2])
         self.assert_(tup[1].find('[Ljava.lang.Object;') == -1)
 
         tup = self.assertIn('getBytes'          , tip)
-        self.assertEquals(str(jyimportsTipper.TYPE_FUNCTION), tup[3])
+        self.assertEquals(str(_pydev_jy_imports_tipper.TYPE_FUNCTION), tup[3])
         self.assert_(tup[1].find('[B') == -1)
         self.assert_(tup[1].find('byte[]') != -1)
 
-        f, tip = jyimportsTipper.GenerateTip('__builtin__.str')
+        f, tip = _pydev_jy_imports_tipper.GenerateTip('__builtin__.str')
         assert f.endswith('jython.jar')
         self.assertIn('find'          , tip)
 
-        f, tip = jyimportsTipper.GenerateTip('__builtin__.dict')
+        f, tip = _pydev_jy_imports_tipper.GenerateTip('__builtin__.dict')
         assert f.endswith('jython.jar')
         self.assertIn('get'          , tip)
 
@@ -146,13 +146,13 @@ class TestMod(unittest.TestCase):
 class TestSearch(unittest.TestCase):
 
     def testSearchOnJython(self):
-        self.assertEqual('javaos.py', jyimportsTipper.Search('os')[0][0].split(os.sep)[-1])
-        self.assertEqual(0, jyimportsTipper.Search('os')[0][1])
+        self.assertEqual('javaos.py', _pydev_jy_imports_tipper.Search('os')[0][0].split(os.sep)[-1])
+        self.assertEqual(0, _pydev_jy_imports_tipper.Search('os')[0][1])
         
-        self.assertEqual('javaos.py', jyimportsTipper.Search('os.makedirs')[0][0].split(os.sep)[-1])
-        self.assertNotEqual(0, jyimportsTipper.Search('os.makedirs')[0][1])
+        self.assertEqual('javaos.py', _pydev_jy_imports_tipper.Search('os.makedirs')[0][0].split(os.sep)[-1])
+        self.assertNotEqual(0, _pydev_jy_imports_tipper.Search('os.makedirs')[0][1])
         
-        #print jyimportsTipper.Search('os.makedirs')
+        #print _pydev_jy_imports_tipper.Search('os.makedirs')
 
 class TestCompl(unittest.TestCase):
 
@@ -167,12 +167,12 @@ class TestCompl(unittest.TestCase):
         dbg('\n\n--------------------------- java')
         assert not ismethod(java)[0]
         assert not isclass(java)
-        assert jyimportsTipper.ismodule(java)
+        assert _pydev_jy_imports_tipper.ismodule(java)
             
         dbg('\n\n--------------------------- java.lang')
         assert not ismethod(java.lang)[0]
         assert not isclass(java.lang)
-        assert jyimportsTipper.ismodule(java.lang)
+        assert _pydev_jy_imports_tipper.ismodule(java.lang)
             
         dbg('\n\n--------------------------- Method')
         assert not ismethod(Method)[0]

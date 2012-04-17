@@ -116,7 +116,7 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
         node.putBoolean(AnalysisPreferencesPage.USE_PEP8_CONSOLE, false);
         try {
             node.put(AnalysisPreferencesPage.PEP8_FILE_LOCATION, 
-                    PydevPlugin.getScriptWithinPySrc(new Path("ThirdParty").append("pep8").append("pep8.py").toString()).toString());
+                    PydevPlugin.getScriptWithinPySrc(new Path("third_party").append("pep8").append("pep8.py").toString()).toString());
         } catch (CoreException e) {
             Log.log(e);
         }

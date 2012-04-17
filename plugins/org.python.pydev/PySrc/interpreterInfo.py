@@ -29,7 +29,7 @@ if sys.platform == "cygwin":
     try:
         import ctypes #use from the system if available
     except ImportError:
-        sys.path.append(os.path.join(sys.path[0], 'ThirdParty/wrapped_for_pydev'))
+        sys.path.append(os.path.join(sys.path[0], 'third_party/wrapped_for_pydev'))
         import ctypes
         
     def nativePath(path):
