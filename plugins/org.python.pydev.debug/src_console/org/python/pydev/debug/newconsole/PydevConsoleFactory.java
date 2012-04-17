@@ -67,7 +67,10 @@ public class PydevConsoleFactory implements IConsoleFactory {
     public void createConsole(String additionalInitialComands) {
         try {
             PydevConsoleInterpreter interpreter = createDefaultPydevInterpreter();
-			if (interpreter.getFrame() == null) {
+            if (interpreter == null) {
+                return;
+            }
+            if (interpreter.getFrame() == null) {
 				createConsole(interpreter, additionalInitialComands);
 			} else {
 				createDebugConsole(interpreter.getFrame(), additionalInitialComands);
@@ -78,9 +81,6 @@ public class PydevConsoleFactory implements IConsoleFactory {
     }
     
 	public void createConsole(final PydevConsoleInterpreter interpreter, final String additionalInitialComands) {
-	    if (interpreter == null) {
-	        return;
-	    }
 	    
 		Job job = new Job("Create Interactive Console") {
 
