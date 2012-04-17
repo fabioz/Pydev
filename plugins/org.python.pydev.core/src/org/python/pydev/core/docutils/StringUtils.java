@@ -28,7 +28,6 @@ import javax.swing.text.EditorKit;
 import javax.swing.text.html.HTMLEditorKit;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.cache.Cache;
@@ -887,7 +886,48 @@ public final class StringUtils {
         string.getChars(0, strLen, buf, count);
         count += strLen;
 
-        if(delimiterLen > 0){
+        switch(delimiterLen){
+        case 0:
+            //Special case when the delimiter is empty (i.e.: doesn't need to be copied).
+            for(int i=1; i< len; i++){
+                string = splitted[i];
+                strLen = string.length();
+                string.getChars(0, strLen, buf, count);
+                count += strLen;
+            }
+            break;
+            
+        case 1:
+            //Special case with single-char delimiter (as it's pretty common)
+            final char delimiterChar = delimiter.charAt(0);
+            for(int i=1; i< len; i++){
+                buf[count] = delimiterChar;
+                count++;
+                
+                string = splitted[i];
+                strLen = string.length();
+                string.getChars(0, strLen, buf, count);
+                count += strLen;
+            }
+            break;
+            
+        case 2:
+            //Special case with double-char delimiter (usually: \r\n)
+            final char delimiterChar0 = delimiter.charAt(0);
+            final char delimiterChar1 = delimiter.charAt(1);
+            for(int i=1; i< len; i++){
+                buf[count] = delimiterChar0;
+                buf[count+1] = delimiterChar1;
+                count += 2;
+                
+                string = splitted[i];
+                strLen = string.length();
+                string.getChars(0, strLen, buf, count);
+                count += strLen;
+            }
+            break;
+            
+        default:
             //Copy the remaining ones with the delimiter in place.
             for(int i=1; i< len; i++){
                 strLen = delimiterLen;
@@ -899,14 +939,8 @@ public final class StringUtils {
                 string.getChars(0, strLen, buf, count);
                 count += strLen;
             }
-        }else{
-            //Same thing as above but without copying the delimiter as it's empty!
-            for(int i=1; i< len; i++){
-                string = splitted[i];
-                strLen = string.length();
-                string.getChars(0, strLen, buf, count);
-                count += strLen;
-            }
+            break;
+            
         }
         
         if(returnType == null || returnType == String.class){

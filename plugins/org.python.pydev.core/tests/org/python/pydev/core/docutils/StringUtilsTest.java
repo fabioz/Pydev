@@ -391,6 +391,19 @@ public class StringUtilsTest extends TestCase {
     }
     
     public void testJoin() throws Exception {
+        assertEquals("", StringUtils.join("", "", ""));
+        assertEquals("null", StringUtils.join("", null, ""));
+        assertEquals("nulla", StringUtils.join("", null, "a"));
+        
+        assertEquals("rara", StringUtils.join("rara", "", ""));
+        assertEquals("nullrara", StringUtils.join("rara", null, ""));
+        assertEquals("nullwhata", StringUtils.join("what", null, "a"));
+        
+        assertEquals("ra", StringUtils.join("ra", "", ""));
+        assertEquals("nullra", StringUtils.join("ra", null, ""));
+        assertEquals("nullwha", StringUtils.join("wh", null, "a"));
+        
+        
         assertEquals(";", StringUtils.join(";", "", ""));
         assertEquals("null;", StringUtils.join(";", null, ""));
         assertEquals("null;a", StringUtils.join(";", null, "a"));
