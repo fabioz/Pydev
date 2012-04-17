@@ -162,7 +162,7 @@ def create_interactive_console(frame, thread_id, frame_id):
     """
     console_message = ConsoleMessage()
     try:
-        interpreter = DebugConsole(get_frame_variables(frame), thread_id, frame_id)
+        interpreter = DebugConsole(frame.f_locals, thread_id, frame_id)
         update_interactive_console(interpreter)
         console_message.add_console_message(CONSOLE_OUTPUT, "Connected to interactive console for selected frame")
         add_stacktrace_details(frame, console_message, init_message="[Current context]")
@@ -187,8 +187,7 @@ def execute_console_command(frame, thread_id, frame_id, line):
     if interpreter != None:
         if(interpreter.thread_id != thread_id or interpreter.frame_id != frame_id):
             # Context changed, update the InteractiveConsole locals
-
-            interpreter.update_locals(get_frame_variables(frame))
+            interpreter.update_locals(frame.f_locals)
             interpreter.update_frame_id(frame_id)
             interpreter.update_thread_id(thread_id)
             add_stacktrace_details(frame, console_message, init_message="[Context changed]")
