@@ -12,6 +12,7 @@ package org.python.pydev.core.docutils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -391,7 +392,20 @@ public class StringUtilsTest extends TestCase {
     
     public void testJoin() throws Exception {
         assertEquals(";", StringUtils.join(";", "", ""));
+        assertEquals("null;", StringUtils.join(";", null, ""));
+        assertEquals("null;a", StringUtils.join(";", null, "a"));
+        assertEquals("null", StringUtils.join(";", (Object)null));
+        assertEquals("null", StringUtils.join("", (Object)null));
+        assertEquals("nullnulla", StringUtils.join("", (Object)null, (Object)null, "a"));
         
+        
+        assertEquals("b", StringUtils.join("/", new String[]{"a", "b", "c"}, 1, 2));
+        assertEquals("b/c", StringUtils.join("/", new String[]{"a", "b", "c"}, 1, 3));
+        
+        List<String> l = new ArrayList<String>();
+        l.add("b");
+        l.add("c");
+        assertEquals("b/c", StringUtils.join("/", l));
     }
     
     public void testParseInt() throws Exception {

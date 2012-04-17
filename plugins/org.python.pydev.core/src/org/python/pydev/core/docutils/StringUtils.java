@@ -28,6 +28,7 @@ import javax.swing.text.EditorKit;
 import javax.swing.text.html.HTMLEditorKit;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.cache.Cache;
@@ -113,7 +114,7 @@ public final class StringUtils {
         
     }
 
-    public static final Object EMPTY = "";
+    public static final String EMPTY = "";
 
     /**
      * Formats a string, replacing %s with the arguments passed.
@@ -848,21 +849,79 @@ public final class StringUtils {
         return join(delimiter, newSplitted);
     }
     
+    public static String join(String delimiter, String[] splitted) {
+        return (String)join(delimiter, splitted, null);
+    }
+    
     /**
      * Same as Python join: Go through all the paths in the string and join them with the passed delimiter.
+     * 
+     * Note: optimized to have less allocations/method calls 
+     * (i.e.: not using FastStringBuffer, pre-allocating proper size and doing string.getChars directly).
+     * 
+     * Having a return type != from String (i.e.: char[].class or FastStringBuffer.class) is a bit faster
+     * as it won't do an additional array/copy for the final result.
      */
-    public static String join(String delimiter, String[] splitted) {
-        FastStringBuffer buf = new FastStringBuffer(splitted.length*100);
-        boolean first = true;
-        for (String string : splitted) {
-            if(!first){
-                buf.append(delimiter);
-            }else{
-                first = false;
-            }
-            buf.append(string);
+    public static Object join(String delimiter, String[] splitted, Class<? extends Object> returnType) {
+        //A bit faster than if..elif?
+        final int len = splitted.length;
+        switch(len){
+        case 0:
+            return EMPTY;
+        case 1:
+            return splitted[0];
         }
-        return buf.toString();
+        
+        final int delimiterLen = delimiter.length();
+        int totalSize = delimiterLen * (len-1);
+        for(int i=0; i< len; i++){
+            totalSize += splitted[i].length();
+        }
+        
+        final char[]buf = new char[totalSize];
+        int count = 0;
+        
+        //Copy the first item
+        String string = splitted[0];
+        int strLen = string.length();
+        string.getChars(0, strLen, buf, count);
+        count += strLen;
+
+        if(delimiterLen > 0){
+            //Copy the remaining ones with the delimiter in place.
+            for(int i=1; i< len; i++){
+                strLen = delimiterLen;
+                delimiter.getChars(0, strLen, buf, count);
+                count += strLen;
+                
+                string = splitted[i];
+                strLen = string.length();
+                string.getChars(0, strLen, buf, count);
+                count += strLen;
+            }
+        }else{
+            //Same thing as above but without copying the delimiter as it's empty!
+            for(int i=1; i< len; i++){
+                string = splitted[i];
+                strLen = string.length();
+                string.getChars(0, strLen, buf, count);
+                count += strLen;
+            }
+        }
+        
+        if(returnType == null || returnType == String.class){
+            return new String(buf);
+            
+        }else if(returnType == FastStringBuffer.class){
+            return new FastStringBuffer(buf);
+            
+        }else if(returnType == char[].class){
+            return buf;
+            
+        }else{
+            throw new RuntimeException("Don't know how to handle return type: "+returnType);
+        }
+
     }
     
     /**
@@ -870,17 +929,11 @@ public final class StringUtils {
      * but start at the passed initial location in the splitted array.
      */
 	public static String join(String delimiter, String[] splitted, int startAtSegment, int endAtSegment) {
-        FastStringBuffer buf = new FastStringBuffer(splitted.length*100);
-        boolean first = true;
-        for (int i=startAtSegment;i<splitted.length && i < endAtSegment;i++) {
-            if(!first){
-                buf.append(delimiter);
-            }else{
-                first = false;
-            }
-            buf.append(splitted[i]);
+        String[] s = new String[endAtSegment-startAtSegment];
+        for (int i=startAtSegment, j=0;i<splitted.length && i < endAtSegment;i++, j++) {
+            s[j] = splitted[i];
         }
-        return buf.toString();	
+        return join(delimiter, s);	
     }
 
     
@@ -888,17 +941,7 @@ public final class StringUtils {
      * Same as Python join: Go through all the paths in the string and join them with the passed delimiter.
      */
     public static String join(String delimiter, List<String> splitted) {
-        FastStringBuffer buf = new FastStringBuffer(splitted.size()*100);
-        boolean first = true;
-        for (String string : splitted) {
-            if(!first){
-                buf.append(delimiter);
-            }else{
-                first = false;
-            }
-            buf.append(string);
-        }
-        return buf.toString();
+        return join(delimiter, splitted.toArray(new String[splitted.size()]));
     }
 
     /**
