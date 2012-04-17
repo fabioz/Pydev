@@ -94,7 +94,7 @@ class InterpreterInterface(BaseInterpreterInterface):
         self.client_port = client_port
         self.host = host
         try:
-            import pydevd
+            import pydevd #@UnresolvedImport
         except:
             # This happens on Jython embedded in host eclipse 
             self.namespace = globals()

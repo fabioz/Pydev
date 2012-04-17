@@ -75,4 +75,11 @@ public class ScriptConsoleManager {
         }
     }
 
+    /**
+     * Enable/Disable linking of the debug console with the suspended frame.
+     */
+    public void linkWithDebugSelection(ScriptConsole console, boolean isChecked) {
+		console.linkWithDebugSelection(isChecked);
+	} 
+
 }

@@ -627,5 +627,12 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
 			monitor.done();
 		}
 	}
+	
+    /**
+     * Not required for normal pydev console
+     */
+    public void linkWithDebugSelection(boolean isLinkedWithDebug) {
+		throw new RuntimeException("Not implemented");
+    }
 
 }

@@ -175,7 +175,6 @@ class AbstractWriterThread(threading.Thread):
 
         return True
     
-
     def WriteMakeInitialRun(self):
         self.Write("101\t%s\t" % self.NextSeq())
         
@@ -214,7 +213,51 @@ class AbstractWriterThread(threading.Thread):
         
     def WriteKillThread(self, threadId):
         self.Write("104\t%s\t%s" % (self.NextSeq(), threadId,))
+
+    def WriteDebugConsoleExpression(self, locator):
+        self.Write("126\t%s\t%s"%(self.NextSeq(), locator))
+
+#=======================================================================================================================
+# WriterThreadCase14 - [Test Case]: Interactive Debug Console
+#======================================================================================================================
+class WriterThreadCase14(AbstractWriterThread):
+
+    TEST_FILE = NormFile('_debugger_case14.py')
+
+    def run(self):
+        self.StartSocket()
+        self.WriteAddBreakpoint(22, 'main')
+        self.WriteMakeInitialRun()
+
+        threadId, frameId, line = self.WaitForBreakpointHit('111', True)
+        self.WriteDebugConsoleExpression("%s\t%s\tINITIALIZE"%(threadId, frameId))
+
+        self.WaitForVars("Connected to interactive console")
+        assert 7 == self._sequence, 'Expected 7. Had: %s' % self._sequence
+
+        # Access some variable
+        self.WriteDebugConsoleExpression("%s\t%s\tEVALUATE\tcarObj.color"%(threadId, frameId))
+        self.WaitForVars('<xml><more>False</more><output message="%27Black%27"></output></xml>')
+        assert 9 == self._sequence, 'Expected 9. Had: %s' % self._sequence
+
+        # Change some variable
+        self.WriteDebugConsoleExpression("%s\t%s\tEVALUATE\tcarObj.color='Red'"%(threadId, frameId))
+        self.WriteDebugConsoleExpression("%s\t%s\tEVALUATE\tcarObj.color"%(threadId, frameId))
+        self.WaitForVars('<xml><more>False</more><output message="%27Red%27"></output></xml>')
+        assert 13 == self._sequence, 'Expected 13. Had: %s' % self._sequence
+
+        # Iterate some loop
+        self.WriteDebugConsoleExpression("%s\t%s\tEVALUATE\tfor i in range(3):"%(threadId, frameId))
+        self.WaitForVars('<xml><more>True</more></xml>')
+        self.WriteDebugConsoleExpression("%s\t%s\tEVALUATE\t    print i"%(threadId, frameId))
+        self.WriteDebugConsoleExpression("%s\t%s\tEVALUATE\t"%(threadId, frameId))
+        self.WaitForVars('<xml><more>False</more><output message="0"></output><output message="1"></output><output message="2"></output></xml>')
+        assert 19 == self._sequence, 'Expected 19. Had: %s' % self._sequence
         
+        self.WriteRunThread(threadId)
+        self.finishedOk = True
+
+
 #=======================================================================================================================
 # WriterThreadCase13
 #======================================================================================================================
@@ -793,6 +836,8 @@ class Test(unittest.TestCase):
     def testCase13(self):
         self.CheckCase(WriterThreadCase13)
 
+    def testCase14(self):
+        self.CheckCase(WriterThreadCase14)
             
     def testCase1a(self):
         self.CheckCase(WriterThreadCase1, False)
@@ -829,6 +874,9 @@ class Test(unittest.TestCase):
         
     def testCase12a(self):
         self.CheckCase(WriterThreadCase12, False)
+
+    def testCase14a(self):
+        self.CheckCase(WriterThreadCase14, False)
 
 #This case requires decorators to work (which are not present on Jython 2.1), so, this test is just removed from the jython run.
 #    def testCase13a(self):
