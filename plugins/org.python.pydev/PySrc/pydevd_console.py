@@ -102,14 +102,15 @@ class DebugConsole(InteractiveConsole):
         output_messages = []
         error_messages = []
         try:
-            sys.stdout = self.new_stdout
-            sys.stderr = self.new_stderr 
-            more = InteractiveConsole.push(self, line)
-            output_messages = self.new_stdout.get_messages()
-            error_messages = self.new_stderr.get_messages()
-        except Exception:
-            exc = GetExceptionTracebackStr()
-            error_messages = ["Internal Error: %s"%(exc)]
+            try:
+                sys.stdout = self.new_stdout
+                sys.stderr = self.new_stderr 
+                more = InteractiveConsole.push(self, line)
+                output_messages = self.new_stdout.get_messages()
+                error_messages = self.new_stderr.get_messages()
+            except Exception:
+                exc = GetExceptionTracebackStr()
+                error_messages = ["Internal Error: %s"%(exc)]
         finally:
             if sys.stdout == self.new_stdout:
                 sys.stdout = original_stdout

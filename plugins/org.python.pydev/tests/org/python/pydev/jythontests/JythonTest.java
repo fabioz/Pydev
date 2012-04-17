@@ -34,7 +34,7 @@ public class JythonTest extends TestCase {
 	final File[] foldersWithTestContentsOnSameProcess = new File[]{
 			new File(TestDependent.TEST_PYDEV_JYTHON_PLUGIN_LOC+"jysrc/tests"),
 			new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"tests/jysrc/tests"),
-			new File(TestDependent.TEST_PYDEV_DEBUG_PLUGIN_LOC+"pysrc/tests"),
+			new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"pysrc/tests_runfiles"),
 	};
 	
 	final File[] additionalPythonpathFolders = new File[]{

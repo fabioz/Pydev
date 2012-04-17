@@ -36,7 +36,7 @@ import sys
 if sys.platform == "darwin":
     #See: https://sourceforge.net/projects/pydev/forums/forum/293649/topic/3454227
     try:
-        import _CF #Don't fail if it doesn't work.
+        import _CF #Don't fail if it doesn't work -- do it because it must be loaded on the main thread!
     except:
         pass
 
