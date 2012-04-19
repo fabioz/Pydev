@@ -841,39 +841,6 @@ class InternalGetCompletions(InternalThreadCommand):
             cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error evaluating expression " + exc)
             dbg.writer.addCommand(cmd)
 
-#=======================================================================================================================
-# InternalInitializeConsole
-#=======================================================================================================================
-class InternalInitializeConsole(InternalThreadCommand):
-    """ Initialize the debug console """
-    def __init__(self, seq, thread_id, frame_id):
-        self.sequence = seq
-        self.thread_id = thread_id
-        self.frame_id = frame_id
-
-    def doIt(self, dbg):
-        """ Create an XML for console output, error and more (true/false)
-        <xml>
-            <output message=output_meesage></output>
-            <error message=error_meesage></error>
-            <more>true/false</more>
-        </xml>
-        """
-        error_message = "Unable to initialize the interactive console "
-        console_message = pydevd_console.ConsoleMessage()
-        try:
-            frame = pydevd_vars.findFrame(self.thread_id, self.frame_id)
-            if frame is not None:
-                console_message = pydevd_console.create_interactive_console(frame, self.thread_id, self.frame_id)
-                cmd = dbg.cmdFactory.makeSendConsoleMessage(self.sequence, console_message.toXML())
-            else:
-                console_message.add_console_message(pydevd_console.CONSOLE_ERROR, error_message + "(Invalid Frame)")
-                cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, console_message.toXML())
-        except Exception:
-            exc = GetExceptionTracebackStr()
-            console_message.add_console_message(pydevd_console.CONSOLE_ERROR, error_message + exc)
-            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, console_message.toXML())
-        dbg.writer.addCommand(cmd)
 
 #=======================================================================================================================
 # InternalEvaluateConsoleExpression
@@ -908,6 +875,7 @@ class InternalEvaluateConsoleExpression(InternalThreadCommand):
             cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error evaluating expression " + exc)
         dbg.writer.addCommand(cmd)
 
+
 #=======================================================================================================================
 # InternalConsoleGetCompletions
 #=======================================================================================================================
@@ -933,29 +901,6 @@ class InternalConsoleGetCompletions(InternalThreadCommand):
             cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error in fetching completions" + exc)
             dbg.writer.addCommand(cmd)
 
-#=======================================================================================================================
-# InternalCloseConsole
-#=======================================================================================================================
-class InternalCloseConsole(InternalThreadCommand):
-    """Delete the console instance
-    """
-    def __init__(self, seq, thread_id, frame_id):
-        self.sequence = seq
-        self.thread_id = thread_id
-        self.frame_id = frame_id
-
-    def doIt(self, dbg):
-        """call pydevd_console.clear_interactive_console
-        """
-        try:
-            pydevd_console.clear_interactive_console()
-            xml = "<xml>Interactive console closed</xml>"
-            cmd = dbg.cmdFactory.makeSendConsoleMessage(self.sequence, xml)
-            dbg.writer.addCommand(cmd)
-        except:
-            exc = GetExceptionTracebackStr()
-            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error in closing console" + exc)
-            dbg.writer.addCommand(cmd)
 
 #=======================================================================================================================
 # PydevdFindThreadById
