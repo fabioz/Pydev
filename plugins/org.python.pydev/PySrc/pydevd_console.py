@@ -9,6 +9,8 @@ from pydevd_tracing import GetExceptionTracebackStr
 from pydevd_vars import makeValidXmlValue
 from pydev_imports import Exec
 from pydevd_io import IOBuf
+from pydev_console_utils import BaseInterpreterInterface, BaseStdIn
+from pydev_override import overrides
 
 CONSOLE_OUTPUT = "output"
 CONSOLE_ERROR = "error"
@@ -59,13 +61,29 @@ class ConsoleMessage:
 
 
 #=======================================================================================================================
+# DebugConsoleStdIn
+#=======================================================================================================================
+class DebugConsoleStdIn(BaseStdIn):
+    
+    @overrides(BaseStdIn.readline)
+    def readline(self, *args, **kwargs):
+        sys.stderr.write('Warning: Reading from stdin is still not supported in this console.\n')
+        return '\n'
+
+#=======================================================================================================================
 # DebugConsole
 #=======================================================================================================================
-class DebugConsole(InteractiveConsole):
+class DebugConsole(InteractiveConsole, BaseInterpreterInterface):
     """Wrapper around code.InteractiveConsole, in order to send 
     errors and outputs to the debug console
     """
+    
+    @overrides(BaseInterpreterInterface.createStdIn)
+    def createStdIn(self):
+        return DebugConsoleStdIn() #For now, raw_input is not supported in this console.
 
+
+    @overrides(InteractiveConsole.push)
     def push(self, line, frame):
         """Change built-in stdout and stderr methods by the 
         new custom StdMessage.
@@ -82,10 +100,10 @@ class DebugConsole(InteractiveConsole):
             self.frame = frame
             out = sys.stdout = IOBuf()
             err = sys.stderr = IOBuf()
-            more = InteractiveConsole.push(self, line)
+            more, _need_input = self.addExec(line)
         except Exception:
             exc = GetExceptionTracebackStr()
-            err.buflist = ["Internal Error: %s" % (exc)]
+            err.buflist.append("Internal Error: %s" % (exc,))
         finally:
             #Remove frame references.
             self.frame = None
@@ -94,7 +112,14 @@ class DebugConsole(InteractiveConsole):
             sys.stderr = original_stderr            
 
         return more, out.buflist, err.buflist
+    
+    
+    @overrides(BaseInterpreterInterface.doAddExec)
+    def doAddExec(self, line):
+        return InteractiveConsole.push(self, line)
+    
 
+    @overrides(InteractiveConsole.runcode)
     def runcode(self, code):
         """Execute a code object.
 
