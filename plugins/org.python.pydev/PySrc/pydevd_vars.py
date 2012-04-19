@@ -126,7 +126,7 @@ try:
 except:
     #Simple replacement if it's not there.
     def makeValidXmlValue(s):
-        return s.replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;')
+        return s.replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("&", "&amp;")
 
 
 def varToXML(v, name):

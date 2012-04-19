@@ -81,6 +81,7 @@ import pydevd_tracing
 import pydevd_vm_type
 import pydevd_file_utils
 import traceback
+import _pydev_completer
 
 from pydevd_tracing import GetExceptionTracebackStr
 
@@ -791,38 +792,11 @@ class InternalGetCompletions(InternalThreadCommand):
         try:
             remove_path = None
             try:
-                import _pydev_completer
-            except:
-                path = os.environ['PYDEV_COMPLETER_PYTHONPATH']
-                sys.path.append(path)
-                remove_path = path
-                import _pydev_completer
-            
-            try:
                 
                 frame = pydevd_vars.findFrame(self.thread_id, self.frame_id)
                 if frame is not None:
                 
-                    #Not using frame.f_globals because of https://sourceforge.net/tracker2/?func=detail&aid=2541355&group_id=85796&atid=577329
-                    #(Names not resolved in generator expression in method)
-                    #See message: http://mail.python.org/pipermail/python-list/2009-January/526522.html
-                    updated_globals = {}
-                    updated_globals.update(frame.f_globals)
-                    updated_globals.update(frame.f_locals) #locals later because it has precedence over the actual globals
-                
-                    completer = _pydev_completer.Completer(updated_globals, None)
-                    #list(tuple(name, descr, parameters, type))
-                    completions = completer.complete(self.act_tok)
-                    
-                    
-                    def makeValid(s):
-                        return pydevd_vars.makeValidXmlValue(pydevd_vars.quote(s, '/>_= \t'))
-                    
-                    msg = "<xml>"
-                    
-                    for comp in completions:
-                        msg += '<comp p0="%s" p1="%s" p2="%s" p3="%s"/>' % (makeValid(comp[0]), makeValid(comp[1]), makeValid(comp[2]), makeValid(comp[3]),)
-                    msg += "</xml>"
+                    msg = _pydev_completer.GenerateCompletionsAsXML(frame, self.act_tok)
                     
                     cmd = dbg.cmdFactory.makeGetCompletionsMessage(self.sequence, msg)
                     dbg.writer.addCommand(cmd)

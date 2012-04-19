@@ -179,28 +179,8 @@ def get_completions(frame, act_tok):
     """ fetch all completions, create xml for the same
     return the completions xml
     """
-    msg = ""
-    if frame is not None:
-        variables = {}
-        if frame is not None:
-            variables.update(frame.f_globals)
-            variables.update(frame.f_locals) #locals later because it has precedence over the actual globals
-        
-        completer = _pydev_completer.Completer(variables, None)
-        completions = completer.complete(act_tok) #return list of tuple(name, description, parameters, type)
+    return _pydev_completer.GenerateCompletionsAsXML(frame, act_tok)
 
-        msg = "<xml>"
-
-        for name, description, parameters, comp_type in completions:
-            msg += '<comp p0="%s" p1="%s" p2="%s" p3="%s"/>' % (
-                makeValidXmlValue(name),
-                makeValidXmlValue(description),
-                makeValidXmlValue(parameters),
-                makeValidXmlValue(comp_type),
-            )
-        msg += "</xml>"
-
-    return msg
 
 
 

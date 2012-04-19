@@ -141,7 +141,7 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
         final EvaluateDebugConsoleExpression evaluateDebugConsoleExpression = new EvaluateDebugConsoleExpression(frame);
         String result = evaluateDebugConsoleExpression.getCompletions(actTok, offset);
         if (result.length() > 0) {
-            List<Object[]> fromServer = XMLUtils.XMLToCompletions(result);
+            List<Object[]> fromServer = XMLUtils.convertXMLcompletionsFromConsole(result);
             List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>();
             PydevConsoleCommunication.convertToICompletions(text, actTok, offset, fromServer, ret);
             receivedCompletions = ret.toArray(new ICompletionProposal[ret.size()]);
