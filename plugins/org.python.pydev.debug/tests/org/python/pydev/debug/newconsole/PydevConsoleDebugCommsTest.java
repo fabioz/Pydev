@@ -48,7 +48,7 @@ public class PydevConsoleDebugCommsTest extends TestCase {
 
 	@Override
 	protected void setUp() throws Exception {
-		String consoleFile = REF.createFileFromParts(TestDependent.TEST_PYDEV_PLUGIN_LOC, "PySrc", "pydevconsole.py").getAbsolutePath();
+		String consoleFile = REF.createFileFromParts(TestDependent.TEST_PYDEV_PLUGIN_LOC, "pysrc", "pydevconsole.py").getAbsolutePath();
 		String pydevdDir = new File(TestDependent.TEST_PYDEV_DEBUG_PLUGIN_LOC, "pysrc").getAbsolutePath();
 		Integer[] ports = SocketUtil.findUnusedLocalPorts(2);
 		int port = ports[0];

@@ -29,5 +29,11 @@ public interface IScriptConsoleInterpreter extends IScriptConsoleShell, IConsole
 
 	IInterpreterInfo getInterpreterInfo();
 
+    /**
+     * Link pydev debug console with the suspended frame  
+     * 
+     * @param isLinkedWithDebug
+     */
+	public void linkWithDebugSelection(boolean isLinkedWithDebug);
 
 }

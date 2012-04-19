@@ -216,8 +216,8 @@ class BaseInterpreterInterface:
                         if doc is not None:
                             return doc
                         
-                        import jyimportsTipper
-                        is_method, infos = jyimportsTipper.ismethod(obj)
+                        import _pydev_jy_imports_tipper
+                        is_method, infos = _pydev_jy_imports_tipper.ismethod(obj)
                         ret = ''
                         if is_method:
                             for info in infos:

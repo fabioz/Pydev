@@ -41,7 +41,7 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
     private boolean onlyCreateLinksForExistingFiles = true;
     
     /** pattern for detecting error lines */
-    static Pattern linePattern = Pattern.compile("\\s*(File) \\\"([^\\\"]*)\\\", line (\\d*).*");
+    static Pattern linePattern = Pattern.compile(".*(File) \\\"([^\\\"]*)\\\", line (\\d*).*");
 
     /**
      * Opens up a file with a given line

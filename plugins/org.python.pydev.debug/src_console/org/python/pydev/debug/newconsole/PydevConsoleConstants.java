@@ -39,8 +39,11 @@ public final class PydevConsoleConstants {
     public static final String CONSOLE_BACKGROUND_COLOR = "pydevconsole_background_color";
     public static final RGB DEFAULT_CONSOLE_BACKGROUND_COLOR = new RGB(255, 255, 255);
     
-    public static final String CONSOLE_TYPE = "org.python.pydev.debug.newconsole.PydevConsole";
+    public static final String DEBUG_CONSOLE_BACKGROUND_COLOR = "pydevdebugconsole_background_color";
+    public static final RGB DEFAULT_DEBUG_CONSOLE_BACKGROUND_COLOR = new RGB(230, 230, 230); // Light Gray
     
+    public static final String CONSOLE_TYPE = "org.python.pydev.debug.newconsole.PydevConsole";
+    public static final String DEBUG_CONSOLE_TYPE = "org.python.pydev.debug.newconsole.PydevDebugConsole";
     
     public static final String INTERACTIVE_CONSOLE_VM_ARGS = "INTERACTIVE_CONSOLE_VM_ARGS";
     public static final String DEFAULT_INTERACTIVE_CONSOLE_VM_ARGS = "-Xmx64m";
@@ -62,5 +65,7 @@ public final class PydevConsoleConstants {
     
     public static final String INTERACTIVE_CONSOLE_SEND_INITIAL_COMMAND_WHEN_CREATED_FROM_EDITOR = "INTERACTIVE_CONSOLE_SEND_INITIAL_COMMAND_WHEN_CREATED_FROM_EDITOR";
     public static final boolean DEFAULT_INTERACTIVE_CONSOLE_SEND_INITIAL_COMMAND_WHEN_CREATED_FROM_EDITOR = true;
-    
+
+    public static final int CONSOLE_TIMEOUT = 500;
+
 }

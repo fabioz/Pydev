@@ -33,11 +33,18 @@ public class ValueModificationChecker {
      * @param newFrame the new frame
      * @param oldFrame the old frame
      */
-    private void verifyVariablesModified(IVariable[] newFrameVariables, PyStackFrame oldFrame ) {
+    public void verifyVariablesModified(IVariable[] newFrameVariables, IVariable[] oldVariables ) {
+        if(oldVariables == null){
+            return; //All variables are new, so, no point in notifying it.
+        }
         PyVariable newVariable = null;
         
         try {
-            Map<String, IVariable> variablesAsMap = oldFrame.getVariablesAsMap();
+            HashMap<String, IVariable> map = new HashMap<String, IVariable>();
+            for (IVariable var : oldVariables) {
+                map.put(var.getName(), var);
+            }
+            Map<String, IVariable> variablesAsMap = map;
             
             //we have to check for each new variable
             for( int i=0; i<newFrameVariables.length; i++ ) {
@@ -91,7 +98,7 @@ public class ValueModificationChecker {
             }
             
             //if it is not the same, we have to check it and mark it as the new frame.
-            verifyVariablesModified(newFrameVariables, cacheFrame);
+            verifyVariablesModified(newFrameVariables, cacheFrame.getInternalVariables());
             threadIdCache.put(frame.getId(), frame);
         }
     }

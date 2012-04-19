@@ -57,7 +57,7 @@ class InterpreterInterface(BaseInterpreterInterface):
                 return ret
 
             #Otherwise, use the default PyDev completer (to get nice icons)
-            from _completer import Completer
+            from _pydev_completer import Completer
             completer = Completer(self.getNamespace(), None)
             return completer.complete(act_tok)
         except:

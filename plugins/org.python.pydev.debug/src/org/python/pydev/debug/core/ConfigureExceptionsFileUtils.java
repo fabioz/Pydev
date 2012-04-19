@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 
 /**
  * This file contains utility methods for File read / write / append
@@ -48,7 +49,7 @@ public class ConfigureExceptionsFileUtils {
 			bufferedWriter.write(pyExceptionsStr);
 			bufferedWriter.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.log(e);
 		}
 	}
 

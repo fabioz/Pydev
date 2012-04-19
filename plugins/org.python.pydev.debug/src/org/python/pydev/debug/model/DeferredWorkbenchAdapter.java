@@ -17,10 +17,10 @@ import org.python.pydev.debug.model.remote.ICommandResponseListener;
 
 public class DeferredWorkbenchAdapter extends DeferredDebugElementWorkbenchAdapter implements IDeferredWorkbenchAdapter, ICommandResponseListener{
 
-    private PyVariable[] commandVariables;
+    private volatile PyVariable[] commandVariables;
     private AbstractDebugTarget target;
     private IVariableLocator locator;
-    private Object parent;
+    private final Object parent;
     private IProgressMonitor monitor;
     
     public DeferredWorkbenchAdapter(Object parent) {

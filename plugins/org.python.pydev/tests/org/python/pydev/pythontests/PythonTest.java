@@ -41,8 +41,8 @@ public class PythonTest extends AbstractBasicRunTestCase {
     public void testPythonTests() throws Exception {
         execAllAndCheckErrors("test", new File[]{
                 new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"pysrc/tests"),
-                new File(TestDependent.TEST_PYDEV_DEBUG_PLUGIN_LOC+"pysrc/tests"),
-                new File(TestDependent.TEST_PYDEV_DEBUG_PLUGIN_LOC+"pysrc/tests_python"),
+                new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"pysrc/tests_runfiles"),
+                new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"pysrc/tests_python"),
             }
         );
     }
