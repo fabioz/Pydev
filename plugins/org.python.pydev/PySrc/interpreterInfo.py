@@ -11,8 +11,17 @@ EXECUTABLE:python.exe|libs@compiled_dlls$builtin_mods
 
 all internal are separated by |
 '''
-import sys
 import os
+import sys
+
+IS_PYTHON_3K = 0
+
+try:
+    if sys.version_info[0] == 3:
+        IS_PYTHON_3K = 1
+except:
+    #That's OK, not all versions of python have sys.version_info
+    pass
 
 
 try:
@@ -51,6 +60,29 @@ def fullyNormalizePath(path):
     return os.path.normpath(path)
 
 
+def getfilesystemencoding():
+    try:
+        return sys.getfilesystemencoding()
+    except:
+        #Only available from 2.3 onwards.
+        if sys.platform == 'win32':
+            return 'mbcs'
+        return 'utf-8'
+    
+file_system_encoding = getfilesystemencoding()
+
+def tounicode(s):
+    if hasattr(s, 'decode'):
+        #Depending on the platform variant we may have decode on string or not.
+        return s.decode(file_system_encoding)
+    return s
+    
+def toutf8(s):
+    if hasattr(s, 'encode'):
+        return s.encode('utf-8')
+    return s
+    
+
 if __name__ == '__main__':
     try:
         #just give some time to get the reading threads attached (just in case)
@@ -68,7 +100,8 @@ if __name__ == '__main__':
 
     
     try:
-        s = '%s.%s' % (sys.version_info[0], sys.version_info[1])
+        major = str(sys.version_info[0])
+        minor = str(sys.version_info[1])
     except AttributeError:
         #older versions of python don't have version_info
         import string
@@ -76,17 +109,18 @@ if __name__ == '__main__':
         s = string.split(s, '.')
         major = s[0]
         minor = s[1]
-        s = '%s.%s' % (major, minor)
         
-    contents = ['<xml>']
-    contents.append('<version>%s</version>' % (s,))
+    s = tounicode('%s.%s') % (tounicode(major), tounicode(minor))
+        
+    contents = [tounicode('<xml>')]
+    contents.append(tounicode('<version>%s</version>') % (tounicode(s),))
             
-    contents.append('<executable>%s</executable>' % executable)
+    contents.append(tounicode('<executable>%s</executable>') % tounicode(executable))
     
     #this is the new implementation to get the system folders 
     #(still need to check if it works in linux)
     #(previously, we were getting the executable dir, but that is not always correct...)
-    prefix = nativePath(sys.prefix)
+    prefix = tounicode(nativePath(sys.prefix))
     #print_ 'prefix is', prefix
     
 
@@ -99,7 +133,7 @@ if __name__ == '__main__':
         pass #just ignore it...
     
     for p in path_used:
-        p = nativePath(p)
+        p = tounicode(nativePath(p))
         
         try:
             import string #to be compatible with older versions
@@ -117,19 +151,25 @@ if __name__ == '__main__':
             
     for p, b in result:
         if b:
-            contents.append('<lib path="ins">%s</lib>' % (p,))
+            contents.append(tounicode('<lib path="ins">%s</lib>') % (p,))
         else:
-            contents.append('<lib path="out">%s</lib>' % (p,))
+            contents.append(tounicode('<lib path="out">%s</lib>') % (p,))
     
     #no compiled libs
     #nor forced libs
     
     for builtinMod in sys.builtin_module_names:
-        contents.append('<forced_lib>%s</forced_lib>' % builtinMod)
+        contents.append(tounicode('<forced_lib>%s</forced_lib>') % tounicode(builtinMod))
         
         
-    contents.append('</xml>')
-    sys.stdout.write('\n'.join(contents))
+    contents.append(tounicode('</xml>'))
+    unic = tounicode('\n').join(contents)
+    inutf8 = toutf8(unic)
+    if IS_PYTHON_3K:
+        #This is the 'official' way of writing binary output in Py3K (see: http://bugs.python.org/issue4571)
+        sys.stdout.buffer.write(inutf8)
+    else:
+        sys.stdout.write(inutf8)
     
     try:
         sys.stdout.flush()
