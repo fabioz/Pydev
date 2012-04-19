@@ -8,18 +8,10 @@ try:
 except ImportError:
     from io import StringIO
 import sys #@Reimport
-try:
-    from urllib import quote
-except:
-    from urllib.parse import quote #@UnresolvedImport
 import threading
 import pydevd_resolver
 import traceback
-
-try:
-    from pydevd_exec import Exec
-except:
-    from pydevd_exec2 import Exec
+from pydev_imports import Exec, quote
 
 #-------------------------------------------------------------------------- defining true and false for earlier versions
 
