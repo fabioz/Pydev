@@ -12,6 +12,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.model.XMLUtils;
 import org.python.pydev.dltk.console.IScriptConsoleCommunication;
@@ -78,7 +79,7 @@ public class PydevDebugConsoleCommunication implements
 			consoleMessage = XMLUtils.getConsoleMessage(result);
 			isConsoleInitialized = true;
 		} catch (CoreException e) {
-			e.printStackTrace();
+			Log.log(e);
 		}
 		return consoleMessage;
 	}
@@ -130,14 +131,20 @@ public class PydevDebugConsoleCommunication implements
                     evaluateConsoleExpression.executeCommand(command);
                     String result = evaluateConsoleExpression.waitForCommand();
                     try {
-						EvaluateDebugConsoleExpression.PydevDebugConsoleMessage consoleMessage = XMLUtils
-						        .getConsoleMessage(result);
-	                    nextResponse = new InterpreterResponse(consoleMessage.getOutputMessage().toString(),
-	                    		consoleMessage.getErrorMessage().toString(), consoleMessage.isMore(), false);
+                        if(result.length() == 0){
+                            //timed out
+                            nextResponse = new InterpreterResponse(result, EMPTY, false, false);
+                            return Status.CANCEL_STATUS;
+                            
+                        }else{
+    						EvaluateDebugConsoleExpression.PydevDebugConsoleMessage consoleMessage = XMLUtils
+    						        .getConsoleMessage(result);
+    	                    nextResponse = new InterpreterResponse(consoleMessage.getOutputMessage().toString(),
+    	                    		consoleMessage.getErrorMessage().toString(), consoleMessage.isMore(), false);
+                        }
 					} catch (CoreException e) {
-						e.printStackTrace();
-	                    nextResponse = new InterpreterResponse(result,
-	                            EMPTY, false, false);
+						Log.log(e);
+	                    nextResponse = new InterpreterResponse(result, EMPTY, false, false);
 	                    return Status.CANCEL_STATUS;
 					}
 					

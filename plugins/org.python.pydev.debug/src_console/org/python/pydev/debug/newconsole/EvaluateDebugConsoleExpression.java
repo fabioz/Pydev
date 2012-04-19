@@ -2,6 +2,7 @@ package org.python.pydev.debug.newconsole;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.ui.DebugUITools;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
@@ -114,23 +115,27 @@ public class EvaluateDebugConsoleExpression implements ICommandResponseListener 
 		}
 	}
 
-	/**
-	 * Execute the line in selected frame context
-	 * 
-	 * @param consoleId
-	 * @param command
-	 */
-	public void executeCommand(String command) {
-		PyStackFrame frame = getLastSelectedFrame();
-		if (frame != null) {
-			AbstractDebugTarget target = frame.getTarget();
-			String locator = getLocator(frame.getThreadId(),
-					frame.getId(), "EVALUATE", command);
-			AbstractDebuggerCommand cmd = new EvaluateConsoleExpressionCommand(
-					target, locator, this);
-			target.postCommand(cmd);
-		}
-	}
+    /**
+     * Execute the line in selected frame context
+     * 
+     * @param consoleId
+     * @param command
+     */
+    public void executeCommand(String command) {
+        final PyStackFrame frame = getLastSelectedFrame();
+        if (frame != null) {
+            AbstractDebugTarget target = frame.getTarget();
+            String locator = getLocator(frame.getThreadId(), frame.getId(), "EVALUATE", command);
+            AbstractDebuggerCommand cmd = new EvaluateConsoleExpressionCommand(target, locator, new ICommandResponseListener() {
+
+                public void commandComplete(AbstractDebuggerCommand cmd) {
+                    frame.forceGetNewVariables();
+                    EvaluateDebugConsoleExpression.this.commandComplete(cmd);
+                }
+            });
+            target.postCommand(cmd);
+        }
+    }
 
 	/**
 	 * Post the completions command
