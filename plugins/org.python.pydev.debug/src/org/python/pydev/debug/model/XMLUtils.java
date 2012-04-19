@@ -331,7 +331,7 @@ public class XMLUtils {
     }
     
     
-    public static List<Object[]> XMLToCompletions(String payload) throws CoreException {
+    public static List<Object[]> convertXMLcompletionsFromConsole(String payload) throws CoreException {
         try {
             SAXParser parser = getSAXParser();
             XMLToCompletionsInfo info = new XMLToCompletionsInfo();

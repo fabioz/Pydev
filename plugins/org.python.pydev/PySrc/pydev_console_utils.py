@@ -108,6 +108,9 @@ class StdIn(BaseStdIn):
 #=======================================================================================================================
 class BaseInterpreterInterface:
     
+    def createStdIn(self):
+        return StdIn(self, self.host, self.client_port)
+
     def addExec(self, line):
         #f_opened = open('c:/temp/a.txt', 'a')
         #f_opened.write(line+'\n')
@@ -129,7 +132,7 @@ class BaseInterpreterInterface:
             
         more = False
         try:
-            sys.stdin = StdIn(self, self.host, self.client_port)
+            sys.stdin = self.createStdIn()
             try:
                 if help is not None:
                     #This will enable the help() function to work.

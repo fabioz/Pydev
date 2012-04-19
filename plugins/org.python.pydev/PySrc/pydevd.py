@@ -32,8 +32,6 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          InternalEvaluateExpression, \
                          InternalGetFrame, \
                          InternalGetVariable, \
-                         InternalInitializeConsole, \
-                         InternalCloseConsole, \
                          InternalEvaluateConsoleExpression, \
                          InternalConsoleGetCompletions, \
                          InternalTerminateThread, \
@@ -722,17 +720,11 @@ class PyDB:
                     # Command which takes care for the debug console communication
                     if text != "":
                         thread_id, frame_id, console_command = text.split('\t', 2)
-                        if console_command == 'INITIALIZE':
-                            # Initialize the console
-                            int_cmd = InternalInitializeConsole(seq, thread_id, frame_id)
-                        elif console_command == 'CLOSE':
-                            int_cmd = InternalCloseConsole(seq, thread_id, frame_id)
-                        else:
-                            console_command, line = console_command.split('\t')
-                            if console_command == 'EVALUATE':
-                                int_cmd = InternalEvaluateConsoleExpression(seq, thread_id, frame_id, line)
-                            elif console_command == 'GET_COMPLETIONS':
-                                int_cmd = InternalConsoleGetCompletions(seq, thread_id, frame_id, line)
+                        console_command, line = console_command.split('\t')
+                        if console_command == 'EVALUATE':
+                            int_cmd = InternalEvaluateConsoleExpression(seq, thread_id, frame_id, line)
+                        elif console_command == 'GET_COMPLETIONS':
+                            int_cmd = InternalConsoleGetCompletions(seq, thread_id, frame_id, line)
                         self.postInternalCommand(int_cmd, thread_id)
 
                 else:
