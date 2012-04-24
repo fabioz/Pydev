@@ -53,7 +53,8 @@ public class SimpleJythonRunner extends SimpleRunner {
         String[] args,
         File workingDir,
         IProject project,
-        IProgressMonitor monitor) {
+        IProgressMonitor monitor,
+        String encoding) {
         File javaExecutable = JavaVmLocationFinder.findDefaultJavaExecutable();
         if (javaExecutable == null) {
             throw new JavaNotConfiguredException("Error: the java environment must be configured before jython.\n\n"
@@ -61,7 +62,7 @@ public class SimpleJythonRunner extends SimpleRunner {
                 + "Java > Installed JREs.");
         }
 
-        return runAndGetOutputWithJar(javaExecutable, script, jythonJar, args, workingDir, project, monitor, null);
+        return runAndGetOutputWithJar(javaExecutable, script, jythonJar, args, workingDir, project, monitor, null, encoding);
     }
 
     public Tuple<String, String> runAndGetOutputWithJar(
@@ -72,7 +73,8 @@ public class SimpleJythonRunner extends SimpleRunner {
         File workingDir,
         IProject project,
         IProgressMonitor monitor,
-        String additionalPythonpath) {
+        String additionalPythonpath,
+        String encoding) {
         //"C:\Program Files\Java\jdk1.5.0_04\bin\java.exe" "-Dpython.home=C:\bin\jython21" 
         //-classpath "C:\bin\jython21\jython.jar;%CLASSPATH%" org.python.util.jython %ARGS%
         //used just for getting info without any classpath nor pythonpath
@@ -106,7 +108,7 @@ public class SimpleJythonRunner extends SimpleRunner {
                 s = ArrayUtils.concatArrays(s, args);
             }
 
-            return runAndGetOutput(s, workingDir, PythonNature.getPythonNature(project), monitor);
+            return runAndGetOutput(s, workingDir, PythonNature.getPythonNature(project), monitor, encoding);
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {

@@ -25,7 +25,7 @@ public class IronpythonTest extends AbstractBasicRunTestCase {
     protected Throwable exec(File f) {
         System.out.println(StringUtils.format("Running: %s", f));
         Tuple<String, String> output = new SimpleIronpythonRunner().runAndGetOutput(new String[] {
-                TestDependent.IRONPYTHON_EXE, "-u", IInterpreterManager.IRONPYTHON_DEFAULT_INTERNAL_SHELL_VM_ARGS, REF.getFileAbsolutePath(f) }, f.getParentFile(), null, null);
+                TestDependent.IRONPYTHON_EXE, "-u", IInterpreterManager.IRONPYTHON_DEFAULT_INTERNAL_SHELL_VM_ARGS, REF.getFileAbsolutePath(f) }, f.getParentFile(), null, null, "utf-8");
         
         System.out.println(StringUtils.format("stdout:%s\nstderr:%s", output.o1, output.o2));
         

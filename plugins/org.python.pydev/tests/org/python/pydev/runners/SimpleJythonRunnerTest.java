@@ -37,7 +37,7 @@ public class SimpleJythonRunnerTest extends JythonCodeCompletionTestsBase {
     public void testRun() throws CoreException, IOException {
         SimpleJythonRunner runner = new SimpleJythonRunner();
         File absoluteFile = PydevPlugin.getBundleInfo().getRelativePath(new Path("interpreterInfo.py")).getAbsoluteFile();
-        String string = runner.runAndGetOutputWithJar(absoluteFile.getCanonicalPath(), TestDependent.JYTHON_JAR_LOCATION, null, null, null, new NullProgressMonitor()).o1;
+        String string = runner.runAndGetOutputWithJar(absoluteFile.getCanonicalPath(), TestDependent.JYTHON_JAR_LOCATION, null, null, null, new NullProgressMonitor(), "utf-8").o1;
 //        String string = runner.runAndGetOutput(absoluteFile.getCanonicalPath(), (String)null, null);
         assertNotNull(string);
 //        System.out.println(string);

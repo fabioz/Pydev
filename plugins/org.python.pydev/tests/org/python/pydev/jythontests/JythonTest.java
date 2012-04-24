@@ -176,7 +176,7 @@ public class JythonTest extends TestCase {
         Tuple<String, String> output = new SimpleJythonRunner().runAndGetOutputWithJar(
                 new File(TestDependent.JAVA_LOCATION), f.toString(), 
                 TestDependent.JYTHON_JAR_LOCATION, null, f.getParentFile(), null, null,
-                pythonpath);
+                pythonpath, "utf-8");
         
         System.out.println(StringUtils.format("stdout:%s\nstderr:%s", output.o1, output.o2));
         
