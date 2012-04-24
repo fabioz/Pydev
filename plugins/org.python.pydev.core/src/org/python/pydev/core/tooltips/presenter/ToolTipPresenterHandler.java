@@ -60,9 +60,9 @@ public class ToolTipPresenterHandler {
      *
      * @param parent the parent Shell
      */
-    public ToolTipPresenterHandler(Shell parent, IInformationPresenter presenter, String affordanceString) {
+    public ToolTipPresenterHandler(Shell parent, IInformationPresenter presenter, String tooltipAffordanceString) {
         this.presenter = presenter;
-        informationPresenterManager = new InformationPresenterControlManager(presenter, affordanceString);
+        informationPresenterManager = new InformationPresenterControlManager(presenter, tooltipAffordanceString);
     }
 
     private void disposeOfCurrentTipShell() {
