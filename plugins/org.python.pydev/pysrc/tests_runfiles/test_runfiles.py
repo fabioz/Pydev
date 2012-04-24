@@ -102,7 +102,7 @@ class RunfilesTest(unittest.TestCase):
         self.assertEquals([sys.argv[-1]], configuration.files_or_dirs)
         self.assertEquals([sys.argv[2]], configuration.include_tests)
 
-        sys.argv = "pydev_runfiles.py -I Abc.test_def,Mod.test_abc c:/junk/".split()
+        sys.argv = "pydev_runfiles.py --include_tests Abc.test_def,Mod.test_abc c:/junk/".split()
         configuration = pydev_runfiles.parse_cmdline()
         self.assertEquals([sys.argv[-1]], configuration.files_or_dirs)
         self.assertEquals(sys.argv[2].split(','), configuration.include_tests)
@@ -114,7 +114,7 @@ class RunfilesTest(unittest.TestCase):
         self.assertEquals([sys.argv[-1]], configuration.files_or_dirs)
         self.assertEquals(1, configuration.verbosity)
 
-        sys.argv = "pydev_runfiles.py --verbosity 1 -I Mod.test_abc c:/junk/ ./".split()
+        sys.argv = "pydev_runfiles.py --verbosity 1 --include_tests Mod.test_abc c:/junk/ ./".split()
         configuration = pydev_runfiles.parse_cmdline()
         self.assertEquals(sys.argv[5:], configuration.files_or_dirs)
         self.assertEquals(int(sys.argv[2]), configuration.verbosity)

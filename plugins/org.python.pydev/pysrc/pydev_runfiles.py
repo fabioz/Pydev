@@ -136,18 +136,23 @@ def parse_cmdline(argv=None):
 
     from _pydev_getopt import gnu_getopt
     optlist, dirs = gnu_getopt(
-        argv[1:], "v:I:t:F:E:e:p:c:j:s:d:i", 
+        argv[1:], "", 
         [
             "verbosity=", 
-            "include_tests=", 
             "tests=", 
-            "include_files=", 
-            "exclude_files=", 
-            "exclude_tests=", 
+            
             "port=", 
             "config_file=", 
+            
             "jobs=", 
             "split_jobs=", 
+            
+            "include_tests=", 
+            "include_files=", 
+            
+            "exclude_files=", 
+            "exclude_tests=", 
+            
             "coverage_output_dir=", 
             "coverage_include=", 
         ]

@@ -43,7 +43,7 @@ public class ToolTipPresenterHandler {
     private Shell tipShell;
     private Label tipLabelImage, tipLabelText;
     private Widget tipWidget; // widget this tooltip is hovering over
-    private IInformationPresenterControlManager tooltip;
+    private IInformationPresenterControlManager informationPresenterManager;
     private IInformationPresenter presenter;
 
     public ToolTipPresenterHandler(Shell parent) {
@@ -51,14 +51,18 @@ public class ToolTipPresenterHandler {
 
     }
 
+    public ToolTipPresenterHandler(Shell parent, IInformationPresenter presenter) {
+        this(parent, presenter, null);
+    }
+    
     /**
      * Creates a new tooltip handler
      *
      * @param parent the parent Shell
      */
-    public ToolTipPresenterHandler(Shell parent, IInformationPresenter presenter) {
+    public ToolTipPresenterHandler(Shell parent, IInformationPresenter presenter, String affordanceString) {
         this.presenter = presenter;
-        tooltip = new InformationPresenterControlManager(presenter);
+        informationPresenterManager = new InformationPresenterControlManager(presenter, affordanceString);
     }
 
     private void disposeOfCurrentTipShell() {
@@ -76,7 +80,7 @@ public class ToolTipPresenterHandler {
      */
     public void install(final Control control) {
 
-        tooltip.install(control);
+        informationPresenterManager.install(control);
 
         /*
          * Get out of the way if we attempt to activate the control underneath the tooltip
@@ -136,9 +140,9 @@ public class ToolTipPresenterHandler {
                 //It must be set before showing the tooltip, as we'll loose the focus to the tooltip and the
                 //currently active bindings will become inactive.
                 KeySequence activateEditorBinding = KeyBindingHelper.getCommandKeyBinding("org.eclipse.ui.window.activateEditor");
-                tooltip.setActivateEditorBinding(activateEditorBinding);
+                informationPresenterManager.setActivateEditorBinding(activateEditorBinding);
                 Shell activeShell = UIUtils.getActiveShell();
-                tooltip.setInitiallyActiveShell(activeShell);
+                informationPresenterManager.setInitiallyActiveShell(activeShell);
                 
                 createControls();
 
@@ -158,8 +162,8 @@ public class ToolTipPresenterHandler {
                     IInformationPresenterAsTooltip iInformationPresenterAsTooltip = (IInformationPresenterAsTooltip) presenter;
                     iInformationPresenterAsTooltip.setData(data);
                 }
-                tooltip.setInformationProvider(provider);
-                tooltip.showInformation();
+                informationPresenterManager.setInformationProvider(provider);
+                informationPresenterManager.showInformation();
 
             }
         });
