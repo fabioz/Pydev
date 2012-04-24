@@ -14,6 +14,7 @@ all internal are separated by |
 import os
 import sys
 
+
 IS_PYTHON_3K = 0
 
 try:
@@ -22,7 +23,6 @@ try:
 except:
     #That's OK, not all versions of python have sys.version_info
     pass
-
 
 try:
     #Just check if False and True are defined (depends on version, not whether it's jython/python)

@@ -161,11 +161,15 @@ public class REF {
         return (String) getFileContentsCustom(file, String.class);
     }
     
+    public static Object getFileContentsCustom(File file, Class<? extends Object> returnType) {
+        return getFileContentsCustom(file, null, returnType);
+    }
+    
     /**
      * @param file the file we want to read
      * @return the contents of the file as a string
      */
-    public static Object getFileContentsCustom(File file, Class<? extends Object> returnType) {
+    public static Object getFileContentsCustom(File file, String encoding, Class<? extends Object> returnType) {
         FileInputStream stream = null;
         try {
             stream = new FileInputStream(file);
