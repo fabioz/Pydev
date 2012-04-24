@@ -43,6 +43,12 @@ public class MultiStringFieldEditor extends StringFieldEditor{
         super(name, labelText, parent);
     }
 
+    
+    @Override
+    public Text getTextControl() {
+        return textField;
+    }
+    
     /**
      * Returns this field editor's text control.
      * <p>

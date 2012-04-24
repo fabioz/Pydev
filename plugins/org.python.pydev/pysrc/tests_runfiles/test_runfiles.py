@@ -47,7 +47,7 @@ class RunfilesTest(unittest.TestCase):
     def _setup_scenario(
         self, 
         path, 
-        t_filter=None, 
+        include_tests=None, 
         tests=None, 
         files_to_tests=None, 
         exclude_files=None, 
@@ -57,7 +57,7 @@ class RunfilesTest(unittest.TestCase):
         self.MyTestRunner = pydev_runfiles.PydevTestRunner(
             pydev_runfiles.Configuration(
                 files_or_dirs=path,
-                test_filter=t_filter,
+                include_tests=include_tests,
                 verbosity=1,
                 tests=tests,
                 files_to_tests=files_to_tests,
@@ -85,7 +85,7 @@ class RunfilesTest(unittest.TestCase):
         configuration = pydev_runfiles.parse_cmdline()
         self.assertEquals([sys.argv[1]], configuration.files_or_dirs)
         self.assertEquals(2, configuration.verbosity)        # default value
-        self.assertEquals(None, configuration.test_filter)   # default value
+        self.assertEquals(None, configuration.include_tests)   # default value
 
         sys.argv = "pydev_runfiles.py ../images c:/temp".split()
         configuration = pydev_runfiles.parse_cmdline()
@@ -97,15 +97,15 @@ class RunfilesTest(unittest.TestCase):
         self.assertEquals(sys.argv[3:], configuration.files_or_dirs)
         self.assertEquals(int(sys.argv[2]), configuration.verbosity)
 
-        sys.argv = "pydev_runfiles.py -f Abc.test_def ./".split()
+        sys.argv = "pydev_runfiles.py --include_tests test_def ./".split()
         configuration = pydev_runfiles.parse_cmdline()
         self.assertEquals([sys.argv[-1]], configuration.files_or_dirs)
-        self.assertEquals([sys.argv[2]], configuration.test_filter)
+        self.assertEquals([sys.argv[2]], configuration.include_tests)
 
-        sys.argv = "pydev_runfiles.py -f Abc.test_def,Mod.test_abc c:/junk/".split()
+        sys.argv = "pydev_runfiles.py --include_tests Abc.test_def,Mod.test_abc c:/junk/".split()
         configuration = pydev_runfiles.parse_cmdline()
         self.assertEquals([sys.argv[-1]], configuration.files_or_dirs)
-        self.assertEquals(sys.argv[2].split(','), configuration.test_filter)
+        self.assertEquals(sys.argv[2].split(','), configuration.include_tests)
 
         sys.argv = ('C:\\eclipse-SDK-3.2-win32\\eclipse\\plugins\\org.python.pydev.debug_1.2.2\\pysrc\\pydev_runfiles.py ' + 
                     '--verbosity 1 ' + 
@@ -114,11 +114,11 @@ class RunfilesTest(unittest.TestCase):
         self.assertEquals([sys.argv[-1]], configuration.files_or_dirs)
         self.assertEquals(1, configuration.verbosity)
 
-        sys.argv = "pydev_runfiles.py --verbosity 1 -f Mod.test_abc c:/junk/ ./".split()
+        sys.argv = "pydev_runfiles.py --verbosity 1 --include_tests Mod.test_abc c:/junk/ ./".split()
         configuration = pydev_runfiles.parse_cmdline()
         self.assertEquals(sys.argv[5:], configuration.files_or_dirs)
         self.assertEquals(int(sys.argv[2]), configuration.verbosity)
-        self.assertEquals([sys.argv[4]], configuration.test_filter)
+        self.assertEquals([sys.argv[4]], configuration.include_tests)
 
         sys.argv = "pydev_runfiles.py --exclude_files=*.txt,a*.py".split()
         configuration = pydev_runfiles.parse_cmdline()
@@ -140,12 +140,6 @@ class RunfilesTest(unittest.TestCase):
     def test___adjust_python_path_breaks_for_unkown_type(self):
         self.assertRaises(RuntimeError, pydev_runfiles.PydevTestRunner, pydev_runfiles.Configuration(["./LIKE_THE_NINJA_YOU_WONT_FIND_ME.txt"]))
 
-    def test___setup_test_filter(self):
-        setup_tf = self.MyTestRunner._PydevTestRunner__setup_test_filter
-        self.assertEquals (None, setup_tf(""))
-        self.assertEquals (None, setup_tf(None))
-        self.assertEquals ([re.compile("test.*")], setup_tf([".*"]))
-        self.assertEquals ([re.compile("test.*"), re.compile("test^$")], setup_tf([".*", "^$"]))
     
     def test___is_valid_py_file(self):
         isvalid = self.MyTestRunner._PydevTestRunner__is_valid_py_file
@@ -219,17 +213,17 @@ class RunfilesTest(unittest.TestCase):
         self.assertEquals(0, self.count_tests(self.all_tests))
         
     def test_finding_test_with_unique_name_returns_1_test(self):
-        self._setup_scenario(self.file_dir, ["_i_am_a_unique_test_name"])
+        self._setup_scenario(self.file_dir, include_tests=["test_i_am_a_unique_test_name"])
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         self.assertEquals(1, self.count_tests(filtered_tests))
 
     def test_finding_test_with_non_unique_name(self):
-        self._setup_scenario(self.file_dir, ["_non_unique_name"])
+        self._setup_scenario(self.file_dir, include_tests=["test_non_unique_name"])
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         self.assertEquals(1, self.count_tests(filtered_tests) > 2)
 
     def test_finding_tests_with_regex_filters(self):
-        self._setup_scenario(self.file_dir, ["_non.*"])
+        self._setup_scenario(self.file_dir, include_tests=["test_non*"])
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         self.assertEquals(1, self.count_tests(filtered_tests) > 2)
 
@@ -237,15 +231,7 @@ class RunfilesTest(unittest.TestCase):
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         self.assertEquals(0, self.count_tests(filtered_tests))
 
-        self._setup_scenario(self.file_dir, ["_[x]+.*$"])
-        filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
-        self.assertEquals(1, self.count_tests(filtered_tests) > 0)
-
-        self._setup_scenario(self.file_dir, ["_[x]+.*$", "_non.*"])
-        filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
-        self.assertEquals(1, self.count_tests(filtered_tests) > 0)
-
-        self._setup_scenario(self.file_dir, ["I$^NVALID_REGE$$$X$#@!"])
+        self._setup_scenario(self.file_dir, None, exclude_tests=["*"])
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         self.assertEquals(0, self.count_tests(filtered_tests))
         

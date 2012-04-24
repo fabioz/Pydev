@@ -17,7 +17,7 @@ class Configuration:
         self, 
         files_or_dirs='', 
         verbosity=2, 
-        test_filter=None, 
+        include_tests=None, 
         tests=None, 
         port=None, 
         files_to_tests=None, 
@@ -32,12 +32,15 @@ class Configuration:
         ):
         self.files_or_dirs = files_or_dirs
         self.verbosity = verbosity
-        self.test_filter = test_filter
+        self.include_tests = include_tests
         self.tests = tests
         self.port = port
         self.files_to_tests = files_to_tests
         self.jobs = jobs
         self.split_jobs = split_jobs
+        
+        if include_tests:
+            assert isinstance(include_tests, (list, tuple))
         
         if exclude_files:
             assert isinstance(exclude_files, (list, tuple))
@@ -52,6 +55,45 @@ class Configuration:
         self.coverage_output_dir = coverage_output_dir 
         self.coverage_include = coverage_include
         self.coverage_output_file = coverage_output_file
+        
+    def __str__(self):
+        return '''Configuration
+ - files_or_dirs: %s
+ - verbosity: %s
+ - tests: %s
+ - port: %s
+ - files_to_tests: %s
+ - jobs: %s
+ - split_jobs: %s
+ 
+ - include_files: %s
+ - include_tests: %s
+ 
+ - exclude_files: %s
+ - exclude_tests: %s
+  
+ - coverage_output_dir: %s
+ - coverage_include_dir: %s
+ - coverage_output_file: %s
+''' % (
+        self.files_or_dirs,
+        self.verbosity,
+        self.tests,
+        self.port,
+        self.files_to_tests,
+        self.jobs,
+        self.split_jobs,
+        
+        self.include_files,
+        self.include_tests,
+        
+        self.exclude_files,
+        self.exclude_tests,
+        
+        self.coverage_output_dir,
+        self.coverage_include,
+        self.coverage_output_file,
+    )
         
 
 #=======================================================================================================================
@@ -80,7 +122,7 @@ def parse_cmdline(argv=None):
         argv = sys.argv
     
     verbosity = 2
-    test_filter = None
+    include_tests = None
     tests = None
     port = None
     jobs = 1
@@ -94,18 +136,23 @@ def parse_cmdline(argv=None):
 
     from _pydev_getopt import gnu_getopt
     optlist, dirs = gnu_getopt(
-        argv[1:], "v:f:t:F:I:e:p:c:j:s:d:i", 
+        argv[1:], "", 
         [
             "verbosity=", 
-            "filter=", 
             "tests=", 
-            "include_files=", 
-            "exclude_files=", 
-            "exclude_tests=", 
+            
             "port=", 
             "config_file=", 
+            
             "jobs=", 
             "split_jobs=", 
+            
+            "include_tests=", 
+            "include_files=", 
+            
+            "exclude_files=", 
+            "exclude_tests=", 
+            
             "coverage_output_dir=", 
             "coverage_include=", 
         ]
@@ -132,10 +179,10 @@ def parse_cmdline(argv=None):
         elif opt in ("-i", "--coverage_include",):
             coverage_include = value.strip()
             
-        elif opt in ("-f", "--filter"):
-            test_filter = value.split(',')
+        elif opt in ("-I", "--include_tests"):
+            include_tests = value.split(',')
 
-        elif opt in ("-I", "--exclude_files"):
+        elif opt in ("-E", "--exclude_files"):
             exclude_files = value.split(',')
 
         elif opt in ("-F", "--include_files"):
@@ -186,12 +233,14 @@ def parse_cmdline(argv=None):
     verbosity = int(verbosity)
     
     if tests:
+        if verbosity > 4:
+            sys.stdout.write('--tests provided. Ignoring --exclude_files, --exclude_tests and --include_files\n')
         exclude_files = exclude_tests = include_files = None
         
-    return Configuration(
+    config = Configuration(
         ret_dirs, 
         verbosity, 
-        test_filter, 
+        include_tests, 
         tests, 
         port, 
         files_to_tests, 
@@ -204,6 +253,9 @@ def parse_cmdline(argv=None):
         include_files=include_files,
     )
 
+    if verbosity > 5:
+        sys.stdout.write(str(config)+'\n')
+    return config
             
      
 #=======================================================================================================================
@@ -222,7 +274,7 @@ class PydevTestRunner(object):
         'files_to_tests', #If this one is given, the ones below are not used
         
         'files_or_dirs', #Files or directories received in the command line
-        'test_filter', #The filter used to collect the tests
+        'include_tests', #The filter used to collect the tests
         'tests',  #Strings with the tests to be run
         
         'jobs', #Integer with the number of jobs that should be used to run the test cases
@@ -242,12 +294,10 @@ class PydevTestRunner(object):
         if files_to_tests:
             self.files_to_tests = files_to_tests
             self.files_or_dirs = list(files_to_tests.keys())
-            self.test_filter = None
             self.tests = None
         else:
             self.files_to_tests = {}
             self.files_or_dirs = configuration.files_or_dirs
-            self.test_filter = self.__setup_test_filter(configuration.test_filter)
             self.tests = configuration.tests
             
         self.configuration = configuration
@@ -272,12 +322,6 @@ class PydevTestRunner(object):
             #Add it as the last one (so, first things are resolved against the default dirs and 
             #if none resolves, then we try a relative import).
             sys.path.append(path_to_append)
-
-    def __setup_test_filter(self, test_filter):
-        """ turn a filter string into a list of filter regexes """
-        if test_filter is None or len(test_filter) == 0:
-            return None
-        return [re.compile("test%s" % f) for f in test_filter]
 
     def __is_valid_py_file(self, fname):
         """ tests that a particular file contains the proper file extension 
@@ -543,16 +587,31 @@ class PydevTestRunner(object):
         return ret
 
 
-    def filter_tests(self, test_objs):
+    def filter_tests(self, test_objs, internal_call=False):
         """ based on a filter name, only return those tests that have
             the test case names that match """
+        if not internal_call:
+            if not self.configuration.include_tests and not self.tests and not self.configuration.exclude_tests:
+                #No need to filter if we have nothing to filter!
+                return test_objs
+            
+            if self.verbosity > 1:
+                if self.configuration.include_tests:
+                    sys.stdout.write('Tests to include: %s\n' % (self.configuration.include_tests,))
+    
+                if self.tests:
+                    sys.stdout.write('Tests to run: %s\n' % (self.tests,))
+    
+                if self.configuration.exclude_tests:
+                    sys.stdout.write('Tests to exclude: %s\n' % (self.configuration.exclude_tests,))
+            
         test_suite = []
         for test_obj in test_objs:
 
             if isinstance(test_obj, unittest.TestSuite):
                 #Note: keep the suites as they are and just 'fix' the tests (so, don't use the iter_tests).
                 if test_obj._tests:
-                    test_obj._tests = self.filter_tests(test_obj._tests)
+                    test_obj._tests = self.filter_tests(test_obj._tests, True)
                     if test_obj._tests: #Only add the suite if we still have tests there.
                         test_suite.append(test_obj)
 
@@ -577,8 +636,19 @@ class PydevTestRunner(object):
                             break
                         
                 if add:
-                    if self.__match(self.test_filter, testMethodName) and self.__match_tests(self.tests, test_obj, testMethodName):
-                        test_suite.append(test_obj)
+                    if self.__match_tests(self.tests, test_obj, testMethodName):
+                        include = True
+                        if self.configuration.include_tests:
+                            include = False
+                            for pat in self.configuration.include_tests:
+                                if fnmatch.fnmatchcase(testMethodName, pat):
+                                    include = True
+                                    break
+                        if include:
+                            test_suite.append(test_obj)
+                        else:
+                            if self.verbosity > 3:
+                                sys.stdout.write('Skipped test: %s (did not match any include_tests pattern %s)\n' % (self.configuration.include_tests,))
         return test_suite
 
 
@@ -653,15 +723,7 @@ class PydevTestRunner(object):
         sys.stdout.write("done.\n")
         
         all_tests = self.find_tests_from_modules(file_and_modules_and_module_name)
-        if self.test_filter or self.tests:
-
-            if self.test_filter:
-                sys.stdout.write('Test Filter: %s\n' % ([p.pattern for p in self.test_filter],))
-
-            if self.tests:
-                sys.stdout.write('Tests to run: %s\n' % (self.tests,))
-
-            all_tests = self.filter_tests(all_tests)
+        all_tests = self.filter_tests(all_tests)
             
         test_suite = pydev_runfiles_unittest.PydevTestSuite(all_tests)
         import pydev_runfiles_xml_rpc

@@ -1,4 +1,3 @@
-import os
 
 #=======================================================================================================================
 # getopt code copied since gnu_getopt is not available on jython 2.1
@@ -37,13 +36,10 @@ def gnu_getopt(args, shortopts, longopts=[]):
         longopts = list(longopts)
 
     # Allow options after non-option arguments?
+    all_options_first = False
     if shortopts.startswith('+'):
         shortopts = shortopts[1:]
         all_options_first = True
-    elif os.environ.get("POSIXLY_CORRECT"):
-        all_options_first = True
-    else:
-        all_options_first = False
 
     while args:
         if args[0] == '--':
