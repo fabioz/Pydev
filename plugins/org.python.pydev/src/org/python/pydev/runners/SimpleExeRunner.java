@@ -77,7 +77,7 @@ public class SimpleExeRunner extends SimpleRunner{
         List<String> asList = new ArrayList<String>(Arrays.asList(paths));
         asList.add(0, cygpathLoc);
         
-        Tuple<String, String> output = runAndGetOutput(asList.toArray(new String[0]), (File)null, (IPythonNature)null, new NullProgressMonitor());
+        Tuple<String, String> output = runAndGetOutput(asList.toArray(new String[0]), (File)null, (IPythonNature)null, new NullProgressMonitor(), "utf-8");
         if(output.o2 != null && output.o2.length() > 0){
             throw new RuntimeException("Error converting windows paths to cygwin paths: "+output.o2+".\nCygpath location:"+cygpathLoc);
         }

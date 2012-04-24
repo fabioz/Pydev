@@ -372,10 +372,10 @@ public class SimpleRunner {
      * 
      * @return a tuple with stdout and stderr
      */
-    public Tuple<String, String> runAndGetOutput(String[] cmdarray, File workingDir, IPythonNature nature, IProgressMonitor monitor) {
+    public Tuple<String, String> runAndGetOutput(String[] cmdarray, File workingDir, IPythonNature nature, IProgressMonitor monitor, String encoding) {
         Tuple<Process, String> r = run(cmdarray, workingDir, nature, monitor);
         
-        return getProcessOutput(r.o1, r.o2, monitor);
+        return getProcessOutput(r.o1, r.o2, monitor, encoding);
     }
 
     /**
@@ -385,7 +385,7 @@ public class SimpleRunner {
      * @return a tuple with the output of stdout and stderr
      */
     public static Tuple<String, String> getProcessOutput(Process process,
-            String executionString, IProgressMonitor monitor) {
+            String executionString, IProgressMonitor monitor, String encoding) {
         if(monitor == null){
             monitor = new NullProgressMonitor();
         }
@@ -399,8 +399,8 @@ public class SimpleRunner {
             monitor.setTaskName("Reading output...");
             monitor.worked(5);
             //No need to synchronize as we'll waitFor() the process before getting the contents.
-            ThreadStreamReader std = new ThreadStreamReader(process.getInputStream(), false);
-            ThreadStreamReader err = new ThreadStreamReader(process.getErrorStream(), false);
+            ThreadStreamReader std = new ThreadStreamReader(process.getInputStream(), false, encoding);
+            ThreadStreamReader err = new ThreadStreamReader(process.getErrorStream(), false, encoding);
 
             std.start();
             err.start();
