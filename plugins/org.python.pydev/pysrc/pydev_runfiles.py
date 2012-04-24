@@ -53,6 +53,43 @@ class Configuration:
         self.coverage_include = coverage_include
         self.coverage_output_file = coverage_output_file
         
+    def __str__(self):
+        return '''Configuration
+ - files_or_dirs: %s
+ - verbosity: %s
+ - test_filter: %s
+ - tests: %s
+ - port: %s
+ - files_to_tests: %s
+ - jobs: %s
+ - split_jobs: %s
+ 
+ - exclude_files: %s
+ - include_files: %s
+ - exclude_tests: %s
+  
+ - coverage_output_dir: %s
+ - coverage_include_dir: %s
+ - coverage_output_file: %s
+''' % (
+        self.files_or_dirs,
+        self.verbosity,
+        self.test_filter,
+        self.tests,
+        self.port,
+        self.files_to_tests,
+        self.jobs,
+        self.split_jobs,
+        
+        self.exclude_files,
+        self.include_files,
+        self.exclude_tests,
+        
+        self.coverage_output_dir,
+        self.coverage_include,
+        self.coverage_output_file,
+    )
+        
 
 #=======================================================================================================================
 # parse_cmdline
@@ -186,9 +223,11 @@ def parse_cmdline(argv=None):
     verbosity = int(verbosity)
     
     if tests:
+        if verbosity > 4:
+            sys.stdout.write('--tests provided. Ignoring --exclude_files, --exclude_tests and --include_files\n')
         exclude_files = exclude_tests = include_files = None
         
-    return Configuration(
+    config = Configuration(
         ret_dirs, 
         verbosity, 
         test_filter, 
@@ -204,6 +243,9 @@ def parse_cmdline(argv=None):
         include_files=include_files,
     )
 
+    if verbosity > 5:
+        sys.stdout.write(str(config)+'\n')
+    return config
             
      
 #=======================================================================================================================
@@ -543,16 +585,31 @@ class PydevTestRunner(object):
         return ret
 
 
-    def filter_tests(self, test_objs):
+    def filter_tests(self, test_objs, internal_call=False):
         """ based on a filter name, only return those tests that have
             the test case names that match """
+        if not internal_call:
+            if not self.test_filter and not self.tests and not self.configuration.exclude_tests:
+                #No need to filter if we have nothing to filter!
+                return test_objs
+            
+            if self.verbosity > 1:
+                if self.test_filter:
+                    sys.stdout.write('Test Filter: %s\n' % ([p.pattern for p in self.test_filter],))
+    
+                if self.tests:
+                    sys.stdout.write('Tests to run: %s\n' % (self.tests,))
+    
+                if self.configuration.exclude_tests:
+                    sys.stdout.write('Tests to exclude: %s\n' % (self.configuration.exclude_tests,))
+            
         test_suite = []
         for test_obj in test_objs:
 
             if isinstance(test_obj, unittest.TestSuite):
                 #Note: keep the suites as they are and just 'fix' the tests (so, don't use the iter_tests).
                 if test_obj._tests:
-                    test_obj._tests = self.filter_tests(test_obj._tests)
+                    test_obj._tests = self.filter_tests(test_obj._tests, True)
                     if test_obj._tests: #Only add the suite if we still have tests there.
                         test_suite.append(test_obj)
 
@@ -653,15 +710,7 @@ class PydevTestRunner(object):
         sys.stdout.write("done.\n")
         
         all_tests = self.find_tests_from_modules(file_and_modules_and_module_name)
-        if self.test_filter or self.tests:
-
-            if self.test_filter:
-                sys.stdout.write('Test Filter: %s\n' % ([p.pattern for p in self.test_filter],))
-
-            if self.tests:
-                sys.stdout.write('Tests to run: %s\n' % (self.tests,))
-
-            all_tests = self.filter_tests(all_tests)
+        all_tests = self.filter_tests(all_tests)
             
         test_suite = pydev_runfiles_unittest.PydevTestSuite(all_tests)
         import pydev_runfiles_xml_rpc

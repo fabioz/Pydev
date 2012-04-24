@@ -248,6 +248,10 @@ class RunfilesTest(unittest.TestCase):
         self._setup_scenario(self.file_dir, ["I$^NVALID_REGE$$$X$#@!"])
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         self.assertEquals(0, self.count_tests(filtered_tests))
+
+        self._setup_scenario(self.file_dir, None, exclude_tests=["*"])
+        filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
+        self.assertEquals(0, self.count_tests(filtered_tests))
         
     def test_matching_tests(self):
         self._setup_scenario(self.file_dir, None, ['StillYetAnotherSampleTest'])
