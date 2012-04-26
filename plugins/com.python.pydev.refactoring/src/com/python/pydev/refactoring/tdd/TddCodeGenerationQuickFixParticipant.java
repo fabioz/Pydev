@@ -350,7 +350,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                 IToken repInModule = nature.getAstManager().getRepInModule(
                     definition.module, fullName, nature);
                 if(repInModule != null){
-                    System.out.println("Skipping creation of: " + fullName);
+                    //System.out.println("Skipping creation of: " + fullName); //We found it, so, don't suggest it.
                     continue;
                 }
 
