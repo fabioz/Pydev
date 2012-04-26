@@ -174,6 +174,24 @@ class AbstractWriterThread(threading.Thread):
                     (i, self.readerThread.lastReceived))
 
         return True
+        
+    def WaitForMultipleVars(self, expected_vars): 
+        i = 0
+        #wait for hit breakpoint
+        while True:
+            for expected in expected_vars:
+                if expected not in self.readerThread.lastReceived:
+                    break #Break out of loop (and don't get to else)
+            else:
+                return True
+            
+            i += 1
+            time.sleep(1)
+            if i >= 10:
+                raise AssertionError('After %s seconds, the vars were not found. Last found:\n%s' % 
+                    (i, self.readerThread.lastReceived))
+
+        return True
     
     def WriteMakeInitialRun(self):
         self.Write("101\t%s\t" % self.NextSeq())
@@ -230,21 +248,17 @@ class WriterThreadCase14(AbstractWriterThread):
         self.WriteMakeInitialRun()
 
         threadId, frameId, line = self.WaitForBreakpointHit('111', True)
-        self.WriteDebugConsoleExpression("%s\t%s\tINITIALIZE"%(threadId, frameId))
-
-        self.WaitForVars("Connected to interactive console")
-        assert 7 == self._sequence, 'Expected 7. Had: %s' % self._sequence
 
         # Access some variable
         self.WriteDebugConsoleExpression("%s\t%s\tEVALUATE\tcarObj.color"%(threadId, frameId))
-        self.WaitForVars('<xml><more>False</more><output message="%27Black%27"></output></xml>')
-        assert 9 == self._sequence, 'Expected 9. Had: %s' % self._sequence
+        self.WaitForMultipleVars(['<more>False</more>', '%27Black%27'])
+        assert 7 == self._sequence, 'Expected 9. Had: %s' % self._sequence
 
         # Change some variable
         self.WriteDebugConsoleExpression("%s\t%s\tEVALUATE\tcarObj.color='Red'"%(threadId, frameId))
         self.WriteDebugConsoleExpression("%s\t%s\tEVALUATE\tcarObj.color"%(threadId, frameId))
-        self.WaitForVars('<xml><more>False</more><output message="%27Red%27"></output></xml>')
-        assert 13 == self._sequence, 'Expected 13. Had: %s' % self._sequence
+        self.WaitForMultipleVars(['<more>False</more>', '%27Red%27'])
+        assert 11 == self._sequence, 'Expected 13. Had: %s' % self._sequence
 
         # Iterate some loop
         self.WriteDebugConsoleExpression("%s\t%s\tEVALUATE\tfor i in range(3):"%(threadId, frameId))
@@ -252,7 +266,7 @@ class WriterThreadCase14(AbstractWriterThread):
         self.WriteDebugConsoleExpression("%s\t%s\tEVALUATE\t    print i"%(threadId, frameId))
         self.WriteDebugConsoleExpression("%s\t%s\tEVALUATE\t"%(threadId, frameId))
         self.WaitForVars('<xml><more>False</more><output message="0"></output><output message="1"></output><output message="2"></output></xml>')
-        assert 19 == self._sequence, 'Expected 19. Had: %s' % self._sequence
+        assert 17 == self._sequence, 'Expected 19. Had: %s' % self._sequence
         
         self.WriteRunThread(threadId)
         self.finishedOk = True
@@ -917,8 +931,8 @@ if __name__ == '__main__':
 
     suite = unittest.makeSuite(Test)
     
-#    suite = unittest.TestSuite()
-#    suite.addTest(Test('testCase12'))
+    suite = unittest.TestSuite()
+    suite.addTest(Test('testCase14'))
 #    suite.addTest(Test('testCase10a'))
     unittest.TextTestRunner(verbosity=3).run(suite)
 
