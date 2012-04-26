@@ -9,6 +9,7 @@ package org.python.pydev.customizations.app_engine.wizards;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
@@ -24,12 +25,30 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.customizations.app_engine.launching.AppEngineConstants;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.wizards.project.NewProjectNameAndLocationWizardPage;
 
 public class AppEngineConfigWizardPageTestWorkbench extends AbstractWorkbenchTestCase{
+    
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        AppEngineConfigWizardPage.selectLibraries = new ICallback<List<String>, List<String>>() {
+            
+            public List<String> call(List<String> arg) {
+                return arg;
+            }
+        };
+    }
+    
+    @Override
+    protected void tearDown() throws Exception {
+        AppEngineConfigWizardPage.selectLibraries = null;
+        super.tearDown();
+    }
 
     public void testCreateLaunchAndDebugGoogleAppProject() throws Exception{
         

@@ -32,6 +32,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.customizations.CustomizationsPlugin;
@@ -265,13 +266,18 @@ public class AppEngineConfigWizardPage extends WizardPage{
                 new ArrayList<String>(mapStartToLib.values()), libFoldersForPythonpath, false);
         runnable.setMsg("Please select the libraries you want in your PYTHONPATH.");
         
-        RunInUiThread.sync(runnable);
-        boolean result = runnable.getOkResult(); 
-        if(result == false){
-            //Canceled by the user
-            return false;
+        List<String> selection;
+        if(selectLibraries != null){
+            selection = selectLibraries.call(new ArrayList<String>(mapStartToLib.values()));
+        }else{
+            RunInUiThread.sync(runnable);
+            boolean result = runnable.getOkResult(); 
+            if(result == false){
+                //Canceled by the user
+                return false;
+            }
+            selection = runnable.getSelection();
         }
-        ArrayList<String> selection = runnable.getSelection();
 
 
         //If we got here, all is OK, let's go on and show the templateNamesAndDescriptions that'll be added to the PYTHONPATH (as external folders)
@@ -290,6 +296,9 @@ public class AppEngineConfigWizardPage extends WizardPage{
         setMessage(null);
         return true;
     }
+    
+    public static ICallback<List<String>, List<String>> selectLibraries; //Only for test-cases.
+    
 
     /**
      * Given the app engine location, returns the folders paths that should be added to the pythonpath considering
