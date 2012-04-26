@@ -31,7 +31,6 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.parser.IParserObserver;
 import org.python.pydev.core.parser.ISimpleNode;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.editorinput.PyOpenEditor;
@@ -130,6 +129,8 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         checkCreateNewModuleWithClass2();
         
         checkCreateNewModuleWithClass3();
+        
+        checkCreateNewMethodInClass();
     }
     
     
@@ -148,9 +149,8 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         int offset = doc.getLength();
         PySelection ps = new PySelection(doc, offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
-        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
         try {
-            findCompletion(props, "Create _suggestion_not_there field at Err").apply(editor.getISourceViewer(), '\n', 0, offset);
+            waitForQuickFixProps(quickFix, ps, offset, "Create _suggestion_not_there field at Err").apply(editor.getISourceViewer(), '\n', 0, offset);
             assertContentsEqual("" +
                     "class Err(object):\n"+
                     "\n"+
@@ -186,9 +186,8 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         int offset = doc.getLength();
         PySelection ps = new PySelection(doc, offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
-        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
         try {
-            findCompletion(props, "Create Foo method at A (pack1.pack2.mod1)").apply(editor.getISourceViewer(), '\n', 0, offset);
+            waitForQuickFixProps(quickFix, ps, offset, "Create Foo method at A (pack1.pack2.mod1)").apply(editor.getISourceViewer(), '\n', 0, offset);
             assertContentsEqual("" +
                     "class A:\n" +
                     "   \n" +
@@ -230,9 +229,8 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         int offset = doc.getLength();
         PySelection ps = new PySelection(doc, offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
-        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
         try {
-            findCompletion(props, "Create something method at Bar (pack1.pack2.mod1)").apply(editor.getISourceViewer(), '\n', 0, offset);
+            waitForQuickFixProps(quickFix, ps, offset, "Create something method at Bar (pack1.pack2.mod1)").apply(editor.getISourceViewer(), '\n', 0, offset);
             assertContentsEqual("" +
                     "class Bar(object):\n"+
                     "   \n" +
@@ -280,9 +278,8 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         int offset = doc.getLength();
         PySelection ps = new PySelection(doc, offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
-        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
         try {
-            findCompletion(props, "Create something field at Bar (pack1.pack2.mod1)").apply(editor.getISourceViewer(), '\n', 0, offset);
+            waitForQuickFixProps(quickFix, ps, offset, "Create something field at Bar (pack1.pack2.mod1)").apply(editor.getISourceViewer(), '\n', 0, offset);
             assertContentsEqual("" +
                     "class Bar(object):\n"+
                     "    \n"+
@@ -311,9 +308,9 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
     
     private void checkCreateBoundMethod() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents = "" +
-        		"class Foo(object):\n" +
-        		"    def m1(self):\n" +
-        		"        self.bar()";
+                "class Foo(object):\n" +
+                "    def m1(self):\n" +
+                "        self.bar()";
         setContentsAndWaitReparseAndError(mod1Contents, false); //no error here
         
         TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
@@ -321,9 +318,8 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         int offset = doc.getLength()-"r()".length();
         PySelection ps = new PySelection(doc, offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
-        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
         try {
-            findCompletion(props, "Create bar method at Foo").apply(editor.getISourceViewer(), '\n', 0, offset);
+            waitForQuickFixProps(quickFix, ps, offset, "Create bar method at Foo").apply(editor.getISourceViewer(), '\n', 0, offset);
             assertContentsEqual("" +
                     "class Foo(object):\n" +
                     "\n"+
@@ -335,6 +331,56 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                     "    def m1(self):\n" +
                     "        self.bar()"+
                     "", editor.getDocument().get());
+        } finally {
+            editor.doRevertToSaved();
+        }
+    }
+    
+    
+    private void checkCreateNewMethodInClass() throws CoreException, BadLocationException, MisconfigurationException {
+        String mod1Contents = "" +
+                "class MyClass(object):\n" +
+                "    pass\n" +
+                "\n" +
+                "def makeTestObj():\n" +
+                "    return MyClass()\n" +
+                "\n" +
+                "def makeTestObj2():\n" +
+                "    return makeTestObj()\n" +
+                "\n" +
+                "def testName():\n" +
+                "    obj = makeTestObj2()\n" +
+                "    obj.unimplementedFunction()";
+        setContentsAndWaitReparseAndError(mod1Contents, false); //no error here
+        
+        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        IDocument doc = editor.getDocument();
+        int offset = doc.getLength()-"()".length();
+        PySelection ps = new PySelection(doc, offset);
+        assertTrue(quickFix.isValid(ps, "", editor, offset));
+        try {
+            waitForQuickFixProps(quickFix, ps, offset, "Create unimplementedFunction method at MyClass (pack1.pack2.mod1)").apply(editor.getISourceViewer(), '\n', 0, offset);
+            assertContentsEqual("" +
+                "class MyClass(object):\n" +
+                "    \n" +
+                "    \n" +
+                "    def unimplementedFunction(self):\n" +
+                "        pass\n" +
+                "    \n" +
+                "    \n" +
+                "\n" +
+                "\n" +
+                "def makeTestObj():\n" +
+                "    return MyClass()\n" +
+                "\n" +
+                "def makeTestObj2():\n" +
+                "    return makeTestObj()\n" +
+                "\n" +
+                "def testName():\n" +
+                "    obj = makeTestObj2()\n" +
+                "    obj.unimplementedFunction()" +
+                ""
+                , editor.getDocument().get());
         } finally {
             editor.doRevertToSaved();
         }
@@ -356,10 +402,8 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         int offset = mod1Contents.length();
         PySelection ps = new PySelection(editor.getDocument(), offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
-        List<ICompletionProposal> props = quickFix.getProps(
-                ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
         try {
-            findCompletion(props, "Create m2 method at Foo").apply(editor.getISourceViewer(), '\n', 0, offset);
+            waitForQuickFixProps(quickFix, ps, offset, "Create m2 method at Foo").apply(editor.getISourceViewer(), '\n', 0, offset);
             assertContentsEqual("" +
                     "print i\n" + //just to have an error
                     "class Foo(object):\n" +
@@ -396,10 +440,8 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         int offset = mod1Contents.length();
         PySelection ps = new PySelection(editor.getDocument(), offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
-        List<ICompletionProposal> props = quickFix.getProps(
-                ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
         try {
-            findCompletion(props, "Create m2 method at Foo").apply(editor.getISourceViewer(), '\n', 0, offset);
+            waitForQuickFixProps(quickFix, ps, offset, "Create m2 method at Foo").apply(editor.getISourceViewer(), '\n', 0, offset);
             assertContentsEqual("" +
                     "print i\n" + //just to have an error
                     "class Foo(object):\n" +
@@ -436,9 +478,8 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         int offset = mod1Contents.length();
         PySelection ps = new PySelection(editor.getDocument(), offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
-        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
         try {
-            findCompletion(props, "Create m2 method at Foo").apply(editor.getISourceViewer(), '\n', 0, offset);
+            waitForQuickFixProps(quickFix, ps, offset, "Create m2 method at Foo").apply(editor.getISourceViewer(), '\n', 0, offset);
             assertContentsEqual("" +
                     "print i\n" + //just to have an error
                     "class Foo(object):\n" +
@@ -483,7 +524,6 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         String mod1Contents;
         TddCodeGenerationQuickFixParticipant quickFix;
         PySelection ps;
-        List<ICompletionProposal> props;
         IFile mod2 = initFile.getParent().getFile(new Path("other_module2.py"));
         mod2.create(new ByteArrayInputStream("".getBytes()), true, null);
         PyEdit editor2 = (PyEdit) PyOpenEditor.doOpenEditor(mod2);
@@ -498,9 +538,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             int offset = mod1Contents.length()-"o(a, b)".length();
             ps = new PySelection(editor.getDocument(), offset);
             assertTrue(quickFix.isValid(ps, "", editor, offset));
-            props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
-            
-            findCompletion(props, "Create Foo method at other_module2.py").apply(editor.getISourceViewer(), '\n', 0, offset);
+            waitForQuickFixProps(quickFix, ps, offset, "Create Foo method at other_module2.py").apply(editor.getISourceViewer(), '\n', 0, offset);
             assertContentsEqual("" +
                     "def Foo(a, b):\n" +
                     "    pass\n" +
@@ -518,7 +556,6 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         String mod1Contents;
         TddCodeGenerationQuickFixParticipant quickFix;
         PySelection ps;
-        List<ICompletionProposal> props;
         IFile mod2 = initFile.getParent().getFile(new Path("other_module3.py"));
         String str ="" +
         "class Bar(object):\n" +
@@ -537,9 +574,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             int offset = mod1Contents.length()-"o(a, b)".length();
             ps = new PySelection(editor.getDocument(), offset);
             assertTrue(quickFix.isValid(ps, "", editor, offset));
-            props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
-            
-            findCompletion(props, "Create Foo classmethod at Bar in other_module3.py").apply(editor.getISourceViewer(), '\n', 0, offset);
+            waitForQuickFixProps(quickFix, ps, offset, "Create Foo classmethod at Bar in other_module3.py").apply(editor.getISourceViewer(), '\n', 0, offset);
             assertContentsEqual("" +
                     "class Bar(object):\n" +
                     "    \n" +
@@ -563,7 +598,6 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         String mod1Contents;
         TddCodeGenerationQuickFixParticipant quickFix;
         PySelection ps;
-        List<ICompletionProposal> props;
         IFile mod2 = initFile.getParent().getFile(new Path("other_module4.py"));
         String str ="";
         mod2.create(new ByteArrayInputStream(str.getBytes()), true, null);
@@ -578,9 +612,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             int offset = mod1Contents.length();
             ps = new PySelection(editor.getDocument(), offset);
             assertTrue(quickFix.isValid(ps, "", editor, offset));
-            props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
-            
-            findCompletion(props, "Create Foo class at other_module4.py").apply(editor.getISourceViewer(), '\n', 0, offset);
+            waitForQuickFixProps(quickFix, ps, offset, "Create Foo class at other_module4.py").apply(editor.getISourceViewer(), '\n', 0, offset);
             assertContentsEqual("" +
                     "class Foo(object):\n" +
                     "    pass\n" +
@@ -599,7 +631,6 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         String mod1Contents;
         TddCodeGenerationQuickFixParticipant quickFix;
         PySelection ps;
-        List<ICompletionProposal> props;
         IFile mod2 = initFile.getParent().getFile(new Path("module_new.py"));
         final List<PyEdit> pyEditCreated = new ArrayList<PyEdit>(); 
         ICallbackListener<PyEdit> listener = new ICallbackListener<PyEdit>() {
@@ -621,10 +652,8 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             int offset = mod1Contents.length();
             ps = new PySelection(editor.getDocument(), offset);
             assertTrue(quickFix.isValid(ps, "", editor, offset));
-            props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
-            
             assertTrue(!mod2.exists());
-            findCompletion(props, "Create pack1.pack2.module_new module").apply(editor.getISourceViewer(), '\n', 0, offset);
+            waitForQuickFixProps(quickFix, ps, offset, "Create pack1.pack2.module_new module").apply(editor.getISourceViewer(), '\n', 0, offset);
             assertTrue(mod2.exists());
             
             assertEquals(1, pyEditCreated.size());
@@ -642,7 +671,6 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         String mod1Contents;
         TddCodeGenerationQuickFixParticipant quickFix;
         PySelection ps;
-        List<ICompletionProposal> props;
         IFile mod3 = initFile.getParent().getFile(new Path("module_new3.py"));
         final List<PyEdit> pyEditCreated = new ArrayList<PyEdit>(); 
         ICallbackListener<PyEdit> listener = new ICallbackListener<PyEdit>() {
@@ -664,10 +692,8 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             int offset = mod1Contents.length();
             ps = new PySelection(editor.getDocument(), offset);
             assertTrue(quickFix.isValid(ps, "", editor, offset));
-            props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
-            
             assertTrue(!mod3.exists());
-            findCompletion(props, "Create module_new3 module").apply(editor.getISourceViewer(), '\n', 0, offset);
+            waitForQuickFixProps(quickFix, ps, offset, "Create module_new3 module").apply(editor.getISourceViewer(), '\n', 0, offset);
             assertTrue(mod3.exists());
             
             assertEquals(1, pyEditCreated.size());
@@ -707,7 +733,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             int offset = mod1Contents.length();
             ps = new PySelection(editor.getDocument(), offset);
             assertTrue(quickFix.isValid(ps, "", editor, offset));
-            props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+            props = waitForQuickFixProps(quickFix, ps, offset);
             
             assertTrue(!mod2.exists());
             findCompletion(props, "Create pack1.pack2.pack2a.module_new module").apply(editor.getISourceViewer(), '\n', 0, offset);
@@ -751,7 +777,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             int offset = mod1Contents.length();
             ps = new PySelection(editor.getDocument(), offset);
             assertTrue(quickFix.isValid(ps, "", editor, offset));
-            props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+            props = waitForQuickFixProps(quickFix, ps, offset);
             
             assertTrue(!mod2.exists());
             findCompletion(props, "Create newpack.module_new module").apply(editor.getISourceViewer(), '\n', 0, offset);
@@ -767,13 +793,11 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             "module_new.NewClass";
             setContentsAndWaitReparseAndError(mod1Contents);
             
-            goToManual(AnalysisRequestsTestWorkbench.TIME_FOR_ANALYSIS); //give it a bit more time...
-            
             quickFix = new TddCodeGenerationQuickFixParticipant();
             offset = mod1Contents.length();
             ps = new PySelection(editor.getDocument(), offset);
             assertTrue(quickFix.isValid(ps, "", editor, offset));
-            props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+            props = waitForQuickFixProps(quickFix, ps, offset);
             findCompletion(props, "Create NewClass class at module_new.py").apply(editor.getISourceViewer(), '\n', 0, offset);
 
             String contents = editCreated.getDocument().get();
@@ -799,7 +823,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             offset = mod1Contents.length();
             ps = new PySelection(editor.getDocument(), offset);
             assertTrue(quickFix.isValid(ps, "", editor, offset));
-            props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+            props = waitForQuickFixProps(quickFix, ps, offset);
             findCompletion(props, "Create NewClass __init__ (newpack.module_new)").apply(editor.getISourceViewer(), '\n', 0, offset);
 
             contents = editCreated.getDocument().get();
@@ -827,6 +851,47 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             mod2.delete(true, null);
         }
     }
+
+
+    private ICompletionProposalExtension2 waitForQuickFixProps(
+        TddCodeGenerationQuickFixParticipant quickFix, 
+        PySelection ps, 
+        int offset, 
+        String expectedCompletion) throws MisconfigurationException, BadLocationException{
+        
+        long initialTime = System.currentTimeMillis();
+        List<ICompletionProposal> props;
+        while(true){
+            props = waitForQuickFixProps(quickFix, ps, offset);
+            ICompletionProposalExtension2 completion = findCompletion(props, expectedCompletion, false);
+            if(completion != null){
+                return completion;
+            }
+            if(System.currentTimeMillis() - initialTime > 10000){
+                break; //Give it 10 seconds to work.
+            }
+            goToManual(200); 
+        }
+        // throws exception if not used.
+        return findCompletion(props, expectedCompletion);
+        
+    }
+
+    private List<ICompletionProposal> waitForQuickFixProps(TddCodeGenerationQuickFixParticipant quickFix, PySelection ps, int offset)
+        throws BadLocationException,
+        MisconfigurationException {
+        for(int i=0;i<10;i++){
+            List<ICompletionProposal> props = quickFix.getProps(
+                ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+            if(props.size() > 0){
+                return props;
+            }
+            goToManual(700); 
+        }
+        
+        throw new AssertionError("Could not find any proposals after "+700*10/1000+" seconds.");
+    }
+    
     
     private void checkCreateNewModuleWithClass2() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
@@ -854,7 +919,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             int offset = mod1Contents.length();
             ps = new PySelection(editor.getDocument(), offset);
             assertTrue(quickFix.isValid(ps, "", editor, offset));
-            props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+            props = waitForQuickFixProps(quickFix, ps, offset);
             
             assertTrue(!mod2.exists());
             findCompletion(props, "Create Foo class at new module newpack2.module_new").apply(editor.getISourceViewer(), '\n', 0, offset);
@@ -897,7 +962,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             int offset = mod1Contents.length();
             ps = new PySelection(editor.getDocument(), offset);
             assertTrue(quickFix.isValid(ps, "", editor, offset));
-            props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+            props = waitForQuickFixProps(quickFix, ps, offset);
             
             assertTrue(!mod2.exists());
             findCompletion(props, "Create Foo class at new module newpack2.module_new9").apply(editor.getISourceViewer(), '\n', 0, offset);
@@ -940,7 +1005,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             int offset = mod1Contents.length();
             ps = new PySelection(editor.getDocument(), offset);
             assertTrue(quickFix.isValid(ps, "", editor, offset));
-            props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+            props = waitForQuickFixProps(quickFix, ps, offset);
             
             assertTrue(!mod2.exists());
             findCompletion(props, "Create Foo class at new module pack1.pack2.pack3.module_new2").apply(editor.getISourceViewer(), '\n', 0, offset);
@@ -1001,7 +1066,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         int offset = mod1Contents.length()-1;
         PySelection ps = new PySelection(editor.getDocument(), offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
-        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+        List<ICompletionProposal> props = waitForQuickFixProps(quickFix, ps, offset);
         try {
             findCompletion(props, "Create Met1 method at Foo (pack1.pack2.mod1)").apply(editor.getISourceViewer(), '\n', 0, offset);
             String expected = "" +
@@ -1038,7 +1103,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         int offset = mod1Contents.length()-1;
         PySelection ps = new PySelection(editor.getDocument(), offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
-        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+        List<ICompletionProposal> props = waitForQuickFixProps(quickFix, ps, offset);
         try {
             findCompletion(props, "Create new_field field at Foo (pack1.pack2.mod1)").apply(editor.getISourceViewer(), '\n', 0, offset);
             String expected = "" +
@@ -1075,7 +1140,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         int offset = mod1Contents.length()-1;
         PySelection ps = new PySelection(editor.getDocument(), offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
-        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+        List<ICompletionProposal> props = waitForQuickFixProps(quickFix, ps, offset);
         try {
             findCompletion(props, "Create a field at Foo").apply(editor.getISourceViewer(), '\n', 0, offset);
             String expected = "" +
@@ -1111,7 +1176,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         int offset = mod1Contents.length()-1;
         PySelection ps = new PySelection(editor.getDocument(), offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
-        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+        List<ICompletionProposal> props = waitForQuickFixProps(quickFix, ps, offset);
         try {
             findCompletion(props, "Create new_field field at Foo (pack1.pack2.mod1)").apply(editor.getISourceViewer(), '\n', 0, offset);
             String expected = "" +
@@ -1150,7 +1215,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         int offset = mod1Contents.length()-secondPart.length();
         PySelection ps = new PySelection(editor.getDocument(), offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
-        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+        List<ICompletionProposal> props = waitForQuickFixProps(quickFix, ps, offset);
         try {
             findCompletion(props, "Create new_field field at Foo").apply(editor.getISourceViewer(), '\n', 0, offset);
             String expected = "" +
@@ -1183,7 +1248,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         int offset = mod1Contents.length();
         PySelection ps = new PySelection(editor.getDocument(), offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
-        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+        List<ICompletionProposal> props = waitForQuickFixProps(quickFix, ps, offset);
         try {
             findCompletion(props, "Create BAR constant at Foo").apply(editor.getISourceViewer(), '\n', 0, offset);
             String expected = "" +
@@ -1217,7 +1282,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         int offset = mod1Contents.length()-1;
         PySelection ps = new PySelection(editor.getDocument(), offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
-        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+        List<ICompletionProposal> props = waitForQuickFixProps(quickFix, ps, offset);
         try {
             findCompletion(props, "Create new_field field at Foo (pack1.pack2.mod1)").apply(editor.getISourceViewer(), '\n', 0, offset);
             String expected = "" +
@@ -1250,7 +1315,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         int offset = mod1Contents.length()-1;
         PySelection ps = new PySelection(editor.getDocument(), offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
-        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+        List<ICompletionProposal> props = waitForQuickFixProps(quickFix, ps, offset);
         try {
             findCompletion(props, "Create Met1 method at Foo (pack1.pack2.mod1)").apply(editor.getISourceViewer(), '\n', 0, offset);
             String expected = "" +
@@ -1357,7 +1422,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         int offset = mod1Contents.length();
         ps = new PySelection(editor.getDocument(), offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
-        props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+        props = waitForQuickFixProps(quickFix, ps, offset);
         try {
             findCompletion(props, "Create Foo __init__ (pack1.pack2.mod1)").apply(editor.getISourceViewer(), '\n', 0, offset);
             assertContentsEqual("" +
@@ -1399,7 +1464,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         int offset = mod1Contents.length()-minusOffset;
         ps = new PySelection(editor.getDocument(), offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
-        props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+        props = waitForQuickFixProps(quickFix, ps, offset);
         try {
             findCompletion(props, "Create Foo __init__ (pack1.pack2.mod1)").apply(editor.getISourceViewer(), '\n', 0, offset);
             assertContentsEqual("" +
@@ -1443,7 +1508,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             int offset = mod1Contents.length()-1;
             ps = new PySelection(editor.getDocument(), offset);
             assertTrue(quickFix.isValid(ps, "", editor, offset));
-            props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+            props = waitForQuickFixProps(quickFix, ps, offset);
             
             findCompletion(props, "Create Foo class at other_module.py").apply(editor.getISourceViewer(), '\n', 0, offset);
             assertContentsEqual("" +
@@ -1460,16 +1525,24 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
     }
 
     private ICompletionProposalExtension2 findCompletion(List<ICompletionProposal> props, String expectedCompletion) {
-        FastStringBuffer buf = new FastStringBuffer("Available: ",300);
+        return findCompletion(props, expectedCompletion, true);
+    }
+    
+    private ICompletionProposalExtension2 findCompletion(List<ICompletionProposal> props, String expectedCompletion, boolean throwException) {
+        List<String> buf = new ArrayList<String>(1+(2*props.size()));
+        buf.add("Available:");
         for (ICompletionProposal iCompletionProposal : props) {
             if(iCompletionProposal.getDisplayString().equals(expectedCompletion)){
                 ICompletionProposalExtension2 p = (ICompletionProposalExtension2) iCompletionProposal;
                 return p;
             }
-            buf.append("\n");
-            buf.append(iCompletionProposal.getDisplayString());
+            buf.add("\n");
+            buf.add(iCompletionProposal.getDisplayString());
         }
-        throw new AssertionError("Could not find completion: "+expectedCompletion+"\n"+buf);
+        if(throwException){
+            throw new AssertionError("Could not find completion: "+expectedCompletion+"\n"+StringUtils.join("\n", buf));
+        }
+        return null;
     }
     
 

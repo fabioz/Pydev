@@ -23,6 +23,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevTestUtils;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
@@ -59,11 +60,13 @@ public class InterpreterInfoBuilderTest extends TestCase {
         
         PydevTestUtils.setTestPlatformStateLocation();
         REF.IN_TESTS = true;
+        ProjectModulesManager.IN_TESTS = true;
     }
     
     @Override
     protected void tearDown() throws Exception {
         REF.deleteDirectoryTree(baseDir);
+        ProjectModulesManager.IN_TESTS = false;
     }
 
     public void testInterpreterInfoBuilder() throws Exception {

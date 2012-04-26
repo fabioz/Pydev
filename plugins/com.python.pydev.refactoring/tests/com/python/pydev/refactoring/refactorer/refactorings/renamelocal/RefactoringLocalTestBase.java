@@ -51,6 +51,7 @@ public class RefactoringLocalTestBase extends CodeCompletionTestsBase {
     
     public void tearDown() throws Exception {
         CompiledModule.COMPILED_MODULES_ENABLED = true;
+        AbstractPyRefactoring.setPyRefactoring(null);
         super.tearDown();
     }
 
