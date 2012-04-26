@@ -56,12 +56,12 @@ public class ProcessCreationInfo{
 
         String joinedParams = StringUtils.join(" ", parameters);
 
-        String environment = null;
+        String environment = "EMPTY ENVIRONMENT";
         if (envp != null) {
             environment = StringUtils.join("\n", envp);
         }
 
-        String workDir = null;
+        String workDir = "NULL WORK DIR";
         if (workingDir != null) {
             workDir = workingDir.toString();
         }
@@ -75,7 +75,7 @@ public class ProcessCreationInfo{
         String errContents = errReader.getContents();
 
         //Pre-allocate it in a proper size.
-        return StringUtils.join("", new String[] {
+        String[] splitted = new String[] {
             "ProcessInfo:\n\n - Executed: ",
             joinedParams,
             "\n\n - Environment:\n",
@@ -87,7 +87,9 @@ public class ProcessCreationInfo{
             "\n\n - Std output:\n",
             stdContents,
             "\n\n - Err output:\n",
-            errContents });
+            errContents };
+        
+        return StringUtils.join("", splitted);
     }
 
 }
