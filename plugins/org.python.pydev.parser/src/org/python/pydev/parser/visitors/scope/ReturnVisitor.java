@@ -16,14 +16,23 @@ import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.jython.ast.stmtType;
 
-public class ReturnVisitor extends VisitorBase{
-    
+public class ReturnVisitor extends VisitorBase {
 
     public static List<Return> findReturns(FunctionDef functionDef) {
         ReturnVisitor visitor = new ReturnVisitor();
+        if(functionDef == null){
+            return visitor.ret;
+        }
+        stmtType[] body = functionDef.body;
+        if(body == null){
+            return visitor.ret;
+        }
+        
         try {
-            for(stmtType b:functionDef.body){
-                if(b != null){
+            int len = body.length;
+            for (int i = 0; i < len; i++) {
+                stmtType b = body[i];
+                if (b != null) {
                     b.accept(visitor);
                 }
             }
@@ -32,25 +41,25 @@ public class ReturnVisitor extends VisitorBase{
         }
         return visitor.ret;
     }
-    
-    private ArrayList<Return> ret = new ArrayList<Return>();
+
+    private ArrayList<Return> ret = new ArrayList<Return>(3); //Start considering 3 returns.
 
     @Override
     public Object visitReturn(Return node) throws Exception {
         ret.add(node);
         return null;
     }
-    
+
     @Override
     public void traverse(SimpleNode node) throws Exception {
         node.traverse(this);
     }
-    
+
     @Override
     public Object visitClassDef(ClassDef node) throws Exception {
         return null;
     }
-    
+
     @Override
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         return null;

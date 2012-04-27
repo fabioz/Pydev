@@ -20,6 +20,7 @@ import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Import;
@@ -132,7 +133,12 @@ public final class GlobalModelVisitor extends AbstractVisitor {
                         __all__Assign = last;
                         __all__AssignTargets = last.targets;
                     }else{
-                        if(last.value != null){
+                        if(last.value != null && !(last.value instanceof Call)){
+                            //Checking if it's a Call, because we don't want to enter in the use-case:
+                            //def method(a, b):
+                            //   ...
+                            //other = method()
+                            
                             String rep = NodeUtils.getRepresentationString(last.value);
                             if(rep != null){
                                 SourceToken methodTok = repToTokenWithArgs.get(rep);

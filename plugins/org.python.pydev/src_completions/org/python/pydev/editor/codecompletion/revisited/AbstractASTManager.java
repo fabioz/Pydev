@@ -1048,7 +1048,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 state.setActivationToken(actToken);
             }
             IToken[] completionsForModule = getCompletionsForModule(module, state);
-            for (IToken foundTok : completionsForModule) {
+            int len = completionsForModule.length;
+            for(int i=0;i<len;i++){
+                IToken foundTok = completionsForModule[i];
                 if(foundTok.getRepresentation().equals(hasToBeFound)){
                     return foundTok;
                 }

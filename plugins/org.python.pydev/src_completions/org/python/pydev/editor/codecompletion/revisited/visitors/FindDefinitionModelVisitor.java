@@ -235,7 +235,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
     @Override
     public Object visitNameTok(NameTok node) throws Exception {
         if(node.ctx == NameTok.KeywordName){
-            if(this.line == node.beginLine){
+            if(this.line == node.beginLine && this.call.size() > 0){
                 String rep = NodeUtils.getRepresentationString(node);
 
                 if(PySelection.isInside(col, node.beginColumn, rep.length())){

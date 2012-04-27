@@ -65,7 +65,7 @@ class ConsoleMessage:
 #=======================================================================================================================
 class DebugConsoleStdIn(BaseStdIn):
     
-    @overrides(BaseStdIn.readline)
+    overrides(BaseStdIn.readline)
     def readline(self, *args, **kwargs):
         sys.stderr.write('Warning: Reading from stdin is still not supported in this console.\n')
         return '\n'
@@ -78,12 +78,12 @@ class DebugConsole(InteractiveConsole, BaseInterpreterInterface):
     errors and outputs to the debug console
     """
     
-    @overrides(BaseInterpreterInterface.createStdIn)
+    overrides(BaseInterpreterInterface.createStdIn)
     def createStdIn(self):
         return DebugConsoleStdIn() #For now, raw_input is not supported in this console.
 
 
-    @overrides(InteractiveConsole.push)
+    overrides(InteractiveConsole.push)
     def push(self, line, frame):
         """Change built-in stdout and stderr methods by the 
         new custom StdMessage.
@@ -97,13 +97,14 @@ class DebugConsole(InteractiveConsole, BaseInterpreterInterface):
         original_stdout = sys.stdout
         original_stderr = sys.stderr
         try:
-            self.frame = frame
-            out = sys.stdout = IOBuf()
-            err = sys.stderr = IOBuf()
-            more, _need_input = self.addExec(line)
-        except Exception:
-            exc = GetExceptionTracebackStr()
-            err.buflist.append("Internal Error: %s" % (exc,))
+            try:
+                self.frame = frame
+                out = sys.stdout = IOBuf()
+                err = sys.stderr = IOBuf()
+                more, _need_input = self.addExec(line)
+            except Exception:
+                exc = GetExceptionTracebackStr()
+                err.buflist.append("Internal Error: %s" % (exc,))
         finally:
             #Remove frame references.
             self.frame = None
@@ -114,12 +115,12 @@ class DebugConsole(InteractiveConsole, BaseInterpreterInterface):
         return more, out.buflist, err.buflist
     
     
-    @overrides(BaseInterpreterInterface.doAddExec)
+    overrides(BaseInterpreterInterface.doAddExec)
     def doAddExec(self, line):
         return InteractiveConsole.push(self, line)
     
 
-    @overrides(InteractiveConsole.runcode)
+    overrides(InteractiveConsole.runcode)
     def runcode(self, code):
         """Execute a code object.
 
@@ -149,7 +150,8 @@ class InteractiveConsoleCache:
     frame_id = None
     interactive_console_instance = None
     
-    @classmethod
+    
+    #@classmethod -- not used as decorator (compatible with Jython 2.1)
     def get_interactive_console(cls, thread_id, frame_id, frame, console_message):
         """returns the global interactive console.
         interactive console should have been initialized by this time 
@@ -168,11 +170,15 @@ class InteractiveConsoleCache:
             console_message.add_console_message(CONSOLE_OUTPUT, "[Current context]: %s" % (context_message,))
         return InteractiveConsoleCache.interactive_console_instance
     
-    @classmethod
+    get_interactive_console = classmethod(get_interactive_console)
+    
+    #@classmethod -- not used as decorator (compatible with Jython 2.1)
     def clear_interactive_console(cls):
         InteractiveConsoleCache.thread_id = None
         InteractiveConsoleCache.frame_id = None
         InteractiveConsoleCache.interactive_console_instance = None
+        
+    clear_interactive_console = classmethod(clear_interactive_console)
         
 get_interactive_console = InteractiveConsoleCache.get_interactive_console
 clear_interactive_console = InteractiveConsoleCache.clear_interactive_console
