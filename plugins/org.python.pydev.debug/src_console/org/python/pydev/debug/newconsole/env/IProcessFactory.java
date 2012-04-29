@@ -215,7 +215,7 @@ public class IProcessFactory {
 		Collection<String> extraPath = pythonpath;
 		if (InteractiveConsolePrefs.getConsoleConnectVariableView()
 				&& interpreterManager.getInterpreterType() != IInterpreterManager.INTERPRETER_TYPE_JYTHON_ECLIPSE) {
-			// Add PydevDebugPlugin's PySrc so we can access pydevd
+			// Add PydevDebugPlugin's pysrc so we can access pydevd
 			extraPath = new HashSet<String>();
 			extraPath.addAll(pythonpath);
 			extraPath.add(PydevDebugPlugin.getPySrcPath().getAbsolutePath());
