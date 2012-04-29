@@ -11,8 +11,26 @@ EXECUTABLE:python.exe|libs@compiled_dlls$builtin_mods
 
 all internal are separated by |
 '''
-import os.path
 import sys
+
+try:
+    import os.path
+    def fullyNormalizePath(path):
+        '''fixes the path so that the format of the path really reflects the directories in the system
+        '''
+        return os.path.normpath(path)
+    join = os.path.join
+except: #ImportError or AttributeError.
+    #See: http://stackoverflow.com/questions/10254353/error-while-installing-jython-for-pydev
+    def fullyNormalizePath(path):
+        '''fixes the path so that the format of the path really reflects the directories in the system
+        '''
+        return path
+    
+    def join(a, b):
+        if a.endswith('/') or a.endswith('\\'):
+            return a + b
+        return a+'/'+b
 
 
 IS_PYTHON_3K = 0
@@ -38,7 +56,7 @@ if sys.platform == "cygwin":
     try:
         import ctypes #use from the system if available
     except ImportError:
-        sys.path.append(os.path.join(sys.path[0], 'third_party/wrapped_for_pydev'))
+        sys.path.append(join(sys.path[0], 'third_party/wrapped_for_pydev'))
         import ctypes
         
     def nativePath(path):
@@ -53,11 +71,7 @@ if sys.platform == "cygwin":
 else:
     def nativePath(path):
         return fullyNormalizePath(path)
-    
-def fullyNormalizePath(path):
-    '''fixes the path so that the format of the path really reflects the directories in the system
-    '''
-    return os.path.normpath(path)
+
 
 
 def getfilesystemencoding():
