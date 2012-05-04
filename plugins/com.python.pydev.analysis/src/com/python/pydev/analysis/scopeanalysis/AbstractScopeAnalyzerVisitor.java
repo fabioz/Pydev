@@ -29,7 +29,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.TupleN;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
