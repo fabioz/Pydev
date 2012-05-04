@@ -10,7 +10,7 @@
 package com.python.pydev.analysis.additionalinfo;
 
 
-public class NameInfo extends AbstractInfo{
+public final class NameInfo extends AbstractInfo{
 
     /**
      * Changed for 2.1

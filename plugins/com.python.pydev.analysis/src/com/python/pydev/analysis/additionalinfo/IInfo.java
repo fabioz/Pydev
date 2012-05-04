@@ -9,7 +9,7 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
-public interface IInfo {
+public interface IInfo extends Comparable<IInfo> {
 
     /**
      * @return the name of the representing token
@@ -56,6 +56,11 @@ public interface IInfo {
      * The type when it is a name
      */
     int NAME_WITH_IMPORT_TYPE = 4;
+    
+    /**
+     * The type when it is a module
+     */
+    int MOD_IMPORT_TYPE = 5;
     
     /**
      * @return the type of the information we are holding (given constants)

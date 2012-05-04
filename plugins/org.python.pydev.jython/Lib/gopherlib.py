@@ -66,7 +66,7 @@ def send_selector(selector, host, port = 0):
         port = int(port)
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host, port))
-    s.send(selector + CRLF)
+    s.sendall(selector + CRLF)
     s.shutdown(1)
     return s.makefile('rb')
 
@@ -169,7 +169,6 @@ def test():
     selector = DEF_SELECTOR
     type = selector[0]
     host = DEF_HOST
-    port = DEF_PORT
     if args:
         host = args[0]
         args = args[1:]

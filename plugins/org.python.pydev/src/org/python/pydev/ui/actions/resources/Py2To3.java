@@ -106,7 +106,7 @@ public class Py2To3 extends PyResourceAction implements IObjectActionDelegate{
         		"Leave empty for preview\n" +
         		"-w to apply with backup\n" +
         		"-w -n to apply without backup.";
-        if(tup.o2 != null && tup.o2.length() > 0){
+        if(tup.o2.length() > 0){
             msg += "\n";
             msg += tup.o2;
         }

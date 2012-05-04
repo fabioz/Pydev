@@ -50,6 +50,7 @@ import org.python.pydev.core.parser.IParserObserver;
 import org.python.pydev.core.parser.IParserObserver2;
 import org.python.pydev.core.parser.IParserObserver3;
 import org.python.pydev.core.parser.IPyParser;
+import org.python.pydev.parser.fastparser.FastParser;
 import org.python.pydev.parser.grammar24.PythonGrammar24;
 import org.python.pydev.parser.grammar25.PythonGrammar25;
 import org.python.pydev.parser.grammar26.PythonGrammar26;
@@ -155,6 +156,9 @@ public class PyParser implements IPyParser {
         }else if(grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0){
         	return "grammar: Python 3.0";
         	
+        }else if(grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_CYTHON){
+            return "grammar: Cython";
+            
         }else{
             return "grammar: unrecognized: "+grammarVersion;
         }
@@ -332,28 +336,36 @@ public class PyParser implements IPyParser {
         }
         
 		for (IParserObserver l : temp) { 
-            //work on a copy (because listeners may want to remove themselves and we cannot afford concurrent modifications here)
-            if(l instanceof IParserObserver3){
-                ((IParserObserver3)l).parserChanged(info);
-                
-            }else if(l instanceof IParserObserver2){
-                ((IParserObserver2)l).parserChanged(info.root, info.file, info.doc, info.argsToReparse);
-                
-            }else{
-                l.parserChanged(info.root, info.file, info.doc);
+            try {
+                //work on a copy (because listeners may want to remove themselves and we cannot afford concurrent modifications here)
+                if(l instanceof IParserObserver3){
+                    ((IParserObserver3)l).parserChanged(info);
+                    
+                }else if(l instanceof IParserObserver2){
+                    ((IParserObserver2)l).parserChanged(info.root, info.file, info.doc, info.argsToReparse);
+                    
+                }else{
+                    l.parserChanged(info.root, info.file, info.doc);
+                }
+            } catch (Exception e) {
+                Log.log(e);
             }
         }
 
         List<IParserObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PARSER_OBSERVER);
         for (IParserObserver observer : participants) {
-            if(observer instanceof IParserObserver3){
-                ((IParserObserver3)observer).parserChanged(info);
-                
-            }else if(observer instanceof IParserObserver2){
-                ((IParserObserver2)observer).parserChanged(info.root, info.file, info.doc, info.argsToReparse);
-                
-            }else{
-                observer.parserChanged(info.root, info.file, info.doc);
+            try {
+                if(observer instanceof IParserObserver3){
+                    ((IParserObserver3)observer).parserChanged(info);
+                    
+                }else if(observer instanceof IParserObserver2){
+                    ((IParserObserver2)observer).parserChanged(info.root, info.file, info.doc, info.argsToReparse);
+                    
+                }else{
+                    observer.parserChanged(info.root, info.file, info.doc);
+                }
+            } catch (Exception e) {
+                Log.log(e);
             }
         }
     }
@@ -568,6 +580,11 @@ public class PyParser implements IPyParser {
      *         if we are able to recover from a reparse, we have both, the root and the error.
      */
     public static Tuple<SimpleNode, Throwable> reparseDocument(ParserInfo info) {
+        if(info.grammarVersion == IPythonNature.GRAMMAR_PYTHON_VERSION_CYTHON){
+            IDocument doc = info.document;
+            return createCythonAst(doc);
+        }
+        
         // create a stream with document's data
         String startDoc = info.document.get();
         
@@ -625,6 +642,7 @@ public class PyParser implements IPyParser {
                 case IPythonNature.GRAMMAR_PYTHON_VERSION_3_0:
                     grammar = new PythonGrammar30(in);
                     break;
+                //case CYTHON: already treated in the beggining of this method.
                 default:
                     throw new RuntimeException("The grammar specified for parsing is not valid: "+info.grammarVersion);
             }
@@ -692,6 +710,12 @@ public class PyParser implements IPyParser {
         }
 //        System.out.println("Output grammar: "+returnVar);
         return returnVar;
+    }
+
+    public static Tuple<SimpleNode, Throwable> createCythonAst(IDocument doc) {
+        List<stmtType> classesAndFunctions = FastParser.parseCython(doc);
+        return new Tuple<SimpleNode, Throwable>(
+                new Module(classesAndFunctions.toArray(new stmtType[classesAndFunctions.size()])), null);
     }
 
     

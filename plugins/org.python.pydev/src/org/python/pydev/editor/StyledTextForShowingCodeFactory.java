@@ -137,7 +137,9 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener{
         
         PyFormatStd formatter = new PyFormatStd();
         try{
-            str = formatter.formatStr(str, formatStd, "\n", false);
+            Document doc = new Document(str);
+            formatter.formatAll(doc, null, false, formatStd, false);
+            str = doc.get();
         }catch(SyntaxErrorException e){
         }
         FastStringBuffer buf = new FastStringBuffer();

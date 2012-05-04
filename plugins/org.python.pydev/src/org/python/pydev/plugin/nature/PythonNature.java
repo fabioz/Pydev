@@ -17,10 +17,14 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.internal.resources.Project;
+import org.eclipse.core.internal.resources.ProjectInfo;
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -59,6 +63,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.interpreters.IInterpreterObserver;
@@ -119,29 +124,35 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * @author Fabio
      */
     protected class RebuildPythonNatureModules extends Job {
-        private volatile String submittedPaths;
 
         protected RebuildPythonNatureModules() {
           super("Python Nature: rebuilding modules");
         }
     
-        private void setParams(String paths) {
-            submittedPaths = paths;
-        }
-
         @SuppressWarnings("unchecked")
-        protected IStatus run(IProgressMonitor monitorArg) {
+        protected IStatus run(IProgressMonitor monitor) {
 
             String paths;
-            paths = submittedPaths;
+            try {
+                paths = pythonPathNature.getOnlyProjectPythonPathStr(true);
+            } catch (CoreException e1) {
+                Log.log(e1);
+                return Status.OK_STATUS;
+            }
             
             try {
-                final JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Rebuilding modules", IProgressMonitor.UNKNOWN, this);
+                if(monitor.isCanceled()){
+                    return Status.OK_STATUS;
+                }
+                final JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitor, "Rebuilding modules", IProgressMonitor.UNKNOWN, this);
                 final PythonNature nature = PythonNature.this;
                 try {
                     ICodeCompletionASTManager tempAstManager = astManager;
                     if (tempAstManager == null) {
                         tempAstManager = new ASTManager();
+                    }
+                    if(monitor.isCanceled()){
+                        return Status.OK_STATUS;
                     }
                     synchronized(tempAstManager.getLock()){
                         astManager = tempAstManager;
@@ -149,10 +160,16 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
                         //begins task automatically
                         tempAstManager.changePythonPath(paths, project, jobProgressComunicator);
+                        if(monitor.isCanceled()){
+                            return Status.OK_STATUS;
+                        }
                         saveAstManager();
 
                         List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
                         for (IInterpreterObserver observer : participants) {
+                            if(monitor.isCanceled()){
+                                return Status.OK_STATUS;
+                            }
                             try {
                                 observer.notifyProjectPythonpathRestored(nature, jobProgressComunicator);
                             } catch (Exception e) {
@@ -165,6 +182,9 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                     Log.log(e);
                 }
 
+                if(monitor.isCanceled()){
+                    return Status.OK_STATUS;
+                }
                 PythonNatureListenersManager.notifyPythonPathRebuilt(project, nature); 
                 //end task
                 jobProgressComunicator.done();
@@ -381,11 +401,21 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     }
 
     /**
+     * Lock to access the map below.
+     */
+    private final static Object mapLock = new Object();
+    
+    /**
+     * If some project has a value here, we're already in the process of adding a nature to it.
+     */
+    private final static Map<IProject, Object> mapLockAddNature = new HashMap<IProject, Object>();
+    
+    /**
      * Utility routine to add PythonNature to the project
      * 
      * @param projectPythonpath: @see {@link IPythonPathNature#setProjectSourcePath(String)}
      */
-    public static synchronized IPythonNature addNature(
+    public static IPythonNature addNature( //Only synchronized internally!
             IProject project, 
             IProgressMonitor monitor, 
             String version, 
@@ -398,55 +428,77 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         if (project == null || !project.isOpen()) {
             return null;
         }
-        if(monitor == null){
-            monitor = new NullProgressMonitor();
-        }
-        if(projectInterpreter == null){
-            projectInterpreter = IPythonNature.DEFAULT_INTERPRETER;
-        }
 
-        IProjectDescription desc = project.getDescription();
-
-        //only add the nature if it still hasn't been added.
-        if (project.hasNature(PYTHON_NATURE_ID) == false) {
-
-            String[] natures = desc.getNatureIds();
-            String[] newNatures = new String[natures.length + 1];
-            System.arraycopy(natures, 0, newNatures, 0, natures.length);
-            newNatures[natures.length] = PYTHON_NATURE_ID;
-            desc.setNatureIds(newNatures);
-            project.setDescription(desc, monitor);
-        }else{
+        if (project.hasNature(PYTHON_NATURE_ID)) {
         	//Return if it already has the nature configured.
-            IProjectNature n = getPythonNature(project);
-            if (n instanceof IPythonNature) {
-            	return (IPythonNature) n;
+            return getPythonNature(project);
+        }
+        boolean alreadyLocked = false;
+        synchronized (mapLock) {
+            if(mapLockAddNature.get(project) == null){
+                mapLockAddNature.put(project, new Object());
+            }else{
+                alreadyLocked = true;
             }
         }
-
-        //add the builder. It is used for pylint, pychecker, code completion, etc.
-        ICommand[] commands = desc.getBuildSpec();
-
-        //now, add the builder if it still hasn't been added.
-        if (hasBuilder(commands) == false && PyDevBuilderPrefPage.usePydevBuilders()) {
-
-            ICommand command = desc.newCommand();
-            command.setBuilderName(BUILDER_ID);
-            ICommand[] newCommands = new ICommand[commands.length + 1];
-
-            System.arraycopy(commands, 0, newCommands, 1, commands.length);
-            newCommands[0] = command;
-            desc.setBuildSpec(newCommands);
-            project.setDescription(desc, monitor);
+        if(alreadyLocked){
+            //Ok, there's some execution path already adding the nature. Let's simply wait a bit here and return
+            //the nature that's there (this way we avoid any possible deadlock) -- in the worse case, null
+            //will be returned here, but this is a part of the protocol anyways.
+            //Done because of: Deadlock acquiring PythonNature -- at setDescription() 
+            //https://sourceforge.net/tracker/?func=detail&aid=3478567&group_id=85796&atid=577329
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                //ignore
+            }
+            return getPythonNature(project);
+        }else{
+            IProjectDescription desc = project.getDescription();
+            if(monitor == null){
+                monitor = new NullProgressMonitor();
+            }
+            if(projectInterpreter == null){
+                projectInterpreter = IPythonNature.DEFAULT_INTERPRETER;
+            }
+            try {
+                //Lock only for the project and add the nature (at this point we know it hasn't been added).
+                String[] natures = desc.getNatureIds();
+                String[] newNatures = new String[natures.length + 1];
+                System.arraycopy(natures, 0, newNatures, 0, natures.length);
+                newNatures[natures.length] = PYTHON_NATURE_ID;
+                desc.setNatureIds(newNatures);
+                
+                //add the builder. It is used for pylint, pychecker, code completion, etc.
+                ICommand[] commands = desc.getBuildSpec();
+                
+                //now, add the builder if it still hasn't been added.
+                if (hasBuilder(commands) == false && PyDevBuilderPrefPage.usePydevBuilders()) {
+                    
+                    ICommand command = desc.newCommand();
+                    command.setBuilderName(BUILDER_ID);
+                    ICommand[] newCommands = new ICommand[commands.length + 1];
+                    
+                    System.arraycopy(commands, 0, newCommands, 1, commands.length);
+                    newCommands[0] = command;
+                    desc.setBuildSpec(newCommands);
+                }
+                project.setDescription(desc, monitor);
+                
+                IProjectNature n = getPythonNature(project);
+                if (n instanceof PythonNature) {
+                    PythonNature nature = (PythonNature) n;
+                    //call initialize always - let it do the control.
+                    nature.init(version, projectPythonpath, externalProjectPythonpath, monitor, projectInterpreter, variableSubstitution);
+                    return nature;
+                }
+            } finally {
+                synchronized (mapLock) {
+                    mapLockAddNature.remove(project);
+                }
+            }
         }
-
-        IProjectNature n = getPythonNature(project);
-        if (n instanceof PythonNature) {
-            PythonNature nature = (PythonNature) n;
-            //call initialize always - let it do the control.
-            nature.init(version, projectPythonpath, externalProjectPythonpath, monitor, projectInterpreter, variableSubstitution);
-            return nature;
-        }
+        
         return null;
     }
 
@@ -525,15 +577,12 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         if(updatePaths){
         	//If updating the paths, rebuild and return (don't try to load an existing ast manager
         	//and restore anything already there)
-        	try {
-				rebuildPath();
-			} catch (CoreException e) {
-				Log.log(e);
-			}
+			rebuildPath();
 			return;
         }
         
         if(monitor.isCanceled()){
+            checkPythonPathHelperPathsJob.schedule(500);
             return;
         }
         
@@ -569,7 +618,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 }
             }
         } catch (Exception e) {
-            Log.logInfo("Info: Rebuilding internal caches for: "+this.project, e);
+            //Log.logInfo("Info: Rebuilding internal caches for: "+this.project, e);
             astManager = null;
         }
         
@@ -580,9 +629,32 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             } catch (Exception e) {
                 Log.log(e);
             }
+        }else{
+            checkPythonPathHelperPathsJob.schedule(500);
         }
     }
 
+    private final Job checkPythonPathHelperPathsJob = new Job("Check restored pythonpath"){
+
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            try {
+                if(astManager != null){
+                    String pythonpath  = pythonPathNature.getOnlyProjectPythonPathStr(true);
+                    PythonPathHelper pythonPathHelper = (PythonPathHelper) astManager.getModulesManager().getPythonPathHelper();
+                    //If it doesn't match, rebuid the pythonpath!
+                    if(!new HashSet<String>(PythonPathHelper.parsePythonPathFromStr(pythonpath, null)).equals(
+                            new HashSet<String>(pythonPathHelper.getPythonpath()))){
+                        rebuildPath();
+                    }
+                }
+            } catch (CoreException e) {
+                Log.log(e);
+            }
+            return Status.OK_STATUS;
+        }
+        
+    };
 
     /**
      * Returns the directory that should store completions.
@@ -621,20 +693,17 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * Can be called to refresh internal info (or after changing the path in the preferences).
      * @throws CoreException 
      */
-    public void rebuildPath() throws CoreException {
+    public void rebuildPath() {
         clearCaches(true);
-        String paths = this.pythonPathNature.getOnlyProjectPythonPathStr(true);
-        synchronized(this.setParamsLock){
-		    this.rebuildJob.cancel();
-		    this.rebuildJob.setParams(paths);
-		    this.rebuildJob.schedule(20L);
-		}
+        //Note: pythonPathNature.getOnlyProjectPythonPathStr(true); cannot be called at this moment
+        //as it may trigger a refresh, which may trigger a build and could ask for PythonNature.getPythonNature (which
+        //could be the method that ended up calling rebuildPath in the first place, so, it'd deadlock).
+        this.rebuildJob.cancel();
+        this.rebuildJob.schedule(20L);
     }
 
 
     private RebuildPythonNatureModules rebuildJob = new RebuildPythonNatureModules();
-    
-    private Object setParamsLock = new Object();
     
     /**
      * @return Returns the completionsCache. Note that it can be null.
@@ -688,6 +757,8 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     }
     
     
+    private static final Object lockGetNature = new Object();
+    
     /**
      * @param project the project we want to know about (if it is null, null is returned)
      * @return the python nature for a project (or null if it does not exist for the project)
@@ -695,12 +766,32 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * @note: it's synchronized because more than 1 place could call getPythonNature at the same time and more
      * than one nature ended up being created from project.getNature().
      */
-    public static synchronized PythonNature getPythonNature(IProject project) {
+    public static PythonNature getPythonNature(IProject project) {
         if(project != null && project.isOpen()){
             try {
-                IProjectNature n = project.getNature(PYTHON_NATURE_ID);
-                if(n instanceof PythonNature){
-                    return (PythonNature) n;
+                //Speedup: as this method is called a lot, we just check if the nature is available internally without
+                //any locks, and just lock if it's not (which is needed to avoid a racing condition creating more
+                //than 1 nature).
+                try {
+                    if(project instanceof Project){
+                        Project p = (Project) project;
+                        ProjectInfo info = (ProjectInfo)p.getResourceInfo(false, false);
+                        IProjectNature nature = info.getNature(PYTHON_NATURE_ID);
+                        if(nature instanceof PythonNature){
+                            return (PythonNature) nature;
+                        }
+                    }
+                } catch (Throwable e) {
+                    //Shouldn't really happen, but as using internal methods of project, who knows if it may change
+                    //from one version to another.
+                    Log.log(e);
+                }
+                
+                synchronized (lockGetNature) {
+                    IProjectNature n = project.getNature(PYTHON_NATURE_ID);
+                    if(n instanceof PythonNature){
+                        return (PythonNature) n;
+                    }
                 }
             } catch (CoreException e) {
                 Log.logInfo(e);
@@ -1195,7 +1286,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 }
             }
             
-            List<String> externalPaths = StringUtils.splitAndRemoveEmptyTrimmed(this.getPythonPathNature().getProjectExternalSourcePath(true), '|');
+            List<String> externalPaths = this.getPythonPathNature().getProjectExternalSourcePathAsList(true);
             Collections.sort(externalPaths);
             for (String path : externalPaths) {
                 if(!new File(path).exists()){

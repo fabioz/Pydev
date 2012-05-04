@@ -42,9 +42,6 @@ ConfigParser -- responsible for for parsing a list of
     options(section)
         return list of configuration options for the named section
 
-    has_option(section, option)
-        return whether the given section has the given option
-
     read(filenames)
         read and parse the list of named configuration files, given by
         name.  A single filename is also allowed.  Non-existing files
@@ -69,8 +66,9 @@ ConfigParser -- responsible for for parsing a list of
         like get(), but convert value to a float
 
     getboolean(section, options)
-        like get(), but convert value to a boolean (currently defined as 0 or
-        1, only)
+        like get(), but convert value to a boolean (currently case
+        insensitively defined as 0, false, no, off for 0, and 1, true,
+        yes, on for 1).  Returns 0 or 1.
 
     remove_section(section)
         remove the given file section and all its options
@@ -85,14 +83,13 @@ ConfigParser -- responsible for for parsing a list of
         write the configuration state in .ini format
 """
 
-import sys
-import string
 import re
+import types
 
 __all__ = ["NoSectionError","DuplicateSectionError","NoOptionError",
            "InterpolationError","InterpolationDepthError","ParsingError",
            "MissingSectionHeaderError","ConfigParser",
-           "MAX_INTERPOLATION_DEPTH"]
+           "DEFAULTSECT", "MAX_INTERPOLATION_DEPTH"]
 
 DEFAULTSECT = "DEFAULT"
 
@@ -194,7 +191,7 @@ class ConfigParser:
         Raise DuplicateSectionError if a section by the specified name
         already exists.
         """
-        if self.__sections.has_key(section):
+        if section in self.__sections:
             raise DuplicateSectionError(section)
         self.__sections[section] = {}
 
@@ -203,7 +200,7 @@ class ConfigParser:
 
         The DEFAULT section is not acknowledged.
         """
-        return section in self.sections()
+        return section in self.__sections
 
     def options(self, section):
         """Return a list of option names for the given section name."""
@@ -212,13 +209,9 @@ class ConfigParser:
         except KeyError:
             raise NoSectionError(section)
         opts.update(self.__defaults)
-        if opts.has_key('__name__'):
+        if '__name__' in opts:
             del opts['__name__']
         return opts.keys()
-
-    def has_option(self, section, option):
-        """Return whether the given section has the given option."""
-        return option in self.options(section)
 
     def read(self, filenames):
         """Read and parse a filename or a list of filenames.
@@ -230,7 +223,7 @@ class ConfigParser:
         configuration files in the list will be read.  A single
         filename may also be given.
         """
-        if type(filenames) in [type(''), type(u'')]:
+        if isinstance(filenames, types.StringTypes):
             filenames = [filenames]
         for filename in filenames:
             try:
@@ -267,40 +260,39 @@ class ConfigParser:
 
         The section DEFAULT is special.
         """
-        try:
-            sectdict = self.__sections[section].copy()
-        except KeyError:
-            if section == DEFAULTSECT:
-                sectdict = {}
-            else:
-                raise NoSectionError(section)
         d = self.__defaults.copy()
-        d.update(sectdict)
+        try:
+            d.update(self.__sections[section])
+        except KeyError:
+            if section != DEFAULTSECT:
+                raise NoSectionError(section)
         # Update with the entry specific variables
-        if vars:
+        if vars is not None:
             d.update(vars)
         option = self.optionxform(option)
         try:
-            rawval = d[option]
+            value = d[option]
         except KeyError:
             raise NoOptionError(option, section)
 
         if raw:
-            return rawval
+            return value
+        return self._interpolate(section, option, value, d)
 
+    def _interpolate(self, section, option, rawval, vars):
         # do the string interpolation
-        value = rawval                  # Make it a pretty variable name
-        depth = 0
-        while depth < 10:               # Loop through this until it's done
-            depth = depth + 1
-            if value.find("%(") >= 0:
+        value = rawval
+        depth = MAX_INTERPOLATION_DEPTH
+        while depth:                    # Loop through this until it's done
+            depth -= 1
+            if value.find("%(") != -1:
                 try:
-                    value = value % d
+                    value = value % vars
                 except KeyError, key:
                     raise InterpolationError(key, option, section, rawval)
             else:
                 break
-        if value.find("%(") >= 0:
+        if value.find("%(") != -1:
             raise InterpolationDepthError(option, section, rawval)
         return value
 
@@ -308,62 +300,64 @@ class ConfigParser:
         return conv(self.get(section, option))
 
     def getint(self, section, option):
-        return self.__get(section, string.atoi, option)
+        return self.__get(section, int, option)
 
     def getfloat(self, section, option):
-        return self.__get(section, string.atof, option)
+        return self.__get(section, float, option)
+
+    _boolean_states = {'1': True, 'yes': True, 'true': True, 'on': True,
+                       '0': False, 'no': False, 'false': False, 'off': False}
 
     def getboolean(self, section, option):
         v = self.get(section, option)
-        val = int(v)
-        if val not in (0, 1):
+        if v.lower() not in self._boolean_states:
             raise ValueError, 'Not a boolean: %s' % v
-        return val
+        return self._boolean_states[v.lower()]
 
     def optionxform(self, optionstr):
         return optionstr.lower()
 
     def has_option(self, section, option):
         """Check for the existence of a given option in a given section."""
-        if not section or section == "DEFAULT":
-            return self.__defaults.has_key(option)
-        elif not self.has_section(section):
+        if not section or section == DEFAULTSECT:
+            option = self.optionxform(option)
+            return option in self.__defaults
+        elif section not in self.__sections:
             return 0
         else:
             option = self.optionxform(option)
-            return self.__sections[section].has_key(option)
+            return (option in self.__sections[section]
+                    or option in self.__defaults)
 
     def set(self, section, option, value):
         """Set an option."""
-        if not section or section == "DEFAULT":
+        if not section or section == DEFAULTSECT:
             sectdict = self.__defaults
         else:
             try:
                 sectdict = self.__sections[section]
             except KeyError:
                 raise NoSectionError(section)
-        option = self.optionxform(option)
-        sectdict[option] = value
+        sectdict[self.optionxform(option)] = value
 
     def write(self, fp):
         """Write an .ini-format representation of the configuration state."""
         if self.__defaults:
-            fp.write("[DEFAULT]\n")
+            fp.write("[%s]\n" % DEFAULTSECT)
             for (key, value) in self.__defaults.items():
-                fp.write("%s = %s\n" % (key, value))
+                fp.write("%s = %s\n" % (key, str(value).replace('\n', '\n\t')))
             fp.write("\n")
-        for section in self.sections():
-            fp.write("[" + section + "]\n")
-            sectdict = self.__sections[section]
-            for (key, value) in sectdict.items():
-                if key == "__name__":
-                    continue
-                fp.write("%s = %s\n" % (key, value))
+        for section in self.__sections:
+            fp.write("[%s]\n" % section)
+            for (key, value) in self.__sections[section].items():
+                if key != "__name__":
+                    fp.write("%s = %s\n" %
+                             (key, str(value).replace('\n', '\n\t')))
             fp.write("\n")
 
     def remove_option(self, section, option):
         """Remove an option."""
-        if not section or section == "DEFAULT":
+        if not section or section == DEFAULTSECT:
             sectdict = self.__defaults
         else:
             try:
@@ -371,31 +365,29 @@ class ConfigParser:
             except KeyError:
                 raise NoSectionError(section)
         option = self.optionxform(option)
-        existed = sectdict.has_key(option)
+        existed = option in sectdict
         if existed:
             del sectdict[option]
         return existed
 
     def remove_section(self, section):
         """Remove a file section."""
-        if self.__sections.has_key(section):
+        existed = section in self.__sections
+        if existed:
             del self.__sections[section]
-            return 1
-        else:
-            return 0
+        return existed
 
     #
-    # Regular expressions for parsing section headers and options.  Note a
-    # slight semantic change from the previous version, because of the use
-    # of \w, _ is allowed in section header names.
+    # Regular expressions for parsing section headers and options.
+    #
     SECTCRE = re.compile(
         r'\['                                 # [
         r'(?P<header>[^]]+)'                  # very permissive!
         r'\]'                                 # ]
         )
     OPTCRE = re.compile(
-        r'(?P<option>[]\-[\w_.*,(){}]+)'      # a lot of stuff found by IvL
-        r'[ \t]*(?P<vi>[:=])[ \t]*'           # any number of space/tab,
+        r'(?P<option>[^:=\s][^:=]*)'          # very permissive!
+        r'\s*(?P<vi>[:=])\s*'                 # any number of space/tab,
                                               # followed by separator
                                               # (either : or =), followed
                                               # by any # space/tab
@@ -424,22 +416,21 @@ class ConfigParser:
             # comment or blank line?
             if line.strip() == '' or line[0] in '#;':
                 continue
-            if line.split()[0].lower() == 'rem' \
-               and line[0] in "rR":      # no leading whitespace
+            if line.split(None, 1)[0].lower() == 'rem' and line[0] in "rR":
+                # no leading whitespace
                 continue
             # continuation line?
-            if line[0] in ' \t' and cursect is not None and optname:
+            if line[0].isspace() and cursect is not None and optname:
                 value = line.strip()
                 if value:
-                    k = self.optionxform(optname)
-                    cursect[k] = "%s\n%s" % (cursect[k], value)
+                    cursect[optname] = "%s\n%s" % (cursect[optname], value)
             # a section header or option header?
             else:
                 # is it a section header?
                 mo = self.SECTCRE.match(line)
                 if mo:
                     sectname = mo.group('header')
-                    if self.__sections.has_key(sectname):
+                    if sectname in self.__sections:
                         cursect = self.__sections[sectname]
                     elif sectname == DEFAULTSECT:
                         cursect = self.__defaults
@@ -460,13 +451,14 @@ class ConfigParser:
                             # ';' is a comment delimiter only if it follows
                             # a spacing character
                             pos = optval.find(';')
-                            if pos and optval[pos-1] in string.whitespace:
+                            if pos != -1 and optval[pos-1].isspace():
                                 optval = optval[:pos]
                         optval = optval.strip()
                         # allow empty values
                         if optval == '""':
                             optval = ''
-                        cursect[self.optionxform(optname)] = optval
+                        optname = self.optionxform(optname.rstrip())
+                        cursect[optname] = optval
                     else:
                         # a non-fatal parsing error occurred.  set up the
                         # exception but keep going. the exception will be

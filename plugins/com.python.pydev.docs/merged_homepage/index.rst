@@ -29,6 +29,23 @@
     <br/>
     <br/>
     <img alt="PyDev" src="images/eclipse_award.png"/>
+    <br/>
+    <br/>
+    <br/>
+    
+    <br/>
+    <strong>Acknowledgements</strong>
+    <br/>
+    <br/>
+    <p class="italic">
+    "YourKit kindly supports PyDev (and other open source projects) with its full-featured Java Profiler.
+    <br/>
+    <br/>
+    YourKit, LLC is the creator of innovative and intelligent tools for profiling
+    Java and .NET applications. Take a look at YourKit's leading software products:
+    <a href="http://www.yourkit.com/java/profiler/index.jsp"><img src="images/yk.png" width="12" height="12" border="0"  /> YourKit Java Profiler</a> and
+    <a href="http://www.yourkit.com/.net/profiler/index.jsp"><img src="images/yk.png" width="12" height="12" border="0" /> YourKit .NET Profiler</a>."
+    </p>
     </right_area>
     
     
@@ -94,52 +111,58 @@ First time users are strongly advised to read the `Getting started guide`_  whic
 
 
 
-Release 2.2.2
+Release 2.4.0
 ===============
 
-**IPython / Interactive console**
+**PyDev is now faster and uses less memory** (many performance and memory improvements were done)!
 
-    .. image:: images/index/ipython_console.png
-        :class: no_border
+The contents of the homepage are now migrated to a wiki at https://wiki.appcelerator.org/display/tis/Python+Development ... (later most of the homepage will become a mirror of the wiki).
 
-    * IPython (0.10 or 0.11) is now used as the interactive console backend if PyDev can detect it in the PYTHONPATH.
-    * While waiting for the output of a command, intermediary results are printed in the console.
-    * ANSI color codes are supported in the interactive console.
+**Others**
 
-**Code Analysis**
+* Organize imports: Fixed issue where other statements in a commit line got lost (now such a line is ignored).
 
-    .. image:: images/index/assignment_to_builtin.png
-        :class: no_border
+* PyDev Package Explorer: closed project no longer remains with old icons.
 
-    * Reporting variables that shadow builtins as warnings.
-    * Fixed issue where __dict__ was not found.
-    
-**Code completion**
+* Fixed deadlock when setting project as Django.
 
-    * Aliases have a better treatment (i.e.: unittest.assertEqual will show the proper type/parameters).
-    * Improved support for analyzing function builtins where the return type is known (i.e.: open, str.split, etc).
-    
-**Debugger**
+* Fixed issue in code formatting \*args on lambda statement.
 
-    * When doing a remote debug session, if the files cannot be found in the local filesystem, PyDev will ask for files in the remote debugger.
+* TODO tags: only searched now in a string/comment partition.
 
-**Editor**
-    
-    * Files without extension that have a python shebang (e.g.: #!/usr/bin/python in the first line) are automatically opened with the PyDev editor (in the PyDev Package Explorer).
+* Fixed issue when saving empty document (bad location on code-formatter).
 
-**Django**
+* Fixed issue removing comments from document.
 
-    * When the shell command is used in the django custom commands, PyDev no longer uses 100% cpu while it doesn't complete.
+* Applied patch for internal Jython 2.2.1 to fix list.sort (http://bugs.jython.org/issue1835099).
 
-**Others** 
-    
-    * Fixed issue where the * operator was not properly formatted.
-    * When the quick outline dialog is deactivated, it's closed.
-    * Fixed heuristic for finding position for local import. 
-    * Fixed compare editor issue with Eclipse 3.2.
-    * Fixed integration issue with latest PyLint.
-    * Fixed deadlock issue on app engine manage window.
-    * More options added to configure the automatic deletion of .pyc files (delete always, never delete, delete only on .py delete).
+* Fixed resolution of template variable prev_class_or_method and next_class_or_method.
+
+
+
+Release 2.3.0
+===============
+
+* **Pep8.py** integrated (must be enabled in PyDev > Editor > Code Analysis > pep8.py).
+
+* **Faster PyDev startup** (internal Jython upgraded to version 2.2.1 -- and also optimized for PyDev).
+
+* Action to select/deselect scope (**Shift+Alt+Up/Down**).
+
+* Fix: cache issue where the PYTHONPATH in memory became different from the PYTHONPATH configured for a project.
+
+* Fix: OutOfMemoryError when dealing with PyOpenGL.
+
+* Fix: deadlock (could occur in a race condition when importing a project with an existing Python configuration).
+
+* Fix: code-completion integration issue with IPython 011 (patch from jonahkichwacoders).
+
+* Fix: annotation could remain in editor after removing a marker.
+
+* Fix: BadLocationException on extract local refactoring.
+
+
+
 
 
 Development Info

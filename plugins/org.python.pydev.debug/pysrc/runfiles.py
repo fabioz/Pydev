@@ -69,7 +69,8 @@ def main():
         
     #Clear any exception that may be there so that clients don't see it.
     #See: https://sourceforge.net/tracker/?func=detail&aid=3408057&group_id=85796&atid=577329
-    sys.exc_clear()
+    if hasattr(sys, 'exc_clear'):
+        sys.exc_clear()
     
     if test_framework == 0:
         

@@ -23,9 +23,12 @@ class Bdb:
         self.fncache = {}
 
     def canonic(self, filename):
+        if filename == "<" + filename[1:-1] + ">":
+            return filename
         canonic = self.fncache.get(filename)
         if not canonic:
             canonic = os.path.abspath(filename)
+            canonic = os.path.normcase(canonic)
             self.fncache[filename] = canonic
         return canonic
 
@@ -61,7 +64,7 @@ class Bdb:
         # XXX 'arg' is no longer used
         if self.botframe is None:
             # First call of dispatch since reset()
-            self.botframe = frame
+            self.botframe = frame.f_back # (CT) Note that this may also be None!
             return self.trace_dispatch
         if not (self.stop_here(frame) or self.break_anywhere(frame)):
             # No need to trace this function
@@ -74,6 +77,7 @@ class Bdb:
         if self.stop_here(frame) or frame == self.returnframe:
             self.user_return(frame, arg)
             if self.quitting: raise BdbQuit
+        return self.trace_dispatch
 
     def dispatch_exception(self, frame, arg):
         if self.stop_here(frame):
@@ -86,8 +90,8 @@ class Bdb:
     # definition of stopping and breakpoints.
 
     def stop_here(self, frame):
-        if self.stopframe is None:
-            return 1
+        # (CT) stopframe may now also be None, see dispatch_call.
+        # (CT) the former test for None is therefore removed from here.
         if frame is self.stopframe:
             return 1
         while frame is not None and frame is not self.stopframe:
@@ -164,10 +168,7 @@ class Bdb:
 
     def set_trace(self):
         """Start debugging from here."""
-        try:
-            1 + ''
-        except:
-            frame = sys.exc_info()[2].tb_frame.f_back
+        frame = sys._getframe().f_back
         self.reset()
         while frame:
             frame.f_trace = self.trace_dispatch
@@ -184,10 +185,7 @@ class Bdb:
         if not self.breaks:
             # no breakpoints; run without debugger overhead
             sys.settrace(None)
-            try:
-                1 + ''  # raise an exception
-            except:
-                frame = sys.exc_info()[2].tb_frame.f_back
+            frame = sys._getframe().f_back
             while frame and frame is not self.botframe:
                 del frame.f_trace
                 frame = frame.f_back

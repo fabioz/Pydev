@@ -14,7 +14,7 @@ class Repr:
     def repr(self, x):
         return self.repr1(x, self.maxlevel)
     def repr1(self, x, level):
-        typename = `type(x)`[7:-2] # "<type '......'>"
+        typename = type(x).__name__
         if ' ' in typename:
             parts = typename.split()
             typename = '_'.join(parts)
@@ -23,7 +23,7 @@ class Repr:
         else:
             s = `x`
             if len(s) > self.maxother:
-                i = max(0, (self.maxother-3)/2)
+                i = max(0, (self.maxother-3)//2)
                 j = max(0, self.maxother-3-i)
                 s = s[:i] + '...' + s[len(s)-j:]
             return s
@@ -48,7 +48,7 @@ class Repr:
             s = s + self.repr1(x[i], level-1)
         if n > self.maxlist: s = s + ', ...'
         return '[' + s + ']'
-    def repr_dictionary(self, x, level):
+    def repr_dict(self, x, level):
         n = len(x)
         if n == 0: return '{}'
         if level <= 0: return '{...}'
@@ -62,18 +62,18 @@ class Repr:
             s = s + ': ' + self.repr1(x[key], level-1)
         if n > self.maxdict: s = s + ', ...'
         return '{' + s + '}'
-    def repr_string(self, x, level):
+    def repr_str(self, x, level):
         s = `x[:self.maxstring]`
         if len(s) > self.maxstring:
-            i = max(0, (self.maxstring-3)/2)
+            i = max(0, (self.maxstring-3)//2)
             j = max(0, self.maxstring-3-i)
             s = `x[:i] + x[len(x)-j:]`
             s = s[:i] + '...' + s[len(s)-j:]
         return s
-    def repr_long_int(self, x, level):
+    def repr_long(self, x, level):
         s = `x` # XXX Hope this isn't too slow...
         if len(s) > self.maxlong:
-            i = max(0, (self.maxlong-3)/2)
+            i = max(0, (self.maxlong-3)//2)
             j = max(0, self.maxlong-3-i)
             s = s[:i] + '...' + s[len(s)-j:]
         return s
@@ -86,7 +86,7 @@ class Repr:
             return '<' + x.__class__.__name__ + ' instance at ' + \
                       hex(id(x))[2:] + '>'
         if len(s) > self.maxstring:
-            i = max(0, (self.maxstring-3)/2)
+            i = max(0, (self.maxstring-3)//2)
             j = max(0, self.maxstring-3-i)
             s = s[:i] + '...' + s[len(s)-j:]
         return s

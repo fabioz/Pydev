@@ -128,7 +128,7 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
             
         } else if(parent instanceof IProject){
             IProject project = (IProject) parent;
-            fillChildrenForProject(currentElements, project, project);
+            fillChildrenForProject(currentElements, project, getResourceInPythonModel(project));
         }        
         
         PipelinedShapeModification modification = new PipelinedShapeModification(parent, currentElements);
@@ -143,8 +143,9 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
         ProjectInfoForPackageExplorer projectInfo = getProjectInfo(project);
         if(projectInfo != null){
             currentElements.addAll(projectInfo.configErrors);
-            if(projectInfo.interpreterInfo != null){
-                currentElements.add(ProjectInfoToTreeStructure.createFrom(projectInfo.interpreterInfo, parent));
+            InterpreterInfoTreeNode<LabelAndImage> projectInfoTreeStructure = projectInfo.getProjectInfoTreeStructure(project, parent);
+            if(projectInfoTreeStructure != null){
+                currentElements.add(projectInfoTreeStructure);
             }
         }
     }
@@ -311,7 +312,7 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
                 //so, we have to get the parent's parent until we actually 'know' that it is not in the model (or until we run
                 //out of parents to try)
                 //the case in which we reproduce this is Test 1 (described in the class)
-                FastStack<Object> found = new FastStack<Object>();
+                FastStack<Object> found = new FastStack<Object>(20);
                 while(true){
                     
                     //add the current to the found

@@ -24,6 +24,7 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          CMD_RELOAD_CODE, \
                          CMD_VERSION, \
                          CMD_GET_FILE_CONTENTS, \
+                         CMD_SET_PROPERTY_TRACE, \
                          GetGlobalDebugger, \
                          InternalChangeVariable, \
                          InternalGetCompletions, \
@@ -54,6 +55,7 @@ import pydevd_vm_type
 import pydevd_tracing 
 import pydevd_io
 from pydevd_additional_thread_info import PyDBAdditionalThreadInfo 
+import pydevd_traceproperty
 import time
 threadingEnumerate = threading.enumerate
 threadingCurrentThread = threading.currentThread
@@ -77,12 +79,17 @@ DONT_TRACE = {
               'pydevd_vars.py':1,
               'pydevd_vm_type.py':1,
               'pydevd.py':1 ,
-              'pydevd_psyco_stub.py':1
+              'pydevd_psyco_stub.py':1,
+              'pydevd_traceproperty.py':1
               }
 
 if IS_PY3K:
     #if we try to trace io.py it seems it can get halted (see http://bugs.python.org/issue4716)
     DONT_TRACE['io.py'] = 1
+    
+    #Don't trace common encodings too
+    DONT_TRACE['cp1252.py'] = 1
+    DONT_TRACE['utf_8.py'] = 1
 
 
 connected = False
@@ -239,6 +246,12 @@ class PyDB:
         self.break_on_caught = False
         self.handle_exceptions = None
         
+        # By default user can step into properties getter/setter/deleter methods
+        self.disable_property_trace = False
+        self.disable_property_getter_trace = False
+        self.disable_property_setter_trace = False
+        self.disable_property_deleter_trace = False
+
         #this is a dict of thread ids pointing to thread ids. Whenever a command is passed to the java end that
         #acknowledges that a thread was created, the thread id should be passed here -- and if at some time we do not
         #find that thread alive anymore, we must remove it from this list and make the java side know that the thread
@@ -661,8 +674,7 @@ class PyDB:
                         
                     else:
                         sys.stderr.write("Error when setting exception list. Received: %s\n" % (text,))
-                        
-                        
+                    
                 elif cmd_id == CMD_GET_FILE_CONTENTS:
                     if os.path.exists(text):
                         f = open(text, 'r')
@@ -672,6 +684,34 @@ class PyDB:
                             f.close()
                         cmd = self.cmdFactory.makeGetFileContents(seq, source)
 
+                elif cmd_id == CMD_SET_PROPERTY_TRACE:
+                    # Command which receives whether to trace property getter/setter/deleter
+                    # text is feature_state(true/false);disable_getter/disable_setter/disable_deleter
+                    if text != "":
+                        splitted = text.split(';')
+                        if len(splitted) >= 3:
+                            if self.disable_property_trace is False and splitted[0] == 'true':
+                                # Replacing property by custom property only when the debugger starts
+                                pydevd_traceproperty.replace_builtin_property()
+                                self.disable_property_trace = True
+                            # Enable/Disable tracing of the property getter
+                            if splitted[1] == 'true':
+                                self.disable_property_getter_trace = True
+                            else:
+                                self.disable_property_getter_trace = False
+                            # Enable/Disable tracing of the property setter
+                            if splitted[2] == 'true':
+                                self.disable_property_setter_trace = True
+                            else:
+                                self.disable_property_setter_trace = False
+                            # Enable/Disable tracing of the property deleter
+                            if splitted[3] == 'true':
+                                self.disable_property_deleter_trace = True
+                            else:
+                                self.disable_property_deleter_trace = False
+                    else:
+                        # User hasn't configured any settings for property tracing
+                        pass
 
                 else:
                     #I have no idea what this is all about

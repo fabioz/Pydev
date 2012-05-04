@@ -45,7 +45,7 @@ public class PythonLabelProvider implements ILabelProvider{
 
     private WorkbenchLabelProvider provider;
     
-    private Image projectWithError = null;
+    private volatile Image projectWithError = null;
     
     private Object lock = new Object();
 
@@ -90,16 +90,22 @@ public class PythonLabelProvider implements ILabelProvider{
             Object actualObject = resource.getActualObject();
             if(actualObject instanceof IFile){
 				IFile iFile = (IFile) actualObject;
-				String name = iFile.getName();
+				final String name = iFile.getName();
 				
 				if(name.indexOf('.') == -1){
 				    try {
 				        if(PythonPathHelper.markAsPyDevFileIfDetected(iFile)){
+				            if(FileTypesPreferencesPage.isCythonFile(name)){
+				                return PydevPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON);
+				            }
 				            return PydevPlugin.getImageCache().get(UIConstants.PY_FILE_ICON);
                         }
                     } catch (Exception e) {
                         //Ignore
                     }
+				}
+				if(FileTypesPreferencesPage.isCythonFile(name)){
+				    return PydevPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON);
 				}
 				
 				if(name.startsWith("__init__.") && PythonPathHelper.isValidSourceFile(name)){
@@ -132,6 +138,14 @@ public class PythonLabelProvider implements ILabelProvider{
             LabelAndImage data = (LabelAndImage) treeNode.getData();
             return data.image;
         }
+        if(element instanceof IFile){
+            IFile iFile = (IFile) element;
+            String name = iFile.getName();
+            if(FileTypesPreferencesPage.isCythonFile(name)){
+                return PydevPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON); 
+            }
+            
+        }
         if(element instanceof IProject){
             IProject project = (IProject) element;
             if(!project.isOpen()){
@@ -154,6 +168,8 @@ public class PythonLabelProvider implements ILabelProvider{
                     //we must recheck again (if 2 got here and 1 got the lock while the other was waiting, when
                     //the other enters the lock, it does not need to recalculated).
                     if(projectWithError == null){
+                        //Note on double-checked locking idiom: http://www.cs.umd.edu/~pugh/java/memoryModel/DoubleCheckedLocking.html.
+                        //(would not work as expected on java 1.4)
                         Image image = provider.getImage(element);
                         try {
                             DecorationOverlayIcon decorationOverlayIcon = new DecorationOverlayIcon(

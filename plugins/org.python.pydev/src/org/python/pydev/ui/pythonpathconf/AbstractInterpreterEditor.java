@@ -871,9 +871,9 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                 
                 this.forcedBuiltins.update(info);
                 this.predefinedCompletions.update(info);
+                workingCopy.setInfo(info);
             }
             
-            workingCopy.setInfo(info);
             environmentTab.initializeFrom(workingCopy);
             Properties stringSubstitutionVariables = info.getStringSubstitutionVariables();
             if(stringSubstitutionVariables != null){

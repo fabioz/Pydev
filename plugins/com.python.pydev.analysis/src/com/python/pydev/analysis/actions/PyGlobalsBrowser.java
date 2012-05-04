@@ -9,6 +9,7 @@ package com.python.pydev.analysis.actions;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.BadLocationException;
@@ -154,7 +155,7 @@ public class PyGlobalsBrowser extends PyAction{
     public static void doSelect(List<IPythonNature> pythonNatures, List<AbstractAdditionalTokensInfo> additionalInfo, 
             String selectedText) {
         
-        SelectionDialog dialog = GlobalsDialogFactory.create(getShell(), additionalInfo, selectedText, pythonNatures);
+        SelectionDialog dialog = GlobalsDialogFactory.create(getShell(), additionalInfo, selectedText);
 
         dialog.open();
         Object[] result = dialog.getResult();
@@ -162,7 +163,30 @@ public class PyGlobalsBrowser extends PyAction{
             for(Object obj:result){
                 IInfo entry;
                 if(obj instanceof AdditionalInfoAndIInfo){
-                    entry = ((AdditionalInfoAndIInfo)obj).info;
+                    AdditionalInfoAndIInfo additional = (AdditionalInfoAndIInfo)obj;
+                    try {
+                        //Change the pythonNatures given the selection done (so, just investigate the passed nature, not
+                        //all of the input natures).
+                        if(additional.additionalInfo instanceof AdditionalProjectInterpreterInfo){
+                            AdditionalProjectInterpreterInfo projectInterpreterInfo = (AdditionalProjectInterpreterInfo) additional.additionalInfo;
+                            IProject project = projectInterpreterInfo.getProject();
+                            PythonNature pythonNature = PythonNature.getPythonNature(project);
+                            if(pythonNature != null){
+                                pythonNatures = new ArrayList<IPythonNature>();
+                                pythonNatures.add(pythonNature);
+                            }
+                            
+                        }else if(additional.additionalInfo instanceof AdditionalSystemInterpreterInfo){
+                            AdditionalSystemInterpreterInfo systemInterpreterInfo = (AdditionalSystemInterpreterInfo) additional.additionalInfo;
+                            SystemPythonNature pythonNature = new SystemPythonNature(systemInterpreterInfo.getManager());
+                            pythonNatures = new ArrayList<IPythonNature>();
+                            pythonNatures.add(pythonNature);
+                        }
+                    } catch (Throwable e) {
+                        Log.log(e);
+                    }
+                    entry = additional.info;
+                    
                 }else{
                     entry = (IInfo) obj;
                 }

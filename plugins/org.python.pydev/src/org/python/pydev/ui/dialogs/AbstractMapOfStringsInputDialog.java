@@ -24,7 +24,7 @@ public abstract class AbstractMapOfStringsInputDialog extends AbstractKeyValueDi
     
     
     protected String getInitialMessage(){
-        return "Please, inform the name and related value for the variable";
+        return "Please, supply the name and value for the variable";
     }
     
 

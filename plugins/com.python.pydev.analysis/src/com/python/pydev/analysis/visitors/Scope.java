@@ -109,9 +109,9 @@ public final class Scope implements Iterable<ScopeItems>{
      * this stack is used to hold the scope. when we enter a scope, an item is added, and when we
      * exit, it is removed (and the analysis of unused tokens should happen at this time).
      */
-    private FastStack<ScopeItems> scope = new FastStack<ScopeItems>();
+    private FastStack<ScopeItems> scope = new FastStack<ScopeItems>(10);
     
-    private FastStack<Integer> scopeId = new FastStack<Integer>();
+    private FastStack<Integer> scopeId = new FastStack<Integer>(10);
 
     
     
@@ -406,7 +406,7 @@ public final class Scope implements Iterable<ScopeItems>{
     /**
      * checks if there is some token in the names that are defined (but should be ignored)
      */
-    public Tuple<IToken, Found> isInNamesToIgnore(String rep) {
+    public Tuple<IToken, Found> findInNamesToIgnore(String rep) {
         int currScopeType = getCurrScopeItems().getScopeType();
         
         for(ScopeItems s : this.scope){

@@ -28,25 +28,39 @@ manualAdv = (
     ('templateManual.html', 'manual_adv_remote_debugger'               , 'Remote Debugger'                 ),
     ('templateManual.html', 'manual_adv_debug_console'                 , 'Debug Console'                   ),
     ('templateManual.html', 'manual_adv_django'                        , 'Django'                          ),
-    ('templateManual.html', 'manual_articles_scripting' , 'Jython Scripting in PyDev'),
+    ('templateManual.html', 'manual_articles_scripting'                , 'Jython Scripting'                ),
 )
 
 manual101 = (
     ('templateManual.html', 'manual_101_root'           , 'Getting Started'                 ),
-    ('templateManual.html', 'manual_101_install'        , 'Installing'                      ),
-    ('templateManual.html', 'manual_101_interpreter'    , 'Configuring the interpreter'     ),
-    ('templateManual.html', 'manual_101_project_conf'   , 'Creating a project'              ),
-    ('templateManual.html', 'manual_101_project_conf2'  , 'Configuring a project'           ),
-    ('templateManual.html', 'manual_101_first_module'   , 'Creating a module'               ),
-    ('templateManual.html', 'manual_101_run'            , 'Running your first program'      ),
+    ('templateManual.html', 'manual_101_install'        , 'Install'                         ),
+    ('templateManual.html', 'manual_101_interpreter'    , 'Interpreter Configuration'       ),
+    ('templateManual.html', 'manual_101_project_conf'   , 'Project Creation'                ),
+    ('templateManual.html', 'manual_101_project_conf2'  , 'Project Configuration'           ),
+    ('templateManual.html', 'manual_101_first_module'   , 'Module Creation'                 ),
+    ('templateManual.html', 'manual_101_run'            , 'Running a program'               ),
     ('templateManual.html', 'manual_101_eclipse'        , 'Configuring Eclipse'             ),
-    ('templateManual.html', 'manual_101_tips'           , 'Some useful tips'                ),
+    ('templateManual.html', 'manual_101_tips'           , 'Useful tips'                     ),
 
 )
 
 manualScreencasts = (
     ('templateManual.html', 'manual_screencasts'               , 'Screencasts'                                      ),
     ('templateManual.html', 'manual_screencasts_presentation1' , 'Screencast: Starring: Interactive Console'        ),
+)
+
+homepageBase = (
+    ('template1.html', 'index'                     , 'PyDev'                     ),
+    ('template1.html', 'download'                  , 'Download'                  ),
+    ('template1.html', 'developers'                , 'Developers'                ),
+    ('template1.html', 'developers_grammar'        , 'Grammar'                   ),
+    ('template1.html', 'manual'                    , 'Manual'                    ),
+    ('template1.html', 'about'                     , 'About'                     ),
+    ('template1.html', 'history_pydev'             , 'PyDev Releases'            ),
+    ('template1.html', 'history_pydev_extensions'  , 'PyDev Extensions Releases' ),
+    ('template1.html', 'manual_adv_keybindings'    , 'Keybindings'               ),
+    ('template1.html', 'faq'                       , 'FAQ'                       ),
+    ('template1.html', 'screenshots'               , 'Screenshots'               ),
 )
 
 def template( template, contents, title, **kwargs ):
@@ -111,31 +125,17 @@ def templateForAll(lst, first, last, if_not_specified_in_file={}):
     
 
 def main():
-    template('template1.html', 'index'                     , 'PyDev'          )
-    template('template1.html', 'download'                  , 'Download'                  )
-    template('template1.html', 'developers'                , 'Developers'                )
-    template('template1.html', 'developers_grammar'        , 'Developers: Grammar'       )
-    template('template1.html', 'manual'                    , 'Manual'                    )
-    template('template1.html', 'about'                     , 'About'                     )
-    template('template1.html', 'history_pydev'             , 'PyDev Releases'            )
-    template('template1.html', 'history_pydev_extensions'  , 'PyDev Extensions Releases' )
+    for b in homepageBase:
+        template(*b)
     
     templateForAll(manual101, ('', 'manual','Root'), ('', 'manual_adv_features'   ,'Features'), if_not_specified_in_file=dict(root='manual_101_root'))
-    
     templateForAll(manualAdv, ('', 'manual','Root'), ('', 'manual_adv_features','Features'), if_not_specified_in_file=dict(root='manual_adv_features'))
-    
-    template('template1.html', 'manual_adv_keybindings'    , 'Keybindings'                )
-    template('template1.html', 'faq'    , 'FAQ'                     )
-    template('template1.html', 'screenshots'    , 'Screenshots'                     )
-    
     templateForAll(manualScreencasts, ('', 'manual','Root'), ('', 'manual_screencasts','Screencasts'))
 
 def getDict(**kwargs):
     return kwargs
 
 def DoIt():
-    import faqbuild
-    faqbuild.Generate('scripts/_new_faq.template', 'faq.contents.html')
     sys.stdout.write('Built faq\n')
     
     main()

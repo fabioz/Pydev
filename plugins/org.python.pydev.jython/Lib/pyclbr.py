@@ -29,11 +29,8 @@ are recognized and imported modules are scanned as well, this
 shouldn't happen often.
 
 BUGS
-- Continuation lines are not dealt with at all.
-- While triple-quoted strings won't confuse it, lines that look like
-  def, class, import or "from ... import" stmts inside backslash-continued
-  single-quoted strings are treated like code.  The expense of stopping
-  that isn't worth it.
+- Continuation lines are not dealt with at all, except inside strings.
+- Nested classes and functions can confuse it.
 - Code that doesn't pass tabnanny or python -t will confuse it, unless
   you set the module TABWIDTH vrbl (default 8) to the correct tab width
   for the file.
@@ -53,7 +50,6 @@ PACKAGE RELATED BUGS
   exists coded in Python in the freeze package.)
 """
 
-import os
 import sys
 import imp
 import re
@@ -76,6 +72,10 @@ _getnext = re.compile(r"""
                         [^'\\]*
                     )*
         '''
+
+    |   " [^"\\\n]* (?: \\. [^"\\\n]*)* "
+
+    |   ' [^'\\\n]* (?: \\. [^'\\\n]*)* '
     )
 
 |   (?P<Method>
@@ -167,8 +167,8 @@ def readmodule_ex(module, path=[], inpackage=0):
         # Dotted module name
         package = module[:i].strip()
         submodule = module[i+1:].strip()
-        parent = readmodule(package, path, inpackage)
-        child = readmodule(submodule, parent['__path__'], 1)
+        parent = readmodule_ex(package, path, inpackage)
+        child = readmodule_ex(submodule, parent['__path__'], 1)
         return child
 
     if _modules.has_key(module):
@@ -203,7 +203,6 @@ def readmodule_ex(module, path=[], inpackage=0):
         return dict
 
     _modules[module] = dict
-    imports = []
     classstack = [] # stack of (class, indent) pairs
     src = f.read()
     f.close()
@@ -297,7 +296,7 @@ def readmodule_ex(module, path=[], inpackage=0):
                 n = n.strip()
                 try:
                     # recursively read the imported module
-                    d = readmodule(n, path, inpackage)
+                    d = readmodule_ex(n, path, inpackage)
                 except:
                     ##print 'module', n, 'not found'
                     pass
@@ -308,7 +307,7 @@ def readmodule_ex(module, path=[], inpackage=0):
             names = m.group("ImportFromList").split(',')
             try:
                 # recursively read the imported module
-                d = readmodule(mod, path, inpackage)
+                d = readmodule_ex(mod, path, inpackage)
             except:
                 ##print 'module', mod, 'not found'
                 continue

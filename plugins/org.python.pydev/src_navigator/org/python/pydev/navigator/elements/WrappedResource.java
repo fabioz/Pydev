@@ -9,6 +9,7 @@ package org.python.pydev.navigator.elements;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.core.filesystem.IFileInfo;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -130,7 +131,8 @@ public class WrappedResource<X extends IResource> implements IWrappedResource, I
                 //Added in 3.6
                 ISearchPageScoreComputer.class.equals(adapter)||
                 IToggleBreakpointsTarget.class.equals(adapter)||
-                ITaskListResourceAdapter.class.equals(adapter)
+                ITaskListResourceAdapter.class.equals(adapter) ||
+                IFileInfo.class.equals(adapter)
                 ){
             return actualObject2.getAdapter(adapter);
         }

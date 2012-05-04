@@ -41,16 +41,22 @@ public class PrettyPrinterUtilsV2 extends VisitorBase{
     }
 
     private void writeSpecialsBefore(SimpleNode node) throws IOException {
+        if(node == null){
+            return;
+        }
         List<Object> specialsBefore = node.specialsBefore;
-        if(node == null||specialsBefore == null){
+        if(specialsBefore == null){
             return;
         }
         writeSpecials(node, specialsBefore);
     }
 
     private void writeSpecialsAfter(SimpleNode node) throws IOException {
+        if(node == null){
+            return;
+        }
         List<Object> specialsAfter = node.specialsAfter;
-        if(node == null||specialsAfter == null){
+        if(specialsAfter == null){
             return;
         }
         writeSpecials(node, specialsAfter);

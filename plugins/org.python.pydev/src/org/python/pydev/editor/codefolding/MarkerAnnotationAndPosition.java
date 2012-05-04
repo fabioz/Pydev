@@ -54,6 +54,7 @@ public class MarkerAnnotationAndPosition {
                 return false;
             }
             //if here, markerAnnotation == other.markerAnnotation == null
+            return true;
         } else if (other.markerAnnotation == null) {
             return false;
         }

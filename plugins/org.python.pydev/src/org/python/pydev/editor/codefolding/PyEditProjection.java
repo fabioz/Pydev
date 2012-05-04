@@ -11,10 +11,13 @@
  */
 package org.python.pydev.editor.codefolding;
 
+import java.util.Iterator;
+
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.source.IOverviewRuler;
+import org.eclipse.jface.text.source.ISharedTextColors;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.projection.ProjectionSupport;
@@ -22,12 +25,15 @@ import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.editors.text.TextEditor;
+import org.eclipse.ui.texteditor.AnnotationPreference;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.parser.IParserObserver;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
+import org.python.pydev.overview_ruler.MinimapOverviewRuler;
+import org.python.pydev.overview_ruler.MinimapOverviewRulerPreferencesPage;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 
 /**
@@ -123,6 +129,25 @@ public abstract class PyEditProjection extends TextEditor implements IParserObse
         IEditorStatusLine statusLine = (IEditorStatusLine) getAdapter(IEditorStatusLine.class);
         if (statusLine != null)
             statusLine.setMessage(true, msg, null);
+    }
+    
+    
+    @Override
+    protected IOverviewRuler createOverviewRuler(ISharedTextColors sharedColors) {
+        if(MinimapOverviewRulerPreferencesPage.useMinimap()){
+            IOverviewRuler ruler= new MinimapOverviewRuler(getAnnotationAccess(), sharedColors);
+    
+            Iterator e= getAnnotationPreferences().getAnnotationPreferences().iterator();
+            while (e.hasNext()) {
+                AnnotationPreference preference= (AnnotationPreference) e.next();
+                if (preference.contributesToHeader()){
+                    ruler.addHeaderAnnotationType(preference.getAnnotationType());
+                }
+            }
+            return ruler;
+        }else{
+            return super.createOverviewRuler(sharedColors);
+        }
     }
 
 }

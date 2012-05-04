@@ -10,7 +10,7 @@ the python source tree after building the interpreter and run:
     python Lib/keyword.py
 """
 
-__all__ = ["iskeyword"]
+__all__ = ["iskeyword", "kwlist"]
 
 kwlist = [
 #--start keywords--
@@ -42,6 +42,7 @@ kwlist = [
         'return',
         'try',
         'while',
+        'yield',
 #--end keywords--
         ]
 

@@ -332,15 +332,16 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         begin_decorator();
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case LPAREN:
-                         temporaryToken=createSpecialStr("(");
+                         this.markDecoratorWithCall();
+                                                         temporaryToken=createSpecialStr("(");
           jj_consume_token(LPAREN);
-                                                                          this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);
+                                                                                                          this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);
           insidetuporcall();
           try {
-                                                                                                                                                              this.findTokenAndAdd(")");
+                                                                                                                                                                                              this.findTokenAndAdd(")");
             jj_consume_token(RPAREN);
           } catch (ParseException e) {
-                                                                                                                                                                                                                           handleRParensNearButNotCurrent(e);
+                                                                                                                                                                                                                                                           handleRParensNearButNotCurrent(e);
           }
           break;
         default:
@@ -350,7 +351,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         try {
           jj_consume_token(NEWLINE);
         } catch (ParseException e) {
-                                                                                                                                                                                                                                                                                                       handleNoNewline(e);
+                                                                                                                                                                                                                                                                                                                                       handleNoNewline(e);
         }
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case AT:

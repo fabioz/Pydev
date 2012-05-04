@@ -16,6 +16,7 @@ import java.util.ListResourceBundle;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
@@ -81,6 +82,7 @@ import org.eclipse.ui.texteditor.ITextEditorExtension2;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
+import org.python.pydev.changed_lines.ChangedLinesComputer;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IDefinition;
@@ -103,6 +105,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.parser.ISimpleNode;
+import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.actions.FirstCharAction;
 import org.python.pydev.editor.actions.OfflineAction;
 import org.python.pydev.editor.actions.OfflineActionTarget;
@@ -151,6 +154,7 @@ import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.ColorAndStyleCache;
 import org.python.pydev.ui.UIConstants;
+import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * The TextWidget.
@@ -238,7 +242,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     /**
      * Those are the ones that register at runtime (not through extensions points).
      */
-    private volatile Collection<IPyEditListener> registeredEditListeners = new OrderedSet<IPyEditListener>();
+    private final Collection<IPyEditListener> registeredEditListeners = new OrderedSet<IPyEditListener>();
 
     /**
      * This is the scripting engine that is binded to this interpreter.
@@ -360,7 +364,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      */
     protected boolean initFinished = false;
 
-    private PyEditNotifier notifier;
+    private final PyEditNotifier notifier;
 
     private boolean disposed = false;
 
@@ -383,6 +387,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         synchronized (currentlyOpenedEditorsLock) {
             currentlyOpenedEditors.add(this);
         }
+        notifier = new PyEditNotifier(this);
         try {
             onPyEditCreated.call(this);
         } catch (Throwable e) {
@@ -393,7 +398,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             if (editListeners == null){
                 editListeners = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PYEDIT_LISTENER);
             }
-            notifier = new PyEditNotifier(this);
             notifier.notifyEditorCreated();
             
             
@@ -839,6 +843,14 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 	    }catch (Throwable e) {
 	    	Log.log(e);
 	    }
+	    
+	    try {
+            if(this.isCythonFile()){
+                this.setTitleImage(PydevPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON));
+            }
+        } catch (Throwable e) {
+            Log.log(e);
+        }
     }
     
 
@@ -905,14 +917,30 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         
         //Before saving, let's see if the auto-code formatting is turned on.
         try {
-            if(PyCodeFormatterPage.getFormatBeforeSaving()){
+            //TODO CYTHON: support code-formatter. 
+            if(PyCodeFormatterPage.getFormatBeforeSaving() && !isCythonFile()){
                 IStatusLineManager statusLineManager = this.getStatusLineManager();
+                IDocumentProvider documentProvider = getDocumentProvider();
+                IRegion[] regionsForSave = null;
+                
+                if(PyCodeFormatterPage.getFormatOnlyChangedLines()){
+                    if(documentProvider instanceof PyDocumentProvider){
+                        PyDocumentProvider pyDocumentProvider = (PyDocumentProvider) documentProvider;
+                        ITextFileBuffer fileBuffer = pyDocumentProvider.getFileBuffer(getEditorInput());
+                        if(fileBuffer != null){
+                            regionsForSave = ChangedLinesComputer.calculateChangedLineRegions(fileBuffer, progressMonitor);
+                        }
+                    }else{
+                        Log.log("Was expecting PyDocumentProvider. Found: "+documentProvider);
+                    }
+                }
                 
                 PyFormatStd std = new PyFormatStd();
-                PySelection ps = new PySelection(document, (ITextSelection) this.getSelectionProvider().getSelection());
+                ITextSelection selection = (ITextSelection) this.getSelectionProvider().getSelection();
+                PySelection ps = new PySelection(document, selection);
                 boolean throwSyntaxError = true;
                 try{
-                    std.applyFormatAction(this, ps, true, throwSyntaxError);
+                    std.applyFormatAction(this, ps, regionsForSave, throwSyntaxError);
                     statusLineManager.setErrorMessage(null);
                 }catch(SyntaxErrorException e){
                     statusLineManager.setErrorMessage(e.getMessage());
@@ -1088,6 +1116,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                     this.resourceManager = null;
                 }
                 
+                synchronized (registeredEditListeners) {
+                    registeredEditListeners.clear();
+                }
+                
             }catch (Throwable e) {
                 Log.log(e);
             }
@@ -1223,6 +1255,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             return fOfflineActionTarget;
         }
 
+        if(ICodeScannerKeywords.class.equals(adapter)){
+            return new PyEditBasedCodeScannerKeywords(this);
+        }
+        
         if (IContentOutlinePage.class.equals(adapter)){
             return new PyOutlinePage(this);
         }else{
@@ -1369,6 +1405,19 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         }
 
         fireModelChanged(ast);
+        //Trying to fix issue where it seems that the text presentation is not properly updated after markers are
+        //changed (i.e.: red lines remain there when they shouldn't).
+        //I couldn't really reproduce this issue, so, this may not fix it...
+        //
+        //Details: https://sourceforge.net/projects/pydev/forums/forum/293649/topic/4477776
+        RunInUiThread.async(new Runnable() {
+            
+            public void run() {
+                if(!isDisposed()){
+                    getSourceViewer().invalidateTextPresentation();
+                }
+            }
+        });
     }
 
 
@@ -1532,6 +1581,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      * Only used if we weren't able
      */
     public int getGrammarVersion() throws MisconfigurationException{
+        if(isCythonFile()){
+            return IPythonNature.GRAMMAR_PYTHON_VERSION_CYTHON;
+        }
         IPythonNature nature;
         nature = getPythonNature();
         if(nature != null){
@@ -1542,17 +1594,27 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     }
 
     public IGrammarVersionProvider getGrammarVersionProvider(){
-        IPythonNature nature;
-        try{
-            nature = getPythonNature();
-        }catch(MisconfigurationException e){
-            return this;
+        return new IGrammarVersionProvider() {
+            
+            public int getGrammarVersion() throws MisconfigurationException {
+                //Always calculate at the present time based on the editor configuration.
+                return PyEdit.this.getGrammarVersion();
+            }
+        };
+    }
+
+    public boolean isCythonFile() {
+        IFile iFile = getIFile();
+        String fileName = null;
+        if(iFile != null){
+            fileName = iFile.getName();
+        }else{
+            File editorFile = getEditorFile();
+            if(editorFile != null){
+                fileName = editorFile.getName();
+            }
         }
-        if(nature != null){
-            return nature;
-        }
-        Tuple<SystemPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getEditorFile());
-        return infoForFile.o1;
+        return FileTypesPreferencesPage.isCythonFile(fileName);
     }
     
     /**
@@ -1594,6 +1656,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         try{
             this.setPreferenceStore(PydevPrefs.getChainedPrefStore());
             setEditorContextMenuId(PY_EDIT_CONTEXT);
+            setDocumentProvider(PyDocumentProvider.instance);
         }catch (Throwable e) {
             Log.log(e);
         }

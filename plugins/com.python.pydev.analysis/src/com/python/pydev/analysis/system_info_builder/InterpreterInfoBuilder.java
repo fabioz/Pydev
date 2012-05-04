@@ -14,7 +14,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure;
-import org.python.pydev.editor.codecompletion.revisited.ModulesKeyTreeMap;
+import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.logging.DebugSettings;
@@ -64,7 +64,7 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder{
                 }                
                 
                 SystemModulesManager modulesManager = (SystemModulesManager) builder.info.getModulesManager();
-                ModulesKeyTreeMap<ModulesKey, ModulesKey> keysFound = modulesManager.buildKeysFromModulesFound(monitor, modulesFound);
+                PyPublicTreeMap<ModulesKey, ModulesKey> keysFound = modulesManager.buildKeysFromModulesFound(monitor, modulesFound);
                 
                 if(DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE){
                     Log.toLogFile(this, StringUtils.format("Found: %s modules", keysFound.size()));

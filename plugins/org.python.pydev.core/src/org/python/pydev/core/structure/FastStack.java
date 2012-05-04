@@ -28,9 +28,6 @@ public final class FastStack<E> implements Iterable<E> {
 
     private int size; // = 0
 
-    public FastStack() {
-        this(73); //after some runs in pydev, this was a good number...
-    }
 
     /**
      * Creates an empty Stack.

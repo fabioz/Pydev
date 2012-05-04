@@ -27,7 +27,7 @@ import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
-import com.python.pydev.analysis.scopeanalysis.AbstractScopeAnalyzerVisitor;
+import com.python.pydev.analysis.IAnalysisPreferences;
 
 public final class NoSelfChecker {
 
@@ -40,20 +40,20 @@ public final class NoSelfChecker {
         }
     }
     
-    private FastStack<Integer> scope = new FastStack<Integer>();
-    private FastStack<HashMap<String, Tuple<Expected, FunctionDef>>> maybeNoSelfDefinedItems = new FastStack<HashMap<String, Tuple<Expected, FunctionDef>>>();
+    private final FastStack<Integer> scope = new FastStack<Integer>(10);
+    private final FastStack<HashMap<String, Tuple<Expected, FunctionDef>>> maybeNoSelfDefinedItems = new FastStack<HashMap<String, Tuple<Expected, FunctionDef>>>(10);
     
     /**
      * Stack with the names of the classes
      */
-    private FastStack<String> classBases = new FastStack<String>();
+    private FastStack<String> classBases = new FastStack<String>(10);
     
-    private String moduleName;
-    private AbstractScopeAnalyzerVisitor visitor;
+    private final String moduleName;
+    private final MessagesManager messagesManager;
 
-    public NoSelfChecker(AbstractScopeAnalyzerVisitor visitor, String moduleName) {
-        this.visitor = visitor;
-        this.moduleName = moduleName;
+    public NoSelfChecker(OccurrencesVisitor visitor) {
+        this.messagesManager = visitor.messagesManager;
+        this.moduleName = visitor.moduleName;
         scope.push(Scope.SCOPE_TYPE_GLOBAL); //we start in the global scope
     }
 
@@ -90,7 +90,7 @@ public final class NoSelfChecker {
             Expected expected = entry.getValue().o1;
             if(!expected.expected.equals(expected.received)){
                 SourceToken token = AbstractVisitor.makeToken(entry.getValue().o2, moduleName);
-                visitor.onAddNoSelf(token, new Object[]{token, entry.getValue().o1.expected});
+                messagesManager.addMessage(IAnalysisPreferences.TYPE_NO_SELF, token, new Object[]{token, entry.getValue().o1.expected});
             }
         }
     }

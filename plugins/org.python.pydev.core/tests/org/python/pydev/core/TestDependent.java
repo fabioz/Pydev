@@ -1,0 +1,241 @@
+/**
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
+/*
+ * Create a file TestDependent.java with the contents in this file and substitute the
+ * values as needed...
+ */
+package org.python.pydev.core;
+
+import java.io.File;
+import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+
+public class TestDependent {
+
+    //Use defaults and override later as needed.
+
+    //Python (required)
+    public static String PYTHON_INSTALL = null;
+    public static String TEST_PYDEV_BASE_LOC = null;
+    
+    //Python (implicitly resolved based on the Python variables above if not specified).
+    public static String PYTHON_LIB = null;
+    public static String PYTHON_DLLS = null;
+    public static String PYTHON_EXE = null;
+    public static String PYTHON_SITE_PACKAGES = null;
+    public static String PYTHON_TEST_PACKAGES = null;
+    
+
+    //Python (optional): related tests won't be run if not available
+    public static String PYTHON_WXPYTHON_PACKAGES = null;
+    public static String PYTHON_NUMPY_PACKAGES = null;
+    public static String PYTHON_DJANGO_PACKAGES = null;
+    public static String PYTHON_QT4_PACKAGES = null;
+    public static String PYTHON_OPENGL_PACKAGES = null;
+    public static String PYTHON_MX_PACKAGES = null;
+    public static String PYTHON_PIL_PACKAGES = null;
+
+    //python 3.0
+    public static String PYTHON_30_LIB = null;
+
+
+    public static String TEST_PYSRC_LOC = null;
+    public static String TEST_PYSRC_NAVIGATOR_LOC = null;
+    public static String TEST_PYSRC_LOC2 = null;
+    public static String TEST_PYDEV_PLUGIN_LOC = null;
+    public static String TEST_PYDEV_DEBUG_PLUGIN_LOC = null;
+    public static String TEST_PYDEV_JYTHON_PLUGIN_LOC = null;
+    public static String TEST_PYDEV_PARSER_PLUGIN_LOC = null;
+    public static String TEST_PYDEV_REFACTORING_PLUGIN_LOC = null;
+    public static String TEST_COM_REFACTORING_PYSRC_LOC = null;
+
+    //java info
+    public static String JAVA_LOCATION = "d:/bin/jdk1.5.0_22/bin/java.exe";
+    public static String JAVA_RT_JAR_LOCATION = "d:/bin/jdk1.5.0_22/jre/lib/rt.jar";
+
+    //Jython (required)
+    public static String JYTHON_JAR_LOCATION = "d:/bin/jython2.2.1/jython.jar";
+    public static String JYTHON_LIB_LOCATION = "d:/bin/jython2.2.1/lib/";
+    public static String JYTHON_ANT_JAR_LOCATION = null;
+    public static String JYTHON_JUNIT_JAR_LOCATION = null;
+
+    //Iron Python (optional)
+    public static String IRONPYTHON_EXE = null;
+    public static String IRONPYTHON_LIB = null;
+
+    //Boolean to know if we can run SWT tests
+    public static boolean HAS_SWT_ON_PATH = false;
+
+    //Cygwin (optional)
+    public static String CYGWIN_CYGPATH_LOCATION = null;
+    public static String CYGWIN_UNIX_CYGPATH_LOCATION = null;
+    public static String GOOGLE_APP_ENGINE_LOCATION = null;
+
+
+    public static String GetCompletePythonLib(boolean addSitePackages) {
+        if (!addSitePackages) {
+            return PYTHON_LIB+"|"+PYTHON_DLLS;
+        } else {
+            return PYTHON_LIB + "|" + PYTHON_SITE_PACKAGES+"|"+PYTHON_DLLS;
+        }
+    }
+    
+    public static boolean isWindows() {
+        String os = System.getProperty("os.name").toLowerCase();
+        return (os.indexOf("win") >= 0);
+
+    }
+
+    public static boolean isMac() {
+        String os = System.getProperty("os.name").toLowerCase();
+        return (os.indexOf("mac") >= 0);
+
+    }
+
+    public static boolean isUnix() {
+        String os = System.getProperty("os.name").toLowerCase();
+        return (os.indexOf("nix") >= 0 || os.indexOf("nux") >= 0);
+
+    }
+
+    static {
+        try {
+            String platform;
+            if (isWindows()) {
+                platform = "windows";
+            } else if (isUnix()) {
+                platform = "linux";
+            } else if (isMac()) {
+                platform = "mac";
+            } else {
+                platform = null;
+            }
+
+            String propertiesFile = "undefined";
+            if (platform != null) {
+                propertiesFile = "org/python/pydev/core/TestDependent." + platform + ".properties";
+                InputStream stream = TestDependent.class.getClassLoader().getResourceAsStream(propertiesFile);
+                if (stream != null) {
+                    //Initialize the static contents of the class.
+                    String streamContents = REF.getStreamContents(stream, null, null);
+                    Properties props = PropertiesHelper.createPropertiesFromString(streamContents);
+                    Map<String, String> map = PropertiesHelper.createMapFromProperties(props);
+                    Set<Entry<String, String>> entrySet = map.entrySet();
+                    for (Entry<String, String> entry : entrySet) {
+                        String key = entry.getKey();
+                        try {
+                            Field field = TestDependent.class.getField(key);
+                            if (field != null) {
+                                String value = entry.getValue();
+                                if(!value.equals("null")){
+                                    field.set(null, value);
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                } else {
+                    System.err.println("Could not get stream to: " + propertiesFile + " to initialize TestDependent.java values.");
+                }
+            }
+
+            //Checking and setting variables that do not exist (if possible).
+            if (PYTHON_INSTALL == null) {
+                System.err.println("PYTHON_INSTALL variable MUST be set in " + propertiesFile + " to run tests.");
+            }else if(!new File(PYTHON_INSTALL).exists()){
+                System.err.println("PYTHON_INSTALL variable points to path that does NOT exist: "+PYTHON_INSTALL);
+            }
+            
+            
+            if (TEST_PYDEV_BASE_LOC == null) {
+                System.err.println("TEST_PYDEV_BASE_LOC variable MUST be set in " + propertiesFile + " to run tests.");
+            }else if(!new File(TEST_PYDEV_BASE_LOC).exists()){
+                System.err.println("TEST_PYDEV_BASE_LOC variable points to path that does NOT exist: "+TEST_PYDEV_BASE_LOC);
+            }
+
+            
+            if (PYTHON_EXE == null) {
+                if (isWindows()) {
+                    PYTHON_EXE = PYTHON_INSTALL + "python.exe";
+                } else {
+                    PYTHON_EXE = PYTHON_INSTALL + "python";
+                }
+            }
+            if(!new File(PYTHON_EXE).exists()){
+                System.err.println("PYTHON_EXE variable points to path that does NOT exist: "+PYTHON_EXE);
+            }
+            
+            
+
+            if (PYTHON_LIB == null) {
+                PYTHON_LIB = PYTHON_INSTALL + "Lib/";
+            }
+            if (PYTHON_DLLS == null) {
+                PYTHON_DLLS = PYTHON_INSTALL + "DLLs/";
+            }
+            if (PYTHON_SITE_PACKAGES == null) {
+                PYTHON_SITE_PACKAGES = PYTHON_LIB + "site-packages/";
+            }
+            if (PYTHON_TEST_PACKAGES == null) {
+                if(new File(TestDependent.PYTHON_LIB + "test/").exists()){
+                    PYTHON_TEST_PACKAGES = TestDependent.PYTHON_LIB + "test/";
+                }
+            }
+
+            if (TEST_PYSRC_LOC == null) {
+                TEST_PYSRC_LOC = TEST_PYDEV_BASE_LOC + "org.python.pydev/tests/pysrc/";
+            }
+
+            if (TEST_PYSRC_NAVIGATOR_LOC == null) {
+                TEST_PYSRC_NAVIGATOR_LOC = TEST_PYDEV_BASE_LOC + "org.python.pydev/tests_navigator/pysrc/";
+            }
+
+            if (TEST_PYSRC_LOC2 == null) {
+                TEST_PYSRC_LOC2 = TEST_PYDEV_BASE_LOC + "org.python.pydev/tests/pysrc2/";
+            }
+
+            if (TEST_PYDEV_PLUGIN_LOC == null) {
+                TEST_PYDEV_PLUGIN_LOC = TEST_PYDEV_BASE_LOC + "org.python.pydev/";
+            }
+
+            if (TEST_PYDEV_DEBUG_PLUGIN_LOC == null) {
+                TEST_PYDEV_DEBUG_PLUGIN_LOC = TEST_PYDEV_BASE_LOC + "org.python.pydev.debug/";
+            }
+
+            if (TEST_PYDEV_JYTHON_PLUGIN_LOC == null) {
+                TEST_PYDEV_JYTHON_PLUGIN_LOC = TEST_PYDEV_BASE_LOC + "org.python.pydev.jython/";
+            }
+
+            if (TEST_PYDEV_PARSER_PLUGIN_LOC == null) {
+                TEST_PYDEV_PARSER_PLUGIN_LOC = TEST_PYDEV_BASE_LOC + "org.python.pydev.parser/";
+            }
+
+            if (TEST_PYDEV_REFACTORING_PLUGIN_LOC == null) {
+                TEST_PYDEV_REFACTORING_PLUGIN_LOC = TEST_PYDEV_BASE_LOC + "org.python.pydev.refactoring/";
+            }
+
+            if (TEST_COM_REFACTORING_PYSRC_LOC == null) {
+                TEST_COM_REFACTORING_PYSRC_LOC = TEST_PYDEV_BASE_LOC + "com.python.pydev.refactoring/tests/pysrcrefactoring/";
+            }
+
+        } catch (Exception e) {
+            System.err.println("--- Error getting contents to properly initialize TestDependent.java values ---");
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+        System.out.println("now");
+    }
+
+}

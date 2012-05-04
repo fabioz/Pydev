@@ -55,6 +55,9 @@ public class UIConstants {
     
 //file content
     public static final String PY_FILE_ICON = "icons/python_file.gif";
+    public static final String CYTHON_FILE_ICON = "icons/cython_file.png";
+    public static final String CYTHON_ICON = "icons/cython.png";
+
     public static final String PY_FILE_CUSTOM_ICON = "icons/custom_python_file.png";
     public static final String FILE_ICON = "icons/file.gif";
     public static final String FOLDER_ICON = "icons/folder.gif";

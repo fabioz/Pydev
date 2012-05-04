@@ -32,8 +32,8 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
 
     protected List<ASTEntry> nodes = new ArrayList<ASTEntry>();
 
-    protected final FastStack<SimpleNode> stack = new FastStack<SimpleNode>();
-    protected final FastStack<ASTEntry> parents = new FastStack<ASTEntry>();
+    protected final FastStack<SimpleNode> stack = new FastStack<SimpleNode>(20);
+    protected final FastStack<ASTEntry> parents = new FastStack<ASTEntry>(10);
     
     protected SimpleNode lastVisited;
     protected ASTEntry lastDefVisited; //ClassDef or FunctionDef

@@ -414,16 +414,27 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
     /**
      * @return the information on a project. Can create it if it's not available.
      */
-    protected synchronized ProjectInfoForPackageExplorer getProjectInfo(IProject project) {
+    protected synchronized ProjectInfoForPackageExplorer getProjectInfo(final IProject project) {
+        if(project == null){
+            return null;
+        }
         Map<IProject, ProjectInfoForPackageExplorer> p = projectToSourceFolders;
         if(p != null){
             ProjectInfoForPackageExplorer projectInfo = p.get(project);
             if(projectInfo == null){
+                if(!project.isOpen()){
+                    return null;
+                }
                 //No project info: create it
                 projectInfo = p.get(project);
                 if(projectInfo == null){
                     projectInfo = new ProjectInfoForPackageExplorer(project);
                     p.put(project, projectInfo);
+                }
+            }else{
+                if(!project.isOpen()){
+                    p.remove(project);
+                    projectInfo = null;
                 }
             }
             return projectInfo;
@@ -467,6 +478,10 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
             
         }else if(element instanceof IWorkingSet){
             parent = ResourcesPlugin.getWorkspace().getRoot();
+            
+        }else if(element instanceof TreeNode){
+            TreeNode treeNode = (TreeNode) element;
+            return treeNode.getParent();
         }
 
         if(parent == null){

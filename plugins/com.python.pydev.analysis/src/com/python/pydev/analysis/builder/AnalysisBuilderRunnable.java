@@ -9,7 +9,6 @@
  */
 package com.python.pydev.analysis.builder;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +22,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.logging.DebugSettings;
 
@@ -51,7 +51,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
     // -------------------------------------------------------------------------------------------- ATTRIBUTES
 
     private IDocument document;
-    private WeakReference<IResource> resource;
+    private IResource resource;
     private ICallback<IModule, Integer> module;
     
     // ---------------------------------------------------------------------------------------- END ATTRIBUTES
@@ -100,8 +100,12 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
             KeyForAnalysisRunnable key, long resourceModificationStamp) {
         super(isFullBuild, moduleName, forceAnalysis, analysisCause, oldAnalysisBuilderThread, nature, documentTime, key, resourceModificationStamp);
         
+        if(resource == null){
+            Log.toLogFile(this, "Unexpected null resource for: "+moduleName);
+            return;
+        }
         this.document = document;
-        this.resource = new WeakReference<IResource>(resource);
+        this.resource = resource;
         this.module = module;
     }
 
@@ -126,9 +130,14 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
                 Log.toLogFile(this, "doAnalysis() - "+moduleName+" "+this.getAnalysisCauseStr());
             }
             //if the resource is not open, there's not much we can do...
-            final IResource r = resource.get();
-            if(r == null || !r.getProject().isOpen()){
-                Log.toLogFile(this, "Finished analysis -- resource null or project closed -- "+moduleName);
+            final IResource r = resource;
+            if(r == null){
+                Log.toLogFile(this, "Finished analysis -- resource null -- "+moduleName);
+                return;
+            }
+            
+            if(!r.getProject().isOpen()){
+                Log.toLogFile(this, "Finished analysis -- project closed -- "+moduleName);
                 return;
             }
             
@@ -238,8 +247,8 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
             //ok, let's do it
             OccurrencesAnalyzer analyzer = new OccurrencesAnalyzer();
             checkStop();
-            IMessage[] messages = analyzer.analyzeDocument(nature, module, analysisPreferences, 
-                    document, this.internalCancelMonitor);
+            IMessage[] messages = analyzer.analyzeDocument(
+                    nature, module, analysisPreferences, document, this.internalCancelMonitor, DefaultIndentPrefs.get());
             
             checkStop();
             if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
@@ -283,7 +292,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
             try{
                 nature.endRequests();
             }catch(Throwable e){
-                Log.log(e);
+                Log.log("Error when analyzing: "+moduleName, e);
             }
             try{
                 AnalysisBuilderRunnableFactory.removeFromThreads(key, this);

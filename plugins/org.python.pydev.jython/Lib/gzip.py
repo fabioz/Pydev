@@ -35,6 +35,10 @@ class GzipFile:
 
     def __init__(self, filename=None, mode=None,
                  compresslevel=9, fileobj=None):
+        # guarantee the file is opened in binary mode on platforms
+        # that care about that sort of thing
+        if mode and 'b' not in mode:
+            mode += 'b'
         if fileobj is None:
             fileobj = self.myfileobj = __builtin__.open(filename, mode or 'rb')
         if filename is None:
@@ -64,6 +68,7 @@ class GzipFile:
             raise ValueError, "Mode " + mode + " not supported"
 
         self.fileobj = fileobj
+        self.offset = 0
 
         if self.mode == WRITE:
             self._write_gzip_header()
@@ -138,9 +143,7 @@ class GzipFile:
             self.size = self.size + len(data)
             self.crc = zlib.crc32(data, self.crc)
             self.fileobj.write( self.compress.compress(data) )
-
-    def writelines(self,lines):
-        self.write(" ".join(lines))
+            self.offset += len(data)
 
     def read(self, size=-1):
         if self.extrasize <= 0 and self.fileobj is None:
@@ -167,11 +170,13 @@ class GzipFile:
         self.extrabuf = self.extrabuf[size:]
         self.extrasize = self.extrasize - size
 
+        self.offset += size
         return chunk
 
     def _unread(self, buf):
         self.extrabuf = buf + self.extrabuf
         self.extrasize = len(buf) + self.extrasize
+        self.offset -= len(buf)
 
     def _read(self, size=1024):
         if self.fileobj is None: raise EOFError, "Reached EOF"
@@ -185,7 +190,6 @@ class GzipFile:
             pos = self.fileobj.tell()   # Save current position
             self.fileobj.seek(0, 2)     # Seek to end of file
             if pos == self.fileobj.tell():
-                self.fileobj = None
                 raise EOFError, "Reached EOF"
             else:
                 self.fileobj.seek( pos ) # Return to original position
@@ -204,7 +208,6 @@ class GzipFile:
         if buf == "":
             uncompress = self.decompress.flush()
             self._read_eof()
-            self.fileobj = None
             self._add_read_data( uncompress )
             raise EOFError, 'Reached EOF'
 
@@ -270,10 +273,39 @@ class GzipFile:
     def isatty(self):
         return 0
 
+    def tell(self):
+        return self.offset
+
+    def rewind(self):
+        '''Return the uncompressed stream file position indicator to the
+        beginning of the file'''
+        if self.mode != READ:
+            raise IOError("Can't rewind in write mode")
+        self.fileobj.seek(0)
+        self._new_member = 1
+        self.extrabuf = ""
+        self.extrasize = 0
+        self.offset = 0
+
+    def seek(self, offset):
+        if self.mode == WRITE:
+            if offset < self.offset:
+                raise IOError('Negative seek in write mode')
+            count = offset - self.offset
+            for i in range(count/1024):
+                self.write(1024*'\0')
+            self.write((count%1024)*'\0')
+        elif self.mode == READ:
+            if offset < self.offset:
+                # for negative seek, rewind and do positive seek
+                self.rewind()
+            count = offset - self.offset
+            for i in range(count/1024): self.read(1024)
+            self.read(count % 1024)
+
     def readline(self, size=-1):
         if size < 0: size = sys.maxint
         bufs = []
-        orig_size = size
         readsize = min(100, size)    # Read from the file in small chunks
         while 1:
             if size == 0:
@@ -320,7 +352,6 @@ def _test():
     # Act like gzip; with -d, act like gunzip.
     # The input file is not deleted, however, nor are any other gzip
     # options or features supported.
-    import sys
     args = sys.argv[1:]
     decompress = args and args[0] == "-d"
     if decompress:

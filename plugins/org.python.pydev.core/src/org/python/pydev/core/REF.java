@@ -176,6 +176,19 @@ public class REF {
             try { if(stream != null) stream.close(); } catch (Exception e) {Log.log(e);}
         }
     }
+    
+    /**
+     * Gets the contents from the stream and closes it!
+     */
+    public static String getStreamContents(InputStream stream, String encoding, IProgressMonitor monitor){
+        try {
+            return (String) getStreamContents(stream, encoding, monitor, String.class);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }finally{
+            try { if(stream != null) stream.close(); } catch (Exception e) {Log.log(e);}
+        }
+    }
 
     /**
      * Get the contents from a given stream.
@@ -342,15 +355,18 @@ public class REF {
         writeStrToFile(str, new File(file));
     }
     
+    public static void writeStrToFile(String str, File file) {
+        writeBytesToFile(str.getBytes(), file);
+    }
     
     /**
      * Writes the contents of the passed string to the given file.
      */
-    public static void writeStrToFile(String str, File file) {
+    public static void writeBytesToFile(byte[] bytes, File file) {
         try {
             FileOutputStream stream = new FileOutputStream(file);
             try {
-                stream.write(str.getBytes());
+                stream.write(bytes);
             } finally{
                 stream.close();
             }

@@ -123,10 +123,10 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testQtInit() throws Exception {
-        if(TestDependent.HAS_QT_INSTALLED){
+        if(TestDependent.PYTHON_QT4_PACKAGES != null){
             doc = new Document(
-                    "import qt\n"+
-                    "print qt.QWidget.__init__\n"+
+                    "import PyQt4.QtGui\n"+
+                    "print PyQt4.QtGui.QWidget.__init__\n"+
                     "\n"+
                     "\n"
             );
@@ -296,10 +296,10 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
     
     public void testQt() throws Exception {
-        if(TestDependent.HAS_QT_INSTALLED){
+        if(TestDependent.PYTHON_QT4_PACKAGES != null){
             doc = new Document(
-                    "import qt\n"+ 
-                    "print qt.Qt.red\n" +   
+                    "import PyQt4.QtGui\n"+ 
+                    "print PyQt4.QtGui.QColor.red\n" +   
                     "\n"+
                     "\n"
             );

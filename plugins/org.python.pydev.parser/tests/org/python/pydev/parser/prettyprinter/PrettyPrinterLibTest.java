@@ -18,7 +18,7 @@ import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
 public class PrettyPrinterLibTest extends AbstractPrettyPrinterTestBase{
 
 
-    private static boolean MAKE_COMPLETE_PARSE = false;
+    private static boolean MAKE_COMPLETE_PARSE = true;
 
 
     public static void main(String[] args) {

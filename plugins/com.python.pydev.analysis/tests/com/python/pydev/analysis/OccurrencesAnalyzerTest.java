@@ -565,53 +565,6 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         checkNoError();
     }
     
-    public void testGlu(){
-        if(TestDependent.HAS_GLU_INSTALLED){
-            doc = new Document(
-                    "from OpenGL.GL import glPushMatrix\n" +
-                    "print glPushMatrix\n" +
-                    ""
-            );
-            checkNoError();
-        }
-        
-    }
-    
-    public void testGlu2(){
-        if(TestDependent.HAS_GLU_INSTALLED){
-            doc = new Document(
-                    "from OpenGL.GL import * #@UnusedWildImport\n" +
-                    "print glPushMatrix\n" +
-                    ""
-            );
-            checkNoError();
-        }
-        
-    }
-    
-    public void testGlu3(){
-        if(TestDependent.HAS_GLU_INSTALLED){
-            doc = new Document(
-                    "from OpenGL.GL import glRotatef\n" +
-                    "print glRotatef\n" +
-                    ""
-            );
-            checkNoError();
-        }
-        
-    }
-    
-    public void testGlu4(){
-        if(TestDependent.HAS_GLU_INSTALLED){
-            doc = new Document(
-                    "from OpenGL.GLU import gluLookAt\n" +
-                    "print gluLookAt" +
-                    ""
-            );
-            checkNoError();
-        }
-        
-    }
     
     public void testCompiledUnusedImports5(){
         
@@ -2568,7 +2521,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     
     public void testNoEffectOk5() {
         doc = new Document("" +
-                "def check():\n" +
+                "def check(a):\n" +
                 "    pass\n" +
                 "check(1 in [1,2])\n" +
         "");

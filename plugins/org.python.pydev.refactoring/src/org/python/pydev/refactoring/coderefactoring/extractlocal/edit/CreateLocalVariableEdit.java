@@ -102,7 +102,11 @@ public class CreateLocalVariableEdit extends AbstractInsertEdit {
                     Visitor v = new Visitor(){
                         
                         protected Object unhandled_node(SimpleNode node) throws Exception {
-                            line[0] = Math.min(line[0], node.beginLine-1);
+                            if(node.beginLine > 0){
+                                line[0] = Math.min(line[0], node.beginLine-1);
+                            }else{
+                                Log.log("Found node with beginLine <= 0:"+node+" line: "+node.beginLine);
+                            }
                             return this;
                         }
                     };
@@ -140,7 +144,7 @@ public class CreateLocalVariableEdit extends AbstractInsertEdit {
     }
 
     @Override
-    protected String getIndentation(int indent) {
+    public String getIndent() {
         PySelection selection = new PySelection(info.getDocument(), calculateLineForLocal(), 0);
         return selection.getIndentationFromLine();
     }

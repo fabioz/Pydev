@@ -27,7 +27,7 @@ public class FastParserTest extends TestCase {
         try {
             FastParserTest test = new FastParserTest();
             test.setUp();
-            test.testBackwardsUntil1stGlobal2();
+            test.testCython1();
             test.tearDown();
             junit.textui.TestRunner.run(FastParserTest.class);
 
@@ -78,25 +78,25 @@ public class FastParserTest extends TestCase {
         check(all, 2, 5,  5, 5,  11);
         check(all, 3, 10, 1, 10, 7);
         
-        stmtType found = FastParser.firstClassOrFunction(doc, 1, true);
+        stmtType found = FastParser.firstClassOrFunction(doc, 1, true, false);
         checkNode(3,  1, 3,  7, (ClassDef)found);
         
-        found = FastParser.firstClassOrFunction(doc, 0, true);
+        found = FastParser.firstClassOrFunction(doc, 0, true, false);
         checkNode(1,  1, 1,  7, (ClassDef)found);
         
-        found = FastParser.firstClassOrFunction(doc, 5, true);
+        found = FastParser.firstClassOrFunction(doc, 5, true, false);
         checkNode(10, 1, 10, 7, (ClassDef)found);
         
-        found = FastParser.firstClassOrFunction(doc, 5, false);
+        found = FastParser.firstClassOrFunction(doc, 5, false, false);
         checkNode(5,  5, 5,  11, (ClassDef)found);
         
-        found = FastParser.firstClassOrFunction(doc, -1, false);
+        found = FastParser.firstClassOrFunction(doc, -1, false, false);
         assertNull(found);
         
-        found = FastParser.firstClassOrFunction(doc, 15, true);
+        found = FastParser.firstClassOrFunction(doc, 15, true, false);
         assertNull(found);
         
-        found = FastParser.firstClassOrFunction(doc, 15, false);
+        found = FastParser.firstClassOrFunction(doc, 15, false, false);
         checkNode(10, 1, 10, 7, (ClassDef)found);
         
     }
@@ -165,6 +165,27 @@ public class FastParserTest extends TestCase {
         assertEquals(1, stmts.size());
         assertEquals("a", NodeUtils.getRepresentationString(stmts.get(0)));
     }
+    
+    public void testCython1() throws Exception {
+        Document doc = new Document();
+        doc.set("cdef extern int f1()\n" +
+                "" +
+        "");
+        List<stmtType> stmts = FastParser.parseCython(doc);
+        assertEquals(1, stmts.size());
+        assertEquals("extern int f1()", NodeUtils.getRepresentationString(stmts.get(0)));
+    }
+    
+    public void testCython2() throws Exception {
+        Document doc = new Document();
+        doc.set("ctypedef enum parrot_state:\n" +
+                "" +
+        "");
+        List<stmtType> stmts = FastParser.parseCython(doc);
+        assertEquals(1, stmts.size());
+        assertEquals("enum parrot_state:", NodeUtils.getRepresentationString(stmts.get(0)));
+    }
+    
     
     public void testBackwardsUntil1stGlobal2() throws Exception {
         Document doc = new Document();

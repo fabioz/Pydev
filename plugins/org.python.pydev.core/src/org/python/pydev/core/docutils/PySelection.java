@@ -247,7 +247,10 @@ public final class PySelection {
         IRegion endLine = getEndLine();
         IRegion startLine = getStartLine();
         
-        this.textSelection = new TextSelection(doc, startLine.getOffset(), endLine.getOffset() + endLine.getLength() - startLine.getOffset());
+        this.textSelection = new TextSelection(
+                doc, 
+                startLine.getOffset(), 
+                endLine.getOffset() + endLine.getLength() - startLine.getOffset());
     }
 
     
@@ -1018,6 +1021,51 @@ public final class PySelection {
         return doc.get(absoluteCursorOffset, end-absoluteCursorOffset);
     }
 
+    public Tuple<String, Integer> getCurrDottedStatement() throws BadLocationException {
+        int absoluteCursorOffset = getAbsoluteCursorOffset();
+        int start = absoluteCursorOffset;
+        for(int i=absoluteCursorOffset-1;i>=0;i--){
+            char c = doc.getChar(i);
+            if(!Character.isJavaIdentifierPart(c) && c != '.'){
+                //We're at the start now, so, let's go onwards now...
+                if(StringUtils.isClosingPeer(c)){
+                    int j = new PythonPairMatcher().searchForOpeningPeer(i, StringUtils.getPeer(c), c, doc);
+                    if(j < 0){
+                        break;
+                    }
+                    i = j;
+                }else{
+                    break;
+                }
+            }
+            start = i;
+        }
+        
+        int len = doc.getLength();
+        int end = absoluteCursorOffset;
+        for(int i=absoluteCursorOffset;i<len;i++){
+            char c = doc.getChar(i);
+            if(!Character.isJavaIdentifierPart(c) && c != '.'){
+                if(StringUtils.isOpeningPeer(c)){
+                    int j = new PythonPairMatcher().searchForClosingPeer(i, c, StringUtils.getPeer(c), doc);
+                    if(j < 0){
+                        break;
+                    }
+                    i = j;
+                }else{
+                    break;
+                }
+            }
+            end = i+1;
+        }
+        
+        if(start != end){
+            return new Tuple<String, Integer>(doc.get(start, end-start), start);
+        }
+        
+        return new Tuple<String, Integer>("", absoluteCursorOffset);
+    }
+    
     /**
      * @return the current token and its initial offset for this token
      * @throws BadLocationException
@@ -1373,6 +1421,10 @@ public final class PySelection {
         	}
             String line = (String) iterator.next();
             String trimmed = line.trim();
+            
+            if(trimmed.startsWith("#")){
+                continue;
+            }
             
             for (String dedent : indentTokens) {
                 if(trimmed.startsWith(dedent)){
@@ -1934,6 +1986,18 @@ public final class PySelection {
         }
         return false;
     }
+    
+    /**
+     * @return true if this line starts with an indent token (the passed string should be already trimmed)
+     */
+    public static boolean startsWithIndentToken(String trimmedLine) {
+        for (String dedent : PySelection.INDENT_TOKENS) {
+            if(trimmedLine.startsWith(dedent)){
+                return isCompleteToken(trimmedLine, dedent);
+            }
+        }
+        return false;
+    }
 
 
     private static boolean isCompleteToken(String trimmedLine, String dedent) {
@@ -2109,7 +2173,7 @@ public final class PySelection {
     }
 
 
-	public boolean matchesFunctionLine(String line) {
+	public static boolean matchesFunctionLine(String line) {
 		return FunctionPattern.matcher(line.trim()).matches();
 	}
     
@@ -2123,7 +2187,7 @@ public final class PySelection {
     }
 
 
-    public boolean matchesClassLine(String line) {
+    public static boolean matchesClassLine(String line) {
         return ClassPattern.matcher(line).matches();
     }
     
@@ -2140,11 +2204,11 @@ public final class PySelection {
     public static boolean isCommentLine(String line) {
         for(int j=0;j<line.length();j++){
             char c = line.charAt(j);
-            if(c != ' '){
-                if(c=='#'){
-                    //ok, it starts with # (so, it is a comment)
-                    return true;
-                }
+            if(c=='#'){
+                //ok, it starts with # (so, it is a comment)
+                return true;
+            }else if(!Character.isWhitespace(c)){
+                return false;
             }
         }
         return false;

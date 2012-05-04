@@ -488,7 +488,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     	node.context_expr.accept(this);
     	
 		exprType optional = node.optional_vars;
-		if (optional != null && optional != null){
+		if (optional != null && lastNode != null){
 			doc.addRequire("as", lastNode);
 			optional.accept(this);
 		}
@@ -628,8 +628,10 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
             doc.addRequire(":", node);
             doc.addRequireIndent(":", node);
         }
-        for(stmtType st:body){
-            st.accept(this);
+        if(body != null){
+            for(stmtType st:body){
+                st.accept(this);
+            }
         }
         if(indent){
             dedent();
@@ -960,10 +962,14 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
             node.func.accept(this);
         
         this.pushTupleNeedsParens();
+        if(node.isCall){
+            doc.addRequire("(", lastNode);
+        }
         if((node.args != null && node.args.length > 0) || (node.keywords != null && node.keywords.length > 0) || 
                 node.starargs != null || node.kwargs != null){
-            doc.addRequire("(", lastNode);
             handleArguments(reverseNodeArray(node.args), reverseNodeArray(node.keywords), node.starargs, node.kwargs);
+        }
+        if(node.isCall){
             doc.addRequire(")", lastNode);
         }
         this.popTupleNeedsParens();
@@ -1407,7 +1413,9 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         }
 
         doc.add(node.beginLine, node.beginColumn, str, node);
-        this.handleArguments(node.args);
+        if(node.args != null){
+            this.handleArguments(node.args);
+        }
         
         doc.addRequire(":", lastNode);
         if (node.body != null)

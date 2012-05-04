@@ -7,11 +7,11 @@ set BRANCH=development
 set BASE_LOCAL_PYDEV_GIT=D:\workspaces\pydev
 set BUILD_DIR=W:\git_build_dir
 set DEPLOY_DIR=W:\git_deploy_dir
-set JAVA_HOME=D:\bin\jdk1_5_0_09
+set JAVA_HOME=D:\bin\jdk1.5.0_22
 set GIT_EXECUTABLE="d:\bin\git\bin\git.exe"
-set ECLIPSE_CLEAN=D:\bin\eclipse_36_final_clean
-set LAUNCHER_PLUGIN=org.eclipse.equinox.launcher_1.1.0.v20100507
-set BUILDER_PLUGIN=org.eclipse.pde.build_3.6.0.v20100603
+set ECLIPSE_CLEAN=D:\bin\eclipse_371_final_clean
+set LAUNCHER_PLUGIN=org.eclipse.equinox.launcher_1.2.0.v20110502
+set BUILDER_PLUGIN=org.eclipse.pde.build_3.7.0.v20110512-1320
 set KEYSTORE=%DEPLOY_DIR%\pydevkeystore
 set KEYSTORE_ALIAS=aptana
 
@@ -24,7 +24,7 @@ set PATH=d:\bin\python265;%PATH%
 set PATH=D:\bin\FastCopy199r4;%PATH%
 set PATH=%JAVA_HOME%\bin;%PATH%
 set PATH=d:\bin\git\bin;%PATH%
-set PATH=%ECLIPSE_CLEAN%\plugins\org.apache.ant_1.7.1.v20100518-1145\bin;%PATH%
+set PATH=%ECLIPSE_CLEAN%\plugins\org.apache.ant_1.8.2.v20110505-1300\bin;%PATH%
 
 
 @echo actual build command
@@ -41,8 +41,9 @@ git clean -f -d I.PyDev
 git clean -f -d plugins
 git clean -f -d repo
 del *.* /Y
-git checkout -f
-git checkout %BRANCH%
+call git checkout -f
+call git remote update
+call git checkout %BRANCH%
 call git pull origin %BRANCH%
 @echo If copied/pasted into cmd.exe, it will break here
 

@@ -197,7 +197,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
                         System.out.println("Found definition:" + pointer.definition);
                     }
 
-                    IRefactorRenameProcess p = RefactorProcessFactory.getProcess(pointer.definition, request.nature);
+                    IRefactorRenameProcess p = RefactorProcessFactory.getProcess(pointer.definition, request);
                     if (p == null) {
                         status.addFatalError("Refactoring Process not defined: the definition found is not valid:" + pointer.definition);
                         return status;

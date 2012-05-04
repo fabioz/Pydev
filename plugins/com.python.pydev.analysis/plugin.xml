@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
 <plugin>
+    <extension point="org.eclipse.ui.keywords" name="Analysis Preferences">
+        <keyword id="com.python.pydev.analysis.keywords"  label="pep8 builtins globals tokens"/>
+    </extension>    
+
    <extension point="org.eclipse.ui.preferencePages">
       <page
             class="com.python.pydev.analysis.ui.AnalysisPreferencesPage"
             category="org.python.pydev.prefs.editor"
             id="org.python.pydev.prefs.extensions.analysis"
-            name="Code Analysis"/>
+            name="Code Analysis">
+            <keywordReference id="com.python.pydev.analysis.keywords"/>
+      </page>
    </extension>
    
    <extension point="org.eclipse.ui.preferencePages">
@@ -31,6 +37,9 @@
    </extension>
    <extension point="org.python.pydev.pydev_pyedit_listener">
   		<pyedit_listener_participant class="com.python.pydev.analysis.builder.ClearAnalysisMarkersPyEditListener"/>
+   </extension>
+   <extension point="org.python.pydev.pydev_pyedit_listener">
+  		<pyedit_listener_participant class="com.python.pydev.analysis.builder.PreloadAdditionalInfoPyEditListener"/>
    </extension>
 
    <extension point="org.python.pydev.pydev_builder">

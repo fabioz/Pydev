@@ -8,12 +8,10 @@ package org.python.pydev.plugin.nature;
 
 import java.util.ListResourceBundle;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
 
@@ -25,11 +23,7 @@ public class PyNatureReindexer implements IPyEditListener{
             @Override
             public void run() {
                 for (IPythonNature nature : PythonNature.getAllPythonNatures()) {
-                    try {
-                        nature.rebuildPath();
-                    } catch (CoreException e) {
-                        Log.log(e);
-                    }
+                    nature.rebuildPath();
                 }
             }
         }, "Rebuilds the internal structure for all Pydev projects.", true);

@@ -24,7 +24,7 @@ public class SimpleExeRunnerTest extends CodeCompletionTestsBase{
 
     
     public void testIt() throws Exception {
-        if(TestDependent.HAS_CYGWIN){
+        if(TestDependent.CYGWIN_CYGPATH_LOCATION != null){
             SimpleExeRunner runner = new SimpleExeRunner();
             Tuple<String, String> tup = runner.runAndGetOutput(new String[] { TestDependent.CYGWIN_CYGPATH_LOCATION,
                     TestDependent.CYGWIN_CYGPATH_LOCATION }, null, null, null);
@@ -34,7 +34,7 @@ public class SimpleExeRunnerTest extends CodeCompletionTestsBase{
     }
     
     public void testIt2() throws Exception {
-        if(TestDependent.HAS_CYGWIN){
+        if(TestDependent.CYGWIN_CYGPATH_LOCATION != null){
             SimpleExeRunner runner = new SimpleExeRunner();
             List<String> ret = runner.convertToCygwinPath(TestDependent.CYGWIN_CYGPATH_LOCATION,
                     TestDependent.CYGWIN_CYGPATH_LOCATION, "c:\\foo");

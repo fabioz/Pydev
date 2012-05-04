@@ -329,15 +329,24 @@ def resolveCompoundVariable(thread_id, frame_id, scope, attrs):
         return {}
     
     attrList = attrs.split('\t')
-    if scope == "GLOBAL":
-        var = frame.f_globals
-        del attrList[0] # globals are special, and they get a single dummy unused attribute
-    else:
-        var = frame.f_locals
-
-    for k in attrList:
-        type, _typeName, resolver = getType(var)
-        var = resolver.resolve(var, k)
+    if scope == 'EXPRESSION':
+        for count in range(len(attrList)):
+            if count == 0:
+                # An Expression can be in any scope (globals/locals), therefore it needs to evaluated as an expression
+                var = evaluateExpression(thread_id, frame_id, attrList[count], False)
+            else:
+                type, _typeName, resolver = getType(var)
+                var = resolver.resolve(var, attrList[count])
+    else:    
+        if scope == "GLOBAL":
+            var = frame.f_globals
+            del attrList[0] # globals are special, and they get a single dummy unused attribute
+        else:
+            var = frame.f_locals
+        
+        for k in attrList:
+            type, _typeName, resolver = getType(var)
+            var = resolver.resolve(var, k)
 
     try:
         type, _typeName, resolver = getType(var)

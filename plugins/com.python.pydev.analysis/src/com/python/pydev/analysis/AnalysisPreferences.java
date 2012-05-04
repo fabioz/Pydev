@@ -60,6 +60,8 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences{
         {IAnalysisPreferences.TYPE_NO_EFFECT_STMT                    , AnalysisPreferenceInitializer.SEVERITY_NO_EFFECT_STMT                      , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_NO_EFFECT_STMT               },
         {IAnalysisPreferences.TYPE_INDENTATION_PROBLEM               , AnalysisPreferenceInitializer.SEVERITY_INDENTATION_PROBLEM                 , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_INDENTATION_PROBLEM          },
         {IAnalysisPreferences.TYPE_ASSIGNMENT_TO_BUILT_IN_SYMBOL     , AnalysisPreferenceInitializer.SEVERITY_ASSIGNMENT_TO_BUILT_IN_SYMBOL   	  , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_ASSIGNMENT_TO_BUILT_IN_SYMBOL},
+        {IAnalysisPreferences.TYPE_PEP8                              , AnalysisPreferenceInitializer.SEVERITY_PEP8                             	  , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_PEP8                         },
+        {IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH                 , AnalysisPreferenceInitializer.SEVERITY_ARGUMENTS_MISMATCH                  , AnalysisPreferenceInitializer.DEFAULT_SEVERITY_ARGUMENTS_MISMATCH           },
     };
     
 

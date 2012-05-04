@@ -21,7 +21,7 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
-import com.python.pydev.analysis.scopeanalysis.AbstractScopeAnalyzerVisitor;
+import com.python.pydev.analysis.IAnalysisPreferences;
 
 /**
  * Used to check for duplicated signatures
@@ -33,16 +33,18 @@ public final class DuplicationChecker {
     /**
      * used to know the defined signatures
      */
-    private FastStack<Map<String,String>> stack = new FastStack<Map<String,String>>();
-    private AbstractScopeAnalyzerVisitor visitor;
+    private final FastStack<Map<String,String>> stack = new FastStack<Map<String,String>>(10);
+    private final Scope scope;
+    private final MessagesManager messagesManager;
     
     /**
      * constructor
      * @param visitor 
      */
-    public DuplicationChecker(AbstractScopeAnalyzerVisitor visitor) {
-        this.visitor = visitor;
+    public DuplicationChecker(OccurrencesVisitor visitor) {
         startScope("", null); 
+        this.scope = visitor.scope;
+        this.messagesManager = visitor.messagesManager;
     }
 
     /**
@@ -67,7 +69,7 @@ public final class DuplicationChecker {
      */
     private void checkDuplication(String name, SimpleNode node) {
         if(stack.size() > 0){
-            if(!visitor.scope.getPrevScopeItems().getIsInSubSubScope()){
+            if(!scope.getPrevScopeItems().getIsInSubSubScope()){
                 String exists = stack.peek().get(name);
                 if(exists != null){
                     if(node instanceof FunctionDef){
@@ -85,7 +87,7 @@ public final class DuplicationChecker {
                         
                     }
                     SourceToken token = AbstractVisitor.makeToken(node, "");
-                    visitor.onAddDuplicatedSignature(token, name);
+                    messagesManager.addMessage(IAnalysisPreferences.TYPE_DUPLICATED_SIGNATURE, token, name );
                 }
             }
         }

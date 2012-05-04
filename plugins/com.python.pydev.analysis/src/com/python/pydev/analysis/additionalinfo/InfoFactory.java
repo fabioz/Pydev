@@ -108,6 +108,9 @@ public class InfoFactory {
 	        }else if(type == IInfo.NAME_WITH_IMPORT_TYPE){
 	            info = new NameInfo(infoName, infoModule, infoPath);
 	            
+	        }else if(type == IInfo.MOD_IMPORT_TYPE){
+	            info = new ModInfo(infoModule);
+	            
 	        }else{
 	            throw new AssertionError("Cannot restore type: "+type);
 	        }
@@ -180,7 +183,7 @@ public class InfoFactory {
 	                return new AdditionalInfoAndIInfo(additionalInfo, info);
 	            }
 	        }
-        }catch(Exception e){
+        }catch(Throwable e){
         	//Don't fail because we weren't able to restore some info, just log and return null (which clients should expect).
             Log.log(e);
             return null;

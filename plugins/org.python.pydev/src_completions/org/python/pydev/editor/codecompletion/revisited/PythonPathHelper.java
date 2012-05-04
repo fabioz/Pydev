@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -50,12 +51,13 @@ import org.python.pydev.utils.PyFileListing.PyFileInfo;
  * 
  * @author Fabio Zadrozny
  */
-public class PythonPathHelper implements IPythonPathHelper {
+public final class PythonPathHelper implements IPythonPathHelper {
     
     /**
-     * This is a list of Files containing the pythonpath.
+     * This is a list of Files containing the pythonpath. It's always an immutable list. The instance must
+     * be changed to change the pythonpath.
      */
-    private final List<String> pythonpath = new ArrayList<String>();
+    private volatile List<String> pythonpath = Collections.unmodifiableList(new ArrayList<String>());
 
     /**
      * Returns the default path given from the string.
@@ -438,10 +440,7 @@ public class PythonPathHelper implements IPythonPathHelper {
     }
 
     public void setPythonPath(List<String> newPythonpath) {
-        synchronized (pythonpath) {
-            pythonpath.clear();
-            pythonpath.addAll(newPythonpath);
-        }
+        this.pythonpath = Collections.unmodifiableList(newPythonpath);
     }
     
     /**
@@ -449,18 +448,18 @@ public class PythonPathHelper implements IPythonPathHelper {
      * @return
      */
     public void setPythonPath(String string) {
-        synchronized (pythonpath) {
-            pythonpath.clear();
-            parsePythonPathFromStr(string, pythonpath);
-        }
+        this.pythonpath = Collections.unmodifiableList(parsePythonPathFromStr(string, new ArrayList<String>()));
     }
 
     /**
      * @param string this is the string that has the pythonpath (separated by |)
-     * @param lPath OUT: this list is filled with the pythonpath.
+     * @param lPath OUT: this list is filled with the pythonpath (if null an ArrayList is created to fill the pythonpath).
      * @return 
      */
     public static List<String> parsePythonPathFromStr(String string, List<String> lPath) {
+        if(lPath == null){
+            lPath = new ArrayList<String>();
+        }
         String[] strings = string.split("\\|");
         for (int i = 0; i < strings.length; i++) {
             String defaultPathStr = getDefaultPathStr(strings[i]);
@@ -481,12 +480,10 @@ public class PythonPathHelper implements IPythonPathHelper {
     /**
      * @return a list with the pythonpath, such that each element of the list is a part of
      * the pythonpath
-     * @note returns a copy and not a reference to the internal list.
+     * @note returns a list that's not modifiable!
      */
     public List<String> getPythonpath() {
-        synchronized (pythonpath) {
-            return new ArrayList<String>(pythonpath);
-        }
+        return pythonpath;
     }
 
     /**
@@ -544,7 +541,7 @@ public class PythonPathHelper implements IPythonPathHelper {
         if(fileContents == null || fileContents.trim().length() == 0){
             throw new IOException("No loaded contents from: "+pythonpatHelperFile);
         }
-        this.pythonpath.addAll(StringUtils.split(fileContents, '\n'));
+        this.pythonpath = Collections.unmodifiableList(StringUtils.split(fileContents, '\n'));
     }
 
     /**

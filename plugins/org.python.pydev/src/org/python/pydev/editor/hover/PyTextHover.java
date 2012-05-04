@@ -86,12 +86,12 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
     /**
      * Whether we're in a comment or multiline string.
      */
-    private boolean pythonCommentOrMultiline;
+    private final boolean pythonCommentOrMultiline;
     
     /**
      * A buffer we can fill with the information to be returned.
      */
-    private FastStringBuffer buf = new FastStringBuffer();
+    private final FastStringBuffer buf = new FastStringBuffer();
 
     /**
      * The text selected
@@ -105,13 +105,15 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
      * @param contentType the type of the current content we're hovering over.
      */
     public PyTextHover(ISourceViewer sourceViewer, String contentType) {
-        pythonCommentOrMultiline = false;
+        boolean pythonCommentOrMultiline = false;
         
         for(String type : IPythonPartitions.types){
             if(type.equals(contentType)){
                 pythonCommentOrMultiline = true;
+                break;
             }
         }
+        this.pythonCommentOrMultiline = pythonCommentOrMultiline;
     }
 
     /**

@@ -110,7 +110,6 @@ public abstract class AbstractModule implements IModule {
         return isInGlobalTokens(tok, nature, searchSameLevelMods, false, completionCache) != IModule.NOT_FOUND;
     }
     
-    @SuppressWarnings("unchecked")
     public int isInGlobalTokens(String tok, IPythonNature nature, boolean searchSameLevelMods, boolean ifHasGetAttributeConsiderInTokens, 
             ICompletionCache completionCache) throws CompletionRecursionException{
         
@@ -123,24 +122,17 @@ public abstract class AbstractModule implements IModule {
         
         String[] headAndTail = FullRepIterable.headAndTail(tok);
         String head = headAndTail[1];
+        String generateTokensFor = headAndTail[0];
         
         
-        //now, check if it's cached in a way we can use it (we cache it not as raw tokens, but as representation --> token)
-        //to help in later searches.
-        String name = this.getName();
-        Object key = new TupleN("isInGlobalTokens", name!=null?name:"", tok, searchSameLevelMods);
-        Map<String, IToken> cachedTokens = (Map<String, IToken>) completionCache.getObj(key);
-        
-        if(cachedTokens == null){
-            cachedTokens = internalGenerateCachedTokens(nature, completionCache, headAndTail[0], searchSameLevelMods);
-            completionCache.add(key, cachedTokens);
-        }
+        Map<String, IToken> cachedTokens = getCachedCompletions(tok, nature, searchSameLevelMods, completionCache, generateTokensFor);
         
         if(cachedTokens.containsKey(head)){
             return IModule.FOUND_TOKEN;
         }
         
         if(ifHasGetAttributeConsiderInTokens){
+            
             IToken token = cachedTokens.get("__getattribute__");
             if(token == null || isTokenFromBuiltins(token)){
                 token = cachedTokens.get("__getattr__");
@@ -148,11 +140,43 @@ public abstract class AbstractModule implements IModule {
             if(token != null && !isTokenFromBuiltins(token)){
                 return IModule.FOUND_BECAUSE_OF_GETATTR;
             }
+            
+            //Try to determine if the user specified it has a @DynamicAttrs.
+            String[] parentsHeadAndTail = FullRepIterable.headAndTail(generateTokensFor);
+            cachedTokens = getCachedCompletions(tok, nature, searchSameLevelMods, completionCache, parentsHeadAndTail[0]);
+            IToken parentToken = cachedTokens.get(parentsHeadAndTail[1]);
+            if(parentToken != null){
+                String docString = parentToken.getDocStr();
+                if(docString != null){
+                    if(docString.indexOf("@DynamicAttrs") != -1){
+                        //class that has things dynamically defined.
+                        return IModule.FOUND_BECAUSE_OF_GETATTR;
+                    }
+                }
+            }
         }
         
         //if not found until now, it is not defined
         return IModule.NOT_FOUND;
     }
+
+    @SuppressWarnings("unchecked")
+    protected Map<String, IToken> getCachedCompletions(String tok, IPythonNature nature, boolean searchSameLevelMods,
+            ICompletionCache completionCache, String generateTokensFor) throws CompletionRecursionException {
+        //now, check if it's cached in a way we can use it (we cache it not as raw tokens, but as representation --> token)
+        //to help in later searches.
+        String name = this.getName();
+        Object key = new TupleN("isInGlobalTokens", name!=null?name:"", generateTokensFor, tok, searchSameLevelMods);
+        Map<String, IToken> cachedTokens = (Map<String, IToken>) completionCache.getObj(key);
+        
+        if(cachedTokens == null){
+            cachedTokens = internalGenerateCachedTokens(nature, completionCache, generateTokensFor, searchSameLevelMods);
+            completionCache.add(key, cachedTokens);
+        }
+        return cachedTokens;
+    }
+    
+
 
     private boolean isTokenFromBuiltins(IToken token) {
         String parentPackage = token.getParentPackage();
@@ -354,6 +378,31 @@ public abstract class AbstractModule implements IModule {
     
     public String getPackageFolderName() {
         return FullRepIterable.getParentModule(this.name);
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (!(obj instanceof AbstractModule))
+            return false;
+        AbstractModule other = (AbstractModule) obj;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        return true;
     }
 
 }

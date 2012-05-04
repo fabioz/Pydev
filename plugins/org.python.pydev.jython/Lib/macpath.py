@@ -6,7 +6,8 @@ from stat import *
 __all__ = ["normcase","isabs","join","splitdrive","split","splitext",
            "basename","dirname","commonprefix","getsize","getmtime",
            "getatime","islink","exists","isdir","isfile",
-           "walk","expanduser","expandvars","normpath","abspath"]
+           "walk","expanduser","expandvars","normpath","abspath",
+           "realpath"]
 
 # Normalize the case of a pathname.  Dummy in Posix, but <s>.lower() here.
 
@@ -92,6 +93,11 @@ def splitdrive(p):
 def dirname(s): return split(s)[0]
 def basename(s): return split(s)[1]
 
+def ismount(s):
+	if not isabs(s):
+		return False
+	components = split(s)
+	return len(components) == 2 and components[1] == ''
 
 def isdir(s):
     """Return true if the pathname refers to an existing directory."""
@@ -188,7 +194,7 @@ def normpath(s):
                 i = i - 1
             else:
                 # best way to handle this is to raise an exception
-                raise norm_error, 'Cannot use :: immedeately after volume name'
+                raise norm_error, 'Cannot use :: immediately after volume name'
         else:
             i = i + 1
 
@@ -201,13 +207,19 @@ def normpath(s):
 
 
 def walk(top, func, arg):
-    """Directory tree walk.
-    For each directory under top (including top itself),
-    func(arg, dirname, filenames) is called, where
-    dirname is the name of the directory and filenames is the list
-    of files (and subdirectories etc.) in the directory.
-    The func may modify the filenames list, to implement a filter,
-    or to impose a different order of visiting."""
+    """Directory tree walk with callback function.
+
+    For each directory in the directory tree rooted at top (including top
+    itself, but excluding '.' and '..'), call func(arg, dirname, fnames).
+    dirname is the name of the directory, and fnames a list of the names of
+    the files and subdirectories in dirname (excluding '.' and '..').  func
+    may modify the fnames list in-place (e.g. via del or slice assignment),
+    and walk will only recurse into the subdirectories whose names remain in
+    fnames; this can be used to implement a filter, or to impose a specific
+    order of visiting.  No semantics are defined for, or required of, arg,
+    beyond that arg is always passed to func.  It can be used, e.g., to pass
+    a filename pattern, or a mutable object designed to accumulate
+    statistics.  Passing None for arg is common."""
 
     try:
         names = os.listdir(top)
@@ -225,3 +237,6 @@ def abspath(path):
     if not isabs(path):
         path = join(os.getcwd(), path)
     return normpath(path)
+
+# realpath is a no-op on systems without islink support
+realpath = abspath

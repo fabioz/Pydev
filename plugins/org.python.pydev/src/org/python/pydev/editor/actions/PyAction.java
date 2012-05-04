@@ -11,6 +11,10 @@
  
 package org.python.pydev.editor.actions;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
@@ -19,8 +23,11 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorActionDelegate;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
@@ -60,8 +67,14 @@ public abstract class PyAction extends Action implements IEditorActionDelegate {
         return activeWorkbenchWindow.getShell();
     }
 
+    /**
+     * @return the active workbench window or null if it's not available.
+     */
 	public static IWorkbenchWindow getActiveWorkbenchWindow() {
 		IWorkbench workbench = PlatformUI.getWorkbench();
+		if(workbench == null){
+		    return null;
+		}
         IWorkbenchWindow activeWorkbenchWindow = workbench.getActiveWorkbenchWindow();
 		return activeWorkbenchWindow;
 	}
@@ -402,4 +415,41 @@ public abstract class PyAction extends Action implements IEditorActionDelegate {
             getTextEditor().selectAndReveal(curOffset<docLen?curOffset:docLen, 0);
         }
     }
+    
+    /**
+     * @return a set with the currently opened files in the PyEdit editors.
+     */
+    public static Set<IFile> getOpenFiles(){
+        Set<IFile> ret = new HashSet<IFile>();
+        IWorkbenchWindow activeWorkbenchWindow = getActiveWorkbenchWindow();
+        if(activeWorkbenchWindow == null){
+            return ret;
+        }
+        
+        IWorkbenchPage[] pages = activeWorkbenchWindow.getPages();
+        for (int i = 0; i < pages.length; i++) {
+            IEditorReference[] editorReferences = pages[i].getEditorReferences();
+
+            for (int j = 0; j < editorReferences.length; j++) {
+                IEditorReference iEditorReference = editorReferences[j];
+                if(!PyEdit.EDITOR_ID.equals(iEditorReference.getId())){
+                    continue; //Only PyDev editors...
+                }
+                try {
+                    IEditorInput editorInput = iEditorReference.getEditorInput();
+                    if(editorInput == null){
+                        continue;
+                    }
+                    IFile file = (IFile) editorInput.getAdapter(IFile.class);
+                    if(file != null){
+                        ret.add(file);
+                    }
+                } catch (Exception e1) {
+                    Log.log(e1);
+                }
+            }
+        }
+        return ret;
+    }
+    
 }

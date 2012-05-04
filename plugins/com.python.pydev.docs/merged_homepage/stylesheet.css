@@ -253,3 +253,46 @@ table, th, td
 {
 border: 1px;
 }
+
+
+td.confluenceTd {
+border-color: #DDD;
+vertical-align: top;
+padding: 5px;
+min-width: .6em;
+}
+
+
+th.confluenceTh, table.confluenceTable td.highlight {
+padding: 5px;
+background-color: #F0F0F0;
+text-align: left;
+vertical-align: top;
+min-width: .6em;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

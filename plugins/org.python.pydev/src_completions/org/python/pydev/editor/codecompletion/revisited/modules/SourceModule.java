@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -33,11 +32,11 @@ import org.python.pydev.core.ISourceModule;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.cache.Cache;
 import org.python.pydev.core.cache.LRUCache;
+import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
@@ -642,11 +641,26 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     }
     
     /**
+     * Used for tests: tests should initialize this attribute and add listeners to it (and when it finishes, it should
+     * be set to null again).
+     */
+    public static CallbackWithListeners<ICompletionState> onFindDefinition;
+    
+    /**
      * @param line: starts at 1
      * @param col: starts at 1
      */
     public Definition[] findDefinition(ICompletionState state, int line, int col, final IPythonNature nature) throws Exception{
+        if(onFindDefinition != null){
+            onFindDefinition.call(state);
+        }
         String rep = state.getActivationToken();
+        
+        if (rep.length() == 0) {
+            //No activation token means the module itself.
+            return new Definition[] { new Definition(1, 1, "", null, null, this) };
+        }
+        
         //the line passed in starts at 1 and the lines for the visitor start at 0
         ArrayList<Definition> toRet = new ArrayList<Definition>();
         
@@ -656,11 +670,12 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         //this visitor checks for assigns for the token
         FindDefinitionModelVisitor visitor = getFindDefinitionsScopeVisitor(rep, line, col);
         
-        if(visitor.definitions.size() > 0){
+        List<Definition> defs = visitor.definitions;
+        int size = defs.size();
+        if(size > 0){
             //ok, it is an assign, so, let's get it
-
-            for (Iterator iter = visitor.definitions.iterator(); iter.hasNext();) {
-                Object next = iter.next();
+            for (int i=0; i<size;i++) {
+                Object next = defs.get(i);
                 if(next instanceof AssignDefinition){
                     AssignDefinition element = (AssignDefinition) next;
                     if(element.target.startsWith("self") == false){
@@ -683,7 +698,10 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         
         //now, check for locals
         IToken[] localTokens = scopeVisitor.scope.getAllLocalTokens();
-        for (IToken tok : localTokens) {
+        int len = localTokens.length;
+        for (int i = 0; i < len; i++) {
+            IToken tok = localTokens[i];
+            
             String tokenRep = tok.getRepresentation();
 			if(tokenRep.equals(rep)){
                 return new Definition[]{new Definition(tok, scopeVisitor.scope, this, true)};
@@ -769,14 +787,14 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                         String parentPackage = token.getParentPackage();
                         IModule module = astManager.getModule(parentPackage, nature, true);
                         
-                        if(token instanceof SourceToken && (module != null || this.name.equals(parentPackage))){
+                        if(token instanceof SourceToken && (module != null || this.name == null || this.name.equals(parentPackage))){
                             if(module == null){
                                 module = this;
                             }
                             
                             SimpleNode ast2 = ((SourceToken)token).getAst();
                             Tuple<Integer, Integer> def = getLineColForDefinition(ast2);
-                            FastStack<SimpleNode> stack = new FastStack<SimpleNode>();
+                            FastStack<SimpleNode> stack = new FastStack<SimpleNode>(5);
                             if(module instanceof SourceModule){
                                 stack.push(((SourceModule)module).getAst());
                             }
@@ -931,7 +949,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                         return new Definition(def.o1, def.o2, rep, a, scopeVisitor.scope, module);
                     }else{
                         //line, col
-                        return new Definition(def.o1, def.o2, rep, a, new LocalScope(new FastStack<SimpleNode>()), module);
+                        return new Definition(def.o1, def.o2, rep, a, new LocalScope(new FastStack<SimpleNode>(5)), module);
                     }
                 }else if(token instanceof ConcreteToken){
                     //a contrete token represents a module
@@ -1086,20 +1104,51 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             return false;
         }
         SourceModule m = (SourceModule) obj;
-        if(file == null || m.file == null){
-            if(file != null){
+        
+        if(name == null || m.name == null){
+            if(name != m.name){
                 return false;
             }
-            if(m.file != null){
-                return false;
-            }
-            if(this.name == null){
-                return this.name == m.name;
-            }
-            return this.name.equals(m.name);
+            //both null at this point
+        }else if(!name.equals(m.name)){
+            return false;
         }
         
-        return REF.getFileAbsolutePath(file).equals(REF.getFileAbsolutePath(m.file)) && this.name.equals(m.name); 
+        if(zipFilePath == null || m.zipFilePath == null){
+            if(zipFilePath != m.zipFilePath){
+                return false;
+            }
+            //both null at this point
+        }else if(!zipFilePath.equals(m.zipFilePath)){
+            return false;
+        }
+        
+        if(file == null || m.file == null){
+            if(file != m.file){
+                return false;
+            }
+            //both null at this point
+        }else if(!file.equals(m.file)){
+            return false;
+        }
+        
+        
+        return true; 
+    }
+    
+    @Override
+    public int hashCode() {
+        int hash = 77;
+        if(file != null){
+            hash += file.hashCode();
+        }
+        if(name != null){
+            hash += name.hashCode();
+        }
+        if(zipFilePath != null){
+            hash += zipFilePath.hashCode();
+        }
+        return hash;
     }
 
     public void setName(String n) {
@@ -1129,7 +1178,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         if(bootstrap == null){
             IToken[] ret = getGlobalTokens();
             if(ret != null && (ret.length == 1 || ret.length == 2 || ret.length == 3) && this.file != null){ //also checking 2 or 3 tokens because of __file__ and __name__
-                for(IToken tok:ret){
+                for (int i = 0; i < ret.length; i++) {
+                    IToken tok = ret[i];
                     if("__bootstrap__".equals(tok.getRepresentation())){
                         //if we get here, we already know that it defined a __bootstrap__, so, let's see if it was also called
                         SimpleNode ast = this.getAst();

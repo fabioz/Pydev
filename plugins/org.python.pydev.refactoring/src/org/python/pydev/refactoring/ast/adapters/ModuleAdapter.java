@@ -31,6 +31,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISourceModule;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.AbstractASTManager;
@@ -526,8 +527,8 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
     }
 
     @Override
-    public int getNodeBodyIndent() {
-        return 0;
+    public String getNodeBodyIndent() {
+        return "";
     }
 
     @Override
@@ -662,5 +663,10 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
      */
     public IDocument getDoc() {
         return doc;
+    }
+
+    public String getIndentationFromAst(SimpleNode node) {
+        PySelection pySelection = new PySelection(doc);
+        return PySelection.getIndentationFromLine(pySelection.getLine(node.beginLine-1));
     }
 }

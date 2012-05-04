@@ -224,7 +224,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
 	        	Long lastTimeChanged = predefinedFilesNotParsedToTimestamp.get(predefinedModule);
 	        	if(lastTimeChanged != null){
 	        		lastModified = predefinedModule.lastModified();
-	        		if(lastTimeChanged == lastModified){
+	        		if(lastTimeChanged.equals(lastModified)){
 	        			tryToParse = false;
 	        		}else{
 	        			predefinedFilesNotParsedToTimestamp.remove(predefinedModule);
@@ -397,7 +397,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
     /**
      * @param keysFound
      */
-    public void updateKeysAndSave(ModulesKeyTreeMap<ModulesKey, ModulesKey> keysFound) {
+    public void updateKeysAndSave(PyPublicTreeMap<ModulesKey, ModulesKey> keysFound) {
         synchronized (modulesKeysLock) {
             modulesKeys.clear();
             modulesKeys.putAll(keysFound);

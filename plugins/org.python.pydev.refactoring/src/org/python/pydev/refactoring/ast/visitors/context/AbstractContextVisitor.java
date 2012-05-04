@@ -45,8 +45,8 @@ public abstract class AbstractContextVisitor<T> extends VisitorBase {
 
         nodeHelper = new NodeHelper(module.getAdapterPrefs());
 
-        stack = new FastStack<SimpleNode>();
-        parents = new FastStack<AbstractScopeNode<?>>();
+        stack = new FastStack<SimpleNode>(10);
+        parents = new FastStack<AbstractScopeNode<?>>(10);
         parents.push(moduleAdapter);
         stack.push(module.getASTNode());
 

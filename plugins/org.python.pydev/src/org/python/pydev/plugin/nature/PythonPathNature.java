@@ -362,6 +362,8 @@ public class PythonPathNature implements IPythonPathNature {
 
     
     public void clearCaches() {
+        doFullSynchAt = -1;
+        directMembersChecked.clear();
     }
 
     
@@ -457,6 +459,11 @@ public class PythonPathNature implements IPythonPathNature {
         return trimAndReplaceVariablesIfNeeded(replace, extPath, nature);
     }
     
+    public List<String> getProjectExternalSourcePathAsList(boolean replaceVariables) throws CoreException {
+        String projectExternalSourcePath = getProjectExternalSourcePath(replaceVariables);
+        List<String> externalPaths = StringUtils.splitAndRemoveEmptyTrimmed(projectExternalSourcePath, '|');
+        return externalPaths;
+    }
 
     public Map<String,String> getVariableSubstitution() throws CoreException, MisconfigurationException, PythonNatureWithoutProjectException {
     	return getVariableSubstitution(true);

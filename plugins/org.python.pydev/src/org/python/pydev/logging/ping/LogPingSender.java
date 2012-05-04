@@ -91,7 +91,7 @@ public class LogPingSender implements ILogPingSender{
 		} catch (UnknownHostException e) {
 			// happens when user is offline or can't resolve aptana.com
 		} catch (Exception e) {
-			Log.log(e);
+		    // No need to log (i.e.: Server returned HTTP response code: 500).
 		}
 
 		return result;

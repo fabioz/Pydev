@@ -15,7 +15,7 @@ import org.python.pydev.outline.ParsedItem;
 public class PythonNode implements Comparable, IWrappedResource {
 
     /**
-     * This is sthe parent (PythonFile or PythonNode) for this object
+     * This is the parent (PythonFile or PythonNode) for this object
      */
     public Object parent;
     
