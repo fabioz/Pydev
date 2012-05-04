@@ -279,10 +279,12 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         SourceToken token = AbstractVisitor.makeToken(node, "");
         
         if(checkBuiltins){
-            String rep = token.getRepresentation();
-            if (builtinTokens.contains(rep)){
-                // Overriding builtin...
-                onAddAssignmentToBuiltinMessage(token, rep);
+            if(checkCurrentScopeForAssignmentsToBuiltins()){
+                String rep = token.getRepresentation();
+                if (builtinTokens.contains(rep)){
+                    // Overriding builtin...
+                    onAddAssignmentToBuiltinMessage(token, rep);
+                }
             }
         }
         
@@ -317,6 +319,20 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                 }
             }
         }
+    }
+
+    /**
+     * We do not want to check for assignments to builtins when in the class-level, as those aren't going
+     * to be accessed as globals later on.
+     * 
+     * I.e.:
+     * class A:
+     *   id = 10
+     *   
+     * must be accessed either as A.id or self.id, so, we don't need to warn about that.
+     */
+    private boolean checkCurrentScopeForAssignmentsToBuiltins() {
+        return this.scope.getCurrScopeItems().getScopeType() != Scope.SCOPE_TYPE_CLASS;
     }
 
 
@@ -495,9 +511,11 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             
             SourceToken token = AbstractVisitor.makeToken(nameTok, moduleName);
             scope.addToken(token, token, (nameTok).id);
-            if (builtinTokens.contains(token.getRepresentation())){
-                // Overriding builtin...
-                onAddAssignmentToBuiltinMessage(token, token.getRepresentation());
+            if(checkCurrentScopeForAssignmentsToBuiltins()){
+                if (builtinTokens.contains(token.getRepresentation())){
+                    // Overriding builtin...
+                    onAddAssignmentToBuiltinMessage(token, token.getRepresentation());
+                }
             }
         }
         return null;
@@ -520,11 +538,13 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
 		List<IToken> list = AbstractVisitor.makeImportToken(node, null,
 				moduleName, true);
 
-		for (IToken token : list) {
-		    if(builtinTokens.contains(token.getRepresentation())){
-		        // Overriding builtin...
-		        onAddAssignmentToBuiltinMessage(token, token.getRepresentation());
-			}
+		if(checkCurrentScopeForAssignmentsToBuiltins()){
+    		for (IToken token : list) {
+    		    if(builtinTokens.contains(token.getRepresentation())){
+    		        // Overriding builtin...
+    		        onAddAssignmentToBuiltinMessage(token, token.getRepresentation());
+    			}
+    		}
 		}
 		scope.addImportTokens(list, null, this.completionCache);
 		return null;
@@ -575,10 +595,12 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         
         if (node.ctx == Name.Store || node.ctx == Name.Param || node.ctx == Name.KwOnlyParam || (node.ctx == Name.AugStore && found)) { //if it was undefined on augstore, we do not go on to creating the token
             String rep = token.getRepresentation();
-        	if (builtinTokens.contains(rep)){
-        	    // Overriding builtin...
-        		onAddAssignmentToBuiltinMessage(token, rep);
-        	}
+            if(checkCurrentScopeForAssignmentsToBuiltins()){
+            	if (builtinTokens.contains(rep)){
+            	    // Overriding builtin...
+            		onAddAssignmentToBuiltinMessage(token, rep);
+            	}
+            }
             org.python.pydev.core.Tuple<IToken, Found> foundInNamesToIgnore = findInNamesToIgnore(rep, token);
             
             if(foundInNamesToIgnore == null){
