@@ -88,6 +88,9 @@ public class ImportHandle {
             this.startedInMiddleOfLine = startedInMiddleOfLine;
             
             importFound=importFound.trim();
+            if(importFound.length() == 0){
+                throw new ImportNotRecognizedException("Could not recognize empty string as import");
+            }
             char firstChar = importFound.charAt(0);
             
             
@@ -310,8 +313,12 @@ public class ImportHandle {
             }else if(c == ';'){
                 String impStr = imp.toString();
                 int endLine = line+StringUtils.countLineBreaks(impStr);
-                found = new ImportHandleInfo(impStr, line, endLine, startedInMiddle);
-                this.importInfo.add(found);
+                try {
+                    found = new ImportHandleInfo(impStr, line, endLine, startedInMiddle);
+                    this.importInfo.add(found);
+                } catch (ImportNotRecognizedException e) {
+                    //ignore
+                }
                 line = endLine;
                 imp = imp.clear();
                 startedInMiddle = true;
@@ -324,7 +331,11 @@ public class ImportHandle {
             
         }
         String impStr = imp.toString();
-        this.importInfo.add(new ImportHandleInfo(impStr, line, line+StringUtils.countLineBreaks(impStr), startedInMiddle));
+        try {
+            this.importInfo.add(new ImportHandleInfo(impStr, line, line+StringUtils.countLineBreaks(impStr), startedInMiddle));
+        } catch (ImportNotRecognizedException e) {
+            //ignore
+        }
 
     }
 
