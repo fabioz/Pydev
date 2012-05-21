@@ -10,9 +10,10 @@
 package org.python.pydev.parser.jython;
 
 import java.io.IOException;
-import java.io.StringReader;
 
 import junit.framework.TestCase;
+
+import org.python.pydev.core.structure.FastStringBuffer;
 
 public class ReaderCharStreamTest extends TestCase {
 
@@ -22,9 +23,11 @@ public class ReaderCharStreamTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
+        FastCharStream.ACCEPT_GET_SUFFIX = true;
     }
 
     protected void tearDown() throws Exception {
+        FastCharStream.ACCEPT_GET_SUFFIX = false;
         super.tearDown();
     }
     
@@ -35,20 +38,20 @@ public class ReaderCharStreamTest extends TestCase {
         //a
         //"""
         
-        StringReader inString = new StringReader(s);
-        CharStream in = new ReaderCharStream(inString);
-        checkCvsStream(in);
-        
-        in = new FastCharStream(s.toCharArray());
+        FastCharStream in = new FastCharStream(s.toCharArray());
         checkCvsStream(in);
         
         
     }
 
-    private void checkCvsStream(CharStream in) throws IOException {
+    private void checkCvsStream(FastCharStream in) throws IOException {
         assertEquals(10,in.BeginToken());
         in.backup(0);
         assertEquals("\n",new String(in.GetSuffix(1)));
+        FastStringBuffer buf = new FastStringBuffer();
+        in.AppendSuffix(buf, 1);
+        assertEquals("\n",buf.toString());
+        
         in.backup(1);
         
         assertEquals(10,in.readChar());
@@ -74,13 +77,7 @@ public class ReaderCharStreamTest extends TestCase {
         String initialDoc = 
             "a\n" +
             "bc\n";
-        StringReader inString = new StringReader(initialDoc);
-        CharStream in = new ReaderCharStream(inString);
-        doTests(in);
-
-        inString = new StringReader(initialDoc);
-        in = new ReaderCharStream(inString);
-        doTests2(in);
+        FastCharStream in;
         
         in = new FastCharStream(initialDoc.toCharArray());
         doTests(in);
@@ -89,7 +86,7 @@ public class ReaderCharStreamTest extends TestCase {
         doTests2(in);
     }
 
-    private void doTests2(CharStream in) throws IOException {
+    private void doTests2(FastCharStream in) throws IOException {
         assertEquals('a', in.readChar());
         assertEquals("a", in.GetImage());
         
@@ -121,19 +118,31 @@ public class ReaderCharStreamTest extends TestCase {
      * @param in
      * @throws IOException
      */
-    private void doTests(CharStream in) throws IOException {
+    private void doTests(FastCharStream in) throws IOException {
+        FastStringBuffer buf = new FastStringBuffer();
+        
         assertEquals('a', in.BeginToken());
         checkStart(in,1,1);
         assertEquals(1, in.getEndColumn());
         assertEquals(1, in.getEndLine());
         assertEquals("a", in.GetImage());
+        
         assertEquals("a", new String(in.GetSuffix(1)));
+        in.AppendSuffix(buf.clear(), 1);
+        assertEquals("a", buf.toString());
+        
         char[] cs = new char[2];
         cs[1] = 'a';
         assertEquals(new String(cs), new String(in.GetSuffix(2)));
+        in.AppendSuffix(buf.clear(), 2);
+        assertEquals(new String(cs), buf.toString());
+        
+        
         cs = new char[3];
         cs[2] = 'a';
         assertEquals(new String(cs), new String(in.GetSuffix(3)));
+        in.AppendSuffix(buf.clear(), 3);
+        assertEquals(new String(cs), buf.toString());
         
         assertEquals('\n', in.readChar());
         checkStart(in,1,1);
@@ -141,7 +150,14 @@ public class ReaderCharStreamTest extends TestCase {
         assertEquals(1, in.getEndLine());
         assertEquals("a\n", in.GetImage());
         assertEquals("\n", new String(in.GetSuffix(1)));
+        in.AppendSuffix(buf.clear(), 1);
+        assertEquals("\n", buf.toString());
+
+        
         assertEquals("a\n", new String(in.GetSuffix(2)));
+        in.AppendSuffix(buf.clear(), 2);
+        assertEquals("a\n", buf.toString());
+
        
         assertEquals('b', in.readChar());
         checkStart(in,1,1);
@@ -186,7 +202,9 @@ public class ReaderCharStreamTest extends TestCase {
         
         
         assertEquals("bc\n", new String(in.GetSuffix(3)));
-        
+        in.AppendSuffix(buf.clear(), 3);
+        assertEquals("bc\n", buf.toString());
+
         cs = new char[6];
         cs[1] = 'a';
         cs[2] = '\n';
@@ -195,6 +213,9 @@ public class ReaderCharStreamTest extends TestCase {
         cs[5] = '\n';
         final String suf = new String(in.GetSuffix(6));
         assertEquals(new String(cs), suf);
+        in.AppendSuffix(buf.clear(), 6);
+        assertEquals(new String(cs), buf.toString());
+
         in.backup(4);
         
         assertEquals("a", in.GetImage());
@@ -207,7 +228,7 @@ public class ReaderCharStreamTest extends TestCase {
     /**
      * @param in
      */
-    private void checkStart(CharStream in, int line, int col) {
+    private void checkStart(FastCharStream in, int line, int col) {
         assertEquals(1, in.getBeginColumn());
         assertEquals(1, in.getBeginLine());
     }

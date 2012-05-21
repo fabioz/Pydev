@@ -17,10 +17,10 @@ import org.python.pydev.debug.model.remote.ICommandResponseListener;
 
 public class DeferredWorkbenchAdapter extends DeferredDebugElementWorkbenchAdapter implements IDeferredWorkbenchAdapter, ICommandResponseListener{
 
-    private PyVariable[] commandVariables;
+    private volatile PyVariable[] commandVariables;
     private AbstractDebugTarget target;
     private IVariableLocator locator;
-    private Object parent;
+    private final Object parent;
     private IProgressMonitor monitor;
     
     public DeferredWorkbenchAdapter(Object parent) {
@@ -136,7 +136,7 @@ public class DeferredWorkbenchAdapter extends DeferredDebugElementWorkbenchAdapt
             PyStackFrame f = (PyStackFrame) parent;
             PyVariable[] temp1 = new PyVariable[temp.length +1];
             System.arraycopy(temp,0,temp1,1,temp.length);
-            temp1[0] = new PyVariableCollection(target, "Globals", "frame.f_global", "Global variables", f.getGlobalLocator());
+            temp1[0] = new PyVariableCollection(target, "Globals", "frame.f_globals", "Global variables", f.getGlobalLocator());
             commandVariables = temp1;
             
         }else{

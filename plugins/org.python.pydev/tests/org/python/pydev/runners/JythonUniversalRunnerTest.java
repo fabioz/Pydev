@@ -44,7 +44,7 @@ public class JythonUniversalRunnerTest extends JythonCodeCompletionTestsBase {
 		
 		Tuple<Process, String> createProcess = 
 			runner.createProcess(TestDependent.TEST_PYSRC_LOC+"universal_runner_test.py", null, null, new NullProgressMonitor());
-		output = SimpleRunner.getProcessOutput(createProcess.o1, "", new NullProgressMonitor());
+		output = SimpleRunner.getProcessOutput(createProcess.o1, "", new NullProgressMonitor(), "utf-8");
 		assertEquals("stdout", output.o1.trim());
 		assertEquals("stderr", output.o2.trim());
 	}

@@ -51,6 +51,11 @@ public final class FastStringBuffer{
         this.value = new char[initialSize];
         this.count = 0;
     }
+    
+    public FastStringBuffer(char [] internalBuffer) {
+        this.value = internalBuffer;
+        this.count = internalBuffer.length;
+    }
 
     /**
      * initializes from a string and the additional size for the buffer
@@ -75,17 +80,39 @@ public final class FastStringBuffer{
         int newCount = count + strLen;
 
         if (newCount > this.value.length) {
-            resizeForMinimum(newCount);
+            //was: resizeForMinimum(newCount);
+            int newCapacity = (value.length + 1) * 2;
+            if (newCount > newCapacity) {
+                newCapacity = newCount;
+            }
+            char newValue[] = new char[newCapacity];
+            System.arraycopy(value, 0, newValue, 0, count);
+            value = newValue;
         }
         string.getChars(0, strLen, value, this.count);
         this.count = newCount;
 
         return this;
     }
+    
+    /**
+     * Appends a string to the buffer. The buffer must have enough pre-allocated space for it to succeed.
+     * 
+     * Passing a null string will throw an exception.
+     * Not having a pre-allocated internal array big enough will throw an exception.
+     */
+    public FastStringBuffer appendNoResize(String string) {
+        int strLen = string.length();
+        string.getChars(0, strLen, value, this.count);
+        this.count = count + strLen;
+        return this;
+    }
 
     /**
      * Resizes the internal buffer to have at least the minimum capacity passed (but may be more)
+     * This code was  inlined on all methods and it's kept here to use as a reference when needed.
      */
+    @SuppressWarnings("unused")
     private void resizeForMinimum(int minimumCapacity) {
         int newCapacity = (value.length + 1) * 2;
         if (minimumCapacity > newCapacity) {
@@ -100,7 +127,23 @@ public final class FastStringBuffer{
      * Appends an int to the buffer.
      */
     public FastStringBuffer append(int n) {
-        append(String.valueOf(n));
+        //Inlined: append(String.valueOf(n));
+        String string = String.valueOf(n);
+        int strLen = string.length();
+        int newCount = count + strLen;
+        
+        if (newCount > this.value.length) {
+            //was: resizeForMinimum(newCount);
+            int newCapacity = (value.length + 1) * 2;
+            if (newCount > newCapacity) {
+                newCapacity = newCount;
+            }
+            char newValue[] = new char[newCapacity];
+            System.arraycopy(value, 0, newValue, 0, count);
+            value = newValue;
+        }
+        string.getChars(0, strLen, value, this.count);
+        this.count = newCount;
         return this;
     }
 
@@ -109,7 +152,15 @@ public final class FastStringBuffer{
      */
     public FastStringBuffer append(char n) {
         if (count + 1 > value.length) {
-            resizeForMinimum(count + 1);
+            //was: resizeForMinimum(newCount);
+            int minimumCapacity = count + 1;
+            int newCapacity = (value.length + 1) * 2;
+            if (minimumCapacity > newCapacity) {
+                newCapacity = minimumCapacity;
+            }
+            char newValue[] = new char[newCapacity];
+            System.arraycopy(value, 0, newValue, 0, count);
+            value = newValue;
         }
         value[count] = n;
         count++;
@@ -124,8 +175,16 @@ public final class FastStringBuffer{
         try {
             value[count] = n;
         } catch (Exception e) {
-            //System.out.println("Had to resze for minimun: "+(count+1));
-            resizeForMinimum(count + 1);
+            //System.out.println("Had to resize for minimun: "+(count+1));
+            //was: resizeForMinimum(newCount);
+            int minimumCapacity = count + 1;
+            int newCapacity = (value.length + 1) * 2;
+            if (minimumCapacity > newCapacity) {
+                newCapacity = minimumCapacity;
+            }
+            char newValue[] = new char[newCapacity];
+            System.arraycopy(value, 0, newValue, 0, count);
+            value = newValue;
             value[count] = n;
         }
         count++;
@@ -135,7 +194,23 @@ public final class FastStringBuffer{
      * Appends a long to the buffer.
      */
     public FastStringBuffer append(long n) {
-        append(String.valueOf(n));
+        //Inlined: append(String.valueOf(b));
+        String string = String.valueOf(n);
+        int strLen = string.length();
+        int newCount = count + strLen;
+        
+        if (newCount > this.value.length) {
+            //was: resizeForMinimum(newCount);
+            int newCapacity = (value.length + 1) * 2;
+            if (newCount > newCapacity) {
+                newCapacity = newCount;
+            }
+            char newValue[] = new char[newCapacity];
+            System.arraycopy(value, 0, newValue, 0, count);
+            value = newValue;
+        }
+        string.getChars(0, strLen, value, this.count);
+        this.count = newCount;
         return this;
     }
 
@@ -143,7 +218,23 @@ public final class FastStringBuffer{
      * Appends a boolean to the buffer.
      */
     public FastStringBuffer append(boolean b) {
-        append(String.valueOf(b));
+        //Inlined: append(String.valueOf(b));
+        String string = String.valueOf(b);
+        int strLen = string.length();
+        int newCount = count + strLen;
+        
+        if (newCount > this.value.length) {
+            //was: resizeForMinimum(newCount);
+            int newCapacity = (value.length + 1) * 2;
+            if (newCount > newCapacity) {
+                newCapacity = newCount;
+            }
+            char newValue[] = new char[newCapacity];
+            System.arraycopy(value, 0, newValue, 0, count);
+            value = newValue;
+        }
+        string.getChars(0, strLen, value, this.count);
+        this.count = newCount;
         return this;
     }
     
@@ -151,7 +242,22 @@ public final class FastStringBuffer{
      * Appends a double to the buffer.
      */
     public FastStringBuffer append(double b) {
-        append(Double.valueOf(b));
+        //Inlined: append(String.valueOf(b));
+        String string = String.valueOf(b);
+        int strLen = string.length();
+        int newCount = count + strLen;
+        
+        if (newCount > this.value.length) {
+            int newCapacity = (value.length + 1) * 2;
+            if (newCount > newCapacity) {
+                newCapacity = newCount;
+            }
+            char newValue[] = new char[newCapacity];
+            System.arraycopy(value, 0, newValue, 0, count);
+            value = newValue;
+        }
+        string.getChars(0, strLen, value, this.count);
+        this.count = newCount;
         return this;
     }
 
@@ -161,7 +267,14 @@ public final class FastStringBuffer{
     public FastStringBuffer append(char[] chars) {
         int newCount = count + chars.length;
         if (newCount > value.length) {
-            resizeForMinimum(newCount);
+            //was: resizeForMinimum(newCount);
+            int newCapacity = (value.length + 1) * 2;
+            if (newCount > newCapacity) {
+                newCapacity = newCount;
+            }
+            char newValue[] = new char[newCapacity];
+            System.arraycopy(value, 0, newValue, 0, count);
+            value = newValue;
         }
         System.arraycopy(chars, 0, value, count, chars.length);
         count = newCount;
@@ -172,7 +285,21 @@ public final class FastStringBuffer{
      * Appends another buffer to this buffer.
      */
     public FastStringBuffer append(FastStringBuffer other) {
-        append(other.value, 0, other.count);
+        //Inlined append(other.value, 0, other.count);
+        int len = other.count;
+        int newCount = count + len;
+        if (newCount > value.length) {
+            //was: resizeForMinimum(newCount);
+            int newCapacity = (value.length + 1) * 2;
+            if (newCount > newCapacity) {
+                newCapacity = newCount;
+            }
+            char newValue[] = new char[newCapacity];
+            System.arraycopy(value, 0, newValue, 0, count);
+            value = newValue;
+        }
+        System.arraycopy(other.value, 0, value, count, len);
+        count = newCount;
         return this;
     }
 
@@ -182,7 +309,14 @@ public final class FastStringBuffer{
     public FastStringBuffer append(char[] chars, int offset, int len) {
         int newCount = count + len;
         if (newCount > value.length) {
-            resizeForMinimum(newCount);
+            //was: resizeForMinimum(newCount);
+            int newCapacity = (value.length + 1) * 2;
+            if (newCount > newCapacity) {
+                newCapacity = newCount;
+            }
+            char newValue[] = new char[newCapacity];
+            System.arraycopy(value, 0, newValue, 0, count);
+            value = newValue;
         }
         System.arraycopy(chars, offset, value, count, len);
         count = newCount;
@@ -215,6 +349,10 @@ public final class FastStringBuffer{
      */
     public int length() {
         return this.count;
+    }
+    
+    public boolean isEmpty() {
+        return this.count == 0;
     }
 
     /**
@@ -269,7 +407,14 @@ public final class FastStringBuffer{
         int len = str.length();
         int newCount = count + len;
         if (newCount > value.length) {
-            resizeForMinimum(newCount);
+            //was: resizeForMinimum(newCount);
+            int newCapacity = (value.length + 1) * 2;
+            if (newCount > newCapacity) {
+                newCapacity = newCount;
+            }
+            char newValue[] = new char[newCapacity];
+            System.arraycopy(value, 0, newValue, 0, count);
+            value = newValue;
         }
         System.arraycopy(value, offset, value, offset + len, count - offset);
         str.getChars(0, len, value, offset);
@@ -283,7 +428,13 @@ public final class FastStringBuffer{
         int len = str.length();
         int newCount = count + len;
         if (newCount > value.length) {
-            resizeForMinimum(newCount);
+            int newCapacity = (value.length + 1) * 2;
+            if (newCount > newCapacity) {
+                newCapacity = newCount;
+            }
+            char newValue[] = new char[newCapacity];
+            System.arraycopy(value, 0, newValue, 0, count);
+            value = newValue;
         }
         System.arraycopy(value, offset, value, offset + len, count - offset);
         System.arraycopy(str.value, 0, value, offset, str.count);
@@ -297,7 +448,14 @@ public final class FastStringBuffer{
     public FastStringBuffer insert(int offset, char c) {
         int newCount = count + 1;
         if (newCount > value.length) {
-            resizeForMinimum(newCount);
+            //was: resizeForMinimum(newCount);
+            int newCapacity = (value.length + 1) * 2;
+            if (newCount > newCapacity) {
+                newCapacity = newCount;
+            }
+            char newValue[] = new char[newCapacity];
+            System.arraycopy(value, 0, newValue, 0, count);
+            value = newValue;
         }
         System.arraycopy(value, offset, value, offset + 1, count - offset);
         value[offset] = c;
@@ -309,7 +467,25 @@ public final class FastStringBuffer{
      * Appends object.toString(). If null, "null" is appended.
      */
     public FastStringBuffer appendObject(Object object) {
-        return append(object != null ? object.toString() : "null");
+        //Inlined: return append(object != null ? object.toString() : "null");
+        String string = object != null ? object.toString() : "null";
+        int strLen = string.length();
+        int newCount = count + strLen;
+        
+        if (newCount > this.value.length) {
+            //was: resizeForMinimum(newCount);
+            int newCapacity = (value.length + 1) * 2;
+            if (newCount > newCapacity) {
+                newCapacity = newCount;
+            }
+            char newValue[] = new char[newCapacity];
+            System.arraycopy(value, 0, newValue, 0, count);
+            value = newValue;
+        }
+        string.getChars(0, strLen, value, this.count);
+        this.count = newCount;
+        
+        return this;
     }
 
     /**
@@ -349,7 +525,14 @@ public final class FastStringBuffer{
         int len = str.length();
         int newCount = count + len - (end - start);
         if (newCount > value.length) {
-            resizeForMinimum(newCount);
+            //was: resizeForMinimum(newCount);
+            int newCapacity = (value.length + 1) * 2;
+            if (newCount > newCapacity) {
+                newCapacity = newCount;
+            }
+            char newValue[] = new char[newCapacity];
+            System.arraycopy(value, 0, newValue, 0, count);
+            value = newValue;
         }
 
         System.arraycopy(value, end, value, start + len, count - end);
@@ -457,8 +640,9 @@ public final class FastStringBuffer{
 
     public void rightTrim() {
         char c;
-        while(((c=this.lastChar()) == ' ' || c == '\t' )){
-            this.deleteLast();
+        //while !isEmpty && lastChar == ' ' || \t.
+        while (this.count > 0 && ((c = this.value[this.count-1]) == ' ' || c == '\t')) {
+            this.count--;
         }
     }
 
@@ -468,13 +652,20 @@ public final class FastStringBuffer{
         return ret;
     }
 
-    public FastStringBuffer appendN(String val, int n){
-    	int min = count + (n*val.length());
+    public FastStringBuffer appendN(final String val, int n){
+        final int strLen = val.length();
+    	int min = count + (n*strLen);
 		if (min > value.length) {
-    		resizeForMinimum(min);
+            //was: resizeForMinimum(newCount);
+    		int newCapacity = (value.length + 1) * 2;
+            if (min > newCapacity) {
+                newCapacity = min;
+            }
+            char newValue[] = new char[newCapacity];
+            System.arraycopy(value, 0, newValue, 0, count);
+            value = newValue;
     	}
         
-		int strLen = val.length();
     	while (n-- > 0){
     		val.getChars(0, strLen, value, this.count);
     		this.count += strLen;
@@ -484,7 +675,15 @@ public final class FastStringBuffer{
 
     public FastStringBuffer appendN(char val, int n){
         if (count + n > value.length) {
-            resizeForMinimum(count + n);
+            //was: resizeForMinimum(newCount);
+            int minimumCapacity = count + n;
+            int newCapacity = (value.length + 1) * 2;
+            if (minimumCapacity > newCapacity) {
+                newCapacity = minimumCapacity;
+            }
+            char newValue[] = new char[newCapacity];
+            System.arraycopy(value, 0, newValue, 0, count);
+            value = newValue;
         }
         
         while (n-- > 0){

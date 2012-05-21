@@ -79,7 +79,7 @@ public class PyDebugTargetServer extends AbstractDebugTarget {
     
     public void processCommand(String sCmdCode, String sSeqCode, String payload) {
         if(Integer.parseInt(sCmdCode) == AbstractDebuggerCommand.CMD_WRITE_TO_CONSOLE){
-            ProcessServer serverProcess = ((RemoteDebuggerServer)debugger).getServerProcess();
+            ProcessServer serverProcess = getDebugger().getServerProcess();
             
             //payload = <xml><io s="%s" ctx="%s"/></xml>
             Tuple<String,Integer> message = XMLMessage.getMessage(payload);
@@ -93,8 +93,13 @@ public class PyDebugTargetServer extends AbstractDebugTarget {
         }
     }
 
+    public RemoteDebuggerServer getDebugger() 
+    {
+    	return (RemoteDebuggerServer)super.getDebugger();
+    }
+    
     public IProcess getProcess() {
-        return ((RemoteDebuggerServer)debugger).getIProcess();
+        return getDebugger().getIProcess();
     }
 
 

@@ -114,7 +114,7 @@ public class RefactoringRequest extends DecoratableObject{
         this.pushMonitor(monitor);
         
         if(nature == null){
-            Tuple<SystemPythonNature,String> infoForFile = PydevPlugin.getInfoForFile(file);
+            Tuple<IPythonNature,String> infoForFile = PydevPlugin.getInfoForFile(file);
             if(infoForFile != null){
                 this.nature = infoForFile.o1;
                 this.moduleName = infoForFile.o2;

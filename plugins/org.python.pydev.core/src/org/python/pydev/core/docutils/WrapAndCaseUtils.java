@@ -1,5 +1,7 @@
 package org.python.pydev.core.docutils;
 
+import org.python.pydev.core.structure.FastStringBuffer;
+
 
 
 
@@ -175,7 +177,7 @@ public class WrapAndCaseUtils {
         }
         int inputLineLength = str.length();
         int offset = 0;
-        StringBuffer wrappedLine = new StringBuffer(inputLineLength + 32);
+        FastStringBuffer wrappedLine = new FastStringBuffer(inputLineLength + 32);
         
         while ((inputLineLength - offset) > wrapLength) {
             if (str.charAt(offset) == ' ') {

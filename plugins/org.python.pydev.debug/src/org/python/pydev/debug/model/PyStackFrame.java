@@ -10,13 +10,11 @@
  */
 package org.python.pydev.debug.model;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.PlatformObject;
+import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IDebugTarget;
@@ -28,7 +26,6 @@ import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 import org.python.pydev.core.IPyStackFrame;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
 import org.python.pydev.debug.model.remote.GetFileContentsCommand;
@@ -49,12 +46,13 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
     private String id;
     private IPath path;
     private int line;
-    private IVariable[] variables;
+    private volatile IVariable[] variables;
     private IVariableLocator localsLocator;
     private IVariableLocator globalsLocator;
     private IVariableLocator frameLocator;
     private IVariableLocator expressionLocator;
     private AbstractDebugTarget target;
+    private volatile boolean onAskGetNewVars = true;
 
     public PyStackFrame(PyThread in_thread, String in_id, String name, IPath file, int line, AbstractDebugTarget target) {
         this.id = in_id;
@@ -139,6 +137,9 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
     }
     
 
+    private final static IVariable[] EMPTY_VARIABLES = new IVariable[0];
+    private final static Object lock = new Object(); 
+    
     /**
      * This interface changed in 3.2... we returned an empty collection before, and used the
      * DeferredWorkbenchAdapter to get the actual children, but now we have to use the 
@@ -148,30 +149,50 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
      * @see org.eclipse.debug.core.model.IStackFrame#getVariables()
      */
     public IVariable[] getVariables() throws DebugException {
-        if(this.variables == null){
-            this.variables = new IVariable[0]; //so that we do not enter here again (if another request to this method
-                                               //is done before we finish getting it)
-            DeferredWorkbenchAdapter adapter = new DeferredWorkbenchAdapter(this);
-            IVariable[] vars = (IVariable[]) adapter.getChildren(this);
-            this.target.getModificationChecker().verifyModified(this, vars);
-            this.variables = vars;
+        if(onAskGetNewVars){
+            synchronized (lock) {
+                //double check idiom for accessing onAskGetNewVars.
+                if(onAskGetNewVars){
+                    IVariable[] oldVars = this.variables;
+                    if(oldVars == null){
+                        //Temporary in case some other thread asks for it while we're still calculating.
+                        this.variables = EMPTY_VARIABLES; 
+                    }
+                    onAskGetNewVars = false;
+                    
+                    DeferredWorkbenchAdapter adapter = new DeferredWorkbenchAdapter(this);
+                    IVariable[] vars = (IVariable[]) adapter.getChildren(this);
+                    
+                    if(oldVars != null){
+                        this.target.getModificationChecker().verifyVariablesModified(vars, oldVars);
+                        
+                    }else{
+                        this.target.getModificationChecker().verifyModified(this, vars);
+                    }
+                    
+                    this.variables = vars;
+                }
+                
+            }
         }
         return this.variables;
     }
-
+    
     /**
-     * create a map with the variables, such that the name of the variable points to the IVariable
-     * 
-     * @return the map
+     * @return the internal variables array directly (may be null).
      */
-    public Map<String, IVariable> getVariablesAsMap() throws DebugException {
-        HashMap<String, IVariable> map = new HashMap<String, IVariable>();
-        for (IVariable var : variables) {
-            map.put(var.getName(), var);
-        }
-        return map;
+    public IVariable[] getInternalVariables(){
+        return this.variables;
     }
     
+    public void forceGetNewVariables(){
+        this.onAskGetNewVars = true;
+        AbstractDebugTarget target = getTarget();
+        if(target != null){
+            target.fireEvent(new DebugEvent(this, DebugEvent.CHANGE, DebugEvent.CONTENT));
+        }
+    }
+
     public boolean hasVariables() throws DebugException {
         return true;
     }

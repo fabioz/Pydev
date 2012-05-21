@@ -38,7 +38,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testRelativeOnPy3();
+            analyzer2.testBuiltInAssignment7();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -2880,7 +2880,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
             GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
             doc = new Document(
                     "import os as list \n" +
-                    "class Foo:\n" +
+                    "def Foo():\n" +
                     "	id = 10 \n" +
                     "	for tuple in range(3):	\n" +
                     "		val = tuple \n" +
@@ -2941,6 +2941,45 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         } finally {
             GRAMMAR_TO_USE_FOR_PARSING = initial;
         }
+	}
+	
+	
+	public void testBuiltInAssignment5() {
+        doc = new Document(
+            "class A:\n" +
+            "    def open(self):\n" +
+            "        pass" +
+            ""
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 0); 
+	}
+	
+	public void testBuiltInAssignment6() {
+	    doc = new Document(
+	        "class A:\n" +
+            "    id = 10\n" +
+            ""
+        );
+	    analyzer = new OccurrencesAnalyzer();
+	    msgs = analyzeDoc();
+	    
+	    printMessages(msgs, 0); 
+	}
+	
+	public void testBuiltInAssignment7() {
+	    doc = new Document(
+	        "def call(**kwargs):\n" +
+	        "    pass\n" +
+	        "call(id=10)\n" +
+            ""
+        );
+	    analyzer = new OccurrencesAnalyzer();
+	    msgs = analyzeDoc();
+	    
+	    printMessages(msgs, 0); 
 	}
 	
 	

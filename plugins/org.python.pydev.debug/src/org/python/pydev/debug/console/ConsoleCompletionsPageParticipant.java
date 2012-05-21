@@ -166,7 +166,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
             GetCompletionsCommand compCmd = (GetCompletionsCommand) cmd;
             try {
                 String response = compCmd.getResponse();
-                List<Object[]> fromServer = XMLUtils.XMLToCompletions(response);
+                List<Object[]> fromServer = XMLUtils.convertXMLcompletionsFromConsole(response);
                 List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>();
                 PydevConsoleCommunication.convertToICompletions(text, actTok, offset, fromServer, ret);
                 receivedCompletions = ret.toArray(new ICompletionProposal[ret.size()]);
@@ -176,6 +176,11 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
             }
             
         }
+
+		public void linkWithDebugSelection(boolean isLinkedWithDebug) {
+			throw new RuntimeException("Not implemented");
+		}
+
     }
     
 

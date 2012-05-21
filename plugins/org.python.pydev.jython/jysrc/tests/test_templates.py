@@ -73,7 +73,9 @@ class Test(unittest.TestCase):
             'prev_class_or_method', 
             'rparen_if_py3', 
             'space_if_py2', 
-            'superclass'
+            'superclass',
+            'pydevd_dir_location',
+            'pydevd_file_location',
         ]
         gotten = types.keys()
         gotten.sort()

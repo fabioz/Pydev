@@ -161,11 +161,15 @@ public class REF {
         return (String) getFileContentsCustom(file, String.class);
     }
     
+    public static Object getFileContentsCustom(File file, Class<? extends Object> returnType) {
+        return getFileContentsCustom(file, null, returnType);
+    }
+    
     /**
      * @param file the file we want to read
      * @return the contents of the file as a string
      */
-    public static Object getFileContentsCustom(File file, Class<? extends Object> returnType) {
+    public static Object getFileContentsCustom(File file, String encoding, Class<? extends Object> returnType) {
         FileInputStream stream = null;
         try {
             stream = new FileInputStream(file);
@@ -1339,6 +1343,17 @@ public class REF {
 
     public static boolean getSupportsOpenDirectory() {
         return getOpenDirectoryExecutable() != null;
+    }
+
+    
+    public static File createFileFromParts(String ... parts) {
+        String part0 = parts[0];
+        File f = new File(part0);
+        for(int i=1;i<parts.length;i++){
+            String part = parts[i];
+            f = new File(f, part);
+        }
+        return f;
     }
 }
 

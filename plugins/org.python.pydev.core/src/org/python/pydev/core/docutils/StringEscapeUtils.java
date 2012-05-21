@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.python.pydev.core.structure.FastStringBuffer;
+
 public class StringEscapeUtils {
 
     /**
@@ -648,11 +650,12 @@ class Entities {
      * @param str The <code>String</code> to escape.
      * @return A new escaped <code>String</code>.
      */
-    public String escape(String str) {
+    public String escape(final String str) {
         //todo: rewrite to use a Writer
-        StringBuffer buf = new StringBuffer(str.length() * 2);
+        int length = str.length();
+        FastStringBuffer buf = new FastStringBuffer(length * 2);
         int i;
-        for (i = 0; i < str.length(); ++i) {
+        for (i = 0; i < length; ++i) {
             char ch = str.charAt(i);
             String entityName = this.entityName(ch);
             if (entityName == null) {
@@ -682,10 +685,11 @@ class Entities {
      * @param str The <code>String</code> to escape.
      * @return A new escaped <code>String</code>.
      */
-    public String unescape(String str) {
-        StringBuffer buf = new StringBuffer(str.length());
+    public String unescape(final String str) {
+        int len = str.length();
+        FastStringBuffer buf = new FastStringBuffer(len);
         int i;
-        for (i = 0; i < str.length(); ++i) {
+        for (i = 0; i < len; ++i) {
             char ch = str.charAt(i);
             if (ch == '&') {
                 int semi = str.indexOf(';', i + 1);

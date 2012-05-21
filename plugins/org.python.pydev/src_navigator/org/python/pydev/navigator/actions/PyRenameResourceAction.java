@@ -102,7 +102,7 @@ public class PyRenameResourceAction extends RenameResourceAction{
                     if (element instanceof IAdaptable) {
                         IAdaptable adaptable = (IAdaptable) element;
                         IResource resource = (IResource) adaptable.getAdapter(IResource.class);
-                        if (resource != null) {
+                        if (resource != null && resource.isAccessible()) {
                             selected.add(resource);
                             continue;
                         }

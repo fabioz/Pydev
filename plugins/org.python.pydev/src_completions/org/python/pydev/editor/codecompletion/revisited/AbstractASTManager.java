@@ -177,7 +177,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
         String absoluteModule = original;
         if (absoluteModule.endsWith(".")) {
-            absoluteModule = absoluteModule.substring(0, absoluteModule.length() - 1);
+            absoluteModule = absoluteModule.substring(0, absoluteModule.length() - 1); //remove last char
         }
         
         //If we have a relative import, first match with the relative and only try to match the absolute if the relative
@@ -189,7 +189,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             }
         }
 
-        if(set.size() == 0){
+        if( set.size() == 0 ||   
+            absoluteModule.length() == 0 //In the case of an "import zi", the absoluteModule will be an empty string, and we have to get the roots in the completion!
+            ){
             if(level == 0){
                 //first we get the imports... that complete for the token.
                 getAbsoluteImportTokens(absoluteModule, set, IToken.TYPE_IMPORT, false, importInfo, onlyGetDirectModules);
@@ -199,6 +201,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 getTokensForModule(original, nature, absoluteModule, set);
             }
         }
+        
         
         if(level == 1 && moduleName != null){
             //has returned itself, so, let's remove it
@@ -1045,7 +1048,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 state.setActivationToken(actToken);
             }
             IToken[] completionsForModule = getCompletionsForModule(module, state);
-            for (IToken foundTok : completionsForModule) {
+            int len = completionsForModule.length;
+            for(int i=0;i<len;i++){
+                IToken foundTok = completionsForModule[i];
                 if(foundTok.getRepresentation().equals(hasToBeFound)){
                     return foundTok;
                 }

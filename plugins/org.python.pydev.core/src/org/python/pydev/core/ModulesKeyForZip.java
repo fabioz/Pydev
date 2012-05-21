@@ -8,6 +8,8 @@ package org.python.pydev.core;
 
 import java.io.File;
 
+import org.python.pydev.core.structure.FastStringBuffer;
+
 /**
  * This is the modules key that should be used if we have an entry in a zip file.
  * 
@@ -49,10 +51,10 @@ public class ModulesKeyForZip extends ModulesKey{
 
     @Override
     public String toString() {
-        StringBuffer ret = new StringBuffer(name);
+        FastStringBuffer ret = new FastStringBuffer(name, 40);
         if(file != null){
             ret.append(" - ");
-            ret.append(file);
+            ret.appendObject(file);
         }
         if(zipModulePath != null){
             ret.append(" - zip path:");

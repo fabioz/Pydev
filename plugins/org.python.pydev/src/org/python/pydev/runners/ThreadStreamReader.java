@@ -48,14 +48,21 @@ public final class ThreadStreamReader extends Thread {
         next ++;
         return next;
     }
+    
+    private final String encoding;
 
     public ThreadStreamReader(InputStream is) {
         this(is, true); //default is synchronize.
     }
     
     public ThreadStreamReader(InputStream is, boolean synchronize) {
+        this(is, synchronize, null);
+    }
+    
+    public ThreadStreamReader(InputStream is, boolean synchronize, String encoding) {
         this.setName("ThreadStreamReader: "+next());
         this.setDaemon(true);
+        this.encoding = encoding;
         contents = new FastStringBuffer();
         this.is = is;
         this.synchronize = synchronize;
@@ -63,17 +70,28 @@ public final class ThreadStreamReader extends Thread {
 
     public void run() {
         try {
-            InputStreamReader in = new InputStreamReader(is);
+            InputStreamReader in;
+            if(encoding != null){
+                in = new InputStreamReader(is, encoding);
+                
+            }else{
+                in = new InputStreamReader(is);
+            }
             int c;
+            
+            //small buffer because we may want to see contents as it's being written.
+            //(still better than char by char).
+            char [] buf = new char[80]; 
+            
             if(synchronize){
-                while ((c = in.read()) != -1) {
+                while ((c = in.read(buf)) != -1) {
                     synchronized(lock){
-                        contents.append((char) c);
+                        contents.append(buf, 0, c);
                     }
                 }
             }else{
-                while ((c = in.read()) != -1) {
-                    contents.append((char) c);
+                while ((c = in.read(buf)) != -1) {
+                    contents.append(buf, 0, c);
                 }
             }
         } catch (Exception e) {

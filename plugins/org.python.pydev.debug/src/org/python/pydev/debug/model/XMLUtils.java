@@ -29,6 +29,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.python.pydev.core.REF;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.debug.newconsole.EvaluateDebugConsoleExpression;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -330,7 +331,7 @@ public class XMLUtils {
     }
     
     
-    public static List<Object[]> XMLToCompletions(String payload) throws CoreException {
+    public static List<Object[]> convertXMLcompletionsFromConsole(String payload) throws CoreException {
         try {
             SAXParser parser = getSAXParser();
             XMLToCompletionsInfo info = new XMLToCompletionsInfo();
@@ -345,5 +346,90 @@ public class XMLUtils {
         }
         
     }
+	
+	/**
+	 * Creates an object of
+	 * EvaluateDebugConsoleExpression.PydevDebugConsoleMessage. Parse the XML in
+	 * the below mentioned format 
+	 * 		<xml> 
+	 * 			<output message = console_output_message></output>
+	 * 			<error message = console_error_message></error> 
+	 * 			<more>true/false</more> 
+	 * 		</xml>
+	 * 
+	 * @author hussain.bohra
+	 */
+	static class DebugConsoleMessageInfo extends DefaultHandler {
+		private EvaluateDebugConsoleExpression.PydevDebugConsoleMessage debugConsoleMessage;
+		private String attrValue;
+		
+        @Override
+        public void characters(char[] ch, int start, int length)
+                throws SAXException {
+            attrValue = new String(ch, start, length);
+        }
+       
+        @Override
+		public void startElement(String uri, String localName, String qName,
+				Attributes attributes) {
+        	boolean isError = true;
+        	if (qName.equalsIgnoreCase("MORE")) {
+        		return;
+        	}
+			if (qName.equalsIgnoreCase("OUTPUT")) {
+				isError = false;
+			}
+			for (int i = 0; i < attributes.getLength(); i++) {
+				if (attributes.getQName(i).equalsIgnoreCase("MESSAGE")) {
+					String outputMessage = attributes.getValue(i);
+					debugConsoleMessage.appendMessage(outputMessage, isError);
+				}
+			}
+		}
+        
+		@Override
+		public void endElement(String uri, String localName, String qName)
+				throws SAXException {
+			if (qName.equalsIgnoreCase("MORE")) {
+				if (attrValue.equals("True")){
+					debugConsoleMessage.setMore(true);
+				} else {
+					debugConsoleMessage.setMore(false);
+				}
+			} 
+		}
 
+        public DebugConsoleMessageInfo() {
+        	debugConsoleMessage = new EvaluateDebugConsoleExpression.PydevDebugConsoleMessage();
+        }
+	}
+
+	
+	/**
+	 * Get an instance of a SAXParser and create a new DebugConsoleMessageInfo object.
+	 * 
+	 * Call the parser passing it a DebugConsoleMessageInfo Object
+	 * 
+	 * @param payload
+	 * @return
+	 * @throws CoreException
+	 */
+	public static EvaluateDebugConsoleExpression.PydevDebugConsoleMessage getConsoleMessage(String payload) throws CoreException {
+		EvaluateDebugConsoleExpression.PydevDebugConsoleMessage debugConsoleMessage = new EvaluateDebugConsoleExpression.PydevDebugConsoleMessage();
+		try {
+			SAXParser parser = getSAXParser();
+			
+			DebugConsoleMessageInfo info = new DebugConsoleMessageInfo();
+			parser.parse(new ByteArrayInputStream(payload.getBytes()), info);
+			debugConsoleMessage = info.debugConsoleMessage;
+			 
+		} catch (SAXException e) {
+			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR,
+					"Unexpected XML error", e));
+		} catch (IOException e) {
+			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR,
+					"Unexpected XML error", e));
+		}
+		return debugConsoleMessage;
+	}
 }

@@ -22,6 +22,22 @@ import org.python.pydev.core.docutils.PySelection;
  */
 public class AssistSurroundWithTest extends TestCase {
 
+    public static void main(String[] args) {
+        try {
+            AssistSurroundWithTest builtins = new AssistSurroundWithTest();
+            builtins.setUp();
+            builtins.testSurround();
+            builtins.tearDown();
+            
+            junit.textui.TestRunner.run(AssistSurroundWithTest.class);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+    }
+    
+    
     public void testSurround() throws Exception {
         AssistSurroundWith assistSurroundWith = new AssistSurroundWith();
         int offset = 0;

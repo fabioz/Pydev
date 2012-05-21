@@ -9,7 +9,6 @@
 package org.python.pydev.refactoring.core.base;
 
 import java.io.File;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -34,7 +33,6 @@ import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.refactoring.ast.PythonModuleManager;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
@@ -53,7 +51,6 @@ public class RefactoringInfo {
     private PythonModuleManager moduleManager;
     private AbstractScopeNode<?> scopeAdapter;
     private IProject project;
-    private LinkedList<String> sysPath;
     private File realFile;
 
     public RefactoringInfo(PyEdit edit) throws MisconfigurationException {
@@ -90,7 +87,7 @@ public class RefactoringInfo {
         }
         
         if(localNature == null){
-            Tuple<SystemPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(this.realFile);
+            Tuple<IPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(this.realFile);
             if(infoForFile != null && infoForFile.o1 != null){
                 localNature = infoForFile.o1;
             }
@@ -105,8 +102,6 @@ public class RefactoringInfo {
     }
 
     private void initInfo(ITextSelection selection) {
-        this.sysPath = new LinkedList<String>();
-
         if(this.nature != null){
             this.moduleManager = new PythonModuleManager(nature);
         }

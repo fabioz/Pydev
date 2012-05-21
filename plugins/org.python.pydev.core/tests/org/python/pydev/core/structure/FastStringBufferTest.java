@@ -13,6 +13,31 @@ public class FastStringBufferTest extends TestCase{
     private static final int ITERATIONS = 10000;
     private static final int OUTER_ITERATIONS = 50;
 
+    public void testFastStringBufferConstructor() throws Exception {
+        char [] buf = new char[]{'a', 'b'};
+        FastStringBuffer fastString = new FastStringBuffer(buf);
+        assertSame(buf, fastString.getInternalCharsArray());
+        assertEquals(buf.length, fastString.length());
+        assertEquals("ab", fastString.toString());
+    }
+    
+    
+    public void testAppendNoResize() throws Exception {
+        FastStringBuffer buf = new FastStringBuffer(5);
+        buf.appendNoResize("aa");
+        assertEquals("aa", buf.toString());
+        buf.appendNoResize("bb");
+        assertEquals("aabb", buf.toString());
+        try {
+            buf.appendNoResize("cc");
+            fail("Expected resize to fail");
+        } catch (Exception e) {
+            //Expected
+        }
+        //Should not have changed
+        assertEquals("aabb", buf.toString());
+    }
+    
     public void testFastString1() throws Exception {
         
         FastStringBuffer fastString = new FastStringBuffer(2);
@@ -187,6 +212,27 @@ public class FastStringBufferTest extends TestCase{
         buf.append("  a\ra  bb b  \nbb  ");
         buf.removeWhitespaces();
         assertEquals("aabbbbb", buf.toString());
+    }
+
+    public void testRightTrim() throws Exception {
+        FastStringBuffer buf = new FastStringBuffer("", 0);
+        buf.rightTrim();
+        assertEquals("", buf.toString());
+        buf = new FastStringBuffer("   ", 0);
+        buf.rightTrim();
+        assertEquals("", buf.toString());
+        buf = new FastStringBuffer("foo", 0);
+        buf.rightTrim();
+        assertEquals("foo", buf.toString());
+        buf = new FastStringBuffer("foo   ", 0);
+        buf.rightTrim();
+        assertEquals("foo", buf.toString());
+        buf = new FastStringBuffer("foo bar", 0);
+        buf.rightTrim();
+        assertEquals("foo bar", buf.toString());
+        buf = new FastStringBuffer("foo bar   ", 0);
+        buf.rightTrim();
+        assertEquals("foo bar", buf.toString());
     }
     
 //    public void testFastString() throws Exception {

@@ -11,6 +11,7 @@
  */
 package org.python.pydev.ui.pythonpathconf;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -18,6 +19,9 @@ import java.util.List;
 import java.util.Properties;
 
 import junit.framework.TestCase;
+
+import org.python.pydev.core.REF;
+import org.python.pydev.core.TestDependent;
 
 /**
  * @author Fabio Zadrozny
@@ -29,7 +33,7 @@ public class InterpreterInfoTest extends TestCase {
         InterpreterInfoTest test = new InterpreterInfoTest();
         try {
             test.setUp();
-            test.testInfo3();
+            test.testInterpreterInfoOutputWithEncoding();
             test.tearDown();
             junit.textui.TestRunner.run(InterpreterInfoTest.class);
         } catch (Throwable e) {
@@ -253,6 +257,22 @@ public class InterpreterInfoTest extends TestCase {
         assertTrue(!asList.contains("django.db"));
         
         check(info);
+    }
+    
+    public void testInterpreterInfoOutputWithEncoding() throws Exception {
+        //To generate output:
+        
+        //cd W:/pydev/plugins/org.python.pydev/tests/org/python/pydev/ui/pythonpathconf
+        //"d:\instaçao âo\Python27\python.exe"  W:\pydev\plugins\org.python.pydev\pysrc\interpreterInfo.py > InterpreterInfoOutput.txt
+        
+        String contents = (String) REF.getFileContentsCustom(
+            new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+ "tests/org/python/pydev/ui/pythonpathconf/InterpreterInfoOutput.txt"),
+            "utf-8",
+            String.class    
+            );
+        InterpreterInfo i1 = InterpreterInfo.fromString(contents, false);
+        InterpreterInfo i2 = i1.makeCopy();
+        assertEquals(i1, i2);
     }
     
     

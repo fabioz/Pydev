@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.Preferences;
 
 public class AnalysisPreferences extends AbstractAnalysisPreferences{
@@ -84,6 +85,9 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences{
                     Object[] s = completeSeverityMap[i];
                     severityTypeMapCache.put((Integer)s[0], pluginPreferences.getInt((String)s[1]));
                 }
+                
+                //TODO: Add ARGUMENTS_MISMATCH again later on
+                severityTypeMapCache.put(IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH, IMarker.SEVERITY_INFO); //Force it to be disabled for now!
             }        
             return severityTypeMapCache;
         }

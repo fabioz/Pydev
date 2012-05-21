@@ -45,17 +45,39 @@ if DEBUG and cmd == 'onSave':
     from org.python.pydev.jython import JythonPlugin #@UnresolvedImport
     editor.pyEditScripting.interpreter = JythonPlugin.newPythonInterpreter()
 
+from org.eclipse.jface.action import Action #@UnresolvedImport
+
+#=======================================================================================================================
+# AssignToAttribsOfSelfAction
+#=======================================================================================================================
+class AssignToAttribsOfSelfAction(Action):
+    
+    def __init__(self, assign_to_attribs_helper):
+        Action.__init__(self)
+        self.assign_to_attribs_helper = assign_to_attribs_helper
+    
+    def run(self):
+        self.assign_to_attribs_helper.run()
+
+
+#=======================================================================================================================
+# Actually bind the actions
+#=======================================================================================================================
 if cmd == 'onCreateActions' or (DEBUG and cmd == 'onSave'): 
     from org.python.pydev.editor.correctionassist import PythonCorrectionProcessor #@UnresolvedImport
     import assign_params_to_attributes_action as helper 
-    import assign_params_to_attributes_assist as helper2
+    import assign_params_to_attributes_assist
                         
+
+    #---------------------------------------------------------------------------------------------- Bind it to Ctrl+2, a
     sDescription = 'Assign method params to attribs of self'
-    o = helper.AssignToAttribsOfSelf(editor)
-    editor.addOfflineActionListener(ACTIVATION_STRING, o, sDescription, WAIT_FOR_ENTER)
+    assign_to_attribs_helper = helper.AssignToAttribsOfSelf(editor)
+    editor.addOfflineActionListener(
+        ACTIVATION_STRING, AssignToAttribsOfSelfAction(assign_to_attribs_helper), sDescription, WAIT_FOR_ENTER)
     
+    #------------------------------------------------------------------------------------------------- Bind it to Ctrl+1
     ASSIGN_PARAMS_TO_ATTRIBUTES_ASSIST = 'ASSIGN_PARAMS_TO_ATTRIBUTES_ASSIST'
     if not PythonCorrectionProcessor.hasAdditionalAssist(ASSIGN_PARAMS_TO_ATTRIBUTES_ASSIST):
-        assist = helper2.AssistAssignParamsToAttributes()
+        assist = assign_params_to_attributes_assist.AssistAssignParamsToAttributes()
         PythonCorrectionProcessor.addAdditionalAssist(ASSIGN_PARAMS_TO_ATTRIBUTES_ASSIST, assist)
 

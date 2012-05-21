@@ -38,7 +38,9 @@ public class PydevConsolePreferencesInitializer extends AbstractPreferenceInitia
         
         node.put(PydevConsoleConstants.CONSOLE_BACKGROUND_COLOR, 
                 StringConverter.asString(PydevConsoleConstants.DEFAULT_CONSOLE_BACKGROUND_COLOR));
-        
+
+        node.put(PydevConsoleConstants.DEBUG_CONSOLE_BACKGROUND_COLOR, 
+                StringConverter.asString(PydevConsoleConstants.DEFAULT_DEBUG_CONSOLE_BACKGROUND_COLOR));
         
         node.put(PydevConsoleConstants.INTERACTIVE_CONSOLE_VM_ARGS, PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_VM_ARGS);
         node.put(PydevConsoleConstants.INITIAL_INTERPRETER_CMDS, PydevConsoleConstants.DEFAULT_INITIAL_INTERPRETER_CMDS);
@@ -51,6 +53,9 @@ public class PydevConsolePreferencesInitializer extends AbstractPreferenceInitia
         
         node.putBoolean(PydevConsoleConstants.INTERACTIVE_CONSOLE_FOCUS_ON_SEND_COMMAND, 
                 PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_FOCUS_ON_SEND_COMMAND);
+        
+        node.putBoolean(PydevConsoleConstants.INTERACTIVE_CONSOLE_CONNECT_VARIABLE_VIEW, 
+                PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_CONNECT_VARIABLE_VIEW);
         
         node.putBoolean(PydevConsoleConstants.INTERACTIVE_CONSOLE_SEND_INITIAL_COMMAND_WHEN_CREATED_FROM_EDITOR, 
                 PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_SEND_INITIAL_COMMAND_WHEN_CREATED_FROM_EDITOR);

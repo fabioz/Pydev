@@ -29,7 +29,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.TupleN;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -279,10 +278,12 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         SourceToken token = AbstractVisitor.makeToken(node, "");
         
         if(checkBuiltins){
-            String rep = token.getRepresentation();
-            if (builtinTokens.contains(rep)){
-                // Overriding builtin...
-                onAddAssignmentToBuiltinMessage(token, rep);
+            if(checkCurrentScopeForAssignmentsToBuiltins()){
+                String rep = token.getRepresentation();
+                if (builtinTokens.contains(rep)){
+                    // Overriding builtin...
+                    onAddAssignmentToBuiltinMessage(token, rep);
+                }
             }
         }
         
@@ -317,6 +318,20 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                 }
             }
         }
+    }
+
+    /**
+     * We do not want to check for assignments to builtins when in the class-level, as those aren't going
+     * to be accessed as globals later on.
+     * 
+     * I.e.:
+     * class A:
+     *   id = 10
+     *   
+     * must be accessed either as A.id or self.id, so, we don't need to warn about that.
+     */
+    private boolean checkCurrentScopeForAssignmentsToBuiltins() {
+        return this.scope.getCurrScopeItems().getScopeType() != Scope.SCOPE_TYPE_CLASS;
     }
 
 
@@ -495,9 +510,11 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             
             SourceToken token = AbstractVisitor.makeToken(nameTok, moduleName);
             scope.addToken(token, token, (nameTok).id);
-            if (builtinTokens.contains(token.getRepresentation())){
-                // Overriding builtin...
-                onAddAssignmentToBuiltinMessage(token, token.getRepresentation());
+            if(checkCurrentScopeForAssignmentsToBuiltins()){
+                if (builtinTokens.contains(token.getRepresentation())){
+                    // Overriding builtin...
+                    onAddAssignmentToBuiltinMessage(token, token.getRepresentation());
+                }
             }
         }
         return null;
@@ -520,11 +537,13 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
 		List<IToken> list = AbstractVisitor.makeImportToken(node, null,
 				moduleName, true);
 
-		for (IToken token : list) {
-		    if(builtinTokens.contains(token.getRepresentation())){
-		        // Overriding builtin...
-		        onAddAssignmentToBuiltinMessage(token, token.getRepresentation());
-			}
+		if(checkCurrentScopeForAssignmentsToBuiltins()){
+    		for (IToken token : list) {
+    		    if(builtinTokens.contains(token.getRepresentation())){
+    		        // Overriding builtin...
+    		        onAddAssignmentToBuiltinMessage(token, token.getRepresentation());
+    			}
+    		}
 		}
 		scope.addImportTokens(list, null, this.completionCache);
 		return null;
@@ -575,10 +594,12 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         
         if (node.ctx == Name.Store || node.ctx == Name.Param || node.ctx == Name.KwOnlyParam || (node.ctx == Name.AugStore && found)) { //if it was undefined on augstore, we do not go on to creating the token
             String rep = token.getRepresentation();
-        	if (builtinTokens.contains(rep)){
-        	    // Overriding builtin...
-        		onAddAssignmentToBuiltinMessage(token, rep);
-        	}
+            if(checkCurrentScopeForAssignmentsToBuiltins()){
+            	if (builtinTokens.contains(rep)){
+            	    // Overriding builtin...
+            		onAddAssignmentToBuiltinMessage(token, rep);
+            	}
+            }
             org.python.pydev.core.Tuple<IToken, Found> foundInNamesToIgnore = findInNamesToIgnore(rep, token);
             
             if(foundInNamesToIgnore == null){
@@ -768,12 +789,12 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     }
     
     /**
-     * overriden because we want the value to be visited before the targets 
+     * Overridden because we want the value to be visited before the targets 
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
     public Object visitAssign(Assign node) throws Exception {
         unhandled_node(node);
-        //in 'm = value', this is 'value'
+        //in 'target1 = target2 = value', this is 'value'
         if (node.value != null){
             node.value.accept(this);
         }
@@ -792,7 +813,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     
 
     /**
-     * overriden because we need to know about if scopes
+     * Overridden because we need to know about if scopes
      */
     public Object visitIf(If node) throws Exception {
         scope.addIfSubScope();
@@ -802,7 +823,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     }
     
     /**
-     * overriden because we need to know about while scopes
+     * Overridden because we need to know about while scopes
      */
     public Object visitWhile(While node) throws Exception {
         scope.addIfSubScope();
@@ -863,7 +884,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     }
     
     /**
-     * overriden because we need to visit the generators first
+     * Overridden because we need to visit the generators first
      * 
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitListComp(org.python.pydev.parser.jython.ast.ListComp)
      */
@@ -1303,7 +1324,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     }
     
     
-    //these are the methods that should be overriden. Those are hooks to subclasses do whatever they need to do
+    //these are the methods that should be overridden. Those are hooks to subclasses do whatever they need to do
     //on those cases
     protected abstract void onAfterVisitAssign(Assign node);
 

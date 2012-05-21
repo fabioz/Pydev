@@ -46,8 +46,18 @@ import org.python.pydev.core.tooltips.presenter.InformationPresenterHelpers.PyIn
 public final class InformationPresenterControlManager extends AbstractInformationControlManager implements IWidgetTokenKeeper,
         IWidgetTokenKeeperExtension, IInformationPresenterControlManager {
 
-    public InformationPresenterControlManager(IInformationPresenter presenter) {
+    /**
+     * The string that should be shown below the tooltip (if not given, a default is provided).
+     */
+    private final String tooltipAffordanceString;
+
+
+    /**
+     * @param tooltipAffordanceString if null, a default is given.
+     */
+    public InformationPresenterControlManager(IInformationPresenter presenter, String tooltipAffordanceString) {
         super(new InformationPresenterHelpers.TooltipInformationControlCreator(presenter));
+        this.tooltipAffordanceString = tooltipAffordanceString;
         if (presenter instanceof IInformationPresenterAsTooltip) {
             IInformationPresenterAsTooltip presenterAsTooltip = (IInformationPresenterAsTooltip) presenter;
             presenterAsTooltip.setInformationPresenterControlManager(this);
@@ -483,6 +493,9 @@ public final class InformationPresenterControlManager extends AbstractInformatio
     }
 
     public String getTooltipAffordanceString() {
+        if(tooltipAffordanceString != null){
+            return tooltipAffordanceString;
+        }
         String defaultStr = "ESC to close, ENTER activate link.";
         if(this.fActivateEditorBinding != null){
             return StringUtils.format("%s to activate editor, %s", fActivateEditorBinding.toString(), defaultStr);

@@ -97,8 +97,8 @@ public class PythonRunner {
         subMonitor.beginTask("Launching python", 1);
         
         // Launch & connect to the debugger        
-        RemoteDebugger debugger = new RemoteDebugger(config);
-        debugger.startConnect(subMonitor);
+        RemoteDebugger debugger = new RemoteDebugger();
+        debugger.startConnect(subMonitor, config);
         subMonitor.subTask("Constructing command_line...");
         String[] cmdLine = config.getCommandLine(true);
 
@@ -189,7 +189,7 @@ public class PythonRunner {
             System.arraycopy(envp, 0, s, 0, envp.length);
             
             //This is used so that we can get code-completion in a debug session.
-            s[s.length-3] = "PYDEV_COMPLETER_PYTHONPATH="+PydevPlugin.getBundleInfo().getRelativePath( new Path("PySrc")).toString();
+            s[s.length-3] = "PYDEV_COMPLETER_PYTHONPATH="+PydevPlugin.getBundleInfo().getRelativePath( new Path("pysrc")).toString();
             
             s[s.length-2] = "PYDEV_CONSOLE_ENCODING="+encoding;
             //In Python 3.0, we can use the PYTHONIOENCODING.

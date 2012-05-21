@@ -55,7 +55,7 @@ public class PyParserTest extends PyParserTestBase{
             
             
             System.out.println("Finished");
-//            junit.textui.TestRunner.run(PyParserTest.class);
+            junit.textui.TestRunner.run(PyParserTest.class);
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -64,7 +64,6 @@ public class PyParserTest extends PyParserTestBase{
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        PyParser.USE_FAST_STREAM = true;
     }
     
     
@@ -806,6 +805,25 @@ public class PyParserTest extends PyParserTestBase{
         parseLegalDocStr(s);
         setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5);
         parseLegalDocStr(s);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6);
+        parseILegalDocStr(s);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7);
+        parseILegalDocStr(s);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        parseILegalDocStr(s);
+    }
+    
+    public void testParserPrint() throws Throwable {
+        final String s = "" +
+                "import os.print.os\n"+
+                "print os.print.os\n" +
+                "";
+        
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4);
+        parseLegalDocStr(s);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5);
+        parseLegalDocStr(s);
+        
         setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6);
         parseILegalDocStr(s);
         setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7);

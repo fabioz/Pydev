@@ -11,7 +11,6 @@
 package org.python.pydev.parser;
 
 import java.io.File;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,10 +55,8 @@ import org.python.pydev.parser.grammar25.PythonGrammar25;
 import org.python.pydev.parser.grammar26.PythonGrammar26;
 import org.python.pydev.parser.grammar27.PythonGrammar27;
 import org.python.pydev.parser.grammar30.PythonGrammar30;
-import org.python.pydev.parser.jython.CharStream;
 import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.parser.jython.ParseException;
-import org.python.pydev.parser.jython.ReaderCharStream;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.TokenMgrError;
@@ -612,13 +609,7 @@ public class PyParser implements IPyParser {
             charArray[charArray.length-1] = '\n';
         }
         
-        CharStream in = null;
-        if(USE_FAST_STREAM){
-            in = new FastCharStream(charArray);
-        }else{
-            in = new ReaderCharStream(new StringReader(new String(charArray)));
-            throw new RuntimeException("This char stream reader was deprecated (it's maintained only for testing purposes).");
-        }
+        FastCharStream in = new FastCharStream(charArray);
         startDoc = null; //it can be garbage-collected now.
         
 

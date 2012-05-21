@@ -47,8 +47,9 @@ call git checkout %BRANCH%
 call git pull origin %BRANCH%
 @echo If copied/pasted into cmd.exe, it will break here
 
+@echo to clean after the build: -DcleanAfter.set=true
 cd builders\org.python.pydev.build
-ant -DbuildDirectory=%BUILD_DIR%\Pydev -Dgit.executable=%GIT_EXECUTABLE% -Ddeploy.dir=%DEPLOY_DIR%\Pydev -DcleanAfter=false -Dvanilla.eclipse=%ECLIPSE_CLEAN% -DSTOREPASS=%STOREPASS% -DKEYSTORE=%KEYSTORE% -Dlocal_build=true -Dlauncher.plugin=%LAUNCHER_PLUGIN% -Dbuilder.plugin=%BUILDER_PLUGIN% -Dbaseos=%BASEOS% -Dbasews=%BASEWS% -Dbasearch=%BASEARCH% -DKEYSTORE_ALIAS=%KEYSTORE_ALIAS% 
+ant -DbuildDirectory=%BUILD_DIR%\Pydev -Dgit.executable=%GIT_EXECUTABLE% -Ddeploy.dir=%DEPLOY_DIR%\Pydev -Dvanilla.eclipse=%ECLIPSE_CLEAN% -DSTOREPASS=%STOREPASS% -DKEYSTORE=%KEYSTORE% -Dlocal_build=true -Dlauncher.plugin=%LAUNCHER_PLUGIN% -Dbuilder.plugin=%BUILDER_PLUGIN% -Dbaseos=%BASEOS% -Dbasews=%BASEWS% -Dbasearch=%BASEARCH% -DKEYSTORE_ALIAS=%KEYSTORE_ALIAS% 
 
 
 

@@ -41,7 +41,7 @@ public class PythonShell extends AbstractShell{
 
 
     @Override
-    protected synchronized String createServerProcess(IInterpreterInfo interpreter, int pWrite, int pRead) throws IOException {
+    protected synchronized ProcessCreationInfo createServerProcess(IInterpreterInfo interpreter, int pWrite, int pRead) throws IOException {
         File file = new File(interpreter.getExecutableOrJar());
         if(file.exists() == false ){
             throw new RuntimeException("The interpreter location found does not exist. "+interpreter);
@@ -50,13 +50,6 @@ public class PythonShell extends AbstractShell{
             throw new RuntimeException("The interpreter location found is a directory. "+interpreter);
         }
 
-
-        String execMsg;
-        if(REF.isWindowsPlatform()){ //in windows, we have to put python "path_to_file.py"
-            execMsg = interpreter+" \""+REF.getFileAbsolutePath(serverFile)+"\" "+pWrite+" "+pRead;
-        }else{ //however in mac, or linux, this gives an error...
-            execMsg = interpreter+" "+REF.getFileAbsolutePath(serverFile)+" "+pWrite+" "+pRead;
-        }
         String[] parameters = SimplePythonRunner.preparePythonCallParameters(
                 interpreter.getExecutableOrJar(), REF.getFileAbsolutePath(serverFile), new String[]{""+pWrite, ""+pRead});
         
@@ -64,14 +57,15 @@ public class PythonShell extends AbstractShell{
         
         String[] envp = null;
         try {
-            envp = SimpleRunner.getEnvironment(null, interpreter, manager, true);
+            envp = SimpleRunner.getEnvironment(null, interpreter, manager);
         } catch (CoreException e) {
             Log.log(e);
         }
         
-        process = SimpleRunner.createProcess(parameters, envp, serverFile.getParentFile());
+        File workingDir = serverFile.getParentFile();
+        process = SimpleRunner.createProcess(parameters, envp, workingDir);
 
-        return execMsg;
+        return new ProcessCreationInfo(parameters, envp, workingDir, process);
     }
 
 

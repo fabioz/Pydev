@@ -47,7 +47,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testCompleteImportBuiltinReference();
+            builtins.testAssignToFuncReturnCompletion();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -565,6 +565,28 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         "a.";
         
         requestCompl(s, -1, new String[]{"append(object)", "reverse()"});
+    }
+    
+    public void testAssignToFuncCompletion() throws Exception{
+        String s = "" +
+        		"def aFunction(a, b, c):\n" +
+        		"    return tuple(a, b, c)\n" +
+        		"\n" +
+        		"tup1 = aFunction\n" +
+        		"tup";
+        
+        requestCompl(s, -1, new String[]{"tup1(a, b, c)"});
+    }
+    
+    public void testAssignToFuncReturnCompletion() throws Exception{
+        String s = "" +
+            "def aFunction(a, b, c):\n" +
+            "    return tuple(a, b, c)\n" +
+            "\n" +
+            "tup1 = aFunction(1, 2, 3)\n" +
+            "tup";
+        
+        requestCompl(s, -1, new String[]{"tup1"});
     }
     
 

@@ -63,7 +63,7 @@ public class IronpythonInterpreterManager extends AbstractInterpreterManager{
         File script = getInterpreterInfoPy();
 
         Tuple<String, String> outTup = new SimpleIronpythonRunner().runAndGetOutputWithInterpreter(
-                executable, REF.getFileAbsolutePath(script), null, null, null, monitor);
+                executable, REF.getFileAbsolutePath(script), null, null, null, monitor, "utf-8");
         
         InterpreterInfo info = createInfoFromOutput(monitor, outTup, askUser);
         

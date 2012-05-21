@@ -14,12 +14,19 @@ import java.util.List;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
@@ -27,6 +34,8 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NotConfiguredInterpreterException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.debug.model.PyStackFrame;
+import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -40,6 +49,8 @@ final class ChooseProcessTypeDialog extends Dialog {
 
     private Button checkboxPython;
     
+    private Button checkboxPythonDebug;
+    
     private Button checkboxJython;
     
     private Button checkboxIronpython;
@@ -51,6 +62,10 @@ final class ChooseProcessTypeDialog extends Dialog {
     private IInterpreterManager interpreterManager;
     
     private List<IPythonNature> natures = new ArrayList<IPythonNature>();
+    
+    private PyStackFrame selectedFrame;
+
+    private Link link;
 
     ChooseProcessTypeDialog(Shell shell, PyEdit activeEditor) {
         super(shell);
@@ -61,6 +76,14 @@ final class ChooseProcessTypeDialog extends Dialog {
     protected Control createDialogArea(Composite parent) {
         Composite area = (Composite) super.createDialogArea(parent);
 
+		boolean debugButtonCreated = false;
+		if (getSuspendedFrame() != null) {
+			// when debugger is running and valid frame is selected then
+			// displaying debug console as first option
+			createDebugButton(area);
+			debugButtonCreated = true;
+		}
+
         checkboxForCurrentEditor = new Button(area, SWT.RADIO);
         checkboxForCurrentEditor.setToolTipText("Creates a console with the PYTHONPATH used by the current editor (and jython/python/iron python depending on the project type).");
         configureEditorButton();
@@ -69,7 +92,8 @@ final class ChooseProcessTypeDialog extends Dialog {
         checkboxPython = new Button(area, SWT.RADIO);
         checkboxPython.setToolTipText("Creates a Python console with the PYTHONPATH containing all the python projects in the workspace.");
         configureButton(checkboxPython, "Python", PydevPlugin.getPythonInterpreterManager());
-        
+
+       
         checkboxJython = new Button(area, SWT.RADIO);
         checkboxJython.setToolTipText("Creates a Jython console with the PYTHONPATH containing all the python projects in the workspace.");
         configureButton(checkboxJython, "Jython", PydevPlugin.getJythonInterpreterManager());
@@ -82,8 +106,37 @@ final class ChooseProcessTypeDialog extends Dialog {
         checkboxJythonEclipse.setToolTipText("Creates a Jython console using the running Eclipse environment (can potentially halt Eclipse depending on what's done).");
         configureButton(checkboxJythonEclipse, "Jython using VM running Eclipse", new JythonEclipseInterpreterManager());
         
+        if(!debugButtonCreated){
+            createDebugButton(area);
+        }
+        
+        link = new Link(area, SWT.LEFT | SWT.WRAP);
+        link.setText(
+                "<a>Configure interactive console preferences.</a>\n" +
+                "I.e.: send contents to console on creation,\n" +
+                "connect to variables view, initial commands, etc."
+        );
+
+        link.addSelectionListener(new SelectionListener() {
+            public void widgetSelected(SelectionEvent e) {
+                PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(
+                        null, InteractiveConsolePrefs.PREFERENCES_ID, null, null);
+                dialog.open(); 
+            }
+
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+        });
+        
+        
         return area;
     }
+
+	private void createDebugButton(Composite area) {
+		checkboxPythonDebug = new Button(area, SWT.RADIO);
+        checkboxPythonDebug.setToolTipText("Creates a Python debug console associated with the frame selected in the debug view");
+        configureDebugButton();
+	}
     
     /**
      * Configures a button related to a given interpreter manager.
@@ -137,12 +190,43 @@ final class ChooseProcessTypeDialog extends Dialog {
         checkboxForCurrentEditor.setEnabled(enabled);
     }
 
+    /**
+     * Enable/Disable Pydev debug console radio button
+     * 
+     * @param checkBox
+     * @param python
+     * @param interpreterManager
+     */
+    private void configureDebugButton() {
+        boolean enabled = false;
+        String text = "PyDev Debug Console (Start the debugger and select the valid frame)";
+        if (getSuspendedFrame() != null) {
+        	enabled = true;
+        	text = "PyDev Debug Console";
+        }
+        checkboxPythonDebug.setText(text);
+        checkboxPythonDebug.setEnabled(enabled);
+    }
+    
+    /**
+     * Determine if any frame is selected in the Launch view
+     * 
+     * @return
+     */
+    private PyStackFrame getSuspendedFrame() {
+		IAdaptable context = DebugUITools.getDebugContext();
+		if (context instanceof PyStackFrame) {
+			return (PyStackFrame) context;
+		}
+		return null;
+	}
     
     /**
      * Sets the internal pythonpath chosen.
      */
     @Override
     protected void okPressed() {
+    	setSelectedFrame(null);
         if(checkboxForCurrentEditor.isEnabled() && checkboxForCurrentEditor.getSelection()){
             IProject project = this.activeEditor.getProject();
             PythonNature nature = PythonNature.getPythonNature(project);
@@ -151,6 +235,10 @@ final class ChooseProcessTypeDialog extends Dialog {
             this.interpreterManager = relatedInterpreterManager;
             
         }else if(checkboxPython.isEnabled() && checkboxPython.getSelection()){
+            this.interpreterManager = PydevPlugin.getPythonInterpreterManager();
+            
+        }else if(checkboxPythonDebug.isEnabled() && checkboxPythonDebug.getSelection()){
+        	setSelectedFrame(getSuspendedFrame());
             this.interpreterManager = PydevPlugin.getPythonInterpreterManager();
             
         }else if(checkboxJython.isEnabled() && checkboxJython.getSelection()){
@@ -218,4 +306,22 @@ final class ChooseProcessTypeDialog extends Dialog {
     public List<IPythonNature> getNatures() {
         return natures;
     }
+
+	/**
+	 * Return the selected frame
+	 * 
+	 * @return
+	 */
+	public PyStackFrame getSelectedFrame() {
+		return selectedFrame;
+	}
+
+	/**
+	 * Set the selectedFrame
+	 * 
+	 * @param selectedFrame
+	 */
+	public void setSelectedFrame(PyStackFrame selectedFrame) {
+		this.selectedFrame = selectedFrame;
+	}
 }

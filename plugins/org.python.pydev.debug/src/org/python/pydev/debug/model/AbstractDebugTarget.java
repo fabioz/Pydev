@@ -367,7 +367,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         }    
     }
 
-    protected void fireEvent(DebugEvent event) {
+    public void fireEvent(DebugEvent event) {
         DebugPlugin manager= DebugPlugin.getDefault();
         if (manager != null) {
             manager.fireDebugEventSet(new DebugEvent[]{event});
