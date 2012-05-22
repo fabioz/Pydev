@@ -343,7 +343,9 @@ public class AbstractIResourceStub implements IResource{
 	}
 
 
-    public void accept(IResourceProxyVisitor visitor, int depth, int memberFlags) throws CoreException {
-    }
+	public void accept(IResourceProxyVisitor visitor, int depth, int memberFlags)
+			throws CoreException {
+		throw new RuntimeException("Not implemented");
+	}
 
 }
