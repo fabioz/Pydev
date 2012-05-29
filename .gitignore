@@ -68,4 +68,5 @@ plugins/com.python.pydev.docs/merged_homepage/*.rst_html
 data_temporary_for_testing
 plugins/jdt_plugins/
 *v1_projectinfodelta
-plugins/*/.settingsplugins/com.python.pydev.runalltests/New_configuration1.launch
+plugins/*/.settings
+plugins/com.python.pydev.runalltests/New_configuration1.launch
