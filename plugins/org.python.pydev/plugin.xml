@@ -1033,6 +1033,7 @@
    <extension-point id="pydev_completion" name="PyDev completion" schema="schema/pydev_completion.exsd"/>
    <extension-point id="pydev_modules_observer" name="PyDev modules observer" schema="schema/pydev_modules_observer.exsd"/>
    <extension-point id="pydev_interpreter_observer" name="PyDev Interpreter Observer" schema="schema/pydev_interpreter_observer.exsd"/>
+   <extension-point id="pydev_interpreter_new_custom_entries" name="PyDev Interpreter New Custom Entries" schema="schema/pydev_interpreter_new_custom_entries.exsd"/>
    <extension-point id="pydev_view_created_observer" name="PyDev view created observer" schema="schema/pydev_view_created_observer.exsd"/>
    <extension-point id="pydev_ctrl_1" name="PyDev M11 participant" schema="schema/pydev_ctrl_1.exsd"/>
    <extension-point id="pydev_simpleassist" name="PyDev Simple Assist" schema="schema/pydev_simpleassist.exsd"/>
