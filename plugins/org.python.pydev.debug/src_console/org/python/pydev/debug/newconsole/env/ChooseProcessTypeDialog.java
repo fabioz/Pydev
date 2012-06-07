@@ -270,10 +270,15 @@ final class ChooseProcessTypeDialog extends Dialog {
                         interpreter, this.interpreterManager)), nature);
 
             }
-            
+
+            // collect all the python path (no duplicates, hence a set)
+            HashSet<String> pythonpath = new HashSet<String>();
+
+            // add all the paths in the interpreter 
+            pythonpath.addAll(interpreter.getPythonPath());
+
             //we need to get the natures matching the one selected in all the projects.
             IWorkspace w = ResourcesPlugin.getWorkspace();
-            HashSet<String> pythonpath = new HashSet<String>();
             for(IProject p:w.getRoot().getProjects()){
                 PythonNature nature = PythonNature.getPythonNature(p);
                 try{
