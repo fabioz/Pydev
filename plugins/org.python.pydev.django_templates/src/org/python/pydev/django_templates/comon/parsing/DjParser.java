@@ -15,6 +15,7 @@ import beaver.Symbol;
 import com.aptana.editor.common.parsing.CompositeParser;
 import com.aptana.editor.common.parsing.CompositeParserScanner;
 import com.aptana.parsing.IParseState;
+import com.aptana.parsing.WorkingParseResult;
 import com.aptana.parsing.ast.IParseNode;
 import com.aptana.parsing.ast.ParseNode;
 import com.aptana.parsing.ast.ParseRootNode;
@@ -29,8 +30,8 @@ public abstract class DjParser extends CompositeParser {
     }
     
     @Override
-    protected IParseNode processEmbeddedlanguage(IParseState parseState) throws Exception {
-        String source = new String(parseState.getSource());
+    protected IParseNode processEmbeddedlanguage(IParseState parseState, WorkingParseResult working) throws Exception {
+        String source = parseState.getSource();
         int startingOffset = parseState.getStartingOffset();
         IParseNode root = new ParseRootNode(language, new ParseNode[0], startingOffset, startingOffset
                 + source.length() - 1);
