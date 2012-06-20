@@ -75,7 +75,7 @@ public class DjHTMLEditor extends HTMLEditor
 	@Override
 	public ITreeContentProvider getOutlineContentProvider()
 	{
-		return new DjHTMLOutlineContentProvider();
+		return new DjHTMLOutlineContentProvider(this);
 	}
 
 	@Override
