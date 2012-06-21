@@ -470,18 +470,18 @@ public class InterpreterInfo implements IInterpreterInfo{
 	 *  Implementation of extension point to get all additions.
 	 */
 	private static class AdditionalEntries implements IInterpreterNewCustomEntries {
-		private List<IInterpreterNewCustomEntries> getParticipants() {
-			@SuppressWarnings("unchecked")
-			List<IInterpreterNewCustomEntries> participants = ExtensionHelper
-					.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_NEW_CUSTOM_ENTRIES);
-			return participants;
+		private final List<IInterpreterNewCustomEntries> fParticipants;
+		
+		@SuppressWarnings("unchecked")
+		AdditionalEntries(){
+			fParticipants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_NEW_CUSTOM_ENTRIES);
 		}
 
 		public Collection<String> getAdditionalLibraries() {
 			final Collection<String> additions = new ArrayList<String>();
-			for (final IInterpreterNewCustomEntries newEntriesProvider : getParticipants()) {
+			for (final IInterpreterNewCustomEntries newEntriesProvider : fParticipants) {
 				SafeRunner.run(new SafeRunnable() {
-					public void run() throws Exception {
+					public void run() {
 						additions.addAll(newEntriesProvider.getAdditionalLibraries());
 					}
 				});
@@ -491,9 +491,9 @@ public class InterpreterInfo implements IInterpreterInfo{
 
 		public Collection<String> getAdditionalEnvVariables() {
 			final Collection<String> additions = new ArrayList<String>();
-			for (final IInterpreterNewCustomEntries newEntriesProvider : getParticipants()) {
+			for (final IInterpreterNewCustomEntries newEntriesProvider : fParticipants) {
 				SafeRunner.run(new SafeRunnable() {
-					public void run() throws Exception {
+					public void run() {
 						additions.addAll(newEntriesProvider.getAdditionalEnvVariables());
 					}
 				});
@@ -503,9 +503,9 @@ public class InterpreterInfo implements IInterpreterInfo{
 
 		public Collection<String> getAdditionalBuiltins() {
 			final Collection<String> additions = new ArrayList<String>();
-			for (final IInterpreterNewCustomEntries newEntriesProvider : getParticipants()) {
+			for (final IInterpreterNewCustomEntries newEntriesProvider : fParticipants) {
 				SafeRunner.run(new SafeRunnable() {
-					public void run() throws Exception {
+					public void run() {
 						additions.addAll(newEntriesProvider.getAdditionalBuiltins());
 					}
 				});
@@ -515,9 +515,9 @@ public class InterpreterInfo implements IInterpreterInfo{
 
 		public Map<String, String> getAdditionalStringSubstitutionVariables() {
 			final Map<String, String> additions = new HashMap<String, String>();
-			for (final IInterpreterNewCustomEntries newEntriesProvider : getParticipants()) {
+			for (final IInterpreterNewCustomEntries newEntriesProvider : fParticipants) {
 				SafeRunner.run(new SafeRunnable() {
-					public void run() throws Exception {
+					public void run() {
 						additions.putAll(newEntriesProvider.getAdditionalStringSubstitutionVariables());
 					}
 				});
