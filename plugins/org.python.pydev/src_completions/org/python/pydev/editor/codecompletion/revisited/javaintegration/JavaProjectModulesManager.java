@@ -37,6 +37,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 
@@ -388,7 +389,7 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
         throw new RuntimeException("Not implemented");
     }
     
-    public void rebuildModule(File f, IDocument doc, IProject project, IProgressMonitor monitor, IPythonNature nature) {
+    public void rebuildModule(File f, ICallback0<IDocument> doc, IProject project, IProgressMonitor monitor, IPythonNature nature) {
         throw new RuntimeException("Not implemented");
     }
     

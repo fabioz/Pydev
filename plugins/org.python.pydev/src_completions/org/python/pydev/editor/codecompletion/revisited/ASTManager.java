@@ -23,6 +23,7 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.IASTManagerObserver;
 
@@ -82,7 +83,7 @@ public final class ASTManager extends AbstractASTManager implements ICodeComplet
     public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor) {
         getProjectModulesManager().changePythonPath(pythonpath, project, monitor);
     }
-    public void rebuildModule(File f, IDocument doc, final IProject project, IProgressMonitor monitor, IPythonNature nature) {
+    public void rebuildModule(File f, ICallback0<IDocument> doc, final IProject project, IProgressMonitor monitor, IPythonNature nature) {
         getProjectModulesManager().rebuildModule(f, doc, project, monitor, nature);
     }
     public void removeModule(File file, IProject project, IProgressMonitor monitor) {

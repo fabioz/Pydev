@@ -17,7 +17,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.REF;
+import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -37,14 +37,17 @@ public class PydevGrouperVisitor extends PydevInternalResourceDeltaVisitor {
         this.visitors = new ArrayList<PyDevBuilderVisitor>(_visitors);
     }
     
+    private final int VISIT_ADD = 1; 
+    private final int VISIT_CHANGE = 2; 
+    private final int VISIT_REMOVE = 3; 
+    
     /**
      * @param name determines the name of the method to visit (added removed or changed)
-     * @param isAddOrChange true if it is an add or change
      * @param resource the resource to visit
      * @param document the document from the resource
      * @param monitor 
      */
-    private void visitWith(String name, boolean isAddOrChange, IResource resource, IDocument document, IProgressMonitor monitor){
+    private void visitWith(int visitType, final IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor){
         if(monitor.isCanceled()){
             return; //it's already cancelled
         }
@@ -77,29 +80,30 @@ public class PydevGrouperVisitor extends PydevInternalResourceDeltaVisitor {
                     visitor.memo = copyMemo; //setting the memo must be the first thing.
                     try {
                         //communicate progress for each visitor
-                        PyDevBuilder.communicateProgress(monitor, totalResources, currentResourcesVisited, resource, visitor, bufferToCreateString);
-                        REF.invoke(visitor, name, resource, document, monitor);
-                        //ok, standard visiting ended... now, we have to check if we should visit the other
-                        //resources if it was an __init__.py file that changed
-                        if(isAddOrChange && visitor.shouldVisitInitDependency() && isInitFile(resource)){
-                            Long originalTime = (Long) copyMemo.get(PyDevBuilderVisitor.DOCUMENT_TIME);
-                            try{
-                                IResource[] initDependents = getInitDependents(resource);
-                                for (int i = 0; i < initDependents.length; i++) {
-                                    IDocument doc = REF.getDocFromResource(initDependents[i]);
-                                    copyMemo.put(PyDevBuilderVisitor.DOCUMENT_TIME, System.currentTimeMillis());
-                                    REF.invoke(visitor, name, initDependents[i], doc, monitor);
-                                }
-                            } finally {
-                                copyMemo.put(PyDevBuilderVisitor.DOCUMENT_TIME, originalTime);
-                            }
-                        }
-                            
+                        PyDevBuilder.communicateProgress(
+                        		monitor, totalResources, currentResourcesVisited, resource, visitor, bufferToCreateString);
+                        switch (visitType) {
+							case VISIT_ADD:
+								visitor.visitAddedResource(resource, document, monitor);
+								break;
+								
+							case VISIT_CHANGE:
+								visitor.visitChangedResource(resource, document, monitor);
+								break;
+								
+							case VISIT_REMOVE:
+								visitor.visitRemovedResource(resource, document, monitor);
+								break;
+	
+							default:
+								throw new RuntimeException("Error: visit type not properly given!"); //$NON-NLS-1$
+						}
                     } catch (Exception e) {
                         Log.log(e);
                     }
                 }
             }
+            
         }finally{
             nature.endRequests();
         }
@@ -107,18 +111,18 @@ public class PydevGrouperVisitor extends PydevInternalResourceDeltaVisitor {
     }
 
     @Override
-    public void visitAddedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
-        visitWith("visitAddedResource", true, resource, document, monitor);
+    public void visitAddedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {
+        visitWith(VISIT_ADD, resource, document, monitor);
     }
     
     @Override
-    public void visitChangedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
-        visitWith("visitChangedResource", true, resource, document, monitor);
+    public void visitChangedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {
+        visitWith(VISIT_CHANGE, resource, document, monitor); 
     }
 
     @Override
-    public void visitRemovedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
-        visitWith("visitRemovedResource", false, resource, document, monitor);
+    public void visitRemovedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {
+        visitWith(VISIT_REMOVE, resource, document, monitor); 
     }
 
 }
