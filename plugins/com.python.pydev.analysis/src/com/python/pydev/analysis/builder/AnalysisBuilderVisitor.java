@@ -20,6 +20,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.callbacks.ICallback;
+import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.concurrency.RunnableAsJobsPoolThread;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PyCodeCompletionVisitor;
@@ -40,15 +41,11 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
     
     
     @Override
-    public void visitChangedResource(final IResource resource, final IDocument document, final IProgressMonitor monitor) {
+    public void visitChangedResource(final IResource resource, final ICallback0<IDocument> document, final IProgressMonitor monitor) {
         visitChangedResource(resource, document, monitor, false);
     }
     
-    public void visitChangedResource(final IResource resource, final IDocument document, final IProgressMonitor monitor, boolean forceAnalysis) {
-        if(document == null){
-            return;
-        }
-        
+    public void visitChangedResource(final IResource resource, final ICallback0<IDocument> document, final IProgressMonitor monitor, boolean forceAnalysis) {
         //we may need to 'force' the analysis when a module is renamed, because the first message we receive is
         //a 'delete' and after that an 'add' -- which is later mapped to this method, so, if we don't have info
         //on the module we should analyze it because it is 'probably' a rename.
@@ -61,9 +58,15 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         //the memo later.
         final String moduleName;
         final SourceModule module;
+        final IDocument doc;
         try{
+            doc = document.call();
+            if(doc == null){
+            	return;
+            }
+            
             moduleName = getModuleName(resource, nature);
-            module = getSourceModule(resource, document, nature);
+            module = getSourceModule(resource, doc, nature);
         }catch(MisconfigurationException e){
             Log.log(e);
             return;
@@ -84,7 +87,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 				        return module;
 				    }else{
 				        try{
-                            return createSoureModule(resource, document, moduleName);
+                            return createSoureModule(resource, doc, moduleName);
                         }catch(MisconfigurationException e){
                             throw new RuntimeException(e);
                         }
@@ -97,7 +100,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 	                IFile f = (IFile) resource;
 	                String file = f.getRawLocation().toOSString();
 	                return new SourceModule(moduleName, new File(file), 
-	                        FastDefinitionsParser.parse(document.get(), moduleName), null);
+	                        FastDefinitionsParser.parse(doc.get(), moduleName), null);
 	                
 				}else{
 					throw new RuntimeException("Unexpected parameter: "+arg);
@@ -110,7 +113,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 		    Log.log("Warning: The document time in the visitor is -1. Changing for current time.");
 		    documentTime = System.currentTimeMillis();
 		}
-        doVisitChangedResource(nature, resource, document, moduleCallback, null, monitor, forceAnalysis, 
+        doVisitChangedResource(nature, resource, doc, moduleCallback, null, monitor, forceAnalysis, 
                 AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER, documentTime);
     }
     
@@ -188,7 +191,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 
 
     @Override
-    public void visitRemovedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
+    public void visitRemovedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {
         PythonNature nature = getPythonNature(resource);
         if(nature == null){
             return;

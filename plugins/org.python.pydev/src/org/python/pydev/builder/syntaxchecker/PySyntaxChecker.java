@@ -13,6 +13,7 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.logging.DebugSettings;
@@ -28,7 +29,7 @@ public class PySyntaxChecker extends PyDevBuilderVisitor{
 
 
     @Override
-    public void visitChangedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
+    public void visitChangedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {
         PythonNature nature = getPythonNature(resource);
         if(nature == null){
             return;
@@ -46,9 +47,13 @@ public class PySyntaxChecker extends PyDevBuilderVisitor{
             Log.toLogFile(this, "Checking!");
         }
         
+        IDocument doc = document.call();
+        if(doc == null){
+        	return;
+        }
         SourceModule mod;
         try{
-            mod = getSourceModule(resource, document, nature);
+            mod = getSourceModule(resource, doc, nature);
         }catch(MisconfigurationException e1){
             Log.log(e1);
             return;
@@ -63,7 +68,7 @@ public class PySyntaxChecker extends PyDevBuilderVisitor{
         
         if(parseError != null){
             try {
-                PyParser.createParserErrorMarkers(parseError, resource, document);
+                PyParser.createParserErrorMarkers(parseError, resource, doc);
             } catch (Exception e) {
                 Log.log(e);
             }
@@ -72,7 +77,7 @@ public class PySyntaxChecker extends PyDevBuilderVisitor{
     }
 
     @Override
-    public void visitRemovedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
+    public void visitRemovedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {
         // Nothing needs to be done in this case
     }
 

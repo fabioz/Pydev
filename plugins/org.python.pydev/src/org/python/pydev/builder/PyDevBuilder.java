@@ -35,6 +35,7 @@ import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.PyCodeCompletionVisitor;
@@ -298,31 +299,29 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 HashMap<String, Object> memo = new HashMap<String, Object>();
                 memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, true); //mark it as full build
                 
-                IDocument doc = REF.getDocFromResource(r);
+                ICallback0<IDocument> doc = REF.getDocOnCallbackFromResource(r);
                 memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, System.currentTimeMillis());
                 
                 PyDevBuilderVisitor.setModuleNameInCache(memo, r, moduleName);
                 
-                if(doc != null){ //might be out of synch
-                    for (Iterator<PyDevBuilderVisitor> it = visitors.iterator(); it.hasNext() && monitor.isCanceled() == false;) {
-    
-                        try{
-                            PyDevBuilderVisitor visitor = it.next();
-                            visitor.memo = memo; //setting the memo must be the first thing.
-            
-                            communicateProgress(monitor, totalResources, i, r, visitor, bufferToCreateString);
-                            
-                            //on a full build, all visits are as some add...
-                            visitor.visitAddedResource(r, doc, monitor);
-                        }catch (Exception e) {
-                            Log.log(e);
-                        }
-                    }
+                for (Iterator<PyDevBuilderVisitor> it = visitors.iterator(); it.hasNext() && monitor.isCanceled() == false;) {
+
+                    try{
+                        PyDevBuilderVisitor visitor = it.next();
+                        visitor.memo = memo; //setting the memo must be the first thing.
         
-                    if (total > 1) {
-                        monitor.worked((int) total);
-                        total -= (int) total;
+                        communicateProgress(monitor, totalResources, i, r, visitor, bufferToCreateString);
+                        
+                        //on a full build, all visits are as some add...
+                        visitor.visitAddedResource(r, doc, monitor);
+                    }catch (Exception e) {
+                        Log.log(e);
                     }
+                }
+    
+                if (total > 1) {
+                    monitor.worked((int) total);
+                    total -= (int) total;
                 }
             }finally{
                 nature.endRequests();
