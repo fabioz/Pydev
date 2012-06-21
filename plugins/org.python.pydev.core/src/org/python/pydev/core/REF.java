@@ -772,7 +772,6 @@ public class REF {
     		private IDocument cache;
     		private boolean calledOnce = false;
     		
-			@Override
 			public IDocument call() {
 				if(!calledOnce){
 					calledOnce = true;
