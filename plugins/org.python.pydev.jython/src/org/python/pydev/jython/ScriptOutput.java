@@ -13,8 +13,8 @@ import java.net.MalformedURLException;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
 import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
-import org.eclipse.ui.console.IOConsole;
 import org.eclipse.ui.console.IOConsoleOutputStream;
+import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.jython.ui.JyScriptingPreferencesPage;
 
 /**
@@ -29,22 +29,16 @@ public class ScriptOutput extends OutputStream{
     /**
      * Stream to the console we want to write
      */
-    private IOConsoleOutputStream out;
+    private ICallback0<IOConsoleOutputStream> out;
     
 
-
-    /**
-     * Console associated with this output
-     */
-    private IOConsole fConsole;
     
     /**
      * Constructor - the user is able to define whether he wants to write to the console or not.
      * 
      * @param color the color of the output written
      */
-    public ScriptOutput(final IOConsole console, IOConsoleOutputStream outputStream, boolean writeToConsole){
-        this.fConsole = console;
+    public ScriptOutput(ICallback0<IOConsoleOutputStream> outputStream, boolean writeToConsole){
         this.writeToConsole = writeToConsole;
         out = outputStream;
     }
@@ -55,8 +49,8 @@ public class ScriptOutput extends OutputStream{
      * 
      * @param color the color of the output written
      */
-    public ScriptOutput(final IOConsole console, IOConsoleOutputStream outputStream){
-        this(console, outputStream,  JyScriptingPreferencesPage.getShowScriptingOutput());
+    public ScriptOutput(ICallback0<IOConsoleOutputStream> outputStream){
+        this(outputStream,  JyScriptingPreferencesPage.getShowScriptingOutput());
         IPropertyChangeListener listener = new Preferences.IPropertyChangeListener(){
             public void propertyChange(PropertyChangeEvent event) {
                 writeToConsole = JyScriptingPreferencesPage.getShowScriptingOutput();
@@ -80,7 +74,7 @@ public class ScriptOutput extends OutputStream{
      * @return the output stream to use
      */
     private IOConsoleOutputStream getOutputStream() throws MalformedURLException {
-        return out;
+        return out.call();
     }
     
 }
