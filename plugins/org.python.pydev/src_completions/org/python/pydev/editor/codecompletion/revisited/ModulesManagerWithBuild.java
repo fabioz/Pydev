@@ -23,6 +23,7 @@ import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.callbacks.ICallback;
+import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.ModulesKeyForJava;
@@ -200,11 +201,7 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
 
     // ------------------------ building
     
-    /**
-     * @see org.python.pydev.core.ICodeCompletionASTManager#rebuildModule(java.io.File, org.eclipse.jface.text.IDocument,
-     *      org.eclipse.core.resources.IProject, org.eclipse.core.runtime.IProgressMonitor)
-     */
-    public void rebuildModule(File f, IDocument doc, final IProject project, IProgressMonitor monitor, IPythonNature nature) {
+    public void rebuildModule(File f, ICallback0<IDocument> doc, final IProject project, IProgressMonitor monitor, IPythonNature nature) {
         final String m = pythonPathHelper.resolveModule(REF.getFileAbsolutePath(f));
         if (m != null) {
             addModule(new ModulesKey(m, f));
@@ -213,8 +210,8 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
         }else if (f != null){ //ok, remove the module that has a key with this file, as it can no longer be resolved
             synchronized (modulesKeysLock) {
                 Set<ModulesKey> toRemove = new HashSet<ModulesKey>();
-                for (Iterator iter = modulesKeys.keySet().iterator(); iter.hasNext();) {
-                    ModulesKey key = (ModulesKey) iter.next();
+                for (Iterator<ModulesKey> iter = modulesKeys.keySet().iterator(); iter.hasNext();) {
+                    ModulesKey key = iter.next();
                     if(key.file != null && key.file.equals(f)){
                         toRemove.add(key);
                     }

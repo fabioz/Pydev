@@ -15,6 +15,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.callbacks.ICallback0;
 
 public interface IProjectModulesManager extends IModulesManager {
 
@@ -35,7 +36,7 @@ public interface IProjectModulesManager extends IModulesManager {
 
     public abstract void endProcessing();
 
-    public abstract void rebuildModule(File f, IDocument doc, IProject project, IProgressMonitor monitor, IPythonNature nature);
+    public abstract void rebuildModule(File f, ICallback0<IDocument> doc, IProject project, IProgressMonitor monitor, IPythonNature nature);
 
     public abstract void removeModule(File file, IProject project, IProgressMonitor monitor);
 

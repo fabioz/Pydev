@@ -21,6 +21,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.ImmutableTuple;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
+import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.ast.Name;
@@ -124,7 +125,7 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
 		throw new RuntimeException("Not implemented");
 	}
 
-	public void rebuildModule(File file, IDocument doc, IProject project,
+	public void rebuildModule(File file, ICallback0<IDocument> doc, IProject project,
 			IProgressMonitor monitor, IPythonNature nature) {
 		throw new RuntimeException("Not implemented");
 	}
