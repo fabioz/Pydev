@@ -401,13 +401,14 @@ public class InterpreterInfo implements IInterpreterInfo{
 						addUnique(selection, additionalLibraries);
 						addUnique(forcedLibs, additionalEntries.getAdditionalBuiltins());
 
+						//Load environment variables
 						Map<String, String> existingEnv = new HashMap<String, String>();
-						for (String var : envVars) {
+						Collection<String> additionalEnvVariables = additionalEntries.getAdditionalEnvVariables();
+						for (String var : additionalEnvVariables) {
 							Tuple<String, String> sp = StringUtils.splitOnFirst(var, '=');
 							existingEnv.put(sp.o1, sp.o2);
 						}
-						Collection<String> additionalEnvVariables = additionalEntries.getAdditionalEnvVariables();
-						for (String var : additionalEnvVariables) {
+						for (String var : envVars) {
 							Tuple<String, String> sp = StringUtils.splitOnFirst(var, '=');
 							existingEnv.put(sp.o1, sp.o2);
 						}
@@ -416,12 +417,16 @@ public class InterpreterInfo implements IInterpreterInfo{
 						for (Entry<String, String> entry : set) {
 							envVars.add(entry.getKey() + "=" + entry.getValue());
 						}
-
+						
+						
+						//Additional string substitution variables
 						Map<String, String> additionalStringSubstitutionVariables = additionalEntries
 								.getAdditionalStringSubstitutionVariables();
 						Set<Entry<String, String>> entrySet = additionalStringSubstitutionVariables.entrySet();
 						for (Entry<String, String> entry : entrySet) {
-							stringSubstitutionVars.setProperty(entry.getKey(), entry.getValue());
+							if(!stringSubstitutionVars.containsKey(entry.getKey())){
+								stringSubstitutionVars.setProperty(entry.getKey(), entry.getValue());
+							}
 						}
 					}
 
@@ -431,7 +436,8 @@ public class InterpreterInfo implements IInterpreterInfo{
                         return null;
                     }
                     
-                    InterpreterInfo info = new InterpreterInfo(infoVersion, infoExecutable, selection, new ArrayList<String>(), forcedLibs, envVars, stringSubstitutionVars);
+                    InterpreterInfo info = new InterpreterInfo(
+                    		infoVersion, infoExecutable, selection, new ArrayList<String>(), forcedLibs, envVars, stringSubstitutionVars);
                     info.setName(infoName);
                     for(String s:predefinedPaths){
                         info.addPredefinedCompletionsPath(s);
