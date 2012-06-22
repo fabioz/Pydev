@@ -589,8 +589,7 @@ public class JythonPlugin extends AbstractUIPlugin {
         }
         if(redirect){
 			interpreter.setOut(new ScriptOutput(new ICallback0<IOConsoleOutputStream>() {
-				
-				@Override
+
 				public IOConsoleOutputStream call() {
 					getConsole(); //Just to make sure it's initialized.
 					return fOutputStream;
@@ -599,7 +598,6 @@ public class JythonPlugin extends AbstractUIPlugin {
 			
             interpreter.setErr(new ScriptOutput(new ICallback0<IOConsoleOutputStream>() {
 
-				@Override
 				public IOConsoleOutputStream call() {
 					getConsole(); //Just to make sure it's initialized.
 					return fErrorStream;
