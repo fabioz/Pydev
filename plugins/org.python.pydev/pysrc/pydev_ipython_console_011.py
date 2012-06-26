@@ -1,4 +1,5 @@
 from IPython.frontend.terminal.interactiveshell import TerminalInteractiveShell
+from IPython.core.inputsplitter import IPythonInputSplitter
 from IPython.utils import io
 import sys
 import codeop, re
@@ -19,7 +20,6 @@ def _showtraceback(*args, **kwargs):
 #=======================================================================================================================
 class PyDevFrontEnd:
 
-
     def __init__(self, *args, **kwargs):        
         #Initialization based on: from IPython.testing.globalipapp import start_ipython
         
@@ -30,7 +30,9 @@ class PyDevFrontEnd:
     
         # Create and initialize our IPython instance.
         shell = TerminalInteractiveShell.instance()
-    
+        # Create an intput splitter to handle input separation
+        self.input_splitter = IPythonInputSplitter()
+
         shell.showtraceback = _showtraceback
         # IPython is ready, now clean up some global state...
         
@@ -53,80 +55,22 @@ class PyDevFrontEnd:
         # We want to print to stdout/err as usual.
         io.stdout = original_stdout
         io.stderr = original_stderr
-    
-        
-        self._curr_exec_lines = []
+
         self.ipython = shell
-        
-        
+
     def complete(self, string):
         return self.ipython.complete(None, line=string)
-    
-    
-        
+
     def is_complete(self, string):
-        #Based on IPython 0.10.1
-         
-        if string in ('', '\n'):
-            # Prefiltering, eg through ipython0, may return an empty
-            # string although some operations have been accomplished. We
-            # thus want to consider an empty string as a complete
-            # statement.
-            return True
-        elif (len(string.split('\n')) > 2 
-                        and not re.findall(r"\n[\t ]*\n[\t ]*$", string)):
-            return False
-        else:
-            try:
-                # Add line returns here, to make sure that the statement is
-                # complete (except if '\' was used).
-                # This should probably be done in a different place (like
-                # maybe 'prefilter_input' method? For now, this works.
-                clean_string = string.rstrip('\n')
-                if not clean_string.endswith('\\'): clean_string += '\n\n' 
-                is_complete = codeop.compile_command(clean_string,
-                            "<string>", "exec")
-            except Exception:
-                # XXX: Hack: return True so that the
-                # code gets executed and the error captured.
-                is_complete = True
-            return is_complete
-        
-        
+        return  not self.input_splitter.push_accepts_more()
+
     def getNamespace(self):
         return self.ipython.user_ns
 
-    
     def addExec(self, line):
-        if self._curr_exec_lines:
-            if not line:
-                self._curr_exec_lines.append(line)
-                
-                buf = '\n'.join(self._curr_exec_lines)
-                
-                if self.is_complete(buf):
-                    self._curr_exec_line += 1
-                    self.ipython.run_cell(buf)
-                    del self._curr_exec_lines[:]
-                    return False #execute complete (no more)
-                
-                return True #needs more
-            else:
-                self._curr_exec_lines.append(line)
-                return True #needs more
-            
+        self.input_splitter.push(line)
+        if self.is_complete(line):
+            self.ipython.run_cell(self.input_splitter.source_reset())
+            return False
         else:
-            
-            if not self.is_complete(line):
-                #Did not execute
-                self._curr_exec_lines.append(line)
-                return True #needs more
-            else:
-                self._curr_exec_line += 1
-                self.ipython.run_cell(line)
-                #hist = self.ipython.history_manager.output_hist_reprs
-                #rep = hist.get(self._curr_exec_line, None)
-                #if rep is not None:
-                #    print(rep)
-                return False #execute complete (no more)
-
+            return True
