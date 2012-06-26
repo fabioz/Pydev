@@ -21,6 +21,7 @@ import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
+import org.eclipse.swt.graphics.Point;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.PySelection;
@@ -367,15 +368,27 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
         //1st, remove the text the user just entered (and enter it line-by-line later)
         try{
-            text = doc.get(offset, doc.getLength() - offset);
+            // Remove the just entered text
+            doc.replace(offset, text.length(), ""); //$NON-NLS-1$
+            // Is the current offset in the command line
+            // NB we do this after the above as the pasted text may have new lines in it
+            boolean offset_in_command_line = offset >= getCommandLineOffset(); 
+
+            // If the offset isn't in the command line, then just append to the existing
+            // command line text
+            if (!offset_in_command_line) {
+                offset = newDeltaCaretPosition = getCommandLineOffset();
+                // Remove any existing command line text and prepend it to the text
+                // we're inserting
+                text = doc.get(getCommandLineOffset(), getCommandLineLength()) + text;
+                doc.replace(getCommandLineOffset(), getCommandLineLength(), "");
+            } else {
+                // paste is within the command line
+                text = text + doc.get(offset, doc.getLength() - offset);
+                doc.replace(offset, doc.getLength() - offset, "");
+            }
         }catch(BadLocationException e){
             text = "";
-            Log.log(e);
-        }
-
-        try{
-            doc.replace(offset, text.length(), ""); //$NON-NLS-1$
-        }catch(BadLocationException e){
             Log.log(e);
         }
 

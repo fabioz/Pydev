@@ -563,6 +563,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
             int minOffset = range.x;
             int maxOffset = range.x+range.y;
             boolean changed = false;
+            boolean go_to_end = false;
             
             if(minOffset < commandLineOffset){
                 minOffset = commandLineOffset;
@@ -572,13 +573,15 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
             if(maxOffset < commandLineOffset){
                 maxOffset = commandLineOffset;
                 changed = true;
+                // Only go to the end of the buffer if  the max offset isn't in range
+                go_to_end = true;
             }
             
             if(changed){
                 setSelectedRange(minOffset, maxOffset-minOffset);
             }
-            
-            if (getCaretOffset() <= getCommandLineOffset()) {
+
+            if (go_to_end) {
                 setCaretOffset(getDocument().getLength());
             }
         }
