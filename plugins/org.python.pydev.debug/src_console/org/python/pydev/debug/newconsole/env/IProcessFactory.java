@@ -12,6 +12,7 @@ package org.python.pydev.debug.newconsole.env;
 import java.io.File;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -216,9 +217,9 @@ public class IProcessFactory {
 		if (InteractiveConsolePrefs.getConsoleConnectVariableView()
 				&& interpreterManager.getInterpreterType() != IInterpreterManager.INTERPRETER_TYPE_JYTHON_ECLIPSE) {
 			// Add PydevDebugPlugin's pysrc so we can access pydevd
-			extraPath = new HashSet<String>();
+			extraPath = new LinkedHashSet<String>();
+			extraPath.add(PydevDebugPlugin.getPySrcPath().getAbsolutePath()); //Add this one as the first in the PYTHONPATH!
 			extraPath.addAll(pythonpath);
-			extraPath.add(PydevDebugPlugin.getPySrcPath().getAbsolutePath());
 		}
         String pythonpathEnv = SimpleRunner.makePythonPathEnvFromPaths(extraPath);
         String[] commandLine;

@@ -163,9 +163,7 @@ public class InterpreterInfo implements IInterpreterInfo{
      * @return the pythonpath to be used (only the folders)
      */
     public List<String> getPythonPath() {
-        ArrayList<String> ret = new ArrayList<String>();
-        ret.addAll(libs);
-        return ret;
+        return new ArrayList<String>(libs);
     }
     
     public InterpreterInfo(String version, String exe, Collection<String> libs0){

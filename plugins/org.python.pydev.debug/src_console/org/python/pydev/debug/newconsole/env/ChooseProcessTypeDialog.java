@@ -9,6 +9,7 @@ package org.python.pydev.debug.newconsole.env;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
@@ -272,9 +273,11 @@ final class ChooseProcessTypeDialog extends Dialog {
             }
 
             // collect all the python path (no duplicates, hence a set)
-            HashSet<String> pythonpath = new HashSet<String>();
+            HashSet<String> pythonpath = new LinkedHashSet<String>();
 
-            // add all the paths in the interpreter 
+            // Add all the paths in the interpreter (note: it's important that this goes before the 
+            // path for the other natures so that if we have something as IPython, the one used will
+            // be the one from the interpreter).
             pythonpath.addAll(interpreter.getPythonPath());
 
             //we need to get the natures matching the one selected in all the projects.
