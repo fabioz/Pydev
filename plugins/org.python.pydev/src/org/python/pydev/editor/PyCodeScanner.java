@@ -246,7 +246,7 @@ public class PyCodeScanner extends RuleBasedScanner {
         // 2) code
         // 3) regular words?
         
-        rules.add(new WhitespaceRule(new GreatWhite()));
+        rules.add(new WhitespaceRule(new GreatWhite(), defaultToken));
         
         Map<String,IToken> defaults = new HashMap<String, IToken>();
         defaults.put("self", selfToken);

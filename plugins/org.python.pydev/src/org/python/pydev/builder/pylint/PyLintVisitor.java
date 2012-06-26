@@ -40,6 +40,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
@@ -72,12 +73,12 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
     public static class PyLintThread extends Thread{
         
         IResource resource; 
-        IDocument document; 
+        ICallback0<IDocument> document; 
         IPath location;
 
         List<Object[]> markers = new ArrayList<Object[]>();
         
-        public PyLintThread(IResource resource, IDocument document, IPath location){
+        public PyLintThread(IResource resource, ICallback0<IDocument> document, IPath location){
             setName("PyLint thread");
             this.resource = resource;
             this.document = document;
@@ -104,7 +105,8 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                     
                     IOConsoleOutputStream out=getConsoleOutputStream();
 
-                    passPyLint(resource, out);
+                    final IDocument doc = document.call();
+                    passPyLint(resource, out, doc);
                     
                     new Job("Adding markers"){
                     
@@ -120,7 +122,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                                 String id    = (String) el[2];
                                 int line     = ((Integer)el[3]).intValue();
                                 
-                                lst.add(new PydevMarkerUtils.MarkerInfo(document, "ID:" + id + " " + tok,
+                                lst.add(new PydevMarkerUtils.MarkerInfo(doc, "ID:" + id + " " + tok,
                                         PYLINT_PROBLEM_MARKER, priority, false, false, line, 0, line, 0, null));
                             }
                             
@@ -170,13 +172,14 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         /**
          * @param resource
          * @param out 
+         * @param doc 
          * @param document
          * @param location
          * @throws CoreException
          * @throws MisconfigurationException 
          * @throws PythonNatureWithoutProjectException 
          */
-        private void passPyLint(IResource resource, IOConsoleOutputStream out) throws CoreException, MisconfigurationException, PythonNatureWithoutProjectException {
+        private void passPyLint(IResource resource, IOConsoleOutputStream out, IDocument doc) throws CoreException, MisconfigurationException, PythonNatureWithoutProjectException {
             File script = new File(PyLintPrefPage.getPyLintLocation());
             File arg = new File(location.toOSString());
 
@@ -304,11 +307,11 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                             
                             IRegion region = null;
                             try {
-                                region = document.getLineInformation(line - 1);
+                                region = doc.getLineInformation(line - 1);
                             } catch (Exception e) {
-                                region = document.getLineInformation(line);
+                                region = doc.getLineInformation(line);
                             }
-                            String lineContents = document.get(region.getOffset(), region.getLength());
+                            String lineContents = doc.get(region.getOffset(), region.getLength());
                             
                             int pos = -1;
                             if( ( pos = lineContents.indexOf("IGNORE:") ) != -1){
@@ -337,7 +340,8 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
 
     }
     
-    public void visitChangedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
+    @Override
+    public void visitChangedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {
         if(document == null){
             return;
         }
@@ -400,10 +404,8 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         }
     }
 
-    /**
-     * @see org.python.pydev.builder.PyDevBuilderVisitor#visitRemovedResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
-     */
-    public void visitRemovedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
+    @Override
+    public void visitRemovedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {
     }
 
     /**

@@ -18,6 +18,7 @@ import java.util.List;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.structure.CompletionRecursionException;
 
 /**
@@ -53,7 +54,7 @@ public interface ICodeCompletionASTManager {
      * @param project: this is the project that is associated with this manager.
      * @param monitor: monitor for progress.
      */
-    public abstract void rebuildModule(final File file, final IDocument doc, final IProject project, IProgressMonitor monitor, IPythonNature nature);
+    public abstract void rebuildModule(final File file, final ICallback0<IDocument> doc, final IProject project, IProgressMonitor monitor, IPythonNature nature);
 
     /**
      * This method provides a way to remove a module (remove delta).

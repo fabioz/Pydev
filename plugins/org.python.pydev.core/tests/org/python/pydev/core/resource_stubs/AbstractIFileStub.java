@@ -12,6 +12,7 @@ import java.net.URI;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFileState;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -107,4 +108,9 @@ public class AbstractIFileStub extends AbstractIResourceStub implements IFile{
         throw new RuntimeException("Not implemented");
     }
 
+    
+    @Override
+    public int getType() {
+    	return IResource.FILE;
+    }
 }

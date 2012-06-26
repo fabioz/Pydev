@@ -37,6 +37,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.TupleN;
+import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
@@ -99,7 +100,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     
     public abstract void setProject(IProject project, IPythonNature nature, boolean restoreDeltas) ;
 
-    public abstract void rebuildModule(File file, IDocument doc, IProject project, IProgressMonitor monitor, IPythonNature nature) ;
+    public abstract void rebuildModule(File file, ICallback0<IDocument> doc, IProject project, IProgressMonitor monitor, IPythonNature nature) ;
 
     public abstract void removeModule(File file, IProject project, IProgressMonitor monitor) ;
     

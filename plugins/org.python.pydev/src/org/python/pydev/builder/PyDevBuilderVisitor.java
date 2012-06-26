@@ -12,14 +12,10 @@
 package org.python.pydev.builder;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -30,6 +26,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -48,14 +45,14 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
     /**
      * identifies the key for the module in the cache
      */
-    private static final String MODULE_CACHE = "MODULE_CACHE";
+    private static final String MODULE_CACHE = "MODULE_CACHE"; //$NON-NLS-1$
 
     /**
      * identifies the key for the module name in the cache
      */
-    private static final String MODULE_NAME_CACHE = "MODULE_NAME";
+    private static final String MODULE_NAME_CACHE = "MODULE_NAME"; //$NON-NLS-1$
     
-    /*default*/ static final String MODULE_IN_PROJECT_PYTHONPATH = "MODULE_IN_PROJECT_PYTHONPATH";
+    /*default*/ static final String MODULE_IN_PROJECT_PYTHONPATH = "MODULE_IN_PROJECT_PYTHONPATH"; //$NON-NLS-1$
 
     /**
      * The default priority is 5. 
@@ -112,13 +109,13 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
     /**
      * Constant indicating value in memory to represent a full build.
      */
-    public static final String IS_FULL_BUILD = "IS_FULL_BUILD";
+    public static final String IS_FULL_BUILD = "IS_FULL_BUILD"; //$NON-NLS-1$
 
     /**
      * Constant indicating value in memory to represent the creation time of the document in memory that the visitor
      * is getting. 
      */
-    public static final String DOCUMENT_TIME = "DOCUMENT_TIME";
+    public static final String DOCUMENT_TIME = "DOCUMENT_TIME"; //$NON-NLS-1$
 
     /**
      * @return whether we are doing a full build right now.
@@ -206,7 +203,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
             if(moduleName != null){
                 setModuleNameInCache(memo, resource, moduleName);
             }else{
-                throw new RuntimeException("Unable to resolve module for:"+resource);
+                throw new RuntimeException("Unable to resolve module for:"+resource); //$NON-NLS-1$
             }
         }
         return moduleName;
@@ -236,18 +233,6 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
     }
 
     /**
-     * Method to return whether a resource is an __init__
-     * 
-     * this is needed because when we create an __init__, all sub-folders 
-     * and files on the same folder become valid modules.
-     * 
-     * @return whether the resource is an init resource
-     */
-    protected boolean isInitFile(IResource resource){
-        return resource.getName().startsWith("__init__.");
-    }
-    
-    /**
      * @param resource the resource we want to know about
      * @return true if it is in the pythonpath
      */
@@ -268,41 +253,6 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
         return false;
     }
     
-    /**
-     * @param initResource
-     * @return all the IFiles that are below the folder where initResource is located.
-     */
-    protected IResource[] getInitDependents(IResource initResource){
-        
-        List<IResource> toRet = new ArrayList<IResource>();
-        IContainer parent = initResource.getParent();
-        
-        try {
-            fillWithMembers(toRet, parent);
-            return toRet.toArray(new IResource[0]);
-        } catch (CoreException e) {
-            //that's ok, it might not exist anymore
-            return new IResource[0];
-        }
-    }
-    
-    /**
-     * @param toRet
-     * @param parent
-     * @throws CoreException
-     */
-    private void fillWithMembers(List<IResource> toRet, IContainer parent) throws CoreException {
-        IResource[] resources = parent.members();
-        
-        for (int i = 0; i < resources.length; i++) {
-            if(resources[i].getType() == IResource.FILE){
-                toRet.add(resources[i]);
-            }else if(resources[i].getType() == IResource.FOLDER){
-                fillWithMembers(toRet, (IFolder)resources[i]);
-            }
-        }
-    }
-
 
 
     /**
@@ -314,22 +264,13 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
         return MAX_TO_VISIT_INFINITE;
     }
     
-    /**
-     * if all the files below a folder that has an __init__.py just added or removed should 
-     * be visited, this method should return true, otherwise it should return false 
-     * 
-     * @return false by default, but may be reimplemented in subclasses. 
-     */
-    public boolean shouldVisitInitDependency(){
-        return false;
-    }
 
     /**
      * Called when a resource is changed
      * 
      * @param resource to be visited.
      */
-    public abstract void visitChangedResource(IResource resource, IDocument document, IProgressMonitor monitor);
+    public abstract void visitChangedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor);
 
     
     /**
@@ -338,7 +279,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * 
      * @param resource to be visited.
      */
-    public void visitAddedResource(IResource resource, IDocument document, IProgressMonitor monitor){
+    public void visitAddedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor){
         visitChangedResource(resource, document, monitor);
     }
 
@@ -347,7 +288,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * 
      * @param resource to be visited.
      */
-    public abstract void visitRemovedResource(IResource resource, IDocument document, IProgressMonitor monitor);
+    public abstract void visitRemovedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor);
     
     /**
      * This function is called right before a visiting session starts for a delta (end will

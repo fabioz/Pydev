@@ -63,6 +63,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.osgi.service.environment.Constants;
 import org.python.pydev.core.callbacks.ICallback;
+import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
@@ -209,24 +210,33 @@ public class REF {
         
         Reader in= null;
         try{
-            final int DEFAULT_FILE_SIZE= 15 * 1024;
+        	int BUFFER_SIZE = 2 * 1024;
+            int DEFAULT_FILE_SIZE= 8 * BUFFER_SIZE;
     
             //discover how to actually read the passed input stream.
+            int available = contentStream.available();
+            if(DEFAULT_FILE_SIZE < available){
+            	DEFAULT_FILE_SIZE = available;
+            }
+            
+            //Note: neither the input stream nor the reader are buffered because we already read in chunks (and make
+            //the buffering ourselves), so, making the buffer in this case would be just overhead.
+            
             if (encoding == null){
-                in= new BufferedReader(new InputStreamReader(contentStream), DEFAULT_FILE_SIZE);
+                in= new InputStreamReader(contentStream);
             }else{
                 try {
-                    in = new BufferedReader(new InputStreamReader(contentStream, encoding), DEFAULT_FILE_SIZE);
+                    in = new InputStreamReader(contentStream, encoding);
                 } catch (UnsupportedEncodingException e) {
                     Log.log(e);
                     //keep going without the encoding
-                    in= new BufferedReader(new InputStreamReader(contentStream), DEFAULT_FILE_SIZE);
+                    in= new InputStreamReader(contentStream);
                 }
             }
             
             //fill a buffer with the contents
             FastStringBuffer buffer= new FastStringBuffer(DEFAULT_FILE_SIZE);
-            char[] readBuffer= new char[2048];
+            char[] readBuffer= new char[BUFFER_SIZE];
             int n= in.read(readBuffer);
             while (n > 0) {
                 if (monitor != null && monitor.isCanceled()){
@@ -756,6 +766,22 @@ public class REF {
         return null;
     }
 
+    public static ICallback0<IDocument> getDocOnCallbackFromResource(final IResource resource) {
+    	return new ICallback0<IDocument>() {
+
+    		private IDocument cache;
+    		private boolean calledOnce = false;
+    		
+			public IDocument call() {
+				if(!calledOnce){
+					calledOnce = true;
+					cache = getDocFromResource(resource);
+				}
+				return cache;
+			}
+    		
+		};
+    }
     /**
      * Returns a document, created with the contents of a resource (first tries to get from the 'FileBuffers',
      * and if that fails, it creates one reading the file.
@@ -767,14 +793,14 @@ public class REF {
             IFile file = (IFile) resource;
     
             try {
-                if(file.exists() && !file.isSynchronized(IResource.DEPTH_ZERO)){
+                if(!file.isSynchronized(IResource.DEPTH_ZERO)){
                     file.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
                 }
                 IPath path = file.getFullPath();
     
                 IDocument doc = getDocFromPath(path);
                 if(doc == null){
-                    //can this actually happen?... yeap, it can
+                    //can this actually happen?... yeap, it can (if file does not exist)
                     doc = (IDocument) REF.getStreamContents(file.getContents(true), null, null, IDocument.class);
                 }
                 return doc;

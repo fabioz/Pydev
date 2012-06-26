@@ -69,3 +69,4 @@ data_temporary_for_testing
 plugins/jdt_plugins/
 *v1_projectinfodelta
 plugins/*/.settings
+plugins/com.python.pydev.runalltests/New_configuration1.launch

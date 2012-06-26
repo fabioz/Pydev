@@ -15,6 +15,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IProjectNature;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IPluginDescriptor;
@@ -155,5 +156,9 @@ public class AbstractIProjectStub extends AbstractIContainerStub implements IPro
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
+    public int getType() {
+    	return IResource.PROJECT;
+    }
 
 }

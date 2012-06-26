@@ -440,7 +440,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
     }
 
     public void setPythonPath(List<String> newPythonpath) {
-        this.pythonpath = Collections.unmodifiableList(newPythonpath);
+        this.pythonpath = Collections.unmodifiableList(new ArrayList<String>(newPythonpath));
     }
     
     /**
