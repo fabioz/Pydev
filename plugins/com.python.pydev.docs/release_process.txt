@@ -15,7 +15,7 @@ d:\bin\Python265\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy
 			- history_pydev.rst (move contents from index.rst if needed)
 			
 		Run:
-		    - W:\ConfluenceWikiAndRST\src\pydev_wiki_to_rst.py to update the contents from the homepage from the wiki.
+		    - W:\ConfluenceWikiAndRST\src\pydev_wiki_to_html.py to update the contents from the homepage from the wiki.
 		    - Update version at W:\pydev\plugins\com.python.pydev.docs\build_both.py
 		    - W:\pydev\plugins\com.python.pydev.docs\build_both.py
 
