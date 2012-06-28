@@ -305,6 +305,7 @@ public class AbstractWorkbenchTestCase extends TestCase{
 
     
     protected void goToManual() {
+        System.out.println("going to manual INDEFINITELY.");
         goToManual(-1);
     }
     

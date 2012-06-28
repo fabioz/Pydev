@@ -27,7 +27,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.WorkbenchException;
 import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.model.PyVariable;
-import org.python.pydev.debug.ui.actions.BreakpointRulerAction;
+import org.python.pydev.debug.ui.actions.PyBreakpointRulerAction;
 import org.python.pydev.debug.ui.launching.JythonLaunchShortcut;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
@@ -154,7 +154,7 @@ public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {
                 
                 //switch to debug perspective, because otherwise, when we hit a breakpoint it'll ask if we want to show it.
                 switchToPerspective("org.eclipse.debug.ui.DebugPerspective");
-                BreakpointRulerAction createAddBreakPointAction = createAddBreakPointAction(1);
+                PyBreakpointRulerAction createAddBreakPointAction = createAddBreakPointAction(1);
                 createAddBreakPointAction.run();
                 
                 currentStep = "waitForLaunchAvailable";
@@ -214,8 +214,8 @@ public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {
     /**
      * @return an action that can be run to create a breakpoint in the given line
      */
-    private BreakpointRulerAction createAddBreakPointAction(final int line) {
-        BreakpointRulerAction ret = new BreakpointRulerAction(debugEditor, new IVerticalRulerInfo(){
+    private PyBreakpointRulerAction createAddBreakPointAction(final int line) {
+        PyBreakpointRulerAction ret = new PyBreakpointRulerAction(debugEditor, new IVerticalRulerInfo(){
             public int getLineOfLastMouseButtonActivity() {
                 return line;
             }

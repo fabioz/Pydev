@@ -108,7 +108,7 @@ public class PyRefactoringFindDefinition {
         //might turn out a little tricky.
         if(request.nature == null){
             //the request is not associated to any project. It is probably a system file. So, let's check it...
-            Tuple<SystemPythonNature,String> infoForFile = PydevPlugin.getInfoForFile(request.file);
+            Tuple<IPythonNature,String> infoForFile = PydevPlugin.getInfoForFile(request.file);
             if(infoForFile != null){
                 modName = infoForFile.o2;
                 request.nature = infoForFile.o1;

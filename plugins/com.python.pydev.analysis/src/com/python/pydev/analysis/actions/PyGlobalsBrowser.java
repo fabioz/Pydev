@@ -72,7 +72,7 @@ public class PyGlobalsBrowser extends PyAction{
      */
     private void getFromSystemManager(String selectedText) {
         //is null
-        Tuple<SystemPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getPyEdit().getEditorFile());
+        Tuple<IPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getPyEdit().getEditorFile());
         if(infoForFile != null){
             IPythonNature systemPythonNature = infoForFile.o1;
             if(systemPythonNature == null){

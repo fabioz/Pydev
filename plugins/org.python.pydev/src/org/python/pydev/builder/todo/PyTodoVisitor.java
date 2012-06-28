@@ -24,6 +24,7 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
+import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
@@ -39,7 +40,8 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
      * 
      * @see org.python.pydev.builder.PyDevBuilderVisitor#visitResource(org.eclipse.core.resources.IResource)
      */
-    public void visitChangedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
+	@Override
+    public void visitChangedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {
         if (document != null) {
             List<String> todoTags = PyTodoPrefPage.getTodoTags();
             try {
@@ -53,7 +55,7 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
 			}
 			
     		try {
-                PydevMarkerUtils.replaceMarkers(computeTodoMarkers(document, todoTags), resource, IMarker.TASK, false, monitor);
+                PydevMarkerUtils.replaceMarkers(computeTodoMarkers(document.call(), todoTags), resource, IMarker.TASK, false, monitor);
                 //timer.printDiff("Total time to put markers: "+lst.size());
             } catch (Exception e) {
                 Log.log(e);
@@ -149,7 +151,8 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
     /**
      * @see org.python.pydev.builder.PyDevBuilderVisitor#visitRemovedResource(org.eclipse.core.resources.IResource, org.eclipse.jface.text.IDocument)
      */
-    public void visitRemovedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
+    @Override
+    public void visitRemovedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {
     }
 
 }

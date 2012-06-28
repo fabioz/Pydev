@@ -42,7 +42,6 @@ import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.SocketUtil;
-import org.python.pydev.runners.ThreadStreamReader;
 
 /**
  * This is the shell that 'talks' to the python / jython process (it is intended to be subclassed so that
@@ -352,8 +351,6 @@ public abstract class AbstractShell {
      * Server socket (accept connections).
      */
     protected ServerSocket serverSocket;
-    private ThreadStreamReader stdReader;
-    private ThreadStreamReader errReader;
 
     
     /**
@@ -439,20 +436,19 @@ public abstract class AbstractShell {
                     endIt(); //end the current process
                 }
 
-                String execMsg = createServerProcess(interpreter, pWrite, pRead);
-                dbg("executing " + execMsg,1);
+                ProcessCreationInfo processInfo = createServerProcess(interpreter, pWrite, pRead);
+                dbg("executed: " + processInfo.getProcessLog(), 1);
 
-                sleepALittle(200);
-                String osName = System.getProperty("os.name");
+                sleepALittle(200); //Give it some time to warmup.
                 if (process == null) {
-                    String msg = "Error creating python process - got null process(" + execMsg + ") - os:" + osName;
+                    String msg = "Error creating python process - got null process.\n"+processInfo.getProcessLog();
                     dbg(msg, 1);
                     Log.log(msg);
                     throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, msg, new Exception(msg)));
                 }
                 try {
                     int exitVal = process.exitValue(); //should throw exception saying that it still is not terminated...
-                    String msg = "Error creating python process - exited before creating sockets - exitValue = ("+ exitVal + ")(" + execMsg + ") - os:" + osName;
+                    String msg = "Error creating python process - exited before creating sockets - exitValue = ("+ exitVal + ").\n"+processInfo.getProcessLog();
                     dbg(msg, 1);
                     Log.log(msg);
                     throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, msg, new Exception(msg)));
@@ -461,7 +457,6 @@ public abstract class AbstractShell {
 
                 dbg("afterCreateProcess ",1);
                 //ok, process validated, so, let's get its output and store it for further use.
-                afterCreateProcess();
 
                 boolean connected = false;
                 int attempts = 0;
@@ -484,12 +479,11 @@ public abstract class AbstractShell {
                         }
 
                         if (socketToWrite != null || socketToWrite.isConnected()) {
-                            serverSocket.setSoTimeout(milisSleep * 2); //let's give it a higher timeout, as we're already half - connected
                             try {
                                 dbg("serverSocket.accept()! ",1);
                                 socketToRead = serverSocket.accept();
                                 dbg("socketToRead.setSoTimeout(5000) ",1);
-                                socketToRead.setSoTimeout(5000);
+                                socketToRead.setSoTimeout(5000); //let's give it a higher timeout, as we're already half - connected
                                 connected = true;
                                 dbg("connected! ",1);
                             } catch (SocketTimeoutException e) {
@@ -533,9 +527,7 @@ public abstract class AbstractShell {
                         process.destroy();
                     }
 
-                    String output = getProcessOutput();
-                    String msg = "Error connecting to python process (" + execMsg + ") " +
-                    isAlive + " the output of the process is: " + output;
+                    String msg = "Error connecting to python process.\n"+isAlive+"\n"+processInfo.getProcessLog();
                     
                     RuntimeException exception = new RuntimeException(msg);
                     dbg(msg, 1);
@@ -562,49 +554,19 @@ public abstract class AbstractShell {
 
 
 
-    private synchronized void afterCreateProcess() {
-        try {
-            process.getOutputStream().close(); //we won't write to it...
-        } catch (IOException e2) {
-        }
-        
-        //will print things if we are debugging or just get it (and do nothing except emptying it)
-        stdReader = new ThreadStreamReader(process.getInputStream());
-        errReader = new ThreadStreamReader(process.getErrorStream());
-        
-        stdReader.setName("Shell reader (stdout)");
-        errReader.setName("Shell reader (stderr)");
-        
-        stdReader.start();
-        errReader.start();
-    }
-
-
-    /**
-     * @return the current output of the process
-     */
-    protected synchronized String getProcessOutput(){
-        try {
-            String output = "";
-            output += "Std output:\n" + stdReader.getContents();
-            output += "\n\nErr output:\n" + errReader.getContents();
-            return output;
-        } catch (Exception e) {
-            return "Unable to get output";
-        }
-    }
-
 
     /**
      * @param pWrite the port where we should write
      * @param pRead the port where we should read
-     * @return the command line that was used to create the process 
+     * @return a tuple with:
+     *  - command line used to execute process
+     *  - environment used to execute process
      * 
      * @throws IOException
      * @throws JDTNotAvailableException 
      * @throws MisconfigurationException 
      */
-    protected abstract String createServerProcess(IInterpreterInfo interpreter, int pWrite, int pRead) throws IOException, JDTNotAvailableException, MisconfigurationException;
+    protected abstract ProcessCreationInfo createServerProcess(IInterpreterInfo interpreter, int pWrite, int pRead) throws IOException, JDTNotAvailableException, MisconfigurationException;
 
     protected synchronized void communicateWork(String desc, IProgressMonitor monitor) {
         if(monitor != null){

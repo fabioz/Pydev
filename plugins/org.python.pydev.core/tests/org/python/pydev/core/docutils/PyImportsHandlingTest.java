@@ -18,7 +18,7 @@ public class PyImportsHandlingTest extends TestCase {
         try {
             PyImportsHandlingTest test = new PyImportsHandlingTest();
             test.setUp();
-            test.testPyImportHandling();
+            test.testPyImportHandling5();
             test.tearDown();
             junit.textui.TestRunner.run(PyImportsHandlingTest.class);
         } catch (Throwable e) {
@@ -103,6 +103,22 @@ public class PyImportsHandlingTest extends TestCase {
         assertEquals("from xxx.bbb \\\n    import yyy", next.importFound);
         assertEquals(2, next.startFoundLine);
         assertEquals(3, next.endFoundLine);
+        
+        assertTrue(!it.hasNext());
+        
+    }
+    
+    public void testPyImportHandling5() throws Exception {
+        
+        Document doc = new Document("import threading;\n");
+        PyImportsHandling importsHandling = new PyImportsHandling(doc, false);
+        Iterator<ImportHandle> it = importsHandling.iterator();
+        assertTrue(it.hasNext());
+        ImportHandle next = it.next();
+        
+        assertEquals("import threading;", next.importFound);
+        assertEquals(0, next.startFoundLine);
+        assertEquals(0, next.endFoundLine);
         
         assertTrue(!it.hasNext());
         

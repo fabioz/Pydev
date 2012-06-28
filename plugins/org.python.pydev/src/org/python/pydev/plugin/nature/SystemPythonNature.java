@@ -40,7 +40,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
      * @author Fabio
      *
      */
-    private final class SystePythonPathNature implements IPythonPathNature {
+    private final class SystemPythonPathNature implements IPythonPathNature {
         public void setVariableSubstitution(Map<String, String> variableSubstitution) throws CoreException {
             throw new RuntimeException("Not implemented");
         }
@@ -199,7 +199,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
     }
 
     public IPythonPathNature getPythonPathNature() {
-        return new SystePythonPathNature();
+        return new SystemPythonPathNature();
     }
 
     public String resolveModule(String file) throws MisconfigurationException {

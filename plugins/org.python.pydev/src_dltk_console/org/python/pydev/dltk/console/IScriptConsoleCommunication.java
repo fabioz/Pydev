@@ -59,5 +59,11 @@ public interface IScriptConsoleCommunication {
      */
     void close() throws Exception;
     
-
+    /**
+     * Link pydev debug console with the suspended frame  
+     * 
+     * @param isLinkedWithDebug
+     */
+    public void linkWithDebugSelection(boolean isLinkedWithDebug);
+    
 }

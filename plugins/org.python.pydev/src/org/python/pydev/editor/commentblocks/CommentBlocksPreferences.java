@@ -96,15 +96,12 @@ public class CommentBlocksPreferences extends FieldEditorPreferencePage implemen
 
     
     private void updateSingle(String val, boolean alignToRight){
-        if(val.length() > 0){
-            val = ""+val.charAt(0);
-        }
         FastStringBuffer buf = new FastStringBuffer(200);
         if(val.length() == 0){
             buf.append("Invalid");
             buf.appendN(' ', 23);
         }else{
-            buf.appendN(val, 10);
+            buf.appendN(val.charAt(0), 10); //Use only the pos 0!
             if(alignToRight){
                 buf.append(" my single block");
             }else{
@@ -116,9 +113,6 @@ public class CommentBlocksPreferences extends FieldEditorPreferencePage implemen
     }
 
     private void updateMulti(String val){
-        if(val.length() > 0){
-            val = ""+val.charAt(0);
-        }
         FastStringBuffer buf = new FastStringBuffer(200);
         if(val.length() == 0){
             buf.append("Invalid");
@@ -129,10 +123,10 @@ public class CommentBlocksPreferences extends FieldEditorPreferencePage implemen
             buf.appendN(' ', 30);
         }else{
             buf.append("#");
-            buf.appendN(val, 26);
+            buf.appendN(val.charAt(0), 26); //Use only the pos 0!
             buf.append("\n# my multi block");
             buf.append("\n#");
-            buf.appendN(val, 26);
+            buf.appendN(val.charAt(0), 26);
         }
         labelMulti.setText("Result:\n"+buf.toString()+"\n\n\n");
     }

@@ -51,6 +51,11 @@ public final class FastStringBuffer{
         this.value = new char[initialSize];
         this.count = 0;
     }
+    
+    public FastStringBuffer(char [] internalBuffer) {
+        this.value = internalBuffer;
+        this.count = internalBuffer.length;
+    }
 
     /**
      * initializes from a string and the additional size for the buffer
@@ -87,6 +92,19 @@ public final class FastStringBuffer{
         string.getChars(0, strLen, value, this.count);
         this.count = newCount;
 
+        return this;
+    }
+    
+    /**
+     * Appends a string to the buffer. The buffer must have enough pre-allocated space for it to succeed.
+     * 
+     * Passing a null string will throw an exception.
+     * Not having a pre-allocated internal array big enough will throw an exception.
+     */
+    public FastStringBuffer appendNoResize(String string) {
+        int strLen = string.length();
+        string.getChars(0, strLen, value, this.count);
+        this.count = count + strLen;
         return this;
     }
 
@@ -634,8 +652,9 @@ public final class FastStringBuffer{
         return ret;
     }
 
-    public FastStringBuffer appendN(String val, int n){
-    	int min = count + (n*val.length());
+    public FastStringBuffer appendN(final String val, int n){
+        final int strLen = val.length();
+    	int min = count + (n*strLen);
 		if (min > value.length) {
             //was: resizeForMinimum(newCount);
     		int newCapacity = (value.length + 1) * 2;
@@ -647,7 +666,6 @@ public final class FastStringBuffer{
             value = newValue;
     	}
         
-		int strLen = val.length();
     	while (n-- > 0){
     		val.getChars(0, strLen, value, this.count);
     		this.count += strLen;

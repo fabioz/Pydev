@@ -407,7 +407,7 @@ public class PythonRunnerConfig {
         
         if(envp == null){
             //ok, the user has done nothing to the environment, just get all the default environment which has the pythonpath in it
-            envp = SimpleRunner.getEnvironment(pythonNature, interpreterLocation, manager, false);
+            envp = SimpleRunner.getEnvironment(pythonNature, interpreterLocation, manager);
             
         }else{
             //ok, the user has done something to configure it, so, just add the pythonpath to the

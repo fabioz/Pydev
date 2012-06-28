@@ -12,6 +12,7 @@ package org.python.pydev.debug.newconsole.env;
 import java.io.File;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -36,6 +37,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.editor.PyEdit;
@@ -57,18 +59,22 @@ public class IProcessFactory {
         public final Process process;
         public final int clientPort;
         public final IInterpreterInfo interpreter;
+        public final PyStackFrame frame;
+
 
         /**
          * @param launch
          * @param process
          * @param clientPort
          * @param interpreter
+         * @param frame
          */
-        public PydevConsoleLaunchInfo(Launch launch, Process process, int clientPort, IInterpreterInfo interpreter) {
+        public PydevConsoleLaunchInfo(Launch launch, Process process, int clientPort, IInterpreterInfo interpreter, PyStackFrame frame) {
             this.launch = launch;
             this.process = process;
             this.clientPort = clientPort;
             this.interpreter = interpreter;
+            this.frame = frame;
         }
     }
 
@@ -115,6 +121,11 @@ public class IProcessFactory {
 		ChooseProcessTypeDialog dialog = new ChooseProcessTypeDialog(getShell(), edit);
 		if(dialog.open() == ChooseProcessTypeDialog.OK){
     
+			if (dialog.getSelectedFrame() != null) {
+				// Interpreter not required for Debug Console
+				return new PydevConsoleLaunchInfo(null, null, 0, null, dialog.getSelectedFrame());
+			}
+
 			IInterpreterManager interpreterManager = dialog.getInterpreterManager();
 			if(interpreterManager == null){
 				MessageDialog.openError(workbenchWindow.getShell(), 
@@ -161,12 +172,11 @@ public class IProcessFactory {
                 return null;
             }
             
-	        return createLaunch(interpreterManager, 
-	        		            interpreter,
-	        		            pythonpathAndNature.o1,
-	        		            pythonpathAndNature.o2,
-	        		            dialog.getNatures());
-			
+            return createLaunch(interpreterManager, 
+        			interpreter,
+        			pythonpathAndNature.o1,
+        			pythonpathAndNature.o2,
+                    dialog.getNatures());
 		}   
 		return null;
     }
@@ -187,6 +197,8 @@ public class IProcessFactory {
 		newInstance.setAttribute(IDebugUIConstants.ATTR_PRIVATE, true);
         return newInstance;
     }
+    
+
    public PydevConsoleLaunchInfo createLaunch(
     		IInterpreterManager interpreterManager, IInterpreterInfo interpreter, 
     		Collection<String> pythonpath, IPythonNature nature, List<IPythonNature> naturesUsed) throws Exception {
@@ -204,10 +216,10 @@ public class IProcessFactory {
 		Collection<String> extraPath = pythonpath;
 		if (InteractiveConsolePrefs.getConsoleConnectVariableView()
 				&& interpreterManager.getInterpreterType() != IInterpreterManager.INTERPRETER_TYPE_JYTHON_ECLIPSE) {
-			// Add PydevDebugPlugin's PySrc so we can access pydevd
-			extraPath = new HashSet<String>();
+			// Add PydevDebugPlugin's pysrc so we can access pydevd
+			extraPath = new LinkedHashSet<String>();
+			extraPath.add(PydevDebugPlugin.getPySrcPath().getAbsolutePath()); //Add this one as the first in the PYTHONPATH!
 			extraPath.addAll(pythonpath);
-			extraPath.add(PydevDebugPlugin.getPySrcPath().getAbsolutePath());
 		}
         String pythonpathEnv = SimpleRunner.makePythonPathEnvFromPaths(extraPath);
         String[] commandLine;
@@ -253,7 +265,7 @@ public class IProcessFactory {
         
         launch.addProcess(newProcess);
         
-        return new PydevConsoleLaunchInfo(launch, process, clientPort, interpreter);
+        return new PydevConsoleLaunchInfo(launch, process, clientPort, interpreter, null);
     }
 
     

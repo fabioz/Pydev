@@ -35,6 +35,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.BundleInfo;
 import org.python.pydev.core.bundle.IBundleInfo;
+import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.jython.ui.JyScriptingPreferencesPage;
@@ -587,9 +588,21 @@ public class JythonPlugin extends AbstractUIPlugin {
             interpreter = new PythonInterpreterWrapperNotShared();
         }
         if(redirect){
-            MessageConsole console = getConsole();
-			interpreter.setOut(new ScriptOutput(console, fOutputStream));
-            interpreter.setErr(new ScriptOutput(console, fErrorStream));
+			interpreter.setOut(new ScriptOutput(new ICallback0<IOConsoleOutputStream>() {
+
+				public IOConsoleOutputStream call() {
+					getConsole(); //Just to make sure it's initialized.
+					return fOutputStream;
+				}
+			}));
+			
+            interpreter.setErr(new ScriptOutput(new ICallback0<IOConsoleOutputStream>() {
+
+				public IOConsoleOutputStream call() {
+					getConsole(); //Just to make sure it's initialized.
+					return fErrorStream;
+				}
+			}));
         }
         interpreter.set("False", 0);
         interpreter.set("True", 1);

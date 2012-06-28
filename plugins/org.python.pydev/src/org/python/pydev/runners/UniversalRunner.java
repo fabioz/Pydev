@@ -92,7 +92,7 @@ public class UniversalRunner {
 	        // We just hope this sets the right env. But looks like it ignores
 	        // the interpreter env variables (IInterpreterInfo#getEnvVariables)
 	        return new SimpleRunner().runAndGetOutput(
-	        		getCommandLine(cmd), workingDir, nature, monitor);
+	        		getCommandLine(cmd), workingDir, nature, monitor, null);
 
 		}
 		
@@ -115,7 +115,7 @@ public class UniversalRunner {
 		    // We just hope this sets the right env. But looks like it ignores
 		    // the interpreter env variables (IInterpreterInfo#getEnvVariables)
 		    return new SimpleRunner().runAndGetOutput(
-		            getCommandLine(cmd), workingDir, nature, monitor);
+		            getCommandLine(cmd), workingDir, nature, monitor, null);
 		    
 		}
 

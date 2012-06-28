@@ -943,5 +943,24 @@
    </specification>
 </extension>
 
+<!-- PyDev debug console related actions -->
+   <extension point="org.eclipse.ui.popupMenus">
+      <!-- Open the debug console -->
+      <objectContribution
+            adaptable="true"
+            id="org.python.pydev.debug.newconsole.actions.debugconsoleaction"
+            objectClass="org.eclipse.debug.core.model.IStackFrame">
+         <menu id="org.python.pydev.ui.actions.menu" label="PyDev"/>
+         <action
+               class="org.python.pydev.debug.newconsole.actions.DebugConsoleAction"
+               enablesFor="+"
+               id="org.python.pydev.debug.newconsole.actions.debugconsoleaction"
+               label="Debug Console"
+               menubarPath="org.python.pydev.ui.actions.menu/pydev"
+               tooltip="Open a Debug Console">
+         </action>
+      </objectContribution>
+   </extension>
+   
 </plugin>
 

@@ -16,6 +16,7 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Link;
+import org.python.pydev.core.tooltips.presenter.ToolTipPresenterHandler;
 
 /**
  * Helper class to provide a field that can be used as a link.
@@ -34,17 +35,26 @@ public class LinkFieldEditor extends FieldEditor {
     /**
      * The selection listener that will do some action when the link is selected
      */
-    private SelectionListener selectionListener;
+    private final SelectionListener selectionListener;
 
+    private final String tooltip;
+
+    private final ToolTipPresenterHandler tooltipPresenter;
+    
+    public LinkFieldEditor(String name, String linkText, Composite parent, SelectionListener selectionListener) {
+        this(name, linkText, parent, selectionListener, null, null);
+    }
     /**
      * @param name the name of the property 
      * @param linkText the text that'll appear to the user
      * @param parent the parent composite
      * @param selectionListener a listener that'll be executed when the linked text is clicked
      */
-    public LinkFieldEditor(String name, String linkText, Composite parent, SelectionListener selectionListener) {
+    public LinkFieldEditor(String name, String linkText, Composite parent, SelectionListener selectionListener, String tooltip, ToolTipPresenterHandler tooltipPresenter) {
+        this.tooltip = tooltip;
         init(name, linkText);
         this.selectionListener = selectionListener;
+        this.tooltipPresenter = tooltipPresenter;
         createControl(parent);
     }
 
@@ -71,6 +81,14 @@ public class LinkFieldEditor extends FieldEditor {
             String text = getLabelText();
             if (text != null) {
                 link.setText(text);
+            }
+            if(tooltip != null){
+                if(tooltipPresenter != null){
+                    link.setData(ToolTipPresenterHandler.TIP_DATA, tooltip);
+                    tooltipPresenter.install(link);
+                }else{
+                    link.setToolTipText(tooltip);
+                }
             }
 
             link.addDisposeListener(new DisposeListener() {

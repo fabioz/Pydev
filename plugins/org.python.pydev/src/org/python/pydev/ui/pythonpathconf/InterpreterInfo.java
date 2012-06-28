@@ -35,8 +35,10 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
+import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.python.pydev.core.ExtensionHelper;
@@ -161,9 +163,7 @@ public class InterpreterInfo implements IInterpreterInfo{
      * @return the pythonpath to be used (only the folders)
      */
     public List<String> getPythonPath() {
-        ArrayList<String> ret = new ArrayList<String>();
-        ret.addAll(libs);
-        return ret;
+        return new ArrayList<String>(libs);
     }
     
     public InterpreterInfo(String version, String exe, Collection<String> libs0){
@@ -281,7 +281,17 @@ public class InterpreterInfo implements IInterpreterInfo{
         return 42; // any arbitrary constant will do
     }
     
-    public static InterpreterInfo fromString(String received, boolean askUserInOutPath) {
+	/**
+	 * 
+	 * @param received
+	 *            String to parse
+	 * @param askUserInOutPath
+	 *            true to prompt user about which paths to include. When the
+	 *            user is prompted, IInterpreterNewCustomEntries extension will
+	 *            be run to contribute additional entries
+	 * @return new interpreter info
+	 */
+	public static InterpreterInfo fromString(String received, boolean askUserInOutPath) {
         if(received.toLowerCase().indexOf("executable") == -1){
             throw new RuntimeException("Unable to recreate the Interpreter info (Its format changed. Please, re-create your Interpreter information).Contents found:"+received);
         }
@@ -381,14 +391,51 @@ public class InterpreterInfo implements IInterpreterInfo{
                             throw new RuntimeException("Unexpected node: "+name+" Text content: "+xmlChild.getTextContent());
                         }
                     }
-                    
+
+					if (askUserInOutPath) {
+						AdditionalEntries additionalEntries = new AdditionalEntries();
+						Collection<String> additionalLibraries = additionalEntries.getAdditionalLibraries();
+						addUnique(toAsk, additionalLibraries);
+						addUnique(selection, additionalLibraries);
+						addUnique(forcedLibs, additionalEntries.getAdditionalBuiltins());
+
+						//Load environment variables
+						Map<String, String> existingEnv = new HashMap<String, String>();
+						Collection<String> additionalEnvVariables = additionalEntries.getAdditionalEnvVariables();
+						for (String var : additionalEnvVariables) {
+							Tuple<String, String> sp = StringUtils.splitOnFirst(var, '=');
+							existingEnv.put(sp.o1, sp.o2);
+						}
+						for (String var : envVars) {
+							Tuple<String, String> sp = StringUtils.splitOnFirst(var, '=');
+							existingEnv.put(sp.o1, sp.o2);
+						}
+						envVars.clear();
+						Set<Entry<String, String>> set = existingEnv.entrySet();
+						for (Entry<String, String> entry : set) {
+							envVars.add(entry.getKey() + "=" + entry.getValue());
+						}
+						
+						
+						//Additional string substitution variables
+						Map<String, String> additionalStringSubstitutionVariables = additionalEntries
+								.getAdditionalStringSubstitutionVariables();
+						Set<Entry<String, String>> entrySet = additionalStringSubstitutionVariables.entrySet();
+						for (Entry<String, String> entry : entrySet) {
+							if(!stringSubstitutionVars.containsKey(entry.getKey())){
+								stringSubstitutionVars.setProperty(entry.getKey(), entry.getValue());
+							}
+						}
+					}
+
                     try{
                         selection = filterUserSelection(selection, toAsk);
                     }catch(CancelException e){
                         return null;
                     }
                     
-                    InterpreterInfo info = new InterpreterInfo(infoVersion, infoExecutable, selection, new ArrayList<String>(), forcedLibs, envVars, stringSubstitutionVars);
+                    InterpreterInfo info = new InterpreterInfo(
+                    		infoVersion, infoExecutable, selection, new ArrayList<String>(), forcedLibs, envVars, stringSubstitutionVars);
                     info.setName(infoName);
                     for(String s:predefinedPaths){
                         info.addPredefinedCompletionsPath(s);
@@ -404,7 +451,79 @@ public class InterpreterInfo implements IInterpreterInfo{
             
         }
     }
+	
+	/**
+	 * Add additions that are not already in col
+	 */
+	private static void addUnique(Collection<String> col, Collection<String> additions) {
+		for (String string : additions) {
+			if (!col.contains(string)) {
+				col.add(string);
+			}
+		}
+	}
 
+
+	/**
+	 *  Implementation of extension point to get all additions.
+	 */
+	private static class AdditionalEntries implements IInterpreterNewCustomEntries {
+		private final List<IInterpreterNewCustomEntries> fParticipants;
+		
+		@SuppressWarnings("unchecked")
+		AdditionalEntries(){
+			fParticipants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_NEW_CUSTOM_ENTRIES);
+		}
+
+		public Collection<String> getAdditionalLibraries() {
+			final Collection<String> additions = new ArrayList<String>();
+			for (final IInterpreterNewCustomEntries newEntriesProvider : fParticipants) {
+				SafeRunner.run(new SafeRunnable() {
+					public void run() {
+						additions.addAll(newEntriesProvider.getAdditionalLibraries());
+					}
+				});
+			}
+			return additions;
+		}
+
+		public Collection<String> getAdditionalEnvVariables() {
+			final Collection<String> additions = new ArrayList<String>();
+			for (final IInterpreterNewCustomEntries newEntriesProvider : fParticipants) {
+				SafeRunner.run(new SafeRunnable() {
+					public void run() {
+						additions.addAll(newEntriesProvider.getAdditionalEnvVariables());
+					}
+				});
+			}
+			return additions;
+		}
+
+		public Collection<String> getAdditionalBuiltins() {
+			final Collection<String> additions = new ArrayList<String>();
+			for (final IInterpreterNewCustomEntries newEntriesProvider : fParticipants) {
+				SafeRunner.run(new SafeRunnable() {
+					public void run() {
+						additions.addAll(newEntriesProvider.getAdditionalBuiltins());
+					}
+				});
+			}
+			return additions;
+		}
+
+		public Map<String, String> getAdditionalStringSubstitutionVariables() {
+			final Map<String, String> additions = new HashMap<String, String>();
+			for (final IInterpreterNewCustomEntries newEntriesProvider : fParticipants) {
+				SafeRunner.run(new SafeRunnable() {
+					public void run() {
+						additions.putAll(newEntriesProvider.getAdditionalStringSubstitutionVariables());
+					}
+				});
+			}
+			return additions;
+		}
+		
+	}
     
     private static Node getNode(NodeList nodeList, String string) {
         for(int i=0;i<nodeList.getLength();i++){

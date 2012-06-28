@@ -1033,6 +1033,7 @@
    <extension-point id="pydev_completion" name="PyDev completion" schema="schema/pydev_completion.exsd"/>
    <extension-point id="pydev_modules_observer" name="PyDev modules observer" schema="schema/pydev_modules_observer.exsd"/>
    <extension-point id="pydev_interpreter_observer" name="PyDev Interpreter Observer" schema="schema/pydev_interpreter_observer.exsd"/>
+   <extension-point id="pydev_interpreter_new_custom_entries" name="PyDev Interpreter New Custom Entries" schema="schema/pydev_interpreter_new_custom_entries.exsd"/>
    <extension-point id="pydev_view_created_observer" name="PyDev view created observer" schema="schema/pydev_view_created_observer.exsd"/>
    <extension-point id="pydev_ctrl_1" name="PyDev M11 participant" schema="schema/pydev_ctrl_1.exsd"/>
    <extension-point id="pydev_simpleassist" name="PyDev Simple Assist" schema="schema/pydev_simpleassist.exsd"/>
@@ -1718,7 +1719,7 @@ import pydevd;pydevd.settrace()</pattern>
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.pydevd_patch_django_auto_reload">
 <pattern>import sys;sys.path.append(r'${pydevd_dir_location}')
-import pydevd;pydevd.patch_django_autoreload()</pattern>
+import pydevd;pydevd.patch_django_autoreload(patch_remote_debugger=True, patch_show_console=True)</pattern>
       </template>
       <template
             autoinsert="true"

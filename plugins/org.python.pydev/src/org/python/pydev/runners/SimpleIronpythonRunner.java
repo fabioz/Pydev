@@ -48,7 +48,7 @@ public class SimpleIronpythonRunner extends SimpleRunner {
      */
     public Tuple<String,String> runAndGetOutputFromPythonScript(String interpreter, String script, String[] args, File workingDir, IProject project) {
         String[] parameters = addInterpreterToArgs(interpreter, script, args);
-        return runAndGetOutput(parameters, workingDir, PythonNature.getPythonNature(project), new NullProgressMonitor());
+        return runAndGetOutput(parameters, workingDir, PythonNature.getPythonNature(project), new NullProgressMonitor(), null);
     }
 
     /**
@@ -81,13 +81,13 @@ public class SimpleIronpythonRunner extends SimpleRunner {
      * 
      * @return the stdout of the run (if any)
      */
-    public Tuple<String,String> runAndGetOutputWithInterpreter(String interpreter, String script, String[] args, File workingDir, IProject project, IProgressMonitor monitor) {
+    public Tuple<String,String> runAndGetOutputWithInterpreter(String interpreter, String script, String[] args, File workingDir, IProject project, IProgressMonitor monitor, String encoding) {
         monitor.setTaskName("Mounting executable string...");
         monitor.worked(5);
         
         String[] s = preparePythonCallParameters(interpreter, script, args, true);
         monitor.worked(1);
-        return runAndGetOutput(s, workingDir, PythonNature.getPythonNature(project), monitor);
+        return runAndGetOutput(s, workingDir, PythonNature.getPythonNature(project), monitor, encoding);
     }
 
     /**

@@ -24,6 +24,7 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
@@ -99,7 +100,7 @@ public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor{
     }
     
     @Override
-    public void visitChangedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
+    public void visitChangedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {
         //Ignore: for pyc files we only care about their addition.
     }
     
@@ -108,7 +109,7 @@ public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor{
      * When a .pyc/$py.class file is found, we remove it if it doesn't have the correspondent .py or .pyw class.
      */
     @Override
-    public void visitAddedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
+    public void visitAddedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {
         switch(pycDeleteHandling){
             case PyDevBuilderPrefPage.PYC_NEVER_DELETE:
                 //See: never delete!
@@ -181,7 +182,7 @@ public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor{
      * When a .py file is removed (which is what we check for), we go on and remove the .pyc file too.
      */
     @Override
-    public void visitRemovedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
+    public void visitRemovedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {
         switch(pycDeleteHandling){
             case PyDevBuilderPrefPage.PYC_NEVER_DELETE:
                 //See: never delete!

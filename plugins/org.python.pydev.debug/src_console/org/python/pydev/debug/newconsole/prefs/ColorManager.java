@@ -323,7 +323,28 @@ public class ColorManager {
     	Color color = getPreferenceColor(PydevConsoleConstants.CONSOLE_BACKGROUND_COLOR);
     	return color;
     }
-    
+
+	/**
+	 * Default background color for debug console is set to light gray so that
+	 * the user is able to quickly differentiate between a REPL window and the
+	 * existing console window
+	 * 
+	 * @return
+	 */
+    @SuppressWarnings("unchecked")
+    public Color getDebugConsoleBackgroundColor() {
+    	List<IPydevPreferencesProvider> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
+    	for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
+    		RGB textAttribute = iPydevPreferencesProvider.getConsoleBackgroundRGB();
+    		if(textAttribute != null){
+    			return getColor(textAttribute);
+    		}
+    	}
+    	Color color = getPreferenceColor(PydevConsoleConstants.DEBUG_CONSOLE_BACKGROUND_COLOR);
+    	return color;
+    }
+
+
     @SuppressWarnings("unchecked")
     public TextAttribute getHyperlinkTextAttribute() {
         List<IPydevPreferencesProvider> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);

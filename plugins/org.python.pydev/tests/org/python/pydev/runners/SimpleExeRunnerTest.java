@@ -27,7 +27,7 @@ public class SimpleExeRunnerTest extends CodeCompletionTestsBase{
         if(TestDependent.CYGWIN_CYGPATH_LOCATION != null){
             SimpleExeRunner runner = new SimpleExeRunner();
             Tuple<String, String> tup = runner.runAndGetOutput(new String[] { TestDependent.CYGWIN_CYGPATH_LOCATION,
-                    TestDependent.CYGWIN_CYGPATH_LOCATION }, null, null, null);
+                    TestDependent.CYGWIN_CYGPATH_LOCATION }, null, null, null, "utf-8");
             assertEquals(TestDependent.CYGWIN_UNIX_CYGPATH_LOCATION, tup.o1.trim());
             assertEquals("", tup.o2);
         }
