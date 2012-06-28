@@ -4,7 +4,7 @@
 
 set BRANCH=development
 
-set BASE_LOCAL_PYDEV_GIT=D:\workspaces\pydev
+set BASE_LOCAL_PYDEV_GIT=x:\pydev
 set BUILD_DIR=W:\git_build_dir
 set DEPLOY_DIR=W:\git_deploy_dir
 set JAVA_HOME=D:\bin\jdk1.5.0_22
