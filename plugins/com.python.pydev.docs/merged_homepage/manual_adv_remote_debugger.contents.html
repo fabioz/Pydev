@@ -62,12 +62,12 @@
 <span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">sys</span>;sys<span style="color: #666666">.</span>path<span style="color: #666666">.</span>append(<span style="color: #BA2121">r&#39;path_to\pydev\plugins\org.python.pydev.debug\pysrc&#39;</span>)
 
 <span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">pydevd</span>
-pydevd<span style="color: #666666">.</span>patch_django_autoreload()
+pydevd<span style="color: #666666">.</span>patch_django_autoreload(patch_remote_debugger<span style="color: #666666">=</span><span style="color: #008000">True</span>, patch_show_console<span style="color: #666666">=</span><span style="color: #008000">True</span>)
 </pre></div>
 
 </div></div>
 
-<p>are added <b>BEFORE</b> the <b>if _<em>name</em>_ == "_<em>main</em>_"</b>. Note: this was added in PyDev 2.1.1.</p>
+<p>are added <b>BEFORE</b> the <b>if _<em>name</em>_ == "_<em>main</em>_"</b>.</p>
 
 <p>With that change, the breakpoints should be gotten whenever a run is done (note that from now on, launches should only be done in <b>'regular' mode</b> from now on and the debug server must be already started in the Eclipse side).</p>
 
@@ -75,6 +75,7 @@ pydevd<span style="color: #666666">.</span>patch_django_autoreload()
 
 <p>An interesting thing to note is that when you kill the 'parent django' process from Eclipse, the subprocesses it created won't be terminated at the same time, but they should be terminated when a code-change is done (in which case the parent process would create a new 'reload process', if it was still alive). </p>
 
+<p>Note that the <b>patch_show_console=True</b> will make a separate window be shown for each process (and not be shown in Eclipse itself) &#8211; it has a benefit that you'll be able to stop the process with Ctrl+C in that window and the downside that you won't have the output in the Eclipse console.</p>
 
 <h1><a name="PyDevRemoteDebugger-ImportantNotes"></a>Important Notes</h1>
 
