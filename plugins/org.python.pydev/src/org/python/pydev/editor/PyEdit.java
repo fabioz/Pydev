@@ -1419,14 +1419,14 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         //I couldn't really reproduce this issue, so, this may not fix it...
         //
         //Details: https://sourceforge.net/projects/pydev/forums/forum/293649/topic/4477776
-        RunInUiThread.async(new Runnable() {
-            
-            public void run() {
-                if(!isDisposed()){
-                    getSourceViewer().invalidateTextPresentation();
-                }
-            }
-        });
+//        RunInUiThread.async(new Runnable() {
+//            
+//            public void run() {
+//                if(!isDisposed()){
+//                    getSourceViewer().invalidateTextPresentation();
+//                }
+//            }
+//        });
     }
 
 
