@@ -129,7 +129,7 @@ public class PyParser implements IPyParser {
     /**
      * This is the version of the grammar that should be used for this parser
      */
-    private IGrammarVersionProvider grammarVersionProvider;
+    private final IGrammarVersionProvider grammarVersionProvider;
 
     /**
      * Identifies whether this parser is disposed.
@@ -161,6 +161,11 @@ public class PyParser implements IPyParser {
         }
     }
 
+    
+    public int getGrammarVersion() throws MisconfigurationException {
+		return grammarVersionProvider.getGrammarVersion();
+	}
+    
     /**
      * Should only be called for testing. Does not register as a thread.
      */
@@ -425,7 +430,7 @@ public class PyParser implements IPyParser {
             version = IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
         }
         long documentTime = System.currentTimeMillis();
-        Tuple<SimpleNode, Throwable> obj = reparseDocument(new ParserInfo(document, version));
+        Tuple<SimpleNode, Throwable> obj = reparseDocument(new ParserInfo(document, version, true));
         
         IFile original = null;
         IAdaptable adaptable = null;
@@ -531,10 +536,15 @@ public class PyParser implements IPyParser {
         public final File file;
         
         /**
+         * Whether we should generate the tree as a parse result or we're just interested in errors.
+         */
+        public final boolean generateTree;
+        
+        /**
          * @param grammarVersion: see IPythonNature.GRAMMAR_XXX constants
          */
         public ParserInfo(IDocument document, int grammarVersion){
-            this(document, grammarVersion, null, null);
+            this(document, grammarVersion, null, null, true);
         }
         
         public ParserInfo(IDocument document, IGrammarVersionProvider nature) throws MisconfigurationException{
@@ -542,24 +552,38 @@ public class PyParser implements IPyParser {
         }
         
         public ParserInfo(IDocument document, IGrammarVersionProvider nature, String moduleName, File file) throws MisconfigurationException{
-            this(document, nature.getGrammarVersion(), moduleName, file);
+            this(document, nature.getGrammarVersion(), moduleName, file, true);
         }
         
 
-        public ParserInfo(IDocument document, int grammarVersion, String name, File f) {
+        public ParserInfo(IDocument document, int grammarVersion, String name, File f, boolean generateTree) {
             this.document = document;
             this.grammarVersion = grammarVersion;
             this.moduleName = name;
             this.file = f;
+            this.generateTree = generateTree;
         }
         
-        public String toString() {
+        public ParserInfo(IDocument document,
+				IGrammarVersionProvider grammarProvider, boolean generateTree) throws MisconfigurationException {
+        	this(document, grammarProvider.getGrammarVersion(), null, null, generateTree);
+		}
+        
+        public ParserInfo(IDocument document, int grammarVersion, boolean generateTree) {
+        	this(document, grammarVersion, null, null, generateTree);
+        }
+
+        
+		public String toString() {
             StringBuffer buf = new StringBuffer();
             buf.append("ParserInfo [");
             buf.append("file:");
             buf.append(file);
             buf.append("\nmoduleName:");
             buf.append(moduleName);
+            if(!generateTree){
+            	buf.append(" NOT GENERATING TREE");
+            }
             buf.append("]");
             return buf.toString();
         }
@@ -616,24 +640,24 @@ public class PyParser implements IPyParser {
         Tuple<SimpleNode, Throwable> returnVar = new Tuple<SimpleNode, Throwable>(null, null);
         IGrammar grammar = null;
         try {
-            
+            boolean generateTree = info.generateTree;
             switch(info.grammarVersion){
                 case IPythonNature.GRAMMAR_PYTHON_VERSION_2_4:
-                    grammar = new PythonGrammar24(in);
+                    grammar = new PythonGrammar24(generateTree, in);
                     break;
                 case IPythonNature.GRAMMAR_PYTHON_VERSION_2_5:
-                    grammar = new PythonGrammar25(in);
+                    grammar = new PythonGrammar25(generateTree, in);
                     break;
                 case IPythonNature.GRAMMAR_PYTHON_VERSION_2_6:
-                    grammar = new PythonGrammar26(in);
+                    grammar = new PythonGrammar26(generateTree, in);
                     break;
                 case IPythonNature.GRAMMAR_PYTHON_VERSION_2_7:
-                    grammar = new PythonGrammar27(in);
+                    grammar = new PythonGrammar27(generateTree, in);
                     break;
                 case IPythonNature.GRAMMAR_PYTHON_VERSION_3_0:
-                    grammar = new PythonGrammar30(in);
+                    grammar = new PythonGrammar30(generateTree, in);
                     break;
-                //case CYTHON: already treated in the beggining of this method.
+                //case CYTHON: already treated in the beginning of this method.
                 default:
                     throw new RuntimeException("The grammar specified for parsing is not valid: "+info.grammarVersion);
             }

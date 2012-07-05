@@ -84,6 +84,9 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
      */
     public AbstractTreeBuilder(JJTPythonGrammarState stack) {
         super(stack);
+        if(!stack.getGrammar().generateTree){
+        	throw new AssertionError("Should not create a tree builder if the grammar won't generate the AST.");
+        }
     }
     
 

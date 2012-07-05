@@ -17,10 +17,10 @@ import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
 
-public final class JJTPythonGrammarState implements IJJTPythonGrammarState{
+public final class JJTPythonGrammarState extends AbstractJJTPythonGrammarState implements IJJTPythonGrammarState{
 
 
-    private final boolean DEBUG = false;
+    private final static boolean DEBUG = false;
     private int debugLevel = 0;
     
     
@@ -33,7 +33,6 @@ public final class JJTPythonGrammarState implements IJJTPythonGrammarState{
     protected int mk; // current mark
     protected boolean node_created;
 
-    public final ITreeBuilder builder;
     private final AbstractPythonGrammar grammar;
 
     public JJTPythonGrammarState(Class<?> treeBuilderClass, AbstractPythonGrammar grammar) {
@@ -57,31 +56,11 @@ public final class JJTPythonGrammarState implements IJJTPythonGrammarState{
         return grammar;
     }
     
+    @Override
     public final SimpleNode getLastOpened() {
         return this.builder.getLastOpened();
     }
 
-    /* Determines whether the current node was actually closed and
-       pushed.  This should only be called in the final user action of a
-       node scope.  */
-    public boolean nodeCreated() {
-        return node_created;
-    }
-
-    /* Call this to reinitialize the node stack.  It is called
-    automatically by the parser's ReInit() method. */
-    public void reset() {
-        nodes.removeAllElements();
-        marks.removeAllElements();
-        sp = 0;
-        mk = 0;
-    }
-
-    /* Returns the root node of the AST.  It only makes sense to call
-       this after a successful parse. */
-    public Node rootNode() {
-        return nodes.getFirst();
-    }
 
     /* Pushes a node on to the stack. */
     private void pushNode(Node n, SimpleNode created, int line, int col) {
@@ -103,6 +82,7 @@ public final class JJTPythonGrammarState implements IJJTPythonGrammarState{
      * 
      * (so, in this case, clearNodeScope will be called before the popNode).
      */
+    @Override
     public SimpleNode popNode() {
         if (--sp < mk) {
             clearMark();
@@ -112,17 +92,20 @@ public final class JJTPythonGrammarState implements IJJTPythonGrammarState{
     
     
     /* Returns the node currently on the top of the stack. */
+    @Override
     public SimpleNode peekNode() {
         return nodes.peek();
     }
     
     /* Returns the node currently on the top of the stack. */
+    @Override
     public SimpleNode peekNode(int i) {
         return nodes.peek(i);
     }
 
     /* Returns the number of children on the stack in the current node
        scope. */
+    @Override
     public int nodeArity() {
         return sp - mk;
     }
@@ -134,6 +117,7 @@ public final class JJTPythonGrammarState implements IJJTPythonGrammarState{
      * 
      * Note that the popNode may still be called after this method.
      */
+    @Override
     public void clearNodeScope(Node n) {
     	if (DEBUG) {
     		debugLevel -= 1;
@@ -153,6 +137,7 @@ public final class JJTPythonGrammarState implements IJJTPythonGrammarState{
     /**
      * Open a new scope (which may result in a new SimpleNode if the close is properly called later on).
      */
+    @Override
     public void openNodeScope(Node n) {
     	Token t = this.grammar.getToken(1);
 
@@ -174,6 +159,7 @@ public final class JJTPythonGrammarState implements IJJTPythonGrammarState{
        children.  That number of nodes are popped from the stack and
        made the children of the definite node.  Then the definite node
        is pushed on to the stack. */
+    @Override
     public void closeNodeScope(final Node n, int num) throws ParseException {
     	if (DEBUG) {
     		debugLevel -= 1;
@@ -214,6 +200,7 @@ public final class JJTPythonGrammarState implements IJJTPythonGrammarState{
     made children of the the conditional node, which is then pushed
     on to the stack.  If the condition is false the node is not
     constructed and they are left on the stack. */
+    @Override
     public void closeNodeScope(final Node n, boolean condition) throws ParseException {
     	if (DEBUG) {
     		debugLevel -= 1;
@@ -270,17 +257,6 @@ public final class JJTPythonGrammarState implements IJJTPythonGrammarState{
         }
     }
 
-    /**
-     * @return true if the last scope found has the same indent or a lower indent from the scope just before it.
-     * false is returned if the last scope has a higher indent than the scope before it.
-     */
-    public boolean lastIsNewScope() {
-        int size = this.columns.size();
-        if(size > 1){
-            return this.columns.elementAt(size-1) <= this.columns.elementAt(size-2);
-        }
-        return true;
-    }
 
 
 }
@@ -290,7 +266,7 @@ public final class JJTPythonGrammarState implements IJJTPythonGrammarState{
  * IntStack implementation. During all the tests, it didn't have it's size raised,
  * so, 50 is probably a good overall size... (max on python lib was 40)
  */
-class IntStack {
+final class IntStack {
     int[] stack;
     int sp = 0;
 
