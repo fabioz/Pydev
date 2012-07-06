@@ -15,9 +15,11 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
+import org.python.pydev.parser.PyParser.ParserInfo;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
@@ -113,13 +115,31 @@ public class PyParserTestBase extends TestCase {
     }
 
     
+    protected void parseLegalDocStrWithoutTree(String s, Object ... additionalErrInfo) {
+    	try {
+			parseLegalDoc(new Document(s), additionalErrInfo, parser.getGrammarVersion(), false);
+		} catch (MisconfigurationException e) {
+			throw new RuntimeException(e);
+		}
+	}
+    
+    protected static SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo, PyParser parser) {
+    	try {
+			return parseLegalDoc(doc, additionalErrInfo, parser.getGrammarVersion(), true);
+		} catch (MisconfigurationException e) {
+			throw new RuntimeException(e);
+		}
+    }
+    
     /**
      * @param additionalErrInfo can be used to add additional errors to the fail message if the doc is not parseable
      * @param parser the parser to be used to do the parsing.
      */
-    protected static SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo, PyParser parser) {
-        parser.setDocument(doc, false, null);
-        Tuple<SimpleNode, Throwable> objects = parser.reparseDocument();
+    protected static SimpleNode parseLegalDoc(
+    		IDocument doc, Object[] additionalErrInfo, int grammarVersion, boolean generateTree) {
+        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(
+        		new ParserInfo(doc, grammarVersion, generateTree));
+		
         Object err = objects.o2;
         if(err != null){
             String s = "";
@@ -138,28 +158,66 @@ public class PyParserTestBase extends TestCase {
              
             fail("Expected no error, received:\n"+err+"\n"+s);
         }
-        assertNotNull(objects.o1);
+        if(generateTree){
+        	if(objects.o1 == null){
+        		String s = "";
+        		for (int i = 0; i < additionalErrInfo.length; i++) {
+        			s += additionalErrInfo[i];
+        		}
+        		fail("AST not generated! "+s);
+        	}
+        }
         return objects.o1;
     }
 
     public void testEmpty() throws Throwable {
     }
     
+    protected void parseFilesInDir(File dir, boolean recursive) {
+    	parseFilesInDir(dir, recursive, true);
+    }
+    
     /**
      * @param dir the directory that should have .py files found and parsed. 
      */
-    protected void parseFilesInDir(File dir, boolean recursive) {
+    protected void parseFilesInDir(File dir, boolean recursive, boolean generateTree) {
         assertTrue("Directory "+dir+" does not exist", dir.exists());
         assertTrue(dir.isDirectory());
         
         File[] files = dir.listFiles();
         for (int i = 0; i < files.length; i++) {
             File f = files[i];
-            if(f.getAbsolutePath().toLowerCase().endsWith(".py")){
-                parseLegalDocStr(REF.getFileContents(f), f);
+            String name = f.getName().toLowerCase();
+            if(name.endsWith(".py")){
+            	//Used for stress-testing: parsing all files in Python installation.
+//            	try {
+//					if(name.equals("func_syntax_error.py")){
+//						continue;
+//					}
+//					if(name.equals("badsyntax_nocaret.py")){
+//						continue;
+//					}
+//					if(name.equals("py3_test_grammar.py") && parser.getGrammarVersion() < IPythonNature.GRAMMAR_PYTHON_VERSION_3_0){
+//						continue;
+//					}
+//					String absolute = f.getAbsolutePath().toLowerCase();
+//					if(absolute.contains("pylint") && absolute.contains("test")){
+//						continue;
+//					}
+//					if(absolute.contains("port_v3")){
+//						continue;
+//					}
+//				} catch (MisconfigurationException e) {
+//					throw new RuntimeException(e);
+//				}
+            	if(generateTree){
+            		parseLegalDocStr(REF.getFileContents(f), f);
+            	}else{
+            		parseLegalDocStrWithoutTree(REF.getFileContents(f), f);
+            	}
                 
             }else if(recursive && f.isDirectory()){
-                parseFilesInDir(f, recursive);
+                parseFilesInDir(f, recursive, generateTree);
             }
         }
     }
@@ -174,7 +232,8 @@ public class PyParserTestBase extends TestCase {
         for(Iterator<Integer> it = IGrammarVersionProvider.grammarVersions.iterator();it.hasNext();){
             //try with all the grammars
             final Integer i = it.next();
-            PyParser.DEBUG_SHOW_PARSE_ERRORS = true;
+            boolean prev = PyParser.DEBUG_SHOW_PARSE_ERRORS;
+			PyParser.DEBUG_SHOW_PARSE_ERRORS = true;
 //            if(i != IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4){
 //                continue;
 //            }
@@ -185,6 +244,8 @@ public class PyParserTestBase extends TestCase {
                 System.out.println("\nFound error while parsing with version: "+
                         IGrammarVersionProvider.grammarVersionToRep.get(i));
                 throw e;
+            }finally{
+            	PyParser.DEBUG_SHOW_PARSE_ERRORS = prev;
             }
         }
     }

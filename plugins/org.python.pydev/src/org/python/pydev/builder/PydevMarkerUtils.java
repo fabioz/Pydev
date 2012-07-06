@@ -220,7 +220,11 @@ public class PydevMarkerUtils {
      * @param monitor used to check whether this process should be canceled.
      */
     public static void replaceMarkers(
-            final List<MarkerInfo> lst, final IResource resource, final String markerType, final boolean removeUserEditable, IProgressMonitor monitor) {
+            final List<MarkerInfo> lst, 
+            final IResource resource, 
+            final String markerType, 
+            final boolean removeUserEditable, 
+            IProgressMonitor monitor) {
         IWorkspaceRunnable r = new IWorkspaceRunnable() {
             
             public void run(IProgressMonitor monitor) throws CoreException {
@@ -262,7 +266,11 @@ public class PydevMarkerUtils {
             }
         };
         try {
-            resource.getWorkspace().run(r, null,IWorkspace.AVOID_UPDATE, null);
+			resource.getWorkspace().run(
+					r,
+					ResourcesPlugin.getWorkspace().getRuleFactory().markerRule(resource),
+					IWorkspace.AVOID_UPDATE, 
+					monitor);
         } catch (Exception e) {
             Log.log(e);
         }

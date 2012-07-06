@@ -23,19 +23,24 @@ options
 PARSER_BEGIN(PythonGrammar25)
 package org.python.pydev.parser.grammar25;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.IGrammar;
+import org.python.pydev.parser.grammarcommon.AbstractJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
 import org.python.pydev.parser.grammarcommon.AbstractTokenManager;
+import org.python.pydev.parser.grammarcommon.EmptySuiteException;
 import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
+import org.python.pydev.parser.grammarcommon.ITreeBuilder;
+import org.python.pydev.parser.grammarcommon.JJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.JfpDef;
 import org.python.pydev.parser.grammarcommon.WithNameInvalidException;
 import org.python.pydev.parser.jython.CharStream;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
+import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
@@ -44,9 +49,6 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
-import org.python.pydev.parser.jython.TokenMgrError;
-import org.python.pydev.parser.grammarcommon.JJTPythonGrammarState;
-import org.python.pydev.parser.grammarcommon.EmptySuiteException;
 
 
 
@@ -56,6 +58,8 @@ public final class PythonGrammar25 extends AbstractPythonGrammar implements IGra
 
     
     private final FastStringBuffer dottedNameStringBuffer = new FastStringBuffer();
+    
+    private final ITreeBuilder builder;
     
     /**
      * @return the current token found.
@@ -75,7 +79,7 @@ public final class PythonGrammar25 extends AbstractPythonGrammar implements IGra
     /**
      * @return the jjtree from this grammar
      */
-    protected final IJJTPythonGrammarState getJJTree(){
+    protected final AbstractJJTPythonGrammarState getJJTree(){
         return jjtree;
     }
 
@@ -499,53 +503,53 @@ modType file_input(): {}
 void funcdef(): {}
 { 
     decorators()
-    <DEF> {this.markLastAsSuiteStart();} Name() parameters() {this.findTokenAndAdd(":");}<COLON> suite() 
+    <DEF> {this.markLastAsSuiteStart();} Name() parameters() {grammarActions.findTokenAndAdd(":");}<COLON> suite() 
 }
 
 //@ call, name, attr ... <nl>
 void decorators(): {}
 {
-    (begin_decorator() [{this.markDecoratorWithCall();} <LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} insidetuporcall() try{{this.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);} ] try{<NEWLINE>}catch(ParseException e){handleNoNewline(e);} )* 
+    (begin_decorator() [{grammarActions.markDecoratorWithCall();} <LPAREN>  {grammarActions.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} insidetuporcall() try{{grammarActions.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);} ] try{<NEWLINE>}catch(ParseException e){handleNoNewline(e);} )* 
 }
 void begin_decorator(): {}
-{ temporaryToken=<AT>  {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} dotted_name()
+{ temporaryToken=<AT>  {grammarActions.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} dotted_name()
 }
 
 //parameters: '(' [varargslist] ')'
 void parameters() #void: {}
-{ {findTokenAndAdd("(");}<LPAREN>
+{ {grammarActions.findTokenAndAdd("(");}<LPAREN>
   [varargslist()] 
-  try{{this.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);}
+  try{{grammarActions.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);}
   }
 
 //varargslist: (fpdef ['=' test] ',')* ('*' NAME [',' ('**'|'*' '*') NAME] | ('**'|'*' '*') NAME) | fpdef ['=' test] (',' fpdef ['=' test])* [',']
 void varargslist() #void: {}
 {
-    defaultarg() (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA> defaultarg())*
-        [LOOKAHEAD(3) {this.findTokenAndAdd(",");}<COMMA> ExtraArgList()]
-        [LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA> ExtraKeywordList()]
-        [{this.findTokenAndAdd(",");}<COMMA>]
-    |   ( LOOKAHEAD(2) ExtraArgList() [{this.findTokenAndAdd(",");}<COMMA> ExtraKeywordList()]
+    defaultarg() (LOOKAHEAD(2) {grammarActions.findTokenAndAdd(",");}<COMMA> defaultarg())*
+        [LOOKAHEAD(3) {grammarActions.findTokenAndAdd(",");}<COMMA> ExtraArgList()]
+        [LOOKAHEAD(2) {grammarActions.findTokenAndAdd(",");}<COMMA> ExtraKeywordList()]
+        [{grammarActions.findTokenAndAdd(",");}<COMMA>]
+    |   ( LOOKAHEAD(2) ExtraArgList() [{grammarActions.findTokenAndAdd(",");}<COMMA> ExtraKeywordList()]
     | ExtraKeywordList()
     )
 }
 
 void ExtraArgList(): {}
-{ <MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} Name() }
+{ <MULTIPLY> {grammarActions.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} Name() }
 
 void ExtraKeywordList(): {}
-{ (<POWER>{this.addSpecialToken("**", STRATEGY_BEFORE_NEXT);}|<MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);}{this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} <MULTIPLY>) Name() }
+{ (<POWER>{grammarActions.addSpecialToken("**", STRATEGY_BEFORE_NEXT);}|<MULTIPLY> {grammarActions.addSpecialToken("*", STRATEGY_BEFORE_NEXT);}{grammarActions.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} <MULTIPLY>) Name() }
 
 void defaultarg(): {}
-{ fpdef() [temporaryToken=<EQUAL> {this.prev.addSpecial(temporaryToken, true);} test()] }
+{ fpdef() [temporaryToken=<EQUAL> {grammarActions.addSpecialToPrev(temporaryToken, true);} test()] }
 
 //fpdef: NAME | '(' fplist ')'
 void fpdef() #void: {}
-{ Name() | {temporaryToken=createSpecialStr("(");}<LPAREN>  {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}   fplist() try{{this.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);}  }
+{ Name() | {temporaryToken=grammarActions.createSpecialStr("(");}<LPAREN>  {grammarActions.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}   fplist() try{{grammarActions.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);}  }
 
 //fplist: fpdef (',' fpdef)* [',']
 void fplist() #tuple: {}
-{ fpdef() (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA> fpdef())* [Comma()] }
+{ fpdef() (LOOKAHEAD(2) {grammarActions.findTokenAndAdd(",");}<COMMA> fpdef())* [Comma()] }
 
 
 
@@ -579,8 +583,8 @@ void stmt() #void: {}
 //simple_stmt: small_stmt (';' small_stmt)* [';'] NEWLINE
 void simple_stmt() #void: {}
 { 
-    small_stmt() (LOOKAHEAD(2) temporaryToken=<SEMICOLON>{this.addSpecialToken(temporaryToken);} small_stmt())* 
-    [temporaryToken=<SEMICOLON>{this.addSpecialToken(temporaryToken);}] 
+    small_stmt() (LOOKAHEAD(2) temporaryToken=<SEMICOLON>{grammarActions.addSpecialToken(temporaryToken);} small_stmt())* 
+    [temporaryToken=<SEMICOLON>{grammarActions.addSpecialToken(temporaryToken);}] 
     try{<NEWLINE>}catch(ParseException e){handleNoNewline(e);}
 }
 
@@ -592,12 +596,12 @@ void small_stmt() #void: {SimpleNode simpleNode;Token spStr;}
     expr_stmt()
 |   print_stmt()
 |   del_stmt()
-|   spStr=pass_stmt() {addToPeek(spStr, false); }
+|   spStr=pass_stmt() {grammarActions.addToPeek(spStr, false); }
 |   flow_stmt()
 |   import_stmt()
 |   global_stmt()
 |   exec_stmt()
-|   temporaryToken=<ASSERT> assert_stmt() {addToPeek(temporaryToken, false); }
+|   temporaryToken=<ASSERT> assert_stmt() {grammarActions.addToPeek(temporaryToken, false); }
 
 }
 
@@ -626,10 +630,10 @@ void expr_stmt() #void: {}
 void print_stmt() #void: {}
 {
     LOOKAHEAD(2) <PRINT> <RSHIFT>  
-    (test() [ (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA> test())+ [Comma()] ] )#printext_stmt
+    (test() [ (LOOKAHEAD(2) {grammarActions.findTokenAndAdd(",");}<COMMA> test())+ [Comma()] ] )#printext_stmt
     
 |   LOOKAHEAD(2) <PRINT> 
-    (test() (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA> test())* [Comma()])#print_stmt
+    (test() (LOOKAHEAD(2) {grammarActions.findTokenAndAdd(",");}<COMMA> test())* [Comma()])#print_stmt
 
 |   <PRINT>  #print_stmt
 
@@ -641,7 +645,7 @@ void del_stmt(): {}
 { begin_del_stmt() exprlist() }
 
 void begin_del_stmt(): {}
-{ temporaryToken=<DEL> {this.addToPeek(temporaryToken,false);}
+{ temporaryToken=<DEL> {this.grammarActions.addToPeek(temporaryToken,false);}
 }
 
 
@@ -654,8 +658,8 @@ Token pass_stmt(): {Token spStr;}
 //flow_stmt: break_stmt | continue_stmt | return_stmt | yield_stmt | raise_stmt
 void flow_stmt() #void: {}
 {
-    <BREAK> {addToPeek("break",true);} #break_stmt(0)
-|   <CONTINUE>  {addToPeek("continue",true);} #continue_stmt(0)
+    <BREAK> {grammarActions.addToPeek("break",true);} #break_stmt(0)
+|   <CONTINUE>  {grammarActions.addToPeek("continue",true);} #continue_stmt(0)
 |   return_stmt()
 |   yield_stmt()
 |   raise_stmt()
@@ -666,7 +670,7 @@ void return_stmt(): {}
 { begin_return_stmt() [SmartTestList()] }
 
 void begin_return_stmt(): {}
-{ <RETURN> {this.addToPeek("return ",false);}
+{ <RETURN> {this.grammarActions.addToPeek("return ",false);}
 }
 
 
@@ -677,12 +681,12 @@ void yield_stmt(): {}
 
 //yield_expr: 'yield' [testlist]
 void yield_expr(): {Token spStr;}
-{ spStr=<YIELD> [SmartTestList()] {this.addToPeek(spStr, false, Yield.class);}}
+{ spStr=<YIELD> [SmartTestList()] {this.grammarActions.addToPeek(spStr, false, Yield.class);}}
 
 
 //raise_stmt: 'raise' [test [',' test [',' test]]]
 void raise_stmt(): {}
-{ {temporaryToken=createSpecialStr("raise");}<RAISE> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} [test() [{this.findTokenAndAdd(",");}<COMMA> test() [{this.findTokenAndAdd(",");}<COMMA> test()]]] }
+{ {temporaryToken=grammarActions.createSpecialStr("raise");}<RAISE> {grammarActions.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} [test() [{grammarActions.findTokenAndAdd(",");}<COMMA> test() [{grammarActions.findTokenAndAdd(",");}<COMMA> test()]]] }
 
 
 
@@ -690,16 +694,16 @@ void raise_stmt(): {}
 void import_stmt() #void: {Import imp; Object spStr;}
 {  
     try{
-        spStr=<IMPORT> imp = Import() {imp.addSpecial(spStr,false);} 
+        spStr=<IMPORT> imp = Import() {if(imp!=null){imp.addSpecial(spStr,false);}} 
         |
-        {temporaryToken=createSpecialStr("from");}<FROM> {this.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);} ImportFrom()
+        {temporaryToken=grammarActions.createSpecialStr("from");}<FROM> {grammarActions.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);} ImportFrom()
     }catch(ParseException e){handleErrorInImport(e);}
 }
 
 
 
 Import Import(): {}
-{ dotted_as_name() ({this.findTokenAndAdd(",");}<COMMA> dotted_as_name())* 
+{ dotted_as_name() ({grammarActions.findTokenAndAdd(",");}<COMMA> dotted_as_name())* 
   {return (Import)jjtree.peekNode();}
 }
 
@@ -707,22 +711,22 @@ Import Import(): {}
 //              'import' ('*' | '(' import_as_names ')' | import_as_names))
 void ImportFrom(): { int level=0; int state=0;String fromName=null;String importName=null; }
 {
-    //we need to set the  {this.findTokenAndAdd("import");}<IMPORT> in both otherwise the lookahead will not work as we want it to work
+    //we need to set the  {grammarActions.findTokenAndAdd("import");}<IMPORT> in both otherwise the lookahead will not work as we want it to work
     //because it confuses the import with the dotted name
      (("." {level++;} )* (fromName=dotted_name())? )  {if(fromName==null && level==0){throw new ParseException("Expecting to find '.' or name in import.");}}
-     {this.findTokenAndAdd("import");}<IMPORT> 
+     {grammarActions.findTokenAndAdd("import");}<IMPORT> 
     
     (
         //from xxx import *
-        <MULTIPLY> {this.addSpecialToken("*",STRATEGY_ADD_AFTER_PREV);}//from xx import *
+        <MULTIPLY> {grammarActions.addSpecialToken("*",STRATEGY_ADD_AFTER_PREV);}//from xx import *
         
         //from xxx import a,b,c
         | (importName=import_as_name() {if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);} 
-        	({this.findTokenAndAdd(",");}<COMMA> (importName=import_as_name()){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);})* 
+        	({grammarActions.findTokenAndAdd(",");}<COMMA> (importName=import_as_name()){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);})* 
           ) 
         
         //from xxx import (a,b,c)
-        | {temporaryToken=createSpecialStr("(");}<LPAREN>  {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}   
+        | {temporaryToken=grammarActions.createSpecialStr("(");}<LPAREN>  {grammarActions.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}   
           (importName=import_as_name()){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);} 
           (
            ({
@@ -731,17 +735,17 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
              }
              state=1; 
              } 
-             {this.findTokenAndAdd(",");}<COMMA> ( {state=0;} (importName=import_as_name(){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);}))? )* 
-           try{{this.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);} 
+             {grammarActions.findTokenAndAdd(",");}<COMMA> ( {state=0;} (importName=import_as_name(){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);}))? )* 
+           try{{grammarActions.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);} 
           )
     )
     //now, let's set the correct level for the module
-    {((ImportFrom)jjtree.peekNode()).level = level;}
+    {grammarActions.setImportFromLevel(level);}
 }
 
 //dotted_as_name: dotted_name [NAME NAME]
 void dotted_as_name(): {}
-{ dotted_name() [{this.findTokenAndAdd("as");}<AS> Name()] }
+{ dotted_name() [{grammarActions.findTokenAndAdd("as");}<AS> Name()] }
 
 
 //dotted_name: NAME ('.' NAME)*
@@ -754,21 +758,21 @@ String dotted_name(): { Token t; FastStringBuffer sb = dottedNameStringBuffer.cl
 
 //import_as_name: NAME [NAME NAME]
 String import_as_name(): { Token t; }
-{ t=Name() [{this.findTokenAndAdd("as");}<AS> Name()] { return t.image; } }
+{ t=Name() [{grammarActions.findTokenAndAdd("as");}<AS> Name()] { return t.image; } }
 
 //global_stmt: 'global' NAME (',' NAME)*
 void global_stmt(): {}
-{ temporaryToken=<GLOBAL> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} Name() ({this.findTokenAndAdd(",");}<COMMA> Name())* }
+{ temporaryToken=<GLOBAL> {grammarActions.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} Name() ({grammarActions.findTokenAndAdd(",");}<COMMA> Name())* }
 
 //exec_stmt: 'exec' expr ['in' test [',' test]]
 void exec_stmt(): {}
-{ temporaryToken=<EXEC>{this.addSpecialTokenToLastOpened(temporaryToken);} expr() [temporaryToken=<IN>{this.addSpecialToken(temporaryToken);} test() [{this.findTokenAndAdd(",");}<COMMA> test()]] }
+{ temporaryToken=<EXEC>{grammarActions.addSpecialTokenToLastOpened(temporaryToken);} expr() [temporaryToken=<IN>{grammarActions.addSpecialToken(temporaryToken);} test() [{grammarActions.findTokenAndAdd(",");}<COMMA> test()]] }
 
 
 
 //assert_stmt: 'assert' test [',' test]
 void assert_stmt(): {}
-{ test() [{this.findTokenAndAdd(",");}<COMMA> test()] }
+{ test() [{grammarActions.findTokenAndAdd(",");}<COMMA> test()] }
 
 
 
@@ -785,27 +789,27 @@ void compound_stmt() #void : {}
 //if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
 void if_stmt(): {Object[] elseToks;}
 {
-    temporaryToken=<IF> {this.markLastAsSuiteStart();} {this.addSpecialTokenToLastOpened(temporaryToken);} test() {this.findTokenAndAdd(":");}<COLON> suite()
-         (begin_elif_stmt() test() {this.findTokenAndAdd(":");}<COLON> suite())* 
-             [ elseToks=begin_else_stmt() suite() {addToPeek(elseToks[0], false, Suite.class);addToPeek(elseToks[1], false, Suite.class);}]
+    temporaryToken=<IF> {this.markLastAsSuiteStart();} {grammarActions.addSpecialTokenToLastOpened(temporaryToken);} test() {grammarActions.findTokenAndAdd(":");}<COLON> suite()
+         (begin_elif_stmt() test() {grammarActions.findTokenAndAdd(":");}<COLON> suite())* 
+             [ elseToks=begin_else_stmt() suite() {grammarActions.addToPeek(elseToks[0], false, Suite.class);grammarActions.addToPeek(elseToks[1], false, Suite.class);}]
 }
 
 
 
 
 void begin_elif_stmt(): {}
-{ <ELIF> {this.addToPeek("elif",false);}
+{ <ELIF> {this.grammarActions.addToPeek("elif",false);}
 }
 
 
 
 //while_stmt: 'while' test ':' suite ['else' ':' suite]
 void while_stmt(): {Object[] elseToks;}
-{ begin_while_stmt() test() {this.findTokenAndAdd(":");}<COLON> suite() 
-  [ elseToks=begin_else_stmt()  suite() {addToPeek(elseToks[0], false, Suite.class);addToPeek(elseToks[1], false, Suite.class);}] }
+{ begin_while_stmt() test() {grammarActions.findTokenAndAdd(":");}<COLON> suite() 
+  [ elseToks=begin_else_stmt()  suite() {grammarActions.addToPeek(elseToks[0], false, Suite.class);grammarActions.addToPeek(elseToks[1], false, Suite.class);}] }
 
 void begin_while_stmt(): {}
-{ temporaryToken=<WHILE>{this.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);} {this.markLastAsSuiteStart();}
+{ temporaryToken=<WHILE>{grammarActions.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);} {this.markLastAsSuiteStart();}
 }
 
 
@@ -818,14 +822,14 @@ Object[] begin_else_stmt(): {Object o1, o2;}
 
 //for_stmt: 'for' exprlist 'in' testlist ':' suite ['else' ':' suite]
 void for_stmt(): {}
-{   <FOR> {this.markLastAsSuiteStart();} {this.addSpecialTokenToLastOpened("for ");} exprlist() {this.findTokenAndAdd("in");}<IN>  SmartTestList() {this.findTokenAndAdd(":");}<COLON> suite()
+{   <FOR> {this.markLastAsSuiteStart();} {grammarActions.addSpecialTokenToLastOpened("for ");} exprlist() {grammarActions.findTokenAndAdd("in");}<IN>  SmartTestList() {grammarActions.findTokenAndAdd(":");}<COLON> suite()
     [begin_for_else_stmt() suite()]
     
 } 
 
 
 void begin_for_else_stmt(): {}
-{ <ELSE> {this.addSpecialToken("else",STRATEGY_BEFORE_NEXT);} {this.addSpecialToken(":",STRATEGY_BEFORE_NEXT);} <COLON>  
+{ <ELSE> {grammarActions.addSpecialToken("else",STRATEGY_BEFORE_NEXT);} {grammarActions.addSpecialToken(":",STRATEGY_BEFORE_NEXT);} <COLON>  
 }
 //try_stmt: ('try' ':' suite (except_clause ':' suite)+ #diagram:break
 //           ['else' ':' suite] | 'try' ':' suite 'finally' ':' suite)
@@ -849,19 +853,19 @@ void try_stmt() #void: {SimpleNode tryNode;int i=0;}
 
 //this is the 'try' ':'  it is needed because we need that scope closing for getting the specials.
 void begin_try_stmt(): {}
-{ <TRY> {this.markLastAsSuiteStart();} {this.addSpecialToken("try", STRATEGY_BEFORE_NEXT);} {this.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} <COLON> 
+{ <TRY> {this.markLastAsSuiteStart();} {grammarActions.addSpecialToken("try", STRATEGY_BEFORE_NEXT);} {grammarActions.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} <COLON> 
 }
 void begin_try_else_stmt(): {}
-{ <ELSE> {this.addSpecialToken("else", STRATEGY_BEFORE_NEXT);}{this.addSpecialToken(":", STRATEGY_BEFORE_NEXT);}<COLON>
+{ <ELSE> {grammarActions.addSpecialToken("else", STRATEGY_BEFORE_NEXT);}{grammarActions.addSpecialToken(":", STRATEGY_BEFORE_NEXT);}<COLON>
 }
 
 void begin_finally_stmt(): {}
-{ <FINALLY> {this.addSpecialToken("finally", STRATEGY_BEFORE_NEXT);} {this.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} <COLON> 
+{ <FINALLY> {grammarActions.addSpecialToken("finally", STRATEGY_BEFORE_NEXT);} {grammarActions.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} <COLON> 
 }
 
 //except_clause: 'except' [test [',' test]]
 void except_clause(SimpleNode tryNode): {}
-{ begin_except_clause() {this.addToPeek("except",false);} [test() [{this.findTokenAndAdd(",");}<COMMA> test()]] {this.findTokenAndAdd(":");}<COLON> suite() }
+{ begin_except_clause() {this.grammarActions.addToPeek("except",false);} [test() [{grammarActions.findTokenAndAdd(",");}<COMMA> test()]] {grammarActions.findTokenAndAdd(":");}<COLON> suite() }
 
 void begin_except_clause(): {}
 { <EXCEPT> }
@@ -870,17 +874,17 @@ void begin_except_clause(): {}
 //with_stmt: 'with' test [ with_var ] ':' suite
 void with_stmt(): {}
 { <WITH> 
-	{this.addSpecialToken("with ", STRATEGY_BEFORE_NEXT); } 
+	{grammarActions.addSpecialToken("with ", STRATEGY_BEFORE_NEXT); } 
 	
 	test() 
 	
 	{if(!acceptWithStmt)throw new ParseException("'from __future__ import with_statement' must be specified to accept 'with' statement.",jjtree.peekNode());	}
 	
-	[with_var()] {this.findTokenAndAdd(":");}<COLON> suite() }
+	[with_var()] {grammarActions.findTokenAndAdd(":");}<COLON> suite() }
 
 //with_var: 'as' expr
 void with_var():{}
-{ {temporaryToken=createSpecialStr("as");}<AS> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} expr()}
+{ {temporaryToken=grammarActions.createSpecialStr("as");}<AS> {grammarActions.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} expr()}
 
 
 //suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT
@@ -926,7 +930,7 @@ try{
 //
 //testlist_safe: old_test [(',' old_test)+ [',']]
 void testlist_safe()#void:{}
-{old_test()  [  ({this.addSpecialToken(",");}<COMMA> old_test() )+ [{this.addSpecialToken(",");}<COMMA>]  ]}
+{old_test()  [  ({grammarActions.addSpecialToken(",");}<COMMA> old_test() )+ [{grammarActions.addSpecialToken(",");}<COMMA>]  ]}
 
 //old_test: or_test | old_lambdef
 void old_test()#void:{}
@@ -934,11 +938,11 @@ void old_test()#void:{}
 
 //old_lambdef: 'lambda' [varargslist] ':' old_test
 void old_lambdef():{boolean hasArgs=false;}
-{ <LAMBDA> [varargslist(){hasArgs=true;}] {temporaryToken=createSpecialStr(":");}<COLON> {
+{ <LAMBDA> [varargslist(){hasArgs=true;}] {temporaryToken=grammarActions.createSpecialStr(":");}<COLON> {
 if(hasArgs)
-    this.addSpecialToken(temporaryToken);
+    grammarActions.addSpecialToken(temporaryToken);
 else 
-    this.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);}
+    grammarActions.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);}
  old_test() }
 
 
@@ -947,7 +951,7 @@ void test(): {}
 {  lambdef() | or_test() [if_exp()] }
 
 void if_exp():{}
-{{temporaryToken=createSpecialStr("if");}<IF> {this.addSpecialToken(temporaryToken,STRATEGY_ADD_AFTER_PREV);} or_test() {this.findTokenAndAdd("else");}<ELSE> test()}
+{{temporaryToken=grammarActions.createSpecialStr("if");}<IF> {grammarActions.addSpecialToken(temporaryToken,STRATEGY_ADD_AFTER_PREV);} or_test() {grammarActions.findTokenAndAdd("else");}<ELSE> test()}
 
 //or_test: or_test: and_test ('or' and_test)*
 void or_test() #or_boolean(>1): {}
@@ -1037,21 +1041,21 @@ void atomtrailer() #void: {Object spStr;Object spStr2;}
 atom() 
 (
     LOOKAHEAD(2) (  
-    {spStr  = createSpecialStr("(", false);} <LPAREN>  
-    {spStr2 = createSpecialStr(")", false);} <RPAREN> 
-    )#Call_Op(1) {addToPeekCallFunc(spStr, true); addToPeek(spStr2, true);}
+    {spStr  = grammarActions.createSpecialStr("(", false);} <LPAREN>  
+    {spStr2 = grammarActions.createSpecialStr(")", false);} <RPAREN> 
+    )#Call_Op(1) {grammarActions.addToPeekCallFunc(spStr, true); grammarActions.addToPeek(spStr2, true);}
 
 |   LOOKAHEAD(2) (  
-    {spStr  = createSpecialStr("(", false);} <LPAREN>  
+    {spStr  = grammarActions.createSpecialStr("(", false);} <LPAREN>  
     insidetuporcall() 
-    {spStr2 = createSpecialStr(")", false);} <RPAREN> 
-    ) #Call_Op(jjtree.nodeArity()+1) {addToPeekCallFunc(spStr, true); addToPeek(spStr2, true);}
+    {spStr2 = grammarActions.createSpecialStr(")", false);} <RPAREN> 
+    ) #Call_Op(jjtree.nodeArity()+1) {grammarActions.addToPeekCallFunc(spStr, true); grammarActions.addToPeek(spStr2, true);}
 
 
-|   {spStr = createSpecialStr("[", false);} <LBRACKET> 
+|   {spStr = grammarActions.createSpecialStr("[", false);} <LBRACKET> 
     subscriptlist()
-    {spStr2 = createSpecialStr("]", false);} <RBRACKET>  
-    #Index_Op(2) {addToPeek(spStr, false); addToPeek(spStr2, true);}
+    {spStr2 = grammarActions.createSpecialStr("]", false);} <RBRACKET>  
+    #Index_Op(2) {grammarActions.addToPeek(spStr, false); grammarActions.addToPeek(spStr2, true);}
 
 |   <DOT> Name2() #Dot_Op(2) 
 )*
@@ -1062,29 +1066,29 @@ atom()
 void atom() #void: {Object spStr;Object spStr2;}
 {
     LOOKAHEAD(2) (  
-      {spStr  = createSpecialStr("(", false);} <LPAREN>  
-      {spStr2 = createSpecialStr(")", false);} <RPAREN> 
-    ) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
+      {spStr  = grammarActions.createSpecialStr("(", false);} <LPAREN>  
+      {spStr2 = grammarActions.createSpecialStr(")", false);} <RPAREN> 
+    ) #tuple {grammarActions.addToPeek(spStr, false); grammarActions.addToPeek(spStr2, true);}
 
 |   LOOKAHEAD(2) (  
-      {spStr  = createSpecialStr("(", false);} <LPAREN>  
+      {spStr  = grammarActions.createSpecialStr("(", false);} <LPAREN>  
       (yield_expr() | insidetuporcall())
-      {spStr2 = createSpecialStr(")", false);} <RPAREN> 
-    ) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
+      {spStr2 = grammarActions.createSpecialStr(")", false);} <RPAREN> 
+    ) #tuple {grammarActions.addToPeek(spStr, false); grammarActions.addToPeek(spStr2, true);}
 
 
-|   ( <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [SmartTestList()] try{{this.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);}  )
+|   ( <LPAREN>  {grammarActions.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [SmartTestList()] try{{grammarActions.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);}  )
 
-|   ( {spStr = createSpecialStr("[", false);} <LBRACKET> 
+|   ( {spStr = grammarActions.createSpecialStr("[", false);} <LBRACKET> 
       [listmaker()] 
-      {spStr2 = createSpecialStr("]", false);} <RBRACKET>  
-    ) #list {addToPeek(spStr, false); addToPeek(spStr2, true);}
+      {spStr2 = grammarActions.createSpecialStr("]", false);} <RBRACKET>  
+    ) #list {grammarActions.addToPeek(spStr, false); grammarActions.addToPeek(spStr2, true);}
       
       
-|   ( {spStr  = createSpecialStr("{", false);}<LBRACE> 
+|   ( {spStr  = grammarActions.createSpecialStr("{", false);}<LBRACE> 
       [dictmaker()] 
-      {spStr2  = createSpecialStr("}", false);} <RBRACE> 
-    ) #dictionary {addToPeek(spStr, false); addToPeek(spStr2, true);}
+      {spStr2  = grammarActions.createSpecialStr("}", false);} <RBRACE> 
+    ) #dictionary {grammarActions.addToPeek(spStr, false); grammarActions.addToPeek(spStr2, true);}
     
 |   "`" SmartTestList() "`" #str_1op(1)
 |   Name() 
@@ -1101,16 +1105,16 @@ void insidetuporcall() #void: {}
 //lambdef: 'lambda' [varargslist] ':' test
 //we add the colon to the args if there is some argument... otherwise, we add it to the first token that appears on the test
 void lambdef():{boolean hasArgs=false;}
-{ <LAMBDA> [varargslist(){hasArgs=true;}] {temporaryToken=createSpecialStr(":");}<COLON> {
+{ <LAMBDA> [varargslist(){hasArgs=true;}] {temporaryToken=grammarActions.createSpecialStr(":");}<COLON> {
 if(hasArgs)
-    this.addSpecialToken(temporaryToken);
+    grammarActions.addSpecialToken(temporaryToken);
 else 
-    this.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);}
+    grammarActions.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);}
  test() }
 
 //subscriptlist: subscript (',' subscript)* [',']
 void subscriptlist() #void: {}
-{ (subscript() (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA> subscript())* [Comma()]) #subscriptlist(>1) }
+{ (subscript() (LOOKAHEAD(2) {grammarActions.findTokenAndAdd(",");}<COMMA> subscript())* [Comma()]) #subscriptlist(>1) }
 
 //subscript: '.' '.' '.' | test | [test] ':' [test] [sliceop]
 void subscript() #void: {}
@@ -1127,27 +1131,27 @@ void slice() #void: {}
 
 
 
-void Colon(): {} {{this.addSpecialToken(createSpecialStr(":", false), STRATEGY_BEFORE_NEXT);} <COLON> }
+void Colon(): {} {{grammarActions.addSpecialToken(grammarActions.createSpecialStr(":", false), STRATEGY_BEFORE_NEXT);} <COLON> }
 void Comma(): {} {<COMMA>}
 
 //exprlist: expr (',' expr)* [',']
 void exprlist() #void: {}
-{ (expr() (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA> expr())* [Comma()]) #tuple(>1) }
+{ (expr() (LOOKAHEAD(2) {grammarActions.findTokenAndAdd(",");}<COMMA> expr())* [Comma()]) #tuple(>1) }
 
 //testlist: test (',' test)* [',']
 void SmartTestList() #void: {}
-{ (test() (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA> test())* [Comma()]) #tuple(>1) }
+{ (test() (LOOKAHEAD(2) {grammarActions.findTokenAndAdd(",");}<COMMA> test())* [Comma()]) #tuple(>1) }
 
 //testlist: test (',' test)* [',']
 void testlist() #void: {}
-{ test() (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA> test())* [{this.findTokenAndAdd(",");}<COMMA>]}
+{ test() (LOOKAHEAD(2) {grammarActions.findTokenAndAdd(",");}<COMMA> test())* [{grammarActions.findTokenAndAdd(",");}<COMMA>]}
 
 
 
 //dictmaker: test ':' test (',' test ':' test)* [',']
 void dictmaker() #void: {}
 {
-    test() {this.findTokenAndAdd(":");}<COLON> 
+    test() {grammarActions.findTokenAndAdd(":");}<COLON> 
     
     try{
         test()
@@ -1155,15 +1159,15 @@ void dictmaker() #void: {}
         handleNoValInDict(e);
     } 
     
-    (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA> test() {this.findTokenAndAdd(":");}<COLON> test())* 
+    (LOOKAHEAD(2) {grammarActions.findTokenAndAdd(",");}<COMMA> test() {grammarActions.findTokenAndAdd(":");}<COLON> test())* 
     
-    [{this.findTokenAndAdd(",");}<COMMA>]}
+    [{grammarActions.findTokenAndAdd(",");}<COMMA>]}
 
 
 
 //listmaker: test ( list_for | (',' test)* [','] )
 void listmaker() #void: {}
-{ test() ( LOOKAHEAD(2)(list_for())+ | (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA> test())* [Comma()] #tuple(>1)) }
+{ test() ( LOOKAHEAD(2)(list_for())+ | (LOOKAHEAD(2) {grammarActions.findTokenAndAdd(",");}<COMMA> test())* [Comma()] #tuple(>1)) }
 
 //list_iter: [list_for | list_if]
 void list_iter() #void: {}
@@ -1171,42 +1175,42 @@ void list_iter() #void: {}
 
 //list_for: 'for' exprlist 'in' testlist list_iter
 void list_for(): {}
-{ {this.findTokenAndAdd("for");}<FOR> exprlist() {this.findTokenAndAdd("in");}<IN>  testlist_safe() [list_iter()] }
+{ {grammarActions.findTokenAndAdd("for");}<FOR> exprlist() {grammarActions.findTokenAndAdd("in");}<IN>  testlist_safe() [list_iter()] }
 
 void list_if()#void:{}
-{ {this.findTokenAndAdd("if");}<IF> old_test() [list_iter()]}
+{ {grammarActions.findTokenAndAdd("if");}<IF> old_test() [list_iter()]}
 
 
 //classdef: 'class' NAME ['(' [testlist] ')'] ':' suite
 void classdef(): {}
-{<CLASS> {this.markLastAsSuiteStart();} Name() [{temporaryToken=createSpecialStr("(");}<LPAREN>  {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}   [testlist()] try{{this.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);} ] {this.findTokenAndAdd(":");}<COLON> suite()}
+{<CLASS> {this.markLastAsSuiteStart();} Name() [{temporaryToken=grammarActions.createSpecialStr("(");}<LPAREN>  {grammarActions.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}   [testlist()] try{{grammarActions.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);} ] {grammarActions.findTokenAndAdd(":");}<COLON> suite()}
 
 //arglist: (argument ',')*
 //              (argument [',']| '*' test [',' '**' test] | '**' test)
 void arglist() #void: {}
 {
-    normalargs() [{this.findTokenAndAdd(",");}<COMMA>
+    normalargs() [{grammarActions.findTokenAndAdd(",");}<COMMA>
     [LOOKAHEAD(2) ExtraArgValueList()
-    [ {this.findTokenAndAdd(",");}<COMMA> ExtraKeywordValueList() ] | ExtraKeywordValueList()]]
+    [ {grammarActions.findTokenAndAdd(",");}<COMMA> ExtraKeywordValueList() ] | ExtraKeywordValueList()]]
 |   [LOOKAHEAD(2) ExtraArgValueList()
-    [ {this.findTokenAndAdd(",");}<COMMA> ExtraKeywordValueList() ] | ExtraKeywordValueList()]
+    [ {grammarActions.findTokenAndAdd(",");}<COMMA> ExtraKeywordValueList() ] | ExtraKeywordValueList()]
 }
 
 void normalargs() #void: {}
-{ argument() (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA> argument())* }
+{ argument() (LOOKAHEAD(2) {grammarActions.findTokenAndAdd(",");}<COMMA> argument())* }
 
 void ExtraArgValueList(): {}
-{ {this.addSpecialToken(createSpecialStr("*", false));} <MULTIPLY> test() }
+{ {grammarActions.addSpecialToken(grammarActions.createSpecialStr("*", false));} <MULTIPLY> test() }
 
 void ExtraKeywordValueList(): {}
-{ ({this.addSpecialToken(createSpecialStr("**", false));} <POWER>
-  |{this.addSpecialToken(createSpecialStr("**", false));} <MULTIPLY> <MULTIPLY>)
+{ ({grammarActions.addSpecialToken(grammarActions.createSpecialStr("**", false));} <POWER>
+  |{grammarActions.addSpecialToken(grammarActions.createSpecialStr("**", false));} <MULTIPLY> <MULTIPLY>)
   test() }
 
 
 //argument: [test '='] test     # Really [keyword '='] test
 void argument() #void: {}
-{ ([LOOKAHEAD(2) Name() {this.findTokenAndAdd("=");}<EQUAL>] test()) #Keyword(>1) }
+{ ([LOOKAHEAD(2) Name() {grammarActions.findTokenAndAdd("=");}<EQUAL>] test()) #Keyword(>1) }
 
 
 void Number() #Num :
@@ -1216,23 +1220,22 @@ void Number() #Num :
 {
     (
         t=<HEXNUMBER> {
-            String s = t.image.substring(2, t.image.length());
-            makeInt(s, 16, t, (Num)jjtThis);
+            grammarActions.makeIntSub2(t, 16, t, (Num)jjtThis);
         } {}
     )
 |   (
         t=<OCTNUMBER> {
-            makeInt(t.image, 8, t, (Num) jjtThis); 
+            grammarActions.makeInt(t, 8, t, (Num) jjtThis); 
         } {}
     )
 |   (
-        t=<DECNUMBER> { makeInt(t.image, 10, t, (Num)jjtThis); } {}
+        t=<DECNUMBER> { grammarActions.makeInt(t, 10, t, (Num)jjtThis); } {}
     )
 |   (
-        t=<FLOAT> { makeFloat(t, (Num)jjtThis); } {}
+        t=<FLOAT> { grammarActions.makeFloat(t, (Num)jjtThis); } {}
     )
 |   (
-        t=<COMPLEX> { makeComplex(t, (Num)jjtThis); } {}
+        t=<COMPLEX> { grammarActions.makeComplex(t, (Num)jjtThis); } {}
     )
 }
 
@@ -1263,23 +1266,19 @@ Token Name() #Name:
 
 }
 
+
+
 Token Name2() #Name:
 {
     Token t;
 }
 {
     try{
-        (t = <NAME>)|(t=<AS>)|(t=<WITH>)|(t=<PRINT>) 
+        (t = <NAME>)|(t=<AS>)|(t=<PRINT>) 
     }catch(ParseException e){
         t = handleErrorInName(e);
     }
     
-        {
-            if(acceptWithStmt && "with".equals(t.image)){
-                throw withNameInvalidException;
-            } 
-        }
-        
 
         { ((Name)jjtThis).id = t.image; return t; } {}
 
@@ -1292,12 +1291,12 @@ void String() #void :
     Token t;
 }
 {
-    ( t=<SINGLE_STRING> { makeString(t.image, 1, (Str)jjtThis); } {} )#String
-|   ( t=<SINGLE_STRING2> { makeString(t.image, 1, (Str)jjtThis); } {} )#String
-|   ( t=<TRIPLE_STRING> { makeString(t.image, 3, (Str)jjtThis); } {} )#String
-|   ( t=<TRIPLE_STRING2> { makeString(t.image, 3, (Str)jjtThis); } {} )#String
-|   ( t=<SINGLE_USTRING> { makeString(t.image, 1, (Str)jjtThis); } {} )#Unicode
-|   ( t=<SINGLE_USTRING2> { makeString(t.image, 1, (Str)jjtThis); } {} )#Unicode
-|   ( t=<TRIPLE_USTRING> { makeString(t.image, 3, (Str)jjtThis); } {} )#Unicode
-|   ( t=<TRIPLE_USTRING2> { makeString(t.image, 3, (Str)jjtThis); } {} )#Unicode
+    ( t=<SINGLE_STRING> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#String
+|   ( t=<SINGLE_STRING2> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#String
+|   ( t=<TRIPLE_STRING> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#String
+|   ( t=<TRIPLE_STRING2> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#String
+|   ( t=<SINGLE_USTRING> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#Unicode
+|   ( t=<SINGLE_USTRING2> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#Unicode
+|   ( t=<TRIPLE_USTRING> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#Unicode
+|   ( t=<TRIPLE_USTRING2> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#Unicode
 }

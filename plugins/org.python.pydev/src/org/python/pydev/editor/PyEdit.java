@@ -106,7 +106,6 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.parser.ISimpleNode;
-import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.actions.FirstCharAction;
 import org.python.pydev.editor.actions.OfflineAction;
 import org.python.pydev.editor.actions.OfflineActionTarget;
@@ -943,16 +942,19 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                     }
                 }
                 
-                PyFormatStd std = new PyFormatStd();
                 ITextSelection selection = (ITextSelection) this.getSelectionProvider().getSelection();
                 PySelection ps = new PySelection(document, selection);
-                boolean throwSyntaxError = true;
-                try{
-                    std.applyFormatAction(this, ps, regionsForSave, throwSyntaxError);
-                    statusLineManager.setErrorMessage(null);
-                }catch(SyntaxErrorException e){
-                    statusLineManager.setErrorMessage(e.getMessage());
-                }
+                
+				if(!hasSyntaxError(ps.getDoc())){
+            		PyFormatStd std = new PyFormatStd();
+            		boolean throwSyntaxError = true;
+            		try{
+	                    std.applyFormatAction(this, ps, regionsForSave, throwSyntaxError);
+	                    statusLineManager.setErrorMessage(null);
+            		}catch(SyntaxErrorException e){
+            			statusLineManager.setErrorMessage(e.getMessage());
+            		}
+            	}
             }
         } catch (Throwable e) {
             //can never fail
@@ -974,6 +976,22 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             //can never fail
             Log.log(e);
         }
+    }
+    
+    /**
+     * Checks if there's a syntax error at the document... if there is, returns false.
+     * 
+     * Note: This function will also set the status line error message if there's an error message.
+     * Note: This function will actually do a parse operation when called (so, it should be called with care).
+     */
+    public boolean hasSyntaxError(IDocument doc) throws MisconfigurationException{
+    	Tuple<SimpleNode, Throwable> reparse = PyParser.reparseDocument(
+    			new PyParser.ParserInfo(doc, this, false));
+    	if(reparse.o2 != null){
+    		this.getStatusLineManager().setErrorMessage(reparse.o2.getMessage());
+    		return true;
+    	}
+    	return false;
     }
     
 
@@ -1419,14 +1437,14 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         //I couldn't really reproduce this issue, so, this may not fix it...
         //
         //Details: https://sourceforge.net/projects/pydev/forums/forum/293649/topic/4477776
-        RunInUiThread.async(new Runnable() {
-            
-            public void run() {
-                if(!isDisposed()){
-                    getSourceViewer().invalidateTextPresentation();
-                }
-            }
-        });
+//        RunInUiThread.async(new Runnable() {
+//            
+//            public void run() {
+//                if(!isDisposed()){
+//                    getSourceViewer().invalidateTextPresentation();
+//                }
+//            }
+//        });
     }
 
 

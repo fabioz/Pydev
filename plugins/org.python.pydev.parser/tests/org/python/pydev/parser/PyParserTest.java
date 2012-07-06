@@ -38,18 +38,21 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 
 public class PyParserTest extends PyParserTestBase{
-
+	
+	private final boolean STRESS_TEST = false;
+	
     public static void main(String[] args) {
         try {
             PyParserTest test = new PyParserTest();
             test.setUp();
             
 //            Timer timer = new Timer();
-            //test.parseFilesInDir(new File("D:/bin/Python251/Lib/site-packages/wx-2.8-msw-unicode"), true);
+//            test.parseFilesInDir(new File("D:/bin/Python265/Lib/site-packages/wx-2.8-msw-unicode"), true);
 //            for(int i=0;i<4;i++){
-//                test.parseFilesInDir(new File("D:/bin/Python251/Lib/"), false);
+//                test.parseFilesInDir(new File("D:/bin/Python265/Lib/"), false);
 //            }
 //            timer.printDiff();
+            test.testOnCompleteLib();
             test.testOnWxPython();
             test.tearDown();
             
@@ -379,16 +382,34 @@ public class PyParserTest extends PyParserTestBase{
     
     public void testOnWxPython() throws Throwable {
         if(TestDependent.PYTHON_WXPYTHON_PACKAGES != null){
+        	boolean recursive = STRESS_TEST;
             File file = new File(TestDependent.PYTHON_WXPYTHON_PACKAGES, "wxPython");
-            parseFilesInDir(file);
+            Timer timer = new Timer();
+            
+            parseFilesInDir(file, recursive, false); //Don't generate ast
+            timer.printDiff("Time to generate without AST");
+            
+            parseFilesInDir(file, recursive, true);
+            timer.printDiff("Time to generate with AST");
+            
             file = new File(TestDependent.PYTHON_WXPYTHON_PACKAGES, "wx");
-            parseFilesInDir(file);
+            parseFilesInDir(file, recursive, false); //Don't generate ast
+            timer.printDiff("Time to generate without AST");
+            
+            parseFilesInDir(file, recursive, true);
+            timer.printDiff("Time to generate with AST");
         }
     }
 
     public void testOnCompleteLib() throws Throwable {
         File file = new File(TestDependent.PYTHON_LIB);
-        parseFilesInDir(file);
+        boolean recursive = STRESS_TEST;
+        Timer timer = new Timer();
+        parseFilesInDir(file, recursive);
+        timer.printDiff("Time to generate with AST");
+        
+        parseFilesInDir(file, recursive, false); //Don't generate ast
+        timer.printDiff("Time to generate without AST");
     }
 
     private void parseFilesInDir(File file) {
@@ -814,7 +835,7 @@ public class PyParserTest extends PyParserTestBase{
     }
     
     public void testParserPrint() throws Throwable {
-        final String s = "" +
+        String s = "" +
                 "import os.print.os\n"+
                 "print os.print.os\n" +
                 "";
@@ -830,6 +851,11 @@ public class PyParserTest extends PyParserTestBase{
         parseILegalDocStr(s);
         setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
         parseILegalDocStr(s);
+        
+        s = "" +
+    		"import os.print.os\n" +
+    		"";
+        parseLegalDocStr(s);
     }
     
     

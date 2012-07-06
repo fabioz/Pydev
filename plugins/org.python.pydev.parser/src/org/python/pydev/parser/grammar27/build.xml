@@ -94,7 +94,7 @@ Current setting is: ${javaccHome}
         <replace file="${parser.dir}/PythonGrammar27.java" token="(SimpleNode)SimpleNode.jjtCreate(this," value="jjtree.builder.openNode("/>
         <replace file="${parser.dir}/PythonGrammar27.java" token="PythonGrammar27TreeConstants," value=""/>
         <replace file="${parser.dir}/PythonGrammar27.java" token="protected JJTPythonGrammar27State jjtree = new JJTPythonGrammar27State();" 
-        	value="protected JJTPythonGrammarState jjtree = new JJTPythonGrammarState(TreeBuilder27.class, this);"/>
+        	value="protected final AbstractJJTPythonGrammarState jjtree = createJJTPythonGrammarState(TreeBuilder27.class);"/>
         
         <exec executable="${python}" dir="${parser.dir}">
             <arg value="${parser.dir}/../grammarcommon/optimize_generated_grammar.py" />

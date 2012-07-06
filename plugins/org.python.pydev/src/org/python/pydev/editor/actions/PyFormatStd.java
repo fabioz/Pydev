@@ -100,6 +100,11 @@ public class PyFormatStd extends PyAction implements IFormatter {
                     for(int i=startLineIndex,j=0;i<=endLineIndex;i++,j++){
                         regionsToFormat[j]=i;
                     }
+                }else{
+                	//For full-formatting, we cannot have a syntax error.
+                	if(pyEdit.hasSyntaxError(ps.getDoc())){
+                		return;
+                	}
                 }
 
                 applyFormatAction(pyEdit, ps, regionsToFormat, true);

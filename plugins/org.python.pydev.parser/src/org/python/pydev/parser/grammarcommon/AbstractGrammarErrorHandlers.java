@@ -48,7 +48,7 @@ public abstract class AbstractGrammarErrorHandlers extends AbstractGrammarWalkHe
     /**
      * @return the actual jjtree used to build the nodes (tree)
      */
-    protected abstract IJJTPythonGrammarState getJJTree();
+    protected abstract AbstractJJTPythonGrammarState getJJTree();
 
     /**
      * List with the errors we handled during the parsing
