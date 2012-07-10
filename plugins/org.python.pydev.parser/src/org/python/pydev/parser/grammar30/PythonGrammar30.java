@@ -92,7 +92,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
             }else{
                 jfpdef.nameNode.getSpecialsAfter().add(token.asSpecialStr());
             }
-        }else{
+        }else if (peeked != null){
             peeked.getSpecialsAfter().add(token.asSpecialStr());
         }
 

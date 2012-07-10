@@ -43,7 +43,7 @@ public class Log {
     private static MessageConsole fConsole;
 	private static IOConsoleOutputStream fOutputStream;
 
-	private static Map<Tuple<Integer, String>, Long> lastLoggedTime = new HashMap<Tuple<Integer,String>, Long>();
+	private static final Map<Tuple<Integer, String>, Long> lastLoggedTime = new HashMap<Tuple<Integer,String>, Long>();
 
     /**
      * @param errorLevel IStatus.[OK|INFO|WARNING|ERROR]

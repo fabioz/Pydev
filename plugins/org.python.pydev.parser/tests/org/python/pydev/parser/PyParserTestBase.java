@@ -78,12 +78,26 @@ public class PyParserTestBase extends TestCase {
     }
     
     protected Throwable parseILegalDocStr(String s) {
-        return parseILegalDoc(new Document(s));
+        return parseILegalDoc(new Document(s), true);
+    }
+    
+    protected Throwable parseILegalDocStrWithoutTree(String s) {
+    	return parseILegalDoc(new Document(s), false);
     }
     
     protected Throwable parseILegalDoc(IDocument doc) {
-        parser.setDocument(doc, false, null);
-        Tuple<SimpleNode, Throwable> objects = parser.reparseDocument();
+    	return parseILegalDoc(doc, true);
+    }
+    
+    protected Throwable parseILegalDoc(IDocument doc, boolean generateTree) {
+        Tuple<SimpleNode, Throwable> objects;
+		try {
+			objects = PyParser.reparseDocument(
+					new ParserInfo(doc, parser.getGrammarVersion(), generateTree));
+		} catch (MisconfigurationException e) {
+			throw new RuntimeException(e);
+		}
+        
         Throwable err = objects.o2;
         if(err == null){
             fail("Expected a ParseException and the doc was successfully parsed.");
