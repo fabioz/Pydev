@@ -328,8 +328,9 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
      * Change in 1.3.3: adds itself to the list of returned managers
      */
     private synchronized IModulesManager[] getManagers(boolean checkSystemManager, boolean referenced) {
-        if(this.completionCache != null){
-            IModulesManager[] ret = this.completionCache.getManagers(referenced);
+        CompletionCache localCompletionCache = this.completionCache;
+		if(localCompletionCache != null){
+            IModulesManager[] ret = localCompletionCache.getManagers(referenced);
             if(ret != null){
                 return ret;
             }
@@ -368,8 +369,8 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
         }
         
         IModulesManager[] ret = (IModulesManager[]) list.toArray(new IModulesManager[list.size()]);
-        if(this.completionCache != null){
-            this.completionCache.setManagers(ret, referenced);
+        if(localCompletionCache != null){
+            localCompletionCache.setManagers(ret, referenced);
         }
         return ret;
     }

@@ -89,8 +89,20 @@ public abstract class ModulesManager implements IModulesManager {
         public IModulesManager[] referencedManagers;
 
         public IModulesManager[] referredManagers;
+        
+        private long creationTime;
+        private int calls = 0;
 
         public IModulesManager[] getManagers(boolean referenced) {
+        	calls += 1;
+        	if(calls % 20 == 0){
+        		long diff = System.currentTimeMillis() - creationTime;
+        		if(diff > 0){
+        			String msg = String.format(
+        					"Warning: the cache related to project dependencies is the same for %.2f minutes.", (diff/(60.0*1000.0)));
+        			Log.logInfo(msg);
+        		}
+        	}
             if (referenced) {
                 return this.referencedManagers;
             } else {
@@ -99,6 +111,9 @@ public abstract class ModulesManager implements IModulesManager {
         }
 
         public void setManagers(IModulesManager[] ret, boolean referenced) {
+        	if(this.creationTime == 0){
+        		this.creationTime = System.currentTimeMillis();
+        	}
             if (referenced) {
                 this.referencedManagers = ret;
             } else {
