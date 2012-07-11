@@ -313,12 +313,8 @@ public class ImportHandle {
             }else if(c == ';'){
                 String impStr = imp.toString();
                 int endLine = line+StringUtils.countLineBreaks(impStr);
-                try {
-                    found = new ImportHandleInfo(impStr, line, endLine, startedInMiddle);
-                    this.importInfo.add(found);
-                } catch (ImportNotRecognizedException e) {
-                    //ignore
-                }
+                found = new ImportHandleInfo(impStr, line, endLine, startedInMiddle);
+                this.importInfo.add(found);
                 line = endLine;
                 imp = imp.clear();
                 startedInMiddle = true;
@@ -331,11 +327,7 @@ public class ImportHandle {
             
         }
         String impStr = imp.toString();
-        try {
-            this.importInfo.add(new ImportHandleInfo(impStr, line, line+StringUtils.countLineBreaks(impStr), startedInMiddle));
-        } catch (ImportNotRecognizedException e) {
-            //ignore
-        }
+        this.importInfo.add(new ImportHandleInfo(impStr, line, line+StringUtils.countLineBreaks(impStr), startedInMiddle));
 
     }
 

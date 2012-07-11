@@ -191,41 +191,77 @@ public class TestDependent {
                     PYTHON_TEST_PACKAGES = TestDependent.PYTHON_LIB + "test/";
                 }
             }
+            
 
             if (TEST_PYSRC_LOC == null) {
                 TEST_PYSRC_LOC = TEST_PYDEV_BASE_LOC + "org.python.pydev/tests/pysrc/";
             }
+            if(!TEST_PYSRC_LOC.endsWith("/")){
+            	throw new RuntimeException("Expecting TEST_PYSRC_LOC to end with '/'");
+            }
 
+            
             if (TEST_PYSRC_NAVIGATOR_LOC == null) {
                 TEST_PYSRC_NAVIGATOR_LOC = TEST_PYDEV_BASE_LOC + "org.python.pydev/tests_navigator/pysrc/";
             }
+            if(!TEST_PYSRC_NAVIGATOR_LOC.endsWith("/")){
+            	throw new RuntimeException("Expecting TEST_PYSRC_NAVIGATOR_LOC to end with '/'");
+            }
 
+            
             if (TEST_PYSRC_LOC2 == null) {
                 TEST_PYSRC_LOC2 = TEST_PYDEV_BASE_LOC + "org.python.pydev/tests/pysrc2/";
             }
+            if(!TEST_PYSRC_LOC2.endsWith("/")){
+            	throw new RuntimeException("Expecting TEST_PYSRC_LOC2 to end with '/'");
+            }
 
+            
             if (TEST_PYDEV_PLUGIN_LOC == null) {
                 TEST_PYDEV_PLUGIN_LOC = TEST_PYDEV_BASE_LOC + "org.python.pydev/";
             }
+            if(!TEST_PYDEV_PLUGIN_LOC.endsWith("/")){
+            	throw new RuntimeException("Expecting TEST_PYDEV_PLUGIN_LOC to end with '/'");
+            }
 
+            
             if (TEST_PYDEV_DEBUG_PLUGIN_LOC == null) {
                 TEST_PYDEV_DEBUG_PLUGIN_LOC = TEST_PYDEV_BASE_LOC + "org.python.pydev.debug/";
             }
+            if(!TEST_PYDEV_DEBUG_PLUGIN_LOC.endsWith("/")){
+            	throw new RuntimeException("Expecting TEST_PYDEV_DEBUG_PLUGIN_LOC to end with '/'");
+            }
 
+            
             if (TEST_PYDEV_JYTHON_PLUGIN_LOC == null) {
                 TEST_PYDEV_JYTHON_PLUGIN_LOC = TEST_PYDEV_BASE_LOC + "org.python.pydev.jython/";
             }
+            if(!TEST_PYDEV_JYTHON_PLUGIN_LOC.endsWith("/")){
+            	throw new RuntimeException("Expecting TEST_PYDEV_JYTHON_PLUGIN_LOC to end with '/'");
+            }
 
+            
             if (TEST_PYDEV_PARSER_PLUGIN_LOC == null) {
                 TEST_PYDEV_PARSER_PLUGIN_LOC = TEST_PYDEV_BASE_LOC + "org.python.pydev.parser/";
             }
+            if(!TEST_PYDEV_PARSER_PLUGIN_LOC.endsWith("/")){
+            	throw new RuntimeException("Expecting TEST_PYDEV_PARSER_PLUGIN_LOC to end with '/'");
+            }
 
+            
             if (TEST_PYDEV_REFACTORING_PLUGIN_LOC == null) {
                 TEST_PYDEV_REFACTORING_PLUGIN_LOC = TEST_PYDEV_BASE_LOC + "org.python.pydev.refactoring/";
             }
+            if(!TEST_PYDEV_REFACTORING_PLUGIN_LOC.endsWith("/")){
+            	throw new RuntimeException("Expecting TEST_PYDEV_REFACTORING_PLUGIN_LOC to end with '/'");
+            }
+            
 
             if (TEST_COM_REFACTORING_PYSRC_LOC == null) {
                 TEST_COM_REFACTORING_PYSRC_LOC = TEST_PYDEV_BASE_LOC + "com.python.pydev.refactoring/tests/pysrcrefactoring/";
+            }
+            if(!TEST_COM_REFACTORING_PYSRC_LOC.endsWith("/")){
+            	throw new RuntimeException("Expecting TEST_COM_REFACTORING_PYSRC_LOC to end with '/'");
             }
 
         } catch (Exception e) {
