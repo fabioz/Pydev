@@ -38,7 +38,7 @@ public class PythonModelProviderTest extends TestCase {
         try {
             PythonModelProviderTest test = new PythonModelProviderTest();
             test.setUp();
-            test.testInterceptAdd();
+            test.testFolderToSourceFolder();
             test.tearDown();
             System.out.println("OK");
             
@@ -428,7 +428,7 @@ public class PythonModelProviderTest extends TestCase {
         provider = new PythonModelProvider();
         Object[] children1 = provider.getChildren(project);
         assertEquals(1, children1.length);
-        assertTrue(children1[0] instanceof PythonSourceFolder);
+        assertTrue("Found: "+children1[0], children1[0] instanceof PythonSourceFolder);
         
         
         f.mkdir();

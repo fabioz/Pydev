@@ -59,20 +59,20 @@ public class PydevGrouperVisitor extends PydevInternalResourceDeltaVisitor {
             return;
         }
         
-        FastStringBuffer bufferToCreateString = new FastStringBuffer();
-        
         try{
-        	//we visit external because we must index them
-        	if(!isResourceInPythonpathProjectSources(resource, nature, true)){
+        	
+        	try{
+        		//we visit external because we must index them
+        		if(!isResourceInPythonpathProjectSources(resource, nature, true)){
+        			return; // we only analyze resources that are in the pythonpath
+        		}
+        	}catch(Exception e1){
+        		Log.log(e1);
         		return; // we only analyze resources that are in the pythonpath
         	}
-        }catch(Exception e1){
-        	Log.log(e1);
-        	return; // we only analyze resources that are in the pythonpath
-        }
-        
-        HashMap<String, Object> copyMemo = new HashMap<String, Object>(this.memo);
-        try{
+        	
+        	HashMap<String, Object> copyMemo = new HashMap<String, Object>(this.memo);
+        	FastStringBuffer bufferToCommunicateProgress = new FastStringBuffer();
             
             for (PyDevBuilderVisitor visitor : visitors) {
                 // some visitors cannot visit too many elements because they do a lot of processing
@@ -81,7 +81,7 @@ public class PydevGrouperVisitor extends PydevInternalResourceDeltaVisitor {
                     try {
                         //communicate progress for each visitor
                         PyDevBuilder.communicateProgress(
-                        		monitor, totalResources, currentResourcesVisited, resource, visitor, bufferToCreateString);
+                        		monitor, totalResources, currentResourcesVisited, resource, visitor, bufferToCommunicateProgress);
                         switch (visitType) {
 							case VISIT_ADD:
 								visitor.visitAddedResource(resource, document, monitor);

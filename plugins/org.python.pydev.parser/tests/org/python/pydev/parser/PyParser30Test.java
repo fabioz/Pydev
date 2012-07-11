@@ -472,6 +472,7 @@ public class PyParser30Test extends PyParserTestBase{
         "\n" +
         "";
         parseLegalDocStr(s);
+        parseLegalDocStrWithoutTree(s);
     }
     
     
@@ -480,6 +481,7 @@ public class PyParser30Test extends PyParserTestBase{
         "exec 'foo'\n" +
         "";
         parseILegalDocStr(s);
+        parseILegalDocStrWithoutTree(s);
     }
     
     
@@ -488,6 +490,7 @@ public class PyParser30Test extends PyParserTestBase{
     		"{x + 1 for x in s}\n" +
     		"";
         parseLegalDocStr(s);
+        parseLegalDocStrWithoutTree(s);
     }
     
     
@@ -501,6 +504,7 @@ public class PyParser30Test extends PyParserTestBase{
         "print(s)\n" +
         "";
         parseLegalDocStr(s);
+        parseLegalDocStrWithoutTree(s);
     }
     
     
@@ -518,6 +522,7 @@ public class PyParser30Test extends PyParserTestBase{
             TestDependent.TEST_PYDEV_PARSER_PLUGIN_LOC+"/tests/org/python/pydev/parser/pep3131test.py"));
         
         parseLegalDocStr(contents);
+        parseLegalDocStrWithoutTree(contents);
     }
     
     
@@ -531,24 +536,28 @@ public class PyParser30Test extends PyParserTestBase{
         Name name = (Name) starred.value;
         assertEquals("b", name.id);
         assertEquals(Name.Store, name.ctx);
+        parseLegalDocStrWithoutTree(s);
     }
     
     public void testUnpacking2() {
         String s = "a, *b.b, c = range(5)";
         
         parseLegalDocStr(s);
+        parseLegalDocStrWithoutTree(s);
     }
     
     public void testCall() {
         String s = "fubar(*list, x=4)";
         
         parseLegalDocStr(s);
+        parseLegalDocStrWithoutTree(s);
     }
     
     public void testUnpackingIn() {
         String s = "for a,b,*rest in list: pass";
         
         parseLegalDocStr(s);
+        parseLegalDocStrWithoutTree(s);
     }
     
     
@@ -567,6 +576,7 @@ public class PyParser30Test extends PyParserTestBase{
         "";
         
         parseLegalDocStr(s);
+        parseLegalDocStrWithoutTree(s);
     }
     
     public void testLongParseError() {
@@ -583,6 +593,7 @@ public class PyParser30Test extends PyParserTestBase{
         "";
         
         parseLegalDocStr(s);
+        parseLegalDocStrWithoutTree(s);
     }
     
     public void testEllipsis2() {
@@ -596,6 +607,7 @@ public class PyParser30Test extends PyParserTestBase{
         assertEquals(f.level, 3);
         NameTok n = (NameTok) f.module;
         assertEquals(n.id, "");
+        parseLegalDocStrWithoutTree(s);
     }
     
     
@@ -607,6 +619,8 @@ public class PyParser30Test extends PyParserTestBase{
         Module node = (Module) parseLegalDocStr(s);
         ClassDef c = (ClassDef) node.body[0];
         assertEquals(2, c.keywords.length);
+        
+        parseLegalDocStrWithoutTree(s);
     }
     
     public void testNewSetConstructEndingWithComma() {
@@ -615,5 +629,6 @@ public class PyParser30Test extends PyParserTestBase{
         "";
         
         parseLegalDocStr(s);
+        parseLegalDocStrWithoutTree(s);
     }
 }

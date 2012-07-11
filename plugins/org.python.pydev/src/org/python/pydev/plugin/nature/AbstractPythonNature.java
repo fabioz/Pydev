@@ -55,12 +55,13 @@ public abstract class AbstractPythonNature implements IPythonNature{
     /**
      * This is a stack holding the modules manager for which the requests were done
      */
-    private Stack<IModulesManager> modulesManagerStack = new Stack<IModulesManager>();
+    private final Stack<IModulesManager> modulesManagerStack = new Stack<IModulesManager>();
+    private final Object modulesManagerStackLock = new Object();
     
     /**
      * Start a request for an ast manager (start caching things)
      */
-    public synchronized boolean startRequests() {
+    public boolean startRequests() {
         ICodeCompletionASTManager astManager = this.getAstManager();
         if(astManager == null){
             return false;
@@ -69,7 +70,7 @@ public abstract class AbstractPythonNature implements IPythonNature{
         if(modulesManager == null){
             return false;
         }
-        synchronized (modulesManagerStack) {
+        synchronized (modulesManagerStackLock) {
             modulesManagerStack.push(modulesManager);
             return modulesManager.startCompletionCache();
         }
@@ -78,8 +79,8 @@ public abstract class AbstractPythonNature implements IPythonNature{
     /**
      * End a request for an ast manager (end caching things)
      */
-    public synchronized void endRequests() {
-        synchronized (modulesManagerStack) {
+    public void endRequests() {
+        synchronized (modulesManagerStackLock) {
             try {
                 IModulesManager modulesManager = modulesManagerStack.pop();
                 modulesManager.endCompletionCache();

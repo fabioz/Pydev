@@ -1139,7 +1139,6 @@ void Number() #Num :
 {
     (
         t=<HEXNUMBER> {
-            String s = t.image.substring(2, t.image.length());
             grammarActions.makeIntSub2(t, 16, t, (Num)jjtThis);
         } {}
     )

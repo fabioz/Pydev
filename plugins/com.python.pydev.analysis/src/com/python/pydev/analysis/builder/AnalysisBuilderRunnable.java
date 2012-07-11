@@ -120,11 +120,10 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
     
     protected void doAnalysis(){
         
+    	if(!nature.startRequests()){
+    		return;
+    	}
         try {
-            
-            if(!nature.startRequests()){
-                return;
-            }
             
             if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
                 Log.toLogFile(this, "doAnalysis() - "+moduleName+" "+this.getAnalysisCauseStr());

@@ -42,11 +42,12 @@ public class OccurrencesAnalyzer {
         try {
             SimpleNode ast = module.getAst();
             if(ast != null){
-            	nature.startRequests();
-            	try{
-            		ast.accept(visitor);
-            	}finally{
-            		nature.endRequests();
+            	if(nature.startRequests()){
+	            	try{
+	            		ast.accept(visitor);
+	            	}finally{
+	            		nature.endRequests();
+	            	}
             	}
             }
         } catch (OperationCanceledException e) {
