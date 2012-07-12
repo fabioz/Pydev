@@ -21,7 +21,7 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinter30Test test = new PrettyPrinter30Test();
             test.setUp();
-            test.testCalledDecorator();
+            test.testYield4();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinter30Test.class);
@@ -499,4 +499,74 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
                 "";
         checkPrettyPrintEqual(s);
     }
+    
+    
+    public void testYieldFrom() {
+    	String s = "" +
+    			"def m1():\n" +
+    			"    yield from a\n" +
+    			"";
+    	checkPrettyPrintEqual(s);
+    }
+    
+    public void testYieldFrom2() {
+    	String s = "" +
+    			"def m1():\n" +
+    			"    yield from call(a)\n" +
+    			"";
+    	checkPrettyPrintEqual(s);
+    }
+    
+    public void testYield() {
+    	String s = "" +
+    			"def m1():\n" +
+    			"    yield \n" +
+    			"";
+    	
+    	checkPrettyPrintEqual(s);
+    }
+    
+    public void testYield2() {
+    	String s = "" +
+    			"def m1():\n" +
+    			"    yield a,b\n" +
+    			"";
+    	checkPrettyPrintEqual(s);
+    	
+    }
+    
+    public void testYield3() {
+    	String s = "" +
+    			"def m1():\n" +
+    			"    yield (a,b)\n" +
+    			"";
+    	
+    	String v2 = "" +
+    			"def m1():\n" +
+    			"    yield a,b\n" +
+    			"";
+    			
+    	checkPrettyPrintEqual(s, s, v2);
+    	
+    }
+    
+    public void testYield4() {
+    	String s = "" +
+    			"def m1():\n" +
+    			"    #comment 1\n" +
+    			"    yield a,b#comment 2\n" +
+    			"    #comment 3\n" +
+    			"";
+    	
+    	String v2 = "" +
+    			"def m1():#comment 1\n" +
+    			"    yield a,b#comment 2\n" +
+    			"#comment 3\n" +
+    			"";
+    	
+    	
+    	checkPrettyPrintEqual(s, s, s, v2);
+    	
+    }
+
 }

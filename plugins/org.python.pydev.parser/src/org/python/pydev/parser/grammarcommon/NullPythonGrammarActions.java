@@ -33,9 +33,9 @@ public final class NullPythonGrammarActions implements IPythonGrammarActions {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void addToPeek(Object t, boolean after, Class class_)
+	public SimpleNode addToPeek(Object t, boolean after, Class class_)
 			throws ParseException {
-
+		return null;
 	}
 
 	public void jjtreeCloseNodeScope(Node n) throws ParseException {

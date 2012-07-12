@@ -5,9 +5,11 @@ import java.util.Arrays;
 
 public final class Yield extends exprType {
     public exprType value;
+    public boolean yield_from;
 
-    public Yield(exprType value) {
+    public Yield(exprType value, boolean yield_from) {
         this.value = value;
+        this.yield_from = yield_from;
     }
 
 
@@ -15,6 +17,7 @@ public final class Yield extends exprType {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((value == null) ? 0 : value.hashCode());
+        result = prime * result + (yield_from ? 17 : 137);
     return result;
     }
     public boolean equals(Object obj) {
@@ -24,13 +27,15 @@ public final class Yield extends exprType {
         Yield other = (Yield) obj;
         if (value == null) { if (other.value != null) return false;}
         else if (!value.equals(other.value)) return false;
+        if(this.yield_from != other.yield_from) return false;
         return true;
     }
     public Yield createCopy() {
         return createCopy(true);
     }
     public Yield createCopy(boolean copyComments) {
-        Yield temp = new Yield(value!=null?(exprType)value.createCopy(copyComments):null);
+        Yield temp = new Yield(value!=null?(exprType)value.createCopy(copyComments):null,
+        yield_from);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if(this.specialsBefore != null && copyComments){
@@ -56,6 +61,9 @@ public final class Yield extends exprType {
         StringBuffer sb = new StringBuffer("Yield[");
         sb.append("value=");
         sb.append(dumpThis(this.value));
+        sb.append(", ");
+        sb.append("yield_from=");
+        sb.append(dumpThis(this.yield_from));
         sb.append("]");
         return sb.toString();
     }

@@ -36,7 +36,7 @@ public interface IPythonGrammarActions {
 			throws ParseException;
 
 	@SuppressWarnings("rawtypes")
-	void addToPeek(Object t, boolean after, Class class_) throws ParseException;
+	SimpleNode addToPeek(Object t, boolean after, Class class_) throws ParseException;
 
 	void jjtreeCloseNodeScope(Node n) throws ParseException;
 
