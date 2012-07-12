@@ -1123,8 +1123,10 @@ public class REF {
                 dstPath.mkdir();
             }
             String files[] = srcPath.list();
-            for(int i = 0; i < files.length; i++){
-                copyDirectory(new File(srcPath, files[i]), new File(dstPath, files[i]), filter, changeFileContents);
+            if(files != null){
+	            for(int i = 0; i < files.length; i++){
+	                copyDirectory(new File(srcPath, files[i]), new File(dstPath, files[i]), filter, changeFileContents);
+	            }
             }
         }else{
             if(!srcPath.exists()){
@@ -1227,10 +1229,12 @@ public class REF {
     public static HashSet<String> getFilesStartingWith(File parentDir, String prefix) {
         String[] list = parentDir.list();
         HashSet<String> hashSet = new HashSet<String>();
-        for (String string : list) {
-            if(string.startsWith(prefix)){
-                hashSet.add(string);
-            }
+        if(list != null){
+	        for (String string : list) {
+	            if(string.startsWith(prefix)){
+	                hashSet.add(string);
+	            }
+	        }
         }
         return hashSet;
     }
@@ -1241,20 +1245,22 @@ public class REF {
             try{
                 Assert.isTrue(parentDir.isDirectory());
                 String[] list = parentDir.list();
-                for (String string : list) {
-                    if(string.startsWith(prefix)){
-                        String integer = string.substring(prefix.length());
-                        try {
-                            Integer.parseInt(integer);
-                            try {
-                                new File(parentDir, string).delete();
-                            } catch (Exception e) {
-                                //ignore
-                            }
-                        } catch (NumberFormatException e) {
-                            //ignore (not a file we generated)
-                        }
-                    }
+                if(list != null){
+	                for (String string : list) {
+	                    if(string.startsWith(prefix)){
+	                        String integer = string.substring(prefix.length());
+	                        try {
+	                            Integer.parseInt(integer);
+	                            try {
+	                                new File(parentDir, string).delete();
+	                            } catch (Exception e) {
+	                                //ignore
+	                            }
+	                        } catch (NumberFormatException e) {
+	                            //ignore (not a file we generated)
+	                        }
+	                    }
+	                }
                 }
                 alreadyReturned.remove(parentDir);
             }catch(Throwable e){

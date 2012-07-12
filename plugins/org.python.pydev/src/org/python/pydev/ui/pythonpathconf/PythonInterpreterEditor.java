@@ -62,12 +62,12 @@ public class PythonInterpreterEditor extends AbstractInterpreterEditor{
 
                 //The structure for Python is something as Software\\Python\\PythonCore\\2.6\\InstallPath
                 for (Key root : new Key[] { Regor.HKEY_LOCAL_MACHINE, Regor.HKEY_CURRENT_USER }) {
-                    Key key = regor.openKey(root, "Software\\Python\\PythonCore");
+                    Key key = regor.openKey(root, "Software\\Python\\PythonCore", Regor.KEY_READ);
                     if (key != null) {
                         try {
                             List l = regor.listKeys(key);
                             for (Object o : l) {
-                                Key openKey = regor.openKey(key, (String) o + "\\InstallPath");
+                                Key openKey = regor.openKey(key, (String) o + "\\InstallPath", Regor.KEY_READ);
                                 if (openKey != null) {
                                     try {
                                         byte buf[] = regor.readValue(openKey, "");
