@@ -1006,13 +1006,19 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                                 for(String s:operation.result.libs){
                                     File file = new File(s);
                                     if(file.isDirectory()){
-                                        for(String found:file.list()){
-                                            List<String> split = StringUtils.split(found, '.');
-                                            if(split.size() == 2){
-                                                if(extensions.contains(split.get(1))){
-                                                    hashSet.remove(split.get(0));
-                                                }
-                                            }
+                                        String[] directoryFiles = file.list();
+                                        if(directoryFiles != null){
+											for(String found:directoryFiles){
+	                                            List<String> split = StringUtils.split(found, '.');
+	                                            if(split.size() == 2){
+	                                                if(extensions.contains(split.get(1))){
+	                                                    hashSet.remove(split.get(0));
+	                                                }
+	                                            }
+											}
+                                        }else{
+                                        	logger.append("Warning: unable to get contents of directory: "+file+
+                                        			" (permission not available, it's not a dir or dir does not exist).");
                                         }
                                     }else if(file.isFile()){
                                         //Zip file?
@@ -1246,11 +1252,13 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                 File file = new File(s.trim());
                 if(file.isDirectory()){
                     String[] available = file.list();
-                    for(String jar:available){
-                        if(jar.toLowerCase().equals(expectedFilename)){
-                            return new Tuple<String, String>(
-                                    getUniqueInterpreterName(nameForUser), 
-                                    REF.getFileAbsolutePath(new File(file, jar)));
+                    if(available != null){
+	                    for(String jar:available){
+	                        if(jar.toLowerCase().equals(expectedFilename)){
+	                            return new Tuple<String, String>(
+	                                    getUniqueInterpreterName(nameForUser), 
+	                                    REF.getFileAbsolutePath(new File(file, jar)));
+	                        }
                         }
                     }
                 }

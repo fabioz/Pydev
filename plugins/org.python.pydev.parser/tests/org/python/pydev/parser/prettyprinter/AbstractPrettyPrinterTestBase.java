@@ -32,11 +32,11 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
     }
 
     public SimpleNode checkPrettyPrintEqual(String s, String expected) throws Error {
-        return checkPrettyPrintEqual(s, prefs, expected);
+        return checkPrettyPrintEqual(s, prefs, expected, expected, expected);
     }
     
     public SimpleNode checkPrettyPrintEqual(String s, String expected, String v2) throws Error {
-        return checkPrettyPrintEqual(s, prefs, expected, v2);
+        return checkPrettyPrintEqual(s, prefs, expected, v2, v2);
     }
     
     
@@ -54,18 +54,9 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
      * @throws Exception
      * @throws IOException
      */
-    public static SimpleNode checkPrettyPrintEqual(String s, IPrettyPrinterPrefs prefs, String expected, String ... v2) throws Error {
+    public static SimpleNode checkPrettyPrintEqual(String s, IPrettyPrinterPrefs prefs, String withLinesAndCols, String withoutSpecials, String scrambledLines) throws Error {
         SimpleNode node = parseLegalDocStr(s);
 
-        String checkV2 = expected;
-        if(v2.length > 0){
-            checkV2 = v2[0];
-        }
-        String checkV3 = checkV2;
-        if(v2.length > 1){
-            checkV3 = v2[1];
-        }
-        
         
         //Scramble the lines/columns
         SimpleNode copy = node.createCopy();
@@ -76,13 +67,13 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
         }catch(Exception e){
             throw new RuntimeException(e);
         }
-        assertEquals(checkV3, makePrint(prefs, copy));
+        assertEquals(scrambledLines, makePrint(prefs, copy));
         
         //Without specials: When creating a copy, the specials won't go along.
-        assertEquals(checkV2, makePrint(prefs, node.createCopy()));
+        assertEquals(withoutSpecials, makePrint(prefs, node.createCopy()));
         
         //Regular
-        assertEquals(expected, makePrint(prefs, node));
+        assertEquals(withLinesAndCols, makePrint(prefs, node));
         return node;
     }
 

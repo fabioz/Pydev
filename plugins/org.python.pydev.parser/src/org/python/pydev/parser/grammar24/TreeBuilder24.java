@@ -227,7 +227,7 @@ public final class TreeBuilder24 extends AbstractTreeBuilder implements ITreeBui
             ret.value = value;
             return ret;
         case JJTYIELD_STMT:
-            return new Yield(((exprType) stack.popNode()));
+            return new Yield(((exprType) stack.popNode()), false);
         case JJTRAISE_STMT:
             exprType tback = arity >= 3 ? ((exprType) stack.popNode()) : null;
             exprType inst = arity >= 2 ? ((exprType) stack.popNode()) : null;

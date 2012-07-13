@@ -224,7 +224,7 @@ public final class TreeBuilder25 extends AbstractTreeBuilder implements ITreeBui
                 //we may have an empty yield, so, we have to check it before
                 yieldExpr = (exprType) stack.popNode();
             }
-            return new Yield(yieldExpr);
+            return new Yield(yieldExpr, false);
         case JJTRAISE_STMT:
             exprType tback = arity >= 3 ? ((exprType) stack.popNode()) : null;
             exprType inst = arity >= 2 ? ((exprType) stack.popNode()) : null;

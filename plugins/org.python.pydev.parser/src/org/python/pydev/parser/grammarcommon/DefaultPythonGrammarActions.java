@@ -192,11 +192,13 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
     
     /**
      * Adds a special token to the current token that's in the top of the stack (the peeked token)
+     * @return the peeked node.
      */
     @SuppressWarnings("rawtypes")
-	public void addToPeek(Object t, boolean after, Class class_) throws ParseException {
+	public SimpleNode addToPeek(Object t, boolean after, Class class_) throws ParseException {
         SimpleNode peeked = (SimpleNode) grammar.getJJTree().peekNode();
         addToPeek(peeked, t, after, class_);
+        return peeked;
     }
 
     

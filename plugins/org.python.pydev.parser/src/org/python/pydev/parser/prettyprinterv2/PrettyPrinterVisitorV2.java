@@ -746,20 +746,12 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     
     @Override
     public Object visitYield(Yield node) throws Exception {
-        int id= doc.pushRecordChanges();
-        
         beforeNode(node);
-        if(node.value != null){
-            doc.addRequire("yield ", node);
-        }else{
-            doc.addRequire("yield", node);
+        doc.addRequire("yield", node);
+        if(node.yield_from){
+        	doc.addRequire("from", node);
         }
         node.traverse(this);
-        
-        java.util.List<ILinePart> changes = doc.popRecordChanges(id);
-        if(node.value != null){
-            doc.replaceRecorded(changes, "yield", "yield ");
-        }
         
         afterNode(node);
         return null;

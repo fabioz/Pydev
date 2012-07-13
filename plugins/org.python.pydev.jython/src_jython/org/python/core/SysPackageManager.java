@@ -53,11 +53,13 @@ public class SysPackageManager extends PathPackageManager {
             return;
         }
         String[] files = file.list();
-        for (int i = 0; i < files.length; i++) {
-            String entry = files[i];
-            if (entry.endsWith(".jar") || entry.endsWith(".zip")) {
-                addJarToPackages(new File(jdir, entry), cache);
-            }
+        if(files != null){
+	        for (int i = 0; i < files.length; i++) {
+	            String entry = files[i];
+	            if (entry.endsWith(".jar") || entry.endsWith(".zip")) {
+	                addJarToPackages(new File(jdir, entry), cache);
+	            }
+	        }
         }
         if (saveCache) {
             saveCache();

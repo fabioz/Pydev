@@ -16,6 +16,8 @@ import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Dict;
 import org.python.pydev.parser.jython.ast.DictComp;
+import org.python.pydev.parser.jython.ast.Expr;
+import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
@@ -24,6 +26,7 @@ import org.python.pydev.parser.jython.ast.Set;
 import org.python.pydev.parser.jython.ast.SetComp;
 import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Tuple;
+import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 public class PyParser30Test extends PyParserTestBase{
@@ -32,7 +35,7 @@ public class PyParser30Test extends PyParserTestBase{
         try {
             PyParser30Test test = new PyParser30Test();
             test.setUp();
-            test.testNewSetConstructEndingWithComma();
+            test.testYieldFrom();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser30Test.class);
@@ -630,5 +633,41 @@ public class PyParser30Test extends PyParserTestBase{
         
         parseLegalDocStr(s);
         parseLegalDocStrWithoutTree(s);
+    }
+    
+    
+    public void testYieldFrom() {
+    	String s = "" +
+    			"def m1():\n" +
+    			"    yield from a" +
+    			"";
+    	
+    	Module ast = (Module) parseLegalDocStr(s);
+    	FunctionDef f = (FunctionDef) ast.body[0];
+    	Expr e = (Expr) f.body[0];
+    	Yield y = (Yield) e.value;
+    	assertTrue("Expected yield to be a yield from.", y.yield_from);
+    	
+    	parseLegalDocStrWithoutTree(s);
+    }
+    
+    public void testYield() {
+    	String s = "" +
+    			"def m1():\n" +
+    			"    yield" +
+    			"";
+    	
+    	parseLegalDocStr(s);
+    	parseLegalDocStrWithoutTree(s);
+    }
+    
+    public void testYield2() {
+    	String s = "" +
+    			"def m1():\n" +
+    			"    yield a,b" +
+    			"";
+    	
+    	parseLegalDocStr(s);
+    	parseLegalDocStrWithoutTree(s);
     }
 }

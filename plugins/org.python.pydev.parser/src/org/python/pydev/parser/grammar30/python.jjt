@@ -724,9 +724,30 @@ void yield_stmt(): {}
 { yield_expr() }
 
 
-//yield_expr: 'yield' [testlist]
-void yield_expr(): {Token spStr;}
-{ spStr=<YIELD> [SmartTestList()] {this.grammarActions.addToPeek(spStr, false, Yield.class);}}
+//Change in Python 3.3: yield from 'xxx'
+//yield_expr: 'yield' [yield_arg]
+void yield_expr(): {Token spStr; boolean isYieldFrom=false;}
+{ spStr=<YIELD> [isYieldFrom=yield_arg()] 
+    {
+        Yield yield = (Yield)this.grammarActions.addToPeek(spStr, false, Yield.class);
+        if(yield != null){
+            yield.yield_from = isYieldFrom;
+        }
+    }
+}
+
+
+//yield_arg: 'from' test | testlist
+boolean yield_arg() #void: {}
+{ {boolean isYieldFrom;}
+  ( 
+  (<FROM> {grammarActions.addSpecialToken(" from ");isYieldFrom=true;} test()) 
+  | 
+  SmartTestList(){isYieldFrom=false;}
+  ) 
+  {return isYieldFrom;}
+}
+
 
 
 //raise_stmt: 'raise' [test ['from' test]]
