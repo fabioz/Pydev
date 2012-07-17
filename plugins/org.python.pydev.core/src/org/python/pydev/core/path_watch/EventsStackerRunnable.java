@@ -27,34 +27,34 @@ import org.python.pydev.core.structure.FastStringBuffer;
  * 
  * @author fabioz
  */
-public class EventsStackerRunnable implements Runnable{
-    
+public class EventsStackerRunnable implements Runnable {
+
     public final static int ADDED = 0;
     public final static int REMOVED = 1;
-    
+
     /**
      * May be null!
      */
-    /*default*/ volatile WatchKey key;
-    
+    /*default*/volatile WatchKey key;
+
     public final ListenerList<IFilesystemChangesListener> list;
     public final Path watchedPath;
-    
+
     /**
      * Lock for dealing with fileToEvent and overflow.
      */
     private final Object lock = new Object();
-    
+
     /**
      * The file mapping to the last event recorded in it.
      */
     private Map<File, Integer> fileToEvent = new OrderedMap<File, Integer>();
-    
+
     /**
      * The directory being watched, where the overflow occurred.
      */
     private volatile File overflow = null;
-    
+
     /**
      * Creates the events stacker based on the key, path and listeners related (the contents of the listeners may 
      * change later on, but the actual key and path may not change).
@@ -80,16 +80,15 @@ public class EventsStackerRunnable implements Runnable{
             currentOverflow = overflow;
             overflow = null;
         }
-        
-        
+
         IFilesystemChangesListener[] listeners = list.getListeners();
-        if(listeners.length > 0){
-            if(currentOverflow != null){
+        if (listeners.length > 0) {
+            if (currentOverflow != null) {
                 for (IFilesystemChangesListener iFilesystemChangesListener : listeners) {
                     //Say that the dir was removed...
                     File watched = new File(watchedPath.toString());
                     iFilesystemChangesListener.removed(watched);
-                    if(watched.exists()){
+                    if (watched.exists()) {
                         //And later added again (without notifying about inner contents!!)
                         iFilesystemChangesListener.added(watched);
                     }
@@ -100,14 +99,14 @@ public class EventsStackerRunnable implements Runnable{
             for (Entry<File, Integer> entry : entrySet) {
                 Integer value = entry.getValue();
                 File currKey = entry.getKey();
-                
+
                 switch (value) {
                     case ADDED:
                         for (IFilesystemChangesListener iFilesystemChangesListener : listeners) {
                             iFilesystemChangesListener.added(currKey);
                         }
                         break;
-                        
+
                     case REMOVED:
                         for (IFilesystemChangesListener iFilesystemChangesListener : listeners) {
                             iFilesystemChangesListener.removed(currKey);
@@ -117,7 +116,6 @@ public class EventsStackerRunnable implements Runnable{
             }
         }
     }
-    
 
     /**
      * On overflow we'll clear all the other events and just send the overflow (any subsequent event is
@@ -130,10 +128,9 @@ public class EventsStackerRunnable implements Runnable{
         }
     }
 
-    
     public void added(File file) {
         synchronized (lock) {
-            if(overflow == null){
+            if (overflow == null) {
                 fileToEvent.put(file, ADDED);
             }
         }
@@ -141,24 +138,21 @@ public class EventsStackerRunnable implements Runnable{
 
     public void removed(File file) {
         synchronized (lock) {
-            if(overflow == null){
+            if (overflow == null) {
                 fileToEvent.put(file, REMOVED);
             }
-        }        
+        }
     }
-    
+
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     @Override
     public String toString() {
-        return new FastStringBuffer().
-            append("EventsStackerRunnable(key=").appendObject(this.key).
-            append(";watchedPath=").appendObject(this.watchedPath).
-            append(";overflow=").appendObject(this.overflow).
-            append(";fileToEvent=").appendObject(this.fileToEvent).
-            append(";listeners=").appendObject(this.list.getListeners()).
-            append(")").toString();
+        return new FastStringBuffer().append("EventsStackerRunnable(key=").appendObject(this.key)
+                .append(";watchedPath=").appendObject(this.watchedPath).append(";overflow=")
+                .appendObject(this.overflow).append(";fileToEvent=").appendObject(this.fileToEvent)
+                .append(";listeners=").appendObject(this.list.getListeners()).append(")").toString();
     }
-    
+
 }

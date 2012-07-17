@@ -13,7 +13,7 @@ import org.python.pydev.parser.jython.Node;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.Token;
 
-public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers implements ITreeConstants, IGrammar{
+public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers implements ITreeConstants, IGrammar {
 
     public final static boolean DEFAULT_SEARCH_ON_LAST = false;
 
@@ -32,24 +32,24 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
      * @return the last pos.
      */
     protected abstract Token getJJLastPos();
-    
+
     protected Object temporaryToken;
-    
+
     protected final boolean generateTree;
-    
+
     protected final IPythonGrammarActions grammarActions;
-    
-    protected AbstractPythonGrammar(boolean generateTree){
-    	this.generateTree = generateTree;
-    	if(generateTree){
-    		grammarActions = new DefaultPythonGrammarActions(this);
-    	}else{
-    		grammarActions = new NullPythonGrammarActions();
-    	}
+
+    protected AbstractPythonGrammar(boolean generateTree) {
+        this.generateTree = generateTree;
+        if (generateTree) {
+            grammarActions = new DefaultPythonGrammarActions(this);
+        } else {
+            grammarActions = new NullPythonGrammarActions();
+        }
     }
-    
-    protected static WithNameInvalidException withNameInvalidException = 
-        new WithNameInvalidException("With cannot be used as identifier when future with_statement is available.");
+
+    protected static WithNameInvalidException withNameInvalidException = new WithNameInvalidException(
+            "With cannot be used as identifier when future with_statement is available.");
 
     /**
      * Opens a node scope
@@ -59,7 +59,6 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
     protected final void jjtreeOpenNodeScope(Node n) {
     }
 
-    
     /**
      * Closes a node scope
      * 
@@ -71,13 +70,13 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
     }
 
     protected final AbstractJJTPythonGrammarState createJJTPythonGrammarState(Class<?> treeBuilderClass) {
-    	if(this.generateTree){
-    		return new JJTPythonGrammarState(treeBuilderClass, this);
-    	}else{
-    		return new NullJJTPythonGrammarState();
-    	}
-	}
-    
+        if (this.generateTree) {
+            return new JJTPythonGrammarState(treeBuilderClass, this);
+        } else {
+            return new NullJJTPythonGrammarState();
+        }
+    }
+
     /**
      * Default: add after the previous found token
      */
@@ -87,6 +86,5 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
      * Add before the 'next token' strategy
      */
     public static final int STRATEGY_BEFORE_NEXT = 1;
-
 
 }

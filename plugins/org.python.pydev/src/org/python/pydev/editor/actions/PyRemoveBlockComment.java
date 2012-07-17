@@ -46,9 +46,9 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
      */
     public void run(IAction action) {
         try {
-        	if(!canModifyEditor()){
-        		return;
-        	}
+            if (!canModifyEditor()) {
+                return;
+            }
 
             // Select from text editor
             PySelection ps = new PySelection(getTextEditor());
@@ -70,18 +70,17 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
         // What we'll be replacing the selected text with
         FastStringBuffer strbuf = new FastStringBuffer();
 
-
         try {
             //discover 1st line that starts the block comment
             int i;
             int startLineIndex = getStartIndex(ps);
             int endLineIndex = getEndIndex(ps);
-            if(startLineIndex == -1 || endLineIndex == -1){
-                if(startLineIndex == -1 && endLineIndex == -1){
+            if (startLineIndex == -1 || endLineIndex == -1) {
+                if (startLineIndex == -1 && endLineIndex == -1) {
                     return -1;
-                }else if(startLineIndex == -1){
+                } else if (startLineIndex == -1) {
                     startLineIndex = endLineIndex;
-                }else{
+                } else {
                     endLineIndex = startLineIndex;
                 }
             }
@@ -92,132 +91,132 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
                 String spacesBefore = "";
                 String line = ps.getLine(i);
                 int lineLen = line.length();
-                for(int j=0;j<lineLen;j++){
+                for (int j = 0; j < lineLen; j++) {
                     char c = line.charAt(j);
-                    if(c=='#'){
+                    if (c == '#') {
                         //ok, it starts with # (so, remove the whitespaces before it)
-                        if(j > 0){
+                        if (j > 0) {
                             spacesBefore = line.substring(0, j);
                         }
                         line = line.substring(j);
                         break;
-                    }else{
-                        if(!Character.isWhitespace(c)){
+                    } else {
+                        if (!Character.isWhitespace(c)) {
                             break;
                         }
                     }
                 }
-                if(line.startsWith("#")){
+                if (line.startsWith("#")) {
                     line = line.substring(1);
                 }
-                
+
                 //get the chars used in block-comments
-                AbstractBlockCommentAction[] acts = new AbstractBlockCommentAction[]{new PyAddSingleBlockComment(),new PyAddBlockComment()};
+                AbstractBlockCommentAction[] acts = new AbstractBlockCommentAction[] { new PyAddSingleBlockComment(),
+                        new PyAddBlockComment() };
                 HashSet<Character> chars = new HashSet<Character>();
                 for (int j = 0; j < acts.length; j++) {
                     AbstractBlockCommentAction action = acts[j];
                     chars.add(action.getColsAndChar().o2);
                 }
-                
-                if(line.length() > 0){
-                    boolean removedChar=false;
-                    char lastChar='\0';
-                    for(int j=0;j<line.length();j++){
+
+                if (line.length() > 0) {
+                    boolean removedChar = false;
+                    char lastChar = '\0';
+                    for (int j = 0; j < line.length(); j++) {
                         lastChar = line.charAt(j);
-                        if(!chars.contains(lastChar)){
+                        if (!chars.contains(lastChar)) {
                             break;
-                        }else{
-                            removedChar=true;
+                        } else {
+                            removedChar = true;
                             line = line.substring(1);
                             j--;
                         }
                     }
-                    if(line.length() == 0 && removedChar){
+                    if (line.length() == 0 && removedChar) {
                         addDelim = false;
                     }
-                    if(removedChar && lastChar==' '){
+                    if (removedChar && lastChar == ' ') {
                         line = line.substring(1);
                     }
                 }
-                
-                if(addDelim){
+
+                if (addDelim) {
                     strbuf.append(spacesBefore);
                     strbuf.append(line);
                     String lineDelimiter = ps.getDoc().getLineDelimiter(i);
-                    if(lineDelimiter != null){
+                    if (lineDelimiter != null) {
                         strbuf.append(lineDelimiter);
                     }
                 }
             }
-            
-            
+
             //Ok, at this point things should be correct, but make sure than on uncomment,
             //the code goes to a proper indent position (remove spaces we may have added when creating a block).
             String string = strbuf.toString();
             List<String> lines = StringUtils.splitInLines(string);
             Tuple<Integer, String> posAndLine = new Tuple<Integer, String>(-1, "");
-            for(String line:lines){
+            for (String line : lines) {
                 int firstCharPosition = PySelection.getFirstCharPosition(line);
-                if(firstCharPosition < posAndLine.o1 || posAndLine.o1 < 0){
+                if (firstCharPosition < posAndLine.o1 || posAndLine.o1 < 0) {
                     posAndLine.o1 = firstCharPosition;
                     posAndLine.o2 = line;
                 }
             }
-            if(posAndLine.o1 > 0){
+            if (posAndLine.o1 > 0) {
                 final String sub = posAndLine.o2.substring(0, posAndLine.o1);
-                if(sub.endsWith(" ")){ //If it ends with a tab, we won't change anything (only spaces are removed -- which we may have introduced)
+                if (sub.endsWith(" ")) { //If it ends with a tab, we won't change anything (only spaces are removed -- which we may have introduced)
                     boolean allEqual = true;
-                    for(String line:lines){
-                        if(!line.startsWith(sub)){
+                    for (String line : lines) {
+                        if (!line.startsWith(sub)) {
                             allEqual = false;
                             break;
                         }
                     }
-                    if(allEqual){
-                        if(sub.startsWith("\t")){
+                    if (allEqual) {
+                        if (sub.startsWith("\t")) {
                             //Tabs based indent: remove any ending spaces (and at this point we know a string ends with a space)
                             int j;
-                            for(j=sub.length()-1;j>=0;j--){
+                            for (j = sub.length() - 1; j >= 0; j--) {
                                 char c = sub.charAt(j);
-                                if(c != ' '){
+                                if (c != ' ') {
                                     j++;
                                     break;
                                 }
                             }
                             String newSub = sub.substring(0, j);
                             strbuf.clear();
-                            for(String line:lines){
+                            for (String line : lines) {
                                 strbuf.append(newSub);
                                 strbuf.append(line.substring(sub.length()));
                             }
-                            
-                        }else{
+
+                        } else {
                             IIndentPrefs indentPrefs;
-                            if(targetEditor instanceof PyEdit){
+                            if (targetEditor instanceof PyEdit) {
                                 PyEdit pyEdit = (PyEdit) targetEditor;
                                 indentPrefs = pyEdit.getIndentPrefs();
-                            }else{
+                            } else {
                                 indentPrefs = DefaultIndentPrefs.get();
                             }
-                            
+
                             String indentationString = indentPrefs.getIndentationString();
 
                             int subLen = sub.length();
                             int indentLen = indentationString.length();
                             int mod = subLen % indentLen;
-                            if(mod != 0){
-                                String substring = sub.substring(subLen-mod, subLen);
+                            if (mod != 0) {
+                                String substring = sub.substring(subLen - mod, subLen);
                                 boolean onlyWhitespaces = true;
-                                for(int k=0;k<substring.length();k++){
-                                    if(substring.charAt(k) != ' '){
+                                for (int k = 0; k < substring.length(); k++) {
+                                    if (substring.charAt(k) != ' ') {
                                         onlyWhitespaces = false;
                                         break;
                                     }
                                 }
-                                if(onlyWhitespaces){
-                                    String newSub = sub.substring(0, subLen-mod);
+                                if (onlyWhitespaces) {
+                                    String newSub = sub.substring(0, subLen - mod);
                                     strbuf.clear();
-                                    for(String line:lines){
+                                    for (String line : lines) {
                                         strbuf.append(newSub);
                                         strbuf.append(line.substring(sub.length()));
                                     }
@@ -227,20 +226,17 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
                     }
                 }
             }
-            
-            
-            
-            
+
             // Replace the text with the modified information
             int startLineOffset = ps.getLineOffset(startLineIndex);
             int endLineOffset = ps.getEndLineOffset(endLineIndex);
             String endLineDelimiter = ps.getDoc().getLineDelimiter(endLineIndex);
-            if(endLineDelimiter != null){
-                endLineOffset += endLineDelimiter.length(); 
+            if (endLineDelimiter != null) {
+                endLineOffset += endLineDelimiter.length();
             }
             String str = strbuf.toString();
-            ps.getDoc().replace(startLineOffset, endLineOffset-startLineOffset, str);
-            return startLineOffset+str.length();
+            ps.getDoc().replace(startLineOffset, endLineOffset - startLineOffset, str);
+            return startLineOffset + str.length();
         } catch (Exception e) {
             beep(e);
         }
@@ -252,11 +248,11 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
     private int getEndIndex(PySelection ps) {
         int endLineIndex = -1;
         int i = ps.getEndLineIndex();
-        while(true){
+        while (true) {
             String line = ps.getLine(i);
-            if(PySelection.isCommentLine(line)){
-                endLineIndex=i;
-            }else{
+            if (PySelection.isCommentLine(line)) {
+                endLineIndex = i;
+            } else {
                 break;
             }
             i++;
@@ -267,11 +263,11 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
     private int getStartIndex(PySelection ps) {
         int startLineIndex = -1;
         int i = ps.getStartLineIndex();
-        while(true){
+        while (true) {
             String line = ps.getLine(i);
-            if(PySelection.isCommentLine(line)){
-                startLineIndex=i;
-            }else{
+            if (PySelection.isCommentLine(line)) {
+                startLineIndex = i;
+            } else {
                 break;
             }
             i--;

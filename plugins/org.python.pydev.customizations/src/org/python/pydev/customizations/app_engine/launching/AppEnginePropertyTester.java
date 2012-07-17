@@ -21,8 +21,7 @@ import org.python.pydev.customizations.common.CustomizationCommons;
  * 
  * @author Fabio
  */
-public class AppEnginePropertyTester extends PropertyTester{
-
+public class AppEnginePropertyTester extends PropertyTester {
 
     /**
      * Expected value is ignored.
@@ -32,37 +31,38 @@ public class AppEnginePropertyTester extends PropertyTester{
      */
     public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
         IContainer container = CustomizationCommons.getContainerFromObject(receiver);
-        if(container == null){
+        if (container == null) {
             return false;
         }
-        
+
         IPythonPathNature nature = CustomizationCommons.getPythonPathNatureFromObject(receiver);
-        if(nature == null){
+        if (nature == null) {
             return false;
         }
-        
+
         //dev_appserver.py [options] <application root>
         //
         //Application root must be the path to the application to run in this server.
         //Must contain a valid app.yaml or app.yml file.
         IFile file = container.getFile(new Path("app.yaml"));
-        if(file == null || !file.exists()){
+        if (file == null || !file.exists()) {
             file = container.getFile(new Path("app.yml"));
-            if(file == null || !file.exists()){
+            if (file == null || !file.exists()) {
                 return false;
             }
         }
-        
-        try{
+
+        try {
             Map<String, String> variableSubstitution = nature.getVariableSubstitution();
             //Only consider a google app engine a project that has a google app engine variable!
-            if(variableSubstitution != null && variableSubstitution.containsKey(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE)){
+            if (variableSubstitution != null
+                    && variableSubstitution.containsKey(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE)) {
                 return true;
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             Log.log(e);
         }
-     
+
         return false;
     }
 

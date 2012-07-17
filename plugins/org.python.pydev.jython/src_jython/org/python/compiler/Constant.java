@@ -10,5 +10,6 @@ abstract class Constant {
     public String name;
 
     public abstract void get(Code c) throws IOException;
+
     public abstract void put(Code c) throws IOException;
 }

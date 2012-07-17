@@ -14,30 +14,29 @@ import org.python.pydev.plugin.PydevPlugin;
 
 public class InterpreterTypeTester extends PropertyTester {
 
-	public boolean test(Object receiver, String property, Object[] args,
-			Object expectedValue) {
-		IInterpreterManager interpreterManager = null;
-		String str = expectedValue.toString();
-		
-		if("python".equals(str)){
-			interpreterManager = PydevPlugin.getPythonInterpreterManager();
-		}else if("jython".equals(str)){
-			interpreterManager = PydevPlugin.getJythonInterpreterManager();
-		}else if("ironpython".equals(str)){
-			interpreterManager = PydevPlugin.getIronpythonInterpreterManager();
-		}else{
-			Log.log("Unable to check for: "+expectedValue);
-		}
-		
-		if(interpreterManager != null){
-			try {
-				String defaultInterpreter = interpreterManager.getDefaultInterpreterInfo(false).getExecutableOrJar();
-				return defaultInterpreter != null;
-			} catch (MisconfigurationException e) {
-				return false;
-			}
-		}
-		return false;
-	}
+    public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
+        IInterpreterManager interpreterManager = null;
+        String str = expectedValue.toString();
+
+        if ("python".equals(str)) {
+            interpreterManager = PydevPlugin.getPythonInterpreterManager();
+        } else if ("jython".equals(str)) {
+            interpreterManager = PydevPlugin.getJythonInterpreterManager();
+        } else if ("ironpython".equals(str)) {
+            interpreterManager = PydevPlugin.getIronpythonInterpreterManager();
+        } else {
+            Log.log("Unable to check for: " + expectedValue);
+        }
+
+        if (interpreterManager != null) {
+            try {
+                String defaultInterpreter = interpreterManager.getDefaultInterpreterInfo(false).getExecutableOrJar();
+                return defaultInterpreter != null;
+            } catch (MisconfigurationException e) {
+                return false;
+            }
+        }
+        return false;
+    }
 
 }

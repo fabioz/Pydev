@@ -25,11 +25,10 @@ public interface IInterpreterInfoBuilder {
      * On dispose, the info reference should be disposed (but this builder should not be reused again).
      */
     void setInfo(InterpreterInfo interpreterInfo);
-    
+
     /**
      * Stops hearing any changes.
      */
     void dispose();
-
 
 }

@@ -22,7 +22,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
-public class PythonInterpreterManager extends AbstractInterpreterManager{
+public class PythonInterpreterManager extends AbstractInterpreterManager {
 
     public PythonInterpreterManager(IPreferenceStore preferences) {
         super(preferences);
@@ -32,22 +32,22 @@ public class PythonInterpreterManager extends AbstractInterpreterManager{
     protected String getPreferenceName() {
         return PYTHON_INTERPRETER_PATH;
     }
-    
+
     @Override
     public String getInterpreterUIName() {
         return "Python";
     }
 
     @Override
-    public Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor, boolean askUser) throws CoreException {
+    public Tuple<InterpreterInfo, String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor,
+            boolean askUser) throws CoreException {
         return doCreateInterpreterInfo(executable, monitor, askUser);
     }
-    
+
     @Override
     protected String getPreferencesPageId() {
         return "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPagePython";
     }
-
 
     /**
      * @param executable the python interpreter from where we should create the info
@@ -56,33 +56,33 @@ public class PythonInterpreterManager extends AbstractInterpreterManager{
      * @return the created interpreter info
      * @throws CoreException
      */
-    public static Tuple<InterpreterInfo,String> doCreateInterpreterInfo(String executable, IProgressMonitor monitor, boolean askUser) throws CoreException {
+    public static Tuple<InterpreterInfo, String> doCreateInterpreterInfo(String executable, IProgressMonitor monitor,
+            boolean askUser) throws CoreException {
         boolean isJythonExecutable = InterpreterInfo.isJythonExecutable(executable);
-        if(isJythonExecutable){
+        if (isJythonExecutable) {
             throw new RuntimeException("A jar cannot be used in order to get the info for the python interpreter.");
-        }                
+        }
 
         File script = getInterpreterInfoPy();
 
-        Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutputWithInterpreter(
-                executable, REF.getFileAbsolutePath(script), null, null, null, monitor, "utf-8");
-        
+        Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutputWithInterpreter(executable,
+                REF.getFileAbsolutePath(script), null, null, null, monitor, "utf-8");
+
         InterpreterInfo info = createInfoFromOutput(monitor, outTup, askUser);
-        
-        if(info == null){
+
+        if (info == null) {
             //cancelled
             return null;
         }
 
         info.restoreCompiledLibs(monitor);
-        
-        return new Tuple<InterpreterInfo,String>(info, outTup.o1);
+
+        return new Tuple<InterpreterInfo, String>(info, outTup.o1);
     }
 
     public int getInterpreterType() {
         return IInterpreterManager.INTERPRETER_TYPE_PYTHON;
     }
-    
 
     public String getManagerRelatedName() {
         return "python";

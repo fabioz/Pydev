@@ -14,7 +14,7 @@ import org.python.pydev.core.callbacks.CallbackWithListeners;
  */
 public class PythonRunnerCallbacks {
 
-    public static class CreatedCommandLineParams{
+    public static class CreatedCommandLineParams {
 
         public final String[] cmdLine;
         public final boolean coverageRun;
@@ -23,11 +23,11 @@ public class PythonRunnerCallbacks {
             this.cmdLine = cmdLine;
             this.coverageRun = coverageRun;
         }
-        
+
     }
-    
+
     public final static CallbackWithListeners<CreatedCommandLineParams> onCreatedCommandLine = new CallbackWithListeners<CreatedCommandLineParams>();
-    
+
     public final static CallbackWithListeners<Process> afterCreatedProcess = new CallbackWithListeners<Process>();
 
 }

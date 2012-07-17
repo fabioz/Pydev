@@ -16,8 +16,8 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.callbacks.ICallback0;
 
-public class SystemASTManager extends AbstractASTManager{
-    
+public class SystemASTManager extends AbstractASTManager {
+
     public SystemASTManager(IInterpreterManager manager, IPythonNature nature, IInterpreterInfo info) {
         this.modulesManager = info.getModulesManager();
         setNature(nature);
@@ -27,7 +27,8 @@ public class SystemASTManager extends AbstractASTManager{
         throw new RuntimeException("Not implemented");
     }
 
-    public void rebuildModule(File file, ICallback0<IDocument> doc, IProject project, IProgressMonitor monitor, IPythonNature nature) {
+    public void rebuildModule(File file, ICallback0<IDocument> doc, IProject project, IProgressMonitor monitor,
+            IPythonNature nature) {
         throw new RuntimeException("Not implemented");
     }
 

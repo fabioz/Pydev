@@ -33,13 +33,13 @@ public class PyLineBreakReader {
      * @param maxLineWidth The max width (pixels) where the text has to fit in
      */
     public PyLineBreakReader(Reader reader, GC gc, int maxLineWidth) {
-        fReader= new BufferedReader(reader);
-        fGC= gc;
-        fMaxWidth= maxLineWidth;
-        fOffset= 0;
-        fLine= null;
-        fLineBreakIterator= BreakIterator.getLineInstance();
-        fBreakWords= true;
+        fReader = new BufferedReader(reader);
+        fGC = gc;
+        fMaxWidth = maxLineWidth;
+        fOffset = 0;
+        fLine = null;
+        fLineBreakIterator = BreakIterator.getLineInstance();
+        fBreakWords = true;
     }
 
     public boolean isFormattedLine() {
@@ -55,40 +55,40 @@ public class PyLineBreakReader {
      */
     public String readLine() throws IOException {
         if (fLine == null) {
-            String line= fReader.readLine();
+            String line = fReader.readLine();
             if (line == null)
                 return null;
 
-            int lineLen= fGC.textExtent(line).x;
+            int lineLen = fGC.textExtent(line).x;
             if (lineLen < fMaxWidth) {
                 return line;
             }
-            fLine= line;
+            fLine = line;
             fLineBreakIterator.setText(line);
-            fOffset= 0;
+            fOffset = 0;
         }
-        int breakOffset= findNextBreakOffset(fOffset);
+        int breakOffset = findNextBreakOffset(fOffset);
         String res;
         if (breakOffset != BreakIterator.DONE) {
-            res= fLine.substring(fOffset, breakOffset);
-            fOffset= findWordBegin(breakOffset);
+            res = fLine.substring(fOffset, breakOffset);
+            fOffset = findWordBegin(breakOffset);
             if (fOffset == fLine.length()) {
-                fLine= null;
+                fLine = null;
             }
         } else {
-            res= fLine.substring(fOffset);
-            fLine= null;
+            res = fLine.substring(fOffset);
+            fLine = null;
         }
         return res;
     }
 
     private int findNextBreakOffset(int currOffset) {
-        int currWidth= 0;
-        int nextOffset= fLineBreakIterator.following(currOffset);
+        int currWidth = 0;
+        int nextOffset = fLineBreakIterator.following(currOffset);
         while (nextOffset != BreakIterator.DONE) {
-            String word= fLine.substring(currOffset, nextOffset);
-            int wordWidth= fGC.textExtent(word).x;
-            int nextWidth= wordWidth + currWidth;
+            String word = fLine.substring(currOffset, nextOffset);
+            int wordWidth = fGC.textExtent(word).x;
+            int nextWidth = wordWidth + currWidth;
             if (nextWidth > fMaxWidth) {
                 if (currWidth > 0)
                     return currOffset;
@@ -97,19 +97,19 @@ public class PyLineBreakReader {
                     return nextOffset;
 
                 // need to fit into fMaxWidth
-                int length= word.length();
+                int length = word.length();
                 while (length >= 0) {
                     length--;
-                    word= word.substring(0, length);
-                    wordWidth= fGC.textExtent(word).x;
+                    word = word.substring(0, length);
+                    wordWidth = fGC.textExtent(word).x;
                     if (wordWidth + currWidth < fMaxWidth)
                         return currOffset + length;
                 }
                 return nextOffset;
             }
-            currWidth= nextWidth;
-            currOffset= nextOffset;
-            nextOffset= fLineBreakIterator.next();
+            currWidth = nextWidth;
+            currOffset = nextOffset;
+            nextOffset = fLineBreakIterator.next();
         }
         return nextOffset;
     }
@@ -121,4 +121,3 @@ public class PyLineBreakReader {
         return idx;
     }
 }
-

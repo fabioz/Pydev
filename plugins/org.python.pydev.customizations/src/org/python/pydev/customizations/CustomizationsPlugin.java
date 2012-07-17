@@ -23,7 +23,7 @@ public class CustomizationsPlugin extends AbstractUIPlugin {
     private static CustomizationsPlugin plugin;
     //Resource bundle.
     private ResourceBundle resourceBundle;
-    
+
     /**
      * The constructor.
      */
@@ -78,23 +78,25 @@ public class CustomizationsPlugin extends AbstractUIPlugin {
         return resourceBundle;
     }
 
-    
     // ----------------- SINGLETON THINGS -----------------------------
     public static IBundleInfo info;
-    public static IBundleInfo getBundleInfo(){
-        if(CustomizationsPlugin.info == null){
+
+    public static IBundleInfo getBundleInfo() {
+        if (CustomizationsPlugin.info == null) {
             CustomizationsPlugin.info = new BundleInfo(CustomizationsPlugin.getDefault().getBundle());
         }
         return CustomizationsPlugin.info;
     }
-    public static void setBundleInfo(IBundleInfo b){
+
+    public static void setBundleInfo(IBundleInfo b) {
         CustomizationsPlugin.info = b;
     }
+
     // ----------------- END BUNDLE INFO THINGS --------------------------
     /**
      * @return the cache that should be used to access images within the pydev plugin.
      */
-    public static ImageCache getImageCache(){
+    public static ImageCache getImageCache() {
         return CustomizationsPlugin.getBundleInfo().getImageCache();
     }
-    }
+}

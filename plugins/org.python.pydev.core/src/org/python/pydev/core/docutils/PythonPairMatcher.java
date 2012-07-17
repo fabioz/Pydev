@@ -63,7 +63,7 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
     public PythonPairMatcher() {
         this(StringUtils.BRACKETS);
     }
-    
+
     /**
      * Constructor which accepts an array of array of characters you want to interpreted as pairs.
      * 
@@ -175,16 +175,14 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
 
             if (fEndPos > -1) {
                 fAnchor = RIGHT;
-                fStartPos = searchForOpeningPeer(fEndPos, fPairs[pairIndex2 - 1], fPairs[pairIndex2],
-                        fDocument);
+                fStartPos = searchForOpeningPeer(fEndPos, fPairs[pairIndex2 - 1], fPairs[pairIndex2], fDocument);
                 if (fStartPos > -1)
                     return true;
                 else
                     fEndPos = -1;
             } else if (fStartPos > -1) {
                 fAnchor = LEFT;
-                fEndPos = searchForClosingPeer(fStartPos, fPairs[pairIndex1], fPairs[pairIndex1 + 1],
-                        fDocument);
+                fEndPos = searchForClosingPeer(fStartPos, fPairs[pairIndex1], fPairs[pairIndex1 + 1], fDocument);
                 if (fEndPos > -1)
                     return true;
                 else
@@ -207,7 +205,7 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
      * @return the offset of the closing peer
      * @throws IOException
      */
-    public int searchForClosingPeer(int offset, char openingPeer, char closingPeer, IDocument document){
+    public int searchForClosingPeer(int offset, char openingPeer, char closingPeer, IDocument document) {
         try {
             fReader.configureForwardReader(document, offset + 1, document.getLength(), true, true, true);
 
@@ -219,7 +217,7 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
                 else if (c == closingPeer)
                     stack--;
 
-                if (stack <= 0){ //<= 0 because if we have a closing peer without an opening one, we'll return it.
+                if (stack <= 0) { //<= 0 because if we have a closing peer without an opening one, we'll return it.
                     return fReader.getOffset();
                 }
 
@@ -242,7 +240,7 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
      * @return the offset of the opening peer
      * @throws IOException
      */
-    public int searchForOpeningPeer(int offset, char openingPeer, char closingPeer, IDocument document){
+    public int searchForOpeningPeer(int offset, char openingPeer, char closingPeer, IDocument document) {
 
         try {
             fReader.configureBackwardReader(document, offset, true, true, true);
@@ -255,7 +253,7 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
                 else if (c == openingPeer)
                     stack--;
 
-                if (stack <= 0){//<= 0 because if we have an opening peer without a closing one, we'll return it.
+                if (stack <= 0) {//<= 0 because if we have an opening peer without a closing one, we'll return it.
                     return fReader.getOffset();
                 }
 
@@ -271,44 +269,42 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
     public int searchForAnyOpeningPeer(int offset, IDocument document) {
         try {
             fReader.configureBackwardReader(document, offset, true, true, true);
-            
+
             Map<Character, Integer> stack = new HashMap<Character, Integer>();
-            
+
             HashSet<Character> closing = new HashSet<Character>();
             HashSet<Character> opening = new HashSet<Character>();
-            
+
             for (int i = 0; i < fPairs.length; i++) {
                 stack.put(fPairs[i], 1);
-                if(i%2 == 0){
-                	opening.add(fPairs[i]);
-                }else{
-                	closing.add(fPairs[i]);
+                if (i % 2 == 0) {
+                    opening.add(fPairs[i]);
+                } else {
+                    closing.add(fPairs[i]);
                 }
             }
-            
-            
+
             int c = fReader.read();
             while (c != PythonCodeReader.EOF) {
-                if (closing.contains((char)c)){ // c == ')' || c == ']' || c == '}' 
-                    char peer = StringUtils.getPeer((char)c);
-                    Integer iStack = stack.get((char)peer);
+                if (closing.contains((char) c)) { // c == ')' || c == ']' || c == '}' 
+                    char peer = StringUtils.getPeer((char) c);
+                    Integer iStack = stack.get((char) peer);
                     iStack++;
                     stack.put(peer, iStack);
-                    
-                }else if (opening.contains((char)c)){ //c == '(' || c == '[' || c == '{'
-                    Integer iStack = stack.get((char)c);
+
+                } else if (opening.contains((char) c)) { //c == '(' || c == '[' || c == '{'
+                    Integer iStack = stack.get((char) c);
                     iStack--;
                     stack.put((char) c, iStack);
-                    
-                    if (iStack == 0){
+
+                    if (iStack == 0) {
                         return fReader.getOffset();
                     }
                 }
-                
-                
+
                 c = fReader.read();
             }
-            
+
             return -1;
         } catch (Exception e) {
             throw new RuntimeException(e);

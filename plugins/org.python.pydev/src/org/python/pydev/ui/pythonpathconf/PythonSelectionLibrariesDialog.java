@@ -78,13 +78,15 @@ public final class PythonSelectionLibrariesDialog implements Runnable {
 
     /**
      */
-    public PythonSelectionLibrariesDialog(List<String> initialSelection, List<String> allItems, boolean addSelectAllNotInWorkspace) {
+    public PythonSelectionLibrariesDialog(List<String> initialSelection, List<String> allItems,
+            boolean addSelectAllNotInWorkspace) {
         this.initialSelection = initialSelection;
         this.allItems = allItems;
         this.addSelectAllNotInWorkspace = addSelectAllNotInWorkspace;
     }
 
-    private String msg = "Select the folders to be added to the SYSTEM pythonpath!\n" + "\n"
+    private String msg = "Select the folders to be added to the SYSTEM pythonpath!\n"
+            + "\n"
             + "IMPORTANT: The folders for your PROJECTS should NOT be added here, but in your project configuration.\n\n"
             + "Check:http://pydev.org/manual_101_interpreter.html for more details.";
 
@@ -94,9 +96,8 @@ public final class PythonSelectionLibrariesDialog implements Runnable {
 
     public void run() {
 
-        PyListSelectionDialog dialog = new PyListSelectionDialog(
-                Display.getDefault().getActiveShell(), allItems, new ContentProvider(),
-                new LabelProvider(), msg, addSelectAllNotInWorkspace);
+        PyListSelectionDialog dialog = new PyListSelectionDialog(Display.getDefault().getActiveShell(), allItems,
+                new ContentProvider(), new LabelProvider(), msg, addSelectAllNotInWorkspace);
         dialog.setInitialSelections(initialSelection.toArray(new String[0]));
         int i = dialog.open();
         if (i == Window.OK) {

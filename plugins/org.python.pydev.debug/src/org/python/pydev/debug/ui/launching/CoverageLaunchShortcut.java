@@ -15,17 +15,15 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.plugin.PydevPlugin;
 
-
-public class CoverageLaunchShortcut extends AbstractLaunchShortcut{
+public class CoverageLaunchShortcut extends AbstractLaunchShortcut {
 
     protected String getLaunchConfigurationType() {
         return Constants.ID_PYTHON_COVERAGE_LAUNCH_CONFIGURATION_TYPE;
     }
-    
-    
+
     @Override
-    protected IInterpreterManager getInterpreterManager(IProject project){
+    protected IInterpreterManager getInterpreterManager(IProject project) {
         return PydevPlugin.getPythonInterpreterManager();
     }
-    
+
 }

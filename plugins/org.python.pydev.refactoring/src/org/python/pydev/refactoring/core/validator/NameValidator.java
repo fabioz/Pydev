@@ -21,9 +21,10 @@ public class NameValidator {
     // Self is not really a keyword, but 
     private static final List<String> KEYWORDS;
 
-    static{
-        KEYWORDS = Arrays.asList(new String[] { "and", "assert", "break", "class", "continue", "def", "del", "elif", "else", "except", "exec", "finally", "for", "from", "global", "if", "import",
-                "in", "is", "lambda", "not", "or", "pass", "print", "raise", "return", "try", "while", "yield" });
+    static {
+        KEYWORDS = Arrays.asList(new String[] { "and", "assert", "break", "class", "continue", "def", "del", "elif",
+                "else", "except", "exec", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda",
+                "not", "or", "pass", "print", "raise", "return", "try", "while", "yield" });
     }
 
     private static final String NAME_PATTERN = "[a-zA-Z_][a-zA-Z_0-9]*";
@@ -37,7 +38,7 @@ public class NameValidator {
     }
 
     public void validateUniqueVariable(String name) {
-        if(scopeNode.alreadyUsedName(name)){
+        if (scopeNode.alreadyUsedName(name)) {
             status.addWarning(Messages.format(Messages.validationNameAlreadyUsed, name));
         }
     }
@@ -53,18 +54,18 @@ public class NameValidator {
     }
 
     private void validateNotKeyword(String name) {
-        if(KEYWORDS.contains(name)){
+        if (KEYWORDS.contains(name)) {
             status.addFatalError(Messages.format(Messages.validationReservedKeyword, name));
         }
     }
 
     private void validateName(String name) {
-        if(name.equals("")){
+        if (name.equals("")) {
             status.addFatalError(Messages.validationNameIsEmpty);
             return;
         }
 
-        if(!name.matches(NAME_PATTERN)){
+        if (!name.matches(NAME_PATTERN)) {
             status.addFatalError(Messages.format(Messages.validationContainsInvalidChars, name));
         }
     }
@@ -72,9 +73,9 @@ public class NameValidator {
     public void validateUniqueFunction(String name) {
         AbstractScopeNode<?> parentAdapter = scopeNode.getParent();
 
-        if(parentAdapter != null){
-            for(FunctionDefAdapter function:parentAdapter.getFunctions()){
-                if(function.getName().compareTo(name) == 0){
+        if (parentAdapter != null) {
+            for (FunctionDefAdapter function : parentAdapter.getFunctions()) {
+                if (function.getName().compareTo(name) == 0) {
                     status.addWarning(Messages.format(Messages.validationNameAlreadyUsed, name));
                 }
             }

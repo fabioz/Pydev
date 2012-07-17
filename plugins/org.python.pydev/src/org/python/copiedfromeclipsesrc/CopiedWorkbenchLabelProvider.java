@@ -48,8 +48,7 @@ import org.python.pydev.core.log.Log;
  * 
  * Copied just so that we can have getText and getImage overridden.
  */
-public class CopiedWorkbenchLabelProvider extends LabelProvider implements
-        IColorProvider, IFontProvider {
+public class CopiedWorkbenchLabelProvider extends LabelProvider implements IColorProvider, IFontProvider {
 
     /**
      * Returns a workbench label provider that is hooked up to the decorator
@@ -59,11 +58,10 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
      *   new <code>CopiedWorkbenchLabelProvider</code>
      */
     public static ILabelProvider getDecoratingCopiedWorkbenchLabelProvider() {
-        return new DecoratingLabelProvider(new CopiedWorkbenchLabelProvider(),
-                PlatformUI.getWorkbench().getDecoratorManager()
-                        .getLabelDecorator());
+        return new DecoratingLabelProvider(new CopiedWorkbenchLabelProvider(), PlatformUI.getWorkbench()
+                .getDecoratorManager().getLabelDecorator());
     }
-    
+
     /**
      * Listener that tracks changes to the editor registry and does a full update
      * when it changes, since many workbench adapters derive their icon from the file
@@ -75,7 +73,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
                 fireLabelProviderChanged(new LabelProviderChangedEvent(CopiedWorkbenchLabelProvider.this));
             }
         }
-    };        
+    };
     private ResourceManager resourceManager;
 
     /**
@@ -99,8 +97,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
      * @return the resuling ImageDescriptor.
      * @see org.eclipse.jface.resource.CompositeImageDescriptor
      */
-    protected ImageDescriptor decorateImage(ImageDescriptor input,
-            Object element) {
+    protected ImageDescriptor decorateImage(ImageDescriptor input, Object element) {
         return input;
     }
 
@@ -128,8 +125,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
         resourceManager = null;
         super.dispose();
     }
-    
-    
+
     /**
      * Copied from Util.getAdapter (from eclipse 3.3: not available in eclipse 3.2)
      * 
@@ -171,8 +167,8 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
                 Assert.isTrue(adapterType.isInstance(result));
                 return result;
             }
-        } 
-        
+        }
+
         if (!(sourceObject instanceof PlatformObject)) {
             Object result = Platform.getAdapterManager().getAdapter(sourceObject, adapterType);
             if (result != null) {
@@ -183,7 +179,6 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
         return null;
     }
 
-    
     /**
      * Returns the implementation of IWorkbenchAdapter for the given
      * object.  
@@ -192,7 +187,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
      * object is not adaptable. 
      */
     protected final IWorkbenchAdapter getAdapter(Object o) {
-        return (IWorkbenchAdapter)utilGetAdapter(o, IWorkbenchAdapter.class);
+        return (IWorkbenchAdapter) utilGetAdapter(o, IWorkbenchAdapter.class);
     }
 
     /**
@@ -203,7 +198,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
      * object is not adaptable. 
      */
     protected final IWorkbenchAdapter2 getAdapter2(Object o) {
-        return (IWorkbenchAdapter2)utilGetAdapter(o, IWorkbenchAdapter2.class);
+        return (IWorkbenchAdapter2) utilGetAdapter(o, IWorkbenchAdapter2.class);
     }
 
     /* (non-Javadoc)
@@ -274,7 +269,7 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
             return null;
         }
 
-        try{
+        try {
             return resourceManager.createFont(FontDescriptor.createFrom(descriptor));
         } catch (Exception e) {
             Log.log(e);
@@ -288,13 +283,12 @@ public class CopiedWorkbenchLabelProvider extends LabelProvider implements
         if (adapter == null) {
             return null;
         }
-        RGB descriptor = forground ? adapter.getForeground(element) : adapter
-                .getBackground(element);
+        RGB descriptor = forground ? adapter.getForeground(element) : adapter.getBackground(element);
         if (descriptor == null) {
             return null;
         }
 
-        try{
+        try {
             return resourceManager.createColor(ColorDescriptor.createFrom(descriptor));
         } catch (Exception e) {
             Log.log(e);

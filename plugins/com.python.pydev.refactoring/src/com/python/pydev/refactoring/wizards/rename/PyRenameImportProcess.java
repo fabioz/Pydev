@@ -38,99 +38,103 @@ import com.python.pydev.refactoring.wizards.RefactorProcessFactory;
  * Currently we do not support this type of refactoring for global refactorings (it always
  * acts locally).
  */
-public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProcess{
+public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProcess {
 
     public static final int TYPE_RENAME_MODULE = 1;
     public static final int TYPE_RENAME_UNRESOLVED_IMPORT = 2;
-    
-    protected int type=-1;
-    
+
+    protected int type = -1;
+
     /**
      * The module for which we're looking for references
      */
     protected SourceModule moduleToFind;
-    
+
     /**
      * @param definition this is the definition we're interested in.
      */
     public PyRenameImportProcess(Definition definition) {
         super(definition);
-        if(definition.ast == null){
+        if (definition.ast == null) {
             this.type = TYPE_RENAME_MODULE;
-        }else{
+        } else {
             this.type = TYPE_RENAME_UNRESOLVED_IMPORT;
         }
     }
-    
+
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         List<ASTEntry> oc = getOccurrencesWithScopeAnalyzer(request);
         SimpleNode root = request.getAST();
-        if(oc.size() > 0){
+        if (oc.size() > 0) {
             //only add comments and strings if there's at least some other occurrence
             oc.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
             oc.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
         }
-        
+
         addOccurrences(request, oc);
     }
 
     @Override
     protected void doCheckInitialOnWorkspace(RefactoringStatus status, RefactoringRequest request) {
-        
+
         boolean wasResolved = false;
-        
+
         //now, on the workspace, we need to find the module definition as well as the imports for it...
         //the local scope should have already determined which is the module to be renamed (unless it
         //is an unresolved import, in which case we'll only make a local refactor)
-        if(docOccurrences.size() != 0){
+        if (docOccurrences.size() != 0) {
             ASTEntry entry = docOccurrences.iterator().next();
-            Found found = (Found) entry.getAdditionalInfo(ScopeAnalyzerVisitor.FOUND_ADDITIONAL_INFO_IN_AST_ENTRY, null);
-            if(found == null){
+            Found found = (Found) entry
+                    .getAdditionalInfo(ScopeAnalyzerVisitor.FOUND_ADDITIONAL_INFO_IN_AST_ENTRY, null);
+            if (found == null) {
                 throw new RuntimeException("Expecting decorated entry.");
             }
-            if(found.importInfo == null){
+            if (found.importInfo == null) {
                 throw new RuntimeException("Expecting import info from the found entry.");
             }
-            if(found.importInfo.wasResolved){
-                Definition d = found.importInfo.getModuleDefinitionFromImportInfo(request.nature, new CompletionCache());
-                if(d == null || d.module == null){
+            if (found.importInfo.wasResolved) {
+                Definition d = found.importInfo
+                        .getModuleDefinitionFromImportInfo(request.nature, new CompletionCache());
+                if (d == null || d.module == null) {
                     status.addFatalError(StringUtils.format("Unable to find the definition for the module."));
                     return;
                 }
-                if(!(d.module instanceof SourceModule)){
-                    status.addFatalError(StringUtils.format("Only source modules may be renamed (the module %s was found as a %s module)", d.module.getName(), d.module.getClass()));
+                if (!(d.module instanceof SourceModule)) {
+                    status.addFatalError(StringUtils.format(
+                            "Only source modules may be renamed (the module %s was found as a %s module)",
+                            d.module.getName(), d.module.getClass()));
                     return;
                 }
-                
+
                 this.moduleToFind = (SourceModule) d.module;
                 wasResolved = true;
-                
+
                 //it cannot be a compiled extension
-                if(!(found.importInfo.mod instanceof SourceModule)){
-                    status.addFatalError(StringUtils.format("Error. The module %s may not be renamed\n" +
-                            "(Because it was found as a compiled extension).",found.importInfo.mod.getName()));
+                if (!(found.importInfo.mod instanceof SourceModule)) {
+                    status.addFatalError(StringUtils.format("Error. The module %s may not be renamed\n"
+                            + "(Because it was found as a compiled extension).", found.importInfo.mod.getName()));
                     return;
                 }
-                
+
                 //nor be a system module
-                ISystemModulesManager systemModulesManager = request.nature.getAstManager().getModulesManager().getSystemModulesManager();
-                IModule systemModule = systemModulesManager.getModule(found.importInfo.mod.getName(), request.nature, true);
-                if(systemModule != null){
-                    status.addFatalError(StringUtils.format("Error. The module '%s' may not be renamed\n" +
-                            "Only project modules may be renamed\n" +
-                            "(and it was found as being a system module).",
+                ISystemModulesManager systemModulesManager = request.nature.getAstManager().getModulesManager()
+                        .getSystemModulesManager();
+                IModule systemModule = systemModulesManager.getModule(found.importInfo.mod.getName(), request.nature,
+                        true);
+                if (systemModule != null) {
+                    status.addFatalError(StringUtils.format("Error. The module '%s' may not be renamed\n"
+                            + "Only project modules may be renamed\n" + "(and it was found as being a system module).",
                             found.importInfo.mod.getName()));
                     return;
                 }
-                
-                
+
                 List<ASTEntry> lst = new ArrayList<ASTEntry>();
                 lst.add(new ASTEntryWithSourceModule(moduleToFind));
                 addOccurrences(lst, moduleToFind.getFile(), moduleToFind.getName());
             }
         }
 
-        if(wasResolved){
+        if (wasResolved) {
             //now, if we've been able to resolve it, let's keep on with the 'default' way of getting workspace occurrences
             //(if we haven't been able to resolve it, there's no way to find matching imports in the workspace)
             super.doCheckInitialOnWorkspace(status, request);
@@ -138,17 +142,19 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
     }
 
     @Override
-    protected List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, String initialName, SourceModule module) {
+    protected List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, String initialName,
+            SourceModule module) {
         List<ASTEntry> entryOccurrences = new ArrayList<ASTEntry>();
-        
+
         try {
-            ScopeAnalyzerVisitorForImports visitor = new ScopeAnalyzerVisitorForImports(request.nature, module.getName(), 
-                    module, new NullProgressMonitor(), request.ps.getCurrToken().o1, request.ps.getActivationTokenAndQual(true), moduleToFind);
-            
+            ScopeAnalyzerVisitorForImports visitor = new ScopeAnalyzerVisitorForImports(request.nature,
+                    module.getName(), module, new NullProgressMonitor(), request.ps.getCurrToken().o1,
+                    request.ps.getActivationTokenAndQual(true), moduleToFind);
+
             SimpleNode root = module.getAst();
             root.accept(visitor);
             entryOccurrences = visitor.getEntryOccurrences();
-            if(entryOccurrences.size() > 0){
+            if (entryOccurrences.size() > 0) {
                 //only add comments and strings if there's at least some other occurrence
                 entryOccurrences.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
                 entryOccurrences.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
@@ -158,7 +164,7 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
         }
         return entryOccurrences;
     }
-    
+
     @Override
     protected boolean getRecheckWhereDefinitionWasFound() {
         return false;

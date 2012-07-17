@@ -8,63 +8,63 @@ import org.eclipse.core.runtime.SafeRunner;
  * exceptions using {@link SafeRunner}. 
  */
 public class SafeScriptConsoleCodeGenerator implements IScriptConsoleCodeGenerator {
-	private final IScriptConsoleCodeGenerator unsafeGenerator;
+    private final IScriptConsoleCodeGenerator unsafeGenerator;
 
-	private boolean hasPyCode;
-	private String pyCode;
+    private boolean hasPyCode;
+    private String pyCode;
 
-	private final class HasPyCodeRunnable implements ISafeRunnable {
+    private final class HasPyCodeRunnable implements ISafeRunnable {
 
-		public void run() throws Exception {
-			hasPyCode = unsafeGenerator.hasPyCode();
-		}
+        public void run() throws Exception {
+            hasPyCode = unsafeGenerator.hasPyCode();
+        }
 
-		public void handleException(Throwable exception) {
-			hasPyCode = false;
-		}
-	}
+        public void handleException(Throwable exception) {
+            hasPyCode = false;
+        }
+    }
 
-	private final class GetPyCodeRunnable implements ISafeRunnable {
+    private final class GetPyCodeRunnable implements ISafeRunnable {
 
-		public void run() throws Exception {
-			pyCode = unsafeGenerator.getPyCode();
-		}
+        public void run() throws Exception {
+            pyCode = unsafeGenerator.getPyCode();
+        }
 
-		public void handleException(Throwable exception) {
-			pyCode = null;
-		}
-	}
+        public void handleException(Throwable exception) {
+            pyCode = null;
+        }
+    }
 
-	/**
-	 * Create a Safe wrapped generator for a possibly unsafe one.
-	 * @param unsafeGenerator generator to wrap
-	 */
-	public SafeScriptConsoleCodeGenerator(IScriptConsoleCodeGenerator unsafeGenerator) {
-		this.unsafeGenerator = unsafeGenerator;
-	}
+    /**
+     * Create a Safe wrapped generator for a possibly unsafe one.
+     * @param unsafeGenerator generator to wrap
+     */
+    public SafeScriptConsoleCodeGenerator(IScriptConsoleCodeGenerator unsafeGenerator) {
+        this.unsafeGenerator = unsafeGenerator;
+    }
 
-	/**
-	 * Calls nested generators getPyCode in a SafeRunner, on any exception
-	 * returns null
-	 */
-	public String getPyCode() {
-	    String ret;
-		try {
-			SafeRunner.run(new GetPyCodeRunnable());
-			ret = pyCode;
-		} finally {
-			pyCode = null;
-		}
-		return ret;
-	}
+    /**
+     * Calls nested generators getPyCode in a SafeRunner, on any exception
+     * returns null
+     */
+    public String getPyCode() {
+        String ret;
+        try {
+            SafeRunner.run(new GetPyCodeRunnable());
+            ret = pyCode;
+        } finally {
+            pyCode = null;
+        }
+        return ret;
+    }
 
-	/**
-	 * Calls nested generators getPyCode in a SafeRunner, on any exception
-	 * returns false
-	 */
-	public boolean hasPyCode() {
-		SafeRunner.run(new HasPyCodeRunnable());
-		return hasPyCode;
-	}
+    /**
+     * Calls nested generators getPyCode in a SafeRunner, on any exception
+     * returns false
+     */
+    public boolean hasPyCode() {
+        SafeRunner.run(new HasPyCodeRunnable());
+        return hasPyCode;
+    }
 
 }

@@ -16,7 +16,7 @@ package org.python.pydev.dltk.console;
  * Shows the prompt to the user (using the #toString()) method (e.g.: shows the >>> or ... )
  */
 public class ScriptConsolePrompt {
-    
+
     /**
      * String to be shown when a new command is requested
      */
@@ -47,7 +47,7 @@ public class ScriptConsolePrompt {
     }
 
     public String toString() {
-        if(needInput){
+        if (needInput) {
             return "";
         }
         return mode ? newCommand : continueCommand;

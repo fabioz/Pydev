@@ -26,12 +26,10 @@ public class PyExceptionBreakPointManager {
     private static final String CUSTOM_EXCEPTION_FILE_NAME = "custom_exceptions.prefs";
     private static final String BREAK_ON_CAUGHT_EXCEPTION = "caught_exception_state.prefs";
     private static final String BREAK_ON_UNCAUGHT_EXCEPTION = "uncaught_exception_state.prefs";
-    
-    
+
     private static PyExceptionBreakPointManager pyExceptionBreakPointManager;
     private static final Object lock = new Object();
 
-    
     //For instance
     private ListenerList<IExceptionsBreakpointListener> listeners = new ListenerList<IExceptionsBreakpointListener>(
             IExceptionsBreakpointListener.class);
@@ -42,7 +40,7 @@ public class PyExceptionBreakPointManager {
     private PyExceptionBreakPointManager() {
 
     }
-    
+
     public static PyExceptionBreakPointManager getInstance() {
         if (pyExceptionBreakPointManager == null) {
             synchronized (lock) {
@@ -54,9 +52,8 @@ public class PyExceptionBreakPointManager {
         return pyExceptionBreakPointManager;
     }
 
-    
     //Listeners
-    
+
     public void addListener(IExceptionsBreakpointListener listener) {
         this.listeners.add(listener);
     }
@@ -64,29 +61,26 @@ public class PyExceptionBreakPointManager {
     public void removeListener(IExceptionsBreakpointListener listener) {
         this.listeners.remove(listener);
     }
-    
 
     //Setters
-    
-    
+
     /**
      * Sets whether we should break on caught/uncaught exceptions and the array of exceptions to be used.
      */
     public void setBreakOn(boolean breakOnCaught, boolean breakOnUncaught, String[] exceptionArray) {
         ConfigureExceptionsFileUtils.writeToFile(BREAK_ON_CAUGHT_EXCEPTION, Boolean.toString(breakOnCaught), false);
-        
+
         ConfigureExceptionsFileUtils.writeToFile(BREAK_ON_UNCAUGHT_EXCEPTION, Boolean.toString(breakOnUncaught), false);
-        
+
         String pyExceptionsStr = StringUtils.join(ConfigureExceptionsFileUtils.DELIMITER, exceptionArray);
-        
+
         ConfigureExceptionsFileUtils.writeToFile(EXCEPTION_FILE_NAME, pyExceptionsStr, false);
-        
+
         for (IExceptionsBreakpointListener listener : this.listeners.getListeners()) {
             listener.onSetConfiguredExceptions();
         }
     }
 
-    
     /**
      * Adds a new custom exception the user entered (note that it just adds it to the list
      * of custom exceptions, it doesn't really change the exceptions set). 
@@ -102,8 +96,6 @@ public class PyExceptionBreakPointManager {
         ConfigureExceptionsFileUtils.writeToFile(CUSTOM_EXCEPTION_FILE_NAME, userConfiguredException, isAppend);
     }
 
-    
-    
     //Getters
 
     public String getBreakOnUncaughtExceptions() {
@@ -117,22 +109,21 @@ public class PyExceptionBreakPointManager {
     public String getExceptionsString() {
         return ConfigureExceptionsFileUtils.readFromMetadataFile(EXCEPTION_FILE_NAME);
     }
-    
+
     public List<String> getExceptionsList() {
         return ConfigureExceptionsFileUtils.getConfiguredExceptions(EXCEPTION_FILE_NAME);
     }
-
 
     /**
      * @return only the exceptions configured by the user (i.e.: not builtin exceptions)
      */
     public List<String> getUserConfiguredExceptions() {
-        List<String> configuredExceptions = ConfigureExceptionsFileUtils.getConfiguredExceptions(CUSTOM_EXCEPTION_FILE_NAME);
+        List<String> configuredExceptions = ConfigureExceptionsFileUtils
+                .getConfiguredExceptions(CUSTOM_EXCEPTION_FILE_NAME);
         Collections.sort(configuredExceptions);
 
         return configuredExceptions;
     }
-
 
     /**
      * @return a list the default 'builtin' exceptions to be presented to the user (i.e.:
@@ -154,7 +145,5 @@ public class PyExceptionBreakPointManager {
         }
         return list;
     }
-
-
 
 }

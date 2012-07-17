@@ -1,5 +1,6 @@
 // Copyright (c) Corporation for National Research Initiatives
 package org.python.util;
+
 import org.python.core.*;
 
 // Based on CPython-1.5.2's code module
@@ -8,14 +9,16 @@ public class InteractiveInterpreter extends PythonInterpreter {
     public InteractiveInterpreter() {
         this(null);
     }
+
     public InteractiveInterpreter(PyObject locals) {
         this(locals, null);
 
     }
-        public InteractiveInterpreter(PyObject locals, PySystemState systemState) {
-            super(locals, systemState);
-            cflags = new CompilerFlags();
-        }
+
+    public InteractiveInterpreter(PyObject locals, PySystemState systemState) {
+        super(locals, systemState);
+        cflags = new CompilerFlags();
+    }
 
     /**
      * Compile and run some source in the interpreter.
@@ -56,8 +59,7 @@ public class InteractiveInterpreter extends PythonInterpreter {
                 // Case 1
                 showexception(exc);
                 return false;
-            } else if (Py.matchException(exc, Py.ValueError) ||
-                       Py.matchException(exc, Py.OverflowError)) {
+            } else if (Py.matchException(exc, Py.ValueError) || Py.matchException(exc, Py.OverflowError)) {
                 // Should not print the stack trace, just the error.
                 showexception(exc);
                 return false;
@@ -90,7 +92,8 @@ public class InteractiveInterpreter extends PythonInterpreter {
         try {
             exec(code);
         } catch (PyException exc) {
-            if (Py.matchException(exc, Py.SystemExit)) throw exc;
+            if (Py.matchException(exc, Py.SystemExit))
+                throw exc;
             showexception(exc);
         }
     }
@@ -98,7 +101,7 @@ public class InteractiveInterpreter extends PythonInterpreter {
     public void showexception(PyException exc) {
         // Should probably add code to handle skipping top stack frames
         // somehow...
-        Py.printException(exc); 
+        Py.printException(exc);
     }
 
     public void write(String data) {
@@ -106,7 +109,7 @@ public class InteractiveInterpreter extends PythonInterpreter {
     }
 
     public StringBuffer buffer = new StringBuffer();
-    public String filename="<stdin>";
+    public String filename = "<stdin>";
 
     public void resetbuffer() {
         buffer.setLength(0);

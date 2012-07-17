@@ -15,10 +15,8 @@ import org.eclipse.jface.viewers.StyledString.Styler;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
 
-
 public class TreeNodeContentProvider implements ITreeContentProvider {
 
-    
     public void dispose() {
     }
 
@@ -30,52 +28,51 @@ public class TreeNodeContentProvider implements ITreeContentProvider {
     }
 
     public Object[] getChildren(Object parentElement) {
-        if(parentElement == null){
+        if (parentElement == null) {
             return new Object[0];
         }
         @SuppressWarnings("rawtypes")
-        TreeNode m = (TreeNode)parentElement;
+        TreeNode m = (TreeNode) parentElement;
         return m.children.toArray();
     }
 
     public Object getParent(Object element) {
         @SuppressWarnings("rawtypes")
-        TreeNode m = (TreeNode)element;
+        TreeNode m = (TreeNode) element;
         return m.parent;
     }
 
     public boolean hasChildren(Object element) {
         @SuppressWarnings("rawtypes")
-        TreeNode m = (TreeNode)element;
+        TreeNode m = (TreeNode) element;
         return m.children.size() > 0;
     }
 
 }
 
 class HierarchyLabelProvider extends LabelProvider implements IStyledLabelProvider {
-    
-    
+
     @Override
     public Image getImage(Object element) {
-        if(element instanceof TreeNode){
+        if (element instanceof TreeNode) {
             @SuppressWarnings("rawtypes")
             TreeNode treeNode = (TreeNode) element;
             return treeNode.image;
         }
         return super.getImage(element);
     }
-    
+
     @Override
     public String getText(Object element) {
-        if(element instanceof TreeNode){
+        if (element instanceof TreeNode) {
             @SuppressWarnings("rawtypes")
             TreeNode treeNode = (TreeNode) element;
             Object data = treeNode.data;
-            if(data instanceof HierarchyNodeModel){
+            if (data instanceof HierarchyNodeModel) {
                 HierarchyNodeModel model = (HierarchyNodeModel) data;
                 String spaces = "     ";
-                if(model.moduleName != null && model.moduleName.trim().length() > 0){
-                    return model.name+spaces+"("+model.moduleName+")";
+                if (model.moduleName != null && model.moduleName.trim().length() > 0) {
+                    return model.name + spaces + "(" + model.moduleName + ")";
                 }
                 return model.name;
             }
@@ -83,21 +80,20 @@ class HierarchyLabelProvider extends LabelProvider implements IStyledLabelProvid
         }
         return super.getText(element);
     }
-    
 
     //not there on all versions of eclipse...
     public StyledString getStyledText(Object element) {
-        if(element instanceof TreeNode){
+        if (element instanceof TreeNode) {
             @SuppressWarnings("rawtypes")
             TreeNode treeNode = (TreeNode) element;
             Object data = treeNode.data;
-            if(data instanceof HierarchyNodeModel){
+            if (data instanceof HierarchyNodeModel) {
                 HierarchyNodeModel model = (HierarchyNodeModel) data;
                 String spaces = "     ";
-                StyledString styledString = new StyledString(model.name+spaces);
-                if(model.moduleName != null && model.moduleName.trim().length() > 0){
+                StyledString styledString = new StyledString(model.name + spaces);
+                if (model.moduleName != null && model.moduleName.trim().length() > 0) {
                     Styler styler = StyledString.createColorRegistryStyler(JFacePreferences.DECORATIONS_COLOR, null);
-                    styledString.append("("+model.moduleName+")", styler);
+                    styledString.append("(" + model.moduleName + ")", styler);
                 }
                 return styledString;
             }
@@ -105,6 +101,5 @@ class HierarchyLabelProvider extends LabelProvider implements IStyledLabelProvid
         }
         return new StyledString(element == null ? "" : element.toString());
     }
-    
 
 }

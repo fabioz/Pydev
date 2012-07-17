@@ -34,7 +34,7 @@ import org.python.pydev.editor.codecompletion.revisited.SystemASTManager;
  * a project (and thus, we don't have project-related completions and we don't know with what
  * exactly we're dealing with: it's usually only used for external files)
  */
-public class SystemPythonNature extends AbstractPythonNature implements IPythonNature{
+public class SystemPythonNature extends AbstractPythonNature implements IPythonNature {
 
     /**
      * @author Fabio
@@ -57,8 +57,8 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
             throw new RuntimeException("Not implemented");
         }
 
-        public Map<String, String> getVariableSubstitution(boolean addInterpreterInfoSubstitutions) throws CoreException,
-                MisconfigurationException, PythonNatureWithoutProjectException {
+        public Map<String, String> getVariableSubstitution(boolean addInterpreterInfoSubstitutions)
+                throws CoreException, MisconfigurationException, PythonNatureWithoutProjectException {
             return getVariableSubstitution();
         }
 
@@ -66,9 +66,9 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
                 PythonNatureWithoutProjectException {
             Properties stringSubstitutionVariables = SystemPythonNature.this.info.getStringSubstitutionVariables();
             Map<String, String> variableSubstitution;
-            if(stringSubstitutionVariables == null){
+            if (stringSubstitutionVariables == null) {
                 variableSubstitution = new HashMap<String, String>();
-            }else{
+            } else {
                 variableSubstitution = PropertiesHelper.createMapFromProperties(stringSubstitutionVariables);
             }
             return variableSubstitution;
@@ -112,63 +112,66 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
     public final IInterpreterInfo info;
     private SystemASTManager systemASTManager;
 
-    public SystemPythonNature(IInterpreterManager manager) throws MisconfigurationException{
+    public SystemPythonNature(IInterpreterManager manager) throws MisconfigurationException {
         this(manager, manager.getDefaultInterpreterInfo(false));
     }
-    
-    public SystemPythonNature(IInterpreterManager manager, IInterpreterInfo info){
+
+    public SystemPythonNature(IInterpreterManager manager, IInterpreterInfo info) {
         this.info = info;
         this.manager = manager;
     }
-    
-    
-    public boolean isResourceInPythonpathProjectSources(IResource resource, boolean addExternal) throws MisconfigurationException{
-    	return super.isResourceInPythonpath(resource); //no source folders in the system nature (just treat it as default)
+
+    public boolean isResourceInPythonpathProjectSources(IResource resource, boolean addExternal)
+            throws MisconfigurationException {
+        return super.isResourceInPythonpath(resource); //no source folders in the system nature (just treat it as default)
     }
-    
-    public boolean isResourceInPythonpathProjectSources(String resource, boolean addExternal) throws MisconfigurationException{
-    	return super.isResourceInPythonpath(resource); //no source folders in the system nature (just treat it as default)
+
+    public boolean isResourceInPythonpathProjectSources(String resource, boolean addExternal)
+            throws MisconfigurationException {
+        return super.isResourceInPythonpath(resource); //no source folders in the system nature (just treat it as default)
     }
-    
-    public String resolveModuleOnlyInProjectSources(IResource fileAbsolutePath, boolean addExternal) throws CoreException, MisconfigurationException {
-    	return super.resolveModule(fileAbsolutePath);
+
+    public String resolveModuleOnlyInProjectSources(IResource fileAbsolutePath, boolean addExternal)
+            throws CoreException, MisconfigurationException {
+        return super.resolveModule(fileAbsolutePath);
     }
-    
-    public String resolveModuleOnlyInProjectSources(String fileAbsolutePath, boolean addExternal) throws CoreException, MisconfigurationException {
-    	return super.resolveModule(new File(fileAbsolutePath));
+
+    public String resolveModuleOnlyInProjectSources(String fileAbsolutePath, boolean addExternal) throws CoreException,
+            MisconfigurationException {
+        return super.resolveModule(new File(fileAbsolutePath));
     }
-    
+
     public String getVersion() throws CoreException {
-        if(this.info != null){
+        if (this.info != null) {
             String version = this.info.getVersion();
-            if(version != null && version.startsWith("3")){
-                switch(this.manager.getInterpreterType()){
-                
-                case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
-                    return IPythonNature.PYTHON_VERSION_3_0;
-                    
-                case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
-                    return IPythonNature.JYTHON_VERSION_3_0;
-                    
-                case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
-                    return IPythonNature.PYTHON_VERSION_3_0;
-                    
-                default:
-                    throw new RuntimeException("Not python nor jython nor iron python?");
+            if (version != null && version.startsWith("3")) {
+                switch (this.manager.getInterpreterType()) {
+
+                    case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
+                        return IPythonNature.PYTHON_VERSION_3_0;
+
+                    case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
+                        return IPythonNature.JYTHON_VERSION_3_0;
+
+                    case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
+                        return IPythonNature.PYTHON_VERSION_3_0;
+
+                    default:
+                        throw new RuntimeException("Not python nor jython nor iron python?");
                 }
             }
         }
-        switch(this.manager.getInterpreterType()){
-            
+        switch (this.manager.getInterpreterType()) {
+
             case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
                 return IPythonNature.PYTHON_VERSION_LATEST;
-                
+
             case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
                 return IPythonNature.JYTHON_VERSION_LATEST;
-                
+
             case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
                 return IPythonNature.PYTHON_VERSION_LATEST;
-                
+
             default:
                 throw new RuntimeException("Not python nor jython nor iron python?");
         }
@@ -203,14 +206,14 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
     }
 
     public String resolveModule(String file) throws MisconfigurationException {
-        if(info == null){
+        if (info == null) {
             return null;
         }
         return info.getModulesManager().resolveModule(file);
     }
 
     public ICodeCompletionASTManager getAstManager() {
-        if(systemASTManager == null){
+        if (systemASTManager == null) {
             systemASTManager = new SystemASTManager(this.manager, this, this.info);
         }
         return systemASTManager;
@@ -241,11 +244,10 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
         return manager;
     }
 
-    
     //builtin completions
-    
+
     public IToken[] getBuiltinCompletions() {
-        if(!this.isOkToUse()){
+        if (!this.isOkToUse()) {
             return null;
         }
         return this.manager.getBuiltinCompletions(this.info.getName());
@@ -254,12 +256,11 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
     public void clearBuiltinCompletions() {
         this.manager.clearBuiltinCompletions(this.info.getName());
     }
-    
-    
+
     //builtin mod
 
     public IModule getBuiltinMod() {
-        if(!this.isOkToUse()){
+        if (!this.isOkToUse()) {
             return null;
         }
         return this.manager.getBuiltinMod(this.info.getName());
@@ -269,12 +270,11 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
         this.manager.clearBuiltinMod(this.info.getName());
     }
 
-    
     public int getGrammarVersion() throws MisconfigurationException {
         IInterpreterInfo info = this.info;
-        if(info != null){
+        if (info != null) {
             return info.getGrammarVersion();
-        }else{
+        } else {
             return IPythonNature.LATEST_GRAMMAR_VERSION;
         }
     }
@@ -283,7 +283,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
         return this.info;
     }
 
-    public boolean isOkToUse(){
+    public boolean isOkToUse() {
         return this.manager != null && this.info != null;
     }
 }

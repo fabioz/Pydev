@@ -4,7 +4,7 @@ package org.python.modules;
 import org.python.core.*;
 
 public class os implements ClassDictInit {
-    public static String[] __depends__ = new String[] {"javaos", };
+    public static String[] __depends__ = new String[] { "javaos", };
 
     // An ugly hack, but it keeps the site.py from CPython2.0 happy
 
@@ -17,7 +17,7 @@ public class os implements ClassDictInit {
 
         PyObject names = module.__dir__();
         PyObject name;
-        for (int i = 0; (name=names.__finditem__(i)) != null; i++) {
+        for (int i = 0; (name = names.__finditem__(i)) != null; i++) {
             String sname = name.toString().intern();
             dict.__setitem__(name, module.__getattr__(sname));
         }

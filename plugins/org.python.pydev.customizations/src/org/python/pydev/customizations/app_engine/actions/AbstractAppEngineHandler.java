@@ -23,58 +23,58 @@ import org.python.pydev.editor.actions.PyAction;
 /**
  * Abstract class for classes that are executed based on the app engine / target folder.
  */
-public abstract class AbstractAppEngineHandler extends AbstractHandler{
+public abstract class AbstractAppEngineHandler extends AbstractHandler {
 
-    
-    public Object execute(ExecutionEvent event) throws ExecutionException{
+    public Object execute(ExecutionEvent event) throws ExecutionException {
         throw new RuntimeException("Not used anymore!");
         //Note: HandlerUtil is not available in eclipse 3.2
-//        ISelection sel = HandlerUtil.getCurrentSelectionChecked(event);
-//        if(sel instanceof IStructuredSelection){
-//            IStructuredSelection selection = (IStructuredSelection) sel;
-//            Object firstElement = selection.getFirstElement();
-//            
-//            return executeInObject(firstElement);
-//
-//        }
-//        return null;
+        //        ISelection sel = HandlerUtil.getCurrentSelectionChecked(event);
+        //        if(sel instanceof IStructuredSelection){
+        //            IStructuredSelection selection = (IStructuredSelection) sel;
+        //            Object firstElement = selection.getFirstElement();
+        //            
+        //            return executeInObject(firstElement);
+        //
+        //        }
+        //        return null;
     }
 
-    public Object executeInObject(Object firstElement){
+    public Object executeInObject(Object firstElement) {
         IContainer container = CustomizationCommons.getContainerFromObject(firstElement);
-        if(container == null){
+        if (container == null) {
             return null;
         }
-        
+
         IPythonPathNature pythonPathNature = CustomizationCommons.getPythonPathNatureFromObject(firstElement);
-        if(pythonPathNature == null){
+        if (pythonPathNature == null) {
             return null;
         }
-        
-        
+
         Map<String, String> variableSubstitution;
-        try{
+        try {
             variableSubstitution = pythonPathNature.getVariableSubstitution();
             //Only consider a google app engine a project that has a google app engine variable!
-            if(variableSubstitution == null || !variableSubstitution.containsKey(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE)){
+            if (variableSubstitution == null
+                    || !variableSubstitution.containsKey(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE)) {
                 return null;
             }
-            
+
             File appEngineLocation = new File(variableSubstitution.get(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE));
-            if(!appEngineLocation.isDirectory()){
-                MessageDialog.openError(PyAction.getShell(), "Error", "Expected: "+appEngineLocation+" to be a directory.");
+            if (!appEngineLocation.isDirectory()) {
+                MessageDialog.openError(PyAction.getShell(), "Error", "Expected: " + appEngineLocation
+                        + " to be a directory.");
                 return null;
             }
-            
+
             File appcfg = new File(appEngineLocation, "appcfg.py");
-            if(!appcfg.isFile()){
-                MessageDialog.openError(PyAction.getShell(), "Error", "Expected: "+appcfg+" to be a file.");
+            if (!appcfg.isFile()) {
+                MessageDialog.openError(PyAction.getShell(), "Error", "Expected: " + appcfg + " to be a file.");
                 return null;
             }
-            
+
             handleExecution(container, pythonPathNature, appcfg, appEngineLocation);
-            
-        }catch(Exception e){
+
+        } catch (Exception e) {
             Log.log(e);
         }
         return null;
@@ -84,6 +84,7 @@ public abstract class AbstractAppEngineHandler extends AbstractHandler{
      * Subclasses should override this method to properly handle the execution of the action (this is called when
      * all things are already validated).
      */
-    protected abstract void handleExecution(IContainer container, IPythonPathNature pythonPathNature, File appcfg, File appEngineLocation);
+    protected abstract void handleExecution(IContainer container, IPythonPathNature pythonPathNature, File appcfg,
+            File appEngineLocation);
 
 }

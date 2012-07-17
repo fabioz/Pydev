@@ -63,65 +63,65 @@ public class NodeHelper {
     public static final int ACCESS_PRIVATE = 3;
 
     public String getAccessName(String name, int modifier) {
-        switch(modifier){
-        case ACCESS_PSEUDO:
-            return getPseudoAttr(name);
-        case ACCESS_PRIVATE:
-            return getPrivateAttr(name);
-        default:
-            return getPublicAttr(name);
+        switch (modifier) {
+            case ACCESS_PSEUDO:
+                return getPseudoAttr(name);
+            case ACCESS_PRIVATE:
+                return getPrivateAttr(name);
+            default:
+                return getPublicAttr(name);
         }
     }
 
     private String getFromName(SimpleNode node) {
-        if(!isName(node)){
+        if (!isName(node)) {
             return EMPTY;
         }
         return ((Name) node).id;
     }
 
     private String getFromNameTok(SimpleNode node) {
-        if(node == null){
+        if (node == null) {
             return "";
         }
-        if(!isNameTok(node)){
+        if (!isNameTok(node)) {
             return EMPTY;
         }
         return ((NameTok) node).id;
     }
 
     private String getFromStr(SimpleNode node) {
-        if(!isStr(node)){
+        if (!isStr(node)) {
             return EMPTY;
         }
         return ((Str) node).s;
     }
 
     public int getLineDefinition(SimpleNode node) {
-        while(isAttribute(node)){
+        while (isAttribute(node)) {
             exprType expr = ((Attribute) node).value;
-            if(!(isCall(expr))){
+            if (!(isCall(expr))) {
                 node = expr;
-            }else{
+            } else {
                 break;
             }
         }
-        if(isFunctionDef(node)){
+        if (isFunctionDef(node)) {
             return ((FunctionDef) node).name.beginLine;
         }
         return node.beginLine;
     }
 
     public int getLineEnd(SimpleNode node) {
-        if(node == null){
+        if (node == null) {
             return 0;
         }
-        if(isStr(node)){
+        if (isStr(node)) {
             String s = ((Str) node).s;
             int found = 0;
-            for(int i = 0; i < s.length(); i++){
+            for (int i = 0; i < s.length(); i++) {
 
-                if(s.charAt(i) == '\n'){
+                if (s.charAt(i) == '\n') {
                     found += 1;
                 }
             }
@@ -131,28 +131,28 @@ public class NodeHelper {
     }
 
     public String getName(SimpleNode node) {
-        if(node instanceof NameTok){
+        if (node instanceof NameTok) {
             return getFromNameTok(node);
-            
-        }else if(node instanceof Name){
+
+        } else if (node instanceof Name) {
             return getFromName(node);
-            
-        }else if(node instanceof Str){
+
+        } else if (node instanceof Str) {
             return getFromStr(node);
-            
-        }else if(node instanceof ClassDef){
+
+        } else if (node instanceof ClassDef) {
             return getName(((ClassDef) node).name);
-            
-        }else if(node instanceof FunctionDef){
+
+        } else if (node instanceof FunctionDef) {
             return getName(((FunctionDef) node).name);
-            
-        }else if(node instanceof Call){
+
+        } else if (node instanceof Call) {
             return getName(((Call) node).func);
-            
-        }else if(node instanceof Attribute){
+
+        } else if (node instanceof Attribute) {
             String attributeName = NodeUtils.getFullRepresentationString(node);
             int subscriptOffset = attributeName.indexOf("[");
-            if(subscriptOffset > 0){
+            if (subscriptOffset > 0) {
                 attributeName = attributeName.substring(0, subscriptOffset - 1);
             }
 
@@ -168,13 +168,13 @@ public class NodeHelper {
     }
 
     private int getPropertyMethods(exprType[] args) {
-        if(args == null || args.length == 0){
+        if (args == null || args.length == 0) {
             return 0;
         }
 
         int propertyMethods = args.length;
         exprType lastExpr = args[args.length - 1];
-        if(isStr(lastExpr)){
+        if (isStr(lastExpr)) {
             propertyMethods -= 1;
         }
         return propertyMethods;
@@ -187,7 +187,7 @@ public class NodeHelper {
 
     public String getPublicAttr(String attributeName) {
         String publicAttr = attributeName;
-        while(publicAttr.startsWith("_")){
+        while (publicAttr.startsWith("_")) {
             publicAttr = publicAttr.substring(1);
         }
         return publicAttr;
@@ -238,7 +238,8 @@ public class NodeHelper {
     }
 
     public boolean isControlStatement(SimpleNode node) {
-        return isForStatement(node) || isWhileStatement(node) || isWithStatement(node) || isTryExceptStatement(node) || isTryFinallyStatement(node) || isIfStatement(node);
+        return isForStatement(node) || isWhileStatement(node) || isWithStatement(node) || isTryExceptStatement(node)
+                || isTryFinallyStatement(node) || isIfStatement(node);
     }
 
     public boolean isDict(SimpleNode node) {
@@ -338,9 +339,9 @@ public class NodeHelper {
     }
 
     public boolean isPropertyAssign(Assign node) throws Exception {
-        if(isFilledList(node.targets) && node.targets.length == 1){
-            if(isName(node.targets[0])){
-                if(isCall(node.value)){
+        if (isFilledList(node.targets) && node.targets.length == 1) {
+            if (isName(node.targets[0])) {
+                if (isCall(node.value)) {
                     return isProperty((Call) node.value);
                 }
             }
@@ -389,7 +390,7 @@ public class NodeHelper {
         keywordType[] kws = node.keywords;
         int len = args.length + kws.length;
 
-        if(len > 4){
+        if (len > 4) {
             return false;
         }
 
@@ -398,13 +399,13 @@ public class NodeHelper {
     }
 
     private boolean isValidPropertyKeyword(keywordType[] keywords) {
-        if(keywords != null){
+        if (keywords != null) {
 
             boolean valid = false;
 
-            for(keywordType kw:keywords){
+            for (keywordType kw : keywords) {
                 valid = isKeywordStr(kw) || isPropertyVar(kw);
-                if(!(valid)){
+                if (!(valid)) {
                     return false;
                 }
             }
@@ -430,15 +431,15 @@ public class NodeHelper {
     private boolean validatePropertyArguments(Call node) {
         exprType[] args = node.args;
 
-        if(isValidPropertyKeyword(node.keywords)){
+        if (isValidPropertyKeyword(node.keywords)) {
 
             int propertyMethods = getPropertyMethods(args);
 
-            if(propertyMethods == 0){
+            if (propertyMethods == 0) {
                 return true;
             }
-            for(int i = 0; i < propertyMethods; i++){
-                if(isName(args[i])){
+            for (int i = 0; i < propertyMethods; i++) {
+                if (isName(args[i])) {
                     return true;
                 }
             }
@@ -449,11 +450,11 @@ public class NodeHelper {
 
     public java.util.List<String> getBaseClassName(SimpleNode node) {
         java.util.List<String> bases = new ArrayList<String>();
-        if(isClassDef(node)){
+        if (isClassDef(node)) {
 
             ClassDef clazz = (ClassDef) node;
-            if(isFilledList(clazz.bases)){
-                for(exprType base:clazz.bases){
+            if (isFilledList(clazz.bases)) {
+                for (exprType base : clazz.bases) {
                     bases.add(getName(base));
                 }
             }
@@ -462,8 +463,8 @@ public class NodeHelper {
     }
 
     public boolean hasSelfArgument(exprType[] args) {
-        for(exprType arg:args){
-            if(isSelf(getName(arg))){
+        for (exprType arg : args) {
+            if (isSelf(getName(arg))) {
                 return true;
             }
         }
@@ -497,30 +498,30 @@ public class NodeHelper {
         int level = 0;
         boolean skipSpace = false;
 
-        for(int i = 0; i < str.length(); i++){
+        for (int i = 0; i < str.length(); i++) {
             char c = str.charAt(i);
 
-            if(c == '['){
+            if (c == '[') {
                 out.append("");
                 out.append("\n");
                 level++;
                 printIdent(out, level);
-            }else if(c == ','){
+            } else if (c == ',') {
                 out.append(c);
                 out.append("\n");
                 printIdent(out, level);
                 skipSpace = true;
 
-            }else if(c == ' ' && skipSpace){
+            } else if (c == ' ' && skipSpace) {
                 skipSpace = false;
-            }else if(c == ']'){
+            } else if (c == ']') {
                 level--;
                 out.append("\n");
                 printIdent(out, level);
                 //out.append("]");
-            }else if(c == '='){
+            } else if (c == '=') {
                 out.append(" = ");
-            }else{
+            } else {
                 out.append(c);
             }
         }
@@ -529,7 +530,7 @@ public class NodeHelper {
     }
 
     private static void printIdent(StringBuffer out, int level) {
-        for(int i = 0; i < level; i++){
+        for (int i = 0; i < level; i++) {
             out.append("|   ");
         }
     }

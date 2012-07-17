@@ -39,7 +39,6 @@ import com.python.pydev.analysis.additionalinfo.IInfo;
  */
 public class RefactorerFindDefinition {
 
-
     /**
      * This function is used to find the definition for some token.
      * It may return a list of ItemPointer because the actual definition may not be
@@ -50,63 +49,63 @@ public class RefactorerFindDefinition {
      * @see org.python.pydev.editor.refactoring.IPyRefactoring#findDefinition(org.python.pydev.editor.refactoring.RefactoringRequest)
      */
     public ItemPointer[] findDefinition(RefactoringRequest request) {
-        try{
+        try {
             request.getMonitor().beginTask("Find definition", 100);
             List<ItemPointer> pointers = new ArrayList<ItemPointer>();
             CompletionCache completionCache = new CompletionCache();
             ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
-            
+
             String[] tokenAndQual;
-			try {
-				tokenAndQual = PyRefactoringFindDefinition.findActualDefinition(request, completionCache, selected);
-			} catch (CompletionRecursionException e1) {
-				Log.log(e1);
-				return new ItemPointer[0];
-			}
-            if(tokenAndQual == null){
+            try {
+                tokenAndQual = PyRefactoringFindDefinition.findActualDefinition(request, completionCache, selected);
+            } catch (CompletionRecursionException e1) {
+                Log.log(e1);
                 return new ItemPointer[0];
             }
-            
+            if (tokenAndQual == null) {
+                return new ItemPointer[0];
+            }
+
             PyRefactoringFindDefinition.getAsPointers(pointers, selected.toArray(new Definition[0]));
-            
-            if(pointers.size() == 0 && ((Boolean)request.getAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, true))){
+
+            if (pointers.size() == 0
+                    && ((Boolean) request.getAdditionalInfo(
+                            AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, true))) {
                 String lookForInterface = tokenAndQual[1];
                 List<IInfo> tokensEqualTo;
-				try {
-					tokensEqualTo = AdditionalProjectInterpreterInfo.getTokensEqualTo(lookForInterface, request.nature,
-					        AbstractAdditionalTokensInfo.TOP_LEVEL | AbstractAdditionalTokensInfo.INNER);
-					ICodeCompletionASTManager manager = request.nature.getAstManager();
-					if(manager == null){
-						return new ItemPointer[0];
-					}
-					if (tokensEqualTo.size() > 50){
-						//too many matches for that...
-						throw new TooManyMatchesException("Too Many matches ("+tokensEqualTo.size()+") were found for the requested token:"+lookForInterface, tokensEqualTo.size());
-					}
-					request.communicateWork(StringUtils.format("Found: %s possible matches.", tokensEqualTo.size()));
-					IPythonNature nature = request.nature;
-					for (IInfo info : tokensEqualTo) {
-						AnalysisPlugin.getDefinitionFromIInfo(pointers, manager, nature, info, completionCache);
-						request.checkCancelled();
-					}
-				} catch (MisconfigurationException e) {
-					Log.log(e);
-					return new ItemPointer[0];
-				}
-                
+                try {
+                    tokensEqualTo = AdditionalProjectInterpreterInfo.getTokensEqualTo(lookForInterface, request.nature,
+                            AbstractAdditionalTokensInfo.TOP_LEVEL | AbstractAdditionalTokensInfo.INNER);
+                    ICodeCompletionASTManager manager = request.nature.getAstManager();
+                    if (manager == null) {
+                        return new ItemPointer[0];
+                    }
+                    if (tokensEqualTo.size() > 50) {
+                        //too many matches for that...
+                        throw new TooManyMatchesException("Too Many matches (" + tokensEqualTo.size()
+                                + ") were found for the requested token:" + lookForInterface, tokensEqualTo.size());
+                    }
+                    request.communicateWork(StringUtils.format("Found: %s possible matches.", tokensEqualTo.size()));
+                    IPythonNature nature = request.nature;
+                    for (IInfo info : tokensEqualTo) {
+                        AnalysisPlugin.getDefinitionFromIInfo(pointers, manager, nature, info, completionCache);
+                        request.checkCancelled();
+                    }
+                } catch (MisconfigurationException e) {
+                    Log.log(e);
+                    return new ItemPointer[0];
+                }
+
             }
             request.communicateWork(StringUtils.format("Found: %s matches.", pointers.size()));
-            
+
             return pointers.toArray(new ItemPointer[0]);
-        }catch(OperationCanceledException e){
+        } catch (OperationCanceledException e) {
             //that's ok... it was cancelled
             throw e;
-        }finally{
+        } finally {
             request.getMonitor().done();
         }
     }
-
-
-
 
 }

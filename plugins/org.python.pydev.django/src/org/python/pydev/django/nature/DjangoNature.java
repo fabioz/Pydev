@@ -23,42 +23,38 @@ public class DjangoNature implements IProjectNature {
 
     public static final String DJANGO_NATURE_ID = PythonNature.DJANGO_NATURE_ID;
 
-	private IProject project;
+    private IProject project;
 
-	
-	public void configure() throws CoreException {
+    public void configure() throws CoreException {
 
-	}
+    }
 
-	
-	public void deconfigure() throws CoreException {
+    public void deconfigure() throws CoreException {
 
-	}
+    }
 
-	
-	public IProject getProject() {
-		return project;
-	}
+    public IProject getProject() {
+        return project;
+    }
 
-	
-	public void setProject(IProject project) {
-		this.project = project;
-	}
+    public void setProject(IProject project) {
+        this.project = project;
+    }
 
-	public static synchronized void addNature(IProject project, IProgressMonitor monitor) throws CoreException {
+    public static synchronized void addNature(IProject project, IProgressMonitor monitor) throws CoreException {
 
-		if (project == null || !project.isOpen()) {
-			return;
-		}
+        if (project == null || !project.isOpen()) {
+            return;
+        }
 
-		if(monitor == null){
+        if (monitor == null) {
             monitor = new NullProgressMonitor();
         }
         IProjectDescription desc = project.getDescription();
-        
-        if(!project.hasNature(PythonNature.PYTHON_NATURE_ID)){
-        	//also add the python nature if it still wasn't added.
-        	PythonNature.addNature(project, null, null, null, null, null, null);
+
+        if (!project.hasNature(PythonNature.PYTHON_NATURE_ID)) {
+            //also add the python nature if it still wasn't added.
+            PythonNature.addNature(project, null, null, null, null, null, null);
         }
 
         //only add the django nature if it still hasn't been added.
@@ -71,7 +67,7 @@ public class DjangoNature implements IProjectNature {
             desc.setNatureIds(newNatures);
             project.setDescription(desc, monitor);
         }
-	}
+    }
 
     private static final Object lockGetNature = new Object();
 
@@ -83,16 +79,16 @@ public class DjangoNature implements IProjectNature {
      * than one nature ended up being created from project.getNature().
      */
     public static DjangoNature getDjangoNature(IProject project) {
-        if(project != null && project.isOpen()){
+        if (project != null && project.isOpen()) {
             try {
-            	if(project.hasNature(DJANGO_NATURE_ID)){
-            	    synchronized (lockGetNature) {
-            	        IProjectNature n = project.getNature(DJANGO_NATURE_ID);
-            	        if(n instanceof DjangoNature){
-            	            return (DjangoNature) n;
-            	        }
+                if (project.hasNature(DJANGO_NATURE_ID)) {
+                    synchronized (lockGetNature) {
+                        IProjectNature n = project.getNature(DJANGO_NATURE_ID);
+                        if (n instanceof DjangoNature) {
+                            return (DjangoNature) n;
+                        }
                     }
-            	}
+                }
             } catch (CoreException e) {
                 Log.logInfo(e);
             }
@@ -101,15 +97,15 @@ public class DjangoNature implements IProjectNature {
     }
 
     public static synchronized void removeNature(IProject project, IProgressMonitor monitor) throws CoreException {
-        if(monitor == null){
+        if (monitor == null) {
             monitor = new NullProgressMonitor();
         }
-        
+
         DjangoNature nature = DjangoNature.getDjangoNature(project);
         if (nature == null) {
             return;
         }
-        
+
         //and finally... remove the nature
         IProjectDescription description = project.getDescription();
         List<String> natures = new ArrayList<String>(Arrays.asList(description.getNatureIds()));

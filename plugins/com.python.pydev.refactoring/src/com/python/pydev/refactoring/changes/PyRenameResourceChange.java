@@ -32,15 +32,15 @@ public final class PyRenameResourceChange extends PyChange {
 
     private final long fStampToRestore;
 
-    private PyRenameResourceChange( IPath resourcePath, String newName, String comment, long stampToRestore) {
-        fResourcePath= resourcePath;
-        fNewName= newName;
-        fComment= comment;
-        fStampToRestore= stampToRestore;
+    private PyRenameResourceChange(IPath resourcePath, String newName, String comment, long stampToRestore) {
+        fResourcePath = resourcePath;
+        fNewName = newName;
+        fComment = comment;
+        fStampToRestore = stampToRestore;
     }
 
     public PyRenameResourceChange(IResource resource, String newName, String comment) {
-        this( resource.getFullPath(), newName, comment, IResource.NULL_STAMP);
+        this(resource.getFullPath(), newName, comment, IResource.NULL_STAMP);
     }
 
     public Object getModifiedElement() {
@@ -60,9 +60,10 @@ public final class PyRenameResourceChange extends PyChange {
     }
 
     public RefactoringStatus isValid(IProgressMonitor pm) throws CoreException {
-        IResource resource= getResource();
+        IResource resource = getResource();
         if (resource == null || !resource.exists()) {
-            return RefactoringStatus.createFatalErrorStatus(StringUtils.format("Resource %s does not exist", fResourcePath));
+            return RefactoringStatus.createFatalErrorStatus(StringUtils.format("Resource %s does not exist",
+                    fResourcePath));
         } else {
             return super.isValid(pm, DIRTY);
         }
@@ -72,15 +73,15 @@ public final class PyRenameResourceChange extends PyChange {
         try {
             pm.beginTask(getName(), 1);
 
-            IResource resource= getResource();
-            long currentStamp= resource.getModificationStamp();
-            IPath newPath= renamedResourcePath(fResourcePath, fNewName);
+            IResource resource = getResource();
+            long currentStamp = resource.getModificationStamp();
+            IPath newPath = renamedResourcePath(fResourcePath, fNewName);
             resource.move(newPath, IResource.SHALLOW, pm);
             if (fStampToRestore != IResource.NULL_STAMP) {
-                IResource newResource= ResourcesPlugin.getWorkspace().getRoot().findMember(newPath);
+                IResource newResource = ResourcesPlugin.getWorkspace().getRoot().findMember(newPath);
                 newResource.revertModificationStamp(fStampToRestore);
             }
-            String oldName= fResourcePath.lastSegment();
+            String oldName = fResourcePath.lastSegment();
             return new PyRenameResourceChange(newPath, oldName, fComment, currentStamp);
         } finally {
             pm.done();

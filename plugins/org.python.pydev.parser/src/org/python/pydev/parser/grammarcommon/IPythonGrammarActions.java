@@ -10,39 +10,38 @@ import org.python.pydev.parser.jython.ast.Str;
 
 public interface IPythonGrammarActions {
 
-	void markDecoratorWithCall();
+    void markDecoratorWithCall();
 
-	ISpecialStr convertStringToSpecialStr(Object o) throws ParseException;
+    ISpecialStr convertStringToSpecialStr(Object o) throws ParseException;
 
-	public ISpecialStr createSpecialStr(String token) throws ParseException;
-	
-	public ISpecialStr createSpecialStr(String token, boolean searchOnLast) throws ParseException;
-	
-	public ISpecialStr createSpecialStr(String token, boolean searchOnLast,
-			boolean throwException) throws ParseException;
+    public ISpecialStr createSpecialStr(String token) throws ParseException;
+
+    public ISpecialStr createSpecialStr(String token, boolean searchOnLast) throws ParseException;
+
+    public ISpecialStr createSpecialStr(String token, boolean searchOnLast, boolean throwException)
+            throws ParseException;
 
     /**
      * Adds a special token to the current token that's in the top of the stack (the peeked token)
      * Considers that the token at the stack is a Call and adds it to its function.
      */
-	void addToPeekCallFunc(Object t, boolean after);
+    void addToPeekCallFunc(Object t, boolean after);
 
-	void addSpecialTokenToLastOpened(Object o) throws ParseException;
-	
-	void addToPeek(Object t, boolean after) throws ParseException;
+    void addSpecialTokenToLastOpened(Object o) throws ParseException;
 
-	@SuppressWarnings("rawtypes")
-	void addToPeek(SimpleNode peeked, Object t, boolean after, Class class_)
-			throws ParseException;
+    void addToPeek(Object t, boolean after) throws ParseException;
 
-	@SuppressWarnings("rawtypes")
-	SimpleNode addToPeek(Object t, boolean after, Class class_) throws ParseException;
+    @SuppressWarnings("rawtypes")
+    void addToPeek(SimpleNode peeked, Object t, boolean after, Class class_) throws ParseException;
 
-	void jjtreeCloseNodeScope(Node n) throws ParseException;
+    @SuppressWarnings("rawtypes")
+    SimpleNode addToPeek(Object t, boolean after, Class class_) throws ParseException;
 
-	void addSpecialToken(Object o, int strategy) throws ParseException;
+    void jjtreeCloseNodeScope(Node n) throws ParseException;
 
-	void addSpecialToken(Object o) throws ParseException;
+    void addSpecialToken(Object o, int strategy) throws ParseException;
+
+    void addSpecialToken(Object o) throws ParseException;
 
     /**
      * @param t the string found without any preceding char to identify the radix.
@@ -51,13 +50,15 @@ public interface IPythonGrammarActions {
      * @param numberToFill the Num object that should be set given the other parameters
      * @throws ParseException 
      */
-	void makeInt(Token t, int radix, Token token, Num numberToFill) throws ParseException;
-	void makeIntSub2(Token t, int radix, Token token, Num numberToFill) throws ParseException;
-	void makeIntSub2CheckingOct(Token t, int radix, Token token, Num numberToFill) throws ParseException;
+    void makeInt(Token t, int radix, Token token, Num numberToFill) throws ParseException;
 
-	void makeFloat(Token t, Num numberToFill) throws ParseException;
+    void makeIntSub2(Token t, int radix, Token token, Num numberToFill) throws ParseException;
 
-	void makeComplex(Token t, Num numberToFill) throws ParseException;
+    void makeIntSub2CheckingOct(Token t, int radix, Token token, Num numberToFill) throws ParseException;
+
+    void makeFloat(Token t, Num numberToFill) throws ParseException;
+
+    void makeComplex(Token t, Num numberToFill) throws ParseException;
 
     /**
      * Fills the string properly according to the representation found.
@@ -68,13 +69,12 @@ public interface IPythonGrammarActions {
      * 3 = style
      * 4 = boolean indicating binary
      */
-	void makeString(Token t, int quotes, Str strToFill) ;
+    void makeString(Token t, int quotes, Str strToFill);
 
-	void findTokenAndAdd(String token) throws ParseException;
+    void findTokenAndAdd(String token) throws ParseException;
 
-	void addSpecialToPrev(Object special, boolean after);
+    void addSpecialToPrev(Object special, boolean after);
 
-	void setImportFromLevel(int level);
-
+    void setImportFromLevel(int level);
 
 }

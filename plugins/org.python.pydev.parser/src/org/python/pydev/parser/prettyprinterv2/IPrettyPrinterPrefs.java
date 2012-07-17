@@ -13,7 +13,7 @@ public interface IPrettyPrinterPrefs extends IGrammarVersionProvider {
     void setSpacesAfterComma(int i);
 
     String getReplacement(String string);
-    
+
     void setReplacement(String original, String replacement);
 
     String getNewLine();

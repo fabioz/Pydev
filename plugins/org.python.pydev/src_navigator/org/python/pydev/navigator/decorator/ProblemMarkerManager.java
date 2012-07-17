@@ -63,7 +63,8 @@ public class ProblemMarkerManager implements IResourceChangeListener {
 
         private void checkInvalidate(IResourceDelta delta, IResource resource) {
             int kind = delta.getKind();
-            if (kind == IResourceDelta.REMOVED || kind == IResourceDelta.ADDED || (kind == IResourceDelta.CHANGED && isErrorDelta(delta))) {
+            if (kind == IResourceDelta.REMOVED || kind == IResourceDelta.ADDED
+                    || (kind == IResourceDelta.CHANGED && isErrorDelta(delta))) {
                 // invalidate the resource and all parents
                 while (resource.getType() != IResource.ROOT && fChangedElements.add(resource)) {
                     resource = resource.getParent();
@@ -78,12 +79,12 @@ public class ProblemMarkerManager implements IResourceChangeListener {
                     IMarkerDelta iMarkerDelta = markerDeltas[i];
                     if (iMarkerDelta.isSubtypeOf(IMarker.PROBLEM)) {
                         int kind = iMarkerDelta.getKind();
-                        if (kind == IResourceDelta.ADDED || kind == IResourceDelta.REMOVED){
+                        if (kind == IResourceDelta.ADDED || kind == IResourceDelta.REMOVED) {
                             return true;
                         }
                         int severity = iMarkerDelta.getAttribute(IMarker.SEVERITY, -1);
                         int newSeverity = iMarkerDelta.getMarker().getAttribute(IMarker.SEVERITY, -1);
-                        if (newSeverity != severity){
+                        if (newSeverity != severity) {
                             return true;
                         }
                     }
@@ -186,8 +187,8 @@ public class ProblemMarkerManager implements IResourceChangeListener {
                     IResource[] annotationResources = null;
                     synchronized (this) {
                         if (!fResourcesWithMarkerChanges.isEmpty()) {
-                            markerResources = (IResource[]) fResourcesWithMarkerChanges.toArray(new IResource[fResourcesWithMarkerChanges
-                                    .size()]);
+                            markerResources = (IResource[]) fResourcesWithMarkerChanges
+                                    .toArray(new IResource[fResourcesWithMarkerChanges.size()]);
                             fResourcesWithMarkerChanges.clear();
                         }
                         if (!fResourcesWithAnnotationChanges.isEmpty()) {

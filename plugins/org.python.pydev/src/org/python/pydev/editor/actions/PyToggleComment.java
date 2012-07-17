@@ -27,12 +27,12 @@ public class PyToggleComment extends PyComment {
         String endLineDelim = ps.getEndLineDelim();
         int endLineIndex = ps.getEndLineIndex();
         int startLineIndex = ps.getStartLineIndex();
-        
-        final FastStringBuffer sb = new FastStringBuffer(ps.getSelLength()+(endLineIndex-startLineIndex)+10);
-        
+
+        final FastStringBuffer sb = new FastStringBuffer(ps.getSelLength() + (endLineIndex - startLineIndex) + 10);
+
         for (int i = startLineIndex, n = endLineIndex; i <= n; i++) {
             final String line = ps.getLine(i);
-            if(shouldAddCommentSign) {
+            if (shouldAddCommentSign) {
                 sb.append("#");
                 sb.append(line);
             } else { // remove comment sign
@@ -41,27 +41,26 @@ public class PyToggleComment extends PyComment {
             //add a new line if we're not in the last line.
             sb.append((i < endLineIndex ? endLineDelim : ""));
         }
-        
+
         final int start = ps.getStartLine().getOffset();
         final String replacement = sb.toString();
-        
+
         ps.getDoc().replace(start, ps.getSelLength(), replacement);
         return new Tuple<Integer, Integer>(start, replacement.length());
     }
-    
+
     /**
      * Checks if all lines start with '#' 
      */
     private static boolean allLinesStartWithCommentSign(final PySelection ps) {
         int endLineIndex = ps.getEndLineIndex();
-        
+
         for (int i = ps.getStartLineIndex(), n = endLineIndex; i <= n; i++) {
             final String line = ps.getLine(i);
-            if(line.trim().startsWith("#") == false) {
+            if (line.trim().startsWith("#") == false) {
                 return false;
             }
         }
         return true;
     }
 }
-         

@@ -26,18 +26,16 @@ public class DeltaSaverTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
     }
-    
 
     protected void tearDown() throws Exception {
         super.tearDown();
         new DeltaSaver<Object>(new File("."), "deltatest", null, null).clearAll(); //leave no traces
     }
 
-
-    public static class DeltaProcessor implements IDeltaProcessor<String>{
+    public static class DeltaProcessor implements IDeltaProcessor<String> {
 
         public List<String> state = new ArrayList<String>();
-        
+
         public int processed;
 
         public void processUpdate(String data) {
@@ -45,18 +43,18 @@ public class DeltaSaverTest extends TestCase {
         }
 
         public void processDelete(String data) {
-            processed+=1;
+            processed += 1;
             state.remove(data);
         }
 
         public void processInsert(String data) {
-            processed+=1;
+            processed += 1;
             state.add((String) data);
         }
 
         public void endProcessing() {
         }
-        
+
     }
 
     public void testSaveRestore() throws Exception {
@@ -64,8 +62,9 @@ public class DeltaSaverTest extends TestCase {
         saver.addInsertCommand("ins1");
         saver.addInsertCommand("ins2");
         saver.addDeleteCommand("ins1");
-        
-        DeltaSaver<String> restorer = new DeltaSaver<String>(new File("."), "deltatest", getCallBackStr(), getToFileStr());
+
+        DeltaSaver<String> restorer = new DeltaSaver<String>(new File("."), "deltatest", getCallBackStr(),
+                getToFileStr());
         assertEquals(3, restorer.availableDeltas());
         DeltaProcessor deltaProcessor = new DeltaProcessor();
         restorer.processDeltas(deltaProcessor);
@@ -75,16 +74,13 @@ public class DeltaSaverTest extends TestCase {
 
         restorer = new DeltaSaver<String>(new File("."), "deltatest", getCallBackStr(), getToFileStr());
         assertEquals(0, restorer.availableDeltas());
-        
-    }
-    
 
-    
-    
-    public static class InsertDeltaProcessor implements IDeltaProcessor<Integer>{
+    }
+
+    public static class InsertDeltaProcessor implements IDeltaProcessor<Integer> {
 
         public List<String> state = new ArrayList<String>();
-        
+
         public int processed;
 
         public void processUpdate(Integer data) {
@@ -96,13 +92,13 @@ public class DeltaSaverTest extends TestCase {
         }
 
         public void processInsert(Integer data) {
-            assertEquals((Object)processed, (Object)data);
-            processed+=1;
+            assertEquals((Object) processed, (Object) data);
+            processed += 1;
         }
 
         public void endProcessing() {
         }
-        
+
     }
 
     public void testSaveRestore3() throws Exception {
@@ -126,28 +122,30 @@ public class DeltaSaverTest extends TestCase {
     }
 
     private ICallback<Integer, String> getCallBack() {
-        return new ICallback<Integer, String>(){
+        return new ICallback<Integer, String>() {
 
             public Integer call(String arg) {
                 return Integer.parseInt(arg);
-            }};
+            }
+        };
     }
-    
+
     private ICallback<String, String> getToFileStr() {
         return new ICallback<String, String>() {
-            
+
             public String call(String arg) {
                 return arg;
             }
         };
     }
-    
+
     private ICallback<String, String> getCallBackStr() {
-        return new ICallback<String, String>(){
-            
+        return new ICallback<String, String>() {
+
             public String call(String arg) {
                 return arg;
-            }};
+            }
+        };
     }
 
 }

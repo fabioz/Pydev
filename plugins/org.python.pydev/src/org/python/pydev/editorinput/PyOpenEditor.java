@@ -41,22 +41,21 @@ public class PyOpenEditor {
      */
     public static IEditorPart openEditorInput(IEditorInput file) throws PartInitException {
         final IWorkbench workbench = PlatformUI.getWorkbench();
-        if(workbench == null){
+        if (workbench == null) {
             throw new RuntimeException("workbench cannot be null");
         }
-    
+
         IWorkbenchWindow activeWorkbenchWindow = workbench.getActiveWorkbenchWindow();
-        if(activeWorkbenchWindow == null){
-            throw new RuntimeException("activeWorkbenchWindow cannot be null (we have to be in a ui thread for this to work)");
+        if (activeWorkbenchWindow == null) {
+            throw new RuntimeException(
+                    "activeWorkbenchWindow cannot be null (we have to be in a ui thread for this to work)");
         }
-        
+
         IWorkbenchPage wp = activeWorkbenchWindow.getActivePage();
-    
+
         // File is inside the workspace
         return IDE.openEditor(wp, file, PyEdit.EDITOR_ID);
     }
-
-
 
     /**
      * Opens some editor from an IFile
@@ -66,24 +65,23 @@ public class PyOpenEditor {
     public static IEditorPart doOpenEditor(IFile f) {
         if (f == null)
             return null;
-        
+
         try {
             FileEditorInput file = new FileEditorInput(f);
             return openEditorInput(file);
-            
+
         } catch (Exception e) {
             Log.log(IStatus.ERROR, ("Unexpected error opening path " + f.toString()), e);
             return null;
         }
     }
-    
-    
+
     public static IEditorPart doOpenEditor(File file) {
         String absPath = REF.getFileAbsolutePath((File) file);
         IPath path = Path.fromOSString(absPath);
         return PyOpenEditor.doOpenEditor(path);
     }
-    
+
     /**
      * Utility function that opens an editor on a given path.
      * 
@@ -91,14 +89,14 @@ public class PyOpenEditor {
      * @see #openEditorInput(IEditorInput)
      */
     public static IEditorPart doOpenEditor(IPath path) {
-        if (path == null){
+        if (path == null) {
             return null;
         }
-    
+
         try {
             IEditorInput file = new PySourceLocatorBase().createEditorInput(path);
             return openEditorInput(file);
-            
+
         } catch (Exception e) {
             Log.log(IStatus.ERROR, ("Unexpected error opening path " + path.toString()), e);
             return null;
@@ -112,16 +110,17 @@ public class PyOpenEditor {
      * @see #openEditorInput(IEditorInput)
      */
     public static IEditorPart doOpenEditor(File zipFile, String zipFilePath) {
-        if (zipFile == null || zipFilePath == null){
+        if (zipFile == null || zipFilePath == null) {
             return null;
         }
-        
+
         try {
             IEditorInput file = new PydevZipFileEditorInput(new PydevZipFileStorage(zipFile, zipFilePath));
             return openEditorInput(file);
-            
+
         } catch (Exception e) {
-            Log.log(IStatus.ERROR, ("Unexpected error opening zip file " + zipFile.getAbsolutePath()+ " - "+zipFilePath), e);
+            Log.log(IStatus.ERROR,
+                    ("Unexpected error opening zip file " + zipFile.getAbsolutePath() + " - " + zipFilePath), e);
             return null;
         }
     }

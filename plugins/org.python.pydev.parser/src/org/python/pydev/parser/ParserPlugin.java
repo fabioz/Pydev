@@ -20,7 +20,7 @@ public class ParserPlugin extends AbstractUIPlugin {
     private static ParserPlugin plugin;
     //Resource bundle.
     private ResourceBundle resourceBundle;
-    
+
     /**
      * The constructor.
      */

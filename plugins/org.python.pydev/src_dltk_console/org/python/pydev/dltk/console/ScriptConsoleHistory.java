@@ -64,16 +64,16 @@ public class ScriptConsoleHistory {
     public void commit() {
         String lineToAddToHistory = getBufferLine();
         try {
-            historyAsDoc.replace(historyAsDoc.getLength(), 0, lineToAddToHistory+"\n");
+            historyAsDoc.replace(historyAsDoc.getLength(), 0, lineToAddToHistory + "\n");
         } catch (BadLocationException e) {
             Log.log(e);
         }
 
         if (lineToAddToHistory.length() == 0) {
-            currLine = lines.size()-1;
+            currLine = lines.size() - 1;
             return;
         }
-        
+
         lines.set(lines.size() - 1, lineToAddToHistory);
 
         lines.add(""); //$NON-NLS-1$
@@ -85,13 +85,13 @@ public class ScriptConsoleHistory {
      */
     public boolean prev() {
         int initialCurrLine = currLine;
-        while(true){
+        while (true) {
             if (currLine <= 0) {
                 break;
             }
             --currLine;
             String curr = get();
-            if(curr.startsWith(this.matchStart)){
+            if (curr.startsWith(this.matchStart)) {
                 return true;
             }
         }
@@ -104,18 +104,18 @@ public class ScriptConsoleHistory {
      */
     public boolean next() {
         int initialCurrLine = currLine;
-        while(true){
+        while (true) {
             if (currLine >= lines.size() - 2) { //we don't want to add the 'current' line here
                 break;
             }
             ++currLine;
             String curr = get();
-            if(curr.startsWith(this.matchStart)){
+            if (curr.startsWith(this.matchStart)) {
                 return true;
             }
         }
         currLine = initialCurrLine; //don't change if we weren't able to find a match.
-        
+
         return false;
     }
 
@@ -125,14 +125,14 @@ public class ScriptConsoleHistory {
     public IDocument getAsDoc() {
         return historyAsDoc;
     }
-    
+
     /**
      * @return the contents of the line that's currently in the buffer but still wasn't added to the history.
      */
     public String getBufferLine() {
-        return lines.get(lines.size()-1);
+        return lines.get(lines.size() - 1);
     }
-    
+
     /**
      * @return the contents of the current line in the history.
      */
@@ -149,8 +149,8 @@ public class ScriptConsoleHistory {
      */
     public List<String> getAsList() {
         ArrayList<String> list = new ArrayList<String>(lines);
-        if(list.size() > 0){
-            list.remove(list.size()-1); //remove the last on (current)
+        if (list.size() > 0) {
+            list.remove(list.size() - 1); //remove the last on (current)
         }
         return list;
     }

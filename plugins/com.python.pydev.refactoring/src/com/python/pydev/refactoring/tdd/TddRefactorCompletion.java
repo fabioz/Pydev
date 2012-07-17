@@ -32,12 +32,13 @@ public final class TddRefactorCompletion extends AbstractTddRefactorCompletion {
     private AbstractPyCreateAction pyCreateAction;
     private PySelection ps;
 
-    TddRefactorCompletion(String replacementString, 
-            Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, 
-            int priority, PyEdit edit, int locationStrategy, List<String> parametersAfterCall, AbstractPyCreateAction pyCreateAction, PySelection ps) {
-        
-        super(edit, replacementString, 0, 0, 0, image, displayString, contextInformation,
-                additionalProposalInfo, priority);
+    TddRefactorCompletion(String replacementString, Image image, String displayString,
+            IContextInformation contextInformation, String additionalProposalInfo, int priority, PyEdit edit,
+            int locationStrategy, List<String> parametersAfterCall, AbstractPyCreateAction pyCreateAction,
+            PySelection ps) {
+
+        super(edit, replacementString, 0, 0, 0, image, displayString, contextInformation, additionalProposalInfo,
+                priority);
         this.locationStrategy = locationStrategy;
         this.parametersAfterCall = parametersAfterCall;
         this.pyCreateAction = pyCreateAction;
@@ -53,35 +54,35 @@ public final class TddRefactorCompletion extends AbstractTddRefactorCompletion {
     public boolean isAutoInsertable() {
         return false;
     }
-    
+
     @Override
     public Point getSelection(IDocument document) {
         TemplateProposal executed2 = getExecuted();
-        if(executed2 != null){
+        if (executed2 != null) {
             return executed2.getSelection(document);
         }
         return null;
     }
 
     public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
-        if(edit != null){
+        if (edit != null) {
             //We have to reparse to make sure that we'll have an accurate AST.
             edit.getParser().reparseDocument();
         }
         TemplateProposal executed2 = getExecuted();
-        if(executed2 != null){
+        if (executed2 != null) {
             executed2.apply(viewer, trigger, stateMask, 0);
             forceReparseInBaseEditorAnd();
         }
     }
-    
+
     private TemplateProposal getExecuted() {
-        if(executed == null){
+        if (executed == null) {
             pyCreateAction.setActiveEditor(null, edit);
             try {
                 RefactoringInfo refactoringInfo = new RefactoringInfo(edit, ps.getTextSelection());
-                executed = (TemplateProposal) pyCreateAction.createProposal(
-                        refactoringInfo, this.fReplacementString, this.locationStrategy, parametersAfterCall);
+                executed = (TemplateProposal) pyCreateAction.createProposal(refactoringInfo, this.fReplacementString,
+                        this.locationStrategy, parametersAfterCall);
             } catch (MisconfigurationException e) {
                 Log.log(e);
             }

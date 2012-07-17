@@ -4,7 +4,8 @@ package org.python.modules;
 import org.python.core.*;
 
 public class PyLock extends PyObject {
-    private boolean locked=false;
+    private boolean locked = false;
+
     //private Object lock = new Object();
 
     public boolean acquire() {
@@ -34,7 +35,8 @@ public class PyLock extends PyObject {
 
     public synchronized void release() {
         if (locked) {
-            locked = false; notifyAll();
+            locked = false;
+            notifyAll();
         } else {
             throw Py.ValueError("lock not acquired");
         }

@@ -66,19 +66,18 @@ import org.python.pydev.plugin.PydevPlugin;
  * @author Fabio Zadrozny
  */
 public class PyGoToDefinition extends PyRefactorAction {
-    
 
     /**
      * We do some additional checking because the default backend
      * @return true if the conditions are ok and false otherwise
      */
     protected boolean areRefactorPreconditionsOK(RefactoringRequest request) {
-    	
-// we're working with dirty editors now (through pushTemporaryModule/popTemporaryModule)
-//
-//        if (request.pyEdit.isDirty()){
-//            request.pyEdit.doSave(null);
-//        }
+
+        // we're working with dirty editors now (through pushTemporaryModule/popTemporaryModule)
+        //
+        //        if (request.pyEdit.isDirty()){
+        //            request.pyEdit.doSave(null);
+        //        }
 
         return true;
     }
@@ -87,64 +86,64 @@ public class PyGoToDefinition extends PyRefactorAction {
      * This class makes the parse when all reparses have finished.
      */
     private class FindParserObserver implements IParserObserver {
-        
-    	/**
-    	 * Lock for accessing askReparse.
-    	 */
+
+        /**
+         * Lock for accessing askReparse.
+         */
         private Object lock;
-        
+
         /**
          * A set with all the reparses asked. When all finish, we'll do the find.
          */
-		private Set<PyEdit> askReparse;
-		
-		/**
-		 * This is the editor which this action is listening in the reparse (will remove it from 
-		 * askReparse and when empty, will proceed to do the find).
-		 */
-		private PyEdit editToReparse;
+        private Set<PyEdit> askReparse;
 
-		public FindParserObserver(PyEdit editToReparse, Set<PyEdit> askReparse, Object lock) {
-			this.editToReparse = editToReparse;
-			this.askReparse = askReparse;
-			this.lock = lock;
-		}
+        /**
+         * This is the editor which this action is listening in the reparse (will remove it from 
+         * askReparse and when empty, will proceed to do the find).
+         */
+        private PyEdit editToReparse;
 
-		/**
+        public FindParserObserver(PyEdit editToReparse, Set<PyEdit> askReparse, Object lock) {
+            this.editToReparse = editToReparse;
+            this.askReparse = askReparse;
+            this.lock = lock;
+        }
+
+        /**
          * As soon as the reparse is done, this method is called.
          */
         public void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc) {
-        	editToReparse.getParser().removeParseListener(this); //we'll only listen for this single parse
-        	doFindIfLast();
+            editToReparse.getParser().removeParseListener(this); //we'll only listen for this single parse
+            doFindIfLast();
         }
 
         /**
          * We want to work in the event of parse errors too.
          */
-		public void parserError(Throwable error, IAdaptable file, IDocument doc) {
-			editToReparse.getParser().removeParseListener(this); //we'll only listen for this single parse
-			doFindIfLast();
-		}
+        public void parserError(Throwable error, IAdaptable file, IDocument doc) {
+            editToReparse.getParser().removeParseListener(this); //we'll only listen for this single parse
+            doFindIfLast();
+        }
 
-		/**
-		 * Remove the editor from askReparse and if it's the last one, do the find.
-		 */
-		private void doFindIfLast() {
-			synchronized (lock) {
-				askReparse.remove(editToReparse);
-				if(askReparse.size() > 0){
-					return; //not the last one (we'll only do the find when all are reparsed.
-				}
-			}
+        /**
+         * Remove the editor from askReparse and if it's the last one, do the find.
+         */
+        private void doFindIfLast() {
+            synchronized (lock) {
+                askReparse.remove(editToReparse);
+                if (askReparse.size() > 0) {
+                    return; //not the last one (we'll only do the find when all are reparsed.
+                }
+            }
             /**
              * Create an ui job to actually make the find.
              */
-            UIJob job = new UIJob("Find"){
-                
+            UIJob job = new UIJob("Find") {
+
                 @Override
                 public IStatus runInUIThread(IProgressMonitor monitor) {
                     try {
-                    	findDefinitionsAndOpen(true);
+                        findDefinitionsAndOpen(true);
                     } catch (Throwable e) {
                         Log.log(e);
                     }
@@ -155,7 +154,7 @@ public class PyGoToDefinition extends PyRefactorAction {
             job.schedule();
         }
     }
-    
+
     /**
      * Overrides the run and calls -- and the whole default refactoring cycle from the beggining, 
      * because unlike most refactoring operations, this one can work with dirty editors.
@@ -167,51 +166,52 @@ public class PyGoToDefinition extends PyRefactorAction {
         IEditorPart[] dirtyEditors = workbenchWindow.getActivePage().getDirtyEditors();
         Set<PyEdit> askReparse = new HashSet<PyEdit>();
         for (IEditorPart iEditorPart : dirtyEditors) {
-			if(iEditorPart instanceof PyEdit){
-				PyEdit pyEdit = (PyEdit) iEditorPart;
-				long astModificationTimeStamp = pyEdit.getAstModificationTimeStamp();
-				IDocument doc = pyEdit.getDocument();
-				if(astModificationTimeStamp != -1 && astModificationTimeStamp == (((IDocumentExtension4)doc).getModificationStamp())){
-					//All OK, the ast is synched!
-				}else{
-					askReparse.add(pyEdit);
-				}
-			}
-		}
-    	
-        if(askReparse.size() == 0){
-        	findDefinitionsAndOpen(true);
-        }else{
-    		//We don't have a match: ask for a reparse
-        	Object lock = new Object();
-    		for(PyEdit pyEdit:askReparse){
-	            IParserObserver observer = new FindParserObserver(pyEdit, askReparse, lock);
-	            PyParser parser = pyEdit.getParser();
-	            parser.addParseListener(observer); //it will analyze when the next parse is finished
-	            parser.forceReparse();
-    		}
-    	}
+            if (iEditorPart instanceof PyEdit) {
+                PyEdit pyEdit = (PyEdit) iEditorPart;
+                long astModificationTimeStamp = pyEdit.getAstModificationTimeStamp();
+                IDocument doc = pyEdit.getDocument();
+                if (astModificationTimeStamp != -1
+                        && astModificationTimeStamp == (((IDocumentExtension4) doc).getModificationStamp())) {
+                    //All OK, the ast is synched!
+                } else {
+                    askReparse.add(pyEdit);
+                }
+            }
+        }
+
+        if (askReparse.size() == 0) {
+            findDefinitionsAndOpen(true);
+        } else {
+            //We don't have a match: ask for a reparse
+            Object lock = new Object();
+            for (PyEdit pyEdit : askReparse) {
+                IParserObserver observer = new FindParserObserver(pyEdit, askReparse, lock);
+                PyParser parser = pyEdit.getParser();
+                parser.addParseListener(observer); //it will analyze when the next parse is finished
+                parser.forceReparse();
+            }
+        }
     }
-    
+
     public ItemPointer[] findDefinitionsAndOpen(boolean doOpenDefinition) {
         request = null;
-        
-    	ps = new PySelection(getTextEditor());
-    	final PyEdit pyEdit = getPyEdit();
-    	RefactoringRequest refactoringRequest;
-		try {
-			refactoringRequest = getRefactoringRequest();
-		} catch (MisconfigurationException e1) {
-			Log.log(e1);
-			return new ItemPointer[0];
-		}
 
-		final Shell shell = getShell();
+        ps = new PySelection(getTextEditor());
+        final PyEdit pyEdit = getPyEdit();
+        RefactoringRequest refactoringRequest;
         try {
-            
-			if(areRefactorPreconditionsOK(refactoringRequest)){
+            refactoringRequest = getRefactoringRequest();
+        } catch (MisconfigurationException e1) {
+            Log.log(e1);
+            return new ItemPointer[0];
+        }
+
+        final Shell shell = getShell();
+        try {
+
+            if (areRefactorPreconditionsOK(refactoringRequest)) {
                 ItemPointer[] defs = findDefinition(pyEdit);
-                if(doOpenDefinition){
+                if (doOpenDefinition) {
                     openDefinition(defs, pyEdit, shell);
                 }
                 return defs;
@@ -219,16 +219,15 @@ public class PyGoToDefinition extends PyRefactorAction {
         } catch (Exception e) {
             Log.log(e);
             String msg = e.getMessage();
-            if(msg == null){
+            if (msg == null) {
                 msg = "Unable to get error msg (null)";
             }
-            ErrorDialog.openError(shell, "Error", "Unable to do requested action", 
+            ErrorDialog.openError(shell, "Error", "Unable to do requested action",
                     new Status(Status.ERROR, PydevPlugin.getPluginID(), 0, msg, e));
-            
+
         }
         return null;
     }
-
 
     /**
      * Opens a given definition directly or asks the user to choose one of the passed definitions
@@ -238,14 +237,14 @@ public class PyGoToDefinition extends PyRefactorAction {
      * @param shell the shell to be used to show dialogs 
      */
     public static void openDefinition(ItemPointer[] defs, final PyEdit pyEdit, final Shell shell) {
-        if(defs == null){
+        if (defs == null) {
             shell.getDisplay().beep();
             return;
         }
-        
+
         HashSet<ItemPointer> set = new HashSet<ItemPointer>();
         for (ItemPointer pointer : defs) {
-            if(pointer.file != null){
+            if (pointer.file != null) {
                 set.add(pointer);
             }
         }
@@ -256,27 +255,27 @@ public class PyGoToDefinition extends PyRefactorAction {
             return;
         }
 
-        if (where.length > 0){
-            if (where.length == 1){
+        if (where.length > 0) {
+            if (where.length == 1) {
                 ItemPointer itemPointer = where[0];
                 doOpen(itemPointer, pyEdit, shell);
-            }else{
+            } else {
                 //the user has to choose which is the correct definition...
                 final Display disp = shell.getDisplay();
-                disp.syncExec(new Runnable(){
+                disp.syncExec(new Runnable() {
 
                     public void run() {
-                        ElementListSelectionDialog dialog = new ElementListSelectionDialog(shell, new ILabelProvider(){
+                        ElementListSelectionDialog dialog = new ElementListSelectionDialog(shell, new ILabelProvider() {
 
                             public Image getImage(Object element) {
                                 return PyCodeCompletionImages.getImageForType(IToken.TYPE_PACKAGE);
                             }
 
                             public String getText(Object element) {
-                                ItemPointer pointer = (ItemPointer)element;
+                                ItemPointer pointer = (ItemPointer) element;
                                 File f = (File) (pointer).file;
                                 int line = pointer.start.line;
-                                return f.getName() + "  ("+f.getParent()+") - line:"+line;
+                                return f.getName() + "  (" + f.getParent() + ") - line:" + line;
                             }
 
                             public void addListener(ILabelProviderListener listener) {
@@ -290,26 +289,25 @@ public class PyGoToDefinition extends PyRefactorAction {
                             }
 
                             public void removeListener(ILabelProviderListener listener) {
-                            }}
-                        );
+                            }
+                        });
                         dialog.setTitle("Found matches");
                         dialog.setTitle("Select the one you believe matches most your search.");
                         dialog.setElements(where);
                         dialog.open();
                         Object[] result = dialog.getResult();
-                        if(result != null && result.length > 0){
+                        if (result != null && result.length > 0) {
                             doOpen((ItemPointer) result[0], pyEdit, shell);
 
                         }
                     }
-                    
+
                 });
             }
         } else {
             shell.getDisplay().beep();
         }
     }
-
 
     /**
      * @param itemPointer this is the item pointer that gives the location that should be opened
@@ -319,35 +317,32 @@ public class PyGoToDefinition extends PyRefactorAction {
     private static void doOpen(ItemPointer itemPointer, PyEdit pyEdit, Shell shell) {
         File f = (File) itemPointer.file;
         String filename = f.getName();
-        if (PythonPathHelper.isValidSourceFile(filename) || 
-                filename.indexOf('.') == -1 || //treating files without any extension! 
-                (itemPointer.zipFilePath != null && PythonPathHelper.isValidSourceFile(itemPointer.zipFilePath)) ){
-            
+        if (PythonPathHelper.isValidSourceFile(filename) || filename.indexOf('.') == -1 || //treating files without any extension! 
+                (itemPointer.zipFilePath != null && PythonPathHelper.isValidSourceFile(itemPointer.zipFilePath))) {
+
             final PyOpenAction openAction = (PyOpenAction) pyEdit.getAction(PyEdit.ACTION_OPEN);
-            
+
             openAction.run(itemPointer);
-        }else if(itemPointer.definition instanceof JavaDefinition){
+        } else if (itemPointer.definition instanceof JavaDefinition) {
             //note that it will only be able to find a java definition if JDT is actually available
             //so, we don't have to care about JDTNotAvailableExceptions here. 
             JavaDefinition javaDefinition = (JavaDefinition) itemPointer.definition;
             OpenAction openAction = new OpenAction(pyEdit.getSite());
-            StructuredSelection selection = new StructuredSelection(new Object[]{javaDefinition.javaElement});
+            StructuredSelection selection = new StructuredSelection(new Object[] { javaDefinition.javaElement });
             openAction.run(selection);
-        }else{
+        } else {
             String message;
-            if(itemPointer.definition != null && itemPointer.definition.module instanceof AbstractJavaClassModule){
+            if (itemPointer.definition != null && itemPointer.definition.module instanceof AbstractJavaClassModule) {
                 AbstractJavaClassModule module = (AbstractJavaClassModule) itemPointer.definition.module;
-                message = "The definition was found at: "+f.toString()+"\n" +
-                "as the java module: "+module.getName();
-                
-            }else{
-                message = "The definition was found at: "+f.toString()+"\n" +
-                "(which cannot be opened because it is a compiled extension)";
-                
+                message = "The definition was found at: " + f.toString() + "\n" + "as the java module: "
+                        + module.getName();
+
+            } else {
+                message = "The definition was found at: " + f.toString() + "\n"
+                        + "(which cannot be opened because it is a compiled extension)";
+
             }
-            
-            
-            
+
             MessageDialog.openInformation(shell, "Compiled Extension file", message);
         }
     }

@@ -23,7 +23,7 @@ import org.python.pydev.editor.codecompletion.PyContentAssistant;
  * Configuration for the source viewer.
  */
 public class ScriptConsoleSourceViewerConfiguration extends SourceViewerConfiguration {
-    
+
     public static final String PARTITION_TYPE = IDocument.DEFAULT_CONTENT_TYPE;
 
     private ITextHover hover;
@@ -32,7 +32,8 @@ public class ScriptConsoleSourceViewerConfiguration extends SourceViewerConfigur
 
     private IQuickAssistAssistant quickAssist;
 
-    public ScriptConsoleSourceViewerConfiguration(ITextHover hover, PyContentAssistant contentAssist, IQuickAssistAssistant quickAssist) {
+    public ScriptConsoleSourceViewerConfiguration(ITextHover hover, PyContentAssistant contentAssist,
+            IQuickAssistAssistant quickAssist) {
         this.hover = hover;
         this.contentAssist = contentAssist;
         this.quickAssist = quickAssist;
@@ -55,13 +56,13 @@ public class ScriptConsoleSourceViewerConfiguration extends SourceViewerConfigur
         contentAssist.setInformationControlCreator(this.getInformationControlCreator(sourceViewer));
         return contentAssist;
     }
-    
+
     @Override
     public IQuickAssistAssistant getQuickAssistAssistant(ISourceViewer sourceViewer) {
         quickAssist.setInformationControlCreator(this.getInformationControlCreator(sourceViewer));
         return quickAssist;
     }
-    
+
     /*
      * (non-Javadoc)
      * 

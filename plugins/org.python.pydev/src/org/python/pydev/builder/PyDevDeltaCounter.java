@@ -21,26 +21,26 @@ import org.python.pydev.plugin.nature.PythonNature;
 /**
  * @author Fabio Zadrozny
  */
-public class PyDevDeltaCounter extends PydevInternalResourceDeltaVisitor{
+public class PyDevDeltaCounter extends PydevInternalResourceDeltaVisitor {
 
     private int nVisited = 0;
 
-    public PyDevDeltaCounter(){
+    public PyDevDeltaCounter() {
         super(null, 0);
     }
-    
+
     @Override
-    protected void handleAddedPycFiles(IResource resource, PythonNature nature){
+    protected void handleAddedPycFiles(IResource resource, PythonNature nature) {
         //don't do anything special on pyc files!
     }
-    
+
     /**
      * Overridden so that we don't load the document on this visitor (there is no need for that).
      */
     @Override
     protected boolean chooseVisit(IResourceDelta delta, IResource resource, boolean isAddOrChange) {
         switch (delta.getKind()) {
-            case IResourceDelta.ADDED :
+            case IResourceDelta.ADDED:
                 visitAddedResource(resource, null, monitor);
                 isAddOrChange = true;
                 break;
@@ -83,6 +83,5 @@ public class PyDevDeltaCounter extends PydevInternalResourceDeltaVisitor{
     public int getNVisited() {
         return nVisited;
     }
-
 
 }

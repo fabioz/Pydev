@@ -61,7 +61,6 @@ public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationT
             }
         });
 
-        
         comboSelectRunner = new Combo(group, SWT.SINGLE | SWT.READ_ONLY);
         gd = new GridData(GridData.FILL_HORIZONTAL);
         comboSelectRunner.setLayoutData(gd);
@@ -71,22 +70,21 @@ public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationT
             comboSelectRunner.setData(s[0], Integer.parseInt(s[1]));
         }
         comboSelectRunner.addSelectionListener(new SelectionListener() {
-            
+
             public void widgetSelected(SelectionEvent e) {
                 updateLaunchConfigurationDialog();
             }
-            
+
             public void widgetDefaultSelected(SelectionEvent e) {
                 updateLaunchConfigurationDialog();
             }
         });
-        
 
         textRunnerParameters = new Text(group, SWT.MULTI | SWT.BORDER);
         gd = new GridData(GridData.FILL_BOTH);
         textRunnerParameters.setLayoutData(gd);
         textRunnerParameters.setFont(font);
-        
+
         textRunnerParameters.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent evt) {
                 updateLaunchConfigurationDialog();
@@ -106,8 +104,8 @@ public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationT
         //Override selection
         IPreferenceStore prefs = PydevPrefs.getPreferenceStore();
         try {
-            buttonAskOverride.setSelection(configuration.getAttribute(PyUnitPrefsPage2.LAUNCH_CONFIG_OVERRIDE_PYUNIT_RUN_PARAMS_CHOICE,
-                    false));
+            buttonAskOverride.setSelection(configuration.getAttribute(
+                    PyUnitPrefsPage2.LAUNCH_CONFIG_OVERRIDE_PYUNIT_RUN_PARAMS_CHOICE, false));
         } catch (CoreException e) {
             buttonAskOverride.setSelection(false);
             Log.log(e);
@@ -118,7 +116,8 @@ public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationT
         try {
             int defaultTestRunner = prefs.getInt(PyUnitPrefsPage2.TEST_RUNNER);
 
-            int testRunner = configuration.getAttribute(PyUnitPrefsPage2.LAUNCH_CONFIG_OVERRIDE_TEST_RUNNER, defaultTestRunner);
+            int testRunner = configuration.getAttribute(PyUnitPrefsPage2.LAUNCH_CONFIG_OVERRIDE_TEST_RUNNER,
+                    defaultTestRunner);
             for (String[] s : PyUnitPrefsPage2.ENTRY_NAMES_AND_VALUES) {
                 if (Integer.parseInt(s[1]) == testRunner) {
                     comboSelectRunner.setText(s[0]);
@@ -145,10 +144,12 @@ public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationT
     }
 
     public void performApply(ILaunchConfigurationWorkingCopy configuration) {
-        configuration.setAttribute(PyUnitPrefsPage2.LAUNCH_CONFIG_OVERRIDE_PYUNIT_RUN_PARAMS_CHOICE, buttonAskOverride.getSelection());
+        configuration.setAttribute(PyUnitPrefsPage2.LAUNCH_CONFIG_OVERRIDE_PYUNIT_RUN_PARAMS_CHOICE,
+                buttonAskOverride.getSelection());
         int data = (Integer) comboSelectRunner.getData(comboSelectRunner.getText());
         configuration.setAttribute(PyUnitPrefsPage2.LAUNCH_CONFIG_OVERRIDE_TEST_RUNNER, data);
-        configuration.setAttribute(PyUnitPrefsPage2.LAUNCH_CONFIG_OVERRIDE_PYUNIT_RUN_PARAMS, textRunnerParameters.getText());
+        configuration.setAttribute(PyUnitPrefsPage2.LAUNCH_CONFIG_OVERRIDE_PYUNIT_RUN_PARAMS,
+                textRunnerParameters.getText());
     }
 
     public String getName() {

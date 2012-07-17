@@ -23,7 +23,8 @@ import org.eclipse.swt.graphics.Point;
  */
 public abstract class AbstractTooltipInformationPresenter extends AbstractInformationPresenter {
 
-    public String updatePresentation(Drawable drawable, String hoverInfo, TextPresentation presentation, int maxWidth, int maxHeight) {
+    public String updatePresentation(Drawable drawable, String hoverInfo, TextPresentation presentation, int maxWidth,
+            int maxHeight) {
         if (drawable instanceof StyledText) {
             final StyledText styledText = (StyledText) drawable;
             styledText.addMouseListener(new MouseAdapter() {
@@ -32,7 +33,7 @@ public abstract class AbstractTooltipInformationPresenter extends AbstractInform
                     try {
                         int offset = styledText.getOffsetAtLocation(new Point(e.x, e.y));
                         StyleRange r = styledText.getStyleRangeAtOffset(offset);
-                        if(r instanceof StyleRangeWithCustomData){
+                        if (r instanceof StyleRangeWithCustomData) {
                             StyleRangeWithCustomData styleRangeWithCustomData = (StyleRangeWithCustomData) r;
                             onHandleClick(styleRangeWithCustomData.customData);
                         }
@@ -42,13 +43,13 @@ public abstract class AbstractTooltipInformationPresenter extends AbstractInform
                     }
                 }
             });
-            
+
             styledText.addKeyListener(new KeyAdapter() {
                 public void keyPressed(KeyEvent e) {
                     try {
-                        if(e.keyCode == SWT.CR || e.keyCode == SWT.LF || e.keyCode == SWT.KEYPAD_CR){
+                        if (e.keyCode == SWT.CR || e.keyCode == SWT.LF || e.keyCode == SWT.KEYPAD_CR) {
                             StyleRange r = styledText.getStyleRangeAtOffset(styledText.getSelection().y);
-                            if(r instanceof StyleRangeWithCustomData){
+                            if (r instanceof StyleRangeWithCustomData) {
                                 StyleRangeWithCustomData styleRangeWithCustomData = (StyleRangeWithCustomData) r;
                                 onHandleClick(styleRangeWithCustomData.customData);
                             }
@@ -60,10 +61,10 @@ public abstract class AbstractTooltipInformationPresenter extends AbstractInform
                 }
             });
         }
-        
+
         hoverInfo = this.correctLineDelimiters(hoverInfo);
         onUpdatePresentation(hoverInfo, presentation);
-        
+
         return hoverInfo;
     }
 

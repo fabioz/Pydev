@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-public class AbstractIFolderStub extends AbstractIContainerStub implements IFolder{
+public class AbstractIFolderStub extends AbstractIContainerStub implements IFolder {
 
     public void create(boolean force, boolean local, IProgressMonitor monitor) throws CoreException {
         throw new RuntimeException("Not implemented");
@@ -49,14 +49,14 @@ public class AbstractIFolderStub extends AbstractIContainerStub implements IFold
         throw new RuntimeException("Not implemented");
     }
 
-    public void move(IPath destination, boolean force, boolean keepHistory, IProgressMonitor monitor) throws CoreException {
+    public void move(IPath destination, boolean force, boolean keepHistory, IProgressMonitor monitor)
+            throws CoreException {
         throw new RuntimeException("Not implemented");
     }
-    
+
     @Override
     public int getType() {
-    	return IResource.FOLDER;
+        return IResource.FOLDER;
     }
-
 
 }

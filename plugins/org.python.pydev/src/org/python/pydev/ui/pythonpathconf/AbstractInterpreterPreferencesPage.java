@@ -41,10 +41,11 @@ import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
 /**
  * @author Fabio Zadrozny
  */
-public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage{
+public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPreferencePage implements
+        IWorkbenchPreferencePage {
 
     protected AbstractInterpreterEditor pathEditor;
-	private boolean inApply = false;
+    private boolean inApply = false;
 
     /**
      * Initializer sets the preference store
@@ -53,90 +54,89 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
         super(GRID);
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
     }
-    
-    
+
     public static volatile boolean autoConfigureOnCreate = false;
-    
+
     @Override
-    public void createControl(Composite parent){
+    public void createControl(Composite parent) {
         super.createControl(parent);
-        if(autoConfigureOnCreate){
+        if (autoConfigureOnCreate) {
             //HACK warning: when editor is created, automatically do the auto-configure...
             this.pathEditor.autoConfigPressed();
         }
     }
 
     protected abstract AbstractInterpreterEditor getInterpreterEditor(Composite p);
-    
+
     /**
      * Creates a dialog that'll choose from a list of interpreter infos.
      */
-    public static SelectionDialog createChooseIntepreterInfoDialog(
-            IWorkbenchWindow workbenchWindow, IInterpreterInfo[] interpreters, String msg, boolean selectMultiple) {
-    	
-    	IStructuredContentProvider contentProvider = new IStructuredContentProvider(){
-    		
-    		public Object[] getElements(Object inputElement) {
-    			if(inputElement instanceof IInterpreterInfo[]){
-    				return (IInterpreterInfo[]) inputElement;
-    			}
-    			return new Object[0];
-    		}
-    		
-    		public void dispose() {
-    		}
-    		
-    		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-    			
-    		}
-    	};
-    	
-    	LabelProvider labelProvider = new LabelProvider(){
-    		public Image getImage(Object element) {
-    			return PydevPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON);
-    		}
-    		public String getText(Object element) {
-    			if(element != null && element instanceof IInterpreterInfo){
-    				IInterpreterInfo info = (IInterpreterInfo) element;
-    				return info.getNameForUI();
-    			}
-    			return super.getText(element);
-    		}
-    	};
-    		
-    	SelectionDialog selectionDialog;
-    	if(selectMultiple){
-    		selectionDialog = new ListSelectionDialog(workbenchWindow.getShell(), interpreters, contentProvider, labelProvider, msg);
-    	}else{
-	    	
-	        ListDialog listDialog = new ListDialog(workbenchWindow.getShell());
-	        
-			listDialog.setContentProvider(contentProvider);
-			listDialog.setLabelProvider(labelProvider);
-	        listDialog.setInput(interpreters);
-	        listDialog.setMessage(msg);
-	        selectionDialog = listDialog;
-    	}
-    	return selectionDialog;
+    public static SelectionDialog createChooseIntepreterInfoDialog(IWorkbenchWindow workbenchWindow,
+            IInterpreterInfo[] interpreters, String msg, boolean selectMultiple) {
+
+        IStructuredContentProvider contentProvider = new IStructuredContentProvider() {
+
+            public Object[] getElements(Object inputElement) {
+                if (inputElement instanceof IInterpreterInfo[]) {
+                    return (IInterpreterInfo[]) inputElement;
+                }
+                return new Object[0];
+            }
+
+            public void dispose() {
+            }
+
+            public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+
+            }
+        };
+
+        LabelProvider labelProvider = new LabelProvider() {
+            public Image getImage(Object element) {
+                return PydevPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON);
+            }
+
+            public String getText(Object element) {
+                if (element != null && element instanceof IInterpreterInfo) {
+                    IInterpreterInfo info = (IInterpreterInfo) element;
+                    return info.getNameForUI();
+                }
+                return super.getText(element);
+            }
+        };
+
+        SelectionDialog selectionDialog;
+        if (selectMultiple) {
+            selectionDialog = new ListSelectionDialog(workbenchWindow.getShell(), interpreters, contentProvider,
+                    labelProvider, msg);
+        } else {
+
+            ListDialog listDialog = new ListDialog(workbenchWindow.getShell());
+
+            listDialog.setContentProvider(contentProvider);
+            listDialog.setLabelProvider(labelProvider);
+            listDialog.setInput(interpreters);
+            listDialog.setMessage(msg);
+            selectionDialog = listDialog;
+        }
+        return selectionDialog;
     }
-    
+
     public void init(IWorkbench workbench) {
     }
-    
-    
+
     /**
      * Applies changes (if any) 
      * @see org.eclipse.jface.preference.PreferencePage#performApply()
      */
     protected void performApply() {
         this.inApply = true;
-        try{
-        	super.performApply(); //calls performOk()
-        }finally{
-        	this.inApply = false;
+        try {
+            super.performApply(); //calls performOk()
+        } finally {
+            this.inApply = false;
         }
     }
-    
 
     /**
      * Restores the default values 
@@ -146,7 +146,7 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
     protected void performDefaults() {
         //don't do anything on defaults...
     }
-    
+
     /**
      * Cancels any change
      *  
@@ -155,7 +155,7 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
     public boolean performCancel() {
         return super.performCancel();
     }
-    
+
     /**
      * Applies changes (if any)
      * 
@@ -165,32 +165,30 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
         //IMPORTANT: we must call the perform before restoring the modules because this
         //info is going to be used when restoring them.
         super.performOk();
-        
+
         //we need to update the tree so that the environment variables stay correct. 
         pathEditor.updateTree();
-        
+
         IInterpreterManager interpreterManager = getInterpreterManager();
         String newStringToPersist = AbstractInterpreterManager.getStringToPersist(pathEditor.getExesList());
-        String oldStringToPersist = AbstractInterpreterManager.getStringToPersist(interpreterManager.getInterpreterInfos());
+        String oldStringToPersist = AbstractInterpreterManager.getStringToPersist(interpreterManager
+                .getInterpreterInfos());
         boolean changed;
-        if(!newStringToPersist.equals(oldStringToPersist)){
+        if (!newStringToPersist.equals(oldStringToPersist)) {
             changed = true;
-        }else{
+        } else {
             changed = false;
         }
 
-        
-		if(changed || inApply){
-		    //If the user just presses 'apply' and nothing changed, he'll be asked to restore information on one of
-		    //the current interpreters.
+        if (changed || inApply) {
+            //If the user just presses 'apply' and nothing changed, he'll be asked to restore information on one of
+            //the current interpreters.
             restoreInterpreterInfos(changed);
         }
-        
-        
+
         return true;
     }
 
-    
     /**
      * @return the interpreter manager associated to this page.
      */
@@ -205,9 +203,6 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
         addField(pathEditor);
     }
 
-    
-    
-    
     /**
      * Restores the modules. Is called when the user changed something in the editor and applies the change.
      * 
@@ -220,55 +215,52 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
      * @return true if the info was restored and false otherwise.
      */
     protected void restoreInterpreterInfos(boolean editorChanged) {
-    	final Set<String> interpreterNamesToRestore = pathEditor.getInterpreterExeOrJarToRestoreAndClear();
+        final Set<String> interpreterNamesToRestore = pathEditor.getInterpreterExeOrJarToRestoreAndClear();
         final IInterpreterInfo[] exesList = pathEditor.getExesList();
-        
-        if(!editorChanged && interpreterNamesToRestore.size() == 0){
-        	IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-        	SelectionDialog listDialog = createChooseIntepreterInfoDialog(
-        			workbenchWindow, exesList, "Select interpreters to be restored", true);
-        	
+
+        if (!editorChanged && interpreterNamesToRestore.size() == 0) {
+            IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+            SelectionDialog listDialog = createChooseIntepreterInfoDialog(workbenchWindow, exesList,
+                    "Select interpreters to be restored", true);
+
             int open = listDialog.open();
-            if(open != ListDialog.OK){
+            if (open != ListDialog.OK) {
                 return;
             }
             Object[] result = (Object[]) listDialog.getResult();
-            if(result == null || result.length == 0){
+            if (result == null || result.length == 0) {
                 return;
-                
+
             }
-            for(Object o:result){
-            	interpreterNamesToRestore.add(((IInterpreterInfo)o).getExecutableOrJar());
+            for (Object o : result) {
+                interpreterNamesToRestore.add(((IInterpreterInfo) o).getExecutableOrJar());
             }
-        	
+
         }
-        
+
         //this is the default interpreter
         ProgressMonitorDialog monitorDialog = new AsynchronousProgressMonitorDialog(this.getShell());
         monitorDialog.setBlockOnOpen(false);
 
         try {
-            IRunnableWithProgress operation = new IRunnableWithProgress(){
+            IRunnableWithProgress operation = new IRunnableWithProgress() {
 
                 public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
                     monitor.beginTask("Restoring PYTHONPATH", IProgressMonitor.UNKNOWN);
                     try {
-						//clear all but the ones that appear
+                        //clear all but the ones that appear
                         getInterpreterManager().setInfos(exesList, interpreterNamesToRestore, monitor);
-					} finally {
-						monitor.done();
-					}
-                }};
-                
+                    } finally {
+                        monitor.done();
+                    }
+                }
+            };
+
             monitorDialog.run(true, true, operation);
-            
-        }catch (Exception e) {
+
+        } catch (Exception e) {
             Log.log(e);
-        }            
+        }
     }
-
-    
-    
-
 
 }

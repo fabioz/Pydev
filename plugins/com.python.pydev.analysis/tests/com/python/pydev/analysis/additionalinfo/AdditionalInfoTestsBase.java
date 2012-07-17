@@ -46,35 +46,36 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
 
     protected IPyDevCompletionParticipant participant;
     protected boolean useOriginalRequestCompl = false;
-    
 
     protected ArrayList<IToken> imports;
-    
-    public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned, String []retCompl, PythonNature nature) throws Exception{
-        if(useOriginalRequestCompl){
+
+    public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned,
+            String[] retCompl, PythonNature nature) throws Exception {
+        if (useOriginalRequestCompl) {
             return super.requestCompl(file, strDoc, documentOffset, returned, retCompl, nature);
         }
-        
-        if(documentOffset == -1){
+
+        if (documentOffset == -1) {
             documentOffset = strDoc.length();
         }
-        
+
         IDocument doc = new Document(strDoc);
         CompletionRequest request = new CompletionRequest(file, nature, doc, documentOffset, codeCompletion);
 
         ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature, new CompletionCache());
         state.setTokenImportedModules(imports);
         List<Object> props = new ArrayList<Object>(participant.getGlobalCompletions(request, state));
-        ICompletionProposal[] codeCompletionProposals = PyCodeCompletionUtils.onlyValidSorted(props, request.qualifier, request.isInCalltip);
-        
-        
+        ICompletionProposal[] codeCompletionProposals = PyCodeCompletionUtils.onlyValidSorted(props, request.qualifier,
+                request.isInCalltip);
+
         for (int i = 0; i < retCompl.length; i++) {
             assertContains(retCompl[i], codeCompletionProposals);
         }
 
-        if(returned > -1){
+        if (returned > -1) {
             StringBuffer buffer = getAvailableAsStr(codeCompletionProposals);
-            assertEquals("Expected "+returned+" received: "+codeCompletionProposals.length+"\n"+buffer, returned, codeCompletionProposals.length);
+            assertEquals("Expected " + returned + " received: " + codeCompletionProposals.length + "\n" + buffer,
+                    returned, codeCompletionProposals.length);
         }
         return codeCompletionProposals;
     }
@@ -94,13 +95,13 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
         attrs.put(AnalysisRunner.PYDEV_ANALYSIS_TYPE, type);
         attrs.put(IMarker.CHAR_START, start);
         attrs.put(IMarker.CHAR_END, end);
-    
+
         MarkerStub marker = new MarkerStub(attrs);
-        return new MarkerAnnotationAndPosition(new MarkerAnnotation("org.eclipse.core.resources.problemmarker", marker), 
-                new Position(start, end-start));
+        return new MarkerAnnotationAndPosition(
+                new MarkerAnnotation("org.eclipse.core.resources.problemmarker", marker), new Position(start, end
+                        - start));
     }
-    
-    
+
     protected void addFooModule(final SimpleNode ast, File f) {
         String modName = "foo";
         PythonNature natureToAdd = nature;
@@ -115,15 +116,15 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
     protected void addModuleToNature(final SimpleNode ast, String modName, PythonNature natureToAdd, File f) {
         //this is to add the info from the module that we just created...
         AbstractAdditionalDependencyInfo additionalInfo;
-		try {
-			additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(natureToAdd);
-		} catch (MisconfigurationException e) {
-			throw new RuntimeException(e);
-		}
+        try {
+            additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(natureToAdd);
+        } catch (MisconfigurationException e) {
+            throw new RuntimeException(e);
+        }
         additionalInfo.addAstInfo(ast, new ModulesKey(modName, f), false);
         ModulesManager modulesManager = (ModulesManager) natureToAdd.getAstManager().getModulesManager();
         SourceModule mod = (SourceModule) AbstractModule.createModule(ast, f, modName);
         modulesManager.doAddSingleModule(new ModulesKey(modName, f), mod);
     }
-    
+
 }

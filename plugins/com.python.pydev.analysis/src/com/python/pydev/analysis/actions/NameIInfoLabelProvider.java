@@ -18,25 +18,25 @@ import com.python.pydev.analysis.additionalinfo.IInfo;
  * @author Fabio
  */
 public class NameIInfoLabelProvider extends LabelProvider {
-    
+
     /**
      * Should we should the whole name with the package structure or only the name of the token (if true
      * shows it fully qualified)
      */
     protected final boolean showCompleteName;
 
-    public NameIInfoLabelProvider(boolean showCompleteName){
+    public NameIInfoLabelProvider(boolean showCompleteName) {
         this.showCompleteName = showCompleteName;
     }
-    
+
     @Override
     public String getText(Object element) {
         IInfo info = getInfo(element);
-        if(info == null){
+        if (info == null) {
             return "";
         }
-        if(showCompleteName){
-            return info.getName()+ " - " + info.getDeclaringModuleName();
+        if (showCompleteName) {
+            return info.getName() + " - " + info.getDeclaringModuleName();
         }
         return info.getName();
     }
@@ -44,21 +44,20 @@ public class NameIInfoLabelProvider extends LabelProvider {
     @Override
     public Image getImage(Object element) {
         IInfo info = getInfo(element);
-        if(info == null){
+        if (info == null) {
             return null;
         }
         return AnalysisPlugin.getImageForTypeInfo(info);
     }
 
-    
     /**
      * Can return null (i.e. if we receive a string on a multiple selection)
      */
-    public static IInfo getInfo(Object element){
-        if(element instanceof AdditionalInfoAndIInfo){
-            element = ((AdditionalInfoAndIInfo)element).info;
+    public static IInfo getInfo(Object element) {
+        if (element instanceof AdditionalInfoAndIInfo) {
+            element = ((AdditionalInfoAndIInfo) element).info;
         }
-        if(!(element instanceof IInfo)){
+        if (!(element instanceof IInfo)) {
             return null;
         }
         IInfo info = (IInfo) element;

@@ -18,13 +18,14 @@ import org.python.pydev.refactoring.messages.Messages;
 
 public class OverrideMethodsChangeProcessor extends AbstractFileChangeProcessor<OverrideMethodsRequest> {
 
-    public OverrideMethodsChangeProcessor(String name, RefactoringInfo info, IRequestProcessor<OverrideMethodsRequest> requestProcessor) {
+    public OverrideMethodsChangeProcessor(String name, RefactoringInfo info,
+            IRequestProcessor<OverrideMethodsRequest> requestProcessor) {
         super(name, info, requestProcessor);
     }
 
     @Override
     protected void processEdit() throws MisconfigurationException {
-        for(OverrideMethodsRequest req:requestProcessor.getRefactoringRequests()){
+        for (OverrideMethodsRequest req : requestProcessor.getRefactoringRequests()) {
             MethodEdit methodEdit = new MethodEdit(req);
             registerEdit(methodEdit, Messages.overrideMethodsMethods);
         }

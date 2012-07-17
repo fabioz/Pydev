@@ -37,72 +37,69 @@ import org.python.pydev.ui.UIConstants;
 /**
  * Dialog to select some source folder (in the workspace)
  */
-public class PythonPackageSelectionDialog  extends ElementTreeSelectionDialog {
-    
+public class PythonPackageSelectionDialog extends ElementTreeSelectionDialog {
 
     public boolean selectOnlySourceFolders;
 
     public PythonPackageSelectionDialog(Shell parent, final boolean selectOnlySourceFolders) {
-        super(parent, new CopiedWorkbenchLabelProvider(){
+        super(parent, new CopiedWorkbenchLabelProvider() {
             @Override
             public String getText(Object element) {
-                if(element instanceof Package){
-                    element = ((Package)element).folder;
+                if (element instanceof Package) {
+                    element = ((Package) element).folder;
                 }
-                if(element instanceof SourceFolder){
+                if (element instanceof SourceFolder) {
                     SourceFolder f = (SourceFolder) element;
                     return f.folder.getProjectRelativePath().toString(); // we want the complete path here...
                 }
                 return super.getText(element);
             }
-            
+
             @Override
             public Image getImage(Object element) {
-                if(element instanceof Package){
-                    element = ((Package)element).folder;
+                if (element instanceof Package) {
+                    element = ((Package) element).folder;
                 }
-                if(element instanceof SourceFolder){
+                if (element instanceof SourceFolder) {
                     return PydevPlugin.getImageCache().get(UIConstants.SOURCE_FOLDER_ICON);
                 }
                 return super.getImage(element);
             }
-        }
-        , new PackageContentProvider(selectOnlySourceFolders));
-        
+        }, new PackageContentProvider(selectOnlySourceFolders));
+
         this.selectOnlySourceFolders = selectOnlySourceFolders;
-        
+
         //let's set the validator
         this.setValidator(new ISelectionStatusValidator() {
             public IStatus validate(Object selection[]) {
-                if(selection.length > 1) {
-                    return new Status(IStatus.ERROR, PydevPlugin.getPluginID(),
-                            IStatus.ERROR, "Only one package can be selected", null);
+                if (selection.length > 1) {
+                    return new Status(IStatus.ERROR, PydevPlugin.getPluginID(), IStatus.ERROR,
+                            "Only one package can be selected", null);
                 }
-                if(selection.length == 1) {
-                    if(selection[0] instanceof SourceFolder) {
+                if (selection.length == 1) {
+                    if (selection[0] instanceof SourceFolder) {
                         SourceFolder folder = (SourceFolder) selection[0];
-                        return new Status(IStatus.OK, PydevPlugin.getPluginID(),
-                                IStatus.OK, "Source Folder: " + folder.folder.getProjectRelativePath().toString() + " selected", null);
+                        return new Status(IStatus.OK, PydevPlugin.getPluginID(), IStatus.OK, "Source Folder: "
+                                + folder.folder.getProjectRelativePath().toString() + " selected", null);
                     }
-                    if(!selectOnlySourceFolders){
-                        if(selection[0] instanceof Package) {
+                    if (!selectOnlySourceFolders) {
+                        if (selection[0] instanceof Package) {
                             Package folder = (Package) selection[0];
-                            return new Status(IStatus.OK, PydevPlugin.getPluginID(),
-                                    IStatus.OK, "Package: " + folder.folder.getName() + " selected", null);
+                            return new Status(IStatus.OK, PydevPlugin.getPluginID(), IStatus.OK, "Package: "
+                                    + folder.folder.getName() + " selected", null);
                         }
                     }
                 }
-                return new Status(IStatus.ERROR, PydevPlugin.getPluginID(),
-                        IStatus.ERROR, "No package selected", null);
+                return new Status(IStatus.ERROR, PydevPlugin.getPluginID(), IStatus.ERROR, "No package selected", null);
 
-            }           
+            }
         });
         this.setInput(ResourcesPlugin.getWorkspace().getRoot());
     }
 
 }
 
-class PackageContentProvider implements ITreeContentProvider{
+class PackageContentProvider implements ITreeContentProvider {
 
     private IWorkspaceRoot workspaceRoot;
     private boolean selectOnlySourceFolders;
@@ -113,43 +110,42 @@ class PackageContentProvider implements ITreeContentProvider{
 
     public Object[] getChildren(Object parentElement) {
         //workspace root
-        if(parentElement instanceof IWorkspaceRoot){
+        if (parentElement instanceof IWorkspaceRoot) {
             this.workspaceRoot = (IWorkspaceRoot) parentElement;
             List<IProject> ret = new ArrayList<IProject>();
-            
+
             IProject[] projects = workspaceRoot.getProjects();
             for (IProject project : projects) {
                 PythonNature nature = PythonNature.getPythonNature(project);
-                if(nature != null){
+                if (nature != null) {
                     ret.add(project);
                 }
             }
             return ret.toArray(new IProject[0]);
         }
-        
 
         //project
-        if(parentElement instanceof IProject){
+        if (parentElement instanceof IProject) {
             List<Object> ret = new ArrayList<Object>();
             IProject project = (IProject) parentElement;
             IPythonPathNature nature = PythonNature.getPythonPathNature(project);
-            if(nature != null){
+            if (nature != null) {
                 try {
                     String[] srcPaths = PythonNature.getStrAsStrItems(nature.getProjectSourcePath(true));
                     for (String str : srcPaths) {
                         IResource resource = this.workspaceRoot.findMember(new Path(str));
-                        if(resource instanceof IFolder){
+                        if (resource instanceof IFolder) {
                             IFolder folder = (IFolder) resource;
-                            if(folder.exists()){
-                                if(folder != null){
+                            if (folder.exists()) {
+                                if (folder != null) {
                                     ret.add(new SourceFolder(folder));
                                 }
                             }
                         }
-                        if(resource instanceof IProject){
+                        if (resource instanceof IProject) {
                             IProject folder = (IProject) resource;
-                            if(folder.exists()){
-                                if(folder != null){
+                            if (folder.exists()) {
+                                if (folder != null) {
                                     ret.add(new SourceFolder(folder));
                                 }
                             }
@@ -161,29 +157,27 @@ class PackageContentProvider implements ITreeContentProvider{
                 }
             }
         }
-        
-        
-        
+
         //source folder
         SourceFolder sourceFolder = null;
-        if(parentElement instanceof SourceFolder){
+        if (parentElement instanceof SourceFolder) {
             sourceFolder = (SourceFolder) parentElement;
-            parentElement = ((SourceFolder)parentElement).folder;
+            parentElement = ((SourceFolder) parentElement).folder;
         }
 
         //package
-        if(parentElement instanceof Package){
-            sourceFolder = ((Package)parentElement).sourceFolder;
-            parentElement = ((Package)parentElement).folder;
+        if (parentElement instanceof Package) {
+            sourceFolder = ((Package) parentElement).sourceFolder;
+            parentElement = ((Package) parentElement).folder;
         }
-        
-        if(parentElement instanceof IFolder){
+
+        if (parentElement instanceof IFolder) {
             IFolder f = (IFolder) parentElement;
             ArrayList<Package> ret = new ArrayList<Package>();
             try {
                 IResource[] resources = f.members();
                 for (IResource resource : resources) {
-                    if(resource instanceof IFolder){
+                    if (resource instanceof IFolder) {
                         ret.add(new Package((IFolder) resource, sourceFolder));
                     }
                 }
@@ -192,23 +186,23 @@ class PackageContentProvider implements ITreeContentProvider{
             }
             return ret.toArray();
         }
-        
+
         return new Object[0];
     }
 
     public Object getParent(Object element) {
-        if (element instanceof Package){
-            return ((Package)element).sourceFolder;
+        if (element instanceof Package) {
+            return ((Package) element).sourceFolder;
         }
-        if (element instanceof IResource){
+        if (element instanceof IResource) {
             return ((IResource) element).getParent();
         }
         return null;
     }
 
     public boolean hasChildren(Object element) {
-        if(selectOnlySourceFolders){
-            if(element instanceof SourceFolder){
+        if (selectOnlySourceFolders) {
+            if (element instanceof SourceFolder) {
                 return false;
             }
         }
@@ -224,13 +218,5 @@ class PackageContentProvider implements ITreeContentProvider{
 
     public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
     }
-    
+
 }
-
-
-
-
-
-
-
-

@@ -111,7 +111,7 @@ public abstract class TableEditor extends FieldEditor {
             int index = table.getSelectionIndex();
             TableItem tableItem;
             if (index >= 0) {
-                tableItem = new TableItem(table, 0, index+1);
+                tableItem = new TableItem(table, 0, index + 1);
             } else {
                 tableItem = new TableItem(table, 0);
             }
@@ -166,10 +166,8 @@ public abstract class TableEditor extends FieldEditor {
         button.setText(key);
         button.setFont(parent.getFont());
         GridData data = new GridData(GridData.FILL_HORIZONTAL);
-        int widthHint = convertHorizontalDLUsToPixels(button,
-                IDialogConstants.BUTTON_WIDTH);
-        data.widthHint = Math.max(widthHint, button.computeSize(SWT.DEFAULT,
-                SWT.DEFAULT, true).x);
+        int widthHint = convertHorizontalDLUsToPixels(button, IDialogConstants.BUTTON_WIDTH);
+        data.widthHint = Math.max(widthHint, button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x);
         button.setLayoutData(data);
         button.addSelectionListener(getSelectionListener());
         return button;
@@ -226,7 +224,7 @@ public abstract class TableEditor extends FieldEditor {
         if (table != null) {
             String s = getPreferenceStore().getString(getPreferenceName());
             List<String[]> array = parseString(s);
-            for (String[] data:array) {
+            for (String[] data : array) {
                 TableItem tableItem = new TableItem(table, 0);
                 tableItem.setText(data);
             }
@@ -239,10 +237,9 @@ public abstract class TableEditor extends FieldEditor {
     protected void doLoadDefault() {
         if (table != null) {
             table.removeAll();
-            String s = getPreferenceStore().getDefaultString(
-                    getPreferenceName());
+            String s = getPreferenceStore().getDefaultString(getPreferenceName());
             List<String[]> array = parseString(s);
-            for (String[] tup:array) {
+            for (String[] tup : array) {
                 TableItem tableItem = new TableItem(table, 0);
                 tableItem.setText(tup);
             }
@@ -256,7 +253,7 @@ public abstract class TableEditor extends FieldEditor {
         TableItem[] items = table.getItems();
         ArrayList<String[]> list = new ArrayList<String[]>();
         for (TableItem tableItem : items) {
-            list.add(new String[]{tableItem.getText(0),    tableItem.getText(1)});
+            list.add(new String[] { tableItem.getText(0), tableItem.getText(1) });
         }
         String s = createTable(list);
         if (s != null) {
@@ -312,16 +309,16 @@ public abstract class TableEditor extends FieldEditor {
     public Table getTableControl(Composite parent) {
         if (table == null) {
             table = new Table(parent, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL | SWT.FULL_SELECTION);
-            
+
             table.setHeaderVisible(true);
-            
+
             col1 = new TableColumn(table, SWT.LEFT);
             col1.setText("Path to translate");
             col1.setWidth(200);
             col2 = new TableColumn(table, SWT.LEFT);
             col2.setText("Translated path");
             col2.setWidth(200);
-            
+
             table.setFont(parent.getFont());
             table.addSelectionListener(getSelectionListener());
             table.addDisposeListener(new DisposeListener() {
@@ -444,13 +441,13 @@ public abstract class TableEditor extends FieldEditor {
         if (index >= 0) {
             TableItem targetItem = table.getItem(target);
             TableItem sourceItem = table.getItem(index);
-            
-            String[] targetContents = new String[]{targetItem.getText(0), targetItem.getText(1)};
-            String[] sourceContents = new String[]{sourceItem.getText(0), sourceItem.getText(1)};
-            
+
+            String[] targetContents = new String[] { targetItem.getText(0), targetItem.getText(1) };
+            String[] sourceContents = new String[] { sourceItem.getText(0), sourceItem.getText(1) };
+
             targetItem.setText(sourceContents);
             sourceItem.setText(targetContents);
-            
+
             table.setSelection(target);
         }
         selectionChanged();

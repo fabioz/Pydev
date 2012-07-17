@@ -28,8 +28,7 @@ public class OverrideMethodsRefactoring extends AbstractPythonRefactoring {
 
     public OverrideMethodsRefactoring(RefactoringInfo req) {
         super(req);
-        this.requestProcessor = new OverrideMethodsRequestProcessor(info.getScopeClass(), 
-                this.info.getAdapterPrefs());
+        this.requestProcessor = new OverrideMethodsRequestProcessor(info.getScopeClass(), this.info.getAdapterPrefs());
         this.changeProcessor = new OverrideMethodsChangeProcessor(getName(), this.info, this.requestProcessor);
     }
 
@@ -44,7 +43,7 @@ public class OverrideMethodsRefactoring extends AbstractPythonRefactoring {
     public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException {
         IClassDefAdapter rootClass = this.info.getScopeClass();
 
-        if(rootClass == null){
+        if (rootClass == null) {
             status.addFatalError(Messages.overrideMethodsUnavailable);
         }
 

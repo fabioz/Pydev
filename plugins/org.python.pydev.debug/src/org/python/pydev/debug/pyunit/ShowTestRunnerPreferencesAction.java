@@ -11,7 +11,7 @@ import java.lang.ref.WeakReference;
 import org.eclipse.jface.action.Action;
 import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
 
-public class ShowTestRunnerPreferencesAction extends Action{
+public class ShowTestRunnerPreferencesAction extends Action {
     private WeakReference<PyUnitView> pyUnitView;
 
     public ShowTestRunnerPreferencesAction(PyUnitView pyUnitView) {
@@ -24,5 +24,5 @@ public class ShowTestRunnerPreferencesAction extends Action{
     public void run() {
         PyUnitPrefsPage2.showPage();
     }
-    
+
 }

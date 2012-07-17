@@ -63,43 +63,42 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+public class InterpreterInfo implements IInterpreterInfo {
 
-public class InterpreterInfo implements IInterpreterInfo{
-    
     //We want to force some libraries to be analyzed as source (e.g.: django)
-    private static String[] LIBRARIES_TO_IGNORE_AS_FORCED_BUILTINS = new String[]{"django"};
-    
+    private static String[] LIBRARIES_TO_IGNORE_AS_FORCED_BUILTINS = new String[] { "django" };
+
     /**
      * For jython, this is the jython.jar
      * 
      * For python, this is the path to the python executable 
      */
-    public volatile String executableOrJar; 
-    
+    public volatile String executableOrJar;
+
     public String getExecutableOrJar() {
         return executableOrJar;
     }
-    
+
     /**
      * Folders or zip files: they should be passed to the pythonpath
      */
-    public final java.util.List<String> libs = new ArrayList<String>(); 
-    
+    public final java.util.List<String> libs = new ArrayList<String>();
+
     /**
      * __builtin__, os, math, etc for python 
      * 
      * check sys.builtin_module_names and others that should
      * be forced to use code completion as builtins, such os, math, etc.
      */
-    private final Set<String> forcedLibs = new TreeSet<String>(); 
-    
+    private final Set<String> forcedLibs = new TreeSet<String>();
+
     /**
      * This is the cache for the builtins (that's the same thing as the forcedLibs, but in a different format,
      * so, whenever the forcedLibs change, this should be changed too). 
      */
     private String[] builtinsCache;
     private Map<String, File> predefinedBuiltinsCache;
-    
+
     /**
      * module management for the system is always binded to an interpreter (binded in this class)
      * 
@@ -107,7 +106,7 @@ public class InterpreterInfo implements IInterpreterInfo{
      * not want to keep it in the 'configuration', as a giant Base64 string.
      */
     private final ISystemModulesManager modulesManager;
-    
+
     /**
      * This callback is only used in tests, to configure the paths that should be chosen after the interpreter is selected.
      */
@@ -124,12 +123,11 @@ public class InterpreterInfo implements IInterpreterInfo{
      * May be null if no env. variables are specified.
      */
     private String[] envVariables;
-    
+
     private Properties stringSubstitutionVariables;
-    
+
     private final Set<String> predefinedCompletionsPath = new TreeSet<String>();
-    
-    
+
     /**
      * This is the way that the interpreter should be referred. Can be null (in which case the executable is
      * used as the name)
@@ -146,7 +144,7 @@ public class InterpreterInfo implements IInterpreterInfo{
      * within Eclipse, for test the stringVariableManagerForTests can be set to
      * an appropriate mock object
      */
-    /*default*/ IStringVariableManager stringVariableManagerForTests;
+    /*default*/IStringVariableManager stringVariableManagerForTests;
 
     private IStringVariableManager getStringVariableManager() {
         if (stringVariableManagerForTests != null) {
@@ -165,8 +163,8 @@ public class InterpreterInfo implements IInterpreterInfo{
     public List<String> getPythonPath() {
         return new ArrayList<String>(libs);
     }
-    
-    public InterpreterInfo(String version, String exe, Collection<String> libs0){
+
+    public InterpreterInfo(String version, String exe, Collection<String> libs0) {
         this.executableOrJar = exe;
         this.version = version;
         ISystemModulesManager modulesManager = new SystemModulesManager(this);
@@ -174,105 +172,97 @@ public class InterpreterInfo implements IInterpreterInfo{
         this.modulesManager = modulesManager;
         libs.addAll(libs0);
     }
-    
-    /*default*/ InterpreterInfo(String version, String exe, Collection<String> libs0, Collection<String> dlls){
+
+    /*default*/InterpreterInfo(String version, String exe, Collection<String> libs0, Collection<String> dlls) {
         this(version, exe, libs0);
     }
-    
-    /*default*/ InterpreterInfo(String version, String exe, List<String> libs0, List<String> dlls, List<String> forced) {
+
+    /*default*/InterpreterInfo(String version, String exe, List<String> libs0, List<String> dlls, List<String> forced) {
         this(version, exe, libs0, dlls, forced, null, null);
     }
-    
-    
+
     /**
      * Note: dlls is no longer used!
      */
-    /*default*/ InterpreterInfo(
-    		String version, 
-    		String exe, 
-    		List<String> libs0, 
-    		List<String> dlls, 
-    		List<String> forced, 
-    		List<String> envVars,
-    		Properties stringSubstitution
-    		){
+    /*default*/InterpreterInfo(String version, String exe, List<String> libs0, List<String> dlls, List<String> forced,
+            List<String> envVars, Properties stringSubstitution) {
         this(version, exe, libs0, dlls);
-        for(String s:forced){
-            if(!isForcedLibToIgnore(s)){
+        for (String s : forced) {
+            if (!isForcedLibToIgnore(s)) {
                 forcedLibs.add(s);
             }
         }
-        
-        if(envVars == null){
+
+        if (envVars == null) {
             this.setEnvVariables(null);
-        }else{
+        } else {
             this.setEnvVariables(envVars.toArray(new String[envVars.size()]));
         }
-        
+
         this.setStringSubstitutionVariables(stringSubstitution);
-        
+
         this.clearBuiltinsCache(); //force cache recreation
     }
-    
+
     /**
      * @see java.lang.Object#equals(java.lang.Object)
      */
     public boolean equals(Object o) {
-        if (!(o instanceof InterpreterInfo)){
+        if (!(o instanceof InterpreterInfo)) {
             return false;
         }
 
         InterpreterInfo info = (InterpreterInfo) o;
-        if(info.executableOrJar.equals(this.executableOrJar) == false){
+        if (info.executableOrJar.equals(this.executableOrJar) == false) {
             return false;
         }
-        
-        if(info.libs.equals(this.libs) == false){
+
+        if (info.libs.equals(this.libs) == false) {
             return false;
         }
-        
-        if (info.forcedLibs.equals(this.forcedLibs) == false){
+
+        if (info.forcedLibs.equals(this.forcedLibs) == false) {
             return false;
         }
-        
-        if(info.predefinedCompletionsPath.equals(this.predefinedCompletionsPath) == false){
-        	return false;
+
+        if (info.predefinedCompletionsPath.equals(this.predefinedCompletionsPath) == false) {
+            return false;
         }
-        
-        if(this.envVariables != null){
-            if(info.envVariables == null){
+
+        if (this.envVariables != null) {
+            if (info.envVariables == null) {
                 return false;
             }
             //both not null
-            if(!Arrays.equals(this.envVariables, info.envVariables)){
+            if (!Arrays.equals(this.envVariables, info.envVariables)) {
                 return false;
             }
-        }else{
+        } else {
             //env is null -- the other must be too
-            if(info.envVariables != null){
+            if (info.envVariables != null) {
                 return false;
             }
         }
-        
+
         //Consider null stringSubstitutionVariables equal to empty stringSubstitutionVariables.
-        if(this.stringSubstitutionVariables != null){
-        	if(info.stringSubstitutionVariables == null){
-        	    if(this.stringSubstitutionVariables.size() != 0){
-        	        return false;
-        	    }
-        	}else{
-            	//both not null
-            	if(!this.stringSubstitutionVariables.equals(info.stringSubstitutionVariables)){
-            		return false;
-            	}
-        	}
-        }else{
-        	//ours is null -- the other must be too
-        	if(info.stringSubstitutionVariables != null && info.stringSubstitutionVariables.size() > 0){
-        		return false;
-        	}
+        if (this.stringSubstitutionVariables != null) {
+            if (info.stringSubstitutionVariables == null) {
+                if (this.stringSubstitutionVariables.size() != 0) {
+                    return false;
+                }
+            } else {
+                //both not null
+                if (!this.stringSubstitutionVariables.equals(info.stringSubstitutionVariables)) {
+                    return false;
+                }
+            }
+        } else {
+            //ours is null -- the other must be too
+            if (info.stringSubstitutionVariables != null && info.stringSubstitutionVariables.size() > 0) {
+                return false;
+            }
         }
-        
+
         return true;
     }
 
@@ -280,39 +270,41 @@ public class InterpreterInfo implements IInterpreterInfo{
         assert false : "hashCode not designed";
         return 42; // any arbitrary constant will do
     }
-    
-	/**
-	 * 
-	 * @param received
-	 *            String to parse
-	 * @param askUserInOutPath
-	 *            true to prompt user about which paths to include. When the
-	 *            user is prompted, IInterpreterNewCustomEntries extension will
-	 *            be run to contribute additional entries
-	 * @return new interpreter info
-	 */
-	public static InterpreterInfo fromString(String received, boolean askUserInOutPath) {
-        if(received.toLowerCase().indexOf("executable") == -1){
-            throw new RuntimeException("Unable to recreate the Interpreter info (Its format changed. Please, re-create your Interpreter information).Contents found:"+received);
+
+    /**
+     * 
+     * @param received
+     *            String to parse
+     * @param askUserInOutPath
+     *            true to prompt user about which paths to include. When the
+     *            user is prompted, IInterpreterNewCustomEntries extension will
+     *            be run to contribute additional entries
+     * @return new interpreter info
+     */
+    public static InterpreterInfo fromString(String received, boolean askUserInOutPath) {
+        if (received.toLowerCase().indexOf("executable") == -1) {
+            throw new RuntimeException(
+                    "Unable to recreate the Interpreter info (Its format changed. Please, re-create your Interpreter information).Contents found:"
+                            + received);
         }
         received = received.trim();
-        if(!received.startsWith("<xml>")){
+        if (!received.startsWith("<xml>")) {
             return fromStringOld(received, askUserInOutPath);
-        }else{
-            
+        } else {
+
             DocumentBuilder parser;
-            try{
+            try {
                 parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
                 Document document = parser.parse(new ByteArrayInputStream(received.getBytes()));
                 NodeList childNodes = document.getChildNodes();
-                for(int i=0;i<childNodes.getLength();i++){
+                for (int i = 0; i < childNodes.getLength(); i++) {
                     Node item = childNodes.item(i);
                     String nodeName = item.getNodeName();
-                    if(!("xml".equals(nodeName))){
+                    if (!("xml".equals(nodeName))) {
                         continue;
                     }
                     NodeList xmlNodes = item.getChildNodes();
-                    
+
                     String infoExecutable = null;
                     String infoName = null;
                     String infoVersion = null;
@@ -322,217 +314,216 @@ public class InterpreterInfo implements IInterpreterInfo{
                     List<String> envVars = new ArrayList<String>();
                     List<String> predefinedPaths = new ArrayList<String>();
                     Properties stringSubstitutionVars = new Properties();
-                    
-                    for(int j=0;j<xmlNodes.getLength();j++){
+
+                    for (int j = 0; j < xmlNodes.getLength(); j++) {
                         Node xmlChild = xmlNodes.item(j);
                         String name = xmlChild.getNodeName();
-                        if("version".equals(name)){
+                        if ("version".equals(name)) {
                             infoVersion = xmlChild.getTextContent().trim();
-                            
-                        }else if("name".equals(name)){
+
+                        } else if ("name".equals(name)) {
                             infoName = xmlChild.getTextContent().trim();
-                            
-                        }else if("executable".equals(name)){
+
+                        } else if ("executable".equals(name)) {
                             infoExecutable = xmlChild.getTextContent().trim();
-                            
-                        }else if("lib".equals(name)){
+
+                        } else if ("lib".equals(name)) {
                             NamedNodeMap attributes = xmlChild.getAttributes();
                             Node namedItem = attributes.getNamedItem("path");
-                            if(namedItem != null){
+                            if (namedItem != null) {
                                 String content = namedItem.getTextContent().trim();
-                                if(content.equals("ins")){
-                                    if(askUserInOutPath){
+                                if (content.equals("ins")) {
+                                    if (askUserInOutPath) {
                                         toAsk.add(xmlChild.getTextContent().trim());
                                         selection.add(xmlChild.getTextContent().trim());
-                                    }else{
+                                    } else {
                                         //If not asked, included by default
                                         selection.add(xmlChild.getTextContent().trim());
                                     }
-                                }else if(content.equals("out")){
-                                    if(askUserInOutPath){
+                                } else if (content.equals("out")) {
+                                    if (askUserInOutPath) {
                                         toAsk.add(xmlChild.getTextContent().trim());
-                                    }else{
+                                    } else {
                                         //If not asked, included by default
                                         selection.add(xmlChild.getTextContent().trim());
                                     }
-                                    
-                                }else{
+
+                                } else {
                                     //Not 'ins' nor 'out'? Let's warn and add it...
-                                    Log.log("Unexpected 'path' attribute in xml: "+content);
+                                    Log.log("Unexpected 'path' attribute in xml: " + content);
                                     selection.add(xmlChild.getTextContent().trim());
-                                    
+
                                 }
-                            }else{
+                            } else {
                                 //If not specified, included by default
                                 selection.add(xmlChild.getTextContent().trim());
                             }
-                            
-                        }else if("forced_lib".equals(name)){
+
+                        } else if ("forced_lib".equals(name)) {
                             forcedLibs.add(xmlChild.getTextContent().trim());
-                            
-                        }else if("env_var".equals(name)){
+
+                        } else if ("env_var".equals(name)) {
                             envVars.add(xmlChild.getTextContent().trim());
-                            
-                        }else if("string_substitution_var".equals(name)){
+
+                        } else if ("string_substitution_var".equals(name)) {
                             NodeList stringSubstitutionVarNode = xmlChild.getChildNodes();
                             Node keyNode = getNode(stringSubstitutionVarNode, "key");
                             Node valueNode = getNode(stringSubstitutionVarNode, "value");
-                            stringSubstitutionVars.put(keyNode.getTextContent().trim(), valueNode.getTextContent().trim());
-                            
-                        }else if("predefined_completion_path".equals(name)){
+                            stringSubstitutionVars.put(keyNode.getTextContent().trim(), valueNode.getTextContent()
+                                    .trim());
+
+                        } else if ("predefined_completion_path".equals(name)) {
                             predefinedPaths.add(xmlChild.getTextContent().trim());
-                            
-                        }else if("#text".equals(name)){
-                            if(xmlChild.getTextContent().trim().length() > 0){
-                                throw new RuntimeException("Unexpected text content: "+xmlChild.getTextContent());
+
+                        } else if ("#text".equals(name)) {
+                            if (xmlChild.getTextContent().trim().length() > 0) {
+                                throw new RuntimeException("Unexpected text content: " + xmlChild.getTextContent());
                             }
-                            
-                        }else{
-                            throw new RuntimeException("Unexpected node: "+name+" Text content: "+xmlChild.getTextContent());
+
+                        } else {
+                            throw new RuntimeException("Unexpected node: " + name + " Text content: "
+                                    + xmlChild.getTextContent());
                         }
                     }
 
-					if (askUserInOutPath) {
-						AdditionalEntries additionalEntries = new AdditionalEntries();
-						Collection<String> additionalLibraries = additionalEntries.getAdditionalLibraries();
-						addUnique(toAsk, additionalLibraries);
-						addUnique(selection, additionalLibraries);
-						addUnique(forcedLibs, additionalEntries.getAdditionalBuiltins());
+                    if (askUserInOutPath) {
+                        AdditionalEntries additionalEntries = new AdditionalEntries();
+                        Collection<String> additionalLibraries = additionalEntries.getAdditionalLibraries();
+                        addUnique(toAsk, additionalLibraries);
+                        addUnique(selection, additionalLibraries);
+                        addUnique(forcedLibs, additionalEntries.getAdditionalBuiltins());
 
-						//Load environment variables
-						Map<String, String> existingEnv = new HashMap<String, String>();
-						Collection<String> additionalEnvVariables = additionalEntries.getAdditionalEnvVariables();
-						for (String var : additionalEnvVariables) {
-							Tuple<String, String> sp = StringUtils.splitOnFirst(var, '=');
-							existingEnv.put(sp.o1, sp.o2);
-						}
-						for (String var : envVars) {
-							Tuple<String, String> sp = StringUtils.splitOnFirst(var, '=');
-							existingEnv.put(sp.o1, sp.o2);
-						}
-						envVars.clear();
-						Set<Entry<String, String>> set = existingEnv.entrySet();
-						for (Entry<String, String> entry : set) {
-							envVars.add(entry.getKey() + "=" + entry.getValue());
-						}
-						
-						
-						//Additional string substitution variables
-						Map<String, String> additionalStringSubstitutionVariables = additionalEntries
-								.getAdditionalStringSubstitutionVariables();
-						Set<Entry<String, String>> entrySet = additionalStringSubstitutionVariables.entrySet();
-						for (Entry<String, String> entry : entrySet) {
-							if(!stringSubstitutionVars.containsKey(entry.getKey())){
-								stringSubstitutionVars.setProperty(entry.getKey(), entry.getValue());
-							}
-						}
-					}
+                        //Load environment variables
+                        Map<String, String> existingEnv = new HashMap<String, String>();
+                        Collection<String> additionalEnvVariables = additionalEntries.getAdditionalEnvVariables();
+                        for (String var : additionalEnvVariables) {
+                            Tuple<String, String> sp = StringUtils.splitOnFirst(var, '=');
+                            existingEnv.put(sp.o1, sp.o2);
+                        }
+                        for (String var : envVars) {
+                            Tuple<String, String> sp = StringUtils.splitOnFirst(var, '=');
+                            existingEnv.put(sp.o1, sp.o2);
+                        }
+                        envVars.clear();
+                        Set<Entry<String, String>> set = existingEnv.entrySet();
+                        for (Entry<String, String> entry : set) {
+                            envVars.add(entry.getKey() + "=" + entry.getValue());
+                        }
 
-                    try{
+                        //Additional string substitution variables
+                        Map<String, String> additionalStringSubstitutionVariables = additionalEntries
+                                .getAdditionalStringSubstitutionVariables();
+                        Set<Entry<String, String>> entrySet = additionalStringSubstitutionVariables.entrySet();
+                        for (Entry<String, String> entry : entrySet) {
+                            if (!stringSubstitutionVars.containsKey(entry.getKey())) {
+                                stringSubstitutionVars.setProperty(entry.getKey(), entry.getValue());
+                            }
+                        }
+                    }
+
+                    try {
                         selection = filterUserSelection(selection, toAsk);
-                    }catch(CancelException e){
+                    } catch (CancelException e) {
                         return null;
                     }
-                    
-                    InterpreterInfo info = new InterpreterInfo(
-                    		infoVersion, infoExecutable, selection, new ArrayList<String>(), forcedLibs, envVars, stringSubstitutionVars);
+
+                    InterpreterInfo info = new InterpreterInfo(infoVersion, infoExecutable, selection,
+                            new ArrayList<String>(), forcedLibs, envVars, stringSubstitutionVars);
                     info.setName(infoName);
-                    for(String s:predefinedPaths){
+                    for (String s : predefinedPaths) {
                         info.addPredefinedCompletionsPath(s);
                     }
                     return info;
                 }
                 throw new RuntimeException("Could not find 'xml' node as root of the document.");
-                
-                
-            }catch(Exception e){
+
+            } catch (Exception e) {
                 throw new RuntimeException(e); //What can we do about that?
             }
-            
+
         }
     }
-	
-	/**
-	 * Add additions that are not already in col
-	 */
-	private static void addUnique(Collection<String> col, Collection<String> additions) {
-		for (String string : additions) {
-			if (!col.contains(string)) {
-				col.add(string);
-			}
-		}
-	}
 
+    /**
+     * Add additions that are not already in col
+     */
+    private static void addUnique(Collection<String> col, Collection<String> additions) {
+        for (String string : additions) {
+            if (!col.contains(string)) {
+                col.add(string);
+            }
+        }
+    }
 
-	/**
-	 *  Implementation of extension point to get all additions.
-	 */
-	private static class AdditionalEntries implements IInterpreterNewCustomEntries {
-		private final List<IInterpreterNewCustomEntries> fParticipants;
-		
-		@SuppressWarnings("unchecked")
-		AdditionalEntries(){
-			fParticipants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_NEW_CUSTOM_ENTRIES);
-		}
+    /**
+     *  Implementation of extension point to get all additions.
+     */
+    private static class AdditionalEntries implements IInterpreterNewCustomEntries {
+        private final List<IInterpreterNewCustomEntries> fParticipants;
 
-		public Collection<String> getAdditionalLibraries() {
-			final Collection<String> additions = new ArrayList<String>();
-			for (final IInterpreterNewCustomEntries newEntriesProvider : fParticipants) {
-				SafeRunner.run(new SafeRunnable() {
-					public void run() {
-						additions.addAll(newEntriesProvider.getAdditionalLibraries());
-					}
-				});
-			}
-			return additions;
-		}
+        @SuppressWarnings("unchecked")
+        AdditionalEntries() {
+            fParticipants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_NEW_CUSTOM_ENTRIES);
+        }
 
-		public Collection<String> getAdditionalEnvVariables() {
-			final Collection<String> additions = new ArrayList<String>();
-			for (final IInterpreterNewCustomEntries newEntriesProvider : fParticipants) {
-				SafeRunner.run(new SafeRunnable() {
-					public void run() {
-						additions.addAll(newEntriesProvider.getAdditionalEnvVariables());
-					}
-				});
-			}
-			return additions;
-		}
+        public Collection<String> getAdditionalLibraries() {
+            final Collection<String> additions = new ArrayList<String>();
+            for (final IInterpreterNewCustomEntries newEntriesProvider : fParticipants) {
+                SafeRunner.run(new SafeRunnable() {
+                    public void run() {
+                        additions.addAll(newEntriesProvider.getAdditionalLibraries());
+                    }
+                });
+            }
+            return additions;
+        }
 
-		public Collection<String> getAdditionalBuiltins() {
-			final Collection<String> additions = new ArrayList<String>();
-			for (final IInterpreterNewCustomEntries newEntriesProvider : fParticipants) {
-				SafeRunner.run(new SafeRunnable() {
-					public void run() {
-						additions.addAll(newEntriesProvider.getAdditionalBuiltins());
-					}
-				});
-			}
-			return additions;
-		}
+        public Collection<String> getAdditionalEnvVariables() {
+            final Collection<String> additions = new ArrayList<String>();
+            for (final IInterpreterNewCustomEntries newEntriesProvider : fParticipants) {
+                SafeRunner.run(new SafeRunnable() {
+                    public void run() {
+                        additions.addAll(newEntriesProvider.getAdditionalEnvVariables());
+                    }
+                });
+            }
+            return additions;
+        }
 
-		public Map<String, String> getAdditionalStringSubstitutionVariables() {
-			final Map<String, String> additions = new HashMap<String, String>();
-			for (final IInterpreterNewCustomEntries newEntriesProvider : fParticipants) {
-				SafeRunner.run(new SafeRunnable() {
-					public void run() {
-						additions.putAll(newEntriesProvider.getAdditionalStringSubstitutionVariables());
-					}
-				});
-			}
-			return additions;
-		}
-		
-	}
-    
+        public Collection<String> getAdditionalBuiltins() {
+            final Collection<String> additions = new ArrayList<String>();
+            for (final IInterpreterNewCustomEntries newEntriesProvider : fParticipants) {
+                SafeRunner.run(new SafeRunnable() {
+                    public void run() {
+                        additions.addAll(newEntriesProvider.getAdditionalBuiltins());
+                    }
+                });
+            }
+            return additions;
+        }
+
+        public Map<String, String> getAdditionalStringSubstitutionVariables() {
+            final Map<String, String> additions = new HashMap<String, String>();
+            for (final IInterpreterNewCustomEntries newEntriesProvider : fParticipants) {
+                SafeRunner.run(new SafeRunnable() {
+                    public void run() {
+                        additions.putAll(newEntriesProvider.getAdditionalStringSubstitutionVariables());
+                    }
+                });
+            }
+            return additions;
+        }
+
+    }
+
     private static Node getNode(NodeList nodeList, String string) {
-        for(int i=0;i<nodeList.getLength();i++){
+        for (int i = 0; i < nodeList.getLength(); i++) {
             Node item = nodeList.item(i);
-            if(string.equals(item.getNodeName())){
+            if (string.equals(item.getNodeName())) {
                 return item;
             }
         }
-        throw new RuntimeException("Unable to find node: "+string);
+        throw new RuntimeException("Unable to find node: " + string);
     }
 
     /**
@@ -552,106 +543,102 @@ public class InterpreterInfo implements IInterpreterInfo{
      * Symbols ': @ $'
      */
     private static InterpreterInfo fromStringOld(String received, boolean askUserInOutPath) {
-        
+
         Tuple<String, String> predefCompsPath = StringUtils.splitOnFirst(received, "@PYDEV_PREDEF_COMPS_PATHS@");
         received = predefCompsPath.o1;
-        
+
         //Note that the new lines are important for the string substitution, so, we must remove it before removing new lines
-        Tuple<String, String> stringSubstitutionVarsSplit = StringUtils.splitOnFirst(received, "@PYDEV_STRING_SUBST_VARS@");
+        Tuple<String, String> stringSubstitutionVarsSplit = StringUtils.splitOnFirst(received,
+                "@PYDEV_STRING_SUBST_VARS@");
         received = stringSubstitutionVarsSplit.o1;
-        
+
         received = received.replaceAll("\n", "").replaceAll("\r", "");
-        String name=null;
-        if(received.startsWith("Name:")){
+        String name = null;
+        if (received.startsWith("Name:")) {
             int endNameIndex = received.indexOf(":EndName:");
-            if(endNameIndex != -1){
+            if (endNameIndex != -1) {
                 name = received.substring("Name:".length(), endNameIndex);
-                received = received.substring(endNameIndex+":EndName:".length());
+                received = received.substring(endNameIndex + ":EndName:".length());
             }
-            
+
         }
-        
+
         Tuple<String, String> envVarsSplit = StringUtils.splitOnFirst(received, '^');
         Tuple<String, String> forcedSplit = StringUtils.splitOnFirst(envVarsSplit.o1, '$');
         Tuple<String, String> libsSplit = StringUtils.splitOnFirst(forcedSplit.o1, '@');
         String exeAndLibs = libsSplit.o1;
-        
-        
+
         String version = "2.4"; //if not found in the string, the grammar version is regarded as 2.4 
-        
+
         String[] exeAndLibs1 = exeAndLibs.split("\\|");
-        
+
         String exeAndVersion = exeAndLibs1[0];
         String lowerExeAndVersion = exeAndVersion.toLowerCase();
-        if(lowerExeAndVersion.startsWith("version")){
+        if (lowerExeAndVersion.startsWith("version")) {
             int execut = lowerExeAndVersion.indexOf("executable");
-            version = exeAndVersion.substring(0,execut).substring(7);
-            exeAndVersion = exeAndVersion.substring(7+version.length());
+            version = exeAndVersion.substring(0, execut).substring(7);
+            exeAndVersion = exeAndVersion.substring(7 + version.length());
         }
-        String executable = exeAndVersion.substring(exeAndVersion.indexOf(":")+1, exeAndVersion.length());
-        
-        
-        
+        String executable = exeAndVersion.substring(exeAndVersion.indexOf(":") + 1, exeAndVersion.length());
+
         List<String> selection = new ArrayList<String>();
         List<String> toAsk = new ArrayList<String>();
         for (int i = 1; i < exeAndLibs1.length; i++) { //start at 1 (0 is exe)
             String trimmed = exeAndLibs1[i].trim();
-            if(trimmed.length() > 0){
-                if(trimmed.endsWith("OUT_PATH")){
-                    trimmed = trimmed.substring(0, trimmed.length()-8);
-                    if(askUserInOutPath){
+            if (trimmed.length() > 0) {
+                if (trimmed.endsWith("OUT_PATH")) {
+                    trimmed = trimmed.substring(0, trimmed.length() - 8);
+                    if (askUserInOutPath) {
                         toAsk.add(trimmed);
-                    }else{
+                    } else {
                         //Change 2.0.1: if not asked, it's included by default!
                         selection.add(trimmed);
                     }
-                    
-                }else if(trimmed.endsWith("INS_PATH")){
-                    trimmed = trimmed.substring(0, trimmed.length()-8);
-                    if(askUserInOutPath){
+
+                } else if (trimmed.endsWith("INS_PATH")) {
+                    trimmed = trimmed.substring(0, trimmed.length() - 8);
+                    if (askUserInOutPath) {
                         toAsk.add(trimmed);
                         selection.add(trimmed);
-                    }else{
+                    } else {
                         selection.add(trimmed);
                     }
-                }else{
+                } else {
                     selection.add(trimmed);
                 }
             }
         }
 
-        try{
+        try {
             selection = filterUserSelection(selection, toAsk);
-        }catch(CancelException e){
+        } catch (CancelException e) {
             return null;
         }
 
-        
-        
         ArrayList<String> l1 = new ArrayList<String>();
-        if(libsSplit.o2.length() > 1){
+        if (libsSplit.o2.length() > 1) {
             fillList(libsSplit, l1);
         }
-            
+
         ArrayList<String> l2 = new ArrayList<String>();
-        if(forcedSplit.o2.length() > 1){
+        if (forcedSplit.o2.length() > 1) {
             fillList(forcedSplit, l2);
-        }    
-        
+        }
+
         ArrayList<String> l3 = new ArrayList<String>();
-        if(envVarsSplit.o2.length() > 1){
+        if (envVarsSplit.o2.length() > 1) {
             fillList(envVarsSplit, l3);
         }
         Properties p4 = null;
-        if(stringSubstitutionVarsSplit.o2.length() > 1){
+        if (stringSubstitutionVarsSplit.o2.length() > 1) {
             p4 = PropertiesHelper.createPropertiesFromString(stringSubstitutionVarsSplit.o2);
         }
         InterpreterInfo info = new InterpreterInfo(version, executable, selection, l1, l2, l3, p4);
-        if(predefCompsPath.o2.length() > 1){
+        if (predefCompsPath.o2.length() > 1) {
             List<String> split = StringUtils.split(predefCompsPath.o2, '|');
-            for(String s:split){
+            for (String s : split) {
                 s = s.trim();
-                if(s.length() > 0){
+                if (s.length() > 0) {
                     info.addPredefinedCompletionsPath(s);
                 }
             }
@@ -662,22 +649,22 @@ public class InterpreterInfo implements IInterpreterInfo{
 
     public static List<String> filterUserSelection(List<String> selection, List<String> toAsk) throws CancelException {
         boolean result = true;//true == OK, false == CANCELLED
-        if(ProjectModulesManager.IN_TESTS){
-            if(InterpreterInfo.configurePathsCallback != null){
+        if (ProjectModulesManager.IN_TESTS) {
+            if (InterpreterInfo.configurePathsCallback != null) {
                 InterpreterInfo.configurePathsCallback.call(new Tuple<List<String>, List<String>>(toAsk, selection));
             }
-        }else{
-            if(toAsk.size() > 0){
+        } else {
+            if (toAsk.size() > 0) {
                 PythonSelectionLibrariesDialog runnable = new PythonSelectionLibrariesDialog(selection, toAsk, true);
-                try{
+                try {
                     RunInUiThread.sync(runnable);
-                }catch(NoClassDefFoundError e){
-                }catch(UnsatisfiedLinkError e){
+                } catch (NoClassDefFoundError e) {
+                } catch (UnsatisfiedLinkError e) {
                     //this means that we're running unit-tests, so, we don't have to do anything about it
                     //as 'l' is already ok.
                 }
-                result = runnable.getOkResult(); 
-                if(result == false){
+                result = runnable.getOkResult();
+                if (result == false) {
                     //Canceled by the user
                     throw new CancelException();
                 }
@@ -689,21 +676,21 @@ public class InterpreterInfo implements IInterpreterInfo{
 
     private static void fillList(Tuple<String, String> forcedSplit, ArrayList<String> l2) {
         String forcedLibs = forcedSplit.o2;
-        for (String trimmed:StringUtils.splitAndRemoveEmptyTrimmed(forcedLibs, '|')) {
+        for (String trimmed : StringUtils.splitAndRemoveEmptyTrimmed(forcedLibs, '|')) {
             trimmed = trimmed.trim();
-            if(trimmed.length() > 0){
+            if (trimmed.length() > 0) {
                 l2.add(trimmed);
             }
         }
     }
-    
+
     /**
      * @see java.lang.Object#toString()
      */
     public String toString() {
         FastStringBuffer buffer = new FastStringBuffer();
         buffer.append("<xml>\n");
-        if(this.name != null){
+        if (this.name != null) {
             buffer.append("<name>");
             buffer.append(this.name);
             buffer.append("</name>\n");
@@ -711,34 +698,34 @@ public class InterpreterInfo implements IInterpreterInfo{
         buffer.append("<version>");
         buffer.append(version);
         buffer.append("</version>\n");
-        
+
         buffer.append("<executable>");
         buffer.append(executableOrJar);
         buffer.append("</executable>\n");
-        
+
         for (Iterator<String> iter = libs.iterator(); iter.hasNext();) {
             buffer.append("<lib>");
             buffer.append(iter.next().toString());
             buffer.append("</lib>\n");
         }
-        
-        if(forcedLibs.size() > 0){
+
+        if (forcedLibs.size() > 0) {
             for (Iterator<String> iter = forcedLibs.iterator(); iter.hasNext();) {
                 buffer.append("<forced_lib>");
                 buffer.append(iter.next().toString());
                 buffer.append("</forced_lib>\n");
             }
         }
-        
-        if(this.envVariables != null){
-            for(String s:envVariables){
+
+        if (this.envVariables != null) {
+            for (String s : envVariables) {
                 buffer.append("<env_var>");
                 buffer.append(s);
                 buffer.append("</env_var>\n");
             }
         }
-        
-        if(this.stringSubstitutionVariables != null && this.stringSubstitutionVariables.size() > 0){
+
+        if (this.stringSubstitutionVariables != null && this.stringSubstitutionVariables.size() > 0) {
             Set<Entry<Object, Object>> entrySet = this.stringSubstitutionVariables.entrySet();
             for (Entry<Object, Object> entry : entrySet) {
                 buffer.append("<string_substitution_var>");
@@ -751,26 +738,25 @@ public class InterpreterInfo implements IInterpreterInfo{
                 buffer.append("</string_substitution_var>\n");
             }
         }
-        
-        if(this.predefinedCompletionsPath.size() > 0){
-            for(String s:this.predefinedCompletionsPath){
+
+        if (this.predefinedCompletionsPath.size() > 0) {
+            for (String s : this.predefinedCompletionsPath) {
                 buffer.append("<predefined_completion_path>");
                 buffer.append(s);
                 buffer.append("</predefined_completion_path>");
             }
         }
         buffer.append("</xml>");
-        
+
         return buffer.toString();
     }
-    
-    
+
     /**
      * Old implementation. Kept only for testing backward compatibility!
      */
     public String toStringOld() {
         FastStringBuffer buffer = new FastStringBuffer();
-        if(this.name != null){
+        if (this.name != null) {
             buffer.append("Name:");
             buffer.append(this.name);
             buffer.append(":EndName:");
@@ -784,36 +770,36 @@ public class InterpreterInfo implements IInterpreterInfo{
             buffer.append(iter.next().toString());
         }
         buffer.append("@");
-        
+
         buffer.append("$");
-        if(forcedLibs.size() > 0){
+        if (forcedLibs.size() > 0) {
             for (Iterator<String> iter = forcedLibs.iterator(); iter.hasNext();) {
                 buffer.append("|");
                 buffer.append(iter.next().toString());
             }
         }
-        
-        if(this.envVariables != null){
+
+        if (this.envVariables != null) {
             buffer.append("^");
-            for(String s:envVariables){
+            for (String s : envVariables) {
                 buffer.append(s);
                 buffer.append("|");
             }
         }
-        
-        if(this.stringSubstitutionVariables != null && this.stringSubstitutionVariables.size() > 0){
-        	buffer.append("@PYDEV_STRING_SUBST_VARS@");
-        	buffer.append(PropertiesHelper.createStringFromProperties(this.stringSubstitutionVariables));
+
+        if (this.stringSubstitutionVariables != null && this.stringSubstitutionVariables.size() > 0) {
+            buffer.append("@PYDEV_STRING_SUBST_VARS@");
+            buffer.append(PropertiesHelper.createStringFromProperties(this.stringSubstitutionVariables));
         }
-        
-        if(this.predefinedCompletionsPath.size() > 0){
-        	buffer.append("@PYDEV_PREDEF_COMPS_PATHS@");
-        	for(String s:this.predefinedCompletionsPath){
-        		buffer.append("|");
-        		buffer.append(s);
-        	}
+
+        if (this.predefinedCompletionsPath.size() > 0) {
+            buffer.append("@PYDEV_PREDEF_COMPS_PATHS@");
+            for (String s : this.predefinedCompletionsPath) {
+                buffer.append("|");
+                buffer.append(s);
+            }
         }
-        
+
         return buffer.toString();
     }
 
@@ -822,21 +808,20 @@ public class InterpreterInfo implements IInterpreterInfo{
      */
     public void restoreCompiledLibs(IProgressMonitor monitor) {
         //the compiled with the interpreter should be already gotten.
-    	
-    	for(String lib:this.libs){
-    		addForcedLibsFor(lib);
-    	}
-        
+
+        for (String lib : this.libs) {
+            addForcedLibsFor(lib);
+        }
+
         //we have it in source, but want to interpret it, source info (ast) does not give us much
-        forcedLibs.add("os"); 
-        
-        
+        forcedLibs.add("os");
+
         //we also need to add this submodule (because even though it's documented as such, it's not really 
         //implemented that way with a separate file -- there's black magic to put it there)
-        forcedLibs.add("os.path"); 
-        
+        forcedLibs.add("os.path");
+
         //as it is a set, there is no problem to add it twice
-        if(this.version.startsWith("2") || this.version.startsWith("1")){
+        if (this.version.startsWith("2") || this.version.startsWith("1")) {
             //don't add it for 3.0 onwards.
             forcedLibs.add("__builtin__"); //jython bug: __builtin__ is not added
         }
@@ -844,17 +829,16 @@ public class InterpreterInfo implements IInterpreterInfo{
         forcedLibs.add("email"); //email has some lazy imports that pydev cannot handle through the source
         forcedLibs.add("hashlib"); //depending on the Python version, hashlib cannot find md5, so, let's always leave it there.
         forcedLibs.add("pytest"); //yeap, pytest does have a structure that's pretty hard to analyze.
-        
 
         int interpreterType = getInterpreterType();
-        switch(interpreterType){
+        switch (interpreterType) {
             case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
                 //by default, we don't want to force anything to python.
                 forcedLibs.add("StringIO"); //jython bug: StringIO is not added
                 forcedLibs.add("re"); //re is very strange in Jython (while it's OK in Python)
                 forcedLibs.add("com.ziclix.python.sql"); //bultin to jython but not reported.
                 break;
-                
+
             case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
                 //those are sources, but we want to get runtime info on them.
                 forcedLibs.add("OpenGL");
@@ -863,7 +847,7 @@ public class InterpreterInfo implements IInterpreterInfo{
                 forcedLibs.add("numpy");
                 forcedLibs.add("scipy");
                 forcedLibs.add("Image"); //for PIL
-                
+
                 //these are the builtins -- apparently sys.builtin_module_names is not ok in linux.
                 forcedLibs.add("_ast");
                 forcedLibs.add("_bisect");
@@ -927,19 +911,15 @@ public class InterpreterInfo implements IInterpreterInfo{
                 forcedLibs.add("xxsubtype");
                 forcedLibs.add("zipimport");
                 forcedLibs.add("zlib");
-                
-                
-                
-                
+
                 break;
-                
+
             case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
                 //base namespaces
                 forcedLibs.add("System");
                 forcedLibs.add("Microsoft");
                 forcedLibs.add("clr");
-                
-                
+
                 //other namespaces (from http://msdn.microsoft.com/en-us/library/ms229335.aspx)
                 forcedLibs.add("IEHost.Execute");
                 forcedLibs.add("Microsoft.Aspnet.Snapin");
@@ -1282,95 +1262,92 @@ public class InterpreterInfo implements IInterpreterInfo{
                 forcedLibs.add("System.Xml.Xsl");
                 forcedLibs.add("System.Xml.Xsl.Runtime");
                 forcedLibs.add("UIAutomationClientsideProviders");
-                
 
                 break;
-                
+
             default:
-                throw new RuntimeException("Don't know how to treat: "+interpreterType);
+                throw new RuntimeException("Don't know how to treat: " + interpreterType);
         }
         this.clearBuiltinsCache(); //force cache recreation
     }
-    
-    
+
     private void addForcedLibsFor(String lib) {
-    	//For now only adds "werkzeug", but this is meant as an extension place.
-		File file = new File(lib);
-		if(file.exists()){
-			if(file.isDirectory()){
-				//check as dir (if it has a werkzeug folder)
-				File werkzeug = new File(file, "werkzeug");
-				if(werkzeug.isDirectory()){
-					forcedLibs.add("werkzeug");
-				}
-			}else{
-				//check as zip (if it has a werkzeug entry -- note that we have to check the __init__ 
-				//because an entry just with the folder doesn't really exist)
-				try {
-					ZipFile zipFile = new ZipFile(file);
-					if(zipFile.getEntry("werkzeug/__init__.py") != null){
-						forcedLibs.add("werkzeug");
-					}
-				} catch (Exception e) {
-					//ignore (not zip file)
-				}
-			}
-		}
-	}
+        //For now only adds "werkzeug", but this is meant as an extension place.
+        File file = new File(lib);
+        if (file.exists()) {
+            if (file.isDirectory()) {
+                //check as dir (if it has a werkzeug folder)
+                File werkzeug = new File(file, "werkzeug");
+                if (werkzeug.isDirectory()) {
+                    forcedLibs.add("werkzeug");
+                }
+            } else {
+                //check as zip (if it has a werkzeug entry -- note that we have to check the __init__ 
+                //because an entry just with the folder doesn't really exist)
+                try {
+                    ZipFile zipFile = new ZipFile(file);
+                    if (zipFile.getEntry("werkzeug/__init__.py") != null) {
+                        forcedLibs.add("werkzeug");
+                    }
+                } catch (Exception e) {
+                    //ignore (not zip file)
+                }
+            }
+        }
+    }
 
+    //  Initially I thought werkzeug would need to add all the contents, so, this was a prototype to
+    //  analyze it and add what's needed (but it turns out that just adding werkzeug is ok.
+    //	protected void handleWerkzeug(File initWerkzeug) {
+    //		String fileContents = REF.getFileContents(initWerkzeug);
+    //		Tuple<SimpleNode, Throwable> parse = PyParser.reparseDocument(
+    //				new PyParser.ParserInfo(new Document(fileContents), false, this.getGrammarVersion()));
+    //		Module o1 = (Module) parse.o1;
+    //		forcedLibs.add("werkzeug");
+    //		for(stmtType stmt:o1.body){
+    //			if(stmt instanceof Assign){
+    //				Assign assign = (Assign) stmt;
+    //				if(assign.targets.length == 1){
+    //					if(assign.value instanceof Dict){
+    //						String rep = NodeUtils.getRepresentationString(assign.targets[0]);
+    //						if("all_by_module".equals(rep)){
+    //							Dict dict = (Dict) assign.value;
+    //							for(exprType key:dict.keys){
+    //								if(key instanceof Str){
+    //									Str str = (Str) key;
+    //									forcedLibs.add(str.s);
+    //								}
+    //							}
+    //						}
+    //					}else if(assign.value instanceof Call){
+    //						String rep = NodeUtils.getRepresentationString(assign.targets[0]);
+    //						if("attribute_modules".equals(rep)){
+    //							Call call = (Call) assign.value;
+    //							rep = NodeUtils.getRepresentationString(call.func);
+    //							if("fromkeys".equals(rep)){
+    //								if(call.args.length == 1){
+    //									if(call.args[0] instanceof org.python.pydev.parser.jython.ast.List){
+    //										org.python.pydev.parser.jython.ast.List list = (org.python.pydev.parser.jython.ast.List) call.args[0];
+    //										for(exprType elt:list.elts){
+    //											if(elt instanceof Str){
+    //												Str str = (Str) elt;
+    //												forcedLibs.add("werkzeug."+str.s);
+    //											}
+    //										}
+    //										
+    //									}
+    //								}
+    //							}
+    //						}
+    //					}
+    //				}
+    //			}
+    //		}
+    //	}
 
-//  Initially I thought werkzeug would need to add all the contents, so, this was a prototype to
-//  analyze it and add what's needed (but it turns out that just adding werkzeug is ok.
-//	protected void handleWerkzeug(File initWerkzeug) {
-//		String fileContents = REF.getFileContents(initWerkzeug);
-//		Tuple<SimpleNode, Throwable> parse = PyParser.reparseDocument(
-//				new PyParser.ParserInfo(new Document(fileContents), false, this.getGrammarVersion()));
-//		Module o1 = (Module) parse.o1;
-//		forcedLibs.add("werkzeug");
-//		for(stmtType stmt:o1.body){
-//			if(stmt instanceof Assign){
-//				Assign assign = (Assign) stmt;
-//				if(assign.targets.length == 1){
-//					if(assign.value instanceof Dict){
-//						String rep = NodeUtils.getRepresentationString(assign.targets[0]);
-//						if("all_by_module".equals(rep)){
-//							Dict dict = (Dict) assign.value;
-//							for(exprType key:dict.keys){
-//								if(key instanceof Str){
-//									Str str = (Str) key;
-//									forcedLibs.add(str.s);
-//								}
-//							}
-//						}
-//					}else if(assign.value instanceof Call){
-//						String rep = NodeUtils.getRepresentationString(assign.targets[0]);
-//						if("attribute_modules".equals(rep)){
-//							Call call = (Call) assign.value;
-//							rep = NodeUtils.getRepresentationString(call.func);
-//							if("fromkeys".equals(rep)){
-//								if(call.args.length == 1){
-//									if(call.args[0] instanceof org.python.pydev.parser.jython.ast.List){
-//										org.python.pydev.parser.jython.ast.List list = (org.python.pydev.parser.jython.ast.List) call.args[0];
-//										for(exprType elt:list.elts){
-//											if(elt instanceof Str){
-//												Str str = (Str) elt;
-//												forcedLibs.add("werkzeug."+str.s);
-//											}
-//										}
-//										
-//									}
-//								}
-//							}
-//						}
-//					}
-//				}
-//			}
-//		}
-//	}
-
-	private void clearBuiltinsCache(){
-    	this.builtinsCache = null; //force cache recreation
-    	this.predefinedBuiltinsCache = null;
+    private void clearBuiltinsCache() {
+        this.builtinsCache = null; //force cache recreation
+        this.predefinedBuiltinsCache = null;
     }
 
     /**
@@ -1381,7 +1358,7 @@ public class InterpreterInfo implements IInterpreterInfo{
         //no managers involved here...
         getModulesManager().changePythonPath(path, null, monitor);
     }
-    
+
     /**
      * Restores the path with the discovered libs
      * @param path
@@ -1395,19 +1372,17 @@ public class InterpreterInfo implements IInterpreterInfo{
         }
         restorePythonpath(buffer.toString(), monitor);
     }
-    
-    
-    public int getInterpreterType(){
-        if(isJythonExecutable(executableOrJar)){
+
+    public int getInterpreterType() {
+        if (isJythonExecutable(executableOrJar)) {
             return IInterpreterManager.INTERPRETER_TYPE_JYTHON;
-            
-        }else if(isIronpythonExecutable(executableOrJar)){
+
+        } else if (isIronpythonExecutable(executableOrJar)) {
             return IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON;
         }
         //neither one: it's python.
         return IInterpreterManager.INTERPRETER_TYPE_PYTHON;
     }
-
 
     /**
      * @param executable the executable we want to know about
@@ -1419,7 +1394,7 @@ public class InterpreterInfo implements IInterpreterInfo{
         }
         return executable.endsWith(".jar");
     }
-    
+
     /**
      * @param executable the executable we want to know about
      * @return if the executable is the ironpython executable.
@@ -1432,7 +1407,7 @@ public class InterpreterInfo implements IInterpreterInfo{
     public static String getExeAsFileSystemValidPath(String executableOrJar) {
         return StringUtils.getExeAsFileSystemValidPath(executableOrJar);
     }
-    
+
     public String getExeAsFileSystemValidPath() {
         return getExeAsFileSystemValidPath(executableOrJar);
     }
@@ -1440,24 +1415,22 @@ public class InterpreterInfo implements IInterpreterInfo{
     public String getVersion() {
         return version;
     }
- 
+
     public int getGrammarVersion() {
         return PythonNature.getGrammarVersionFromStr(version);
     }
-    
-    
 
     //START: Things related to the builtins (forcedLibs) ---------------------------------------------------------------
     public String[] getBuiltins() {
-        if(this.builtinsCache == null){
-        	Set<String> set = new HashSet<String>(forcedLibs);
+        if (this.builtinsCache == null) {
+            Set<String> set = new HashSet<String>(forcedLibs);
             this.builtinsCache = set.toArray(new String[0]);
         }
         return this.builtinsCache;
     }
 
     public void addForcedLib(String forcedLib) {
-        if(isForcedLibToIgnore(forcedLib)){
+        if (isForcedLibToIgnore(forcedLib)) {
             return;
         }
         this.forcedLibs.add(forcedLib);
@@ -1467,13 +1440,13 @@ public class InterpreterInfo implements IInterpreterInfo{
     /**
      * @return true if the passed forced lib should not be added to the forced builtins.
      */
-    private boolean isForcedLibToIgnore(String forcedLib){
-        if(forcedLib == null){
+    private boolean isForcedLibToIgnore(String forcedLib) {
+        if (forcedLib == null) {
             return true;
         }
         //We want django to be always analyzed as source
-        for(String s:LIBRARIES_TO_IGNORE_AS_FORCED_BUILTINS){
-            if(forcedLib.equals(s) || forcedLib.startsWith(s+".")){
+        for (String s : LIBRARIES_TO_IGNORE_AS_FORCED_BUILTINS) {
+            if (forcedLib.equals(s) || forcedLib.startsWith(s + ".")) {
                 return true;
             }
         }
@@ -1488,9 +1461,9 @@ public class InterpreterInfo implements IInterpreterInfo{
     public Iterator<String> forcedLibsIterator() {
         return forcedLibs.iterator();
     }
+
     //END: Things related to the builtins (forcedLibs) -----------------------------------------------------------------
 
-    
     /**
      * Sets the environment variables to be kept in the interpreter info.
      * 
@@ -1500,13 +1473,13 @@ public class InterpreterInfo implements IInterpreterInfo{
      */
     public void setEnvVariables(String[] env) {
 
-        if(env != null){
+        if (env != null) {
             ArrayList<String> lst = new ArrayList<String>();
             //We must make sure that the PYTHONPATH is not in the env. variables.
-            for(String s: env){
+            for (String s : env) {
                 Tuple<String, String> sp = StringUtils.splitOnFirst(s, '=');
-                if(sp.o1.length() != 0 && sp.o2.length() != 0){
-                    if(!checkIfPythonPathEnvVarAndWarnIfIs(sp.o1)){
+                if (sp.o1.length() != 0 && sp.o2.length() != 0) {
+                    if (!checkIfPythonPathEnvVarAndWarnIfIs(sp.o1)) {
                         lst.add(s);
                     }
                 }
@@ -1515,13 +1488,13 @@ public class InterpreterInfo implements IInterpreterInfo{
             env = lst.toArray(new String[lst.size()]);
         }
 
-        if(env != null && env.length == 0){
+        if (env != null && env.length == 0) {
             env = null;
         }
 
         this.envVariables = env;
     }
-    
+
     public String[] getEnvVariables() {
         return this.envVariables;
     }
@@ -1529,76 +1502,76 @@ public class InterpreterInfo implements IInterpreterInfo{
     public String[] updateEnv(String[] env) {
         return updateEnv(env, null);
     }
-    
+
     public String[] updateEnv(String[] env, Set<String> keysThatShouldNotBeUpdated) {
-        if(this.envVariables == null || this.envVariables.length == 0){
+        if (this.envVariables == null || this.envVariables.length == 0) {
             return env; //nothing to change
         }
         //Ok, it's not null... 
         //let's merge them (env may be null/zero-length but we need to apply variable resolver to envVariables anyway)
         HashMap<String, String> hashMap = new HashMap<String, String>();
-        
+
         fillMapWithEnv(env, hashMap, null, null);
         fillMapWithEnv(envVariables, hashMap, keysThatShouldNotBeUpdated, getStringVariableManager()); //will override the keys already there unless they're in keysThatShouldNotBeUpdated
-        
+
         String[] ret = createEnvWithMap(hashMap);
-        
+
         return ret;
     }
 
     public static String[] createEnvWithMap(Map<String, String> hashMap) {
         Set<Entry<String, String>> entrySet = hashMap.entrySet();
         String[] ret = new String[entrySet.size()];
-        int i=0;
+        int i = 0;
         for (Entry<String, String> entry : entrySet) {
-            ret[i] = entry.getKey()+"="+entry.getValue();
+            ret[i] = entry.getKey() + "=" + entry.getValue();
             i++;
         }
         return ret;
     }
 
-    public static void fillMapWithEnv(String[] env, HashMap<String, String> hashMap, Set<String> keysThatShouldNotBeUpdated, IStringVariableManager manager) {
-    	if (env == null || env.length == 0) {
-    		// nothing to do
-    		return;
-    	}
-    	
-        if(keysThatShouldNotBeUpdated == null){
+    public static void fillMapWithEnv(String[] env, HashMap<String, String> hashMap,
+            Set<String> keysThatShouldNotBeUpdated, IStringVariableManager manager) {
+        if (env == null || env.length == 0) {
+            // nothing to do
+            return;
+        }
+
+        if (keysThatShouldNotBeUpdated == null) {
             keysThatShouldNotBeUpdated = Collections.emptySet();
         }
 
-        for(String s: env){
+        for (String s : env) {
             Tuple<String, String> sp = StringUtils.splitOnFirst(s, '=');
-            if(sp.o1.length() != 0 && sp.o2.length() != 0 && !keysThatShouldNotBeUpdated.contains(sp.o1)){
-            	String value = sp.o2;
-            	if (manager != null) {
-            		try {
-						value = manager.performStringSubstitution(value, false);
-					} catch (CoreException e) {
-						// Unreachable as false passed to reportUndefinedVariables above
-					}
-            	}
+            if (sp.o1.length() != 0 && sp.o2.length() != 0 && !keysThatShouldNotBeUpdated.contains(sp.o1)) {
+                String value = sp.o2;
+                if (manager != null) {
+                    try {
+                        value = manager.performStringSubstitution(value, false);
+                    } catch (CoreException e) {
+                        // Unreachable as false passed to reportUndefinedVariables above
+                    }
+                }
                 hashMap.put(sp.o1, value);
             }
         }
     }
-    
-    
+
     /**
      * This function will remove any PYTHONPATH entry from the given map (considering the case based on the system)
      * and will give a warning to the user if that's actually done.
      */
     public static void removePythonPathFromEnvMapWithWarning(HashMap<String, String> map) {
-        if(map == null){
+        if (map == null) {
             return;
         }
-        
-        for(Iterator<Map.Entry<String, String>> it=map.entrySet().iterator();it.hasNext();){
+
+        for (Iterator<Map.Entry<String, String>> it = map.entrySet().iterator(); it.hasNext();) {
             Map.Entry<String, String> next = it.next();
-            
+
             String key = next.getKey();
-            
-            if(checkIfPythonPathEnvVarAndWarnIfIs(key)){
+
+            if (checkIfPythonPathEnvVarAndWarnIfIs(key)) {
                 it.remove();
             }
         }
@@ -1613,18 +1586,21 @@ public class InterpreterInfo implements IInterpreterInfo{
     public static boolean checkIfPythonPathEnvVarAndWarnIfIs(String key) {
         boolean isPythonPath = false;
         boolean win32 = REF.isWindowsPlatform();
-        if(win32){
+        if (win32) {
             key = key.toUpperCase();
         }
         final String keyPlatformDependent = key;
-        if(keyPlatformDependent.equals("PYTHONPATH") || keyPlatformDependent.equals("CLASSPATH") || keyPlatformDependent.equals("JYTHONPATH") || keyPlatformDependent.equals("IRONPYTHONPATH")){
-            final String msg = "Ignoring "+keyPlatformDependent+" specified in the interpreter info.\n" +
-            "It's managed depending on the project and other configurations and cannot be directly specified in the interpreter.";
+        if (keyPlatformDependent.equals("PYTHONPATH") || keyPlatformDependent.equals("CLASSPATH")
+                || keyPlatformDependent.equals("JYTHONPATH") || keyPlatformDependent.equals("IRONPYTHONPATH")) {
+            final String msg = "Ignoring "
+                    + keyPlatformDependent
+                    + " specified in the interpreter info.\n"
+                    + "It's managed depending on the project and other configurations and cannot be directly specified in the interpreter.";
             try {
-                RunInUiThread.async(new Runnable(){
+                RunInUiThread.async(new Runnable() {
                     public void run() {
                         MessageBox message = new MessageBox(PyAction.getShell(), SWT.OK | SWT.ICON_INFORMATION);
-                        message.setText("Ignoring "+keyPlatformDependent);
+                        message.setText("Ignoring " + keyPlatformDependent);
                         message.setMessage(msg);
                         message.open();
                     }
@@ -1632,14 +1608,13 @@ public class InterpreterInfo implements IInterpreterInfo{
             } catch (Throwable e) {
                 // ignore error communication error
             }
-            
+
             Log.log(IStatus.WARNING, msg, null);
             isPythonPath = true;
         }
         return isPythonPath;
     }
 
-    
     /**
      * @return a new interpreter info that's a copy of the current interpreter info.
      */
@@ -1650,123 +1625,119 @@ public class InterpreterInfo implements IInterpreterInfo{
     public void setName(String name) {
         this.name = name;
     }
-    
+
     public String getName() {
-        if(this.name != null){
+        if (this.name != null) {
             return this.name;
         }
         return this.executableOrJar;
     }
- 
+
     public String getNameForUI() {
-        if(this.name != null){
-            return this.name+"  ("+this.executableOrJar+")";
-        }else{
+        if (this.name != null) {
+            return this.name + "  (" + this.executableOrJar + ")";
+        } else {
             return this.executableOrJar;
         }
     }
-    
+
     public boolean matchNameBackwardCompatible(String interpreter) {
-        if(this.name != null){
-            if(interpreter.equals(this.name)){
+        if (this.name != null) {
+            if (interpreter.equals(this.name)) {
                 return true;
             }
         }
-        if(REF.isWindowsPlatform()){
+        if (REF.isWindowsPlatform()) {
             return interpreter.equalsIgnoreCase(executableOrJar);
         }
         return interpreter.equals(executableOrJar);
     }
 
-	public void setStringSubstitutionVariables(
-			Properties stringSubstitutionOriginal) {
-		if(stringSubstitutionOriginal == null){
-			this.stringSubstitutionVariables = null;
-		}else{
-			this.stringSubstitutionVariables = stringSubstitutionOriginal;
-		}
-	}
-	
-	public Properties getStringSubstitutionVariables(){
-		return this.stringSubstitutionVariables;
-	}
+    public void setStringSubstitutionVariables(Properties stringSubstitutionOriginal) {
+        if (stringSubstitutionOriginal == null) {
+            this.stringSubstitutionVariables = null;
+        } else {
+            this.stringSubstitutionVariables = stringSubstitutionOriginal;
+        }
+    }
 
-	public void addPredefinedCompletionsPath(String path) {
-		this.predefinedCompletionsPath.add(path);
+    public Properties getStringSubstitutionVariables() {
+        return this.stringSubstitutionVariables;
+    }
+
+    public void addPredefinedCompletionsPath(String path) {
+        this.predefinedCompletionsPath.add(path);
         this.clearBuiltinsCache();
-	}
+    }
 
-	public List<String> getPredefinedCompletionsPath(){
-		return new ArrayList<String>(predefinedCompletionsPath); //Return a copy.
-	}
-	
-	/**
-	 * May return null if it doesn't exist.
-	 * @return the file that matches the passed module name with the predefined builtins.
-	 */
-	public File getPredefinedModule(String moduleName){
-		if(this.predefinedBuiltinsCache == null){
-			this.predefinedBuiltinsCache = new HashMap<String, File>();
-	    	for(String s:this.getPredefinedCompletionsPath()){
-	    		File f = new File(s);
-	    		if(f.exists()){
-	    			File[] predefs = f.listFiles(new FilenameFilter() {
-						
-	    				//Only accept names ending with .pypredef in the passed dirs
-						public boolean accept(File dir, String name) {
-							return name.endsWith(".pypredef");
-						}
-					});
-	    			
-	    			for (File file : predefs) {
-						String n = file.getName();
-						String modName = n.substring(0, n.length()-(".pypredef".length()));
-						this.predefinedBuiltinsCache.put(modName, file);
-					}
-	    		}
-	    	}
-	    }
-		
-		return this.predefinedBuiltinsCache.get(moduleName);
-	}
+    public List<String> getPredefinedCompletionsPath() {
+        return new ArrayList<String>(predefinedCompletionsPath); //Return a copy.
+    }
 
-	public void removePredefinedCompletionPath(String item) {
-		this.predefinedCompletionsPath.remove(item);
-		this.clearBuiltinsCache();
-	}
+    /**
+     * May return null if it doesn't exist.
+     * @return the file that matches the passed module name with the predefined builtins.
+     */
+    public File getPredefinedModule(String moduleName) {
+        if (this.predefinedBuiltinsCache == null) {
+            this.predefinedBuiltinsCache = new HashMap<String, File>();
+            for (String s : this.getPredefinedCompletionsPath()) {
+                File f = new File(s);
+                if (f.exists()) {
+                    File[] predefs = f.listFiles(new FilenameFilter() {
 
-	
-	private IInterpreterInfoBuilder builder;
-	private final Object builderLock = new Object();
+                        //Only accept names ending with .pypredef in the passed dirs
+                        public boolean accept(File dir, String name) {
+                            return name.endsWith(".pypredef");
+                        }
+                    });
+
+                    for (File file : predefs) {
+                        String n = file.getName();
+                        String modName = n.substring(0, n.length() - (".pypredef".length()));
+                        this.predefinedBuiltinsCache.put(modName, file);
+                    }
+                }
+            }
+        }
+
+        return this.predefinedBuiltinsCache.get(moduleName);
+    }
+
+    public void removePredefinedCompletionPath(String item) {
+        this.predefinedCompletionsPath.remove(item);
+        this.clearBuiltinsCache();
+    }
+
+    private IInterpreterInfoBuilder builder;
+    private final Object builderLock = new Object();
 
     private volatile boolean loadFinished = true;
-	
-	
-	/**
-	 * Building so that the interpreter info is kept up to date.
-	 */
+
+    /**
+     * Building so that the interpreter info is kept up to date.
+     */
     public void startBuilding() {
         synchronized (builderLock) {
-            if(this.builder == null){
+            if (this.builder == null) {
                 IInterpreterInfoBuilder builder = (IInterpreterInfoBuilder) ExtensionHelper.getParticipant(
                         ExtensionHelper.PYDEV_INTERPRETER_INFO_BUILDER, false);
-                if(builder != null){
+                if (builder != null) {
                     builder.setInfo(this);
                     this.builder = builder;
-                }else{
-                    if(!ProjectModulesManager.IN_TESTS){
-                        Log.log("Could not get internal extension for: "+ExtensionHelper.PYDEV_INTERPRETER_INFO_BUILDER);
+                } else {
+                    if (!ProjectModulesManager.IN_TESTS) {
+                        Log.log("Could not get internal extension for: "
+                                + ExtensionHelper.PYDEV_INTERPRETER_INFO_BUILDER);
                     }
                 }
             }
         }
     }
 
-    
-    
     public void stopBuilding() {
         synchronized (builderLock) {
-            if(this.builder != null){
+            if (this.builder != null) {
                 this.builder.dispose();
                 this.builder = null;
             }
@@ -1776,7 +1747,7 @@ public class InterpreterInfo implements IInterpreterInfo{
     public void setLoadFinished(boolean b) {
         this.loadFinished = b;
     }
-    
+
     public boolean getLoadFinished() {
         return this.loadFinished;
     }

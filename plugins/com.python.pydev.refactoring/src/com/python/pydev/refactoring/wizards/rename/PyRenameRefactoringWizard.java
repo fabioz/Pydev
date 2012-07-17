@@ -26,25 +26,25 @@ import com.python.pydev.refactoring.wizards.TextInputWizardPage;
 
 public class PyRenameRefactoringWizard extends RefactoringWizard {
 
-    
     private final String fInputPageDescription;
     private RefactoringRequest req;
     private TextInputWizardPage inputPage;
     private String fInitialSetting;
-    
-    public PyRenameRefactoringWizard(Refactoring refactoring, String defaultPageTitle, String inputPageDescription, RefactoringRequest req, String initial) {
+
+    public PyRenameRefactoringWizard(Refactoring refactoring, String defaultPageTitle, String inputPageDescription,
+            RefactoringRequest req, String initial) {
         super(refactoring, DIALOG_BASED_USER_INTERFACE);
         setDefaultPageTitle(defaultPageTitle);
-        fInputPageDescription= inputPageDescription;
+        fInputPageDescription = inputPageDescription;
         this.req = req;
         this.fInitialSetting = initial;
     }
 
     /* non java-doc
      * @see RefactoringWizard#addUserInputPages
-     */ 
+     */
     protected void addUserInputPages() {
-        inputPage= createInputPage(fInputPageDescription, fInitialSetting);
+        inputPage = createInputPage(fInputPageDescription, fInitialSetting);
         addPage(inputPage);
     }
 
@@ -52,50 +52,47 @@ public class PyRenameRefactoringWizard extends RefactoringWizard {
         return new TextInputWizardPage(message, true, initialSetting) {
             protected RefactoringStatus validateTextField(String text) {
                 RefactoringStatus status = new RefactoringStatus();
-                if(StringUtils.isWord(text)){
+                if (StringUtils.isWord(text)) {
                     req.inputName = text;
-                }else{
-                    status.addFatalError("The name:"+text+" is not a valid identifier.");
+                } else {
+                    status.addFatalError("The name:" + text + " is not a valid identifier.");
                 }
                 return status;
             }
 
             public void createControl(Composite parent) {
-                Composite superComposite= new Composite(parent, SWT.NONE);
+                Composite superComposite = new Composite(parent, SWT.NONE);
                 setControl(superComposite);
                 initializeDialogUnits(superComposite);
-                
+
                 superComposite.setLayout(new GridLayout());
-                Composite composite= new Composite(superComposite, SWT.NONE);
-                composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));    
-                
-                GridLayout layout= new GridLayout();
-                layout.numColumns= 2;
-                layout.verticalSpacing= 8;
+                Composite composite = new Composite(superComposite, SWT.NONE);
+                composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+                GridLayout layout = new GridLayout();
+                layout.numColumns = 2;
+                layout.verticalSpacing = 8;
                 composite.setLayout(layout);
-//                RowLayouter layouter= new RowLayouter(2);
-                
-                Label label= new Label(composite, SWT.NONE);
+                //                RowLayouter layouter= new RowLayouter(2);
+
+                Label label = new Label(composite, SWT.NONE);
                 label.setText("New value:");
-                
-                Text text= createTextInputField(composite);
+
+                Text text = createTextInputField(composite);
                 text.selectAll();
-                GridData gd= new GridData(GridData.FILL_HORIZONTAL);
-                gd.widthHint= convertWidthInCharsToPixels(25);
+                GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+                gd.widthHint = convertWidthInCharsToPixels(25);
                 text.setLayoutData(gd);
 
-                        
-//                layouter.perform(label, text, 1);
-//                
-//                addOptionalUpdateReferencesCheckbox(composite, layouter);
-//                addOptionalUpdateTextualMatches(composite, layouter);
-//                addOptionalUpdateQualifiedNameComponent(composite, layouter, layout.marginWidth);
-                
+                //                layouter.perform(label, text, 1);
+                //                
+                //                addOptionalUpdateReferencesCheckbox(composite, layouter);
+                //                addOptionalUpdateTextualMatches(composite, layouter);
+                //                addOptionalUpdateQualifiedNameComponent(composite, layouter, layout.marginWidth);
+
                 Dialog.applyDialogFont(superComposite);
-            }   
+            }
         };
     }
-    
+
 }
-
-

@@ -24,8 +24,8 @@ public class ConstructorFieldRequest implements IRefactoringRequest {
     public final IClassDefAdapter classAdapter;
     private final AdapterPrefs adapterPrefs;
 
-    public ConstructorFieldRequest(IClassDefAdapter classAdapter, 
-            List<INodeAdapter> attributeAdapters, int offsetStrategy, AdapterPrefs adapterPrefs) {
+    public ConstructorFieldRequest(IClassDefAdapter classAdapter, List<INodeAdapter> attributeAdapters,
+            int offsetStrategy, AdapterPrefs adapterPrefs) {
         this.classAdapter = classAdapter;
         this.attributeAdapters = attributeAdapters;
         this.offsetStrategy = offsetStrategy;
@@ -39,5 +39,5 @@ public class ConstructorFieldRequest implements IRefactoringRequest {
     public AdapterPrefs getAdapterPrefs() {
         return adapterPrefs;
     }
-    
+
 }

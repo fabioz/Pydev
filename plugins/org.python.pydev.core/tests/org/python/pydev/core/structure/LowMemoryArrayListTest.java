@@ -45,7 +45,6 @@ public class LowMemoryArrayListTest extends TestCase {
         assertTrue(array.indexOf(new Integer(5)) < 0);
         assertTrue(array.lastIndexOf(new Integer(5)) < 0);
 
-
         array.remove(1);
         array.remove(1);
 
@@ -79,33 +78,33 @@ public class LowMemoryArrayListTest extends TestCase {
 
         assertTrue(al.remove(null));
         assertTrue(al.remove("string"));
-        
+
         List<Integer> asList = Arrays.asList(1, 2);
-        
+
         al = new LowMemoryArrayList();
         Iterator iterator = al.iterator();
         assertTrue(!iterator.hasNext());
-        
+
         al.addAll(asList);
         al.addAll(asList);
         assertEquals(1, al.get(0));
         assertEquals(2, al.get(1));
         assertEquals(1, al.get(2));
         assertEquals(2, al.get(3));
-        
+
         iterator = al.iterator();
         assertTrue(iterator.hasNext());
         assertEquals(1, iterator.next());
-        
+
         assertTrue(iterator.hasNext());
         assertEquals(2, iterator.next());
-        
+
         assertTrue(iterator.hasNext());
         assertEquals(1, iterator.next());
-        
+
         assertTrue(iterator.hasNext());
         assertEquals(2, iterator.next());
-        
+
         assertTrue(!iterator.hasNext());
     }
 }

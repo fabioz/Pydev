@@ -19,8 +19,8 @@ import java.util.Iterator;
  * @author Clark Updike
  */
 public class PyObjectList
-        //RandomAcces is jdk 1.4 -- restore when 1.4 becomes the min
-        extends AbstractList implements /*RandomAccess,*/ Cloneable, Serializable {
+//RandomAcces is jdk 1.4 -- restore when 1.4 becomes the min
+        extends AbstractList implements /*RandomAccess,*/Cloneable, Serializable {
 
     /* Design note:
      * This class let's PySequenceList implement java.util.List by delegating
@@ -32,7 +32,6 @@ public class PyObjectList
      * can still do bulk array operations, allowing better performance and
      * reuse of much of the pre-collections bulk operation implementation.
      */
-
 
     /**
      * Provides mutable operations on a PyObject[] array, including features
@@ -86,21 +85,20 @@ public class PyObjectList
         return true;
     }
 
-    public Object clone(){
+    public Object clone() {
         try {
             PyObjectList tol = (PyObjectList) super.clone();
             tol.array = (PyObjectArray) array.clone();
             modCount = 0;
             return tol;
         } catch (CloneNotSupportedException eCNSE) {
-            throw new InternalError("Unexpected CloneNotSupportedException.\n"
-              + eCNSE.getMessage());
+            throw new InternalError("Unexpected CloneNotSupportedException.\n" + eCNSE.getMessage());
         }
     }
 
     public boolean equals(Object o) {
-        if(o instanceof PyObjectList) {
-            return array.equals(((PyObjectList)o).array);
+        if (o instanceof PyObjectList) {
+            return array.equals(((PyObjectList) o).array);
         }
         return false;
     }
@@ -137,7 +135,7 @@ public class PyObjectList
      * Use <code>pyset(int, PyObject)</code> for internal jython usage.
      */
     public Object set(int index, Object element) {
-        return array.set(index, Py.java2py(element) ).__tojava__(Object.class);
+        return array.set(index, Py.java2py(element)).__tojava__(Object.class);
     }
 
     PyObject pyset(int index, PyObject element) {
@@ -154,7 +152,7 @@ public class PyObjectList
 
     public boolean addAll(int index, Collection c) {
         if (c instanceof PySequenceList) {
-            PySequenceList cList = (PySequenceList)c;
+            PySequenceList cList = (PySequenceList) c;
             PyObject[] cArray = cList.getArray();
             int cOrigSize = cList.size();
             array.makeInsertSpace(index, cOrigSize);
@@ -162,26 +160,26 @@ public class PyObjectList
         } else {
             // need to use add to convert anything pulled from a collection
             // into a PyObject
-            for (Iterator i = c.iterator(); i.hasNext(); ) {
+            for (Iterator i = c.iterator(); i.hasNext();) {
                 add(i.next());
             }
         }
         return c.size() > 0;
     }
 
-        /**
-         * Get the backing array. The array should generally not be modified.
-         * To get a copy of the array, see {@link #toArray()} which returns a copy.
-         *
-         * @return backing array object
-         */
+    /**
+     * Get the backing array. The array should generally not be modified.
+     * To get a copy of the array, see {@link #toArray()} which returns a copy.
+     *
+     * @return backing array object
+     */
     protected PyObject[] getArray() {
-        return (PyObject[])array.getArray();
+        return (PyObject[]) array.getArray();
     }
 
-        void ensureCapacity(int minCapacity) {
-            array.ensureCapacity(minCapacity);
-        }
+    void ensureCapacity(int minCapacity) {
+        array.ensureCapacity(minCapacity);
+    }
 
     void replaceSubArray(int destStart, int destStop, Object srcArray, int srcStart, int srcStop) {
         array.replaceSubArray(destStart, destStop, srcArray, srcStart, srcStop);

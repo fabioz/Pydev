@@ -1,11 +1,11 @@
 // Copyright (c) Corporation for National Research Initiatives
 
 package org.python.compiler;
+
 import java.util.*;
 import java.io.*;
 
-class Method
-{
+class Method {
     int access, name, type;
     Attribute[] atts;
 
@@ -25,8 +25,7 @@ class Method
 
 }
 
-public class ClassFile
-{
+public class ClassFile {
     ConstantPool pool;
     int access;
     public String name;
@@ -49,8 +48,9 @@ public class ClassFile
         if (n.indexOf('.') == -1)
             return n;
         char[] c = n.toCharArray();
-        for(int i=0; i<c.length; i++) {
-            if (c[i] == '.') c[i] = '/';
+        for (int i = 0; i < c.length; i++) {
+            if (c[i] == '.')
+                c[i] = '/';
         }
         return new String(c);
     }
@@ -72,46 +72,35 @@ public class ClassFile
     }
 
     public void addInterface(String name) throws IOException {
-        int[] new_interfaces = new int[interfaces.length+1];
+        int[] new_interfaces = new int[interfaces.length + 1];
         System.arraycopy(interfaces, 0, new_interfaces, 0, interfaces.length);
         new_interfaces[interfaces.length] = pool.Class(name);
         interfaces = new_interfaces;
     }
 
-    public Code addMethod(String name, String type, int access)
-        throws IOException
-    {
+    public Code addMethod(String name, String type, int access) throws IOException {
         Code code = new Code(type, pool, (access & STATIC) == STATIC);
-        Method m = new Method(pool.UTF8(name), pool.UTF8(type), access,
-                              new Attribute[] {code});
+        Method m = new Method(pool.UTF8(name), pool.UTF8(type), access, new Attribute[] { code });
         methods.addElement(m);
         return code;
     }
 
-    public void addField(String name, String type, int access)
-        throws IOException
-    {
-        Method m = new Method(pool.UTF8(name), pool.UTF8(type), access,
-                              new Attribute[0]);
+    public void addField(String name, String type, int access) throws IOException {
+        Method m = new Method(pool.UTF8(name), pool.UTF8(type), access, new Attribute[0]);
         fields.addElement(m);
     }
 
-    public static void writeAttributes(DataOutputStream stream,
-                                       Attribute[] atts)
-        throws IOException
-    {
+    public static void writeAttributes(DataOutputStream stream, Attribute[] atts) throws IOException {
         stream.writeShort(atts.length);
-        for (int i=0; i<atts.length; i++) {
+        for (int i = 0; i < atts.length; i++) {
             atts[i].write(stream);
         }
     }
 
-    public void writeMethods(DataOutputStream stream, Vector methods)
-        throws IOException
-    {
+    public void writeMethods(DataOutputStream stream, Vector methods) throws IOException {
         stream.writeShort(methods.size());
-        for (int i=0; i<methods.size(); i++) {
-            Method m = (Method)methods.elementAt(i);
+        for (int i = 0; i < methods.size(); i++) {
+            Method m = (Method) methods.elementAt(i);
             m.write(stream);
         }
     }
@@ -137,7 +126,7 @@ public class ClassFile
 
         //write out interfaces
         stream.writeShort(interfaces.length);
-        for (int i=0; i<interfaces.length; i++)
+        for (int i = 0; i < interfaces.length; i++)
             stream.writeShort(interfaces[i]);
 
         writeMethods(stream, fields);
@@ -147,8 +136,8 @@ public class ClassFile
         int n = attributes.size();
         stream.writeShort(n);
 
-        for (int i=0; i<n; i++) {
-            ((Attribute)attributes.elementAt(i)).write(stream);
+        for (int i = 0; i < n; i++) {
+            ((Attribute) attributes.elementAt(i)).write(stream);
         }
     }
 

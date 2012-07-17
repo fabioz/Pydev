@@ -25,13 +25,13 @@ public class ObjectsPoolTest extends TestCase {
     public void testObjectsPool() throws Exception {
         String intern = ObjectsPool.intern(new String("foo"));
         assertSame(ObjectsPool.intern(new String("foo")), intern);
-        
-//        Timer t = new Timer();
-//        synchronized (ObjectsPool.lock){
-//            for(int i=0;i<100000000;i++){
-//                ObjectsPool.internUnsynched("foo");
-//            }
-//        }
-//        t.printDiff();
+
+        //        Timer t = new Timer();
+        //        synchronized (ObjectsPool.lock){
+        //            for(int i=0;i<100000000;i++){
+        //                ObjectsPool.internUnsynched("foo");
+        //            }
+        //        }
+        //        t.printDiff();
     }
 }

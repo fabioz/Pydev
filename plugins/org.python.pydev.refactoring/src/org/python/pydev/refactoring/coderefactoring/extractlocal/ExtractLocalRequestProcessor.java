@@ -33,7 +33,8 @@ public class ExtractLocalRequestProcessor implements IRequestProcessor<ExtractLo
     }
 
     public List<ExtractLocalRequest> getRefactoringRequests() {
-        return ListUtils.wrap(new ExtractLocalRequest(info, selection, expression, variableName, duplicates, replaceDuplicates));
+        return ListUtils.wrap(new ExtractLocalRequest(info, selection, expression, variableName, duplicates,
+                replaceDuplicates));
     }
 
     public void setSelection(ITextSelection selection) {
@@ -47,9 +48,9 @@ public class ExtractLocalRequestProcessor implements IRequestProcessor<ExtractLo
     public void setVariableName(String variableName) {
         this.variableName = variableName;
     }
-    
-    public int getDuplicatesSize(){
-        if(duplicates == null){
+
+    public int getDuplicatesSize() {
+        if (duplicates == null) {
             return 0;
         }
         return duplicates.size();

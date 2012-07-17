@@ -17,24 +17,22 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.editorinput.PyOpenEditor;
 
-public class SaveFileWithoutNatureTestWorkbench extends AbstractWorkbenchTestCase{
-    
+public class SaveFileWithoutNatureTestWorkbench extends AbstractWorkbenchTestCase {
+
     protected void setUp() throws Exception {
         //no setup (because we won't have the nature in this test)
         closeWelcomeView();
     }
-    
 
-    
     public void testEditWithNoNature() throws Exception {
         NullProgressMonitor monitor = new NullProgressMonitor();
         IProject project = createProject(monitor, "pydev_no_nature_project");
-        
+
         IFile myFile = project.getFile("my_file.py");
-        
+
         String contents = "";
         String newContents = "class Foo(object):\n    pass";
-        
+
         myFile.create(new ByteArrayInputStream(contents.getBytes()), true, monitor);
         project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
         try {
@@ -46,7 +44,7 @@ public class SaveFileWithoutNatureTestWorkbench extends AbstractWorkbenchTestCas
             editor = null;
         }
         assertEquals(newContents, REF.getDocFromResource(myFile).get());
-        
+
     }
 
 }

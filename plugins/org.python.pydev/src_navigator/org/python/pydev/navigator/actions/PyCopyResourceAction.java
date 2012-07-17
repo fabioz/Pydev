@@ -20,7 +20,7 @@ import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.navigator.actions.copied.CopyAction;
 
-public class PyCopyResourceAction extends CopyAction{
+public class PyCopyResourceAction extends CopyAction {
 
     private ISelectionProvider provider;
 
@@ -37,7 +37,7 @@ public class PyCopyResourceAction extends CopyAction{
      * @see org.eclipse.jface.action.Action#isEnabled()
      */
     public boolean isEnabled() {
-    	fillSelection();
+        fillSelection();
         return selected != null && selected.size() > 0;
     }
 
@@ -67,26 +67,25 @@ public class PyCopyResourceAction extends CopyAction{
         }
         return true;
     }
-    
+
     @Override
     protected List getSelectedResources() {
         return selected;
     }
-    
+
     @Override
     public IStructuredSelection getStructuredSelection() {
         return new StructuredSelection(selected);
     }
-    
+
     /*
      * (non-Javadoc) Method declared on IAction.
      */
     public void run() {
-        if(!fillSelection()){ //will also update the list of resources (main change from the DeleteResourceAction)
+        if (!fillSelection()) { //will also update the list of resources (main change from the DeleteResourceAction)
             return;
         }
         super.run();
     }
-
 
 }

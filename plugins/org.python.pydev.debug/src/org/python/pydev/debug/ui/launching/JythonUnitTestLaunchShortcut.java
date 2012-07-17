@@ -15,13 +15,11 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.plugin.PydevPlugin;
 
-
-public class JythonUnitTestLaunchShortcut extends AbstractLaunchShortcut{
+public class JythonUnitTestLaunchShortcut extends AbstractLaunchShortcut {
 
     protected String getLaunchConfigurationType() {
         return Constants.ID_JYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE;
     }
-    
 
     @Override
     protected IInterpreterManager getInterpreterManager(IProject project) {

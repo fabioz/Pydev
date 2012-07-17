@@ -49,7 +49,6 @@ public abstract class PyEditProjection extends TextEditor implements IParserObse
 
     public static final int PROP_FOLDING_CHANGED = -999;
 
-    
     /*
      * (non-Javadoc)
      * 
@@ -58,15 +57,14 @@ public abstract class PyEditProjection extends TextEditor implements IParserObse
     protected ISourceViewer createSourceViewer(Composite parent, IVerticalRuler ruler, int styles) {
         IOverviewRuler overviewRuler = getOverviewRuler();
         PySourceViewer viewer = new PySourceViewer(parent, ruler, overviewRuler, isOverviewRulerVisible(), styles, this);
-        
+
         //ensure decoration support has been created and configured.
         getSourceViewerDecorationSupport(viewer);
 
         return viewer;
     }
-    
-    
-    public PySourceViewer getPySourceViewer(){
+
+    public PySourceViewer getPySourceViewer() {
         return (PySourceViewer) getSourceViewer();
     }
 
@@ -77,7 +75,8 @@ public abstract class PyEditProjection extends TextEditor implements IParserObse
     protected void configureSourceViewerDecorationSupport(SourceViewerDecorationSupport support) {
         super.configureSourceViewerDecorationSupport(support);
         support.setCharacterPairMatcher(fBracketMatcher);
-        support.setMatchingCharacterPainterPreferenceKeys(PydevEditorPrefs.USE_MATCHING_BRACKETS, PydevEditorPrefs.MATCHING_BRACKETS_COLOR);
+        support.setMatchingCharacterPainterPreferenceKeys(PydevEditorPrefs.USE_MATCHING_BRACKETS,
+                PydevEditorPrefs.MATCHING_BRACKETS_COLOR);
     }
 
     public void createPartControl(Composite parent) {
@@ -130,22 +129,21 @@ public abstract class PyEditProjection extends TextEditor implements IParserObse
         if (statusLine != null)
             statusLine.setMessage(true, msg, null);
     }
-    
-    
+
     @Override
     protected IOverviewRuler createOverviewRuler(ISharedTextColors sharedColors) {
-        if(MinimapOverviewRulerPreferencesPage.useMinimap()){
-            IOverviewRuler ruler= new MinimapOverviewRuler(getAnnotationAccess(), sharedColors);
-    
-            Iterator e= getAnnotationPreferences().getAnnotationPreferences().iterator();
+        if (MinimapOverviewRulerPreferencesPage.useMinimap()) {
+            IOverviewRuler ruler = new MinimapOverviewRuler(getAnnotationAccess(), sharedColors);
+
+            Iterator e = getAnnotationPreferences().getAnnotationPreferences().iterator();
             while (e.hasNext()) {
-                AnnotationPreference preference= (AnnotationPreference) e.next();
-                if (preference.contributesToHeader()){
+                AnnotationPreference preference = (AnnotationPreference) e.next();
+                if (preference.contributesToHeader()) {
                     ruler.addHeaderAnnotationType(preference.getAnnotationType());
                 }
             }
             return ruler;
-        }else{
+        } else {
             return super.createOverviewRuler(sharedColors);
         }
     }

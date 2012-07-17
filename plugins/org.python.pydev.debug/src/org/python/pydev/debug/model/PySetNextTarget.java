@@ -31,81 +31,78 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PySetNextTarget implements ISetNextTarget {
 
-	public boolean canSetNextToLine(IWorkbenchPart part, ISelection selection,
-			ISuspendResume target) {
-		return true;
-	}
+    public boolean canSetNextToLine(IWorkbenchPart part, ISelection selection, ISuspendResume target) {
+        return true;
+    }
 
-	public boolean setNextToLine(IWorkbenchPart part, ISelection selection,
-			ISuspendResume target) throws CoreException {
-		// System.out.println("Run to line:"+target);
-		PyStackFrame stack = null;
-		if (target instanceof PyStackFrame) {
-			stack = (PyStackFrame) target;
-			target = stack.getThread();
-		}
+    public boolean setNextToLine(IWorkbenchPart part, ISelection selection, ISuspendResume target) throws CoreException {
+        // System.out.println("Run to line:"+target);
+        PyStackFrame stack = null;
+        if (target instanceof PyStackFrame) {
+            stack = (PyStackFrame) target;
+            target = stack.getThread();
+        }
 
-		if (!(part instanceof PyEdit)) {
-			return false;
-		}
+        if (!(part instanceof PyEdit)) {
+            return false;
+        }
 
-		PyEdit pyEdit = (PyEdit) part;
-		SimpleNode ast = pyEdit.getAST();
-		if (ast == null) {
-			IDocument doc = pyEdit.getDocument();
-			SourceModule sourceModule;
-			IPythonNature nature = null;
-			try {
-				nature = pyEdit.getPythonNature();
-			} catch (MisconfigurationException e) {
-				// Let's try to find a suitable nature
-				File editorFile = pyEdit.getEditorFile();
-				if (editorFile == null || !editorFile.exists()) {
-					Log.log(e);
-					return false;
-				}
-				nature = PydevPlugin.getInfoForFile(editorFile).o1;
-			}
+        PyEdit pyEdit = (PyEdit) part;
+        SimpleNode ast = pyEdit.getAST();
+        if (ast == null) {
+            IDocument doc = pyEdit.getDocument();
+            SourceModule sourceModule;
+            IPythonNature nature = null;
+            try {
+                nature = pyEdit.getPythonNature();
+            } catch (MisconfigurationException e) {
+                // Let's try to find a suitable nature
+                File editorFile = pyEdit.getEditorFile();
+                if (editorFile == null || !editorFile.exists()) {
+                    Log.log(e);
+                    return false;
+                }
+                nature = PydevPlugin.getInfoForFile(editorFile).o1;
+            }
 
-			if (nature == null) {
-				Log.log("Unable to determine nature!");
-				return false;
-			}
+            if (nature == null) {
+                Log.log("Unable to determine nature!");
+                return false;
+            }
 
-			try {
-				sourceModule = (SourceModule) AbstractModule.createModuleFromDoc("", null, doc, nature, true);
-			} catch (MisconfigurationException e) {
-				Log.log(e);
-				return false;
-			}
-			ast = sourceModule.getAst();
-		}
+            try {
+                sourceModule = (SourceModule) AbstractModule.createModuleFromDoc("", null, doc, nature, true);
+            } catch (MisconfigurationException e) {
+                Log.log(e);
+                return false;
+            }
+            ast = sourceModule.getAst();
+        }
 
-		if (ast == null) {
-			Log.log("Cannot determine context to run to.");
-			return false;
-		}
+        if (ast == null) {
+            Log.log("Cannot determine context to run to.");
+            return false;
+        }
 
-		if (target instanceof PyThread && selection instanceof ITextSelection) {
-			ITextSelection textSelection = (ITextSelection) selection;
-			PyThread pyThread = (PyThread) target;
-			if (!pyThread.isPydevThread()) {
-				int sourceLine = stack.getLineNumber();
-				int targetLine = textSelection.getStartLine();
-				if (!NodeUtils.isValidContextForSetNext(ast, sourceLine, targetLine)) {
-					return false;
-				}
-				String functionName = NodeUtils.getContextName(targetLine, ast);
-				if (functionName == null) {
-					functionName = ""; // global context
-				} else {
-					functionName = FullRepIterable.getLastPart(functionName)
-							.trim();
-				}
-				pyThread.setNextStatement(targetLine + 1, functionName);
-				return true;
-			}
-		}
-		return true;
-	}
+        if (target instanceof PyThread && selection instanceof ITextSelection) {
+            ITextSelection textSelection = (ITextSelection) selection;
+            PyThread pyThread = (PyThread) target;
+            if (!pyThread.isPydevThread()) {
+                int sourceLine = stack.getLineNumber();
+                int targetLine = textSelection.getStartLine();
+                if (!NodeUtils.isValidContextForSetNext(ast, sourceLine, targetLine)) {
+                    return false;
+                }
+                String functionName = NodeUtils.getContextName(targetLine, ast);
+                if (functionName == null) {
+                    functionName = ""; // global context
+                } else {
+                    functionName = FullRepIterable.getLastPart(functionName).trim();
+                }
+                pyThread.setNextStatement(targetLine + 1, functionName);
+                return true;
+            }
+        }
+        return true;
+    }
 }

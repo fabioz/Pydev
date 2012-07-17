@@ -23,13 +23,13 @@ public class InformationPresenterWithLineTracker extends AbstractTooltipInformat
             return;
         }
 
-      //now, after the line tracker, let's also add a bold to the first words (until a space), as that's the
+        //now, after the line tracker, let's also add a bold to the first words (until a space), as that's the
         //name of the test.
-        
+
         //(the first line is: TestName Status: status Time: time\n\n)
         //See: org.python.pydev.debug.pyunit.PyUnitView.notifyTest(PyUnitTestResult, boolean)
         int firstSpace = hoverInfo.indexOf(' ');
-        if(firstSpace > 0){
+        if (firstSpace > 0) {
             StyleRangeWithCustomData range = new StyleRangeWithCustomData();
             range.fontStyle = SWT.BOLD;
             range.underline = true;
@@ -40,16 +40,16 @@ public class InformationPresenterWithLineTracker extends AbstractTooltipInformat
             }
             range.start = 0;
             range.length = firstSpace;
-            if(this.data instanceof PyUnitTestResult){
+            if (this.data instanceof PyUnitTestResult) {
                 final PyUnitTestResult pyUnitTestResult = (PyUnitTestResult) this.data;
                 range.customData = new IHyperlink() {
-                    
+
                     public void linkExited() {
                     }
-                    
+
                     public void linkEntered() {
                     }
-                    
+
                     public void linkActivated() {
                         pyUnitTestResult.open();
                     }
@@ -57,8 +57,7 @@ public class InformationPresenterWithLineTracker extends AbstractTooltipInformat
             }
             presentation.addStyleRange(range);
         }
-        
-        
+
         PythonConsoleLineTracker lineTracker = new PythonConsoleLineTracker();
         lineTracker.init(new ILinkContainer() {
 
@@ -74,10 +73,10 @@ public class InformationPresenterWithLineTracker extends AbstractTooltipInformat
                 //Set the proper color if it's available -- we don't do that here because our background is
                 //the default (usually yellow), so, there's no point in changing it to the theme. An option
                 //could be setting the theme for the popup, but we're not doing that now.
-//                TextAttribute textAttribute = ColorManager.getDefault().getHyperlinkTextAttribute();
-//                if (textAttribute != null) {
-//                    range.foreground = textAttribute.getForeground();
-//                }
+                //                TextAttribute textAttribute = ColorManager.getDefault().getHyperlinkTextAttribute();
+                //                if (textAttribute != null) {
+                //                    range.foreground = textAttribute.getForeground();
+                //                }
                 range.start = offset;
                 range.length = length + 1;
                 range.customData = link;
@@ -96,13 +95,12 @@ public class InformationPresenterWithLineTracker extends AbstractTooltipInformat
 
     @Override
     protected void onHandleClick(Object data) {
-        if(data instanceof IHyperlink){
+        if (data instanceof IHyperlink) {
             //The order is important (when activating it'll do a hide automatically,
             //but we want to do a hide without focusing the previous editor).
             this.hideInformationControl(false, false);
             ((IHyperlink) data).linkActivated();
         }
     }
-    
 
 }

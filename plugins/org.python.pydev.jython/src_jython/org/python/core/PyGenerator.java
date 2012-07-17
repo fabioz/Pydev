@@ -2,7 +2,6 @@
 
 package org.python.core;
 
-
 public class PyGenerator extends PyIterator {
     public PyFrame gi_frame;
     PyObject closure;
@@ -14,9 +13,7 @@ public class PyGenerator extends PyIterator {
         this.gi_running = false;
     }
 
-    private static final String[] __members__ = {
-        "gi_frame", "gi_running", "next",
-    };
+    private static final String[] __members__ = { "gi_frame", "gi_running", "next", };
 
     public PyObject __dir__() {
         PyString members[] = new PyString[__members__.length];
@@ -39,19 +36,19 @@ public class PyGenerator extends PyIterator {
         PyObject result = null;
         try {
             result = gi_frame.f_code.call(gi_frame, closure);
-        } catch(PyException e) {
-            if(!e.type.equals(Py.StopIteration)) {
+        } catch (PyException e) {
+            if (!e.type.equals(Py.StopIteration)) {
                 throw e;
-            }else{
+            } else {
                 stopException = e;
                 return null;
             }
         } finally {
             gi_running = false;
         }
-//        System.out.println("lasti:" + gi_frame.f_lasti);
-//if (result == Py.None)
-//    new Exception().printStackTrace();
+        //        System.out.println("lasti:" + gi_frame.f_lasti);
+        //if (result == Py.None)
+        //    new Exception().printStackTrace();
         if (result == Py.None && gi_frame.f_lasti == -1)
             return null;
         return result;

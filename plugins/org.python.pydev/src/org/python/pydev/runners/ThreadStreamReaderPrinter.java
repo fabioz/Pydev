@@ -22,7 +22,6 @@ public class ThreadStreamReaderPrinter extends Thread {
     InputStream is;
     FastStringBuffer contents;
 
-    
     public ThreadStreamReaderPrinter(InputStream is) {
         contents = new FastStringBuffer();
         setName("ThreadStreamReaderPrinter");
@@ -35,11 +34,11 @@ public class ThreadStreamReaderPrinter extends Thread {
             BufferedReader in = new BufferedReader(isr);
             int c;
             while ((c = in.read()) != -1) {
-                if(DEBUG){
+                if (DEBUG) {
                     contents.append((char) c);
                 }
             }
-            if(DEBUG){
+            if (DEBUG) {
                 System.out.print(contents);
                 contents = new FastStringBuffer();
             }

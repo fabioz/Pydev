@@ -23,30 +23,30 @@ import org.python.pydev.editor.PyEdit.MyResources;
  * @author Fabio
  */
 public class PyEditNotifier {
-    
+
     private WeakReference<PyEdit> pyEdit;
 
-    public static interface INotifierRunnable{
+    public static interface INotifierRunnable {
         public void run(IProgressMonitor monitor);
     }
-    
-    public PyEditNotifier(PyEdit edit){
+
+    public PyEditNotifier(PyEdit edit) {
         this.pyEdit = new WeakReference<PyEdit>(edit);
     }
-    
+
     /**
      * Notifies listeners that the actions have just been created in the editor.
      */
     public void notifyOnCreateActions(final MyResources resources) {
         final PyEdit edit = pyEdit.get();
-        if(edit == null){
+        if (edit == null) {
             return;
         }
-        INotifierRunnable runnable = new INotifierRunnable(){
-            public void run(final IProgressMonitor monitor){
-                for(IPyEditListener listener : edit.getAllListeners()){
+        INotifierRunnable runnable = new INotifierRunnable() {
+            public void run(final IProgressMonitor monitor) {
+                for (IPyEditListener listener : edit.getAllListeners()) {
                     try {
-                        if(!monitor.isCanceled()){
+                        if (!monitor.isCanceled()) {
                             listener.onCreateActions(resources, edit, monitor);
                         }
                     } catch (Exception e) {
@@ -64,14 +64,14 @@ public class PyEditNotifier {
      */
     public void notifyOnSave() {
         final PyEdit edit = pyEdit.get();
-        if(edit == null){
+        if (edit == null) {
             return;
         }
-        INotifierRunnable runnable = new INotifierRunnable(){
-            public void run(IProgressMonitor monitor){
-                for(IPyEditListener listener : edit.getAllListeners()){
+        INotifierRunnable runnable = new INotifierRunnable() {
+            public void run(IProgressMonitor monitor) {
+                for (IPyEditListener listener : edit.getAllListeners()) {
                     try {
-                        if(!monitor.isCanceled()){
+                        if (!monitor.isCanceled()) {
                             listener.onSave(edit, monitor);
                         }
                     } catch (Throwable e) {
@@ -91,14 +91,14 @@ public class PyEditNotifier {
      * @param runnable the runnable to be run.
      */
     private void runIt(final INotifierRunnable runnable) {
-        Job job = new Job("PyEditNotifier"){
+        Job job = new Job("PyEditNotifier") {
 
             @Override
             protected IStatus run(IProgressMonitor monitor) {
                 runnable.run(monitor);
                 return Status.OK_STATUS;
             }
-            
+
         };
         job.setPriority(Job.SHORT);
         job.setSystem(true);
@@ -110,15 +110,15 @@ public class PyEditNotifier {
      */
     public void notifyOnDispose() {
         final PyEdit edit = pyEdit.get();
-        if(edit == null){
+        if (edit == null) {
             return;
         }
-        
-        INotifierRunnable runnable = new INotifierRunnable(){
-            public void run(IProgressMonitor monitor){
-                for(IPyEditListener listener : edit.getAllListeners()){
+
+        INotifierRunnable runnable = new INotifierRunnable() {
+            public void run(IProgressMonitor monitor) {
+                for (IPyEditListener listener : edit.getAllListeners()) {
                     try {
-                        if(!monitor.isCanceled()){
+                        if (!monitor.isCanceled()) {
                             listener.onDispose(edit, monitor);
                         }
                     } catch (Throwable e) {
@@ -135,14 +135,14 @@ public class PyEditNotifier {
      */
     public void notifyOnSetDocument(final IDocument document) {
         final PyEdit edit = pyEdit.get();
-        if(edit == null){
+        if (edit == null) {
             return;
         }
-        INotifierRunnable runnable = new INotifierRunnable(){
-            public void run(IProgressMonitor monitor){
-                for(IPyEditListener listener : edit.getAllListeners()){
+        INotifierRunnable runnable = new INotifierRunnable() {
+            public void run(IProgressMonitor monitor) {
+                for (IPyEditListener listener : edit.getAllListeners()) {
                     try {
-                        if(!monitor.isCanceled()){
+                        if (!monitor.isCanceled()) {
                             listener.onSetDocument(document, edit, monitor);
                         }
                     } catch (Exception e) {
@@ -163,16 +163,16 @@ public class PyEditNotifier {
      */
     public void notifyInputChanged(final IEditorInput oldInput, final IEditorInput input) {
         final PyEdit edit = pyEdit.get();
-        if(edit == null){
+        if (edit == null) {
             return;
         }
-        INotifierRunnable runnable = new INotifierRunnable(){
-            public void run(IProgressMonitor monitor){
-                for(IPyEditListener listener : edit.getAllListeners()){
-                    if(listener instanceof IPyEditListener3){
+        INotifierRunnable runnable = new INotifierRunnable() {
+            public void run(IProgressMonitor monitor) {
+                for (IPyEditListener listener : edit.getAllListeners()) {
+                    if (listener instanceof IPyEditListener3) {
                         IPyEditListener3 pyEditListener3 = (IPyEditListener3) listener;
                         try {
-                            if(!monitor.isCanceled()){
+                            if (!monitor.isCanceled()) {
                                 pyEditListener3.onInputChanged(edit, oldInput, input, monitor);
                             }
                         } catch (Exception e) {
@@ -185,17 +185,16 @@ public class PyEditNotifier {
         };
         runIt(runnable);
     }
-    
 
-	public void notifyEditorCreated() {
-		//Note that it's not done on a Job as in the other cases!
+    public void notifyEditorCreated() {
+        //Note that it's not done on a Job as in the other cases!
         final PyEdit edit = pyEdit.get();
-        if(edit == null){
+        if (edit == null) {
             return;
         }
-        for(IPyEditListener listener : edit.getAllListeners(false)){
-            if(listener instanceof IPyEditListener4){
-            	IPyEditListener4 pyEditListener4 = (IPyEditListener4) listener;
+        for (IPyEditListener listener : edit.getAllListeners(false)) {
+            if (listener instanceof IPyEditListener4) {
+                IPyEditListener4 pyEditListener4 = (IPyEditListener4) listener;
                 try {
                     pyEditListener4.onEditorCreated(edit);
                 } catch (Exception e) {
@@ -204,6 +203,6 @@ public class PyEditNotifier {
                 }
             }
         }
-	}
+    }
 
 }

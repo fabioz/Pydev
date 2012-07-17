@@ -44,7 +44,8 @@ import org.python.pydev.plugin.PydevPlugin;
  * 
  * Build order based on org.eclipse.jdt.launching.AbstractJavaLaunchConfigurationDelegate
  */
-public abstract class AbstractLaunchConfigurationDelegate extends LaunchConfigurationDelegate implements ILaunchConfigurationDelegate {
+public abstract class AbstractLaunchConfigurationDelegate extends LaunchConfigurationDelegate implements
+        ILaunchConfigurationDelegate {
 
     private IProject[] fOrderedProjects;
 
@@ -64,20 +65,21 @@ public abstract class AbstractLaunchConfigurationDelegate extends LaunchConfigur
      *      java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
      */
     @Override
-    public boolean preLaunchCheck(ILaunchConfiguration configuration, String mode, IProgressMonitor monitor) throws CoreException {
+    public boolean preLaunchCheck(ILaunchConfiguration configuration, String mode, IProgressMonitor monitor)
+            throws CoreException {
         // build project list
         fOrderedProjects = null;
-        
+
         String projName = configuration.getAttribute(Constants.ATTR_PROJECT, "");
-        if(projName.length() > 0){
-            
+        if (projName.length() > 0) {
+
             IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projName);
 
             if (project != null) {
                 fOrderedProjects = computeReferencedBuildOrder(new IProject[] { project });
             }
         }
-        
+
         // do generic launch checks
         return super.preLaunchCheck(configuration, mode, monitor);
     }
@@ -88,7 +90,8 @@ public abstract class AbstractLaunchConfigurationDelegate extends LaunchConfigur
      * Modelled after Ant & Java runners
      * see WorkbenchLaunchConfigurationDelegate::launch
      */
-    public void launch(ILaunchConfiguration conf, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
+    public void launch(ILaunchConfiguration conf, String mode, ILaunch launch, IProgressMonitor monitor)
+            throws CoreException {
 
         if (monitor == null) {
             monitor = new NullProgressMonitor();
@@ -98,43 +101,42 @@ public abstract class AbstractLaunchConfigurationDelegate extends LaunchConfigur
 
         try {
             PythonRunnerConfig runConfig = new PythonRunnerConfig(conf, mode, getRunnerConfigRun(conf, mode, launch));
-    
+
             monitor.worked(1);
             try {
                 PythonRunner.run(runConfig, launch, monitor);
             } catch (IOException e) {
                 Log.log(e);
                 finishLaunchWithError(launch);
-                throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected IO Exception in Pydev debugger", null));
+                throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR,
+                        "Unexpected IO Exception in Pydev debugger", null));
             }
-        }catch(final InvalidRunException e){
+        } catch (final InvalidRunException e) {
             handleError(launch, e);
-        }catch(final MisconfigurationException e){
+        } catch (final MisconfigurationException e) {
             handleError(launch, e);
         }
     }
-    
 
     private void handleError(ILaunch launch, final Exception e) {
-        Display.getDefault().asyncExec(new Runnable(){
+        Display.getDefault().asyncExec(new Runnable() {
 
             public void run() {
-                ErrorDialog.openError(PyAction.getShell(), "Invalid launch configuration", 
-                        "Unable to make launch because launch configuration is not valid", 
+                ErrorDialog.openError(PyAction.getShell(), "Invalid launch configuration",
+                        "Unable to make launch because launch configuration is not valid",
                         PydevPlugin.makeStatus(IStatus.ERROR, e.getMessage(), e));
             }
         });
         finishLaunchWithError(launch);
     }
-    
 
     private void finishLaunchWithError(ILaunch launch) {
-        try{
+        try {
             launch.terminate();
-            
+
             ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
             launchManager.removeLaunch(launch);
-        }catch(Throwable x){
+        } catch (Throwable x) {
             Log.log(x);
         }
     }

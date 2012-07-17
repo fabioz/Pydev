@@ -59,14 +59,15 @@ class DirectoryWatcher {
     private static final long DEFAULT_POLL_FREQUENCY = 10000;
 
     private final File[] directories;
-    private ListenerList<DirectoryChangeListener> listeners = new ListenerList<DirectoryChangeListener>(DirectoryChangeListener.class);
+    private ListenerList<DirectoryChangeListener> listeners = new ListenerList<DirectoryChangeListener>(
+            DirectoryChangeListener.class);
     private Set<File> scannedFiles = new HashSet<File>();
     private Set<File> removals;
     private WatcherThread watcher;
     private boolean watchSubdirs;
 
     DirectoryWatcher(File directory, boolean watchSubtree) {
-        if (directory == null){
+        if (directory == null) {
             throw new IllegalArgumentException("Null folder");
         }
 
@@ -93,7 +94,7 @@ class DirectoryWatcher {
     }
 
     private synchronized void start(final long pollFrequency) {
-        if (watcher != null){
+        if (watcher != null) {
             throw new IllegalStateException("Thread already started");
         }
 
@@ -102,7 +103,7 @@ class DirectoryWatcher {
     }
 
     synchronized void stop() {
-        if (watcher == null){
+        if (watcher == null) {
             throw new IllegalStateException("Unable to stop (thread not started)");
         }
 
@@ -124,7 +125,7 @@ class DirectoryWatcher {
     private void startPoll() {
         removals = scannedFiles;
         scannedFiles = new HashSet<File>();
-        for (DirectoryChangeListener l : listeners.getListeners()){
+        for (DirectoryChangeListener l : listeners.getListeners()) {
             l.startPoll();
         }
     }
@@ -137,11 +138,11 @@ class DirectoryWatcher {
     }
 
     private void scanDirectoryRecursively(File directory) {
-        if (directory == null){
+        if (directory == null) {
             return;
         }
         File list[] = directory.listFiles();
-        if (list == null){
+        if (list == null) {
             return;
         }
         for (int i = 0; i < list.length; i++) {
@@ -151,7 +152,7 @@ class DirectoryWatcher {
             // removed at the end. Then notify all the listeners as needed.
             scannedFiles.add(file);
             removals.remove(file);
-            for (DirectoryChangeListener listener : listeners.getListeners()){
+            for (DirectoryChangeListener listener : listeners.getListeners()) {
                 if (isInterested(listener, file))
                     processFile(file, listener);
             }
@@ -164,7 +165,7 @@ class DirectoryWatcher {
     private void stopPoll() {
         notifyRemovals();
         removals = scannedFiles;
-        for (DirectoryChangeListener l : listeners.getListeners()){
+        for (DirectoryChangeListener l : listeners.getListeners()) {
             l.stopPoll();
         }
     }
@@ -178,10 +179,10 @@ class DirectoryWatcher {
      */
     private void notifyRemovals() {
         Set<File> removed = removals;
-        for (DirectoryChangeListener listener : listeners.getListeners()){
+        for (DirectoryChangeListener listener : listeners.getListeners()) {
             for (Iterator<File> j = removed.iterator(); j.hasNext();) {
                 File file = j.next();
-                if (isInterested(listener, file)){
+                if (isInterested(listener, file)) {
                     listener.removed(file);
                 }
             }
@@ -197,7 +198,7 @@ class DirectoryWatcher {
             } else {
                 // The file is not new but may have changed
                 long lastModified = file.lastModified();
-                if (oldTimestamp.longValue() != lastModified){
+                if (oldTimestamp.longValue() != lastModified) {
                     listener.changed(file);
                 }
             }

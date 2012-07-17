@@ -16,24 +16,23 @@ import org.python.pydev.core.structure.FastStringBuffer;
 /**
  * Base implementation for an information presenter.
  */
-public abstract class AbstractInformationPresenter implements DefaultInformationControl.IInformationPresenter, DefaultInformationControl.IInformationPresenterExtension, IInformationPresenterAsTooltip {
+public abstract class AbstractInformationPresenter implements DefaultInformationControl.IInformationPresenter,
+        DefaultInformationControl.IInformationPresenterExtension, IInformationPresenterAsTooltip {
 
-    
     /**
      * The line delimiter that should be used in the tooltip.
      */
     public static final String LINE_DELIM = System.getProperty("line.separator", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
     protected IInformationPresenterControlManager informationPresenterControlManager;
     protected Object data;
-    
-    
+
     /**
      * This method shouldn't really be used, but if it is, just forward it to the new method.
      */
-    public String updatePresentation(Display display, String hoverInfo, TextPresentation presentation, int maxWidth, int maxHeight) {
-        return updatePresentation((Drawable)display, hoverInfo, presentation, maxWidth, maxHeight);
+    public String updatePresentation(Display display, String hoverInfo, TextPresentation presentation, int maxWidth,
+            int maxHeight) {
+        return updatePresentation((Drawable) display, hoverInfo, presentation, maxWidth, maxHeight);
     }
-
 
     /**
      * The line delimiters must match the platform for the bolds to be correct, so, in this function we remove
@@ -41,15 +40,15 @@ public abstract class AbstractInformationPresenter implements DefaultInformation
      */
     protected String correctLineDelimiters(String str) {
         FastStringBuffer buf = new FastStringBuffer();
-        for(String s:StringUtils.splitInLines(str)){
-            
+        for (String s : StringUtils.splitInLines(str)) {
+
             boolean found = false;
-            while(s.endsWith("\r") || s.endsWith("\n")){
+            while (s.endsWith("\r") || s.endsWith("\n")) {
                 found = true;
-                s = s.substring(0, s.length()-1);
+                s = s.substring(0, s.length() - 1);
             }
             buf.append(s);
-            if(found){
+            if (found) {
                 buf.append(LINE_DELIM);
             }
         }
@@ -57,17 +56,18 @@ public abstract class AbstractInformationPresenter implements DefaultInformation
         return str;
     }
 
-    public void setInformationPresenterControlManager(IInformationPresenterControlManager informationPresenterControlManager){
+    public void setInformationPresenterControlManager(
+            IInformationPresenterControlManager informationPresenterControlManager) {
         this.informationPresenterControlManager = informationPresenterControlManager;
     }
-    
+
     public void hideInformationControl(boolean activateEditor, boolean restoreFocus) {
-        if(this.informationPresenterControlManager != null){
+        if (this.informationPresenterControlManager != null) {
             this.informationPresenterControlManager.hideInformationControl(activateEditor, restoreFocus);
         }
     }
-    
-    public void setData(Object data){
+
+    public void setData(Object data) {
         this.data = data;
     }
 

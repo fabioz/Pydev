@@ -13,6 +13,6 @@ import org.python.pydev.debug.ui.launching.RegularLaunchConfigurationDelegate;
  * 
  * @author Fabio
  */
-public class AppEngineLaunchConfigurationDelegate extends RegularLaunchConfigurationDelegate{
+public class AppEngineLaunchConfigurationDelegate extends RegularLaunchConfigurationDelegate {
 
 }

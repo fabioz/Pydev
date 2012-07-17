@@ -19,15 +19,15 @@ import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.plugin.PydevPlugin;
 
 public class PyAddSingleBlockComment extends AbstractBlockCommentAction {
-    
-    public PyAddSingleBlockComment(){
+
+    public PyAddSingleBlockComment() {
         //default
     }
-    
+
     /**
      * For tests: assigns the default values
      */
-    PyAddSingleBlockComment(int defaultCols, boolean alignLeft){
+    PyAddSingleBlockComment(int defaultCols, boolean alignLeft) {
         super(defaultCols, alignLeft);
     }
 
@@ -49,29 +49,29 @@ public class PyAddSingleBlockComment extends AbstractBlockCommentAction {
             // For each line, comment them out
             for (i = ps.getStartLineIndex(); i <= ps.getEndLineIndex(); i++) {
                 String line = StringUtils.rightTrim(ps.getLine(i));
-                if(getAlignRight()){
+                if (getAlignRight()) {
                     strbuf.append(getRightAlignedFullCommentLine(line));
                     strbuf.append(line.trim());
-                    if(i != ps.getEndLineIndex()){
+                    if (i != ps.getEndLineIndex()) {
                         strbuf.append(ps.getEndLineDelim());
                     }
-                }else{
-                    Tuple<Integer,Character> colsAndChar = getColsAndChar();
+                } else {
+                    Tuple<Integer, Character> colsAndChar = getColsAndChar();
                     int cols = colsAndChar.o1;
                     char c = colsAndChar.o2;
-                    
+
                     FastStringBuffer buffer = makeBufferToIndent(line, cols);
                     int lenOfStrWithTabsAsSpaces = getLenOfStrConsideringTabEditorLen(buffer.toString());
                     int diff = lenOfStrWithTabsAsSpaces - buffer.length();
-                    
+
                     buffer.append("# ");
                     buffer.append(line.trim());
                     buffer.append(' ');
-                    while(buffer.length()+diff < cols){
+                    while (buffer.length() + diff < cols) {
                         buffer.append(c);
                     }
                     strbuf.append(buffer);
-                    if(i != ps.getEndLineIndex()){
+                    if (i != ps.getEndLineIndex()) {
                         strbuf.append(ps.getEndLineDelim());
                     }
                 }
@@ -81,7 +81,7 @@ public class PyAddSingleBlockComment extends AbstractBlockCommentAction {
             String str = strbuf.toString();
             // Replace the text with the modified information
             ps.getDoc().replace(startOffset, ps.getSelLength(), str);
-            return startOffset+str.length();
+            return startOffset + str.length();
         } catch (Exception e) {
             beep(e);
         }
@@ -92,10 +92,10 @@ public class PyAddSingleBlockComment extends AbstractBlockCommentAction {
 
     private boolean getAlignRight() {
         PydevPlugin plugin = PydevPlugin.getDefault();
-        if(plugin != null){
+        if (plugin != null) {
             return plugin.getPluginPreferences().getBoolean(CommentBlocksPreferences.SINGLE_BLOCK_COMMENT_ALIGN_RIGHT);
-            
-        }else{ //tests env
+
+        } else { //tests env
             return this.alignRight;
         }
     }
@@ -113,30 +113,29 @@ public class PyAddSingleBlockComment extends AbstractBlockCommentAction {
      * @return Comment line string, or a default one if Preferences are null
      */
     protected String getRightAlignedFullCommentLine(String line) {
-        Tuple<Integer,Character> colsAndChar = getColsAndChar();
+        Tuple<Integer, Character> colsAndChar = getColsAndChar();
         int cols = colsAndChar.o1;
         char c = colsAndChar.o2;
-        
-        FastStringBuffer buffer = makeBufferToIndent(line, cols);     
+
+        FastStringBuffer buffer = makeBufferToIndent(line, cols);
         int lenOfStrWithTabsAsSpaces = getLenOfStrConsideringTabEditorLen(buffer.toString());
         int diff = lenOfStrWithTabsAsSpaces - buffer.length();
-        
+
         buffer.append("#");
-        for (int i = 0; i + line.length()+ diff < cols - 2; i++) {
+        for (int i = 0; i + line.length() + diff < cols - 2; i++) {
             buffer.append(c);
         }
         buffer.append(" ");
         return buffer.toString();
     }
 
-    
     private FastStringBuffer makeBufferToIndent(String line, int cols) {
         FastStringBuffer buffer = new FastStringBuffer(cols);
         for (int i = 0; i < line.length(); i++) {
             char ch = line.charAt(i);
-            if(ch == '\t' || ch == ' '){
+            if (ch == '\t' || ch == ' ') {
                 buffer.append(ch);
-            }else{
+            } else {
                 break;
             }
         }

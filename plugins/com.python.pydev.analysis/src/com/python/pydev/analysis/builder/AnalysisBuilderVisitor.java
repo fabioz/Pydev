@@ -32,197 +32,194 @@ import org.python.pydev.plugin.nature.PythonNature;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 
-public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
+public class AnalysisBuilderVisitor extends PyDevBuilderVisitor {
 
     @Override
     protected int getPriority() {
-        return PyCodeCompletionVisitor.PRIORITY_CODE_COMPLETION+1; //just after the code-completion priority
+        return PyCodeCompletionVisitor.PRIORITY_CODE_COMPLETION + 1; //just after the code-completion priority
     }
-    
-    
+
     @Override
-    public void visitChangedResource(final IResource resource, final ICallback0<IDocument> document, final IProgressMonitor monitor) {
+    public void visitChangedResource(final IResource resource, final ICallback0<IDocument> document,
+            final IProgressMonitor monitor) {
         visitChangedResource(resource, document, monitor, false);
     }
-    
-    public void visitChangedResource(final IResource resource, final ICallback0<IDocument> document, final IProgressMonitor monitor, boolean forceAnalysis) {
+
+    public void visitChangedResource(final IResource resource, final ICallback0<IDocument> document,
+            final IProgressMonitor monitor, boolean forceAnalysis) {
         //we may need to 'force' the analysis when a module is renamed, because the first message we receive is
         //a 'delete' and after that an 'add' -- which is later mapped to this method, so, if we don't have info
         //on the module we should analyze it because it is 'probably' a rename.
         final PythonNature nature = getPythonNature(resource);
-        if(nature == null){
+        if (nature == null) {
             return;
         }
-        
+
         //Put things from the memo to final variables as we might need them later on and we cannot get them from
         //the memo later.
         final String moduleName;
         final SourceModule module;
         final IDocument doc;
-        try{
+        try {
             doc = document.call();
-            if(doc == null){
-            	return;
+            if (doc == null) {
+                return;
             }
-            
+
             moduleName = getModuleName(resource, nature);
             module = getSourceModule(resource, doc, nature);
-        }catch(MisconfigurationException e){
+        } catch (MisconfigurationException e) {
             Log.log(e);
             return;
         }
-        
+
         //depending on the level of analysis we have to do, we'll decide whether we want
         //to make the full parse (slower) or the definitions parse (faster but only with info
         //related to the definitions)
-        ICallback<IModule, Integer> moduleCallback = new ICallback<IModule, Integer>(){
+        ICallback<IModule, Integer> moduleCallback = new ICallback<IModule, Integer>() {
 
-			public IModule call(Integer arg) {
-			    
-			    //Note: we cannot get anything from the memo at this point because it'll be called later on from a thread
-			    //and the memo might have changed already (E.g: moduleName and module)
-			    
-				if(arg == IAnalysisBuilderRunnable.FULL_MODULE){
-				    if(module != null){
-				        return module;
-				    }else{
-				        try{
+            public IModule call(Integer arg) {
+
+                //Note: we cannot get anything from the memo at this point because it'll be called later on from a thread
+                //and the memo might have changed already (E.g: moduleName and module)
+
+                if (arg == IAnalysisBuilderRunnable.FULL_MODULE) {
+                    if (module != null) {
+                        return module;
+                    } else {
+                        try {
                             return createSoureModule(resource, doc, moduleName);
-                        }catch(MisconfigurationException e){
+                        } catch (MisconfigurationException e) {
                             throw new RuntimeException(e);
                         }
-				    }
-					
-				}else if(arg == IAnalysisBuilderRunnable.DEFINITIONS_MODULE){
-	                if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-	                    Log.toLogFile(this, "PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
-	                }
-	                IFile f = (IFile) resource;
-	                String file = f.getRawLocation().toOSString();
-	                return new SourceModule(moduleName, new File(file), 
-	                        FastDefinitionsParser.parse(doc.get(), moduleName), null);
-	                
-				}else{
-					throw new RuntimeException("Unexpected parameter: "+arg);
-				}
-			}
-		};
-		
-		long documentTime = this.getDocumentTime();
-		if(documentTime == -1){
-		    Log.log("Warning: The document time in the visitor is -1. Changing for current time.");
-		    documentTime = System.currentTimeMillis();
-		}
-        doVisitChangedResource(nature, resource, doc, moduleCallback, null, monitor, forceAnalysis, 
+                    }
+
+                } else if (arg == IAnalysisBuilderRunnable.DEFINITIONS_MODULE) {
+                    if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
+                        Log.toLogFile(this, "PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
+                    }
+                    IFile f = (IFile) resource;
+                    String file = f.getRawLocation().toOSString();
+                    return new SourceModule(moduleName, new File(file), FastDefinitionsParser.parse(doc.get(),
+                            moduleName), null);
+
+                } else {
+                    throw new RuntimeException("Unexpected parameter: " + arg);
+                }
+            }
+        };
+
+        long documentTime = this.getDocumentTime();
+        if (documentTime == -1) {
+            Log.log("Warning: The document time in the visitor is -1. Changing for current time.");
+            documentTime = System.currentTimeMillis();
+        }
+        doVisitChangedResource(nature, resource, doc, moduleCallback, null, monitor, forceAnalysis,
                 AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER, documentTime);
     }
-    
-
 
     /**
      * here we have to detect errors / warnings from the code analysis
      * Either the module callback or the module must be set.
      */
-    public void doVisitChangedResource(IPythonNature nature, IResource resource, IDocument document, 
-    		ICallback<IModule, Integer> moduleCallback, final IModule module, IProgressMonitor monitor, boolean forceAnalysis,
-            int analysisCause, long documentTime) {
-        if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-            if(analysisCause == AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER){
-                System.out.println("doVisitChangedResource: BUILDER -- "+documentTime);
-            }else{
-                System.out.println("doVisitChangedResource: PARSER -- "+documentTime);
+    public void doVisitChangedResource(IPythonNature nature, IResource resource, IDocument document,
+            ICallback<IModule, Integer> moduleCallback, final IModule module, IProgressMonitor monitor,
+            boolean forceAnalysis, int analysisCause, long documentTime) {
+        if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
+            if (analysisCause == AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER) {
+                System.out.println("doVisitChangedResource: BUILDER -- " + documentTime);
+            } else {
+                System.out.println("doVisitChangedResource: PARSER -- " + documentTime);
             }
         }
-        
-        
-        if(module != null){
-        	if(moduleCallback != null){
-        		Log.log("Only the module or the moduleCallback must be specified for: "+resource);
-        		return;
-        	}
-        	setModuleInCache(resource, module);
-        	
-        	moduleCallback = new ICallback<IModule, Integer>(){
-        		
-        		public IModule call(Integer arg) {
-        			return module;
-        		}};
-        }else{
-        	//don't set module in the cache if we only have the callback
-        	//moduleCallback is already defined
-        	if(moduleCallback == null){
-        		Log.log("Either the module or the moduleCallback must be specified for: "+resource);
-        		return;
-        	}
+
+        if (module != null) {
+            if (moduleCallback != null) {
+                Log.log("Only the module or the moduleCallback must be specified for: " + resource);
+                return;
+            }
+            setModuleInCache(resource, module);
+
+            moduleCallback = new ICallback<IModule, Integer>() {
+
+                public IModule call(Integer arg) {
+                    return module;
+                }
+            };
+        } else {
+            //don't set module in the cache if we only have the callback
+            //moduleCallback is already defined
+            if (moduleCallback == null) {
+                Log.log("Either the module or the moduleCallback must be specified for: " + resource);
+                return;
+            }
         }
-        
+
         String moduleName;
-        try{
+        try {
             moduleName = getModuleName(resource, nature);
-        }catch(MisconfigurationException e){
+        } catch (MisconfigurationException e) {
             Log.log(e);
             return;
         }
-        
-        final IAnalysisBuilderRunnable runnable = AnalysisBuilderRunnableFactory.createRunnable(
-                document, resource, moduleCallback, isFullBuild(), moduleName, 
-                forceAnalysis, analysisCause, nature, documentTime, resource.getModificationStamp());
-       
-        if(runnable == null){
+
+        final IAnalysisBuilderRunnable runnable = AnalysisBuilderRunnableFactory.createRunnable(document, resource,
+                moduleCallback, isFullBuild(), moduleName, forceAnalysis, analysisCause, nature, documentTime,
+                resource.getModificationStamp());
+
+        if (runnable == null) {
             //It may be null if the document version of the new one is lower than one already active.
             return;
         }
-        
+
         execRunnable(moduleName, runnable);
     }
-
 
     /**
      * Depending on whether we're in a full build or delta build, this method will run the runnable directly
      * or schedule it as a job.
      */
     private void execRunnable(final String moduleName, final IAnalysisBuilderRunnable runnable) {
-        if(isFullBuild()){
+        if (isFullBuild()) {
             runnable.run();
-        }else{
-            RunnableAsJobsPoolThread.getSingleton().scheduleToRun(runnable, "PyDev: Code Analysis:"+moduleName);
+        } else {
+            RunnableAsJobsPoolThread.getSingleton().scheduleToRun(runnable, "PyDev: Code Analysis:" + moduleName);
         }
     }
-
 
     @Override
     public void visitRemovedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {
         PythonNature nature = getPythonNature(resource);
-        if(nature == null){
+        if (nature == null) {
             return;
         }
-        if(resource.getType() == IResource.FOLDER){
+        if (resource.getType() == IResource.FOLDER) {
             //We don't need to explicitly treat any folder (just its children -- such as __init__ and submodules)
             return;
         }
-        if(!isFullBuild()){
+        if (!isFullBuild()) {
             //on a full build, it'll already remove all the info
             String moduleName;
-            try{
+            try {
                 moduleName = getModuleName(resource, nature);
-            }catch(MisconfigurationException e){
+            } catch (MisconfigurationException e) {
                 Log.log(e);
                 return;
             }
-            
+
             long documentTime = this.getDocumentTime();
-            if(documentTime == -1){
-                Log.log("Warning: The document time in the visitor for remove is -1. Changing for current time. " +
-                		"Resource: "+resource+". Module name: "+moduleName);
+            if (documentTime == -1) {
+                Log.log("Warning: The document time in the visitor for remove is -1. Changing for current time. "
+                        + "Resource: " + resource + ". Module name: " + moduleName);
                 documentTime = System.currentTimeMillis();
             }
             long resourceModificationStamp = resource.getModificationStamp();
-            
-            
-            final IAnalysisBuilderRunnable runnable = AnalysisBuilderRunnableFactory.createRunnable(
-                    moduleName, nature, isFullBuild(), false, AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER, documentTime, resourceModificationStamp);
-            
-            if(runnable == null){
+
+            final IAnalysisBuilderRunnable runnable = AnalysisBuilderRunnableFactory.createRunnable(moduleName, nature,
+                    isFullBuild(), false, AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER, documentTime,
+                    resourceModificationStamp);
+
+            if (runnable == null) {
                 //It may be null if the document version of the new one is lower than one already active.
                 return;
             }
@@ -230,24 +227,20 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
             execRunnable(moduleName, runnable);
         }
     }
-    
 
     @Override
     public void visitingWillStart(IProgressMonitor monitor, boolean isFullBuild, IPythonNature nature) {
-        if(isFullBuild){
+        if (isFullBuild) {
             AbstractAdditionalDependencyInfo info;
-			try {
-				info = AdditionalProjectInterpreterInfo.
-				    getAdditionalInfoForProject(nature);
-			} catch (MisconfigurationException e) {
-				Log.log(e);
-				return;
-			}
-            
+            try {
+                info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
+            } catch (MisconfigurationException e) {
+                Log.log(e);
+                return;
+            }
+
             info.clearAllInfo();
         }
     }
-    
-
 
 }

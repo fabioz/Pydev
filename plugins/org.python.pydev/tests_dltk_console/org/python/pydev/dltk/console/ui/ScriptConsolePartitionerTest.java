@@ -19,45 +19,44 @@ public class ScriptConsolePartitionerTest extends TestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
     }
-    
+
     public void testJoinPartitions() throws Exception {
         ScriptConsolePartitioner partitioner = new ScriptConsolePartitioner();
         partitioner.addRange(new ScriptStyleRange(0, 1, null, null, ScriptStyleRange.STDIN));
         assertEquals(1, partitioner.getStyleRanges(0, 1).length);
-        
+
         partitioner.addRange(new ScriptStyleRange(1, 1, null, null, ScriptStyleRange.STDIN));
         assertEquals(1, partitioner.getStyleRanges(0, 2).length);
-        
+
         partitioner.addRange(new ScriptStyleRange(1, 1, null, null, ScriptStyleRange.STDOUT));
         assertEquals(2, partitioner.getStyleRanges(0, 2).length);
-        
+
         partitioner.addRange(new ScriptStyleRange(1, 1, null, null, ScriptStyleRange.STDIN));
         assertEquals(1, partitioner.getStyleRanges(0, 2).length);
-        
+
     }
-    
-    
+
     public void testPartitioning() throws Exception {
         ScriptConsolePartitioner partitioner = new ScriptConsolePartitioner();
         partitioner.addRange(new ScriptStyleRange(0, 1, null, null, ScriptStyleRange.STDIN));
         assertEquals(1, partitioner.getStyleRanges(0, 1).length);
-        
+
         partitioner.addRange(new ScriptStyleRange(0, 1, null, null, ScriptStyleRange.STDERR));
         assertEquals(1, partitioner.getStyleRanges(0, 1).length);
-        
+
         partitioner.addRange(new ScriptStyleRange(0, 3, null, null, ScriptStyleRange.STDOUT));
         assertEquals(1, partitioner.getStyleRanges(0, 1).length);
-        
+
         partitioner.addRange(new ScriptStyleRange(2, 1, null, null, ScriptStyleRange.PROMPT));
         assertEquals(1, partitioner.getStyleRanges(0, 1).length);
-        
+
         StyleRange[] styleRanges = partitioner.getStyleRanges(0, 3);
         assertEquals(2, styleRanges.length);
         assertEquals(0, styleRanges[0].start);
         assertEquals(2, styleRanges[0].length);
         assertEquals(2, styleRanges[1].start);
         assertEquals(1, styleRanges[1].length);
-        
+
         styleRanges = partitioner.getStyleRanges(0, 50);
         assertEquals(3, styleRanges.length);
         assertEquals(0, styleRanges[0].start);
@@ -66,7 +65,7 @@ public class ScriptConsolePartitionerTest extends TestCase {
         assertEquals(1, styleRanges[1].length);
         assertEquals(3, styleRanges[2].start);
         assertEquals(47, styleRanges[2].length);
-        
+
         styleRanges = partitioner.getStyleRanges(1, 50);
         assertEquals(3, styleRanges.length);
         assertEquals(0, styleRanges[0].start);

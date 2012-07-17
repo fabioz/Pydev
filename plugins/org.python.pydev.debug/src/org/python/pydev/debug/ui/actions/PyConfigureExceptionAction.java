@@ -19,25 +19,23 @@ public class PyConfigureExceptionAction extends PyAction implements IWorkbenchWi
 
     public void run(IAction action) {
 
-        PyConfigureExceptionDialog dialog = new PyConfigureExceptionDialog(
-                getShell(), "", new PyExceptionListProvider(),
-                new LabelProvider(), "");
+        PyConfigureExceptionDialog dialog = new PyConfigureExceptionDialog(getShell(), "",
+                new PyExceptionListProvider(), new LabelProvider(), "");
 
         dialog.setInitialElementSelections(PyExceptionBreakPointManager.getInstance().getExceptionsList());
         dialog.setTitle("Add Python Exception Breakpoint");
-        if(dialog.open() == PyConfigureExceptionDialog.OK){
+        if (dialog.open() == PyConfigureExceptionDialog.OK) {
 
-            
             Object[] selectedItems = dialog.getResult();
             String[] exceptionArray;
             if (selectedItems != null) {
                 exceptionArray = new String[selectedItems.length];
                 System.arraycopy(selectedItems, 0, exceptionArray, 0, selectedItems.length);
-            }else{
+            } else {
                 exceptionArray = new String[0];
             }
-            PyExceptionBreakPointManager.getInstance().setBreakOn(
-                    dialog.getResultHandleCaughtExceptions(), dialog.getResultHandleUncaughtExceptions(), exceptionArray);
+            PyExceptionBreakPointManager.getInstance().setBreakOn(dialog.getResultHandleCaughtExceptions(),
+                    dialog.getResultHandleUncaughtExceptions(), exceptionArray);
         }
     }
 

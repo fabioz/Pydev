@@ -39,5 +39,5 @@ public class py_compile {
 
         return bytes.length > 0;
     }
-    
+
 }

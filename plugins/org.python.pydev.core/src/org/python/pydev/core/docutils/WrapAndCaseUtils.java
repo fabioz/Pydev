@@ -2,9 +2,6 @@ package org.python.pydev.core.docutils;
 
 import org.python.pydev.core.structure.FastStringBuffer;
 
-
-
-
 /*
  * Copyright 2002-2004 The Apache Software Foundation.
  * 
@@ -51,77 +48,77 @@ public class WrapAndCaseUtils {
 
     // Wrapping
     //--------------------------------------------------------------------------
-//    /**
-//     * <p>Wraps a block of text to a specified line length using '\n' as
-//     * a newline.</p>
-//     *
-//     * <p>This method takes a block of text, which might have long lines in it
-//     * and wraps the long lines based on the supplied lineLength parameter.</p>
-//     * 
-//     * <p>If a single word is longer than the line length (eg. a URL), it will
-//     * not be broken, and will display beyond the expected width.</p>
-//     * 
-//     * <p>If there are tabs in inString, you are going to get results that are
-//     * a bit strange. Tabs are a single character but are displayed as 4 or 8
-//     * spaces. Remove the tabs.</p>
-//     *
-//     * @param str  text which is in need of word-wrapping, may be null
-//     * @param lineLength  the column to wrap the words at
-//     * @return the text with all the long lines word-wrapped
-//     *  <code>null</code> if null string input
-//     */
-//    public static String wrapText(String str, int lineLength) {
-//        return wrap(str, null, lineLength);
-//    }
-    
-//    /**
-//     * <p>Wraps a block of text to a specified line length.</p>
-//     *
-//     * <p>This method takes a block of text, which might have long lines in it
-//     * and wraps the long lines based on the supplied lineLength parameter.</p>
-//     * 
-//     * <p>If a single word is longer than the wrapColumn (eg. a URL), it will
-//     * not be broken, and will display beyond the expected width.</p>
-//     * 
-//     * <p>If there are tabs in inString, you are going to get results that are
-//     * a bit strange. Tabs are a single character but are displayed as 4 or 8
-//     * spaces. Remove the tabs.</p>
-//     *
-//     * @param str  text which is in need of word-wrapping, may be null
-//     * @param newLineChars  the characters that define a newline, null treated as \n
-//     * @param lineLength  the column to wrap the words at
-//     * @return the text with all the long lines word-wrapped
-//     *  <code>null</code> if null string input
-//     */
-//    public static String wrapText(String str, String newLineChars, int lineLength) {
-//        if (str == null) {
-//            return null;
-//        }
-//        if (newLineChars == null) {
-//            newLineChars = "\n";
-//        }
-//        StringTokenizer lineTokenizer = new StringTokenizer(str, newLineChars, true);
-//        StringBuffer stringBuffer = new StringBuffer();
-//
-//        while (lineTokenizer.hasMoreTokens()) {
-//            try {
-//                String nextLine = lineTokenizer.nextToken();
-//
-//                if (nextLine.length() > lineLength) {
-//                    // This line is long enough to be wrapped.
-//                    nextLine = wrapLine(nextLine, null, lineLength, false);
-//                }
-//
-//                stringBuffer.append(nextLine);
-//
-//            } catch (NoSuchElementException nsee) {
-//                // thrown by nextToken(), but I don't know why it would
-//                break;
-//            }
-//        }
-//
-//        return (stringBuffer.toString());
-//    }
+    //    /**
+    //     * <p>Wraps a block of text to a specified line length using '\n' as
+    //     * a newline.</p>
+    //     *
+    //     * <p>This method takes a block of text, which might have long lines in it
+    //     * and wraps the long lines based on the supplied lineLength parameter.</p>
+    //     * 
+    //     * <p>If a single word is longer than the line length (eg. a URL), it will
+    //     * not be broken, and will display beyond the expected width.</p>
+    //     * 
+    //     * <p>If there are tabs in inString, you are going to get results that are
+    //     * a bit strange. Tabs are a single character but are displayed as 4 or 8
+    //     * spaces. Remove the tabs.</p>
+    //     *
+    //     * @param str  text which is in need of word-wrapping, may be null
+    //     * @param lineLength  the column to wrap the words at
+    //     * @return the text with all the long lines word-wrapped
+    //     *  <code>null</code> if null string input
+    //     */
+    //    public static String wrapText(String str, int lineLength) {
+    //        return wrap(str, null, lineLength);
+    //    }
+
+    //    /**
+    //     * <p>Wraps a block of text to a specified line length.</p>
+    //     *
+    //     * <p>This method takes a block of text, which might have long lines in it
+    //     * and wraps the long lines based on the supplied lineLength parameter.</p>
+    //     * 
+    //     * <p>If a single word is longer than the wrapColumn (eg. a URL), it will
+    //     * not be broken, and will display beyond the expected width.</p>
+    //     * 
+    //     * <p>If there are tabs in inString, you are going to get results that are
+    //     * a bit strange. Tabs are a single character but are displayed as 4 or 8
+    //     * spaces. Remove the tabs.</p>
+    //     *
+    //     * @param str  text which is in need of word-wrapping, may be null
+    //     * @param newLineChars  the characters that define a newline, null treated as \n
+    //     * @param lineLength  the column to wrap the words at
+    //     * @return the text with all the long lines word-wrapped
+    //     *  <code>null</code> if null string input
+    //     */
+    //    public static String wrapText(String str, String newLineChars, int lineLength) {
+    //        if (str == null) {
+    //            return null;
+    //        }
+    //        if (newLineChars == null) {
+    //            newLineChars = "\n";
+    //        }
+    //        StringTokenizer lineTokenizer = new StringTokenizer(str, newLineChars, true);
+    //        StringBuffer stringBuffer = new StringBuffer();
+    //
+    //        while (lineTokenizer.hasMoreTokens()) {
+    //            try {
+    //                String nextLine = lineTokenizer.nextToken();
+    //
+    //                if (nextLine.length() > lineLength) {
+    //                    // This line is long enough to be wrapped.
+    //                    nextLine = wrapLine(nextLine, null, lineLength, false);
+    //                }
+    //
+    //                stringBuffer.append(nextLine);
+    //
+    //            } catch (NoSuchElementException nsee) {
+    //                // thrown by nextToken(), but I don't know why it would
+    //                break;
+    //            }
+    //        }
+    //
+    //        return (stringBuffer.toString());
+    //    }
 
     // Wrapping
     //-----------------------------------------------------------------------
@@ -146,7 +143,7 @@ public class WrapAndCaseUtils {
     public static String wrap(String str, int wrapLength) {
         return wrap(str, wrapLength, null, false);
     }
-    
+
     /**
      * <p>Wraps a single line of text, identifying words by <code>' '</code>.</p>
      * 
@@ -178,7 +175,7 @@ public class WrapAndCaseUtils {
         int inputLineLength = str.length();
         int offset = 0;
         FastStringBuffer wrappedLine = new FastStringBuffer(inputLineLength + 32);
-        
+
         while ((inputLineLength - offset) > wrapLength) {
             if (str.charAt(offset) == ' ') {
                 offset++;
@@ -191,7 +188,7 @@ public class WrapAndCaseUtils {
                 wrappedLine.append(str.substring(offset, spaceToWrapAt));
                 wrappedLine.append(newLineStr);
                 offset = spaceToWrapAt + 1;
-                
+
             } else {
                 // really long word or URL
                 if (wrapLongWords) {
@@ -280,7 +277,7 @@ public class WrapAndCaseUtils {
         StringBuffer buffer = new StringBuffer(strLen);
 
         int delimitersLen = 0;
-        if(delimiters != null) {
+        if (delimiters != null) {
             delimitersLen = delimiters.length;
         }
 
@@ -289,11 +286,11 @@ public class WrapAndCaseUtils {
             char ch = str.charAt(i);
 
             boolean isDelimiter = false;
-            if(delimiters == null) {
+            if (delimiters == null) {
                 isDelimiter = Character.isWhitespace(ch);
             } else {
-                for(int j=0; j < delimitersLen; j++) {
-                    if(ch == delimiters[j]) {
+                for (int j = 0; j < delimitersLen; j++) {
+                    if (ch == delimiters[j]) {
                         isDelimiter = true;
                         break;
                     }
@@ -415,7 +412,7 @@ public class WrapAndCaseUtils {
         int strLen = str.length();
 
         int delimitersLen = 0;
-        if(delimiters != null) {
+        if (delimiters != null) {
             delimitersLen = delimiters.length;
         }
 
@@ -425,11 +422,11 @@ public class WrapAndCaseUtils {
             char ch = str.charAt(i);
 
             boolean isDelimiter = false;
-            if(delimiters == null) {
+            if (delimiters == null) {
                 isDelimiter = Character.isWhitespace(ch);
             } else {
-                for(int j=0; j < delimitersLen; j++) {
-                    if(ch == delimiters[j]) {
+                for (int j = 0; j < delimitersLen; j++) {
+                    if (ch == delimiters[j]) {
                         isDelimiter = true;
                         break;
                     }
@@ -502,6 +499,5 @@ public class WrapAndCaseUtils {
         }
         return buffer.toString();
     }
-    
-}
 
+}

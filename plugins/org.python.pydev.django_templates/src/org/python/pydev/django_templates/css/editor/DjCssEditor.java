@@ -22,7 +22,7 @@ import com.aptana.editor.css.CSSSourceEditor;
 public class DjCssEditor extends CSSSourceEditor {
 
     private DjEditor djEditor;
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -34,23 +34,22 @@ public class DjCssEditor extends CSSSourceEditor {
         djEditor = new DjEditor();
 
         this.djEditor.registerPrefChangeListener(new ICallback() {
-            
+
             public Object call(Object args) throws Exception {
                 return getISourceViewer();
             }
         });
-        
+
         setSourceViewerConfiguration(new DjCssSourceViewerConfiguration(this.djEditor.getChainedPrefStore(), this));
         setDocumentProvider(DjPlugin.getDefault().getDjCSSDocumentProvider());
     }
-    
+
     @Override
     protected ISourceViewer createSourceViewer(Composite parent, IVerticalRuler ruler, int styles) {
         ISourceViewer viewer = super.createSourceViewer(parent, ruler, styles);
         djEditor.onCreateSourceViewer(viewer);
         return viewer;
     }
-
 
     @Override
     public void dispose() {
@@ -64,8 +63,7 @@ public class DjCssEditor extends CSSSourceEditor {
     }
 
     @Override
-    public String getContentType()
-    {
-    	return IDjConstants.CONTENT_TYPE_DJANGO_CSS;
+    public String getContentType() {
+        return IDjConstants.CONTENT_TYPE_DJANGO_CSS;
     }
 }

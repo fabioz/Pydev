@@ -18,7 +18,7 @@ import org.python.pydev.parser.jython.Token;
  * compound context starts (if wanted)
  */
 final class TokensIterator implements Iterator<Token> {
-    
+
     private Token currentToken;
     private int tokensToIterate;
     private int tokensIterated;
@@ -28,8 +28,9 @@ final class TokensIterator implements Iterator<Token> {
     private final HashSet<Integer> contextsToBreak = new HashSet<Integer>();
     private boolean calculatedNext;
     private boolean isFirst;
-//    private int parensLevel=0;
-    
+
+    //    private int parensLevel=0;
+
     /**
      * @param firstIterationToken this will be the 1st token returned in the iteration, and the next token can be the
      * next token already set in the given token or a new token loaded from the manager.
@@ -41,24 +42,23 @@ final class TokensIterator implements Iterator<Token> {
      * 
      * @return an iterator that'll iterate through the next tokens.
      */
-    public TokensIterator(ITokenManager tokenManager, Token firstIterationToken, int tokensToIterate, 
-            boolean breakOnIndentsDedentsAndNewCompounds){
+    public TokensIterator(ITokenManager tokenManager, Token firstIterationToken, int tokensToIterate,
+            boolean breakOnIndentsDedentsAndNewCompounds) {
         contextsToBreak.add(tokenManager.getIndentId());
         contextsToBreak.add(tokenManager.getDedentId());
-        
+
         contextsToBreak.add(tokenManager.getIfId());
         contextsToBreak.add(tokenManager.getWhileId());
         contextsToBreak.add(tokenManager.getForId());
         contextsToBreak.add(tokenManager.getTryId());
-        
+
         contextsToBreak.add(tokenManager.getDefId());
         contextsToBreak.add(tokenManager.getClassId());
         contextsToBreak.add(tokenManager.getAtId());
-        
+
         reset(tokenManager, firstIterationToken, tokensToIterate, breakOnIndentsDedentsAndNewCompounds);
     }
-    
-    
+
     public void reset(ITokenManager tokenManager, Token firstIterationToken, int tokensToIterate,
             boolean breakOnIndentsDedentsAndNewCompounds) {
         this.currentToken = firstIterationToken;
@@ -70,15 +70,14 @@ final class TokensIterator implements Iterator<Token> {
         this.prevAndReturned = new Tuple<Token, Token>(null, null);
         this.calculatedNext = false;
         this.isFirst = true;
-//        this.parensLevel = 0;
+        //        this.parensLevel = 0;
     }
 
-    
     public boolean hasNext() {
-        if(isFirst){
+        if (isFirst) {
             return currentToken != null;
         }
-        if(!calculatedNext){
+        if (!calculatedNext) {
             calculateNext();
             calculatedNext = true;
         }
@@ -86,75 +85,72 @@ final class TokensIterator implements Iterator<Token> {
     }
 
     public Token next() {
-        if(isFirst){
+        if (isFirst) {
             isFirst = false;
             return currentToken;
         }
-        if(!calculatedNext){
+        if (!calculatedNext) {
             calculateNext();
         }
-        
+
         calculatedNext = false;
         tokensIterated += 1;
-        if(currentToken == null || currentToken.next == null){
+        if (currentToken == null || currentToken.next == null) {
             throw new NoSuchElementException();
         }
         prevAndReturned.o1 = prevAndReturned.o2;
         prevAndReturned.o2 = currentToken.next;
-        
-        if(tokensIterated == tokensToIterate){
+
+        if (tokensIterated == tokensToIterate) {
             currentToken = null;
-        }else{
-            if(currentToken != null && currentToken.kind == tokenManager.getEofId()){
+        } else {
+            if (currentToken != null && currentToken.kind == tokenManager.getEofId()) {
                 //always break on EOF
                 currentToken = null;
-                
-            }else if(breakOnIndentsDedentsAndNewCompounds){
-                if(currentToken != null && contextsToBreak.contains(currentToken.kind)){
+
+            } else if (breakOnIndentsDedentsAndNewCompounds) {
+                if (currentToken != null && contextsToBreak.contains(currentToken.kind)) {
                     currentToken = null; // we must break it now (indent or dedent found)
                 }
             }
         }
-        if(currentToken != null){
+        if (currentToken != null) {
             currentToken = currentToken.next;
         }
         return prevAndReturned.o2;
     }
 
     private void calculateNext() {
-        if(currentToken == null){
+        if (currentToken == null) {
             return;
         }
-        
-        if(currentToken.kind == tokenManager.getEofId()){
+
+        if (currentToken.kind == tokenManager.getEofId()) {
             //found end of file!
             currentToken = null;
             return;
         }
-        
-        
-        if(currentToken.next == null){
+
+        if (currentToken.next == null) {
             currentToken.next = AbstractGrammarWalkHelpers.nextTokenConsideringNewLine(tokenManager);
-//            if(currentToken.next != null){
-//                int id = currentToken.next.kind;
-//                if(id == tokenManager.getIndentId()){
-//                    
-//                } else if(id == tokenManager.getRparenId() || id == tokenManager.getRbracketId() || id == tokenManager.getRbraceId()){
-//                    parensLevel--;
-//                    
-//                }else if(id == tokenManager.getLparenId() || id == tokenManager.getLbracketId() || id == tokenManager.getLbraceId()){
-//                    parensLevel++;
-//                }
-//            }
+            //            if(currentToken.next != null){
+            //                int id = currentToken.next.kind;
+            //                if(id == tokenManager.getIndentId()){
+            //                    
+            //                } else if(id == tokenManager.getRparenId() || id == tokenManager.getRbracketId() || id == tokenManager.getRbraceId()){
+            //                    parensLevel--;
+            //                    
+            //                }else if(id == tokenManager.getLparenId() || id == tokenManager.getLbracketId() || id == tokenManager.getLbraceId()){
+            //                    parensLevel++;
+            //                }
+            //            }
         }
-        
-        
+
     }
 
     public void remove() {
         throw new RuntimeException("Not implemented");
     }
-
 
     public Token getBeforeLastReturned() {
         return this.prevAndReturned.o1;

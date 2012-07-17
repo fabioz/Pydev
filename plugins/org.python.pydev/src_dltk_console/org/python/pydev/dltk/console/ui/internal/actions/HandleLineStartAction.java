@@ -32,44 +32,42 @@ public class HandleLineStartAction {
         try {
             PySelection ps = new PySelection(doc, caretOffset);
             int lineOffset = ps.getLineOffset();
-            
-            int promptEndOffset=lineOffset;
+
+            int promptEndOffset = lineOffset;
             ScriptConsolePartitioner partitioner = (ScriptConsolePartitioner) doc.getDocumentPartitioner();
             int docLen = doc.getLength();
-            
-            for(;promptEndOffset<docLen;promptEndOffset++){
+
+            for (; promptEndOffset < docLen; promptEndOffset++) {
                 ScriptStyleRange[] range = partitioner.getStyleRanges(promptEndOffset, 1);
-                if(range.length >= 1){
-                    if(range[0].scriptType != ScriptStyleRange.PROMPT){
+                if (range.length >= 1) {
+                    if (range[0].scriptType != ScriptStyleRange.PROMPT) {
                         break;
                     }
                 }
             }
-            
+
             int absoluteCursorOffset = ps.getAbsoluteCursorOffset();
-            
-            
+
             IRegion lineInformation = doc.getLineInformationOfOffset(absoluteCursorOffset);
-            String contentsFromPrompt = doc.get(promptEndOffset, lineInformation.getOffset() + lineInformation.getLength() - promptEndOffset);
+            String contentsFromPrompt = doc.get(promptEndOffset,
+                    lineInformation.getOffset() + lineInformation.getLength() - promptEndOffset);
             int firstCharPosition = PySelection.getFirstCharPosition(contentsFromPrompt);
-            int firstCharOffset = promptEndOffset+firstCharPosition;
-            
-            
+            int firstCharOffset = promptEndOffset + firstCharPosition;
+
             //1st see: if we're in the start of the line, go to the 1st char after the prompt
-            if(lineOffset == absoluteCursorOffset || firstCharOffset < absoluteCursorOffset){
+            if (lineOffset == absoluteCursorOffset || firstCharOffset < absoluteCursorOffset) {
                 viewer.setCaretOffset(firstCharOffset, false);
                 return true;
             }
-            
-            
-            if(promptEndOffset < absoluteCursorOffset){
+
+            if (promptEndOffset < absoluteCursorOffset) {
                 viewer.setCaretOffset(promptEndOffset, false);
                 return true;
             }
-            
+
             viewer.setCaretOffset(lineOffset, false);
             return true;
-            
+
         } catch (BadLocationException e) {
             Log.log(e);
         }

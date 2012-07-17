@@ -30,53 +30,49 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 
-
-public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithBuild{
+public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithBuild {
 
     private final IInterpreterManager manager;
     private final String additionalInfoInterpreter;
-    
+
     /**
      * holds system info (interpreter name points to system info)
      */
-    private final static Map<Tuple<String, String>, AbstractAdditionalTokensInfo> additionalSystemInfo = 
-        new HashMap<Tuple<String, String>, AbstractAdditionalTokensInfo>();
-    
+    private final static Map<Tuple<String, String>, AbstractAdditionalTokensInfo> additionalSystemInfo = new HashMap<Tuple<String, String>, AbstractAdditionalTokensInfo>();
+
     private final static Object additionalSystemInfoLock = new Object();
-    
+
     private final File persistingFolder;
-    
+
     private final File persistingLocation;
-    
-    public IInterpreterManager getManager(){
+
+    public IInterpreterManager getManager() {
         return manager;
     }
-    
-    public String getAdditionalInfoInterpreter(){
+
+    public String getAdditionalInfoInterpreter() {
         return additionalInfoInterpreter;
     }
-    
-    
+
     /**
      * @return the path to the folder we want to keep things on
      * @throws MisconfigurationException 
      */
-    protected File getPersistingFolder(){
+    protected File getPersistingFolder() {
         return persistingFolder;
     }
 
-    
     @Override
     protected File getPersistingLocation() throws MisconfigurationException {
         return persistingLocation;
     }
-    
 
-    public AdditionalSystemInterpreterInfo(IInterpreterManager manager, String interpreter) throws MisconfigurationException {
+    public AdditionalSystemInterpreterInfo(IInterpreterManager manager, String interpreter)
+            throws MisconfigurationException {
         super(false); //don't call init just right now...
         this.manager = manager;
         this.additionalInfoInterpreter = interpreter;
-        
+
         File base;
         try {
             IPath stateLocation = AnalysisPlugin.getDefault().getStateLocation();
@@ -86,15 +82,11 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
             Log.logInfo("Error getting persisting folder", e);
             base = new File(".");
         }
-        File file = new File(
-                base, 
-                manager.getManagerRelatedName() + 
-                "_"+ 
-                StringUtils.getExeAsFileSystemValidPath(this.additionalInfoInterpreter)
-        );
-        
+        File file = new File(base, manager.getManagerRelatedName() + "_"
+                + StringUtils.getExeAsFileSystemValidPath(this.additionalInfoInterpreter));
+
         try {
-            if(!file.exists()){
+            if (!file.exists()) {
                 file.mkdirs();
             }
         } catch (Exception e) {
@@ -102,44 +94,42 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
         }
         persistingFolder = file;
         persistingLocation = new File(persistingFolder, manager.getManagerRelatedName() + ".pydevsysteminfo");
-        
+
         init();
     }
 
-    
-    
-    public static AbstractAdditionalDependencyInfo getAdditionalSystemInfo(
-            IInterpreterManager manager, String interpreter) throws MisconfigurationException {
+    public static AbstractAdditionalDependencyInfo getAdditionalSystemInfo(IInterpreterManager manager,
+            String interpreter) throws MisconfigurationException {
         return getAdditionalSystemInfo(manager, interpreter, false);
     }
-    
+
     /**
      * Should only be used in tests.
      */
     public static void setAdditionalSystemInfo(PythonInterpreterManager manager, String executableOrJar,
             AdditionalSystemInterpreterInfo additionalInfo) {
         synchronized (additionalSystemInfoLock) {
-            Tuple<String,String> key = new Tuple<String, String>(manager.getManagerRelatedName(), executableOrJar);
+            Tuple<String, String> key = new Tuple<String, String>(manager.getManagerRelatedName(), executableOrJar);
             additionalSystemInfo.put(key, additionalInfo);
         }
     }
-    
+
     /**
      * @param m the module manager that we want to get info on (python, jython...)
      * @return the additional info for the system
      * @throws MisconfigurationException 
      */
-    public static AbstractAdditionalDependencyInfo getAdditionalSystemInfo(
-            IInterpreterManager manager, String interpreter, boolean errorIfNotAvailable) throws MisconfigurationException {
-        Tuple<String,String> key = new Tuple<String, String>(manager.getManagerRelatedName(), interpreter);
+    public static AbstractAdditionalDependencyInfo getAdditionalSystemInfo(IInterpreterManager manager,
+            String interpreter, boolean errorIfNotAvailable) throws MisconfigurationException {
+        Tuple<String, String> key = new Tuple<String, String>(manager.getManagerRelatedName(), interpreter);
         synchronized (additionalSystemInfoLock) {
             AbstractAdditionalDependencyInfo info = (AbstractAdditionalDependencyInfo) additionalSystemInfo.get(key);
-            if(info == null){
+            if (info == null) {
                 //lazy-load.
                 info = new AdditionalSystemInterpreterInfo(manager, interpreter);
                 additionalSystemInfo.put(key, info);
-                
-                if(!info.load()){
+
+                if (!info.load()) {
                     try {
                         recreateAllInfo(manager, interpreter, new NullProgressMonitor());
                         info = (AbstractAdditionalDependencyInfo) additionalSystemInfo.get(key);
@@ -152,26 +142,27 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
         }
     }
 
-
-    
     public static void recreateAllInfo(IInterpreterManager manager, String interpreter, IProgressMonitor monitor) {
         synchronized (additionalSystemInfoLock) {
             try {
                 final IInterpreterInfo interpreterInfo = manager.getInterpreterInfo(interpreter, monitor);
                 int grammarVersion = interpreterInfo.getGrammarVersion();
-                AbstractAdditionalTokensInfo currInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager, interpreter);
-                if(currInfo != null){
+                AbstractAdditionalTokensInfo currInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
+                        manager, interpreter);
+                if (currInfo != null) {
                     currInfo.clearAllInfo();
                 }
-                InterpreterInfo defaultInterpreterInfo = (InterpreterInfo) manager.getInterpreterInfo(interpreter, monitor);
+                InterpreterInfo defaultInterpreterInfo = (InterpreterInfo) manager.getInterpreterInfo(interpreter,
+                        monitor);
                 ISystemModulesManager m = defaultInterpreterInfo.getModulesManager();
-                AbstractAdditionalTokensInfo info = restoreInfoForModuleManager(monitor, m, 
+                AbstractAdditionalTokensInfo info = restoreInfoForModuleManager(monitor, m,
                         "(system: " + manager.getManagerRelatedName() + " - " + interpreter + ")",
                         new AdditionalSystemInterpreterInfo(manager, interpreter), null, grammarVersion);
-                
+
                 if (info != null) {
                     //ok, set it and save it
-                    additionalSystemInfo.put(new Tuple<String, String>(manager.getManagerRelatedName(), interpreter), info);
+                    additionalSystemInfo.put(new Tuple<String, String>(manager.getManagerRelatedName(), interpreter),
+                            info);
                     info.save();
                 }
             } catch (Throwable e) {
@@ -179,25 +170,21 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
             }
         }
     }
-    
 
-    
     //Make it available for being in a HashSet.
-    
+
     @Override
     public int hashCode() {
         return this.additionalInfoInterpreter.hashCode();
     }
-    
-    
+
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof AdditionalSystemInterpreterInfo)){
+        if (!(obj instanceof AdditionalSystemInterpreterInfo)) {
             return false;
         }
         AdditionalSystemInterpreterInfo additionalSystemInterpreterInfo = (AdditionalSystemInterpreterInfo) obj;
         return this.additionalInfoInterpreter.equals(additionalSystemInterpreterInfo.additionalInfoInterpreter);
     }
-
 
 }

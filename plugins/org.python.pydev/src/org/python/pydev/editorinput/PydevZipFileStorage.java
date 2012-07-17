@@ -24,16 +24,16 @@ import org.python.pydev.plugin.PydevPlugin;
  * 
  * @author Fabio
  */
-public class PydevZipFileStorage implements IStorage{
+public class PydevZipFileStorage implements IStorage {
 
     public final File zipFile;
     public final String zipPath;
 
-    public PydevZipFileStorage(File zipFile, String zipPath){
+    public PydevZipFileStorage(File zipFile, String zipPath) {
         this.zipFile = zipFile;
         this.zipPath = zipPath;
     }
-    
+
     public InputStream getContents() throws CoreException {
         try {
             ZipFile f = new ZipFile(this.zipFile);
@@ -48,10 +48,10 @@ public class PydevZipFileStorage implements IStorage{
     }
 
     public String getName() {
-    	List<String> split = StringUtils.split(zipPath, '/');
-    	if(split.size() > 0){
-    		return split.get(split.size()-1);
-    	}
+        List<String> split = StringUtils.split(zipPath, '/');
+        if (split.size() > 0) {
+            return split.get(split.size() - 1);
+        }
         return this.zipPath;
     }
 

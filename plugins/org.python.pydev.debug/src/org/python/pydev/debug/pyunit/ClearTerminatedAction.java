@@ -10,7 +10,7 @@ import java.lang.ref.WeakReference;
 
 import org.eclipse.jface.action.Action;
 
-public class ClearTerminatedAction extends Action{
+public class ClearTerminatedAction extends Action {
 
     private WeakReference<PyUnitView> view;
 
@@ -19,11 +19,11 @@ public class ClearTerminatedAction extends Action{
         this.setText("Clear terminated");
         this.setToolTipText("Removes all terminated tests from the history");
     }
-    
+
     @Override
     public void run() {
         PyUnitView pyUnitView = view.get();
-        if(pyUnitView != null){
+        if (pyUnitView != null) {
             pyUnitView.clearAllTerminated();
         }
     }

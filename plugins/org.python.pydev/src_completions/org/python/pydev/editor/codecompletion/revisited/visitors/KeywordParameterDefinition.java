@@ -19,11 +19,12 @@ import org.python.pydev.parser.jython.ast.Call;
  * 
  * @author fabioz
  */
-public class KeywordParameterDefinition extends Definition{
+public class KeywordParameterDefinition extends Definition {
 
     public Call call;
 
-    public KeywordParameterDefinition(int line, int col, String value, SimpleNode ast, ILocalScope scope, IModule module, Call call) {
+    public KeywordParameterDefinition(int line, int col, String value, SimpleNode ast, ILocalScope scope,
+            IModule module, Call call) {
         super(line, col, value, ast, scope, module, false);
         this.call = call;
     }

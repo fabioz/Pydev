@@ -34,10 +34,10 @@ public class ScopeVariablesVisitor extends AbstractContextVisitor<SimpleAdapter>
 
     @Override
     public void visit(SimpleNode node) throws Exception {
-        if(nodeHelper.isClassDef(node)){
+        if (nodeHelper.isClassDef(node)) {
             return;
         }
-        if(nodeHelper.isFunctionDef(node)){
+        if (nodeHelper.isFunctionDef(node)) {
             return;
         }
 
@@ -46,10 +46,10 @@ public class ScopeVariablesVisitor extends AbstractContextVisitor<SimpleAdapter>
 
     @Override
     public void traverse(SimpleNode node) throws Exception {
-        if(nodeHelper.isClassDef(node)){
+        if (nodeHelper.isClassDef(node)) {
             return;
         }
-        if(nodeHelper.isFunctionDef(node)){
+        if (nodeHelper.isFunctionDef(node)) {
             return;
         }
 
@@ -64,7 +64,7 @@ public class ScopeVariablesVisitor extends AbstractContextVisitor<SimpleAdapter>
 
     @Override
     public Object visitImportFrom(ImportFrom node) throws Exception {
-        if(AbstractVisitor.isWildImport(node)){
+        if (AbstractVisitor.isWildImport(node)) {
             throw new RuntimeException("Cannot handle wild imports.");
         }
         registerInContext(node);
@@ -96,17 +96,17 @@ public class ScopeVariablesVisitor extends AbstractContextVisitor<SimpleAdapter>
 
     @Override
     public Object visitName(Name node) throws Exception {
-        if(node.id.compareTo(NodeHelper.KEYWORD_SELF) == 0){
+        if (node.id.compareTo(NodeHelper.KEYWORD_SELF) == 0) {
             return null;
         }
 
         registerInContext(node);
         return null;
     }
-    
+
     @Override
     public Object visitNameTok(NameTok node) throws Exception {
-        if(node.ctx != NameTok.FunctionName){
+        if (node.ctx != NameTok.FunctionName) {
             registerInContext(node);
         }
         return null;

@@ -8,14 +8,15 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 public final class AllTests {
-	private AllTests() { }
-	
-	public static Test suite() {
-		TestSuite suite = new TestSuite("Rewriter tests");
-		// $JUnit-BEGIN$
-		suite.addTest(RewriterTestSuite.suite());
-		// $JUnit-END$
-		return suite;
-	}
+    private AllTests() {
+    }
+
+    public static Test suite() {
+        TestSuite suite = new TestSuite("Rewriter tests");
+        // $JUnit-BEGIN$
+        suite.addTest(RewriterTestSuite.suite());
+        // $JUnit-END$
+        return suite;
+    }
 
 }

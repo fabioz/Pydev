@@ -41,9 +41,9 @@ public final class FastCharStream {
     public int bufpos = -1;
 
     private int updatePos;
-    
+
     public int tokenBegin;
-    
+
     private static IOException ioException;
 
     private static final boolean DEBUG = false;
@@ -53,15 +53,15 @@ public final class FastCharStream {
         this.bufline = new int[cs.length];
         this.bufcolumn = new int[cs.length];
     }
-    
+
     public int getCurrentPos() {
         return bufpos;
     }
-    
+
     public void restorePos(int pos) {
         bufpos = pos;
     }
-    
+
     /**
      * Restores a previous position.
      * Don't forget to restore the level if eof was already found!
@@ -69,46 +69,46 @@ public final class FastCharStream {
     public void restoreLineColPos(final int endLine, final int endColumn) {
         final int initialBufPos = bufpos;
         final int currLine = getEndLine();
-        
-        if(currLine < endLine){
+
+        if (currLine < endLine) {
             //note: we could do it, but it's not what we want!
-            Log.log("Cannot backtrack to a later position -- current line: "+getEndLine()+" requested line:"+endLine);
+            Log.log("Cannot backtrack to a later position -- current line: " + getEndLine() + " requested line:"
+                    + endLine);
             return;
-        }else if(currLine == endLine && getEndColumn() < endColumn){
-            Log.log("Cannot backtrack to a later position -- current col: "+getEndColumn()+" requested col:"+endColumn);
+        } else if (currLine == endLine && getEndColumn() < endColumn) {
+            Log.log("Cannot backtrack to a later position -- current col: " + getEndColumn() + " requested col:"
+                    + endColumn);
             return;
         }
-        
-        while((getEndLine() != endLine || getEndColumn() != endColumn) && bufpos >=0){
+
+        while ((getEndLine() != endLine || getEndColumn() != endColumn) && bufpos >= 0) {
             bufpos--;
         }
-        
-        if(bufpos < 0 || getEndLine() != endLine){
+
+        if (bufpos < 0 || getEndLine() != endLine) {
             //we couldn't find it. Let's restore the position when we started it.
             bufpos = initialBufPos;
-            Log.log("Couldn't backtrack to position: line"+endLine+ " -- col:"+endColumn);
+            Log.log("Couldn't backtrack to position: line" + endLine + " -- col:" + endColumn);
         }
     }
-
-
 
     public final char readChar() throws IOException {
         try {
             bufpos++;
             char r = this.buffer[bufpos];
-            
-            if(bufpos >= updatePos){
+
+            if (bufpos >= updatePos) {
                 updatePos++;
-                
+
                 //start UpdateLineCol
                 column++;
-                
+
                 if (prevCharIsLF) {
                     prevCharIsLF = false;
                     line += (column = 1);
-                    
+
                 } else if (prevCharIsCR) {
-                    
+
                     prevCharIsCR = false;
                     if (r == '\n') {
                         prevCharIsLF = true;
@@ -116,30 +116,29 @@ public final class FastCharStream {
                         line += (column = 1);
                     }
                 }
-                
-                if(r == '\r'){
+
+                if (r == '\r') {
                     prevCharIsCR = true;
-                    
-                }else if(r == '\n'){
+
+                } else if (r == '\n') {
                     prevCharIsLF = true;
-                    
+
                 }
-                
+
                 bufline[bufpos] = line;
                 bufcolumn[bufpos] = column;
                 //end UpdateLineCol
             }
-            
+
             return r;
         } catch (ArrayIndexOutOfBoundsException e) {
             bufpos--;
-            if (ioException == null){
+            if (ioException == null) {
                 ioException = new IOException();
             }
             throw ioException;
         }
     }
-
 
     public final int getEndColumn() {
         return bufcolumn[bufpos];
@@ -158,8 +157,8 @@ public final class FastCharStream {
     }
 
     public final void backup(int amount) {
-        if(DEBUG){
-            System.out.println("FastCharStream: backup >>"+amount+"<<");
+        if (DEBUG) {
+            System.out.println("FastCharStream: backup >>" + amount + "<<");
         }
         bufpos -= amount;
     }
@@ -167,24 +166,24 @@ public final class FastCharStream {
     public final char BeginToken() throws IOException {
         char c = readChar();
         tokenBegin = bufpos;
-        if(DEBUG){
-            System.out.println("FastCharStream: BeginToken >>"+(int)c+"<<");
+        if (DEBUG) {
+            System.out.println("FastCharStream: BeginToken >>" + (int) c + "<<");
         }
         return c;
     }
 
-    private final ObjectsPoolMap interned = new ObjectsPoolMap(); 
-    
+    private final ObjectsPoolMap interned = new ObjectsPoolMap();
+
     public final String GetImage() {
         String string;
         if (bufpos >= tokenBegin) {
-            string = new String(buffer, tokenBegin, bufpos - tokenBegin+1);
+            string = new String(buffer, tokenBegin, bufpos - tokenBegin + 1);
         } else {
-            string = new String(buffer, tokenBegin, buffer.length - tokenBegin+1);
+            string = new String(buffer, tokenBegin, buffer.length - tokenBegin + 1);
         }
-        
+
         String existing = interned.get(string);
-        if(existing != null){
+        if (existing != null) {
             return existing;
         }
         interned.put(string, string);
@@ -194,14 +193,14 @@ public final class FastCharStream {
     public final void AppendSuffix(FastStringBuffer buf, int len) {
         if (len > 0) {
             try {
-                int initial = bufpos - len +1;
-                if(initial < 0){
+                int initial = bufpos - len + 1;
+                if (initial < 0) {
                     int initial0 = initial;
                     len += initial;
                     initial = 0;
                     buf.appendN('\u0000', -initial0);
                     buf.append(buffer, initial, len);
-                }else{
+                } else {
                     buf.append(buffer, initial, len);
                 }
             } catch (Exception e) {
@@ -209,35 +208,34 @@ public final class FastCharStream {
             }
         }
     }
-    
+
     public static boolean ACCEPT_GET_SUFFIX = false;
-    
+
     public final char[] GetSuffix(int len) {
-        if(!ACCEPT_GET_SUFFIX){
+        if (!ACCEPT_GET_SUFFIX) {
             throw new RuntimeException("This method should not be used (AppendSuffix should be used instead).");
         }
         char[] ret = new char[len];
         if (len > 0) {
             try {
-                int initial = bufpos - len +1;
-                if(initial < 0){
+                int initial = bufpos - len + 1;
+                if (initial < 0) {
                     int initial0 = initial;
                     len += initial;
                     initial = 0;
                     System.arraycopy(buffer, initial, ret, -initial0, len);
-                }else{
+                } else {
                     System.arraycopy(buffer, initial, ret, 0, len);
                 }
             } catch (Exception e) {
                 Log.log(e);
             }
         }
-        if(DEBUG){
-            System.out.println("FastCharStream: GetSuffix:"+len+" >>"+new String(ret)+"<<");
+        if (DEBUG) {
+            System.out.println("FastCharStream: GetSuffix:" + len + " >>" + new String(ret) + "<<");
         }
         return ret;
     }
-
 
     public void setBeginEndCharsEqual(Token t) {
         t.beginLine = t.endLine = bufline[tokenBegin];
@@ -250,7 +248,5 @@ public final class FastCharStream {
         t.endLine = bufline[bufpos];
         t.endColumn = bufcolumn[bufpos];
     }
-
-
 
 }

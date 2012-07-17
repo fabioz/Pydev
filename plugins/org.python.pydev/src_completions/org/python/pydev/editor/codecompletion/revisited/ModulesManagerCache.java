@@ -15,7 +15,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
  * This is a 'global' cache implementation, that can have at most n objects in
  * the memory at any time.
  */
-final class ModulesManagerCache  {
+final class ModulesManagerCache {
     /**
      * Defines the maximum amount of modules that can be in the memory at any time (for all the managers)
      */
@@ -26,21 +26,21 @@ final class ModulesManagerCache  {
      */
     private LRUCache<Tuple<ModulesKey, ModulesManager>, AbstractModule> internalCache;
     private final Object lock = new Object();
-    
+
     ModulesManagerCache() {
         internalCache = new LRUCache<Tuple<ModulesKey, ModulesManager>, AbstractModule>(MAX_NUMBER_OF_MODULES);
     }
-    
+
     /**
      * Overridden so that if we do not find the key, we have the chance to create it.
      */
     public AbstractModule getObj(ModulesKey key, ModulesManager modulesManager) {
         synchronized (modulesManager.modulesKeysLock) {
             Tuple<ModulesKey, ModulesManager> keyTuple = new Tuple<ModulesKey, ModulesManager>(key, modulesManager);
-            
+
             synchronized (lock) {
                 AbstractModule obj = internalCache.getObj(keyTuple);
-                if(obj == null && modulesManager.modulesKeys.containsKey(key)){
+                if (obj == null && modulesManager.modulesKeys.containsKey(key)) {
                     key = modulesManager.modulesKeys.get(key); //get the 'real' key
                     obj = AbstractModule.createEmptyModule(key);
                     internalCache.add(keyTuple, obj);

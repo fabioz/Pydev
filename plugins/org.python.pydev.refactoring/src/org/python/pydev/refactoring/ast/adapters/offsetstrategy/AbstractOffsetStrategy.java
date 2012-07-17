@@ -24,7 +24,8 @@ public abstract class AbstractOffsetStrategy implements IOffsetStrategy {
 
     protected NodeHelper nodeHelper;
 
-    public AbstractOffsetStrategy(IASTNodeAdapter<? extends SimpleNode> adapter, IDocument doc, AdapterPrefs adapterPrefs) {
+    public AbstractOffsetStrategy(IASTNodeAdapter<? extends SimpleNode> adapter, IDocument doc,
+            AdapterPrefs adapterPrefs) {
         this.adapter = adapter;
         this.doc = doc;
         this.nodeHelper = new NodeHelper(adapterPrefs);
@@ -37,7 +38,6 @@ public abstract class AbstractOffsetStrategy implements IOffsetStrategy {
     protected int getLineOffset() throws BadLocationException {
         return getRegion().getOffset();
     }
-
 
     public int getOffset() throws BadLocationException {
         return getLineOffset();
@@ -52,5 +52,5 @@ public abstract class AbstractOffsetStrategy implements IOffsetStrategy {
      * it should return the last ast node line directly. 
      */
     protected abstract int getLine();
-    
+
 }

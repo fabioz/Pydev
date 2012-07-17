@@ -13,13 +13,13 @@ import org.python.pydev.django_templates.comon.parsing.DjTokenScanner;
 
 import com.aptana.editor.css.parsing.CSSTokenScanner;
 
-public class DjCssTokenScanner extends CSSTokenScanner{
+public class DjCssTokenScanner extends CSSTokenScanner {
 
     DjTokenScanner tokenScanner = new DjTokenScanner();
-    
+
     public DjCssTokenScanner() {
         List<IRule> rules = tokenScanner.getDjRules();
-        
+
         //Re-add existing rules
         for (IRule rule : fRules) {
             rules.add(rule);

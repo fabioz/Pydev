@@ -26,7 +26,7 @@ import org.python.pydev.plugin.PydevPlugin;
  * @author Fabio
  */
 public class SaveConsoleSessionAction extends Action {
-    
+
     private ScriptConsole console;
 
     public SaveConsoleSessionAction(ScriptConsole console, String text, String tooltip) {

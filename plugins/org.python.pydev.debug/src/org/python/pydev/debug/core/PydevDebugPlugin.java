@@ -45,7 +45,6 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
 
     public ImageCache imageCache;
 
-
     public PydevDebugPlugin() {
         plugin = this;
     }
@@ -54,16 +53,16 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
         super.start(context);
         imageCache = new ImageCache(PydevDebugPlugin.getDefault().getBundle().getEntry("/"));
     }
-    
+
     @Override
     public void stop(BundleContext context) throws Exception {
         super.stop(context);
         ColorManager.getDefault().dispose();
         imageCache.dispose();
-        for(ILaunch l: new ArrayList<ILaunch>(consoleLaunches)){
-            try{
+        for (ILaunch l : new ArrayList<ILaunch>(consoleLaunches)) {
+            try {
                 this.removeConsoleLaunch(l);
-            }catch(Exception e){
+            } catch (Exception e) {
                 Log.log(e);
             }
         }
@@ -75,7 +74,7 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
 
     public static String getPluginID() {
         PydevDebugPlugin d = getDefault();
-        if(d == null){
+        if (d == null) {
             return "Unable to get id";
         }
         return d.getBundle().getSymbolicName();
@@ -88,7 +87,6 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
     public static ImageCache getImageCache() {
         return plugin.imageCache;
     }
-
 
     /**
      * Returns the active workbench window or <code>null</code> if none
@@ -144,12 +142,11 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
         return PydevPlugin.getPySrcPath();
     }
 
-
     /**
      * Holds the console launches that should be terminated.
      */
     private List<ILaunch> consoleLaunches = new ArrayList<ILaunch>();
-    
+
     /**
      * Adds launch to the list of launches managed by pydev. Added launches will be shutdown
      * if they are not removed before the plugin shutdown.
@@ -166,10 +163,10 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
      * @param launch the launch to be removed
      */
     public void removeConsoleLaunch(ILaunch launch) {
-        if(consoleLaunches.remove(launch)){
+        if (consoleLaunches.remove(launch)) {
             IProcess[] processes = launch.getProcesses();
             if (processes != null) {
-                for (IProcess p:processes) {
+                for (IProcess p : processes) {
                     try {
                         p.terminate();
                     } catch (Exception e) {

@@ -56,8 +56,7 @@ public class HistoryFilteredList extends Composite {
          *            a flag indicating whether wildcard characters are
          *            interpreted or not.
          */
-        void setFilter(String pattern, boolean ignoreCase,
-                boolean ignoreWildCards);
+        void setFilter(String pattern, boolean ignoreCase, boolean ignoreWildCards);
 
         /**
          * @param element
@@ -73,10 +72,8 @@ public class HistoryFilteredList extends Composite {
     private class DefaultFilterMatcher implements FilterMatcher {
         private StringMatcher fMatcher;
 
-        public void setFilter(String pattern, boolean ignoreCase,
-                boolean ignoreWildCards) {
-            fMatcher = new StringMatcher(pattern + '*', ignoreCase,
-                    ignoreWildCards);
+        public void setFilter(String pattern, boolean ignoreCase, boolean ignoreWildCards) {
+            fMatcher = new StringMatcher(pattern + '*', ignoreCase, ignoreWildCards);
         }
 
         public boolean match(Object element) {
@@ -112,7 +109,7 @@ public class HistoryFilteredList extends Composite {
 
     private FilterMatcher fFilterMatcher = new DefaultFilterMatcher();
 
-//    Comparator fComparator;
+    //    Comparator fComparator;
 
     TableUpdateJob fUpdateJob;
 
@@ -170,7 +167,6 @@ public class HistoryFilteredList extends Composite {
         }
     }
 
-
     /**
      * Constructs a new filtered list.
      * 
@@ -188,8 +184,7 @@ public class HistoryFilteredList extends Composite {
      *            specifies whether empty filter strings should filter
      *            everything or nothing
      */
-    public HistoryFilteredList(Composite parent, int style,
-            ILabelProvider labelProvider, boolean ignoreCase,
+    public HistoryFilteredList(Composite parent, int style, ILabelProvider labelProvider, boolean ignoreCase,
             boolean allowDuplicates, boolean matchEmptyString) {
         super(parent, SWT.NONE);
         GridLayout layout = new GridLayout();
@@ -263,7 +258,6 @@ public class HistoryFilteredList extends Composite {
         Assert.isNotNull(filterMatcher);
         fFilterMatcher = filterMatcher;
     }
-
 
     /**
      * Adds a selection listener to the list.
@@ -346,8 +340,7 @@ public class HistoryFilteredList extends Composite {
         for (int i = 0; i != elements.length; i++) {
             int j;
             for (j = 0; j != fFoldedCount; j++) {
-                int max = (j == fFoldedCount - 1) ? fFilteredCount
-                        : fFoldedIndices[j + 1];
+                int max = (j == fFoldedCount - 1) ? fFilteredCount : fFoldedIndices[j + 1];
                 int l;
                 for (l = fFoldedIndices[j]; l != max; l++) {
                     // found matching element?
@@ -432,8 +425,7 @@ public class HistoryFilteredList extends Composite {
             return null;
         }
         int start = fFoldedIndices[index];
-        int count = (index == fFoldedCount - 1) ? fFilteredCount - start
-                : fFoldedIndices[index + 1] - start;
+        int count = (index == fFoldedCount - 1) ? fFilteredCount - start : fFoldedIndices[index + 1] - start;
         Object[] elements = new Object[count];
         for (int i = 0; i != count; i++) {
             elements[i] = fElements[fFilteredIndices[start + i]];
@@ -472,8 +464,7 @@ public class HistoryFilteredList extends Composite {
      * elements after filtering.
      */
     private int filter() {
-        if (((fFilter == null) || (fFilter.length() == 0))
-                && !fMatchEmptyString) {
+        if (((fFilter == null) || (fFilter.length() == 0)) && !fMatchEmptyString) {
             return 0;
         }
         fFilterMatcher.setFilter(fFilter.trim(), fIgnoreCase, false);
@@ -497,7 +488,7 @@ public class HistoryFilteredList extends Composite {
          * Programmatic selections requested while this job was running.
          */
         int[] indicesToSelect;
-        
+
         private boolean readyForSelection = false;
 
         /**
@@ -519,12 +510,12 @@ public class HistoryFilteredList extends Composite {
          * 
          * @see org.eclipse.ui.progress.UIJob#runInUIThread(org.eclipse.core.runtime.IProgressMonitor)
          */
-public IStatus runInUIThread(IProgressMonitor monitor) {
+        public IStatus runInUIThread(IProgressMonitor monitor) {
             if (fTable.isDisposed()) {
                 return Status.CANCEL_STATUS;
             }
             int itemCount = fTable.getItemCount();
-                        
+
             // Remove excess items
             if (fCount < itemCount) {
                 fTable.setRedraw(false);
@@ -543,9 +534,8 @@ public IStatus runInUIThread(IProgressMonitor monitor) {
                 if (monitor.isCanceled()) {
                     return Status.CANCEL_STATUS;
                 }
-                final TableItem item = (currentIndex < itemCount) ? fTable
-                        .getItem(currentIndex)
-                        : new TableItem(fTable, SWT.NONE);
+                final TableItem item = (currentIndex < itemCount) ? fTable.getItem(currentIndex) : new TableItem(
+                        fTable, SWT.NONE);
                 final Label label = fLabels[fFilteredIndices[fFoldedIndices[currentIndex]]];
                 item.setText(label.string);
                 item.setImage(label.image);
@@ -558,7 +548,7 @@ public IStatus runInUIThread(IProgressMonitor monitor) {
                 schedule(100);
             } else {
                 if (indicesToSelect == null) {
-                     // Make a default selection in the table if there is none.
+                    // Make a default selection in the table if there is none.
                     // If a selection has already been made, honor it.
                     // See https://bugs.eclipse.org/bugs/show_bug.cgi?id=112146
                     if (fCount > 0) {
@@ -582,6 +572,7 @@ public IStatus runInUIThread(IProgressMonitor monitor) {
             }
             return Status.OK_STATUS;
         }
+
         /**
          * Update the selection for the supplied indices.
          * 
@@ -702,7 +693,7 @@ public IStatus runInUIThread(IProgressMonitor monitor) {
     public void setLabelProvider(ILabelProvider labelProvider) {
         this.fLabelProvider = labelProvider;
     }
-    
+
     /**
      * Returns the accessible object for the receiver.
      * If this is the first time this object is requested,

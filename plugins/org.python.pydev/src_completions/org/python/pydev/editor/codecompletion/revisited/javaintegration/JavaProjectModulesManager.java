@@ -66,13 +66,11 @@ import org.python.pydev.core.structure.FastStringBuffer;
 public class JavaProjectModulesManager implements IModulesManager, IProjectModulesManager {
 
     private static final String[] EMPTY_STRINTG_ARRAY = new String[0];
-    
-    
+
     // DEBUG CONSTANTS
     private static final boolean DEBUG_GET_MODULE = false;
-    
-    private static final boolean DEBUG_GET_DIRECT_MODULES = false;
 
+    private static final boolean DEBUG_GET_DIRECT_MODULES = false;
 
     private IJavaProject javaProject;
 
@@ -80,42 +78,41 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
         this.javaProject = javaProject;
     }
 
-
     /**
      * @return a map with the modules keys for all the available modules that start with the passed token.
      */
     public SortedMap<ModulesKey, ModulesKey> getAllDirectModulesStartingWith(final String moduleToGetTokensFrom) {
-        if(DEBUG_GET_DIRECT_MODULES){
-            System.out.println("getAllDirectModulesStartingWith: "+moduleToGetTokensFrom);
+        if (DEBUG_GET_DIRECT_MODULES) {
+            System.out.println("getAllDirectModulesStartingWith: " + moduleToGetTokensFrom);
         }
         final TreeMap<ModulesKey, ModulesKey> ret = new TreeMap<ModulesKey, ModulesKey>();
-        
-        filterJavaPackages(new IFilter(){
-            
+
+        filterJavaPackages(new IFilter() {
+
             public boolean accept(String elementName, IPackageFragmentRoot packageRoot, IJavaElement javaElement) {
-                if(elementName.startsWith(moduleToGetTokensFrom) && elementName.length() > 0){ //we don't want the 'default' package here!
-                    if(DEBUG_GET_DIRECT_MODULES){
-                        System.out.println("getAllDirectModulesStartingWith: found:"+elementName);
+                if (elementName.startsWith(moduleToGetTokensFrom) && elementName.length() > 0) { //we don't want the 'default' package here!
+                    if (DEBUG_GET_DIRECT_MODULES) {
+                        System.out.println("getAllDirectModulesStartingWith: found:" + elementName);
                     }
-                    
+
                     ModulesKeyForJava key = new ModulesKeyForJava(elementName, packageRoot, javaElement);
                     ret.put(key, key);
-                    
+
                     //as we care about the full module name here, we'll only try to check the classes if
                     //the package name already starts with what we're looking for...
                     return true;
                 }
-                
-                if(elementName.length() == 0){
+
+                if (elementName.length() == 0) {
                     //or if we're in the default package.
                     return true;
                 }
-                
+
                 return false;
             }
-            
+
         });
-        
+
         return ret;
     }
 
@@ -124,18 +121,18 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
      * as the addDependencies should never be true in this implementation).
      */
     public Set<String> getAllModuleNames(boolean addDependencies, final String partStartingWithLowerCase) {
-        if(addDependencies){
-            throw new RuntimeException("At this point, it should never be called with dependencies " +
-                    "(because it's a java project already -- it manages that internally already)");
+        if (addDependencies) {
+            throw new RuntimeException("At this point, it should never be called with dependencies "
+                    + "(because it's a java project already -- it manages that internally already)");
         }
-        
+
         final HashSet<String> ret = new HashSet<String>();
 
-        filterJavaPackages(new IFilter(){
+        filterJavaPackages(new IFilter() {
 
             public boolean accept(String elementName, IPackageFragmentRoot packageRoot, IJavaElement javaElement) {
                 for (String mod : StringUtils.dotSplit(elementName)) {
-                    if(mod.toLowerCase().startsWith(partStartingWithLowerCase)){
+                    if (mod.toLowerCase().startsWith(partStartingWithLowerCase)) {
                         ret.add(elementName);
                     }
                 }
@@ -146,13 +143,12 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
         return ret;
     }
 
-
     /**
      * Interface to be passed to filter a java package.
      *
      * @author Fabio
      */
-    public static interface IFilter{
+    public static interface IFilter {
         /**
          * @param elementName the name of the element (same as javaElement.getElementName())
          * @param packageRoot the java package where the element is contained
@@ -162,8 +158,7 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
          */
         public boolean accept(String elementName, IPackageFragmentRoot packageRoot, IJavaElement javaElement);
     }
-    
-    
+
     /**
      * This method passes through all the java packages and calls the filter callback passed 
      * on each package found.
@@ -176,35 +171,35 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
         try {
             rawClasspath = this.javaProject.getRawClasspath();
             FastStringBuffer buffer = new FastStringBuffer();
-            for(IClasspathEntry entry:rawClasspath){
+            for (IClasspathEntry entry : rawClasspath) {
                 int entryKind = entry.getEntryKind();
                 IClasspathEntry resolvedClasspathEntry = JavaCore.getResolvedClasspathEntry(entry);
-                if(entryKind != IClasspathEntry.CPE_CONTAINER){
+                if (entryKind != IClasspathEntry.CPE_CONTAINER) {
                     //ignore if it's in the system classpath...
                     IPackageFragmentRoot[] roots = javaProject.findPackageFragmentRoots(resolvedClasspathEntry);
-                    
+
                     //get the package roots
                     for (IPackageFragmentRoot root : roots) {
                         IJavaElement[] children = root.getChildren();
-                        
+
                         //get the actual packages 
-                        for(IJavaElement child:children){
+                        for (IJavaElement child : children) {
                             IPackageFragment childPackage = (IPackageFragment) child;
                             String elementName = childPackage.getElementName();
-                            
+
                             //and if the java package is 'accepted'
-                            if(filter.accept(elementName, root, childPackage)){
+                            if (filter.accept(elementName, root, childPackage)) {
                                 buffer.clear();
                                 buffer.append(elementName);
                                 int packageNameLen = buffer.length();
-                                if(packageNameLen > 0){
+                                if (packageNameLen > 0) {
                                     buffer.append('.');
                                     packageNameLen++;
                                 }
-                                
+
                                 //traverse its classes
-                                for(IJavaElement class_:childPackage.getChildren()){
-                                    buffer.append(FullRepIterable.getFirstPart(class_.getElementName())); 
+                                for (IJavaElement class_ : childPackage.getChildren()) {
+                                    buffer.append(FullRepIterable.getFirstPart(class_.getElementName()));
                                     filter.accept(buffer.toString(), root, class_);
                                     buffer.setCount(packageNameLen); //leave only the package part for the next append
                                 }
@@ -217,8 +212,6 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
             throw new RuntimeException(e);
         }
     }
-        
-
 
     public String[] getBuiltins() {
         return EMPTY_STRINTG_ARRAY;
@@ -249,8 +242,8 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
     }
 
     public void setPythonPathHelper(Object helper) {
-      return; // noop
-  }
+        return; // noop
+    }
 
     public IModule getRelativeModule(String name, IPythonNature nature) {
         return this.getModuleInDirectManager(name, nature, true);
@@ -263,48 +256,47 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
     public ISystemModulesManager getSystemModulesManager() {
         return null;
     }
-    
+
     public Tuple<IModule, IModulesManager> getModuleAndRelatedModulesManager(String name, IPythonNature nature,
             boolean checkSystemManager, boolean dontSearchInit) {
         IModule module = this.getModule(name, nature, checkSystemManager, dontSearchInit);
-        if(module != null){
+        if (module != null) {
             return new Tuple<IModule, IModulesManager>(module, this);
         }
         return null;
     }
-
 
     /**
      * @param dontSearchInit: not applicable for this method (ignored)
      * @return the module that corresponds to the passed name.
      */
     public IModule getModuleInDirectManager(String name, IPythonNature nature, boolean dontSearchInit) {
-        if(DEBUG_GET_MODULE){
-            System.out.println("Trying to get module in java project modules manager: "+name);
+        if (DEBUG_GET_MODULE) {
+            System.out.println("Trying to get module in java project modules manager: " + name);
         }
-        if(name.startsWith(".")){ //this happens when looking for a relative import
+        if (name.startsWith(".")) { //this happens when looking for a relative import
             return null;
         }
         try {
             IJavaElement javaElement = this.javaProject.findType(name);
-            if(javaElement == null){
+            if (javaElement == null) {
                 javaElement = this.javaProject.findElement(new Path(name.replace('.', '/')));
             }
-            
-            if(DEBUG_GET_MODULE){
-                System.out.println("Found: "+javaElement);
+
+            if (DEBUG_GET_MODULE) {
+                System.out.println("Found: " + javaElement);
             }
-            
-            if(javaElement != null){
-                
+
+            if (javaElement != null) {
+
                 //now, there's a catch here, we'll find any class in the project classpath, even if it's in the 
                 //global classpath (e.g.: rt.jar), and this shouldn't be treated in this project modules manager
                 //(that's treated in the Jython system manager)
                 IJavaElement ancestor = javaElement.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
-                if(ancestor instanceof IPackageFragmentRoot){
+                if (ancestor instanceof IPackageFragmentRoot) {
                     IPackageFragmentRoot packageFragmentRoot = (IPackageFragmentRoot) ancestor;
                     IClasspathEntry rawClasspathEntry = packageFragmentRoot.getRawClasspathEntry();
-                    if(rawClasspathEntry.getEntryKind() == IClasspathEntry.CPE_CONTAINER){
+                    if (rawClasspathEntry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
                         return null;
                     }
                 }
@@ -315,7 +307,6 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
         }
         return null;
     }
-
 
     public String resolveModuleInDirectManager(IFile file) {
         return null;
@@ -352,7 +343,7 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
     public boolean startCompletionCache() {
         throw new RuntimeException("Not implemented");
     }
-    
+
     public void endCompletionCache() {
         throw new RuntimeException("Not implemented");
     }
@@ -360,7 +351,7 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
     public void endProcessing() {
         throw new RuntimeException("Not implemented");
     }
-    
+
     public SortedMap<ModulesKey, ModulesKey> getAllModulesStartingWith(String moduleToGetTokensFrom) {
         throw new RuntimeException("Not implemented"); //should never be called (this modules manager is inside another one that should handle it)
     }
@@ -368,48 +359,49 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
     public IModule addModule(ModulesKey key) {
         throw new RuntimeException("Not implemented");
     }
-    
+
     public void changePythonPath(String pythonpath, IProject project, IProgressMonitor monitor) {
         throw new RuntimeException("Not implemented");
     }
-    
+
     public void removeModules(Collection<ModulesKey> toRem) {
         throw new RuntimeException("Not implemented");
     }
-    
+
     public void processDelete(ModulesKey key) {
         throw new RuntimeException("Not implemented");
     }
-    
+
     public void processInsert(ModulesKey key) {
         throw new RuntimeException("Not implemented");
     }
-    
+
     public void processUpdate(ModulesKey data) {
         throw new RuntimeException("Not implemented");
     }
-    
-    public void rebuildModule(File f, ICallback0<IDocument> doc, IProject project, IProgressMonitor monitor, IPythonNature nature) {
+
+    public void rebuildModule(File f, ICallback0<IDocument> doc, IProject project, IProgressMonitor monitor,
+            IPythonNature nature) {
         throw new RuntimeException("Not implemented");
     }
-    
+
     public void removeModule(File file, IProject project, IProgressMonitor monitor) {
         throw new RuntimeException("Not implemented");
     }
-    
+
     public void setProject(IProject project, IPythonNature nature, boolean restoreDeltas) {
         throw new RuntimeException("Not implemented");
     }
 
-	public int pushTemporaryModule(String moduleName, IModule module) {
-		throw new RuntimeException("Not implemented");
-	}
+    public int pushTemporaryModule(String moduleName, IModule module) {
+        throw new RuntimeException("Not implemented");
+    }
 
-	public void popTemporaryModule(String moduleName, int handle) {
-		throw new RuntimeException("Not implemented");
-	}
-	
-	public void saveToFile(File workspaceMetadataFile) {
-	    throw new RuntimeException("Not implemented");
-	}
+    public void popTemporaryModule(String moduleName, int handle) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public void saveToFile(File workspaceMetadataFile) {
+        throw new RuntimeException("Not implemented");
+    }
 }

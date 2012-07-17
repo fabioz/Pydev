@@ -33,11 +33,10 @@ public class JavaVmLocationFinder {
         super();
     }
 
-    
     /**
      * @return the default java executable configured in the jdt plugin
      */
-    public static File findDefaultJavaExecutable() throws JDTNotAvailableException{
+    public static File findDefaultJavaExecutable() throws JDTNotAvailableException {
         try {
             return (File) callbackJavaExecutable.call(null);
         } catch (Exception e) {
@@ -45,13 +44,12 @@ public class JavaVmLocationFinder {
             throw new RuntimeException("Should never get here", e);
         }
     }
-    
-    
+
     /**
      * @return the default java jars (rt.jar ... )
      */
     @SuppressWarnings("unchecked")
-    public static List<File> findDefaultJavaJars() throws JDTNotAvailableException{
+    public static List<File> findDefaultJavaJars() throws JDTNotAvailableException {
         try {
             return (List<File>) callbackJavaJars.call(null);
         } catch (Exception e) {
@@ -59,46 +57,43 @@ public class JavaVmLocationFinder {
             throw new RuntimeException("Should never get here", e);
         }
     }
-    
-    
 
     /**
      * Might be changed for tests (if not in the eclipse env)
      */
-    public static ICallback callbackJavaExecutable = new ICallback(){
-        
+    public static ICallback callbackJavaExecutable = new ICallback() {
+
         public Object call(Object args) throws Exception {
-            try{
+            try {
                 IVMInstall defaultVMInstall = JavaRuntime.getDefaultVMInstall();
                 File installLocation = defaultVMInstall.getInstallLocation();
                 return StandardVMType.findJavaExecutable(installLocation);
-            }catch(Throwable e){
+            } catch (Throwable e) {
                 JythonModulesManagerUtils.tryRethrowAsJDTNotAvailableException(e);
                 throw new RuntimeException("Should never get here", e);
             }
         }
     };
-    
+
     /**
      * Might be changed for tests (if not in the eclipse env)
      */
-    public static ICallback callbackJavaJars = new ICallback(){
+    public static ICallback callbackJavaJars = new ICallback() {
 
         public Object call(Object args) throws Exception {
-            try{
+            try {
                 IVMInstall defaultVMInstall = JavaRuntime.getDefaultVMInstall();
                 LibraryLocation[] libraryLocations = JavaRuntime.getLibraryLocations(defaultVMInstall);
-                
+
                 ArrayList<File> jars = new ArrayList<File>();
                 for (LibraryLocation location : libraryLocations) {
                     jars.add(location.getSystemLibraryPath().toFile());
                 }
                 return jars;
-            }catch(Throwable e){
+            } catch (Throwable e) {
                 JythonModulesManagerUtils.tryRethrowAsJDTNotAvailableException(e);
                 throw new RuntimeException("Should never get here", e);
             }
         }
     };
 }
-

@@ -37,7 +37,7 @@ import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
-public class ParsedItem implements Comparable<Object>{
+public class ParsedItem implements Comparable<Object> {
 
     private ParsedItem parent;
     private ParsedItem[] children;
@@ -61,8 +61,7 @@ public class ParsedItem implements Comparable<Object>{
         this.parent = parent;
         this.setErrorDesc(errorDesc);
     }
-    
-    
+
     /**
      * Constructor for the root.
      */
@@ -78,12 +77,12 @@ public class ParsedItem implements Comparable<Object>{
     public void setAstThis(ASTEntryWithChildren astThis) {
         this.setAstThis(astThis, null);
     }
-    
+
     public void setAstThis(ASTEntryWithChildren astThis, ASTEntryWithChildren[] astChildrenEntries) {
         this.toStringCache = null;
         this.astThis = astThis;
-        
-        if(astChildrenEntries != null){
+
+        if (astChildrenEntries != null) {
             this.astChildrenEntries = astChildrenEntries;
             this.children = null; //the children must be recalculated...
         }
@@ -98,67 +97,64 @@ public class ParsedItem implements Comparable<Object>{
     }
 
     public void setErrorDesc(ErrorDescription errorDesc) {
-        if(this.errorDesc == null && errorDesc == null){
+        if (this.errorDesc == null && errorDesc == null) {
             return; // don't clear the caches
         }
         this.toStringCache = null;
         this.errorDesc = errorDesc;
     }
 
-    private static final int QUALIFIER_PUBLIC    = 0;
-    private static final int QUALIFIER_PROTECTED = 1; 
-    private static final int QUALIFIER_PRIVATE   = 2; 
+    private static final int QUALIFIER_PUBLIC = 0;
+    private static final int QUALIFIER_PROTECTED = 1;
+    private static final int QUALIFIER_PRIVATE = 2;
 
     private static int qualifierFromName(String name) {
         if (name.startsWith("__")) {
-            if(!name.endsWith("__")){
+            if (!name.endsWith("__")) {
                 return QUALIFIER_PRIVATE;
-                
-            }else{
+
+            } else {
                 return QUALIFIER_PUBLIC;
             }
-        }
-        else if (name.startsWith("_")) {
+        } else if (name.startsWith("_")) {
             return QUALIFIER_PROTECTED;
-        }
-        else {
+        } else {
             return QUALIFIER_PUBLIC;
         }
-        
+
     }
-    
+
     // returns images based upon element type
     public Image getImage() {
         ImageCache imageCache = PydevPlugin.getImageCache();
-        if(astThis == null){
+        if (astThis == null) {
             return imageCache.get(UIConstants.ERROR);
         }
-        
+
         SimpleNode token = astThis.node;
         return getImageForNode(imageCache, token, astThis.parent);
     }
 
     public static Image getImageForNode(ImageCache imageCache, SimpleNode token, ASTEntry parent) {
         if (token instanceof ClassDef) {
-            String className = NodeUtils.getNameFromNameTok((NameTok) ((ClassDef)token).name);
+            String className = NodeUtils.getNameFromNameTok((NameTok) ((ClassDef) token).name);
             switch (qualifierFromName(className)) {
-            case QUALIFIER_PROTECTED:
-                return imageCache.getImageDecorated(
-                        UIConstants.CLASS_ICON, UIConstants.PROTECTED_ICON, ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT);
-            case QUALIFIER_PRIVATE:
-                return imageCache.getImageDecorated(
-                        UIConstants.CLASS_ICON, UIConstants.PRIVATE_ICON, ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT);
-            default:
-                return imageCache.get(UIConstants.CLASS_ICON);
+                case QUALIFIER_PROTECTED:
+                    return imageCache.getImageDecorated(UIConstants.CLASS_ICON, UIConstants.PROTECTED_ICON,
+                            ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT);
+                case QUALIFIER_PRIVATE:
+                    return imageCache.getImageDecorated(UIConstants.CLASS_ICON, UIConstants.PRIVATE_ICON,
+                            ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT);
+                default:
+                    return imageCache.get(UIConstants.CLASS_ICON);
             }
-        }
-        else if (token instanceof FunctionDef) {
+        } else if (token instanceof FunctionDef) {
             FunctionDef functionDefToken = (FunctionDef) token;
 
-            String methodName = NodeUtils.getNameFromNameTok((NameTok) ((FunctionDef)token).name);
-            String qualifierIcon=null;
+            String methodName = NodeUtils.getNameFromNameTok((NameTok) ((FunctionDef) token).name);
+            String qualifierIcon = null;
             switch (qualifierFromName(methodName)) {
-                case QUALIFIER_PRIVATE: 
+                case QUALIFIER_PRIVATE:
                     qualifierIcon = UIConstants.PRIVATE_ICON;
                     break;
                 case QUALIFIER_PROTECTED:
@@ -166,105 +162,91 @@ public class ParsedItem implements Comparable<Object>{
                     break;
             }
             String decorationIcon = null;
-            if(functionDefToken.decs != null){
+            if (functionDefToken.decs != null) {
                 for (decoratorsType decorator : functionDefToken.decs) {
                     if (decorator.func instanceof Name) {
                         Name decoratorFuncName = (Name) decorator.func;
                         if (decoratorFuncName.id.equals("staticmethod")) {
                             decorationIcon = UIConstants.DECORATION_STATIC;
-                        }
-                        else if (decoratorFuncName.id.equals("classmethod")) {
+                        } else if (decoratorFuncName.id.equals("classmethod")) {
                             decorationIcon = UIConstants.DECORATION_CLASS;
                         }
                     }
                 }
             }
-            if(qualifierIcon != null){
+            if (qualifierIcon != null) {
                 //it's OK if the decorationIcon is null as that's properly handled in getImageDecorated.
-                return imageCache.getImageDecorated(
-                        UIConstants.METHOD_ICON, 
-                        qualifierIcon, ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT, 
-                        decorationIcon, ImageCache.DECORATION_LOCATION_TOP_RIGHT);
-                
-            }else if(decorationIcon != null){
-                return imageCache.getImageDecorated(
-                        UIConstants.METHOD_ICON, 
-                        decorationIcon, ImageCache.DECORATION_LOCATION_TOP_RIGHT);
+                return imageCache.getImageDecorated(UIConstants.METHOD_ICON, qualifierIcon,
+                        ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT, decorationIcon,
+                        ImageCache.DECORATION_LOCATION_TOP_RIGHT);
+
+            } else if (decorationIcon != null) {
+                return imageCache.getImageDecorated(UIConstants.METHOD_ICON, decorationIcon,
+                        ImageCache.DECORATION_LOCATION_TOP_RIGHT);
             }
-            
+
             return imageCache.get(UIConstants.METHOD_ICON);
-            
-        }
-        else if (token instanceof Import) {
+
+        } else if (token instanceof Import) {
             return imageCache.get(UIConstants.IMPORT_ICON);
-        }
-        else if (token instanceof If && NodeUtils.isIfMAinNode((If) token)) {
+        } else if (token instanceof If && NodeUtils.isIfMAinNode((If) token)) {
             return imageCache.get(UIConstants.MAIN_FUNCTION_ICON);
-        }
-        else if (token instanceof ImportFrom) {
+        } else if (token instanceof ImportFrom) {
             return imageCache.get(UIConstants.IMPORT_ICON);
-        }
-        else if (token instanceof commentType) {
+        } else if (token instanceof commentType) {
             return imageCache.get(UIConstants.COMMENT);
-        }
-        else if (token instanceof Attribute || token instanceof Name || token instanceof NameTok) {
+        } else if (token instanceof Attribute || token instanceof Name || token instanceof NameTok) {
             String name = null;
             if (token instanceof Attribute) {
                 Attribute attributeToken = (Attribute) token;
                 name = NodeUtils.getNameFromNameTok((NameTok) (attributeToken).attr);
-            }
-            else if (token instanceof Name) {
+            } else if (token instanceof Name) {
                 Name nameToken = (Name) token;
                 name = nameToken.id;
-            }
-            else {
+            } else {
                 NameTok nameTokToken = (NameTok) token;
                 name = NodeUtils.getNameFromNameTok(nameTokToken);
             }
-            
 
             String image;
             if (name.startsWith("__")) {
-                if(name.endsWith("__")){
+                if (name.endsWith("__")) {
                     image = UIConstants.PUBLIC_ATTR_ICON;
-                }else{
+                } else {
                     image = UIConstants.PRIVATE_FIELD_ICON;
                 }
-            }
-            else if (name.startsWith("_")) {
+            } else if (name.startsWith("_")) {
                 image = UIConstants.PROTECTED_FIELD_ICON;
-            }
-            else {
+            } else {
                 image = UIConstants.PUBLIC_ATTR_ICON;
             }
-            
-            if(parent != null && parent.node != null && parent.node instanceof ClassDef){
+
+            if (parent != null && parent.node != null && parent.node instanceof ClassDef) {
                 return imageCache.getImageDecorated(image, UIConstants.DECORATION_CLASS);
             }
             return imageCache.get(image);
-            
-        }
-        else {
+
+        } else {
             return imageCache.get(UIConstants.ERROR);
         }
     }
-    
+
     public ParsedItem[] getChildren() {
-        if(children != null ){
+        if (children != null) {
             return children;
         }
-        if(astChildrenEntries == null){
+        if (astChildrenEntries == null) {
             astChildrenEntries = new ASTEntryWithChildren[0];
         }
-        
+
         ArrayList<ParsedItem> items = new ArrayList<ParsedItem>();
-        
+
         //only the root can have an error as a child (from there on, the errors don't contain inner errors)
-        if(this.parent == null && errorDesc != null && errorDesc.message != null){
+        if (this.parent == null && errorDesc != null && errorDesc.message != null) {
             items.add(new ParsedItem(this, errorDesc));
         }
-        
-        for(ASTEntryWithChildren c : astChildrenEntries){
+
+        for (ASTEntryWithChildren c : astChildrenEntries) {
             items.add(new ParsedItem(this, c, c.getChildren()));
         }
         children = items.toArray(new ParsedItem[items.size()]);
@@ -275,73 +257,72 @@ public class ParsedItem implements Comparable<Object>{
         return parent;
     }
 
-
     /**
      * When null, it must be rebuilt!
      */
-    private String toStringCache; 
-    
+    private String toStringCache;
+
     public String toString() {
-        if(toStringCache == null){
+        if (toStringCache == null) {
             toStringCache = calcToString();
         }
         return toStringCache;
     }
-    
+
     private String calcToString() {
-        if(errorDesc != null && errorDesc.message != null){
+        if (errorDesc != null && errorDesc.message != null) {
             return errorDesc.message;
         }
-        
-        if (astThis == null){
+
+        if (astThis == null) {
             return "null";
-            
-        } else if (astThis.node instanceof If && NodeUtils.isIfMAinNode((If) astThis.node)){
+
+        } else if (astThis.node instanceof If && NodeUtils.isIfMAinNode((If) astThis.node)) {
             return "__main__";
-            
+
         } else if (astThis.node instanceof Import) {
-            aliasType[] imports = ((Import)astThis.node).names;
+            aliasType[] imports = ((Import) astThis.node).names;
             FastStringBuffer retVal = new FastStringBuffer();
-            for (int i=0; i<imports.length; i++) {
+            for (int i = 0; i < imports.length; i++) {
                 aliasType aliasType = imports[i];
-                
+
                 //as ...
-                if(aliasType.asname != null){
-                    retVal.append(((NameTok)aliasType.asname).id);
+                if (aliasType.asname != null) {
+                    retVal.append(((NameTok) aliasType.asname).id);
                     retVal.append(" = ");
                 }
 
-                retVal.append(((NameTok)aliasType.name).id);
+                retVal.append(((NameTok) aliasType.name).id);
                 retVal.append(", ");
             }
             //delete the last 2 chars
             retVal.deleteLast();
             retVal.deleteLast();
             return retVal.toString();
-            
-        }else if (astThis.node instanceof ImportFrom) {
+
+        } else if (astThis.node instanceof ImportFrom) {
             // from wxPython.wx import *
-            ImportFrom importToken = (ImportFrom)astThis.node;
+            ImportFrom importToken = (ImportFrom) astThis.node;
             StringBuffer modules = new StringBuffer();
-            for (int i=0; i<importToken.names.length;i++) {
+            for (int i = 0; i < importToken.names.length; i++) {
                 aliasType aliasType = importToken.names[i];
 
                 //as ...
-                if(aliasType.asname != null){
-                    modules.append(((NameTok)aliasType.asname).id);
+                if (aliasType.asname != null) {
+                    modules.append(((NameTok) aliasType.asname).id);
                     modules.append(" = ");
                 }
 
-                modules.append(((NameTok)aliasType.name).id);
+                modules.append(((NameTok) aliasType.name).id);
                 modules.append(",");
             }
             if (modules.length() == 0) {
                 modules.append("*,"); //the comma will be deleted
             }
-            modules.deleteCharAt(modules.length()-1);
-            return modules.toString() + " (" + ((NameTok)importToken.module).id + ")";
-            
-        }else if (astThis.node instanceof commentType) {
+            modules.deleteCharAt(modules.length() - 1);
+            return modules.toString() + " (" + ((NameTok) importToken.module).id + ")";
+
+        } else if (astThis.node instanceof commentType) {
             commentType type = (commentType) astThis.node;
             String rep = type.id.trim();
             rep = StringUtils.split(rep, '\n').get(0);
@@ -349,19 +330,19 @@ public class ParsedItem implements Comparable<Object>{
             rep = rep.substring(1);
             rep = StringUtils.rightTrim(rep, '-');
             return StringUtils.leftTrim(rep, '-');
-            
-        }else {
+
+        } else {
             return NodeUtils.getFullRepresentationString(astThis.node);
         }
     }
-    
+
     /**
      * @return rank for sorting ParserItems. When comparing
      * two items, first we compare class ranking, then titles
      */
     public int getClassRanking() {
         int rank;
-        
+
         if (astThis == null || (errorDesc != null && errorDesc.message != null)) {
             rank = -2;
         } else if (astThis.node instanceof ImportFrom) {
@@ -377,21 +358,21 @@ public class ParsedItem implements Comparable<Object>{
     }
 
     public int compareTo(Object o) {
-        if(!(o instanceof ParsedItem)){
+        if (!(o instanceof ParsedItem)) {
             return 0;
         }
         ParsedItem item = (ParsedItem) o;
         int myRank = getClassRanking();
         int rank = item.getClassRanking();
-        
+
         if (myRank == rank) {
-            if(rank == -1){
-                return astThis.node.beginLine < item.astThis.node.beginLine? -1 : 1;
-            }else{
+            if (rank == -1) {
+                return astThis.node.beginLine < item.astThis.node.beginLine ? -1 : 1;
+            } else {
                 return toString().compareTo(item.toString());
             }
-            
-        }else {
+
+        } else {
             return (myRank < rank ? -1 : 1);
         }
     }
@@ -410,58 +391,55 @@ public class ParsedItem implements Comparable<Object>{
         this.astChildrenEntries = updateToItem.astChildrenEntries;
 
         ParsedItem[] newStructureChildren = updateToItem.getChildren();
-        
+
         //handle special cases...
-        if(this.children == null){
+        if (this.children == null) {
             this.children = newStructureChildren;
             return;
         }
-        
-        if(newStructureChildren.length == 0 || this.children.length == 0){
+
+        if (newStructureChildren.length == 0 || this.children.length == 0) {
             //nothing to actually update... (just set the new children directly)
             this.children = newStructureChildren;
             return;
         }
-        
+
         ArrayList<ParsedItem> newChildren = new ArrayList<ParsedItem>();
-        
-        
+
         //ok, something there... let's update the requested children... 
         //(trying to maintain the existing nodes were possible)
         HashMap<String, List<ParsedItem>> childrensCache = new HashMap<String, List<ParsedItem>>();
-        for(ParsedItem existing:this.children){
+        for (ParsedItem existing : this.children) {
             String s = existing.toString();
             List<ParsedItem> list = childrensCache.get(s);
-            if(list == null){
+            if (list == null) {
                 list = new ArrayList<ParsedItem>();
                 childrensCache.put(s, list);
             }
             list.add(existing);
         }
-        
-        for(ParsedItem n:newStructureChildren){
+
+        for (ParsedItem n : newStructureChildren) {
             ParsedItem similarChild = getSimilarChild(n, childrensCache);
-            if(similarChild != null){
+            if (similarChild != null) {
                 similarChild.updateTo(n);
                 n = similarChild;
-            }else{
+            } else {
                 n.parent = this;
             }
             newChildren.add(n);
         }
 
-        
         this.children = newChildren.toArray(new ParsedItem[newChildren.size()]);
     }
 
     private ParsedItem getSimilarChild(ParsedItem n, HashMap<String, List<ParsedItem>> childrensCache) {
         //try to get a similar child from the 'cache'
         List<ParsedItem> list = childrensCache.get(n.toString());
-        if(list != null && list.size() > 0){
+        if (list != null && list.size() > 0) {
             return list.remove(0);
         }
         return null;
     }
 
-    
 }

@@ -41,39 +41,39 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
  * 
  * @author Fabio
  */
-public class PythonLabelProvider implements ILabelProvider{
+public class PythonLabelProvider implements ILabelProvider {
 
     private WorkbenchLabelProvider provider;
-    
+
     private volatile Image projectWithError = null;
-    
+
     private Object lock = new Object();
 
     public PythonLabelProvider() {
         provider = new WorkbenchLabelProvider();
     }
-    
+
     /**
      * @see org.eclipse.jface.viewers.ILabelProvider#getImage(java.lang.Object)
      */
     public Image getImage(Object element) {
-        if(element instanceof PythonProjectSourceFolder){
+        if (element instanceof PythonProjectSourceFolder) {
             return PydevPlugin.getImageCache().get(UIConstants.PROJECT_SOURCE_FOLDER_ICON);
         }
-        if(element instanceof PythonSourceFolder){
+        if (element instanceof PythonSourceFolder) {
             return PydevPlugin.getImageCache().get(UIConstants.SOURCE_FOLDER_ICON);
         }
-        if(element instanceof PythonFolder){
+        if (element instanceof PythonFolder) {
             PythonFolder folder = (PythonFolder) element;
             IFolder actualObject = folder.getActualObject();
-            if(actualObject != null){
+            if (actualObject != null) {
                 final String[] validInitFiles = FileTypesPreferencesPage.getValidInitFiles();
-                
-                for(String init:validInitFiles){
-                    if(actualObject.getFile(init).exists()){
-                        if(checkParentsHaveInit(folder, validInitFiles)){
+
+                for (String init : validInitFiles) {
+                    if (actualObject.getFile(init).exists()) {
+                        if (checkParentsHaveInit(folder, validInitFiles)) {
                             return PydevPlugin.getImageCache().get(UIConstants.FOLDER_PACKAGE_ICON);
-                        }else{
+                        } else {
                             break;
                         }
                     }
@@ -81,101 +81,99 @@ public class PythonLabelProvider implements ILabelProvider{
             }
             return provider.getImage(actualObject);
         }
-        if(element instanceof PythonNode){
+        if (element instanceof PythonNode) {
             PythonNode node = (PythonNode) element;
             return node.entry.getImage();
         }
-        if(element instanceof IWrappedResource){
+        if (element instanceof IWrappedResource) {
             IWrappedResource resource = (IWrappedResource) element;
             Object actualObject = resource.getActualObject();
-            if(actualObject instanceof IFile){
-				IFile iFile = (IFile) actualObject;
-				final String name = iFile.getName();
-				
-				if(name.indexOf('.') == -1){
-				    try {
-				        if(PythonPathHelper.markAsPyDevFileIfDetected(iFile)){
-				            if(FileTypesPreferencesPage.isCythonFile(name)){
-				                return PydevPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON);
-				            }
-				            return PydevPlugin.getImageCache().get(UIConstants.PY_FILE_ICON);
+            if (actualObject instanceof IFile) {
+                IFile iFile = (IFile) actualObject;
+                final String name = iFile.getName();
+
+                if (name.indexOf('.') == -1) {
+                    try {
+                        if (PythonPathHelper.markAsPyDevFileIfDetected(iFile)) {
+                            if (FileTypesPreferencesPage.isCythonFile(name)) {
+                                return PydevPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON);
+                            }
+                            return PydevPlugin.getImageCache().get(UIConstants.PY_FILE_ICON);
                         }
                     } catch (Exception e) {
                         //Ignore
                     }
-				}
-				if(FileTypesPreferencesPage.isCythonFile(name)){
-				    return PydevPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON);
-				}
-				
-				if(name.startsWith("__init__.") && PythonPathHelper.isValidSourceFile(name)){
-					return PyTitlePreferencesPage.getInitIcon();
-				}else{
-					IProject project = iFile.getProject();
-					try {
-						if(project.hasNature(PythonNature.DJANGO_NATURE_ID)){
-							String djangoModulesHandling = PyTitlePreferencesPage.getDjangoModulesHandling();
-                            if(djangoModulesHandling == PyTitlePreferencesPage.TITLE_EDITOR_DJANGO_MODULES_SHOW_PARENT_AND_DECORATE||
-                               djangoModulesHandling == PyTitlePreferencesPage.TITLE_EDITOR_DJANGO_MODULES_DECORATE){
-                                
-								if(PyTitlePreferencesPage.isDjangoModuleToDecorate(name)){
-									return PyTitlePreferencesPage.getDjangoModuleIcon(name);
-								}
-							}
-						}
-					} catch (CoreException e) {
-						Log.log(e);
-					}
-				}
+                }
+                if (FileTypesPreferencesPage.isCythonFile(name)) {
+                    return PydevPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON);
+                }
+
+                if (name.startsWith("__init__.") && PythonPathHelper.isValidSourceFile(name)) {
+                    return PyTitlePreferencesPage.getInitIcon();
+                } else {
+                    IProject project = iFile.getProject();
+                    try {
+                        if (project.hasNature(PythonNature.DJANGO_NATURE_ID)) {
+                            String djangoModulesHandling = PyTitlePreferencesPage.getDjangoModulesHandling();
+                            if (djangoModulesHandling == PyTitlePreferencesPage.TITLE_EDITOR_DJANGO_MODULES_SHOW_PARENT_AND_DECORATE
+                                    || djangoModulesHandling == PyTitlePreferencesPage.TITLE_EDITOR_DJANGO_MODULES_DECORATE) {
+
+                                if (PyTitlePreferencesPage.isDjangoModuleToDecorate(name)) {
+                                    return PyTitlePreferencesPage.getDjangoModuleIcon(name);
+                                }
+                            }
+                        }
+                    } catch (CoreException e) {
+                        Log.log(e);
+                    }
+                }
             }
-			return provider.getImage(actualObject);
+            return provider.getImage(actualObject);
         }
-        if(element instanceof ProjectConfigError){
+        if (element instanceof ProjectConfigError) {
             return PydevPlugin.getImageCache().get(UIConstants.ERROR);
         }
-        if(element instanceof TreeNode<?>){
+        if (element instanceof TreeNode<?>) {
             TreeNode<?> treeNode = (TreeNode<?>) element;
             LabelAndImage data = (LabelAndImage) treeNode.getData();
             return data.image;
         }
-        if(element instanceof IFile){
+        if (element instanceof IFile) {
             IFile iFile = (IFile) element;
             String name = iFile.getName();
-            if(FileTypesPreferencesPage.isCythonFile(name)){
-                return PydevPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON); 
+            if (FileTypesPreferencesPage.isCythonFile(name)) {
+                return PydevPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON);
             }
-            
+
         }
-        if(element instanceof IProject){
+        if (element instanceof IProject) {
             IProject project = (IProject) element;
-            if(!project.isOpen()){
+            if (!project.isOpen()) {
                 return null;
             }
             IMarker[] markers;
-            try{
+            try {
                 markers = project.findMarkers(PythonBaseModelProvider.PYDEV_PACKAGE_EXPORER_PROBLEM_MARKER, true, 0);
-            }catch(CoreException e1){
+            } catch (CoreException e1) {
                 Log.log(e1);
                 return null;
             }
-            if(markers == null || markers.length == 0){
+            if (markers == null || markers.length == 0) {
                 return null;
             }
-            
+
             //We have errors: make them explicit.
-            if(projectWithError == null){
-                synchronized(lock){
+            if (projectWithError == null) {
+                synchronized (lock) {
                     //we must recheck again (if 2 got here and 1 got the lock while the other was waiting, when
                     //the other enters the lock, it does not need to recalculated).
-                    if(projectWithError == null){
+                    if (projectWithError == null) {
                         //Note on double-checked locking idiom: http://www.cs.umd.edu/~pugh/java/memoryModel/DoubleCheckedLocking.html.
                         //(would not work as expected on java 1.4)
                         Image image = provider.getImage(element);
                         try {
-                            DecorationOverlayIcon decorationOverlayIcon = new DecorationOverlayIcon(
-                                    image, 
-                                    PydevPlugin.getImageCache().getDescriptor(UIConstants.ERROR_SMALL), 
-                                    IDecoration.BOTTOM_LEFT);
+                            DecorationOverlayIcon decorationOverlayIcon = new DecorationOverlayIcon(image, PydevPlugin
+                                    .getImageCache().getDescriptor(UIConstants.ERROR_SMALL), IDecoration.BOTTOM_LEFT);
                             projectWithError = decorationOverlayIcon.createImage();
                         } catch (Exception e) {
                             Log.log("Unable to create error decoration for project icon.", e);
@@ -184,7 +182,7 @@ public class PythonLabelProvider implements ILabelProvider{
                     }
                 }
             }
-            
+
             return projectWithError;
         }
         return provider.getImage(element);
@@ -201,30 +199,30 @@ public class PythonLabelProvider implements ILabelProvider{
      */
     private final boolean checkParentsHaveInit(final PythonFolder pythonFolder, final String[] validInitFiles) {
         IWrappedResource parentElement = pythonFolder.getParentElement();
-        while(parentElement != null){
-            if(parentElement instanceof PythonSourceFolder){
+        while (parentElement != null) {
+            if (parentElement instanceof PythonSourceFolder) {
                 //gotten to the source folder: this one doesn't need to have an __init__.py
                 return true;
             }
-            
+
             Object actualObject = parentElement.getActualObject();
-            if(actualObject instanceof IFolder){
+            if (actualObject instanceof IFolder) {
                 IFolder folder = (IFolder) actualObject;
                 boolean foundInit = false;
-                for(String init:validInitFiles){
+                for (String init : validInitFiles) {
                     final IFile file = folder.getFile(init);
-                    if(file.exists()){
+                    if (file.exists()) {
                         foundInit = true;
                         break;
                     }
                 }
-                if(!foundInit){
+                if (!foundInit) {
                     return false;
                 }
             }
-            
+
             Object tempParent = parentElement.getParentElement();
-            if(!(tempParent instanceof IWrappedResource)){
+            if (!(tempParent instanceof IWrappedResource)) {
                 break;
             }
             parentElement = (IWrappedResource) tempParent;
@@ -237,29 +235,29 @@ public class PythonLabelProvider implements ILabelProvider{
      * @see org.eclipse.jface.viewers.ILabelProvider#getText(java.lang.Object)
      */
     public String getText(Object element) {
-        if(element instanceof PythonNode){
+        if (element instanceof PythonNode) {
             PythonNode node = (PythonNode) element;
             return node.entry.toString();
         }
-            
-        if(element instanceof PythonSourceFolder){
+
+        if (element instanceof PythonSourceFolder) {
             PythonSourceFolder sourceFolder = (PythonSourceFolder) element;
             return provider.getText(sourceFolder.container);
         }
-        
-        if(element instanceof IWrappedResource){
+
+        if (element instanceof IWrappedResource) {
             IWrappedResource resource = (IWrappedResource) element;
             return provider.getText(resource.getActualObject());
         }
-        if(element instanceof TreeNode<?>){
+        if (element instanceof TreeNode<?>) {
             TreeNode<?> treeNode = (TreeNode<?>) element;
             LabelAndImage data = (LabelAndImage) treeNode.getData();
             return data.label;
         }
-        if(element instanceof ProjectConfigError){
-            return ((ProjectConfigError)element).getLabel();
+        if (element instanceof ProjectConfigError) {
+            return ((ProjectConfigError) element).getLabel();
         }
-        
+
         return provider.getText(element);
     }
 
@@ -281,6 +279,5 @@ public class PythonLabelProvider implements ILabelProvider{
     public void removeListener(ILabelProviderListener listener) {
         provider.removeListener(listener);
     }
-
 
 }

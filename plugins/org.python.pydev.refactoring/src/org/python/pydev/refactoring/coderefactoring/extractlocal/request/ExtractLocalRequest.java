@@ -28,12 +28,8 @@ public class ExtractLocalRequest implements IRefactoringRequest {
     public final List<Tuple<ITextSelection, SimpleNode>> duplicates;
     public final boolean replaceDuplicates;
 
-    public ExtractLocalRequest(
-            RefactoringInfo info, 
-            ITextSelection selection, 
-            exprType expression, 
-            String variableName, 
-            List<Tuple<ITextSelection, SimpleNode>> duplicates, boolean replaceDuplicates) {
+    public ExtractLocalRequest(RefactoringInfo info, ITextSelection selection, exprType expression,
+            String variableName, List<Tuple<ITextSelection, SimpleNode>> duplicates, boolean replaceDuplicates) {
         this.info = info;
         this.selection = selection;
         this.expression = expression;

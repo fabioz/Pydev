@@ -22,7 +22,7 @@ public class Helpers {
         IEditorPart[] dirtyEditors = workbenchWindow.getActivePage().getDirtyEditors();
         for (IEditorPart iEditorPart : dirtyEditors) {
             PyEdit.checkValidateState(iEditorPart);
-        }        
+        }
         return dirtyEditors;
     }
 

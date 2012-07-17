@@ -20,7 +20,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.runners.SimpleIronpythonRunner;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
-public class IronpythonInterpreterManager extends AbstractInterpreterManager{
+public class IronpythonInterpreterManager extends AbstractInterpreterManager {
 
     public IronpythonInterpreterManager(IPreferenceStore prefs) {
         super(prefs);
@@ -30,22 +30,22 @@ public class IronpythonInterpreterManager extends AbstractInterpreterManager{
     protected String getPreferenceName() {
         return IRONPYTHON_INTERPRETER_PATH;
     }
-    
+
     @Override
     public String getInterpreterUIName() {
         return "IronPython.";
     }
 
     @Override
-    public Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor, boolean askUser) throws CoreException {
+    public Tuple<InterpreterInfo, String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor,
+            boolean askUser) throws CoreException {
         return doCreateInterpreterInfo(executable, monitor, askUser);
     }
-    
+
     @Override
     protected String getPreferencesPageId() {
         return "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageIronpython";
     }
-
 
     /**
      * @param executable the iron python interpreter from where we should create the info
@@ -54,33 +54,33 @@ public class IronpythonInterpreterManager extends AbstractInterpreterManager{
      * @return the created interpreter info
      * @throws CoreException
      */
-    public static Tuple<InterpreterInfo,String> doCreateInterpreterInfo(String executable, IProgressMonitor monitor, boolean askUser) throws CoreException {
+    public static Tuple<InterpreterInfo, String> doCreateInterpreterInfo(String executable, IProgressMonitor monitor,
+            boolean askUser) throws CoreException {
         boolean isJythonExecutable = InterpreterInfo.isJythonExecutable(executable);
-        if(isJythonExecutable){
+        if (isJythonExecutable) {
             throw new RuntimeException("A jar cannot be used in order to get the info for the iron python interpreter.");
-        }                
+        }
 
         File script = getInterpreterInfoPy();
 
-        Tuple<String, String> outTup = new SimpleIronpythonRunner().runAndGetOutputWithInterpreter(
-                executable, REF.getFileAbsolutePath(script), null, null, null, monitor, "utf-8");
-        
+        Tuple<String, String> outTup = new SimpleIronpythonRunner().runAndGetOutputWithInterpreter(executable,
+                REF.getFileAbsolutePath(script), null, null, null, monitor, "utf-8");
+
         InterpreterInfo info = createInfoFromOutput(monitor, outTup, askUser);
-        
-        if(info == null){
+
+        if (info == null) {
             //cancelled
             return null;
         }
 
         info.restoreCompiledLibs(monitor);
-        
-        return new Tuple<InterpreterInfo,String>(info, outTup.o1);
+
+        return new Tuple<InterpreterInfo, String>(info, outTup.o1);
     }
 
     public int getInterpreterType() {
         return IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON;
     }
-    
 
     public String getManagerRelatedName() {
         return "ironpython";

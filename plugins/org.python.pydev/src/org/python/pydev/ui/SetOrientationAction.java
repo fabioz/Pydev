@@ -22,9 +22,9 @@ import org.python.pydev.plugin.preferences.PydevPrefs;
  * 
  * @author fabioz
  */
-public class SetOrientationAction extends Action{
-    
-    public class SetOrientationActionImpl extends Action{
+public class SetOrientationAction extends Action {
+
+    public class SetOrientationActionImpl extends Action {
 
         private ViewPartWithOrientation viewPartWithOrientation;
         private int setsValue;
@@ -35,40 +35,38 @@ public class SetOrientationAction extends Action{
             this.setsValue = setsValue;
             this.setChecked(this.setsValue == viewPartWithOrientation.getOrientationPreferenceValue());
         }
-        
+
         @Override
         public void run() {
-            PydevPrefs.getPreferenceStore().setValue(
-                    viewPartWithOrientation.getOrientationPreferencesKey(), 
+            PydevPrefs.getPreferenceStore().setValue(viewPartWithOrientation.getOrientationPreferencesKey(),
                     this.setsValue);
         }
-        
+
     }
 
-    
-    public static interface IActionsMenu{
+    public static interface IActionsMenu {
 
         void add(IAction action);
-        
+
     }
-    
+
     /**
      * Yeap, all this just to show the items 'Automatic', 'Horizontal' and 'Vertical' under the Orientation menu.
      * 
      * @author fabioz
      */
-    public class SetOrientationMenuCreator implements IMenuCreator{
-        
+    public class SetOrientationMenuCreator implements IMenuCreator {
+
         private Menu fMenu;
 
         public SetOrientationMenuCreator() {
-            
+
         }
 
         public void dispose() {
             if (fMenu != null) {
                 fMenu.dispose();
-                fMenu= null;
+                fMenu = null;
             }
         }
 
@@ -80,48 +78,48 @@ public class SetOrientationAction extends Action{
             if (fMenu != null) {
                 fMenu.dispose();
             }
-            
-            final MenuManagerCopiedToAddCreateMenuWithMenuParent manager= new MenuManagerCopiedToAddCreateMenuWithMenuParent();
+
+            final MenuManagerCopiedToAddCreateMenuWithMenuParent manager = new MenuManagerCopiedToAddCreateMenuWithMenuParent();
             manager.setRemoveAllWhenShown(true);
             manager.addMenuListener(new IMenuListener() {
                 public void menuAboutToShow(final IMenuManager manager2) {
                     fillMenuManager(new IActionsMenu() {
-                        
+
                         public void add(IAction action) {
                             manager2.add(action);
                         }
                     });
                 }
             });
-            fMenu= manager.createContextMenu(parent);
+            fMenu = manager.createContextMenu(parent);
 
             return fMenu;
 
         }
 
         public void fillMenuManager(IActionsMenu actionsMenu) {
-            if(view == null){
+            if (view == null) {
                 return;
             }
             ViewPartWithOrientation viewPartWithOrientation = view.get();
-            if(viewPartWithOrientation == null){
+            if (viewPartWithOrientation == null) {
                 return;
             }
-            actionsMenu.add(new SetOrientationActionImpl(
-                    viewPartWithOrientation, "Automatic", ViewPartWithOrientation.PREFERENCES_VIEW_ORIENTATION_AUTOMATIC));
-            actionsMenu.add(new SetOrientationActionImpl(
-                    viewPartWithOrientation, "Horizontal", ViewPartWithOrientation.PREFERENCES_VIEW_ORIENTATION_HORIZONTAL));
-            actionsMenu.add(new SetOrientationActionImpl(
-                    viewPartWithOrientation, "Vertical", ViewPartWithOrientation.PREFERENCES_VIEW_ORIENTATION_VERTICAL));
+            actionsMenu.add(new SetOrientationActionImpl(viewPartWithOrientation, "Automatic",
+                    ViewPartWithOrientation.PREFERENCES_VIEW_ORIENTATION_AUTOMATIC));
+            actionsMenu.add(new SetOrientationActionImpl(viewPartWithOrientation, "Horizontal",
+                    ViewPartWithOrientation.PREFERENCES_VIEW_ORIENTATION_HORIZONTAL));
+            actionsMenu.add(new SetOrientationActionImpl(viewPartWithOrientation, "Vertical",
+                    ViewPartWithOrientation.PREFERENCES_VIEW_ORIENTATION_VERTICAL));
         }
     }
 
     private WeakReference<ViewPartWithOrientation> view;
-    
+
     /**
      * This is the root action (Orientation).
      */
-    public SetOrientationAction(ViewPartWithOrientation view){
+    public SetOrientationAction(ViewPartWithOrientation view) {
         this.view = new WeakReference<ViewPartWithOrientation>(view);
         setMenuCreator(new SetOrientationMenuCreator());
         this.setText("Orientation");

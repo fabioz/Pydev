@@ -26,74 +26,73 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 
-public class PyRunToLineTarget implements IRunToLineTarget{
+public class PyRunToLineTarget implements IRunToLineTarget {
 
-    public boolean canRunToLine(IWorkbenchPart part, ISelection selection, ISuspendResume target){
+    public boolean canRunToLine(IWorkbenchPart part, ISelection selection, ISuspendResume target) {
         return true;
     }
 
-    public void runToLine(IWorkbenchPart part, ISelection selection, ISuspendResume target) throws CoreException{
+    public void runToLine(IWorkbenchPart part, ISelection selection, ISuspendResume target) throws CoreException {
         //System.out.println("Run to line:"+target);
         PyStackFrame stack = null;
-        if(target instanceof PyStackFrame){
+        if (target instanceof PyStackFrame) {
             stack = (PyStackFrame) target;
             target = stack.getThread();
         }
-        
-        if(!(part instanceof PyEdit)){
+
+        if (!(part instanceof PyEdit)) {
             return;
         }
-        
+
         PyEdit pyEdit = (PyEdit) part;
         SimpleNode ast = pyEdit.getAST();
-        if(ast == null){
+        if (ast == null) {
             IDocument doc = pyEdit.getDocument();
             SourceModule sourceModule;
             IPythonNature nature = null;
-            try{
+            try {
                 nature = pyEdit.getPythonNature();
-            }catch(MisconfigurationException e){
+            } catch (MisconfigurationException e) {
                 //Let's try to find a suitable nature
                 File editorFile = pyEdit.getEditorFile();
-                if(editorFile == null || !editorFile.exists()){
+                if (editorFile == null || !editorFile.exists()) {
                     Log.log(e);
                     return;
                 }
                 nature = PydevPlugin.getInfoForFile(editorFile).o1;
             }
-            
-            if(nature == null){
+
+            if (nature == null) {
                 Log.log("Unable to determine nature!");
                 return;
             }
-            
-            try{
+
+            try {
                 sourceModule = (SourceModule) AbstractModule.createModuleFromDoc("", null, doc, nature, true);
-            }catch(MisconfigurationException e){
+            } catch (MisconfigurationException e) {
                 Log.log(e);
                 return;
             }
             ast = sourceModule.getAst();
         }
-        
-        if(ast == null){
+
+        if (ast == null) {
             Log.log("Cannot determine context to run to.");
             return;
         }
-        
-        
-        if(target instanceof PyThread && selection instanceof ITextSelection){
+
+        if (target instanceof PyThread && selection instanceof ITextSelection) {
             ITextSelection textSelection = (ITextSelection) selection;
             PyThread pyThread = (PyThread) target;
-            if(!pyThread.isPydevThread()){
+            if (!pyThread.isPydevThread()) {
                 int line = textSelection.getStartLine();
                 String functionName = NodeUtils.getContextName(line, ast);
-                if(functionName == null){
+                if (functionName == null) {
                     functionName = ""; //global context
-                }else{
+                } else {
                     functionName = FullRepIterable.getLastPart(functionName).trim();
                 }
-                pyThread.runToLine(line+1, functionName);
+                pyThread.runToLine(line + 1, functionName);
                 return;
             }
         }

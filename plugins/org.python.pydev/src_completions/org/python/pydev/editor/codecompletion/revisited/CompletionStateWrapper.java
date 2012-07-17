@@ -19,60 +19,59 @@ import org.python.pydev.core.structure.FastStringBuffer;
 public final class CompletionStateWrapper implements ICompletionState {
 
     private ICompletionState wrapped;
-    
+
     public CompletionStateWrapper(CompletionState state) {
         this.wrapped = state;
         this.activationToken = state.getActivationToken();
         this.localImportsGotten = state.getLocalImportsGotten();
     }
-    
+
     //things that are not delegated ------------------------------------------------------------------------------------
     private String activationToken;
     private int col = -1;
     private int line = -1;
     private boolean localImportsGotten;
-    
+
     public String getActivationToken() {
         return activationToken;
     }
-    
+
     public void setActivationToken(String string) {
         activationToken = string;
     }
-    
 
-    public String getFullActivationToken(){
+    public String getFullActivationToken() {
         return this.wrapped.getFullActivationToken();
     }
-    
-    public void setFullActivationToken(String act){
+
+    public void setFullActivationToken(String act) {
         this.wrapped.setFullActivationToken(act);
     }
+
     public boolean getLocalImportsGotten() {
         return localImportsGotten;
     }
-    
+
     public void setLocalImportsGotten(boolean b) {
         localImportsGotten = b;
     }
-    
+
     public int getCol() {
         return col;
     }
+
     public int getLine() {
         return line;
     }
+
     public void setCol(int i) {
         col = i;
     }
+
     public void setLine(int i) {
         line = i;
     }
 
-
-    
-
-    
     //delegated --------------------------------------------------------------------------------------------------------
     public void checkDefinitionMemory(IModule module, IDefinition definition) throws CompletionRecursionException {
         wrapped.checkDefinitionMemory(module, definition);
@@ -81,9 +80,9 @@ public final class CompletionStateWrapper implements ICompletionState {
     public void checkFindLocalDefinedDefinitionMemory(IModule mod, String tok) throws CompletionRecursionException {
         wrapped.checkFindLocalDefinedDefinitionMemory(mod, tok);
     }
-    
+
     public void checkFindDefinitionMemory(IModule mod, String tok) throws CompletionRecursionException {
-    	wrapped.checkFindDefinitionMemory(mod, tok);
+        wrapped.checkFindDefinitionMemory(mod, tok);
     }
 
     public void checkFindMemory(IModule module, String value) throws CompletionRecursionException {
@@ -109,15 +108,14 @@ public final class CompletionStateWrapper implements ICompletionState {
     public void checkWildImportInMemory(IModule current, IModule mod) throws CompletionRecursionException {
         wrapped.checkWildImportInMemory(current, mod);
     }
-    
-    public boolean checkFoudSameDefinition(int line, int col, IModule mod){
+
+    public boolean checkFoudSameDefinition(int line, int col, IModule mod) {
         return wrapped.checkFoudSameDefinition(line, col, mod);
     }
-    
+
     public boolean canStillCheckFindSourceFromCompiled(IModule mod, String tok) {
         return wrapped.canStillCheckFindSourceFromCompiled(mod, tok);
     }
-
 
     public boolean getBuiltinsGotten() {
         return wrapped.getBuiltinsGotten();
@@ -139,7 +137,6 @@ public final class CompletionStateWrapper implements ICompletionState {
         return wrapped.getIsInCalltip();
     }
 
-
     public IPythonNature getNature() {
         return wrapped.getNature();
     }
@@ -160,7 +157,6 @@ public final class CompletionStateWrapper implements ICompletionState {
         wrapped.setBuiltinsGotten(b);
     }
 
-
     public void setIsInCalltip(boolean isInCalltip) {
         wrapped.setIsInCalltip(isInCalltip);
     }
@@ -168,25 +164,27 @@ public final class CompletionStateWrapper implements ICompletionState {
     public void setLookingFor(int b) {
         wrapped.setLookingFor(b);
     }
-    
+
     public void setLookingFor(int b, boolean force) {
         wrapped.setLookingFor(b, force);
     }
-    
+
     public void popFindResolveImportMemoryCtx() {
         wrapped.popFindResolveImportMemoryCtx();
     }
-    
+
     public void pushFindResolveImportMemoryCtx() {
         wrapped.pushFindResolveImportMemoryCtx();
     }
+
     public List<IToken> getTokenImportedModules() {
         return wrapped.getTokenImportedModules();
     }
+
     public void setTokenImportedModules(List<IToken> tokenImportedModules) {
         wrapped.setTokenImportedModules(tokenImportedModules);
     }
-    
+
     @Override
     public String toString() {
         FastStringBuffer buf = new FastStringBuffer();
@@ -207,7 +205,7 @@ public final class CompletionStateWrapper implements ICompletionState {
     public void remove(Object key) {
         this.wrapped.remove(key);
     }
-    
+
     public void clear() {
         this.wrapped.clear();
     }

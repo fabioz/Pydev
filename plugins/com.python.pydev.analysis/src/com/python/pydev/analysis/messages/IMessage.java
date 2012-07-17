@@ -15,7 +15,7 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IToken;
 
 public interface IMessage {
-    
+
     /**
      * @see org.eclipse.core.resources.IMarker#SEVERITY_ERROR
      * @see org.eclipse.core.resources.IMarker#SEVERITY_WARNING
@@ -23,7 +23,7 @@ public interface IMessage {
      * @return this message severity.
      */
     int getSeverity();
-    
+
     /**
      * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_DUPLICATED_SIGNATURE
      * @see com.python.pydev.analysis.IAnalysisPreferences#TYPE_NO_SELF
@@ -48,7 +48,7 @@ public interface IMessage {
      * @return the starting line of the error (starting at 1)
      */
     int getStartLine(IDocument doc);
-    
+
     /**
      * @param doc 
      * @return the starting col of the error (starting at 1)
@@ -64,18 +64,18 @@ public interface IMessage {
      * @return the ending col of the error. may be -1 if we are unable to find the end of the token (starting at 1)
      */
     int getEndCol(IDocument doc);
-    
+
     /**
      * @return the message that should be presented to the user.
      */
     String getMessage();
-    
+
     /**
      * @return additional info to be added to the marker that will be created by this message. It might be
      * useful for making actions based on the analysis info
      */
     List<String> getAdditionalInfo();
-    
+
     /**
      * Adds some additional info to the message
      * @param info this is the additional info to add
@@ -86,7 +86,7 @@ public interface IMessage {
      * @return the message that should be presented to the user in a short way (may be used for abbreviations).
      */
     Object getShortMessage();
-    
+
     /**
      * @return the generator token for the message
      */

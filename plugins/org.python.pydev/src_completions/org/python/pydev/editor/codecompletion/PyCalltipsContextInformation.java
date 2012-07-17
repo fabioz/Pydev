@@ -13,29 +13,28 @@ package org.python.pydev.editor.codecompletion;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.graphics.Image;
 
-public class PyCalltipsContextInformation implements IPyCalltipsContextInformation{
-
+public class PyCalltipsContextInformation implements IPyCalltipsContextInformation {
 
     /** 
      * The arguments to be displayed. 
      */
     private final String argumentsWithParens;
-    
+
     /** 
      * The information to be displayed (calculated when requested)
      */
     private String argumentsWithoutParens;
-    
+
     /** 
      * The image to be displayed.
      */
     private final Image fImage;
-    
+
     /**
      * The place where the replacement started.
      */
     private final int fReplacementOffset;
-    
+
     /**
      * Creates a new context information without an image.
      *
@@ -47,7 +46,6 @@ public class PyCalltipsContextInformation implements IPyCalltipsContextInformati
         this(null, arguments, replacementOffset);
     }
 
-
     /**
      * Creates a new context information with an image.
      *
@@ -58,7 +56,7 @@ public class PyCalltipsContextInformation implements IPyCalltipsContextInformati
     private PyCalltipsContextInformation(Image image, String argumentsWithParens, int replacementOffset) {
         Assert.isNotNull(argumentsWithParens);
 
-        fImage= image;
+        fImage = image;
         this.argumentsWithParens = argumentsWithParens;
         fReplacementOffset = replacementOffset;
     }
@@ -68,7 +66,7 @@ public class PyCalltipsContextInformation implements IPyCalltipsContextInformati
      */
     public boolean equals(Object object) {
         if (object instanceof PyCalltipsContextInformation) {
-            PyCalltipsContextInformation contextInformation= (PyCalltipsContextInformation) object;
+            PyCalltipsContextInformation contextInformation = (PyCalltipsContextInformation) object;
             return argumentsWithParens.equalsIgnoreCase(contextInformation.argumentsWithParens);
         }
         return false;
@@ -86,8 +84,8 @@ public class PyCalltipsContextInformation implements IPyCalltipsContextInformati
      * @see IContextInformation#getInformationDisplayString()
      */
     public String getInformationDisplayString() {
-        if(argumentsWithoutParens == null){
-            argumentsWithoutParens = argumentsWithParens.substring(1, argumentsWithParens.length()-1); //remove the parenthesis
+        if (argumentsWithoutParens == null) {
+            argumentsWithoutParens = argumentsWithParens.substring(1, argumentsWithParens.length() - 1); //remove the parenthesis
         }
         return argumentsWithoutParens;
     }
@@ -106,11 +104,8 @@ public class PyCalltipsContextInformation implements IPyCalltipsContextInformati
         return getInformationDisplayString();
     }
 
-
     public int getShowCalltipsOffset() {
         return this.fReplacementOffset;
     }
-
-
 
 }

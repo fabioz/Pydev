@@ -41,7 +41,7 @@ public class FileOrResource {
      */
     public static FileOrResource[] createArray(IResource[] array) {
         FileOrResource[] ret = new FileOrResource[array.length];
-        for (int i=0;i<array.length;i++) {
+        for (int i = 0; i < array.length; i++) {
             ret[i] = new FileOrResource(array[i]);
         }
         return ret;
@@ -53,7 +53,7 @@ public class FileOrResource {
      */
     public static IResource[] createIResourceArray(FileOrResource[] array) {
         IResource[] ret = new IResource[array.length];
-        for (int i=0;i<array.length;i++) {
+        for (int i = 0; i < array.length; i++) {
             ret[i] = array[i].resource;
         }
         return ret;

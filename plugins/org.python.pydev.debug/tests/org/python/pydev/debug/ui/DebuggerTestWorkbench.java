@@ -41,49 +41,49 @@ public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {
      * File used to debug
      */
     private IFile debugFile;
-    
+
     /**
      * The editor that'll be created on debug
      */
     private PyEdit debugEditor;
-    
+
     /**
      * Maximum number of loops (used with the timeout) 
      */
     private final int MAX_LOOPS = 300;
-    
+
     /**
      * Maximum time for each loop in millis
      */
     private final int STEP_TIMEOUT = 100;
-    
+
     /**
      * Number of steps in the tests that will have busy loops until some condition is hit.
      */
     private final int TOTAL_STEPS = 3;
-    
+
     /**
      * Total time in millis that the test has for finishing 
      */
-    private final int TOTAL_TIME_FOR_TESTS = MAX_LOOPS*STEP_TIMEOUT*(TOTAL_STEPS+1);
-    
+    private final int TOTAL_TIME_FOR_TESTS = MAX_LOOPS * STEP_TIMEOUT * (TOTAL_STEPS + 1);
+
     /**
      * Used for having wait()
      */
     private Object lock = new Object();
-    
+
     /**
      * An exception that occurred that was thrown and didn't let the tests finish
      */
     private Throwable failException = null;
-    
+
     /**
      * Only true when the test finishes without exceptions.
      */
     private boolean finished = false;
-    
+
     private String currentStep = "<unspecified>";
-    
+
     /**
      * Creates the debug file and editor.
      */
@@ -94,25 +94,24 @@ public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {
         String mod1Contents = "from pack1.pack2 import mod1\nprint mod1\nprint 'now'\n";
         debugFile.create(new ByteArrayInputStream(mod1Contents.getBytes()), true, null);
         debugFile.refreshLocal(IResource.DEPTH_ZERO, null);
-        
+
         debugEditor = (PyEdit) PyOpenEditor.doOpenEditor(debugFile);
     }
-    
+
     /**
      * Removes the debug file and closes the debug editor
      */
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
-        if(debugFile != null){
+        if (debugFile != null) {
             debugFile.delete(true, null);
         }
-        if(debugEditor != null){
+        if (debugEditor != null) {
             debugEditor.close(false);
         }
     }
-    
-    
+
     /**
      * In this test, a thread is started and then we wait on a busy loop until the thread finishes with the tests.
      */
@@ -120,23 +119,24 @@ public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {
 
         //start the thread that'll do the test
         threadTest.start();
-        
+
         //wait on a busy loop until the test is finished or an exception is thrown.
-        goToManual(TOTAL_TIME_FOR_TESTS, new org.python.pydev.core.callbacks.ICallback<Boolean, Object>(){
+        goToManual(TOTAL_TIME_FOR_TESTS, new org.python.pydev.core.callbacks.ICallback<Boolean, Object>() {
 
             public Boolean call(Object arg) {
                 return finished || failException != null;
-            }}
-        );
+            }
+        });
 
         //Make it fail if we encountered some problem
-        if(failException != null){
+        if (failException != null) {
             failException.printStackTrace();
-            fail("Current Step: "+currentStep+"\n"+failException.getMessage());
+            fail("Current Step: " + currentStep + "\n" + failException.getMessage());
         }
-        if(!finished){
-            if(failException == null){
-                fail("Current Step: "+currentStep+"\nThe test didn't finish in the available time: "+TOTAL_TIME_FOR_TESTS/1000+ " secs.");
+        if (!finished) {
+            if (failException == null) {
+                fail("Current Step: " + currentStep + "\nThe test didn't finish in the available time: "
+                        + TOTAL_TIME_FOR_TESTS / 1000 + " secs.");
             }
         }
     }
@@ -144,30 +144,31 @@ public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {
     /**
      * This is the thread that'll make the test.
      */
-    Thread threadTest = new Thread(){
+    Thread threadTest = new Thread() {
         @Override
         public void run() {
-            try{
+            try {
                 currentStep = "launchEditorInDebug";
                 //make a launch for debugging 
                 launchEditorInDebug();
-                
+
                 //switch to debug perspective, because otherwise, when we hit a breakpoint it'll ask if we want to show it.
                 switchToPerspective("org.eclipse.debug.ui.DebugPerspective");
                 PyBreakpointRulerAction createAddBreakPointAction = createAddBreakPointAction(1);
                 createAddBreakPointAction.run();
-                
+
                 currentStep = "waitForLaunchAvailable";
                 ILaunch launch = waitForLaunchAvailable();
                 PyDebugTarget target = (PyDebugTarget) waitForDebugTargetAvailable(launch);
-                
+
                 currentStep = "waitForSuspendedThread";
                 IThread suspendedThread = waitForSuspendedThread(target);
                 assertTrue(suspendedThread.getName().startsWith("MainThread"));
                 IStackFrame topStackFrame = suspendedThread.getTopStackFrame();
-                assertTrue("Was not expecting: "+topStackFrame.getName(), topStackFrame.getName().indexOf("debug_file.py:2") != 0);
+                assertTrue("Was not expecting: " + topStackFrame.getName(),
+                        topStackFrame.getName().indexOf("debug_file.py:2") != 0);
                 IVariable[] variables = topStackFrame.getVariables();
-            
+
                 HashSet<String> varNames = new HashSet<String>();
                 for (IVariable variable : variables) {
                     PyVariable var = (PyVariable) variable;
@@ -180,19 +181,18 @@ public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {
                 expected.add("__name__");
                 expected.add("mod1");
                 assertEquals(expected, varNames);
-                
+
                 assertTrue(target.canTerminate());
                 target.terminate();
-                
+
                 finished = true;
-            }catch(Throwable e){
+            } catch (Throwable e) {
                 failException = e;
             }
         }
 
     };
-    
-    
+
     /**
      * Creates a run in debug mode for the debug editor
      */
@@ -200,10 +200,9 @@ public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {
         final IWorkbench workBench = PydevPlugin.getDefault().getWorkbench();
         Display display = workBench.getDisplay();
 
-
         // Make sure to run the UI thread.
-        display.syncExec( new Runnable(){
-            public void run(){
+        display.syncExec(new Runnable() {
+            public void run() {
                 JythonLaunchShortcut launchShortcut = new JythonLaunchShortcut();
                 launchShortcut.launch(debugEditor, "debug");
             }
@@ -215,25 +214,27 @@ public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {
      * @return an action that can be run to create a breakpoint in the given line
      */
     private PyBreakpointRulerAction createAddBreakPointAction(final int line) {
-        PyBreakpointRulerAction ret = new PyBreakpointRulerAction(debugEditor, new IVerticalRulerInfo(){
+        PyBreakpointRulerAction ret = new PyBreakpointRulerAction(debugEditor, new IVerticalRulerInfo() {
             public int getLineOfLastMouseButtonActivity() {
                 return line;
             }
-            
+
             public Control getControl() {
                 throw new RuntimeException("Not Implemented");
             }
+
             public int getWidth() {
                 throw new RuntimeException("Not Implemented");
             }
+
             public int toDocumentLineNumber(int y_coordinate) {
                 throw new RuntimeException("Not Implemented");
-            }});
+            }
+        });
         ret.update();
         return ret;
     }
-    
-    
+
     /**
      * This method can be used to switch to a given perspective
      * @param perspectiveId the id of the perspective that should be activated.
@@ -242,10 +243,9 @@ public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {
         final IWorkbench workBench = PydevPlugin.getDefault().getWorkbench();
         Display display = workBench.getDisplay();
 
-
         // Make sure to run the UI thread.
-        display.syncExec( new Runnable(){
-            public void run(){
+        display.syncExec(new Runnable() {
+            public void run() {
                 IWorkbenchWindow window = workBench.getActiveWorkbenchWindow();
                 try {
                     workBench.showPerspective(perspectiveId, window);
@@ -256,27 +256,26 @@ public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {
         });
     }
 
-
-    
     /**
      * Waits until some thread is suspended.
      */
     protected IThread waitForSuspendedThread(final PyDebugTarget target) throws Throwable {
         final IThread[] ret = new IThread[1];
-        
-        waitForCondition(new ICallback(){
+
+        waitForCondition(new ICallback() {
 
             public Object call(Object args) throws Exception {
                 IThread[] threads = target.getThreads();
                 for (IThread thread : threads) {
-                    if(thread.isSuspended()){
+                    if (thread.isSuspended()) {
                         ret[0] = thread;
                         return true;
                     }
                 }
                 return false;
-            }}, "waitForSuspendedThread");
-        
+            }
+        }, "waitForSuspendedThread");
+
         return ret[0];
     }
 
@@ -286,43 +285,43 @@ public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {
      */
     private ILaunch waitForLaunchAvailable() throws Throwable {
         final ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-        waitForCondition(new ICallback(){
-            
+        waitForCondition(new ICallback() {
+
             public Object call(Object args) throws Exception {
                 ILaunch[] launches = launchManager.getLaunches();
                 return launches.length > 0;
-            }}, "waitForLaunchAvailable");
+            }
+        }, "waitForLaunchAvailable");
         return launchManager.getLaunches()[0];
     }
-    
-    
+
     /**
      * Waits until a debug target is available in the passed launch
      * @return the debug target found
      */
     private IDebugTarget waitForDebugTargetAvailable(final ILaunch launch) throws Throwable {
-        waitForCondition(new ICallback(){
+        waitForCondition(new ICallback() {
 
             public Object call(Object args) throws Exception {
                 return launch.getDebugTarget() != null;
-            }}, "waitForDebugTargetAvailable");
-        
+            }
+        }, "waitForDebugTargetAvailable");
+
         return launch.getDebugTarget();
     }
-    
-    
+
     /**
      * Keeps on a busy loop with a timeout until the given callback returns true (otherwise, an
      * exception is thrown when the total time is elapsed).
      */
     private void waitForCondition(ICallback callback, String errorMessage) throws Throwable {
-        if(failException != null){
+        if (failException != null) {
             throw failException;
         }
-        
+
         int loops = MAX_LOOPS;
-        for(int i=0;i<loops;i++){
-            if((Boolean)callback.call(new Object[]{})){
+        for (int i = 0; i < loops; i++) {
+            if ((Boolean) callback.call(new Object[] {})) {
                 return;
             }
             synchronized (lock) {
@@ -333,8 +332,8 @@ public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {
                 }
             }
         }
-        fail("Unable to get to condition after "+(loops*STEP_TIMEOUT)/1000+" seconds.\nMessage: "+errorMessage);
+        fail("Unable to get to condition after " + (loops * STEP_TIMEOUT) / 1000 + " seconds.\nMessage: "
+                + errorMessage);
     }
-
 
 }

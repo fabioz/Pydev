@@ -46,152 +46,151 @@ import java.lang.reflect.Array;
  */
 public class ListenerList<X> {
 
-	/**
-	 * The empty array singleton instance.
-	 */
-	private final X[] EmptyArray;
+    /**
+     * The empty array singleton instance.
+     */
+    private final X[] EmptyArray;
 
-	/**
-	 * Mode constant (value 0) indicating that listeners should be considered
-	 * the <a href="#same">same</a> if they are equal.
-	 */
-	public static final int EQUALITY = 0;
+    /**
+     * Mode constant (value 0) indicating that listeners should be considered
+     * the <a href="#same">same</a> if they are equal.
+     */
+    public static final int EQUALITY = 0;
 
-	/**
-	 * Mode constant (value 1) indicating that listeners should be considered
-	 * the <a href="#same">same</a> if they are identical.
-	 */
-	public static final int IDENTITY = 1;
+    /**
+     * Mode constant (value 1) indicating that listeners should be considered
+     * the <a href="#same">same</a> if they are identical.
+     */
+    public static final int IDENTITY = 1;
 
-	/**
-	 * Indicates the comparison mode used to determine if two
-	 * listeners are equivalent
-	 */
-	private final boolean identity;
+    /**
+     * Indicates the comparison mode used to determine if two
+     * listeners are equivalent
+     */
+    private final boolean identity;
 
-	/**
-	 * The list of listeners.  Initially empty but initialized
-	 * to an array of size capacity the first time a listener is added.
-	 * Maintains invariant: listeners != null
-	 */
-	private volatile X[] listeners;
+    /**
+     * The list of listeners.  Initially empty but initialized
+     * to an array of size capacity the first time a listener is added.
+     * Maintains invariant: listeners != null
+     */
+    private volatile X[] listeners;
 
     private Class<X> genericType;
 
-	/**
-	 * Creates a listener list in which listeners are compared using equality.
-	 */
-	public ListenerList(Class<X> genericType) {
-		this(genericType, EQUALITY);
-	}
-	
+    /**
+     * Creates a listener list in which listeners are compared using equality.
+     */
+    public ListenerList(Class<X> genericType) {
+        this(genericType, EQUALITY);
+    }
 
-	/**
-	 * Creates a listener list using the provided comparison mode.
-	 * 
-	 * @param mode The mode used to determine if listeners are the <a href="#same">same</a>.
-	 */
-	public ListenerList(Class<X> genericType, int mode) {
-	    this.genericType = genericType;
-	    EmptyArray = (X[]) Array.newInstance(genericType, 0);
-	    listeners = EmptyArray;
-	    
-		if (mode != EQUALITY && mode != IDENTITY)
-			throw new IllegalArgumentException();
-		this.identity = mode == IDENTITY;
-	}
+    /**
+     * Creates a listener list using the provided comparison mode.
+     * 
+     * @param mode The mode used to determine if listeners are the <a href="#same">same</a>.
+     */
+    public ListenerList(Class<X> genericType, int mode) {
+        this.genericType = genericType;
+        EmptyArray = (X[]) Array.newInstance(genericType, 0);
+        listeners = EmptyArray;
 
-	/**
-	 * Adds a listener to this list. This method has no effect if the <a href="#same">same</a>
-	 * listener is already registered.
-	 * 
-	 * @param listener the non-<code>null</code> listener to add
-	 */
-	public synchronized void add(X listener) {
-		// This method is synchronized to protect against multiple threads adding 
-		// or removing listeners concurrently. This does not block concurrent readers.
-		if (listener == null)
-			throw new IllegalArgumentException();
-		// check for duplicates 
-		final int oldSize = listeners.length;
-		for (int i = 0; i < oldSize; ++i) {
-			X listener2 = listeners[i];
-			if (identity ? listener == listener2 : listener.equals(listener2))
-				return;
-		}
-		// Thread safety: create new array to avoid affecting concurrent readers
-		X[] newListeners = (X[]) Array.newInstance(genericType, oldSize + 1);
-		System.arraycopy(listeners, 0, newListeners, 0, oldSize);
-		newListeners[oldSize] = listener;
-		//atomic assignment
-		this.listeners = newListeners;
-	}
+        if (mode != EQUALITY && mode != IDENTITY)
+            throw new IllegalArgumentException();
+        this.identity = mode == IDENTITY;
+    }
 
-	/**
-	 * Returns an array containing all the registered listeners.
-	 * The resulting array is unaffected by subsequent adds or removes.
-	 * If there are no listeners registered, the result is an empty array.
-	 * Use this method when notifying listeners, so that any modifications
-	 * to the listener list during the notification will have no effect on 
-	 * the notification itself.
-	 * <p>
-	 * Note: Callers of this method <b>must not</b> modify the returned array. 
-	 *
-	 * @return the list of registered listeners
-	 */
-	public X[] getListeners() {
-		return listeners;
-	}
+    /**
+     * Adds a listener to this list. This method has no effect if the <a href="#same">same</a>
+     * listener is already registered.
+     * 
+     * @param listener the non-<code>null</code> listener to add
+     */
+    public synchronized void add(X listener) {
+        // This method is synchronized to protect against multiple threads adding 
+        // or removing listeners concurrently. This does not block concurrent readers.
+        if (listener == null)
+            throw new IllegalArgumentException();
+        // check for duplicates 
+        final int oldSize = listeners.length;
+        for (int i = 0; i < oldSize; ++i) {
+            X listener2 = listeners[i];
+            if (identity ? listener == listener2 : listener.equals(listener2))
+                return;
+        }
+        // Thread safety: create new array to avoid affecting concurrent readers
+        X[] newListeners = (X[]) Array.newInstance(genericType, oldSize + 1);
+        System.arraycopy(listeners, 0, newListeners, 0, oldSize);
+        newListeners[oldSize] = listener;
+        //atomic assignment
+        this.listeners = newListeners;
+    }
 
-	/**
-	 * Returns whether this listener list is empty.
-	 *
-	 * @return <code>true</code> if there are no registered listeners, and
-	 *   <code>false</code> otherwise
-	 */
-	public boolean isEmpty() {
-		return listeners.length == 0;
-	}
+    /**
+     * Returns an array containing all the registered listeners.
+     * The resulting array is unaffected by subsequent adds or removes.
+     * If there are no listeners registered, the result is an empty array.
+     * Use this method when notifying listeners, so that any modifications
+     * to the listener list during the notification will have no effect on 
+     * the notification itself.
+     * <p>
+     * Note: Callers of this method <b>must not</b> modify the returned array. 
+     *
+     * @return the list of registered listeners
+     */
+    public X[] getListeners() {
+        return listeners;
+    }
 
-	/**
-	 * Removes a listener from this list. Has no effect if the <a href="#same">same</a> 
-	 * listener was not already registered.
-	 *
-	 * @param listener the non-<code>null</code> listener to remove
-	 */
-	public synchronized void remove(X listener) {
-		// This method is synchronized to protect against multiple threads adding 
-		// or removing listeners concurrently. This does not block concurrent readers.
-		if (listener == null)
-			throw new IllegalArgumentException();
-		int oldSize = listeners.length;
-		for (int i = 0; i < oldSize; ++i) {
-			X listener2 = listeners[i];
-			if (identity ? listener == listener2 : listener.equals(listener2)) {
-				if (oldSize == 1) {
-					listeners = (X[]) EmptyArray;
-				} else {
-					// Thread safety: create new array to avoid affecting concurrent readers
-					X[] newListeners = (X[]) Array.newInstance(genericType, oldSize - 1);
-					System.arraycopy(listeners, 0, newListeners, 0, i);
-					System.arraycopy(listeners, i + 1, newListeners, i, oldSize - i - 1);
-					//atomic assignment to field
-					this.listeners = newListeners;
-				}
-				return;
-			}
-		}
-	}
+    /**
+     * Returns whether this listener list is empty.
+     *
+     * @return <code>true</code> if there are no registered listeners, and
+     *   <code>false</code> otherwise
+     */
+    public boolean isEmpty() {
+        return listeners.length == 0;
+    }
 
-	/**
-	 * Returns the number of registered listeners.
-	 *
-	 * @return the number of registered listeners
-	 */
-	public int size() {
-		return listeners.length;
-	}
-	
+    /**
+     * Removes a listener from this list. Has no effect if the <a href="#same">same</a> 
+     * listener was not already registered.
+     *
+     * @param listener the non-<code>null</code> listener to remove
+     */
+    public synchronized void remove(X listener) {
+        // This method is synchronized to protect against multiple threads adding 
+        // or removing listeners concurrently. This does not block concurrent readers.
+        if (listener == null)
+            throw new IllegalArgumentException();
+        int oldSize = listeners.length;
+        for (int i = 0; i < oldSize; ++i) {
+            X listener2 = listeners[i];
+            if (identity ? listener == listener2 : listener.equals(listener2)) {
+                if (oldSize == 1) {
+                    listeners = (X[]) EmptyArray;
+                } else {
+                    // Thread safety: create new array to avoid affecting concurrent readers
+                    X[] newListeners = (X[]) Array.newInstance(genericType, oldSize - 1);
+                    System.arraycopy(listeners, 0, newListeners, 0, i);
+                    System.arraycopy(listeners, i + 1, newListeners, i, oldSize - i - 1);
+                    //atomic assignment to field
+                    this.listeners = newListeners;
+                }
+                return;
+            }
+        }
+    }
+
+    /**
+     * Returns the number of registered listeners.
+     *
+     * @return the number of registered listeners
+     */
+    public int size() {
+        return listeners.length;
+    }
+
     /**
      * Removes all listeners from this list.
      */

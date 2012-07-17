@@ -32,33 +32,32 @@ import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo
  * 
  * @author Fabio
  */
-public class PreloadAdditionalInfoPyEditListener implements IPyEditListener, IPyEditListener3{
+public class PreloadAdditionalInfoPyEditListener implements IPyEditListener, IPyEditListener3 {
 
     public void onCreateActions(ListResourceBundle resources, PyEdit edit, IProgressMonitor monitor) {
-        
+
     }
 
     public void onDispose(PyEdit edit, IProgressMonitor monitor) {
     }
 
-
     public void onSave(PyEdit edit, IProgressMonitor monitor) {
-        
+
     }
 
     public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
-        
+
     }
 
     public void onInputChanged(PyEdit edit, IEditorInput oldInput, IEditorInput input, IProgressMonitor monitor) {
-        if(input != null){
+        if (input != null) {
             IResource adapter = (IResource) input.getAdapter(IResource.class);
-            if(adapter != null){
+            if (adapter != null) {
                 IProject project = adapter.getProject();
                 final PythonNature nature = PythonNature.getPythonNature(project);
-                if(nature != null){
+                if (nature != null) {
                     Job job = new Job("Preload additional info") {
-                        
+
                         @Override
                         protected IStatus run(IProgressMonitor monitor) {
                             try {
@@ -76,5 +75,4 @@ public class PreloadAdditionalInfoPyEditListener implements IPyEditListener, IPy
         }
     }
 
-    
 }

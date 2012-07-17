@@ -9,7 +9,6 @@ package org.python.pydev.debug.ui;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.python.pydev.debug.ui.blocks.OverrideUnittestArgumentsBlock;
 
-
 /**
  * Adds the possibility of overriding unittest arguments for a given launch configuration.
  */

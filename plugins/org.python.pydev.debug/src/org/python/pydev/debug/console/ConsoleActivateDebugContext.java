@@ -12,45 +12,47 @@ import org.eclipse.ui.part.IPageBookViewPage;
 import org.python.pydev.debug.newconsole.PydevConsole;
 
 public class ConsoleActivateDebugContext implements IConsolePageParticipant, IDebugContextListener {
-	private PydevConsole console;
+    private PydevConsole console;
 
-	private IPageBookViewPage page;
+    private IPageBookViewPage page;
     private IConsoleView view;
 
-	public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
-		return null;
-	}
+    public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
+        return null;
+    }
 
     protected IProcess getProcess() {
         return console != null ? console.getProcess() : null;
     }
 
-	public void debugContextChanged(DebugContextEvent event) {
-		if ((event.getFlags() & DebugContextEvent.ACTIVATED) > 0) {
-			if (view != null && getProcess() != null && getProcess().equals(DebugUITools.getCurrentProcess())) {
-	            view.display(console);
-	        }
-		}
-		
-	}
+    public void debugContextChanged(DebugContextEvent event) {
+        if ((event.getFlags() & DebugContextEvent.ACTIVATED) > 0) {
+            if (view != null && getProcess() != null && getProcess().equals(DebugUITools.getCurrentProcess())) {
+                view.display(console);
+            }
+        }
 
-	public void init(IPageBookViewPage page, IConsole console) {
-		this.page = page;
-		this.console = (PydevConsole) console;
-		
+    }
+
+    public void init(IPageBookViewPage page, IConsole console) {
+        this.page = page;
+        this.console = (PydevConsole) console;
+
         view = (IConsoleView) page.getSite().getPage().findView(IConsoleConstants.ID_CONSOLE_VIEW);
-        DebugUITools.getDebugContextManager().getContextService(page.getSite().getWorkbenchWindow()).addDebugContextListener(this);
-	}
+        DebugUITools.getDebugContextManager().getContextService(page.getSite().getWorkbenchWindow())
+                .addDebugContextListener(this);
+    }
 
-	public void dispose() {
-        DebugUITools.getDebugContextManager().getContextService(this.page.getSite().getWorkbenchWindow()).removeDebugContextListener(this);
+    public void dispose() {
+        DebugUITools.getDebugContextManager().getContextService(this.page.getSite().getWorkbenchWindow())
+                .removeDebugContextListener(this);
         console = null;
-	}
+    }
 
-	public void activated() {
-	}
+    public void activated() {
+    }
 
-	public void deactivated() {
-	}
+    public void deactivated() {
+    }
 
 }

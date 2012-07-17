@@ -22,8 +22,8 @@ import org.python.pydev.core.docutils.PySelection;
 
 public class PyGlobalsBrowserWorkbench implements IWorkbenchWindowActionDelegate {
 
-	private ISelection selection;
-	
+    private ISelection selection;
+
     public void dispose() {
     }
 
@@ -31,32 +31,32 @@ public class PyGlobalsBrowserWorkbench implements IWorkbenchWindowActionDelegate
     }
 
     public void run(IAction action) {
-    	String text = null;
-    	if(this.selection instanceof ITextSelection){
-			ITextSelection textSelection = (ITextSelection) this.selection;
-			text = textSelection.getText();
-			
-			if(text == null || text.length() == 0){
-				//No selection... let's see if we can get a word there... 
-				//(note: not using getDocument because only 3.5 has it)
-				Object document = REF.getAttrObj(textSelection, "fDocument");
-				//returns null if we couldn't get it.
-				if(document instanceof IDocument){ // document != null
-					PySelection ps = new PySelection((IDocument) document, textSelection);
-					try {
-						text = ps.getCurrToken().o1;
-					} catch (BadLocationException e) {
-						//ignore
-					}
-				}
-			}
-    	}
-    	
+        String text = null;
+        if (this.selection instanceof ITextSelection) {
+            ITextSelection textSelection = (ITextSelection) this.selection;
+            text = textSelection.getText();
+
+            if (text == null || text.length() == 0) {
+                //No selection... let's see if we can get a word there... 
+                //(note: not using getDocument because only 3.5 has it)
+                Object document = REF.getAttrObj(textSelection, "fDocument");
+                //returns null if we couldn't get it.
+                if (document instanceof IDocument) { // document != null
+                    PySelection ps = new PySelection((IDocument) document, textSelection);
+                    try {
+                        text = ps.getCurrToken().o1;
+                    } catch (BadLocationException e) {
+                        //ignore
+                    }
+                }
+            }
+        }
+
         PyGlobalsBrowser.getFromWorkspace(text);
     }
 
     public void selectionChanged(IAction action, ISelection selection) {
-    	this.selection = selection;
+        this.selection = selection;
     }
 
 }

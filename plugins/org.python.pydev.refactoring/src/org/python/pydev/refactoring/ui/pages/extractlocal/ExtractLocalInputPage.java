@@ -55,9 +55,9 @@ public class ExtractLocalInputPage extends TextInputWizardPage {
 
         replaceDuplicates = new Button(result, SWT.CHECK);
         ExtractLocalRequestProcessor requestProcessor = getRequestProcessor();
-        replaceDuplicates.setText(
-                StringUtils.format("Also replace &duplicates (%s references)?", requestProcessor.getDuplicatesSize()));
-        
+        replaceDuplicates.setText(StringUtils.format("Also replace &duplicates (%s references)?",
+                requestProcessor.getDuplicatesSize()));
+
         IPreferenceStore preferences = PydevPrefs.getPreferences();
         boolean replace = preferences.getBoolean(EXTRACT_LOCAL_REPLACE_DUPLICATES);
         replaceDuplicates.setSelection(replace);
@@ -68,12 +68,12 @@ public class ExtractLocalInputPage extends TextInputWizardPage {
                 IPreferenceStore preferences = PydevPrefs.getPreferences();
                 preferences.setValue(EXTRACT_LOCAL_REPLACE_DUPLICATES, replaceDuplicates.getSelection());
             }
-            
+
         });
         GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
         gridData.horizontalSpan = 2;
         replaceDuplicates.setLayoutData(gridData);
-        
+
         layouter.perform(label, text, 1);
 
         Dialog.applyDialogFont(result);

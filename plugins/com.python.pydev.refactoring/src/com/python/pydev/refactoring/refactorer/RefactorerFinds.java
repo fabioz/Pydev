@@ -48,43 +48,45 @@ import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo
 import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
 
 public class RefactorerFinds {
-    
+
     public static boolean DEBUG = false;
-    
+
     private Refactorer refactorer;
 
-    public RefactorerFinds(Refactorer refactorer){
+    public RefactorerFinds(Refactorer refactorer) {
         this.refactorer = refactorer;
     }
 
-    private void findParentDefinitions(IPythonNature nature, IModule module, List<IDefinition> definitions, 
-            List<String> withoutAstDefinitions, HierarchyNodeModel model, ICompletionCache completionCache, RefactoringRequest request) throws Exception {
+    private void findParentDefinitions(IPythonNature nature, IModule module, List<IDefinition> definitions,
+            List<String> withoutAstDefinitions, HierarchyNodeModel model, ICompletionCache completionCache,
+            RefactoringRequest request) throws Exception {
         //ok, let's find the parents...
-        for(exprType exp :model.ast.bases){
+        for (exprType exp : model.ast.bases) {
             String n = NodeUtils.getFullRepresentationString(exp);
             final int line = exp.beginLine;
-            final int col = exp.beginColumn+n.length(); //the col must be the last char because it can be a dotted name
-            if(module != null){
-                
+            final int col = exp.beginColumn + n.length(); //the col must be the last char because it can be a dotted name
+            if (module != null) {
+
                 ArrayList<IDefinition> foundDefs = new ArrayList<IDefinition>();
-                PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module, n, foundDefs, line, col, nature, completionCache);
-                
-                if(foundDefs.size() > 0){
+                PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module, n, foundDefs, line, col,
+                        nature, completionCache);
+
+                if (foundDefs.size() > 0) {
                     definitions.addAll(foundDefs);
-                }else{
+                } else {
                     withoutAstDefinitions.add(n);
                 }
-            }else{
+            } else {
                 withoutAstDefinitions.add(n);
             }
         }
     }
-    
-    private void findParents(IPythonNature nature, Definition d, HierarchyNodeModel initialModel, 
+
+    private void findParents(IPythonNature nature, Definition d, HierarchyNodeModel initialModel,
             HashMap<HierarchyNodeModel, HierarchyNodeModel> allFound, RefactoringRequest request) throws Exception {
-        
+
         request.getMonitor().beginTask("Find parents", IProgressMonitor.UNKNOWN);
-        
+
         try {
             HashSet<HierarchyNodeModel> foundOnRound = new HashSet<HierarchyNodeModel>();
             foundOnRound.add(initialModel);
@@ -96,7 +98,8 @@ public class RefactorerFinds {
                 for (HierarchyNodeModel toFindOnRound : nextRound) {
                     List<IDefinition> definitions = new ArrayList<IDefinition>();
                     List<String> withoutAstDefinitions = new ArrayList<String>();
-                    findParentDefinitions(nature, toFindOnRound.module, definitions, withoutAstDefinitions, toFindOnRound, completionCache, request);
+                    findParentDefinitions(nature, toFindOnRound.module, definitions, withoutAstDefinitions,
+                            toFindOnRound, completionCache, request);
 
                     request.communicateWork(StringUtils.format("Found: %s parents for: %s", definitions.size(), d.value));
 
@@ -128,65 +131,65 @@ public class RefactorerFinds {
             request.getMonitor().done();
         }
     }
-    
-    private void findChildren(
-            RefactoringRequest request, HierarchyNodeModel initialModel, HashMap<HierarchyNodeModel, HierarchyNodeModel> allFound) {
+
+    private void findChildren(RefactoringRequest request, HierarchyNodeModel initialModel,
+            HashMap<HierarchyNodeModel, HierarchyNodeModel> allFound) {
         try {
             request.getMonitor().beginTask("Find children", 100);
             //and now the children...
             List<AbstractAdditionalDependencyInfo> infoForProject;
             try {
-                infoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProjectAndReferencing(request.nature);
+                infoForProject = AdditionalProjectInterpreterInfo
+                        .getAdditionalInfoForProjectAndReferencing(request.nature);
             } catch (MisconfigurationException e) {
                 Log.log(e);
                 return;
             }
             HashSet<HierarchyNodeModel> foundOnRound = new HashSet<HierarchyNodeModel>();
             foundOnRound.add(initialModel);
-            
+
             int totalWork = 1000;
-            
+
             while (foundOnRound.size() > 0) {
                 HashSet<HierarchyNodeModel> nextRound = new HashSet<HierarchyNodeModel>(foundOnRound);
                 foundOnRound.clear();
 
                 for (HierarchyNodeModel toFindOnRound : nextRound) {
-                    
+
                     HashSet<SourceModule> modulesToAnalyze;
-                    
+
                     int work = totalWork / 250;
-                    if(work <= 0){
+                    if (work <= 0) {
                         work = 1;
                         totalWork = 0;
                     }
                     totalWork -= work;
-                    
+
                     try {
                         request.pushMonitor(new SubProgressMonitor(request.getMonitor(), work));
                         modulesToAnalyze = findLikelyModulesWithChildren(request, toFindOnRound, infoForProject);
                     } finally {
                         request.popMonitor().done();
                     }
-                    
-                    
+
                     request.communicateWork("Likely modules with matches:" + modulesToAnalyze.size());
                     findChildrenOnModules(request, allFound, foundOnRound, toFindOnRound, modulesToAnalyze);
                 }
             }
         } finally {
             request.getMonitor().done();
-        }               
+        }
     }
-    
-    private void findChildrenOnModules(RefactoringRequest request, HashMap<HierarchyNodeModel, 
-            HierarchyNodeModel> allFound, HashSet<HierarchyNodeModel> foundOnRound, 
+
+    private void findChildrenOnModules(RefactoringRequest request,
+            HashMap<HierarchyNodeModel, HierarchyNodeModel> allFound, HashSet<HierarchyNodeModel> foundOnRound,
             HierarchyNodeModel toFindOnRound, HashSet<SourceModule> modulesToAnalyze) {
         for (SourceModule module : modulesToAnalyze) {
             SourceModule m = (SourceModule) module;
-            request.communicateWork("Analyzing:"+m.getName());
-            
+            request.communicateWork("Analyzing:" + m.getName());
+
             Iterator<ASTEntry> entries = EasyASTIteratorVisitor.createClassIterator(m.getAst());
-            
+
             while (entries.hasNext()) {
                 ASTEntry entry = entries.next();
                 //we're checking for those that have model.name as a parent
@@ -194,11 +197,11 @@ public class RefactorerFinds {
                 List<String> parentNames = NodeUtils.getParentNames(def, true);
                 if (parentNames.contains(toFindOnRound.name)) {
                     HierarchyNodeModel newNode = new HierarchyNodeModel(module, def);
-                    if(allFound.containsKey(newNode) == false){
+                    if (allFound.containsKey(newNode) == false) {
                         toFindOnRound.children.add(newNode);
                         allFound.put(newNode, newNode);
                         foundOnRound.add(newNode);
-                    }else{
+                    } else {
                         newNode = allFound.get(newNode);
                         Assert.isNotNull(newNode);
                         toFindOnRound.children.add(newNode);
@@ -207,33 +210,32 @@ public class RefactorerFinds {
             }
         }
     }
-    
-    private HashSet<SourceModule> findLikelyModulesWithChildren(
-            RefactoringRequest request, HierarchyNodeModel model, List<AbstractAdditionalDependencyInfo> infoForProject) {
+
+    private HashSet<SourceModule> findLikelyModulesWithChildren(RefactoringRequest request, HierarchyNodeModel model,
+            List<AbstractAdditionalDependencyInfo> infoForProject) {
         //get the modules that are most likely to have that declaration.
         HashSet<SourceModule> modulesToAnalyze = new HashSet<SourceModule>();
         for (AbstractAdditionalDependencyInfo additionalInfo : infoForProject) {
-            
+
             IProgressMonitor monitor = request.getMonitor();
-            if(monitor == null){
+            if (monitor == null) {
                 monitor = new NullProgressMonitor();
             }
             monitor.beginTask("Find likely modules with children", 100);
-            
+
             try {
                 List<ModulesKey> modules;
                 try {
                     request.pushMonitor(new SubProgressMonitor(monitor, 90));
                     modules = additionalInfo.getModulesWithToken(model.name, monitor);
-                    monitor.setTaskName("Searching: "+model.name);
+                    monitor.setTaskName("Searching: " + model.name);
                     if (monitor.isCanceled()) {
                         throw new OperationCanceledException();
                     }
                 } finally {
                     request.popMonitor().done();
                 }
-                
-                
+
                 try {
                     request.pushMonitor(new SubProgressMonitor(monitor, 10));
                     request.getMonitor().beginTask("Find likely modules with children", modules.size());
@@ -255,13 +257,14 @@ public class RefactorerFinds {
                         }
                         module = pythonNature.getAstManager().getModule(declaringModuleName.name, pythonNature, false);
                         if (module == null && pythonNature != request.nature) {
-                            module = request.nature.getAstManager().getModule(declaringModuleName.name, request.nature, false);
+                            module = request.nature.getAstManager().getModule(declaringModuleName.name, request.nature,
+                                    false);
                         }
 
                         if (module instanceof SourceModule) {
                             modulesToAnalyze.add((SourceModule) module);
                         }
-                        
+
                         request.getMonitor().worked(1);
                     }
                 } finally {
@@ -280,7 +283,7 @@ public class RefactorerFinds {
     public HierarchyNodeModel findClassHierarchy(RefactoringRequest request, boolean findOnlyParents) {
         try {
             request.getMonitor().beginTask("Find class hierarchy", 100);
-            
+
             ItemPointer[] pointers;
             try {
                 request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 5));
@@ -289,9 +292,8 @@ public class RefactorerFinds {
             } finally {
                 request.popMonitor().done();
             }
-            
-            
-            if(pointers.length == 1){
+
+            if (pointers.length == 1) {
                 //ok, this is the default one.
                 Definition d = pointers[0].definition;
                 HierarchyNodeModel model;
@@ -301,22 +303,22 @@ public class RefactorerFinds {
                 } finally {
                     request.popMonitor().done();
                 }
-                
+
                 if (model == null) {
                     return null;
                 }
-                
+
                 HashMap<HierarchyNodeModel, HierarchyNodeModel> allFound = new HashMap<HierarchyNodeModel, HierarchyNodeModel>();
                 allFound.put(model, model);
-                
+
                 try {
                     request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 10));
                     findParents(request.nature, d, model, allFound, request);
                 } finally {
                     request.popMonitor().done();
                 }
-                
-                if(!findOnlyParents){
+
+                if (!findOnlyParents) {
                     try {
                         request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 80));
                         findChildren(request, model, allFound);
@@ -324,20 +326,20 @@ public class RefactorerFinds {
                         request.popMonitor().done();
                     }
                 }
-                
+
                 return model;
             }
-            
+
         } catch (OperationCanceledException e) {
             //ignore
         } catch (Exception e) {
             throw new RuntimeException(e);
-        }finally{
+        } finally {
             request.getMonitor().done();
         }
         return null;
     }
-    
+
     /**
      * @param d
      * @param model
@@ -345,12 +347,12 @@ public class RefactorerFinds {
      */
     private HierarchyNodeModel createHierarhyNodeFromClassDef(Definition d) {
         HierarchyNodeModel model = null;
-        if(d.ast instanceof ClassDef){
+        if (d.ast instanceof ClassDef) {
             model = new HierarchyNodeModel(d.module, (ClassDef) d.ast);
         }
         return model;
     }
-    
+
     public boolean areAllInSameClassHierarchy(List<AssignDefinition> defs) {
         return true;
     }

@@ -12,58 +12,58 @@ import com.python.pydev.analysis.additionalinfo.ClassInfo;
 
 import junit.framework.TestCase;
 
-public class GlobalsTwoPanelElementSelector2Test extends TestCase{
+public class GlobalsTwoPanelElementSelector2Test extends TestCase {
 
-    public void testPatternMatch() throws Exception{
+    public void testPatternMatch() throws Exception {
         SearchPattern patternMatcher = new SearchPattern();
         patternMatcher.setPattern("aa");
-        
+
         assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("aa", null, null)));
-        
+
         assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", null, null)));
-        
+
         assertFalse(MatchHelper.matchItem(patternMatcher, new ClassInfo("baaa", null, null)));
-        
+
         assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", "coi.foo", null)));
-        
+
         patternMatcher.setPattern("xx.aa");
         assertFalse(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", "invalid.foo", null)));
-        
+
         assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", "xx.foo", null)));
-        
+
         patternMatcher.setPattern("xx.foo.aa");
-        assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa",  "xx.foo.bar", null)));
-        
+        assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", "xx.foo.bar", null)));
+
         patternMatcher.setPattern("xx.foo.bar.aa");
         assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", "xx.foo.bar", null)));
-        
+
         patternMatcher.setPattern("xx.foo.bar.aa.aa");
         assertFalse(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", "xx.foo.bar", null)));
-        
+
         patternMatcher.setPattern("xx.foo.ba.aa");
         assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", "xx.foo.bar", null)));
-        
+
         patternMatcher.setPattern("xx.fo*o.ba.aa");
         assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("aaa", "xx.foo.bar", null)));
-        
+
         patternMatcher.setPattern("coi*.intersection");
         assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("Intersection", "coilib50.basic.native", null)));
-        
+
         patternMatcher.setPattern("coilib50.intersection");
         assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("Intersection", "coilib50.basic.native", null)));
-        
+
         patternMatcher.setPattern("coilib50.");
         assertTrue(MatchHelper.matchItem(patternMatcher, new ClassInfo("Intersection", "coilib50.basic.native", null)));
     }
-    
-    public void testPatternSubAndEquals() throws Exception{
+
+    public void testPatternSubAndEquals() throws Exception {
         assertFalse(MatchHelper.equalsFilter("aa", "aa "));
-        
+
         assertTrue(MatchHelper.equalsFilter("aa", "aa"));
         assertFalse(MatchHelper.equalsFilter("aa.", "aa"));
         assertFalse(MatchHelper.equalsFilter("aa", "aa."));
         assertTrue(MatchHelper.equalsFilter("aa.", "aa."));
-        
+
         assertTrue(MatchHelper.isSubFilter("aa.", "aa."));
         assertTrue(MatchHelper.isSubFilter("aa", "aab"));
         assertFalse(MatchHelper.isSubFilter("", "a"));
@@ -74,5 +74,5 @@ public class GlobalsTwoPanelElementSelector2Test extends TestCase{
         assertFalse(MatchHelper.isSubFilter("a.", "a.ab"));
         assertFalse(MatchHelper.isSubFilter("a", "a.ab"));
     }
-    
+
 }

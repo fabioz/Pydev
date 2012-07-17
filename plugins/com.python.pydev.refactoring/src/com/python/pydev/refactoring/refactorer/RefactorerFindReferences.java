@@ -33,7 +33,7 @@ import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo
  * @author Fabio
  */
 public class RefactorerFindReferences {
-    
+
     /**
      * If this field is not null, the return will be forced without actually doing
      * a search in files.
@@ -41,7 +41,6 @@ public class RefactorerFindReferences {
      * This is intended to help in testing features that depend on the search.
      */
     public static ArrayList<Tuple<List<ModulesKey>, IPythonNature>> FORCED_RETURN;
-
 
     /**
      * Find the references that may have the text we're looking for.
@@ -52,33 +51,32 @@ public class RefactorerFindReferences {
      * interested in -- it is just a helper to refine our search).
      */
     public ArrayList<Tuple<List<ModulesKey>, IPythonNature>> findPossibleReferences(RefactoringRequest request) {
-        if(FORCED_RETURN != null){
+        if (FORCED_RETURN != null) {
             ArrayList<Tuple<List<ModulesKey>, IPythonNature>> ret = new ArrayList<Tuple<List<ModulesKey>, IPythonNature>>();
-            
-            for(Tuple<List<ModulesKey>, IPythonNature> f: FORCED_RETURN){
+
+            for (Tuple<List<ModulesKey>, IPythonNature> f : FORCED_RETURN) {
                 //only for testing purposes
-                for(ModulesKey k:f.o1){
+                for (ModulesKey k : f.o1) {
                     String object = REF.getFileContents(k.file);
-                    if(object.indexOf(request.initialName) != -1){
+                    if (object.indexOf(request.initialName) != -1) {
                         ret.add(new Tuple<List<ModulesKey>, IPythonNature>(Arrays.asList(k), f.o2));
                     }
                 }
             }
             return ret;
         }
-        
+
         ArrayList<Tuple<List<ModulesKey>, IPythonNature>> ret = new ArrayList<Tuple<List<ModulesKey>, IPythonNature>>();
-        
+
         try {
             IProject project = request.nature.getProject();
-            if(project == null){
-            	return ret;
+            if (project == null) {
+                return ret;
             }
 
-            
             try {
-                List<Tuple<AbstractAdditionalTokensInfo, IPythonNature>> infoAndNature = 
-                    AdditionalProjectInterpreterInfo.getAdditionalInfoAndNature(request.nature, false, true, true);
+                List<Tuple<AbstractAdditionalTokensInfo, IPythonNature>> infoAndNature = AdditionalProjectInterpreterInfo
+                        .getAdditionalInfoAndNature(request.nature, false, true, true);
 
                 request.getMonitor().beginTask("Find possible references", infoAndNature.size());
                 request.getMonitor().setTaskName("Find possible references");
@@ -87,7 +85,8 @@ public class RefactorerFindReferences {
                         try {
                             request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 1));
                             if (tuple.o1 != null && tuple.o2 != null) {
-                                List<ModulesKey> modulesWithToken = tuple.o1.getModulesWithToken(request.initialName, request.getMonitor());
+                                List<ModulesKey> modulesWithToken = tuple.o1.getModulesWithToken(request.initialName,
+                                        request.getMonitor());
 
                                 ret.add(new Tuple<List<ModulesKey>, IPythonNature>(modulesWithToken, tuple.o2));
                             }
@@ -101,7 +100,7 @@ public class RefactorerFindReferences {
             } catch (MisconfigurationException e) {
                 Log.log(e);
             }
-            
+
         } catch (Exception e) {
             Log.log(e);
         }

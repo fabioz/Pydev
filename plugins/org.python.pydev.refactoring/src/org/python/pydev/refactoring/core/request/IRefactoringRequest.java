@@ -13,7 +13,7 @@ import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 
 public interface IRefactoringRequest {
-    
+
     IASTNodeAdapter<? extends SimpleNode> getOffsetNode();
 
     AdapterPrefs getAdapterPrefs();

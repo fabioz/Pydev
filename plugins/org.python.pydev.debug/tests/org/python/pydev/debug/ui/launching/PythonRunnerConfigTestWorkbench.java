@@ -52,14 +52,16 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
     // something simpler can be enough
 
     public void testResourceLocation() throws Exception {
-        ILaunchConfiguration config = new JythonLaunchShortcut().createDefaultLaunchConfiguration(FileOrResource.createArray(new IResource[] { mod1 }));
+        ILaunchConfiguration config = new JythonLaunchShortcut().createDefaultLaunchConfiguration(FileOrResource
+                .createArray(new IResource[] { mod1 }));
         PythonRunnerConfig runnerConfig = new PythonRunnerConfig(config, ILaunchManager.RUN_MODE,
                 PythonRunnerConfig.RUN_JYTHON);
         assertEquals(mod1.getLocation(), runnerConfig.resource[0]);
     }
 
     public void testOverridingResourceLocation() throws Exception {
-        ILaunchConfiguration config = new JythonLaunchShortcut().createDefaultLaunchConfiguration(FileOrResource.createArray(new IResource[] { mod1 }));
+        ILaunchConfiguration config = new JythonLaunchShortcut().createDefaultLaunchConfiguration(FileOrResource
+                .createArray(new IResource[] { mod1 }));
         ILaunchConfigurationWorkingCopy configCopy = config.getWorkingCopy();
         String customResourcePath = "/foo/bar/acme.py";
         configCopy.setAttribute(Constants.ATTR_ALTERNATE_LOCATION, customResourcePath);
@@ -69,101 +71,109 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
     }
 
     public void testUnittestCommandLine() throws Exception {
-        ILaunchConfiguration config = new JythonLaunchShortcut().createDefaultLaunchConfiguration(FileOrResource.createArray(new IResource[] { mod1 }));
+        ILaunchConfiguration config = new JythonLaunchShortcut().createDefaultLaunchConfiguration(FileOrResource
+                .createArray(new IResource[] { mod1 }));
         PythonRunnerConfig runnerConfig = new PythonRunnerConfig(config, ILaunchManager.RUN_MODE,
                 PythonRunnerConfig.RUN_JYTHON);
         String[] argv = runnerConfig.getCommandLine(false);
         assertFalse(arrayContains(argv, PythonRunnerConfig.getRunFilesScript()));
         assertTrue(arrayContains(argv, mod1.getLocation().toOSString()));
     }
-    
+
     public void testPythonUnittestCommandLine() throws Exception {
-        ILaunchConfiguration config = new UnitTestLaunchShortcut().createDefaultLaunchConfiguration(FileOrResource.createArray(new IResource[] { mod1 }));
-        PythonRunnerConfig runnerConfig = new PythonRunnerConfig(config, ILaunchManager.RUN_MODE, PythonRunnerConfig.RUN_UNITTEST);
+        ILaunchConfiguration config = new UnitTestLaunchShortcut().createDefaultLaunchConfiguration(FileOrResource
+                .createArray(new IResource[] { mod1 }));
+        PythonRunnerConfig runnerConfig = new PythonRunnerConfig(config, ILaunchManager.RUN_MODE,
+                PythonRunnerConfig.RUN_UNITTEST);
         String[] argv = runnerConfig.getCommandLine(false);
         assertTrue(arrayContains(argv, PythonRunnerConfig.getRunFilesScript()));
-        assertTrue(arrayContains(argv, mod1.getLocation().toOSString())); 
+        assertTrue(arrayContains(argv, mod1.getLocation().toOSString()));
     }
 
-    
     public void testPythonCommandLine() throws Exception {
         PythonNature nature = PythonNature.getPythonNature(mod1);
 
         // Create a temporary variable for testing
         IStringVariableManager variableManager = VariablesPlugin.getDefault().getStringVariableManager();
-        IValueVariable myCustomVariable = variableManager.newValueVariable("pydev_python_runner_config_test_var", "", true, "my_custom_value");
-		variableManager.addVariables(new IValueVariable[]{ myCustomVariable});
+        IValueVariable myCustomVariable = variableManager.newValueVariable("pydev_python_runner_config_test_var", "",
+                true, "my_custom_value");
+        variableManager.addVariables(new IValueVariable[] { myCustomVariable });
 
-		try{
+        try {
             IInterpreterManager manager = PydevPlugin.getPythonInterpreterManager(true);
             InterpreterInfo info = (InterpreterInfo) manager.getDefaultInterpreterInfo(false);
-            info.setEnvVariables(new String[]{"MY_CUSTOM_VAR_FOR_TEST=FOO", "MY_CUSTOM_VAR_FOR_TEST2=FOO2", "MY_CUSTOM_VAR_WITH_VAR=${pydev_python_runner_config_test_var}"});
-            
-            // Make sure variable hasn't been expanded too early
-            assertTrue(arrayContains(info.getEnvVariables(), "MY_CUSTOM_VAR_WITH_VAR=${pydev_python_runner_config_test_var}"));
+            info.setEnvVariables(new String[] { "MY_CUSTOM_VAR_FOR_TEST=FOO", "MY_CUSTOM_VAR_FOR_TEST2=FOO2",
+                    "MY_CUSTOM_VAR_WITH_VAR=${pydev_python_runner_config_test_var}" });
 
-            
+            // Make sure variable hasn't been expanded too early
+            assertTrue(arrayContains(info.getEnvVariables(),
+                    "MY_CUSTOM_VAR_WITH_VAR=${pydev_python_runner_config_test_var}"));
+
             PythonRunnerConfig runnerConfig = createConfig();
             assertTrue(arrayContains(runnerConfig.envp, "MY_CUSTOM_VAR_FOR_TEST=FOO"));
             assertTrue(arrayContains(runnerConfig.envp, "MY_CUSTOM_VAR_FOR_TEST2=FOO2"));
             assertTrue(arrayContains(runnerConfig.envp, "MY_CUSTOM_VAR_WITH_VAR=my_custom_value"));
-            
-            String[] argv = runnerConfig.getCommandLine(false); 
+
+            String[] argv = runnerConfig.getCommandLine(false);
             assertFalse(arrayContains(argv, PythonRunnerConfig.getRunFilesScript()));
             assertTrue(arrayContains(argv, mod1.getLocation().toOSString()));
-            
-            
+
             nature.setVersion(IPythonNature.PYTHON_VERSION_LATEST, IPythonNature.DEFAULT_INTERPRETER);
-            assertEquals(manager.getDefaultInterpreterInfo(false).getExecutableOrJar(), nature.getProjectInterpreter().getExecutableOrJar());
+            assertEquals(manager.getDefaultInterpreterInfo(false).getExecutableOrJar(), nature.getProjectInterpreter()
+                    .getExecutableOrJar());
             runnerConfig = createConfig();
-            argv = runnerConfig.getCommandLine(false); 
+            argv = runnerConfig.getCommandLine(false);
             assertEquals(manager.getDefaultInterpreterInfo(false).getExecutableOrJar(), argv[0]);
-            
+
             IInterpreterManager interpreterManager = nature.getRelatedInterpreterManager();
-            
-            InterpreterInfo info2 = new InterpreterInfo(IPythonNature.PYTHON_VERSION_2_6, "c:\\interpreter\\py25.exe", new ArrayList<String>());
-            interpreterManager.setInfos(new IInterpreterInfo[]{info, info2}, null, null);
-            
+
+            InterpreterInfo info2 = new InterpreterInfo(IPythonNature.PYTHON_VERSION_2_6, "c:\\interpreter\\py25.exe",
+                    new ArrayList<String>());
+            interpreterManager.setInfos(new IInterpreterInfo[] { info, info2 }, null, null);
+
             nature.setVersion(IPythonNature.PYTHON_VERSION_LATEST, "c:\\interpreter\\py25.exe");
             assertEquals("c:\\interpreter\\py25.exe", nature.getProjectInterpreter().getExecutableOrJar());
             runnerConfig = createConfig();
-            argv = runnerConfig.getCommandLine(false); 
+            argv = runnerConfig.getCommandLine(false);
             assertEquals("c:\\interpreter\\py25.exe", argv[0]);
             nature.setVersion(IPythonNature.PYTHON_VERSION_LATEST, IPythonNature.DEFAULT_INTERPRETER);
 
             ILaunchConfiguration config;
-            config = new LaunchShortcut().createDefaultLaunchConfiguration(FileOrResource.createArray(new IResource[] { mod1 }));
+            config = new LaunchShortcut().createDefaultLaunchConfiguration(FileOrResource
+                    .createArray(new IResource[] { mod1 }));
             ILaunchConfigurationWorkingCopy workingCopy = config.getWorkingCopy();
             HashMap<String, String> map = new HashMap<String, String>();
             map.put("VAR_SPECIFIED_IN_LAUNCH", "BAR");
             map.put("MY_CUSTOM_VAR_FOR_TEST2", "BAR2"); //The one in the launch configuration always has preference.
             workingCopy.setAttribute(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES, map);
             config = workingCopy.doSave();
-            
+
             runnerConfig = new PythonRunnerConfig(config, ILaunchManager.RUN_MODE, PythonRunnerConfig.RUN_REGULAR);
             assertTrue(arrayContains(runnerConfig.envp, "VAR_SPECIFIED_IN_LAUNCH=BAR"));
             assertTrue(arrayContains(runnerConfig.envp, "MY_CUSTOM_VAR_FOR_TEST=FOO"));
             assertTrue(arrayContains(runnerConfig.envp, "MY_CUSTOM_VAR_FOR_TEST2=BAR2"));
             assertTrue(arrayContains(runnerConfig.envp, "MY_CUSTOM_VAR_WITH_VAR=my_custom_value"));
-        }catch (Throwable e) {
+        } catch (Throwable e) {
             e.printStackTrace();
             throw new RuntimeException(e);
-        }finally{
+        } finally {
             //restore the default!
             nature.setVersion(IPythonNature.PYTHON_VERSION_LATEST, IPythonNature.DEFAULT_INTERPRETER);
-            variableManager.removeVariables(new IValueVariable[]{ myCustomVariable});
+            variableManager.removeVariables(new IValueVariable[] { myCustomVariable });
         }
     }
 
     private PythonRunnerConfig createConfig() throws CoreException, InvalidRunException, MisconfigurationException {
-        ILaunchConfiguration config = new LaunchShortcut().createDefaultLaunchConfiguration(FileOrResource.createArray(new IResource[] { mod1 }));
-        PythonRunnerConfig runnerConfig = new PythonRunnerConfig(config, ILaunchManager.RUN_MODE, PythonRunnerConfig.RUN_REGULAR);
+        ILaunchConfiguration config = new LaunchShortcut().createDefaultLaunchConfiguration(FileOrResource
+                .createArray(new IResource[] { mod1 }));
+        PythonRunnerConfig runnerConfig = new PythonRunnerConfig(config, ILaunchManager.RUN_MODE,
+                PythonRunnerConfig.RUN_REGULAR);
         return runnerConfig;
     }
-    
+
     public static Test suite() {
         TestSuite suite = new TestSuite(PythonRunnerConfigTestWorkbench.class.getName());
-        suite.addTestSuite(PythonRunnerConfigTestWorkbench.class); 
+        suite.addTestSuite(PythonRunnerConfigTestWorkbench.class);
         return suite;
     }
 

@@ -20,7 +20,7 @@ import org.python.pydev.editor.codecompletion.revisited.PythonInterpreterManager
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
-public class JythonInterpreterManagerStub extends PythonInterpreterManagerStub{
+public class JythonInterpreterManagerStub extends PythonInterpreterManagerStub {
 
     public JythonInterpreterManagerStub(PreferenceStore prefs) {
         super(prefs);
@@ -30,7 +30,6 @@ public class JythonInterpreterManagerStub extends PythonInterpreterManagerStub{
         return TestDependent.JYTHON_JAR_LOCATION;
     }
 
-
     public String addInterpreter(String executable, IProgressMonitor monitor) {
         throw new RuntimeException("not impl");
     }
@@ -39,14 +38,15 @@ public class JythonInterpreterManagerStub extends PythonInterpreterManagerStub{
      * @throws MisconfigurationException 
      * @see org.python.pydev.core.IInterpreterManager#getInterpreterInfo(java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
      */
-    public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor) throws MisconfigurationException {
+    public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor)
+            throws MisconfigurationException {
         InterpreterInfo info = super.getInterpreterInfo(executable, monitor);
-        if(!info.executableOrJar.equals(TestDependent.JYTHON_JAR_LOCATION)){
+        if (!info.executableOrJar.equals(TestDependent.JYTHON_JAR_LOCATION)) {
             throw new RuntimeException("expected same");
         }
         return info;
     }
-    
+
     /**
      * @see org.python.pydev.core.IInterpreterManager#getDefaultJavaLocation()
      */
@@ -65,7 +65,8 @@ public class JythonInterpreterManagerStub extends PythonInterpreterManagerStub{
     }
 
     @Override
-    public Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor, boolean askUser) throws CoreException, JDTNotAvailableException {
+    public Tuple<InterpreterInfo, String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor,
+            boolean askUser) throws CoreException, JDTNotAvailableException {
         return JythonInterpreterManager.doCreateInterpreterInfo(executable, monitor, askUser);
     }
 

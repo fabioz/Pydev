@@ -40,17 +40,16 @@ public class PyStructuralChange {
         this.addedTokens.add(token);
     }
 
-
     public void addRemovedToken(String token) {
         this.removedTokens.add(token);
     }
 
     public Set<String> getChangedTokens() {
         HashSet<String> toks = new HashSet<String>();
-        
+
         toks.addAll(addedTokens);
         toks.addAll(removedTokens);
-        
+
         return toks;
     }
 

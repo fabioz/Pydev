@@ -48,7 +48,7 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
  * @author fabioz
  */
 public class PySourceLocatorBase {
-    
+
     /**
      * This method will try to find the most likely file that matches the given path,
      * considering:
@@ -65,7 +65,6 @@ public class PySourceLocatorBase {
         return createEditorInput(path, true, null);
     }
 
-    
     /**
      * @param file the file we want to get in the workspace
      * @return a workspace file that matches the given file.
@@ -74,46 +73,41 @@ public class PySourceLocatorBase {
         IFile[] files = getWorkspaceFiles(file);
         return selectWorkspaceFile(files);
     }
-    
-    
+
     /**
      * @param file the file we want to get in the workspace
      * @return a workspace file that matches the given file.
      */
     public IFile[] getWorkspaceFiles(File file) {
-        IWorkspace workspace= ResourcesPlugin.getWorkspace();
-        IFile[] files= workspace.getRoot().findFilesForLocationURI(file.toURI());
-        files= filterNonExistentFiles(files);
-        if (files == null || files.length == 0){
+        IWorkspace workspace = ResourcesPlugin.getWorkspace();
+        IFile[] files = workspace.getRoot().findFilesForLocationURI(file.toURI());
+        files = filterNonExistentFiles(files);
+        if (files == null || files.length == 0) {
             return null;
         }
-        
+
         return files;
     }
-    
-    
 
     public IContainer getWorkspaceContainer(File file) {
         IContainer[] containers = getWorkspaceContainers(file);
-        if(containers == null || containers.length < 1){
+        if (containers == null || containers.length < 1) {
             return null;
         }
         return containers[0];
     }
 
     public IContainer[] getWorkspaceContainers(File file) {
-        IWorkspace workspace= ResourcesPlugin.getWorkspace();
-        IContainer[] containers= workspace.getRoot().findContainersForLocationURI(file.toURI());
+        IWorkspace workspace = ResourcesPlugin.getWorkspace();
+        IContainer[] containers = workspace.getRoot().findContainersForLocationURI(file.toURI());
         containers = filterNonExistentContainers(containers);
-        if (containers == null || containers.length == 0){
+        if (containers == null || containers.length == 0) {
             return null;
         }
-        
+
         return containers;
     }
-    
-    
-    
+
     //---------------------------------- PRIVATE API BELOW --------------------------------------------
 
     /**
@@ -128,92 +122,91 @@ public class PySourceLocatorBase {
     public IEditorInput createEditorInput(IPath path, boolean askIfDoesNotExist, IPyStackFrame pyStackFrame) {
         int onSourceNotFound = PySourceLocatorPrefs.getOnSourceNotFound();
         IEditorInput edInput = null;
-        
+
         String pathTranslation = PySourceLocatorPrefs.getPathTranslation(path);
-        if(pathTranslation != null){
-            if(!pathTranslation.equals(PySourceLocatorPrefs.DONTASK)){
+        if (pathTranslation != null) {
+            if (!pathTranslation.equals(PySourceLocatorPrefs.DONTASK)) {
                 //change it for the registered translation
                 path = Path.fromOSString(pathTranslation);
-            }else{
+            } else {
                 //DONTASK!!
                 askIfDoesNotExist = false;
             }
         }
-        
-        IWorkspace w = ResourcesPlugin.getWorkspace();      
-        
+
+        IWorkspace w = ResourcesPlugin.getWorkspace();
+
         //let's start with the 'easy' way
         IFile fileForLocation = w.getRoot().getFileForLocation(path);
-        if(fileForLocation != null && fileForLocation.exists()){
+        if (fileForLocation != null && fileForLocation.exists()) {
             return new FileEditorInput(fileForLocation);
         }
-        
+
         IFile files[] = w.getRoot().findFilesForLocation(path);
-        if (files == null  || files.length == 0 || !files[0].exists()){
+        if (files == null || files.length == 0 || !files[0].exists()) {
             //it is probably an external file
             File systemFile = path.toFile();
-            if(systemFile.exists()){
+            if (systemFile.exists()) {
                 edInput = createEditorInput(systemFile);
             }
-            
-            if(edInput == null){
+
+            if (edInput == null) {
                 //here we can do one more thing: if the file matches some opened editor, let's use it...
                 //(this is done because when debugging, we don't want to be asked over and over
                 //for the same file)
                 IEditorInput input = getEditorInputFromExistingEditors(systemFile.getName());
-                if(input != null){
+                if (input != null) {
                     return input;
                 }
-                
-                if(askIfDoesNotExist && (
-                        onSourceNotFound == PySourceLocatorPrefs.ASK_FOR_FILE || 
-                        onSourceNotFound == PySourceLocatorPrefs.ASK_FOR_FILE_GET_FROM_SERVER)){
-                    
+
+                if (askIfDoesNotExist
+                        && (onSourceNotFound == PySourceLocatorPrefs.ASK_FOR_FILE || onSourceNotFound == PySourceLocatorPrefs.ASK_FOR_FILE_GET_FROM_SERVER)) {
+
                     //this is the last resort... First we'll try to check for a 'good' match,
                     //and if there's more than one we'll ask it to the user
                     List<IFile> likelyFiles = getLikelyFiles(path, w);
                     IFile iFile = selectWorkspaceFile(likelyFiles.toArray(new IFile[0]));
-                    if(iFile != null){
+                    if (iFile != null) {
                         PySourceLocatorPrefs.addPathTranslation(path, iFile.getLocation());
                         return new FileEditorInput(iFile);
                     }
-                    
+
                     //ok, ask the user for any file in the computer
                     IEditorInput pydevFileEditorInput = selectFilesystemFileForPath(path);
                     input = pydevFileEditorInput;
-                    if(input != null){
-                    	File file = PydevFileEditorInput.getFile(pydevFileEditorInput);
-                    	if(file != null){
-    	                    PySourceLocatorPrefs.addPathTranslation(path, Path.fromOSString(REF.getFileAbsolutePath(file)));
-    	                    return input;
-                    	}
+                    if (input != null) {
+                        File file = PydevFileEditorInput.getFile(pydevFileEditorInput);
+                        if (file != null) {
+                            PySourceLocatorPrefs.addPathTranslation(path,
+                                    Path.fromOSString(REF.getFileAbsolutePath(file)));
+                            return input;
+                        }
                     }
-                    
+
                     PySourceLocatorPrefs.setIgnorePathTranslation(path);
                 }
             }
-        }else{ //file exists
+        } else { //file exists
             IFile workspaceFile = selectWorkspaceFile(files);
-            if(workspaceFile != null){
+            if (workspaceFile != null) {
                 edInput = new FileEditorInput(workspaceFile);
             }
         }
-        
-        if(edInput == null && (
-                onSourceNotFound == PySourceLocatorPrefs.ASK_FOR_FILE_GET_FROM_SERVER || 
-                onSourceNotFound == PySourceLocatorPrefs.GET_FROM_SERVER)){
-            if(pyStackFrame != null){
+
+        if (edInput == null
+                && (onSourceNotFound == PySourceLocatorPrefs.ASK_FOR_FILE_GET_FROM_SERVER || onSourceNotFound == PySourceLocatorPrefs.GET_FROM_SERVER)) {
+            if (pyStackFrame != null) {
                 try {
                     String fileContents = pyStackFrame.getFileContents();
-                    if(fileContents != null && fileContents.length() > 0){
+                    if (fileContents != null && fileContents.length() > 0) {
                         String lastSegment = path.lastSegment();
                         File workspaceMetadataFile = PydevPlugin.getWorkspaceMetadataFile("temporary_files");
-                        if(!workspaceMetadataFile.exists()){
+                        if (!workspaceMetadataFile.exists()) {
                             workspaceMetadataFile.mkdirs();
                         }
                         File file = new File(workspaceMetadataFile, lastSegment);
                         try {
-                            if(file.exists()){
+                            if (file.exists()) {
                                 file.delete();
                             }
                         } catch (Exception e) {
@@ -225,63 +218,62 @@ public class PySourceLocatorBase {
                         }
                         edInput = PydevFileEditorInput.create(file, true);
                     }
-                    
+
                 } catch (Exception e) {
                     Log.log(e);
                 }
-                
+
             }
         }
         return edInput;
     }
 
-    
     /**
      * @param matchName the name to match in the editor
      * @return an editor input from an existing editor available
      */
     private IEditorInput getEditorInputFromExistingEditors(final String matchName) {
-        final Tuple<IWorkbenchWindow, IEditorInput> workbenchAndReturn = new Tuple<IWorkbenchWindow, IEditorInput>(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), null);
-        
-        Runnable r = new Runnable(){
+        final Tuple<IWorkbenchWindow, IEditorInput> workbenchAndReturn = new Tuple<IWorkbenchWindow, IEditorInput>(
+                PlatformUI.getWorkbench().getActiveWorkbenchWindow(), null);
+
+        Runnable r = new Runnable() {
 
             public void run() {
                 IWorkbenchWindow workbenchWindow = workbenchAndReturn.o1;
-                if(workbenchWindow == null){
+                if (workbenchWindow == null) {
                     workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
                 }
 
-                if(workbenchWindow == null){
+                if (workbenchWindow == null) {
                     return;
                 }
 
-                
                 IWorkbenchPage activePage = workbenchWindow.getActivePage();
-                if(activePage == null){
+                if (activePage == null) {
                     return;
                 }
-                
+
                 IEditorReference[] editorReferences = activePage.getEditorReferences();
                 for (IEditorReference editorReference : editorReferences) {
                     IEditorPart editor = editorReference.getEditor(false);
-                    if(editor != null){
-                        if(editor instanceof PyEdit){
+                    if (editor != null) {
+                        if (editor instanceof PyEdit) {
                             PyEdit pyEdit = (PyEdit) editor;
                             IEditorInput editorInput = pyEdit.getEditorInput();
-                            if(editorInput instanceof IPathEditorInput){
+                            if (editorInput instanceof IPathEditorInput) {
                                 IPathEditorInput pathEditorInput = (IPathEditorInput) editorInput;
                                 IPath localPath = pathEditorInput.getPath();
-                                if(localPath != null){
-                                    String considerName = localPath.segment(localPath.segmentCount()-1);
-                                    if(matchName.equals(considerName)){
+                                if (localPath != null) {
+                                    String considerName = localPath.segment(localPath.segmentCount() - 1);
+                                    if (matchName.equals(considerName)) {
                                         workbenchAndReturn.o2 = editorInput;
                                         return;
                                     }
                                 }
-                            }else{
+                            } else {
                                 File editorFile = pyEdit.getEditorFile();
-                                if(editorFile != null){
-                                    if(editorFile.getName().equals(matchName)){
+                                if (editorFile != null) {
+                                    if (editorFile.getName().equals(matchName)) {
                                         workbenchAndReturn.o2 = editorInput;
                                         return;
                                     }
@@ -289,55 +281,51 @@ public class PySourceLocatorBase {
                             }
                         }
                     }
-                }                        
+                }
             }
         };
-        
-        
-        if(workbenchAndReturn.o1 == null){ //not ui-thread
+
+        if (workbenchAndReturn.o1 == null) { //not ui-thread
             Display.getDefault().syncExec(r);
-        }else{
+        } else {
             r.run();
         }
 
-        
-
         return workbenchAndReturn.o2;
     }
-
 
     /**
      * This is the last resort... pointing to some filesystem file to get the editor for some path.
      */
     protected IEditorInput selectFilesystemFileForPath(final IPath path) {
         final List<String> l = new ArrayList<String>();
-        Runnable r = new Runnable(){
+        Runnable r = new Runnable() {
 
             public void run() {
                 Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
                 FileDialog dialog = new FileDialog(shell);
-                dialog.setText(path+" - select correspondent filesystem file.");
+                dialog.setText(path + " - select correspondent filesystem file.");
                 String[] wildcardValidSourceFiles = FileTypesPreferencesPage.getWildcardValidSourceFiles();
                 wildcardValidSourceFiles = StringUtils.addString(wildcardValidSourceFiles, "*");
-				dialog.setFilterExtensions(wildcardValidSourceFiles);
+                dialog.setFilterExtensions(wildcardValidSourceFiles);
                 String string = dialog.open();
-                if(string != null){
+                if (string != null) {
                     l.add(string);
                 }
             }
         };
-        if(Display.getCurrent() == null){ //not ui-thread
+        if (Display.getCurrent() == null) { //not ui-thread
             Display.getDefault().syncExec(r);
-        }else{
+        } else {
             r.run();
         }
-        if(l.size() > 0){
+        if (l.size() > 0) {
             String fileAbsolutePath = REF.getFileAbsolutePath(l.get(0));
             return PydevFileEditorInput.create(new File(fileAbsolutePath), true);
         }
         return null;
     }
-    
+
     /**
      * This method will pass all the files in the workspace and check if there's a file that might
      * be a match to some path (use only as an almost 'last-resort').
@@ -352,83 +340,80 @@ public class PySourceLocatorBase {
         }
         return ret;
     }
-    
+
     /**
      * Used to recursively get the likely files given the first set of containers
      */
     private void getLikelyFiles(IPath path, List<IFile> ret, IResource[] resources) throws CoreException {
         String strPath = path.removeFileExtension().lastSegment().toLowerCase(); //this will return something as 'foo'
-        
+
         for (IResource resource : resources) {
-            if(resource instanceof IFile){
+            if (resource instanceof IFile) {
                 IFile f = (IFile) resource;
-                
-                if(PythonPathHelper.isValidSourceFile(f)){
-                    if(resource.getFullPath().removeFileExtension().lastSegment().toLowerCase().equals(strPath)){ 
+
+                if (PythonPathHelper.isValidSourceFile(f)) {
+                    if (resource.getFullPath().removeFileExtension().lastSegment().toLowerCase().equals(strPath)) {
                         ret.add((IFile) resource);
                     }
                 }
-            }else if(resource instanceof IContainer){
-                getLikelyFiles(path, ret, ((IContainer)resource).members());
+            } else if (resource instanceof IContainer) {
+                getLikelyFiles(path, ret, ((IContainer) resource).members());
             }
         }
     }
-    
+
     /**
      * Creates some editor input for the passed file
      * @param file the file for which an editor input should be created
      * @return the editor input that'll open the passed file.
      */
     private IEditorInput createEditorInput(File file) {
-        IFile[] workspaceFile= getWorkspaceFiles(file);
-        if (workspaceFile != null && workspaceFile.length > 0){
+        IFile[] workspaceFile = getWorkspaceFiles(file);
+        if (workspaceFile != null && workspaceFile.length > 0) {
             IFile file2 = selectWorkspaceFile(workspaceFile);
-            if(file2 != null){
+            if (file2 != null) {
                 return new FileEditorInput(file2);
-            }else{
+            } else {
                 return new FileEditorInput(workspaceFile[0]);
             }
         }
         return PydevFileEditorInput.create(file, true);
     }
 
-    
     /**
      * @param files the files that should be filtered
      * @return a new array of IFile with only the files that actually exist.
      */
-    private IFile[] filterNonExistentFiles(IFile[] files){
+    private IFile[] filterNonExistentFiles(IFile[] files) {
         if (files == null)
             return null;
 
-        int length= files.length;
-        ArrayList<IFile> existentFiles= new ArrayList<IFile>(length);
-        for (int i= 0; i < length; i++) {
+        int length = files.length;
+        ArrayList<IFile> existentFiles = new ArrayList<IFile>(length);
+        for (int i = 0; i < length; i++) {
             if (files[i].exists())
                 existentFiles.add(files[i]);
         }
-        return (IFile[])existentFiles.toArray(new IFile[existentFiles.size()]);
+        return (IFile[]) existentFiles.toArray(new IFile[existentFiles.size()]);
     }
-    
-    
+
     /**
      * @param containers the containers that should be filtered
      * @return a new array of IContainer with only the containers that actually exist.
      */
-    public IContainer[] filterNonExistentContainers(IContainer[] containers){
+    public IContainer[] filterNonExistentContainers(IContainer[] containers) {
         if (containers == null)
             return null;
-        
-        int length= containers.length;
-        ArrayList<IContainer> existentFiles= new ArrayList<IContainer>(length);
-        for (int i= 0; i < length; i++) {
+
+        int length = containers.length;
+        ArrayList<IContainer> existentFiles = new ArrayList<IContainer>(length);
+        for (int i = 0; i < length; i++) {
             if (containers[i].exists())
                 existentFiles.add(containers[i]);
         }
-        return (IContainer[])existentFiles.toArray(new IContainer[existentFiles.size()]);
+        return (IContainer[]) existentFiles.toArray(new IContainer[existentFiles.size()]);
     }
-    
-    
+
     /**
      * Ask the user to select one file of the given list of files (if some is available)
      * 
@@ -437,33 +422,33 @@ public class PySourceLocatorBase {
      * selection or if the user canceled it.
      */
     private IFile selectWorkspaceFile(final IFile[] files) {
-        if(files == null || files.length == 0){
+        if (files == null || files.length == 0) {
             return null;
         }
-        if(files.length == 1){
+        if (files.length == 1) {
             return files[0];
         }
         final List<IFile> selected = new ArrayList<IFile>();
-        
-        Runnable r = new Runnable(){
+
+        Runnable r = new Runnable() {
             public void run() {
                 Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-                ElementListSelectionDialog dialog= new ElementListSelectionDialog(shell, new PyFileLabelProvider());
+                ElementListSelectionDialog dialog = new ElementListSelectionDialog(shell, new PyFileLabelProvider());
                 dialog.setElements(files);
                 dialog.setTitle("Select Workspace File");
                 dialog.setMessage("File may be matched to multiple files in the workspace.");
-                if (dialog.open() == Window.OK){
+                if (dialog.open() == Window.OK) {
                     selected.add((IFile) dialog.getFirstResult());
                 }
             }
-            
+
         };
-        if(Display.getCurrent() == null){ //not ui-thread
+        if (Display.getCurrent() == null) { //not ui-thread
             Display.getDefault().syncExec(r);
-        }else{
+        } else {
             r.run();
         }
-        if(selected.size() > 0){
+        if (selected.size() > 0) {
             return selected.get(0);
         }
         return null;

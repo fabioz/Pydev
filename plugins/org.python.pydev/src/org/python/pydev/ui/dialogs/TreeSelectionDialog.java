@@ -51,31 +51,30 @@ import org.python.pydev.ui.IViewWithControls;
  * 
  * @author Fabio
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
-public class TreeSelectionDialog extends ElementTreeSelectionDialog implements IViewWithControls{
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public class TreeSelectionDialog extends ElementTreeSelectionDialog implements IViewWithControls {
 
     private ILabelProvider labelProvider;
     protected DefaultFilterMatcher fFilterMatcher = new DefaultFilterMatcher();
     protected ITreeContentProvider contentProvider;
     protected String initialFilter = "";
-    
+
     public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();
     public final ICallbackWithListeners onControlDisposed = new CallbackWithListeners();
 
-    
     /**
      * Give subclasses a chance to decide if they want to update the contents of the tree in a thread or not. 
      */
     protected boolean updateInThread = true;
-    
-    
-    protected class UpdateJob extends Thread{
+
+    protected class UpdateJob extends Thread {
         IProgressMonitor monitor = new NullProgressMonitor(); //only thing it implements is the canceled
-        
-        public UpdateJob(){
+
+        public UpdateJob() {
             setPriority(Thread.MIN_PRIORITY);
             setName("TreeSelectionDialog: UpdateJob");
         }
+
         @Override
         public void run() {
             try {
@@ -83,32 +82,33 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog implements I
             } catch (InterruptedException e) {
                 //ignore
             }
-            if(!monitor.isCanceled()){
+            if (!monitor.isCanceled()) {
                 Display display = Display.getDefault();
-                display.asyncExec(new Runnable(){
-    
+                display.asyncExec(new Runnable() {
+
                     public void run() {
-                        if(!monitor.isCanceled()){
+                        if (!monitor.isCanceled()) {
                             doFilterUpdate(monitor);
                         }
                     }
-                    
+
                 });
             }
         }
-		public void cancel(){
+
+        public void cancel() {
             this.monitor.setCanceled(true);
         }
     }
-    
+
     /**
      * Updates the current filter with the text field text.
      */
     protected void doFilterUpdate(IProgressMonitor monitor) {
-        if(text != null && !text.isDisposed()){
+        if (text != null && !text.isDisposed()) {
             //Must check if it's disposed, as this will be run asynchronously.
-        	setFilter(text.getText(), monitor, true);
-        	onFinishUpdateJob();
+            setFilter(text.getText(), monitor, true);
+            onFinishUpdateJob();
         }
     }
 
@@ -116,71 +116,68 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog implements I
      * Subclasses may override to do something when the update job is finished.
      */
     protected void onFinishUpdateJob() {
-    	
+
     }
-    
+
     public TreeSelectionDialog(Shell parent, ILabelProvider labelProvider, ITreeContentProvider contentProvider) {
         super(parent, labelProvider, contentProvider);
 
         this.labelProvider = labelProvider;
         this.contentProvider = contentProvider;
     }
-    
-    public void setInitialFilter(String initialFilter){
+
+    public void setInitialFilter(String initialFilter) {
         this.initialFilter = initialFilter;
     }
-    
+
     private int fWidth = 60;
     protected Text text;
     protected UpdateJob updateJob;
-    
-    protected int getDefaultMargins(){
-        return 2;
-    }
-    
-    protected int getDefaultSpacing(){
+
+    protected int getDefaultMargins() {
         return 2;
     }
 
+    protected int getDefaultSpacing() {
+        return 2;
+    }
 
     @Override
     protected Control createDialogArea(Composite parent) {
         Control composite = super.createDialogArea(parent);
-        
-        if(composite instanceof Composite){
+
+        if (composite instanceof Composite) {
             updateCompositeLayout((Composite) composite);
         }
-        
-        
+
         TreeViewer treeViewer = getTreeViewer();
-        treeViewer.addFilter(new ViewerFilter(){
+        treeViewer.addFilter(new ViewerFilter() {
 
             @Override
             public boolean select(Viewer viewer, Object parentElement, Object element) {
                 return matchItemToShowInTree(element);
-            }}
-        );
+            }
+        });
         treeViewer.setAutoExpandLevel(AbstractTreeViewer.ALL_LEVELS);
         treeViewer.expandAll();
 
-        if(this.initialFilter.length() > 0){
+        if (this.initialFilter.length() > 0) {
             this.text.setText(this.initialFilter);
             this.text.setSelection(this.initialFilter.length());
             this.setFilter(this.initialFilter, new NullProgressMonitor(), true);
         }
-        
-        List<IViewCreatedObserver> participants = ExtensionHelper.getParticipants(
-                ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
+
+        List<IViewCreatedObserver> participants = ExtensionHelper
+                .getParticipants(ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
         for (IViewCreatedObserver iViewCreatedObserver : participants) {
             iViewCreatedObserver.notifyViewCreated(this);
         }
         onControlCreated.call(this.text);
         onControlCreated.call(this.getTreeViewer());
-        
+
         return composite;
     }
-    
-    
+
     @Override
     public int open() {
         try {
@@ -190,23 +187,22 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog implements I
             onControlDisposed.call(this.getTreeViewer());
         }
     }
-    
+
     /* (non-Javadoc)
      * @see org.eclipse.ui.dialogs.SelectionStatusDialog#createButtonBar(org.eclipse.swt.widgets.Composite)
      */
     @Override
     protected Control createButtonBar(Composite parent) {
         Control composite = super.createButtonBar(parent);
-        if(composite instanceof Composite){
+        if (composite instanceof Composite) {
             updateCompositeLayout((Composite) composite);
         }
         return composite;
     }
 
-    
     private void updateCompositeLayout(Composite composite) {
         Layout l = composite.getLayout();
-        if(l instanceof GridLayout){
+        if (l instanceof GridLayout) {
             GridLayout layout = (GridLayout) l;
             layout.marginHeight = convertVerticalDLUsToPixels(getDefaultMargins());
             layout.marginWidth = convertHorizontalDLUsToPixels(getDefaultMargins());
@@ -214,9 +210,9 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog implements I
             layout.horizontalSpacing = convertHorizontalDLUsToPixels(getDefaultSpacing());
             composite.setLayout(layout);
         }
-        for(Control t:composite.getChildren()){
-            if(t instanceof Composite){
-                updateCompositeLayout((Composite)t);
+        for (Control t : composite.getChildren()) {
+            if (t instanceof Composite) {
+                updateCompositeLayout((Composite) t);
             }
         }
     }
@@ -224,26 +220,25 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog implements I
     @Override
     protected Label createMessageArea(Composite composite) {
         Label label = super.createMessageArea(composite);
-        
+
         //ok, after the label, we have to create the edit so that the user can filter the results
         text = new Text(composite, SWT.BORDER);
         text.setFont(composite.getFont());
         GridData data = new GridData(GridData.FILL_HORIZONTAL);
         data.widthHint = convertWidthInCharsToPixels(fWidth);
         text.setLayoutData(data);
-        
-        
+
         Listener listener = new Listener() {
             public void handleEvent(Event e) {
-            	if(updateInThread){
-	                if(updateJob != null){
-	                    updateJob.cancel(); //cancel it if it was already in progress
-	                }
-	                updateJob = new UpdateJob();
-	                updateJob.start();
-            	}else{
-            		doFilterUpdate(new NullProgressMonitor());
-            	}
+                if (updateInThread) {
+                    if (updateJob != null) {
+                        updateJob.cancel(); //cancel it if it was already in progress
+                    }
+                    updateJob = new UpdateJob();
+                    updateJob.start();
+                } else {
+                    doFilterUpdate(new NullProgressMonitor());
+                }
             }
 
         };
@@ -251,9 +246,9 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog implements I
 
         text.addKeyListener(new KeyListener() {
             public void keyPressed(KeyEvent e) {
-                if (e.keyCode == SWT.ARROW_DOWN || e.keyCode == SWT.PAGE_DOWN){
+                if (e.keyCode == SWT.ARROW_DOWN || e.keyCode == SWT.PAGE_DOWN) {
                     Tree tree = getTreeViewer().getTree();
-					tree.setFocus();
+                    tree.setFocus();
                     updateSelectionIfNothingSelected(tree);
                 }
             }
@@ -265,34 +260,34 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog implements I
         return label;
     }
 
-    
     private final Object lock = new Object();
+
     //filtering things...
     protected void setFilter(String text, IProgressMonitor monitor, boolean updateFilterMatcher) {
         synchronized (lock) {
-            if(monitor.isCanceled())
+            if (monitor.isCanceled())
                 return;
-            
-            if(updateFilterMatcher){
+
+            if (updateFilterMatcher) {
                 //just so that subclasses may already treat it.
-                if(fFilterMatcher.lastPattern.equals(text)){
+                if (fFilterMatcher.lastPattern.equals(text)) {
                     //no actual change...
                     return;
                 }
                 fFilterMatcher.setFilter(text);
-                if(monitor.isCanceled())
+                if (monitor.isCanceled())
                     return;
             }
-            
+
             TreeViewer treeViewer = getTreeViewer();
             Tree tree = treeViewer.getTree();
             tree.setRedraw(false);
             tree.getParent().setRedraw(false);
             try {
-                if(monitor.isCanceled())
+                if (monitor.isCanceled())
                     return;
                 treeViewer.refresh();
-                if(monitor.isCanceled())
+                if (monitor.isCanceled())
                     return;
                 treeViewer.expandAll();
             } finally {
@@ -301,19 +296,20 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog implements I
             }
         }
     }
-    
+
     protected class DefaultFilterMatcher {
         public StringMatcher fMatcher;
         public String lastPattern;
 
-        public DefaultFilterMatcher(){
+        public DefaultFilterMatcher() {
             setFilter("");
-            
+
         }
+
         public void setFilter(String pattern) {
             setFilter(pattern, true, false);
         }
-        
+
         private void setFilter(String pattern, boolean ignoreCase, boolean ignoreWildCards) {
             fMatcher = new StringMatcher(pattern + '*', ignoreCase, ignoreWildCards);
             this.lastPattern = pattern;
@@ -321,25 +317,25 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog implements I
 
         public boolean match(Object element) {
             boolean match = fMatcher.match(labelProvider.getText(element));
-            if(match){
+            if (match) {
                 return true;
             }
             List<Object> allChildren = getAllChildren(element);
             for (Object object : allChildren) {
-                if(fMatcher.match(labelProvider.getText(object))){
+                if (fMatcher.match(labelProvider.getText(object))) {
                     return true;
                 }
-                
+
             }
             return false;
         }
     }
-    
-    private List<Object> getAllChildren(Object element){
+
+    private List<Object> getAllChildren(Object element) {
         ArrayList<Object> list = new ArrayList<Object>();
-        
+
         Object[] children = contentProvider.getChildren(element);
-        if(children == null){
+        if (children == null) {
             return list;
         }
         for (Object object : children) {
@@ -349,20 +345,19 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog implements I
         return list;
     }
 
-    
     /*
      * @see SelectionStatusDialog#computeResult()
      */
     protected void computeResult() {
         doFinalUpdateBeforeComputeResult();
-        
+
         IStructuredSelection selection = (IStructuredSelection) getTreeViewer().getSelection();
         List list = selection.toList();
-        if(list.size() > 0){
+        if (list.size() > 0) {
             setResult(list);
-        }else{
+        } else {
             TreeItem[] items = getTreeViewer().getTree().getItems();
-            if(items.length == 1){
+            if (items.length == 1) {
                 //there is only one item filtered in the tree.
                 list = new ArrayList();
                 list.add(items[0].getData());
@@ -372,10 +367,10 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog implements I
     }
 
     protected void doFinalUpdateBeforeComputeResult() {
-        if(updateInThread){
+        if (updateInThread) {
             //Make sure that the selection is OK
             UpdateJob j = updateJob;
-            if(j != null){
+            if (j != null) {
                 updateJob.cancel();
             }
             doFilterUpdate(new NullProgressMonitor());
@@ -387,25 +382,24 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog implements I
      * it (but subclasses may override if their understanding of what goes into the tree is
      * not decided solely by that).
      */
-	protected boolean matchItemToShowInTree(Object element) {
-		return fFilterMatcher.match(element);
-	}
+    protected boolean matchItemToShowInTree(Object element) {
+        return fFilterMatcher.match(element);
+    }
 
-	protected void updateSelectionIfNothingSelected(Tree tree) {
-		TreeItem[] sel = tree.getSelection();
-		if(sel == null || sel.length == 0){
-			TreeItem[] items = tree.getItems();
-			if(items != null && items.length > 0){
-				tree.setSelection(items[0]);
-			}
-		}
-	}
+    protected void updateSelectionIfNothingSelected(Tree tree) {
+        TreeItem[] sel = tree.getSelection();
+        if (sel == null || sel.length == 0) {
+            TreeItem[] items = tree.getItems();
+            if (items != null && items.length > 0) {
+                tree.setSelection(items[0]);
+            }
+        }
+    }
 
-
-	@Override
-	public boolean isHelpAvailable() {
-	    return false;
-	}
+    @Override
+    public boolean isHelpAvailable() {
+        return false;
+    }
 
     public ICallbackWithListeners getOnControlCreated() {
         return onControlCreated;

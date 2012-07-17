@@ -45,8 +45,7 @@ public class ExtractLocalRefactoring extends AbstractPythonRefactoring {
 
     @Override
     protected List<IChangeProcessor> getChangeProcessors() {
-        IChangeProcessor changeProcessor = new ExtractLocalChangeProcessor(
-                getName(), this.info, this.requestProcessor);
+        IChangeProcessor changeProcessor = new ExtractLocalChangeProcessor(getName(), this.info, this.requestProcessor);
         return ListUtils.wrap(changeProcessor);
     }
 
@@ -55,38 +54,37 @@ public class ExtractLocalRefactoring extends AbstractPythonRefactoring {
         List<Tuple<ITextSelection, ModuleAdapter>> selections = new LinkedList<Tuple<ITextSelection, ModuleAdapter>>();
 
         /* Use different approaches to find a valid selection */
-        selections.add(new Tuple<ITextSelection, ModuleAdapter>(
-                info.getUserSelection(), info.getParsedUserSelection()));
-        
-        selections.add(new Tuple<ITextSelection, ModuleAdapter>(
-                info.getExtendedSelection(), info.getParsedExtendedSelection()));
-        
-        selections.add(new Tuple<ITextSelection, ModuleAdapter>(
-                info.getUserSelection(), getParsedMultilineSelection(info.getUserSelection())));
+        selections
+                .add(new Tuple<ITextSelection, ModuleAdapter>(info.getUserSelection(), info.getParsedUserSelection()));
+
+        selections.add(new Tuple<ITextSelection, ModuleAdapter>(info.getExtendedSelection(), info
+                .getParsedExtendedSelection()));
+
+        selections.add(new Tuple<ITextSelection, ModuleAdapter>(info.getUserSelection(),
+                getParsedMultilineSelection(info.getUserSelection())));
 
         /* Find a valid selection */
         ITextSelection selection = null;
         exprType expression = null;
-        for(Tuple<ITextSelection, ModuleAdapter> s:selections){
+        for (Tuple<ITextSelection, ModuleAdapter> s : selections) {
             /* Is selection valid? */
-            if(s != null){
+            if (s != null) {
                 expression = extractExpression(s.o2);
                 selection = s.o1;
-                if(expression != null){
+                if (expression != null) {
                     break;
                 }
             }
         }
-        
 
         /* No valid selections found, report error */
-        if(expression == null){
+        if (expression == null) {
             status.addFatalError(Messages.extractLocalNoExpressionSelected);
         }
 
         AbstractScopeNode<?> scopeAdapter = info.getModuleAdapter().getScopeAdapter(selection);
         requestProcessor.setDuplicates(scopeAdapter.getDuplicates(selection, expression));
-        
+
         requestProcessor.setSelection(selection);
         requestProcessor.setExpression(expression);
 
@@ -98,31 +96,31 @@ public class ExtractLocalRefactoring extends AbstractPythonRefactoring {
         source = source.replaceAll("\n", "");
         source = source.replaceAll("\r", "");
 
-        try{
-            ModuleAdapter node = VisitorFactory.createModuleAdapter(
-                    null, null, new Document(source), null, info.getVersionProvider());
+        try {
+            ModuleAdapter node = VisitorFactory.createModuleAdapter(null, null, new Document(source), null,
+                    info.getVersionProvider());
             return node;
-        }catch(TokenMgrError e){
+        } catch (TokenMgrError e) {
             return null;
-        }catch(ParseException e){
+        } catch (ParseException e) {
             return null;
-        }catch(Throwable e){
+        } catch (Throwable e) {
             Log.log(e);
             return null;
         }
     }
 
     private exprType extractExpression(ModuleAdapter node) {
-        if(node == null){
+        if (node == null) {
             return null;
         }
         Module astNode = node.getASTNode();
-        if(astNode == null){
+        if (astNode == null) {
             return null;
         }
         stmtType[] body = astNode.body;
 
-        if(body.length > 0 && body[0] instanceof Expr){
+        if (body.length > 0 && body[0] instanceof Expr) {
             Expr expr = (Expr) body[0];
             return expr.value;
         }

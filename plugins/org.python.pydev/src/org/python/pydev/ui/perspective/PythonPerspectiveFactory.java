@@ -24,7 +24,7 @@ import org.python.pydev.ui.wizards.project.PythonProjectWizard;
  * @author Mikko Ohtamaa
  */
 public class PythonPerspectiveFactory implements IPerspectiveFactory {
-    
+
     public static final String PERSPECTIVE_ID = "org.python.pydev.ui.PythonPerspective";
 
     /**
@@ -36,28 +36,24 @@ public class PythonPerspectiveFactory implements IPerspectiveFactory {
         defineLayout(layout);
         defineActions(layout);
     }
-    
-
 
     /**
      * @param layout
      * @param editorArea
      */
     public void defineLayout(IPageLayout layout) {
-                  String editorArea = layout.getEditorArea();
-        IFolderLayout topLeft = layout.createFolder("topLeft", IPageLayout.LEFT, (float)0.26, editorArea); //$NON-NLS-1$
+        String editorArea = layout.getEditorArea();
+        IFolderLayout topLeft = layout.createFolder("topLeft", IPageLayout.LEFT, (float) 0.26, editorArea); //$NON-NLS-1$
         topLeft.addView("org.python.pydev.navigator.view");
-        
-        
-        
-        IFolderLayout outputfolder= layout.createFolder("bottom", IPageLayout.BOTTOM, (float)0.75, editorArea); //$NON-NLS-1$
-        outputfolder.addView(IPageLayout.ID_PROBLEM_VIEW);        
+
+        IFolderLayout outputfolder = layout.createFolder("bottom", IPageLayout.BOTTOM, (float) 0.75, editorArea); //$NON-NLS-1$
+        outputfolder.addView(IPageLayout.ID_PROBLEM_VIEW);
         outputfolder.addPlaceholder(NewSearchUI.SEARCH_VIEW_ID);
         outputfolder.addPlaceholder(IConsoleConstants.ID_CONSOLE_VIEW);
         outputfolder.addPlaceholder(IPageLayout.ID_BOOKMARKS);
         outputfolder.addPlaceholder(IProgressConstants.PROGRESS_VIEW_ID);
-        
-        layout.addView(IPageLayout.ID_OUTLINE, IPageLayout.RIGHT, (float)0.75, editorArea);
+
+        layout.addView(IPageLayout.ID_OUTLINE, IPageLayout.RIGHT, (float) 0.75, editorArea);
     }
 
     /**
@@ -82,10 +78,10 @@ public class PythonPerspectiveFactory implements IPerspectiveFactory {
         layout.addShowViewShortcut(IPageLayout.ID_RES_NAV);
         layout.addShowViewShortcut("org.eclipse.pde.runtime.LogView");
         layout.addShowViewShortcut(IPageLayout.ID_TASK_LIST);
-        
+
         layout.addActionSet(IDebugUIConstants.LAUNCH_ACTION_SET);
         layout.addActionSet(IPageLayout.ID_NAVIGATE_ACTION_SET);
-                
+
     }
 
 }

@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.Path;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.resource_stubs.AbstractIFolderStub;
 
-public class FolderStub extends AbstractIFolderStub implements IFolder{
+public class FolderStub extends AbstractIFolderStub implements IFolder {
 
     private File folder;
     private ProjectStub project;
@@ -26,24 +26,24 @@ public class FolderStub extends AbstractIFolderStub implements IFolder{
     public FolderStub(ProjectStub stub, File parentFile) {
         this(stub, null, parentFile);
     }
-    
+
     public FolderStub(ProjectStub stub, IContainer parent, File parentFile) {
         Assert.isTrue(parentFile.exists() && parentFile.isDirectory());
         this.project = stub;
         this.folder = parentFile;
         this.parent = parent;
     }
-    
+
     public IContainer getParent() {
-        if(parent != null){
+        if (parent != null) {
             return parent;
         }
         return project.getFolder(this.folder.getParentFile());
     }
-    
+
     @Override
     public String toString() {
-        return "FolderStub:"+this.folder;
+        return "FolderStub:" + this.folder;
     }
 
     @Override
@@ -71,7 +71,6 @@ public class FolderStub extends AbstractIFolderStub implements IFolder{
         return true;
     }
 
-
     public IPath getFullPath() {
         return Path.fromOSString(REF.getFileAbsolutePath(this.folder));
     }
@@ -82,8 +81,7 @@ public class FolderStub extends AbstractIFolderStub implements IFolder{
 
     public IProject getProject() {
         return this.project;
-        
-    }
 
+    }
 
 }

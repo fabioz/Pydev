@@ -18,8 +18,8 @@ import org.python.pydev.core.TestDependent;
  */
 public class PydevTestUtils {
 
-    public static File setTestPlatformStateLocation(){
-        if(PydevPlugin.location != null){
+    public static File setTestPlatformStateLocation() {
+        if (PydevPlugin.location != null) {
             return PydevPlugin.location;
         }
         File baseDir = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC, "data_temporary_for_testing");

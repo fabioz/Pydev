@@ -9,13 +9,6 @@ public interface num_typeType {
     public static final int Oct = 5;
     public static final int Comp = 6;
 
-    public static final String[] num_typeTypeNames = new String[] {
-        "<undef>",
-        "Int",
-        "Long",
-        "Float",
-        "Hex",
-        "Oct",
-        "Comp",
-    };
+    public static final String[] num_typeTypeNames = new String[] { "<undef>", "Int", "Long", "Float", "Hex", "Oct",
+            "Comp", };
 }

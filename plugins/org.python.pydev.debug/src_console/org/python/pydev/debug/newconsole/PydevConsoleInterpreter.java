@@ -53,7 +53,7 @@ import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant2;
  * Will ask things to the IScriptConsoleCommunication
  */
 public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
-    
+
     private IScriptConsoleCommunication consoleCommunication;
 
     private List<Runnable> closeRunnables = new ArrayList<Runnable>();
@@ -62,34 +62,32 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
 
     private List<IPythonNature> naturesUsed = new ArrayList<IPythonNature>();
 
-	private IInterpreterInfo interpreterInfo;
+    private IInterpreterInfo interpreterInfo;
 
-	private PyStackFrame frame;
+    private PyStackFrame frame;
 
-	private ILaunch launch;
+    private ILaunch launch;
 
-	private Process process;
+    private Process process;
 
     @SuppressWarnings("unchecked")
     public PydevConsoleInterpreter() {
         List<Object> p = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_SIMPLE_ASSIST);
         ArrayList<ISimpleAssistParticipant2> list = new ArrayList<ISimpleAssistParticipant2>();
-        for(Object o:p){
-            if(o instanceof ISimpleAssistParticipant2){
+        for (Object o : p) {
+            if (o instanceof ISimpleAssistParticipant2) {
                 list.add((ISimpleAssistParticipant2) o);
             }
         }
         this.simpleParticipants = list;
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.python.pydev.dltk.console.IScriptConsoleInterpreter#exec(java.lang.String)
      */
-    public void exec(
-            String command, 
-            final ICallback<Object, InterpreterResponse> onResponseReceived,
-            final ICallback<Object, Tuple<String, String>> onContentsReceived){
+    public void exec(String command, final ICallback<Object, InterpreterResponse> onResponseReceived,
+            final ICallback<Object, Tuple<String, String>> onContentsReceived) {
         consoleCommunication.execInterpreter(command, onResponseReceived, onContentsReceived);
     }
 
@@ -98,36 +96,35 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
      * 
      * @param frame
      */
-    public void setFrame(PyStackFrame frame) throws Exception{
-		this.frame = frame;
+    public void setFrame(PyStackFrame frame) throws Exception {
+        this.frame = frame;
     }
-    
-    @SuppressWarnings("unchecked")
-    public ICompletionProposal[] getCompletions(IScriptConsoleViewer viewer, String commandLine, 
-            int position, int offset, int whatToShow) throws Exception {
 
-        
+    @SuppressWarnings("unchecked")
+    public ICompletionProposal[] getCompletions(IScriptConsoleViewer viewer, String commandLine, int position,
+            int offset, int whatToShow) throws Exception {
+
         final String text = commandLine.substring(0, position);
-        ActivationTokenAndQual tokenAndQual = PySelection.getActivationTokenAndQual(new Document(text), text.length(), true, false);
-        
-        
+        ActivationTokenAndQual tokenAndQual = PySelection.getActivationTokenAndQual(new Document(text), text.length(),
+                true, false);
+
         //Code-completion for imports
         ImportInfo importsTipper = ImportsSelection.getImportsTipperStr(text, false);
-        if (importsTipper.importsTipperStr.length() != 0){
+        if (importsTipper.importsTipperStr.length() != 0) {
             importsTipper.importsTipperStr = importsTipper.importsTipperStr.trim();
             Set<IToken> tokens = new TreeSet<IToken>();
             boolean onlyGetDirectModules = false;
-            
+
             //Check all the natures.
-            for(final IPythonNature nature:naturesUsed){
+            for (final IPythonNature nature : naturesUsed) {
                 ICodeCompletionASTManager astManager = nature.getAstManager();
-                IToken[] importTokens = astManager.getCompletionsForImport(importsTipper, new ICompletionRequest(){
-                    
-                    public IPythonNature getNature(){
+                IToken[] importTokens = astManager.getCompletionsForImport(importsTipper, new ICompletionRequest() {
+
+                    public IPythonNature getNature() {
                         return nature;
                     }
-                    
-                    public File getEditorFile(){
+
+                    public File getEditorFile() {
                         return null;
                     }
 
@@ -135,95 +132,84 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
                         return null;
                     }
                 }, onlyGetDirectModules);
-                
+
                 //only get all modules for the 1st one we analyze (no need to get on the others)
                 onlyGetDirectModules = true;
                 tokens.addAll(Arrays.asList(importTokens));
             }
-            
+
             int qlen = tokenAndQual.qualifier.length();
             List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>(tokens.size());
             Iterator<IToken> it = tokens.iterator();
-            for(int i=0;i<tokens.size();i++){
+            for (int i = 0; i < tokens.size(); i++) {
                 IToken t = it.next();
                 int replacementOffset = offset - qlen;
                 String representation = t.getRepresentation();
-                if(representation.startsWith(tokenAndQual.qualifier)){
-                    ret.add(new PyLinkedModeCompletionProposal(
-                            representation, 
-                            replacementOffset, 
-                            qlen, 
-                            representation.length(), 
-                            t, 
-                            null, 
-                            null, 
-                            IPyCompletionProposal.PRIORITY_DEFAULT, 
-                            PyCompletionProposal.ON_APPLY_DEFAULT, 
-                            ""));
+                if (representation.startsWith(tokenAndQual.qualifier)) {
+                    ret.add(new PyLinkedModeCompletionProposal(representation, replacementOffset, qlen, representation
+                            .length(), t, null, null, IPyCompletionProposal.PRIORITY_DEFAULT,
+                            PyCompletionProposal.ON_APPLY_DEFAULT, ""));
                 }
             }
             return ret.toArray(new ICompletionProposal[ret.size()]);
         }
         //END Code-completion for imports
-        
-        
+
         String actTok = tokenAndQual.activationToken;
-        if(tokenAndQual.qualifier != null && tokenAndQual.qualifier.length() > 0){
-            if(actTok.length() > 0 && actTok.charAt(actTok.length()-1) != '.'){
+        if (tokenAndQual.qualifier != null && tokenAndQual.qualifier.length() > 0) {
+            if (actTok.length() > 0 && actTok.charAt(actTok.length() - 1) != '.') {
                 actTok += '.';
             }
             actTok += tokenAndQual.qualifier;
         }
 
-        
         boolean showOnlyTemplates = whatToShow == AbstractCompletionProcessorWithCycling.SHOW_ONLY_TEMPLATES;
-        
+
         //simple completions (clients)
         ArrayList<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
-        
+
         for (ISimpleAssistParticipant2 participant : simpleParticipants) {
-            results.addAll(participant.computeConsoleProposals(tokenAndQual.activationToken, 
-                    tokenAndQual.qualifier, offset));
+            results.addAll(participant.computeConsoleProposals(tokenAndQual.activationToken, tokenAndQual.qualifier,
+                    offset));
         }
 
-        
         ArrayList<ICompletionProposal> results2 = new ArrayList<ICompletionProposal>();
-        
-        if(!showOnlyTemplates){
+
+        if (!showOnlyTemplates) {
             //shell completions 
-            if(consoleCommunication != null){
+            if (consoleCommunication != null) {
                 ICompletionProposal[] consoleCompletions = consoleCommunication.getCompletions(text, actTok, offset);
                 results2.addAll(Arrays.asList(consoleCompletions));
             }
         }
-        
-        if(tokenAndQual.activationToken.length() == 0){
+
+        if (tokenAndQual.activationToken.length() == 0) {
             //templates (only if we have no activation token)
             PyTemplateCompletionProcessor pyTemplateCompletionProcessor = new PyTemplateCompletionProcessor();
             pyTemplateCompletionProcessor.addTemplateProposals(viewer, offset, results2);
         }
-        
+
         Collections.sort(results2, IPyCodeCompletion.PROPOSAL_COMPARATOR);
 
         ArrayList<ICompletionProposal> results3 = new ArrayList<ICompletionProposal>();
-        if(!showOnlyTemplates){
+        if (!showOnlyTemplates) {
             //other participants
             List<Object> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_COMPLETION);
-            for (Object participant:participants) {
-                if(participant instanceof IPyDevCompletionParticipant2){
+            for (Object participant : participants) {
+                if (participant instanceof IPyDevCompletionParticipant2) {
                     IPyDevCompletionParticipant2 participant2 = (IPyDevCompletionParticipant2) participant;
-                    results3.addAll(participant2.computeConsoleCompletions(tokenAndQual, this.naturesUsed, viewer, offset));
+                    results3.addAll(participant2.computeConsoleCompletions(tokenAndQual, this.naturesUsed, viewer,
+                            offset));
                 }
             }
             Collections.sort(results3, IPyCodeCompletion.PROPOSAL_COMPARATOR);
         }
         results.addAll(results2);
         results.addAll(results3);
-        
+
         return results.toArray(new ICompletionProposal[results.size()]);
     }
 
-    
     /*
      * (non-Javadoc)
      * @see org.python.pydev.dltk.console.IScriptConsoleShell#getDescription(org.eclipse.jface.text.IDocument, int)
@@ -231,8 +217,8 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
     public String getDescription(IDocument doc, int position) throws Exception {
         ActivationTokenAndQual tokenAndQual = PySelection.getActivationTokenAndQual(doc, position, true, false);
         String actTok = tokenAndQual.activationToken;
-        if(tokenAndQual.qualifier != null && tokenAndQual.qualifier.length() > 0){
-            if(actTok.length() > 0 && actTok.charAt(actTok.length()-1) != '.'){
+        if (tokenAndQual.qualifier != null && tokenAndQual.qualifier.length() > 0) {
+            if (actTok.length() > 0 && actTok.charAt(actTok.length() - 1) != '.') {
                 actTok += '.';
             }
             actTok += tokenAndQual.qualifier;
@@ -246,23 +232,22 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
      */
     public void close() {
         if (consoleCommunication != null) {
-            try{
+            try {
                 consoleCommunication.close();
-            }catch(Exception e){
+            } catch (Exception e) {
                 //ignore
             }
             consoleCommunication = null;
         }
         // run all close runnables.
-        for (Runnable r:this.closeRunnables) {
+        for (Runnable r : this.closeRunnables) {
             r.run();
         }
-        
+
         //we can close just once!
-        this.closeRunnables = null; 
+        this.closeRunnables = null;
     }
 
-    
     /*
      * (non-Javadoc)
      * @see org.python.pydev.dltk.console.IConsoleRequest#setConsoleCommunication(org.python.pydev.dltk.console.IScriptConsoleCommunication)
@@ -272,53 +257,53 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
     }
 
     public IScriptConsoleCommunication getConsoleCommunication() {
-		return consoleCommunication;
-	}
-    
+        return consoleCommunication;
+    }
+
     public void addCloseOperation(Runnable runnable) {
         this.closeRunnables.add(runnable);
     }
 
     public void setNaturesUsed(List<IPythonNature> naturesUsed) {
-        if(naturesUsed == null){
+        if (naturesUsed == null) {
             naturesUsed = new ArrayList<IPythonNature>();
         }
         this.naturesUsed = naturesUsed;
     }
 
-	public void setInterpreterInfo(IInterpreterInfo interpreterInfo) {
-		this.interpreterInfo = interpreterInfo;
-	}
-	
-	public IInterpreterInfo getInterpreterInfo() {
-		return this.interpreterInfo;
-	}
+    public void setInterpreterInfo(IInterpreterInfo interpreterInfo) {
+        this.interpreterInfo = interpreterInfo;
+    }
 
-	public void setLaunch(ILaunch launch) {
-		this.launch = launch;
-	}
-	
-	public ILaunch getLaunch() {
-		return launch;
-	}
+    public IInterpreterInfo getInterpreterInfo() {
+        return this.interpreterInfo;
+    }
 
-	public void setProcess(Process process) {
-		this.process = process;
-	}
-	
-	public Process getProcess() {
-		return process;
-	}
-	
-	public PyStackFrame getFrame() {
-		return frame;
-	}
+    public void setLaunch(ILaunch launch) {
+        this.launch = launch;
+    }
 
-	/**
-	 * Enable/Disable linking of the debug console with the suspended frame.
-	 */
-	public void linkWithDebugSelection(boolean isLinkedWithDebug) {
-		this.consoleCommunication.linkWithDebugSelection(isLinkedWithDebug);
-	}
+    public ILaunch getLaunch() {
+        return launch;
+    }
+
+    public void setProcess(Process process) {
+        this.process = process;
+    }
+
+    public Process getProcess() {
+        return process;
+    }
+
+    public PyStackFrame getFrame() {
+        return frame;
+    }
+
+    /**
+     * Enable/Disable linking of the debug console with the suspended frame.
+     */
+    public void linkWithDebugSelection(boolean isLinkedWithDebug) {
+        this.consoleCommunication.linkWithDebugSelection(isLinkedWithDebug);
+    }
 
 }

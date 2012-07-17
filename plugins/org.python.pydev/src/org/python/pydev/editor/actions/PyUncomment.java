@@ -33,9 +33,9 @@ public class PyUncomment extends PyComment {
 
         // If they selected a partial line, count it as a full one
         ps.selectCompleteLine();
-        
+
         // What we'll be replacing the selected text with
-        FastStringBuffer strbuf = new FastStringBuffer(ps.getSelLength()+1); //no, it won't be more that the current sel
+        FastStringBuffer strbuf = new FastStringBuffer(ps.getSelLength() + 1); //no, it won't be more that the current sel
 
         // For each line, uncomment it
         int endLineIndex = ps.getEndLineIndex();

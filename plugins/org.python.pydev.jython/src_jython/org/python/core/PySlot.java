@@ -17,30 +17,29 @@ public class PySlot extends PyDescriptor {
     }
 
     public PyObject __get__(PyObject obj, PyObject type) {
-        if(obj != null) {
-            checkType((PyType)type);
-            return ((Slotted)obj).getSlot(index);
+        if (obj != null) {
+            checkType((PyType) type);
+            return ((Slotted) obj).getSlot(index);
         }
         return this;
     }
 
     public void __set__(PyObject obj, PyObject value) {
         checkType(obj.getType());
-        ((Slotted)obj).setSlot(index, value);
+        ((Slotted) obj).setSlot(index, value);
     }
 
     public void __delete__(PyObject obj) {
         checkType(obj.getType());
-        ((Slotted)obj).setSlot(index, null);
+        ((Slotted) obj).setSlot(index, null);
     }
 
     public String toString() {
-        return "<member '" + name + "' of '" + dtype.fastGetName()
-                + "' objects>";
+        return "<member '" + name + "' of '" + dtype.fastGetName() + "' objects>";
     }
 
     private void checkType(PyType type) {
-        if(type != dtype && !type.isSubType(dtype))
+        if (type != dtype && !type.isSubType(dtype))
             throw get_wrongtype(type);
     }
 

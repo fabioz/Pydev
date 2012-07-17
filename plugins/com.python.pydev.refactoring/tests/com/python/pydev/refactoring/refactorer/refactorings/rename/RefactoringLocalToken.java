@@ -32,31 +32,27 @@ public class RefactoringLocalToken extends RefactoringRenameTestBase {
         }
     }
 
-    
     protected Class getProcessUnderTest() {
         return PyRenameClassProcess.class;
     }
 
-    
     public void testRename1() throws Exception {
         Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameclass.renfoo", 0, 8);
         assertTrue(references.containsKey("reflib.renameclass.renfoo") == false); //the current module does not have a separated key here
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
-        
+
         assertTrue(references.containsKey("reflib.renameclass.__init__") == false);
-        
+
         //the modules with a duplicate definition here should not be in the results.
         assertTrue(references.containsKey("reflib.renameclass.accessdup"));
         assertTrue(references.containsKey("reflib.renameclass.duprenfoo"));
     }
 
-    
     public void testRename2() throws Exception {
         Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameclass.accessfoo", 0, 22);
         assertTrue(references.containsKey("reflib.renameclass.accessfoo") == false); //the current module does not have a separated key here
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
         assertContains(references, "reflib.renameclass.renfoo"); //the module where it is actually defined
     }
-    
 
 }

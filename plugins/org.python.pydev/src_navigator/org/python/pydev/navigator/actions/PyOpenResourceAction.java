@@ -32,7 +32,7 @@ import org.python.pydev.navigator.PythonpathZipChildTreeNode;
  * This open action extends the action that tries to open files with the Pydev Editor, just changing the implementation
  * to try to open the files with the 'correct' editor in the ide.
  */
-public class PyOpenResourceAction extends PyOpenPythonFileAction{
+public class PyOpenResourceAction extends PyOpenPythonFileAction {
 
     private IWorkbenchPage page;
 
@@ -41,55 +41,54 @@ public class PyOpenResourceAction extends PyOpenPythonFileAction{
         this.page = page;
         this.setText("Open");
     }
-    
 
     @Override
-	protected void openFiles(PythonpathTreeNode[] pythonPathFilesSelected) {
-		for(PythonpathTreeNode n:pythonPathFilesSelected){
-			try {
-				if(PythonPathHelper.isValidSourceFile(n.file.getName())){
-					new PyOpenAction().run(new ItemPointer(n.file));
-				}else{
-					IEditorRegistry editorReg = PlatformUI.getWorkbench().getEditorRegistry();
-					IEditorDescriptor defaultEditor = editorReg.getDefaultEditor(n.file.getName());
-					if(defaultEditor != null){
-						IDE.openEditor(page, PydevFileEditorInput.create(n.file, false), defaultEditor.getId());
-					}else{
-						IDE.openEditor(page, PydevFileEditorInput.create(n.file, false), EditorsUI.DEFAULT_TEXT_EDITOR_ID);
-					}
-				}
-			} catch (PartInitException e) {
-				Log.log(e);
-			}
-		}
-	}
-    
-    
-    @Override
-    protected void openFiles(PythonpathZipChildTreeNode[] pythonPathFilesSelected) {
-    	for(PythonpathZipChildTreeNode n:pythonPathFilesSelected){
-    		try {
-    			if(PythonPathHelper.isValidSourceFile(n.zipPath)){
-    				new PyOpenAction().run(new ItemPointer(n.zipStructure.file, new Location(), new Location(), null, n.zipPath));
-    			}else{
-    				IEditorRegistry editorReg = PlatformUI.getWorkbench().getEditorRegistry();
-    				IEditorDescriptor defaultEditor = editorReg.getDefaultEditor(n.zipPath);
-    				PydevZipFileStorage storage = new PydevZipFileStorage(n.zipStructure.file, n.zipPath);
-    				PydevZipFileEditorInput input = new PydevZipFileEditorInput(storage);
-    				
-    				if(defaultEditor != null){
-    					IDE.openEditor(page, input, defaultEditor.getId());
-    				}else{
-						IDE.openEditor(page, input, EditorsUI.DEFAULT_TEXT_EDITOR_ID);
-    				}
-    			}
-    		} catch (PartInitException e) {
-    			Log.log(e);
-    		}
-    	}
+    protected void openFiles(PythonpathTreeNode[] pythonPathFilesSelected) {
+        for (PythonpathTreeNode n : pythonPathFilesSelected) {
+            try {
+                if (PythonPathHelper.isValidSourceFile(n.file.getName())) {
+                    new PyOpenAction().run(new ItemPointer(n.file));
+                } else {
+                    IEditorRegistry editorReg = PlatformUI.getWorkbench().getEditorRegistry();
+                    IEditorDescriptor defaultEditor = editorReg.getDefaultEditor(n.file.getName());
+                    if (defaultEditor != null) {
+                        IDE.openEditor(page, PydevFileEditorInput.create(n.file, false), defaultEditor.getId());
+                    } else {
+                        IDE.openEditor(page, PydevFileEditorInput.create(n.file, false),
+                                EditorsUI.DEFAULT_TEXT_EDITOR_ID);
+                    }
+                }
+            } catch (PartInitException e) {
+                Log.log(e);
+            }
+        }
     }
 
-    
+    @Override
+    protected void openFiles(PythonpathZipChildTreeNode[] pythonPathFilesSelected) {
+        for (PythonpathZipChildTreeNode n : pythonPathFilesSelected) {
+            try {
+                if (PythonPathHelper.isValidSourceFile(n.zipPath)) {
+                    new PyOpenAction().run(new ItemPointer(n.zipStructure.file, new Location(), new Location(), null,
+                            n.zipPath));
+                } else {
+                    IEditorRegistry editorReg = PlatformUI.getWorkbench().getEditorRegistry();
+                    IEditorDescriptor defaultEditor = editorReg.getDefaultEditor(n.zipPath);
+                    PydevZipFileStorage storage = new PydevZipFileStorage(n.zipStructure.file, n.zipPath);
+                    PydevZipFileEditorInput input = new PydevZipFileEditorInput(storage);
+
+                    if (defaultEditor != null) {
+                        IDE.openEditor(page, input, defaultEditor.getId());
+                    } else {
+                        IDE.openEditor(page, input, EditorsUI.DEFAULT_TEXT_EDITOR_ID);
+                    }
+                }
+            } catch (PartInitException e) {
+                Log.log(e);
+            }
+        }
+    }
+
     /**
      * Overridden to open the given files with the match provided by the platform.
      */
@@ -111,9 +110,9 @@ public class PyOpenResourceAction extends PyOpenPythonFileAction{
     @Override
     public boolean isEnabledForSelectionWithoutContainers() {
         fillSelections();
-        
+
         //only available for the files we generate (the default is already available in other cases)
-        if(pythonPathFilesSelected.size() > 0 || pythonPathZipFilesSelected.size() > 0){
+        if (pythonPathFilesSelected.size() > 0 || pythonPathZipFilesSelected.size() > 0) {
             return true;
         }
         return false;

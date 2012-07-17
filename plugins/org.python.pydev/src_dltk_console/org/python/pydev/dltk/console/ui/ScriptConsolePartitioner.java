@@ -29,8 +29,8 @@ import org.eclipse.ui.console.IConsoleDocumentPartitioner;
  */
 public class ScriptConsolePartitioner implements IConsoleDocumentPartitioner {
 
-    private static final String[] LEGAL_CONTENT_TYPES = new String[]{IDocument.DEFAULT_CONTENT_TYPE};
-    
+    private static final String[] LEGAL_CONTENT_TYPES = new String[] { IDocument.DEFAULT_CONTENT_TYPE };
+
     private List<ScriptStyleRange> ranges = new ArrayList<ScriptStyleRange>();
 
     public ScriptConsolePartitioner() {
@@ -48,47 +48,47 @@ public class ScriptConsolePartitioner implements IConsoleDocumentPartitioner {
      * @param r the range to be added.
      */
     public void addRange(ScriptStyleRange r) {
-        if(r.length > 0){ //only add ranges with some len.
-            for(int i=ranges.size()-1; i>=0; i--){
+        if (r.length > 0) { //only add ranges with some len.
+            for (int i = ranges.size() - 1; i >= 0; i--) {
                 ScriptStyleRange last = ranges.get(i);
-                int end = last.start+last.length;
-                if(end > r.start){
-                    if(r.start <= last.start){
+                int end = last.start + last.length;
+                if (end > r.start) {
+                    if (r.start <= last.start) {
                         ranges.remove(i);
-                    }else{
-                        last.length = r.start-last.start;
+                    } else {
+                        last.length = r.start - last.start;
                     }
-                }else{
+                } else {
                     break;
                 }
             }
-            
+
             boolean updatedRange = false;
-            if(ranges.size() > 0){
-                ScriptStyleRange lastRange = ranges.get(ranges.size()-1);
-                if(lastRange.scriptType == r.scriptType && 
-                        equalsColor(lastRange.foreground, r.foreground) && equalsColor(lastRange.background, r.background)){
-                    if(lastRange.start+lastRange.length == r.start){
+            if (ranges.size() > 0) {
+                ScriptStyleRange lastRange = ranges.get(ranges.size() - 1);
+                if (lastRange.scriptType == r.scriptType && equalsColor(lastRange.foreground, r.foreground)
+                        && equalsColor(lastRange.background, r.background)) {
+                    if (lastRange.start + lastRange.length == r.start) {
                         lastRange.length += r.length;
                         updatedRange = true;
                     }
                 }
             }
-            
-            if(!updatedRange){
+
+            if (!updatedRange) {
                 ranges.add(r);
             }
         }
     }
 
     private boolean equalsColor(Color foreground, Color foreground2) {
-        if(foreground == foreground2){
+        if (foreground == foreground2) {
             return true;
         }
-        if(foreground == null || foreground2 == null){
+        if (foreground == null || foreground2 == null) {
             return false;
         }
-        
+
         return foreground.equals(foreground2);
     }
 
@@ -97,54 +97,50 @@ public class ScriptConsolePartitioner implements IConsoleDocumentPartitioner {
      */
     public ScriptStyleRange[] getStyleRanges(int offset, int length) {
         int lastOffset = -1;
-        
+
         boolean found = false;
-        
+
         List<ScriptStyleRange> result = new ArrayList<ScriptStyleRange>();
-        for(int i=ranges.size()-1; i>=0; i--){
+        for (int i = ranges.size() - 1; i >= 0; i--) {
             ScriptStyleRange r = ranges.get(i);
-            if ((r.start >= offset && r.start <= offset + length) || (r.start < offset && r.start+r.length > offset)){
+            if ((r.start >= offset && r.start <= offset + length) || (r.start < offset && r.start + r.length > offset)) {
                 found = true;
                 //it must always be a copy because it may be changed later by the TextConsole when
                 //some hyperlink has a matching position.
-                result.add(0, (ScriptStyleRange) r.clone()); 
-                if(lastOffset == -1){
-                    lastOffset = r.start+r.length;
+                result.add(0, (ScriptStyleRange) r.clone());
+                if (lastOffset == -1) {
+                    lastOffset = r.start + r.length;
                 }
-            }else if(found){
+            } else if (found) {
                 //break on 1st not found (after finding the 1st)
                 break;
             }
         }
 
-        if(lastOffset == -1){
+        if (lastOffset == -1) {
             lastOffset = offset;
         }
-        
-        if(lastOffset < offset+length){
+
+        if (lastOffset < offset + length) {
             //if we haven't been able to cover the whole range, there's probably something wrong (so, let's 
             //leave it in gray so that we know about that).
-            ScriptStyleRange lastPart = new ScriptStyleRange(lastOffset, (offset+length)-lastOffset, Display.getDefault().getSystemColor(SWT.COLOR_GRAY),
-                    Display.getDefault().getSystemColor(SWT.COLOR_WHITE), ScriptStyleRange.UNKNOWN);
+            ScriptStyleRange lastPart = new ScriptStyleRange(lastOffset, (offset + length) - lastOffset, Display
+                    .getDefault().getSystemColor(SWT.COLOR_GRAY), Display.getDefault().getSystemColor(SWT.COLOR_WHITE),
+                    ScriptStyleRange.UNKNOWN);
             result.add(lastPart);
         }
-        
+
         return (ScriptStyleRange[]) result.toArray(new ScriptStyleRange[result.size()]);
     }
 
-    
-    
-    
     //-------------------- Just return default content type for any related request ------------------------------------
-    
-    
-    
+
     public boolean isReadOnly(int offset) {
         return false;
     }
 
     public ITypedRegion[] computePartitioning(int offset, int length) {
-        return new TypedRegion[]{new TypedRegion(offset, length, IDocument.DEFAULT_CONTENT_TYPE)};
+        return new TypedRegion[] { new TypedRegion(offset, length, IDocument.DEFAULT_CONTENT_TYPE) };
     }
 
     public void connect(IDocument document) {

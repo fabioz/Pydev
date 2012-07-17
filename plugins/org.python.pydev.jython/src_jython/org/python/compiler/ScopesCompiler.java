@@ -14,39 +14,36 @@ public class ScopesCompiler extends Visitor implements ScopeConstants {
     private ScopeInfo cur = null;
     private Hashtable nodeScopes;
 
-    private int level      = 0;
+    private int level = 0;
     private int func_level = 0;
 
-    public ScopesCompiler(CompilationContext code_compiler,
-                          Hashtable nodeScopes)
-    {
+    public ScopesCompiler(CompilationContext code_compiler, Hashtable nodeScopes) {
         this.code_compiler = code_compiler;
         this.nodeScopes = nodeScopes;
         scopes = new Stack();
     }
 
-    public void beginScope(String name, int kind, SimpleNode node,
-                           ArgListCompiler ac)
-    {
+    public void beginScope(String name, int kind, SimpleNode node, ArgListCompiler ac) {
         if (cur != null) {
             scopes.push(cur);
         }
-        if (kind == FUNCSCOPE) func_level++;
-        cur = new ScopeInfo(name, node, level++, kind,
-                                         func_level, ac);
+        if (kind == FUNCSCOPE)
+            func_level++;
+        cur = new ScopeInfo(name, node, level++, kind, func_level, ac);
         nodeScopes.put(node, cur);
     }
 
     public void endScope() throws Exception {
-        if (cur.kind == FUNCSCOPE) func_level--;
+        if (cur.kind == FUNCSCOPE)
+            func_level--;
         level--;
-        ScopeInfo up = (!scopes.empty())?(ScopeInfo)scopes.pop():null;
+        ScopeInfo up = (!scopes.empty()) ? (ScopeInfo) scopes.pop() : null;
         //Go into the stack to find a non class containing scope to use making the closure
         //See PEP 227
         int dist = 1;
         ScopeInfo referenceable = up;
-        for(int i = scopes.size() - 1; i >= 0 && referenceable.kind == CLASSSCOPE; i--, dist++){
-            referenceable = ((ScopeInfo)scopes.get(i));
+        for (int i = scopes.size() - 1; i >= 0 && referenceable.kind == CLASSSCOPE; i--, dist++) {
+            referenceable = ((ScopeInfo) scopes.get(i));
         }
         cur.cook(referenceable, dist, code_compiler);
         cur.dump(); // dbg
@@ -56,9 +53,8 @@ public class ScopesCompiler extends Visitor implements ScopeConstants {
     public void parse(SimpleNode node) throws Exception {
         try {
             visit(node);
-        } catch(Throwable t) {
-            throw org.python.core.parser.fixParseError(null, t,
-                    code_compiler.getFilename());
+        } catch (Throwable t) {
+            throw org.python.core.parser.fixParseError(null, t, code_compiler.getFilename());
         }
     }
 
@@ -69,9 +65,7 @@ public class ScopesCompiler extends Visitor implements ScopeConstants {
         return null;
     }
 
-    public Object visitModule(org.python.parser.ast.Module node)
-        throws Exception
-    {
+    public Object visitModule(org.python.parser.ast.Module node) throws Exception {
         beginScope("<file-top>", TOPSCOPE, node, null);
         suite(node.body);
         endScope();
@@ -103,7 +97,7 @@ public class ScopesCompiler extends Visitor implements ScopeConstants {
         beginScope(node.name, FUNCSCOPE, node, ac);
         int n = ac.names.size();
         for (int i = 0; i < n; i++) {
-            cur.addParam((String)ac.names.elementAt(i));
+            cur.addParam((String) ac.names.elementAt(i));
         }
         for (int i = 0; i < ac.init_code.size(); i++) {
             visit((stmtType) ac.init_code.elementAt(i));
@@ -127,9 +121,9 @@ public class ScopesCompiler extends Visitor implements ScopeConstants {
         beginScope("<lambda>", FUNCSCOPE, node, ac);
         int n = ac.names.size();
         for (int i = 0; i < n; i++) {
-            cur.addParam((String)ac.names.elementAt(i));
+            cur.addParam((String) ac.names.elementAt(i));
         }
-        for (int i = 0; i < ac.init_code.size(); i++) 
+        for (int i = 0; i < ac.init_code.size(); i++)
             visit((stmtType) ac.init_code.elementAt(i));
         cur.markFromParam();
         visit(node.body);
@@ -180,14 +174,16 @@ public class ScopesCompiler extends Visitor implements ScopeConstants {
             String name = node.names[i];
             int prev = cur.addGlobal(name);
             if (prev >= 0) {
-                if ((prev&FROM_PARAM) != 0)
-                    code_compiler.error("name '"+name+"' is local and global",
-                                        true,node);
-                if ((prev&GLOBAL) != 0) continue;
+                if ((prev & FROM_PARAM) != 0)
+                    code_compiler.error("name '" + name + "' is local and global", true, node);
+                if ((prev & GLOBAL) != 0)
+                    continue;
                 String what;
-                if ((prev&BOUND) != 0) what = "assignment"; else what = "use";
-                code_compiler.error("name '"+name+"' declared global after "+
-                                    what,false,node);
+                if ((prev & BOUND) != 0)
+                    what = "assignment";
+                else
+                    what = "use";
+                code_compiler.error("name '" + name + "' declared global after " + what, false, node);
             }
         }
         return null;
@@ -201,17 +197,17 @@ public class ScopesCompiler extends Visitor implements ScopeConstants {
         return null;
     }
 
-/*
-    private static void illassign(SimpleNode node) throws Exception {
-        String target = "operator";
-        if (node.id == PythonGrammarTreeConstants.JJTCALL_OP) {
-            target = "function call";
-        } else if ((node.id == PythonGrammarTreeConstants.JJTFOR_STMT)) {
-            target = "list comprehension";
+    /*
+        private static void illassign(SimpleNode node) throws Exception {
+            String target = "operator";
+            if (node.id == PythonGrammarTreeConstants.JJTCALL_OP) {
+                target = "function call";
+            } else if ((node.id == PythonGrammarTreeConstants.JJTFOR_STMT)) {
+                target = "list comprehension";
+            }
+            throw new ParseException("can't assign to "+target,node);
         }
-        throw new ParseException("can't assign to "+target,node);
-    }
-*/
+    */
 
     public Object visitClassDef(ClassDef node) throws Exception {
         def(node.name);
@@ -228,10 +224,10 @@ public class ScopesCompiler extends Visitor implements ScopeConstants {
         String name = node.id;
         if (node.ctx != expr_contextType.Load) {
             if (name.equals("__debug__"))
-                code_compiler.error("can not assign to __debug__", true,node);
+                code_compiler.error("can not assign to __debug__", true, node);
             cur.addBound(name);
-        }
-        else cur.addUsed(name);
+        } else
+            cur.addUsed(name);
         return null;
     }
 
@@ -241,7 +237,6 @@ public class ScopesCompiler extends Visitor implements ScopeConstants {
         traverse(node);
         return null;
     }
-
 
     public Object visitYield(Yield node) throws Exception {
         cur.generator = true;

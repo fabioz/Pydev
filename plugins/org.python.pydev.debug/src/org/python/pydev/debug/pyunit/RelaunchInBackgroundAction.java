@@ -57,14 +57,14 @@ public class RelaunchInBackgroundAction extends Action implements IResourceChang
 
         @Override
         protected IStatus run(IProgressMonitor monitor) {
-            if(!currentTestRun.getFinished()){ //Wait for the current run to finish.
+            if (!currentTestRun.getFinished()) { //Wait for the current run to finish.
                 this.schedule(300);
                 return Status.OK_STATUS;
             }
-            if(PydevDebugPlugin.getDefault().getPreferenceStore().getBoolean(
-                            PyUnitView.PYUNIT_VIEW_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS)){
+            if (PydevDebugPlugin.getDefault().getPreferenceStore()
+                    .getBoolean(PyUnitView.PYUNIT_VIEW_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS)) {
                 currentTestRun.relaunchOnlyErrors();
-            }else{
+            } else {
                 currentTestRun.relaunch();
             }
             return Status.OK_STATUS;
@@ -75,20 +75,18 @@ public class RelaunchInBackgroundAction extends Action implements IResourceChang
         }
     }
 
-    
+    public class RelaunchInBackgroundOptionsMenuCreator implements IMenuCreator {
 
-    public class RelaunchInBackgroundOptionsMenuCreator implements IMenuCreator{
-        
         private Menu fMenu;
 
         public RelaunchInBackgroundOptionsMenuCreator() {
-            
+
         }
 
         public void dispose() {
             if (fMenu != null) {
                 fMenu.dispose();
-                fMenu= null;
+                fMenu = null;
             }
         }
 
@@ -96,20 +94,20 @@ public class RelaunchInBackgroundAction extends Action implements IResourceChang
             if (fMenu != null) {
                 fMenu.dispose();
             }
-            
-            final MenuManager manager= new MenuManager();
+
+            final MenuManager manager = new MenuManager();
             manager.setRemoveAllWhenShown(true);
             manager.addMenuListener(new IMenuListener() {
                 public void menuAboutToShow(final IMenuManager manager2) {
                     fillMenuManager(new IActionsMenu() {
-                        
+
                         public void add(IAction action) {
                             manager2.add(action);
                         }
                     });
                 }
             });
-            fMenu= manager.createContextMenu(parent);
+            fMenu = manager.createContextMenu(parent);
 
             return fMenu;
         }
@@ -122,31 +120,29 @@ public class RelaunchInBackgroundAction extends Action implements IResourceChang
             actionsMenu.add(new RelaunchOnlyErrorsOnBackgroundRelaunch());
         }
     }
-    
-    private class RelaunchOnlyErrorsOnBackgroundRelaunch extends Action{
-        
+
+    private class RelaunchOnlyErrorsOnBackgroundRelaunch extends Action {
+
         public RelaunchOnlyErrorsOnBackgroundRelaunch() {
             this.setText("Run only failed tests when relaunching due to file changes?");
-            this.setToolTipText("If checked, a relaunch will relaunch only the errors in the current test run.\n" +
-            		"\n" +
-            		"If no errors are found, the full test suite is run again.");
-            this.setChecked(
-                    PydevDebugPlugin.getDefault().getPreferenceStore().getBoolean(
-                            PyUnitView.PYUNIT_VIEW_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS));
+            this.setToolTipText("If checked, a relaunch will relaunch only the errors in the current test run.\n"
+                    + "\n" + "If no errors are found, the full test suite is run again.");
+            this.setChecked(PydevDebugPlugin.getDefault().getPreferenceStore()
+                    .getBoolean(PyUnitView.PYUNIT_VIEW_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS));
         }
-        
+
         /* (non-Javadoc)
          * @see org.eclipse.jface.action.Action#run()
          */
         @Override
         public void run() {
-            PydevDebugPlugin.getDefault().getPreferenceStore().setValue(
-                    PyUnitView.PYUNIT_VIEW_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS, this.isChecked());
+            PydevDebugPlugin.getDefault().getPreferenceStore()
+                    .setValue(PyUnitView.PYUNIT_VIEW_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS, this.isChecked());
         }
     }
-    
+
     private WeakReference<PyUnitView> view;
-    
+
     RelaunchJob relaunchJob = new RelaunchJob();
 
     private boolean listeningChanges;
@@ -160,9 +156,8 @@ public class RelaunchInBackgroundAction extends Action implements IResourceChang
     }
 
     private void setInitialTooltipText() {
-        this.setToolTipText(
-                "Click to rerun the current test suite whenever any Python file changes.\n" +
-        		"\nNote that a new run will only be done after the current test run finishes.");
+        this.setToolTipText("Click to rerun the current test suite whenever any Python file changes.\n"
+                + "\nNote that a new run will only be done after the current test run finishes.");
     }
 
     private void stopListening() {
@@ -179,11 +174,11 @@ public class RelaunchInBackgroundAction extends Action implements IResourceChang
     @Override
     public void run() {
         this.listeningChanges = !this.listeningChanges;
-        
-        if(this.listeningChanges){
+
+        if (this.listeningChanges) {
             this.setImageDescriptor(PydevPlugin.getImageCache().getDescriptor("icons/relaunch_background_enabled.png"));
             startListening();
-        }else{
+        } else {
             this.setImageDescriptor(PydevPlugin.getImageCache().getDescriptor("icons/relaunch_background_disabled.png"));
             stopListening();
         }
@@ -202,7 +197,7 @@ public class RelaunchInBackgroundAction extends Action implements IResourceChang
             return;
         }
 
-        final boolean[] run = new boolean[]{false};
+        final boolean[] run = new boolean[] { false };
         try {
             event.getDelta().accept(new IResourceDeltaVisitor() {
 
@@ -210,12 +205,12 @@ public class RelaunchInBackgroundAction extends Action implements IResourceChang
                     switch (delta.getKind()) {
                         case IResourceDelta.CHANGED:
                             IResource resource = delta.getResource();
-                            if(resource instanceof IFile){
-                                
+                            if (resource instanceof IFile) {
+
                                 //Check if a source file was changed (i.e.: don't get .pyc, .class, etc).
-                                if(PythonPathHelper.isValidSourceFile((IFile)resource)){
+                                if (PythonPathHelper.isValidSourceFile((IFile) resource)) {
                                     int flags = delta.getFlags();
-                                    if((flags & IResourceDelta.CONTENT) != 0){
+                                    if ((flags & IResourceDelta.CONTENT) != 0) {
                                         //Uncomment to debug...
                                         //System.out.println("----------------------");
                                         //System.out.println("----------------------");
@@ -230,7 +225,7 @@ public class RelaunchInBackgroundAction extends Action implements IResourceChang
                                 }
                             }
                             break;
-                        }
+                    }
                     return true;
                 }
             });
@@ -238,7 +233,7 @@ public class RelaunchInBackgroundAction extends Action implements IResourceChang
             Log.log(e);
         }
 
-        if(run[0]){
+        if (run[0]) {
             //Ok, we've the view, let's relaunch the current launch (if any)
             PyUnitTestRun currentTestRun = pyUnitView.getCurrentTestRun();
             if (currentTestRun != null) {

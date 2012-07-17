@@ -16,8 +16,7 @@ public class BytecodeLoader {
         return parents;
     }
 
-    static Class findParentClass(Vector parents, String name)
-            throws ClassNotFoundException {
+    static Class findParentClass(Vector parents, String name) throws ClassNotFoundException {
         for (int i = 0; i < parents.size(); i++) {
             try {
                 return ((ClassLoader) parents.elementAt(i)).loadClass(name);
@@ -47,8 +46,7 @@ public class BytecodeLoader {
                 String version = System.getProperty("java.version");
                 if (version.compareTo("1.2") >= 0) {
                     try {
-                        loaderClass = Class
-                                .forName("org.python.core.BytecodeLoader2");
+                        loaderClass = Class.forName("org.python.core.BytecodeLoader2");
                     } catch (Throwable e) {
                         loaderClass = BytecodeLoader1.class;
                     }
@@ -98,10 +96,9 @@ public class BytecodeLoader {
     public static PyCode makeCode(String name, byte[] data, String filename) {
         try {
             Class c = makeClass(name, null, data);
-            Object o = c.getConstructor(new Class[] {String.class})
-                    .newInstance(new Object[] {filename});
-            return ((PyRunnable)o).getMain();
-        } catch(Exception e) {
+            Object o = c.getConstructor(new Class[] { String.class }).newInstance(new Object[] { filename });
+            return ((PyRunnable) o).getMain();
+        } catch (Exception e) {
             throw Py.JavaError(e);
         }
     }

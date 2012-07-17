@@ -72,9 +72,9 @@ public class PropertyEdit extends AbstractInsertEdit {
         addArgument(args, state.isGetter(), "get");
         addArgument(args, state.isSetter(), "set");
         addArgument(args, state.isDelete(), "del");
-        if(state.isDocstring()){
+        if (state.isDocstring()) {
             args.add(new Str(propertyName + "'s docstring", str_typeType.SingleDouble, false, false, false));
-        }else{
+        } else {
             args.add(NONE);
         }
 
@@ -82,9 +82,9 @@ public class PropertyEdit extends AbstractInsertEdit {
     }
 
     private void addArgument(List<exprType> args, boolean isAvailable, String accessType) {
-        if(isAvailable){
+        if (isAvailable) {
             args.add(new Name(request.getAccessorName(accessType, attributeName), Name.Load, false));
-        }else{
+        } else {
             args.add(NONE);
         }
     }

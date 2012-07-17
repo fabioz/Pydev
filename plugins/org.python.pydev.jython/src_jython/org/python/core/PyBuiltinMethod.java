@@ -1,6 +1,5 @@
 package org.python.core;
 
-
 public abstract class PyBuiltinMethod extends PyBuiltinFunction {
 
     public static final Class exposed_as = PyBuiltinFunction.class;
@@ -9,8 +8,8 @@ public abstract class PyBuiltinMethod extends PyBuiltinFunction {
         super(info);
         this.self = self;
     }
-    
-    public PyObject getSelf(){
+
+    public PyObject getSelf() {
         return self;
     }
 

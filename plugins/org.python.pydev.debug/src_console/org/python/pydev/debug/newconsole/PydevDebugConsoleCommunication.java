@@ -57,10 +57,8 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
         consoleFrame = new PydevDebugConsoleFrame();
     }
 
-    public void execInterpreter(
-        final String command,
-        final ICallback<Object, InterpreterResponse> onResponseReceived,
-        final ICallback<Object, Tuple<String, String>> onContentsReceived) {
+    public void execInterpreter(final String command, final ICallback<Object, InterpreterResponse> onResponseReceived,
+            final ICallback<Object, Tuple<String, String>> onContentsReceived) {
 
         nextResponse = null;
         if (waitingForInput) {
@@ -75,14 +73,12 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
                 protected IStatus run(IProgressMonitor monitor) {
                     PyStackFrame frame = consoleFrame.getLastSelectedFrame();
                     if (frame == null) {
-                        nextResponse = new InterpreterResponse(
-                            EMPTY,
-                            "[Invalid Frame]: Please select frame to connect the console." + "\n",
-                            false,
-                            false);
+                        nextResponse = new InterpreterResponse(EMPTY,
+                                "[Invalid Frame]: Please select frame to connect the console." + "\n", false, false);
                         return Status.CANCEL_STATUS;
                     }
-                    final EvaluateDebugConsoleExpression evaluateDebugConsoleExpression = new EvaluateDebugConsoleExpression(frame);
+                    final EvaluateDebugConsoleExpression evaluateDebugConsoleExpression = new EvaluateDebugConsoleExpression(
+                            frame);
                     evaluateDebugConsoleExpression.executeCommand(command);
                     String result = evaluateDebugConsoleExpression.waitForCommand();
                     try {
@@ -92,10 +88,10 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
                             return Status.CANCEL_STATUS;
 
                         } else {
-                            EvaluateDebugConsoleExpression.PydevDebugConsoleMessage consoleMessage = XMLUtils.getConsoleMessage(result);
-                            nextResponse = new InterpreterResponse(consoleMessage.getOutputMessage().toString(), consoleMessage
-                                .getErrorMessage()
-                                .toString(), consoleMessage.isMore(), false);
+                            EvaluateDebugConsoleExpression.PydevDebugConsoleMessage consoleMessage = XMLUtils
+                                    .getConsoleMessage(result);
+                            nextResponse = new InterpreterResponse(consoleMessage.getOutputMessage().toString(),
+                                    consoleMessage.getErrorMessage().toString(), consoleMessage.isMore(), false);
                         }
                     } catch (CoreException e) {
                         Log.log(e);

@@ -1,12 +1,13 @@
 // Copyright (c) Corporation for National Research Initiatives
 package org.python.core;
+
 import java.util.Vector;
 
 public class PyCompoundCallable extends PyObject {
     private Vector callables;
     private PySystemState systemState;
 
-    public PyCompoundCallable () {
+    public PyCompoundCallable() {
         callables = new Vector();
         systemState = Py.getSystemState();
     }
@@ -24,13 +25,13 @@ public class PyCompoundCallable extends PyObject {
         Py.setSystemState(systemState);
         int n = callables.size();
         //System.out.println("callable: "+n);
-        for (int i=0; i<n; i++) {
-            ((PyObject)callables.elementAt(i)).__call__(args, keywords);
+        for (int i = 0; i < n; i++) {
+            ((PyObject) callables.elementAt(i)).__call__(args, keywords);
         }
         return Py.None;
     }
 
     public String toString() {
-        return "<CompoundCallable with "+callables.size()+" callables>";
+        return "<CompoundCallable with " + callables.size() + " callables>";
     }
 }

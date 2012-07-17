@@ -13,7 +13,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-public class ErrorWizardPage extends WizardPage{
+public class ErrorWizardPage extends WizardPage {
 
     private String msg;
 
@@ -21,20 +21,19 @@ public class ErrorWizardPage extends WizardPage{
         super(pageName);
         this.msg = msg;
     }
-    
 
     public void createControl(Composite parent) {
         Composite composite = new Composite(parent, SWT.NULL);
         composite.setLayout(new GridLayout());
         composite.setLayoutData(new GridData(GridData.FILL_BOTH));
         composite.setFont(parent.getFont());
-        
+
         Label label = new Label(composite, SWT.NONE);
         label.setFont(parent.getFont());
         label.setText(msg);
-        
+
         setErrorMessage("Unexpected error.");
         setControl(composite);
     }
-    
+
 }

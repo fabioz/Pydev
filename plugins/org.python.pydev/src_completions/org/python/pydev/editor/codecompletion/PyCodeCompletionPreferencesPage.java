@@ -28,17 +28,17 @@ import org.python.pydev.utils.LabelFieldEditor;
  * 
  * @author Fabio Zadrozny
  */
-public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage{
+public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
     public static final String USE_CODECOMPLETION = "USE_CODECOMPLETION";
     public static final boolean DEFAULT_USE_CODECOMPLETION = true;
-    
+
     public static final String ATTEMPTS_CODECOMPLETION = "ATTEMPTS_CODECOMPLETION";
     public static final int DEFAULT_ATTEMPTS_CODECOMPLETION = 20;
 
     public static final String AUTOCOMPLETE_ON_DOT = "AUTOCOMPLETE_ON_DOT";
     public static final boolean DEFAULT_AUTOCOMPLETE_ON_DOT = true;
-    
+
     public static final String AUTOCOMPLETE_ON_ALL_ASCII_CHARS = "AUTOCOMPLETE_ON_ALL_ASCII_CHARS";
     public static final boolean DEFAULT_AUTOCOMPLETE_ON_ALL_ASCII_CHARS = false;
 
@@ -50,22 +50,22 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 
     public static final String AUTOCOMPLETE_ON_PAR = "AUTOCOMPLETE_ON_PAR";
     public static final boolean DEFAULT_AUTOCOMPLETE_ON_PAR = false;
-    
+
     public static final String APPLY_COMPLETION_ON_DOT = "APPLY_COMPLETION_ON_DOT";
     public static final boolean DEFAULT_APPLY_COMPLETION_ON_DOT = false;
-    
+
     public static final String APPLY_COMPLETION_ON_LPAREN = "APPLY_COMPLETION_ON_LPAREN";
     public static final boolean DEFAULT_APPLY_COMPLETION_ON_LPAREN = false;
-    
+
     public static final String APPLY_COMPLETION_ON_RPAREN = "APPLY_COMPLETION_ON_RPAREN";
     public static final boolean DEFAULT_APPLY_COMPLETION_ON_RPAREN = false;
-    
+
     public static final String ARGUMENTS_DEEP_ANALYSIS_N_CHARS = "DEEP_ANALYSIS_N_CHARS";
     public static final int DEFAULT_ARGUMENTS_DEEP_ANALYSIS_N_CHARS = 1;
-    
+
     public static final String USE_CODE_COMPLETION_ON_DEBUG_CONSOLES = "USE_CODE_COMPLETION_ON_DEBUG_CONSOLES";
     public static final boolean DEFAULT_USE_CODE_COMPLETION_ON_DEBUG_CONSOLES = true;
-    
+
     /**
      */
     public PyCodeCompletionPreferencesPage() {
@@ -81,81 +81,69 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
 
-        addField(new IntegerFieldEditor(
-                ATTEMPTS_CODECOMPLETION, "Timeout to connect to shell (secs).", p));
+        addField(new IntegerFieldEditor(ATTEMPTS_CODECOMPLETION, "Timeout to connect to shell (secs).", p));
 
-        addField(new IntegerFieldEditor(
-                AUTOCOMPLETE_DELAY, "Autocompletion delay: ", p));
+        addField(new IntegerFieldEditor(AUTOCOMPLETE_DELAY, "Autocompletion delay: ", p));
 
-        
-        
-        String tooltip = WrapAndCaseUtils.wrap("Determines the number of chars in the qualifier request " +
-                "for which constructs such as 'from xxx import yyy' should be " +
-                "analyzed to get its actual token and if it maps to a method, its paramaters will be added in the completion.", 80);
-        IntegerFieldEditor deepAnalysisFieldEditor = new IntegerFieldEditor(
-                        ARGUMENTS_DEEP_ANALYSIS_N_CHARS, "Minimum number of chars in qualifier for\ndeep analysis for parameters in 'from' imports:", p);
+        String tooltip = WrapAndCaseUtils
+                .wrap("Determines the number of chars in the qualifier request "
+                        + "for which constructs such as 'from xxx import yyy' should be "
+                        + "analyzed to get its actual token and if it maps to a method, its paramaters will be added in the completion.",
+                        80);
+        IntegerFieldEditor deepAnalysisFieldEditor = new IntegerFieldEditor(ARGUMENTS_DEEP_ANALYSIS_N_CHARS,
+                "Minimum number of chars in qualifier for\ndeep analysis for parameters in 'from' imports:", p);
         addField(deepAnalysisFieldEditor);
         deepAnalysisFieldEditor.getLabelControl(p).setToolTipText(tooltip);
         deepAnalysisFieldEditor.getTextControl(p).setToolTipText(tooltip);
-        
-        
-        
-        addField(new BooleanFieldEditor(
-                USE_CODECOMPLETION, "Use code completion?", p));
-        
-        addField(new BooleanFieldEditor(
-                USE_CODE_COMPLETION_ON_DEBUG_CONSOLES, "Use code completion on debug console sessions?", p));
 
-        addField(new LabelFieldEditor("LABEL_FIELD_EDITOR_CODE_COMPLETION_DEBUG_CONSOLE", 
+        addField(new BooleanFieldEditor(USE_CODECOMPLETION, "Use code completion?", p));
+
+        addField(new BooleanFieldEditor(USE_CODE_COMPLETION_ON_DEBUG_CONSOLES,
+                "Use code completion on debug console sessions?", p));
+
+        addField(new LabelFieldEditor("LABEL_FIELD_EDITOR_CODE_COMPLETION_DEBUG_CONSOLE",
                 "Note: only applied for new consoles.", p));
-        
-        addField(new BooleanFieldEditor(
-                AUTOCOMPLETE_ON_DOT, "Request completion on '.'?", p));
 
-        addField(new BooleanFieldEditor(
-                AUTOCOMPLETE_ON_PAR, "Request completion on '('?", p));
-        
-        addField(new BooleanFieldEditor(
-                AUTOCOMPLETE_ON_ALL_ASCII_CHARS, "Request completion on all letter chars and '_'?", p));
-        
-        addField(new BooleanFieldEditor(
-                APPLY_COMPLETION_ON_DOT, "Apply completion on '.'?", p));
-        
-        addField(new BooleanFieldEditor(
-                APPLY_COMPLETION_ON_LPAREN, "Apply completion on '('?", p));
-        
-        addField(new BooleanFieldEditor(
-                APPLY_COMPLETION_ON_RPAREN, "Apply completion on ')'?", p));
-        
+        addField(new BooleanFieldEditor(AUTOCOMPLETE_ON_DOT, "Request completion on '.'?", p));
+
+        addField(new BooleanFieldEditor(AUTOCOMPLETE_ON_PAR, "Request completion on '('?", p));
+
+        addField(new BooleanFieldEditor(AUTOCOMPLETE_ON_ALL_ASCII_CHARS,
+                "Request completion on all letter chars and '_'?", p));
+
+        addField(new BooleanFieldEditor(APPLY_COMPLETION_ON_DOT, "Apply completion on '.'?", p));
+
+        addField(new BooleanFieldEditor(APPLY_COMPLETION_ON_LPAREN, "Apply completion on '('?", p));
+
+        addField(new BooleanFieldEditor(APPLY_COMPLETION_ON_RPAREN, "Apply completion on ')'?", p));
+
         addField(new LabelFieldEditor("LABEL_FIELD_EDITOR_NEW_LINE_ALWAYS_THERE_a", "", p));
         addField(new LabelFieldEditor("LABEL_FIELD_EDITOR_NEW_LINE_ALWAYS_THERE_b", "", p));
-        
-        addField(new LabelFieldEditor("LABEL_FIELD_EDITOR_NEW_LINE_ALWAYS_THERE_0", 
+
+        addField(new LabelFieldEditor("LABEL_FIELD_EDITOR_NEW_LINE_ALWAYS_THERE_0",
                 "Note: ENTER will always apply the completion.", p));
-        
+
         addField(new LabelFieldEditor("LABEL_FIELD_EDITOR_NEW_LINE_ALWAYS_THERE_0a", "", p));
         addField(new LabelFieldEditor("LABEL_FIELD_EDITOR_NEW_LINE_ALWAYS_THERE_0b", "", p));
         addField(new LabelFieldEditor("LABEL_FIELD_EDITOR_NEW_LINE_ALWAYS_THERE_0c", "", p));
-        
-        addField(new LabelFieldEditor("LABEL_FIELD_EDITOR_NEW_LINE_ALWAYS_THERE_1", 
-                "Note 2: Shift + ENTER can be used if you want a new line\n" +
-                "without applying a completion.", p));
-        
+
+        addField(new LabelFieldEditor("LABEL_FIELD_EDITOR_NEW_LINE_ALWAYS_THERE_1",
+                "Note 2: Shift + ENTER can be used if you want a new line\n" + "without applying a completion.", p));
+
         addField(new LabelFieldEditor("LABEL_FIELD_EDITOR_NEW_LINE_ALWAYS_THERE_1a", "", p));
         addField(new LabelFieldEditor("LABEL_FIELD_EDITOR_NEW_LINE_ALWAYS_THERE_1b", "", p));
         addField(new LabelFieldEditor("LABEL_FIELD_EDITOR_NEW_LINE_ALWAYS_THERE_1c", "", p));
-        
-        addField(new LabelFieldEditor("LABEL_FIELD_EDITOR_NEW_LINE_ALWAYS_THERE_2", 
-                "Note 3: Ctrl + ENTER can be used as a way to apply the completion\n" +
-                "erasing the next chars from the current token.", p));
-        
+
+        addField(new LabelFieldEditor("LABEL_FIELD_EDITOR_NEW_LINE_ALWAYS_THERE_2",
+                "Note 3: Ctrl + ENTER can be used as a way to apply the completion\n"
+                        + "erasing the next chars from the current token.", p));
+
         addField(new LabelFieldEditor("LABEL_FIELD_EDITOR_NEW_LINE_ALWAYS_THERE_2a", "", p));
         addField(new LabelFieldEditor("LABEL_FIELD_EDITOR_NEW_LINE_ALWAYS_THERE_2b", "", p));
         addField(new LabelFieldEditor("LABEL_FIELD_EDITOR_NEW_LINE_ALWAYS_THERE_2c", "", p));
-        
-        
+
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -167,20 +155,20 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     public static boolean useCodeCompletion() {
         return getPreferences().getBoolean(PyCodeCompletionPreferencesPage.USE_CODECOMPLETION);
     }
-    
+
     public static boolean useCodeCompletionOnDebug() {
         return getPreferences().getBoolean(PyCodeCompletionPreferencesPage.USE_CODE_COMPLETION_ON_DEBUG_CONSOLES);
     }
 
     public static int getNumberOfConnectionAttempts() {
-        try{
+        try {
             Preferences preferences = getPreferences();
             int ret = preferences.getInt(PyCodeCompletionPreferencesPage.ATTEMPTS_CODECOMPLETION);
-            if(ret < 5){
+            if (ret < 5) {
                 ret = 5; // at least 5 attempts!
             }
             return ret;
-        }catch (NullPointerException e) {
+        } catch (NullPointerException e) {
             return 20;
         }
     }
@@ -192,21 +180,21 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     public static boolean isToAutocompleteOnPar() {
         return getPreferences().getBoolean(PyCodeCompletionPreferencesPage.AUTOCOMPLETE_ON_PAR);
     }
-    
+
     public static boolean useAutocomplete() {
         return getPreferences().getBoolean(PyCodeCompletionPreferencesPage.USE_AUTOCOMPLETE);
     }
-    
+
     public static boolean useAutocompleteOnAllAsciiChars() {
         return getPreferences().getBoolean(PyCodeCompletionPreferencesPage.AUTOCOMPLETE_ON_ALL_ASCII_CHARS);
     }
-    
+
     public static int getAutocompleteDelay() {
         return getPreferences().getInt(PyCodeCompletionPreferencesPage.AUTOCOMPLETE_DELAY);
     }
-    
+
     public static int getArgumentsDeepAnalysisNChars() {
-        if(PydevPlugin.getDefault() == null){ //testing
+        if (PydevPlugin.getDefault() == null) { //testing
             return 0;
         }
         return getPreferences().getInt(PyCodeCompletionPreferencesPage.ARGUMENTS_DEEP_ANALYSIS_N_CHARS);
@@ -215,24 +203,24 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     public static boolean applyCompletionOnDot() {
         return getPreferences().getBoolean(PyCodeCompletionPreferencesPage.APPLY_COMPLETION_ON_DOT);
     }
-    
+
     public static boolean applyCompletionOnLParen() {
         return getPreferences().getBoolean(PyCodeCompletionPreferencesPage.APPLY_COMPLETION_ON_LPAREN);
     }
-    
+
     public static boolean applyCompletionOnRParen() {
         return getPreferences().getBoolean(PyCodeCompletionPreferencesPage.APPLY_COMPLETION_ON_RPAREN);
     }
-    
+
     private static Preferences getPreferences() {
         PydevPlugin plugin = PydevPlugin.getDefault();
-        if(plugin == null){
+        if (plugin == null) {
             //always create a new one for tests.
             return getPreferencesForTests.call(null);
         }
         return plugin.getPluginPreferences();
     }
-    
-    public static ICallback<Preferences, Object> getPreferencesForTests; 
+
+    public static ICallback<Preferences, Object> getPreferencesForTests;
 
 }

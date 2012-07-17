@@ -59,7 +59,6 @@ public final class MessagesManager {
      */
     public final Map<IToken, List<IMessage>> messages = new HashMap<IToken, List<IMessage>>();
 
-
     public final List<IMessage> independentMessages = new ArrayList<IMessage>();
 
     /**
@@ -77,30 +76,30 @@ public final class MessagesManager {
         this.moduleName = moduleName;
         this.document = doc;
     }
-    
+
     /**
      * @return whether we should add an unused import message to the module being analyzed
      */
-    public boolean shouldAddUnusedImportMessage(){
-        if(moduleName == null){
+    public boolean shouldAddUnusedImportMessage() {
+        if (moduleName == null) {
             return true;
         }
         String onlyModName = FullRepIterable.headAndTail(moduleName, true)[1];
         Set<String> patternsToBeIgnored = this.prefs.getModuleNamePatternsToBeIgnored();
         for (String pattern : patternsToBeIgnored) {
-            if(onlyModName.matches(pattern)){
+            if (onlyModName.matches(pattern)) {
                 return false;
             }
         }
         return true;
     }
-    
+
     /**
      * adds a message of some type given its formatting params
      */
-    public void addMessage(int type, IToken generator, Object ...objects ) {
-        if(isUnusedImportMessage(type)){
-            if (!shouldAddUnusedImportMessage()){
+    public void addMessage(int type, IToken generator, Object... objects) {
+        if (isUnusedImportMessage(type)) {
+            if (!shouldAddUnusedImportMessage()) {
                 return;
             }
         }
@@ -120,31 +119,30 @@ public final class MessagesManager {
      */
     public void addMessage(int type, IToken token) {
         List<IMessage> msgs = getMsgsList(token);
-        doAddMessage(msgs, type, token.getRepresentation(),token);
+        doAddMessage(msgs, type, token.getRepresentation(), token);
     }
-    
 
     /**
      * checks if the message should really be added and does the add.
      */
-    private void doAddMessage(List<IMessage> msgs, int type, Object string, IToken token){
-        if(isUnusedImportMessage(type)){
-            if (!shouldAddUnusedImportMessage()){
+    private void doAddMessage(List<IMessage> msgs, int type, Object string, IToken token) {
+        if (isUnusedImportMessage(type)) {
+            if (!shouldAddUnusedImportMessage()) {
                 return;
             }
         }
 
         Message messageToAdd = new Message(type, string, token, prefs);
-        
+
         doAddMessage(msgs, messageToAdd);
     }
 
     private void doAddMessage(List<IMessage> msgs, Message messageToAdd) {
         String messageToIgnore = prefs.getRequiredMessageToIgnore(messageToAdd.getType());
-        if(messageToIgnore != null){
+        if (messageToIgnore != null) {
             int startLine = messageToAdd.getStartLine(document) - 1;
             String line = PySelection.getLine(document, startLine);
-            if(line.indexOf(messageToIgnore) != -1){
+            if (line.indexOf(messageToIgnore) != -1) {
                 //keep going... nothing to see here...
                 return;
             }
@@ -152,7 +150,7 @@ public final class MessagesManager {
 
         msgs.add(messageToAdd);
     }
-    
+
     /**
      * adds a message of some type for some Found instance
      */
@@ -167,13 +165,13 @@ public final class MessagesManager {
         List<IMessage> msgs = getMsgsList(generator);
         doAddMessage(msgs, type, rep, generator);
     }
-    
+
     /**
      * @return the messages associated with a token
      */
     public List<IMessage> getMsgsList(IToken generator) {
         List<IMessage> msgs = messages.get(generator);
-        if (msgs == null){
+        if (msgs == null) {
             msgs = new ArrayList<IMessage>();
             messages.put(generator, msgs);
         }
@@ -183,14 +181,14 @@ public final class MessagesManager {
     public void addUndefinedMessage(IToken token) {
         addUndefinedMessage(token, null);
     }
-    
+
     /**
      * @param token adds a message saying that a token is not defined
      */
     public void addUndefinedMessage(IToken token, String rep) {
         Tuple<Boolean, String> undef = isActuallyUndefined(token, rep);
-        if(undef.o1){
-            addMessage(IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE, token, undef.o2 );
+        if (undef.o1) {
+            addMessage(IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE, token, undef.o2);
         }
     }
 
@@ -199,8 +197,8 @@ public final class MessagesManager {
      */
     public void addUndefinedVarInImportMessage(IToken token, String rep) {
         Tuple<Boolean, String> undef = isActuallyUndefined(token, rep);
-        if(undef.o1){
-            addMessage(IAnalysisPreferences.TYPE_UNDEFINED_IMPORT_VARIABLE, token, undef.o2 );
+        if (undef.o1) {
+            addMessage(IAnalysisPreferences.TYPE_UNDEFINED_IMPORT_VARIABLE, token, undef.o2);
         }
     }
 
@@ -215,77 +213,70 @@ public final class MessagesManager {
      * Checks if some token is actually undefined and changes its representation if needed
      * @return a tuple indicating if it really is undefined and the representation that should be used.
      */
-    protected Tuple<Boolean, String> isActuallyUndefined(IToken token, String rep){
+    protected Tuple<Boolean, String> isActuallyUndefined(IToken token, String rep) {
         String tokenRepresentation = token.getRepresentation();
-        if(tokenRepresentation != null){
+        if (tokenRepresentation != null) {
             String firstPart = FullRepIterable.getFirstPart(tokenRepresentation);
-            if(this.prefs.getTokensAlwaysInGlobals().contains(firstPart)){
+            if (this.prefs.getTokensAlwaysInGlobals().contains(firstPart)) {
                 return new Tuple<Boolean, String>(false, firstPart); //ok firstPart in not really undefined... 
             }
         }
-        
+
         boolean isActuallyUndefined = true;
-        if(rep == null){
+        if (rep == null) {
             rep = tokenRepresentation;
         }
-        
+
         int i;
-        if((i = rep.indexOf('.')) != -1){
-            rep = rep.substring(0,i);
+        if ((i = rep.indexOf('.')) != -1) {
+            rep = rep.substring(0, i);
         }
 
         String builtinType = NodeUtils.getBuiltinType(rep);
-        if(builtinType != null){
+        if (builtinType != null) {
             isActuallyUndefined = false; //this is a builtin, so, it is defined after all
         }
         return new Tuple<Boolean, String>(isActuallyUndefined, rep);
     }
-    
-    
+
     public void onArgumentsMismatch(IToken token, Call callNode) {
         FastStringBuffer buf = new FastStringBuffer(128);
         buf.append(token.getRepresentation());
         buf.append(": arguments don't match");
         List<IMessage> msgs = getMsgsList(token);
-        
+
         //Code that'll gather the position of the start/end parenthesis and will create a message at that location
         //(otherwise, it'd create the message at the name location, which may be a bit confusing).
         ParsingUtils parsingUtils = ParsingUtils.create(document);
-        try{
-            int offset = PySelection.getAbsoluteCursorOffset(document, callNode.func.beginLine-1, callNode.func.beginColumn-1); //-1: from ast to document coords
+        try {
+            int offset = PySelection.getAbsoluteCursorOffset(document, callNode.func.beginLine - 1,
+                    callNode.func.beginColumn - 1); //-1: from ast to document coords
             int openParensPos = parsingUtils.findNextChar(offset, '(');
-            if(openParensPos != -1){
+            if (openParensPos != -1) {
                 int closeParensPos = parsingUtils.eatPar(openParensPos, null);
-                if(closeParensPos != -1){
-                    int startLine = PySelection.getLineOfOffset(document, openParensPos)+1; //+1: from document to ast 
-                    int endLine = PySelection.getLineOfOffset(document, closeParensPos)+1; 
-                    int startCol = openParensPos - document.getLineInformationOfOffset(openParensPos).getOffset() + 1; 
-                    
+                if (closeParensPos != -1) {
+                    int startLine = PySelection.getLineOfOffset(document, openParensPos) + 1; //+1: from document to ast 
+                    int endLine = PySelection.getLineOfOffset(document, closeParensPos) + 1;
+                    int startCol = openParensPos - document.getLineInformationOfOffset(openParensPos).getOffset() + 1;
+
                     //+1 doc to ast +1 because we also want to get the closing ')' char.
-                    int endCol = closeParensPos - document.getLineInformationOfOffset(closeParensPos).getOffset() + 1 + 1; 
-                    Message messageToAdd = new Message(
-                            IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH, 
-                            buf.toString(), 
-                            startLine, 
-                            endLine, 
-                            startCol, 
-                            endCol, 
-                            prefs
-                    );
+                    int endCol = closeParensPos - document.getLineInformationOfOffset(closeParensPos).getOffset() + 1
+                            + 1;
+                    Message messageToAdd = new Message(IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH, buf.toString(),
+                            startLine, endLine, startCol, endCol, prefs);
                     doAddMessage(msgs, messageToAdd);
                     return;
                 }
             }
-        }catch(BadLocationException e){
+        } catch (BadLocationException e) {
             Log.log(e);
-        }catch(SyntaxErrorException e){
+        } catch (SyntaxErrorException e) {
             //Just ignore
         }
-        
+
         //If some error happened getting the parens position, just add it to the name.
         doAddMessage(msgs, IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH, buf.toString(), token);
     }
-
 
     /**
      * adds a message for something that was not used
@@ -304,14 +295,14 @@ public final class MessagesManager {
                 // it can be an unused import
                 boolean isFromImport = ast instanceof ImportFrom;
                 if (isFromImport || ast instanceof Import) {
-                    
-                    if (isFromImport && AbstractVisitor.isWildImport((ImportFrom)ast)) {
+
+                    if (isFromImport && AbstractVisitor.isWildImport((ImportFrom) ast)) {
                         addMessage(IAnalysisPreferences.TYPE_UNUSED_WILD_IMPORT, g.generator, g.tok);
-                        
-                    } else if(!(g.generator instanceof ImportPartSourceToken)){
+
+                    } else if (!(g.generator instanceof ImportPartSourceToken)) {
                         addMessage(IAnalysisPreferences.TYPE_UNUSED_IMPORT, g.generator, g.tok);
                     }
-                    
+
                     continue; // finish it...
                 }
             }
@@ -358,8 +349,7 @@ public final class MessagesManager {
                         }
                     }
                 }//END if (type == IAnalysisPreferences.TYPE_UNUSED_PARAMETER)
-                
-                
+
                 if (addMessage) {
                     addMessage(type, g.generator, g.tok);
                 }
@@ -367,7 +357,6 @@ public final class MessagesManager {
         }
     }
 
-    
     /**
      * a cache, so that we don't get the names to ignore over and over this is
      * ok, because every time we start an analysis session, this object is
@@ -375,20 +364,19 @@ public final class MessagesManager {
      */
     private Set<String> namesToIgnoreCache = null;
 
-    
     /**
      * @param g the generater that will generate an unused variable message
      * @return true if we should not add the message
      */
     private boolean startsWithNamesToIgnore(GenAndTok g) {
-        if(namesToIgnoreCache == null){
+        if (namesToIgnoreCache == null) {
             namesToIgnoreCache = prefs.getNamesIgnoredByUnusedVariable();
         }
         String representation = g.tok.getRepresentation();
-        
+
         boolean addIt = true;
         for (String str : namesToIgnoreCache) {
-            if(representation.startsWith(str)){
+            if (representation.startsWith(str)) {
                 addIt = false;
                 break;
             }
@@ -405,105 +393,97 @@ public final class MessagesManager {
         for (int i = 0; i < len; i++) {
             GenAndTok g = all.get(i);
             //we don't want to add reimport messages if they are found in a wild import
-            if(g.generator instanceof SourceToken && !(g.generator instanceof ImportPartSourceToken) && g.generator.isWildImport() == false){
+            if (g.generator instanceof SourceToken && !(g.generator instanceof ImportPartSourceToken)
+                    && g.generator.isWildImport() == false) {
                 addMessage(IAnalysisPreferences.TYPE_REIMPORT, g.generator, g.tok);
             }
         }
     }
-    
-    
-    
+
     /**
      * @return the generated messages.
      */
     public List<IMessage> getMessages() {
-        
+
         List<IMessage> result = new ArrayList<IMessage>();
-        
+
         //let's get the messages
         for (List<IMessage> l : messages.values()) {
-            if(l.size() < 1){
+            if (l.size() < 1) {
                 //we need at least one message
                 continue;
             }
-            
+
             Map<Integer, List<IMessage>> messagesByType = getMessagesByType(l);
             for (int type : messagesByType.keySet()) {
                 l = messagesByType.get(type);
-                
+
                 //the values are guaranteed to have size at least equal to 1
                 IMessage message = l.get(0);
-                
+
                 //messages are grouped by type, and the severity is set by type, so, this is ok...
-                if(message.getSeverity() == IMarker.SEVERITY_INFO){
-                    if(doIgnoreMessageIfJustInformational(message.getType())){
+                if (message.getSeverity() == IMarker.SEVERITY_INFO) {
+                    if (doIgnoreMessageIfJustInformational(message.getType())) {
                         //ok, let's ignore it for real (and don't add it) as those are not likely to be
                         //used anyways for other actions)
                         continue;
-                        
+
                     }
                 }
                 //we add even ignore messages because they might be used later in actions dependent on code analysis
 
-                if(l.size() == 1){
-//don't add additional info: not being used
-//                    addAdditionalInfoToUnusedWildImport(message);
+                if (l.size() == 1) {
+                    //don't add additional info: not being used
+                    //                    addAdditionalInfoToUnusedWildImport(message);
                     addToResult(result, message);
-                    
-                } else{
+
+                } else {
                     //the generator token has many associated messages - the messages may have different types,
                     //so, we need to get them by types
                     IToken generator = message.getGenerator();
                     CompositeMessage compositeMessage;
-                    if(generator != null){
+                    if (generator != null) {
                         compositeMessage = new CompositeMessage(message.getType(), generator, prefs);
-                    }else{
-                        compositeMessage = new CompositeMessage(
-                                message.getType(), 
-                                message.getStartLine(document), 
-                                message.getEndLine(document), 
-                                message.getStartCol(document), 
-                                message.getEndCol(document), 
-                                prefs
-                        );
-                        
+                    } else {
+                        compositeMessage = new CompositeMessage(message.getType(), message.getStartLine(document),
+                                message.getEndLine(document), message.getStartCol(document),
+                                message.getEndCol(document), prefs);
+
                     }
-                    for(IMessage m : l){
+                    for (IMessage m : l) {
                         compositeMessage.addMessage(m);
                     }
 
-//don't add additional info: not being used
-//                    addAdditionalInfoToUnusedWildImport(compositeMessage);
+                    //don't add additional info: not being used
+                    //                    addAdditionalInfoToUnusedWildImport(compositeMessage);
                     addToResult(result, compositeMessage);
                 }
             }
         }
-        
-        for(IMessage message : independentMessages){
-            if(message.getSeverity() == IMarker.SEVERITY_INFO){
-                if(doIgnoreMessageIfJustInformational(message.getType())){
+
+        for (IMessage message : independentMessages) {
+            if (message.getSeverity() == IMarker.SEVERITY_INFO) {
+                if (doIgnoreMessageIfJustInformational(message.getType())) {
                     //ok, let's ignore it for real (and don't add it) as those are not likely to be
                     //used anyways for other actions)
                     continue;
-                    
+
                 }
                 //otherwise keep on and add it (needed for some actions)
             }
-            
+
             addToResult(result, message);
         }
-        
+
         return result;
     }
 
     private boolean doIgnoreMessageIfJustInformational(int type) {
-        return type == IAnalysisPreferences.TYPE_UNUSED_PARAMETER || 
-           type == IAnalysisPreferences.TYPE_INDENTATION_PROBLEM ||
-           type == IAnalysisPreferences.TYPE_NO_EFFECT_STMT || 
-           type == IAnalysisPreferences.TYPE_PEP8 || 
-           type == IAnalysisPreferences.TYPE_ASSIGNMENT_TO_BUILT_IN_SYMBOL ||
-           type == IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH
-           ;
+        return type == IAnalysisPreferences.TYPE_UNUSED_PARAMETER
+                || type == IAnalysisPreferences.TYPE_INDENTATION_PROBLEM
+                || type == IAnalysisPreferences.TYPE_NO_EFFECT_STMT || type == IAnalysisPreferences.TYPE_PEP8
+                || type == IAnalysisPreferences.TYPE_ASSIGNMENT_TO_BUILT_IN_SYMBOL
+                || type == IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH;
     }
 
     /**
@@ -511,51 +491,50 @@ public final class MessagesManager {
      * @param message
      */
     private void addToResult(List<IMessage> result, IMessage message) {
-        if(isUnusedImportMessage(message.getType())){
+        if (isUnusedImportMessage(message.getType())) {
             IToken generator = message.getGenerator();
-            if(generator instanceof SourceToken){
+            if (generator instanceof SourceToken) {
                 String asAbsoluteImport = generator.getAsAbsoluteImport();
-                if(asAbsoluteImport.indexOf("__future__.") != -1 || asAbsoluteImport.indexOf("__metaclass__") != -1){
+                if (asAbsoluteImport.indexOf("__future__.") != -1 || asAbsoluteImport.indexOf("__metaclass__") != -1) {
                     //do not add from __future__ import xxx
-                    return; 
+                    return;
                 }
             }
         }
         result.add(message);
     }
 
-    
-// Comented out: we're not using this info (so, let's save some memory until we really need that)
-//    /**
-//     * @param message the message to which we will add additional info
-//     */
-//    private void addAdditionalInfoToUnusedWildImport(IMessage message) {
-//        if(message.getType() == IAnalysisPreferences.TYPE_UNUSED_WILD_IMPORT){
-//
-//            //we have to add additional info on it, saying which tokens where used
-//            if(AbstractVisitor.isWildImport(message.getGenerator())){
-//
-//                List<Tuple<String,Found>> usedItems = lastScope.getUsedItems();
-//                for (Tuple<String, Found> tuple : usedItems) {
-//                    if(tuple.o2.getSingle().generator == message.getGenerator()){
-//                        message.addAdditionalInfo(tuple.o1);
-//                    }
-//                }
-//            }
-//        }
-//    }
+    // Comented out: we're not using this info (so, let's save some memory until we really need that)
+    //    /**
+    //     * @param message the message to which we will add additional info
+    //     */
+    //    private void addAdditionalInfoToUnusedWildImport(IMessage message) {
+    //        if(message.getType() == IAnalysisPreferences.TYPE_UNUSED_WILD_IMPORT){
+    //
+    //            //we have to add additional info on it, saying which tokens where used
+    //            if(AbstractVisitor.isWildImport(message.getGenerator())){
+    //
+    //                List<Tuple<String,Found>> usedItems = lastScope.getUsedItems();
+    //                for (Tuple<String, Found> tuple : usedItems) {
+    //                    if(tuple.o2.getSingle().generator == message.getGenerator()){
+    //                        message.addAdditionalInfo(tuple.o1);
+    //                    }
+    //                }
+    //            }
+    //        }
+    //    }
 
     /**
      * @return a map with the messages separated by type (keys are the type)
      * 
      * the values are guaranteed to have size at least equal to 1
      */
-    private Map<Integer,List<IMessage>> getMessagesByType(List<IMessage> l) {
+    private Map<Integer, List<IMessage>> getMessagesByType(List<IMessage> l) {
         HashMap<Integer, List<IMessage>> messagesByType = new HashMap<Integer, List<IMessage>>();
         for (IMessage message : l) {
-            
+
             List<IMessage> messages = messagesByType.get(message.getType());
-            if(messages == null){
+            if (messages == null) {
                 messages = new ArrayList<IMessage>();
                 messagesByType.put(message.getType(), messages);
             }
@@ -563,6 +542,5 @@ public final class MessagesManager {
         }
         return messagesByType;
     }
-
 
 }

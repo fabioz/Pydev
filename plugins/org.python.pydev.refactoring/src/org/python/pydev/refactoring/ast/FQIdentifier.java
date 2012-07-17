@@ -40,7 +40,7 @@ public class FQIdentifier {
 
     public String getProbableModuleName() {
         int offset = getRealName().indexOf(".");
-        if(offset > 1){
+        if (offset > 1) {
             return getModule() + "." + getRealName().substring(0, offset);
         }
         return getModule();

@@ -11,18 +11,17 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 public final class AllTests {
-	private AllTests() {
-	}
+    private AllTests() {
+    }
 
-	public static Test suite() {
-		TestSuite suite = new TestSuite(
-				"Test for org.python.pydev.refactoring.utils");
-		//$JUnit-BEGIN$
-		suite.addTestSuite(StringUtilsTest.class);
-		suite.addTestSuite(TestUtilsTest.class);
-		suite.addTestSuite(FileUtilsTest.class);
-		//$JUnit-END$
-		return suite;
-	}
+    public static Test suite() {
+        TestSuite suite = new TestSuite("Test for org.python.pydev.refactoring.utils");
+        //$JUnit-BEGIN$
+        suite.addTestSuite(StringUtilsTest.class);
+        suite.addTestSuite(TestUtilsTest.class);
+        suite.addTestSuite(FileUtilsTest.class);
+        //$JUnit-END$
+        return suite;
+    }
 
 }

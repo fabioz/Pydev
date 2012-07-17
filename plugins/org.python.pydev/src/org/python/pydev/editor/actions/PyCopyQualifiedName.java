@@ -26,47 +26,47 @@ import org.python.pydev.parser.fastparser.FastParser;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
-public class PyCopyQualifiedName extends PyAction{
+public class PyCopyQualifiedName extends PyAction {
 
     public void run(IAction action) {
-    	FastStringBuffer buf = new FastStringBuffer();
+        FastStringBuffer buf = new FastStringBuffer();
         try {
-        	PyEdit pyEdit = getPyEdit();
-        	
-        	PySelection pySelection = new PySelection(pyEdit);
-        	
-        	IPythonNature nature = pyEdit.getPythonNature();
-        	File editorFile = pyEdit.getEditorFile();
-			buf.append(nature.resolveModule(editorFile));
-			
-			List<stmtType> path = FastParser.parseToKnowGloballyAccessiblePath(
-					pySelection.getDoc(), pySelection.getStartLineIndex());
-			for (stmtType stmtType : path) {
-				if(buf.length() > 0){
-					buf.append('.');
-				}
-				buf.append(NodeUtils.getRepresentationString(stmtType));
-			}
-			
-		} catch (MisconfigurationException e1) {
-			Log.log(e1);
-			return;
-		}
-        
-        Transfer[] dataTypes = new Transfer[] {TextTransfer.getInstance()};
-		Object[] data = new Object[] {buf.toString()};
-        
-		Clipboard clipboard= new Clipboard(getShell().getDisplay());
-		try {
-			clipboard.setContents(data, dataTypes);
-		} catch (SWTError e) {
-			if (e.code != DND.ERROR_CANNOT_SET_CLIPBOARD) {
-				throw e;
-			}
-			MessageDialog.openError(getShell(), "Error copying to clipboard.", e.getMessage());
-		} finally {
-			clipboard.dispose();
-		}
+            PyEdit pyEdit = getPyEdit();
+
+            PySelection pySelection = new PySelection(pyEdit);
+
+            IPythonNature nature = pyEdit.getPythonNature();
+            File editorFile = pyEdit.getEditorFile();
+            buf.append(nature.resolveModule(editorFile));
+
+            List<stmtType> path = FastParser.parseToKnowGloballyAccessiblePath(pySelection.getDoc(),
+                    pySelection.getStartLineIndex());
+            for (stmtType stmtType : path) {
+                if (buf.length() > 0) {
+                    buf.append('.');
+                }
+                buf.append(NodeUtils.getRepresentationString(stmtType));
+            }
+
+        } catch (MisconfigurationException e1) {
+            Log.log(e1);
+            return;
+        }
+
+        Transfer[] dataTypes = new Transfer[] { TextTransfer.getInstance() };
+        Object[] data = new Object[] { buf.toString() };
+
+        Clipboard clipboard = new Clipboard(getShell().getDisplay());
+        try {
+            clipboard.setContents(data, dataTypes);
+        } catch (SWTError e) {
+            if (e.code != DND.ERROR_CANNOT_SET_CLIPBOARD) {
+                throw e;
+            }
+            MessageDialog.openError(getShell(), "Error copying to clipboard.", e.getMessage());
+        } finally {
+            clipboard.dispose();
+        }
     }
 
 }

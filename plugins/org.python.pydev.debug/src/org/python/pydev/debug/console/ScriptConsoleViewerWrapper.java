@@ -238,7 +238,8 @@ public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleVi
         viewer.setDocument(document, annotationModel);
     }
 
-    public void setDocument(IDocument document, IAnnotationModel annotationModel, int modelRangeOffset, int modelRangeLength) {
+    public void setDocument(IDocument document, IAnnotationModel annotationModel, int modelRangeOffset,
+            int modelRangeLength) {
         viewer.setDocument(document, annotationModel, modelRangeOffset, modelRangeLength);
     }
 
@@ -649,6 +650,5 @@ public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleVi
     public void setTabsToSpacesConverter(IAutoEditStrategy converter) {
         viewer.setTabsToSpacesConverter(converter);
     }
-
 
 }

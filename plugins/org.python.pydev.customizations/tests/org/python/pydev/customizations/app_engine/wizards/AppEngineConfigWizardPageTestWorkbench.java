@@ -31,111 +31,112 @@ import org.python.pydev.editor.codecompletion.revisited.javaintegration.Abstract
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.wizards.project.NewProjectNameAndLocationWizardPage;
 
-public class AppEngineConfigWizardPageTestWorkbench extends AbstractWorkbenchTestCase{
-    
+public class AppEngineConfigWizardPageTestWorkbench extends AbstractWorkbenchTestCase {
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         AppEngineConfigWizardPage.selectLibraries = new ICallback<List<String>, List<String>>() {
-            
+
             public List<String> call(List<String> arg) {
                 return arg;
             }
         };
     }
-    
+
     @Override
     protected void tearDown() throws Exception {
         AppEngineConfigWizardPage.selectLibraries = null;
         super.tearDown();
     }
 
-    public void testCreateLaunchAndDebugGoogleAppProject() throws Exception{
-        
+    public void testCreateLaunchAndDebugGoogleAppProject() throws Exception {
+
         final Display display = Display.getDefault();
-        final Boolean[] executed = new Boolean[]{false};
-        display.syncExec(new Runnable(){
-        
-            public void run(){
+        final Boolean[] executed = new Boolean[] { false };
+        display.syncExec(new Runnable() {
+
+            public void run() {
                 final Shell shell = new Shell(display);
                 shell.setLayout(new FillLayout());
                 Composite pageContainer = new Composite(shell, 0);
                 AppEngineWizard appEngineWizard = new AppEngineWizard();
-                appEngineWizard.setContainer(new IWizardContainer(){
-                
-                    public void run(boolean fork, boolean cancelable, IRunnableWithProgress runnable) throws InvocationTargetException,
-                            InterruptedException{
+                appEngineWizard.setContainer(new IWizardContainer() {
+
+                    public void run(boolean fork, boolean cancelable, IRunnableWithProgress runnable)
+                            throws InvocationTargetException, InterruptedException {
                         runnable.run(new NullProgressMonitor());
                     }
-                
-                    public void updateWindowTitle(){
+
+                    public void updateWindowTitle() {
                         throw new RuntimeException("Not implemented");
                     }
-                
-                    public void updateTitleBar(){
+
+                    public void updateTitleBar() {
                         throw new RuntimeException("Not implemented");
                     }
-                
-                    public void updateMessage(){
+
+                    public void updateMessage() {
                         throw new RuntimeException("Not implemented");
                     }
-                
-                    public void updateButtons(){
+
+                    public void updateButtons() {
                         throw new RuntimeException("Not implemented");
                     }
-                
-                    public void showPage(IWizardPage page){
+
+                    public void showPage(IWizardPage page) {
                         throw new RuntimeException("Not implemented");
                     }
-                
-                    public Shell getShell(){
+
+                    public Shell getShell() {
                         throw new RuntimeException("Not implemented");
                     }
-                
-                    public IWizardPage getCurrentPage(){
+
+                    public IWizardPage getCurrentPage() {
                         return null;
                     }
                 });
-                
+
                 appEngineWizard.init(PlatformUI.getWorkbench(), new StructuredSelection());
                 appEngineWizard.addPages();
                 appEngineWizard.createPageControls(pageContainer);
-                
-                
+
                 IWizardPage[] pages = appEngineWizard.getPages();
                 NewProjectNameAndLocationWizardPage nameAndLocation = (NewProjectNameAndLocationWizardPage) pages[0];
                 AppEngineConfigWizardPage appEnginePage = (AppEngineConfigWizardPage) pages[1];
-                
+
                 assertFalse(nameAndLocation.isPageComplete());
                 nameAndLocation.setProjectName("AppEngineTest");
                 assertTrue(nameAndLocation.isPageComplete());
-                
+
                 assertFalse(appEnginePage.isPageComplete());
-                appEnginePage.setAppEngineLocationFieldValue(TestDependent.GOOGLE_APP_ENGINE_LOCATION+"invalid_path_xxx");
+                appEnginePage.setAppEngineLocationFieldValue(TestDependent.GOOGLE_APP_ENGINE_LOCATION
+                        + "invalid_path_xxx");
                 assertFalse(appEnginePage.isPageComplete());
                 appEnginePage.setAppEngineLocationFieldValue(TestDependent.GOOGLE_APP_ENGINE_LOCATION);
                 assertTrue(appEnginePage.isPageComplete());
 
                 assertTrue(appEngineWizard.performFinish());
-                
+
                 IProject createdProject = appEngineWizard.getCreatedProject();
                 PythonNature nature = PythonNature.getPythonNature(createdProject);
                 Map<String, String> expected = new HashMap<String, String>();
-                expected.put(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE, new File(TestDependent.GOOGLE_APP_ENGINE_LOCATION).getAbsolutePath());
+                expected.put(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE, new File(
+                        TestDependent.GOOGLE_APP_ENGINE_LOCATION).getAbsolutePath());
                 IPythonPathNature pythonPathNature = nature.getPythonPathNature();
-                try{
+                try {
                     assertEquals(expected, pythonPathNature.getVariableSubstitution());
-                    
+
                     String projectExternalSourcePath = pythonPathNature.getProjectExternalSourcePath(false);
                     assertTrue(projectExternalSourcePath.indexOf(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE) != -1);
                     projectExternalSourcePath = pythonPathNature.getProjectExternalSourcePath(true);
                     assertTrue(projectExternalSourcePath.indexOf(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE) == -1);
-                }catch(Exception e){
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-                
-//                goToManual();
-                
+
+                //                goToManual();
+
                 executed[0] = true;
             }
         });

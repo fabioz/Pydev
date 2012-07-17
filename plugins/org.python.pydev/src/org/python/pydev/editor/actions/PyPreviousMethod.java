@@ -18,7 +18,7 @@ package org.python.pydev.editor.actions;
  */
 public class PyPreviousMethod extends PyMethodNavigation {
 
-    protected boolean getSearchForward(){
+    protected boolean getSearchForward() {
         return false;
     }
 }

@@ -41,16 +41,15 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
             test.setUp();
             test.testImportCompletionFromZip();
             test.tearDown();
-            
+
             junit.textui.TestRunner.run(CompletionParticipantTest.class);
         } catch (Throwable e) {
             e.printStackTrace();
         }
     }
 
-
     public void setUp() throws Exception {
-//        forceAdditionalInfoRecreation = true; -- just for testing purposes
+        //        forceAdditionalInfoRecreation = true; -- just for testing purposes
         super.setUp();
         codeCompletion = new PyCodeCompletion();
     }
@@ -59,121 +58,116 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
         super.tearDown();
         PyCodeCompletionPreferencesPage.getPreferencesForTests = null;
     }
-    
+
     @Override
     protected String getSystemPythonpathPaths() {
-        return TestDependent.GetCompletePythonLib(true)+"|"+
-        TestDependent.TEST_PYSRC_LOC+"myzipmodule.zip"+"|"+
-        TestDependent.TEST_PYSRC_LOC+"myeggmodule.egg";
+        return TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.TEST_PYSRC_LOC + "myzipmodule.zip" + "|"
+                + TestDependent.TEST_PYSRC_LOC + "myeggmodule.egg";
     }
-    
 
     public void testImportCompletion() throws Exception {
         participant = new ImportsCompletionParticipant();
-        
+
         //check simple
-        ICompletionProposal[] proposals = requestCompl("unittest", new String[]{"unittest", "unittest - testlib"}); //the unittest module and testlib.unittest
-        
+        ICompletionProposal[] proposals = requestCompl("unittest", new String[] { "unittest", "unittest - testlib" }); //the unittest module and testlib.unittest
+
         Document document = new Document("unittest");
-        ((CtxInsensitiveImportComplProposal)proposals[0]).indentString = "    ";
-        ((CtxInsensitiveImportComplProposal)proposals[0]).apply(document, ' ', 0, 8);
+        ((CtxInsensitiveImportComplProposal) proposals[0]).indentString = "    ";
+        ((CtxInsensitiveImportComplProposal) proposals[0]).apply(document, ' ', 0, 8);
         PySelectionTest.checkStrEquals("import unittest\r\nunittest", document.get());
-            
+
         document = new Document("unittest");
-        ((CtxInsensitiveImportComplProposal)proposals[1]).indentString = "    ";
-        ((CtxInsensitiveImportComplProposal)proposals[1]).apply(document, ' ', 0, 8);
+        ((CtxInsensitiveImportComplProposal) proposals[1]).indentString = "    ";
+        ((CtxInsensitiveImportComplProposal) proposals[1]).apply(document, ' ', 0, 8);
         PySelectionTest.checkStrEquals("from testlib import unittest\r\nunittest", document.get());
-        
+
         document = new Document("unittest");
         final Preferences prefs = new Preferences();
-        PyCodeCompletionPreferencesPage.getPreferencesForTests = new ICallback<Preferences, Object>(){
+        PyCodeCompletionPreferencesPage.getPreferencesForTests = new ICallback<Preferences, Object>() {
 
             public Preferences call(Object arg) {
                 return prefs;
             }
         };
-        
+
         document = new Document("unittest");
         prefs.setValue(PyCodeCompletionPreferencesPage.APPLY_COMPLETION_ON_DOT, false);
-        ((CtxInsensitiveImportComplProposal)proposals[1]).indentString = "    ";
-        ((CtxInsensitiveImportComplProposal)proposals[1]).apply(document, '.', 0, 8);
+        ((CtxInsensitiveImportComplProposal) proposals[1]).indentString = "    ";
+        ((CtxInsensitiveImportComplProposal) proposals[1]).apply(document, '.', 0, 8);
         PySelectionTest.checkStrEquals("unittest.", document.get());
 
-        
         document = new Document("unittest");
         prefs.setValue(PyCodeCompletionPreferencesPage.APPLY_COMPLETION_ON_DOT, true);
-        ((CtxInsensitiveImportComplProposal)proposals[1]).indentString = "    ";
-        ((CtxInsensitiveImportComplProposal)proposals[1]).apply(document, '.', 0, 8);
+        ((CtxInsensitiveImportComplProposal) proposals[1]).indentString = "    ";
+        ((CtxInsensitiveImportComplProposal) proposals[1]).apply(document, '.', 0, 8);
         PySelectionTest.checkStrEquals("from testlib import unittest\r\nunittest.", document.get());
-        
-        
+
         //for imports, the behavior never changes
         AutoImportsPreferencesPage.TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = true;
         try {
-            proposals = requestCompl("_priv3", new String[]{"_priv3 - relative.rel1._priv1._priv2"}); 
+            proposals = requestCompl("_priv3", new String[] { "_priv3 - relative.rel1._priv1._priv2" });
             document = new Document("_priv3");
-            ((CtxInsensitiveImportComplProposal)proposals[0]).indentString = "    ";
-            ((CtxInsensitiveImportComplProposal)proposals[0]).apply(document, ' ', 0, 6);
+            ((CtxInsensitiveImportComplProposal) proposals[0]).indentString = "    ";
+            ((CtxInsensitiveImportComplProposal) proposals[0]).apply(document, ' ', 0, 6);
             PySelectionTest.checkStrEquals("from relative.rel1._priv1._priv2 import _priv3\r\n_priv3", document.get());
         } finally {
             AutoImportsPreferencesPage.TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = false;
         }
-        
-        
+
         //check on actual file
-        requestCompl(new File(TestDependent.TEST_PYSRC_LOC+"/testlib/unittest/guitestcase.py"),"guite", -1, 0, new String[]{});
-        
-        Import importTok = new Import(new aliasType[]{new aliasType(new NameTok("unittest", NameTok.ImportModule), null)});
+        requestCompl(new File(TestDependent.TEST_PYSRC_LOC + "/testlib/unittest/guitestcase.py"), "guite", -1, 0,
+                new String[] {});
+
+        Import importTok = new Import(new aliasType[] { new aliasType(new NameTok("unittest", NameTok.ImportModule),
+                null) });
         this.imports = new ArrayList<IToken>();
         this.imports.add(new SourceToken(importTok, "unittest", "", "", ""));
-        
-        requestCompl("import unittest\nunittest", new String[]{}); //none because the import for unittest is already there
-        requestCompl("import unittest\nunittes", new String[]{}); //the local import for unittest (won't actually show anything because we're only exercising the participant test) 
+
+        requestCompl("import unittest\nunittest", new String[] {}); //none because the import for unittest is already there
+        requestCompl("import unittest\nunittes", new String[] {}); //the local import for unittest (won't actually show anything because we're only exercising the participant test) 
         this.imports = null;
     }
-    
 
     public void testImportCompletionFromZip2() throws Exception {
         participant = new ImportsCompletionParticipant();
-        ICompletionProposal[] proposals = requestCompl("myzip", -1, -1, new String[]{});
+        ICompletionProposal[] proposals = requestCompl("myzip", -1, -1, new String[] {});
         assertContains("myzipfile - myzipmodule", proposals);
         assertContains("myzipmodule", proposals);
-        
-        proposals = requestCompl("myegg", -1, -1, new String[]{});
+
+        proposals = requestCompl("myegg", -1, -1, new String[] {});
         assertContains("myeggfile - myeggmodule", proposals);
         assertContains("myeggmodule", proposals);
     }
-    
+
     public void testImportCompletionFromZip() throws Exception {
         participant = new CtxParticipant();
-        ICompletionProposal[] proposals = requestCompl("myzipc", -1, -1, new String[]{});
+        ICompletionProposal[] proposals = requestCompl("myzipc", -1, -1, new String[] {});
         assertContains("MyZipClass - myzipmodule.myzipfile", proposals);
-        
-        proposals = requestCompl("myegg", -1, -1, new String[]{});
+
+        proposals = requestCompl("myegg", -1, -1, new String[] {});
         assertContains("MyEggClass - myeggmodule.myeggfile", proposals);
     }
-    
+
     public void testImportCompletion2() throws Exception {
         participant = new CtxParticipant();
-        ICompletionProposal[] proposals = requestCompl("xml", -1, -1, new String[]{});
+        ICompletionProposal[] proposals = requestCompl("xml", -1, -1, new String[] {});
         assertNotContains("xml - xmlrpclib", proposals);
-        
-        requestCompl(new File(TestDependent.TEST_PYSRC_LOC+"/testlib/unittest/guitestcase.py"),"guite", -1, 0, new String[]{});
-        
-        
+
+        requestCompl(new File(TestDependent.TEST_PYSRC_LOC + "/testlib/unittest/guitestcase.py"), "guite", -1, 0,
+                new String[] {});
+
         //the behavior changes for tokens on modules
         AutoImportsPreferencesPage.TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = true;
         try {
-            proposals = requestCompl("Priv3", new String[]{"Priv3 - relative.rel1._priv1._priv2._priv3"}); 
+            proposals = requestCompl("Priv3", new String[] { "Priv3 - relative.rel1._priv1._priv2._priv3" });
             Document document = new Document("Priv3");
-            ((CtxInsensitiveImportComplProposal)proposals[0]).indentString = "    ";
-            ((CtxInsensitiveImportComplProposal)proposals[0]).apply(document, ' ', 0, 5);
+            ((CtxInsensitiveImportComplProposal) proposals[0]).indentString = "    ";
+            ((CtxInsensitiveImportComplProposal) proposals[0]).apply(document, ' ', 0, 5);
             PySelectionTest.checkStrEquals("from relative.rel1 import Priv3\r\nPriv3", document.get());
         } finally {
             AutoImportsPreferencesPage.TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = false;
         }
 
     }
-    
-    
+
 }

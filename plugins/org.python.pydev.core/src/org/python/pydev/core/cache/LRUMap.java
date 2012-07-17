@@ -13,20 +13,20 @@ import java.util.Map;
  * @author fabioz
  *
  */
-public final class LRUMap<Key, Val> extends LinkedHashMap<Key, Val>{
-    
+public final class LRUMap<Key, Val> extends LinkedHashMap<Key, Val> {
+
     private static final long serialVersionUID = 1L;
-    
+
     private int maxSize;
 
-    public LRUMap(int maxSize){
-        super(maxSize < 8?maxSize:8); //initial capacity = max size or 8 if max size is big.
-        if(maxSize <= 0){
+    public LRUMap(int maxSize) {
+        super(maxSize < 8 ? maxSize : 8); //initial capacity = max size or 8 if max size is big.
+        if (maxSize <= 0) {
             throw new AssertionError("Max size must be > 0.");
         }
         this.maxSize = maxSize;
     }
-    
+
     // This method is called just after a new entry has been added
     public boolean removeEldestEntry(Map.Entry eldest) {
         return size() > this.maxSize;

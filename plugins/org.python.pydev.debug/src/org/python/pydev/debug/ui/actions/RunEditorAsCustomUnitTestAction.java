@@ -53,32 +53,29 @@ import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
 import org.python.pydev.ui.dialogs.TreeSelectionDialog;
 
+public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
 
-public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction{
-
-    public void run(IAction action){
+    public void run(IAction action) {
 
         PyEdit pyEdit = getPyEdit();
         final Tuple<String, IInterpreterManager> launchConfigurationTypeAndInterpreterManager = this
                 .getLaunchConfigurationTypeAndInterpreterManager(pyEdit, true);
-
-
 
         final DialogMemento memento = new DialogMemento(getShell(),
                 "org.python.pydev.debug.ui.actions.RunEditorAsCustomUnitTestAction");
         SimpleNode ast = pyEdit.getAST();
 
         TreeSelectionDialog dialog = new TreeSelectionDialog(getShell(), new SelectTestLabelProvider(),
-                new SelectTestTreeContentProvider()){
+                new SelectTestTreeContentProvider()) {
 
             Link configTestRunner;
-            
-            public boolean close(){
+
+            public boolean close() {
                 memento.writeSettings(getShell());
                 return super.close();
             }
 
-            public Control createDialogArea(Composite parent){
+            public Control createDialogArea(Composite parent) {
                 memento.readSettings();
                 Control ret = super.createDialogArea(parent);
                 this.text.addKeyListener(new KeyListener() {
@@ -94,15 +91,13 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction{
                 });
                 return ret;
             }
-            
-            
-            
+
             /* (non-Javadoc)
              * @see org.python.pydev.ui.dialogs.TreeSelectionDialog#createButtonBar(org.eclipse.swt.widgets.Composite)
              */
             @Override
             protected Control createButtonBar(Composite parent) {
-                configTestRunner= new Link(parent, SWT.PUSH);
+                configTestRunner = new Link(parent, SWT.PUSH);
                 configTestRunner.setText(" <a>Configure test runner</a>");
                 configTestRunner.addSelectionListener(new SelectionAdapter() {
                     public void widgetSelected(SelectionEvent e) {
@@ -113,11 +108,11 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction{
                 return configTestRunner;
             }
 
-            protected Point getInitialSize(){
+            protected Point getInitialSize() {
                 return memento.getInitialSize(super.getInitialSize(), getShell());
             }
 
-            protected Point getInitialLocation(Point initialSize){
+            protected Point getInitialLocation(Point initialSize) {
                 return memento.getInitialLocation(initialSize, super.getInitialLocation(initialSize), getShell());
             }
 
@@ -130,9 +125,9 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction{
 
                 IStructuredSelection selection = (IStructuredSelection) getTreeViewer().getSelection();
                 List<Object> list = selection.toList();
-                if(list.size() > 0){
+                if (list.size() > 0) {
                     setResult(list);
-                }else{
+                } else {
                     Tree tree = getTreeViewer().getTree();
                     TreeItem[] items = tree.getItems();
                     list = new ArrayList<Object>();
@@ -143,18 +138,17 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction{
                 }
             }
 
-            private void createListWithLeafs(TreeItem[] items, List<Object> leafObjectsList){
-                for(TreeItem item:items){
+            private void createListWithLeafs(TreeItem[] items, List<Object> leafObjectsList) {
+                for (TreeItem item : items) {
                     TreeItem[] children = item.getItems();
-                    if(children.length == 0){
+                    if (children.length == 0) {
                         leafObjectsList.add(item.getData());
-                    }else{
+                    } else {
                         createListWithLeafs(children, leafObjectsList);
                     }
                 }
             }
-            
-            
+
         };
 
         dialog.setTitle("PyDev: Select tests to run");
@@ -163,133 +157,129 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction{
         dialog.setAllowMultiple(true);
         dialog.setInput(ast);
         int open = dialog.open();
-        if(open != Window.OK){
+        if (open != Window.OK) {
             return;
         }
         Object[] result = dialog.getResult();
-        
+
         final FastStringBuffer buf = new FastStringBuffer();
-        if(result != null && result.length > 0){
-            
-            for(Object o:result){
+        if (result != null && result.length > 0) {
+
+            for (Object o : result) {
                 ASTEntry entry = (ASTEntry) o;
-                if(entry.node instanceof ClassDef){
-                    if(buf.length() > 0){
+                if (entry.node instanceof ClassDef) {
+                    if (buf.length() > 0) {
                         buf.append(',');
                     }
                     buf.append(NodeUtils.getFullRepresentationString(entry.node));
-                    
-                }else if(entry.node instanceof FunctionDef && entry.parent != null && entry.parent.node instanceof ClassDef){
-                    if(buf.length() > 0){
+
+                } else if (entry.node instanceof FunctionDef && entry.parent != null
+                        && entry.parent.node instanceof ClassDef) {
+                    if (buf.length() > 0) {
                         buf.append(',');
                     }
                     buf.append(NodeUtils.getFullRepresentationString(entry.parent.node));
                     buf.append('.');
                     buf.append(NodeUtils.getFullRepresentationString(entry.node));
-                    
+
                 }
-                
+
             }
         }
-        
+
         final String arguments;
-        if(buf.length() > 0){
+        if (buf.length() > 0) {
             arguments = buf.toString();
-        }else{
+        } else {
             arguments = "";
         }
 
-
-        AbstractLaunchShortcut shortcut = new AbstractLaunchShortcut(){
+        AbstractLaunchShortcut shortcut = new AbstractLaunchShortcut() {
 
             @Override
-            protected String getLaunchConfigurationType(){
+            protected String getLaunchConfigurationType() {
                 return launchConfigurationTypeAndInterpreterManager.o1;
             }
 
             @Override
-            protected IInterpreterManager getInterpreterManager(IProject project){
+            protected IInterpreterManager getInterpreterManager(IProject project) {
                 return launchConfigurationTypeAndInterpreterManager.o2;
             }
-            
+
             @Override
             public ILaunchConfigurationWorkingCopy createDefaultLaunchConfigurationWithoutSaving(
-                    FileOrResource[] resource) throws CoreException{
-                ILaunchConfigurationWorkingCopy workingCopy = super.createDefaultLaunchConfigurationWithoutSaving(resource);
-                if(arguments.length() > 0){
+                    FileOrResource[] resource) throws CoreException {
+                ILaunchConfigurationWorkingCopy workingCopy = super
+                        .createDefaultLaunchConfigurationWithoutSaving(resource);
+                if (arguments.length() > 0) {
                     workingCopy.setAttribute(Constants.ATTR_UNITTEST_TESTS, arguments);
                 }
                 return workingCopy;
             }
 
             @Override
-            protected List<ILaunchConfiguration> findExistingLaunchConfigurations(FileOrResource[] file){
+            protected List<ILaunchConfiguration> findExistingLaunchConfigurations(FileOrResource[] file) {
                 List<ILaunchConfiguration> ret = new ArrayList<ILaunchConfiguration>();
-                
+
                 List<ILaunchConfiguration> existing = super.findExistingLaunchConfigurations(file);
-                for(ILaunchConfiguration launch:existing){
+                for (ILaunchConfiguration launch : existing) {
                     boolean matches = false;
-                    try{
+                    try {
                         matches = launch.getAttribute(Constants.ATTR_UNITTEST_TESTS, "").equals(arguments);
-                    }catch(CoreException e){
+                    } catch (CoreException e) {
                         //ignore
                     }
-                    if(matches){
+                    if (matches) {
                         ret.add(launch);
                     }
                 }
                 return ret;
             }
         };
-        
-        
+
         shortcut.launch(pyEdit, "run");
     }
 
 }
 
+final class SelectTestLabelProvider extends LabelProvider {
 
-
-final class SelectTestLabelProvider extends LabelProvider{
-
-    public Image getImage(Object element){
+    public Image getImage(Object element) {
         SimpleNode n = ((ASTEntry) element).node;
-        if(n instanceof ClassDef){
+        if (n instanceof ClassDef) {
             return PyCodeCompletionImages.getImageForType(IToken.TYPE_CLASS);
         }
-        if(n instanceof FunctionDef){
+        if (n instanceof FunctionDef) {
             return PyCodeCompletionImages.getImageForType(IToken.TYPE_FUNCTION);
         }
         return PyCodeCompletionImages.getImageForType(IToken.TYPE_ATTR);
     }
 
-    public String getText(Object element){
+    public String getText(Object element) {
         return NodeUtils.getFullRepresentationString(((ASTEntry) element).node);
     }
 }
 
-
-
-final class SelectTestTreeContentProvider implements ITreeContentProvider{
+final class SelectTestTreeContentProvider implements ITreeContentProvider {
 
     private EasyASTIteratorVisitor visitor;
     private Map<Object, ASTEntry[]> cache = new HashMap<Object, ASTEntry[]>();
 
-    public Object[] getChildren(Object element){
+    public Object[] getChildren(Object element) {
         Object[] ret = (Object[]) cache.get(element);
-        if(ret != null){
+        if (ret != null) {
             return ret;
         }
 
         ASTEntry entry = (ASTEntry) element;
 
         //Only get classes and 1st level methods for tests.
-        if(entry.node instanceof ClassDef){
+        if (entry.node instanceof ClassDef) {
             Iterator<ASTEntry> it = visitor.getMethodsIterator();
             ArrayList<ASTEntry> list = new ArrayList<ASTEntry>();
-            while(it.hasNext()){
+            while (it.hasNext()) {
                 ASTEntry next = it.next();
-                if(next.parent != null && next.parent.node == entry.node){
+                if (next.parent != null && next.parent.node == entry.node) {
                     list.add(next);
                 }
             }
@@ -301,44 +291,44 @@ final class SelectTestTreeContentProvider implements ITreeContentProvider{
         return null;
     }
 
-    public Object getParent(Object element){
+    public Object getParent(Object element) {
         ASTEntry entry = (ASTEntry) element;
         return entry.parent;
     }
 
-    public boolean hasChildren(Object element){
+    public boolean hasChildren(Object element) {
         ASTEntry entry = (ASTEntry) element;
 
-        if(entry.node instanceof ClassDef){
+        if (entry.node instanceof ClassDef) {
             Object[] children = getChildren(entry);
             return children != null && children.length > 0;
         }
         return false;
     }
 
-    public Object[] getElements(Object inputElement){
+    public Object[] getElements(Object inputElement) {
         visitor = EasyASTIteratorVisitor.create((SimpleNode) inputElement);
-        if(visitor == null){
+        if (visitor == null) {
             return new Object[0];
         }
-        
+
         //Get the top-level classes
         Iterator<ASTEntry> it = visitor.getClassesIterator();
         ArrayList<ASTEntry> list = new ArrayList<ASTEntry>();
-        while(it.hasNext()){
+        while (it.hasNext()) {
             ASTEntry next = it.next();
-            if(next.parent == null){
+            if (next.parent == null) {
                 list.add(next);
             }
         }
         return list.toArray(new ASTEntry[0]);
     }
 
-    public void dispose(){
+    public void dispose() {
         //do nothing
     }
 
-    public void inputChanged(Viewer viewer, Object oldInput, Object newInput){
+    public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
         //do nothing
     }
 }

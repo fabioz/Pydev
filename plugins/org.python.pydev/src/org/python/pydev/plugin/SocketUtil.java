@@ -24,7 +24,6 @@ import java.util.List;
  */
 public class SocketUtil {
 
-
     /**
      * Returns a free port number on the specified host within the given range,
      * or throws an exception.
@@ -39,7 +38,7 @@ public class SocketUtil {
         List<Integer> portsFound = new ArrayList<Integer>();
         try {
             try {
-                for(int i=0;i<ports;i++){
+                for (int i = 0; i < ports; i++) {
                     ServerSocket s = new ServerSocket(0);
                     socket.add(s);
                     int localPort = s.getLocalPort();
@@ -47,7 +46,7 @@ public class SocketUtil {
                     portsFound.add(localPort);
                 }
             } finally {
-                for(ServerSocket s:socket){
+                for (ServerSocket s : socket) {
                     if (s != null) {
                         try {
                             s.close();
@@ -61,12 +60,12 @@ public class SocketUtil {
             String message = "Unable to find an unused local port (is there an enabled firewall?)";
             throw new RuntimeException(message, e);
         }
-        
+
         return portsFound.toArray(new Integer[portsFound.size()]);
     }
 
     public static void checkValidPort(int port) throws IOException {
-        if(port == -1){
+        if (port == -1) {
             throw new IOException("Port not bound (found port -1). Is there an enabled firewall?");
         }
     }

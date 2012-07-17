@@ -20,51 +20,49 @@ import org.python.pydev.jython.ui.JyScriptingPreferencesPage;
 /**
  * This class is used so that we can control the output of the script.
  */
-public class ScriptOutput extends OutputStream{
+public class ScriptOutput extends OutputStream {
     /**
      * Indicates whether we should write to the console or not
      */
     private boolean writeToConsole;
-    
+
     /**
      * Stream to the console we want to write
      */
     private ICallback0<IOConsoleOutputStream> out;
-    
 
-    
     /**
      * Constructor - the user is able to define whether he wants to write to the console or not.
      * 
      * @param color the color of the output written
      */
-    public ScriptOutput(ICallback0<IOConsoleOutputStream> outputStream, boolean writeToConsole){
+    public ScriptOutput(ICallback0<IOConsoleOutputStream> outputStream, boolean writeToConsole) {
         this.writeToConsole = writeToConsole;
         out = outputStream;
     }
-    
+
     /**
      * Constructor - Uses the properties from the JyScriptingPreferencesPage to know if we should write to
      * the console or not
      * 
      * @param color the color of the output written
      */
-    public ScriptOutput(ICallback0<IOConsoleOutputStream> outputStream){
-        this(outputStream,  JyScriptingPreferencesPage.getShowScriptingOutput());
-        IPropertyChangeListener listener = new Preferences.IPropertyChangeListener(){
+    public ScriptOutput(ICallback0<IOConsoleOutputStream> outputStream) {
+        this(outputStream, JyScriptingPreferencesPage.getShowScriptingOutput());
+        IPropertyChangeListener listener = new Preferences.IPropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent event) {
                 writeToConsole = JyScriptingPreferencesPage.getShowScriptingOutput();
             }
         };
         JythonPlugin.getDefault().getPluginPreferences().addPropertyChangeListener(listener);
     }
-    
+
     /**
      * OutputStream interface
      */
     @Override
     public void write(int b) throws IOException {
-        if(writeToConsole){
+        if (writeToConsole) {
             IOConsoleOutputStream out = getOutputStream();
             out.write(b);
         }
@@ -76,5 +74,5 @@ public class ScriptOutput extends OutputStream{
     private IOConsoleOutputStream getOutputStream() throws MalformedURLException {
         return out.call();
     }
-    
+
 }

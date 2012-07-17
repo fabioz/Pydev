@@ -28,7 +28,7 @@ public class PySetupCustomFilters extends Action implements IViewActionDelegate 
 
     public static final String CUSTOM_FILTERS_PREFERENCE_NAME = "org.python.pydev.CUSTOM_PACKAGE_EXPLORER_FILTERS";
     private IViewPart view;
-    
+
     public void init(IViewPart view) {
         this.view = view;
     }
@@ -38,27 +38,23 @@ public class PySetupCustomFilters extends Action implements IViewActionDelegate 
         display.syncExec(new Runnable() {
 
             public void run() {
-                
+
                 //ask the filters to the user
                 IInputValidator validator = null;
 
                 IPreferenceStore prefs = PydevPlugin.getDefault().getPreferenceStore();
-                InputDialog dialog = new InputDialog(display.getActiveShell(), 
-                        "Custom Filters", 
-                        
-                        "Enter the filters (separated by comma. E.g.: \"__init__.py, *.xyz\").\n" +
-                        "\n" +
-                        "Note 1: Only * and ? may be used for custom matching.\n" +
-                        "\n" +
-                        "Note 2: it'll only take effect if the 'Pydev: Hide custom specified filters'\n" +
-                        "is active in the menu: customize view > filters.", 
-                        
-                        prefs.getString(CUSTOM_FILTERS_PREFERENCE_NAME),
-                        validator);
+                InputDialog dialog = new InputDialog(display.getActiveShell(), "Custom Filters",
+
+                "Enter the filters (separated by comma. E.g.: \"__init__.py, *.xyz\").\n" + "\n"
+                        + "Note 1: Only * and ? may be used for custom matching.\n" + "\n"
+                        + "Note 2: it'll only take effect if the 'Pydev: Hide custom specified filters'\n"
+                        + "is active in the menu: customize view > filters.",
+
+                prefs.getString(CUSTOM_FILTERS_PREFERENCE_NAME), validator);
 
                 dialog.setBlockOnOpen(true);
                 dialog.open();
-                if(dialog.getReturnCode() == Window.OK) {
+                if (dialog.getReturnCode() == Window.OK) {
                     //update the preferences and refresh the viewer (when we update the preferences, the 
                     //filter that uses this will promptly update its values -- just before the refresh).
                     prefs.setValue(CUSTOM_FILTERS_PREFERENCE_NAME, dialog.getValue());

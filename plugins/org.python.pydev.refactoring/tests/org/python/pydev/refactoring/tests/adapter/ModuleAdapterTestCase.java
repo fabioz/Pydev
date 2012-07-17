@@ -15,45 +15,46 @@ import com.thoughtworks.xstream.XStream;
 
 public class ModuleAdapterTestCase extends AbstractIOTestCase {
 
-	public ModuleAdapterTestCase(String name) {
-		super(name);
-	}
+    public ModuleAdapterTestCase(String name) {
+        super(name);
+    }
 
-	@Override
-	public void runTest() throws Throwable {
-		StringBuffer buffer = new StringBuffer();
+    @Override
+    public void runTest() throws Throwable {
+        StringBuffer buffer = new StringBuffer();
 
-		ModuleAdapterTestConfig config = null;
-		XStream xstream = new XStream();
-		xstream.alias("config", ModuleAdapterTestConfig.class);
+        ModuleAdapterTestConfig config = null;
+        XStream xstream = new XStream();
+        xstream.alias("config", ModuleAdapterTestConfig.class);
 
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(
-		        null, null, new Document(data.source), new PythonNatureStub(), createVersionProvider());
-		if (data.config.length() > 0) {
-			config = (ModuleAdapterTestConfig) xstream.fromXML(data.config);
-		} else {
-			fail("Could not unserialize configuration");
-			return; /* explicit return, fail should already abort */
-		}
+        ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(data.source),
+                new PythonNatureStub(), createVersionProvider());
+        if (data.config.length() > 0) {
+            config = (ModuleAdapterTestConfig) xstream.fromXML(data.config);
+        } else {
+            fail("Could not unserialize configuration");
+            return; /* explicit return, fail should already abort */
+        }
 
-		for (String identifier : config.resolveNames) {
-			for (FQIdentifier id : module.resolveFullyQualified(identifier)) {
-				buffer.append("# " + identifier + " -> " + id.getFQName());
-				buffer.append("\n");
-			}
-		}
-		buffer.append("# Imported regular modules (Alias, Realname)");
-		for (String aliasModule : module.getRegularImportedModules().keySet()) {
-			buffer.append("\n# " + aliasModule + " " + module.getRegularImportedModules().get(aliasModule));
-		}
+        for (String identifier : config.resolveNames) {
+            for (FQIdentifier id : module.resolveFullyQualified(identifier)) {
+                buffer.append("# " + identifier + " -> " + id.getFQName());
+                buffer.append("\n");
+            }
+        }
+        buffer.append("# Imported regular modules (Alias, Realname)");
+        for (String aliasModule : module.getRegularImportedModules().keySet()) {
+            buffer.append("\n# " + aliasModule + " " + module.getRegularImportedModules().get(aliasModule));
+        }
 
-		buffer.append("\n");
-		buffer.append("# AliasToIdentifier (Module, Realname, Alias)");
-		for (FQIdentifier identifier : module.getAliasToIdentifier()) {
-			buffer.append("\n# " + identifier.getModule() + " " + identifier.getRealName() + " " + identifier.getAlias());
-		}
+        buffer.append("\n");
+        buffer.append("# AliasToIdentifier (Module, Realname, Alias)");
+        for (FQIdentifier identifier : module.getAliasToIdentifier()) {
+            buffer.append("\n# " + identifier.getModule() + " " + identifier.getRealName() + " "
+                    + identifier.getAlias());
+        }
 
-		this.setTestGenerated(buffer.toString().trim());
-		assertEquals(getExpected(), getGenerated());
-	}
+        this.setTestGenerated(buffer.toString().trim());
+        assertEquals(getExpected(), getGenerated());
+    }
 }

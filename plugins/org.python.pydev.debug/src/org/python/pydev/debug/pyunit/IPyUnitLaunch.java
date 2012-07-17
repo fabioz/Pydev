@@ -15,7 +15,7 @@ public interface IPyUnitLaunch {
     void relaunch();
 
     void relaunchTestResults(List<PyUnitTestResult> arrayList);
-    
+
     void relaunchTestResults(List<PyUnitTestResult> arrayList, String mode);
 
 }

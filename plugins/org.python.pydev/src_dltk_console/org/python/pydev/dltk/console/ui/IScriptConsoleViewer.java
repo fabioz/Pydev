@@ -18,7 +18,7 @@ import org.python.pydev.core.IInterpreterInfo;
  * may be edited or not.
  */
 public interface IScriptConsoleViewer extends ITextViewer {
-    
+
     /**
      * @return the contents of the current buffer (text edited still not passed to the shell)
      */
@@ -28,12 +28,12 @@ public interface IScriptConsoleViewer extends ITextViewer {
      * @return the offset where the current buffer starts (editable area of the document)
      */
     public int getCommandLineOffset();
-    
+
     /**
      * @return the current caret offset.
      */
     public int getCaretOffset();
-    
+
     /**
      * Sets the new caret offset.
      * 

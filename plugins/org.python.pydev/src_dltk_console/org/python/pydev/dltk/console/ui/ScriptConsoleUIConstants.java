@@ -15,15 +15,15 @@ import java.io.File;
  * Constants for the console UI.
  */
 public class ScriptConsoleUIConstants {
-    
+
     public static final String TERMINATE_ICON = "terminate.gif"; //$NON-NLS-1$
 
     public static final String SAVE_SESSION_ICON = "save.gif"; //$NON-NLS-1$
 
     public static final String LINK_WITH_DEBUGGER = "sync_ed.gif"; //$NON-NLS-1$
 
-	public static final String ICONS_PATH = File.separator + "icons";
-	
-	public static final String DEBUG_CONSOLE_TYPE = "PydevDebugConsole";
+    public static final String ICONS_PATH = File.separator + "icons";
+
+    public static final String DEBUG_CONSOLE_TYPE = "PydevDebugConsole";
 
 }

@@ -25,13 +25,11 @@ import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
  * 
  * @author fabioz
  */
-public class PyRenameLocalProcess extends AbstractRenameRefactorProcess{
-
+public class PyRenameLocalProcess extends AbstractRenameRefactorProcess {
 
     public PyRenameLocalProcess(Definition definition) {
         super(definition);
     }
-
 
     protected void findReferencesToRenameOnWorkspace(RefactoringRequest request, RefactoringStatus status) {
         //Only search in local scope
@@ -40,11 +38,12 @@ public class PyRenameLocalProcess extends AbstractRenameRefactorProcess{
 
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         //Only search in local scope if the place where the definition was found is the same place of the request.
-        if(definition.module.getName().equals(request.moduleName)){
-            Tuple<SimpleNode, List<ASTEntry>> tup = ScopeAnalysis.getLocalOccurrences(request.initialName, definition.module, definition.scope);
+        if (definition.module.getName().equals(request.moduleName)) {
+            Tuple<SimpleNode, List<ASTEntry>> tup = ScopeAnalysis.getLocalOccurrences(request.initialName,
+                    definition.module, definition.scope);
             List<ASTEntry> ret = tup.o2;
             SimpleNode searchStringsAt = tup.o1;
-            if(ret.size() > 0 && searchStringsAt != null){
+            if (ret.size() > 0 && searchStringsAt != null) {
                 //only add comments and strings if there's at least some other occurrence
                 ret.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, searchStringsAt));
                 ret.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, searchStringsAt));
@@ -52,6 +51,5 @@ public class PyRenameLocalProcess extends AbstractRenameRefactorProcess{
             addOccurrences(request, ret);
         }
     }
-
 
 }

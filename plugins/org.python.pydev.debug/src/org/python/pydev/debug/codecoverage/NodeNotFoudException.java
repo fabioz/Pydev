@@ -25,7 +25,7 @@ public class NodeNotFoudException extends Exception {
      * @param string
      */
     public NodeNotFoudException(String string) {
-        
+
         super(string);
     }
 

@@ -15,7 +15,7 @@ import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.docutils.PyPartitionScanner;
 
-public class PyDocumentSetupParticipant implements IDocumentSetupParticipant{
+public class PyDocumentSetupParticipant implements IDocumentSetupParticipant {
 
     public PyDocumentSetupParticipant() {
         super();

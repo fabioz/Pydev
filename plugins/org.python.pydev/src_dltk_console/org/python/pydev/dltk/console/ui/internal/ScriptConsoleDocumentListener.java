@@ -58,9 +58,9 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      * Document to which this listener is attached.
      */
     private IDocument doc;
-    
-    private int disconnectionLevel = 0;  
-    
+
+    private int disconnectionLevel = 0;
+
     /**
      * The time for the last change in the document that was listened in this console.
      */
@@ -70,14 +70,14 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      * The commands that should be initially set in the console
      */
     private String initialCommands;
-    
+
     /**
      * @return the last time the document that this console was listening to was changed.
      */
     public long getLastChangeMillis() {
         return lastChangeMillis;
     }
-    
+
     /**
      * Constructor.
      * 
@@ -86,12 +86,12 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     public ScriptConsoleDocumentListener() {
         this.lastChangeMillis = System.currentTimeMillis();
     }
-    
+
     /**
      * Viewer for the document contained in this listener.
      */
     private IScriptConsoleViewer2ForDocumentListener viewer;
-    
+
     /**
      * Additional viewers for the same document.
      */
@@ -102,7 +102,6 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      */
     IDocument EMPTY_DOCUMENT = new Document();
 
-
     /**
      * Strategy used for indenting / tabs
      */
@@ -112,11 +111,10 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      * Console line trackers (for hyperlinking)
      */
     private List<IConsoleLineTracker> consoleLineTrackers;
-    
-    public PyAutoIndentStrategy getIndentStrategy(){
+
+    public PyAutoIndentStrategy getIndentStrategy() {
         return strategy;
     }
-
 
     /**
      * Stops listening changes in one document and starts listening another one.
@@ -126,38 +124,37 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      */
     protected synchronized void reconnect(IDocument oldDoc, IDocument newDoc) {
         Assert.isTrue(disconnectionLevel == 0);
-        
-        if(oldDoc != null){
+
+        if (oldDoc != null) {
             oldDoc.removeDocumentListener(this);
         }
-        
+
         newDoc.addDocumentListener(this);
         this.doc = newDoc;
-        
+
     }
-    
+
     /**
      * Stop listening to changes (so that we're able to change the document in this class without having
      * any loops back into the function that will change it)
      */
     protected synchronized void startDisconnected() {
-        if(disconnectionLevel == 0){
+        if (disconnectionLevel == 0) {
             doc.removeDocumentListener(this);
         }
         disconnectionLevel += 1;
     }
-    
+
     /**
      * Start listening to changes again.
      */
     protected synchronized void stopDisconnected() {
         disconnectionLevel -= 1;
-        
-        if(disconnectionLevel == 0){
+
+        if (disconnectionLevel == 0) {
             doc.addDocumentListener(this);
         }
     }
-
 
     /**
      * Clear the document and show the initial prompt.
@@ -165,14 +162,14 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      */
     public void clear(boolean addInitialCommands) {
         startDisconnected();
-        try{
+        try {
             doc.set(""); //$NON-NLS-1$
             appendInvitation(true);
-        }finally{
+        } finally {
             stopDisconnected();
         }
-        
-        if(addInitialCommands){
+
+        if (addInitialCommands) {
             try {
                 doc.replace(doc.getLength(), 0, this.initialCommands);
             } catch (BadLocationException e) {
@@ -202,13 +199,13 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      * @param history keeps track of the commands added by the user.
      * @param initialCommands the commands that should be initially added 
      */
-    public ScriptConsoleDocumentListener(IScriptConsoleViewer2ForDocumentListener viewer, 
-            ICommandHandler handler, ScriptConsolePrompt prompt,
-            ScriptConsoleHistory history, List<IConsoleLineTracker> consoleLineTrackers, String initialCommands) {
+    public ScriptConsoleDocumentListener(IScriptConsoleViewer2ForDocumentListener viewer, ICommandHandler handler,
+            ScriptConsolePrompt prompt, ScriptConsoleHistory history, List<IConsoleLineTracker> consoleLineTrackers,
+            String initialCommands) {
         this.prompt = prompt;
-        
+
         this.handler = handler;
-        
+
         this.history = history;
 
         this.viewer = viewer;
@@ -216,9 +213,9 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         this.offset = 0;
 
         this.doc = null;
-        
+
         this.consoleLineTrackers = consoleLineTrackers;
-        
+
         this.initialCommands = initialCommands;
     }
 
@@ -235,7 +232,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      * Ignore 
      */
     public void documentAboutToBeChanged(DocumentEvent event) {
-        
+
     }
 
     /**
@@ -243,15 +240,15 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      * 
      * @param result the response from the interpreter after sending some command for it to process.
      */
-    protected void processResult(final InterpreterResponse result){
+    protected void processResult(final InterpreterResponse result) {
         if (result != null) {
             addToConsoleView(result.out, true);
             addToConsoleView(result.err, false);
 
             history.commit();
-            try{
+            try {
                 offset = getLastLineLength();
-            }catch(BadLocationException e){
+            } catch (BadLocationException e) {
                 Log.log(e);
             }
         }
@@ -264,8 +261,8 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      * @param out the text that should be added
      * @param stdout true if it came from stdout and also if it came from stderr
      */
-    private void addToConsoleView(String out, boolean stdout){
-        if(out.length() == 0){
+    private void addToConsoleView(String out, boolean stdout) {
+        if (out.length() == 0) {
             return; //nothing to add!
         }
         int start = doc.getLength();
@@ -273,43 +270,42 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         IConsoleStyleProvider styleProvider = viewer.getStyleProvider();
         Tuple<List<ScriptStyleRange>, String> style = null;
         if (styleProvider != null) {
-            if(stdout){
+            if (stdout) {
                 style = styleProvider.createInterpreterOutputStyle(out, start);
-            }else{ //stderr
+            } else { //stderr
                 style = styleProvider.createInterpreterErrorStyle(out, start);
             }
             if (style != null) {
-                for(ScriptStyleRange s:style.o1){
+                for (ScriptStyleRange s : style.o1) {
                     addToPartitioner(s);
                 }
             }
         }
-        if(style != null){
+        if (style != null) {
             appendText(style.o2);
         }
-        
+
         PySelection ps = new PySelection(doc, start);
         int cursorLine = ps.getCursorLine();
         int numberOfLines = doc.getNumberOfLines();
-        
+
         //right after appending the text, let's notify line trackers
-        for(int i=cursorLine;i<numberOfLines;i++){
-            try{
+        for (int i = cursorLine; i < numberOfLines; i++) {
+            try {
                 int offset = ps.getLineOffset(i);
                 int endOffset = ps.getEndLineOffset(i);
-                
-                Region region = new Region(offset, endOffset-offset);
-                
-                for(IConsoleLineTracker lineTracker:this.consoleLineTrackers){
+
+                Region region = new Region(offset, endOffset - offset);
+
+                for (IConsoleLineTracker lineTracker : this.consoleLineTrackers) {
                     lineTracker.lineAppended(region);
                 }
-            }catch(Exception e){
+            } catch (Exception e) {
                 Log.log(e);
             }
         }
     }
 
-    
     /**
      * Adds a given style range to the partitioner.
      * 
@@ -334,44 +330,43 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      * @param offset the offset where the addition took place
      * @param text the text that should be adedd
      */
-    protected void proccessAddition(int offset, String text){
+    protected void proccessAddition(int offset, String text) {
         //we have to do some gymnastics here to add line-by-line the contents that the user entered.
         //(mostly because it may have been a copy/paste with multi-lines)
-        
+
         String indentString = "";
         boolean addedNewLine = false;
         boolean addedParen = false;
         boolean addedCloseParen = false;
         int addedLen = text.length();
-        if(addedLen == 1){
-            if(text.equals("\r") || text.equals("\n")){
+        if (addedLen == 1) {
+            if (text.equals("\r") || text.equals("\n")) {
                 addedNewLine = true;
-                
-            }else if(text.equals("(")){
+
+            } else if (text.equals("(")) {
                 addedParen = true;
-                
-            } else if(text.equals(")")){
+
+            } else if (text.equals(")")) {
                 addedCloseParen = true;
             }
-            
-        }else if(addedLen == 2){
-            if(text.equals("\r\n")){
+
+        } else if (addedLen == 2) {
+            if (text.equals("\r\n")) {
                 addedNewLine = true;
             }
         }
-        
-        
+
         String delim = getDelimeter();
-        
+
         int newDeltaCaretPosition = doc.getLength() - (offset + text.length());
 
         //1st, remove the text the user just entered (and enter it line-by-line later)
-        try{
+        try {
             // Remove the just entered text
             doc.replace(offset, text.length(), ""); //$NON-NLS-1$
             // Is the current offset in the command line
             // NB we do this after the above as the pasted text may have new lines in it
-            boolean offset_in_command_line = offset >= getCommandLineOffset(); 
+            boolean offset_in_command_line = offset >= getCommandLineOffset();
 
             // If the offset isn't in the command line, then just append to the existing
             // command line text
@@ -386,7 +381,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                 text = text + doc.get(offset, doc.getLength() - offset);
                 doc.replace(offset, doc.getLength() - offset, "");
             }
-        }catch(BadLocationException e){
+        } catch (BadLocationException e) {
             text = "";
             Log.log(e);
         }
@@ -404,20 +399,20 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             commands.add(cmd);
             start = index + delim.length();
         }
-        
 
-        final String[] finalIndentString = new String[]{indentString};
-        
-        if(commands.size() > 0){
+        final String[] finalIndentString = new String[] { indentString };
+
+        if (commands.size() > 0) {
             //Note that we'll disconnect from the document here and reconnect when the last line is executed.
             startDisconnected();
             String cmd = commands.get(0);
-            execCommand(addedNewLine, delim, finalIndentString, cmd, commands, 0,
-                    text, addedParen, start, addedCloseParen, newDeltaCaretPosition);
-        }else{
-            onAfterAllLinesHandled(text, addedParen, start, offset, addedCloseParen, finalIndentString[0], newDeltaCaretPosition);            
+            execCommand(addedNewLine, delim, finalIndentString, cmd, commands, 0, text, addedParen, start,
+                    addedCloseParen, newDeltaCaretPosition);
+        } else {
+            onAfterAllLinesHandled(text, addedParen, start, offset, addedCloseParen, finalIndentString[0],
+                    newDeltaCaretPosition);
         }
-        
+
     }
 
     /**
@@ -429,29 +424,18 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      * (if on of the callbacks fail, the others won't be executed and we'd get into a situation
      * where the shell becomes unusable).
      */
-    private void execCommand(
-            final boolean addedNewLine, 
-            final String delim, 
-            final String[] finalIndentString, 
-            final String cmd, 
-            final List<String> commands, 
-            final int currentCommand,
-            final String text, 
-            final boolean addedParen, 
-            final int start, 
-            final boolean addedCloseParen, 
-            final int newDeltaCaretPosition
-            ){
+    private void execCommand(final boolean addedNewLine, final String delim, final String[] finalIndentString,
+            final String cmd, final List<String> commands, final int currentCommand, final String text,
+            final boolean addedParen, final int start, final boolean addedCloseParen, final int newDeltaCaretPosition) {
         applyStyleToUserAddedText(cmd, doc.getLength());
-        
+
         //the cmd could be something as '\n'
         appendText(cmd);
 
         //and the command line the actual contents to be executed at this time
         final String commandLine = getCommandLine();
         history.update(commandLine);
-        
-        
+
         // handle the command line:
         // When the user presses a return and goes to a new line,  the contents of the current line are sent to 
         // the interpreter (and its results properly handled).
@@ -459,52 +443,42 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         appendText(getDelimeter());
         final boolean finalAddedNewLine = addedNewLine;
         final String finalDelim = delim;
-        
-        final ICallback<Object, InterpreterResponse> onResponseReceived = new ICallback<Object, InterpreterResponse>(){
-            
-            public Object call(final InterpreterResponse arg){
+
+        final ICallback<Object, InterpreterResponse> onResponseReceived = new ICallback<Object, InterpreterResponse>() {
+
+            public Object call(final InterpreterResponse arg) {
                 //When we receive the response, we must handle it in the UI thread.
-                Runnable runnable = new Runnable(){
-                    
-                    public void run(){
-                        try{
+                Runnable runnable = new Runnable() {
+
+                    public void run() {
+                        try {
                             processResult(arg);
-                            if(finalAddedNewLine){
+                            if (finalAddedNewLine) {
                                 IDocument historyDoc = history.getAsDoc();
                                 int currHistoryLen = historyDoc.getLength();
-                                if(currHistoryLen > 0){
-                                    DocCmd docCmd = new DocCmd(currHistoryLen-1, 0, finalDelim);
+                                if (currHistoryLen > 0) {
+                                    DocCmd docCmd = new DocCmd(currHistoryLen - 1, 0, finalDelim);
                                     strategy.customizeNewLine(historyDoc, docCmd);
                                     finalIndentString[0] = docCmd.text.replaceAll("\\r\\n|\\n|\\r", ""); //remove any new line added!
-                                    if(currHistoryLen != historyDoc.getLength()){
+                                    if (currHistoryLen != historyDoc.getLength()) {
                                         Log.log("Error: the document passed to the customizeNewLine should not be changed!");
                                     }
                                 }
                             }
-                        }catch(Throwable e){
+                        } catch (Throwable e) {
                             //Yeap, it can never fail!
                             Log.log(e);
                         }
-                        if(currentCommand + 1 < commands.size()){
-                            execCommand(
-                                    finalAddedNewLine, 
-                                    finalDelim, 
-                                    finalIndentString, 
-                                    commands.get(currentCommand+1), 
-                                    commands, 
-                                    currentCommand+1,
-                                    text, 
-                                    addedParen, 
-                                    start, 
-                                    addedCloseParen, 
-                                    newDeltaCaretPosition
-                                );
-                        }else{
+                        if (currentCommand + 1 < commands.size()) {
+                            execCommand(finalAddedNewLine, finalDelim, finalIndentString,
+                                    commands.get(currentCommand + 1), commands, currentCommand + 1, text, addedParen,
+                                    start, addedCloseParen, newDeltaCaretPosition);
+                        } else {
                             //last one
-                            try{
-                                onAfterAllLinesHandled(
-                                        text, addedParen, start, offset, addedCloseParen, finalIndentString[0], newDeltaCaretPosition);
-                            }finally{
+                            try {
+                                onAfterAllLinesHandled(text, addedParen, start, offset, addedCloseParen,
+                                        finalIndentString[0], newDeltaCaretPosition);
+                            } finally {
                                 //We must disconnect
                                 stopDisconnected(); //reconnect with the document
                             }
@@ -515,12 +489,12 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                 return null;
             }
         };
-        
-        final ICallback<Object, Tuple<String, String>> onContentsReceived = new ICallback<Object, Tuple<String, String>>(){
+
+        final ICallback<Object, Tuple<String, String>> onContentsReceived = new ICallback<Object, Tuple<String, String>>() {
 
             public Object call(final Tuple<String, String> result) {
                 Runnable runnable = new Runnable() {
-                    
+
                     public void run() {
                         if (result != null) {
                             addToConsoleView(result.o1, true);
@@ -532,64 +506,56 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                 RunInUiThread.async(runnable);
                 return null;
             }
-            
+
         };
         //Handle the command in a thread that doesn't block the U/I.
-        new Thread(){
-            public void run(){
+        new Thread() {
+            public void run() {
                 handler.handleCommand(commandLine, onResponseReceived, onContentsReceived);
             }
         }.start();
     }
 
-    
-    
     /**
      * This method should be called after all the lines received were processed.
      */
-    private void onAfterAllLinesHandled(
-        final String finalText,
-        final boolean finalAddedParen,
-        final int finalStart,
-        final int finalOffset,
-        final boolean finalAddedCloseParen,
-        final String finalIndentString,
-        final int finalNewDeltaCaretPosition
-        ){
+    private void onAfterAllLinesHandled(final String finalText, final boolean finalAddedParen, final int finalStart,
+            final int finalOffset, final boolean finalAddedCloseParen, final String finalIndentString,
+            final int finalNewDeltaCaretPosition) {
         boolean shiftsCaret = true;
         String newText = finalText.substring(finalStart, finalText.length());
-        if(finalAddedParen){
+        if (finalAddedParen) {
             String cmdLine = getCommandLine();
-            Document parenDoc = new Document(cmdLine+newText);
-            int currentOffset = cmdLine.length()+1;
+            Document parenDoc = new Document(cmdLine + newText);
+            int currentOffset = cmdLine.length() + 1;
             DocCmd docCmd = new DocCmd(currentOffset, 0, "(");
             docCmd.shiftsCaret = true;
-            try{
+            try {
                 PyAutoIndentStrategy.customizeParenthesis(parenDoc, docCmd, true, strategy.getIndentPrefs());
-            }catch(BadLocationException e){
+            } catch (BadLocationException e) {
                 Log.log(e);
             }
-            newText = docCmd.text+newText.substring(1);
-            if(!docCmd.shiftsCaret){
+            newText = docCmd.text + newText.substring(1);
+            if (!docCmd.shiftsCaret) {
                 shiftsCaret = false;
-                setCaretOffset(finalOffset + (docCmd.caretOffset-currentOffset));
+                setCaretOffset(finalOffset + (docCmd.caretOffset - currentOffset));
             }
-        }else if (finalAddedCloseParen){
+        } else if (finalAddedCloseParen) {
             String cmdLine = getCommandLine();
-            String existingDoc = cmdLine+finalText.substring(1);
+            String existingDoc = cmdLine + finalText.substring(1);
             int cmdLineOffset = cmdLine.length();
-            if(existingDoc.length() > cmdLineOffset){
+            if (existingDoc.length() > cmdLineOffset) {
                 Document parenDoc = new Document(existingDoc);
                 DocCmd docCmd = new DocCmd(cmdLineOffset, 0, ")");
                 docCmd.shiftsCaret = true;
                 boolean canSkipOpenParenthesis;
-                try{
+                try {
                     canSkipOpenParenthesis = strategy.canSkipCloseParenthesis(parenDoc, docCmd);
-                }catch(BadLocationException e){
+                } catch (BadLocationException e) {
                     canSkipOpenParenthesis = false;
                     Log.log(e);
                 }
-                if(canSkipOpenParenthesis){
+                if (canSkipOpenParenthesis) {
                     shiftsCaret = false;
                     setCaretOffset(finalOffset + 1);
                     newText = newText.substring(1);
@@ -598,14 +564,13 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         }
 
         //and now add the last line (without actually handling it).
-        String cmd = finalIndentString+newText;
+        String cmd = finalIndentString + newText;
         cmd = convertTabs(cmd);
         applyStyleToUserAddedText(cmd, doc.getLength());
         appendText(cmd);
-        if(shiftsCaret){
-            setCaretOffset(doc.getLength()-finalNewDeltaCaretPosition);
+        if (shiftsCaret) {
+            setCaretOffset(doc.getLength() - finalNewDeltaCaretPosition);
         }
-
 
         history.update(getCommandLine());
     }
@@ -640,11 +605,11 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     public void documentChanged(DocumentEvent event) {
         lastChangeMillis = System.currentTimeMillis();
         startDisconnected();
-        try{
+        try {
             int eventOffset = event.getOffset();
             String eventText = event.getText();
             proccessAddition(eventOffset, eventText);
-        }finally{
+        } finally {
             stopDisconnected();
         }
     }
@@ -656,9 +621,9 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      */
     protected void appendText(String text) {
         int initialOffset = doc.getLength();
-        try{
+        try {
             doc.replace(initialOffset, 0, text);
-        }catch(BadLocationException e){
+        } catch (BadLocationException e) {
             Log.log(e);
         }
     }
@@ -666,7 +631,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     /**
      * Shows the prompt for the user (e.g.: >>>)
      */
-    protected void appendInvitation(boolean async){
+    protected void appendInvitation(boolean async) {
         int start = doc.getLength();
         String promptStr = prompt.toString();
         IConsoleStyleProvider styleProvider = viewer.getStyleProvider();
@@ -686,39 +651,39 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      */
     private void revealEndOfDocument() {
         viewer.revealEndOfDocument();
-        for(Iterator<WeakReference<IScriptConsoleViewer2ForDocumentListener>> it=otherViewers.iterator();it.hasNext();){
+        for (Iterator<WeakReference<IScriptConsoleViewer2ForDocumentListener>> it = otherViewers.iterator(); it
+                .hasNext();) {
             WeakReference<IScriptConsoleViewer2ForDocumentListener> ref = it.next();
             IScriptConsoleViewer2ForDocumentListener v = ref.get();
-            if(v == null){
+            if (v == null) {
                 it.remove();
-            }else{
+            } else {
                 v.revealEndOfDocument();
             }
         }
     }
 
-
     private void setCaretOffset(int offset) {
         setCaretOffset(offset, false);
     }
-    
+
     /**
      * Sets the caret offset to the passed offset for the main viewer and all the related viewer for the same document. 
      * @param offset the offset to which the caret should be moved
      */
     private void setCaretOffset(int offset, boolean async) {
         viewer.setCaretOffset(offset, async);
-        for(Iterator<WeakReference<IScriptConsoleViewer2ForDocumentListener>> it=otherViewers.iterator();it.hasNext();){
+        for (Iterator<WeakReference<IScriptConsoleViewer2ForDocumentListener>> it = otherViewers.iterator(); it
+                .hasNext();) {
             WeakReference<IScriptConsoleViewer2ForDocumentListener> ref = it.next();
             IScriptConsoleViewer2ForDocumentListener v = ref.get();
-            if(v == null){
+            if (v == null) {
                 it.remove();
-            }else{
+            } else {
                 v.setCaretOffset(offset, async);
             }
         }
     }
-
 
     /**
      * @return the delimiter to be used to add new lines to the console.
@@ -734,7 +699,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         int lastLine = doc.getNumberOfLines() - 1;
         return doc.getLineLength(lastLine);
     }
-    
+
     /**
      * @return the offset where the last line starts
      * @throws BadLocationException
@@ -764,7 +729,6 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         return doc.getLineLength(lastLine) - getLastLineReadOnlySize();
     }
 
-    
     /**
      * @return the command line that the user entered.
      * @throws BadLocationException
@@ -772,22 +736,21 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     public String getCommandLine() {
         int commandLineOffset;
         int commandLineLength;
-        try{
+        try {
             commandLineOffset = getCommandLineOffset();
             commandLineLength = getCommandLineLength();
-        }catch(BadLocationException e1){
+        } catch (BadLocationException e1) {
             Log.log(e1);
             return "";
         }
-        if(commandLineLength < 0){
+        if (commandLineLength < 0) {
             return "";
         }
 
         try {
             return doc.get(commandLineOffset, commandLineLength);
         } catch (BadLocationException e) {
-            Log.log(StringUtils.format(
-            "Error: bad location: offset:%s text:%s", commandLineOffset, commandLineLength));
+            Log.log(StringUtils.format("Error: bad location: offset:%s text:%s", commandLineOffset, commandLineLength));
             return "";
         }
     }
@@ -803,6 +766,5 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     public void setCommandLine(String command) throws BadLocationException {
         doc.replace(getCommandLineOffset(), getCommandLineLength(), command);
     }
-
 
 }

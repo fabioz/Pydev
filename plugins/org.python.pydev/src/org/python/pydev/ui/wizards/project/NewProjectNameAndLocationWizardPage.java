@@ -54,8 +54,9 @@ import org.python.pydev.utils.ICallback;
  * Changed to add the details for the python project type 
  */
 
-public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage implements IWizardNewProjectNameAndLocationPage{
-    
+public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage implements
+        IWizardNewProjectNameAndLocationPage {
+
     // Whether to use default or custom project location
     private boolean useDefaults = true;
 
@@ -78,21 +79,20 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
 
     private PyProjectPythonDetails.ProjectInterpreterAndGrammarConfig details;
 
-    
     /**
      * @return a string as specified in the constants in IPythonNature
      * @see IPythonNature#PYTHON_VERSION_XXX 
      * @see IPythonNature#JYTHON_VERSION_XXX
      * @see IPythonNature#IRONPYTHON_VERSION_XXX
      */
-    public String getProjectType(){
+    public String getProjectType() {
         return details.getSelectedPythonOrJythonAndGrammarVersion();
     }
-    
-    public String getProjectInterpreter(){
+
+    public String getProjectInterpreter() {
         return details.getProjectInterpreter();
     }
-    
+
     private Listener nameModifyListener = new Listener() {
         public void handleEvent(Event e) {
             setLocationForSelection();
@@ -112,7 +112,6 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
 
     // constants
     private static final int SIZING_TEXT_FIELD_WIDTH = 250;
-
 
     /**
      * Creates a new project creation wizard page.
@@ -137,43 +136,43 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
         composite.setLayoutData(new GridData(GridData.FILL_BOTH));
         composite.setFont(parent.getFont());
 
-
         createProjectNameGroup(composite);
         createProjectLocationGroup(composite);
         createProjectDetails(composite);
-        
-        projectAsSrcFolder = new Button(composite , SWT.RADIO);
+
+        projectAsSrcFolder = new Button(composite, SWT.RADIO);
         projectAsSrcFolder.setText("&Add project directory to the PYTHONPATH?");
-        
-        checkSrcFolder = new Button(composite , SWT.RADIO);
+
+        checkSrcFolder = new Button(composite, SWT.RADIO);
         checkSrcFolder.setText("Cr&eate 'src' folder and add it to the PYTHONPATH?");
-        
-        noSrcFolder = new Button(composite , SWT.RADIO);
+
+        noSrcFolder = new Button(composite, SWT.RADIO);
         noSrcFolder.setText("Don't configure PYTHONPATH (to be done &manually later on)");
-        
+
         IPreferenceStore preferences = PydevPrefs.getPreferences();
-        int srcFolderCreate = preferences.getInt(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES);
+        int srcFolderCreate = preferences
+                .getInt(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES);
         switch (srcFolderCreate) {
             case PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER:
                 projectAsSrcFolder.setSelection(true);
                 break;
-    
+
             case PYDEV_NEW_PROJECT_NO_PYTHONPATH:
                 noSrcFolder.setSelection(true);
                 break;
-                
+
             default:
                 //default is src folder...
                 checkSrcFolder.setSelection(true);
         }
-        
-        checkSrcFolder.addSelectionListener(new SelectionListener(){
-        
+
+        checkSrcFolder.addSelectionListener(new SelectionListener() {
+
             public void widgetSelected(SelectionEvent e) {
-                if(e.widget == checkSrcFolder){
+                if (e.widget == checkSrcFolder) {
                     IPreferenceStore preferences = PydevPrefs.getPreferences();
-                    if(checkSrcFolder.getSelection()){
-                        preferences.setValue(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES, 
+                    if (checkSrcFolder.getSelection()) {
+                        preferences.setValue(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES,
                                 PYDEV_NEW_PROJECT_CREATE_SRC_FOLDER);
                     }
                 }
@@ -182,40 +181,40 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
             public void widgetDefaultSelected(SelectionEvent e) {
             }
         });
-        
-        projectAsSrcFolder.addSelectionListener(new SelectionListener(){
-            
+
+        projectAsSrcFolder.addSelectionListener(new SelectionListener() {
+
             public void widgetSelected(SelectionEvent e) {
-                if(e.widget == projectAsSrcFolder){
+                if (e.widget == projectAsSrcFolder) {
                     IPreferenceStore preferences = PydevPrefs.getPreferences();
-                    if(projectAsSrcFolder.getSelection()){
-                        preferences.setValue(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES, 
+                    if (projectAsSrcFolder.getSelection()) {
+                        preferences.setValue(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES,
                                 PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER);
                     }
 
                 }
             }
-            
+
             public void widgetDefaultSelected(SelectionEvent e) {
             }
         });
-        
-        noSrcFolder.addSelectionListener(new SelectionListener(){
-            
+
+        noSrcFolder.addSelectionListener(new SelectionListener() {
+
             public void widgetSelected(SelectionEvent e) {
-                if(e.widget == noSrcFolder){
+                if (e.widget == noSrcFolder) {
                     IPreferenceStore preferences = PydevPrefs.getPreferences();
-                    if(noSrcFolder.getSelection()){
-                        preferences.setValue(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES, 
+                    if (noSrcFolder.getSelection()) {
+                        preferences.setValue(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES,
                                 PYDEV_NEW_PROJECT_NO_PYTHONPATH);
                     }
                 }
             }
-            
+
             public void widgetDefaultSelected(SelectionEvent e) {
             }
         });
-        
+
         validatePage();
 
         // Show description on opening
@@ -240,18 +239,18 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
         projectTypeLabel.setFont(font);
         projectTypeLabel.setText("Project type");
         //let him choose the type of the project
-        details = new PyProjectPythonDetails.ProjectInterpreterAndGrammarConfig(new ICallback(){
+        details = new PyProjectPythonDetails.ProjectInterpreterAndGrammarConfig(new ICallback() {
 
             //Whenever the configuration changes there, we must evaluate whether the page is complete
             public Object call(Object args) throws Exception {
                 setPageComplete(NewProjectNameAndLocationWizardPage.this.validatePage());
                 return null;
-            }}
-        );
-        
+            }
+        });
+
         Control createdOn = details.doCreateContents(projectDetails);
         details.setDefaultSelection();
-        GridData data=new GridData(GridData.FILL_HORIZONTAL);
+        GridData data = new GridData(GridData.FILL_HORIZONTAL);
         data.grabExcessHorizontalSpace = true;
         createdOn.setLayoutData(data);
     }
@@ -274,15 +273,14 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
         // new project label
         Label projectContentsLabel = new Label(projectGroup, SWT.NONE);
         projectContentsLabel.setFont(font);
-        
+
         projectContentsLabel.setText("Project contents:");
 
         GridData labelData = new GridData();
         labelData.horizontalSpan = 3;
         projectContentsLabel.setLayoutData(labelData);
 
-        final Button useDefaultsButton = new Button(projectGroup, SWT.CHECK
-                | SWT.RIGHT);
+        final Button useDefaultsButton = new Button(projectGroup, SWT.CHECK | SWT.RIGHT);
         useDefaultsButton.setText("Use &default");
         useDefaultsButton.setSelection(useDefaults);
         useDefaultsButton.setFont(font);
@@ -327,8 +325,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
         // new project label
         Label projectLabel = new Label(projectGroup, SWT.NONE);
         projectLabel.setFont(font);
-        
-            
+
         projectLabel.setText("&Project name:");
 
         // new project name entry field
@@ -351,8 +348,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
      * @param projectGroup the parent composite
      * @param enabled the initial enabled state of the widgets created
      */
-    private void createUserSpecifiedProjectLocationGroup(
-            Composite projectGroup, boolean enabled) {
+    private void createUserSpecifiedProjectLocationGroup(Composite projectGroup, boolean enabled) {
         Font font = projectGroup.getFont();
         // location label
         locationLabel = new Label(projectGroup, SWT.NONE);
@@ -505,8 +501,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
      */
     private void setLocationForSelection() {
         if (useDefaults) {
-            IPath defaultPath = Platform.getLocation().append(
-                    getProjectNameFieldValue());
+            IPath defaultPath = Platform.getLocation().append(getProjectNameFieldValue());
             locationPathField.setText(defaultPath.toOSString());
         }
     }
@@ -528,8 +523,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
             return false;
         }
 
-        IStatus nameStatus = workspace.validateName(projectFieldContents,
-                IResource.PROJECT);
+        IStatus nameStatus = workspace.validateName(projectFieldContents, IResource.PROJECT);
         if (!nameStatus.isOK()) {
             setErrorMessage(nameStatus.getMessage());
             return false;
@@ -548,14 +542,14 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
             setErrorMessage("Project location is not valid");
             return false;
         }
-        
+
         //commented out. See comments on https://sourceforge.net/tracker/?func=detail&atid=577329&aid=1798364&group_id=85796
-//        if (!useDefaults
-//                && Platform.getLocation().isPrefixOf(
-//                        new Path(locationFieldContents))) {
-//            setErrorMessage("Default location error");
-//            return false;
-//        }
+        //        if (!useDefaults
+        //                && Platform.getLocation().isPrefixOf(
+        //                        new Path(locationFieldContents))) {
+        //            setErrorMessage("Default location error");
+        //            return false;
+        //        }
 
         IProject projectHandle = getProjectHandle();
         if (projectHandle.exists()) {
@@ -564,11 +558,11 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
         }
 
         if (isDotProjectFileInLocation()) {
-            setErrorMessage(".project found in: "+getLocationPath().toOSString() +" (use import project).");
+            setErrorMessage(".project found in: " + getLocationPath().toOSString() + " (use import project).");
             return false;
         }
-        
-        if(getProjectInterpreter() == null){
+
+        if (getProjectInterpreter() == null) {
             setErrorMessage("Project interpreter not specified");
             return false;
         }
@@ -589,20 +583,21 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
 
     public int getSourceFolderConfigurationStyle() {
         IPreferenceStore preferences = PydevPrefs.getPreferences();
-        int srcFolderCreate = preferences.getInt(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES);
-        switch(srcFolderCreate){
-        
+        int srcFolderCreate = preferences
+                .getInt(IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PREFERENCES);
+        switch (srcFolderCreate) {
+
             case PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER:
                 return PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER;
             case PYDEV_NEW_PROJECT_NO_PYTHONPATH:
                 return PYDEV_NEW_PROJECT_NO_PYTHONPATH;
-            
+
             default:
                 return PYDEV_NEW_PROJECT_CREATE_SRC_FOLDER;
         }
     }
 
-    public void setProjectName(String projectName){
+    public void setProjectName(String projectName) {
         this.projectNameField.setText(projectName);
     }
 

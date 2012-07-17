@@ -25,13 +25,13 @@ import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.nature.PythonNature;
 
-public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisitor implements IResourceDeltaVisitor{
-    
-    PydevInternalResourceDeltaVisitor(IProgressMonitor monitor, int totalResources){
+public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisitor implements IResourceDeltaVisitor {
+
+    PydevInternalResourceDeltaVisitor(IProgressMonitor monitor, int totalResources) {
         this.monitor = monitor;
         this.totalResources = totalResources;
     }
-    
+
     //variables used to communicate the progress
     /**
      * this monitor might be set externally so that we can comunicate the progress to the user
@@ -48,6 +48,7 @@ public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisi
      * (updated in this class)
      */
     public int currentResourcesVisited = 0;
+
     //end variables used to communicate the progress
 
     /**
@@ -59,78 +60,78 @@ public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisi
      * @see org.eclipse.core.resources.IResourceDeltaVisitor#visit(org.eclipse.core.resources.IResourceDelta)
      */
     public boolean visit(IResourceDelta delta) throws CoreException {
-        if(delta == null){
+        if (delta == null) {
             return true;
         }
 
         IResource resource = delta.getResource();
 
-        if(resource == null){
+        if (resource == null) {
             return true;
         }
-        
+
         int type = resource.getType();
-    
 
         //related bug https://sourceforge.net/tracker/index.php?func=detail&aid=1238850&group_id=85796&atid=577329
-        
+
         //the team-support plugins of eclipse use the IResource
         //method setTeamPrivateMember to indicate resources
         //that are only in the project for the team-stuff (e.g. .svn or
         //.cvs or _darcs directories).
-        if (resource.isTeamPrivateMember()){
+        if (resource.isTeamPrivateMember()) {
             return true;
         }
-        
+
         if (type == IResource.FOLDER) {
             switch (delta.getKind()) {
                 case IResourceDelta.REMOVED:
                     memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, System.currentTimeMillis());
                     visitRemovedResource(resource, null, monitor);
                     break;
-                //for folders, we don't have to do anything if added or changed (we just treat their children, that should
-                //resolve for modules -- we do, however have to treat __init__.py differently).
+            //for folders, we don't have to do anything if added or changed (we just treat their children, that should
+            //resolve for modules -- we do, however have to treat __init__.py differently).
             }
-            
+
         } else if (type == IResource.FILE) {
             String ext = resource.getFileExtension();
-            if(ext == null){ //resource.getFileExtension() may return null if it has none.
-                if(resource instanceof IFile){
+            if (ext == null) { //resource.getFileExtension() may return null if it has none.
+                if (resource instanceof IFile) {
                     PythonPathHelper.markAsPyDevFileIfDetected((IFile) resource);
                 }
                 return true;
             }
-            
+
             //only analyze projects with the python nature...
             IProject project = resource.getProject();
             PythonNature nature = PythonNature.getPythonNature(project);
-            
-            if(project != null && nature != null){
+
+            if (project != null && nature != null) {
                 //we just want to make the visit if it is a valid python file and it is in the pythonpath
-                if (PythonPathHelper.isValidSourceFile("."+ext)) {
-                    
+                if (PythonPathHelper.isValidSourceFile("." + ext)) {
+
                     boolean isAddOrChange = false;
-                    
+
                     //document time is updated here
                     isAddOrChange = chooseVisit(delta, resource, isAddOrChange);
 
-                    if(isAddOrChange){
+                    if (isAddOrChange) {
                         //communicate the progress
                         currentResourcesVisited++;
                         FastStringBuffer bufferToCreateString = new FastStringBuffer();
-                        PyDevBuilder.communicateProgress(monitor, totalResources, currentResourcesVisited, resource, this, bufferToCreateString);
+                        PyDevBuilder.communicateProgress(monitor, totalResources, currentResourcesVisited, resource,
+                                this, bufferToCreateString);
                     }
-                }else if(ext.equals("pyc")){
-                    if(delta.getKind() == IResourceDelta.ADDED){
+                } else if (ext.equals("pyc")) {
+                    if (delta.getKind() == IResourceDelta.ADDED) {
                         handleAddedPycFiles(resource, nature);
                     }
                 }
             }
         }
-        
+
         return true;
     }
-    
+
     /**
      * When handling pyc files, we do a simpler handling and go directly to the pyc builder visitor to check
      * if the pyc should be removed.
@@ -149,7 +150,6 @@ public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisi
             Log.log(e);
         }
     }
-    
 
     /**
      * This will use the internal builders to traverse the delta. Note that the resource is always a valid
@@ -157,8 +157,8 @@ public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisi
      */
     protected boolean chooseVisit(IResourceDelta delta, IResource resource, boolean isAddOrChange) {
         switch (delta.getKind()) {
-            case IResourceDelta.ADDED :
-            	ICallback0<IDocument> doc = REF.getDocOnCallbackFromResource(resource);
+            case IResourceDelta.ADDED:
+                ICallback0<IDocument> doc = REF.getDocOnCallbackFromResource(resource);
                 memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, System.currentTimeMillis());
                 visitAddedResource(resource, doc, monitor);
                 isAddOrChange = true;

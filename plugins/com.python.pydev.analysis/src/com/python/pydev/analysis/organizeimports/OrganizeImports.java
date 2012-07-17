@@ -48,10 +48,10 @@ import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
  *
  * @author Fabio
  */
-public class OrganizeImports implements IOrganizeImports{
+public class OrganizeImports implements IOrganizeImports {
 
     private static final String DIALOG_SETTINGS = "com.python.pydev.analysis.ORGANIZE_IMPORTS_DIALOG"; //$NON-NLS-1$;
-    
+
     /**
      * That's where everything happens.
      * 
@@ -59,86 +59,82 @@ public class OrganizeImports implements IOrganizeImports{
      * (so, we cannot be in a rewrite session in this case).
      */
     public boolean beforePerformArrangeImports(final PySelection ps, final PyEdit edit) {
-        if(!AutoImportsPreferencesPage.doAutoImportOnOrganizeImports()){
+        if (!AutoImportsPreferencesPage.doAutoImportOnOrganizeImports()) {
             return true;
         }
         ArrayList<MarkerAnnotationAndPosition> undefinedVariablesMarkers = getUndefinedVariableMarkers(edit);
-        
 
         //sort them
         TreeMap<Integer, MarkerAnnotationAndPosition> map = new TreeMap<Integer, MarkerAnnotationAndPosition>();
-        
+
         for (MarkerAnnotationAndPosition marker : undefinedVariablesMarkers) {
-            if(marker.position == null){
+            if (marker.position == null) {
                 continue;
             }
             int start = marker.position.offset;
             map.put(start, marker);
         }
-        
+
         //create the participant that'll help (will not force a reparse)
         final UndefinedVariableFixParticipant variableFixParticipant = new UndefinedVariableFixParticipant(false);
-        
+
         //These are the completions to apply. We must apply them all at once after finishing it because we can't do
         //it one by one during the processing because that'd make markers change.
-        final List<ICompletionProposalExtension2> completionsToApply = new ArrayList<ICompletionProposalExtension2>(); 
-        
-        
+        final List<ICompletionProposalExtension2> completionsToApply = new ArrayList<ICompletionProposalExtension2>();
+
         //keeps the strings we've already treated.
         final HashSet<String> treatedVars = new HashSet<String>();
 
         //variable to hold whether we should keep on choosing the imports
-        final Boolean[] keepGoing = new Boolean[]{true}; 
-        
-        
+        final Boolean[] keepGoing = new Boolean[] { true };
+
         final IDialogSettings dialogSettings = AnalysisPlugin.getDefault().getDialogSettings();
-        
+
         //analyse the markers (one by one)
         for (final MarkerAnnotationAndPosition marker : map.values()) {
-            if(!keepGoing[0]){
+            if (!keepGoing[0]) {
                 break;
             }
             try {
-                
+
                 final int start = marker.position.offset;
-                final int end = start+marker.position.length;
-                
-                
-                if(start >= 0 && end > start){
+                final int end = start + marker.position.length;
+
+                if (start >= 0 && end > start) {
                     IDocument doc = ps.getDoc();
                     ArrayList<ICompletionProposal> props = new ArrayList<ICompletionProposal>();
                     try {
-                        String string = doc.get(start, end-start);
-                        if(treatedVars.contains(string)){
+                        String string = doc.get(start, end - start);
+                        if (treatedVars.contains(string)) {
                             continue;
                         }
-                        variableFixParticipant.addProps(marker, null, null, ps, start, 
-                                edit.getPythonNature(), edit, props);
-                        
-                        if(props.size() > 0){
-                            edit.selectAndReveal(start, end-start);
+                        variableFixParticipant.addProps(marker, null, null, ps, start, edit.getPythonNature(), edit,
+                                props);
+
+                        if (props.size() > 0) {
+                            edit.selectAndReveal(start, end - start);
                             treatedVars.add(string);
                             Shell activeShell = Display.getCurrent().getActiveShell();
-                            
-                            ElementListSelectionDialog dialog= new ElementListSelectionDialog(activeShell, 
-                                    new LabelProvider(){
-                                
-                                //get the image and text for each completion
-                                
-                                @Override
-                                public Image getImage(Object element) {
-                                    CtxInsensitiveImportComplProposal comp = ((CtxInsensitiveImportComplProposal)element);
-                                    return comp.getImage();
-                                }
-                                
-                                @Override
-                                public String getText(Object element) {
-                                    CtxInsensitiveImportComplProposal comp = ((CtxInsensitiveImportComplProposal)element);
-                                    return comp.getDisplayString();
-                                }
-                                
-                            }) {
-                                
+
+                            ElementListSelectionDialog dialog = new ElementListSelectionDialog(activeShell,
+                                    new LabelProvider() {
+
+                                        //get the image and text for each completion
+
+                                        @Override
+                                        public Image getImage(Object element) {
+                                            CtxInsensitiveImportComplProposal comp = ((CtxInsensitiveImportComplProposal) element);
+                                            return comp.getImage();
+                                        }
+
+                                        @Override
+                                        public String getText(Object element) {
+                                            CtxInsensitiveImportComplProposal comp = ((CtxInsensitiveImportComplProposal) element);
+                                            return comp.getDisplayString();
+                                        }
+
+                                    }) {
+
                                 //override things to return the last position of the dialog correctly
 
                                 /**
@@ -171,17 +167,17 @@ public class OrganizeImports implements IOrganizeImports{
                                     return new Point(300, 300);
                                 }
                             };
-                            
+
                             dialog.setTitle("Choose import");
                             dialog.setMessage("Which import should be added?");
                             dialog.setElements(props.toArray());
                             int returnCode = dialog.open();
                             if (returnCode == Window.OK) {
-                                ICompletionProposalExtension2 firstResult = (ICompletionProposalExtension2) 
-                                    dialog.getFirstResult();
-                                
+                                ICompletionProposalExtension2 firstResult = (ICompletionProposalExtension2) dialog
+                                        .getFirstResult();
+
                                 completionsToApply.add(firstResult);
-                            }else if(returnCode == Window.CANCEL){
+                            } else if (returnCode == Window.CANCEL) {
                                 keepGoing[0] = false;
                                 continue;
                             }
@@ -191,12 +187,11 @@ public class OrganizeImports implements IOrganizeImports{
                         Log.log(e);
                     }
                 }
-                
+
             } catch (Exception e) {
                 Log.log(e);
             }
         }
-        
 
         for (ICompletionProposalExtension2 comp : completionsToApply) {
             int offset = 0; //the offset is not used in this case, because the actual completion does nothing,
@@ -213,18 +208,18 @@ public class OrganizeImports implements IOrganizeImports{
      */
     private ArrayList<MarkerAnnotationAndPosition> getUndefinedVariableMarkers(final PyEdit edit) {
         PySourceViewer s = edit.getPySourceViewer();
-        
+
         ArrayList<MarkerAnnotationAndPosition> undefinedVariablesMarkers = new ArrayList<MarkerAnnotationAndPosition>();
-        
+
         //get the markers we are interested in (undefined variables)
-        for(Iterator<MarkerAnnotationAndPosition> it=s.getMarkerIterator();it.hasNext();){
+        for (Iterator<MarkerAnnotationAndPosition> it = s.getMarkerIterator(); it.hasNext();) {
             MarkerAnnotationAndPosition m = it.next();
             IMarker marker = m.markerAnnotation.getMarker();
             try {
                 String type = marker.getType();
-                if(type != null && type.equals(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER)){
-                    Integer attribute = marker.getAttribute(AnalysisRunner.PYDEV_ANALYSIS_TYPE, -1 );
-                    if (attribute != null && attribute.equals(IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE)){
+                if (type != null && type.equals(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER)) {
+                    Integer attribute = marker.getAttribute(AnalysisRunner.PYDEV_ANALYSIS_TYPE, -1);
+                    if (attribute != null && attribute.equals(IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE)) {
                         undefinedVariablesMarkers.add(m);
                     }
 
@@ -240,18 +235,17 @@ public class OrganizeImports implements IOrganizeImports{
      * After all the imports are arranged, let's ask for a reparse of the document
      */
     public void afterPerformArrangeImports(PySelection ps, PyEdit pyEdit) {
-        if(!AutoImportsPreferencesPage.doAutoImportOnOrganizeImports()){
+        if (!AutoImportsPreferencesPage.doAutoImportOnOrganizeImports()) {
             return;
         }
-        if(pyEdit != null){
+        if (pyEdit != null) {
             PyParser parser = pyEdit.getParser();
-            if(parser != null){
-                parser.forceReparse(new Tuple<String, Boolean>(
-                    AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
+            if (parser != null) {
+                parser.forceReparse(new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE,
+                        true));
             }
         }
 
     }
-
 
 }

@@ -23,41 +23,30 @@ import org.python.core.PyString;
 import org.python.modules.sre.PatternObject;
 import org.python.modules.sre.SRE_STATE;
 
-
 public class _sre {
     public static int MAGIC = SRE_STATE.SRE_MAGIC;
-    
+
     public static int CODESIZE = 2;
 
-    public static PatternObject compile(PyString pattern, int flags,
-                                        PyObject code, int groups,
-                                        PyObject groupindex,
-                                        PyObject indexgroup) {
+    public static PatternObject compile(PyString pattern, int flags, PyObject code, int groups, PyObject groupindex,
+            PyObject indexgroup) {
         char[] ccode = null;
         if (code instanceof PyList) {
             int n = code.__len__();
             ccode = new char[n];
             for (int i = 0; i < n; i++)
-                ccode[i] = (char) ((PyInteger)code.__getitem__(i).__int__()).getValue();
+                ccode[i] = (char) ((PyInteger) code.__getitem__(i).__int__()).getValue();
         } else {
             throw Py.TypeError("Expected list");
         }
 
-        PatternObject po = new PatternObject(pattern,
-                                             flags,
-                                             ccode,
-                                             groups,
-                                             groupindex,
-                                             indexgroup);
+        PatternObject po = new PatternObject(pattern, flags, ccode, groups, groupindex, indexgroup);
         return po;
     }
-
-
 
     public static int getcodesize() {
         return CODESIZE;
     }
-
 
     public static int getlower(int ch, int flags) {
         return SRE_STATE.getlower(ch, flags);

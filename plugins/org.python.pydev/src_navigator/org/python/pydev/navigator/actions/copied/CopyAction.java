@@ -66,7 +66,7 @@ public class CopyAction extends SelectionListenerAction {
         setToolTipText("Copy Tooltip"); // TODO ResourceNavigatorMessages.CopyAction_toolTip); //$NON-NLS-1$
         setId(CopyAction.ID);
         PlatformUI.getWorkbench().getHelpSystem().setHelp(this, "CopyHelpId"); //$NON-NLS-1$
-                // TODO INavigatorHelpContextIds.COPY_ACTION);
+        // TODO INavigatorHelpContextIds.COPY_ACTION);
     }
 
     /**
@@ -90,8 +90,7 @@ public class CopyAction extends SelectionListenerAction {
      */
     public void run() {
         List selectedResources = getSelectedResources();
-        IResource[] resources = (IResource[]) selectedResources
-                .toArray(new IResource[selectedResources.size()]);
+        IResource[] resources = (IResource[]) selectedResources.toArray(new IResource[selectedResources.size()]);
 
         // Get the file names and a string representation
         final int length = resources.length;
@@ -133,30 +132,24 @@ public class CopyAction extends SelectionListenerAction {
      * @param fileNames file names of the resources to copy to the clipboard
      * @param names string representation of all names
      */
-    private void setClipboard(IResource[] resources, String[] fileNames,
-            String names) {
+    private void setClipboard(IResource[] resources, String[] fileNames, String names) {
         try {
             // set the clipboard contents
             if (fileNames.length > 0) {
-                clipboard.setContents(new Object[] { resources, fileNames,
-                        names },
-                        new Transfer[] { ResourceTransfer.getInstance(),
-                                FileTransfer.getInstance(),
+                clipboard.setContents(
+                        new Object[] { resources, fileNames, names },
+                        new Transfer[] { ResourceTransfer.getInstance(), FileTransfer.getInstance(),
                                 TextTransfer.getInstance() });
             } else {
                 clipboard.setContents(new Object[] { resources, names },
-                        new Transfer[] { ResourceTransfer.getInstance(),
-                                TextTransfer.getInstance() });
+                        new Transfer[] { ResourceTransfer.getInstance(), TextTransfer.getInstance() });
             }
         } catch (SWTError e) {
             if (e.code != DND.ERROR_CANNOT_SET_CLIPBOARD) {
                 throw e;
             }
-            if (MessageDialog
-                    .openQuestion(
-                            shell,
-                            "Problem with copy title", // TODO ResourceNavigatorMessages.CopyToClipboardProblemDialog_title,  //$NON-NLS-1$
-                            "Problem with copy.")) { //$NON-NLS-1$
+            if (MessageDialog.openQuestion(shell, "Problem with copy title", // TODO ResourceNavigatorMessages.CopyToClipboardProblemDialog_title,  //$NON-NLS-1$
+                    "Problem with copy.")) { //$NON-NLS-1$
                 setClipboard(resources, fileNames, names);
             }
         }
@@ -182,8 +175,7 @@ public class CopyAction extends SelectionListenerAction {
         }
 
         boolean projSelected = selectionIsOfType(IResource.PROJECT);
-        boolean fileFoldersSelected = selectionIsOfType(IResource.FILE
-                | IResource.FOLDER);
+        boolean fileFoldersSelected = selectionIsOfType(IResource.FILE | IResource.FOLDER);
         if (!projSelected && !fileFoldersSelected) {
             return false;
         }
@@ -194,8 +186,7 @@ public class CopyAction extends SelectionListenerAction {
         }
 
         // must have a common parent    
-        IContainer firstParent = ((IResource) selectedResources.get(0))
-                .getParent();
+        IContainer firstParent = ((IResource) selectedResources.get(0)).getParent();
         if (firstParent == null) {
             return false;
         }
@@ -216,4 +207,3 @@ public class CopyAction extends SelectionListenerAction {
     }
 
 }
-

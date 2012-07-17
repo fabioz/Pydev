@@ -24,32 +24,32 @@ public class PyAddSingleBlockCommentTest extends TestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
     }
-    
+
     public void testBlock() throws Exception {
         String s = "cc";
-        
+
         Document doc = new Document(s);
-        new PyAddSingleBlockComment(10, true).perform(new PySelection(doc, 0,0,0));
+        new PyAddSingleBlockComment(10, true).perform(new PySelection(doc, 0, 0, 0));
         assertEquals("#------ cc", doc.get());
-        
+
         s = "    cc";
-        
+
         doc = new Document(s);
-        new PyAddSingleBlockComment(10, true).perform(new PySelection(doc, 0,0,0));
+        new PyAddSingleBlockComment(10, true).perform(new PySelection(doc, 0, 0, 0));
         assertEquals("    #-- cc", doc.get());
-        
+
         doc = new Document("cc");
-        new PyAddSingleBlockComment(10, false).perform(new PySelection(doc, 0,0,0));
+        new PyAddSingleBlockComment(10, false).perform(new PySelection(doc, 0, 0, 0));
         assertEquals("# cc -----", doc.get());
-        
+
         doc = new Document("\tcc");
-        new PyAddSingleBlockComment(12, false).perform(new PySelection(doc, 0,0,0));
+        new PyAddSingleBlockComment(12, false).perform(new PySelection(doc, 0, 0, 0));
         assertEquals("\t# cc ---", doc.get());
-        
+
         doc = new Document("\tcc");
-        new PyAddSingleBlockComment(12, true).perform(new PySelection(doc, 0,0,0));
+        new PyAddSingleBlockComment(12, true).perform(new PySelection(doc, 0, 0, 0));
         assertEquals("\t#---- cc", doc.get());
-        
+
     }
 
 }

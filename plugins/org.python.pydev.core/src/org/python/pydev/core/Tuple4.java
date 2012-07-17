@@ -18,7 +18,7 @@ import org.python.pydev.core.structure.FastStringBuffer;
  * 
  * @author Fabio
  */
-public final class Tuple4<X ,Y, Z, T> implements Serializable{
+public final class Tuple4<X, Y, Z, T> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -33,38 +33,34 @@ public final class Tuple4<X ,Y, Z, T> implements Serializable{
         this.o3 = o3;
         this.o4 = o4;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof Tuple4)){
+        if (!(obj instanceof Tuple4)) {
             return false;
         }
-        
+
         Tuple4 t2 = (Tuple4) obj;
-        if(!o1.equals(t2.o1)){
+        if (!o1.equals(t2.o1)) {
             return false;
         }
-        if(!o2.equals(t2.o2)){
+        if (!o2.equals(t2.o2)) {
             return false;
         }
-        if(!o3.equals(t2.o3)){
+        if (!o3.equals(t2.o3)) {
             return false;
         }
-        if(!o4.equals(t2.o4)){
+        if (!o4.equals(t2.o4)) {
             return false;
         }
         return true;
     }
-    
+
     @Override
     public int hashCode() {
-        return 
-        o1.hashCode() * 
-        o2.hashCode() * 
-        o3.hashCode() * 
-        o4.hashCode();
+        return o1.hashCode() * o2.hashCode() * o3.hashCode() * o4.hashCode();
     }
-    
+
     @Override
     public String toString() {
         FastStringBuffer buffer = new FastStringBuffer();

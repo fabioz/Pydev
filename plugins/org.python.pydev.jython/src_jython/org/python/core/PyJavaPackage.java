@@ -12,7 +12,6 @@ import java.util.StringTokenizer;
 public class PyJavaPackage extends PyObject {
     public String __name__;
 
-
     public PyStringMap __dict__;
     //public String _unparsedAll;
     /** Its keys are the names of statically known classes.
@@ -30,25 +29,24 @@ public class PyJavaPackage extends PyObject {
         this(name, null, null);
     }
 
-    public PyJavaPackage(String name,String jarfile) {
+    public PyJavaPackage(String name, String jarfile) {
         this(name, null, jarfile);
     }
 
-    public PyJavaPackage(String name,PackageManager mgr) {
+    public PyJavaPackage(String name, PackageManager mgr) {
         this(name, mgr, null);
     }
 
-
-    public PyJavaPackage(String name,PackageManager mgr,String jarfile) {
+    public PyJavaPackage(String name, PackageManager mgr, String jarfile) {
         __file__ = jarfile;
         __name__ = name;
 
-        if( mgr == null )
-           __mgr__ = PySystemState.packageManager; // default
+        if (mgr == null)
+            __mgr__ = PySystemState.packageManager; // default
         else
-           __mgr__ = mgr;
+            __mgr__ = mgr;
 
-        clsSet= new PyStringMap();
+        clsSet = new PyStringMap();
 
         __dict__ = new PyStringMap();
         __dict__.__setitem__("__name__", new PyString(__name__));
@@ -60,17 +58,16 @@ public class PyJavaPackage extends PyObject {
 
     public PyJavaPackage addPackage(String name, String jarfile) {
         int dot = name.indexOf('.');
-        String firstName=name;
-        String lastName=null;
+        String firstName = name;
+        String lastName = null;
         if (dot != -1) {
-            firstName = name.substring(0,dot);
-            lastName = name.substring(dot+1, name.length());
+            firstName = name.substring(0, dot);
+            lastName = name.substring(dot + 1, name.length());
         }
         firstName = firstName.intern();
-        PyJavaPackage p = (PyJavaPackage)__dict__.__finditem__(firstName);
+        PyJavaPackage p = (PyJavaPackage) __dict__.__finditem__(firstName);
         if (p == null) {
-            String pname = __name__.length() == 0 ?
-                           firstName : __name__+'.'+firstName;
+            String pname = __name__.length() == 0 ? firstName : __name__ + '.' + firstName;
             p = new PyJavaPackage(pname, __mgr__, jarfile);
             __dict__.__setitem__(firstName, p);
         } else {
@@ -79,11 +76,13 @@ public class PyJavaPackage extends PyObject {
             if (jarfile == null || !jarfile.equals(p.__file__))
                 p.__file__ = null;
         }
-        if (lastName != null) return p.addPackage(lastName, jarfile);
-        else return p;
+        if (lastName != null)
+            return p.addPackage(lastName, jarfile);
+        else
+            return p;
     }
 
-    public PyObject addClass(String name,Class c) {
+    public PyObject addClass(String name, Class c) {
         // xxx what to do with PyObject subclasses?
         //PyObject ret = PyJavaClass.lookup(c);  // xxx java2py?
         // perhaps introduce class2py
@@ -94,7 +93,7 @@ public class PyJavaPackage extends PyObject {
 
     public PyObject addLazyClass(String name) {
         // xxx what to do with PyObject subclasses? this now fails on them
-        PyObject ret = PyJavaClass.lookup(__name__+'.'+name,__mgr__);
+        PyObject ret = PyJavaClass.lookup(__name__ + '.' + name, __mgr__);
         __dict__.__setitem__(name.intern(), ret);
         return ret;
     }
@@ -104,7 +103,7 @@ public class PyJavaPackage extends PyObject {
      */
     public void addPlaceholders(String classes) {
         StringTokenizer tok = new StringTokenizer(classes, ",@");
-        while  (tok.hasMoreTokens())  {
+        while (tok.hasMoreTokens()) {
             String p = tok.nextToken();
             String name = p.trim().intern();
             if (clsSet.__finditem__(name) == null)
@@ -113,7 +112,7 @@ public class PyJavaPackage extends PyObject {
     }
 
     public PyObject __dir__() {
-        return __mgr__.doDir(this,false,false);
+        return __mgr__.doDir(this, false, false);
     }
 
     /**
@@ -126,28 +125,33 @@ public class PyJavaPackage extends PyObject {
      * @return list of member names
      */
     public PyObject fillDir() {
-        return __mgr__.doDir(this,true,false);
+        return __mgr__.doDir(this, true, false);
     }
-
 
     public PyObject __findattr__(String name) {
 
         PyObject ret = __dict__.__finditem__(name);
-        if (ret != null) return ret;
+        if (ret != null)
+            return ret;
 
-        if (__mgr__.packageExists(__name__,name)) {
-            __mgr__.notifyPackageImport(__name__,name);
+        if (__mgr__.packageExists(__name__, name)) {
+            __mgr__.notifyPackageImport(__name__, name);
             return addPackage(name);
         }
 
-        Class c = __mgr__.findClass(__name__,name);
-        if (c != null) return addClass(name,c);
+        Class c = __mgr__.findClass(__name__, name);
+        if (c != null)
+            return addClass(name, c);
 
-        if (name == "__name__") return new PyString(__name__);
-        if (name == "__dict__") return __dict__;
-        if (name == "__mgr__") return Py.java2py(__mgr__);
+        if (name == "__name__")
+            return new PyString(__name__);
+        if (name == "__dict__")
+            return __dict__;
+        if (name == "__mgr__")
+            return Py.java2py(__mgr__);
         if (name == "__file__") {
-            if (__file__ != null) return new PyString(__file__);
+            if (__file__ != null)
+                return new PyString(__file__);
 
             return Py.None;
         }
@@ -157,8 +161,7 @@ public class PyJavaPackage extends PyObject {
 
     public void __setattr__(String attr, PyObject value) {
         if (attr == "__mgr__") {
-            PackageManager newMgr = (PackageManager)Py.tojava(value,
-                                                       PackageManager.class);
+            PackageManager newMgr = (PackageManager) Py.tojava(value, PackageManager.class);
             if (newMgr == null) {
                 throw Py.TypeError("cannot set java package __mgr__ to None");
             }
@@ -170,19 +173,18 @@ public class PyJavaPackage extends PyObject {
             return;
         }
 
-        super.__setattr__(attr,value);
+        super.__setattr__(attr, value);
     }
 
-    public String toString()  {
-        return "<java package "+__name__+" "+Py.idstr(this)+">";
+    public String toString() {
+        return "<java package " + __name__ + " " + Py.idstr(this) + ">";
     }
-    
-    
+
     /**
      * @see org.python.core.PyObject#safeRepr()
      */
     public String safeRepr() throws PyIgnoreMethodTag {
-        return "java package '"+__name__+"'";       
+        return "java package '" + __name__ + "'";
     }
 
 }

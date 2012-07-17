@@ -50,32 +50,31 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 /**
  * @author Fabio Zadrozny
  */
-public final class SystemModulesManager extends ModulesManagerWithBuild implements ISystemModulesManager{
+public final class SystemModulesManager extends ModulesManagerWithBuild implements ISystemModulesManager {
 
     /**
      * The system modules manager may have a nature if we create a SystemASTManager
      */
     private transient IPythonNature nature;
-    
+
     /**
      * This is the place where we store the info related to this manager
      */
     private InterpreterInfo info;
 
-    public SystemModulesManager(InterpreterInfo info){
+    public SystemModulesManager(InterpreterInfo info) {
         this.info = info;
     }
-    
-    public void setInfo(InterpreterInfo info){
+
+    public void setInfo(InterpreterInfo info) {
         //Should only be used in tests (in general the info should be passed in the constructor and never changed again).
         this.info = info;
     }
-    
+
     public void endProcessing() {
         save();
     }
 
-    
     /** 
      * @see org.python.pydev.core.ISystemModulesManager#getBuiltins()
      */
@@ -83,16 +82,15 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
         return this.info.getBuiltins();
     }
 
-
     public void setPythonNature(IPythonNature nature) {
         Assert.isTrue(nature instanceof SystemPythonNature);
-        Assert.isTrue(((SystemPythonNature)nature).info == this.info);
-        
+        Assert.isTrue(((SystemPythonNature) nature).info == this.info);
+
         this.nature = nature;
     }
 
     public IPythonNature getNature() {
-        if(nature == null){
+        if (nature == null) {
             IInterpreterManager manager = getInterpreterManager();
             nature = new SystemPythonNature(manager, this.info);
         }
@@ -101,18 +99,18 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
 
     public IInterpreterManager getInterpreterManager() {
         int interpreterType = this.info.getInterpreterType();
-        switch(interpreterType){
+        switch (interpreterType) {
             case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
                 return PydevPlugin.getJythonInterpreterManager();
-                
+
             case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
                 return PydevPlugin.getPythonInterpreterManager();
-                
+
             case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
                 return PydevPlugin.getIronpythonInterpreterManager();
-                
+
             default:
-                throw new RuntimeException("Don't know how to handle: "+interpreterType);
+                throw new RuntimeException("Don't know how to handle: " + interpreterType);
         }
     }
 
@@ -124,16 +122,14 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
         return getModule(name, nature, dontSearchInit);
     }
 
-
     public String resolveModule(String full, boolean checkSystemManager) {
         return super.resolveModule(full);
     }
 
-    
     public List<String> getCompletePythonPath(IInterpreterInfo interpreter, IInterpreterManager manager) {
-        if(interpreter == null){
+        if (interpreter == null) {
             throw new RuntimeException("The interpreter must be specified (received null)");
-        }else{
+        } else {
             return interpreter.getPythonPath();
         }
     }
@@ -142,7 +138,6 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
         return super.getModule(name, nature, true);
     }
 
-    
     /**
      * Called after the pythonpath is changed.
      */
@@ -150,7 +145,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
     protected void onChangePythonpath(SortedMap<ModulesKey, ModulesKey> keys) {
         //create the builtin modules
         String[] builtins = getBuiltins();
-        if(builtins != null){
+        if (builtins != null) {
             for (int i = 0; i < builtins.length; i++) {
                 String name = builtins[i];
                 final ModulesKey k = new ModulesKey(name, null);
@@ -163,159 +158,157 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
      * This is a cache with the name of a builtin pointing to itself (so, it works basically as a set), it's used
      * so that when we find a builtin that does not have a __file__ token we do not try to recreate it again later.
      */
-    private final LRUCache<String, String> builtinsNotConsidered = new LRUCache<String, String>(500); 
-    
+    private final LRUCache<String, String> builtinsNotConsidered = new LRUCache<String, String>(500);
+
     /**
      * @return true if there is a token that has rep as its representation.
      */
     private boolean contains(IToken[] tokens, String rep) {
         for (IToken token : tokens) {
-            if(token.getRepresentation().equals(rep)){
+            if (token.getRepresentation().equals(rep)) {
                 return true;
             }
         }
         return false;
     }
-    
+
     /**
      * Files only get here if we were unable to parse them.
      */
     private transient Map<File, Long> predefinedFilesNotParsedToTimestamp;
 
-
     public AbstractModule getBuiltinModule(String name, boolean dontSearchInit) {
         AbstractModule n = null;
-        
+
         //check for supported builtins these don't have files associated.
         //they are the first to be passed because the user can force a module to be builtin, because there
         //is some information that is only useful when you have builtins, such as os and wxPython (those can
         //be source modules, but they have so much runtime info that it is almost impossible to get useful information
         //from statically analyzing them).
         String[] builtins = getBuiltins();
-        if(builtins == null || this.info == null){
+        if (builtins == null || this.info == null) {
             //still on startup
             return null;
         }
-        
+
         //for temporary access (so that we don't generate many instances of it)
         ModulesKey keyForCacheAccess = new ModulesKey(null, null);
-        
+
         //A different choice for users that want more complete information on the libraries they're dealing
         //with is using predefined modules. Those will 
         File predefinedModule = this.info.getPredefinedModule(name);
-        if(predefinedModule != null && predefinedModule.exists()){
-        	keyForCacheAccess.name = name;
-        	keyForCacheAccess.file = predefinedModule;
-        	n = cache.getObj(keyForCacheAccess, this);
-        	if((n instanceof PredefinedSourceModule)){
-        		PredefinedSourceModule predefinedSourceModule = (PredefinedSourceModule) n;
-        		if(predefinedSourceModule.isSynched()){
-        			return n;
-        		}
-        		//otherwise (not PredefinedSourceModule or not synched), just keep going to create 
-        		//it as a predefined source module
-        	}
-        	
-        	boolean tryToParse = true;
-        	Long lastModified = null;
-			if(predefinedFilesNotParsedToTimestamp == null){
-        		predefinedFilesNotParsedToTimestamp = new HashMap<File, Long>();
-        	}else{
-	        	Long lastTimeChanged = predefinedFilesNotParsedToTimestamp.get(predefinedModule);
-	        	if(lastTimeChanged != null){
-	        		lastModified = predefinedModule.lastModified();
-	        		if(lastTimeChanged.equals(lastModified)){
-	        			tryToParse = false;
-	        		}else{
-	        			predefinedFilesNotParsedToTimestamp.remove(predefinedModule);
-	        		}
-        		}
-        	}
-        	
-        	
-        	if(tryToParse){
-	        	IDocument doc;
-				try {
-					doc = REF.getDocFromFile(predefinedModule);
-					IGrammarVersionProvider provider = new IGrammarVersionProvider() {
-						
-						public int getGrammarVersion() throws MisconfigurationException {
-							return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0; // Always Python 3.0 here
-						}
-					};
-					Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(
-							new PyParser.ParserInfo(doc, provider, name, predefinedModule));
-					if(obj.o2 != null){
-						if(lastModified == null){
-							lastModified = predefinedModule.lastModified();
-						}
-						predefinedFilesNotParsedToTimestamp.put(predefinedModule, lastModified);
-						Log.log("Unable to parse: "+predefinedModule, obj.o2);
-						
-					}else if(obj.o1 != null){
-						n = new PredefinedSourceModule(name, predefinedModule, obj.o1, obj.o2);
-						doAddSingleModule(keyForCacheAccess, n);
-						return n;
-					}
-					//keep on going
-				} catch (Throwable e) {
-					Log.log(e);
-				}
-        	}
+        if (predefinedModule != null && predefinedModule.exists()) {
+            keyForCacheAccess.name = name;
+            keyForCacheAccess.file = predefinedModule;
+            n = cache.getObj(keyForCacheAccess, this);
+            if ((n instanceof PredefinedSourceModule)) {
+                PredefinedSourceModule predefinedSourceModule = (PredefinedSourceModule) n;
+                if (predefinedSourceModule.isSynched()) {
+                    return n;
+                }
+                //otherwise (not PredefinedSourceModule or not synched), just keep going to create 
+                //it as a predefined source module
+            }
+
+            boolean tryToParse = true;
+            Long lastModified = null;
+            if (predefinedFilesNotParsedToTimestamp == null) {
+                predefinedFilesNotParsedToTimestamp = new HashMap<File, Long>();
+            } else {
+                Long lastTimeChanged = predefinedFilesNotParsedToTimestamp.get(predefinedModule);
+                if (lastTimeChanged != null) {
+                    lastModified = predefinedModule.lastModified();
+                    if (lastTimeChanged.equals(lastModified)) {
+                        tryToParse = false;
+                    } else {
+                        predefinedFilesNotParsedToTimestamp.remove(predefinedModule);
+                    }
+                }
+            }
+
+            if (tryToParse) {
+                IDocument doc;
+                try {
+                    doc = REF.getDocFromFile(predefinedModule);
+                    IGrammarVersionProvider provider = new IGrammarVersionProvider() {
+
+                        public int getGrammarVersion() throws MisconfigurationException {
+                            return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0; // Always Python 3.0 here
+                        }
+                    };
+                    Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, provider,
+                            name, predefinedModule));
+                    if (obj.o2 != null) {
+                        if (lastModified == null) {
+                            lastModified = predefinedModule.lastModified();
+                        }
+                        predefinedFilesNotParsedToTimestamp.put(predefinedModule, lastModified);
+                        Log.log("Unable to parse: " + predefinedModule, obj.o2);
+
+                    } else if (obj.o1 != null) {
+                        n = new PredefinedSourceModule(name, predefinedModule, obj.o1, obj.o2);
+                        doAddSingleModule(keyForCacheAccess, n);
+                        return n;
+                    }
+                    //keep on going
+                } catch (Throwable e) {
+                    Log.log(e);
+                }
+            }
         }
-        
+
         boolean foundStartingWithBuiltin = false;
         FastStringBuffer buffer = null;
-        
+
         for (int i = 0; i < builtins.length; i++) {
             String forcedBuiltin = builtins[i];
             if (name.startsWith(forcedBuiltin)) {
-                if(name.length() > forcedBuiltin.length() && name.charAt(forcedBuiltin.length()) == '.'){
+                if (name.length() > forcedBuiltin.length() && name.charAt(forcedBuiltin.length()) == '.') {
                     foundStartingWithBuiltin = true;
-                    
+
                     keyForCacheAccess.name = name;
                     n = cache.getObj(keyForCacheAccess, this);
-                    
-                    if(n == null && dontSearchInit == false){
-                        if(buffer == null){
+
+                    if (n == null && dontSearchInit == false) {
+                        if (buffer == null) {
                             buffer = new FastStringBuffer();
-                        }else{
+                        } else {
                             buffer.clear();
                         }
                         keyForCacheAccess.name = buffer.append(name).append(".__init__").toString();
                         n = cache.getObj(keyForCacheAccess, this);
                     }
-                    
-                    if(n instanceof EmptyModule || n instanceof SourceModule){ 
+
+                    if (n instanceof EmptyModule || n instanceof SourceModule) {
                         //it is actually found as a source module, so, we have to 'coerce' it to a compiled module
                         n = new CompiledModule(name, this);
                         doAddSingleModule(new ModulesKey(n.getName(), null), n);
                         return n;
                     }
                 }
-                
-                if(name.equals(forcedBuiltin)){
-                    
+
+                if (name.equals(forcedBuiltin)) {
+
                     keyForCacheAccess.name = name;
                     n = cache.getObj(keyForCacheAccess, this);
-                    
-                    if(n == null || n instanceof EmptyModule || n instanceof SourceModule){ 
+
+                    if (n == null || n instanceof EmptyModule || n instanceof SourceModule) {
                         //still not created or not defined as compiled module (as it should be)
                         n = new CompiledModule(name, this);
                         doAddSingleModule(new ModulesKey(n.getName(), null), n);
                         return n;
                     }
                 }
-                if(n instanceof CompiledModule){
+                if (n instanceof CompiledModule) {
                     return n;
                 }
             }
         }
-        if(foundStartingWithBuiltin){
-            if(builtinsNotConsidered.getObj(name) != null){
+        if (foundStartingWithBuiltin) {
+            if (builtinsNotConsidered.getObj(name) != null) {
                 return null;
             }
-            
+
             //ok, just add it if it is some module that actually exists
             n = new CompiledModule(name, this);
             IToken[] globalTokens = n.getGlobalTokens();
@@ -324,10 +317,10 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
             //first and only then go on to this token).
             //done: a cache with those tokens should be kept, so that we don't actually have to create
             //the module to see its return values (because that's slow)
-            if(globalTokens.length > 0 && contains(globalTokens, "__file__")){
+            if (globalTokens.length > 0 && contains(globalTokens, "__file__")) {
                 doAddSingleModule(new ModulesKey(name, null), n);
                 return n;
-            }else{
+            } else {
                 builtinsNotConsidered.add(name, name);
                 return null;
             }
@@ -335,17 +328,16 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
         return null;
     }
 
-
     /**
      * In the system modules manager, we also have to check for the builtins
      */
     @Override
     public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit) {
         AbstractModule n = getBuiltinModule(name, dontSearchInit);
-        if(n != null){
+        if (n != null) {
             return n;
         }
-        
+
         return super.getModule(name, nature, dontSearchInit);
     }
 
@@ -353,41 +345,39 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
         return super.getModule(name, nature, dontSearchInit);
     }
 
-
     public Tuple<IModule, IModulesManager> getModuleAndRelatedModulesManager(String name, IPythonNature nature,
             boolean checkSystemManager, boolean dontSearchInit) {
         IModule module = this.getModule(name, nature, checkSystemManager, dontSearchInit);
-        if(module != null){
+        if (module != null) {
             return new Tuple<IModule, IModulesManager>(module, this);
         }
         return null;
     }
 
-
     public void load() throws IOException {
         final File workspaceMetadataFile = getIoDirectory();
         ModulesManager.loadFromFile(this, workspaceMetadataFile);
-        
+
         try {
-            this.deltaSaver = new DeltaSaver<ModulesKey>(this.getIoDirectory(), "v1_sys_astdelta", readFromFileMethod,toFileMethod);
+            this.deltaSaver = new DeltaSaver<ModulesKey>(this.getIoDirectory(), "v1_sys_astdelta", readFromFileMethod,
+                    toFileMethod);
         } catch (Exception e) {
             Log.log(e);
         }
         deltaSaver.processDeltas(this); //process the current deltas (clears current deltas automatically and saves it when the processing is concluded)
     }
 
-
-    public void save(){
+    public void save() {
         final File workspaceMetadataFile = getIoDirectory();
-        if(deltaSaver != null){
+        if (deltaSaver != null) {
             deltaSaver.clearAll(); //When save is called, the deltas don't need to be used anymore.
         }
         this.saveToFile(workspaceMetadataFile);
-        
-        this.deltaSaver = new DeltaSaver<ModulesKey>(this.getIoDirectory(), "v1_sys_astdelta", readFromFileMethod,toFileMethod);
+
+        this.deltaSaver = new DeltaSaver<ModulesKey>(this.getIoDirectory(), "v1_sys_astdelta", readFromFileMethod,
+                toFileMethod);
 
     }
-    
 
     public File getIoDirectory() {
         final File workspaceMetadataFile = PydevPlugin.getWorkspaceMetadataFile(info.getExeAsFileSystemValidPath());
@@ -404,6 +394,5 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
         }
         this.save();
     }
-
 
 }

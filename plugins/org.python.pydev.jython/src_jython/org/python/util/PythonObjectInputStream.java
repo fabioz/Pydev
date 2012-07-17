@@ -10,20 +10,19 @@ public class PythonObjectInputStream extends ObjectInputStream {
         super(istr);
     }
 
-    protected Class resolveClass(ObjectStreamClass v)
-                      throws IOException, ClassNotFoundException {
+    protected Class resolveClass(ObjectStreamClass v) throws IOException, ClassNotFoundException {
         String clsName = v.getName();
         //System.out.println(clsName);
         if (clsName.startsWith("org.python.proxies")) {
             int idx = clsName.lastIndexOf('$');
             if (idx > 19)
-               clsName = clsName.substring(19, idx);
+                clsName = clsName.substring(19, idx);
             //System.out.println("new:" + clsName);
 
             idx = clsName.indexOf('$');
             if (idx >= 0) {
                 String mod = clsName.substring(0, idx);
-                clsName = clsName.substring(idx+1);
+                clsName = clsName.substring(idx + 1);
 
                 PyObject module = importModule(mod);
                 PyObject pycls = module.__getattr__(clsName.intern());
@@ -46,11 +45,8 @@ public class PythonObjectInputStream extends ObjectInputStream {
         }
     }
 
-
     private static PyObject importModule(String name) {
-        PyObject silly_list = new PyTuple(new PyString[] {
-            Py.newString("__doc__"),
-        });
+        PyObject silly_list = new PyTuple(new PyString[] { Py.newString("__doc__"), });
         return __builtin__.__import__(name, null, null, silly_list);
     }
 }

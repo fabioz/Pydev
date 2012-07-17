@@ -20,7 +20,7 @@ import org.python.pydev.debug.model.AbstractDebugTarget;
 public class ThreadSuspendCommand extends AbstractDebuggerCommand {
 
     String thread;
-    
+
     public ThreadSuspendCommand(AbstractDebugTarget debugger, String thread) {
         super(debugger);
         this.thread = thread;

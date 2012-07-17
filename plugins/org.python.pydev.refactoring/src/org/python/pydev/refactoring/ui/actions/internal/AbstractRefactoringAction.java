@@ -36,11 +36,11 @@ public abstract class AbstractRefactoringAction extends Action implements IEdito
     protected PyEdit targetEditor;
 
     public void setActiveEditor(IAction action, IEditorPart targetEditor) {
-        if(targetEditor instanceof ITextEditor){
-            if(targetEditor instanceof PyEdit){
+        if (targetEditor instanceof ITextEditor) {
+            if (targetEditor instanceof PyEdit) {
                 this.targetEditor = (PyEdit) targetEditor;
-            }else{
-            	this.targetEditor = null;
+            } else {
+                this.targetEditor = null;
                 Log.log(new RuntimeException("Editor not a PyEdit."));
             }
         }
@@ -68,29 +68,31 @@ public abstract class AbstractRefactoringAction extends Action implements IEdito
     }
 
     public void run(IAction action) {
-    	if(targetEditor == null){
+        if (targetEditor == null) {
             Status status = PydevPlugin.makeStatus(IStatus.ERROR, "Unable to do refactoring.", null);
-            ErrorDialog.openError(PyAction.getShell(), "Unable to do refactoring.", "Target editor is null (not PyEdit).", status);
-    		return;
-    	}
-    	
+            ErrorDialog.openError(PyAction.getShell(), "Unable to do refactoring.",
+                    "Target editor is null (not PyEdit).", status);
+            return;
+        }
+
         boolean allFilesSaved = saveAll();
-        if(!allFilesSaved){
+        if (!allFilesSaved) {
             return;
         }
 
         RefactoringInfo info;
-        try{
+        try {
             info = new RefactoringInfo(this.targetEditor);
-            PythonRefactoringWizard wizard = new PythonRefactoringWizard(this.createRefactoring(info), this.targetEditor, this.createPage(info), this.getWizardFlags());
-            
+            PythonRefactoringWizard wizard = new PythonRefactoringWizard(this.createRefactoring(info),
+                    this.targetEditor, this.createPage(info), this.getWizardFlags());
+
             wizard.run();
-            
+
             this.targetEditor.getDocumentProvider().changed(this.targetEditor.getEditorInput());
-        }catch(Throwable e){
-        	Log.log(e);
+        } catch (Throwable e) {
+            Log.log(e);
             Throwable initial = e;
-            while(e.getCause() != null){
+            while (e.getCause() != null) {
                 e = e.getCause();
             }
             //get the root cause

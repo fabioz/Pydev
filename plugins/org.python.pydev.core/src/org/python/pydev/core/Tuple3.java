@@ -19,7 +19,7 @@ import java.io.Serializable;
 public final class Tuple3<X, Y, Z> implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
+
     public X o1;
     public Y o2;
     public Z o3;
@@ -29,7 +29,6 @@ public final class Tuple3<X, Y, Z> implements Serializable {
         this.o2 = o2;
         this.o3 = o3;
     }
-
 
     @Override
     public String toString() {
@@ -44,7 +43,6 @@ public final class Tuple3<X, Y, Z> implements Serializable {
         return buffer.toString();
     }
 
-    
     /**
      * Auto-generated code to deal with nulls.
      */
@@ -58,7 +56,6 @@ public final class Tuple3<X, Y, Z> implements Serializable {
         return result;
     }
 
-    
     /**
      * Auto-generated code to deal with nulls.
      */

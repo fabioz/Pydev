@@ -34,16 +34,9 @@ public class ExtractMethodRequest implements IRefactoringRequest, IExtractMethod
 
     private final AdapterPrefs adapterPrefs;
 
-    public ExtractMethodRequest(
-            String methodName, 
-            ITextSelection selection, 
-            AbstractScopeNode<?> scopeAdapter, 
-            ModuleAdapter parsedSelection, 
-            List<String> callParameters,
-            List<String> returnVariables, 
-            Map<String, String> renamedVariables, 
-            int offsetStrategy, 
-            AdapterPrefs adapterPrefs) {
+    public ExtractMethodRequest(String methodName, ITextSelection selection, AbstractScopeNode<?> scopeAdapter,
+            ModuleAdapter parsedSelection, List<String> callParameters, List<String> returnVariables,
+            Map<String, String> renamedVariables, int offsetStrategy, AdapterPrefs adapterPrefs) {
         this.methodName = methodName;
         this.selection = selection;
         this.scopeAdapter = scopeAdapter;
@@ -58,7 +51,7 @@ public class ExtractMethodRequest implements IRefactoringRequest, IExtractMethod
 
     public IASTNodeAdapter<? extends SimpleNode> getOffsetNode() {
         IASTNodeAdapter<? extends SimpleNode> offsetNode = scopeAdapter;
-        while(offsetNode instanceof FunctionDefAdapter){
+        while (offsetNode instanceof FunctionDefAdapter) {
             offsetNode = offsetNode.getParent();
         }
 

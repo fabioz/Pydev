@@ -13,12 +13,12 @@ import org.python.pydev.core.callbacks.CallbackWithListeners;
  *
  */
 public interface IPyContextObserver {
-    
+
     /**
      * If any of the implementors of this interface return true here, it means that the PyDev context is active.
      */
     public boolean isPyContextActive();
-    
+
     @SuppressWarnings("rawtypes")
     public CallbackWithListeners getOnStateChange();
 

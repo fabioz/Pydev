@@ -31,67 +31,59 @@ public class JythonEclipseProcess extends Process {
 
     public JythonEclipseProcess(final String script, final int port, final int clientPort) {
         super();
-        try{
+        try {
 
             outputStream = new MyPipedInputStream();
             errorStream = new MyPipedInputStream();
 
             lock = new Object();
-            
-            
-            thread = new Thread(){
+
+            thread = new Thread() {
                 public void run() {
                     File fileToExec = new File(script);
                     HashMap<String, Object> locals = new HashMap<String, Object>();
                     locals.put("__name__", "__main__");
-                    
+
                     //It's important that the interpreter is created in the Thread and not outside the thread (otherwise
                     //it may be that the output ends up being shared, which is not what we want.)
                     interpreter = JythonPlugin.newPythonInterpreter(false, false);
                     interpreter.setErr(errorStream.internalOutputStream);
                     interpreter.setOut(outputStream.internalOutputStream);
-                    Throwable e = JythonPlugin.exec(
-                            locals, 
-                            interpreter, 
-                            fileToExec, 
-                            new File[]{fileToExec.getParentFile()}, //pythonpath
-                            "''", "'"+port+"'", "'"+clientPort+"'" //args
-                            );
-                    if(e != null){
+                    Throwable e = JythonPlugin.exec(locals, interpreter, fileToExec,
+                            new File[] { fileToExec.getParentFile() }, //pythonpath
+                            "''", "'" + port + "'", "'" + clientPort + "'" //args
+                    );
+                    if (e != null) {
                         Log.log(e);
                     }
                 };
             };
             thread.start();
-            
-        }catch(Exception e){
+
+        } catch (Exception e) {
             Log.log(e);
             throw new RuntimeException(e);
         }
     }
 
     public OutputStream getOutputStream() {
-        
+
         return outputStream.internalOutputStream;
     }
 
-    
     public InputStream getInputStream() {
-        
+
         return outputStream;
     }
 
-    
     public InputStream getErrorStream() {
-        
+
         return errorStream;
     }
 
-    
-
     @Override
-    public int waitFor() throws InterruptedException{
-        synchronized(lock){
+    public int waitFor() throws InterruptedException {
+        synchronized (lock) {
             lock.wait();
         }
 
@@ -99,35 +91,33 @@ public class JythonEclipseProcess extends Process {
     }
 
     @Override
-    public int exitValue(){
+    public int exitValue() {
         throw new IllegalThreadStateException();
     }
 
     @Override
-    public void destroy(){
-        synchronized(lock){
+    public void destroy() {
+        synchronized (lock) {
             lock.notify();
         }
 
-        try{
-            if(outputStream != null){
+        try {
+            if (outputStream != null) {
                 outputStream.close();
                 outputStream = null;
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             Log.log(e);
         }
 
-
-        try{
-            if(errorStream != null){
+        try {
+            if (errorStream != null) {
                 errorStream.close();
                 errorStream = null;
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             Log.log(e);
         }
     }
-
 
 }

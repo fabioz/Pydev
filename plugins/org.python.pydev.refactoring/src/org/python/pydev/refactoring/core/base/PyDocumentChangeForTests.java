@@ -11,8 +11,7 @@ import org.eclipse.ltk.internal.core.refactoring.TextChanges;
 import org.eclipse.ltk.internal.core.refactoring.UndoDocumentChange;
 import org.eclipse.text.edits.UndoEdit;
 
-public class PyDocumentChangeForTests extends TextChange{
-
+public class PyDocumentChangeForTests extends TextChange {
 
     private IDocument fDocument;
     private int fLength;
@@ -27,13 +26,13 @@ public class PyDocumentChangeForTests extends TextChange{
     public PyDocumentChangeForTests(String name, IDocument document) {
         super(name);
         Assert.isNotNull(document);
-        fDocument= document;
+        fDocument = document;
     }
 
     /**
      * {@inheritDoc}
      */
-    public Object getModifiedElement(){
+    public Object getModifiedElement() {
         return fDocument;
     }
 
@@ -43,7 +42,7 @@ public class PyDocumentChangeForTests extends TextChange{
     public void initializeValidationData(IProgressMonitor pm) {
         // as long as we don't have modification stamps on documents
         // we can only remember its length.
-        fLength= fDocument.getLength();
+        fLength = fDocument.getLength();
     }
 
     /**
@@ -51,7 +50,7 @@ public class PyDocumentChangeForTests extends TextChange{
      */
     public RefactoringStatus isValid(IProgressMonitor pm) throws CoreException {
         pm.beginTask("", 1); //$NON-NLS-1$
-        RefactoringStatus result= TextChanges.isValid(fDocument, fLength);
+        RefactoringStatus result = TextChanges.isValid(fDocument, fLength);
         pm.worked(1);
         return result;
     }

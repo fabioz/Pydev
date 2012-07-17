@@ -44,17 +44,14 @@ public class WorkspaceStub implements IWorkspace {
     public void addResourceChangeListener(IResourceChangeListener listener) {
     }
 
-    public void addResourceChangeListener(IResourceChangeListener listener,
-            int eventMask) {
+    public void addResourceChangeListener(IResourceChangeListener listener, int eventMask) {
     }
 
-    public ISavedState addSaveParticipant(Plugin plugin,
-            ISaveParticipant participant) throws CoreException {
+    public ISavedState addSaveParticipant(Plugin plugin, ISaveParticipant participant) throws CoreException {
         return null;
     }
 
-    public ISavedState addSaveParticipant(String pluginId,
-            ISaveParticipant participant) throws CoreException {
+    public ISavedState addSaveParticipant(String pluginId, ISaveParticipant participant) throws CoreException {
         return null;
     }
 
@@ -72,23 +69,21 @@ public class WorkspaceStub implements IWorkspace {
         return null;
     }
 
-    public IStatus copy(IResource[] resources, IPath destination,
-            boolean force, IProgressMonitor monitor) throws CoreException {
+    public IStatus copy(IResource[] resources, IPath destination, boolean force, IProgressMonitor monitor)
+            throws CoreException {
         return null;
     }
 
-    public IStatus copy(IResource[] resources, IPath destination,
-            int updateFlags, IProgressMonitor monitor) throws CoreException {
+    public IStatus copy(IResource[] resources, IPath destination, int updateFlags, IProgressMonitor monitor)
+            throws CoreException {
         return null;
     }
 
-    public IStatus delete(IResource[] resources, boolean force,
-            IProgressMonitor monitor) throws CoreException {
+    public IStatus delete(IResource[] resources, boolean force, IProgressMonitor monitor) throws CoreException {
         return null;
     }
 
-    public IStatus delete(IResource[] resources, int updateFlags,
-            IProgressMonitor monitor) throws CoreException {
+    public IStatus delete(IResource[] resources, int updateFlags, IProgressMonitor monitor) throws CoreException {
         return null;
     }
 
@@ -102,8 +97,7 @@ public class WorkspaceStub implements IWorkspace {
         return null;
     }
 
-    public IFilterMatcherDescriptor getFilterMatcherDescriptor(
-            String filterMatcherId) {
+    public IFilterMatcherDescriptor getFilterMatcherDescriptor(String filterMatcherId) {
         return null;
     }
 
@@ -143,28 +137,25 @@ public class WorkspaceStub implements IWorkspace {
         return false;
     }
 
-    public IProjectDescription loadProjectDescription(
-            IPath projectDescriptionFile) throws CoreException {
+    public IProjectDescription loadProjectDescription(IPath projectDescriptionFile) throws CoreException {
         return null;
     }
 
-    public IProjectDescription loadProjectDescription(
-            InputStream projectDescriptionFile) throws CoreException {
+    public IProjectDescription loadProjectDescription(InputStream projectDescriptionFile) throws CoreException {
         return null;
     }
 
-    public IStatus move(IResource[] resources, IPath destination,
-            boolean force, IProgressMonitor monitor) throws CoreException {
+    public IStatus move(IResource[] resources, IPath destination, boolean force, IProgressMonitor monitor)
+            throws CoreException {
         return null;
     }
 
-    public IStatus move(IResource[] resources, IPath destination,
-            int updateFlags, IProgressMonitor monitor) throws CoreException {
+    public IStatus move(IResource[] resources, IPath destination, int updateFlags, IProgressMonitor monitor)
+            throws CoreException {
         return null;
     }
 
-    public IBuildConfiguration newBuildConfig(String projectName,
-            String configName) {
+    public IBuildConfiguration newBuildConfig(String projectName, String configName) {
         return null;
     }
 
@@ -181,21 +172,18 @@ public class WorkspaceStub implements IWorkspace {
     public void removeSaveParticipant(String pluginId) {
     }
 
-    public void run(IWorkspaceRunnable action, ISchedulingRule rule, int flags,
-            IProgressMonitor monitor) throws CoreException {
-    }
-
-    public void run(IWorkspaceRunnable action, IProgressMonitor monitor)
+    public void run(IWorkspaceRunnable action, ISchedulingRule rule, int flags, IProgressMonitor monitor)
             throws CoreException {
     }
 
-    public IStatus save(boolean full, IProgressMonitor monitor)
-            throws CoreException {
+    public void run(IWorkspaceRunnable action, IProgressMonitor monitor) throws CoreException {
+    }
+
+    public IStatus save(boolean full, IProgressMonitor monitor) throws CoreException {
         return null;
     }
 
-    public void setDescription(IWorkspaceDescription description)
-            throws CoreException {
+    public void setDescription(IWorkspaceDescription description) throws CoreException {
     }
 
     public void setWorkspaceLock(WorkspaceLock lock) {
@@ -245,10 +233,8 @@ public class WorkspaceStub implements IWorkspace {
         return null;
     }
 
-
-    public void build(IBuildConfiguration[] buildConfigs, int kind, boolean buildReferences, IProgressMonitor monitor) throws CoreException {
+    public void build(IBuildConfiguration[] buildConfigs, int kind, boolean buildReferences, IProgressMonitor monitor)
+            throws CoreException {
     }
-
-
 
 }

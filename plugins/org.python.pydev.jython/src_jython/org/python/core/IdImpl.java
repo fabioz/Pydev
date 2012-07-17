@@ -5,8 +5,7 @@ public abstract class IdImpl {
     public static IdImpl getInstance() {
         if (System.getProperty("java.version").compareTo("1.2") >= 0) {
             try {
-                return (IdImpl) Class.forName("org.python.core.IdImpl2")
-                        .newInstance();
+                return (IdImpl) Class.forName("org.python.core.IdImpl2").newInstance();
             } catch (Throwable e) {
                 return null;
             }

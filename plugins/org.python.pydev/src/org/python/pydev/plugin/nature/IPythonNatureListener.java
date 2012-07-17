@@ -30,6 +30,5 @@ public interface IPythonNatureListener {
      * @param nature the project pythonpath used when rebuilding {@link IPythonPathNature#getCompleteProjectPythonPath()}
      */
     void notifyPythonPathRebuilt(IProject project, IPythonNature nature);
-    
-    
+
 }

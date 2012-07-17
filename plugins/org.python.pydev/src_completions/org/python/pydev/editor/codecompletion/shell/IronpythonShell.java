@@ -37,7 +37,8 @@ public class IronpythonShell extends AbstractShell {
     }
 
     @Override
-    protected synchronized ProcessCreationInfo createServerProcess(IInterpreterInfo interpreter, int pWrite, int pRead) throws IOException {
+    protected synchronized ProcessCreationInfo createServerProcess(IInterpreterInfo interpreter, int pWrite, int pRead)
+            throws IOException {
         File file = new File(interpreter.getExecutableOrJar());
         if (file.exists() == false) {
             throw new RuntimeException("The interpreter location found does not exist. " + interpreter);
@@ -46,12 +47,9 @@ public class IronpythonShell extends AbstractShell {
             throw new RuntimeException("The interpreter location found is a directory. " + interpreter);
         }
 
-        String[] parameters = SimpleIronpythonRunner.preparePythonCallParameters(
-            interpreter.getExecutableOrJar(),
-            REF.getFileAbsolutePath(serverFile),
-            new String[] { String.valueOf(pWrite), String.valueOf(pRead) },
-            true
-        );
+        String[] parameters = SimpleIronpythonRunner.preparePythonCallParameters(interpreter.getExecutableOrJar(),
+                REF.getFileAbsolutePath(serverFile), new String[] { String.valueOf(pWrite), String.valueOf(pRead) },
+                true);
 
         IInterpreterManager manager = PydevPlugin.getIronpythonInterpreterManager();
 

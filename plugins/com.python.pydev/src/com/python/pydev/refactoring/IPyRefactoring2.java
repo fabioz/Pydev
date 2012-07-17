@@ -27,13 +27,13 @@ import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
  * The additional methods in this interface are related to finding a class hierarchy 
  * (used to populate the hierarchy view)
  */
-public interface IPyRefactoring2  {
-    
+public interface IPyRefactoring2 {
+
     /**
      * @return the class hierarchy for some request.
      */
     public HierarchyNodeModel findClassHierarchy(RefactoringRequest request, boolean findOnlyParents);
-    
+
     /**
      * @param defs the definitions we're intersted in.
      * @return true if all the definitions are in the same class hierarchy and false otherwise
@@ -44,5 +44,6 @@ public interface IPyRefactoring2  {
      * @return A map so that: the key of the map has the file and the module name that the file represents and 
      * the value a list of occurrences.
      */
-    public Map<Tuple<String, File>, HashSet<ASTEntry>> findAllOccurrences(RefactoringRequest req) throws OperationCanceledException, CoreException;
+    public Map<Tuple<String, File>, HashSet<ASTEntry>> findAllOccurrences(RefactoringRequest req)
+            throws OperationCanceledException, CoreException;
 }

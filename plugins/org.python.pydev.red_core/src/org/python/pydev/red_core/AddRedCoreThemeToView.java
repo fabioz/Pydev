@@ -13,27 +13,26 @@ import org.python.pydev.debug.codecoverage.PyCodeCoverageView;
 import org.python.pydev.ui.IViewCreatedObserver;
 import org.python.pydev.ui.IViewWithControls;
 
-public class AddRedCoreThemeToView implements IViewCreatedObserver{
+public class AddRedCoreThemeToView implements IViewCreatedObserver {
 
     private static boolean registeredForStyleOnCoverage = false;
 
-
     @SuppressWarnings("unchecked")
     public void notifyViewCreated(IViewWithControls view) {
-        if(!AddRedCoreThemeAvailable.isRedCoreAvailableForTheming()){
+        if (!AddRedCoreThemeAvailable.isRedCoreAvailableForTheming()) {
             return;
         }
         AddRedCoreThemeToViewCallbacks onViewCreatedListener = new AddRedCoreThemeToViewCallbacks();
         view.getOnControlCreated().registerListener(onViewCreatedListener.onControlCreated);
         view.getOnControlDisposed().registerListener(onViewCreatedListener.onControlDisposed);
-        
-        if(view instanceof PyCodeCoverageView){
-            if(!registeredForStyleOnCoverage){
+
+        if (view instanceof PyCodeCoverageView) {
+            if (!registeredForStyleOnCoverage) {
                 //Only register once as it's static.
                 registeredForStyleOnCoverage = true;
                 final AddRedCorePreferences preferences = new AddRedCorePreferences();
                 CoverageCache.onStyleCreated.registerListener(new ICallbackListener<StyleRange>() {
-                    
+
                     public Object call(StyleRange obj) {
                         obj.foreground = preferences.getHyperlinkTextAttribute().getForeground();
                         return null;

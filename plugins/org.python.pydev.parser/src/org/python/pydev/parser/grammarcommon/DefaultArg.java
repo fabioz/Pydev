@@ -10,7 +10,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.exprType;
 
 public class DefaultArg extends SimpleNode {
-    
+
     final public exprType parameter;
     final public exprType value;
     final public exprType typeDef;

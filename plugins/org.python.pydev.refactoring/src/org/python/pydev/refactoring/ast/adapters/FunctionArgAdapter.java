@@ -20,7 +20,8 @@ import org.python.pydev.refactoring.ast.visitors.rewriter.Rewriter;
 
 public class FunctionArgAdapter extends AbstractNodeAdapter<argumentsType> {
 
-    public FunctionArgAdapter(ModuleAdapter module, FunctionDefAdapter parent, argumentsType node, AdapterPrefs adapterPrefs) {
+    public FunctionArgAdapter(ModuleAdapter module, FunctionDefAdapter parent, argumentsType node,
+            AdapterPrefs adapterPrefs) {
         super(module, parent, node, adapterPrefs);
         Assert.isNotNull(module);
     }
@@ -30,7 +31,7 @@ public class FunctionArgAdapter extends AbstractNodeAdapter<argumentsType> {
     }
 
     public boolean hasVarArg() {
-        return(getASTNode().vararg != null);
+        return (getASTNode().vararg != null);
     }
 
     public boolean hasArg() {
@@ -39,7 +40,7 @@ public class FunctionArgAdapter extends AbstractNodeAdapter<argumentsType> {
 
     public List<String> getArgOnly() {
         List<String> args = new ArrayList<String>();
-        for(exprType arg:getASTNode().args){
+        for (exprType arg : getASTNode().args) {
             args.add(nodeHelper.getName(arg));
         }
         return args;
@@ -47,7 +48,7 @@ public class FunctionArgAdapter extends AbstractNodeAdapter<argumentsType> {
 
     public List<String> getSelfFilteredArgNames() {
         List<String> args = new ArrayList<String>();
-        for(exprType arg:getSelfFilteredArgs()){
+        for (exprType arg : getSelfFilteredArgs()) {
             args.add(nodeHelper.getName(arg));
         }
         return args;
@@ -55,13 +56,13 @@ public class FunctionArgAdapter extends AbstractNodeAdapter<argumentsType> {
 
     public List<exprType> getSelfFilteredArgs() {
         List<exprType> args = new ArrayList<exprType>();
-        if(getASTNode().args == null){
+        if (getASTNode().args == null) {
             return args;
         }
 
-        for(exprType arg:getASTNode().args){
+        for (exprType arg : getASTNode().args) {
             String argument = nodeHelper.getName(arg);
-            if(!nodeHelper.isSelf(argument)){
+            if (!nodeHelper.isSelf(argument)) {
                 args.add((exprType) arg.createCopy()); //We have to create a copy because we don't want specials.
             }
         }

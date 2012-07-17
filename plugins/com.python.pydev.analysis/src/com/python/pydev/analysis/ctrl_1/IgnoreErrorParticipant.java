@@ -34,66 +34,48 @@ import com.python.pydev.analysis.builder.AnalysisRunner;
 public class IgnoreErrorParticipant implements IAnalysisMarkersParticipant {
 
     private Image annotationImage;
-    
+
     private Set<Integer> handled = new HashSet<Integer>();
 
     public IgnoreErrorParticipant() {
         ImageCache analysisImageCache = PydevPlugin.getImageCache();
         annotationImage = analysisImageCache.get(UIConstants.ASSIST_ANNOTATION);
-        
+
     }
 
     /** 
      * @throws CoreException 
      * @see com.python.pydev.analysis.ctrl_1.IAnalysisMarkersParticipant#addProps(org.eclipse.core.resources.IMarker, com.python.pydev.analysis.IAnalysisPreferences, java.lang.String, org.python.pydev.core.docutils.PySelection, int, org.python.pydev.editor.PyEdit, java.util.List)
      */
-    public void addProps(
-            MarkerAnnotationAndPosition marker, 
-            IAnalysisPreferences analysisPreferences, 
-            String line, 
-            PySelection ps, 
-            int offset, 
-            IPythonNature nature,
-            PyEdit edit, 
-            List<ICompletionProposal> props
-            ) throws BadLocationException, CoreException {
+    public void addProps(MarkerAnnotationAndPosition marker, IAnalysisPreferences analysisPreferences, String line,
+            PySelection ps, int offset, IPythonNature nature, PyEdit edit, List<ICompletionProposal> props)
+            throws BadLocationException, CoreException {
         Integer id = (Integer) marker.markerAnnotation.getMarker().getAttribute(AnalysisRunner.PYDEV_ANALYSIS_TYPE);
-        if(handled.contains(id)){
+        if (handled.contains(id)) {
             return;
         }
         handled.add(id);
         String messageToIgnore = analysisPreferences.getRequiredMessageToIgnore(id);
-        
-        if(line.indexOf(messageToIgnore) != -1){
+
+        if (line.indexOf(messageToIgnore) != -1) {
             //ok, move on...
-            return ;
+            return;
         }
-        
+
         String strToAdd = messageToIgnore;
         int lineLen = line.length();
-        char lastChar = lineLen==0?' ':line.charAt(lineLen-1);
-        
-        if(line.indexOf("#") == -1){
-            strToAdd = "#"+strToAdd;
+        char lastChar = lineLen == 0 ? ' ' : line.charAt(lineLen - 1);
+
+        if (line.indexOf("#") == -1) {
+            strToAdd = "#" + strToAdd;
         }
 
-        if(!Character.isWhitespace(lastChar)){
-            strToAdd = " "+strToAdd;
+        if (!Character.isWhitespace(lastChar)) {
+            strToAdd = " " + strToAdd;
         }
 
-        
-        IgnoreCompletionProposal proposal = new IgnoreCompletionProposal(
-                strToAdd,
-                ps.getEndLineOffset(), 
-                0,
-                offset,
-                annotationImage,
-                messageToIgnore.substring(1),
-                null,
-                null,
-                PyCompletionProposal.PRIORITY_DEFAULT,
-                edit
-                );
+        IgnoreCompletionProposal proposal = new IgnoreCompletionProposal(strToAdd, ps.getEndLineOffset(), 0, offset,
+                annotationImage, messageToIgnore.substring(1), null, null, PyCompletionProposal.PRIORITY_DEFAULT, edit);
         props.add(proposal);
     }
 }

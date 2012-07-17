@@ -80,15 +80,15 @@ public class ProjectFolderSelectionDialog extends SelectionDialog {
      *            restrict the user to just selecting from existing ones
      * @param message the message to be displayed at the top of this dialog, or <code>null</code> to display a default message
      */
-    public ProjectFolderSelectionDialog(Shell parentShell, IProject initialRoot, boolean allowNewContainerName, String message) {
+    public ProjectFolderSelectionDialog(Shell parentShell, IProject initialRoot, boolean allowNewContainerName,
+            String message) {
         super(parentShell);
-        setTitle("Selection dialog"); 
+        setTitle("Selection dialog");
         this.initialSelection = initialRoot;
         this.allowNewContainerName = allowNewContainerName;
         setMessage(message);
         setShellStyle(getShellStyle() | SWT.RESIZE);
     }
-
 
     /*
      * (non-Javadoc) Method declared on Dialog.
@@ -114,7 +114,8 @@ public class ProjectFolderSelectionDialog extends SelectionDialog {
         };
 
         // container selection group
-        group = new ProjectFolderSelectionGroup(area, listener, allowNewContainerName, getMessage(), showClosedProjects, initialSelection);
+        group = new ProjectFolderSelectionGroup(area, listener, allowNewContainerName, getMessage(),
+                showClosedProjects, initialSelection);
         if (initialSelection != null) {
             group.setSelectedContainer(initialSelection);
         }

@@ -21,71 +21,70 @@ import org.python.pydev.core.structure.FastStringBuffer;
  * @author Fabio Zadrozny
  */
 public class PythonCodeReader {
-    
+
     /** The EOF character */
-    public static final int EOF= -1;
-    
-    private boolean fForward= false;
-    
+    public static final int EOF = -1;
+
+    private boolean fForward = false;
+
     private IDocument fDocument;
     private int fOffset;
-    
-    private int fEnd= -1;
+
+    private int fEnd = -1;
 
     private boolean fOnlyInCurrentStmt;
 
     private ParsingUtils fParsingUtils;
-    
+
     private FastStringBuffer wordBuffer = new FastStringBuffer();
     private int wordBufferOffset = -1;
-    
-    
+
     public PythonCodeReader() {
     }
-    
+
     /**
      * Returns the offset of the last read character. Should only be called after read has been called.
      */
     public int getOffset() {
-        return fForward ? fOffset -1 : fOffset;
+        return fForward ? fOffset - 1 : fOffset;
     }
-    
-    public void configureForwardReader(
-            IDocument document, int offset, int length, boolean skipComments, boolean skipStrings, boolean onlyInCurrentStmt) throws IOException {
+
+    public void configureForwardReader(IDocument document, int offset, int length, boolean skipComments,
+            boolean skipStrings, boolean onlyInCurrentStmt) throws IOException {
         //currently not implemented without skip, so, that's the reason the asserts are here...
         Assert.isTrue(skipComments);
         Assert.isTrue(skipStrings);
 
         fParsingUtils = ParsingUtils.create(document);
         fOnlyInCurrentStmt = onlyInCurrentStmt;
-        fDocument= document;
-        fOffset= offset;
-        
-        fForward= true;
-        fEnd= Math.min(fDocument.getLength(), fOffset + length);        
+        fDocument = document;
+        fOffset = offset;
+
+        fForward = true;
+        fEnd = Math.min(fDocument.getLength(), fOffset + length);
     }
-    
-    public void configureBackwardReader(
-            IDocument document, int offset, boolean skipComments, boolean skipStrings, boolean onlyInCurrentStmt) throws IOException {
+
+    public void configureBackwardReader(IDocument document, int offset, boolean skipComments, boolean skipStrings,
+            boolean onlyInCurrentStmt) throws IOException {
         //currently not implemented without skip, so, that's the reason the asserts are here...
         Assert.isTrue(skipComments);
         Assert.isTrue(skipStrings);
-        
+
         fParsingUtils = ParsingUtils.create(document);
         fOnlyInCurrentStmt = onlyInCurrentStmt;
-        fDocument= document;
-        fOffset= offset;
-        
-        fForward= false;
+        fDocument = document;
+        fOffset = offset;
+
+        fForward = false;
     }
-    
+
     /*
      * @see Reader#close()
      */
     public void close() throws IOException {
-        fDocument= null;
+        fDocument = null;
     }
-    
+
     /*
      * @see SingleCharReader#read()
      */
@@ -96,12 +95,10 @@ public class PythonCodeReader {
             return EOF; //Document may have changed...
         }
     }
-    
 
-    
     private int readForwards() throws BadLocationException {
-        if(wordBufferOffset >= 0){
-            if(wordBufferOffset < wordBuffer.length()){
+        if (wordBufferOffset >= 0) {
+            if (wordBufferOffset < wordBuffer.length()) {
                 fOffset++;
                 return wordBuffer.charAt(wordBufferOffset++);
             }
@@ -109,37 +106,37 @@ public class PythonCodeReader {
             wordBufferOffset = -1;
         }
         while (fOffset < fEnd) {
-            char current= fDocument.getChar(fOffset++);
-            
+            char current = fDocument.getChar(fOffset++);
+
             switch (current) {
                 case '#':
                     fOffset = fParsingUtils.eatComments(null, fOffset);
                     return current;
-                    
+
                 case '"':
                 case '\'':
-                    try{
-                        fOffset = fParsingUtils.eatLiterals(null, fOffset-1)+1;
-                    }catch(SyntaxErrorException e){
+                    try {
+                        fOffset = fParsingUtils.eatLiterals(null, fOffset - 1) + 1;
+                    } catch (SyntaxErrorException e) {
                         return EOF;
                     }
                     //go on to the next loop (returns no char in this step)
                     continue;
             }
-            
-            if(fOnlyInCurrentStmt){
-                if(Character.isJavaIdentifierPart(current)){
+
+            if (fOnlyInCurrentStmt) {
+                if (Character.isJavaIdentifierPart(current)) {
                     wordBuffer.clear().append(current);
                     int offset = fOffset;
                     while (offset < fEnd) {
                         char c = fDocument.getChar(offset++);
-                        if(Character.isJavaIdentifierPart(c)){
+                        if (Character.isJavaIdentifierPart(c)) {
                             wordBuffer.append(c);
-                        }else{
+                        } else {
                             break;
                         }
                     }
-                    if(PySelection.STATEMENT_TOKENS.contains(wordBuffer.toString())){
+                    if (PySelection.STATEMENT_TOKENS.contains(wordBuffer.toString())) {
                         return EOF;
                     }
                     wordBufferOffset = 1; //We've just returned the one at pos == 0
@@ -147,18 +144,15 @@ public class PythonCodeReader {
                 }
             }
 
-            
             return current;
         }
-        
+
         return EOF;
     }
 
-    
-        
     private int readBackwards() throws BadLocationException {
-        if(wordBufferOffset >= 0){
-            if(wordBufferOffset > 0){
+        if (wordBufferOffset >= 0) {
+            if (wordBufferOffset > 0) {
                 //Note that we already returned the one at pos 0
                 fOffset--;
                 return wordBuffer.charAt(--wordBufferOffset);
@@ -166,17 +160,17 @@ public class PythonCodeReader {
             wordBuffer.clear();
             wordBufferOffset = -1;
         }
-        
+
         while (0 < fOffset) {
-            -- fOffset;
-            
+            --fOffset;
+
             handleComment();
-            if(fOffset < 0){
+            if (fOffset < 0) {
                 return EOF;
             }
-            char current= fDocument.getChar(fOffset);
+            char current = fDocument.getChar(fOffset);
             switch (current) {
-            
+
                 case '"':
                 case '\'':
                     try {
@@ -186,40 +180,41 @@ public class PythonCodeReader {
                     }
                     continue;
             }
-            
-            if(fOnlyInCurrentStmt){
-                if(Character.isJavaIdentifierPart(current)){
+
+            if (fOnlyInCurrentStmt) {
+                if (Character.isJavaIdentifierPart(current)) {
                     wordBuffer.clear();
                     int offset = fOffset;
                     while (offset >= 0) {
                         char c = fDocument.getChar(offset--);
-                        if(Character.isJavaIdentifierPart(c)){
+                        if (Character.isJavaIdentifierPart(c)) {
                             wordBuffer.append(c);
-                        }else{
+                        } else {
                             break;
                         }
                     }
                     wordBuffer.reverse();
-                    if(PySelection.STATEMENT_TOKENS.contains(wordBuffer.toString())){
+                    if (PySelection.STATEMENT_TOKENS.contains(wordBuffer.toString())) {
                         return EOF;
                     }
-                    wordBufferOffset = wordBuffer.length()-1;
+                    wordBufferOffset = wordBuffer.length() - 1;
                     return current;
                 }
             }
-            
+
             return current;
-            
+
         }
-        
+
         return EOF;
     }
 
     //works as a cache so that we don't have to handle some line over and over again for comments
     private int handledLine = -1;
+
     private void handleComment() throws BadLocationException {
         int lineOfOffset = fDocument.getLineOfOffset(fOffset);
-        if(handledLine == lineOfOffset){
+        if (handledLine == lineOfOffset) {
             return;
         }
         handledLine = lineOfOffset;
@@ -228,18 +223,18 @@ public class PythonCodeReader {
         int fromIndex = 0;
         IRegion lineInformation = null;
         //first we check for a comment possibility
-        while( (i = line.indexOf('#', fromIndex)) != -1){
-            fromIndex = i+1;
-            
-            if(lineInformation == null){
+        while ((i = line.indexOf('#', fromIndex)) != -1) {
+            fromIndex = i + 1;
+
+            if (lineInformation == null) {
                 lineInformation = fDocument.getLineInformation(lineOfOffset);
             }
             int offset = lineInformation.getOffset() + i;
-            
-            String contentType = ParsingUtils.getContentType(fDocument, offset+1);
-            if(contentType.equals(ParsingUtils.PY_COMMENT)){
+
+            String contentType = ParsingUtils.getContentType(fDocument, offset + 1);
+            if (contentType.equals(ParsingUtils.PY_COMMENT)) {
                 //We need to check this because it may be that the # is found inside a string (which should be ignored)
-                if(offset < fOffset){
+                if (offset < fOffset) {
                     fOffset = offset;
                     return;
                 }
@@ -247,4 +242,3 @@ public class PythonCodeReader {
         }
     }
 }
-

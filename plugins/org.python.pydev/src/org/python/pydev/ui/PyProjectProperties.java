@@ -11,7 +11,6 @@
  */
 package org.python.pydev.ui;
 
-
 import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
@@ -49,12 +48,12 @@ public class PyProjectProperties extends PropertyPage {
      * This is the project we are editing
      */
     private IProject project;
-    
+
     /**
      * Tree with source folders
      */
     private TreeWithAddRemove treeSourceFolders;
-    
+
     /**
      * Tree with external folders
      */
@@ -64,65 +63,60 @@ public class PyProjectProperties extends PropertyPage {
      * Variables are edited here 
      */
     private TabVariables tabVariables;
-    
+
     /**
      * Yes: things are tab-separated
      */
     private TabFolder tabFolder;
-    
+
     /**
      * Creates contents given its parent.
      */
     protected Control createContents(Composite p) {
-        project = (IProject)getElement().getAdapter(IProject.class);
-        
-        
-        Composite topComp= new Composite(p, SWT.NONE);
-        GridLayout innerLayout= new GridLayout();
-        innerLayout.numColumns= 1;
-        innerLayout.marginHeight= 0;
-        innerLayout.marginWidth= 0;
+        project = (IProject) getElement().getAdapter(IProject.class);
+
+        Composite topComp = new Composite(p, SWT.NONE);
+        GridLayout innerLayout = new GridLayout();
+        innerLayout.numColumns = 1;
+        innerLayout.marginHeight = 0;
+        innerLayout.marginWidth = 0;
         topComp.setLayout(innerLayout);
         GridData gd = new GridData(GridData.FILL_BOTH);
         topComp.setLayoutData(gd);
         Label label = new Label(topComp, SWT.None);
-        label.setText(
-                "The final PYTHONPATH used for a launch is composed of the paths\n" +
-        		"defined here, joined with the paths defined by the selected interpreter."
-        );
-        
+        label.setText("The final PYTHONPATH used for a launch is composed of the paths\n"
+                + "defined here, joined with the paths defined by the selected interpreter.");
+
         tabFolder = new TabFolder(topComp, SWT.None);
         gd = new GridData();
         gd.horizontalAlignment = SWT.FILL;
         gd.verticalAlignment = SWT.FILL;
         gd.grabExcessVerticalSpace = true;
         gd.grabExcessHorizontalSpace = true;
-        gd.horizontalSpan  = 1;
+        gd.horizontalSpan = 1;
         tabFolder.setLayoutData(gd);
 
-        
-        if(project != null){
+        if (project != null) {
             try {
                 IPythonPathNature nature = PythonNature.getPythonPathNature(project);
-                
+
                 createTabProjectSourceFolders(nature.getProjectSourcePath(false));
                 createTabExternalSourceFolders(nature.getProjectExternalSourcePath(false));
                 tabVariables = new TabVariables(tabFolder, nature.getVariableSubstitution(false));
-                
+
                 createRestoreButton(topComp);
             } catch (Exception e) {
                 Log.log(e);
             }
-            
+
         }
         return topComp;
     }
 
-
-    private void createRestoreButton(Composite topComp){
+    private void createRestoreButton(Composite topComp) {
         Button button = new Button(topComp, SWT.NONE);
         button.setText("Force restore internal info");
-        button.addSelectionListener(new SelectionListener(){
+        button.addSelectionListener(new SelectionListener() {
 
             public void widgetSelected(SelectionEvent e) {
                 doIt(true);
@@ -130,78 +124,68 @@ public class PyProjectProperties extends PropertyPage {
 
             public void widgetDefaultSelected(SelectionEvent e) {
             }
-            
+
         });
     }
 
-    
-
-    private void createTabExternalSourceFolders(String externalSourcePath){
+    private void createTabExternalSourceFolders(String externalSourcePath) {
         TabItem tabItem = new TabItem(tabFolder, SWT.None);
         tabItem.setText("External Libraries");
         Composite topComp = new Composite(tabFolder, SWT.None);
         tabItem.setImage(PydevPlugin.getImageCache().get(UIConstants.LIB_SYSTEM));
         topComp.setLayout(new GridLayout(1, false));
-        
-        
+
         GridData gd;
         GridData data;
         Label l2;
         l2 = new Label(topComp, SWT.None);
-        l2.setText(
-                "External libraries (source folders/zips/jars/eggs) outside of the workspace.\n\n" +
-        		"When using variables, the final paths resolved must be filesystem absolute.\n\n" +
-        		"Changes in external libraries are not monitored, so, the 'Force restore internal info'\ns" +
-        		"hould be used if an external library changes. "
-        );
+        l2.setText("External libraries (source folders/zips/jars/eggs) outside of the workspace.\n\n"
+                + "When using variables, the final paths resolved must be filesystem absolute.\n\n"
+                + "Changes in external libraries are not monitored, so, the 'Force restore internal info'\ns"
+                + "hould be used if an external library changes. ");
         gd = new GridData();
         gd.grabExcessHorizontalSpace = true;
         gd.grabExcessVerticalSpace = false;
         l2.setLayoutData(gd);
 
         treeExternalLibs = new TreeWithAddRemove(topComp, 0, PythonNature.getStrAsStrItems(externalSourcePath)) {
-            
+
             @Override
             protected String getImageConstant() {
                 return UIConstants.LIB_SYSTEM;
             }
-            
+
             @Override
             protected String getButtonLabel(int i) {
-                switch(i){
+                switch (i) {
                     case 0:
                         return "Add source folder";
-                        
+
                     case 1:
                         return "Add zip/jar/egg";
-                        
+
                     case 2:
                         return "Add based on variable";
-                        
+
                     default:
-                        throw new AssertionError("Unexpected: "+i);
-                        
+                        throw new AssertionError("Unexpected: " + i);
+
                 }
             }
 
             @Override
-            protected void handleAddButtonSelected(int nButton){
-                if(nButton == 0){
+            protected void handleAddButtonSelected(int nButton) {
+                if (nButton == 0) {
                     addItemWithDialog(new DirectoryDialog(getShell()));
-                    
-                }else if(nButton == 1){
+
+                } else if (nButton == 1) {
                     addItemWithDialog(new FileDialog(getShell(), SWT.MULTI));
-                    
-                }else if(nButton == 2){
-                    addItemWithDialog(new InputDialog(
-                            getShell(), 
-                            "Add path to resolve with variable", 
-                            "Add path to resolve with variable in the format: ${VARIABLE}", 
-                            "", 
-                            null)
-                    );
-                    
-                }else{
+
+                } else if (nButton == 2) {
+                    addItemWithDialog(new InputDialog(getShell(), "Add path to resolve with variable",
+                            "Add path to resolve with variable in the format: ${VARIABLE}", "", null));
+
+                } else {
                     throw new AssertionError("Unexpected");
                 }
             }
@@ -210,12 +194,11 @@ public class PyProjectProperties extends PropertyPage {
         data.grabExcessHorizontalSpace = true;
         data.grabExcessVerticalSpace = true;
         treeExternalLibs.setLayoutData(data);
-        
+
         tabItem.setControl(topComp);
     }
 
-
-    private void createTabProjectSourceFolders(String sourcePath){
+    private void createTabProjectSourceFolders(String sourcePath) {
         TabItem tabItem = new TabItem(tabFolder, SWT.None);
         tabItem.setText("Source Folders");
         tabItem.setImage(PydevPlugin.getImageCache().get(UIConstants.SOURCE_FOLDER_ICON));
@@ -225,58 +208,52 @@ public class PyProjectProperties extends PropertyPage {
         GridData gd;
         GridData data;
         Label l2 = new Label(topComp, SWT.None);
-        l2.setText(
-                "Project Source Folders (and zips/jars/eggs).\n\n" +
-        		"When using variables, the final paths resolved must be workspace-relative."
-        );
+        l2.setText("Project Source Folders (and zips/jars/eggs).\n\n"
+                + "When using variables, the final paths resolved must be workspace-relative.");
         gd = new GridData();
         gd.grabExcessHorizontalSpace = true;
         gd.grabExcessVerticalSpace = false;
         l2.setLayoutData(gd);
 
-        
-        treeSourceFolders = new TreeWithAddRemove(topComp, 0, PythonNature.getStrAsStrItems(sourcePath)){
+        treeSourceFolders = new TreeWithAddRemove(topComp, 0, PythonNature.getStrAsStrItems(sourcePath)) {
 
             @Override
             protected String getButtonLabel(int i) {
-                switch(i){
+                switch (i) {
                     case 0:
                         return "Add source folder";
-                        
+
                     case 1:
                         return "Add zip/jar/egg";
-                        
+
                     case 2:
                         return "Add based on variable";
-                        
+
                     default:
-                        throw new AssertionError("Unexpected: "+i);
-                        
+                        throw new AssertionError("Unexpected: " + i);
+
                 }
             }
 
             @Override
-            protected void handleAddButtonSelected(int nButton){
-                if(nButton == 0){
-                    addItemWithDialog(new ProjectFolderSelectionDialog(getShell(), project, true, "Choose source folders to add to PYTHONPATH"));
-                    
-                }else if(nButton == 1){
-                    addItemWithDialog(new ResourceSelectionDialog(getShell(), project, "Choose zip/jar/egg to add to PYTHONPATH"));
-                    
-                }else if(nButton == 2){
-                    addItemWithDialog(new InputDialog(
-                            getShell(), 
-                            "Add path to resolve with variable", 
-                            "Add path to resolve with variable in the format: ${VARIABLE}", 
-                            "", 
-                            null)
-                    );
-                    
-                }else{
+            protected void handleAddButtonSelected(int nButton) {
+                if (nButton == 0) {
+                    addItemWithDialog(new ProjectFolderSelectionDialog(getShell(), project, true,
+                            "Choose source folders to add to PYTHONPATH"));
+
+                } else if (nButton == 1) {
+                    addItemWithDialog(new ResourceSelectionDialog(getShell(), project,
+                            "Choose zip/jar/egg to add to PYTHONPATH"));
+
+                } else if (nButton == 2) {
+                    addItemWithDialog(new InputDialog(getShell(), "Add path to resolve with variable",
+                            "Add path to resolve with variable in the format: ${VARIABLE}", "", null));
+
+                } else {
                     throw new AssertionError("Unexpected");
                 }
             }
-            
+
             @Override
             protected String getImageConstant() {
                 return UIConstants.SOURCE_FOLDER_ICON;
@@ -287,10 +264,9 @@ public class PyProjectProperties extends PropertyPage {
         data.grabExcessHorizontalSpace = true;
         data.grabExcessVerticalSpace = true;
         treeSourceFolders.setLayoutData(data);
-        
+
         tabItem.setControl(topComp);
     }
-
 
     /**
      * Apply only saves the new value. does not do code completion update.
@@ -300,7 +276,7 @@ public class PyProjectProperties extends PropertyPage {
     protected void performApply() {
         doIt(false);
     }
-    
+
     /**
      * Saves values into the project and updates the code completion. 
      */
@@ -317,37 +293,35 @@ public class PyProjectProperties extends PropertyPage {
             try {
                 boolean changed = false;
                 IPythonPathNature pythonPathNature = PythonNature.getPythonPathNature(project);
-                
+
                 String sourcePath = pythonPathNature.getProjectSourcePath(false);
                 String externalSourcePath = pythonPathNature.getProjectExternalSourcePath(false);
                 Map<String, String> variableSubstitution = pythonPathNature.getVariableSubstitution(false);
-                
+
                 String newSourcePath = StringUtils.leftAndRightTrim(treeSourceFolders.getTreeItemsAsStr(), '|');
                 String newExternalSourcePath = StringUtils.leftAndRightTrim(treeExternalLibs.getTreeItemsAsStr(), '|');
                 Map<String, String> newVariableSubstitution = tabVariables.getTreeItemsAsMap();
-                
-                
-                
-                if(checkIfShouldBeSet(sourcePath, newSourcePath)){
+
+                if (checkIfShouldBeSet(sourcePath, newSourcePath)) {
                     pythonPathNature.setProjectSourcePath(newSourcePath);
                     changed = true;
-                }                
+                }
 
-                if(checkIfShouldBeSet(externalSourcePath, newExternalSourcePath)){
+                if (checkIfShouldBeSet(externalSourcePath, newExternalSourcePath)) {
                     pythonPathNature.setProjectExternalSourcePath(newExternalSourcePath);
                     changed = true;
-                }                
-                
-                if(checkIfShouldBeSet(variableSubstitution, newVariableSubstitution)){
+                }
+
+                if (checkIfShouldBeSet(variableSubstitution, newVariableSubstitution)) {
                     pythonPathNature.setVariableSubstitution(newVariableSubstitution);
                     changed = true;
-                }                
+                }
 
                 PythonNature pythonNature = PythonNature.getPythonNature(project);
-                if(pythonNature != null && (changed || force || pythonNature.getAstManager() == null)){
+                if (pythonNature != null && (changed || force || pythonNature.getAstManager() == null)) {
                     pythonNature.rebuildPath();
                 }
-                
+
             } catch (Exception e) {
                 Log.log(IStatus.ERROR, "Unexpected error setting project properties", e);
             }
@@ -355,33 +329,32 @@ public class PyProjectProperties extends PropertyPage {
         return true;
     }
 
-
     @SuppressWarnings({ "rawtypes" })
-    private boolean checkIfShouldBeSet(Object oldVal, Object newVal){
-        if(oldVal == null){
-            if(newVal == null){
+    private boolean checkIfShouldBeSet(Object oldVal, Object newVal) {
+        if (oldVal == null) {
+            if (newVal == null) {
                 return false;//both null
             }
-            if(newVal instanceof String){
-                
+            if (newVal instanceof String) {
+
                 String string = (String) newVal;
-                if(string.trim().length() == 0){
+                if (string.trim().length() == 0) {
                     return false; //both are empty
                 }
-                
-            }else if(newVal instanceof Map){
+
+            } else if (newVal instanceof Map) {
                 Map map = (Map) newVal;
-                if(map.size() == 0){
+                if (map.size() == 0) {
                     return false; //both are empty
                 }
-            }else{
-                throw new AssertionError("Unexpected: "+newVal);
+            } else {
+                throw new AssertionError("Unexpected: " + newVal);
             }
-            
+
             return true;
         }
-        
-        if(!oldVal.equals(newVal)){
+
+        if (!oldVal.equals(newVal)) {
             return true;
         }
         return false;

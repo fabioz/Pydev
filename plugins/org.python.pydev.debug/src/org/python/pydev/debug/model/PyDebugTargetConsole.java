@@ -21,87 +21,87 @@ import org.python.pydev.dltk.console.ui.ScriptConsoleManager;
  */
 public class PyDebugTargetConsole extends PyDebugTarget implements IPydevConsoleDebugTarget {
 
-	PyThreadConsole thread;
-	IThread[] threads;
-	private final PydevConsoleCommunication scriptConsoleCommunication;
-	private ScriptConsole console;
+    PyThreadConsole thread;
+    IThread[] threads;
+    private final PydevConsoleCommunication scriptConsoleCommunication;
+    private ScriptConsole console;
 
-	public PyDebugTargetConsole(PydevConsoleCommunication scriptConsoleCommunication, ILaunch launch, IProcess process,
-			RemoteDebuggerConsole debugger) {
-		super(launch, process, null, debugger, null);
-		this.scriptConsoleCommunication = scriptConsoleCommunication;
+    public PyDebugTargetConsole(PydevConsoleCommunication scriptConsoleCommunication, ILaunch launch, IProcess process,
+            RemoteDebuggerConsole debugger) {
+        super(launch, process, null, debugger, null);
+        this.scriptConsoleCommunication = scriptConsoleCommunication;
 
-		thread = new PyThreadConsole(this);
-		threads = new IThread[] { thread };
-	}
+        thread = new PyThreadConsole(this);
+        threads = new IThread[] { thread };
+    }
 
-	@Override
-	public RemoteDebuggerConsole getDebugger() {
-		return (RemoteDebuggerConsole) super.getDebugger();
-	}
+    @Override
+    public RemoteDebuggerConsole getDebugger() {
+        return (RemoteDebuggerConsole) super.getDebugger();
+    }
 
-	@Override
-	public IThread[] getThreads() throws DebugException {
-		if (isTerminated())
-			return new IThread[0];
-		return threads;
-	}
+    @Override
+    public IThread[] getThreads() throws DebugException {
+        if (isTerminated())
+            return new IThread[0];
+        return threads;
+    }
 
-	private IStackFrame[] createFrames() {
-		PyStackFrameConsole frame = new PyStackFrameConsole(thread, this);
-		return new IStackFrame[] { frame };
-	}
+    private IStackFrame[] createFrames() {
+        PyStackFrameConsole frame = new PyStackFrameConsole(thread, this);
+        return new IStackFrame[] { frame };
+    }
 
-	public void setSuspended(boolean suspended) {
-		if (suspended != thread.isSuspended()) {
-			final int state;
-			if (suspended) {
-				state = DebugEvent.SUSPEND;
-				thread.setSuspended(true, createFrames());
-			} else {
-				state = DebugEvent.RESUME;
-				thread.setSuspended(false, null);
-			}
-			fireEvent(new DebugEvent(thread, state, DebugEvent.CLIENT_REQUEST));
-		}
-	}
+    public void setSuspended(boolean suspended) {
+        if (suspended != thread.isSuspended()) {
+            final int state;
+            if (suspended) {
+                state = DebugEvent.SUSPEND;
+                thread.setSuspended(true, createFrames());
+            } else {
+                state = DebugEvent.RESUME;
+                thread.setSuspended(false, null);
+            }
+            fireEvent(new DebugEvent(thread, state, DebugEvent.CLIENT_REQUEST));
+        }
+    }
 
-	@Override
-	public String getName() throws DebugException {
-		if (console == null) {
-			return PydevConsole.CONSOLE_NAME;
-		}
-		return console.getName();
-	}
+    @Override
+    public String getName() throws DebugException {
+        if (console == null) {
+            return PydevConsole.CONSOLE_NAME;
+        }
+        return console.getName();
+    }
 
-	public void initialize() {
-		// we post version command just for fun
-		// it establishes the connection
-		this.postCommand(new VersionCommand(this));
+    public void initialize() {
+        // we post version command just for fun
+        // it establishes the connection
+        this.postCommand(new VersionCommand(this));
 
-		// We don't issue run command or anything similar, we just start off
-		// suspended
-		setSuspended(true);
-	}
+        // We don't issue run command or anything similar, we just start off
+        // suspended
+        setSuspended(true);
+    }
 
-	@Override
-	public void postCommand(AbstractDebuggerCommand cmd) {
-		try {
-			scriptConsoleCommunication.postCommand(cmd);
-		} catch (Exception e) {
-			Log.log(e);
-		}
-	}
+    @Override
+    public void postCommand(AbstractDebuggerCommand cmd) {
+        try {
+            scriptConsoleCommunication.postCommand(cmd);
+        } catch (Exception e) {
+            Log.log(e);
+        }
+    }
 
-	@Override
-	public void terminate() {
-		super.terminate();
-		if (console != null) {
-			ScriptConsoleManager.getInstance().close(console);
-		}
-	}
+    @Override
+    public void terminate() {
+        super.terminate();
+        if (console != null) {
+            ScriptConsoleManager.getInstance().close(console);
+        }
+    }
 
-	public void setConsole(ScriptConsole console) {
-		this.console = console;
-	}
+    public void setConsole(ScriptConsole console) {
+        this.console = console;
+    }
 }

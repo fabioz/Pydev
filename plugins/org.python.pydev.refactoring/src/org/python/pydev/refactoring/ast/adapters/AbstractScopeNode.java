@@ -32,17 +32,19 @@ public abstract class AbstractScopeNode<T extends SimpleNode> extends AbstractNo
 
     }
 
-    public AbstractScopeNode(ModuleAdapter module, AbstractScopeNode<? extends SimpleNode> parent, T node, AdapterPrefs adapterPrefs) {
+    public AbstractScopeNode(ModuleAdapter module, AbstractScopeNode<? extends SimpleNode> parent, T node,
+            AdapterPrefs adapterPrefs) {
         super(module, parent, node, adapterPrefs);
     }
 
     public List<FunctionDefAdapter> getFunctions() {
-        if(functions == null){
+        if (functions == null) {
             T node = getASTNode();
             ModuleAdapter module = getModule();
             assert (node != null);
             assert (module != null);
-            LocalFunctionDefVisitor visitor = VisitorFactory.createContextVisitor(LocalFunctionDefVisitor.class, node, module, this);
+            LocalFunctionDefVisitor visitor = VisitorFactory.createContextVisitor(LocalFunctionDefVisitor.class, node,
+                    module, this);
             functions = visitor.getAll();
         }
 
@@ -50,8 +52,9 @@ public abstract class AbstractScopeNode<T extends SimpleNode> extends AbstractNo
     }
 
     public List<IClassDefAdapter> getClasses() {
-        if(this.classes == null){
-            ClassDefVisitor visitor = VisitorFactory.createContextVisitor(ClassDefVisitor.class, this.getASTNode(), getModule(), this);
+        if (this.classes == null) {
+            ClassDefVisitor visitor = VisitorFactory.createContextVisitor(ClassDefVisitor.class, this.getASTNode(),
+                    getModule(), this);
 
             this.classes = visitor.getAll();
         }
@@ -59,24 +62,26 @@ public abstract class AbstractScopeNode<T extends SimpleNode> extends AbstractNo
     }
 
     public List<SimpleAdapter> getAssignedVariables() {
-        if(assignedVariables == null){
-            ScopeAssignedVisitor visitor = VisitorFactory.createContextVisitor(ScopeAssignedVisitor.class, getASTNode(), this.getModule(), this);
+        if (assignedVariables == null) {
+            ScopeAssignedVisitor visitor = VisitorFactory.createContextVisitor(ScopeAssignedVisitor.class,
+                    getASTNode(), this.getModule(), this);
             assignedVariables = visitor.getAll();
         }
         return assignedVariables;
     }
 
     public List<SimpleAdapter> getUsedVariables() {
-        if(usedVariables == null){
-            ScopeVariablesVisitor visitor = VisitorFactory.createContextVisitor(ScopeVariablesVisitor.class, getASTNode(), this.getModule(), this);
+        if (usedVariables == null) {
+            ScopeVariablesVisitor visitor = VisitorFactory.createContextVisitor(ScopeVariablesVisitor.class,
+                    getASTNode(), this.getModule(), this);
             usedVariables = visitor.getAll();
         }
         return usedVariables;
     }
 
     public boolean alreadyUsedName(String newName) {
-        for(SimpleAdapter adapter:this.getUsedVariables()){
-            if(adapter.getName().compareTo(newName) == 0){
+        for (SimpleAdapter adapter : this.getUsedVariables()) {
+            if (adapter.getName().compareTo(newName) == 0) {
                 return true;
             }
         }
@@ -86,10 +91,9 @@ public abstract class AbstractScopeNode<T extends SimpleNode> extends AbstractNo
     /**
      * Provides all the duplicates in this scope (excluding the one from the passed selection).
      */
-    public List<Tuple<ITextSelection, SimpleNode>> getDuplicates(
-            ITextSelection selection, exprType expression) {
-        FindDuplicatesVisitor v = VisitorFactory.createDuplicatesVisitor(
-                selection, getASTNode(), expression, this, this.getModule().getDoc());
+    public List<Tuple<ITextSelection, SimpleNode>> getDuplicates(ITextSelection selection, exprType expression) {
+        FindDuplicatesVisitor v = VisitorFactory.createDuplicatesVisitor(selection, getASTNode(), expression, this,
+                this.getModule().getDoc());
         return v.getDuplicates();
     }
 }

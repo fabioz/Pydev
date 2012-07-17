@@ -39,34 +39,31 @@ import com.python.pydev.analysis.messages.IMessage;
  * 
  * @author Fabio
  */
-public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
-    
+public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
+
     /**
      * These are the callbacks called whenever there's a run to be done in this class.
      */
-    public static final List<ICallback<Object, IResource>> analysisBuilderListeners = 
-        new ArrayList<ICallback<Object,IResource>>();
-
+    public static final List<ICallback<Object, IResource>> analysisBuilderListeners = new ArrayList<ICallback<Object, IResource>>();
 
     // -------------------------------------------------------------------------------------------- ATTRIBUTES
 
     private IDocument document;
     private IResource resource;
     private ICallback<IModule, Integer> module;
-    
+
     // ---------------------------------------------------------------------------------------- END ATTRIBUTES
-    
 
     /**
      * Versions before eclipse 3.4 don't have an isDerived(IResource.CHECK_ANCESTORS)
      */
     private static boolean useEclipse32DerivedVersion = false;
-    
+
     /**
      * Checks if some resource is hierarchically derived (if any parent is derived, it's also derived).
      */
     private static boolean isHierarchicallyDerived(IResource curr) {
-        if(useEclipse32DerivedVersion){
+        if (useEclipse32DerivedVersion) {
             do {
                 if (curr.isDerived()) {
                     return true;
@@ -74,7 +71,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
                 curr = curr.getParent();
             } while (curr != null);
             return false;
-        }else{
+        } else {
             try {
                 return curr.isDerived(IResource.CHECK_ANCESTORS);
             } catch (Throwable e) {
@@ -84,8 +81,6 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
         }
     }
 
-
-    
     /**
      * @param oldAnalysisBuilderThread This is an existing runnable that was already analyzing things... we must wait for it
      * to finish to start it again.
@@ -94,14 +89,15 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
      * analysis.
      * The parameter is FULL_MODULE or DEFINITIONS_MODULE
      */
-    /*Default*/ AnalysisBuilderRunnable(IDocument document, IResource resource, ICallback<IModule, Integer> module, 
-            boolean isFullBuild, String moduleName, boolean forceAnalysis, int analysisCause, 
+    /*Default*/AnalysisBuilderRunnable(IDocument document, IResource resource, ICallback<IModule, Integer> module,
+            boolean isFullBuild, String moduleName, boolean forceAnalysis, int analysisCause,
             IAnalysisBuilderRunnable oldAnalysisBuilderThread, IPythonNature nature, long documentTime,
             KeyForAnalysisRunnable key, long resourceModificationStamp) {
-        super(isFullBuild, moduleName, forceAnalysis, analysisCause, oldAnalysisBuilderThread, nature, documentTime, key, resourceModificationStamp);
-        
-        if(resource == null){
-            Log.toLogFile(this, "Unexpected null resource for: "+moduleName);
+        super(isFullBuild, moduleName, forceAnalysis, analysisCause, oldAnalysisBuilderThread, nature, documentTime,
+                key, resourceModificationStamp);
+
+        if (resource == null) {
+            Log.toLogFile(this, "Unexpected null resource for: " + moduleName);
             return;
         }
         this.document = document;
@@ -109,172 +105,164 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
         this.module = module;
     }
 
-    
     protected void dispose() {
         super.dispose();
         this.document = null;
         this.resource = null;
         this.module = null;
     }
-    
-    
-    protected void doAnalysis(){
-        
-    	if(!nature.startRequests()){
-    		return;
-    	}
+
+    protected void doAnalysis() {
+
+        if (!nature.startRequests()) {
+            return;
+        }
         try {
-            
-            if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-                Log.toLogFile(this, "doAnalysis() - "+moduleName+" "+this.getAnalysisCauseStr());
+
+            if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
+                Log.toLogFile(this, "doAnalysis() - " + moduleName + " " + this.getAnalysisCauseStr());
             }
             //if the resource is not open, there's not much we can do...
             final IResource r = resource;
-            if(r == null){
-                Log.toLogFile(this, "Finished analysis -- resource null -- "+moduleName);
+            if (r == null) {
+                Log.toLogFile(this, "Finished analysis -- resource null -- " + moduleName);
                 return;
             }
-            
-            if(!r.getProject().isOpen()){
-                Log.toLogFile(this, "Finished analysis -- project closed -- "+moduleName);
+
+            if (!r.getProject().isOpen()) {
+                Log.toLogFile(this, "Finished analysis -- project closed -- " + moduleName);
                 return;
             }
-            
+
             AnalysisRunner runner = new AnalysisRunner();
             checkStop();
-            
+
             IAnalysisPreferences analysisPreferences = AnalysisPreferences.getAnalysisPreferences();
             //update the severities, etc.
             analysisPreferences.clearCaches();
 
-            boolean makeAnalysis = runner.canDoAnalysis(document) && 
-                PyDevBuilderVisitor.isInPythonPath(r) && //just get problems in resources that are in the pythonpath
-                analysisPreferences.makeCodeAnalysis();
-            
-            
+            boolean makeAnalysis = runner.canDoAnalysis(document) && PyDevBuilderVisitor.isInPythonPath(r) && //just get problems in resources that are in the pythonpath
+                    analysisPreferences.makeCodeAnalysis();
+
             if (!makeAnalysis) {
                 //let's see if we should do code analysis
                 AnalysisRunner.deleteMarkers(r);
             }
 
-            if(nature == null){
-                Log.log("Finished analysis: null nature -- "+moduleName);
+            if (nature == null) {
+                Log.log("Finished analysis: null nature -- " + moduleName);
                 return;
             }
-            AbstractAdditionalTokensInfo info = AdditionalProjectInterpreterInfo.
-                getAdditionalInfoForProject(nature);
-            
-            if(info == null){
-                Log.log("Unable to get additional info for: "+r+" -- "+moduleName);
+            AbstractAdditionalTokensInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
+
+            if (info == null) {
+                Log.log("Unable to get additional info for: " + r + " -- " + moduleName);
                 return;
             }
-            
+
             checkStop();
             //remove dependency information (and anything else that was already generated), but first, gather 
             //the modules dependent on this one.
-            if(!isFullBuild){
+            if (!isFullBuild) {
                 //if it is a full build, that info is already removed
                 AnalysisBuilderRunnableForRemove.removeInfoForModule(moduleName, nature, isFullBuild);
             }
 
-            
-            boolean onlyRecreateCtxInsensitiveInfo = !forceAnalysis && 
-                analysisCause == ANALYSIS_CAUSE_BUILDER && 
-                PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor();
-            
-            if(!onlyRecreateCtxInsensitiveInfo){
-            	//if not a source folder, we'll just want to recreate the context insensitive information
-                if(!nature.isResourceInPythonpathProjectSources(r, false)){
-                	onlyRecreateCtxInsensitiveInfo = true;
+            boolean onlyRecreateCtxInsensitiveInfo = !forceAnalysis && analysisCause == ANALYSIS_CAUSE_BUILDER
+                    && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor();
+
+            if (!onlyRecreateCtxInsensitiveInfo) {
+                //if not a source folder, we'll just want to recreate the context insensitive information
+                if (!nature.isResourceInPythonpathProjectSources(r, false)) {
+                    onlyRecreateCtxInsensitiveInfo = true;
                 }
             }
-            
+
             int moduleRequest;
-            if(onlyRecreateCtxInsensitiveInfo){
-            	moduleRequest = DEFINITIONS_MODULE;
-            }else{
-            	moduleRequest = FULL_MODULE;
+            if (onlyRecreateCtxInsensitiveInfo) {
+                moduleRequest = DEFINITIONS_MODULE;
+            } else {
+                moduleRequest = FULL_MODULE;
             }
-            
-            
+
             //get the module for the analysis
             checkStop();
-			SourceModule module = (SourceModule) this.module.call(moduleRequest);
-			
-			
-			
-			checkStop();
-			//recreate the ctx insensitive info
+            SourceModule module = (SourceModule) this.module.call(moduleRequest);
+
+            checkStop();
+            //recreate the ctx insensitive info
             recreateCtxInsensitiveInfo(info, module, nature, r);
-            
-            if(onlyRecreateCtxInsensitiveInfo){
-                if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-                    Log.toLogFile(this, "Skipping: !forceAnalysis && analysisCause == ANALYSIS_CAUSE_BUILDER && " +
-                    		"PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor() -- "+moduleName);
+
+            if (onlyRecreateCtxInsensitiveInfo) {
+                if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
+                    Log.toLogFile(this, "Skipping: !forceAnalysis && analysisCause == ANALYSIS_CAUSE_BUILDER && "
+                            + "PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor() -- " + moduleName);
                 }
                 return;
             }
-            
+
             //let's see if we should continue with the process
-            if(!makeAnalysis){
-                if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-                    Log.toLogFile(this, "Skipping: !makeAnalysis -- "+moduleName);
+            if (!makeAnalysis) {
+                if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
+                    Log.toLogFile(this, "Skipping: !makeAnalysis -- " + moduleName);
                 }
                 return;
             }
-            
-            if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-                Log.toLogFile(this, "makeAnalysis:"+makeAnalysis+" " +
-                		"analysisCause: "+getAnalysisCauseStr()+" -- "+moduleName);
+
+            if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
+                Log.toLogFile(this, "makeAnalysis:" + makeAnalysis + " " + "analysisCause: " + getAnalysisCauseStr()
+                        + " -- " + moduleName);
             }
-            
+
             checkStop();
 
-            if(isHierarchicallyDerived(r)){
-                if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-                    Log.toLogFile(this, "Resource marked as derived not analyzed: "+r+ " -- " + moduleName);
+            if (isHierarchicallyDerived(r)) {
+                if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
+                    Log.toLogFile(this, "Resource marked as derived not analyzed: " + r + " -- " + moduleName);
                 }
                 //We don't want to check derived resources (but we want to remove any analysis messages that
                 //might be already there)
-                if(r != null){
+                if (r != null) {
                     runner.setMarkers(r, document, new IMessage[0], this.internalCancelMonitor);
                 }
                 return;
             }
-            
-            
+
             //ok, let's do it
             OccurrencesAnalyzer analyzer = new OccurrencesAnalyzer();
             checkStop();
-            IMessage[] messages = analyzer.analyzeDocument(
-                    nature, module, analysisPreferences, document, this.internalCancelMonitor, DefaultIndentPrefs.get());
-            
+            IMessage[] messages = analyzer.analyzeDocument(nature, module, analysisPreferences, document,
+                    this.internalCancelMonitor, DefaultIndentPrefs.get());
+
             checkStop();
-            if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-                Log.toLogFile(this, "Adding markers for module: "+moduleName);
+            if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
+                Log.toLogFile(this, "Adding markers for module: " + moduleName);
                 //for (IMessage message : messages) {
                 //    Log.toLogFile(this, message.toString());
                 //}
             }
-            
+
             //last chance to stop...
             checkStop();
-            
+
             //don't stop after setting to add / remove the markers
-            if(r != null){
+            if (r != null) {
                 boolean analyzeOnlyActiveEditor = PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor();
-                if(forceAnalysis || !analyzeOnlyActiveEditor || 
-                        (analyzeOnlyActiveEditor && (!PyDevBuilderPrefPage.getRemoveErrorsWhenEditorIsClosed() || PyEdit.isEditorOpenForResource(r)))){
+                if (forceAnalysis
+                        || !analyzeOnlyActiveEditor
+                        || (analyzeOnlyActiveEditor && (!PyDevBuilderPrefPage.getRemoveErrorsWhenEditorIsClosed() || PyEdit
+                                .isEditorOpenForResource(r)))) {
                     runner.setMarkers(r, document, messages, this.internalCancelMonitor);
-                }else{
-                    if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-                        Log.toLogFile(this, "Skipped adding markers for module: "+moduleName+" (editor not opened).");
+                } else {
+                    if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
+                        Log.toLogFile(this, "Skipped adding markers for module: " + moduleName
+                                + " (editor not opened).");
                     }
                 }
             }
-            
+
             //if there are callbacks registered, call them if we still didn't return (mostly for tests)
-            for(ICallback<Object, IResource> callback:analysisBuilderListeners){
+            for (ICallback<Object, IResource> callback : analysisBuilderListeners) {
                 try {
                     callback.call(r);
                 } catch (Exception e) {
@@ -285,42 +273,40 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
         } catch (OperationCanceledException e) {
             //ok, ignore it
             logOperationCancelled();
-        } catch (Exception e){
+        } catch (Exception e) {
             Log.log(e);
-        } finally{
-            try{
+        } finally {
+            try {
                 nature.endRequests();
-            }catch(Throwable e){
-                Log.log("Error when analyzing: "+moduleName, e);
+            } catch (Throwable e) {
+                Log.log("Error when analyzing: " + moduleName, e);
             }
-            try{
+            try {
                 AnalysisBuilderRunnableFactory.removeFromThreads(key, this);
-            }catch (Throwable e){
+            } catch (Throwable e) {
                 Log.log(e);
             }
-            
+
             dispose();
         }
     }
-    
-    
+
     /**
      * @return false if there's no modification among the current version of the file and the last version analyzed.
      */
-    private void recreateCtxInsensitiveInfo(AbstractAdditionalTokensInfo info, SourceModule sourceModule, 
+    private void recreateCtxInsensitiveInfo(AbstractAdditionalTokensInfo info, SourceModule sourceModule,
             IPythonNature nature, IResource r) {
-        
+
         //info.removeInfoFromModule(sourceModule.getName()); -- does not remove info from the module because this
         //should be already done once it gets here (the AnalysisBuilder, that also makes dependency info 
         //should take care of this).
         boolean generateDelta;
-        if(isFullBuild){
+        if (isFullBuild) {
             generateDelta = false;
-        }else{
+        } else {
             generateDelta = true;
         }
         info.addAstInfo(sourceModule.getAst(), sourceModule.getModulesKey(), generateDelta);
     }
-
 
 }

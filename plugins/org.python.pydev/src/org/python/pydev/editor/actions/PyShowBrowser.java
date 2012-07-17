@@ -11,7 +11,7 @@ import org.python.pydev.core.ExtensionHelper;
 /**
  * @author Fabio Zadrozny
  */
-public class PyShowBrowser extends PyShowOutline{
+public class PyShowBrowser extends PyShowOutline {
 
     @Override
     protected String getExtensionName() {

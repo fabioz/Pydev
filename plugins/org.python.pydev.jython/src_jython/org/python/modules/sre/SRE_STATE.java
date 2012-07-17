@@ -17,15 +17,14 @@
 
 package org.python.modules.sre;
 
-
 public class SRE_STATE {
-    
+
     /*
      * Generated from Python-2.2.3 like 'python headerToJava.py < Modules/sre_constants.h'
      * where headerToJava.py contains the following code 
-import sys
-for line in sys.stdin:
-   if line.startswith('#define'):
+    import sys
+    for line in sys.stdin:
+    if line.startswith('#define'):
        line = line.replace('#define', 'public static final int').strip()
        segs = line.split(' ')
        print '%s = %s;' % (' '.join(segs[:-1]), segs[-1])                                                          
@@ -106,10 +105,10 @@ for line in sys.stdin:
 
     //From here we're including things from _sre.c in the order they're defined there
     public static final int USE_RECURSION_LIMIT = 5000;
-    
+
     /* error codes */
     public static final int SRE_ERROR_ILLEGAL = -1;
-    public static final int SRE_ERROR_STATE   = -2;
+    public static final int SRE_ERROR_STATE = -2;
     public static final int SRE_ERROR_RECURSION_LIMIT = -3;
 
     /* default character predicates (run sre_chars.py to regenerate tables) */
@@ -117,36 +116,27 @@ for line in sys.stdin:
     static final int SRE_SPACE_MASK = 2;
     static final int SRE_LINEBREAK_MASK = 4;
     static final int SRE_ALNUM_MASK = 8;
-    static final int SRE_WORD_MASK  = 16;
+    static final int SRE_WORD_MASK = 16;
 
-    static byte[] sre_char_info = new byte[] {
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 6, 2,
-        2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 25, 25, 25, 25, 25, 25, 25,
-        25, 25, 0, 0, 0, 0, 0, 0, 0, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
-        24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 0, 0,
-        0, 0, 16, 0, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
-        24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 0, 0, 0, 0, 0 };
+    static byte[] sre_char_info = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 6, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 25, 25, 25, 25, 25, 25, 25, 25,
+            25, 0, 0, 0, 0, 0, 0, 0, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
+            24, 24, 24, 24, 24, 24, 0, 0, 0, 0, 16, 0, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
+            24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 0, 0, 0, 0, 0 };
 
-    static byte[] sre_char_lower = new byte[] {
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-        10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
-        27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43,
-        44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60,
-        61, 62, 63, 64, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107,
-        108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121,
-        122, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105,
-        106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119,
-        120, 121, 122, 123, 124, 125, 126, 127 };
+    static byte[] sre_char_lower = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+            20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46,
+            47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 97, 98, 99, 100, 101, 102, 103,
+            104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 91, 92, 93,
+            94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115,
+            116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127 };
 
     final boolean SRE_IS_DIGIT(char ch) {
-        return ((ch) < 128 ?
-                (sre_char_info[(ch)] & SRE_DIGIT_MASK) != 0 : false);
+        return ((ch) < 128 ? (sre_char_info[(ch)] & SRE_DIGIT_MASK) != 0 : false);
     }
 
     final boolean SRE_IS_SPACE(char ch) {
-        return ((ch) < 128 ?
-                (sre_char_info[(ch)] & SRE_SPACE_MASK) != 0 : false);
+        return ((ch) < 128 ? (sre_char_info[(ch)] & SRE_SPACE_MASK) != 0 : false);
     }
 
     final boolean SRE_IS_LINEBREAK(char ch) {
@@ -155,16 +145,15 @@ for line in sys.stdin:
     }
 
     final boolean SRE_IS_WORD(char ch) {
-        return ((ch) < 128 ?
-                (sre_char_info[(ch)] & SRE_WORD_MASK) != 0 : false);
+        return ((ch) < 128 ? (sre_char_info[(ch)] & SRE_WORD_MASK) != 0 : false);
     }
 
     final char lower(char ch) {
         if ((flags & SRE_FLAG_LOCALE) != 0)
-             return ((ch) < 256 ? Character.toLowerCase(ch) : ch);
+            return ((ch) < 256 ? Character.toLowerCase(ch) : ch);
         if ((flags & SRE_FLAG_UNICODE) != 0)
-             return Character.toLowerCase(ch);
-        return ((ch) < 128 ? (char)sre_char_lower[ch] : ch);
+            return Character.toLowerCase(ch);
+        return ((ch) < 128 ? (char) sre_char_lower[ch] : ch);
     }
 
     final boolean SRE_LOC_IS_WORD(char ch) {
@@ -173,68 +162,67 @@ for line in sys.stdin:
 
     final boolean SRE_UNI_IS_LINEBREAK(char ch) {
         switch (ch) {
-        case 0x000A: /* LINE FEED */
-        case 0x000D: /* CARRIAGE RETURN */
-        case 0x001C: /* FILE SEPARATOR */
-        case 0x001D: /* GROUP SEPARATOR */
-        case 0x001E: /* RECORD SEPARATOR */
-        case 0x0085: /* NEXT LINE */
-        case 0x2028: /* LINE SEPARATOR */
-        case 0x2029: /* PARAGRAPH SEPARATOR */
-            return true;
-        default:
-            return false;
+            case 0x000A: /* LINE FEED */
+            case 0x000D: /* CARRIAGE RETURN */
+            case 0x001C: /* FILE SEPARATOR */
+            case 0x001D: /* GROUP SEPARATOR */
+            case 0x001E: /* RECORD SEPARATOR */
+            case 0x0085: /* NEXT LINE */
+            case 0x2028: /* LINE SEPARATOR */
+            case 0x2029: /* PARAGRAPH SEPARATOR */
+                return true;
+            default:
+                return false;
         }
     }
-    
+
     final boolean sre_category(char category, char ch) {
         switch (category) {
 
-        case SRE_CATEGORY_DIGIT:
-            return SRE_IS_DIGIT(ch);
-        case SRE_CATEGORY_NOT_DIGIT:
-            return ! SRE_IS_DIGIT(ch);
+            case SRE_CATEGORY_DIGIT:
+                return SRE_IS_DIGIT(ch);
+            case SRE_CATEGORY_NOT_DIGIT:
+                return !SRE_IS_DIGIT(ch);
 
-        case SRE_CATEGORY_SPACE:
-            return SRE_IS_SPACE(ch);
-        case SRE_CATEGORY_NOT_SPACE:
-            return ! SRE_IS_SPACE(ch);
+            case SRE_CATEGORY_SPACE:
+                return SRE_IS_SPACE(ch);
+            case SRE_CATEGORY_NOT_SPACE:
+                return !SRE_IS_SPACE(ch);
 
-        case SRE_CATEGORY_WORD:
-            return SRE_IS_WORD(ch);
-        case SRE_CATEGORY_NOT_WORD:
-            return ! SRE_IS_WORD(ch);
+            case SRE_CATEGORY_WORD:
+                return SRE_IS_WORD(ch);
+            case SRE_CATEGORY_NOT_WORD:
+                return !SRE_IS_WORD(ch);
 
-        case SRE_CATEGORY_LINEBREAK:
-            return SRE_IS_LINEBREAK(ch);
-        case SRE_CATEGORY_NOT_LINEBREAK:
-            return ! SRE_IS_LINEBREAK(ch);
+            case SRE_CATEGORY_LINEBREAK:
+                return SRE_IS_LINEBREAK(ch);
+            case SRE_CATEGORY_NOT_LINEBREAK:
+                return !SRE_IS_LINEBREAK(ch);
 
-        case SRE_CATEGORY_LOC_WORD:
-            return SRE_LOC_IS_WORD(ch);
-        case SRE_CATEGORY_LOC_NOT_WORD:
-            return ! SRE_LOC_IS_WORD(ch);
+            case SRE_CATEGORY_LOC_WORD:
+                return SRE_LOC_IS_WORD(ch);
+            case SRE_CATEGORY_LOC_NOT_WORD:
+                return !SRE_LOC_IS_WORD(ch);
 
+            case SRE_CATEGORY_UNI_DIGIT:
+                return Character.isDigit(ch);
+            case SRE_CATEGORY_UNI_NOT_DIGIT:
+                return !Character.isDigit(ch);
 
-        case SRE_CATEGORY_UNI_DIGIT:
-            return Character.isDigit(ch);
-        case SRE_CATEGORY_UNI_NOT_DIGIT:
-            return !Character.isDigit(ch);
+            case SRE_CATEGORY_UNI_SPACE:
+                return Character.isWhitespace(ch);
+            case SRE_CATEGORY_UNI_NOT_SPACE:
+                return !Character.isWhitespace(ch);
 
-        case SRE_CATEGORY_UNI_SPACE:
-            return Character.isWhitespace(ch);
-        case SRE_CATEGORY_UNI_NOT_SPACE:
-            return !Character.isWhitespace(ch);
+            case SRE_CATEGORY_UNI_WORD:
+                return Character.isLetterOrDigit(ch) || ch == '_';
+            case SRE_CATEGORY_UNI_NOT_WORD:
+                return !(Character.isLetterOrDigit(ch) || ch == '_');
 
-        case SRE_CATEGORY_UNI_WORD:
-            return Character.isLetterOrDigit(ch) || ch == '_';
-        case SRE_CATEGORY_UNI_NOT_WORD:
-            return ! (Character.isLetterOrDigit(ch) || ch == '_');
-
-        case SRE_CATEGORY_UNI_LINEBREAK:
-           return SRE_UNI_IS_LINEBREAK(ch);
-        case SRE_CATEGORY_UNI_NOT_LINEBREAK:
-           return ! SRE_UNI_IS_LINEBREAK(ch);
+            case SRE_CATEGORY_UNI_LINEBREAK:
+                return SRE_UNI_IS_LINEBREAK(ch);
+            case SRE_CATEGORY_UNI_NOT_LINEBREAK:
+                return !SRE_UNI_IS_LINEBREAK(ch);
 
         }
         return false;
@@ -283,7 +271,6 @@ for line in sys.stdin:
         mark_stack_base += size;
     }
 
-
     private void mark_restore(int lo, int hi) {
         if (hi <= lo)
             return;
@@ -296,61 +283,61 @@ for line in sys.stdin:
 
         System.arraycopy(mark_stack, mark_stack_base, mark, lo, size);
     }
-    
+
     final boolean SRE_AT(int ptr, char at) {
         /* check if pointer is at given position. */
 
         boolean thiS, that;
 
         switch (at) {
-        case SRE_AT_BEGINNING:
-        case SRE_AT_BEGINNING_STRING:
-            return ptr == beginning;
+            case SRE_AT_BEGINNING:
+            case SRE_AT_BEGINNING_STRING:
+                return ptr == beginning;
 
-        case SRE_AT_BEGINNING_LINE:
-            return (ptr == beginning || SRE_IS_LINEBREAK(str[ptr-1]));
+            case SRE_AT_BEGINNING_LINE:
+                return (ptr == beginning || SRE_IS_LINEBREAK(str[ptr - 1]));
 
-        case SRE_AT_END:
-            return (ptr+1 == end && SRE_IS_LINEBREAK(str[ptr])) || ptr == end;
+            case SRE_AT_END:
+                return (ptr + 1 == end && SRE_IS_LINEBREAK(str[ptr])) || ptr == end;
 
-        case SRE_AT_END_LINE:
-            return ptr == end || SRE_IS_LINEBREAK(str[ptr]);
+            case SRE_AT_END_LINE:
+                return ptr == end || SRE_IS_LINEBREAK(str[ptr]);
 
-        case SRE_AT_END_STRING:
-            return ptr == end;
+            case SRE_AT_END_STRING:
+                return ptr == end;
 
-        case SRE_AT_BOUNDARY:
-            /* word boundary */
-            if (beginning == end)
-                return false;
-            that = (ptr > beginning) ? SRE_IS_WORD(str[ptr-1]) : false;
-            thiS = (ptr < end) ? SRE_IS_WORD(str[ptr]) : false;
-            return thiS != that;
+            case SRE_AT_BOUNDARY:
+                /* word boundary */
+                if (beginning == end)
+                    return false;
+                that = (ptr > beginning) ? SRE_IS_WORD(str[ptr - 1]) : false;
+                thiS = (ptr < end) ? SRE_IS_WORD(str[ptr]) : false;
+                return thiS != that;
 
-        case SRE_AT_NON_BOUNDARY:
-            /* word non-boundary */
-            if (beginning == end)
-                return false;
-            that = (ptr > beginning) ? SRE_IS_WORD(str[ptr-1]) : false;
-            thiS = (ptr < end) ? SRE_IS_WORD(str[ptr]) : false;
-            return thiS == that;
+            case SRE_AT_NON_BOUNDARY:
+                /* word non-boundary */
+                if (beginning == end)
+                    return false;
+                that = (ptr > beginning) ? SRE_IS_WORD(str[ptr - 1]) : false;
+                thiS = (ptr < end) ? SRE_IS_WORD(str[ptr]) : false;
+                return thiS == that;
 
-        case SRE_AT_LOC_BOUNDARY:
-        case SRE_AT_UNI_BOUNDARY:
-            if (beginning == end)
-                return false;
-            that = (ptr > beginning) ? SRE_LOC_IS_WORD(str[ptr-1]) : false;
-            thiS = (ptr < end) ? SRE_LOC_IS_WORD(str[ptr]) : false;
-            return thiS != that;
+            case SRE_AT_LOC_BOUNDARY:
+            case SRE_AT_UNI_BOUNDARY:
+                if (beginning == end)
+                    return false;
+                that = (ptr > beginning) ? SRE_LOC_IS_WORD(str[ptr - 1]) : false;
+                thiS = (ptr < end) ? SRE_LOC_IS_WORD(str[ptr]) : false;
+                return thiS != that;
 
-        case SRE_AT_LOC_NON_BOUNDARY:
-        case SRE_AT_UNI_NON_BOUNDARY:
-            /* word non-boundary */
-            if (beginning == end)
-                return false;
-            that = (ptr > beginning) ? SRE_LOC_IS_WORD(str[ptr-1]) : false;
-            thiS = (ptr < end) ? SRE_LOC_IS_WORD(str[ptr]) : false;
-            return thiS == that;
+            case SRE_AT_LOC_NON_BOUNDARY:
+            case SRE_AT_UNI_NON_BOUNDARY:
+                /* word non-boundary */
+                if (beginning == end)
+                    return false;
+                that = (ptr > beginning) ? SRE_LOC_IS_WORD(str[ptr - 1]) : false;
+                thiS = (ptr < end) ? SRE_LOC_IS_WORD(str[ptr]) : false;
+                return thiS == that;
         }
 
         return false;
@@ -364,69 +351,68 @@ for line in sys.stdin:
         for (;;) {
             switch (set[setidx++]) {
 
-            case SRE_OP_LITERAL:
-                //TRACE(setidx, ch, "CHARSET LITERAL " + (int) set[setidx]);
-                /* <LITERAL> <code> */
-                if (ch == set[setidx])
-                    return ok;
-                setidx++;
-                break;
+                case SRE_OP_LITERAL:
+                    //TRACE(setidx, ch, "CHARSET LITERAL " + (int) set[setidx]);
+                    /* <LITERAL> <code> */
+                    if (ch == set[setidx])
+                        return ok;
+                    setidx++;
+                    break;
 
-            case SRE_OP_RANGE:
-                /* <RANGE> <lower> <upper> */
-                //TRACE(setidx, ch, "CHARSET RANGE " + (int) set[setidx] + " " + (int) set[setidx+1]);
-                if (set[setidx] <= ch && ch <= set[setidx+1])
-                    return ok;
-                setidx += 2;
-                break;
+                case SRE_OP_RANGE:
+                    /* <RANGE> <lower> <upper> */
+                    //TRACE(setidx, ch, "CHARSET RANGE " + (int) set[setidx] + " " + (int) set[setidx+1]);
+                    if (set[setidx] <= ch && ch <= set[setidx + 1])
+                        return ok;
+                    setidx += 2;
+                    break;
 
-            case SRE_OP_CHARSET:
-                //TRACE(setidx, ch, "CHARSET CHARSET ");
-                /* <CHARSET> <bitmap> (16 bits per code word) */
-                if (ch < 256 &&
-                            (set[setidx + (ch >> 4)] & (1 << (ch & 15))) != 0)
-                    return ok;
-                setidx += 16;
-                break;
+                case SRE_OP_CHARSET:
+                    //TRACE(setidx, ch, "CHARSET CHARSET ");
+                    /* <CHARSET> <bitmap> (16 bits per code word) */
+                    if (ch < 256 && (set[setidx + (ch >> 4)] & (1 << (ch & 15))) != 0)
+                        return ok;
+                    setidx += 16;
+                    break;
 
-            case SRE_OP_BIGCHARSET:
-                /* <BIGCHARSET> <blockcount> <256 blockindices> <blocks> */
-                //TRACE(setidx, ch, "CHARSET BIGCHARSET ");
-                int count = set[setidx++];
-                int shift = ((ch >> 8) & 1) == 0 ? 8 : 0;
-                int block = (set[setidx + (ch >> 8) / 2] >> shift) & 0xFF;
-                setidx += 128;
-                int idx = block*16 + ((ch & 255)>>4);
-                if ((set[setidx + idx] & (1 << (ch & 15))) != 0)
-                    return ok;
-                setidx += count*16;
-                break;
+                case SRE_OP_BIGCHARSET:
+                    /* <BIGCHARSET> <blockcount> <256 blockindices> <blocks> */
+                    //TRACE(setidx, ch, "CHARSET BIGCHARSET ");
+                    int count = set[setidx++];
+                    int shift = ((ch >> 8) & 1) == 0 ? 8 : 0;
+                    int block = (set[setidx + (ch >> 8) / 2] >> shift) & 0xFF;
+                    setidx += 128;
+                    int idx = block * 16 + ((ch & 255) >> 4);
+                    if ((set[setidx + idx] & (1 << (ch & 15))) != 0)
+                        return ok;
+                    setidx += count * 16;
+                    break;
 
-            case SRE_OP_CATEGORY:
-                /* <CATEGORY> <code> */
-                //TRACE(setidx, ch, "CHARSET CHARSET " + (int) set[setidx]);
-                if (sre_category(set[setidx], ch))
-                    return ok;
-                setidx++;
-                break;
+                case SRE_OP_CATEGORY:
+                    /* <CATEGORY> <code> */
+                    //TRACE(setidx, ch, "CHARSET CHARSET " + (int) set[setidx]);
+                    if (sre_category(set[setidx], ch))
+                        return ok;
+                    setidx++;
+                    break;
 
-            case SRE_OP_NEGATE:
-                //TRACE(setidx, ch, "CHARSET NEGATE");
-                ok = !ok;
-                break;
+                case SRE_OP_NEGATE:
+                    //TRACE(setidx, ch, "CHARSET NEGATE");
+                    ok = !ok;
+                    break;
 
-            case SRE_OP_FAILURE:
-                //TRACE(setidx, ch, "CHARSET FAILURE");
-                return !ok;
+                case SRE_OP_FAILURE:
+                    //TRACE(setidx, ch, "CHARSET FAILURE");
+                    return !ok;
 
-            default:
-                /* internal error -- there's not much we can do about it
-                   here, so let's just pretend it didn't match... */
-                return false;
+                default:
+                    /* internal error -- there's not much we can do about it
+                       here, so let's just pretend it didn't match... */
+                    return false;
             }
         }
     }
-    
+
     private int SRE_COUNT(char[] pattern, int pidx, int maxcount, int level) {
         char chr;
         int ptr = this.ptr;
@@ -439,70 +425,70 @@ for line in sys.stdin:
 
         switch (pattern[pidx]) {
 
-        case SRE_OP_ANY:
-            /* repeated dot wildcard. */
-            //TRACE(pidx, ptr, "COUNT ANY");
-            while (ptr < end && !SRE_IS_LINEBREAK(str[ptr]))
-                ptr++;
-            break;
+            case SRE_OP_ANY:
+                /* repeated dot wildcard. */
+                //TRACE(pidx, ptr, "COUNT ANY");
+                while (ptr < end && !SRE_IS_LINEBREAK(str[ptr]))
+                    ptr++;
+                break;
 
-        case SRE_OP_ANY_ALL:
-            /* repeated dot wildcare.  skip to the end of the target
-               string, and backtrack from there */
-            //TRACE(pidx, ptr, "COUNT ANY_ALL");
-            ptr = end;
-            break;
+            case SRE_OP_ANY_ALL:
+                /* repeated dot wildcare.  skip to the end of the target
+                   string, and backtrack from there */
+                //TRACE(pidx, ptr, "COUNT ANY_ALL");
+                ptr = end;
+                break;
 
-        case SRE_OP_LITERAL:
-            /* repeated literal */
-            chr = pattern[pidx+1];
-            //TRACE(pidx, ptr, "COUNT LITERAL " + (int) chr);
-            while (ptr < end && str[ptr] == chr)
-                ptr++;
-            break;
+            case SRE_OP_LITERAL:
+                /* repeated literal */
+                chr = pattern[pidx + 1];
+                //TRACE(pidx, ptr, "COUNT LITERAL " + (int) chr);
+                while (ptr < end && str[ptr] == chr)
+                    ptr++;
+                break;
 
-        case SRE_OP_LITERAL_IGNORE:
-            /* repeated literal */
-            chr = pattern[pidx+1];
-            //TRACE(pidx, ptr, "COUNT LITERAL_IGNORE " + (int) chr);
-            while (ptr < end && lower(str[ptr]) == chr)
-                ptr++;
-            break;
+            case SRE_OP_LITERAL_IGNORE:
+                /* repeated literal */
+                chr = pattern[pidx + 1];
+                //TRACE(pidx, ptr, "COUNT LITERAL_IGNORE " + (int) chr);
+                while (ptr < end && lower(str[ptr]) == chr)
+                    ptr++;
+                break;
 
-        case SRE_OP_NOT_LITERAL:
-            /* repeated non-literal */
-            chr = pattern[pidx+1];
-            //TRACE(pidx, ptr, "COUNT NOT_LITERAL " + (int) chr);
-            while (ptr < end && str[ptr] != chr)
-                ptr++;
-            break;
+            case SRE_OP_NOT_LITERAL:
+                /* repeated non-literal */
+                chr = pattern[pidx + 1];
+                //TRACE(pidx, ptr, "COUNT NOT_LITERAL " + (int) chr);
+                while (ptr < end && str[ptr] != chr)
+                    ptr++;
+                break;
 
-        case SRE_OP_NOT_LITERAL_IGNORE:
-            /* repeated non-literal */
-            chr = pattern[pidx+1];
-            //TRACE(pidx, ptr, "COUNT NOT_LITERAL_IGNORE " + (int) chr);
-            while (ptr < end && lower(str[ptr]) != chr)
-                ptr++;
-            break;
+            case SRE_OP_NOT_LITERAL_IGNORE:
+                /* repeated non-literal */
+                chr = pattern[pidx + 1];
+                //TRACE(pidx, ptr, "COUNT NOT_LITERAL_IGNORE " + (int) chr);
+                while (ptr < end && lower(str[ptr]) != chr)
+                    ptr++;
+                break;
 
-        case SRE_OP_IN:
-            /* repeated set */
-            //TRACE(pidx, ptr, "COUNT IN");
-            while (ptr < end && SRE_CHARSET(pattern, pidx + 2, str[ptr]))
-                ptr++;
-            break;
+            case SRE_OP_IN:
+                /* repeated set */
+                //TRACE(pidx, ptr, "COUNT IN");
+                while (ptr < end && SRE_CHARSET(pattern, pidx + 2, str[ptr]))
+                    ptr++;
+                break;
 
-        default:
-            /* repeated single character pattern */
-            //TRACE(pidx, ptr, "COUNT SUBPATTERN");
-            while (this.ptr < end) {
-                i = SRE_MATCH(pattern, pidx, level);
-                if (i < 0)
-                    return i;
-                if (i == 0)
-                    break;
-            }
-            return this.ptr - ptr;
+            default:
+                /* repeated single character pattern */
+                //TRACE(pidx, ptr, "COUNT SUBPATTERN");
+                while (this.ptr < end) {
+                    i = SRE_MATCH(pattern, pidx, level);
+                    if (i < 0)
+                        return i;
+                    if (i == 0)
+                        break;
+                }
+                return this.ptr - ptr;
         }
 
         return ptr - this.ptr;
@@ -522,443 +508,431 @@ for line in sys.stdin:
         //TRACE(pidx, ptr, "ENTER " + level);
 
         if (level > USE_RECURSION_LIMIT)
-           return SRE_ERROR_RECURSION_LIMIT;
+            return SRE_ERROR_RECURSION_LIMIT;
 
         if (pattern[pidx] == SRE_OP_INFO) {
             /* optimization info block */
             /* args: <1=skip> <2=flags> <3=min> ... */
-            if (pattern[pidx+3] != 0 && (end - ptr) < pattern[pidx+3]) {
+            if (pattern[pidx + 3] != 0 && (end - ptr) < pattern[pidx + 3]) {
                 return 0;
             }
-            pidx += pattern[pidx+1] + 1;
+            pidx += pattern[pidx + 1] + 1;
         }
-
 
         for (;;) {
 
             switch (pattern[pidx++]) {
 
-            case SRE_OP_FAILURE:
-                /* immediate failure */
-                //TRACE(pidx, ptr, "FAILURE");
-                return 0;
-
-            case SRE_OP_SUCCESS:
-                /* end of pattern */
-                //TRACE(pidx, ptr, "SUCCESS");
-                this.ptr = ptr;
-                return 1;
-
-            case SRE_OP_AT:
-                /* match at given position */
-                /* <AT> <code> */
-                //TRACE(pidx, ptr, "AT " + (int) pattern[pidx]);
-                if (!SRE_AT(ptr, pattern[pidx]))
-                    return 0;
-                pidx++;
-                break;
-
-            case SRE_OP_CATEGORY:
-                /* match at given category */
-                /* <CATEGORY> <code> */
-                //TRACE(pidx, ptr, "CATEGORY " + (int)pattern[pidx]);
-
-                if (ptr >= end || !sre_category(pattern[pidx], str[ptr]))
+                case SRE_OP_FAILURE:
+                    /* immediate failure */
+                    //TRACE(pidx, ptr, "FAILURE");
                     return 0;
 
-                pidx++;
-                ptr++;
-                break;
-
-            case SRE_OP_LITERAL:
-                /* match literal character */
-                /* <LITERAL> <code> */
-                //TRACE(pidx, ptr, "LITERAL " + (int) pattern[pidx]);
-
-                if (ptr >= end || str[ptr] != pattern[pidx])
-                    return 0;
-                pidx++;
-                ptr++;
-                break;
-
-            case SRE_OP_NOT_LITERAL:
-                /* match anything that is not literal character */
-                /* args: <code> */
-                //TRACE(pidx, ptr, "NOT_LITERAL " + (int) pattern[pidx]);
-                if (ptr >= end || str[ptr] == pattern[pidx])
-                    return 0;
-                pidx++;
-                ptr++;
-                break;
-
-            case SRE_OP_ANY:
-                /* match anything */
-                //TRACE(pidx, ptr, "ANY");
-                if (ptr >= end || SRE_IS_LINEBREAK(str[ptr]))
-                    return 0;
-                ptr++;
-                break;
-
-            case SRE_OP_ANY_ALL:
-                /* match anything */
-                /* <ANY_ALL> */
-                //TRACE(pidx, ptr, "ANY_ALL");
-                if (ptr >= end)
-                    return 0;
-                ptr++;
-                break;
-
-            case SRE_OP_IN:
-                /* match set member (or non_member) */
-                /* <IN> <skip> <set> */
-                //TRACE(pidx, ptr, "IN");
-                if (ptr >= end || !SRE_CHARSET(pattern, pidx + 1, str[ptr]))
-                    return 0;
-                pidx += (int)pattern[pidx];
-                ptr++;
-                break;
-
-            case SRE_OP_GROUPREF:
-                /* match backreference */
-                i = pattern[pidx];
-                //TRACE(pidx, ptr, "GROUPREF " + i);
-                int p = mark[i+i];
-                int e = mark[i+i+1];
-                if (p == -1 || e == -1 || e < p)
-                    return 0;
-                while (p < e) {
-                    if (ptr >= end || str[ptr] != str[p])
-                        return 0;
-                    p++;
-                    ptr++;
-                }
-                pidx++;
-                break;
-
-            case SRE_OP_GROUPREF_IGNORE:
-                /* match backreference */
-                i = pattern[pidx];
-                //TRACE(pidx, ptr, "GROUPREF_IGNORE " + i);
-                p = mark[i+i];
-                e = mark[i+i+1];
-                if (p == -1 || e == -1 || e < p)
-                    return 0;
-                while (p < e) {
-                    if (ptr >= end || lower(str[ptr]) != lower(str[p]))
-                        return 0;
-                    p++;
-                    ptr++;
-                }
-                pidx++;
-                break;
-
-            case SRE_OP_LITERAL_IGNORE:
-                //TRACE(pidx, ptr, "LITERAL_IGNORE " + (int) pattern[pidx]);
-                if (ptr >= end || lower(str[ptr]) != lower(pattern[pidx]))
-                    return 0;
-                pidx++;
-                ptr++;
-                break;
-
-            case SRE_OP_NOT_LITERAL_IGNORE:
-                //TRACE(pidx, ptr, "NOT_LITERAL_IGNORE " + (int) pattern[pidx]);
-                if (ptr >= end || lower(str[ptr]) == lower(pattern[pidx]))
-                    return 0;
-                pidx++;
-                ptr++;
-                break;
-
-            case SRE_OP_IN_IGNORE:
-                //TRACE(pidx, ptr, "IN_IGNORE");
-                if (ptr >= end ||
-                        !SRE_CHARSET(pattern, pidx + 1, lower(str[ptr])))
-                    return 0;
-                pidx += (int)pattern[pidx];
-                ptr++;
-                break;
-
-            case SRE_OP_MARK:
-                /* set mark */
-                /* <MARK> <gid> */
-                //TRACE(pidx, ptr, "MARK " + (int) pattern[pidx]);
-                i = pattern[pidx];
-                if ((i & 1) != 0)
-                    lastindex = i / 2 + 1;
-                if (i > this.lastmark)
-                    this.lastmark = i;
-                mark[i] = ptr;
-                pidx++;
-                break;
-
-            case SRE_OP_JUMP:
-            case SRE_OP_INFO:
-                /* jump forward */
-                /* <JUMP> <offset> */
-                //TRACE(pidx, ptr, "JUMP " + (int) pattern[pidx]);
-                pidx += (int)pattern[pidx];
-                break;
-
-            case SRE_OP_ASSERT:
-                /* assert subpattern */
-                /* args: <skip> <back> <pattern> */
-                //TRACE(pidx, ptr, "ASSERT " + (int) pattern[pidx+1]);
-
-                this.ptr = ptr - pattern[pidx + 1];
-                if (this.ptr < this.beginning)
-                    return 0;
-                i = SRE_MATCH(pattern, pidx + 2, level + 1);
-                if (i <= 0)
-                    return i;
-                pidx += pattern[pidx];
-                break;
-
-            case SRE_OP_ASSERT_NOT:
-                /* assert not subpattern */
-                /* args: <skip> <pattern> */
-                //TRACE(pidx, ptr, "ASSERT_NOT " + (int) pattern[pidx]);
-                this.ptr = ptr - pattern[pidx + 1];
-                if (this.ptr >= this.beginning) {
-                    i = SRE_MATCH(pattern, pidx + 2, level + 1);
-                    if (i < 0)
-                        return i;
-                    if (i != 0)
-                        return 0;
-                }
-                pidx += pattern[pidx];
-                break;
-
-            case SRE_OP_BRANCH:
-                /* try an alternate branch */
-                /* <BRANCH> <0=skip> code <JUMP> ... <NULL> */
-                //TRACE(pidx, ptr, "BRANCH");
-                lastmark = this.lastmark;
-                for (; pattern[pidx] != 0; pidx += pattern[pidx]) {
-                    if (pattern[pidx+1] == SRE_OP_LITERAL &&
-                        (ptr >= end || str[ptr] != pattern[pidx+2]))
-                        continue;
-                    if (pattern[pidx+1] == SRE_OP_IN && (ptr >= end ||
-                                !SRE_CHARSET(pattern, pidx + 3, str[ptr])))
-                        continue;
-                    this.ptr = ptr;
-                    i = SRE_MATCH(pattern, pidx + 1, level + 1);
-                    if (i != 0)
-                        return i;
-                    while (this.lastmark > lastmark)
-                        mark[this.lastmark--] = -1;
-                }
-
-                return 0;
-
-            case SRE_OP_REPEAT_ONE:
-                /* match repeated sequence (maximizing regexp) */
-
-                /* this operator only works if the repeated item is
-                   exactly one character wide, and we're not already
-                   collecting backtracking points.  for other cases,
-                   use the MAX_REPEAT operator */
-
-                /* <REPEAT_ONE> <skip> <1=min> <2=max> item <SUCCESS> tail */
-
-                int mincount = pattern[pidx+1];
-
-                //TRACE(pidx, ptr, "REPEAT_ONE " + mincount + " " + (int)pattern[pidx+2]);
-                if (ptr + mincount > end)
-                    return 0; /* cannot match */
-
-                this.ptr = ptr;
-
-                count = SRE_COUNT(pattern, pidx + 3, pattern[pidx+2],
-                                  level + 1);
-                if (count < 0)
-                    return count;
-
-                ptr += count;
-
-                /* when we arrive here, count contains the number of
-                   matches, and ptr points to the tail of the target
-                   string.  check if the rest of the pattern matches,
-                   and backtrack if not. */
-
-                if (count < mincount)
-                    return 0;
-
-                if (pattern[pidx + pattern[pidx]] == SRE_OP_SUCCESS) {
-                    /* tail is empty.  we're finished */
+                case SRE_OP_SUCCESS:
+                    /* end of pattern */
+                    //TRACE(pidx, ptr, "SUCCESS");
                     this.ptr = ptr;
                     return 1;
 
-                } else if (pattern[pidx + pattern[pidx]] == SRE_OP_LITERAL) {
-                    /* tail starts with a literal. skip positions where
-                       the rest of the pattern cannot possibly match */
-                    chr = pattern[pidx + pattern[pidx]+1];
-                    for (;;) {
-                        while (count >= mincount &&
-                               (ptr >= end || str[ptr] != chr)) {
-                            ptr--;
-                            count--;
-                        }
-                        if (count < mincount)
-                            break;
-                        this.ptr = ptr;
-                        i = SRE_MATCH(pattern, pidx + pattern[pidx],
-                                     level + 1);
-                        if (i != 0)
-                            return 1;
-                        ptr--;
-                        count--;
-                    }
+                case SRE_OP_AT:
+                    /* match at given position */
+                    /* <AT> <code> */
+                    //TRACE(pidx, ptr, "AT " + (int) pattern[pidx]);
+                    if (!SRE_AT(ptr, pattern[pidx]))
+                        return 0;
+                    pidx++;
+                    break;
 
-                } else {
-                    /* general case */
+                case SRE_OP_CATEGORY:
+                    /* match at given category */
+                    /* <CATEGORY> <code> */
+                    //TRACE(pidx, ptr, "CATEGORY " + (int)pattern[pidx]);
+
+                    if (ptr >= end || !sre_category(pattern[pidx], str[ptr]))
+                        return 0;
+
+                    pidx++;
+                    ptr++;
+                    break;
+
+                case SRE_OP_LITERAL:
+                    /* match literal character */
+                    /* <LITERAL> <code> */
+                    //TRACE(pidx, ptr, "LITERAL " + (int) pattern[pidx]);
+
+                    if (ptr >= end || str[ptr] != pattern[pidx])
+                        return 0;
+                    pidx++;
+                    ptr++;
+                    break;
+
+                case SRE_OP_NOT_LITERAL:
+                    /* match anything that is not literal character */
+                    /* args: <code> */
+                    //TRACE(pidx, ptr, "NOT_LITERAL " + (int) pattern[pidx]);
+                    if (ptr >= end || str[ptr] == pattern[pidx])
+                        return 0;
+                    pidx++;
+                    ptr++;
+                    break;
+
+                case SRE_OP_ANY:
+                    /* match anything */
+                    //TRACE(pidx, ptr, "ANY");
+                    if (ptr >= end || SRE_IS_LINEBREAK(str[ptr]))
+                        return 0;
+                    ptr++;
+                    break;
+
+                case SRE_OP_ANY_ALL:
+                    /* match anything */
+                    /* <ANY_ALL> */
+                    //TRACE(pidx, ptr, "ANY_ALL");
+                    if (ptr >= end)
+                        return 0;
+                    ptr++;
+                    break;
+
+                case SRE_OP_IN:
+                    /* match set member (or non_member) */
+                    /* <IN> <skip> <set> */
+                    //TRACE(pidx, ptr, "IN");
+                    if (ptr >= end || !SRE_CHARSET(pattern, pidx + 1, str[ptr]))
+                        return 0;
+                    pidx += (int) pattern[pidx];
+                    ptr++;
+                    break;
+
+                case SRE_OP_GROUPREF:
+                    /* match backreference */
+                    i = pattern[pidx];
+                    //TRACE(pidx, ptr, "GROUPREF " + i);
+                    int p = mark[i + i];
+                    int e = mark[i + i + 1];
+                    if (p == -1 || e == -1 || e < p)
+                        return 0;
+                    while (p < e) {
+                        if (ptr >= end || str[ptr] != str[p])
+                            return 0;
+                        p++;
+                        ptr++;
+                    }
+                    pidx++;
+                    break;
+
+                case SRE_OP_GROUPREF_IGNORE:
+                    /* match backreference */
+                    i = pattern[pidx];
+                    //TRACE(pidx, ptr, "GROUPREF_IGNORE " + i);
+                    p = mark[i + i];
+                    e = mark[i + i + 1];
+                    if (p == -1 || e == -1 || e < p)
+                        return 0;
+                    while (p < e) {
+                        if (ptr >= end || lower(str[ptr]) != lower(str[p]))
+                            return 0;
+                        p++;
+                        ptr++;
+                    }
+                    pidx++;
+                    break;
+
+                case SRE_OP_LITERAL_IGNORE:
+                    //TRACE(pidx, ptr, "LITERAL_IGNORE " + (int) pattern[pidx]);
+                    if (ptr >= end || lower(str[ptr]) != lower(pattern[pidx]))
+                        return 0;
+                    pidx++;
+                    ptr++;
+                    break;
+
+                case SRE_OP_NOT_LITERAL_IGNORE:
+                    //TRACE(pidx, ptr, "NOT_LITERAL_IGNORE " + (int) pattern[pidx]);
+                    if (ptr >= end || lower(str[ptr]) == lower(pattern[pidx]))
+                        return 0;
+                    pidx++;
+                    ptr++;
+                    break;
+
+                case SRE_OP_IN_IGNORE:
+                    //TRACE(pidx, ptr, "IN_IGNORE");
+                    if (ptr >= end || !SRE_CHARSET(pattern, pidx + 1, lower(str[ptr])))
+                        return 0;
+                    pidx += (int) pattern[pidx];
+                    ptr++;
+                    break;
+
+                case SRE_OP_MARK:
+                    /* set mark */
+                    /* <MARK> <gid> */
+                    //TRACE(pidx, ptr, "MARK " + (int) pattern[pidx]);
+                    i = pattern[pidx];
+                    if ((i & 1) != 0)
+                        lastindex = i / 2 + 1;
+                    if (i > this.lastmark)
+                        this.lastmark = i;
+                    mark[i] = ptr;
+                    pidx++;
+                    break;
+
+                case SRE_OP_JUMP:
+                case SRE_OP_INFO:
+                    /* jump forward */
+                    /* <JUMP> <offset> */
+                    //TRACE(pidx, ptr, "JUMP " + (int) pattern[pidx]);
+                    pidx += (int) pattern[pidx];
+                    break;
+
+                case SRE_OP_ASSERT:
+                    /* assert subpattern */
+                    /* args: <skip> <back> <pattern> */
+                    //TRACE(pidx, ptr, "ASSERT " + (int) pattern[pidx+1]);
+
+                    this.ptr = ptr - pattern[pidx + 1];
+                    if (this.ptr < this.beginning)
+                        return 0;
+                    i = SRE_MATCH(pattern, pidx + 2, level + 1);
+                    if (i <= 0)
+                        return i;
+                    pidx += pattern[pidx];
+                    break;
+
+                case SRE_OP_ASSERT_NOT:
+                    /* assert not subpattern */
+                    /* args: <skip> <pattern> */
+                    //TRACE(pidx, ptr, "ASSERT_NOT " + (int) pattern[pidx]);
+                    this.ptr = ptr - pattern[pidx + 1];
+                    if (this.ptr >= this.beginning) {
+                        i = SRE_MATCH(pattern, pidx + 2, level + 1);
+                        if (i < 0)
+                            return i;
+                        if (i != 0)
+                            return 0;
+                    }
+                    pidx += pattern[pidx];
+                    break;
+
+                case SRE_OP_BRANCH:
+                    /* try an alternate branch */
+                    /* <BRANCH> <0=skip> code <JUMP> ... <NULL> */
+                    //TRACE(pidx, ptr, "BRANCH");
                     lastmark = this.lastmark;
-                    while (count >= mincount) {
+                    for (; pattern[pidx] != 0; pidx += pattern[pidx]) {
+                        if (pattern[pidx + 1] == SRE_OP_LITERAL && (ptr >= end || str[ptr] != pattern[pidx + 2]))
+                            continue;
+                        if (pattern[pidx + 1] == SRE_OP_IN && (ptr >= end || !SRE_CHARSET(pattern, pidx + 3, str[ptr])))
+                            continue;
                         this.ptr = ptr;
-                        i = SRE_MATCH(pattern, pidx + pattern[pidx],
-                                      level + 1);
+                        i = SRE_MATCH(pattern, pidx + 1, level + 1);
                         if (i != 0)
                             return i;
-                        ptr--;
-                        count--;
                         while (this.lastmark > lastmark)
                             mark[this.lastmark--] = -1;
                     }
-                }
-                return 0;
 
-            case SRE_OP_REPEAT:
-                /* create repeat context.  all the hard work is done
-                   by the UNTIL operator (MAX_UNTIL, MIN_UNTIL) */
-                /* <REPEAT> <skip> <1=min> <2=max> item <UNTIL> tail */
+                    return 0;
 
-                //TRACE(pidx, ptr, "REPEAT " + (int)pattern[pidx+1] + " " + (int)pattern[pidx+2]);
+                case SRE_OP_REPEAT_ONE:
+                    /* match repeated sequence (maximizing regexp) */
 
-                SRE_REPEAT rep = new SRE_REPEAT(repeat);
-                rep.count = -1;
-                rep.pidx = pidx;
-                repeat = rep;
+                    /* this operator only works if the repeated item is
+                       exactly one character wide, and we're not already
+                       collecting backtracking points.  for other cases,
+                       use the MAX_REPEAT operator */
 
-                this.ptr = ptr;
-                i = SRE_MATCH(pattern, pidx + pattern[pidx], level + 1);
+                    /* <REPEAT_ONE> <skip> <1=min> <2=max> item <SUCCESS> tail */
 
-                repeat = rep.prev;
-                return i;
+                    int mincount = pattern[pidx + 1];
 
+                    //TRACE(pidx, ptr, "REPEAT_ONE " + mincount + " " + (int)pattern[pidx+2]);
+                    if (ptr + mincount > end)
+                        return 0; /* cannot match */
 
+                    this.ptr = ptr;
 
-            case SRE_OP_MAX_UNTIL:
-                /* maximizing repeat */
-                /* <REPEAT> <skip> <1=min> <2=max> item <MAX_UNTIL> tail */
+                    count = SRE_COUNT(pattern, pidx + 3, pattern[pidx + 2], level + 1);
+                    if (count < 0)
+                        return count;
 
-                /* FIXME: we probably need to deal with zero-width
-                   matches in here... */
+                    ptr += count;
 
-                SRE_REPEAT rp = this.repeat;
-                if (rp == null)
-                    return SRE_ERROR_STATE;
+                    /* when we arrive here, count contains the number of
+                       matches, and ptr points to the tail of the target
+                       string.  check if the rest of the pattern matches,
+                       and backtrack if not. */
 
-                this.ptr = ptr;
+                    if (count < mincount)
+                        return 0;
 
-                count = rp.count + 1;
+                    if (pattern[pidx + pattern[pidx]] == SRE_OP_SUCCESS) {
+                        /* tail is empty.  we're finished */
+                        this.ptr = ptr;
+                        return 1;
 
-                //TRACE(pidx, ptr, "MAX_UNTIL " + count);
+                    } else if (pattern[pidx + pattern[pidx]] == SRE_OP_LITERAL) {
+                        /* tail starts with a literal. skip positions where
+                           the rest of the pattern cannot possibly match */
+                        chr = pattern[pidx + pattern[pidx] + 1];
+                        for (;;) {
+                            while (count >= mincount && (ptr >= end || str[ptr] != chr)) {
+                                ptr--;
+                                count--;
+                            }
+                            if (count < mincount)
+                                break;
+                            this.ptr = ptr;
+                            i = SRE_MATCH(pattern, pidx + pattern[pidx], level + 1);
+                            if (i != 0)
+                                return 1;
+                            ptr--;
+                            count--;
+                        }
 
-                if (count < pattern[rp.pidx + 1]) {
-                    /* not enough matches */
+                    } else {
+                        /* general case */
+                        lastmark = this.lastmark;
+                        while (count >= mincount) {
+                            this.ptr = ptr;
+                            i = SRE_MATCH(pattern, pidx + pattern[pidx], level + 1);
+                            if (i != 0)
+                                return i;
+                            ptr--;
+                            count--;
+                            while (this.lastmark > lastmark)
+                                mark[this.lastmark--] = -1;
+                        }
+                    }
+                    return 0;
+
+                case SRE_OP_REPEAT:
+                    /* create repeat context.  all the hard work is done
+                       by the UNTIL operator (MAX_UNTIL, MIN_UNTIL) */
+                    /* <REPEAT> <skip> <1=min> <2=max> item <UNTIL> tail */
+
+                    //TRACE(pidx, ptr, "REPEAT " + (int)pattern[pidx+1] + " " + (int)pattern[pidx+2]);
+
+                    SRE_REPEAT rep = new SRE_REPEAT(repeat);
+                    rep.count = -1;
+                    rep.pidx = pidx;
+                    repeat = rep;
+
+                    this.ptr = ptr;
+                    i = SRE_MATCH(pattern, pidx + pattern[pidx], level + 1);
+
+                    repeat = rep.prev;
+                    return i;
+
+                case SRE_OP_MAX_UNTIL:
+                    /* maximizing repeat */
+                    /* <REPEAT> <skip> <1=min> <2=max> item <MAX_UNTIL> tail */
+
+                    /* FIXME: we probably need to deal with zero-width
+                       matches in here... */
+
+                    SRE_REPEAT rp = this.repeat;
+                    if (rp == null)
+                        return SRE_ERROR_STATE;
+
+                    this.ptr = ptr;
+
+                    count = rp.count + 1;
+
+                    //TRACE(pidx, ptr, "MAX_UNTIL " + count);
+
+                    if (count < pattern[rp.pidx + 1]) {
+                        /* not enough matches */
+
+                        rp.count = count;
+                        i = SRE_MATCH(pattern, rp.pidx + 3, level + 1);
+                        if (i != 0)
+                            return i;
+                        rp.count = count - 1;
+                        this.ptr = ptr;
+                        return 0;
+                    }
+
+                    if (count < pattern[rp.pidx + 2] || pattern[rp.pidx + 2] == 65535) {
+                        /* we may have enough matches, but if we can
+                           match another item, do so */
+                        rp.count = count;
+                        lastmark = this.lastmark;
+                        mark_save(0, lastmark);
+                        /* RECURSIVE */
+                        i = SRE_MATCH(pattern, rp.pidx + 3, level + 1);
+                        if (i != 0)
+                            return i;
+                        mark_restore(0, lastmark);
+                        this.lastmark = lastmark;
+                        rp.count = count - 1;
+                        this.ptr = ptr;
+                    }
+
+                    /* cannot match more repeated items here.  make sure the
+                       tail matches */
+                    this.repeat = rp.prev;
+                    /* RECURSIVE */
+                    i = SRE_MATCH(pattern, pidx, level + 1);
+                    if (i != 0)
+                        return i;
+                    this.repeat = rp;
+                    this.ptr = ptr;
+                    return 0;
+
+                case SRE_OP_MIN_UNTIL:
+                    /* minimizing repeat */
+                    /* <REPEAT> <skip> <1=min> <2=max> item <MIN_UNTIL> tail */
+
+                    rp = this.repeat;
+                    if (rp == null)
+                        return SRE_ERROR_STATE;
+
+                    count = rp.count + 1;
+
+                    //TRACE(pidx, ptr, "MIN_UNTIL " + count + " " + rp.pidx);
+
+                    this.ptr = ptr;
+
+                    if (count < pattern[rp.pidx + 1]) {
+                        /* not enough matches */
+                        rp.count = count;
+                        /* RECURSIVE */
+                        i = SRE_MATCH(pattern, rp.pidx + 3, level + 1);
+                        if (i != 0)
+                            return i;
+                        rp.count = count - 1;
+                        this.ptr = ptr;
+                        return 0;
+                    }
+
+                    /* see if the tail matches */
+                    this.repeat = rp.prev;
+                    i = SRE_MATCH(pattern, pidx, level + 1);
+                    if (i != 0)
+                        return i;
+
+                    this.ptr = ptr;
+                    this.repeat = rp;
+
+                    if (count >= pattern[rp.pidx + 2] && pattern[rp.pidx + 2] != 65535)
+                        return 0;
 
                     rp.count = count;
+                    /* RECURSIVE */
                     i = SRE_MATCH(pattern, rp.pidx + 3, level + 1);
                     if (i != 0)
                         return i;
                     rp.count = count - 1;
                     this.ptr = ptr;
                     return 0;
-                }
 
-                if (count < pattern[rp.pidx+2] ||
-                                            pattern[rp.pidx+2] == 65535) {
-                    /* we may have enough matches, but if we can
-                       match another item, do so */
-                    rp.count = count;
-                    lastmark = this.lastmark;
-                    mark_save(0, lastmark);
-                    /* RECURSIVE */
-                    i = SRE_MATCH(pattern, rp.pidx + 3, level + 1);
-                    if (i != 0)
-                        return i;
-                    mark_restore(0, lastmark);
-                    this.lastmark = lastmark;
-                    rp.count = count - 1;
-                    this.ptr = ptr;
-                }
-
-                /* cannot match more repeated items here.  make sure the
-                   tail matches */
-                this.repeat = rp.prev;
-                /* RECURSIVE */
-                i = SRE_MATCH(pattern, pidx, level + 1);
-                if (i != 0)
-                    return i;
-                this.repeat = rp;
-                this.ptr = ptr;
-                return 0;
-
-            case SRE_OP_MIN_UNTIL:
-                /* minimizing repeat */
-                /* <REPEAT> <skip> <1=min> <2=max> item <MIN_UNTIL> tail */
-
-                rp = this.repeat;
-                if (rp == null)
-                    return SRE_ERROR_STATE;
-
-                count = rp.count + 1;
-
-                //TRACE(pidx, ptr, "MIN_UNTIL " + count + " " + rp.pidx);
-
-                this.ptr = ptr;
-
-                if (count < pattern[rp.pidx + 1]) {
-                    /* not enough matches */
-                    rp.count = count;
-                    /* RECURSIVE */
-                    i = SRE_MATCH(pattern, rp.pidx + 3, level + 1);
-                    if (i != 0)
-                        return i;
-                    rp.count = count-1;
-                    this.ptr = ptr;
-                    return 0;
-                }
-
-                /* see if the tail matches */
-                this.repeat = rp.prev;
-                i = SRE_MATCH(pattern, pidx, level + 1);
-                if (i != 0)
-                    return i;
-
-                this.ptr = ptr;
-                this.repeat = rp;
-
-                if (count >= pattern[rp.pidx+2] &&
-                                                pattern[rp.pidx+2] != 65535)
-                    return 0;
-
-                rp.count = count;
-                /* RECURSIVE */
-                i = SRE_MATCH(pattern, rp.pidx + 3, level + 1);
-                if (i != 0)
-                    return i;
-                rp.count = count - 1;
-                this.ptr = ptr;
-                return 0;
-
-
-            default:
-                TRACE(pidx, ptr, "UNKNOWN " + (int) pattern[pidx-1]);
-                return SRE_ERROR_ILLEGAL;
+                default:
+                    TRACE(pidx, ptr, "UNKNOWN " + (int) pattern[pidx - 1]);
+                    return SRE_ERROR_ILLEGAL;
             }
         }
 
         //return SRE_ERROR_ILLEGAL;
     }
+
     int SRE_SEARCH(char[] pattern, int pidx) {
         int ptr = this.start;
         int end = this.end;
@@ -974,12 +948,12 @@ for line in sys.stdin:
             /* optimization info block */
             /* <INFO> <1=skip> <2=flags> <3=min> <4=max> <5=prefix info>  */
 
-            flags = pattern[pidx+2];
+            flags = pattern[pidx + 2];
 
-            if (pattern[pidx+3] > 0) {
+            if (pattern[pidx + 3] > 0) {
                 /* adjust end point (but make sure we leave at least one
                    character in there, so literal search will work) */
-                end -= pattern[pidx+3]-1;
+                end -= pattern[pidx + 3] - 1;
                 if (end <= ptr)
                     end = ptr; // FBO
             }
@@ -987,8 +961,8 @@ for line in sys.stdin:
             if ((flags & SRE_INFO_PREFIX) != 0) {
                 /* pattern starts with a known prefix */
                 /* <length> <skip> <prefix data> <overlap data> */
-                prefix_len = pattern[pidx+5];
-                prefix_skip = pattern[pidx+6];
+                prefix_len = pattern[pidx + 5];
+                prefix_skip = pattern[pidx + 6];
                 prefix = pidx + 7;
                 overlap = prefix + prefix_len - 1;
             } else if ((flags & SRE_INFO_CHARSET) != 0) {
@@ -997,9 +971,8 @@ for line in sys.stdin:
                 charset = pidx + 5;
             }
 
-            pidx += 1 + pattern[pidx+1];
+            pidx += 1 + pattern[pidx + 1];
         }
-
 
         if (prefix_len > 1) {
             /* pattern starts with a known prefix.  use the overlap
@@ -1008,11 +981,11 @@ for line in sys.stdin:
             end = this.end;
             while (ptr < end) {
                 for (;;) {
-                    if (str[ptr] != pattern[prefix+i]) {
+                    if (str[ptr] != pattern[prefix + i]) {
                         if (i == 0)
                             break;
                         else
-                            i = pattern[overlap+i];
+                            i = pattern[overlap + i];
                     } else {
                         if (++i == prefix_len) {
                             /* found a potential match */
@@ -1021,8 +994,7 @@ for line in sys.stdin:
                             this.ptr = ptr + 1 - prefix_len + prefix_skip;
                             if ((flags & SRE_INFO_LITERAL) != 0)
                                 return 1; /* we got all of it */
-                            status = SRE_MATCH(pattern,
-                                               pidx + 2*prefix_skip, 1);
+                            status = SRE_MATCH(pattern, pidx + 2 * prefix_skip, 1);
                             if (status != 0)
                                 return status;
                             /* close but no cigar -- try again */
@@ -1087,7 +1059,6 @@ for line in sys.stdin:
         return status;
     }
 
-
     /* string pointers */
     int ptr; /* current position (also end of current slice) */
     int beginning; /* start of original string */
@@ -1122,9 +1093,6 @@ for line in sys.stdin:
     /* duplicated from the PatternObject */
     int flags;
 
-
-
-
     public SRE_STATE(String str, int start, int end, int flags) {
         this.str = str.toCharArray();
         int size = str.length();
@@ -1155,10 +1123,10 @@ for line in sys.stdin:
 
     public static int getlower(int ch, int flags) {
         if ((flags & SRE_FLAG_LOCALE) != 0)
-             return ((ch) < 256 ? Character.toLowerCase((char) ch) : ch);
+            return ((ch) < 256 ? Character.toLowerCase((char) ch) : ch);
         if ((flags & SRE_FLAG_UNICODE) != 0)
-             return Character.toLowerCase((char)ch);
-        return ((ch) < 128 ? (char)sre_char_lower[ch] : ch);
+            return Character.toLowerCase((char) ch);
+        return ((ch) < 128 ? (char) sre_char_lower[ch] : ch);
     }
 
     String getslice(int index, String string, boolean empty) {
@@ -1166,7 +1134,7 @@ for line in sys.stdin:
 
         index = (index - 1) * 2;
 
-        if (string == null || mark[index] == -1 || mark[index+1] == -1) {
+        if (string == null || mark[index] == -1 || mark[index + 1] == -1) {
             if (empty) {
                 /* want empty string */
                 i = j = 0;
@@ -1175,7 +1143,7 @@ for line in sys.stdin:
             }
         } else {
             i = mark[index];
-            j = mark[index+1];
+            j = mark[index + 1];
         }
 
         return string.substring(i, j);

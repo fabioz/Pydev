@@ -24,29 +24,30 @@ import org.python.pydev.parser.jython.Token;
  * @author Fabio
  *
  */
-public abstract class AbstractTokenManager extends AbstractTokenManagerWithConstants implements ITreeConstants, ITokenManager{
-    
+public abstract class AbstractTokenManager extends AbstractTokenManagerWithConstants implements ITreeConstants,
+        ITokenManager {
+
     /**
      * A stack with the indentations... No sure why it's not a stack (indentation+level)
      */
     protected final int indentation[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    
+
     /**
      * The current indentation level.
      */
     protected int level = 0;
-    
+
     /**
      * When we find an EOF, we create artificially all the dedents. So, if we need to go back, we might
      * need to get back to the point we were previously.
      */
     protected int levelBeforeEof = -1;
-    
+
     /**
      * If > 0, we're in a (, [ or {
      */
     protected int parens = 0;
-    
+
     /**
      * This is the indentation in the current line (number of chars found after a \n)
      */
@@ -56,33 +57,31 @@ public abstract class AbstractTokenManager extends AbstractTokenManagerWithConst
      * The special tokens available.
      */
     public final List<Object> specialTokens = new ArrayList<Object>();
-    
+
     /**
      * The input stream.
      */
     private FastCharStream inputStream;
 
-    
-    public final FastCharStream getInputStream(){
-        if(this.inputStream == null){
-            this.inputStream =  (FastCharStream) REF.getAttrObj(this, "input_stream", true);
+    public final FastCharStream getInputStream() {
+        if (this.inputStream == null) {
+            this.inputStream = (FastCharStream) REF.getAttrObj(this, "input_stream", true);
         }
         return inputStream;
     }
-    
-    
+
     //must be calculated
-    protected final int getCurLexState(){
-        return (Integer)REF.getAttrObj(this, "curLexState", true);
+    protected final int getCurLexState() {
+        return (Integer) REF.getAttrObj(this, "curLexState", true);
     }
-    
+
     /**
      * Gets the next token. Note that indents and dedents can be skipped if we're not currently
      * in a new line (that's the reason for a number of tricks while trying to recover from errors)
      */
     public abstract Token getNextToken();
-    
-    protected AbstractTokenManager(){
+
+    protected AbstractTokenManager() {
     }
 
     /**
@@ -103,7 +102,7 @@ public abstract class AbstractTokenManager extends AbstractTokenManagerWithConst
         t.next = null;
         return t;
     }
-    
+
     /**
      * Creates a new token based on the coordinates on the previous and sets it as the next from the previous
      */
@@ -114,49 +113,48 @@ public abstract class AbstractTokenManager extends AbstractTokenManagerWithConst
         t.next = oldNext;
         return t;
     }
-    
+
     /**
      * Adds and returns a dedent token
      */
     protected final Token addDedent(Token previous) {
         return createFromAndSetAsNext(previous, getDedentId(), "<DEDENT>");
     }
-    
 
     /**
      * Map pointing a token representation (, [, {, :, etc. to its id in the grammar.
      */
     private Map<String, Integer> tokenToIdCache;
-    
+
     /**
      * @return a map pointing a token representation (, [, {, :, etc. to its id in the grammar.
      */
     private Map<String, Integer> getTokenToId() {
-        if(tokenToIdCache == null){
+        if (tokenToIdCache == null) {
             tokenToIdCache = new HashMap<String, Integer>();
-            
+
             tokenToIdCache.put(")", getRparenId());
             tokenToIdCache.put("]", getRbracketId());
             tokenToIdCache.put("}", getRbraceId());
-            
+
             tokenToIdCache.put(":", getColonId());
             tokenToIdCache.put("(", getLparenId());
             tokenToIdCache.put(",", getCommaId());
         }
         return tokenToIdCache;
     }
-    
+
     /**
      * Identifies that a custom token could not be created.
      */
     public static int CUSTOM_NOT_CREATED = 0;
-    
+
     /**
      * Identifies that a custom token was created and it wasn't a parens
      * (meaning that we didn't change the parens level by creating it)
      */
     public static int CUSTOM_CREATED_NOT_PARENS = 1;
-    
+
     /**
      * Identifies that a custom token was created and it wasn a parens
      * (meaning that we did change the parens level by creating it -- which
@@ -164,7 +162,7 @@ public abstract class AbstractTokenManager extends AbstractTokenManagerWithConst
      * indents and dedents)
      */
     public static int CUSTOM_CREATED_WAS_PARENS = 2;
-    
+
     /**
      * Creates a custom token for the given token representation (if possible)
      * 
@@ -174,13 +172,13 @@ public abstract class AbstractTokenManager extends AbstractTokenManagerWithConst
      */
     public int addCustom(Token curr, String token) {
         Integer id = getTokenToId().get(token);
-        if(id != null){
+        if (id != null) {
             createFromAndSetAsNext(curr, id, token);
             int ret = CUSTOM_CREATED_NOT_PARENS;
-            if(id == getRparenId() || id == getRbracketId() || id == getRbraceId()){
+            if (id == getRparenId() || id == getRbracketId() || id == getRbraceId()) {
                 parens--;
                 ret = CUSTOM_CREATED_WAS_PARENS;
-            }else if(id == getLparenId()){
+            } else if (id == getLparenId()) {
                 parens++;
                 ret = CUSTOM_CREATED_WAS_PARENS;
             }
@@ -188,7 +186,6 @@ public abstract class AbstractTokenManager extends AbstractTokenManagerWithConst
         }
         return CUSTOM_NOT_CREATED;
     }
-
 
     /**
      * Called right after the creation of any token.
@@ -208,7 +205,7 @@ public abstract class AbstractTokenManager extends AbstractTokenManagerWithConst
 
         //Now, we must check the actual token here for EOF. 
         t = initial;
-        
+
         //This is the place we check if we have to add dedents so that the parsing ends 'gracefully' when
         //we find and EOF.
         if (t.kind == getEofId()) {
@@ -234,12 +231,12 @@ public abstract class AbstractTokenManager extends AbstractTokenManagerWithConst
      * Must be called right after a new line with 0 as a parameter. Identifies the number of whitespaces in the current line.
      */
     public abstract void indenting(int i);
-    
+
     /**
      * @return The current level of the indentation in the current line.
      */
     public abstract int getCurrentLineIndentation();
-    
+
     /**
      * @return The current level of the indentation.
      */

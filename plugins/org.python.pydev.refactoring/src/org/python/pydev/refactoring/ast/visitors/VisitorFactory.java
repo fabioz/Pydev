@@ -45,10 +45,10 @@ public final class VisitorFactory {
 
     public static ITextSelection createSelectionExtension(AbstractScopeNode<?> scope, ITextSelection selection) {
         SelectionExtenderVisitor visitor = null;
-        try{
+        try {
             visitor = new SelectionExtenderVisitor(scope.getModule(), selection);
             scope.getASTNode().accept(visitor);
-        }catch(Exception e){
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return visitor.getSelection();
@@ -56,26 +56,27 @@ public final class VisitorFactory {
 
     public static void validateSelection(ModuleAdapter scope) throws SelectionException {
         SelectionValidationVisitor visitor = null;
-        try{
+        try {
             visitor = new SelectionValidationVisitor();
             scope.getASTNode().accept(visitor);
-        }catch(SelectionException e){
+        } catch (SelectionException e) {
             throw e;
-        }catch(Throwable e){
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static <T extends VisitorIF> T createVisitor(Class<T> visitorClass, String source, IGrammarVersionProvider versionProvider) throws Throwable {
+    public static <T extends VisitorIF> T createVisitor(Class<T> visitorClass, String source,
+            IGrammarVersionProvider versionProvider) throws Throwable {
         return createVisitor(visitorClass, getRootNodeFromString(source, versionProvider));
     }
 
     public static <T extends VisitorIF> T createVisitor(Class<T> visitorClass, SimpleNode root) {
         T visitor = null;
-        try{
+        try {
             visitor = visitorClass.newInstance();
             root.accept(visitor);
-        }catch(Throwable e){
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
         return visitor;
@@ -85,39 +86,41 @@ public final class VisitorFactory {
      * Unchecked (because if doing Class.cast, it does not work in java 1.4)
      */
     @SuppressWarnings("unchecked")
-    public static <T extends AbstractContextVisitor> T createContextVisitor(Class<T> visitorClass, SimpleNode root, ModuleAdapter module, AbstractNodeAdapter parent) {
-        try{
+    public static <T extends AbstractContextVisitor> T createContextVisitor(Class<T> visitorClass, SimpleNode root,
+            ModuleAdapter module, AbstractNodeAdapter parent) {
+        try {
             T visitor = (T) visitorClass.getConstructors()[0].newInstance(new Object[] { module, parent });
             root.accept(visitor);
             return visitor;
-        }catch(Exception e){
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static ModuleAdapter createModuleAdapter(PythonModuleManager pythonModuleManager, File file, IDocument doc, IPythonNature nature, IGrammarVersionProvider versionProvider) throws Throwable {
-        if(file != null && file.exists()){
-            if(FileTypesPreferencesPage.isCythonFile(file.getName())){
+    public static ModuleAdapter createModuleAdapter(PythonModuleManager pythonModuleManager, File file, IDocument doc,
+            IPythonNature nature, IGrammarVersionProvider versionProvider) throws Throwable {
+        if (file != null && file.exists()) {
+            if (FileTypesPreferencesPage.isCythonFile(file.getName())) {
                 versionProvider = new IGrammarVersionProvider() {
-                    
+
                     public int getGrammarVersion() throws MisconfigurationException {
                         return IPythonNature.GRAMMAR_PYTHON_VERSION_CYTHON;
                     }
                 };
             }
-            if(pythonModuleManager != null){
+            if (pythonModuleManager != null) {
                 IModulesManager modulesManager = pythonModuleManager.getIModuleManager();
-                if(modulesManager != null){
+                if (modulesManager != null) {
                     String modName = modulesManager.resolveModule(REF.getFileAbsolutePath(file));
-                    if(modName != null){
-	                    IModule module = modulesManager.getModule(modName, nature, true);
-	                    if(module instanceof ISourceModule){
-	                        SourceModule iSourceModule = (SourceModule) module;
-	                        if(iSourceModule.parseError != null){
-	                            throw iSourceModule.parseError;
-	                        }
-	                        return new ModuleAdapter(pythonModuleManager, ((ISourceModule) module), nature, doc);
-	                    }
+                    if (modName != null) {
+                        IModule module = modulesManager.getModule(modName, nature, true);
+                        if (module instanceof ISourceModule) {
+                            SourceModule iSourceModule = (SourceModule) module;
+                            if (iSourceModule.parseError != null) {
+                                throw iSourceModule.parseError;
+                            }
+                            return new ModuleAdapter(pythonModuleManager, ((ISourceModule) module), nature, doc);
+                        }
                     }
                 }
             }
@@ -125,8 +128,8 @@ public final class VisitorFactory {
         return new ModuleAdapter(pythonModuleManager, file, doc, getRootNode(doc, versionProvider), nature);
     }
 
-
-    public static SimpleNode getRootNodeFromString(String source, IGrammarVersionProvider versionProvider) throws ParseException, MisconfigurationException {
+    public static SimpleNode getRootNodeFromString(String source, IGrammarVersionProvider versionProvider)
+            throws ParseException, MisconfigurationException {
         return getRootNode(getDocumentFromString(source), versionProvider);
     }
 
@@ -134,23 +137,25 @@ public final class VisitorFactory {
         return new Document(source);
     }
 
-    public static Module getRootNode(IDocument doc, IGrammarVersionProvider versionProvider) throws ParseException, MisconfigurationException {
-        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, versionProvider.getGrammarVersion()));
+    public static Module getRootNode(IDocument doc, IGrammarVersionProvider versionProvider) throws ParseException,
+            MisconfigurationException {
+        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, versionProvider
+                .getGrammarVersion()));
         Throwable exception = objects.o2;
 
-        if(exception != null){
+        if (exception != null) {
             /* We try to get rid of the 'Throwable' exception, if possible */
-            if(exception instanceof ParseException){
+            if (exception instanceof ParseException) {
                 throw (ParseException) exception;
-            }else if(exception instanceof TokenMgrError){
+            } else if (exception instanceof TokenMgrError) {
                 /* Error from Lexer */
                 throw new ParseException(exception.toString());
-            }else{
+            } else {
                 throw new RuntimeException(exception);
             }
         }
 
-        if(objects.o2 != null)
+        if (objects.o2 != null)
             throw new RuntimeException(objects.o2);
         return (Module) objects.o1;
     }
@@ -158,13 +163,13 @@ public final class VisitorFactory {
     /**
      * Provides a way to find duplicates of a given expression.
      */
-    public static FindDuplicatesVisitor createDuplicatesVisitor(
-            ITextSelection selection, SimpleNode nodeToVisit, exprType expression, AbstractScopeNode node, IDocument doc){
+    public static FindDuplicatesVisitor createDuplicatesVisitor(ITextSelection selection, SimpleNode nodeToVisit,
+            exprType expression, AbstractScopeNode node, IDocument doc) {
         FindDuplicatesVisitor visitor = new FindDuplicatesVisitor(selection, expression, doc);
-        try{
+        try {
             nodeToVisit.accept(visitor);
             visitor.finish();
-        }catch(Throwable e){
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
         return visitor;

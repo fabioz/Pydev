@@ -12,7 +12,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 
-
 /**
  * @author fabioz
  */
@@ -23,14 +22,11 @@ public abstract class MapOfStringsInputDialog extends AbstractMapOfStringsInputD
     }
 
     @Override
-    protected String handleBrowseButton(){
+    protected String handleBrowseButton() {
         FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
 
         String file = dialog.open();
         return file;
     }
 
-    
-    
-    
 }

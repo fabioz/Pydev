@@ -91,9 +91,9 @@ public class PyRenameEntryPoint extends RenameProcessor {
 
     public static final Set<String> WORDS_THAT_CANNOT_BE_RENAMED = new HashSet<String>();
     static {
-        String[] wordsThatCannotbeRenamed = { "and", "assert", "break", "class", "continue", "def", "del", "elif", "else", "except",
-                "exec", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda", "not", "or", "pass", "print", "raise",
-                "return", "try", "while", "with", "yield", "as" };
+        String[] wordsThatCannotbeRenamed = { "and", "assert", "break", "class", "continue", "def", "del", "elif",
+                "else", "except", "exec", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda",
+                "not", "or", "pass", "print", "raise", "return", "try", "while", "with", "yield", "as" };
         for (String string : wordsThatCannotbeRenamed) {
             WORDS_THAT_CANNOT_BE_RENAMED.add(string);
         }
@@ -151,19 +151,20 @@ public class PyRenameEntryPoint extends RenameProcessor {
      * @see org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor#checkInitialConditions(org.eclipse.core.runtime.IProgressMonitor)
      */
     @Override
-    public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
+    public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException,
+            OperationCanceledException {
         request.pushMonitor(pm);
         request.getMonitor().beginTask("Checking refactoring pre-conditions...", 100);
-        
+
         RefactoringStatus status = new RefactoringStatus();
         try {
             if (!StringUtils.isWord(request.initialName)) {
                 status.addFatalError("The initial name is not valid:" + request.initialName);
                 return status;
             }
-            
+
             if (WORDS_THAT_CANNOT_BE_RENAMED.contains(request.initialName)) {
-                status.addFatalError("The token: " + request.initialName+ " cannot be renamed.");
+                status.addFatalError("The token: " + request.initialName + " cannot be renamed.");
                 return status;
             }
 
@@ -180,7 +181,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
             IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
             request.communicateWork("Finding definition");
             ItemPointer[] pointers = pyRefactoring.findDefinition(request);
-            
+
             process = new ArrayList<IRefactorRenameProcess>();
 
             if (pointers.length == 0) {
@@ -199,7 +200,8 @@ public class PyRenameEntryPoint extends RenameProcessor {
 
                     IRefactorRenameProcess p = RefactorProcessFactory.getProcess(pointer.definition, request);
                     if (p == null) {
-                        status.addFatalError("Refactoring Process not defined: the definition found is not valid:" + pointer.definition);
+                        status.addFatalError("Refactoring Process not defined: the definition found is not valid:"
+                                + pointer.definition);
                         return status;
                     }
                     process.add(p);
@@ -220,8 +222,8 @@ public class PyRenameEntryPoint extends RenameProcessor {
     }
 
     @Override
-    public RefactoringStatus checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context) throws CoreException,
-            OperationCanceledException {
+    public RefactoringStatus checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context)
+            throws CoreException, OperationCanceledException {
         return checkFinalConditions(pm, context, true);
     }
 
@@ -232,8 +234,8 @@ public class PyRenameEntryPoint extends RenameProcessor {
      *            determines if we should fill the change object (we'll not do
      *            it on tests)
      */
-    public RefactoringStatus checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context, boolean fillChangeObject)
-            throws CoreException, OperationCanceledException {
+    public RefactoringStatus checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context,
+            boolean fillChangeObject) throws CoreException, OperationCanceledException {
         request.pushMonitor(pm);
         RefactoringStatus status = new RefactoringStatus();
         try {
@@ -243,35 +245,34 @@ public class PyRenameEntryPoint extends RenameProcessor {
                 return status;
             }
             request.getMonitor().beginTask("Finding references", process.size());
-            
-            fChange = new CompositeChange("RenameChange: '" + request.initialName+ "' to '"+request.inputName+"'");
+
+            fChange = new CompositeChange("RenameChange: '" + request.initialName + "' to '" + request.inputName + "'");
 
             //Finding references and creating change object...
             //now, check the initial and final conditions
             for (IRefactorRenameProcess p : process) {
                 request.checkCancelled();
-                
+
                 request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 1));
                 try {
                     p.findReferencesToRename(request, status);
                 } finally {
                     request.popMonitor().done();
                 }
-                
+
                 if (status.hasFatalError() || request.getMonitor().isCanceled()) {
                     return status;
                 }
             }
             if (fillChangeObject) {
-                TextEditCreation textEditCreation = 
-                    new TextEditCreation(request.initialName, request.inputName, request.getModule().getName(), 
-                            request.getDoc(), process, status, fChange, request.getIFile());
-                
+                TextEditCreation textEditCreation = new TextEditCreation(request.initialName, request.inputName,
+                        request.getModule().getName(), request.getDoc(), process, status, fChange, request.getIFile());
+
                 textEditCreation.fillRefactoringChangeObject(request, context);
-                 if (status.hasFatalError() || request.getMonitor().isCanceled()) {
-                     return status;
-                 }
-                
+                if (status.hasFatalError() || request.getMonitor().isCanceled()) {
+                    return status;
+                }
+
             }
         } catch (OperationCanceledException e) {
             // OK

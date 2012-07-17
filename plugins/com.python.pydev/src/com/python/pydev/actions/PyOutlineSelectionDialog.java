@@ -117,50 +117,47 @@ public final class PyOutlineSelectionDialog extends TreeSelectionDialog {
     private int startLineIndex = -1;
 
     private TreeNode<OutlineEntry> initialSelection;
-    
-    
+
     private final UIJob uiJobSetRootWithParentsInput = new UIJob("Set input") {
-        
+
         @Override
         public IStatus runInUIThread(IProgressMonitor monitor) {
-            if(!monitor.isCanceled()){
+            if (!monitor.isCanceled()) {
                 getTreeViewer().setInput(rootWithParents);
-            }else{
+            } else {
                 //Will be recalculated if asked again!
                 rootWithParents = null;
             }
-            
-            
+
             return Status.OK_STATUS;
         }
     };
 
-
     private final Job jobCalculateParents = new Job("Calculate parents") {
-        
+
         @Override
         public IStatus run(IProgressMonitor monitor) {
             rootWithParents = root.createCopy(null);
-            
-            if(nodeToModel == null){
+
+            if (nodeToModel == null) {
                 //Step 2: create mapping: classdef to hierarchy model.
                 nodeToModel = new HashMap<SimpleNode, HierarchyNodeModel>();
-                List<Tuple<ClassDef, TreeNode<OutlineEntry>>> gathered = new ArrayList<Tuple<ClassDef, TreeNode<OutlineEntry>>>();  
+                List<Tuple<ClassDef, TreeNode<OutlineEntry>>> gathered = new ArrayList<Tuple<ClassDef, TreeNode<OutlineEntry>>>();
                 gatherClasses(rootWithParents, monitor, gathered);
-                monitor.beginTask("Calculate parents", gathered.size()+1);
-                
+                monitor.beginTask("Calculate parents", gathered.size() + 1);
+
                 IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
                 IPyRefactoring2 r2 = (IPyRefactoring2) pyRefactoring;
-                
 
-                for(Tuple<ClassDef, TreeNode<OutlineEntry>> t:gathered){
+                for (Tuple<ClassDef, TreeNode<OutlineEntry>> t : gathered) {
                     SubProgressMonitor subProgressMonitor = new SubProgressMonitor(monitor, 1);
                     try {
                         ClassDef classDef = t.o1;
-                        PySelection ps = new PySelection(pyEdit.getDocument(), classDef.name.beginLine - 1, classDef.name.beginColumn - 1);
+                        PySelection ps = new PySelection(pyEdit.getDocument(), classDef.name.beginLine - 1,
+                                classDef.name.beginColumn - 1);
                         try {
-                            RefactoringRequest refactoringRequest = PyRefactorAction.createRefactoringRequest(subProgressMonitor, pyEdit,
-                                    ps);
+                            RefactoringRequest refactoringRequest = PyRefactorAction.createRefactoringRequest(
+                                    subProgressMonitor, pyEdit, ps);
                             HierarchyNodeModel model = r2.findClassHierarchy(refactoringRequest, true);
                             nodeToModel.put(t.o2.data.node, model);
                         } catch (MisconfigurationException e) {
@@ -171,30 +168,30 @@ public final class PyOutlineSelectionDialog extends TreeSelectionDialog {
                     }
                 }
             }
-            
-            if(!monitor.isCanceled()){
+
+            if (!monitor.isCanceled()) {
                 fillHierarchy(rootWithParents);
             }
 
-            if(!monitor.isCanceled()){
+            if (!monitor.isCanceled()) {
                 uiJobSetRootWithParentsInput.setPriority(Job.INTERACTIVE);
                 uiJobSetRootWithParentsInput.schedule();
-            }else{
+            } else {
                 //Will be recalculated if asked again!
                 rootWithParents = null;
             }
             monitor.done();
-            
+
             return Status.OK_STATUS;
         }
     };
-    
+
     private PyOutlineSelectionDialog(Shell shell) {
         super(shell, createLabelProvider(), new TreeNodeContentProvider());
         setShellStyle(getShellStyle() & ~SWT.APPLICATION_MODAL); //Not modal because then the user may cancel the progress.
-        if(CorePlugin.getDefault() != null){
+        if (CorePlugin.getDefault() != null) {
             memento = new DialogMemento(getShell(), "com.python.pydev.actions.PyShowOutline");
-        }else{
+        } else {
             memento = null;
         }
 
@@ -204,16 +201,13 @@ public final class PyOutlineSelectionDialog extends TreeSelectionDialog {
         this.showParentHierarchy = false;
     }
 
-    
     /**
      * Handle the creation for earlier versions of Eclipse.
      */
     protected static ILabelProvider createLabelProvider() {
         try {
-            return new LabelProviderWithDecoration(
-                    new ShowOutlineLabelProvider(), 
-                    PlatformUI.getWorkbench().getDecoratorManager().getLabelDecorator(), 
-                    null);
+            return new LabelProviderWithDecoration(new ShowOutlineLabelProvider(), PlatformUI.getWorkbench()
+                    .getDecoratorManager().getLabelDecorator(), null);
         } catch (Throwable e) {
             return new ShowOutlineLabelProvider();
         }
@@ -237,39 +231,39 @@ public final class PyOutlineSelectionDialog extends TreeSelectionDialog {
         this(shell);
         this.pyEdit = pyEdit;
         PySelection ps = this.pyEdit.createPySelection();
-        startLineIndex = ps.getStartLineIndex()+1; //+1 because the ast starts at 1
+        startLineIndex = ps.getStartLineIndex() + 1; //+1 because the ast starts at 1
         calculateHierarchy();
         setInput(root);
-        
+
         //After creating the tree viewer (and setting the input), let's set the initial selection!
-        if(initialSelection != null){
-            this.setInitialSelections(new Object[]{initialSelection});
+        if (initialSelection != null) {
+            this.setInitialSelections(new Object[] { initialSelection });
         }
     }
 
     public boolean close() {
-        if(memento != null){
+        if (memento != null) {
             memento.writeSettings(getShell());
         }
         return super.close();
     }
 
     protected Point getInitialSize() {
-        if(memento != null){
+        if (memento != null) {
             return memento.getInitialSize(super.getInitialSize(), getShell());
         }
         return new Point(640, 480);
     }
 
     protected Point getInitialLocation(Point initialSize) {
-        if(memento != null){
+        if (memento != null) {
             return memento.getInitialLocation(initialSize, super.getInitialLocation(initialSize), getShell());
         }
         return new Point(250, 250);
     }
 
     public Control createDialogArea(Composite parent) {
-        if(memento != null){
+        if (memento != null) {
             memento.readSettings();
         }
         Control ret = super.createDialogArea(parent);
@@ -285,7 +279,7 @@ public final class PyOutlineSelectionDialog extends TreeSelectionDialog {
             }
         };
         this.text.addKeyListener(ctrlOlistener);
-        
+
         this.text.addKeyListener(new KeyListener() {
 
             public void keyReleased(KeyEvent e) {
@@ -343,22 +337,22 @@ public final class PyOutlineSelectionDialog extends TreeSelectionDialog {
             calculateHierarchy();
             treeViewer.setInput(root);
         }
-        
+
     }
 
     private void calculateHierarchy() {
         if (root != null) {
             return;
         }
-        
-        if(this.ast == null && pyEdit != null){
+
+        if (this.ast == null && pyEdit != null) {
             this.ast = pyEdit.getAST();
         }
 
-        if(ast == null){
+        if (ast == null) {
             return;
         }
-        
+
         DefinitionsASTIteratorVisitor visitor = DefinitionsASTIteratorVisitor.create(ast);
         if (visitor == null) {
             return;
@@ -383,11 +377,11 @@ public final class PyOutlineSelectionDialog extends TreeSelectionDialog {
             } else {
                 n = new TreeNode<OutlineEntry>(root, new OutlineEntry(next), null);
             }
-            
-            if(n.data.node.beginLine <= startLineIndex){
+
+            if (n.data.node.beginLine <= startLineIndex) {
                 initialSelection = n;
             }
-            
+
             entryToTreeNode.put(next, n);
         }
         this.root = root;
@@ -399,16 +393,15 @@ public final class PyOutlineSelectionDialog extends TreeSelectionDialog {
             uiJobSetRootWithParentsInput.schedule();
             return;
         }
-        
+
         calculateHierarchy(); //make sure the root is OK
-        
-        if(root == null){
+
+        if (root == null) {
             return;
         }
 
         jobCalculateParents.setPriority(Job.INTERACTIVE);
         jobCalculateParents.schedule();
-        
 
     }
 
@@ -421,21 +414,20 @@ public final class PyOutlineSelectionDialog extends TreeSelectionDialog {
         }
     }
 
-    
     private void addMethods(TreeNode<OutlineEntry> nextEntry, HierarchyNodeModel model) {
-        if(model == null || model.parents == null){
+        if (model == null || model.parents == null) {
             return;
         }
-        for(HierarchyNodeModel parent:model.parents){
+        for (HierarchyNodeModel parent : model.parents) {
             DefinitionsASTIteratorVisitor visitor = DefinitionsASTIteratorVisitor.createForChildren(parent.ast);
             if (visitor == null) {
                 continue;
             }
 
             Iterator<ASTEntry> outline = visitor.getOutline();
-            while(outline.hasNext()){
+            while (outline.hasNext()) {
                 ASTEntry entry = outline.next();
-                if(entry.parent == null){
+                if (entry.parent == null) {
                     //only direct children...
                     new TreeNode<OutlineEntry>(nextEntry, new OutlineEntry(entry, parent), null);
                 }
@@ -444,8 +436,8 @@ public final class PyOutlineSelectionDialog extends TreeSelectionDialog {
         }
     }
 
-    
-    private void gatherClasses(TreeNode<OutlineEntry> entry, IProgressMonitor monitor, List<Tuple<ClassDef, TreeNode<OutlineEntry>>> gathered) {
+    private void gatherClasses(TreeNode<OutlineEntry> entry, IProgressMonitor monitor,
+            List<Tuple<ClassDef, TreeNode<OutlineEntry>>> gathered) {
         if (entry.children.size() == 0) {
             return;
         }
@@ -462,32 +454,31 @@ public final class PyOutlineSelectionDialog extends TreeSelectionDialog {
         }
     }
 
-
     @Override
     protected void configureShell(final Shell shell) {
         super.configureShell(shell);
         //Whenever the shell is deactivated, we want to go on and close it (i.e.: work as a popup dialog)
         shell.addShellListener(new ShellListener() {
-            
+
             public void shellIconified(ShellEvent e) {
             }
-            
+
             public void shellDeiconified(ShellEvent e) {
             }
-            
+
             public void shellDeactivated(ShellEvent e) {
                 shell.close();
             }
-            
+
             public void shellClosed(ShellEvent e) {
             }
-            
+
             public void shellActivated(ShellEvent e) {
             }
         });
-        
+
     }
-    
+
     /* (non-Javadoc)
      * @see org.eclipse.ui.dialogs.ElementTreeSelectionDialog#open()
      */
@@ -500,17 +491,17 @@ public final class PyOutlineSelectionDialog extends TreeSelectionDialog {
                 @SuppressWarnings("unchecked")
                 TreeNode<OutlineEntry> n = (TreeNode<OutlineEntry>) result[0];
                 OutlineEntry outlineEntry = n.data;
-                if(outlineEntry.model == null){
+                if (outlineEntry.model == null) {
                     Location location = new Location(NodeUtils.getNameLineDefinition(outlineEntry.node) - 1,
                             NodeUtils.getNameColDefinition(outlineEntry.node) - 1);
                     new PyOpenAction().showInEditor(pyEdit, location, location);
-                }else{
+                } else {
                     PyOpenAction pyOpenAction = new PyOpenAction();
                     IModule m = outlineEntry.model.module;
-                    if(m instanceof SourceModule){
+                    if (m instanceof SourceModule) {
                         SourceModule sourceModule = (SourceModule) m;
                         File file = sourceModule.getFile();
-                        if(file != null){
+                        if (file != null) {
                             ItemPointer p = new ItemPointer(file, outlineEntry.node);
                             pyOpenAction.run(p);
                         }

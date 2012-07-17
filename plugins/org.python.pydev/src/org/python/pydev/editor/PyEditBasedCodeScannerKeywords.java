@@ -21,7 +21,7 @@ import org.python.pydev.core.callbacks.CallbackWithListeners;
  *
  */
 @SuppressWarnings("rawtypes")
-public class PyEditBasedCodeScannerKeywords implements ICodeScannerKeywords{
+public class PyEditBasedCodeScannerKeywords implements ICodeScannerKeywords {
 
     private WeakReference<PyEdit> edit;
     private final CallbackWithListeners callbackWithListeners = new CallbackWithListeners();
@@ -31,7 +31,7 @@ public class PyEditBasedCodeScannerKeywords implements ICodeScannerKeywords{
      * 
      * @author fabioz
      */
-    private static class CythonStatusChangeNotifier implements IPyEditListener, IPyEditListener3{
+    private static class CythonStatusChangeNotifier implements IPyEditListener, IPyEditListener3 {
 
         private WeakReference<CallbackWithListeners> ref;
         private boolean currentIsCythonFile;
@@ -39,9 +39,9 @@ public class PyEditBasedCodeScannerKeywords implements ICodeScannerKeywords{
         public CythonStatusChangeNotifier(PyEditBasedCodeScannerKeywords pyEditBasedCodeScannerKeywords) {
             this.ref = new WeakReference<CallbackWithListeners>(pyEditBasedCodeScannerKeywords.callbackWithListeners);
             PyEdit pyEdit = pyEditBasedCodeScannerKeywords.edit.get();
-            if(pyEdit == null){
+            if (pyEdit == null) {
                 currentIsCythonFile = false;
-            }else{
+            } else {
                 currentIsCythonFile = pyEdit.isCythonFile();
             }
         }
@@ -49,12 +49,12 @@ public class PyEditBasedCodeScannerKeywords implements ICodeScannerKeywords{
         @SuppressWarnings("unchecked")
         public void onInputChanged(PyEdit edit, IEditorInput oldInput, IEditorInput input, IProgressMonitor monitor) {
             boolean cythonFile = edit.isCythonFile();
-            if(cythonFile != currentIsCythonFile){
+            if (cythonFile != currentIsCythonFile) {
                 currentIsCythonFile = cythonFile;
                 CallbackWithListeners callbackWithListeners = this.ref.get();
-                if(callbackWithListeners != null){
+                if (callbackWithListeners != null) {
                     callbackWithListeners.call(null);
-                }else{
+                } else {
                     edit.removePyeditListener(this);
                 }
             }
@@ -71,9 +71,8 @@ public class PyEditBasedCodeScannerKeywords implements ICodeScannerKeywords{
 
         public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
         }
-        
+
     }
-    
 
     public PyEditBasedCodeScannerKeywords(PyEdit pyEdit) {
         this.edit = new WeakReference<PyEdit>(pyEdit);
@@ -86,17 +85,16 @@ public class PyEditBasedCodeScannerKeywords implements ICodeScannerKeywords{
 
     public String[] getKeywords() {
         PyEdit pyEdit = edit.get();
-        if(pyEdit == null){
+        if (pyEdit == null) {
             return PyCodeScanner.DEFAULT_KEYWORDS;
         }
-        if(pyEdit.isCythonFile()){
+        if (pyEdit.isCythonFile()) {
             return PyCodeScanner.CYTHON_KEYWORDS;
-            
-        }else{
+
+        } else {
             return PyCodeScanner.DEFAULT_KEYWORDS;
-            
+
         }
     }
 
-    
 }

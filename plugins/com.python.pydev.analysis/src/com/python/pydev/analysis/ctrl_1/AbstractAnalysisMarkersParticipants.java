@@ -25,8 +25,8 @@ import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.builder.AnalysisRunner;
 
-public abstract class AbstractAnalysisMarkersParticipants implements IAssistProps{
-    
+public abstract class AbstractAnalysisMarkersParticipants implements IAssistProps {
+
     protected ArrayList<IAnalysisMarkersParticipant> participants;
 
     public AbstractAnalysisMarkersParticipants() {
@@ -35,15 +35,15 @@ public abstract class AbstractAnalysisMarkersParticipants implements IAssistProp
 
     protected abstract void fillParticipants();
 
-
-    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature, PyEdit edit, int offset) throws BadLocationException {
+    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature,
+            PyEdit edit, int offset) throws BadLocationException {
         fillParticipants();
-        
+
         PySourceViewer s = edit.getPySourceViewer();
-        
+
         int line = ps.getLineOfOffset(offset);
         OrderedSet<MarkerAnnotationAndPosition> markersAtLine = new OrderedSet<MarkerAnnotationAndPosition>();
-        
+
         //Add it to a set to make sure that the entries are unique.
         //-- i.e.: the code analysis seems to be creating 2 markers in the following case (when sys is undefined):
         //sys.call1().call2()
@@ -51,13 +51,13 @@ public abstract class AbstractAnalysisMarkersParticipants implements IAssistProp
         //Note that it'll check equality by the marker type and text (not by position), so, if a given error
         //appears twice in the same line being correct, we'll only show the options once here (which is what
         //we want).
-        List<MarkerAnnotationAndPosition> markersAtLine2 = s.getMarkersAtLine(line, AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER);
+        List<MarkerAnnotationAndPosition> markersAtLine2 = s.getMarkersAtLine(line,
+                AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER);
         markersAtLine.addAll(markersAtLine2);
 
-        
         ArrayList<ICompletionProposal> props = new ArrayList<ICompletionProposal>();
-        
-        if(markersAtLine != null){
+
+        if (markersAtLine != null) {
             IAnalysisPreferences analysisPreferences = AnalysisPreferences.getAnalysisPreferences();
             String currLine = ps.getLine();
             for (MarkerAnnotationAndPosition marker : markersAtLine) {
@@ -73,7 +73,6 @@ public abstract class AbstractAnalysisMarkersParticipants implements IAssistProp
         return props;
     }
 
-    
     /**
      * It is valid if any marker generated from the analysis is found
      *  

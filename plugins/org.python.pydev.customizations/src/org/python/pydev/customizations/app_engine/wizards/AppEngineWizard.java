@@ -26,7 +26,7 @@ import org.python.pydev.ui.wizards.project.PythonProjectWizard;
  * 
  * @author Fabio
  */
-public class AppEngineWizard extends PythonProjectWizard{
+public class AppEngineWizard extends PythonProjectWizard {
 
     private AppEngineConfigWizardPage appEngineConfigWizardPage;
     private AppEngineTemplatePage appEngineTemplatePage;
@@ -36,23 +36,22 @@ public class AppEngineWizard extends PythonProjectWizard{
      * 
      * @see org.eclipse.jface.wizard.IWizard#addPages()
      */
-    public void addPages(){
+    public void addPages() {
         addPage(projectPage);
 
         appEngineConfigWizardPage = new AppEngineConfigWizardPage("Goole App Engine Page");
         appEngineConfigWizardPage.setTitle("Google App Engine");
         appEngineConfigWizardPage.setDescription("Set Google App Engine Configuration");
         addPage(appEngineConfigWizardPage);
-        
+
         appEngineTemplatePage = new AppEngineTemplatePage("Initial Structure");
         addPage(appEngineTemplatePage);
     }
-    
-    
+
     /**
      * Creates the project page.
      */
-    protected IWizardNewProjectNameAndLocationPage createProjectPage(){
+    protected IWizardNewProjectNameAndLocationPage createProjectPage() {
         return new NewProjectNameAndLocationWizardPage("Setting project properties");
     }
 
@@ -61,23 +60,24 @@ public class AppEngineWizard extends PythonProjectWizard{
      */
     @Override
     protected void createAndConfigProject(final IProject newProjectHandle, final IProjectDescription description,
-            final String projectType, final String projectInterpreter, IProgressMonitor monitor, Object ... additionalArgsToConfigProject) throws CoreException{
-        ICallback<List<IContainer>, IProject> getSourceFolderHandlesCallback = new ICallback<List<IContainer>, IProject>(){
+            final String projectType, final String projectInterpreter, IProgressMonitor monitor,
+            Object... additionalArgsToConfigProject) throws CoreException {
+        ICallback<List<IContainer>, IProject> getSourceFolderHandlesCallback = new ICallback<List<IContainer>, IProject>() {
 
-            public List<IContainer> call(IProject projectHandle){
+            public List<IContainer> call(IProject projectHandle) {
                 int sourceFolderConfigurationStyle = projectPage.getSourceFolderConfigurationStyle();
                 ArrayList<IContainer> ret;
-                switch(sourceFolderConfigurationStyle){
-                    
+                switch (sourceFolderConfigurationStyle) {
+
                     case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER:
                         //if the user hasn't selected to create a source folder, use the project itself for that.
                         ret = new ArrayList<IContainer>();
                         ret.add(projectHandle);
                         return ret;
-                        
+
                     case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_NO_PYTHONPATH:
                         return new ArrayList<IContainer>();
-                    
+
                     default:
                         IContainer folder = projectHandle.getFolder("src");
                         ret = new ArrayList<IContainer>();
@@ -87,39 +87,39 @@ public class AppEngineWizard extends PythonProjectWizard{
             }
         };
 
-        ICallback<List<String>, IProject> getExternalSourceFolderHandlesCallback = new ICallback<List<String>, IProject>(){
-        
-            public List<String> call(IProject projectHandle){
+        ICallback<List<String>, IProject> getExternalSourceFolderHandlesCallback = new ICallback<List<String>, IProject>() {
+
+            public List<String> call(IProject projectHandle) {
                 return appEngineConfigWizardPage.getExternalSourceFolders();
             }
         };
-        
-        ICallback<Map<String, String>, IProject> getVariableSubstitutionCallback = new ICallback<Map<String, String>, IProject>(){
-            
-            public Map<String, String> call(IProject projectHandle){
-                return appEngineConfigWizardPage.getVariableSubstitution(); 
+
+        ICallback<Map<String, String>, IProject> getVariableSubstitutionCallback = new ICallback<Map<String, String>, IProject>() {
+
+            public Map<String, String> call(IProject projectHandle) {
+                return appEngineConfigWizardPage.getVariableSubstitution();
             }
         };
-        
+
         PyStructureConfigHelpers.createPydevProject(description, newProjectHandle, monitor, projectType,
                 projectInterpreter, getSourceFolderHandlesCallback, getExternalSourceFolderHandlesCallback,
                 getVariableSubstitutionCallback);
-        
+
         //Ok, after the default is created, let's see if we have a template...
         IContainer sourceFolder;
-        
+
         final int sourceFolderConfigurationStyle = projectPage.getSourceFolderConfigurationStyle();
-            switch(sourceFolderConfigurationStyle){
-            
+        switch (sourceFolderConfigurationStyle) {
+
             case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER:
             case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_NO_PYTHONPATH:
                 sourceFolder = newProjectHandle;
                 break;
-            
+
             default:
                 sourceFolder = newProjectHandle.getFolder("src");
         }
-        
+
         appEngineTemplatePage.fillSourceFolder(sourceFolder);
     }
 

@@ -20,11 +20,10 @@ import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 /**
  * Extends CodeCompletionTestsBase so that we have the bundle set for getting the environment.
  */
-public class SimpleExeRunnerTest extends CodeCompletionTestsBase{
+public class SimpleExeRunnerTest extends CodeCompletionTestsBase {
 
-    
     public void testIt() throws Exception {
-        if(TestDependent.CYGWIN_CYGPATH_LOCATION != null){
+        if (TestDependent.CYGWIN_CYGPATH_LOCATION != null) {
             SimpleExeRunner runner = new SimpleExeRunner();
             Tuple<String, String> tup = runner.runAndGetOutput(new String[] { TestDependent.CYGWIN_CYGPATH_LOCATION,
                     TestDependent.CYGWIN_CYGPATH_LOCATION }, null, null, null, "utf-8");
@@ -32,9 +31,9 @@ public class SimpleExeRunnerTest extends CodeCompletionTestsBase{
             assertEquals("", tup.o2);
         }
     }
-    
+
     public void testIt2() throws Exception {
-        if(TestDependent.CYGWIN_CYGPATH_LOCATION != null){
+        if (TestDependent.CYGWIN_CYGPATH_LOCATION != null) {
             SimpleExeRunner runner = new SimpleExeRunner();
             List<String> ret = runner.convertToCygwinPath(TestDependent.CYGWIN_CYGPATH_LOCATION,
                     TestDependent.CYGWIN_CYGPATH_LOCATION, "c:\\foo");

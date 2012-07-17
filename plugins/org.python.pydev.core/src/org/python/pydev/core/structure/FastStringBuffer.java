@@ -25,7 +25,7 @@ import org.eclipse.core.runtime.Assert;
  *
  * @author Fabio
  */
-public final class FastStringBuffer{
+public final class FastStringBuffer {
 
     /**
      * Holds the actual chars
@@ -51,8 +51,8 @@ public final class FastStringBuffer{
         this.value = new char[initialSize];
         this.count = 0;
     }
-    
-    public FastStringBuffer(char [] internalBuffer) {
+
+    public FastStringBuffer(char[] internalBuffer) {
         this.value = internalBuffer;
         this.count = internalBuffer.length;
     }
@@ -65,7 +65,7 @@ public final class FastStringBuffer{
      */
     public FastStringBuffer(String s, int additionalSize) {
         this.count = s.length();
-        if(additionalSize < 0){
+        if (additionalSize < 0) {
             additionalSize = 0;
         }
         value = new char[this.count + additionalSize];
@@ -94,7 +94,7 @@ public final class FastStringBuffer{
 
         return this;
     }
-    
+
     /**
      * Appends a string to the buffer. The buffer must have enough pre-allocated space for it to succeed.
      * 
@@ -131,7 +131,7 @@ public final class FastStringBuffer{
         String string = String.valueOf(n);
         int strLen = string.length();
         int newCount = count + strLen;
-        
+
         if (newCount > this.value.length) {
             //was: resizeForMinimum(newCount);
             int newCapacity = (value.length + 1) * 2;
@@ -166,7 +166,7 @@ public final class FastStringBuffer{
         count++;
         return this;
     }
-    
+
     /**
      * Appends a char to the buffer. Use when the size allocated is usually already ok (will only resize on exception 
      * instead of doing a size check all the time).
@@ -198,7 +198,7 @@ public final class FastStringBuffer{
         String string = String.valueOf(n);
         int strLen = string.length();
         int newCount = count + strLen;
-        
+
         if (newCount > this.value.length) {
             //was: resizeForMinimum(newCount);
             int newCapacity = (value.length + 1) * 2;
@@ -222,7 +222,7 @@ public final class FastStringBuffer{
         String string = String.valueOf(b);
         int strLen = string.length();
         int newCount = count + strLen;
-        
+
         if (newCount > this.value.length) {
             //was: resizeForMinimum(newCount);
             int newCapacity = (value.length + 1) * 2;
@@ -237,7 +237,7 @@ public final class FastStringBuffer{
         this.count = newCount;
         return this;
     }
-    
+
     /**
      * Appends a double to the buffer.
      */
@@ -246,7 +246,7 @@ public final class FastStringBuffer{
         String string = String.valueOf(b);
         int strLen = string.length();
         int newCount = count + strLen;
-        
+
         if (newCount > this.value.length) {
             int newCapacity = (value.length + 1) * 2;
             if (newCount > newCapacity) {
@@ -350,7 +350,7 @@ public final class FastStringBuffer{
     public int length() {
         return this.count;
     }
-    
+
     public boolean isEmpty() {
         return this.count == 0;
     }
@@ -371,8 +371,7 @@ public final class FastStringBuffer{
         System.arraycopy(value, 0, v, 0, count);
         return v;
     }
-    
-    
+
     /**
      * Erases the last char in this buffer
      */
@@ -381,17 +380,16 @@ public final class FastStringBuffer{
             this.count--;
         }
     }
-    
+
     /**
      * @param length
      */
     public void deleteLastChars(int charsToDelete) {
         this.count -= charsToDelete;
-        if(this.count < 0){
+        if (this.count < 0) {
             this.count = 0;
         }
     }
-
 
     /**
      * @return the char given at a specific position of the buffer (no bounds check)
@@ -421,6 +419,7 @@ public final class FastStringBuffer{
         count = newCount;
         return this;
     }
+
     /**
      * Inserts a string at a given position in the buffer.
      */
@@ -471,7 +470,7 @@ public final class FastStringBuffer{
         String string = object != null ? object.toString() : "null";
         int strLen = string.length();
         int newCount = count + strLen;
-        
+
         if (newCount > this.value.length) {
             //was: resizeForMinimum(newCount);
             int newCapacity = (value.length + 1) * 2;
@@ -484,7 +483,7 @@ public final class FastStringBuffer{
         }
         string.getChars(0, strLen, value, this.count);
         this.count = newCount;
-        
+
         return this;
     }
 
@@ -540,8 +539,7 @@ public final class FastStringBuffer{
         count = newCount;
         return this;
     }
-    
-    
+
     /**
      * Replaces all the occurrences of a string in this buffer for another string and returns the
      * altered version.
@@ -549,20 +547,20 @@ public final class FastStringBuffer{
     public FastStringBuffer replaceAll(String replace, String with) {
         int replaceLen = replace.length();
         int withLen = with.length();
-        
+
         Assert.isTrue(replaceLen > 0);
-        
+
         int matchPos = 0;
         for (int i = 0; i < this.count; i++) {
-            if(this.value[i] == replace.charAt(matchPos)){
-                matchPos ++;
-                if(matchPos == replaceLen){
-                    this.replace(i-(replaceLen-1), i+1, with);
+            if (this.value[i] == replace.charAt(matchPos)) {
+                matchPos++;
+                if (matchPos == replaceLen) {
+                    this.replace(i - (replaceLen - 1), i + 1, with);
                     matchPos = 0;
-                    i = i-(replaceLen-withLen);
+                    i = i - (replaceLen - withLen);
                 }
                 continue;
-            }else{
+            } else {
                 matchPos = 0;
             }
         }
@@ -580,17 +578,17 @@ public final class FastStringBuffer{
     }
 
     public int indexOf(char c) {
-        for(int i=0;i<this.count;i++){
-            if(c == this.value[i]){
+        for (int i = 0; i < this.count; i++) {
+            if (c == this.value[i]) {
                 return i;
             }
         }
         return -1;
     }
-    
+
     public int indexOf(char c, int fromOffset) {
-        for(int i=fromOffset;i<this.count;i++){
-            if(c == this.value[i]){
+        for (int i = fromOffset; i < this.count; i++) {
+            if (c == this.value[i]) {
                 return i;
             }
         }
@@ -600,24 +598,23 @@ public final class FastStringBuffer{
     public char firstChar() {
         return this.value[0];
     }
-    
+
     public char lastChar() {
-        return this.value[this.count-1];
+        return this.value[this.count - 1];
     }
 
-
-    public final static class BackwardCharIterator implements Iterable<Character>{
+    public final static class BackwardCharIterator implements Iterable<Character> {
 
         private int i;
         private FastStringBuffer fastStringBuffer;
-        
+
         public BackwardCharIterator(FastStringBuffer fastStringBuffer) {
             this.fastStringBuffer = fastStringBuffer;
             i = fastStringBuffer.length();
         }
-        
+
         public Iterator<Character> iterator() {
-            return new Iterator<Character>(){
+            return new Iterator<Character>() {
 
                 public boolean hasNext() {
                     return i > 0;
@@ -633,7 +630,7 @@ public final class FastStringBuffer{
             };
         }
     }
-    
+
     public BackwardCharIterator reverseIterator() {
         return new BackwardCharIterator(this);
     }
@@ -641,39 +638,39 @@ public final class FastStringBuffer{
     public void rightTrim() {
         char c;
         //while !isEmpty && lastChar == ' ' || \t.
-        while (this.count > 0 && ((c = this.value[this.count-1]) == ' ' || c == '\t')) {
+        while (this.count > 0 && ((c = this.value[this.count - 1]) == ' ' || c == '\t')) {
             this.count--;
         }
     }
 
-    public char deleteFirst(){
+    public char deleteFirst() {
         char ret = this.value[0];
         this.deleteCharAt(0);
         return ret;
     }
 
-    public FastStringBuffer appendN(final String val, int n){
+    public FastStringBuffer appendN(final String val, int n) {
         final int strLen = val.length();
-    	int min = count + (n*strLen);
-		if (min > value.length) {
+        int min = count + (n * strLen);
+        if (min > value.length) {
             //was: resizeForMinimum(newCount);
-    		int newCapacity = (value.length + 1) * 2;
+            int newCapacity = (value.length + 1) * 2;
             if (min > newCapacity) {
                 newCapacity = min;
             }
             char newValue[] = new char[newCapacity];
             System.arraycopy(value, 0, newValue, 0, count);
             value = newValue;
-    	}
-        
-    	while (n-- > 0){
-    		val.getChars(0, strLen, value, this.count);
-    		this.count += strLen;
+        }
+
+        while (n-- > 0) {
+            val.getChars(0, strLen, value, this.count);
+            this.count += strLen;
         }
         return this;
     }
 
-    public FastStringBuffer appendN(char val, int n){
+    public FastStringBuffer appendN(char val, int n) {
         if (count + n > value.length) {
             //was: resizeForMinimum(newCount);
             int minimumCapacity = count + n;
@@ -685,10 +682,10 @@ public final class FastStringBuffer{
             System.arraycopy(value, 0, newValue, 0, count);
             value = newValue;
         }
-        
-        while (n-- > 0){
-	        value[count] = val;
-	        count++;
+
+        while (n-- > 0) {
+            value[count] = val;
+            count++;
         }
         return this;
     }
@@ -700,19 +697,19 @@ public final class FastStringBuffer{
     public boolean startsWith(String prefix) {
         return startsWith(prefix, 0);
     }
-    
+
     public boolean startsWith(char c) {
-        if(this.count < 1){
+        if (this.count < 1) {
             return false;
         }
         return this.value[0] == c;
     }
-    
+
     public boolean endsWith(char c) {
-        if(this.count < 1){
+        if (this.count < 1) {
             return false;
         }
-        return this.value[this.count-1] == c;
+        return this.value[this.count - 1] == c;
     }
 
     public boolean startsWith(String prefix, int offset) {
@@ -750,18 +747,18 @@ public final class FastStringBuffer{
 
     public int countNewLines() {
         int lines = 0;
-        
-        for(int i=0;i<count;i++){
+
+        for (int i = 0; i < count; i++) {
             char c = value[i];
-            switch(c){
+            switch (c) {
                 case '\n':
                     lines += 1;
                     break;
-                    
+
                 case '\r':
                     lines += 1;
-                    if(i < count-1){
-                        if(value[i+1] == '\n'){
+                    if (i < count - 1) {
+                        if (value[i + 1] == '\n') {
                             i++; //skip the \n after the \r
                         }
                     }
@@ -778,19 +775,18 @@ public final class FastStringBuffer{
         return this;
     }
 
-    
     public String getLastWord() {
         FastStringBuffer lastWordBuf = new FastStringBuffer(this.count);
         int i;
         //skip whitespaces in the end
-        for(i=this.count-1;i>=0;i--){
-            if(!Character.isWhitespace(this.value[i])){
+        for (i = this.count - 1; i >= 0; i--) {
+            if (!Character.isWhitespace(this.value[i])) {
                 break;
             }
         }
         //actual word
-        for(;i>=0;i--){
-            if(Character.isWhitespace(this.value[i])){
+        for (; i >= 0; i--) {
+            if (Character.isWhitespace(this.value[i])) {
                 break;
             }
             lastWordBuf.append(this.value[i]);
@@ -799,15 +795,14 @@ public final class FastStringBuffer{
         return lastWordBuf.toString();
     }
 
-    
     public void removeWhitespaces() {
         int length = this.count;
         char[] newVal = new char[length];
-        
-        int j=0;
+
+        int j = 0;
         for (int i = 0; i < length; i++) {
             char ch = this.value[i];
-            if(!Character.isWhitespace(ch)){
+            if (!Character.isWhitespace(ch)) {
                 newVal[j] = ch;
                 j++;
             }
@@ -820,6 +815,4 @@ public final class FastStringBuffer{
         return this.value;
     }
 
-
-    
 }

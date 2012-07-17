@@ -18,14 +18,15 @@ public class BeforeCurrentOffset extends BeginOffset {
 
     private AbstractScopeNode<?> scopeAdapter;
 
-    public BeforeCurrentOffset(IASTNodeAdapter<? extends SimpleNode> adapter, IDocument doc, AdapterPrefs adapterPrefs, AbstractScopeNode<?> scopeAdapter) {
+    public BeforeCurrentOffset(IASTNodeAdapter<? extends SimpleNode> adapter, IDocument doc, AdapterPrefs adapterPrefs,
+            AbstractScopeNode<?> scopeAdapter) {
         super(adapter, doc, adapterPrefs);
         this.scopeAdapter = scopeAdapter;
     }
 
     protected int getLine() {
-        if(scopeAdapter != null){
-            return scopeAdapter.getNodeFirstLine()-1;
+        if (scopeAdapter != null) {
+            return scopeAdapter.getNodeFirstLine() - 1;
         }
         return super.getLine();
     }

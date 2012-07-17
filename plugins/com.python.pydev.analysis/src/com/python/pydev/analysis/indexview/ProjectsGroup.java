@@ -21,12 +21,10 @@ public class ProjectsGroup extends ElementWithChildren {
         return true;
     }
 
-    
     @Override
     public String toString() {
         return "Projects";
     }
-
 
     @Override
     protected void calculateChildren() {
@@ -34,10 +32,10 @@ public class ProjectsGroup extends ElementWithChildren {
         IProject[] projects = root.getProjects();
         for (IProject iProject : projects) {
             PythonNature nature = PythonNature.getPythonNature(iProject);
-            if(nature != null){
+            if (nature != null) {
                 addChild(new NatureGroup(this, nature));
             }
         }
     }
-    
+
 }

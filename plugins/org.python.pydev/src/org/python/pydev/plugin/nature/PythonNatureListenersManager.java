@@ -27,42 +27,40 @@ import org.python.pydev.core.log.Log;
  */
 public class PythonNatureListenersManager {
     private static List<WeakReference<IPythonNatureListener>> pythonNatureListeners = new ArrayList<WeakReference<IPythonNatureListener>>();
-    
-    public static void addPythonNatureListener(IPythonNatureListener listener){
+
+    public static void addPythonNatureListener(IPythonNatureListener listener) {
         pythonNatureListeners.add(new WeakReference<IPythonNatureListener>(listener));
     }
-    
+
     public static void removePythonNatureListener(IPythonNatureListener provider) {
-        for(Iterator<WeakReference<IPythonNatureListener>> it = pythonNatureListeners.iterator();it.hasNext();){
+        for (Iterator<WeakReference<IPythonNatureListener>> it = pythonNatureListeners.iterator(); it.hasNext();) {
             WeakReference<IPythonNatureListener> ref = it.next();
-            if(ref.get() == provider){
+            if (ref.get() == provider) {
                 it.remove();
             }
         }
     }
-    
-    
+
     /**
      * Notification that the pythonpath has been rebuilt.
      * 
      * @param project is the project that had the pythonpath rebuilt
      * @param nature the nature related to the project (can be null if the nature has actually been removed)
      */
-    public static void notifyPythonPathRebuilt(IProject project, IPythonNature nature){
-        for(Iterator<WeakReference<IPythonNatureListener>> it = pythonNatureListeners.iterator();it.hasNext();){
+    public static void notifyPythonPathRebuilt(IProject project, IPythonNature nature) {
+        for (Iterator<WeakReference<IPythonNatureListener>> it = pythonNatureListeners.iterator(); it.hasNext();) {
             WeakReference<IPythonNatureListener> ref = it.next();
-            try{
+            try {
                 IPythonNatureListener listener = ref.get();
-                if(listener == null){
+                if (listener == null) {
                     it.remove();
-                }else{
+                } else {
                     listener.notifyPythonPathRebuilt(project, nature);
                 }
-            }catch(Throwable e){
+            } catch (Throwable e) {
                 Log.log(e);
             }
         }
     }
 
-    
 }

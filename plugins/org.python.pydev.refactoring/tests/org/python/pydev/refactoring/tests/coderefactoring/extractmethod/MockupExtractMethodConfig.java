@@ -11,37 +11,37 @@ import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 
 public class MockupExtractMethodConfig {
 
-	private int offset;
+    private int offset;
 
-	private int selectionLength;
+    private int selectionLength;
 
-	private int offsetStrategy;
+    private int offsetStrategy;
 
-	private Map<String, String> renameMap;
+    private Map<String, String> renameMap;
 
-	public MockupExtractMethodConfig() {
-		this.offset = 0;
-		this.selectionLength = 0;
-		this.offsetStrategy = IOffsetStrategy.AFTERINIT;
-	}
+    public MockupExtractMethodConfig() {
+        this.offset = 0;
+        this.selectionLength = 0;
+        this.offsetStrategy = IOffsetStrategy.AFTERINIT;
+    }
 
-	public int getOffset() {
-		return offset;
-	}
+    public int getOffset() {
+        return offset;
+    }
 
-	public int getOffsetStrategy() {
-		return offsetStrategy;
-	}
+    public int getOffsetStrategy() {
+        return offsetStrategy;
+    }
 
-	public int getSelectionLength() {
-		return selectionLength;
-	}
+    public int getSelectionLength() {
+        return selectionLength;
+    }
 
-	public Map<String, String> getRenameMap() {
-		if (renameMap == null) {
-			this.renameMap = new HashMap<String, String>();
-		}
-		return renameMap;
-	}
+    public Map<String, String> getRenameMap() {
+        if (renameMap == null) {
+            this.renameMap = new HashMap<String, String>();
+        }
+        return renameMap;
+    }
 
 }

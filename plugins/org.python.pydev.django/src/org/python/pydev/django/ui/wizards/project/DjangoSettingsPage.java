@@ -42,50 +42,56 @@ import org.python.pydev.ui.wizards.project.IWizardNewProjectNameAndLocationPage;
 @SuppressWarnings("serial")
 public class DjangoSettingsPage extends WizardPage {
 
-	public static final String CPYTHON = "cpython";
-	public static final String JYTHON = "jython";
-	
-	public static String DJANGO_14 = "1.4 or later";
-	public static String DJANGO_12_OR_13 = "1.2 or 1.3";
-	public static String DJANGO_11_OR_EARLIER = "1.1 or earlier";
+    public static final String CPYTHON = "cpython";
+    public static final String JYTHON = "jython";
 
-   protected static final String GET_DJANGO_VERSION =
-            "import django;print(django.get_version());";
-	    
-	/**
-	 * The default version to be used.
-	 */
+    public static String DJANGO_14 = "1.4 or later";
+    public static String DJANGO_12_OR_13 = "1.2 or 1.3";
+    public static String DJANGO_11_OR_EARLIER = "1.1 or earlier";
+
+    protected static final String GET_DJANGO_VERSION = "import django;print(django.get_version());";
+
+    /**
+     * The default version to be used.
+     */
     private String defaultVersion = DJANGO_14;
-	
-	private void setDefaultVersion(String defaultVersion){
-	    this.defaultVersion = defaultVersion;
-	}
-	
-	static final ArrayList<String> DJANGO_VERSIONS = new ArrayList<String>() {{
-	    add(DJANGO_14);
-	    add(DJANGO_12_OR_13);
-	    add(DJANGO_11_OR_EARLIER);
-	}};
 
-    static final Map<String, List<String>> DB_ENGINES = new HashMap<String, List<String>>() {{
-		put(CPYTHON, new ArrayList<String>() {{
-		    add("sqlite3");
-			add("postgresql_psycopg2");
-			add("mysql");
-			add("oracle");
-			add("other (just type in combo)");
-		}});
-		put(JYTHON, new ArrayList<String>() {{
-		    add("doj.backends.zxjdbc.sqlite3");
-			add("doj.backends.zxjdbc.postgresql");
-			add("doj.backends.zxjdbc.mysql");
-			add("doj.backends.zxjdbc.oracle");
-			add("other (just type in combo)");
-		}});
-	}};
+    private void setDefaultVersion(String defaultVersion) {
+        this.defaultVersion = defaultVersion;
+    }
 
+    static final ArrayList<String> DJANGO_VERSIONS = new ArrayList<String>() {
+        {
+            add(DJANGO_14);
+            add(DJANGO_12_OR_13);
+            add(DJANGO_11_OR_EARLIER);
+        }
+    };
 
-	private static final int SIZING_TEXT_FIELD_WIDTH = 250;
+    static final Map<String, List<String>> DB_ENGINES = new HashMap<String, List<String>>() {
+        {
+            put(CPYTHON, new ArrayList<String>() {
+                {
+                    add("sqlite3");
+                    add("postgresql_psycopg2");
+                    add("mysql");
+                    add("oracle");
+                    add("other (just type in combo)");
+                }
+            });
+            put(JYTHON, new ArrayList<String>() {
+                {
+                    add("doj.backends.zxjdbc.sqlite3");
+                    add("doj.backends.zxjdbc.postgresql");
+                    add("doj.backends.zxjdbc.mysql");
+                    add("doj.backends.zxjdbc.oracle");
+                    add("other (just type in combo)");
+                }
+            });
+        }
+    };
+
+    private static final int SIZING_TEXT_FIELD_WIDTH = 250;
 
     private Combo djVersionCombo;
     private Combo engineCombo;
@@ -94,9 +100,9 @@ public class DjangoSettingsPage extends WizardPage {
     private Text portText;
     private Text userText;
     private Text passText;
-	private ICallback0<IWizardNewProjectNameAndLocationPage> projectPageCallback;
-	private String previousProjectType = "";
-	private String previousProjectInterpreter = "";
+    private ICallback0<IWizardNewProjectNameAndLocationPage> projectPageCallback;
+    private String previousProjectType = "";
+    private String previousProjectInterpreter = "";
 
     public DjangoSettingsPage(String pageName, ICallback0<IWizardNewProjectNameAndLocationPage> projectPage) {
         super(pageName);
@@ -105,128 +111,119 @@ public class DjangoSettingsPage extends WizardPage {
         setDescription("Basic Django Settings");
     }
 
-
     private Label newLabel(Composite parent, String label) {
-    	Label l = new Label(parent, SWT.NONE);
-    	l.setText(label);
-    	l.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-    	return l;
+        Label l = new Label(parent, SWT.NONE);
+        l.setText(label);
+        l.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        return l;
     }
 
     private Text newText(Composite parent) {
-    	Text t = new Text(parent, SWT.BORDER);
+        Text t = new Text(parent, SWT.BORDER);
         GridData gd = new GridData(GridData.FILL_HORIZONTAL);
         gd.widthHint = SIZING_TEXT_FIELD_WIDTH;
         t.setLayoutData(gd);
         return t;
     }
 
-    
     public void setPreviousPage(IWizardPage page) {
-    	super.setPreviousPage(page);
+        super.setPreviousPage(page);
         final IWizardNewProjectNameAndLocationPage projectPage = projectPageCallback.call();
         final String projectType = projectPage.getProjectType();
-        
-        if(djVersionCombo.getItemCount() == 0){
+
+        if (djVersionCombo.getItemCount() == 0) {
             //fill it only if it's still not properly filled
             djVersionCombo.removeAll();
             for (String version : DJANGO_VERSIONS) {
-    			djVersionCombo.add(version);
-    		}
-        
+                djVersionCombo.add(version);
+            }
+
         }
-		
+
         final String projectInterpreter = projectPage.getProjectInterpreter();
-        if(!projectType.equals(previousProjectType) || !projectInterpreter.equals(previousProjectInterpreter)){
+        if (!projectType.equals(previousProjectType) || !projectInterpreter.equals(previousProjectInterpreter)) {
             discoverDefaultVersion(projectType, projectInterpreter);
         }
         djVersionCombo.setText(defaultVersion);
 
-		if(!projectType.equals(previousProjectType)){
-    		List<String> engines = DB_ENGINES.get(
-    				projectType.startsWith("jython") ? DjangoSettingsPage.JYTHON : DjangoSettingsPage.CPYTHON);
-    		engineCombo.removeAll();
-    		for (String engine : engines) {
-    			engineCombo.add(engine);
-    		}
-    		
+        if (!projectType.equals(previousProjectType)) {
+            List<String> engines = DB_ENGINES.get(projectType.startsWith("jython") ? DjangoSettingsPage.JYTHON
+                    : DjangoSettingsPage.CPYTHON);
+            engineCombo.removeAll();
+            for (String engine : engines) {
+                engineCombo.add(engine);
+            }
+
             engineCombo.setText(engines.get(0));
-		}
-		
-		this.previousProjectType = projectType;
-		this.previousProjectInterpreter = projectInterpreter;
-        
+        }
+
+        this.previousProjectType = projectType;
+        this.previousProjectInterpreter = projectInterpreter;
+
         //Always update the sqlite path if needed.
         updateSqlitePathIfNeeded(projectPage);
     }
 
-
     protected void discoverDefaultVersion(final String projectType, final String projectInterpreter) {
         defaultVersion = DJANGO_14; //It should be discovered below, but if not found for some reason, this will be the default.
-        
+
         SystemPythonNature nature;
         try {
             final int interpreterType = PythonNature.getInterpreterTypeFromVersion(projectType);
             IInterpreterManager interpreterManagerFromType = PydevPlugin.getInterpreterManagerFromType(interpreterType);
             IInterpreterInfo interpreterInfo;
-            if(IPythonNature.DEFAULT_INTERPRETER.equals(projectInterpreter)){
+            if (IPythonNature.DEFAULT_INTERPRETER.equals(projectInterpreter)) {
                 interpreterInfo = interpreterManagerFromType.getDefaultInterpreterInfo(false);
-                
-            }else{
+
+            } else {
                 interpreterInfo = interpreterManagerFromType.getInterpreterInfo(projectInterpreter, null);
-                
+
             }
             nature = new SystemPythonNature(interpreterManagerFromType, interpreterInfo);
             AbstractRunner runner = UniversalRunner.getRunner(nature);
-            
-            Tuple<String, String> output = runner.runCodeAndGetOutput(
-                GET_DJANGO_VERSION, 
-                new String[]{
-                }, 
-                null, 
-                new NullProgressMonitor()
-            );
-                
-        
+
+            Tuple<String, String> output = runner.runCodeAndGetOutput(GET_DJANGO_VERSION, new String[] {}, null,
+                    new NullProgressMonitor());
+
             String err = output.o2.trim();
             String out = output.o1.trim();
-            if(err.length() > 0){
-                Log.log("Error attempting to determine Django version: "+err);
-                
-            }else{
+            if (err.length() > 0) {
+                Log.log("Error attempting to determine Django version: " + err);
+
+            } else {
                 //System.out.println("Gotten version: "+out);
-                if(out.startsWith("0.")){
+                if (out.startsWith("0.")) {
                     setDefaultVersion(DjangoSettingsPage.DJANGO_11_OR_EARLIER);
-                    
-                }else if(out.startsWith("1.")){
+
+                } else if (out.startsWith("1.")) {
                     out = out.substring(2);
-                    if(out.startsWith("0") || out.startsWith("1")){
+                    if (out.startsWith("0") || out.startsWith("1")) {
                         setDefaultVersion(DjangoSettingsPage.DJANGO_11_OR_EARLIER);
-                        
-                    }else if(out.startsWith("2") || out.startsWith("3")){
+
+                    } else if (out.startsWith("2") || out.startsWith("3")) {
                         setDefaultVersion(DjangoSettingsPage.DJANGO_12_OR_13);
-                        
-                    }else{
+
+                    } else {
                         //Later version
                         setDefaultVersion(DjangoSettingsPage.DJANGO_14);
                     }
                 }
             }
-            
+
         } catch (Exception e) {
             Log.log("Unable to determine Django version.", e);
         }
     }
-	
-	@SuppressWarnings("unused")
+
+    @SuppressWarnings("unused")
     public void createControl(Composite parent) {
-        Composite topComp= new Composite(parent, SWT.NONE);
-        GridLayout innerLayout= new GridLayout();
-        innerLayout.numColumns= 1;
-        innerLayout.marginHeight= 0;
-        innerLayout.marginWidth= 0;
+        Composite topComp = new Composite(parent, SWT.NONE);
+        GridLayout innerLayout = new GridLayout();
+        innerLayout.numColumns = 1;
+        innerLayout.marginHeight = 0;
+        innerLayout.marginWidth = 0;
         topComp.setLayout(innerLayout);
-        GridData gd= new GridData(GridData.FILL_BOTH);
+        GridData gd = new GridData(GridData.FILL_BOTH);
         topComp.setLayoutData(gd);
 
         //General Settings
@@ -236,16 +233,16 @@ public class DjangoSettingsPage extends WizardPage {
         general_layout.horizontalSpacing = 8;
         general_layout.numColumns = 2;
         general_grp.setLayout(general_layout);
-        gd= new GridData(GridData.FILL_HORIZONTAL);
+        gd = new GridData(GridData.FILL_HORIZONTAL);
         general_grp.setLayoutData(gd);
-        
+
         Label versionLabel = newLabel(general_grp, "Django version");
 
         djVersionCombo = new Combo(general_grp, SWT.READ_ONLY);
-        
-        gd= new GridData(GridData.FILL_HORIZONTAL);
+
+        gd = new GridData(GridData.FILL_HORIZONTAL);
         djVersionCombo.setLayoutData(gd);
-        
+
         //Database Settings
         Group group = new Group(topComp, SWT.NONE);
         group.setText("Database settings");
@@ -253,7 +250,7 @@ public class DjangoSettingsPage extends WizardPage {
         layout.horizontalSpacing = 8;
         layout.numColumns = 2;
         group.setLayout(layout);
-        gd= new GridData(GridData.FILL_HORIZONTAL);
+        gd = new GridData(GridData.FILL_HORIZONTAL);
         group.setLayoutData(gd);
 
         // Database Engine
@@ -261,20 +258,18 @@ public class DjangoSettingsPage extends WizardPage {
 
         engineCombo = new Combo(group, 0);
         final IWizardNewProjectNameAndLocationPage projectPage = projectPageCallback.call();
-        
-        
+
         engineCombo.addSelectionListener(new SelectionListener() {
-			
-			public void widgetSelected(SelectionEvent e) {
-				updateSqlitePathIfNeeded(projectPage);
-			}
 
+            public void widgetSelected(SelectionEvent e) {
+                updateSqlitePathIfNeeded(projectPage);
+            }
 
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
-        
-        gd= new GridData(GridData.FILL_HORIZONTAL);
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+        });
+
+        gd = new GridData(GridData.FILL_HORIZONTAL);
         engineCombo.setLayoutData(gd);
 
         // Database Name
@@ -297,40 +292,40 @@ public class DjangoSettingsPage extends WizardPage {
         setErrorMessage(null);
         setMessage(null);
         setControl(topComp);
-	}
+    }
 
-	public static class DjangoSettings {
-		public String djangoVersion;
-		public String databaseEngine;
-		public String databaseName;
-		public String databaseHost;
-		public String databasePort;
-		public String databaseUser;
-		public String databasePassword;
+    public static class DjangoSettings {
+        public String djangoVersion;
+        public String databaseEngine;
+        public String databaseName;
+        public String databaseHost;
+        public String databasePort;
+        public String databaseUser;
+        public String databasePassword;
 
-	}
+    }
 
-	public DjangoSettings getSettings() {
-		DjangoSettings s = new DjangoSettings();
-		//make it suitable to be written
-		s.djangoVersion = djVersionCombo.getText();
-		s.databaseEngine = escapeSlashes(engineCombo.getText());
-		s.databaseName = escapeSlashes(nameText.getText());
-		s.databaseHost = escapeSlashes(hostText.getText());
-		s.databasePort = escapeSlashes(portText.getText());
-		s.databaseUser = escapeSlashes(userText.getText());
-		s.databasePassword = escapeSlashes(passText.getText());
-		return s;
-	}
+    public DjangoSettings getSettings() {
+        DjangoSettings s = new DjangoSettings();
+        //make it suitable to be written
+        s.djangoVersion = djVersionCombo.getText();
+        s.databaseEngine = escapeSlashes(engineCombo.getText());
+        s.databaseName = escapeSlashes(nameText.getText());
+        s.databaseHost = escapeSlashes(hostText.getText());
+        s.databasePort = escapeSlashes(portText.getText());
+        s.databaseUser = escapeSlashes(userText.getText());
+        s.databasePassword = escapeSlashes(passText.getText());
+        return s;
+    }
 
     public void updateSqlitePathIfNeeded(final IWizardNewProjectNameAndLocationPage projectPage) {
         String selection = engineCombo.getText();
-        if(selection.endsWith("sqlite3")){
+        if (selection.endsWith("sqlite3")) {
             String projectName = projectPage.getProjectName();
             IPath base = projectPage.getLocationPath().append(projectName);
             int sourceFolderConfigurationStyle = projectPage.getSourceFolderConfigurationStyle();
-            
-            switch(sourceFolderConfigurationStyle){
+
+            switch (sourceFolderConfigurationStyle) {
                 case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER:
                 case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_NO_PYTHONPATH:
                     break;
@@ -341,9 +336,8 @@ public class DjangoSettingsPage extends WizardPage {
             nameText.setText(base.append("sqlite.db").toOSString());
         }
     }
-    
 
-	private String escapeSlashes(String text) {
-		return StringUtils.replaceAll(text, "\\", "\\\\\\\\");
-	}
+    private String escapeSlashes(String text) {
+        return StringUtils.replaceAll(text, "\\", "\\\\\\\\");
+    }
 }

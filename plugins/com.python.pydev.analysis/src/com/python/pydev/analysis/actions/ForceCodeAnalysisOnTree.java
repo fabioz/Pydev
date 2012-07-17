@@ -49,7 +49,7 @@ public class ForceCodeAnalysisOnTree extends PyResourceAction implements IObject
     }
 
     private Set<IFile> filesVisited = new HashSet<IFile>();
-    
+
     /* (non-Javadoc)
      * @see org.python.pydev.ui.actions.resources.PyResourceAction#afterRun(int)
      */
@@ -57,7 +57,7 @@ public class ForceCodeAnalysisOnTree extends PyResourceAction implements IObject
     protected void afterRun(int resourcesAffected) {
         filesVisited.clear();
     }
-    
+
     /* (non-Javadoc)
      * @see org.python.pydev.ui.actions.resources.PyResourceAction#beforeRun()
      */
@@ -72,29 +72,28 @@ public class ForceCodeAnalysisOnTree extends PyResourceAction implements IObject
     @Override
     protected int doActionOnResource(IResource next, IProgressMonitor monitor) {
         List<IFile> filesToVisit = new ArrayList<IFile>();
-        if(next instanceof IContainer){
+        if (next instanceof IContainer) {
             List<IFile> l = PyFileListing.getAllIFilesBelow((IContainer) next);
-            
+
             for (Iterator<IFile> iter = l.iterator(); iter.hasNext();) {
                 IFile element = iter.next();
                 if (element != null) {
                     filesToVisit.add(element);
                 }
             }
-        }else if(next instanceof IFile){
+        } else if (next instanceof IFile) {
             filesToVisit.add((IFile) next);
         }
-        
-        
+
         PythonNature nature = PythonNature.getPythonNature(next);
         AnalysisBuilderVisitor visitor = new AnalysisBuilderVisitor();
         visitor.visitingWillStart(new NullProgressMonitor(), false, null);
         FastStringBuffer buf = new FastStringBuffer();
-        for(IFile f:filesToVisit){
-            if(monitor.isCanceled()){
+        for (IFile f : filesToVisit) {
+            if (monitor.isCanceled()) {
                 break;
             }
-            if(filesVisited.contains(f)){
+            if (filesVisited.contains(f)) {
                 continue;
             }
             filesVisited.add(f);
@@ -111,17 +110,17 @@ public class ForceCodeAnalysisOnTree extends PyResourceAction implements IObject
                 Log.log(e);
                 continue;
             }
-            if(moduleName == null){
+            if (moduleName == null) {
                 continue;
             }
             AnalysisBuilderVisitor.setModuleNameInCache(visitor.memo, f, moduleName);
             IModule module = nature.getAstManager().getModule(moduleName, nature, true);
-            if(module == null){
-                Log.log(IStatus.WARNING, "Unable to get module: "+moduleName+" for resource: "+f, null);
+            if (module == null) {
+                Log.log(IStatus.WARNING, "Unable to get module: " + moduleName + " for resource: " + f, null);
                 continue;
             }
-            visitor.doVisitChangedResource(nature, f, doc, null, module, new NullProgressMonitor(), true, 
-                    AnalysisBuilderRunnable.ANALYSIS_CAUSE_PARSER, documentTime); 
+            visitor.doVisitChangedResource(nature, f, doc, null, module, new NullProgressMonitor(), true,
+                    AnalysisBuilderRunnable.ANALYSIS_CAUSE_PARSER, documentTime);
         }
         visitor.visitingEnded(new NullProgressMonitor());
         return 1;

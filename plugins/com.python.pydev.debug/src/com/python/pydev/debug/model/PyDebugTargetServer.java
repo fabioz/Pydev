@@ -22,16 +22,16 @@ import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import com.python.pydev.debug.remote.RemoteDebuggerServer;
 
 public class PyDebugTargetServer extends AbstractDebugTarget {
-	
+
     private boolean isTerminated;
-    
-    public PyDebugTargetServer( ILaunch launch, IPath[] file, RemoteDebuggerServer debugger) {                
+
+    public PyDebugTargetServer(ILaunch launch, IPath[] file, RemoteDebuggerServer debugger) {
         this.file = file;
         this.debugger = debugger;
         this.threads = new PyThread[0];
         this.launch = launch;
-        
-        if(launch != null) {
+
+        if (launch != null) {
             for (IDebugTarget target : launch.getDebugTargets()) {
                 if (target instanceof PyDebugTargetServer && target.isTerminated()) {
                     launch.removeDebugTarget(target);
@@ -39,21 +39,21 @@ public class PyDebugTargetServer extends AbstractDebugTarget {
             }
             launch.addDebugTarget(this);
         }
-        
+
         debugger.addTarget(this);
         PyExceptionBreakPointManager.getInstance().addListener(this);
         PyPropertyTraceManager.getInstance().addListener(this);
-        
-        IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
+
+        IBreakpointManager breakpointManager = DebugPlugin.getDefault().getBreakpointManager();
         breakpointManager.addBreakpointListener(this);
         // we have to know when we get removed, so that we can shut off the debugger
         DebugPlugin.getDefault().getLaunchManager().addLaunchListener(this);
     }
-    
-    public boolean canTerminate() {    
+
+    public boolean canTerminate() {
         return !isTerminated;
     }
-    
+
     public boolean isTerminated() {
         return isTerminated;
     }
@@ -64,43 +64,41 @@ public class PyDebugTargetServer extends AbstractDebugTarget {
     }
 
     public void setTerminated() {
-        isTerminated = true;        
+        isTerminated = true;
     }
-    
+
     public void launchRemoved(ILaunch launch) {
         // shut down the remote debugger when parent launch
         if (launch == this.launch) {
-            IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
+            IBreakpointManager breakpointManager = DebugPlugin.getDefault().getBreakpointManager();
             breakpointManager.removeBreakpointListener(this);
             PyExceptionBreakPointManager.getInstance().removeListener(this);
             PyPropertyTraceManager.getInstance().removeListener(this);
         }
     }
-    
+
     public void processCommand(String sCmdCode, String sSeqCode, String payload) {
-        if(Integer.parseInt(sCmdCode) == AbstractDebuggerCommand.CMD_WRITE_TO_CONSOLE){
+        if (Integer.parseInt(sCmdCode) == AbstractDebuggerCommand.CMD_WRITE_TO_CONSOLE) {
             ProcessServer serverProcess = getDebugger().getServerProcess();
-            
+
             //payload = <xml><io s="%s" ctx="%s"/></xml>
-            Tuple<String,Integer> message = XMLMessage.getMessage(payload);
-            if(message.o2 == 1){
+            Tuple<String, Integer> message = XMLMessage.getMessage(payload);
+            if (message.o2 == 1) {
                 serverProcess.writeToStdOut(message.o1);
-            }else{
+            } else {
                 serverProcess.writeToStdErr(message.o1);
             }
-        }else{
+        } else {
             super.processCommand(sCmdCode, sSeqCode, payload);
         }
     }
 
-    public RemoteDebuggerServer getDebugger() 
-    {
-    	return (RemoteDebuggerServer)super.getDebugger();
+    public RemoteDebuggerServer getDebugger() {
+        return (RemoteDebuggerServer) super.getDebugger();
     }
-    
+
     public IProcess getProcess() {
         return getDebugger().getIProcess();
     }
-
 
 }

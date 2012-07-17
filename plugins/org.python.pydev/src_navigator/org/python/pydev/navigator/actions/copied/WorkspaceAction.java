@@ -130,8 +130,7 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
                 IResource resource = (IResource) resourcesEnum.next();
                 try {
                     // 1FV0B3Y: ITPUI:ALL - sub progress monitors granularity issues
-                    invokeOperation(resource, new SubProgressMonitor(monitor,
-                            1000));
+                    invokeOperation(resource, new SubProgressMonitor(monitor, 1000));
                 } catch (CoreException e) {
                     errors = recordError(errors, e);
                 }
@@ -219,8 +218,7 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
      * 
      * @since 3.1
      */
-    protected abstract void invokeOperation(IResource resource, IProgressMonitor monitor)
-            throws CoreException;
+    protected abstract void invokeOperation(IResource resource, IProgressMonitor monitor) throws CoreException;
 
     /**
      * Returns whether the given resource is a descendent of any of the resources
@@ -233,9 +231,7 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
      */
     boolean isDescendent(List resources, IResource child) {
         IResource parent = child.getParent();
-        return parent != null
-                && (resources.contains(parent) || isDescendent(resources,
-                        parent));
+        return parent != null && (resources.contains(parent) || isDescendent(resources, parent));
     }
 
     /**
@@ -269,8 +265,7 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
      */
     MultiStatus recordError(MultiStatus errors, CoreException error) {
         if (errors == null) {
-            errors = new MultiStatus(IDEWorkbenchPlugin.IDE_WORKBENCH,
-                    IStatus.ERROR, getProblemsMessage(), null);
+            errors = new MultiStatus(IDEWorkbenchPlugin.IDE_WORKBENCH, IStatus.ERROR, getProblemsMessage(), null);
         }
         errors.merge(error.getStatus());
         return errors;
@@ -300,9 +295,9 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
             return;
         } catch (InvocationTargetException e) {
             // we catch CoreException in execute(), but unexpected runtime exceptions or errors may still occur
-            String msg = NLS.bind(IDEWorkbenchMessages.WorkspaceAction_logTitle, getClass().getName(), e.getTargetException());
-            IDEWorkbenchPlugin.log(msg, StatusUtil.newStatus(IStatus.ERROR,
-                    msg, e.getTargetException()));
+            String msg = NLS.bind(IDEWorkbenchMessages.WorkspaceAction_logTitle, getClass().getName(),
+                    e.getTargetException());
+            IDEWorkbenchPlugin.log(msg, StatusUtil.newStatus(IStatus.ERROR, msg, e.getTargetException()));
             displayError(e.getTargetException().getMessage());
         }
         // If errors occurred, open an Error dialog & build a multi status error for it
@@ -371,9 +366,9 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
      * <code>null</code> if there isn't one.
      */
     public void runInBackground(ISchedulingRule rule) {
-        runInBackground(rule, (Object []) null);
+        runInBackground(rule, (Object[]) null);
     }
- 
+
     /**
      * Run the action in the background rather than with the
      * progress dialog.
@@ -386,12 +381,12 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
      */
     public void runInBackground(ISchedulingRule rule, Object jobFamily) {
         if (jobFamily == null) {
-            runInBackground(rule, (Object []) null);
+            runInBackground(rule, (Object[]) null);
         } else {
-            runInBackground(rule, new Object[] {jobFamily});
+            runInBackground(rule, new Object[] { jobFamily });
         }
     }
-    
+
     /**
      * Run the action in the background rather than with the
      * progress dialog.
@@ -403,11 +398,11 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
      * @since 3.1
      */
     @SuppressWarnings("unchecked")
-    public void runInBackground(ISchedulingRule rule, final Object [] jobFamilies) {
+    public void runInBackground(ISchedulingRule rule, final Object[] jobFamilies) {
         //obtain a copy of the selected resources before the job is forked
         final List resources = new ArrayList(getActionResources());
         Job job = new WorkspaceJob(removeMnemonics(getText())) {
-            
+
             /* (non-Javadoc)
              * @see org.eclipse.core.runtime.jobs.Job#belongsTo(java.lang.Object)
              */
@@ -422,7 +417,7 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
                 }
                 return false;
             }
-            
+
             /* (non-Javadoc)
              * @see org.eclipse.core.resources.WorkspaceJob#runInWorkspace(org.eclipse.core.runtime.IProgressMonitor)
              */

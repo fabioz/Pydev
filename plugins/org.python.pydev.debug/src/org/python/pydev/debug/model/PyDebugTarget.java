@@ -20,6 +20,7 @@ import org.eclipse.debug.core.model.IProcess;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.console.ConsoleCompletionsPageParticipant;
 import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
+
 /**
  * Debugger class that represents a single python process.
  * 
@@ -28,16 +29,17 @@ import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
  */
 public class PyDebugTarget extends AbstractDebugTarget {
     //private ILaunch launch;
-    public volatile IProcess process;  
-	/** 
-	 * TODO consider instead of global access to project, have {@link ConsoleCompletionsPageParticipant#init(org.eclipse.ui.part.IPageBookViewPage, org.eclipse.ui.console.IConsole)
-	 * instead call something like getInterpreterInfo which then PyDebugTargetConsole (which isn't connected to a project)
-	 * has some hope of resolving 
-	 */
+    public volatile IProcess process;
+    /** 
+     * TODO consider instead of global access to project, have {@link ConsoleCompletionsPageParticipant#init(org.eclipse.ui.part.IPageBookViewPage, org.eclipse.ui.console.IConsole)
+     * instead call something like getInterpreterInfo which then PyDebugTargetConsole (which isn't connected to a project)
+     * has some hope of resolving 
+     */
     public final IProject project;
     public volatile boolean finishedInit = false;
 
-    public PyDebugTarget(ILaunch launch, IProcess process, IPath[] file, AbstractRemoteDebugger debugger, IProject project) {
+    public PyDebugTarget(ILaunch launch, IProcess process, IPath[] file, AbstractRemoteDebugger debugger,
+            IProject project) {
         this.launch = launch;
         this.process = process;
         this.file = file;
@@ -46,53 +48,53 @@ public class PyDebugTarget extends AbstractDebugTarget {
         this.project = project;
         launch.addDebugTarget(this);
         debugger.addTarget(this);
-        IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
+        IBreakpointManager breakpointManager = DebugPlugin.getDefault().getBreakpointManager();
         breakpointManager.addBreakpointListener(this);
         PyExceptionBreakPointManager.getInstance().addListener(this);
         PyPropertyTraceManager.getInstance().addListener(this);
         // we have to know when we get removed, so that we can shut off the debugger
         DebugPlugin.getDefault().getLaunchManager().addLaunchListener(this);
-    }        
+    }
 
     public void launchRemoved(ILaunch launch) {
         // shut down the remote debugger when parent launch
         if (launch == this.launch) {
-            IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
+            IBreakpointManager breakpointManager = DebugPlugin.getDefault().getBreakpointManager();
             breakpointManager.removeBreakpointListener(this);
             PyExceptionBreakPointManager.getInstance().removeListener(this);
             PyPropertyTraceManager.getInstance().removeListener(this);
             debugger.dispose();
             debugger = null;
         }
-    }    
+    }
 
     public IProcess getProcess() {
         return process;
     }
 
     public boolean canTerminate() {
-        if(!finishedInit){
+        if (!finishedInit) {
             //We must finish init to terminate
             return false;
         }
-        
+
         // We can always terminate if it's still not terminated.
         return !this.isTerminated();
     }
 
     public boolean isTerminated() {
-        if(!finishedInit){
+        if (!finishedInit) {
             //We must finish init to terminate
             return false;
         }
-        if(process == null){
+        if (process == null) {
             return true;
         }
         return process.isTerminated();
     }
 
     public void terminate() {
-        if(process != null){
+        if (process != null) {
             try {
                 process.terminate();
             } catch (DebugException e) {
@@ -102,7 +104,5 @@ public class PyDebugTarget extends AbstractDebugTarget {
         }
         super.terminate();
     }
-
-
 
 }

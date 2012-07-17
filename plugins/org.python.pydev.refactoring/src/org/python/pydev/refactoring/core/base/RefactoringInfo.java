@@ -57,8 +57,6 @@ public class RefactoringInfo {
         this(edit, (ITextSelection) edit.getSelectionProvider().getSelection());
     };
 
-    
-
     /**
      * Constructor to be used only in tests!
      */
@@ -67,8 +65,9 @@ public class RefactoringInfo {
         this.nature = null;
         this.versionProvider = versionProvider;
         this.doc = document;
-        
-        this.indentPrefs = PydevPlugin.getDefault() == null?new TestIndentPrefs(document.get().indexOf('\t') < 0, 4):DefaultIndentPrefs.get();
+
+        this.indentPrefs = PydevPlugin.getDefault() == null ? new TestIndentPrefs(document.get().indexOf('\t') < 0, 4)
+                : DefaultIndentPrefs.get();
 
         initInfo(selection);
     }
@@ -77,18 +76,18 @@ public class RefactoringInfo {
         IEditorInput input = edit.getEditorInput();
         this.indentPrefs = edit.getIndentPrefs();
         IPythonNature localNature = edit.getPythonNature();
-        
-        if(input instanceof IFileEditorInput){
+
+        if (input instanceof IFileEditorInput) {
             IFileEditorInput editorInput = (IFileEditorInput) input;
             this.sourceFile = editorInput.getFile();
             this.realFile = sourceFile != null ? sourceFile.getLocation().toFile() : null;
-        }else{
+        } else {
             this.realFile = edit.getEditorFile();
         }
-        
-        if(localNature == null){
+
+        if (localNature == null) {
             Tuple<IPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(this.realFile);
-            if(infoForFile != null && infoForFile.o1 != null){
+            if (infoForFile != null && infoForFile.o1 != null) {
                 localNature = infoForFile.o1;
             }
         }
@@ -102,13 +101,14 @@ public class RefactoringInfo {
     }
 
     private void initInfo(ITextSelection selection) {
-        if(this.nature != null){
+        if (this.nature != null) {
             this.moduleManager = new PythonModuleManager(nature);
         }
 
-        try{
-            this.moduleAdapter = VisitorFactory.createModuleAdapter(moduleManager, realFile, doc, nature, this.versionProvider);
-        }catch(Throwable e){
+        try {
+            this.moduleAdapter = VisitorFactory.createModuleAdapter(moduleManager, realFile, doc, nature,
+                    this.versionProvider);
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
 
@@ -137,11 +137,13 @@ public class RefactoringInfo {
     }
 
     public ITextSelection getExtendedSelection() {
-        if(this.extendedSelection == null){
-            this.extendedSelection = new TextSelection(this.doc, this.userSelection.getOffset(), this.userSelection.getLength());
+        if (this.extendedSelection == null) {
+            this.extendedSelection = new TextSelection(this.doc, this.userSelection.getOffset(),
+                    this.userSelection.getLength());
 
-            if(getScopeAdapter() != null){
-                this.extendedSelection = moduleAdapter.normalizeSelection(VisitorFactory.createSelectionExtension(getScopeAdapter(), this.extendedSelection));
+            if (getScopeAdapter() != null) {
+                this.extendedSelection = moduleAdapter.normalizeSelection(VisitorFactory.createSelectionExtension(
+                        getScopeAdapter(), this.extendedSelection));
             }
 
         }
@@ -155,15 +157,16 @@ public class RefactoringInfo {
     public ModuleAdapter getParsedExtendedSelection() {
         String source = normalizeSourceSelection(getExtendedSelection());
 
-        if(source.length() > 0){
-            try{
-                return VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature, this.versionProvider);
-            }catch(TokenMgrError e){
+        if (source.length() > 0) {
+            try {
+                return VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature,
+                        this.versionProvider);
+            } catch (TokenMgrError e) {
                 return null;
-            }catch(ParseException e){
+            } catch (ParseException e) {
                 /* Parse Exception means the current selection is invalid, discard and return null */
                 return null;
-            }catch(Throwable e){
+            } catch (Throwable e) {
                 throw new RuntimeException(e);
             }
         }
@@ -174,15 +177,16 @@ public class RefactoringInfo {
         ModuleAdapter parsedAdapter = null;
         String source = normalizeSourceSelection(this.userSelection);
 
-        if(this.userSelection != null && source.length() > 0){
-            try{
-                parsedAdapter = VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature, this.versionProvider);
-            }catch(TokenMgrError e){
+        if (this.userSelection != null && source.length() > 0) {
+            try {
+                parsedAdapter = VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature,
+                        this.versionProvider);
+            } catch (TokenMgrError e) {
                 return null;
-            }catch(ParseException e){
+            } catch (ParseException e) {
                 /* Parse Exception means the current selection is invalid, discard and return null */
                 return null;
-            }catch(Throwable e){
+            } catch (Throwable e) {
                 throw new RuntimeException(e);
             }
 
@@ -193,16 +197,16 @@ public class RefactoringInfo {
     public String normalizeSourceSelection(ITextSelection selection) {
         String selectedText = "";
 
-        if(selection.getText() != null){
+        if (selection.getText() != null) {
             selectedText = selection.getText().trim();
         }
-        if(selectedText.length() == 0){
+        if (selectedText.length() == 0) {
             return "";
         }
 
-        try{
+        try {
             return normalizeBlockIndentation(selection, selectedText);
-        }catch(Throwable e){
+        } catch (Throwable e) {
             /* TODO: uncommented empty exception catch all */
         }
         return selectedText;
@@ -211,27 +215,28 @@ public class RefactoringInfo {
 
     private String normalizeBlockIndentation(ITextSelection selection, String selectedText) throws Throwable {
         String[] lines = selectedText.split("\\n");
-        if(lines.length < 2){
+        if (lines.length < 2) {
             return selectedText;
         }
 
-        String firstLine = doc.get(doc.getLineOffset(selection.getStartLine()), doc.getLineLength(selection.getStartLine()));
+        String firstLine = doc.get(doc.getLineOffset(selection.getStartLine()),
+                doc.getLineLength(selection.getStartLine()));
         String lineDelimiter = TextUtilities.getDefaultLineDelimiter(doc);
 
         String indentation = "";
         int bodyIndent = 0;
-        while(firstLine.startsWith(" ")){
+        while (firstLine.startsWith(" ")) {
             indentation += " ";
             firstLine = firstLine.substring(1);
             bodyIndent += 1;
         }
 
-        if(bodyIndent > 0){
+        if (bodyIndent > 0) {
             StringBuffer selectedCode = new StringBuffer();
-            for(String line:lines){
-                if(line.startsWith(indentation)){
+            for (String line : lines) {
+                if (line.startsWith(indentation)) {
                     selectedCode.append(line.substring(bodyIndent) + lineDelimiter);
-                }else{
+                } else {
                     selectedCode.append(line + lineDelimiter);
                 }
 
@@ -254,14 +259,15 @@ public class RefactoringInfo {
     }
 
     public AbstractScopeNode<?> getScopeAdapter() {
-        if(scopeAdapter == null){
+        if (scopeAdapter == null) {
             scopeAdapter = moduleAdapter.getScopeAdapter(userSelection);
         }
         return scopeAdapter;
     }
 
     public boolean isSelectionExtensionRequired() {
-        return !(this.getUserSelection().getOffset() == this.getExtendedSelection().getOffset() && this.getUserSelection().getLength() == this.getExtendedSelection().getLength());
+        return !(this.getUserSelection().getOffset() == this.getExtendedSelection().getOffset() && this
+                .getUserSelection().getLength() == this.getExtendedSelection().getLength());
     }
 
     public String getNewLineDelim() {
@@ -283,83 +289,83 @@ public class RefactoringInfo {
         return this.versionProvider;
     }
 
-//    public Workspace getWorkspace() {
-//        /* create or get the workspace */
-//
-//        if(workspace == null){
-//            workspace = createWorkspace();
-//        }
-//
-//        return workspace;
-//    }
-//
-//    private Workspace createWorkspace() {
-//        LinkedList<String> srcPath = new LinkedList<String>();
-//
-//        Set<String> paths;
-//        try{
-//            paths = nature.getPythonPathNature().getProjectSourcePathSet(true);
-//        }catch(CoreException e){
-//            throw new RuntimeException(e);
-//        }
-//        for(String path:paths){
-//            IFolder folder = project.getParent().getFolder(new Path(path));
-//            /* get the source folder's path relative to the project */
-//            String relativePath = folder.getProjectRelativePath().toString();
-//            srcPath.add(relativePath);
-//        }
-//
-//        return new Workspace(project.getLocation().makeAbsolute().toFile(), srcPath, sysPath);
-//    }
-//
-//    public Module getModule() {
-//        File file = this.realFile;
-//        Workspace workspace = this.getWorkspace();
-//
-//        Module module = workspace.getModule(file);
-//        return module;
-//    }
-//
-//    /**
-//     * Returns the NameUse of the currently selected variable
-//     * 
-//     * @return the currently selected nameUse
-//     */
-//    public Use findSelectedUse() {
-//        List<Use> uses = getModule().getContainedUses();
-//
-//        int selectionOffset = userSelection.getOffset();
-//
-//        for(Use use:uses){
-//            NameAdapter name = use.getName();
-//            int nodeLength = name.getId().length();
-//            int nodeOffsetBegin = NodeUtils.getOffset(this.doc, name.getNode());
-//
-//            int nodeOffsetEnd = nodeOffsetBegin + nodeLength;
-//
-//            if(selectionOffset >= nodeOffsetBegin && selectionOffset <= nodeOffsetEnd){
-//                return use;
-//            }
-//        }
-//
-//        return null;
-//    }
+    //    public Workspace getWorkspace() {
+    //        /* create or get the workspace */
+    //
+    //        if(workspace == null){
+    //            workspace = createWorkspace();
+    //        }
+    //
+    //        return workspace;
+    //    }
+    //
+    //    private Workspace createWorkspace() {
+    //        LinkedList<String> srcPath = new LinkedList<String>();
+    //
+    //        Set<String> paths;
+    //        try{
+    //            paths = nature.getPythonPathNature().getProjectSourcePathSet(true);
+    //        }catch(CoreException e){
+    //            throw new RuntimeException(e);
+    //        }
+    //        for(String path:paths){
+    //            IFolder folder = project.getParent().getFolder(new Path(path));
+    //            /* get the source folder's path relative to the project */
+    //            String relativePath = folder.getProjectRelativePath().toString();
+    //            srcPath.add(relativePath);
+    //        }
+    //
+    //        return new Workspace(project.getLocation().makeAbsolute().toFile(), srcPath, sysPath);
+    //    }
+    //
+    //    public Module getModule() {
+    //        File file = this.realFile;
+    //        Workspace workspace = this.getWorkspace();
+    //
+    //        Module module = workspace.getModule(file);
+    //        return module;
+    //    }
+    //
+    //    /**
+    //     * Returns the NameUse of the currently selected variable
+    //     * 
+    //     * @return the currently selected nameUse
+    //     */
+    //    public Use findSelectedUse() {
+    //        List<Use> uses = getModule().getContainedUses();
+    //
+    //        int selectionOffset = userSelection.getOffset();
+    //
+    //        for(Use use:uses){
+    //            NameAdapter name = use.getName();
+    //            int nodeLength = name.getId().length();
+    //            int nodeOffsetBegin = NodeUtils.getOffset(this.doc, name.getNode());
+    //
+    //            int nodeOffsetEnd = nodeOffsetBegin + nodeLength;
+    //
+    //            if(selectionOffset >= nodeOffsetBegin && selectionOffset <= nodeOffsetEnd){
+    //                return use;
+    //            }
+    //        }
+    //
+    //        return null;
+    //    }
 
-//    public PythonTypeInferencer getTypeInferencer() {
-//        if(inferencer == null){
-//            inferencer = new PythonTypeInferencer();
-//        }
-//        return inferencer;
-//    }
-//
-//    public IFile getFileForModule(IModule module) {
-//        if(project != null){
-//            String relativePath = module.getRelativePath();
-//            IPath path = new Path(relativePath);
-//            IFile file = project.getFile(path);
-//            return file;
-//        }else{
-//            return null;
-//        }
-//    }
+    //    public PythonTypeInferencer getTypeInferencer() {
+    //        if(inferencer == null){
+    //            inferencer = new PythonTypeInferencer();
+    //        }
+    //        return inferencer;
+    //    }
+    //
+    //    public IFile getFileForModule(IModule module) {
+    //        if(project != null){
+    //            String relativePath = module.getRelativePath();
+    //            IPath path = new Path(relativePath);
+    //            IFile file = project.getFile(path);
+    //            return file;
+    //        }else{
+    //            return null;
+    //        }
+    //    }
 }

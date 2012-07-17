@@ -62,9 +62,9 @@ public class UIUtils {
 
     public static Display getStandardDisplay() {
         Display display;
-        display= Display.getCurrent();
-        if (display == null){
-            display= Display.getDefault();
+        display = Display.getCurrent();
+        if (display == null) {
+            display = Display.getDefault();
         }
         return display;
     }

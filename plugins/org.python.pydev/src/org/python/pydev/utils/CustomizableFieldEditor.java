@@ -145,8 +145,8 @@ public class CustomizableFieldEditor extends FieldEditor {
      * (non-Javadoc) Method declared on FieldEditor.
      */
     protected void adjustForNumColumns(int numColumns) {
-//        GridData gd = (GridData) textField.getLayoutData();
-//        gd.horizontalSpan = 30;//numColumns - 1;
+        //        GridData gd = (GridData) textField.getLayoutData();
+        //        gd.horizontalSpan = 30;//numColumns - 1;
 
         GridData gd = (GridData) textField.getLayoutData();
         gd.horizontalSpan = numColumns - 1;
@@ -171,9 +171,9 @@ public class CustomizableFieldEditor extends FieldEditor {
 
         String txt = textField.getText();
 
-        if (txt == null){
+        if (txt == null) {
             result = false;
-        }else{
+        } else {
             result = (txt.trim().length() > 0) || emptyStringAllowed;
         }
 
@@ -223,14 +223,14 @@ public class CustomizableFieldEditor extends FieldEditor {
                 gc.dispose();
             }
         } else {
-//            System.out.println("fill");
+            //            System.out.println("fill");
             gd.horizontalAlignment = GridData.FILL_BOTH;
             gd.verticalSpan = 4;
-            gd.horizontalSpan=1;
+            gd.horizontalSpan = 1;
             gd.grabExcessVerticalSpace = true;
             gd.widthHint = 400;
             gd.heightHint = 60;
-//            gd.grabExcessHorizontalSpace = true;
+            //            gd.grabExcessHorizontalSpace = true;
         }
         textField.setLayoutData(gd);
     }
@@ -312,43 +312,43 @@ public class CustomizableFieldEditor extends FieldEditor {
      */
     public Text getTextControl(Composite parent) {
         if (textField == null) {
-//            System.out.println("creating...");
+            //            System.out.println("creating...");
             textField = new Text(parent, SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
             textField.setFont(parent.getFont());
             switch (validateStrategy) {
-            case VALIDATE_ON_KEY_STROKE:
-                textField.addKeyListener(new KeyAdapter() {
+                case VALIDATE_ON_KEY_STROKE:
+                    textField.addKeyListener(new KeyAdapter() {
 
-                    /*
-                     * (non-Javadoc)
-                     * 
-                     * @see org.eclipse.swt.events.KeyAdapter#keyReleased(org.eclipse.swt.events.KeyEvent)
-                     */
-                    public void keyReleased(KeyEvent e) {
-                        valueChanged();
-                    }
-                });
+                        /*
+                         * (non-Javadoc)
+                         * 
+                         * @see org.eclipse.swt.events.KeyAdapter#keyReleased(org.eclipse.swt.events.KeyEvent)
+                         */
+                        public void keyReleased(KeyEvent e) {
+                            valueChanged();
+                        }
+                    });
 
-                break;
-            case VALIDATE_ON_FOCUS_LOST:
-                textField.addKeyListener(new KeyAdapter() {
-                    public void keyPressed(KeyEvent e) {
-                        clearErrorMessage();
-                    }
-                });
-                textField.addFocusListener(new FocusAdapter() {
-                    public void focusGained(FocusEvent e) {
-                        refreshValidState();
-                    }
+                    break;
+                case VALIDATE_ON_FOCUS_LOST:
+                    textField.addKeyListener(new KeyAdapter() {
+                        public void keyPressed(KeyEvent e) {
+                            clearErrorMessage();
+                        }
+                    });
+                    textField.addFocusListener(new FocusAdapter() {
+                        public void focusGained(FocusEvent e) {
+                            refreshValidState();
+                        }
 
-                    public void focusLost(FocusEvent e) {
-                        valueChanged();
-                        clearErrorMessage();
-                    }
-                });
-                break;
-            default:
-                Assert.isTrue(false, "Unknown validate strategy");//$NON-NLS-1$
+                        public void focusLost(FocusEvent e) {
+                            valueChanged();
+                            clearErrorMessage();
+                        }
+                    });
+                    break;
+                default:
+                    Assert.isTrue(false, "Unknown validate strategy");//$NON-NLS-1$
             }
             textField.addDisposeListener(new DisposeListener() {
                 public void widgetDisposed(DisposeEvent event) {
@@ -496,4 +496,3 @@ public class CustomizableFieldEditor extends FieldEditor {
         getTextControl(parent).setEnabled(enabled);
     }
 }
-

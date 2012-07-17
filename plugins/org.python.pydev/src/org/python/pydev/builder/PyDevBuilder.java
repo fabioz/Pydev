@@ -68,9 +68,6 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
         return list;
     }
 
-
-
-
     /**
      * Builds the project.
      * 
@@ -92,36 +89,36 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
             if (delta == null) {
                 //no delta (unspecified changes?... let's do a full build...)
                 performFullBuild(monitor);
-                
+
             } else {
                 HashMap<String, Object> memo = new HashMap<String, Object>();
                 memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, false); //mark it as delta build
-                
+
                 // ok, we have a delta
                 // first step is just counting them
                 PyDevDeltaCounter counterVisitor = new PyDevDeltaCounter();
                 counterVisitor.memo = memo;
                 delta.accept(counterVisitor);
-                
-                List<PyDevBuilderVisitor> visitors = getVisitors();
-                
-                //sort by priority
-                Collections.sort(visitors); 
-                
 
-                PydevGrouperVisitor grouperVisitor = new PydevGrouperVisitor(visitors, monitor, counterVisitor.getNVisited());
+                List<PyDevBuilderVisitor> visitors = getVisitors();
+
+                //sort by priority
+                Collections.sort(visitors);
+
+                PydevGrouperVisitor grouperVisitor = new PydevGrouperVisitor(visitors, monitor,
+                        counterVisitor.getNVisited());
                 grouperVisitor.memo = memo;
-                
+
                 notifyVisitingWillStart(visitors, monitor, false, null);
                 try {
-					try {
+                    try {
                         delta.accept(grouperVisitor);
                     } catch (Exception e) {
                         Log.log(e);
                     }
-				} finally {
-					notifyVisitingEnded(visitors, monitor);
-				}
+                } finally {
+                    notifyVisitingEnded(visitors, monitor);
+                }
             }
         }
         return null;
@@ -138,23 +135,23 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
         //we need the project...
         if (project != null) {
             IPythonNature nature = PythonNature.getPythonNature(project);
-            
+
             //and the nature...
-            if (nature != null && nature.startRequests()){
-                
-                try{
+            if (nature != null && nature.startRequests()) {
+
+                try {
                     IPythonPathNature pythonPathNature = nature.getPythonPathNature();
                     pythonPathNature.getProjectSourcePath(false); //this is just to update the paths (in case the project name has just changed)
-                    
+
                     List<IFile> resourcesToParse = new ArrayList<IFile>();
-        
+
                     List<PyDevBuilderVisitor> visitors = getVisitors();
                     notifyVisitingWillStart(visitors, monitor, true, nature);
-        
+
                     monitor.beginTask("Building...", (visitors.size() * 100) + 30);
-        
+
                     IResource[] members = project.members();
-        
+
                     if (members != null) {
                         // get all the python files to get information.
                         for (int i = 0; i < members.length; i++) {
@@ -163,16 +160,16 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                                 if (member == null) {
                                     continue;
                                 }
-        
+
                                 if (member.getType() == IResource.FILE) {
-                                    addToResourcesToParse(resourcesToParse, (IFile)member, nature);
-                                    
+                                    addToResourcesToParse(resourcesToParse, (IFile) member, nature);
+
                                 } else if (member.getType() == IResource.FOLDER) {
                                     //if it is a folder, let's get all python files that are beneath it
                                     //the heuristics to know if we have to analyze them are the same we have
                                     //for a single file
                                     List<IFile> l = PyFileListing.getAllIFilesBelow((IFolder) member);
-                                    
+
                                     for (Iterator<IFile> iter = l.iterator(); iter.hasNext();) {
                                         IFile element = iter.next();
                                         if (element != null) {
@@ -180,8 +177,8 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                                         }
                                     }
                                 } else {
-                                    if (DEBUG){
-                                        System.out.println("Unknown type: "+member.getType());
+                                    if (DEBUG) {
+                                        System.out.println("Unknown type: " + member.getType());
                                     }
                                 }
                             } catch (Exception e) {
@@ -192,7 +189,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                         buildResources(resourcesToParse, monitor, visitors);
                     }
                     notifyVisitingEnded(visitors, monitor);
-                }finally{
+                } finally {
                     nature.endRequests();
                 }
             }
@@ -201,11 +198,12 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
 
     }
 
-    private void notifyVisitingWillStart(List<PyDevBuilderVisitor> visitors, IProgressMonitor monitor, boolean isFullBuild, IPythonNature nature) {
+    private void notifyVisitingWillStart(List<PyDevBuilderVisitor> visitors, IProgressMonitor monitor,
+            boolean isFullBuild, IPythonNature nature) {
         for (PyDevBuilderVisitor visitor : visitors) {
-            try{
+            try {
                 visitor.visitingWillStart(monitor, isFullBuild, nature);
-            }catch (Exception e) {
+            } catch (Exception e) {
                 Log.log(e);
             }
         }
@@ -213,16 +211,13 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
 
     private void notifyVisitingEnded(List<PyDevBuilderVisitor> visitors, IProgressMonitor monitor) {
         for (PyDevBuilderVisitor visitor : visitors) {
-            try{
+            try {
                 visitor.visitingEnded(monitor);
-            }catch (Exception e) {
+            } catch (Exception e) {
                 Log.log(e);
             }
         }
     }
-    
-
-
 
     /**
      * @param resourcesToParse the list where the resource may be added
@@ -232,19 +227,19 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
     private void addToResourcesToParse(List<IFile> resourcesToParse, IFile member, IPythonNature nature) {
         //analyze it only if it is a valid source file 
         String fileExtension = member.getFileExtension();
-        if(DEBUG){
-            System.out.println("Checking name:'"+member.getName()+"' projPath:'"+member.getProjectRelativePath()+ "' ext:'"+fileExtension+"'");
-            System.out.println("loc:'"+member.getLocation()+"' rawLoc:'"+member.getRawLocation()+"'");
-            
+        if (DEBUG) {
+            System.out.println("Checking name:'" + member.getName() + "' projPath:'" + member.getProjectRelativePath()
+                    + "' ext:'" + fileExtension + "'");
+            System.out.println("loc:'" + member.getLocation() + "' rawLoc:'" + member.getRawLocation() + "'");
+
         }
-        if (fileExtension != null && PythonPathHelper.isValidSourceFile("."+fileExtension)) {
-            if(DEBUG){
-                System.out.println("Adding resource to parse:"+member.getProjectRelativePath());
+        if (fileExtension != null && PythonPathHelper.isValidSourceFile("." + fileExtension)) {
+            if (DEBUG) {
+                System.out.println("Adding resource to parse:" + member.getProjectRelativePath());
             }
             resourcesToParse.add(member);
         }
     }
-
 
     /**
      * Default implementation. Visits each resource once at a time. May be overridden if a better implementation is needed.
@@ -253,7 +248,8 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
      * @param monitor
      * @param visitors
      */
-    public void buildResources(List<IFile> resourcesToParse, IProgressMonitor monitor, List<PyDevBuilderVisitor> visitors) {
+    public void buildResources(List<IFile> resourcesToParse, IProgressMonitor monitor,
+            List<PyDevBuilderVisitor> visitors) {
 
         // we have 100 units here
         double inc = (visitors.size() * 100) / (double) resourcesToParse.size();
@@ -261,7 +257,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
         double total = 0;
         int totalResources = resourcesToParse.size();
         int i = 0;
-        
+
         FastStringBuffer bufferToCreateString = new FastStringBuffer();
 
         boolean loggedMisconfiguration = false;
@@ -269,61 +265,62 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
             i += 1;
             total += inc;
             IFile r = iter.next();
-            
+
             PythonPathHelper.markAsPyDevFileIfDetected(r);
-            
+
             IPythonNature nature = PythonNature.getPythonNature(r);
-            if (nature == null){
+            if (nature == null) {
                 continue;
             }
-            if(!nature.startRequests()){
+            if (!nature.startRequests()) {
                 continue;
             }
-            try{
-            	String moduleName;
-                try{
-                	//we visit external because we must index them
-                	moduleName = nature.resolveModuleOnlyInProjectSources(r, true);
-                    if(moduleName == null){
+            try {
+                String moduleName;
+                try {
+                    //we visit external because we must index them
+                    moduleName = nature.resolveModuleOnlyInProjectSources(r, true);
+                    if (moduleName == null) {
                         continue; // we only analyze resources that are in the pythonpath
                     }
-                }catch(Exception e1){
-                    if(!loggedMisconfiguration){
+                } catch (Exception e1) {
+                    if (!loggedMisconfiguration) {
                         loggedMisconfiguration = true; //No point in logging it over and over again.
                         Log.log(e1);
                     }
                     continue;
                 }
-                
+
                 //create new memo for each resource
                 HashMap<String, Object> memo = new HashMap<String, Object>();
                 memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, true); //mark it as full build
-                
+
                 ICallback0<IDocument> doc = REF.getDocOnCallbackFromResource(r);
                 memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, System.currentTimeMillis());
-                
-                PyDevBuilderVisitor.setModuleNameInCache(memo, r, moduleName);
-                
-                for (Iterator<PyDevBuilderVisitor> it = visitors.iterator(); it.hasNext() && monitor.isCanceled() == false;) {
 
-                    try{
+                PyDevBuilderVisitor.setModuleNameInCache(memo, r, moduleName);
+
+                for (Iterator<PyDevBuilderVisitor> it = visitors.iterator(); it.hasNext()
+                        && monitor.isCanceled() == false;) {
+
+                    try {
                         PyDevBuilderVisitor visitor = it.next();
                         visitor.memo = memo; //setting the memo must be the first thing.
-        
+
                         communicateProgress(monitor, totalResources, i, r, visitor, bufferToCreateString);
-                        
+
                         //on a full build, all visits are as some add...
                         visitor.visitAddedResource(r, doc, monitor);
-                    }catch (Exception e) {
+                    } catch (Exception e) {
                         Log.log(e);
                     }
                 }
-    
+
                 if (total > 1) {
                     monitor.worked((int) total);
                     total -= (int) total;
                 }
-            }finally{
+            } finally {
                 nature.endRequests();
             }
         }
@@ -335,9 +332,9 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
      * @param bufferToCreateString: this is a buffer that's emptied and used to create the string to be shown to the
      * user with the progress.
      */
-    public static void communicateProgress(IProgressMonitor monitor, int totalResources, int i, IResource r, 
+    public static void communicateProgress(IProgressMonitor monitor, int totalResources, int i, IResource r,
             PyDevBuilderVisitor visitor, FastStringBuffer bufferToCreateString) {
-        if(monitor != null){
+        if (monitor != null) {
             bufferToCreateString.clear();
             bufferToCreateString.append("PyDev: Analyzing ");
             bufferToCreateString.append(i);
@@ -346,7 +343,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
             bufferToCreateString.append(" (");
             bufferToCreateString.append(r.getName());
             bufferToCreateString.append(")");
-       
+
             //in this case the visitor does not have the progress and therefore does not communicate the progress
             String name = bufferToCreateString.toString();
             monitor.subTask(name);

@@ -43,10 +43,10 @@ import org.python.pydev.debug.ui.PythonSourceViewer;
 public class BreakpointConditionEditor {
 
     private boolean fIsValid;
-        
+
     private String fOldValue;
     private String fErrorMessage;
-    
+
     private HandlerSubmission submission;
     private IDocumentListener fDocumentListener;
 
@@ -58,24 +58,23 @@ public class BreakpointConditionEditor {
 
     public BreakpointConditionEditor(Composite parent, PythonBreakpointPage page) {
         fPage = page;
-        fBreakpoint= (PyBreakpoint) fPage.getBreakpoint();
+        fBreakpoint = (PyBreakpoint) fPage.getBreakpoint();
         String condition;
         try {
-            condition= fBreakpoint.getCondition();
+            condition = fBreakpoint.getCondition();
         } catch (DebugException e) {
             PydevDebugPlugin.log(IStatus.ERROR, "Can't read conditions", e);
             return;
         }
-        fErrorMessage= "Enter a condition"; //$NON-NLS-1$
-        fOldValue= ""; //$NON-NLS-1$
-            
-        // the source viewer
-        fViewer= new PythonSourceViewer(parent, null, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
-        fViewer.setInput(parent);
-        
+        fErrorMessage = "Enter a condition"; //$NON-NLS-1$
+        fOldValue = ""; //$NON-NLS-1$
 
-        IDocument document= new Document();
-        IDocumentPartitioner partitioner= new PyPartitioner(new PyPartitionScanner(), IPythonPartitions.types);
+        // the source viewer
+        fViewer = new PythonSourceViewer(parent, null, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+        fViewer.setInput(parent);
+
+        IDocument document = new Document();
+        IDocumentPartitioner partitioner = new PyPartitioner(new PyPartitionScanner(), IPythonPartitions.types);
         document.setDocumentPartitioner(partitioner);
         partitioner.connect(document);
         /*
@@ -86,26 +85,27 @@ public class BreakpointConditionEditor {
         });*/
         fViewer.setEditable(true);
         fViewer.setDocument(document);
-        final IUndoManager undoManager= new TextViewerUndoManager(100);
+        final IUndoManager undoManager = new TextViewerUndoManager(100);
         fViewer.setUndoManager(undoManager);
         undoManager.connect(fViewer);
-        
+
         fViewer.getTextWidget().setFont(JFaceResources.getTextFont());
-            
-        Control control= fViewer.getControl();
+
+        Control control = fViewer.getControl();
         GridData gd = new GridData(GridData.FILL_BOTH);
         control.setLayoutData(gd);
-        
+
         // listener for check the value
-        fDocumentListener= new IDocumentListener() {
+        fDocumentListener = new IDocumentListener() {
             public void documentAboutToBeChanged(DocumentEvent event) {
             }
+
             public void documentChanged(DocumentEvent event) {
                 valueChanged();
             }
         };
         fViewer.getDocument().addDocumentListener(fDocumentListener);
-        
+
         // we can only do code assist if there is an associated type
         /*
         try {
@@ -131,20 +131,21 @@ public class BreakpointConditionEditor {
             //getCompletionProcessor().setPosition(position);
         } catch (CoreException e) {
         }*/
-            
-        gd= (GridData)fViewer.getControl().getLayoutData();
-        gd.heightHint= fPage.convertHeightInCharsToPixels(10);
-        gd.widthHint= fPage.convertWidthInCharsToPixels(40);    
+
+        gd = (GridData) fViewer.getControl().getLayoutData();
+        gd.heightHint = fPage.convertHeightInCharsToPixels(10);
+        gd.widthHint = fPage.convertWidthInCharsToPixels(40);
         document.set(condition);
         valueChanged();
-        
+
         IHandler handler = new AbstractHandler() {
             public Object execute(Map parameter) throws ExecutionException {
                 fViewer.doOperation(ISourceViewer.CONTENTASSIST_PROPOSALS);
                 return null;
             }
         };
-        submission = new HandlerSubmission(null, parent.getShell(), null, ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS, handler, Priority.MEDIUM); //$NON-NLS-1$    
+        submission = new HandlerSubmission(null, parent.getShell(), null,
+                ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS, handler, Priority.MEDIUM); //$NON-NLS-1$    
     }
 
     /**
@@ -162,10 +163,10 @@ public class BreakpointConditionEditor {
         // the value is valid if the field is not editable, or if the value is not empty
         if (!fViewer.isEditable()) {
             fPage.removeErrorMessage(fErrorMessage);
-            fIsValid= true;
+            fIsValid = true;
         } else {
-            String text= fViewer.getDocument().get();
-            fIsValid= text != null && text.trim().length() > 0;
+            String text = fViewer.getDocument().get();
+            fIsValid = text != null && text.trim().length() > 0;
             if (!fIsValid) {
                 fPage.addErrorMessage(fErrorMessage);
             } else {
@@ -173,16 +174,17 @@ public class BreakpointConditionEditor {
             }
         }
     }
-        
+
     /**
      * Return the completion processor associated with this viewer.
      * @return BreakPointConditionCompletionProcessor
-     *//*
+     */
+    /*
     protected BreakpointConditionCompletionProcessor getCompletionProcessor() {
-        if (fCompletionProcessor == null) {
-            fCompletionProcessor= new BreakpointConditionCompletionProcessor(null);
-        }
-        return fCompletionProcessor;
+     if (fCompletionProcessor == null) {
+         fCompletionProcessor= new BreakpointConditionCompletionProcessor(null);
+     }
+     return fCompletionProcessor;
     }*/
 
     /**
@@ -194,12 +196,12 @@ public class BreakpointConditionEditor {
         if (enabled) {
             fViewer.updateViewerColors();
             fViewer.getTextWidget().setFocus();
-            
+
             IWorkbench workbench = PlatformUI.getWorkbench();
             IWorkbenchCommandSupport commandSupport = workbench.getCommandSupport();
             commandSupport.addHandlerSubmission(submission);
         } else {
-            Color color= fViewer.getControl().getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
+            Color color = fViewer.getControl().getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
             fViewer.getTextWidget().setBackground(color);
             IWorkbench workbench = PlatformUI.getWorkbench();
             IWorkbenchCommandSupport commandSupport = workbench.getCommandSupport();
@@ -207,16 +209,16 @@ public class BreakpointConditionEditor {
         }
         valueChanged();
     }
-    
+
     protected void valueChanged() {
         refreshValidState();
-                
+
         String newValue = fViewer.getDocument().get();
         if (!newValue.equals(fOldValue)) {
             fOldValue = newValue;
         }
     }
-    
+
     public void dispose() {
         if (fViewer.isEditable()) {
             IWorkbench workbench = PlatformUI.getWorkbench();
@@ -226,5 +228,5 @@ public class BreakpointConditionEditor {
         fViewer.getDocument().removeDocumentListener(fDocumentListener);
         fViewer.dispose();
     }
-    
+
 }

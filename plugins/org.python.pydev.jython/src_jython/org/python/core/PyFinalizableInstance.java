@@ -5,7 +5,6 @@
 
 package org.python.core;
 
-
 /**
  * A python class instance with __del__ defined.
  * <p>
@@ -13,8 +12,7 @@ package org.python.core;
  * finalize() on a class, makes the class a lot slower.
  */
 
-public class PyFinalizableInstance extends PyInstance
-{
+public class PyFinalizableInstance extends PyInstance {
     public PyFinalizableInstance(PyClass iclass) {
         super(iclass);
     }
@@ -28,12 +26,12 @@ public class PyFinalizableInstance extends PyInstance
             PyObject method = instclass.__del__;
             try {
                 method = __findattr__("__del__");
-            } catch (PyException e) { ; }
+            } catch (PyException e) {
+                ;
+            }
 
-            Py.stderr.println("Exception " +
-                Py.formatException(exc.type, exc.value, exc.traceback) +
-                " in " + method +
-                " ignored");
+            Py.stderr.println("Exception " + Py.formatException(exc.type, exc.value, exc.traceback) + " in " + method
+                    + " ignored");
         }
     }
 }

@@ -10,35 +10,35 @@ import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 
 public class MockupOverrideMethodsConfig {
 
-	private String classSelection;
+    private String classSelection;
 
-	private ArrayList<Integer> methodSelection;
+    private ArrayList<Integer> methodSelection;
 
-	private int offsetStrategy;
+    private int offsetStrategy;
 
-	private int editClass;
+    private int editClass;
 
-	public MockupOverrideMethodsConfig() {
-		this.classSelection = "";
-		this.offsetStrategy = IOffsetStrategy.AFTERINIT;
-		this.methodSelection = new ArrayList<Integer>();
-		methodSelection.add(0);
-		this.editClass = 0;
-	}
+    public MockupOverrideMethodsConfig() {
+        this.classSelection = "";
+        this.offsetStrategy = IOffsetStrategy.AFTERINIT;
+        this.methodSelection = new ArrayList<Integer>();
+        methodSelection.add(0);
+        this.editClass = 0;
+    }
 
-	public ArrayList<Integer> getMethodSelection() {
-		return methodSelection;
-	}
+    public ArrayList<Integer> getMethodSelection() {
+        return methodSelection;
+    }
 
-	public String getClassSelection() {
-		return classSelection;
-	}
+    public String getClassSelection() {
+        return classSelection;
+    }
 
-	public int getOffsetStrategy() {
-		return offsetStrategy;
-	}
+    public int getOffsetStrategy() {
+        return offsetStrategy;
+    }
 
-	public int getEditClass() {
-		return editClass;
-	}
+    public int getEditClass() {
+        return editClass;
+    }
 }

@@ -27,114 +27,115 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.plugin.SocketUtil;
 
-public class PyUnitServer implements IPyUnitServer  {
-    
+public class PyUnitServer implements IPyUnitServer {
+
     /**
      * Server used to get information on the tests running.
      */
     protected WebServer webServer;
-    
+
     /**
      * The port to be used to communicate with the python server.
      */
     protected int port;
-    
+
     /**
      * The configuration used to do the launch.
      */
     protected ILaunchConfiguration configuration;
-    
+
     /**
      * The launch to which we're connecting.
      */
     protected ILaunch launch;
-    
+
     /**
      * Whether or not we've been already disposed.
      */
     protected boolean disposed = false;
-    
+
     /**
      * Listeners interested in knowing what happens in the python process should be registered here.
      */
     protected List<IPyUnitServerListener> listeners = new ArrayList<IPyUnitServerListener>();
-    
-    private abstract static class Dispatch{
+
+    private abstract static class Dispatch {
 
         private final int expectedParameters;
 
-        Dispatch(int expectedParameters){
+        Dispatch(int expectedParameters) {
             this.expectedParameters = expectedParameters;
         }
-        
+
         protected abstract void dispatch(IRequest request);
-        
-        public void handle(IRequest request){
+
+        public void handle(IRequest request) {
             int parameterCount = request.getParameterCount();
-            if(parameterCount != this.expectedParameters){
-                Log.log("Error. Expected "+this.expectedParameters+" parameters in notifyTest. Received: "+parameterCount);
-            }else{
+            if (parameterCount != this.expectedParameters) {
+                Log.log("Error. Expected " + this.expectedParameters + " parameters in notifyTest. Received: "
+                        + parameterCount);
+            } else {
                 this.dispatch(request);
             }
         }
-        
+
     }
-    private static interface IRequest{
+
+    private static interface IRequest {
 
         public String getMethodName();
 
         public int getParameterCount();
 
         public Object getParameter(int i);
-        
+
     }
 
     /**
      * This is where the handling of xml-rpc methods from the servers is handled and properly translated for listeners.
      */
     private XmlRpcHandler handler = new XmlRpcHandler() {
-        
 
         public Object execute(final XmlRpcRequest request) throws XmlRpcException {
             return execute(new IRequest() {
-                
+
                 public int getParameterCount() {
                     return request.getParameterCount();
                 }
+
                 public Object getParameter(int i) {
                     return request.getParameter(i);
                 }
+
                 public String getMethodName() {
                     return request.getMethodName();
                 }
             });
         }
-        
+
         public Object execute(IRequest request) throws XmlRpcException {
-            try{
+            try {
                 String method = request.getMethodName();
 
-                
                 Dispatch actual = dispatch.get(method);
-                if(actual != null){
+                if (actual != null) {
                     actual.handle(request);
-                }else{
-                    Log.log("Unhandled notification: "+method);
+                } else {
+                    Log.log("Unhandled notification: " + method);
                 }
-                
 
-            }catch(Throwable e){
+            } catch (Throwable e) {
                 //Never return any error here (we don't want to stop running the tests because of some error here).
                 Log.log(e);
             }
             return "OK";
         }
-        
+
     };
 
     private final HashMap<String, Dispatch> dispatch = new HashMap<String, Dispatch>();
-    
-    private void initializeDispatches(){
+
+    private void initializeDispatches() {
         dispatch.put("notifyTest", new Dispatch(6) {
 
             public void dispatch(IRequest request) {
@@ -144,31 +145,31 @@ public class PyUnitServer implements IPyUnitServer  {
                 String location = request.getParameter(3).toString();
                 String test = request.getParameter(4).toString();
                 String time = request.getParameter(5).toString();
-                
-                for(IPyUnitServerListener listener:listeners){
+
+                for (IPyUnitServerListener listener : listeners) {
                     listener.notifyTest(status, location, test, capturedOutput, errorContents, time);
                 }
-            }}
-        );
+            }
+        });
         dispatch.put("notifyStartTest", new Dispatch(2) {
 
             public void dispatch(IRequest request) {
                 String location = request.getParameter(0).toString();
                 String test = request.getParameter(1).toString();
-                for(IPyUnitServerListener listener:listeners){
+                for (IPyUnitServerListener listener : listeners) {
                     listener.notifyStartTest(location, test);
                 }
-                
-            }}
-        );
+
+            }
+        });
         dispatch.put("notifyTestsCollected", new Dispatch(1) {
 
             public void dispatch(IRequest request) {
                 String totalTestsCount = request.getParameter(0).toString();
-                for(IPyUnitServerListener listener:listeners){
+                for (IPyUnitServerListener listener : listeners) {
                     listener.notifyTestsCollected(totalTestsCount);
                 }
-            }                        
+            }
         });
         dispatch.put("notifyConnected", new Dispatch(0) {
 
@@ -179,7 +180,7 @@ public class PyUnitServer implements IPyUnitServer  {
         dispatch.put("notifyTestRunFinished", new Dispatch(1) {
 
             public void dispatch(IRequest request) {
-                for(IPyUnitServerListener listener:listeners){
+                for (IPyUnitServerListener listener : listeners) {
                     Object seconds = request.getParameter(0);
                     listener.notifyFinished(seconds.toString());
                 }
@@ -187,75 +188,75 @@ public class PyUnitServer implements IPyUnitServer  {
         });
         dispatch.put("notifyCommands", new Dispatch(1) { //the list of commands as a parameter
 
-            public void dispatch(IRequest request) {
-                Object requestParam = request.getParameter(0);
-                if(!(requestParam instanceof Object[])){
-                    if(requestParam == null){
-                        Log.log("Expected Object[]. Found: null");
-                    }else{
-                        Log.log("Expected Object[]. Found: "+requestParam.getClass());
-                    }
-                    return;
-                }
-                
-                Object[] parameters = (Object[]) requestParam;
-                
-                for(int i=0;i<parameters.length;i++){
-                    Object param = parameters[i];
-                    if(!(param instanceof Object[])){
-                        if(param == null){
-                            Log.log("Expected Object[]. Found: null");
-                        }else{
-                            Log.log("Expected Object[]. Found: "+param.getClass());
+                    public void dispatch(IRequest request) {
+                        Object requestParam = request.getParameter(0);
+                        if (!(requestParam instanceof Object[])) {
+                            if (requestParam == null) {
+                                Log.log("Expected Object[]. Found: null");
+                            } else {
+                                Log.log("Expected Object[]. Found: " + requestParam.getClass());
+                            }
+                            return;
                         }
-                        return;
-                    }
-                    
-                    final Object[] methodAndParams = (Object[]) param;
-                    if(methodAndParams.length != 2){
-                        Log.log("Expected Object[] of len == 2. Found len: "+methodAndParams.length);
-                        continue;
-                    }
-                    if(!(methodAndParams[1] instanceof Object[])){
-                        Log.log("Expected methodAndParams[1] to be Object[]. Found: "+methodAndParams[1].getClass());
-                        continue;
-                    }
-                    
-                    final String methodName = methodAndParams[0].toString();
-                    final Object[] params = (Object[]) methodAndParams[1];
-                    
-                    Dispatch d = dispatch.get(methodName);
-                    if(d != null){
-                        d.handle(new IRequest() {
-                            
-                            public int getParameterCount() {
-                                return params.length;
+
+                        Object[] parameters = (Object[]) requestParam;
+
+                        for (int i = 0; i < parameters.length; i++) {
+                            Object param = parameters[i];
+                            if (!(param instanceof Object[])) {
+                                if (param == null) {
+                                    Log.log("Expected Object[]. Found: null");
+                                } else {
+                                    Log.log("Expected Object[]. Found: " + param.getClass());
+                                }
+                                return;
                             }
-                            
-                            public Object getParameter(int i) {
-                                return params[i];
+
+                            final Object[] methodAndParams = (Object[]) param;
+                            if (methodAndParams.length != 2) {
+                                Log.log("Expected Object[] of len == 2. Found len: " + methodAndParams.length);
+                                continue;
                             }
-                            
-                            public String getMethodName() {
-                                return methodName;
+                            if (!(methodAndParams[1] instanceof Object[])) {
+                                Log.log("Expected methodAndParams[1] to be Object[]. Found: "
+                                        + methodAndParams[1].getClass());
+                                continue;
                             }
-                        });
+
+                            final String methodName = methodAndParams[0].toString();
+                            final Object[] params = (Object[]) methodAndParams[1];
+
+                            Dispatch d = dispatch.get(methodName);
+                            if (d != null) {
+                                d.handle(new IRequest() {
+
+                                    public int getParameterCount() {
+                                        return params.length;
+                                    }
+
+                                    public Object getParameter(int i) {
+                                        return params[i];
+                                    }
+
+                                    public String getMethodName() {
+                                        return methodName;
+                                    }
+                                });
+                            }
+                        }
                     }
-                }
-            }
-        });
+                });
     }
-    
+
     /**
      * When the launch is removed or terminated, we'll promptly dispose of the server.
      */
     private ILaunchesListener2 launchListener = new ILaunchesListener2() {
-        
 
         public void launchesRemoved(ILaunch[] launches) {
-            if(!disposed){
+            if (!disposed) {
                 for (ILaunch iLaunch : launches) {
-                    if(iLaunch == launch){
+                    if (iLaunch == launch) {
                         dispose();
                     }
                 }
@@ -269,9 +270,9 @@ public class PyUnitServer implements IPyUnitServer  {
         }
 
         public void launchesTerminated(ILaunch[] launches) {
-            if(!disposed){
+            if (!disposed) {
                 for (ILaunch iLaunch : launches) {
-                    if(iLaunch == launch){
+                    if (iLaunch == launch) {
                         dispose();
                     }
                 }
@@ -279,7 +280,6 @@ public class PyUnitServer implements IPyUnitServer  {
         }
     };
 
-    
     /**
      * As we need to be able to relaunch, we store the configuration and launch here (although the relaunch won't be
      * actually done in this class, this is the place to get information on it).
@@ -288,23 +288,21 @@ public class PyUnitServer implements IPyUnitServer  {
      * @param launch the actual launch
      * @throws IOException
      */
-    public PyUnitServer(PythonRunnerConfig config, ILaunch launch) throws IOException{
+    public PyUnitServer(PythonRunnerConfig config, ILaunch launch) throws IOException {
         initializeDispatches();
         port = SocketUtil.findUnusedLocalPorts(1)[0];
         SocketUtil.checkValidPort(port);
         this.webServer = new WebServer(port);
         XmlRpcServer serverToHandleRawInput = this.webServer.getXmlRpcServer();
-        serverToHandleRawInput.setHandlerMapping(new XmlRpcHandlerMapping(){
-
+        serverToHandleRawInput.setHandlerMapping(new XmlRpcHandlerMapping() {
 
             public XmlRpcHandler getHandler(String handlerName) throws XmlRpcNoSuchHandlerException, XmlRpcException {
                 return handler;
             }
         });
-        
+
         this.webServer.start();
 
-        
         ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
         launchManager.addLaunchListener(this.launchListener);
         this.launch = launch;
@@ -315,11 +313,11 @@ public class PyUnitServer implements IPyUnitServer  {
      * Want to hear about what happens in the test running session?
      */
     public void registerOnNotifyTest(IPyUnitServerListener listener) {
-        if(!this.disposed){
+        if (!this.disposed) {
             this.listeners.add(listener);
         }
     }
-    
+
     /**
      * @return the port being used to communicate with the python side.
      */
@@ -331,8 +329,8 @@ public class PyUnitServer implements IPyUnitServer  {
      * Disposes of the pyunit server. When the launch is terminated or removed from the launch manager, it's
      * automatically disposed.
      */
-    public void dispose(){
-        if(!disposed){
+    public void dispose() {
+        if (!disposed) {
             disposed = true;
             try {
                 ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
@@ -340,8 +338,8 @@ public class PyUnitServer implements IPyUnitServer  {
             } catch (Throwable e1) {
                 Log.log(e1);
             }
-            
-            if(this.webServer != null){
+
+            if (this.webServer != null) {
                 try {
                     this.webServer.shutdown();
                 } catch (Throwable e) {
@@ -349,19 +347,16 @@ public class PyUnitServer implements IPyUnitServer  {
                 }
                 this.webServer = null;
             }
-            
-            for(IPyUnitServerListener listener:this.listeners){
+
+            for (IPyUnitServerListener listener : this.listeners) {
                 listener.notifyDispose();
             }
             this.listeners.clear();
         }
     }
-    
 
-    
     public IPyUnitLaunch getPyUnitLaunch() {
         return new PyUnitLaunch(launch, configuration);
     }
 
-    
 }

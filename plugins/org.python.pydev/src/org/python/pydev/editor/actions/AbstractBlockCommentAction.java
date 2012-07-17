@@ -16,38 +16,37 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 
 public abstract class AbstractBlockCommentAction extends PyAction {
-    
-    protected boolean alignRight=true;
-    protected int defaultCols=80;
 
-    public AbstractBlockCommentAction(){
+    protected boolean alignRight = true;
+    protected int defaultCols = 80;
+
+    public AbstractBlockCommentAction() {
         //default
     }
-    
+
     /**
      * For tests: assigns the default values
      */
-    protected AbstractBlockCommentAction(int defaultCols, boolean alignLeft){
+    protected AbstractBlockCommentAction(int defaultCols, boolean alignLeft) {
         this.defaultCols = defaultCols;
         this.alignRight = alignLeft;
     }
-    
-    
+
     /**
      * Grabs the selection information and performs the action.
      */
     public void run(IAction action) {
         try {
-        	if(!canModifyEditor()){
-        		return;
-        	}
+            if (!canModifyEditor()) {
+                return;
+            }
             // Select from text editor
             PySelection ps = new PySelection(getTextEditor());
             // Perform the action
             int toSelect = perform(ps);
-            if(toSelect != -1){
+            if (toSelect != -1) {
                 getTextEditor().selectAndReveal(toSelect, 0);
-            }else{
+            } else {
                 // Put cursor at the first area of the selection
                 revealSelEndLine(ps);
             }
@@ -60,51 +59,50 @@ public abstract class AbstractBlockCommentAction extends PyAction {
      * Actually performs the action 
      */
     public abstract int perform(PySelection ps);
-    
-    
+
     /**
      * @return the number of columns to be used (and the char too)
      */
-    public Tuple<Integer, Character> getColsAndChar(){
+    public Tuple<Integer, Character> getColsAndChar() {
         int cols = this.defaultCols;
         char c = '-';
-        
-        try{
+
+        try {
             IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
             cols = chainedPrefStore.getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);
             Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
             c = prefs.getString(getPreferencesNameForChar()).charAt(0);
-        }catch(NullPointerException e){
+        } catch (NullPointerException e) {
             //ignore... we're in the tests env
         }
         return new Tuple<Integer, Character>(cols, c);
     }
-    
+
     /**
      * @return the editor tab width.
      */
-    public int getEditorTabWidth(){
-        try{
+    public int getEditorTabWidth() {
+        try {
             IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
             return chainedPrefStore.getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_TAB_WIDTH);
-        }catch(NullPointerException e){
+        } catch (NullPointerException e) {
             //ignore... we're in the tests env
         }
         return 4; //if not available, default is 4
     }
 
-    protected abstract String getPreferencesNameForChar() ;
+    protected abstract String getPreferencesNameForChar();
 
     /**
      * @return the length of the string considering the size of the tab for the editor
      */
-    protected int getLenOfStrConsideringTabEditorLen(String str){
+    protected int getLenOfStrConsideringTabEditorLen(String str) {
         int ret = 0;
         int tabWidth = this.getEditorTabWidth();
-        for(int i=0;i<str.length();i++){
-            if(str.charAt(i) == '\t'){
+        for (int i = 0; i < str.length(); i++) {
+            if (str.charAt(i) == '\t') {
                 ret += tabWidth;
-            }else{
+            } else {
                 ret += 1;
             }
         }

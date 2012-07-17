@@ -24,7 +24,6 @@ public class OutlineHideImportsAction extends AbstractOutlineFilterAction {
 
     private static final String PREF_HIDE_IMPORTS = "org.python.pydev.OUTLINE_HIDE_IMPORTS";
 
-
     public OutlineHideImportsAction(PyOutlinePage page, ImageCache imageCache) {
         super("Hide Imports", page, imageCache, PREF_HIDE_IMPORTS, UIConstants.IMPORT_ICON);
     }
@@ -41,7 +40,7 @@ public class OutlineHideImportsAction extends AbstractOutlineFilterAction {
                 if (element instanceof ParsedItem) {
                     ParsedItem item = (ParsedItem) element;
                     ASTEntryWithChildren astThis = item.getAstThis();
-                    if(astThis != null){
+                    if (astThis != null) {
                         SimpleNode n = astThis.node;
                         if (n instanceof ImportFrom || n instanceof Import) {
                             return false;

@@ -8,21 +8,21 @@
  * Created on 20/08/2005
  */
 package org.python.pydev.builder.pylint;
+
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.osgi.service.prefs.Preferences;
 import org.python.pydev.plugin.PydevPlugin;
 
-
-public class PyLintPrefInitializer extends AbstractPreferenceInitializer{
+public class PyLintPrefInitializer extends AbstractPreferenceInitializer {
 
     @Override
     public void initializeDefaultPreferences() {
         Preferences node = new DefaultScope().getNode(PydevPlugin.DEFAULT_PYDEV_SCOPE);
-        
+
         node.put(PyLintPrefPage.PYLINT_FILE_LOCATION, "");
         node.putBoolean(PyLintPrefPage.USE_PYLINT, PyLintPrefPage.DEFAULT_USE_PYLINT);
-        
+
         node.putInt(PyLintPrefPage.SEVERITY_ERRORS, PyLintPrefPage.DEFAULT_SEVERITY_ERRORS);
         node.putInt(PyLintPrefPage.SEVERITY_WARNINGS, PyLintPrefPage.DEFAULT_SEVERITY_WARNINGS);
         node.putInt(PyLintPrefPage.SEVERITY_FATAL, PyLintPrefPage.DEFAULT_SEVERITY_FATAL);

@@ -15,7 +15,6 @@ public interface ISortedElement {
     int RANK_PYTHON_FILE = 3;
     int RANK_PYTHON_RESOURCE = 4;
     int RANK_PYTHON_NODE = 5;
-    
 
     /**
      * @return the ranking for the object. Lower values have higher priorities

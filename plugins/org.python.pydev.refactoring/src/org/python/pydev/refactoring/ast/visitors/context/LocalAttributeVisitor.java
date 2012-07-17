@@ -24,19 +24,19 @@ public class LocalAttributeVisitor extends GlobalAttributeVisitor {
 
     @Override
     public void traverse(SimpleNode node) throws Exception {
-        if(nodeHelper.isClassDef(node)){
+        if (nodeHelper.isClassDef(node)) {
             ClassDef classDef = (ClassDef) node;
             visit(classDef.body);
-        }else{
+        } else {
             super.traverse(node);
         }
     }
 
     @Override
     public Object visitClassDef(ClassDef node) throws Exception {
-        if(inLocalScope){
+        if (inLocalScope) {
             return null;
-        }else{
+        } else {
             inLocalScope = true;
             return super.visitClassDef(node);
         }

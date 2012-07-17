@@ -14,9 +14,8 @@ import org.python.pydev.core.IPythonNature;
 /**
  * The first page in the New Project wizard must implement this interface.
  */
-public interface IWizardNewProjectNameAndLocationPage extends IWizardPage
-{
- 
+public interface IWizardNewProjectNameAndLocationPage extends IWizardPage {
+
     public static final String PYDEV_NEW_PROJECT_CREATE_PREFERENCES = "PYDEV_NEW_PROJECT_CREATE_PREFERENCES";
 
     final int PYDEV_NEW_PROJECT_CREATE_SRC_FOLDER = 0; //also the default
@@ -41,7 +40,7 @@ public interface IWizardNewProjectNameAndLocationPage extends IWizardPage
      * Returns a handle to the new project.
      */
     public IProject getProjectHandle();
-    
+
     public String getProjectName();
 
     /**

@@ -29,9 +29,9 @@ public class ExtensionHelper {
      * of the extension point to a list (which will be returned)
      */
     public static Map<String, List<Object>> testingParticipants;
-    
+
     private static Map<String, IExtension[]> extensionsCache = new HashMap<String, IExtension[]>();
-    
+
     //pydev
     public final static String PYDEV_COMPLETION = "org.python.pydev.pydev_completion";
     public final static String PYDEV_BUILDER = "org.python.pydev.pydev_builder";
@@ -52,36 +52,33 @@ public class ExtensionHelper {
     public static final String PYDEV_GLOBALS_BROWSER = "org.python.pydev.pydev_globals_browser";
     public static final String PYDEV_DEBUG_PREFERENCES_PAGE = "org.python.pydev.pydev_debug_preferences_page";
     public static final String PYDEV_HOVER = "org.python.pydev.pydev_hover";
-    
+
     //IInterpreterInfoBuilder
     public static final String PYDEV_INTERPRETER_INFO_BUILDER = "org.python.pydev.pydev_interpreter_info_builder";
 
     //debug
     public static final String PYDEV_DEBUG_CONSOLE_INPUT_LISTENER = "org.python.pydev.debug.pydev_debug_console_input_listener";
 
-
-
-    
     public static IExtension[] getExtensions(String type) {
         IExtension[] extensions = extensionsCache.get(type);
-        if(extensions == null){
+        if (extensions == null) {
             IExtensionRegistry registry = Platform.getExtensionRegistry();
-            if(registry != null){ // we may not be in eclipse env when testing
+            if (registry != null) { // we may not be in eclipse env when testing
                 try {
                     IExtensionPoint extensionPoint = registry.getExtensionPoint(type);
                     extensions = extensionPoint.getExtensions();
                     extensionsCache.put(type, extensions);
                 } catch (Exception e) {
-                    Log.log(IStatus.ERROR, "Error getting extension for:"+ type, e);
+                    Log.log(IStatus.ERROR, "Error getting extension for:" + type, e);
                     throw new RuntimeException(e);
                 }
-            }else{
+            } else {
                 extensions = new IExtension[0];
             }
         }
         return extensions;
     }
-    
+
     /**
      * @param type  the name of the extension
      * @param allowOverride  if true, the last registered participant will be
@@ -94,16 +91,16 @@ public class ExtensionHelper {
      */
     public static Object getParticipant(String type, boolean allowOverride) {
         List<Object> participants = getParticipants(type);
-        if (participants.isEmpty()){
+        if (participants.isEmpty()) {
             return null;
         }
         if (!allowOverride && participants.size() > 1) {
             // only one participant may be used for this
-            throw new RuntimeException("More than one participant is registered for type:"+type);
+            throw new RuntimeException("More than one participant is registered for type:" + type);
         }
         return participants.get(participants.size() - 1);
     }
-    
+
     /**
      * @param type the extension we want to get
      * @return a list of classes created from those extensions
@@ -121,8 +118,7 @@ public class ExtensionHelper {
         list = new ArrayList<Object>();
         // For each extension ...
         for (IExtension extension : getExtensions(type)) {
-            IConfigurationElement[] elements = extension
-                    .getConfigurationElements();
+            IConfigurationElement[] elements = extension.getConfigurationElements();
             // For each member of the extension ...
             for (IConfigurationElement element : elements) {
                 try {

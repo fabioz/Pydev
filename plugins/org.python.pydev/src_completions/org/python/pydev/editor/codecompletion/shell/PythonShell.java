@@ -26,9 +26,8 @@ import org.python.pydev.runners.SimpleRunner;
 /**
  * @author Fabio Zadrozny
  */
-public class PythonShell extends AbstractShell{
+public class PythonShell extends AbstractShell {
 
-    
     /**
      * Initialize with the default python server file.
      * 
@@ -39,35 +38,33 @@ public class PythonShell extends AbstractShell{
         super(PydevPlugin.getScriptWithinPySrc("pycompletionserver.py"));
     }
 
-
     @Override
-    protected synchronized ProcessCreationInfo createServerProcess(IInterpreterInfo interpreter, int pWrite, int pRead) throws IOException {
+    protected synchronized ProcessCreationInfo createServerProcess(IInterpreterInfo interpreter, int pWrite, int pRead)
+            throws IOException {
         File file = new File(interpreter.getExecutableOrJar());
-        if(file.exists() == false ){
-            throw new RuntimeException("The interpreter location found does not exist. "+interpreter);
+        if (file.exists() == false) {
+            throw new RuntimeException("The interpreter location found does not exist. " + interpreter);
         }
-        if(file.isDirectory() == true){
-            throw new RuntimeException("The interpreter location found is a directory. "+interpreter);
+        if (file.isDirectory() == true) {
+            throw new RuntimeException("The interpreter location found is a directory. " + interpreter);
         }
 
-        String[] parameters = SimplePythonRunner.preparePythonCallParameters(
-                interpreter.getExecutableOrJar(), REF.getFileAbsolutePath(serverFile), new String[]{""+pWrite, ""+pRead});
-        
+        String[] parameters = SimplePythonRunner.preparePythonCallParameters(interpreter.getExecutableOrJar(),
+                REF.getFileAbsolutePath(serverFile), new String[] { "" + pWrite, "" + pRead });
+
         IInterpreterManager manager = PydevPlugin.getPythonInterpreterManager();
-        
+
         String[] envp = null;
         try {
             envp = SimpleRunner.getEnvironment(null, interpreter, manager);
         } catch (CoreException e) {
             Log.log(e);
         }
-        
+
         File workingDir = serverFile.getParentFile();
         process = SimpleRunner.createProcess(parameters, envp, workingDir);
 
         return new ProcessCreationInfo(parameters, envp, workingDir, process);
     }
-
-
 
 }

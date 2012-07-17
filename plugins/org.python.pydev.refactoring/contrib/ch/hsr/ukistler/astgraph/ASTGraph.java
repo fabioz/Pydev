@@ -38,8 +38,8 @@ public class ASTGraph {
         }
 
         IDocument doc = new Document(source.toString());
-        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(
-                new PyParser.ParserInfo(doc, IPythonNature.LATEST_GRAMMAR_VERSION));
+        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc,
+                IPythonNature.LATEST_GRAMMAR_VERSION));
         if (objects.o2 != null)
             throw objects.o2;
         return objects;

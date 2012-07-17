@@ -33,10 +33,10 @@ final class PyUnitSortListener implements Listener {
     public void handleEvent(Event e) {
         Tree tree = view.getTree();
         TreeItem[] items = tree.getItems();
-        TreeColumn column = (TreeColumn)e.widget;
+        TreeColumn column = (TreeColumn) e.widget;
         Comparator<TreeItem> comparator = null;
         final int col;
-        if(column == view.colIndex){
+        if (column == view.colIndex) {
             col = -1;
             comparator = new Comparator<TreeItem>() {
                 public int compare(TreeItem o1, TreeItem o2) {
@@ -45,9 +45,9 @@ final class PyUnitSortListener implements Listener {
                     try {
                         int number0 = Integer.parseInt(txt0.trim());
                         int number1 = Integer.parseInt(txt1.trim());
-                        if(number0 < number1){
+                        if (number0 < number1) {
                             return -1;
-                        }else if(number1 < number0){
+                        } else if (number1 < number0) {
                             return 1;
                         }
                         return 0;
@@ -57,17 +57,17 @@ final class PyUnitSortListener implements Listener {
                     return txt0.compareTo(txt1);
                 }
             };
-            
-        }else if(column == view.colResult){
+
+        } else if (column == view.colResult) {
             col = PyUnitView.COL_RESULT;
-            
-        }else if(column == view.colTest){
+
+        } else if (column == view.colTest) {
             col = PyUnitView.COL_TEST;
-            
-        }else if(column == view.colFile){
+
+        } else if (column == view.colFile) {
             col = PyUnitView.COL_FILENAME;
-            
-        }else if(column == view.colTime){
+
+        } else if (column == view.colTime) {
             col = -1;
             comparator = new Comparator<TreeItem>() {
                 public int compare(TreeItem o1, TreeItem o2) {
@@ -76,9 +76,9 @@ final class PyUnitSortListener implements Listener {
                     try {
                         float float0 = Float.parseFloat(txt0.trim());
                         float float1 = Float.parseFloat(txt1.trim());
-                        if(float0 < float1){
+                        if (float0 < float1) {
                             return -1;
-                        }else if(float1 < float0){
+                        } else if (float1 < float0) {
                             return 1;
                         }
                         return 0;
@@ -88,12 +88,12 @@ final class PyUnitSortListener implements Listener {
                     return txt0.compareTo(txt1);
                 }
             };
-        }else{
-            Log.log("Could not recognize column clicked: "+column);
+        } else {
+            Log.log("Could not recognize column clicked: " + column);
             return;
         }
 
-        if(comparator == null){
+        if (comparator == null) {
             comparator = new Comparator<TreeItem>() {
                 public int compare(TreeItem o1, TreeItem o2) {
                     return o1.getText(col).compareTo(o2.getText(col));
@@ -102,53 +102,53 @@ final class PyUnitSortListener implements Listener {
         }
 
         TreeColumn oldSortColumn = tree.getSortColumn();
-        if(oldSortColumn == column){
+        if (oldSortColumn == column) {
             //inverse the direction
             int sortDirection = tree.getSortDirection();
-            if(sortDirection == SWT.DOWN){
+            if (sortDirection == SWT.DOWN) {
                 tree.setSortDirection(SWT.UP);
                 final Comparator<TreeItem> oldComparator = comparator;
                 comparator = new Comparator<TreeItem>() {
-                    
+
                     public int compare(TreeItem o1, TreeItem o2) {
                         return -oldComparator.compare(o1, o2);
                     }
                 };
-            }else{
+            } else {
                 tree.setSortDirection(SWT.DOWN);
             }
-        }else{
+        } else {
             //new column selected (sort direction always down)
             tree.setSortDirection(SWT.DOWN);
         }
         Arrays.sort(items, comparator);
         String[][] strings = new String[items.length][PyUnitView.NUMBER_OF_COLUMNS];
         Object[][] results = new PyUnitTestResult[items.length][2];
-        for(int i=0;i<items.length;i++){
+        for (int i = 0; i < items.length; i++) {
             TreeItem it = items[i];
-            for(int j=0;j<PyUnitView.NUMBER_OF_COLUMNS;j++){
+            for (int j = 0; j < PyUnitView.NUMBER_OF_COLUMNS; j++) {
                 strings[i][j] = it.getText(j);
             }
             results[i][0] = it.getData(ToolTipPresenterHandler.TIP_DATA);
             results[i][1] = it.getData(PyUnitView.PY_UNIT_TEST_RESULT);
         }
-        
+
         tree.setRedraw(false);
-        try{
+        try {
             Color errorColor = view.getErrorColor();
-            for(int i=0;i<strings.length;i++){
+            for (int i = 0; i < strings.length; i++) {
                 TreeItem item = tree.getItem(i);
                 item.setText(strings[i]);
                 item.setData(ToolTipPresenterHandler.TIP_DATA, results[i][0]);
                 PyUnitTestResult result = (PyUnitTestResult) results[i][1];
                 item.setData(PyUnitView.PY_UNIT_TEST_RESULT, result);
-                if(!result.isOk()){
+                if (!result.isOk()) {
                     item.setForeground(errorColor);
-                }else{
+                } else {
                     item.setForeground(null);
                 }
             }
-        }finally{
+        } finally {
             tree.setRedraw(true);
         }
         tree.setSortColumn(column);

@@ -12,8 +12,8 @@ package org.python.pydev.logging.ping;
  */
 public interface ILogPingProvider {
 
-	long getCurrentTime();
+    long getCurrentTime();
 
-	String getApplicationId();
+    String getApplicationId();
 
 }

@@ -35,8 +35,7 @@ public class PrecompiledImporter extends PyObject {
             Class c = null;
             if (Py.frozenModules.get(name + ".__init__") != null) {
                 // System.err.println("trying: "+name+".__init__$_PyInner");
-                Py.writeDebug("import", "trying " + name
-                        + " as precompiled package");
+                Py.writeDebug("import", "trying " + name + " as precompiled package");
                 c = findPyClass(name + ".__init__");
                 if (c == null) {
                     return Py.None;
@@ -44,8 +43,7 @@ public class PrecompiledImporter extends PyObject {
                 // System.err.println("found: "+name+".__init__$_PyInner");
                 return new PrecompiledLoader(c, true);
             } else if (Py.frozenModules.get(name) != null) {
-                Py.writeDebug("import", "trying " + name
-                        + " as precompiled module");
+                Py.writeDebug("import", "trying " + name + " as precompiled module");
                 c = findPyClass(name);
                 if (c == null) {
                     return Py.None;
@@ -82,8 +80,7 @@ public class PrecompiledImporter extends PyObject {
                 m.__dict__.__setitem__("__path__", new PyList());
                 m.__dict__.__setitem__("__loader__", this);
             }
-            Py.writeComment("import", "'" + name + "' as precompiled "
-                    + (this._package ? "package" : "module"));
+            Py.writeComment("import", "'" + name + "' as precompiled " + (this._package ? "package" : "module"));
             return imp.createFromClass(name, this._class);
         }
 

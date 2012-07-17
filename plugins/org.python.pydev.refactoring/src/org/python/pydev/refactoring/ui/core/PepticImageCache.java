@@ -20,14 +20,14 @@ public class PepticImageCache {
     private Map<String, Image> imageHash = new HashMap<String, Image>();
 
     public void dispose() {
-        for(Image image:imageHash.values()){
+        for (Image image : imageHash.values()) {
             image.dispose();
         }
     }
 
     public Image get(String key) {
         Image image = imageHash.get(key);
-        if(image == null){
+        if (image == null) {
             ImageDescriptor desc;
 
             desc = getDescriptor(key);

@@ -34,27 +34,27 @@ public class FileResourceStub extends AbstractIFileStub implements IFile {
         this.actualFile = file;
         this.project = project;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof FileResourceStub)){
+        if (!(obj instanceof FileResourceStub)) {
             return false;
         }
         FileResourceStub o = (FileResourceStub) obj;
         return this.actualFile.equals(o.actualFile);
     }
-    
+
     /**
      * For testing purposes
      * @return
      */
-    public String getFileContents(){
-        if(this.fileContents == null){
+    public String getFileContents() {
+        if (this.fileContents == null) {
             this.fileContents = REF.getFileContents(actualFile);
         }
         return this.fileContents;
     }
-    
+
     @Override
     public int hashCode() {
         return actualFile.hashCode();
@@ -68,7 +68,6 @@ public class FileResourceStub extends AbstractIFileStub implements IFile {
         return actualFile.exists();
     }
 
-
     public IProject getProject() {
         return project;
     }
@@ -76,6 +75,5 @@ public class FileResourceStub extends AbstractIFileStub implements IFile {
     public IPath getRawLocation() {
         return Path.fromOSString(REF.getFileAbsolutePath(actualFile));
     }
-
 
 }

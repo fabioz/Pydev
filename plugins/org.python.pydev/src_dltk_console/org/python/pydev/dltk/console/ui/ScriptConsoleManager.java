@@ -17,7 +17,7 @@ import org.eclipse.ui.console.IConsoleManager;
  * Helper to manage the consoles created.
  */
 public class ScriptConsoleManager {
-    
+
     private static ScriptConsoleManager instance;
 
     /**
@@ -79,7 +79,7 @@ public class ScriptConsoleManager {
      * Enable/Disable linking of the debug console with the suspended frame.
      */
     public void linkWithDebugSelection(ScriptConsole console, boolean isChecked) {
-		console.linkWithDebugSelection(isChecked);
-	} 
+        console.linkWithDebugSelection(isChecked);
+    }
 
 }

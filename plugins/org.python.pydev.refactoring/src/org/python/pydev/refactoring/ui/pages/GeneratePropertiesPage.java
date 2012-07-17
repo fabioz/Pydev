@@ -75,7 +75,8 @@ public class GeneratePropertiesPage extends UserInputWizardPage {
         this.classProvider = provider;
         this.labelProvider = new TreeLabelProvider();
 
-        this.strategyProvider = new OffsetStrategyProvider(IOffsetStrategy.AFTERINIT | IOffsetStrategy.BEGIN | IOffsetStrategy.END);
+        this.strategyProvider = new OffsetStrategyProvider(IOffsetStrategy.AFTERINIT | IOffsetStrategy.BEGIN
+                | IOffsetStrategy.END);
     }
 
     private Composite createMainComp(Composite parent) {
@@ -207,7 +208,7 @@ public class GeneratePropertiesPage extends UserInputWizardPage {
         methodInsertionComb.addSelectionChangedListener(new ISelectionChangedListener() {
             public void selectionChanged(SelectionChangedEvent event) {
                 IStructuredSelection sel = (IStructuredSelection) event.getSelection();
-                if(!sel.isEmpty()){
+                if (!sel.isEmpty()) {
                     OffsetStrategyModel elem = (OffsetStrategyModel) sel.getFirstElement();
                     getRequestProcsseor().setMethodDestination(elem.getStrategy());
                 }
@@ -223,7 +224,7 @@ public class GeneratePropertiesPage extends UserInputWizardPage {
         propertyInsertionComb.addSelectionChangedListener(new ISelectionChangedListener() {
             public void selectionChanged(SelectionChangedEvent event) {
                 IStructuredSelection sel = (IStructuredSelection) event.getSelection();
-                if(!sel.isEmpty()){
+                if (!sel.isEmpty()) {
                     OffsetStrategyModel elem = (OffsetStrategyModel) sel.getFirstElement();
                     getRequestProcsseor().setPropertyDestination(elem.getStrategy());
                 }
@@ -267,7 +268,7 @@ public class GeneratePropertiesPage extends UserInputWizardPage {
 
     @Override
     public boolean canFlipToNextPage() {
-        return(treeViewer.getCheckedElements().length > 0);
+        return (treeViewer.getCheckedElements().length > 0);
     }
 
     protected GeneratePropertiesRequestProcessor getRequestProcsseor() {

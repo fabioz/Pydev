@@ -27,7 +27,7 @@ import org.python.pydev.parser.PyParser;
  * 
  * @author Fabio
  */
-public class ClearSyntaxMarkersPyeditListener implements IPyEditListener, IPyEditListener3{
+public class ClearSyntaxMarkersPyeditListener implements IPyEditListener, IPyEditListener3 {
 
     public void onCreateActions(ListResourceBundle resources, PyEdit edit, IProgressMonitor monitor) {
     }
@@ -35,7 +35,7 @@ public class ClearSyntaxMarkersPyeditListener implements IPyEditListener, IPyEdi
     public void onDispose(PyEdit edit, IProgressMonitor monitor) {
         //remove the markers if we want problems only in the active editor.
         IEditorInput input = edit.getEditorInput();
-        removeMarkersFromInput(input);    
+        removeMarkersFromInput(input);
     }
 
     public void onSave(PyEdit edit, IProgressMonitor monitor) {
@@ -48,19 +48,18 @@ public class ClearSyntaxMarkersPyeditListener implements IPyEditListener, IPyEdi
         removeMarkersFromInput(oldInput);
     }
 
-    
     /**
      * This function will remove the markers from the passed input.
      * @param input the input
      */
     private void removeMarkersFromInput(IEditorInput input) {
-        if(input!= null && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()){
-            if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+        if (input != null && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()) {
+            if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
                 Log.toLogFile(this, "removing syntax error markers from editor.");
             }
             IFile relatedFile = (IFile) input.getAdapter(IFile.class);
-            
-            if(relatedFile != null && relatedFile.exists()){
+
+            if (relatedFile != null && relatedFile.exists()) {
                 //when disposing, remove all markers
                 try {
                     PyParser.deleteErrorMarkers(relatedFile);

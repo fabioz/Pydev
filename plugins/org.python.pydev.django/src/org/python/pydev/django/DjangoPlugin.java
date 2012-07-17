@@ -13,8 +13,7 @@ import org.osgi.framework.BundleContext;
 
 public class DjangoPlugin extends Plugin {
 
-	private static DjangoPlugin plugin;
-
+    private static DjangoPlugin plugin;
 
     /**
      * The constructor.
@@ -22,7 +21,6 @@ public class DjangoPlugin extends Plugin {
     public DjangoPlugin() {
         plugin = this;
     }
-
 
     /**
      * This method is called when the plug-in is stopped

@@ -59,62 +59,61 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
 
     protected final exprType[] makeExprs() {
         SimpleNode commaNode = null;
-        if (stack.nodeArity() > 0 && stack.peekNode().getId() == JJTCOMMA){
+        if (stack.nodeArity() > 0 && stack.peekNode().getId() == JJTCOMMA) {
             commaNode = stack.popNode();
         }
         int arity = stack.nodeArity();
         exprType[] exprs = makeExprs(arity);
-        if(commaNode != null && arity > 0){
-            exprs[arity-1].addSpecial(new SpecialStr(",", commaNode.beginLine, commaNode.beginColumn), true);
+        if (commaNode != null && arity > 0) {
+            exprs[arity - 1].addSpecial(new SpecialStr(",", commaNode.beginLine, commaNode.beginColumn), true);
         }
         return exprs;
     }
-    
-    
-    protected final SimpleNode makeTuple(SimpleNode n)  throws ParseException{
+
+    protected final SimpleNode makeTuple(SimpleNode n) throws ParseException {
         try {
             boolean endsWithComma = false;
             //There's a detail with tuples: if we have a tuple with a single element and it doesn't end with a comma,
             //it's not actually treated as a tuple, but as its only item.
-            if (stack.nodeArity() > 0 && stack.peekNode().getId() == JJTCOMMA){
+            if (stack.nodeArity() > 0 && stack.peekNode().getId() == JJTCOMMA) {
                 endsWithComma = true;
             }
-            if(!endsWithComma && stack.nodeArity() == 1){
-                java.util.List<Object> tokenSourceSpecialTokensList = this.stack.getGrammar().getTokenSourceSpecialTokensList();
-                for(Object object:tokenSourceSpecialTokensList){
-                    if(object instanceof Object[]){
+            if (!endsWithComma && stack.nodeArity() == 1) {
+                java.util.List<Object> tokenSourceSpecialTokensList = this.stack.getGrammar()
+                        .getTokenSourceSpecialTokensList();
+                for (Object object : tokenSourceSpecialTokensList) {
+                    if (object instanceof Object[]) {
                         Object[] objects = (Object[]) object;
-                        object=objects[0];
+                        object = objects[0];
                     }
-                    if(object instanceof ISpecialStr){
+                    if (object instanceof ISpecialStr) {
                         ISpecialStr specialStr = (ISpecialStr) object;
-                        if(specialStr.toString().equals(",")){
+                        if (specialStr.toString().equals(",")) {
                             endsWithComma = true;
                             break;
                         }
                     }
                 }
             }
-            
+
             final exprType[] exp = makeExprs();
             Tuple t = new Tuple(exp, Tuple.Load, endsWithComma);
             addSpecialsAndClearOriginal(n, t);
             return t;
         } catch (ClassCastException e) {
-            if(e.getMessage().equals(ExtraArgValue.class.getName())){
+            if (e.getMessage().equals(ExtraArgValue.class.getName())) {
                 this.stack.getGrammar().addAndReport(
-                        new ParseException("Token: '*' is not expected inside tuples.", lastPop), 
+                        new ParseException("Token: '*' is not expected inside tuples.", lastPop),
                         "Treated class cast exception on tuple");
             }
-            this.stack.getGrammar().addAndReport(
-                    new ParseException("Syntax error while detecting tuple.", lastPop), 
+            this.stack.getGrammar().addAndReport(new ParseException("Syntax error while detecting tuple.", lastPop),
                     "Treated class cast exception on tuple");
-            
-            while(stack.nodeArity() > 0){
+
+            while (stack.nodeArity() > 0) {
                 //clear whatever we had in this construct...
                 stack.popNode();
             }
-            
+
             //recover properly!
             return new Tuple(new exprType[0], Tuple.Load, false);
 
@@ -199,9 +198,9 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
     protected final void setParentForFuncOrClass(stmtType[] body, stmtType classDef) {
         for (stmtType b : body) {
             if (b instanceof ClassDef) {
-                ((ClassDef)b).parent = classDef;
-            }else if(b instanceof FunctionDef){
-                ((FunctionDef)b).parent = classDef;
+                ((ClassDef) b).parent = classDef;
+            } else if (b instanceof FunctionDef) {
+                ((FunctionDef) b).parent = classDef;
             }
         }
     }
@@ -213,16 +212,16 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
     protected final stmtType[] getBodyAndSpecials() {
         final Suite suite = (Suite) stack.popNode();
         stmtType[] body = suite.body;
-        if(body == null){
+        if (body == null) {
             //This can happen when we have errors in the grammar.
             body = new stmtType[0];
         }
-        if(body.length > 0){
+        if (body.length > 0) {
             //Check size (this can happen when parsing wrong grammar files)
             if (suite.specialsBefore != null && suite.specialsBefore.size() > 0) {
                 body[0].getSpecialsBefore().addAll(suite.specialsBefore);
             }
-    
+
             if (suite.specialsAfter != null && suite.specialsAfter.size() > 0) {
                 body[body.length - 1].getSpecialsAfter().addAll(suite.specialsAfter);
             }
@@ -256,7 +255,7 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
 
             } else if (node instanceof keywordType) {
                 keywordType keyword = (keywordType) node;
-                if(starargs == null){
+                if (starargs == null) {
                     keyword.afterstarargs = true;
                 }
                 keywordsl.add(keyword);
@@ -266,11 +265,13 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
                 argsl.add(node);
 
             } else if (node instanceof Comprehension) {
-                argsl.add(new ListComp((exprType) iter.next(), new comprehensionType[] { (comprehensionType) node }, ListComp.EmptyCtx));
+                argsl.add(new ListComp((exprType) iter.next(), new comprehensionType[] { (comprehensionType) node },
+                        ListComp.EmptyCtx));
 
             } else if (node instanceof ComprehensionCollection) {
                 //list comp (2 nodes: comp type and the elt -- what does elt mean by the way?) 
-                argsl.add(new ListComp((exprType) iter.next(), ((ComprehensionCollection) node).getGenerators(), ListComp.EmptyCtx));
+                argsl.add(new ListComp((exprType) iter.next(), ((ComprehensionCollection) node).getGenerators(),
+                        ListComp.EmptyCtx));
 
             } else if (node instanceof decoratorsType) {
                 func = (exprType) stack.popNode();//the func is the last thing in the stack
@@ -302,30 +303,26 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
     protected final boolean isArg(SimpleNode n) {
         return n instanceof ExtraArg || n instanceof DefaultArg || n instanceof keywordType;
     }
-    
-    
+
     protected final SimpleNode defaultCreateDictionary(int arity) {
         boolean isDictComplete = arity % 2 == 0;
-        
+
         int l = arity / 2;
         exprType[] keys;
-        if(isDictComplete){
+        if (isDictComplete) {
             keys = new exprType[l];
-        }else{
-            keys = new exprType[l+1]; //we have 1 additional entry in the keys (parse error actually, but let's recover at this point!)
+        } else {
+            keys = new exprType[l + 1]; //we have 1 additional entry in the keys (parse error actually, but let's recover at this point!)
         }
         exprType[] vals = new exprType[l];
         for (int i = l - 1; i >= 0; i--) {
             vals[i] = (exprType) stack.popNode();
             keys[i] = (exprType) stack.popNode();
         }
-        if(!isDictComplete){
-            keys[keys.length-1] = (exprType) stack.popNode();
+        if (!isDictComplete) {
+            keys[keys.length - 1] = (exprType) stack.popNode();
         }
         return new Dict(keys, vals);
     }
-
-
-
 
 }

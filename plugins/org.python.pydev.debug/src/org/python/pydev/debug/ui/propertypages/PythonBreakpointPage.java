@@ -41,7 +41,7 @@ import org.python.pydev.debug.model.PyBreakpoint;
 import org.python.pydev.debug.model.PyDebugModelPresentation;
 
 public class PythonBreakpointPage extends PropertyPage {
-    
+
     private Button fEnableConditionButton;
     private BreakpointConditionEditor fConditionEditor;
     private Label fConditionIsTrue;
@@ -53,8 +53,8 @@ public class PythonBreakpointPage extends PropertyPage {
     // Method breakpoint editors
     private Button fMethodEntry;
     private Button fMethodExit;
-    
-    private static final String fgMethodBreakpointError= "Must suspend on method entry or exit";//$NON-NLS-1$
+
+    private static final String fgMethodBreakpointError = "Must suspend on method entry or exit";//$NON-NLS-1$
 
     protected Button fEnabledButton;
     protected Button fHitCountButton;
@@ -62,15 +62,15 @@ public class PythonBreakpointPage extends PropertyPage {
     protected Button fSuspendVMButton;
     protected Text fHitCountText;
 
-    protected List fErrorMessages= new ArrayList();
-    
+    protected List fErrorMessages = new ArrayList();
+
     /**
      * Attribute used to indicate that a breakpoint should be deleted
      * when cancel is pressed.
      */
-    public static final String ATTR_DELETE_ON_CANCEL = PyDebugModelPresentation.PY_DEBUG_MODEL_ID + ".ATTR_DELETE_ON_CANCEL";  //$NON-NLS-1$
+    public static final String ATTR_DELETE_ON_CANCEL = PyDebugModelPresentation.PY_DEBUG_MODEL_ID
+            + ".ATTR_DELETE_ON_CANCEL"; //$NON-NLS-1$
 
-    
     @Override
     protected Control createContents(Composite parent) {
         noDefaultAndApplyButton();
@@ -82,7 +82,7 @@ public class PythonBreakpointPage extends PropertyPage {
             createTypeSpecificEditors(mainComposite);
             //createSuspendPolicyEditor(mainComposite); // Suspend policy is considered uncommon. Add it last.
         } catch (CoreException e) {
-            PydevDebugPlugin.log(IStatus.ERROR,e.getLocalizedMessage(),e);
+            PydevDebugPlugin.log(IStatus.ERROR, e.getLocalizedMessage(), e);
         }
         setValid(true);
         // if this breakpoint is being created, change the shell title to indicate 'creation'
@@ -90,16 +90,21 @@ public class PythonBreakpointPage extends PropertyPage {
             if (getBreakpoint().getMarker().getAttribute(ATTR_DELETE_ON_CANCEL) != null) {
                 getShell().addShellListener(new ShellListener() {
                     public void shellActivated(ShellEvent e) {
-                        Shell shell = (Shell)e.getSource();
-                        shell.setText(MessageFormat.format("Create Breakpoint for {0}", new String[]{getName(getBreakpoint())})); //$NON-NLS-1$
+                        Shell shell = (Shell) e.getSource();
+                        shell.setText(MessageFormat.format(
+                                "Create Breakpoint for {0}", new String[] { getName(getBreakpoint()) })); //$NON-NLS-1$
                         shell.removeShellListener(this);
                     }
+
                     public void shellClosed(ShellEvent e) {
                     }
+
                     public void shellDeactivated(ShellEvent e) {
                     }
+
                     public void shellDeiconified(ShellEvent e) {
                     }
+
                     public void shellIconified(ShellEvent e) {
                     }
                 });
@@ -116,17 +121,17 @@ public class PythonBreakpointPage extends PropertyPage {
      * @return the configured composite
      */
     protected Composite createComposite(Composite parent, int numColumns) {
-        Composite composit= new Composite(parent, SWT.NONE);
+        Composite composit = new Composite(parent, SWT.NONE);
         composit.setFont(parent.getFont());
-        GridLayout layout= new GridLayout();
-        layout.numColumns= numColumns;
-        layout.marginWidth= 0;
-        layout.marginHeight= 0;
+        GridLayout layout = new GridLayout();
+        layout.numColumns = numColumns;
+        layout.marginWidth = 0;
+        layout.marginHeight = 0;
         composit.setLayout(layout);
         composit.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         return composit;
     }
-    
+
     /**
      * Creates a fully configured label with the given text.
      * @param parent the parent composite
@@ -134,20 +139,20 @@ public class PythonBreakpointPage extends PropertyPage {
      * @return a fully configured label
      */
     protected Label createLabel(Composite parent, String text) {
-        Label label= new Label(parent, SWT.NONE);
+        Label label = new Label(parent, SWT.NONE);
         label.setText(text);
         label.setFont(parent.getFont());
         label.setLayoutData(new GridData());
         return label;
     }
-    
+
     /**
      * Creates the labels displayed for the breakpoint.
      * @param parent
      */
     protected void createLabels(Composite parent) {
-        PyBreakpoint breakpoint= (PyBreakpoint) getElement();
-        Composite labelComposite= createComposite(parent, 2);
+        PyBreakpoint breakpoint = (PyBreakpoint) getElement();
+        Composite labelComposite = createComposite(parent, 2);
         String typeName = breakpoint.getFile();
         if (typeName != null) {
             createLabel(labelComposite, "File"); //$NON-NLS-1$
@@ -155,24 +160,24 @@ public class PythonBreakpointPage extends PropertyPage {
         }
         createTypeSpecificLabels(labelComposite);
     }
-    
+
     /**
      * Creates the button to toggle enablement of the breakpoint
      * @param parent
      * @throws CoreException
      */
     protected void createEnabledButton(Composite parent) throws CoreException {
-        fEnabledButton= createCheckButton(parent, "&Enabled"); //$NON-NLS-1$
+        fEnabledButton = createCheckButton(parent, "&Enabled"); //$NON-NLS-1$
         fEnabledButton.setSelection(getBreakpoint().isEnabled());
     }
-    
+
     /**
      * Allows subclasses to add type specific labels to the common Java
      * breakpoint page.
      * @param parent
      */
     protected void createTypeSpecificLabels(Composite parent) {
-//         Line number
+        //         Line number
         PyBreakpoint breakpoint = (PyBreakpoint) getBreakpoint();
         StringBuffer lineNumber = new StringBuffer(4);
         try {
@@ -181,10 +186,10 @@ public class PythonBreakpointPage extends PropertyPage {
                 lineNumber.append(lNumber);
             }
         } catch (CoreException ce) {
-            PydevDebugPlugin.log(IStatus.ERROR,ce.getLocalizedMessage(),ce);
+            PydevDebugPlugin.log(IStatus.ERROR, ce.getLocalizedMessage(), ce);
         }
         if (lineNumber.length() > 0) {
-            createLabel(parent, "&Line Number:"); 
+            createLabel(parent, "&Line Number:");
             createLabel(parent, lineNumber.toString());
         }
         // Member
@@ -207,19 +212,19 @@ public class PythonBreakpointPage extends PropertyPage {
             PydevDebugPlugin.log(IStatus.ERROR,e.getLocalizedMessage(),exception);
         }*/
     }
+
     /**
     * Allows subclasses to add type specific editors to the common Java
     * breakpoint page.
     * @param parent
     */
-   protected void createTypeSpecificEditors(Composite parent) throws CoreException {
-        PyBreakpoint breakpoint= (PyBreakpoint) getBreakpoint();
+    protected void createTypeSpecificEditors(Composite parent) throws CoreException {
+        PyBreakpoint breakpoint = (PyBreakpoint) getBreakpoint();
         if (breakpoint.supportsCondition()) {
             createConditionEditor(parent);
         }
-   }
-   
-   
+    }
+
     private void validateMethodBreakpoint() {
         if (fEnabledButton.getSelection() && !(fMethodEntry.getSelection() || fMethodExit.getSelection())) {
             addErrorMessage(fgMethodBreakpointError);
@@ -227,7 +232,7 @@ public class PythonBreakpointPage extends PropertyPage {
             removeErrorMessage(fgMethodBreakpointError);
         }
     }
-   
+
     /**
      * Creates a fully configured check button with the given text.
      * @param parent the parent composite
@@ -235,13 +240,13 @@ public class PythonBreakpointPage extends PropertyPage {
      * @return a fully configured check button
      */
     protected Button createCheckButton(Composite parent, String text) {
-        Button button= new Button(parent, SWT.CHECK | SWT.LEFT);
+        Button button = new Button(parent, SWT.CHECK | SWT.LEFT);
         button.setText(text);
         button.setFont(parent.getFont());
         button.setLayoutData(new GridData());
         return button;
     }
-    
+
     /**
      * Returns the breakpoint that this preference page configures
      * @return the breakpoint this page configures
@@ -249,7 +254,7 @@ public class PythonBreakpointPage extends PropertyPage {
     protected PyBreakpoint getBreakpoint() {
         return (PyBreakpoint) getElement();
     }
-   
+
     /**
      * Returns the name of the given element.
      * 
@@ -258,15 +263,13 @@ public class PythonBreakpointPage extends PropertyPage {
      * @return the name of the element
      */
     private String getName(IAdaptable element) {
-        IWorkbenchAdapter adapter = (IWorkbenchAdapter) element
-                .getAdapter(IWorkbenchAdapter.class);
+        IWorkbenchAdapter adapter = (IWorkbenchAdapter) element.getAdapter(IWorkbenchAdapter.class);
         if (adapter != null) {
             return adapter.getLabel(element);
-        } 
+        }
         return "";//$NON-NLS-1$
-    }    
-    
-    
+    }
+
     /**
      * Store the breakpoint properties.
      * @see org.eclipse.jface.preference.IPreferencePage#performOk()
@@ -279,7 +282,7 @@ public class PythonBreakpointPage extends PropertyPage {
                 if (delOnCancel) {
                     // if this breakpoint is being created, remove the "delete on cancel" attribute
                     // and register with the breakpoint manager
-                    breakpoint.getMarker().setAttribute(ATTR_DELETE_ON_CANCEL, (String)null);
+                    breakpoint.getMarker().setAttribute(ATTR_DELETE_ON_CANCEL, (String) null);
                     breakpoint.setRegistered(true);
                 }
                 doStore();
@@ -289,11 +292,11 @@ public class PythonBreakpointPage extends PropertyPage {
             ResourcesPlugin.getWorkspace().run(wr, null, 0, null);
         } catch (CoreException e) {
             PydevDebugPlugin.errorDialog("An exception occurred while saving breakpoint properties.", e); //$NON-NLS-1$
-            PydevDebugPlugin.log(IStatus.ERROR,e.getLocalizedMessage(),e);
+            PydevDebugPlugin.log(IStatus.ERROR, e.getLocalizedMessage(), e);
         }
         return super.performOk();
     }
-    
+
     /**
      * Check to see if the breakpoint should be deleted.
      */
@@ -308,22 +311,21 @@ public class PythonBreakpointPage extends PropertyPage {
         }
         return super.performCancel();
     }
-    
+
     /**
      * Stores the values configured in this page. This method
      * should be called from within a workspace runnable to
      * reduce the number of resource deltas.
      */
     protected void doStore() throws CoreException {
-        PyBreakpoint breakpoint= getBreakpoint();
+        PyBreakpoint breakpoint = getBreakpoint();
         storeEnabled(breakpoint);
-        
-        
+
         if (fConditionEditor != null) {
-            boolean enableCondition= fEnableConditionButton.getSelection();
+            boolean enableCondition = fEnableConditionButton.getSelection();
             String condition = fConditionEditor.getCondition();
             //boolean suspendOnTrue= fConditionIsTrue.getSelection();
-            boolean suspendOnTrue= true;
+            boolean suspendOnTrue = true;
             if (breakpoint.isConditionEnabled() != enableCondition) {
                 breakpoint.setConditionEnabled(enableCondition);
             }
@@ -332,7 +334,7 @@ public class PythonBreakpointPage extends PropertyPage {
             }
         }
     }
-    
+
     /**
      * Stores the value of the enabled state in the breakpoint.
      * @param breakpoint the breakpoint to update
@@ -340,10 +342,10 @@ public class PythonBreakpointPage extends PropertyPage {
      *  the enabled state
      */
     private void storeEnabled(PyBreakpoint breakpoint) throws CoreException {
-        boolean enabled= fEnabledButton.getSelection();
+        boolean enabled = fEnabledButton.getSelection();
         breakpoint.setEnabled(enabled);
     }
-    
+
     /**
      * Creates the controls that allow the user to specify the breakpoint's
      * condition
@@ -354,56 +356,56 @@ public class PythonBreakpointPage extends PropertyPage {
         PyBreakpoint breakpoint = (PyBreakpoint) getBreakpoint();
 
         String label = null;
-        ICommandManager commandManager= PlatformUI.getWorkbench().getCommandSupport().getCommandManager();
+        ICommandManager commandManager = PlatformUI.getWorkbench().getCommandSupport().getCommandManager();
         ICommand command = commandManager.getCommand("org.eclipse.ui.edit.text.contentAssist.proposals"); //$NON-NLS-1$
         if (command != null) {
             List keyBindings = command.getKeySequenceBindings();
             if (keyBindings != null && keyBindings.size() > 0) {
-                IKeySequenceBinding binding = (IKeySequenceBinding)keyBindings.get(0);
-                label = MessageFormat.format("E&nable Condition", new String[] {binding.getKeySequence().format()}); //$NON-NLS-1$
-            } 
+                IKeySequenceBinding binding = (IKeySequenceBinding) keyBindings.get(0);
+                label = MessageFormat.format("E&nable Condition", new String[] { binding.getKeySequence().format() }); //$NON-NLS-1$
+            }
         }
 
         if (label == null) {
             label = "E&nable Condition (code assist not available)"; //$NON-NLS-1$
         }
-        Composite conditionComposite= new Group(parent, SWT.NONE);
+        Composite conditionComposite = new Group(parent, SWT.NONE);
         conditionComposite.setFont(parent.getFont());
         conditionComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         conditionComposite.setLayout(new GridLayout());
-        fEnableConditionButton= createCheckButton(conditionComposite, label);
+        fEnableConditionButton = createCheckButton(conditionComposite, label);
         fEnableConditionButton.setSelection(breakpoint.isConditionEnabled());
         fEnableConditionButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 setConditionEnabled(fEnableConditionButton.getSelection());
             }
         });
-        
+
         fConditionEditor = new BreakpointConditionEditor(conditionComposite, this); //$NON-NLS-1$
-        
+
         //fSuspendWhenLabel= createLabel(conditionComposite, "Suspend when:");
         //fConditionIsTrue= createRadioButton(conditionComposite, "condition is \'tr&ue\'"); 
         //fConditionIsTrue= createLabel(conditionComposite, "condition is \'tr&ue\'");
         //fConditionHasChanged= createRadioButton(conditionComposite, "value of condition ch&anges");
-//        if (breakpoint.isConditionSuspendOnTrue()) {
-//            fConditionIsTrue.setSelection(true);
-//        } else {
-//            fConditionHasChanged.setSelection(true);
-//        }
+        //        if (breakpoint.isConditionSuspendOnTrue()) {
+        //            fConditionIsTrue.setSelection(true);
+        //        } else {
+        //            fConditionHasChanged.setSelection(true);
+        //        }
         setConditionEnabled(fEnableConditionButton.getSelection());
     }
-    
+
     /**
      * Sets the enabled state of the condition editing controls.
      * @param enabled
      */
     private void setConditionEnabled(boolean enabled) {
         fConditionEditor.setEnabled(enabled);
-//        fSuspendWhenLabel.setEnabled(enabled);
-//        fConditionIsTrue.setEnabled(enabled);
+        //        fSuspendWhenLabel.setEnabled(enabled);
+        //        fConditionIsTrue.setEnabled(enabled);
         //fConditionHasChanged.setEnabled(enabled);
     }
-    
+
     /**
      * Overridden here to increase visibility
      * @see org.eclipse.jface.dialogs.DialogPage#convertHeightInCharsToPixels(int)
@@ -411,7 +413,7 @@ public class PythonBreakpointPage extends PropertyPage {
     public int convertHeightInCharsToPixels(int chars) {
         return super.convertHeightInCharsToPixels(chars);
     }
-    
+
     /**
      * Overridden here to increase visibility
      * @see org.eclipse.jface.dialogs.DialogPage#convertWidthInCharsToPixels(int)
@@ -419,7 +421,7 @@ public class PythonBreakpointPage extends PropertyPage {
     public int convertWidthInCharsToPixels(int chars) {
         return super.convertWidthInCharsToPixels(chars);
     }
-    
+
     /**
      * Adds the given error message to the errors currently displayed on this page.
      * The page displays the most recently added error message.
@@ -437,7 +439,7 @@ public class PythonBreakpointPage extends PropertyPage {
         setErrorMessage(message);
         setValid(false);
     }
-    
+
     /**
      * Removes the given error message from the errors currently displayed on this page.
      * When an error message is removed, the page displays the error that was added
@@ -454,7 +456,7 @@ public class PythonBreakpointPage extends PropertyPage {
             setErrorMessage((String) fErrorMessages.get(fErrorMessages.size() - 1));
         }
     }
-    
+
     /**
      * Creates a fully configured radio button with the given text.
      * @param parent the parent composite
@@ -462,7 +464,7 @@ public class PythonBreakpointPage extends PropertyPage {
      * @return a fully configured radio button
      */
     protected Button createRadioButton(Composite parent, String text) {
-        Button button= new Button(parent, SWT.RADIO | SWT.LEFT);
+        Button button = new Button(parent, SWT.RADIO | SWT.LEFT);
         button.setText(text);
         button.setFont(parent.getFont());
         button.setLayoutData(new GridData());

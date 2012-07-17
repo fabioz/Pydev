@@ -10,12 +10,12 @@ import junit.framework.TestCase;
 
 import org.python.pydev.core.docutils.StringUtils;
 
-public abstract class TestCaseUtils extends TestCase{
-    
+public abstract class TestCaseUtils extends TestCase {
+
     public static final boolean DEBUG = false;
-    
+
     public static void assertContentsEqual(String expected, String generated) {
-        if(DEBUG){
+        if (DEBUG) {
             System.out.println(generated);
         }
         assertEquals(StringUtils.replaceNewLines(expected, "\n"), StringUtils.replaceNewLines(generated, "\n"));

@@ -22,8 +22,7 @@ class BytecodeLoader2 extends SecureClassLoader implements Loader {
     }
 
     // override from abstract base class
-    protected Class loadClass(String name, boolean resolve)
-            throws ClassNotFoundException {
+    protected Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
         Class c = findLoadedClass(name);
         if (c != null) {
             return c;
@@ -32,8 +31,7 @@ class BytecodeLoader2 extends SecureClassLoader implements Loader {
     }
 
     public Class loadClassFromBytes(String name, byte[] data) {
-        Class c = defineClass(name, data, 0, data.length, this.getClass()
-                .getProtectionDomain());
+        Class c = defineClass(name, data, 0, data.length, this.getClass().getProtectionDomain());
         resolveClass(c);
         BytecodeLoader.compileClass(c);
         return c;

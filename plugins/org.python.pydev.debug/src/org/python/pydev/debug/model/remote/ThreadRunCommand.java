@@ -18,7 +18,7 @@ import org.python.pydev.debug.model.AbstractDebugTarget;
 public class ThreadRunCommand extends AbstractDebuggerCommand {
 
     String thread;
-    
+
     public ThreadRunCommand(AbstractDebugTarget debugger, String thread) {
         super(debugger);
         this.thread = thread;

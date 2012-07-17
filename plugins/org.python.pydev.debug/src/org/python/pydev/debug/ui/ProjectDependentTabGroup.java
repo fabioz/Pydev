@@ -17,12 +17,8 @@ public class ProjectDependentTabGroup extends AbstractLaunchConfigurationTabGrou
 
     public void createTabs(ILaunchConfigurationDialog arg0, String arg1) {
         MainModuleTab mainModuleTab = new MainModuleTab();
-        ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
-                mainModuleTab, 
-                new ArgumentsTab(mainModuleTab),
-                new InterpreterTab(),
-                new RefreshTab(), 
-                new EnvironmentTab(), 
+        ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] { mainModuleTab,
+                new ArgumentsTab(mainModuleTab), new InterpreterTab(), new RefreshTab(), new EnvironmentTab(),
                 new CommonTab() };
         setTabs(tabs);
     }

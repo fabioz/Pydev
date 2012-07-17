@@ -37,8 +37,9 @@ public interface IPyDevCompletionParticipant {
      * @see org.eclipse.jface.text.contentassist.ICompletionProposal
      * @see org.python.pydev.core.IToken
      */
-    Collection<Object> getGlobalCompletions(CompletionRequest request, ICompletionState state) throws MisconfigurationException;
-    
+    Collection<Object> getGlobalCompletions(CompletionRequest request, ICompletionState state)
+            throws MisconfigurationException;
+
     /**
      * Called when a completion is requested within a string.
      * @throws MisconfigurationException 
@@ -47,7 +48,8 @@ public interface IPyDevCompletionParticipant {
      * @see org.eclipse.jface.text.contentassist.ICompletionProposal
      * @see org.python.pydev.core.IToken
      */
-    Collection<Object> getStringGlobalCompletions(CompletionRequest request, ICompletionState state) throws MisconfigurationException;
+    Collection<Object> getStringGlobalCompletions(CompletionRequest request, ICompletionState state)
+            throws MisconfigurationException;
 
     /**
      * Called when a completion is requested for a method parameter.
@@ -63,9 +65,9 @@ public interface IPyDevCompletionParticipant {
      * @see org.eclipse.jface.text.contentassist.ICompletionProposal
      * @see org.python.pydev.core.IToken
      */
-    Collection<IToken> getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope, Collection<IToken> interfaceForLocal);
-    
-    
+    Collection<IToken> getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,
+            Collection<IToken> interfaceForLocal);
+
     /**
      * Called when a completion is requested for some token whose type we don't know about
      * (excluding parameters -- that's handled at getCompletionsForMethodParameter)
@@ -83,9 +85,9 @@ public interface IPyDevCompletionParticipant {
      * @see org.eclipse.jface.text.contentassist.ICompletionProposal
      * @see org.python.pydev.core.IToken
      */
-    Collection<IToken> getCompletionsForTokenWithUndefinedType(ICompletionState state, ILocalScope localScope, Collection<IToken> interfaceForLocal);
-    
-    
+    Collection<IToken> getCompletionsForTokenWithUndefinedType(ICompletionState state, ILocalScope localScope,
+            Collection<IToken> interfaceForLocal);
+
     /**
      * getCompletionsForMethodParameter is used instead (the name of the method was misleading)
      * 
@@ -93,7 +95,7 @@ public interface IPyDevCompletionParticipant {
      * 
      * @deprecated
      */
-    Collection<Object> getArgsCompletion(ICompletionState state, ILocalScope localScope, Collection<IToken> interfaceForLocal);
-
+    Collection<Object> getArgsCompletion(ICompletionState state, ILocalScope localScope,
+            Collection<IToken> interfaceForLocal);
 
 }

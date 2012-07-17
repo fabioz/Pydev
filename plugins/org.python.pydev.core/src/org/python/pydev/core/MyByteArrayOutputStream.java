@@ -13,37 +13,36 @@ import java.io.ByteArrayOutputStream;
  * 
  * Note that it's not thread-safe!
  */
-public class MyByteArrayOutputStream extends ByteArrayOutputStream{
+public class MyByteArrayOutputStream extends ByteArrayOutputStream {
 
     public MyByteArrayOutputStream() {
         super();
     }
-    
+
     public MyByteArrayOutputStream(int i) {
         super(i);
     }
 
-    public int deleteFirst(){
+    public int deleteFirst() {
         byte ret = this.buf[0];
-        System.arraycopy(this.buf, 1, this.buf, 0, this.buf.length-1);
+        System.arraycopy(this.buf, 1, this.buf, 0, this.buf.length - 1);
         this.count--;
         return ret;
     }
 
-    public int delete(byte[] b, int off, int len){
-        if(this.size() < len){
+    public int delete(byte[] b, int off, int len) {
+        if (this.size() < len) {
             len = this.size();
         }
-        if(len == 0){
+        if (len == 0) {
             return 0;
         }
         System.arraycopy(this.buf, 0, b, off, len);
         int diff = this.count - len;
-        
+
         System.arraycopy(this.buf, len, this.buf, 0, diff);
         this.count -= len;
         return len;
     }
-
 
 }

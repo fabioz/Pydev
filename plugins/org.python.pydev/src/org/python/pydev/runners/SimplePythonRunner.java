@@ -38,7 +38,6 @@ import org.python.pydev.plugin.nature.PythonNature;
  */
 public class SimplePythonRunner extends SimpleRunner {
 
-    
     /**
      * Execute the script specified with the interpreter for a given project 
      * 
@@ -49,9 +48,11 @@ public class SimplePythonRunner extends SimpleRunner {
      * 
      * @return a string with the output of the process (stdout)
      */
-    public Tuple<String,String> runAndGetOutputFromPythonScript(String interpreter, String script, String[] args, File workingDir, IProject project) {
+    public Tuple<String, String> runAndGetOutputFromPythonScript(String interpreter, String script, String[] args,
+            File workingDir, IProject project) {
         String[] parameters = addInterpreterToArgs(interpreter, script, args);
-        return runAndGetOutput(parameters, workingDir, PythonNature.getPythonNature(project), new NullProgressMonitor(), null);
+        return runAndGetOutput(parameters, workingDir, PythonNature.getPythonNature(project),
+                new NullProgressMonitor(), null);
     }
 
     /**
@@ -61,7 +62,7 @@ public class SimplePythonRunner extends SimpleRunner {
      */
     public static String[] makeExecutableCommandStr(String interpreter, String script, String[] args) {
         String[] s = addInterpreterToArgs(interpreter, script, args);
-        
+
         List<String> asList = new ArrayList<String>(Arrays.asList(s));
         asList.addAll(Arrays.asList(args));
 
@@ -84,10 +85,11 @@ public class SimplePythonRunner extends SimpleRunner {
      * 
      * @return the stdout of the run (if any)
      */
-    public Tuple<String,String> runAndGetOutputWithInterpreter(String interpreter, String script, String[] args, File workingDir, IProject project, IProgressMonitor monitor, String encoding) {
+    public Tuple<String, String> runAndGetOutputWithInterpreter(String interpreter, String script, String[] args,
+            File workingDir, IProject project, IProgressMonitor monitor, String encoding) {
         monitor.setTaskName("Mounting executable string...");
         monitor.worked(5);
-        
+
         String[] s = preparePythonCallParameters(interpreter, script, args);
         monitor.worked(1);
         return runAndGetOutput(s, workingDir, PythonNature.getPythonNature(project), monitor, encoding);
@@ -103,21 +105,20 @@ public class SimplePythonRunner extends SimpleRunner {
      */
     public static String[] preparePythonCallParameters(String interpreter, String script, String[] args) {
         File file = new File(script);
-        if(file.exists() == false){
-            throw new RuntimeException("The script passed for execution ("+script+") does not exist.");
+        if (file.exists() == false) {
+            throw new RuntimeException("The script passed for execution (" + script + ") does not exist.");
         }
-        
-        //Note that we don't check it (interpreter could be just the string 'python')
-//        file = new File(interpreter);
-//        if(file.exists() == false){
-//            throw new RuntimeException("The interpreter passed for execution ("+interpreter+") does not exist.");
-//        }
 
-        
+        //Note that we don't check it (interpreter could be just the string 'python')
+        //        file = new File(interpreter);
+        //        if(file.exists() == false){
+        //            throw new RuntimeException("The interpreter passed for execution ("+interpreter+") does not exist.");
+        //        }
+
         if (args == null) {
             args = new String[0];
         }
-        
+
         String[] s = new String[3 + args.length];
         s[0] = interpreter;
         s[1] = "-u";
@@ -126,7 +127,4 @@ public class SimplePythonRunner extends SimpleRunner {
         return s;
     }
 
-
-
-    
 }

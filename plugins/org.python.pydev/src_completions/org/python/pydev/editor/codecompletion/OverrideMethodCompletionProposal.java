@@ -37,7 +37,7 @@ import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
  * @author fabioz
  *
  */
-public class OverrideMethodCompletionProposal extends AbstractPyCompletionProposalExtension2{
+public class OverrideMethodCompletionProposal extends AbstractPyCompletionProposalExtension2 {
 
     private final FunctionDef functionDef;
     private final String parentClassName;
@@ -48,7 +48,7 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
         super("", replacementOffset, replacementLength, cursorPosition, IPyCompletionProposal.PRIORITY_CREATE);
         this.fImage = image;
         this.functionDef = functionDef;
-        this.fDisplayString = ((NameTok)functionDef.name).id+" (Override method in "+parentClassName+")";
+        this.fDisplayString = ((NameTok) functionDef.name).id + " (Override method in " + parentClassName + ")";
         this.parentClassName = parentClassName;
         this.currentClassName = currentClassName;
     }
@@ -66,16 +66,16 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
     public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
         IDocument document = viewer.getDocument();
         int finalOffset = applyOnDocument(viewer, document, trigger, stateMask, offset);
-        if(finalOffset >= 0){
+        if (finalOffset >= 0) {
             try {
                 PySelection ps = new PySelection(document, finalOffset);
                 int firstCharPosition = PySelection.getFirstCharPosition(ps.getLine());
                 int lineOffset = ps.getLineOffset();
-                int location = lineOffset+firstCharPosition;
-                int len = finalOffset-location;
+                int location = lineOffset + firstCharPosition;
+                int len = finalOffset - location;
                 fCursorPosition = location;
                 fReplacementLength = len;
-                
+
             } catch (Exception e) {
                 Log.log(e);
             }
@@ -86,28 +86,28 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
     public int applyOnDocument(ITextViewer viewer, IDocument document, char trigger, int stateMask, int offset) {
         IGrammarVersionProvider versionProvider = null;
         PyEdit edit = null;
-        if(viewer instanceof PySourceViewer){
+        if (viewer instanceof PySourceViewer) {
             PySourceViewer pySourceViewer = (PySourceViewer) viewer;
             versionProvider = edit = pySourceViewer.getEdit();
-        }else{
+        } else {
             versionProvider = new IGrammarVersionProvider() {
-                
+
                 public int getGrammarVersion() throws MisconfigurationException {
                     return IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
                 }
             };
         }
         String delimiter = PySelection.getDelimiter(document);
-        
+
         PyAstFactory factory = new PyAstFactory(new AdapterPrefs(delimiter, versionProvider));
         stmtType overrideBody = factory.createOverrideBody(this.functionDef, parentClassName, currentClassName); //Note that the copy won't have a parent.
-        
+
         FunctionDef functionDef = this.functionDef.createCopy(false);
-        functionDef.body = new stmtType[]{overrideBody!=null?overrideBody:new Pass()};
-        
-        try{
+        functionDef.body = new stmtType[] { overrideBody != null ? overrideBody : new Pass() };
+
+        try {
             MakeAstValidForPrettyPrintingVisitor.makeValid(functionDef);
-        }catch(Exception e){
+        } catch (Exception e) {
             Log.log(e);
         }
         String printed = printAst(edit, functionDef, delimiter);
@@ -118,11 +118,11 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
             int defOffset = ps.getLineOffset() + defIndex;
             printed = StringUtils.indentTo(printed, lineContentsToCursor.substring(0, defIndex), false);
             printed = StringUtils.rightTrim(printed);
-            
+
             this.fLen += offset - defOffset;
 
             document.replace(defOffset, this.fLen, printed);
-            return defOffset+printed.length();
+            return defOffset + printed.length();
         } catch (BadLocationException x) {
             // ignore
         }
@@ -131,22 +131,21 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
 
     public static String printAst(PyEdit edit, SimpleNode astToPrint, String lineDelimiter) {
         String str = null;
-        if(astToPrint != null){
+        if (astToPrint != null) {
             IIndentPrefs indentPrefs;
-            if(edit != null){
+            if (edit != null) {
                 indentPrefs = edit.getIndentPrefs();
-            }else{
+            } else {
                 indentPrefs = DefaultIndentPrefs.get();
             }
-            
-            PrettyPrinterPrefsV2 prefsV2 = PrettyPrinterV2.createDefaultPrefs(
-                    edit, indentPrefs, lineDelimiter);
-            
+
+            PrettyPrinterPrefsV2 prefsV2 = PrettyPrinterV2.createDefaultPrefs(edit, indentPrefs, lineDelimiter);
+
             PrettyPrinterV2 prettyPrinterV2 = new PrettyPrinterV2(prefsV2);
-            try{
+            try {
 
                 str = prettyPrinterV2.print(astToPrint);
-            }catch(IOException e){
+            } catch (IOException e) {
                 Log.log(e);
             }
         }
@@ -160,7 +159,7 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
     public char[] getTriggerCharacters() {
         return null;
     }
-    
+
     @Override
     public Point getSelection(IDocument document) {
         return new Point(fCursorPosition, fReplacementLength);

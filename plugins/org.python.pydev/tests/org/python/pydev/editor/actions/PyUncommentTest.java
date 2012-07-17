@@ -26,17 +26,13 @@ public class PyUncommentTest extends TestCase {
         super.tearDown();
     }
 
-    
     public void testUncomment() throws Exception {
-        Document doc = new Document(
-                "#a\n" +
-                "#b");
+        Document doc = new Document("#a\n" + "#b");
         PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
-        assertEquals(new Tuple<Integer, Integer>(0,3), new PyUncomment().perform(ps));
-        
-        String expected = "a\n" +
-                          "b";
+        assertEquals(new Tuple<Integer, Integer>(0, 3), new PyUncomment().perform(ps));
+
+        String expected = "a\n" + "b";
         assertEquals(expected, doc.get());
-        
+
     }
 }

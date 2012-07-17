@@ -43,19 +43,18 @@ import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 /**
  * @author Fabio Zadrozny
  */
-public class CompiledModule extends AbstractModule{
-    
+public class CompiledModule extends AbstractModule {
 
-    public static boolean COMPILED_MODULES_ENABLED = true; 
+    public static boolean COMPILED_MODULES_ENABLED = true;
 
-    public static final boolean TRACE_COMPILED_MODULES = false; 
-    
-    private Map<String, Map<String, IToken> > cache = new HashMap<String, Map<String, IToken>>();
-    
+    public static final boolean TRACE_COMPILED_MODULES = false;
+
+    private Map<String, Map<String, IToken>> cache = new HashMap<String, Map<String, IToken>>();
+
     private static final Definition[] EMPTY_DEFINITION = new Definition[0];
 
     private static final Map<String, String> BUILTIN_REPLACEMENTS = new HashMap<String, String>();
-    static{
+    static {
         BUILTIN_REPLACEMENTS.put("open", "file");
         BUILTIN_REPLACEMENTS.put("dir", "list");
         BUILTIN_REPLACEMENTS.put("filter", "list");
@@ -68,7 +67,7 @@ public class CompiledModule extends AbstractModule{
         BUILTIN_REPLACEMENTS.put("reversed", "list");
         BUILTIN_REPLACEMENTS.put("sorted", "list");
         BUILTIN_REPLACEMENTS.put("zip", "list");
-        
+
         BUILTIN_REPLACEMENTS.put("str.capitalize", "str");
         BUILTIN_REPLACEMENTS.put("str.center", "str");
         BUILTIN_REPLACEMENTS.put("str.decode", "str");
@@ -94,26 +93,26 @@ public class CompiledModule extends AbstractModule{
         BUILTIN_REPLACEMENTS.put("str.upper", "str");
         BUILTIN_REPLACEMENTS.put("str.zfill", "str");
     }
-    
+
     /**
      * These are the tokens the compiled module has.
      */
     private Map<String, IToken> tokens = null;
-    
+
     /**
      * A map with the definitions that have already been found for this compiled module.
      */
     private LRUCache<String, Definition[]> definitionsFoundCache = new LRUCache<String, Definition[]>(30);
-    
+
     private File file;
 
     private final boolean isPythonBuiltin;
-    
+
     @Override
     public File getFile() {
         return file;
     }
-    
+
     public boolean hasFutureImportAbsoluteImportDeclared() {
         return false;
     }
@@ -122,7 +121,7 @@ public class CompiledModule extends AbstractModule{
      * 
      * @param module - module from where to get completions.
      */
-    public CompiledModule(String name, IModulesManager manager){
+    public CompiledModule(String name, IModulesManager manager) {
         this(name, IToken.TYPE_BUILTIN, manager);
     }
 
@@ -131,10 +130,10 @@ public class CompiledModule extends AbstractModule{
      * @param module - module from where to get completions.
      */
     @SuppressWarnings("unchecked")
-    private CompiledModule(String name, int tokenTypes, IModulesManager manager){
+    private CompiledModule(String name, int tokenTypes, IModulesManager manager) {
         super(name);
         isPythonBuiltin = ("__builtin__".equals(name) || "builtins".equals(name));
-        if(COMPILED_MODULES_ENABLED){
+        if (COMPILED_MODULES_ENABLED) {
             try {
                 setTokens(name, manager);
             } catch (Exception e) {
@@ -146,11 +145,11 @@ public class CompiledModule extends AbstractModule{
                         //empty block
                     } //just wait a little before a retry...
                 }
-                
+
                 try {
-                    AbstractShell shell = AbstractShell.getServerShell(manager.getNature(), 
+                    AbstractShell shell = AbstractShell.getServerShell(manager.getNature(),
                             AbstractShell.COMPLETION_SHELL);
-                    synchronized(shell){
+                    synchronized (shell) {
                         shell.clearSocket();
                     }
                     setTokens(name, manager);
@@ -159,12 +158,12 @@ public class CompiledModule extends AbstractModule{
                     Log.log(e2);
                 }
             }
-        }else{
+        } else {
             //not used if not enabled.
             tokens = new HashMap<String, IToken>();
         }
         List<IModulesObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_MODULES_OBSERVER);
-        if(participants != null){
+        if (participants != null) {
             for (IModulesObserver observer : participants) {
                 observer.notifyCompiledModuleCreated(this, manager);
             }
@@ -173,58 +172,58 @@ public class CompiledModule extends AbstractModule{
     }
 
     private void setTokens(String name, IModulesManager manager) throws IOException, Exception, CoreException {
-        if(TRACE_COMPILED_MODULES){
-            Log.log(IStatus.INFO, ("Compiled modules: getting info for:"+name), null);
+        if (TRACE_COMPILED_MODULES) {
+            Log.log(IStatus.INFO, ("Compiled modules: getting info for:" + name), null);
         }
         final IPythonNature nature = manager.getNature();
         AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
-        synchronized(shell){
-            Tuple<String, List<String[]>> completions = shell.getImportCompletions(name, 
-                    manager.getCompletePythonPath(nature.getProjectInterpreter(), 
-                            nature.getRelatedInterpreterManager())); //default
-            
-            if(TRACE_COMPILED_MODULES){
-                Log.log(IStatus.INFO, ("Compiled modules: "+name+" file: "+completions.o1+" found: "+completions.o2.size()+" completions."), null);
+        synchronized (shell) {
+            Tuple<String, List<String[]>> completions = shell.getImportCompletions(name, manager.getCompletePythonPath(
+                    nature.getProjectInterpreter(), nature.getRelatedInterpreterManager())); //default
+
+            if (TRACE_COMPILED_MODULES) {
+                Log.log(IStatus.INFO, ("Compiled modules: " + name + " file: " + completions.o1 + " found: "
+                        + completions.o2.size() + " completions."), null);
             }
             String fPath = completions.o1;
-            if(fPath != null){
-                if(!fPath.equals("None")){
+            if (fPath != null) {
+                if (!fPath.equals("None")) {
                     this.file = new File(fPath);
                 }
-    
+
                 String f = fPath;
-                if(f.toLowerCase().endsWith(".pyc")){
-                    f = f.substring(0, f.length()-1); //remove the c from pyc
+                if (f.toLowerCase().endsWith(".pyc")) {
+                    f = f.substring(0, f.length() - 1); //remove the c from pyc
                     File f2 = new File(f);
-                    if(f2.exists()){
+                    if (f2.exists()) {
                         this.file = f2;
                     }
                 }
             }
             ArrayList<IToken> array = new ArrayList<IToken>();
-            
+
             for (String[] element : completions.o2) {
                 //let's make this less error-prone.
                 try {
                     String o1 = element[0]; //this one is really, really needed
                     String o2 = "";
                     String o3 = "";
-                    
-                    if(element.length > 0){
+
+                    if (element.length > 0) {
                         o2 = element[1];
                     }
-                    
-                    if(element.length > 0){
+
+                    if (element.length > 0) {
                         o3 = element[2];
                     }
-                    
+
                     IToken t;
-                    if(element.length > 0){
+                    if (element.length > 0) {
                         t = new CompiledToken(o1, o2, o3, name, Integer.parseInt(element[3]));
-                    }else{
+                    } else {
                         t = new CompiledToken(o1, o2, o3, name, IToken.TYPE_BUILTIN);
                     }
-                    
+
                     array.add(t);
                 } catch (Exception e) {
                     String received = "";
@@ -232,20 +231,21 @@ public class CompiledModule extends AbstractModule{
                         received += element[i];
                         received += "  ";
                     }
-                    
-                    Log.log(IStatus.ERROR, ("Error getting completions for compiled module "+name+" received = '"+received+"'"), e);
+
+                    Log.log(IStatus.ERROR, ("Error getting completions for compiled module " + name + " received = '"
+                            + received + "'"), e);
                 }
             }
-            
+
             //as we will use it for code completion on sources that map to modules, the __file__ should also
             //be added...
-            if(array.size() > 0 && (name.equals("__builtin__") || name.equals("builtins"))){
-                array.add(new CompiledToken("__file__","","",name,IToken.TYPE_BUILTIN));
-                array.add(new CompiledToken("__name__","","",name,IToken.TYPE_BUILTIN));
-                array.add(new CompiledToken("__builtins__","","",name,IToken.TYPE_BUILTIN));
-                array.add(new CompiledToken("__dict__","","",name,IToken.TYPE_BUILTIN));
+            if (array.size() > 0 && (name.equals("__builtin__") || name.equals("builtins"))) {
+                array.add(new CompiledToken("__file__", "", "", name, IToken.TYPE_BUILTIN));
+                array.add(new CompiledToken("__name__", "", "", name, IToken.TYPE_BUILTIN));
+                array.add(new CompiledToken("__builtins__", "", "", name, IToken.TYPE_BUILTIN));
+                array.add(new CompiledToken("__dict__", "", "", name, IToken.TYPE_BUILTIN));
             }
-            
+
             addTokens(array);
         }
     }
@@ -265,8 +265,7 @@ public class CompiledModule extends AbstractModule{
             this.tokens.put(token.getRepresentation(), token);
         }
     }
-    
-    
+
     /**
      * Compiled modules do not have imports to be seen
      * @see org.python.pydev.editor.javacodecompletion.AbstractModule#getWildImportedModules()
@@ -287,10 +286,10 @@ public class CompiledModule extends AbstractModule{
      * @see org.python.pydev.editor.javacodecompletion.AbstractModule#getGlobalTokens()
      */
     public IToken[] getGlobalTokens() {
-        if(tokens == null){
+        if (tokens == null) {
             return new IToken[0];
         }
-        
+
         Collection<IToken> values = tokens.values();
         return values.toArray(new IToken[values.size()]);
     }
@@ -307,52 +306,53 @@ public class CompiledModule extends AbstractModule{
      */
     public IToken[] getGlobalTokens(ICompletionState state, ICodeCompletionASTManager manager) {
         String activationToken = state.getActivationToken();
-        if(activationToken.length() == 0){
-        	return getGlobalTokens();
+        if (activationToken.length() == 0) {
+            return getGlobalTokens();
         }
-        
-		Map<String, IToken> v = cache.get(activationToken);
-        if(v != null){
+
+        Map<String, IToken> v = cache.get(activationToken);
+        if (v != null) {
             Collection<IToken> values = v.values();
             return values.toArray(new IToken[values.size()]);
         }
-        
+
         IToken[] toks = new IToken[0];
 
-        if(COMPILED_MODULES_ENABLED){
+        if (COMPILED_MODULES_ENABLED) {
             try {
                 final IPythonNature nature = manager.getNature();
-                
+
                 final AbstractShell shell;
                 try {
                     shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
                 } catch (Exception e) {
-                    throw new RuntimeException("Unable to create shell for CompiledModule: "+this.name, e);
+                    throw new RuntimeException("Unable to create shell for CompiledModule: " + this.name, e);
                 }
-                synchronized(shell){
-                    String act = name+'.'+activationToken;
+                synchronized (shell) {
+                    String act = name + '.' + activationToken;
                     String tokenToCompletion = act;
-                    if(isPythonBuiltin){
+                    if (isPythonBuiltin) {
                         String replacement = BUILTIN_REPLACEMENTS.get(activationToken);
-                        if(replacement != null){
-                            tokenToCompletion = name+'.'+replacement;
+                        if (replacement != null) {
+                            tokenToCompletion = name + '.' + replacement;
                         }
                     }
-                    
-                    List<String[]> completions = shell.getImportCompletions(tokenToCompletion, 
-                            manager.getModulesManager().getCompletePythonPath(
-                                    nature.getProjectInterpreter(), 
+
+                    List<String[]> completions = shell.getImportCompletions(
+                            tokenToCompletion,
+                            manager.getModulesManager().getCompletePythonPath(nature.getProjectInterpreter(),
                                     nature.getRelatedInterpreterManager())).o2;
-                    
+
                     ArrayList<IToken> array = new ArrayList<IToken>();
-                    
+
                     for (Iterator<String[]> iter = completions.iterator(); iter.hasNext();) {
-                        String[] element = iter.next(); 
-                        if(element.length >= 4){//it might be a server error
-                            IToken t = new CompiledToken(element[0], element[1], element[2], act, Integer.parseInt(element[3]));
+                        String[] element = iter.next();
+                        if (element.length >= 4) {//it might be a server error
+                            IToken t = new CompiledToken(element[0], element[1], element[2], act,
+                                    Integer.parseInt(element[3]));
                             array.add(t);
                         }
-                        
+
                     }
                     toks = (CompiledToken[]) array.toArray(new CompiledToken[0]);
                     HashMap<String, IToken> map = new HashMap<String, IToken>();
@@ -362,35 +362,35 @@ public class CompiledModule extends AbstractModule{
                     cache.put(activationToken, map);
                 }
             } catch (Exception e) {
-                Log.log("Error while getting info for module:"+this.name+". Project: "+manager.getNature().getProject(), e);
+                Log.log("Error while getting info for module:" + this.name + ". Project: "
+                        + manager.getNature().getProject(), e);
             }
         }
         return toks;
     }
-    
+
     @Override
     public boolean isInDirectGlobalTokens(String tok, ICompletionCache completionCache) {
-        if(this.tokens != null){
+        if (this.tokens != null) {
             return this.tokens.containsKey(tok);
         }
         return false;
     }
-    
+
     @Override
     public boolean isInGlobalTokens(String tok, IPythonNature nature, ICompletionCache completionCache) {
         //we have to override because there is no way to check if it is in some import from some other place if it has dots on the tok...
-        
-        
-        if(tok.indexOf('.') == -1){
+
+        if (tok.indexOf('.') == -1) {
             return isInDirectGlobalTokens(tok, completionCache);
-        }else{
+        } else {
             ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature, completionCache);
             String[] headAndTail = FullRepIterable.headAndTail(tok);
-            state.setActivationToken (headAndTail[0]);
+            state.setActivationToken(headAndTail[0]);
             String head = headAndTail[1];
             IToken[] globalTokens = getGlobalTokens(state, nature.getAstManager());
             for (IToken token : globalTokens) {
-                if(token.getRepresentation().equals(head)){
+                if (token.getRepresentation().equals(head)) {
                     return true;
                 }
             }
@@ -403,91 +403,91 @@ public class CompiledModule extends AbstractModule{
      * @param findInfo 
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#findDefinition(java.lang.String, int, int)
      */
-    public Definition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature) throws Exception {
+    public Definition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature)
+            throws Exception {
         String token = state.getActivationToken();
-        
-        if(TRACE_COMPILED_MODULES){
-            System.out.println("CompiledModule.findDefinition:"+token);
+
+        if (TRACE_COMPILED_MODULES) {
+            System.out.println("CompiledModule.findDefinition:" + token);
         }
         Definition[] found = this.definitionsFoundCache.getObj(token);
-        if(found != null){
-            if(TRACE_COMPILED_MODULES){
+        if (found != null) {
+            if (TRACE_COMPILED_MODULES) {
                 System.out.println("CompiledModule.findDefinition: found in cache.");
             }
             return found;
         }
-        
-        
+
         AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
-        synchronized(shell){
-            Tuple<String[],int[]> def = shell.getLineCol(this.name, token, 
-                    nature.getAstManager().getModulesManager().getCompletePythonPath(
-                            nature.getProjectInterpreter(), 
-                            nature.getRelatedInterpreterManager())); //default
-            if(def == null){
-                if(TRACE_COMPILED_MODULES){
-                    System.out.println("CompiledModule.findDefinition:"+token+" = empty");
+        synchronized (shell) {
+            Tuple<String[], int[]> def = shell.getLineCol(this.name, token, nature.getAstManager().getModulesManager()
+                    .getCompletePythonPath(nature.getProjectInterpreter(), nature.getRelatedInterpreterManager())); //default
+            if (def == null) {
+                if (TRACE_COMPILED_MODULES) {
+                    System.out.println("CompiledModule.findDefinition:" + token + " = empty");
                 }
                 this.definitionsFoundCache.add(token, EMPTY_DEFINITION);
                 return EMPTY_DEFINITION;
             }
             String fPath = def.o1[0];
-            if(fPath.equals("None")){
-                if(TRACE_COMPILED_MODULES){
-                    System.out.println("CompiledModule.findDefinition:"+token+" = None");
+            if (fPath.equals("None")) {
+                if (TRACE_COMPILED_MODULES) {
+                    System.out.println("CompiledModule.findDefinition:" + token + " = None");
                 }
-                Definition[] definition = new Definition[]{new Definition(def.o2[0], def.o2[1], token, null, null, this)};
+                Definition[] definition = new Definition[] { new Definition(def.o2[0], def.o2[1], token, null, null,
+                        this) };
                 this.definitionsFoundCache.add(token, definition);
                 return definition;
             }
             File f = new File(fPath);
             String foundModName = nature.resolveModule(f);
             String foundAs = def.o1[1];
-            
+
             IModule mod;
-            if(foundModName == null){
+            if (foundModName == null) {
                 //this can happen in a case where we have a definition that's found from a compiled file which actually
                 //maps to a file that's outside of the pythonpath known by Pydev.
                 String n = FullRepIterable.getFirstPart(f.getName());
                 mod = AbstractModule.createModule(n, f, nature, true);
-            }else{
+            } else {
                 mod = nature.getAstManager().getModule(foundModName, nature, true);
             }
-            
-            if(TRACE_COMPILED_MODULES){
-                System.out.println("CompiledModule.findDefinition: found at:"+mod.getName());
+
+            if (TRACE_COMPILED_MODULES) {
+                System.out.println("CompiledModule.findDefinition: found at:" + mod.getName());
             }
             int foundLine = def.o2[0];
-            if(foundLine == 0 && foundAs != null && foundAs.length() > 0 && mod != null &&
-                    state.canStillCheckFindSourceFromCompiled(mod, foundAs)){
+            if (foundLine == 0 && foundAs != null && foundAs.length() > 0 && mod != null
+                    && state.canStillCheckFindSourceFromCompiled(mod, foundAs)) {
                 //TODO: The nature (and so the grammar to be used) must be defined by the file we'll parse
                 //(so, we need to know the system modules manager that actually created it to know the actual nature)
-                IModule sourceMod = AbstractModule.createModuleFromDoc(mod.getName(), f, new Document(REF.getFileContents(f)), nature, true);
-                if(sourceMod instanceof SourceModule){
-                    Definition[] definitions = (Definition[]) sourceMod.findDefinition(state.getCopyWithActTok(foundAs), -1, -1, nature);
-                    if(definitions.length > 0){
+                IModule sourceMod = AbstractModule.createModuleFromDoc(mod.getName(), f,
+                        new Document(REF.getFileContents(f)), nature, true);
+                if (sourceMod instanceof SourceModule) {
+                    Definition[] definitions = (Definition[]) sourceMod.findDefinition(
+                            state.getCopyWithActTok(foundAs), -1, -1, nature);
+                    if (definitions.length > 0) {
                         this.definitionsFoundCache.add(token, definitions);
                         return definitions;
                     }
                 }
             }
-            if(mod == null){
+            if (mod == null) {
                 mod = this;
             }
             int foundCol = def.o2[1];
-            if(foundCol < 0){
+            if (foundCol < 0) {
                 foundCol = 0;
             }
-            if(TRACE_COMPILED_MODULES){
-                System.out.println("CompiledModule.findDefinition: found compiled at:"+mod.getName());
+            if (TRACE_COMPILED_MODULES) {
+                System.out.println("CompiledModule.findDefinition: found compiled at:" + mod.getName());
             }
-            Definition[] definitions = new Definition[]{new Definition(foundLine+1, foundCol+1, token, null, null, mod)};
+            Definition[] definitions = new Definition[] { new Definition(foundLine + 1, foundCol + 1, token, null,
+                    null, mod) };
             this.definitionsFoundCache.add(token, definitions);
             return definitions;
         }
     }
-
-    
 
     @Override
     public boolean equals(Object obj) {
@@ -495,36 +495,35 @@ public class CompiledModule extends AbstractModule{
             return false;
         }
         CompiledModule m = (CompiledModule) obj;
-        
-        if(name == null || m.name == null){
-            if(name != m.name){
+
+        if (name == null || m.name == null) {
+            if (name != m.name) {
                 return false;
             }
             //both null at this point
-        }else if(!name.equals(m.name)){
+        } else if (!name.equals(m.name)) {
             return false;
         }
-        
-        if(file == null || m.file == null){
-            if(file != m.file){
+
+        if (file == null || m.file == null) {
+            if (file != m.file) {
                 return false;
             }
             //both null at this point
-        }else if(!file.equals(m.file)){
+        } else if (!file.equals(m.file)) {
             return false;
         }
-        
-        
-        return true; 
+
+        return true;
     }
-    
+
     @Override
     public int hashCode() {
         int hash = 33;
-        if(file != null){
+        if (file != null) {
             hash += file.hashCode();
         }
-        if(name != null){
+        if (name != null) {
             hash += name.hashCode();
         }
         return hash;

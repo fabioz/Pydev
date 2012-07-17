@@ -38,7 +38,7 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
         this.nodeHelper = new NodeHelper(adapterPrefs);
         this.adapterPrefs = adapterPrefs;
     }
-    
+
     public AdapterPrefs getAdapterPrefs() {
         return adapterPrefs;
     }
@@ -82,7 +82,6 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
     public int getNodeFirstLine() {
         return getASTNode().beginLine;
     }
-    
 
     /**
      * Note that the line returned is 1-based.
@@ -92,14 +91,14 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
     public int getLastNodeFirstLineBefore(int beforeLine) {
         SimpleNode astNode = getASTNode();
         int last = astNode.beginLine;
-        
+
         stmtType[] body = (stmtType[]) REF.getAttrObj(astNode, "body");
-        if(body != null){
+        if (body != null) {
             for (int i = 0; i < body.length; i++) {
                 SimpleNode node = body[i];
                 if (!nodeHelper.isImport(node) && !nodeHelper.isStr(node)) {
                     int curr = node.beginLine;
-                    if(curr > beforeLine){
+                    if (curr > beforeLine) {
                         return last;
                     }
                     last = curr;
@@ -185,28 +184,28 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
 
     @Override
     public boolean equals(Object obj) {
-        if(this == obj){
+        if (this == obj) {
             return true;
         }
-        if(obj == null){
+        if (obj == null) {
             return false;
         }
-        if(getClass() != obj.getClass()){
+        if (getClass() != obj.getClass()) {
             return false;
         }
         final AbstractNodeAdapter other = (AbstractNodeAdapter) obj;
-        if(adaptee == null){
-            if(other.adaptee != null){
+        if (adaptee == null) {
+            if (other.adaptee != null) {
                 return false;
             }
-        }else if(!adaptee.equals(other.adaptee)){
+        } else if (!adaptee.equals(other.adaptee)) {
             return false;
         }
-        if(module == null){
-            if(other.module != null){
+        if (module == null) {
+            if (other.module != null) {
                 return false;
             }
-        }else if(!module.equals(other.module)){
+        } else if (!module.equals(other.module)) {
             return false;
         }
         return true;

@@ -49,11 +49,11 @@ public interface IPythonInterpreter {
      * Cleans the interpreter
      */
     void cleanup();
-    
+
     void setOut(OutputStream output);
 
     void setOut(Writer output);
-    
+
     void setErr(OutputStream output);
 
 }

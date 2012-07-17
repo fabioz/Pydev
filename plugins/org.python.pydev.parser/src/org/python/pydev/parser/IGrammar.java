@@ -21,7 +21,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 public interface IGrammar {
 
     void enable_tracing();
-    
+
     public static Object parseLock = new Object();
 
     /**

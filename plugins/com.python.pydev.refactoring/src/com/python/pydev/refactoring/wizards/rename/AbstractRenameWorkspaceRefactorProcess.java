@@ -40,20 +40,21 @@ import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstant
  * 
  * @author Fabio
  */
-public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRenameRefactorProcess{
+public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRenameRefactorProcess {
 
     public static final boolean DEBUG_FILTERED_MODULES = false || PyFindAllOccurrences.DEBUG_FIND_REFERENCES;
-    
+
     /**
      * May be used by subclasses
      */
     protected AbstractRenameWorkspaceRefactorProcess() {
-        
+
     }
+
     public AbstractRenameWorkspaceRefactorProcess(Definition definition) {
         super(definition);
     }
-    
+
     /**
      * Gets and returns only the occurrences that point to what we're looking for, meaning that
      * we have to filter out references that may be pointing to some other definition,
@@ -63,54 +64,55 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
      * @param module the module we're analyzing right now
      * @return a list with the references that point to the definition we're renaming. 
      */
-    protected List<ASTEntry> getOccurrencesInOtherModule(RefactoringStatus status, String initialName, SourceModule module, PythonNature nature) {
+    protected List<ASTEntry> getOccurrencesInOtherModule(RefactoringStatus status, String initialName,
+            SourceModule module, PythonNature nature) {
         CompletionCache completionCache = new CompletionCache();
         List<ASTEntry> entryOccurrences = findReferencesOnOtherModule(status, initialName, module);
 
-//Removed this check: it made subclasses work badly, also, in Python because of duck-typing, many of those
-//matches are actually wanted.
-//
-//        if(getRecheckWhereDefinitionWasFound()){
-//            for (Iterator<ASTEntry> iter = entryOccurrences.iterator(); iter.hasNext();) {
-//                ASTEntry entry = iter.next();
-//                int line = entry.node.beginLine;
-//                int col = entry.node.beginColumn;
-//                try {
-//                    ArrayList<IDefinition> definitions = new ArrayList<IDefinition>();
-//                    PyRefactoringFindDefinition.findActualDefinition(request, module, initialName, definitions, line, col, nature, completionCache);
-//                    //Definition[] definitions = module.findDefinition(new CompletionState(line-1, col-1, initialName, nature, ""), line, col, nature, null);
-//                    for (IDefinition def : definitions) {
-//                        if(def instanceof Definition){
-//                            Definition localDefinition = (Definition) def;
-//                            //if within one module any of the definitions pointed to some class in some other module,
-//                            //that means that the tokens in this module actually point to some other class 
-//                            //(with the same name), and we can't actually rename them.
-//                            String foundModName = localDefinition.module.getName();
-//                            if(foundModName != null && !foundModName.equals(this.definition.module.getName())){
-//                                if(DEBUG_FILTERED_MODULES){
-//                                    System.out.println("The entries found on module:"+module.getName()+" had the definition found on module:"+
-//                                            foundModName+" and were removed from the elements to be renamed.");
-//                                    
-//                                }
-//                                return new ArrayList<ASTEntry>();
-//                            }
-//                        }
-//                    }
-//                } catch (Exception e) {
-//                    throw new RuntimeException(e);
-//                }
-//                
-//            }
-//        }
+        //Removed this check: it made subclasses work badly, also, in Python because of duck-typing, many of those
+        //matches are actually wanted.
+        //
+        //        if(getRecheckWhereDefinitionWasFound()){
+        //            for (Iterator<ASTEntry> iter = entryOccurrences.iterator(); iter.hasNext();) {
+        //                ASTEntry entry = iter.next();
+        //                int line = entry.node.beginLine;
+        //                int col = entry.node.beginColumn;
+        //                try {
+        //                    ArrayList<IDefinition> definitions = new ArrayList<IDefinition>();
+        //                    PyRefactoringFindDefinition.findActualDefinition(request, module, initialName, definitions, line, col, nature, completionCache);
+        //                    //Definition[] definitions = module.findDefinition(new CompletionState(line-1, col-1, initialName, nature, ""), line, col, nature, null);
+        //                    for (IDefinition def : definitions) {
+        //                        if(def instanceof Definition){
+        //                            Definition localDefinition = (Definition) def;
+        //                            //if within one module any of the definitions pointed to some class in some other module,
+        //                            //that means that the tokens in this module actually point to some other class 
+        //                            //(with the same name), and we can't actually rename them.
+        //                            String foundModName = localDefinition.module.getName();
+        //                            if(foundModName != null && !foundModName.equals(this.definition.module.getName())){
+        //                                if(DEBUG_FILTERED_MODULES){
+        //                                    System.out.println("The entries found on module:"+module.getName()+" had the definition found on module:"+
+        //                                            foundModName+" and were removed from the elements to be renamed.");
+        //                                    
+        //                                }
+        //                                return new ArrayList<ASTEntry>();
+        //                            }
+        //                        }
+        //                    }
+        //                } catch (Exception e) {
+        //                    throw new RuntimeException(e);
+        //                }
+        //                
+        //            }
+        //        }
         return entryOccurrences;
     }
-    
+
     /**
      * @return true if the definitions found should be re-checked for the module where it was defined
      * and false otherwise (the visitor already got correct matches)
      */
     protected abstract boolean getRecheckWhereDefinitionWasFound();
-    
+
     /**
      * Default implementation for checking the tokens in the workspace.
      */
@@ -124,8 +126,7 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
             } finally {
                 request.popMonitor().done();
             }
-            
-            
+
             //if the user has set that we should only find references in the local scope in the checkInitialOnLocalScope
             //we should not try to find other references in the workspace.
             boolean onlyInLocalScope = (Boolean) request.getAdditionalInfo(
@@ -142,7 +143,7 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
             request.getMonitor().done();
         }
     }
-    
+
     /**
      * This method is made to be used in the checkInitialOnWorkspace implementation.
      * 
@@ -154,21 +155,19 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
      * @param status used to add some error status to the refactoring
      * @param request the request used for the refactoring
      */
-    protected void doCheckInitialOnWorkspace(RefactoringStatus status, RefactoringRequest request){
-        try{
+    protected void doCheckInitialOnWorkspace(RefactoringStatus status, RefactoringRequest request) {
+        try {
             request.getMonitor().beginTask("Check references on workspace", 100);
-            
+
             ArrayList<Tuple<List<ModulesKey>, IPythonNature>> references;
-            
+
             try {
                 request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 90));
                 references = findFilesWithPossibleReferences(request);
             } finally {
                 request.popMonitor().done();
             }
-            
-            
-            
+
             int total = references.size();
             try {
                 request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 10));
@@ -176,7 +175,8 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
                 int i = 0;
                 for (Tuple<List<ModulesKey>, IPythonNature> file : references) {
                     i++;
-                    request.communicateWork(StringUtils.format("Analyzing %s (%s of %s)", file.o2.getProject(), i, total));
+                    request.communicateWork(StringUtils.format("Analyzing %s (%s of %s)", file.o2.getProject(), i,
+                            total));
                     PythonNature nature = (PythonNature) file.o2;
                     if (nature != null) {
                         if (!nature.startRequests()) {
@@ -184,7 +184,8 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
                         }
                         try {
                             for (ModulesKey key : file.o1) {
-                                IProjectModulesManager modulesManager = (IProjectModulesManager) nature.getAstManager().getModulesManager();
+                                IProjectModulesManager modulesManager = (IProjectModulesManager) nature.getAstManager()
+                                        .getModulesManager();
 
                                 request.checkCancelled();
                                 String modName = key.name;
@@ -194,13 +195,14 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
                                         //we've already checked the module from the request...
 
                                         request.checkCancelled();
-                                        IModule module = modulesManager.getModuleInDirectManager(modName, nature, false);
+                                        IModule module = modulesManager
+                                                .getModuleInDirectManager(modName, nature, false);
 
                                         if (module instanceof SourceModule) {
 
                                             request.checkCancelled();
-                                            List<ASTEntry> entryOccurrences = getOccurrencesInOtherModule(status, request.initialName,
-                                                    (SourceModule) module, nature);
+                                            List<ASTEntry> entryOccurrences = getOccurrencesInOtherModule(status,
+                                                    request.initialName, (SourceModule) module, nature);
 
                                             if (entryOccurrences.size() > 0) {
                                                 addOccurrences(entryOccurrences, key.file, modName);
@@ -217,16 +219,16 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
             } finally {
                 request.popMonitor().done();
             }
-        }catch (OperationCanceledException e) {
+        } catch (OperationCanceledException e) {
             //that's ok
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
-        }finally{
+        } finally {
             request.getMonitor().done();
         }
-        
+
     }
-    
+
     /**
      * This method is called for each module that may have some reference to the definition
      * we're looking for. 
@@ -238,7 +240,7 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
      * @param module this is the module that may contain references to that module
      * @return a list of entries that are references to the given module.
      */
-    protected abstract List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, String initialName, SourceModule module);
-
+    protected abstract List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, String initialName,
+            SourceModule module);
 
 }

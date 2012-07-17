@@ -23,13 +23,13 @@ import org.python.pydev.core.log.Log;
  * 
  * The runnables will be run as eclipse jobs. 
  */
-public class RunnableAsJobsPoolThread extends Thread{
+public class RunnableAsJobsPoolThread extends Thread {
     /**
      * 
      * We cannot have more than XX jobs scheduled at any time. 
      */
     private final Semaphore jobsCreationSemaphore;
-    
+
     /**
      * Semaphore to run: only let it go if there's a release() acknowledging something happened.
      */
@@ -39,12 +39,12 @@ public class RunnableAsJobsPoolThread extends Thread{
      * List of runnables and their names to run.
      */
     private final List<Tuple<Runnable, String>> runnables = new ArrayList<Tuple<Runnable, String>>();
-    
+
     /**
      * Lock to access the runnables field.
      */
     private final Object lockRunnables = new Object();
-    
+
     /**
      * Constructor
      * 
@@ -56,101 +56,97 @@ public class RunnableAsJobsPoolThread extends Thread{
         this.start();
     }
 
-    
     /**
      * We'll stay here until the end of times (or at least until the vm finishes)
      */
     @Override
     public void run() {
-        while(true){
-            
+        while (true) {
+
             //until we've gotten a release we'll stay here.
             canRunSemaphore.acquire();
-            
+
             //get the runnable to run.
             Tuple<Runnable, String> execute = null;
             int size;
-            synchronized(lockRunnables){
+            synchronized (lockRunnables) {
                 size = runnables.size();
-                if(size > 0){
+                if (size > 0) {
                     execute = runnables.remove(0);
                     size--;
                 }
             }
-            
-            if(execute != null){
+
+            if (execute != null) {
                 //this will make certain that only X jobs are running.
                 jobsCreationSemaphore.acquire();
-                final Runnable[] runnable = new Runnable[]{execute.o1};
+                final Runnable[] runnable = new Runnable[] { execute.o1 };
                 String name = execute.o2;
                 execute = null;
-                
-                if(size > 1){
-                    name += " ("+size+" scheduled)";
+
+                if (size > 1) {
+                    name += " (" + size + " scheduled)";
                 }
-                
+
                 Job workbenchJob = new Job(name) {
-                
+
                     @Override
                     public IStatus run(IProgressMonitor monitor) {
                         Runnable r;
-                        try{
+                        try {
                             r = runnable[0];
-                            if(r instanceof IRunnableWithMonitor){
+                            if (r instanceof IRunnableWithMonitor) {
                                 ((IRunnableWithMonitor) r).setMonitor(monitor);
                             }
                             runnable[0] = null;//make sure it'll be available for garbage collection ASAP.
                             r.run();
-                        }catch(RuntimeException e){
-                        	if(CorePlugin.getDefault() != null){
-                        		//Only log if eclipse still didn't shutdown.
-                        		Log.log(e);
-                        	}
-                        }finally{
+                        } catch (RuntimeException e) {
+                            if (CorePlugin.getDefault() != null) {
+                                //Only log if eclipse still didn't shutdown.
+                                Log.log(e);
+                            }
+                        } finally {
                             r = null; //make sure it'll be available for garbage collection ASAP.
                             jobsCreationSemaphore.release();
                         }
                         return Status.OK_STATUS;
                     }
-                
+
                 };
-//                workbenchJob.setSystem(true);
-//                workbenchJob.setPriority(Job.BUILD);
+                //                workbenchJob.setSystem(true);
+                //                workbenchJob.setPriority(Job.BUILD);
                 workbenchJob.setPriority(Job.INTERACTIVE);
                 workbenchJob.schedule();
             }
-            
+
         }
     }
 
-    public void scheduleToRun(final IRunnableWithMonitor runnable, final String name){
-        synchronized(lockRunnables){
+    public void scheduleToRun(final IRunnableWithMonitor runnable, final String name) {
+        synchronized (lockRunnables) {
             runnables.add(new Tuple<Runnable, String>(runnable, name));
         }
         canRunSemaphore.release();
     }
 
-
-    
     private static RunnableAsJobsPoolThread singleton;
 
-    
     /**
      * @return a singleton to be shared across multiple clases. Note that this class
      * may still have locally created instances (so, its constructor is not private as
      * is usual for singletons).
      */
     public synchronized static RunnableAsJobsPoolThread getSingleton() {
-        if(singleton == null){
+        if (singleton == null) {
             //if a problem happens getting the number of processors (although it shouldn't happen), use 6
             int maxSize = 6;
-            
-            try{
+
+            try {
                 int availableProcessors = Runtime.getRuntime().availableProcessors();
-                if(availableProcessors <= 1){
+                if (availableProcessors <= 1) {
                     maxSize = 3;
-                    
-                }else{
+
+                } else {
                     //note that we create more threads than processes because some are very likely to 
                     //be disk-bound processes (but with a logarithmic function, because we don't want 
                     //to add up too fast as the number of processors increase because of the amount of memory
@@ -176,12 +172,11 @@ public class RunnableAsJobsPoolThread extends Thread{
                     //17: 25
                     //18: 27
                     //19: 28
-                    maxSize = (int)(availableProcessors+Math.round(REF.log(availableProcessors, 1.4)));
+                    maxSize = (int) (availableProcessors + Math.round(REF.log(availableProcessors, 1.4)));
                 }
-            }catch(Throwable e){
+            } catch (Throwable e) {
             }
-            
-            
+
             singleton = new RunnableAsJobsPoolThread(maxSize);
         }
         return singleton;

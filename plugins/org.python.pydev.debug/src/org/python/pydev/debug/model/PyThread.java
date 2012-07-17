@@ -45,12 +45,12 @@ public class PyThread extends PlatformObject implements IThread {
     private boolean isSuspended = false;
     private boolean isStepping = false;
     private IStackFrame[] stack;
-    
+
     public PyThread(AbstractDebugTarget target, String name, String id) {
         this.target = target;
         this.name = name;
         this.id = id;
-        isPydevThread = id.equals("-1");    // use a special id for pydev threads
+        isPydevThread = id.equals("-1"); // use a special id for pydev threads
     }
 
     /**
@@ -62,13 +62,13 @@ public class PyThread extends PlatformObject implements IThread {
     }
 
     public String getName() throws DebugException {
-        return name+" - "+getId();
+        return name + " - " + getId();
     }
-    
+
     public String getId() {
         return id;
     }
-    
+
     public boolean isPydevThread() {
         return isPydevThread;
     }
@@ -148,35 +148,36 @@ public class PyThread extends PlatformObject implements IThread {
         if (!isPydevThread) {
             isStepping = true;
             target.postCommand(new StepCommand(target, AbstractDebuggerCommand.CMD_STEP_INTO, id));
-        }        
+        }
     }
 
     public void stepOver() throws DebugException {
         if (!isPydevThread) {
             isStepping = true;
             target.postCommand(new StepCommand(target, AbstractDebuggerCommand.CMD_STEP_OVER, id));
-        }        
+        }
     }
 
     public void stepReturn() throws DebugException {
         if (!isPydevThread) {
             isStepping = true;
             target.postCommand(new StepCommand(target, AbstractDebuggerCommand.CMD_STEP_RETURN, id));
-        }        
+        }
     }
-    
-    public void runToLine(int line, String funcName){
+
+    public void runToLine(int line, String funcName) {
         isStepping = true;
         target.postCommand(new RunToLineCommand(target, AbstractDebuggerCommand.CMD_RUN_TO_LINE, id, line, funcName));
     }
 
-    public void setNextStatement(int line, String funcName){
+    public void setNextStatement(int line, String funcName) {
         isStepping = true;
-        target.postCommand(new SetNextCommand(target, AbstractDebuggerCommand.CMD_SET_NEXT_STATEMENT, id, line, funcName));
+        target.postCommand(new SetNextCommand(target, AbstractDebuggerCommand.CMD_SET_NEXT_STATEMENT, id, line,
+                funcName));
     }
 
     public IStackFrame[] getStackFrames() throws DebugException {
-        if(isSuspended && stack != null){
+        if (isSuspended && stack != null) {
             return stack;
         }
         return new IStackFrame[0];
@@ -192,12 +193,12 @@ public class PyThread extends PlatformObject implements IThread {
 
     public PyStackFrame findStackFrameByID(String id) {
         if (stack != null) {
-            
-            for (int i=0; i<stack.length; i++){
-                
-                if (id.equals(((PyStackFrame)stack[i]).getId())){
-                    
-                    return (PyStackFrame)stack[i];
+
+            for (int i = 0; i < stack.length; i++) {
+
+                if (id.equals(((PyStackFrame) stack[i]).getId())) {
+
+                    return (PyStackFrame) stack[i];
                 }
             }
         }
@@ -213,28 +214,25 @@ public class PyThread extends PlatformObject implements IThread {
 
     public Object getAdapter(Class adapter) {
         AdapterDebug.print(this, adapter);
-        
-        if (adapter.equals(ILaunch.class) ||
-            adapter.equals(IResource.class)){
+
+        if (adapter.equals(ILaunch.class) || adapter.equals(IResource.class)) {
             return target.getAdapter(adapter);
-            
-        }else if (adapter.equals(ITaskListResourceAdapter.class)){
+
+        } else if (adapter.equals(ITaskListResourceAdapter.class)) {
             return null;
-            
-        }else if (adapter.equals(IDebugTarget.class)){
+
+        } else if (adapter.equals(IDebugTarget.class)) {
             return target;
-            
-        }else if(adapter.equals(org.eclipse.debug.ui.actions.IRunToLineTarget.class)){
+
+        } else if (adapter.equals(org.eclipse.debug.ui.actions.IRunToLineTarget.class)) {
             return this.target.getRunToLineTarget();
-            
-        }else if (adapter.equals(IPropertySource.class) 
-                || adapter.equals(ITaskListResourceAdapter.class)
+
+        } else if (adapter.equals(IPropertySource.class) || adapter.equals(ITaskListResourceAdapter.class)
                 || adapter.equals(org.eclipse.debug.ui.actions.IToggleBreakpointsTarget.class)
                 || adapter.equals(org.eclipse.ui.IContributorResourceAdapter.class)
                 || adapter.equals(org.eclipse.ui.model.IWorkbenchAdapter.class)
-                || adapter.equals(org.eclipse.ui.IActionFilter.class)
-                ) {
-            return  super.getAdapter(adapter);
+                || adapter.equals(org.eclipse.ui.IActionFilter.class)) {
+            return super.getAdapter(adapter);
         }
         //Platform.getAdapterManager().getAdapter(this, adapter);
         AdapterDebug.printDontKnow(this, adapter);
@@ -242,10 +240,9 @@ public class PyThread extends PlatformObject implements IThread {
         return super.getAdapter(adapter);
     }
 
-    
     @Override
     public String toString() {
-        return "PyThread: "+this.id;
+        return "PyThread: " + this.id;
     }
 
 }

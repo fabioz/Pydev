@@ -25,55 +25,53 @@ import org.python.pydev.plugin.nature.PythonNature;
  * 
  * @author Fabio
  */
-public class PySyntaxChecker extends PyDevBuilderVisitor{
-
+public class PySyntaxChecker extends PyDevBuilderVisitor {
 
     @Override
     public void visitChangedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {
         PythonNature nature = getPythonNature(resource);
-        if(nature == null){
+        if (nature == null) {
             return;
         }
 
-        if(PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()){
-            if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+        if (PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()) {
+            if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
                 Log.toLogFile(this, "PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
             }
             return; //not analyzed with this builder... always from parser changes.
         }
-        
-        
-        if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+
+        if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
             Log.toLogFile(this, "Checking!");
         }
-        
+
         IDocument doc = document.call();
-        if(doc == null){
-        	return;
+        if (doc == null) {
+            return;
         }
         SourceModule mod;
-        try{
+        try {
             mod = getSourceModule(resource, doc, nature);
-        }catch(MisconfigurationException e1){
+        } catch (MisconfigurationException e1) {
             Log.log(e1);
             return;
         }
         Throwable parseError = mod.parseError;
-        
+
         try {
             PyParser.deleteErrorMarkers(resource);
         } catch (CoreException e) {
             Log.log(e);
         }
-        
-        if(parseError != null){
+
+        if (parseError != null) {
             try {
                 PyParser.createParserErrorMarkers(parseError, resource, doc);
             } catch (Exception e) {
                 Log.log(e);
             }
         }
-        
+
     }
 
     @Override

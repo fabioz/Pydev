@@ -63,7 +63,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
     public boolean hasFutureImportAbsoluteImportDeclared() {
         return false;
     }
-    
+
     protected AbstractJavaClassModule(String name) {
         super(name);
         checkJavaImageDescriptorCreated();
@@ -116,10 +116,11 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
             //also, making that change, it should be faster, because we won't need to 1st create a java proposal to then
             //create a pydev token (it would be a single step to transform it from a Completion Proposal to an IToken).
 
-            List<Tuple<IJavaElement, CompletionProposal>> elementsFound = getJavaCompletionProposals(packagePlusactTok, null);
+            List<Tuple<IJavaElement, CompletionProposal>> elementsFound = getJavaCompletionProposals(packagePlusactTok,
+                    null);
 
             HashMap<String, IJavaElement> generatedProperties = new HashMap<String, IJavaElement>();
-            
+
             FastStringBuffer tempBuffer = new FastStringBuffer(128);
             for (Tuple<IJavaElement, CompletionProposal> element : elementsFound) {
                 IJavaElement javaElement = element.o1;
@@ -150,46 +151,44 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
                         tempBuffer.insert(1, lastPart);
                     }
                     args = tempBuffer.toString();
-                    
-                    
+
                     String elementName = method.getElementName();
-                    if(elementName.startsWith("get") || elementName.startsWith("set")){
+                    if (elementName.startsWith("get") || elementName.startsWith("set")) {
                         //Create a property for it
                         tempBuffer.clear();
                         elementName = elementName.substring(3);
-                        if(elementName.length() > 0){
+                        if (elementName.length() > 0) {
                             tempBuffer.append(Character.toLowerCase(elementName.charAt(0)));
                             tempBuffer.append(elementName.substring(1));
-                            
-                            
+
                             String propertyName = tempBuffer.toString();
                             IJavaElement existing = generatedProperties.get(propertyName);
-                            if(existing != null){
-                                if(existing.getElementName().startsWith("set")){
+                            if (existing != null) {
+                                if (existing.getElementName().startsWith("set")) {
                                     //getXXX has precedence over the setXXX.
                                     generatedProperties.put(propertyName, javaElement);
                                 }
-                            }else{
+                            } else {
                                 generatedProperties.put(propertyName, javaElement);
                             }
                         }
                     }
-                    
+
                 }
                 if (DEBUG_JAVA_COMPLETIONS) {
                     System.out.println("Element: " + javaElement);
                 }
 
-                lst.add(new JavaElementToken(javaElement.getElementName(), "", args, this.name, getType(javaElement.getElementType()),
-                        javaElement, element.o2));
-                
+                lst.add(new JavaElementToken(javaElement.getElementName(), "", args, this.name, getType(javaElement
+                        .getElementType()), javaElement, element.o2));
+
             }
-            
+
             //Fill our generated properties.
-            for(Entry<String, IJavaElement> entry:generatedProperties.entrySet()){
+            for (Entry<String, IJavaElement> entry : generatedProperties.entrySet()) {
                 IJavaElement javaElement = entry.getValue();
-                lst.add(new JavaElementToken(entry.getKey(), "", "", this.name, IToken.TYPE_ATTR,
-                        javaElement, PyCodeCompletionImages.getImageForType(IToken.TYPE_ATTR)));
+                lst.add(new JavaElementToken(entry.getKey(), "", "", this.name, IToken.TYPE_ATTR, javaElement,
+                        PyCodeCompletionImages.getImageForType(IToken.TYPE_ATTR)));
             }
         } catch (Exception e) {
             Log.log(e);
@@ -257,13 +256,13 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
      */
     public IToken[] getGlobalTokens(ICompletionState state, ICodeCompletionASTManager manager) {
         String actTok = state.getFullActivationToken();
-        if(actTok == null){
+        if (actTok == null) {
             actTok = state.getActivationToken();
         }
-        if(actTok == null){
+        if (actTok == null) {
             return new IToken[0];
         }
-        String act = new FastStringBuffer(name, 2+actTok.length()).append('.').append(actTok).toString();
+        String act = new FastStringBuffer(name, 2 + actTok.length()).append('.').append(actTok).toString();
         return createTokens(act);
     }
 
@@ -324,7 +323,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
         IModule validModule = null;
         IModule module = null;
         int i = 0; //so that we know what will result in the tok
-        for (String s:splitted) {
+        for (String s : splitted) {
             modNameBuf.append(".");
             modNameBuf.append(s);
             module = nature.getAstManager().getModule(modNameBuf.toString(), nature, true, false);
@@ -346,7 +345,8 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
             //to check if it's some method or something alike (that should be easy after having the class and the path
             //to the method we want to find within it).
             if (!(validModule instanceof AbstractJavaClassModule)) {
-                throw new RuntimeException("The module found from a java class module was found as another kind: " + validModule.getClass());
+                throw new RuntimeException("The module found from a java class module was found as another kind: "
+                        + validModule.getClass());
             }
             for (int j = i; j < splitted.size(); j++) {
                 if (j != i) {
@@ -368,11 +368,12 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
         } else {
             //ok, it's not the class directly, so, we have to check what it actually is.
             foundAs = pathInJavaClass.toString();
-            List<Tuple<IJavaElement, CompletionProposal>> javaCompletionProposals = getJavaCompletionProposals(javaClassModule.getName(), foundAs);
-            if(javaCompletionProposals.size() > 0){
+            List<Tuple<IJavaElement, CompletionProposal>> javaCompletionProposals = getJavaCompletionProposals(
+                    javaClassModule.getName(), foundAs);
+            if (javaCompletionProposals.size() > 0) {
                 elementFound = javaCompletionProposals.get(0).o1;
-                
-            }else if(javaClassModule.getName().endsWith("."+foundAs)){
+
+            } else if (javaClassModule.getName().endsWith("." + foundAs)) {
                 //This is the following case: we have a reference to the constructor (e.g.: javax.swing.JFrame.JFrame)
                 //So, we have to ignore the last JFrame part.
                 foundAs = "";
@@ -388,7 +389,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
         //no definitions found
         return new Definition[0];
     }
-    
+
     /**
      * @return tuple with:
      * - a list of tuples corresponding to the element and the proposal for the gotten elements
@@ -404,8 +405,8 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
      * @return a list of tuples corresponding to the element and the proposal for the gotten elements
      * @throws JavaModelException
      */
-    protected abstract List<Tuple<IJavaElement, CompletionProposal>> getJavaCompletionProposals(String completeClassDesc,
-            String filterCompletionName) throws Exception;
+    protected abstract List<Tuple<IJavaElement, CompletionProposal>> getJavaCompletionProposals(
+            String completeClassDesc, String filterCompletionName) throws Exception;
 
     /**
      * Gets tuples with the java element and the corresponding completion proposal for that element.
@@ -416,8 +417,8 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
      * @return a list of tuples corresponding to the element and the proposal for the gotten elements
      * @throws JavaModelException
      */
-    protected abstract List<Tuple<IJavaElement, CompletionProposal>> getJavaCompletionProposals(String contents, int completionOffset,
-            final String filterCompletionName) throws Exception;
+    protected abstract List<Tuple<IJavaElement, CompletionProposal>> getJavaCompletionProposals(String contents,
+            int completionOffset, final String filterCompletionName) throws Exception;
 
     /**
      * Create a proposal collector that's able to gather the passed completions/related java elements and adds 
@@ -464,7 +465,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
         };
         return collector;
     }
-    
+
     /**
      * For java, as we don't have __init__.py, the package folder name is always the actual name of the module
      */

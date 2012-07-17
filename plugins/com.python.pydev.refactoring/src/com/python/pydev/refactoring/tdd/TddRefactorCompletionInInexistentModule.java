@@ -38,17 +38,18 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
  * creating that proposal may be slower.
  */
 public final class TddRefactorCompletionInInexistentModule extends AbstractTddRefactorCompletion {
-    
+
     private File module;
     private List<String> parametersAfterCall;
     private AbstractPyCreateAction pyCreateAction;
     private PySelection ps;
 
-    public TddRefactorCompletionInInexistentModule(String replacementString, 
-            Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, 
-            int priority, PyEdit edit, File module, List<String> parametersAfterCall, AbstractPyCreateAction pyCreateAction, PySelection ps) {
-        
-        super(edit, replacementString, 0, 0, 0, image, displayString, contextInformation, additionalProposalInfo, priority);
+    public TddRefactorCompletionInInexistentModule(String replacementString, Image image, String displayString,
+            IContextInformation contextInformation, String additionalProposalInfo, int priority, PyEdit edit,
+            File module, List<String> parametersAfterCall, AbstractPyCreateAction pyCreateAction, PySelection ps) {
+
+        super(edit, replacementString, 0, 0, 0, image, displayString, contextInformation, additionalProposalInfo,
+                priority);
         this.module = module;
         this.parametersAfterCall = parametersAfterCall;
         this.pyCreateAction = pyCreateAction;
@@ -64,7 +65,7 @@ public final class TddRefactorCompletionInInexistentModule extends AbstractTddRe
     public boolean isAutoInsertable() {
         return false;
     }
-    
+
     @Override
     public Point getSelection(IDocument document) {
         return null;
@@ -72,35 +73,36 @@ public final class TddRefactorCompletionInInexistentModule extends AbstractTddRe
 
     public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
         //Now, we need to go on and create the module
-        List<File> parents = new ArrayList<File>(); 
+        List<File> parents = new ArrayList<File>();
         File f = module.getParentFile();
-        while(f!= null && !f.exists()){
+        while (f != null && !f.exists()) {
             parents.add(f);
             f = f.getParentFile();
         }
-        IWorkspace workspace= ResourcesPlugin.getWorkspace();
-        IContainer[] containers= workspace.getRoot().findContainersForLocationURI(f.toURI());
+        IWorkspace workspace = ResourcesPlugin.getWorkspace();
+        IContainer[] containers = workspace.getRoot().findContainersForLocationURI(f.toURI());
         containers = new PySourceLocatorBase().filterNonExistentContainers(containers);
-        if(containers.length == 0){
+        if (containers.length == 0) {
             return;
         }
         IContainer container = (IContainer) containers[0];
         Collections.reverse(parents);
-        for(int i=0;i<parents.size();i++){
+        for (int i = 0; i < parents.size(); i++) {
             File parent = parents.get(i);
             //create folder with __init__.
             IFolder folder = container.getFolder(new Path(parent.getName()));
-            if(!folder.exists()){
+            if (!folder.exists()) {
                 try {
                     folder.create(true, true, null);
                 } catch (CoreException e) {
                     Log.log(e);
                 }
             }
-            
+
             container = folder;
-            IFile file = container.getFile(new Path("__init__"+FileTypesPreferencesPage.getDefaultDottedPythonExtension()));
-            if(!file.exists()){
+            IFile file = container.getFile(new Path("__init__"
+                    + FileTypesPreferencesPage.getDefaultDottedPythonExtension()));
+            if (!file.exists()) {
                 try {
                     file.create(new ByteArrayInputStream(new byte[0]), true, null);
                 } catch (CoreException e) {
@@ -111,7 +113,7 @@ public final class TddRefactorCompletionInInexistentModule extends AbstractTddRe
 
         //Now that the package structure is created, create the actual module.
         IFile file = container.getFile(new Path(module.getName()));
-        if(!file.exists()){
+        if (!file.exists()) {
             try {
                 file.create(new ByteArrayInputStream(new byte[0]), true, null);
             } catch (CoreException e) {
@@ -119,32 +121,20 @@ public final class TddRefactorCompletionInInexistentModule extends AbstractTddRe
             }
         }
 
-        
         //Upon creation, opens the new editor and creates the class.
         PyOpenAction openAction = new PyOpenAction();
         openAction.run(new ItemPointer(file));
-        
+
         PyEdit pyEdit = (PyEdit) openAction.editor;
-        TddRefactorCompletion completion = new TddRefactorCompletion(
-                fReplacementString, 
-                fImage, 
-                fDisplayString, 
-                fContextInformation, 
-                fAdditionalProposalInfo, 
-                0, 
-                pyEdit,
-                PyCreateClass.LOCATION_STRATEGY_END,
-                parametersAfterCall,
-                pyCreateAction,
-                ps
-                );
+        TddRefactorCompletion completion = new TddRefactorCompletion(fReplacementString, fImage, fDisplayString,
+                fContextInformation, fAdditionalProposalInfo, 0, pyEdit, PyCreateClass.LOCATION_STRATEGY_END,
+                parametersAfterCall, pyCreateAction, ps);
         completion.apply(pyEdit.getEditorSourceViewer(), '\n', 0, 0);
 
         //As the change was done in another module, let's ask for a new code analysis for the current editor,
         //as the new contents should fix the marker which we used for the fix.
         forceReparseInBaseEditorAnd(pyEdit);
     }
-
 
     public void selected(ITextViewer viewer, boolean smartToggle) {
     }

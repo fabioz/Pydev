@@ -29,47 +29,45 @@ import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.ModulesKeyForJava;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 
-public abstract class ModulesManagerWithBuild extends ModulesManager implements IDeltaProcessor<ModulesKey>{
-    
+public abstract class ModulesManagerWithBuild extends ModulesManager implements IDeltaProcessor<ModulesKey> {
+
     /**
      * Determines whether we are testing it.
      */
     public static boolean IN_TESTS = false;
-    
+
     /**
      * Used to process deltas (in case we have the process killed for some reason)
      */
     protected volatile DeltaSaver<ModulesKey> deltaSaver;
-    
-    protected static ICallback<ModulesKey, String> readFromFileMethod = new ICallback<ModulesKey, String>(){
+
+    protected static ICallback<ModulesKey, String> readFromFileMethod = new ICallback<ModulesKey, String>() {
 
         public ModulesKey call(String arg) {
             List<String> split = StringUtils.split(arg, '|');
-            if(split.size() == 1){
+            if (split.size() == 1) {
                 return new ModulesKey(split.get(0), null);
             }
-            if(split.size() == 2){
+            if (split.size() == 2) {
                 return new ModulesKey(split.get(0), new File(split.get(1)));
             }
-            
+
             return null;
         }
     };
-        
+
     protected static ICallback<String, ModulesKey> toFileMethod = new ICallback<String, ModulesKey>() {
 
         public String call(ModulesKey arg) {
             FastStringBuffer buf = new FastStringBuffer();
             buf.append(arg.name);
-            if(arg.file != null){
+            if (arg.file != null) {
                 buf.append("|");
                 buf.append(arg.file.toString());
             }
             return buf.toString();
         }
     };
-    
-    
 
     /** 
      * @see org.python.pydev.core.IProjectModulesManager#processUpdate(org.python.pydev.core.ModulesKey)
@@ -92,84 +90,80 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
     public void processInsert(ModulesKey key) {
         addModule(key);
     }
-    
-    
 
     @Override
     public void doRemoveSingleModule(ModulesKey key) {
         super.doRemoveSingleModule(key);
-        if(deltaSaver != null && !IN_TESTS){ //we don't want deltas in tests
+        if (deltaSaver != null && !IN_TESTS) { //we don't want deltas in tests
             //overridden to add delta
             deltaSaver.addDeleteCommand(key);
             checkDeltaSize();
         }
     }
-        
-    
+
     @Override
     public void doAddSingleModule(ModulesKey key, AbstractModule n) {
         super.doAddSingleModule(key, n);
-        if((deltaSaver != null && !IN_TESTS) && !(key instanceof ModulesKeyForZip) && !(key instanceof ModulesKeyForJava)){ 
+        if ((deltaSaver != null && !IN_TESTS) && !(key instanceof ModulesKeyForZip)
+                && !(key instanceof ModulesKeyForJava)) {
             //we don't want deltas in tests nor in zips/java modules
             //overridden to add delta
             deltaSaver.addInsertCommand(key);
             checkDeltaSize();
         }
     }
-    
+
     /**
      * If the delta size is big enough, save the current state and discard the deltas.
      */
     private void checkDeltaSize() {
-        if(deltaSaver != null && deltaSaver.availableDeltas() > MAXIMUN_NUMBER_OF_DELTAS){
+        if (deltaSaver != null && deltaSaver.availableDeltas() > MAXIMUN_NUMBER_OF_DELTAS) {
             endProcessing();
             deltaSaver.clearAll();
         }
     }
-    
+
     //end delta processing
-    
 
     /**
      * @see org.python.pydev.core.ICodeCompletionASTManager#removeModule(java.io.File, org.eclipse.core.resources.IProject,
      *      org.eclipse.core.runtime.IProgressMonitor)
      */
     public void removeModule(File file, IProject project, IProgressMonitor monitor) {
-        if(file == null){
+        if (file == null) {
             return;
         }
-        
+
         if (file.isDirectory()) {
             removeModulesBelow(file, project, monitor);
 
         } else {
-            if(file.getName().startsWith("__init__.")){
+            if (file.getName().startsWith("__init__.")) {
                 removeModulesBelow(file.getParentFile(), project, monitor);
-            }else{
+            } else {
                 removeModulesWithFile(file);
             }
         }
     }
-    
 
     /**
      * @param file
      */
     private void removeModulesWithFile(File file) {
-        if(file == null){
+        if (file == null) {
             return;
         }
-        
+
         List<ModulesKey> toRem = new ArrayList<ModulesKey>();
         synchronized (modulesKeysLock) {
-    
+
             for (Iterator<ModulesKey> iter = modulesKeys.keySet().iterator(); iter.hasNext();) {
                 ModulesKey key = iter.next();
                 if (key.file != null && key.file.equals(file)) {
                     toRem.add(key);
                 }
             }
-    
+
             removeThem(toRem);
         }
     }
@@ -179,13 +173,13 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
      * the specified file.
      */
     private void removeModulesBelow(File file, IProject project, IProgressMonitor monitor) {
-        if(file == null){
+        if (file == null) {
             return;
         }
-        
+
         String absolutePath = REF.getFileAbsolutePath(file);
         List<ModulesKey> toRem = new ArrayList<ModulesKey>();
-        
+
         synchronized (modulesKeysLock) {
 
             for (ModulesKey key : modulesKeys.keySet()) {
@@ -193,26 +187,25 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
                     toRem.add(key);
                 }
             }
-    
+
             removeThem(toRem);
         }
     }
 
-
     // ------------------------ building
-    
-    public void rebuildModule(File f, ICallback0<IDocument> doc, final IProject project, IProgressMonitor monitor, IPythonNature nature) {
+
+    public void rebuildModule(File f, ICallback0<IDocument> doc, final IProject project, IProgressMonitor monitor,
+            IPythonNature nature) {
         final String m = pythonPathHelper.resolveModule(REF.getFileAbsolutePath(f));
         if (m != null) {
             addModule(new ModulesKey(m, f));
 
-            
-        }else if (f != null){ //ok, remove the module that has a key with this file, as it can no longer be resolved
+        } else if (f != null) { //ok, remove the module that has a key with this file, as it can no longer be resolved
             synchronized (modulesKeysLock) {
                 Set<ModulesKey> toRemove = new HashSet<ModulesKey>();
                 for (Iterator<ModulesKey> iter = modulesKeys.keySet().iterator(); iter.hasNext();) {
                     ModulesKey key = iter.next();
-                    if(key.file != null && key.file.equals(f)){
+                    if (key.file != null && key.file.equals(f)) {
                         toRemove.add(key);
                     }
                 }
@@ -220,7 +213,5 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
             }
         }
     }
-
-
 
 }

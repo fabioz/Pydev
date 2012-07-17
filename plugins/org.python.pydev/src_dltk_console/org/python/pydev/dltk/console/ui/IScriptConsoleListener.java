@@ -13,7 +13,7 @@ import org.python.pydev.dltk.console.InterpreterResponse;
 import org.python.pydev.dltk.console.ScriptConsolePrompt;
 
 public interface IScriptConsoleListener {
-    
+
     void userRequest(String text, ScriptConsolePrompt prompt);
 
     void interpreterResponse(InterpreterResponse response, ScriptConsolePrompt prompt);

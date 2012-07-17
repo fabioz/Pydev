@@ -25,7 +25,7 @@ import org.python.pydev.core.log.Log;
  * 
  * If we do drop support for eclipse 3.2, this class should probably be removed.
  */
-public class PythonSourceFolderActionFilter implements IActionFilter{
+public class PythonSourceFolderActionFilter implements IActionFilter {
 
     private static Map<String, List<PropertyTester>> propertyTesters = new HashMap<String, List<PropertyTester>>();
     private final IActionFilter platformActionFilter;
@@ -37,22 +37,22 @@ public class PythonSourceFolderActionFilter implements IActionFilter{
     /**
      * Adds a way to check for the app_engine (currently hardcoded) property from this plugin.
      */
-    public boolean testAttribute(Object target, String name, String value){
+    public boolean testAttribute(Object target, String name, String value) {
         //For now let's leave it checking only app_engine, but this could grow if needed.
-        if("app_engine".equals(name)){
+        if ("app_engine".equals(name)) {
             List<PropertyTester> propertyTesters = getPropertyTestersFromPydevCustomizations(name);
-            for(PropertyTester tester:propertyTesters){
-                if(tester.test(target, name, null, value)){
+            for (PropertyTester tester : propertyTesters) {
+                if (tester.test(target, name, null, value)) {
                     return true;
                 }
             }
         }
-        
+
         //If we didn't find what we were looking for, use the platform action filter
-        if(this.platformActionFilter != null){
+        if (this.platformActionFilter != null) {
             return this.platformActionFilter.testAttribute(target, name, value);
         }
-        
+
         //if the platform didn't provide it, just return false.
         return false;
     }
@@ -62,9 +62,9 @@ public class PythonSourceFolderActionFilter implements IActionFilter{
      * 
      * Gets the property testers in org.python.pydev.customizations that match the passed name.
      */
-    private static synchronized List<PropertyTester> getPropertyTestersFromPydevCustomizations(String name){
+    private static synchronized List<PropertyTester> getPropertyTestersFromPydevCustomizations(String name) {
         List<PropertyTester> propertyTester = propertyTesters.get(name);
-        if(propertyTester == null){
+        if (propertyTester == null) {
             IExtension[] extensions = ExtensionHelper.getExtensions("org.eclipse.core.expressions.propertyTesters");
             // For each extension ...
             propertyTester = new ArrayList<PropertyTester>();
@@ -77,11 +77,12 @@ public class PythonSourceFolderActionFilter implements IActionFilter{
                     IConfigurationElement element = elements[j];
                     //Any property tester that's declared in "org.python.pydev.customizations"
                     //is considered to be an object that provides the objectState for an IActionFilter.
-                    if("org.python.pydev.customizations".equals(element.getAttribute("namespace"))){
+                    if ("org.python.pydev.customizations".equals(element.getAttribute("namespace"))) {
                         String attribute = element.getAttribute("properties");
-                        if(name.equals(attribute)){//i.e.: app_engine (and future references)
+                        if (name.equals(attribute)) {//i.e.: app_engine (and future references)
                             try {
-                                PropertyTester executableExtension = (PropertyTester) element.createExecutableExtension("class");
+                                PropertyTester executableExtension = (PropertyTester) element
+                                        .createExecutableExtension("class");
                                 propertyTester.add(executableExtension);
                             } catch (Exception e) {
                                 Log.log(e);

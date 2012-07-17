@@ -16,14 +16,13 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.exprType;
 
+public class AssignDefinition extends Definition {
 
-public class AssignDefinition extends Definition{
-    
     /**
      * This is the token name.
      */
     public final String target;
-    
+
     /**
      * This is the position in the target.
      * 
@@ -46,7 +45,7 @@ public class AssignDefinition extends Definition{
      * Call or some regular attribute.
      */
     public final exprType nodeValue;
-    
+
     /**
      * Constructor.
      * 
@@ -56,7 +55,8 @@ public class AssignDefinition extends Definition{
      * @param col
      * @param nodeValue 
      */
-    public AssignDefinition(String value, String target, int targetPos, Assign ast, int line, int col, ILocalScope scope, IModule module, exprType nodeValue){
+    public AssignDefinition(String value, String target, int targetPos, Assign ast, int line, int col,
+            ILocalScope scope, IModule module, exprType nodeValue) {
         super(line, col, value, ast, scope, module);
         this.target = target;
         this.targetPos = targetPos;

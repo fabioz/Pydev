@@ -4,8 +4,7 @@ package org.python.modules;
 // This is sort of analogous to CPython's Modules/Setup file.  Use this to
 // specify additional builtin modules.
 
-public class Setup
-{
+public class Setup {
     // Each element of this array is a string naming a builtin module to
     // add to the system.  The string has the following allowable forms:
     //
@@ -24,34 +23,10 @@ public class Setup
     // modules by editing the Jython registry file.  See the property
     // python.modules.builtin for details.
 
-    public static String[] builtinModules = {
-        "jarray",
-        "math",
-        "thread",
-        "operator",
-        "time:org.python.modules.time.Time",
-        "os",
-        "types",
-        "py_compile",
-        "pre:org.python.modules.re",
-        "_sre",
-        "synchronize",
-        "cPickle",
-        "cStringIO",
-        "struct",
-        "binascii",
-        "md5:org.python.modules.MD5Module",
-        "exceptions:org.python.core.exceptions",
-        "_codecs",
-        "imp",
-        "sha",
-        "ucnhash",
-        "_jython",
-        "new:org.python.modules.newmodule",
-        "_weakref",
-        "xreadlines",
-        "errno",
-        "array:org.python.modules.ArrayModule",
-        "sets:org.python.modules.sets.Sets"
-    };
+    public static String[] builtinModules = { "jarray", "math", "thread", "operator",
+            "time:org.python.modules.time.Time", "os", "types", "py_compile", "pre:org.python.modules.re", "_sre",
+            "synchronize", "cPickle", "cStringIO", "struct", "binascii", "md5:org.python.modules.MD5Module",
+            "exceptions:org.python.core.exceptions", "_codecs", "imp", "sha", "ucnhash", "_jython",
+            "new:org.python.modules.newmodule", "_weakref", "xreadlines", "errno",
+            "array:org.python.modules.ArrayModule", "sets:org.python.modules.sets.Sets" };
 }

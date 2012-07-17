@@ -37,7 +37,7 @@ import com.python.pydev.refactoring.wizards.rename.AbstractRenameRefactorProcess
 import com.python.pydev.ui.search.FileMatch;
 import com.python.pydev.ui.search.LineElement;
 
-public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
+public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery {
 
     private final IPyRefactoring2 pyRefactoring;
     private final RefactoringRequest req;
@@ -50,7 +50,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
     }
 
     public ISearchResult getSearchResult() {
-        if(findOccurrencesSearchResult == null){
+        if (findOccurrencesSearchResult == null) {
             findOccurrencesSearchResult = new FindOccurrencesSearchResult(this);
         }
         return findOccurrencesSearchResult;
@@ -60,8 +60,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
         try {
             monitor.beginTask("Searching...", 100);
             req.pushMonitor(monitor);
-            
-            
+
             Map<Tuple<String, File>, HashSet<ASTEntry>> occurrences;
             try {
                 req.pushMonitor(new SubProgressMonitor(monitor, 80));
@@ -69,13 +68,12 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
             } finally {
                 req.popMonitor().done();
             }
-            
-            if(occurrences == null){
+
+            if (occurrences == null) {
                 return Status.OK_STATUS;
             }
             int length = req.initialName.length();
-            
-            
+
             HashSet<Integer> foundOffsets = new HashSet<Integer>();
             try {
                 req.pushMonitor(new SubProgressMonitor(monitor, 20));
@@ -89,8 +87,8 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
                     try {
                         workspaceFile = new PySourceLocatorBase().getWorkspaceFile(o.getKey().o2);
                         if (workspaceFile == null) {
-                            Log.logInfo(StringUtils.format("Ignoring: %s. " + "Unable to resolve to a file in the Eclipse workspace.",
-                                    o.getKey().o2));
+                            Log.logInfo(StringUtils.format("Ignoring: %s. "
+                                    + "Unable to resolve to a file in the Eclipse workspace.", o.getKey().o2));
                             continue;
                         }
                     } catch (IllegalStateException e) {
@@ -104,7 +102,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
                     }
 
                     IDocument doc = REF.getDocFromResource(workspaceFile);
-                    req.getMonitor().setTaskName("Resolving occurrences... "+workspaceFile);
+                    req.getMonitor().setTaskName("Resolving occurrences... " + workspaceFile);
 
                     for (ASTEntry entry : o.getValue()) {
                         int offset = AbstractRenameRefactorProcess.getOffset(doc, entry);
@@ -118,7 +116,8 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
                             String lineContents = ps.getLine(lineNumber);
                             int lineStartOffset = ps.getLineOffset(lineNumber);
 
-                            LineElement element = new LineElement(workspaceFile, lineNumber, lineStartOffset, lineContents);
+                            LineElement element = new LineElement(workspaceFile, lineNumber, lineStartOffset,
+                                    lineContents);
                             findOccurrencesSearchResult.addMatch(new FileMatch(workspaceFile, offset, length, element));
                         }
                     }
@@ -128,35 +127,35 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
             }
         } catch (CoreException e) {
             Log.log(e);
-        }finally{
+        } finally {
             req.popMonitor().done();
         }
         return Status.OK_STATUS;
     }
-    
 
     public String getResultLabel(int nMatches) {
-        String searchString= getSearchString();
+        String searchString = getSearchString();
         if (searchString.length() > 0) {
             // text search
             if (isScopeAllFileTypes()) {
                 // search all file extensions
                 if (nMatches == 1) {
-                    return StringUtils.format("%s - 1 match in %s", searchString, getDescription() );
+                    return StringUtils.format("%s - 1 match in %s", searchString, getDescription());
                 }
-                return StringUtils.format("%s - %s matches in %s", searchString, new Integer(nMatches), getDescription() ); 
+                return StringUtils.format("%s - %s matches in %s", searchString, new Integer(nMatches),
+                        getDescription());
             }
             // search selected file extensions
             if (nMatches == 1) {
-                return StringUtils.format("%s - 1 match in %s", searchString, getDescription() );
+                return StringUtils.format("%s - 1 match in %s", searchString, getDescription());
             }
-            return StringUtils.format("%s - %s matches in %s", searchString, new Integer(nMatches), getDescription() );
+            return StringUtils.format("%s - %s matches in %s", searchString, new Integer(nMatches), getDescription());
         }
-        throw new RuntimeException("Unexpected condition when finding: "+searchString);
+        throw new RuntimeException("Unexpected condition when finding: " + searchString);
     }
 
     private String getDescription() {
-        return "'"+req.pyEdit.getProject().getName()+"' and related projects";
+        return "'" + req.pyEdit.getProject().getName() + "' and related projects";
     }
 
 }

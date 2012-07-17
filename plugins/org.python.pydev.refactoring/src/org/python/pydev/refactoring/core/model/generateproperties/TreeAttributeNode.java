@@ -26,10 +26,14 @@ public class TreeAttributeNode extends TreeNodeSimple<INodeAdapter> {
     @Override
     public Object[] getChildren() {
         List<ITreeNode> children = new ArrayList<ITreeNode>();
-        children.add(new TreeNodeSimple<PropertyTextAdapter>(this, new PropertyTextAdapter(PropertyTextAdapter.GETTER, Messages.generatePropertiesGetter)));
-        children.add(new TreeNodeSimple<PropertyTextAdapter>(this, new PropertyTextAdapter(PropertyTextAdapter.SETTER, Messages.generatePropertiesSetter)));
-        children.add(new TreeNodeSimple<PropertyTextAdapter>(this, new PropertyTextAdapter(PropertyTextAdapter.DELETE, Messages.generatePropertiesDelete)));
-        children.add(new TreeNodeSimple<PropertyTextAdapter>(this, new PropertyTextAdapter(PropertyTextAdapter.DOCSTRING, Messages.generatePropertiesDocString)));
+        children.add(new TreeNodeSimple<PropertyTextAdapter>(this, new PropertyTextAdapter(PropertyTextAdapter.GETTER,
+                Messages.generatePropertiesGetter)));
+        children.add(new TreeNodeSimple<PropertyTextAdapter>(this, new PropertyTextAdapter(PropertyTextAdapter.SETTER,
+                Messages.generatePropertiesSetter)));
+        children.add(new TreeNodeSimple<PropertyTextAdapter>(this, new PropertyTextAdapter(PropertyTextAdapter.DELETE,
+                Messages.generatePropertiesDelete)));
+        children.add(new TreeNodeSimple<PropertyTextAdapter>(this, new PropertyTextAdapter(
+                PropertyTextAdapter.DOCSTRING, Messages.generatePropertiesDocString)));
         return children.toArray();
     }
 

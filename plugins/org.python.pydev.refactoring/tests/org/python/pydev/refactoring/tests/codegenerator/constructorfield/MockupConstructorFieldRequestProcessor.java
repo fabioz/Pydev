@@ -18,45 +18,45 @@ import org.python.pydev.refactoring.core.request.IRequestProcessor;
 
 public class MockupConstructorFieldRequestProcessor implements IRequestProcessor<ConstructorFieldRequest> {
 
-	private ModuleAdapter module;
+    private ModuleAdapter module;
 
-	private int classSelection;
+    private int classSelection;
 
-	private int offsetStrategy;
+    private int offsetStrategy;
 
-	private List<Integer> attributeSelection;
+    private List<Integer> attributeSelection;
 
-	private MockupConstructorFieldRequestProcessor(ModuleAdapter module, int classSelection, List<Integer> attributeSelection,
-			int offsetStrategy) {
-		this.module = module;
-		this.attributeSelection = attributeSelection;
-		this.classSelection = classSelection;
-		this.offsetStrategy = offsetStrategy;
-	}
+    private MockupConstructorFieldRequestProcessor(ModuleAdapter module, int classSelection,
+            List<Integer> attributeSelection, int offsetStrategy) {
+        this.module = module;
+        this.attributeSelection = attributeSelection;
+        this.classSelection = classSelection;
+        this.offsetStrategy = offsetStrategy;
+    }
 
-	public MockupConstructorFieldRequestProcessor(ModuleAdapter module, MockupConstructorFieldConfig config) {
-		this(module, config.getClassSelection(), config.getAttributeSelection(), config.getOffsetStrategy());
-	}
+    public MockupConstructorFieldRequestProcessor(ModuleAdapter module, MockupConstructorFieldConfig config) {
+        this(module, config.getClassSelection(), config.getAttributeSelection(), config.getOffsetStrategy());
+    }
 
-	public List<ConstructorFieldRequest> getRefactoringRequests() {
-		IClassDefAdapter clazz = module.getClasses().get(classSelection);
-		List<INodeAdapter> attributes = new ArrayList<INodeAdapter>();
+    public List<ConstructorFieldRequest> getRefactoringRequests() {
+        IClassDefAdapter clazz = module.getClasses().get(classSelection);
+        List<INodeAdapter> attributes = new ArrayList<INodeAdapter>();
 
-		for (int index : attributeSelection) {
-			attributes.add(clazz.getAttributes().get(index));
-		}
-		ConstructorFieldRequest req = new ConstructorFieldRequest(
-		        clazz, attributes, this.offsetStrategy, new AdapterPrefs("\n", new IGrammarVersionProvider() {
-                    
+        for (int index : attributeSelection) {
+            attributes.add(clazz.getAttributes().get(index));
+        }
+        ConstructorFieldRequest req = new ConstructorFieldRequest(clazz, attributes, this.offsetStrategy,
+                new AdapterPrefs("\n", new IGrammarVersionProvider() {
+
                     public int getGrammarVersion() throws MisconfigurationException {
                         return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
                     }
                 }));
 
-		List<ConstructorFieldRequest> requests = new ArrayList<ConstructorFieldRequest>();
-		requests.add(req);
+        List<ConstructorFieldRequest> requests = new ArrayList<ConstructorFieldRequest>();
+        requests.add(req);
 
-		return requests;
+        return requests;
 
-	}
+    }
 }

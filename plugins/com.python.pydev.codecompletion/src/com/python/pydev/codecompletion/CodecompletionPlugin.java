@@ -18,8 +18,6 @@ public class CodecompletionPlugin extends AbstractUIPlugin {
     //The shared instance.
     private static CodecompletionPlugin plugin;
 
-    
-    
     /**
      * The constructor.
      */
@@ -59,6 +57,5 @@ public class CodecompletionPlugin extends AbstractUIPlugin {
     public static ImageDescriptor getImageDescriptor(String path) {
         return AbstractUIPlugin.imageDescriptorFromPlugin("com.python.pydev.codecompletion", path);
     }
-
 
 }

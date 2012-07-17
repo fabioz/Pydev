@@ -38,7 +38,8 @@ import org.python.pydev.plugin.PydevPlugin;
  * 
  * @author Fabio
  */
-public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider, ILocationProviderExtension, IURIEditorInput, IPersistableElement {
+public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider, ILocationProviderExtension,
+        IURIEditorInput, IPersistableElement {
 
     /**
      * The workbench adapter which simply provides the label.
@@ -64,7 +65,7 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
          * @see org.eclipse.ui.model.IWorkbenchAdapter#getLabel(java.lang.Object)
          */
         public String getLabel(Object o) {
-            return ((PydevFileEditorInput)o).getName();
+            return ((PydevFileEditorInput) o).getName();
         }
 
         /*
@@ -76,14 +77,14 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
     }
 
     private File fFile;
-    private WorkbenchAdapter fWorkbenchAdapter= new WorkbenchAdapter();
+    private WorkbenchAdapter fWorkbenchAdapter = new WorkbenchAdapter();
 
     private PydevFileEditorInput(File file) {
         super();
-        fFile= file;
-        fWorkbenchAdapter= new WorkbenchAdapter();
+        fFile = file;
+        fWorkbenchAdapter = new WorkbenchAdapter();
     }
-    
+
     /**
      * Creates an editor input for the passed file.
      * 
@@ -91,40 +92,39 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
      * it will try to create it with the most suitable type it can 
      * (i.e.: FileEditorInput, FileStoreEditorInput, PydevFileEditorInput, ...)
      */
-    public static IEditorInput create(File file, boolean forceExternalFile){
+    public static IEditorInput create(File file, boolean forceExternalFile) {
         IPath path = Path.fromOSString(REF.getFileAbsolutePath(file));
-        
-    	if(!forceExternalFile){
-    	    //May call again to this method (but with forceExternalFile = true)
-            IEditorInput input = new PySourceLocatorBase().createEditorInput(
-	                path, false, null);
-	        if(input != null){
-	        	return input;
-	        }
-    	}
-        
+
+        if (!forceExternalFile) {
+            //May call again to this method (but with forceExternalFile = true)
+            IEditorInput input = new PySourceLocatorBase().createEditorInput(path, false, null);
+            if (input != null) {
+                return input;
+            }
+        }
+
         IPath zipPath = new Path("");
-        while(path.segmentCount() > 0){
-            if(path.toFile().exists()){
+        while (path.segmentCount() > 0) {
+            if (path.toFile().exists()) {
                 break;
             }
             zipPath = new Path(path.lastSegment()).append(zipPath);
-            path = path.uptoSegment(path.segmentCount()-1);
+            path = path.uptoSegment(path.segmentCount() - 1);
         }
-        
-        if(zipPath.segmentCount() > 0 && path.segmentCount() > 0){
+
+        if (zipPath.segmentCount() > 0 && path.segmentCount() > 0) {
             return new PydevZipFileEditorInput(new PydevZipFileStorage(path.toFile(), zipPath.toPortableString()));
         }
-    	
-		try {
-			URI uri = file.toURI();
-			return new FileStoreEditorInput(EFS.getStore(uri));
-		} catch (Throwable e) {
-			//not always available! (only added in eclipse 3.3)
-			return new PydevFileEditorInput(file);
-		}
+
+        try {
+            URI uri = file.toURI();
+            return new FileStoreEditorInput(EFS.getStore(uri));
+        } catch (Throwable e) {
+            //not always available! (only added in eclipse 3.3)
+            return new PydevFileEditorInput(file);
+        }
     }
-    
+
     /*
      * @see org.eclipse.ui.IEditorInput#exists()
      */
@@ -164,10 +164,10 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
      * @see org.eclipse.core.runtime.IAdaptable#getAdapter(java.lang.Class)
      */
     public Object getAdapter(Class adapter) {
-        if(adapter.isInstance(this)){
+        if (adapter.isInstance(this)) {
             return this;
         }
-        if (IWorkbenchAdapter.class.equals(adapter)){
+        if (IWorkbenchAdapter.class.equals(adapter)) {
             return fWorkbenchAdapter;
         }
         return Platform.getAdapterManager().getAdapter(this, adapter);
@@ -178,7 +178,7 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
      */
     public IPath getPath(Object element) {
         if (element instanceof PydevFileEditorInput) {
-            PydevFileEditorInput input= (PydevFileEditorInput) element;
+            PydevFileEditorInput input = (PydevFileEditorInput) element;
             return Path.fromOSString(input.fFile.getAbsolutePath());
         }
         return null;
@@ -191,16 +191,16 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
     public IPath getPath() {
         return Path.fromOSString(fFile.getAbsolutePath());
     }
-    
+
     /**
      * @return a file that the passed editor input wraps or null if it can't find out about it.
      */
-    public static File getFile(IEditorInput o){
-    	if(o == null){
-    		return null;
-    	}
+    public static File getFile(IEditorInput o) {
+        if (o == null) {
+            return null;
+        }
         if (o instanceof PydevFileEditorInput) {
-            PydevFileEditorInput input= (PydevFileEditorInput) o;
+            PydevFileEditorInput input = (PydevFileEditorInput) o;
             return input.fFile;
         }
 
@@ -208,39 +208,39 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
             IFileEditorInput input = (IFileEditorInput) o;
             IFile file = input.getFile();
             String resourceOSString = PydevPlugin.getIResourceOSString(file);
-            if(resourceOSString == null){
+            if (resourceOSString == null) {
                 //the resource does not exist anymore (unable to get location)
                 return null;
             }
             return new File(resourceOSString);
         }
-        
+
         if (o instanceof IPathEditorInput) {
-            IPathEditorInput input= (IPathEditorInput)o;
+            IPathEditorInput input = (IPathEditorInput) o;
             return new File(input.getPath().toOSString());
         }
-        
+
         try {
-			if (o instanceof IURIEditorInput) {
-				IURIEditorInput iuriEditorInput = (IURIEditorInput) o;
-				return new File(iuriEditorInput.getURI());
-			}
-		} catch (Throwable e) {
-			//IURIEditorInput not added until eclipse 3.3
-		}
-		return null;
+            if (o instanceof IURIEditorInput) {
+                IURIEditorInput iuriEditorInput = (IURIEditorInput) o;
+                return new File(iuriEditorInput.getURI());
+            }
+        } catch (Throwable e) {
+            //IURIEditorInput not added until eclipse 3.3
+        }
+        return null;
     }
 
     /*
      * @see java.lang.Object#equals(java.lang.Object)
      */
     public boolean equals(Object o) {
-        if (o == this){
+        if (o == this) {
             return true;
         }
 
-        if(!(o instanceof IEditorInput)){
-        	return false;
+        if (!(o instanceof IEditorInput)) {
+            return false;
         }
         File file = getFile((IEditorInput) o);
         return fFile.equals(file);
@@ -252,13 +252,13 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
     public int hashCode() {
         return fFile.hashCode();
     }
-    
+
     public File getFile() {
         return fFile;
     }
 
     public URI getURI(Object element) {
-        if(element instanceof IURIEditorInput){
+        if (element instanceof IURIEditorInput) {
             IURIEditorInput editorInput = (IURIEditorInput) element;
             return editorInput.getURI();
         }
@@ -277,4 +277,3 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
         return PyEditorInputFactory.FACTORY_ID;
     }
 }
-

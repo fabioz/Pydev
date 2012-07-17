@@ -1,5 +1,6 @@
 // Copyright (c) Corporation for National Research Initiatives
 package org.python.util;
+
 import org.python.core.*;
 import java.util.*;
 
@@ -33,9 +34,7 @@ public class PythonInterpreter {
      * @param argv
      *            Command line argument. These values will assigned to sys.argv.
      */
-    public static void initialize(Properties preProperties,
-                                  Properties postProperties,
-                                  String[] argv) {
+    public static void initialize(Properties preProperties, Properties postProperties, String[] argv) {
         PySystemState.initialize(preProperties, postProperties, argv);
     }
 
@@ -132,8 +131,7 @@ public class PythonInterpreter {
      */
     public void exec(String s) {
         setState();
-        Py.exec(Py.compile_flags(s, "<string>", "exec",cflags),
-                locals, locals);
+        Py.exec(Py.compile_flags(s, "<string>", "exec", cflags), locals, locals);
     }
 
     /**
@@ -162,7 +160,7 @@ public class PythonInterpreter {
 
     public void execfile(byte[] s, String name) {
         setState();
-        Py.runCode(Py.compile_flags(s, name, "exec",cflags), locals, locals);
+        Py.runCode(Py.compile_flags(s, name, "exec", cflags), locals, locals);
     }
 
     // Getting and setting the locals dictionary
@@ -194,7 +192,6 @@ public class PythonInterpreter {
     public void set(String name, PyObject value) {
         locals.__setitem__(name.intern(), value);
     }
-
 
     /**
      * Get the value of a variable in the local namespace

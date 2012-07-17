@@ -22,7 +22,7 @@ public class PrintProgressMonitor implements IProgressMonitor {
      * @see org.eclipse.core.runtime.IProgressMonitor#beginTask(java.lang.String, int)
      */
     public void beginTask(String name, int totalWork) {
-        System.out.println(name + " total = "+totalWork);
+        System.out.println(name + " total = " + totalWork);
     }
 
     /**

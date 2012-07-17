@@ -24,7 +24,8 @@ public interface IFormatter {
      * Formats the whole doc
      * @throws SyntaxErrorException 
      */
-    void formatAll(IDocument doc, IPyEdit edit, boolean isOpenedFile, boolean throwSyntaxError) throws SyntaxErrorException;
+    void formatAll(IDocument doc, IPyEdit edit, boolean isOpenedFile, boolean throwSyntaxError)
+            throws SyntaxErrorException;
 
     /**
      * Formats the passed regions.

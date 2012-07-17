@@ -26,20 +26,20 @@ public class SimpleJythonRunnerTest extends JythonCodeCompletionTestsBase {
         junit.textui.TestRunner.run(SimpleJythonRunnerTest.class);
     }
 
-
     public void setUp() throws Exception {
         super.setUp();
         PydevPlugin.setJythonInterpreterManager(new PythonInterpreterManagerStub(getPreferences()));
 
     }
 
-
     public void testRun() throws CoreException, IOException {
         SimpleJythonRunner runner = new SimpleJythonRunner();
-        File absoluteFile = PydevPlugin.getBundleInfo().getRelativePath(new Path("interpreterInfo.py")).getAbsoluteFile();
-        String string = runner.runAndGetOutputWithJar(absoluteFile.getCanonicalPath(), TestDependent.JYTHON_JAR_LOCATION, null, null, null, new NullProgressMonitor(), "utf-8").o1;
-//        String string = runner.runAndGetOutput(absoluteFile.getCanonicalPath(), (String)null, null);
+        File absoluteFile = PydevPlugin.getBundleInfo().getRelativePath(new Path("interpreterInfo.py"))
+                .getAbsoluteFile();
+        String string = runner.runAndGetOutputWithJar(absoluteFile.getCanonicalPath(),
+                TestDependent.JYTHON_JAR_LOCATION, null, null, null, new NullProgressMonitor(), "utf-8").o1;
+        //        String string = runner.runAndGetOutput(absoluteFile.getCanonicalPath(), (String)null, null);
         assertNotNull(string);
-//        System.out.println(string);
+        //        System.out.println(string);
     }
 }

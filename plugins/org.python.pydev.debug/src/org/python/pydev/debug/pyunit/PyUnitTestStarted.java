@@ -20,7 +20,6 @@ public class PyUnitTestStarted {
         this.location = location;
         this.test = test;
     }
-    
 
     public PyUnitTestRun getTestRun() {
         return this.testRun.get();

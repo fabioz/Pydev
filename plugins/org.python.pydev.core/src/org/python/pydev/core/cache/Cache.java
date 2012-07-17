@@ -6,8 +6,6 @@
  */
 package org.python.pydev.core.cache;
 
-
-
 /**
  * Defines the interface for a cache
  */
@@ -27,7 +25,7 @@ public interface Cache<Key, Val> {
      * Adds some value to the cache
      */
     public void add(Key key, Val n);
-    
+
     /**
      * If the cache has some process to remove stale entries, this is the time to do so.
      * 

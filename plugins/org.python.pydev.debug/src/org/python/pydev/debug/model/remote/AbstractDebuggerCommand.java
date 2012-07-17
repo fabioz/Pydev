@@ -38,7 +38,7 @@ import org.python.pydev.debug.model.AbstractDebugTarget;
  * 
  */
 public abstract class AbstractDebuggerCommand {
-    
+
     static public final int CMD_RUN = 101;
     static public final int CMD_LIST_THREADS = 102;
     static public final int CMD_THREAD_CREATED = 103;
@@ -68,11 +68,11 @@ public abstract class AbstractDebuggerCommand {
     static public final int CMD_VERSION = 501;
     static public final int CMD_RETURN = 502;
     static public final int CMD_GET_TASKLETS = 503;
-    
+
     protected AbstractDebugTarget target;
     protected ICommandResponseListener responseListener;
     int sequence;
-    
+
     public AbstractDebuggerCommand(AbstractDebugTarget debugger) {
         this.target = debugger;
         this.responseListener = null;
@@ -82,19 +82,19 @@ public abstract class AbstractDebuggerCommand {
     public void setCompletionListener(ICommandResponseListener listener) {
         this.responseListener = listener;
     }
-    
+
     /**
      * @return outgoing message
      */
     public abstract String getOutgoing();
-    
+
     /**
      * Notification right before the command is sent.
      * If subclassed, call super()
      */
     public void aboutToSend() {
         // if we need a response, put me on the waiting queue
-        if (needResponse()){
+        if (needResponse()) {
             target.addToResponseQueue(this);
         }
     }
@@ -107,45 +107,47 @@ public abstract class AbstractDebuggerCommand {
     public boolean needResponse() {
         return false;
     }
-    
+
     /**
      * returns Sequence # 
      */
     public final int getSequence() {
         return sequence;
     }
-    
+
     /**
      * Called when command completes, if needResponse was true
      */
     public final void processResponse(int cmdCode, String payload) {
-        if (cmdCode / 100  == 9){
-            processErrorResponse(cmdCode, payload);    
-        }else{
+        if (cmdCode / 100 == 9) {
+            processErrorResponse(cmdCode, payload);
+        } else {
             processOKResponse(cmdCode, payload);
         }
-        
-        if (responseListener != null){
+
+        if (responseListener != null) {
             responseListener.commandComplete(this);
         }
     }
-    
+
     /**
      * notification of the response to the command.
      * You'll get either processResponse or processErrorResponse
      */
     public void processOKResponse(int cmdCode, String payload) {
-        PydevDebugPlugin.log(IStatus.ERROR, "Debugger command ignored response " + getClass().toString() + payload, null);
+        PydevDebugPlugin.log(IStatus.ERROR, "Debugger command ignored response " + getClass().toString() + payload,
+                null);
     }
-    
+
     /**
      * notification of the response to the command.
      * You'll get either processResponse or processErrorResponse
      */
     public void processErrorResponse(int cmdCode, String payload) {
-        PydevDebugPlugin.log(IStatus.ERROR, "Debugger command ignored error response " + getClass().toString() + payload, null);
+        PydevDebugPlugin.log(IStatus.ERROR, "Debugger command ignored error response " + getClass().toString()
+                + payload, null);
     }
-    
+
     public static String makeCommand(int code, int sequence, String payload) {
         FastStringBuffer s = new FastStringBuffer(payload.length() + 20);
         s.append(code);

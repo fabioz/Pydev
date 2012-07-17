@@ -10,7 +10,7 @@
 package org.python.pydev.dltk.console;
 
 public class InterpreterResponse {
-    
+
     public final String out;
 
     public final String err;
@@ -25,5 +25,5 @@ public class InterpreterResponse {
         this.more = more;
         this.need_input = need_input;
     }
-    
+
 }

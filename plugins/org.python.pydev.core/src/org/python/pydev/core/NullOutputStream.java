@@ -13,16 +13,15 @@ import java.io.OutputStream;
  * @author Fabio
  *
  */
-public class NullOutputStream extends OutputStream{
+public class NullOutputStream extends OutputStream {
 
     public static final NullOutputStream singleton = new NullOutputStream();
-    
-    private NullOutputStream(){
-        
+
+    private NullOutputStream() {
+
     }
-    
+
     public void write(int b) throws IOException {
     }
 
 }
-
