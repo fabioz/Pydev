@@ -46,7 +46,10 @@ public class PythonPairMatcherTest extends TestCase {
 
     public void testSearchesOnlyInCurrentStatement() throws Exception {
         PythonPairMatcher matcher = getMatcher();
-        String s = "" + "a = (\n" + "def m1():\n" + "    b = ()";
+        String s = "" +
+                "a = (\n" +
+                "def m1():\n" +
+                "    b = ()";
         assertEquals(-1, matcher.searchForOpeningPeer(s.length(), '(', ')', new Document(s)));
     }
 

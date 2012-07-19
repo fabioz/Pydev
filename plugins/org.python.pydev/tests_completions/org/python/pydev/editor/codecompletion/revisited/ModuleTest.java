@@ -69,7 +69,11 @@ public class ModuleTest extends TestCase {
     }
 
     public void testMod2() {
-        String doc = "" + "def method(a, b):\n" + "    pass\n" + "other = method\n" + "";
+        String doc = "" +
+                "def method(a, b):\n" +
+                "    pass\n" +
+                "other = method\n" +
+                "";
         Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(doc),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
         SimpleNode n = obj.o1;
@@ -89,7 +93,11 @@ public class ModuleTest extends TestCase {
     }
 
     public void testMod3() {
-        String doc = "" + "def method(a, b):\n" + "    pass\n" + "other = another = method\n" + "";
+        String doc = "" +
+                "def method(a, b):\n" +
+                "    pass\n" +
+                "other = another = method\n" +
+                "";
         Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(doc),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
         SimpleNode n = obj.o1;
@@ -127,14 +135,38 @@ public class ModuleTest extends TestCase {
 
     public String getDoc1() {
         //damn, I really miss python when writing this...
-        return "'''" + "docstring for module"
-                + "'''\n"
-                + "from m1 import a1\n"
-                + "from mm import aa as xx , gg as yy\n"
+        return "'''" +
+                "docstring for module"
+                +
+                "'''\n"
+                +
+                "from m1 import a1\n"
+                +
+                "from mm import aa as xx , gg as yy\n"
                 + //this is only 1 import, but it has 2 'aliasType'.
-                "from m2 import a2 as aa\n" + "import m3\n" + "from m4 import *\n" + "\n" + "class C: \n" + "    '''\n"
-                + "    this is the class c\n" + "    '''\n" + "    pass\n" + "\n" + "c = C()\n" + "\n"
-                + "class D:pass\n" + "\n" + "d = D()\n" + "\n" + "def a():\n" + "    '''\n" + "    method a"
-                + "    '''\n" + "    return 1";
+                "from m2 import a2 as aa\n" +
+                "import m3\n" +
+                "from m4 import *\n" +
+                "\n" +
+                "class C: \n" +
+                "    '''\n"
+                +
+                "    this is the class c\n" +
+                "    '''\n" +
+                "    pass\n" +
+                "\n" +
+                "c = C()\n" +
+                "\n"
+                +
+                "class D:pass\n" +
+                "\n" +
+                "d = D()\n" +
+                "\n" +
+                "def a():\n" +
+                "    '''\n" +
+                "    method a"
+                +
+                "    '''\n" +
+                "    return 1";
     }
 }

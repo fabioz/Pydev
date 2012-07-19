@@ -91,19 +91,26 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         ADD_MX_TO_FORCED_BUILTINS = false;
         if (shell == null && TestDependent.PYTHON_NUMPY_PACKAGES != null) {
             try {
-                REF.copyFile(TestDependent.PYTHON_NUMPY_PACKAGES + "numpy/core/umath.pyd", TestDependent.TEST_PYSRC_LOC
-                        + "extendable/bootstrap_dll/umath.pyd");
+                REF.copyFile(TestDependent.PYTHON_NUMPY_PACKAGES +
+                        "numpy/core/umath.pyd", TestDependent.TEST_PYSRC_LOC
+                        +
+                        "extendable/bootstrap_dll/umath.pyd");
             } catch (RuntimeException e) {
                 //Ignore: it's being already used by some process (which means it's probably already correct anyways).
             }
         }
 
         CompiledModule.COMPILED_MODULES_ENABLED = true;
-        this.restorePythonPath(TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.PYTHON_WXPYTHON_PACKAGES
-                + "|" + TestDependent.PYTHON_MX_PACKAGES + "|" + TestDependent.PYTHON_NUMPY_PACKAGES + "|"
-                + TestDependent.PYTHON_OPENGL_PACKAGES + "|" + TestDependent.PYTHON_DJANGO_PACKAGES
+        this.restorePythonPath(TestDependent.GetCompletePythonLib(true) +
+                "|" + TestDependent.PYTHON_WXPYTHON_PACKAGES
+                +
+                "|" + TestDependent.PYTHON_MX_PACKAGES +
+                "|" + TestDependent.PYTHON_NUMPY_PACKAGES +
+                "|"
+                + TestDependent.PYTHON_OPENGL_PACKAGES +
+                "|" + TestDependent.PYTHON_DJANGO_PACKAGES
 
-        , false);
+                , false);
 
         codeCompletion = new PyCodeCompletion();
 
@@ -125,7 +132,8 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     }
 
     public void testRecursion() throws FileNotFoundException, Exception, CompletionRecursionException {
-        String file = TestDependent.TEST_PYSRC_LOC + "testrec3/rec.py";
+        String file = TestDependent.TEST_PYSRC_LOC +
+                "testrec3/rec.py";
         String strDoc = "RuntimeError.";
         File f = new File(file);
         try {
@@ -145,10 +153,12 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
 
         String s;
 
-        s = "from datetime import datetime\n" + "datetime.";
+        s = "from datetime import datetime\n" +
+                "datetime.";
 
         //for some reason, this is failing only when the module is specified...
-        File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "tests/pysrc/simpledatetimeimport.py");
+        File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC +
+                "tests/pysrc/simpledatetimeimport.py");
         assertTrue(file.exists());
         assertTrue(file.isFile());
         requestCompl(file, s, s.length(), -1, new String[] { "today()", "now()", "utcnow()" });
@@ -167,18 +177,27 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         //look... 
         s = "" +
 
-        "class bla(object):pass\n" + "\n" + "def newFunc(): \n"
-                + "    callSomething( bla.__get#complete here... stack error \n" + "                  keepGoing) \n";
+                "class bla(object):pass\n" +
+                "\n" +
+                "def newFunc(): \n"
+                +
+                "    callSomething( bla.__get#complete here... stack error \n" +
+                "                  keepGoing) \n";
 
         //If we improve the parser to get the error above, uncomment line below to check it...
         requestCompl(s, s.indexOf('#'), 1, new String[] { "__getattribute__()" });
 
         //check for builtins..1
-        s = "" + "\n" + "";
+        s = "" +
+                "\n" +
+                "";
         requestCompl(s, s.length(), -1, new String[] { "RuntimeError" });
 
         //check for builtins..2
-        s = "" + "from testlib import *\n" + "\n" + "";
+        s = "" +
+                "from testlib import *\n" +
+                "\n" +
+                "";
         requestCompl(s, s.length(), -1, new String[] { "RuntimeError" });
 
         //check for builtins..3 (builtins should not be available because it is an import request for completions)
@@ -200,34 +219,45 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
 
     public void testPreferForcedBuiltin() throws BadLocationException, IOException, Exception {
         if (TestDependent.PYTHON_MX_PACKAGES != null) {
-            String s = "" + "from mx import DateTime\n" + "DateTime.";
+            String s = "" +
+                    "from mx import DateTime\n" +
+                    "DateTime.";
             requestCompl(s, s.length(), -1, new String[] { "now()" });
         }
     }
 
     public void testNumpy() throws BadLocationException, IOException, Exception {
         if (TestDependent.PYTHON_NUMPY_PACKAGES != null) {
-            String s = "" + "from numpy import less\n" + "less.";
-            requestCompl(new File(TestDependent.TEST_PYSRC_LOC + "extendable/not_existent.py"), s, s.length(), -1,
+            String s = "" +
+                    "from numpy import less\n" +
+                    "less.";
+            requestCompl(new File(TestDependent.TEST_PYSRC_LOC +
+                    "extendable/not_existent.py"), s, s.length(), -1,
                     new String[] { "types", "ntypes", "nout", "nargs", "nin" });
         }
     }
 
     public void testDeepNested6() throws Exception {
         String s;
-        s = "" + "from extendable.nested2 import hub\n" + "hub.c1.f.";
+        s = "" +
+                "from extendable.nested2 import hub\n" +
+                "hub.c1.f.";
         requestCompl(s, s.length(), -1, new String[] { "curdir" });
     }
 
     public void testDeepNested10() throws Exception {
         String s;
-        s = "" + "from extendable.nested3 import hub2\n" + "hub2.c.a.";
+        s = "" +
+                "from extendable.nested3 import hub2\n" +
+                "hub2.c.a.";
         requestCompl(s, s.length(), -1, new String[] { "fun()" });
     }
 
     public void testRelativeOnSameProj() throws Exception {
         String s;
-        s = "" + "import prefersrc\n" + "prefersrc.";
+        s = "" +
+                "import prefersrc\n" +
+                "prefersrc.";
         AbstractModule.MODULE_NAME_WHEN_FILE_IS_UNDEFINED = "foo";
         try {
             requestCompl(s, s.length(), -1, new String[] { "OkGotHere" }, nature2);
@@ -238,36 +268,48 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
 
     public void testDeepNested7() throws Exception {
         String s;
-        s = "" + "from extendable.nested2 import hub\n" + "hub.c1.f.curdir.";
+        s = "" +
+                "from extendable.nested2 import hub\n" +
+                "hub.c1.f.curdir.";
         requestCompl(s, s.length(), -1, new String[] { "upper()" });
     }
 
     public void testDeepNested8() throws Exception {
         String s;
-        s = "" + "from extendable.nested2 import hub\n" + "hub.C1.f.sep."; //changed: was altsep (may be None in linux).
+        s = "" +
+                "from extendable.nested2 import hub\n" +
+                "hub.C1.f.sep."; //changed: was altsep (may be None in linux).
         requestCompl(s, s.length(), -1, new String[] { "upper()" });
     }
 
     public void testDeepNested9() throws Exception {
         String s;
-        s = "" + "from extendable.nested2 import hub\n" + "hub.C1.f.inexistant.";
+        s = "" +
+                "from extendable.nested2 import hub\n" +
+                "hub.C1.f.inexistant.";
         requestCompl(s, s.length(), -1, new String[] {});
     }
 
     public void testDictAssign() throws Exception {
         String s;
-        s = "" + "a = {}\n" + "a.";
+        s = "" +
+                "a = {}\n" +
+                "a.";
         requestCompl(s, s.length(), -1, new String[] { "keys()" });
     }
 
     public void testPreferSrc() throws BadLocationException, IOException, Exception {
-        String s = "" + "import prefersrc\n" + "prefersrc.";
+        String s = "" +
+                "import prefersrc\n" +
+                "prefersrc.";
         requestCompl(s, s.length(), -1, new String[] { "PreferSrc" });
     }
 
     public void testPreferCompiledOnBootstrap() throws BadLocationException, IOException, Exception {
         if (TestDependent.PYTHON_NUMPY_PACKAGES != null) {
-            String s = "" + "from extendable.bootstrap_dll import umath\n" + "umath.";
+            String s = "" +
+                    "from extendable.bootstrap_dll import umath\n" +
+                    "umath.";
             IModule module = nature.getAstManager().getModule("extendable.bootstrap_dll.umath", nature, true);
             assertTrue("Expected CompiledModule. Found: " + module.getClass(), module instanceof CompiledModule);
             //NOTE: The test can fail if numpy is not available (umath.pyd depends on numpy)
@@ -277,7 +319,8 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
 
     public void testPreferCompiledOnBootstrap2() throws BadLocationException, IOException, Exception {
         if (TestDependent.PYTHON_NUMPY_PACKAGES != null) {
-            String s = "" + "from extendable.bootstrap_dll.umath import ";
+            String s = "" +
+                    "from extendable.bootstrap_dll.umath import ";
             IModule module = nature.getAstManager().getModule("extendable.bootstrap_dll.umath", nature, true);
             assertTrue(module instanceof CompiledModule);
             //NOTE: The test can fail if numpy is not available (umath.pyd depends on numpy)
@@ -287,11 +330,23 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
 
     public void testWxPython1() throws BadLocationException, IOException, Exception {
         if (TestDependent.PYTHON_WXPYTHON_PACKAGES != null) { //we can only test what we have
-            String s = "" + "from wxPython.wx import *\n" + "import wx\n" + "class HelloWorld(wx.App):\n"
-                    + "   def OnInit(self):\n" + "       frame = wx.Frame(None,-1,\"hello world\")\n"
-                    + "       frame.Show(True)\n" + "       self.SetTopWindow(frame)\n"
-                    + "       b=wx.Button(frame,-1,\"Button\")\n" + "       return True\n" + "app = HelloWorld(0)\n"
-                    + "app.MainLoop()\n" + "app.";
+            String s = "" +
+                    "from wxPython.wx import *\n" +
+                    "import wx\n" +
+                    "class HelloWorld(wx.App):\n"
+                    +
+                    "   def OnInit(self):\n" +
+                    "       frame = wx.Frame(None,-1,\"hello world\")\n"
+                    +
+                    "       frame.Show(True)\n" +
+                    "       self.SetTopWindow(frame)\n"
+                    +
+                    "       b=wx.Button(frame,-1,\"Button\")\n" +
+                    "       return True\n" +
+                    "app = HelloWorld(0)\n"
+                    +
+                    "app.MainLoop()\n" +
+                    "app.";
             requestCompl(s, s.length(), -1, new String[] { "MainLoop()" });
         }
     }
@@ -299,7 +354,8 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     public void testCompleteImportBuiltinReference2() throws BadLocationException, IOException, Exception {
         String s;
         if (TestDependent.PYTHON_WXPYTHON_PACKAGES != null) { //we can only test what we have
-            s = "" + "from wx import ";
+            s = "" +
+                    "from wx import ";
             requestCompl(s, s.length(), -1, new String[] { "glcanvas" });
         }
     }
@@ -323,43 +379,68 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         String s;
 
         if (TestDependent.PYTHON_WXPYTHON_PACKAGES != null) { //we can only test what we have
-            s = "" + "from wxPython.wx import wxButton\n" + "                \n" + "wxButton.";
+            s = "" +
+                    "from wxPython.wx import wxButton\n" +
+                    "                \n" +
+                    "wxButton.";
             requestCompl(s, s.length(), -1, new String[] { "Close()" });
 
-            s = "" + "import wxPython\n" + "                \n" + "wxPython.";
+            s = "" +
+                    "import wxPython\n" +
+                    "                \n" +
+                    "wxPython.";
             requestCompl(s, s.length(), -1, new String[] { "wx" });
         }
 
-        s = "" + "import os\n" + "                \n" + "os.";
-        File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "tests/pysrc/simpleosimport.py");
+        s = "" +
+                "import os\n" +
+                "                \n" +
+                "os.";
+        File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC +
+                "tests/pysrc/simpleosimport.py");
         assertTrue(file.exists());
         assertTrue(file.isFile());
         requestCompl(file, s, s.length(), -1, new String[] { "path" });
 
-        s = "" + "import os\n" + "                \n" + "os.";
+        s = "" +
+                "import os\n" +
+                "                \n" +
+                "os.";
         requestCompl(s, s.length(), -1, new String[] { "path" });
 
         if (TestDependent.PYTHON_QT4_PACKAGES != null) { //we can only test what we have
             //check for builtins with reference..3
-            s = "" + "from PyQt4.QtGui import *\n" + "                \n" + "q = QLabel()    \n" + "q.";
+            s = "" +
+                    "from PyQt4.QtGui import *\n" +
+                    "                \n" +
+                    "q = QLabel()    \n" +
+                    "q.";
             requestCompl(s, s.length(), -1, new String[] { "acceptDrops()", "childEvent()" });
         }
 
         //check for builtins with reference..3
-        s = "" + "from testlib.unittest import anothertest\n" + "anothertest.";
+        s = "" +
+                "from testlib.unittest import anothertest\n" +
+                "anothertest.";
         requestCompl(s, s.length(), 5, new String[] { "__file__", "__dict__", "__name__", "AnotherTest", "t" });
 
     }
 
     public void testInstanceCompletion() throws Exception {
-        String s = "class A:\n" + "    def __init__(self):\n" + "        self.list1 = []\n"
-                + "if __name__ == '__main__':\n" + "    a = A()\n" + "    a.list1.";
+        String s = "class A:\n" +
+                "    def __init__(self):\n" +
+                "        self.list1 = []\n"
+                +
+                "if __name__ == '__main__':\n" +
+                "    a = A()\n" +
+                "    a.list1.";
 
         requestCompl(s, -1, new String[] { "pop()", "remove(value)" });
     }
 
     public void test__all__() throws Exception {
-        String s = "from extendable.all_check import *\n" + "";
+        String s = "from extendable.all_check import *\n" +
+                "";
 
         //should keep the variables from the __builtins__ in this module
         ICompletionProposal[] codeCompletionProposals = requestCompl(s, -1, new String[] { "ThisGoes", "RuntimeError" });
@@ -367,7 +448,8 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     }
 
     public void test__all__3() throws Exception {
-        String s = "from extendable.all_check3 import *\n" + "";
+        String s = "from extendable.all_check3 import *\n" +
+                "";
 
         //should keep the variables from the __builtins__ in this module
         ICompletionProposal[] codeCompletionProposals = requestCompl(s, -1, new String[] { "ThisGoes", "RuntimeError" });
@@ -376,7 +458,8 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     }
 
     public void testSortParamsCorrect() throws Exception {
-        String s = "[].sort" + "";
+        String s = "[].sort" +
+                "";
 
         //should keep the variables from the __builtins__ in this module
         requestCompl(s, -1, new String[] { "sort(cmp=None, key=None, reverse=False)" });
@@ -398,8 +481,13 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
 
     public void testDjango() throws Exception {
         if (TestDependent.PYTHON_DJANGO_PACKAGES != null) {
-            String s = "from django.db import models\n" + "\n" + "class HelperForPydevCompletion(models.Model):\n"
-                    + "    helper = models.IntegerField()\n" + "\n" + "HelperForPydevCompletion.";
+            String s = "from django.db import models\n" +
+                    "\n" +
+                    "class HelperForPydevCompletion(models.Model):\n"
+                    +
+                    "    helper = models.IntegerField()\n" +
+                    "\n" +
+                    "HelperForPydevCompletion.";
 
             requestCompl(s, -1, new String[] { "objects" });
         }
@@ -408,8 +496,13 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     public void testDjango2() throws Exception {
         if (TestDependent.PYTHON_DJANGO_PACKAGES != null) {
             assertTrue(new File(TestDependent.PYTHON_DJANGO_PACKAGES).exists());
-            String s = "from django.db import models\n" + "\n" + "class HelperForPydevCompletion(models.Model):\n"
-                    + "    helper = models.IntegerField()\n" + "\n" + "HelperForPydevCompletion.objects.";
+            String s = "from django.db import models\n" +
+                    "\n" +
+                    "class HelperForPydevCompletion(models.Model):\n"
+                    +
+                    "    helper = models.IntegerField()\n" +
+                    "\n" +
+                    "HelperForPydevCompletion.objects.";
 
             requestCompl(s, -1, new String[] { "get()" });
         }
@@ -417,7 +510,8 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
 
     public void testDjango3() throws Exception {
         if (TestDependent.PYTHON_DJANGO_PACKAGES != null) {
-            String s = "from django.contrib.auth.models import User\n" + "User.";
+            String s = "from django.contrib.auth.models import User\n" +
+                    "User.";
 
             requestCompl(s, -1, new String[] { "DoesNotExist" });
         }
@@ -436,19 +530,25 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
 
     public void testOverrideCompletions() throws Exception {
         String s;
-        s = "" + "class Bar(object):\n" + "    def __ha";//bring override completions!
+        s = "" +
+                "class Bar(object):\n" +
+                "    def __ha";//bring override completions!
         ICompletionProposal[] comps = requestCompl(s, s.length(), -1,
                 new String[] { "__hash__ (Override method in object)" });
         assertEquals(1, comps.length);
         Document doc = new Document(s);
         OverrideMethodCompletionProposal comp = (OverrideMethodCompletionProposal) comps[0];
         comp.applyOnDocument(null, doc, ' ', 0, s.length());
-        assertEquals("" + "class Bar(object):\n" + "    def __hash__(self, *args, **kwargs):\n"
-                + "        return object.__hash__(self, *args, **kwargs)", doc.get());
+        assertEquals("" +
+                "class Bar(object):\n" +
+                "    def __hash__(self, *args, **kwargs):\n"
+                +
+                "        return object.__hash__(self, *args, **kwargs)", doc.get());
     }
 
     public void testBuiltinKnownReturns() throws Exception {
-        String s = "a = open()\n" + "a.";
+        String s = "a = open()\n" +
+                "a.";
 
         //open returns a file object.
         requestCompl(s, -1, new String[] { "close()", "flush()", "readlines()" });
@@ -462,15 +562,25 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     }
 
     public void testAssignToFuncCompletion() throws Exception {
-        String s = "" + "def aFunction(a, b, c):\n" + "    return tuple(a, b, c)\n" + "\n" + "tup1 = aFunction\n"
-                + "tup";
+        String s = "" +
+                "def aFunction(a, b, c):\n" +
+                "    return tuple(a, b, c)\n" +
+                "\n" +
+                "tup1 = aFunction\n"
+                +
+                "tup";
 
         requestCompl(s, -1, new String[] { "tup1(a, b, c)" });
     }
 
     public void testAssignToFuncReturnCompletion() throws Exception {
-        String s = "" + "def aFunction(a, b, c):\n" + "    return tuple(a, b, c)\n" + "\n"
-                + "tup1 = aFunction(1, 2, 3)\n" + "tup";
+        String s = "" +
+                "def aFunction(a, b, c):\n" +
+                "    return tuple(a, b, c)\n" +
+                "\n"
+                +
+                "tup1 = aFunction(1, 2, 3)\n" +
+                "tup";
 
         requestCompl(s, -1, new String[] { "tup1" });
     }

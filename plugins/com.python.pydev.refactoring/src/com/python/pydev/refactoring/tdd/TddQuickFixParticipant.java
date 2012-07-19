@@ -173,7 +173,8 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
                             for (String imported : importedStr) {
                                 if (selectedText.equals(imported)) {
                                     if (fromImportStr != null) {
-                                        foundFromImportStr = fromImportStr + "." + imported;
+                                        foundFromImportStr = fromImportStr +
+                                                "." + imported;
                                         isImportFrom = true;
                                     } else {
                                         //if fromImportStr == null, it's not a from xxx import yyy (i.e.: simple import)
@@ -336,60 +337,70 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
     private void addCreateClassmethodOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props,
             String markerContents, List<String> parametersAfterCall, PyCreateMethodOrField pyCreateMethod, File file,
             String className) {
-        props.add(new TddRefactorCompletionInModule(markerContents, imageMethod, "Create " + markerContents
-                + " classmethod at " + className + " in " + file.getName(), null, "Create " + markerContents
-                + " classmethod at class: " + className + " in " + file, IPyCompletionProposal.PRIORITY_CREATE, edit,
+        props.add(new TddRefactorCompletionInModule(markerContents, imageMethod, "Create " + markerContents +
+                " classmethod at " + className +
+                " in " + file.getName(), null, "Create " + markerContents +
+                " classmethod at class: " + className +
+                " in " + file, IPyCompletionProposal.PRIORITY_CREATE, edit,
                 file, parametersAfterCall, pyCreateMethod, ps));
     }
 
     private void addCreateMethodOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props,
             String markerContents, List<String> parametersAfterCall, File file) {
-        props.add(new TddRefactorCompletionInModule(markerContents, imageMethod, "Create " + markerContents
-                + " method at " + file.getName(), null, "Create " + markerContents + " method at " + file,
+        props.add(new TddRefactorCompletionInModule(markerContents, imageMethod, "Create " + markerContents +
+                " method at " + file.getName(), null, "Create " + markerContents +
+                " method at " + file,
                 IPyCompletionProposal.PRIORITY_CREATE, edit, file, parametersAfterCall, new PyCreateMethodOrField(), ps));
     }
 
     private void addCreateClassOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props,
             String markerContents, List<String> parametersAfterCall, File file) {
-        props.add(new TddRefactorCompletionInModule(markerContents, imageClass, "Create " + markerContents
-                + " class at " + file.getName(), null, "Create " + markerContents + " class at " + file,
+        props.add(new TddRefactorCompletionInModule(markerContents, imageClass, "Create " + markerContents +
+                " class at " + file.getName(), null, "Create " + markerContents +
+                " class at " + file,
                 IPyCompletionProposal.PRIORITY_CREATE, edit, file, parametersAfterCall, new PyCreateClass(), ps));
     }
 
     private void addCreateClassInNewModuleOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props,
             String markerContents, String moduleName, List<String> parametersAfterCall, File file) {
-        props.add(new TddRefactorCompletionInInexistentModule(markerContents, imageClass, "Create " + markerContents
-                + " class at new module " + moduleName, null, "Create " + markerContents + " class at new module "
+        props.add(new TddRefactorCompletionInInexistentModule(markerContents, imageClass, "Create " + markerContents +
+                " class at new module " + moduleName, null, "Create " + markerContents +
+                " class at new module "
                 + file, IPyCompletionProposal.PRIORITY_CREATE, edit, file, new ArrayList<String>(),
                 new PyCreateClass(), ps));
     }
 
     private void addCreateMethodInNewModuleOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props,
             String markerContents, String moduleName, List<String> parametersAfterCall, File file) {
-        props.add(new TddRefactorCompletionInInexistentModule(markerContents, imageMethod, "Create " + markerContents
-                + " method at new module " + moduleName, null, "Create " + markerContents + " method at new module "
+        props.add(new TddRefactorCompletionInInexistentModule(markerContents, imageMethod, "Create " + markerContents +
+                " method at new module " + moduleName, null, "Create " + markerContents +
+                " method at new module "
                 + file, IPyCompletionProposal.PRIORITY_CREATE, edit, file, new ArrayList<String>(),
                 new PyCreateMethodOrField(), ps));
     }
 
     private void addCreateModuleOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props,
             String markerContents, File file) {
-        props.add(new TddRefactorCompletionInInexistentModule(markerContents, imageModule, "Create " + markerContents
-                + " module", null, "Create " + markerContents + " module (" + file + ")",
+        props.add(new TddRefactorCompletionInInexistentModule(markerContents, imageModule, "Create " + markerContents +
+                " module", null, "Create " + markerContents +
+                " module (" + file +
+                ")",
                 IPyCompletionProposal.PRIORITY_CREATE, edit, file, new ArrayList<String>(), new NullPyCreateAction(),
                 ps));
     }
 
     private void addCreateMethodOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props,
             String markerContents, List<String> parametersAfterCall) {
-        props.add(new TddRefactorCompletion(markerContents, imageMethod, "Create " + markerContents + " method", null,
+        props.add(new TddRefactorCompletion(markerContents, imageMethod, "Create " + markerContents +
+                " method", null,
                 null, IPyCompletionProposal.PRIORITY_CREATE, edit, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT,
                 parametersAfterCall, new PyCreateMethodOrField(), ps));
     }
 
     private void addCreateClassOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props,
             String markerContents, List<String> parametersAfterCall) {
-        props.add(new TddRefactorCompletion(markerContents, imageClass, "Create " + markerContents + " class", null,
+        props.add(new TddRefactorCompletion(markerContents, imageClass, "Create " + markerContents +
+                " class", null,
                 null, IPyCompletionProposal.PRIORITY_CREATE, edit, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT,
                 parametersAfterCall, new PyCreateClass(), ps));
     }

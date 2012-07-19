@@ -140,7 +140,8 @@ public class PyBackspaceTest extends TestCase {
     }
 
     public void testBackspace10() throws Exception {
-        Document doc = new Document("a = 10\n" + "    ");
+        Document doc = new Document("a = 10\n" +
+                "    ");
         PySelection ps = new PySelection(doc, 0, doc.getLength(), 0);
 
         backspace.perform(ps);
@@ -149,7 +150,8 @@ public class PyBackspaceTest extends TestCase {
 
     public void testBackspace10a() throws Exception {
         this.backspace.setIndentPrefs(new TestIndentPrefs(false, 4));
-        Document doc = new Document("a = 10\n" + "\t");
+        Document doc = new Document("a = 10\n" +
+                "\t");
         PySelection ps = new PySelection(doc, 0, doc.getLength(), 0);
 
         backspace.perform(ps);
@@ -157,7 +159,8 @@ public class PyBackspaceTest extends TestCase {
     }
 
     public void testBackspace11() throws Exception {
-        Document doc = new Document("a = 10\n" + "\t");
+        Document doc = new Document("a = 10\n" +
+                "\t");
         PySelection ps = new PySelection(doc, 0, doc.getLength(), 0);
 
         backspace.perform(ps);
@@ -165,7 +168,8 @@ public class PyBackspaceTest extends TestCase {
     }
 
     public void testBackspace12() throws Exception {
-        Document doc = new Document("a = 10\n" + "      ");
+        Document doc = new Document("a = 10\n" +
+                "      ");
         PySelection ps = new PySelection(doc, 0, doc.getLength(), 0);
 
         backspace.perform(ps);
@@ -252,7 +256,8 @@ public class PyBackspaceTest extends TestCase {
         PySelection ps = new PySelection(doc, 0, 8, 0);
 
         backspace.perform(ps);
-        assertEquals("ab(\n" + "   ", doc.get());
+        assertEquals("ab(\n" +
+                "   ", doc.get());
     }
 
     public void testBackspace19() throws Exception {
@@ -260,7 +265,8 @@ public class PyBackspaceTest extends TestCase {
         PySelection ps = new PySelection(doc, 0, doc.getLength(), 0);
 
         backspace.perform(ps);
-        assertEquals("a(\n" + "  ", doc.get());
+        assertEquals("a(\n" +
+                "  ", doc.get());
     }
 
     public void testBackspace20() throws Exception {
@@ -268,7 +274,8 @@ public class PyBackspaceTest extends TestCase {
         PySelection ps = new PySelection(doc, 0, doc.getLength(), 0);
 
         backspace.perform(ps);
-        assertEquals("a(\n" + "", doc.get());
+        assertEquals("a(\n" +
+                "", doc.get());
     }
 
     public void testBackspace21() throws Exception {

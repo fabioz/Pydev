@@ -37,7 +37,9 @@ public class PyScopeSelectionTest extends TestCase {
         ITextSelection selection = new TextSelection(doc, initialOffset, initialLenOffset);
 
         ITextSelection newSelection = scopeSelection.getNewSelection(doc, selection);
-        assertEquals("Expected offset to be: " + finalOffset + " actual offset: " + newSelection.getOffset() + " -- ",
+        assertEquals("Expected offset to be: " + finalOffset +
+                " actual offset: " + newSelection.getOffset() +
+                " -- ",
                 finalOffset, newSelection.getOffset());
         assertEquals(finalLenOffset, newSelection.getLength());
     }
@@ -66,7 +68,9 @@ public class PyScopeSelectionTest extends TestCase {
     }
 
     public void testWithStructures() {
-        String doc = "" + "def m1():\n" + "  if True:\n" + //True starts at 15
+        String doc = "" +
+                "def m1():\n" +
+                "  if True:\n" + //True starts at 15
                 "    pass";
 
         check(doc, 15, 0, 15, 4);
@@ -75,14 +79,24 @@ public class PyScopeSelectionTest extends TestCase {
     }
 
     public void testWithDictInParens() {
-        String doc = "(1,\n" + " {a\n" + ":b})\n" + "\n" + "class Bar(object):\n" + "    call" + "";
+        String doc = "(1,\n" +
+                " {a\n" +
+                ":b})\n" +
+                "\n" +
+                "class Bar(object):\n" +
+                "    call" +
+                "";
 
         check(doc, doc.length() - 1, 0, doc.length() - 4, 4);
         check(doc, doc.length() - 4, 4, 14, 27);
     }
 
     public void testWithParseError() {
-        String doc = "(1\n" + "\n" + "class Bar(object):\n" + "    call" + "";
+        String doc = "(1\n" +
+                "\n" +
+                "class Bar(object):\n" +
+                "    call" +
+                "";
 
         check(doc, doc.length() - 1, 0, doc.length() - 4, 4);
         check(doc, doc.length() - 4, 4, 4, 27);

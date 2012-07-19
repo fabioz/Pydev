@@ -30,8 +30,11 @@ public class FindCallVisitorTest extends PyParserTestBase {
     }
 
     public void testFindCallVisitor() throws Exception {
-        String s = "" + "from methoddef import Method1\n" + "Method1(10, param2=20)\n"
-                + "Method1(param1=10, param2=20)\n" + "";
+        String s = "" +
+                "from methoddef import Method1\n" +
+                "Method1(10, param2=20)\n" +
+                "Method1(param1=10, param2=20)\n" +
+                "";
         Module root = (Module) parseLegalDocStr(s);
         Expr expr = (Expr) root.body[1];
         Call call = (Call) expr.value;
@@ -43,8 +46,12 @@ public class FindCallVisitorTest extends PyParserTestBase {
     }
 
     public void testFindCallVisitor2() throws Exception {
-        String s = "" + "class c:\n" + "    def m(self):\n" + "        Method1(10, param2=20)\n"
-                + "        Method1(param1=10, param2=20)\n" + "";
+        String s = "" +
+                "class c:\n" +
+                "    def m(self):\n" +
+                "        Method1(10, param2=20)\n" +
+                "        Method1(param1=10, param2=20)\n" +
+                "";
         Module root = (Module) parseLegalDocStr(s);
         ClassDef classDef = (ClassDef) root.body[0];
         FunctionDef funcDef = (FunctionDef) classDef.body[0];

@@ -168,7 +168,8 @@ public class PythonCodeReaderTest extends TestCase {
 
     public void testForwardCurrentStatement() throws Exception {
         reader = new PythonCodeReader();
-        doc = new Document("a = 10\n" + "def m1(self): pass");
+        doc = new Document("a = 10\n" +
+                "def m1(self): pass");
         reader.configureForwardReader(doc, 0, doc.getLength(), true, true, true);
         FastStringBuffer buf = new FastStringBuffer();
         int c;
@@ -180,7 +181,9 @@ public class PythonCodeReaderTest extends TestCase {
 
     public void testBackwardCurrentStatement() throws Exception {
         reader = new PythonCodeReader();
-        doc = new Document("a = 10\n" + "def m1(self):\n" + "   a = 10");
+        doc = new Document("a = 10\n" +
+                "def m1(self):\n" +
+                "   a = 10");
         reader.configureBackwardReader(doc, doc.getLength(), true, true, true);
         FastStringBuffer buf = new FastStringBuffer();
         int c;
@@ -193,7 +196,9 @@ public class PythonCodeReaderTest extends TestCase {
 
     public void testBackwardCurrentStatement2() throws Exception {
         reader = new PythonCodeReader();
-        doc = new Document("" + "titleEnd = ('''\n" + "            [#''')" + //should wrap to the start
+        doc = new Document("" +
+                "titleEnd = ('''\n" +
+                "            [#''')" + //should wrap to the start
                 "");
         reader.configureBackwardReader(doc, doc.getLength(), true, true, true);
         FastStringBuffer buf = new FastStringBuffer();
@@ -207,7 +212,10 @@ public class PythonCodeReaderTest extends TestCase {
 
     public void testBackwardCurrentStatement3() throws Exception {
         reader = new PythonCodeReader();
-        doc = new Document("" + "titleEnd = ('''\n" + "# inside string" + "            [#''') #actual" + //should wrap to the start
+        doc = new Document("" +
+                "titleEnd = ('''\n" +
+                "# inside string" +
+                "            [#''') #actual" + //should wrap to the start
                 "");
         reader.configureBackwardReader(doc, doc.getLength(), true, true, true);
         FastStringBuffer buf = new FastStringBuffer();

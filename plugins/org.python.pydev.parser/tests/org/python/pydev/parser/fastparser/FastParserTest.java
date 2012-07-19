@@ -38,9 +38,15 @@ public class FastParserTest extends TestCase {
 
     public void testGettingClassOrFunc() throws Exception {
         Document doc = new Document();
-        doc.set("def bar(a):\n" + "\n" + "class \\\n" + "  Bar\n" + "    def mm\n" + "def\n" + //no space after
+        doc.set("def bar(a):\n" +
+                "\n" +
+                "class \\\n" +
+                "  Bar\n" +
+                "    def mm\n" +
+                "def\n" + //no space after
                 "class\n" + //no space after
-                "class \n" + "");
+                "class \n" +
+                "");
 
         List<stmtType> all = FastParser.parseClassesAndFunctions(doc);
         assertEquals(4, all.size());
@@ -52,8 +58,19 @@ public class FastParserTest extends TestCase {
 
     public void testGettingClass() throws Exception {
         Document doc = new Document();
-        doc.set("class Foo:\n" + "\n" + "class Bar(object):\n" + "\n" + "    class My\n" + "'''class Dont\n"
-                + "class Dont2\n" + "\n" + "'''\n" + "class My2:\n" + "" + "");
+        doc.set("class Foo:\n" +
+                "\n" +
+                "class Bar(object):\n" +
+                "\n" +
+                "    class My\n" +
+                "'''class Dont\n"
+                +
+                "class Dont2\n" +
+                "\n" +
+                "'''\n" +
+                "class My2:\n" +
+                "" +
+                "");
 
         List<stmtType> all = FastParser.parseClassesAndFunctions(doc);
         assertEquals(4, all.size());
@@ -87,7 +104,11 @@ public class FastParserTest extends TestCase {
 
     public void testGettingClass2() throws Exception {
         Document doc = new Document();
-        doc.set("def GetClassesAndData():\n" + "    curr_widget_class = 10\n" + "\n" + "" + "");
+        doc.set("def GetClassesAndData():\n" +
+                "    curr_widget_class = 10\n" +
+                "\n" +
+                "" +
+                "");
 
         List<stmtType> all = FastParser.parseClassesAndFunctions(doc);
         assertEquals(1, all.size());
@@ -95,7 +116,11 @@ public class FastParserTest extends TestCase {
 
     public void testGettingClass3() throws Exception {
         Document doc = new Document();
-        doc.set("class A(object):\n" + "    curr_widget_class = 10\n" + "\n" + "" + "");
+        doc.set("class A(object):\n" +
+                "    curr_widget_class = 10\n" +
+                "\n" +
+                "" +
+                "");
 
         List<stmtType> all = FastParser.parseClassesAndFunctions(doc);
         assertEquals(1, all.size());
@@ -103,7 +128,11 @@ public class FastParserTest extends TestCase {
 
     public void testGettingClass4() throws Exception {
         Document doc = new Document();
-        doc.set("\nclass A(object):\n" + "    curr_widget_class = 10\n" + "\n" + "" + "");
+        doc.set("\nclass A(object):\n" +
+                "    curr_widget_class = 10\n" +
+                "\n" +
+                "" +
+                "");
 
         List<stmtType> all = FastParser.parseClassesAndFunctions(doc);
         assertEquals(1, all.size());
@@ -111,7 +140,11 @@ public class FastParserTest extends TestCase {
 
     public void testGettingMethod() throws Exception {
         Document doc = new Document();
-        doc.set("def a():\n" + "    curr_widget_def = 10\n" + "\n" + "" + "");
+        doc.set("def a():\n" +
+                "    curr_widget_def = 10\n" +
+                "\n" +
+                "" +
+                "");
 
         List<stmtType> all = FastParser.parseClassesAndFunctions(doc);
         assertEquals(1, all.size());
@@ -119,7 +152,14 @@ public class FastParserTest extends TestCase {
 
     public void testBackwardsUntil1stGlobal() throws Exception {
         Document doc = new Document();
-        doc.set("def b():\n" + "    pass\n" + "\n" + "def a():\n" + "    curr_widget_def = 10\n" + "\n" + "" + "");
+        doc.set("def b():\n" +
+                "    pass\n" +
+                "\n" +
+                "def a():\n" +
+                "    curr_widget_def = 10\n" +
+                "\n" +
+                "" +
+                "");
 
         List<stmtType> stmts = FastParser.parseToKnowGloballyAccessiblePath(doc, 4);
         assertEquals(1, stmts.size());
@@ -128,7 +168,9 @@ public class FastParserTest extends TestCase {
 
     public void testCython1() throws Exception {
         Document doc = new Document();
-        doc.set("cdef extern int f1()\n" + "" + "");
+        doc.set("cdef extern int f1()\n" +
+                "" +
+                "");
         List<stmtType> stmts = FastParser.parseCython(doc);
         assertEquals(1, stmts.size());
         assertEquals("extern int f1()", NodeUtils.getRepresentationString(stmts.get(0)));
@@ -136,7 +178,9 @@ public class FastParserTest extends TestCase {
 
     public void testCython2() throws Exception {
         Document doc = new Document();
-        doc.set("ctypedef enum parrot_state:\n" + "" + "");
+        doc.set("ctypedef enum parrot_state:\n" +
+                "" +
+                "");
         List<stmtType> stmts = FastParser.parseCython(doc);
         assertEquals(1, stmts.size());
         assertEquals("enum parrot_state:", NodeUtils.getRepresentationString(stmts.get(0)));
@@ -144,13 +188,18 @@ public class FastParserTest extends TestCase {
 
     public void testBackwardsUntil1stGlobal2() throws Exception {
         Document doc = new Document();
-        doc.set("def b():\n" + "    pass\n" + "\n" + "def a():\n" + "    def f():\n" + //4
+        doc.set("def b():\n" +
+                "    pass\n" +
+                "\n" +
+                "def a():\n" +
+                "    def f():\n" + //4
                 "        curr_widget_def = 10\n" + //5
                 "    def c():\n" + //6
                 "        curr_widget_def = 10\n" + //7
                 "    a = 10\n" + //8
                 "    print a" + //9
-                "" + "");
+                "" +
+                "");
 
         List<stmtType> stmts;
 

@@ -49,10 +49,24 @@ public class PyUnitView2TestTestWorkbench extends AbstractWorkbenchTestCase impl
         //no need for default setup
         closeWelcomeView();
         super.setUp();
-        String testCaseContents = "" + "import unittest\n" + "\n" + "class TestCase(unittest.TestCase):\n" + "    \n"
-                + "    def testMet1(self):\n" + "        print 'ok'\n" + "\n" + "    def testMet2(self):\n"
-                + "        self.fail('failed')\n" + "        \n" + "    def testMet2__todo(self):\n"
-                + "        raise RuntimeError('error')\n" + "        \n" + "";
+        String testCaseContents = "" +
+                "import unittest\n" +
+                "\n" +
+                "class TestCase(unittest.TestCase):\n" +
+                "    \n"
+                +
+                "    def testMet1(self):\n" +
+                "        print 'ok'\n" +
+                "\n" +
+                "    def testMet2(self):\n"
+                +
+                "        self.fail('failed')\n" +
+                "        \n" +
+                "    def testMet2__todo(self):\n"
+                +
+                "        raise RuntimeError('error')\n" +
+                "        \n" +
+                "";
         setFileContents(testCaseContents);
     }
 
@@ -129,7 +143,8 @@ public class PyUnitView2TestTestWorkbench extends AbstractWorkbenchTestCase impl
                 Tree tree = view.getTree();
                 if (tree.getItemCount() != methodsAppearingInTree) {
                     if (arg == THROW_ERROR) {
-                        throw new AssertionError("tree.getItemCount() " + tree.getItemCount() + "!= methodsRun "
+                        throw new AssertionError("tree.getItemCount() " + tree.getItemCount() +
+                                "!= methodsRun "
                                 + methodsAppearingInTree);
                     }
                     return false;

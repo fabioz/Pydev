@@ -60,13 +60,15 @@ public class PythonCompletionZipsTest extends CodeCompletionTestsBase {
     }
 
     public void testZip() throws Exception {
-        String s = "import myzipmodule\n" + "myzipmodule.";
+        String s = "import myzipmodule\n" +
+                "myzipmodule.";
 
         requestCompl(s, s.length(), -1, new String[] { "MyZipClass" });
     }
 
     public void testEgg() throws Exception {
-        String s = "import myeggmodule\n" + "myeggmodule.";
+        String s = "import myeggmodule\n" +
+                "myeggmodule.";
 
         requestCompl(s, s.length(), -1, new String[] { "MyEggClass" });
     }

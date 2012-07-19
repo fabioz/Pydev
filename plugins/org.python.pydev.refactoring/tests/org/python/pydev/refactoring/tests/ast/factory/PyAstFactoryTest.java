@@ -45,12 +45,18 @@ public class PyAstFactoryTest extends PyParserTestBase {
     public void testPyAstFactory() throws Exception {
         FunctionDef functionDef = astFactory.createFunctionDef("MyMethod");
 
-        String expected = "" + "def MyMethod():\n" + "    pass\n" + "";
+        String expected = "" +
+                "def MyMethod():\n" +
+                "    pass\n" +
+                "";
         checkExpected(functionDef, expected);
     }
 
     public void testCreateSetter() throws Exception {
-        String expected = "" + "def setFoo(self,value):\n" + "    self.__foo = value\n" + "";
+        String expected = "" +
+                "def setFoo(self,value):\n" +
+                "    self.__foo = value\n" +
+                "";
         checkExpected(astFactory.createSetterFunctionDef("setFoo", "foo"), expected);
     }
 
@@ -61,8 +67,12 @@ public class PyAstFactoryTest extends PyParserTestBase {
     }
 
     public void testCreateConstructor() throws Exception {
-        String expected = "" + "def __init__(self,arg,attribute):\n" + "    A.__init__(self,arg)\n"
-                + "    self.attribute = attribute\n" + "";
+        String expected = "" +
+                "def __init__(self,arg,attribute):\n" +
+                "    A.__init__(self,arg)\n"
+                +
+                "    self.attribute = attribute\n" +
+                "";
 
         FunctionDef functionDef = astFactory.createFunctionDef("__init__");
         functionDef.args = astFactory.createArguments(true, "arg", "attribute");
@@ -72,7 +82,10 @@ public class PyAstFactoryTest extends PyParserTestBase {
     }
 
     public void testCreateOverrideBody() throws Exception {
-        String expected = "" + "def test(self,arg,attribute):\n" + "    Parent.test(self,arg,attribute)\n" + "";
+        String expected = "" +
+                "def test(self,arg,attribute):\n" +
+                "    Parent.test(self,arg,attribute)\n" +
+                "";
 
         FunctionDef functionDef = astFactory.createFunctionDef("test");
         functionDef.args = astFactory.createArguments(true, "arg", "attribute");
@@ -81,8 +94,11 @@ public class PyAstFactoryTest extends PyParserTestBase {
     }
 
     public void testCreateOverrideBody2() throws Exception {
-        String expected = "" + "def test(arg,attribute,*args,**kwargs):\n"
-                + "    return Parent.test(arg,attribute,*args,**kwargs)\n" + "";
+        String expected = "" +
+                "def test(arg,attribute,*args,**kwargs):\n"
+                +
+                "    return Parent.test(arg,attribute,*args,**kwargs)\n" +
+                "";
 
         Module module = (Module) parseLegalDocStr(expected);
         FunctionDef functionDef = (FunctionDef) module.body[0];
@@ -93,10 +109,16 @@ public class PyAstFactoryTest extends PyParserTestBase {
     }
 
     public void testCreateOverrideBody3() throws Exception {
-        String base = "" + "def test(arg,attribute,a=10,b=20,*args,**kwargs):\n" + "    pass\n" + "";
+        String base = "" +
+                "def test(arg,attribute,a=10,b=20,*args,**kwargs):\n" +
+                "    pass\n" +
+                "";
 
-        String expected = "" + "def test(arg,attribute,a=10,b=20,*args,**kwargs):\n"
-                + "    Parent.test(arg,attribute,a=a,b=b,*args,**kwargs)\n" + "";
+        String expected = "" +
+                "def test(arg,attribute,a=10,b=20,*args,**kwargs):\n"
+                +
+                "    Parent.test(arg,attribute,a=a,b=b,*args,**kwargs)\n" +
+                "";
 
         Module module = (Module) parseLegalDocStr(base);
         FunctionDef functionDef = (FunctionDef) module.body[0];
@@ -107,9 +129,17 @@ public class PyAstFactoryTest extends PyParserTestBase {
     }
 
     public void testCreateOverrideBody4() throws Exception {
-        String base = "" + "@classmethod\n" + "def test(cls):\n" + "    pass\n" + "";
+        String base = "" +
+                "@classmethod\n" +
+                "def test(cls):\n" +
+                "    pass\n" +
+                "";
 
-        String expected = "" + "@classmethod\n" + "def test(cls):\n" + "    super(Current,cls).test()\n" + "";
+        String expected = "" +
+                "@classmethod\n" +
+                "def test(cls):\n" +
+                "    super(Current,cls).test()\n" +
+                "";
         //        Module m = (Module) parseLegalDocStr(expected);
         //        FunctionDef func = (FunctionDef) m.body[0];
         //        System.out.println(func.body[0]);
@@ -122,9 +152,18 @@ public class PyAstFactoryTest extends PyParserTestBase {
     }
 
     public void testCreateOverrideBody5() throws Exception {
-        String base = "" + "@classmethod\n" + "def test(cls):\n" + "    #comment\n" + "    pass\n" + "";
+        String base = "" +
+                "@classmethod\n" +
+                "def test(cls):\n" +
+                "    #comment\n" +
+                "    pass\n" +
+                "";
 
-        String expected = "" + "@classmethod\n" + "def test(cls):\n" + "    super(Current,cls).test()\n" + "";
+        String expected = "" +
+                "@classmethod\n" +
+                "def test(cls):\n" +
+                "    super(Current,cls).test()\n" +
+                "";
 
         Module module = (Module) parseLegalDocStr(base);
         FunctionDef functionDef = (FunctionDef) module.body[0];
@@ -143,7 +182,8 @@ public class PyAstFactoryTest extends PyParserTestBase {
                     }
                 }));
         String result = printer.print(functionDef);
-        System.out.println("Result: >>" + result + "<<");
+        System.out.println("Result: >>" + result +
+                "<<");
         assertEquals(expected, result);
     }
 

@@ -1088,9 +1088,18 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                     storeVersion = "Unable to get storeVersion. Reason: " + e.getMessage();
                 }
 
-                Log.log("Found invalid version: " + version + "\n" + "Returning default\n" + "Project: " + this.project
-                        + "\n" + "versionPropertyCache: " + versionPropertyCache + "\n" + "storeVersion:"
-                        + storeVersion);
+                Log.log("Found invalid version: " +
+                        version +
+                        "\n" +
+                        "Returning default\n" +
+                        "Project: " +
+                        this.project +
+                        "\n" +
+                        "versionPropertyCache: " +
+                        versionPropertyCache +
+                        "\n" +
+                        "storeVersion:" +
+                        storeVersion);
 
                 return LATEST_GRAMMAR_VERSION;
             }

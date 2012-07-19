@@ -95,10 +95,17 @@ public class PyCodeScannerTest extends TestCase {
     }
 
     public void testScanner() throws Exception {
-        String str = "class Example(object):             \n" + "                                   \n"
-                + "    def Call(self, param1=None):   \n" + "        return param1 + 10 * 10    \n"
-                + "                                   \n" + "    def Call2(self):               \n"
-                + "        return self.Call(param1=10)" + "";
+        String str = "class Example(object):             \n" +
+                "                                   \n"
+                +
+                "    def Call(self, param1=None):   \n" +
+                "        return param1 + 10 * 10    \n"
+                +
+                "                                   \n" +
+                "    def Call2(self):               \n"
+                +
+                "        return self.Call(param1=10)" +
+                "";
 
         PyCodeScanner scanner = createCodeScanner();
         scanner.setRange(new Document(str), 0, str.length());

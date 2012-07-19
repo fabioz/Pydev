@@ -45,8 +45,14 @@ import org.python.pydev.ui.UIConstants;
  */
 public class Py2To3 extends PyResourceAction implements IObjectActionDelegate {
 
-    public static final String RUN_2_TO_3_CODE = "" + "from lib2to3.main import main\n" + "import sys\n"
-            + "import os\n" + "\n" + "sys.exit(main('lib2to3.fixes'))\n" + "";
+    public static final String RUN_2_TO_3_CODE = "" +
+            "from lib2to3.main import main\n" +
+            "import sys\n"
+            +
+            "import os\n" +
+            "\n" +
+            "sys.exit(main('lib2to3.fixes'))\n" +
+            "";
 
     PythonNature natureUsed;
     List<String> parameters;

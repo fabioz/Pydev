@@ -25,8 +25,18 @@ public class PyAstFactoryWithPrettyPrinting extends AbstractPrettyPrinterTestBas
     }
 
     public void testVarious22() throws Throwable {
-        final String s = "" + "\n" + "\n" + "\n" + "[\n" + "    1, \n" + "    2,\n" + "    self.call(*a)\n" + "]\n"
-                + "\n" + "";
+        final String s = "" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "[\n" +
+                "    1, \n" +
+                "    2,\n" +
+                "    self.call(*a)\n" +
+                "]\n"
+                +
+                "\n" +
+                "";
 
         final String expected = "return [1,2,self.call(*a)]\n";
 

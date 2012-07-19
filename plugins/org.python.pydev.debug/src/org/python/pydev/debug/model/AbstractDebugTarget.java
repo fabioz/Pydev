@@ -340,7 +340,10 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
      */
     public void processCommand(String sCmdCode, String sSeqCode, String payload) {
         if (DEBUG) {
-            System.out.println("process command:" + sCmdCode + "\tseq:" + sSeqCode + "\tpayload:" + payload + "\n\n");
+            System.out.println("process command:" + sCmdCode +
+                    "\tseq:" + sSeqCode +
+                    "\tpayload:" + payload +
+                    "\n\n");
         }
         try {
             int cmdCode = Integer.parseInt(sCmdCode);
@@ -358,11 +361,14 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
                 processThreadRun(payload);
 
             } else {
-                PydevDebugPlugin.log(IStatus.WARNING, "Unexpected debugger command:" + sCmdCode + "\nseq:" + sSeqCode
-                        + "\npayload:" + payload, null);
+                PydevDebugPlugin.log(IStatus.WARNING, "Unexpected debugger command:" + sCmdCode +
+                        "\nseq:" + sSeqCode
+                        +
+                        "\npayload:" + payload, null);
             }
         } catch (Exception e) {
-            PydevDebugPlugin.log(IStatus.ERROR, "Error processing: " + sCmdCode + "\npayload: " + payload, e);
+            PydevDebugPlugin.log(IStatus.ERROR, "Error processing: " + sCmdCode +
+                    "\npayload: " + payload, e);
         }
     }
 
@@ -524,7 +530,8 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     public static Tuple<String, String> getThreadIdAndReason(String payload) throws CoreException {
         List<String> split = StringUtils.split(payload.trim(), '\t');
         if (split.size() != 2) {
-            String msg = "Unexpected threadRun payload " + payload + "(unable to match)";
+            String msg = "Unexpected threadRun payload " + payload +
+                    "(unable to match)";
             throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, msg, new RuntimeException(msg)));
         }
         return new Tuple<String, String>(split.get(0), split.get(1));
@@ -574,7 +581,8 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
                     }
                     buf.append("id: " + thread.getId());
                 }
-                String msg = "Unable to find thread: " + threadID + " available: " + buf;
+                String msg = "Unable to find thread: " + threadID +
+                        " available: " + buf;
                 PydevDebugPlugin.log(IStatus.ERROR, msg, new RuntimeException(msg));
             }
         } catch (CoreException e1) {

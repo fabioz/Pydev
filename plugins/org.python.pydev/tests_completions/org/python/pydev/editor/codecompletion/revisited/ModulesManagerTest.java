@@ -109,7 +109,11 @@ public class ModulesManagerTest extends CodeCompletionTestsBase {
     }
 
     public void testRestoreContents() throws Exception {
-        String contents = "" + "A|A.py\n" + "B\r\n" + "D|0|E|1" + "";
+        String contents = "" +
+                "A|A.py\n" +
+                "B\r\n" +
+                "D|0|E|1" +
+                "";
 
         ProjectModulesManager manager = new ProjectModulesManager();
         HashMap<Integer, String> intToString = new HashMap<Integer, String>();
@@ -139,7 +143,11 @@ public class ModulesManagerTest extends CodeCompletionTestsBase {
     }
 
     public void testRestoreContents2() throws Exception {
-        String contents = "" + "A||A.py||\n" + "B|\r\n" + "D|0|E|1\n" + "";
+        String contents = "" +
+                "A||A.py||\n" +
+                "B|\r\n" +
+                "D|0|E|1\n" +
+                "";
 
         ProjectModulesManager manager = new ProjectModulesManager();
         HashMap<Integer, String> intToString = new HashMap<Integer, String>();

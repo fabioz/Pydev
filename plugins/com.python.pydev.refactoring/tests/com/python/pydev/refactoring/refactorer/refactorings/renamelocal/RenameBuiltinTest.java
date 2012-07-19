@@ -31,7 +31,12 @@ public class RenameBuiltinTest extends RefactoringLocalTestBase {
     }
 
     public void testRename3() throws Exception {
-        String str = "" + "from qt import *\n" + "print %s\n" + "\n" + "\n" + "";
+        String str = "" +
+                "from qt import *\n" +
+                "print %s\n" +
+                "\n" +
+                "\n" +
+                "";
 
         int line = 1;
         int col = 7;

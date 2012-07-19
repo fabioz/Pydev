@@ -39,10 +39,19 @@ public class FindActualDefinitionTest extends CodeCompletionTestsBase {
     }
 
     public void testFindActualDefinition() throws Exception {
-        String str = "" + "class Test(unittest.TestCase):\n" + "\n" + "    def testCountCalls(self):\n"
-                + "        string_io = StringIO()\n" + "        printed = string_io.getvalue()\n"
-                + "        remove_chars = [',', '(', ')', ':']\n" + "        for c in remove_chars:\n"
-                + "            printed = printed.replace(c, '')\n" + "";
+        String str = "" +
+                "class Test(unittest.TestCase):\n" +
+                "\n" +
+                "    def testCountCalls(self):\n"
+                +
+                "        string_io = StringIO()\n" +
+                "        printed = string_io.getvalue()\n"
+                +
+                "        remove_chars = [',', '(', ')', ':']\n" +
+                "        for c in remove_chars:\n"
+                +
+                "            printed = printed.replace(c, '')\n" +
+                "";
         IModule mod = SourceModule.createModuleFromDoc(null, new Document(str), nature);
         ICompletionCache completionCache = new CompletionCache();
         ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
@@ -52,10 +61,17 @@ public class FindActualDefinitionTest extends CodeCompletionTestsBase {
     }
 
     public void testFindActualDefinition2() throws Exception {
-        String str = "" + "class Test(unittest.TestCase):\n" + "\n" + "    def testCountCalls(self):\n"
-                + "        exp_format = '%*.*e' % (exp_format_digits + 8, exp_format_digits, datum)\n"
-                + "        mantissa, _exponent_str = exp_format.split('e')\n"
-                + "        mantissa = mantissa.strip().rjust(exp_format_digits + 3)\n" + "";
+        String str = "" +
+                "class Test(unittest.TestCase):\n" +
+                "\n" +
+                "    def testCountCalls(self):\n"
+                +
+                "        exp_format = '%*.*e' % (exp_format_digits + 8, exp_format_digits, datum)\n"
+                +
+                "        mantissa, _exponent_str = exp_format.split('e')\n"
+                +
+                "        mantissa = mantissa.strip().rjust(exp_format_digits + 3)\n" +
+                "";
         IModule mod = SourceModule.createModuleFromDoc(null, new Document(str), nature);
         ICompletionCache completionCache = new CompletionCache();
         ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
@@ -65,11 +81,25 @@ public class FindActualDefinitionTest extends CodeCompletionTestsBase {
     }
 
     public void testFindActualDefinition3() throws Exception {
-        String str = "" + "class Test(unittest.TestCase):\n" + "\n" + "    def testCountCalls(self):\n"
-                + "        parent = self.root\n" + "        if name == '':\n" + "            result = parent\n"
-                + "        else:\n" + "            parts = name.split('/')\n" + "            for i_part in parts:\n"
-                + "                result = parent.find(i_part)\n" + "                parent = result\n"
-                + "        return result\n" + "\n" + "";
+        String str = "" +
+                "class Test(unittest.TestCase):\n" +
+                "\n" +
+                "    def testCountCalls(self):\n"
+                +
+                "        parent = self.root\n" +
+                "        if name == '':\n" +
+                "            result = parent\n"
+                +
+                "        else:\n" +
+                "            parts = name.split('/')\n" +
+                "            for i_part in parts:\n"
+                +
+                "                result = parent.find(i_part)\n" +
+                "                parent = result\n"
+                +
+                "        return result\n" +
+                "\n" +
+                "";
         IModule mod = SourceModule.createModuleFromDoc(null, new Document(str), nature);
         ICompletionCache completionCache = new CompletionCache();
         ArrayList<IDefinition> selected = new ArrayList<IDefinition>();

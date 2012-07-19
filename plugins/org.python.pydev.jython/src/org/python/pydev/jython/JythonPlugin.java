@@ -54,13 +54,15 @@ public class JythonPlugin extends AbstractUIPlugin {
      */
     public static boolean IN_TESTS = false;
 
-    private static String LOAD_FILE_SCRIPT = ""
-            + "print '--->  reloading', r'%s'\n"
-            + "import sys                    \n"
-            + //sys will always be on the namespace (so that we can set sys.path)
-            "f = open(r'%s')               \n" + "try:                          \n"
-            + "    toExec = f.read()         \n" + "finally:                      \n"
-            + "    f.close()                 \n" + "%s                            \n" + //space to put the needed folders on sys.path
+    private static String LOAD_FILE_SCRIPT = "" +
+            "print '--->  reloading', r'%s'\n" +
+            "import sys                    \n" + //sys will always be on the namespace (so that we can set sys.path)
+            "f = open(r'%s')               \n" +
+            "try:                          \n" +
+            "    toExec = f.read()         \n" +
+            "finally:                      \n" +
+            "    f.close()                 \n" +
+            "%s                            \n" + //space to put the needed folders on sys.path
             "";
 
     public static synchronized void setDebugReload(boolean b) {
@@ -150,9 +152,9 @@ public class JythonPlugin extends AbstractUIPlugin {
                 "org.eclipse.ui", "org.eclipse.core", "org.eclipse.debug", "org.eclipse.jface", "org.eclipse.swt",
                 "org.eclipse.text", "org.junit", "org.python",
 
-        //No need to add those.
-        //"javax.",
-        //"java."
+                //No need to add those.
+                //"javax.",
+                //"java."
         };
 
         private boolean addPackageNames(Bundle bundle, List<String> addNamesToThisList, String commaSeparatedPackages) {
@@ -334,8 +336,9 @@ public class JythonPlugin extends AbstractUIPlugin {
         for (File file : beneathFolders) {
             if (file != null) {
                 if (!file.exists()) {
-                    String msg = "The folder:" + file + " does not exist and therefore cannot be used to "
-                            + "find scripts to run starting with:" + startingWith;
+                    String msg = "The folder:" + file +
+                            " does not exist and therefore cannot be used to " +
+                            "find scripts to run starting with:" + startingWith;
                     Log.log(IStatus.ERROR, msg, null);
                     errors.add(new RuntimeException(msg));
                 }

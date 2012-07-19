@@ -86,9 +86,19 @@ public class TabNannyDocIterator {
                     initial = offset;
                 } else {
                     if (initial == offset) {
-                        Log.log("Error: TabNannyDocIterator didn't walk.\n" + "Curr char:" + c + "\n"
-                                + "Curr char (as int):" + (int) c + "\n" + "Offset:" + offset + "\n" + "DocLen:"
-                                + doc.getLength() + "\n");
+                        Log.log("Error: TabNannyDocIterator didn't walk.\n" +
+                                "Curr char:" +
+                                c +
+                                "\n" +
+                                "Curr char (as int):" +
+                                (int) c +
+                                "\n" +
+                                "Offset:" +
+                                offset +
+                                "\n" +
+                                "DocLen:" +
+                                doc.getLength() +
+                                "\n");
                         offset++;
                         return true;
                     } else {

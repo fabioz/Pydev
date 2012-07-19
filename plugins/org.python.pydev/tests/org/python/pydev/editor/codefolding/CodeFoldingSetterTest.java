@@ -178,8 +178,15 @@ public class CodeFoldingSetterTest extends TestCase {
         setOptionTrue(PyDevCodeFoldingPrefPage.FOLD_CLASSDEF);
         setOptionTrue(PyDevCodeFoldingPrefPage.FOLD_FUNCTIONDEF);
         setOptionTrue(PyDevCodeFoldingPrefPage.USE_CODE_FOLDING);
-        Document doc = new Document("" + "class TestCase(unittest.TestCase):\n" + "    \n" + "    def setUp(self):\n"
-                + "        unittest.TestCase.setUp(self)\n" + "        return 1\n" + "\n" + "\n");
+        Document doc = new Document("" +
+                "class TestCase(unittest.TestCase):\n" +
+                "    \n" +
+                "    def setUp(self):\n"
+                +
+                "        unittest.TestCase.setUp(self)\n" +
+                "        return 1\n" +
+                "\n" +
+                "\n");
 
         List<FoldingEntry> marks = getMarks(doc);
 
@@ -192,10 +199,23 @@ public class CodeFoldingSetterTest extends TestCase {
 
     public void testExceptMarks() throws Exception {
         setAllOptions(true);
-        Document doc = new Document("" + "def foo():\n" + "    try:\n" + "        print 'trythis'\n"
-                + "    except(Exception):\n" + "        print 'exception'\n" + "    finally:\n"
-                + "        print 'finally'\n" + "            \n" + "    try:\n" + "        print 'small try'\n"
-                + "    finally:\n" + "        print 'small finally'\n" + "\n");
+        Document doc = new Document("" +
+                "def foo():\n" +
+                "    try:\n" +
+                "        print 'trythis'\n"
+                +
+                "    except(Exception):\n" +
+                "        print 'exception'\n" +
+                "    finally:\n"
+                +
+                "        print 'finally'\n" +
+                "            \n" +
+                "    try:\n" +
+                "        print 'small try'\n"
+                +
+                "    finally:\n" +
+                "        print 'small finally'\n" +
+                "\n");
 
         List<FoldingEntry> marks = getMarks(doc);
 
@@ -211,9 +231,20 @@ public class CodeFoldingSetterTest extends TestCase {
 
     public void testExceptElse() throws Exception {
         setAllOptions(true);
-        Document doc = new Document("" + "try:\n" + "    print 'trythis'\n" + "except(Exception):\n"
-                + "    print 'exception'\n" + "except(Exception):\n" + "    print 'exception'\n" + "else:\n"
-                + "    print 'finally'\n" + "finally:\n" + "    pass" + "\n");
+        Document doc = new Document("" +
+                "try:\n" +
+                "    print 'trythis'\n" +
+                "except(Exception):\n"
+                +
+                "    print 'exception'\n" +
+                "except(Exception):\n" +
+                "    print 'exception'\n" +
+                "else:\n"
+                +
+                "    print 'finally'\n" +
+                "finally:\n" +
+                "    pass" +
+                "\n");
 
         List<FoldingEntry> marks = getMarks(doc);
 
@@ -228,8 +259,13 @@ public class CodeFoldingSetterTest extends TestCase {
 
     public void testEndingWithMultiline() throws Exception {
         setAllOptions(true);
-        Document doc = new Document("" + "while True:\n" + "    print '''htnh\n" + "    tnhueosn\n" + "    '''  \n"
-                + "\n");
+        Document doc = new Document("" +
+                "while True:\n" +
+                "    print '''htnh\n" +
+                "    tnhueosn\n" +
+                "    '''  \n"
+                +
+                "\n");
 
         List<FoldingEntry> marks = getMarks(doc);
 
@@ -241,7 +277,12 @@ public class CodeFoldingSetterTest extends TestCase {
 
     public void testTryFinally() throws Exception {
         setAllOptions(true);
-        Document doc = new Document("" + "try:\n" + "    pass\n" + "finally:\n" + "    pass" + "\n");
+        Document doc = new Document("" +
+                "try:\n" +
+                "    pass\n" +
+                "finally:\n" +
+                "    pass" +
+                "\n");
 
         List<FoldingEntry> marks = getMarks(doc);
 
@@ -253,8 +294,16 @@ public class CodeFoldingSetterTest extends TestCase {
 
     public void testTryFinally2() throws Exception {
         setAllOptions(true);
-        Document doc = new Document("" + "try:\n" + "    try:\n" + "        print 'trythis'\n"
-                + "    except(Exception):\n" + "        pass\n" + "finally:\n" + "    print 'small finally'\n" + "\n");
+        Document doc = new Document("" +
+                "try:\n" +
+                "    try:\n" +
+                "        print 'trythis'\n"
+                +
+                "    except(Exception):\n" +
+                "        pass\n" +
+                "finally:\n" +
+                "    print 'small finally'\n" +
+                "\n");
 
         List<FoldingEntry> marks = getMarks(doc);
 
@@ -268,8 +317,15 @@ public class CodeFoldingSetterTest extends TestCase {
 
     public void testIfMarks() throws Exception {
         setOptionTrue(PyDevCodeFoldingPrefPage.FOLD_IF);
-        Document doc = new Document("" + "if a:\n" + "    print 1\n" + "    if b:\n" + "        print 2\n"
-                + "    else:\n" + "        print 3\n" + "\n");
+        Document doc = new Document("" +
+                "if a:\n" +
+                "    print 1\n" +
+                "    if b:\n" +
+                "        print 2\n"
+                +
+                "    else:\n" +
+                "        print 3\n" +
+                "\n");
 
         List<FoldingEntry> marks = getMarks(doc);
 
@@ -282,8 +338,15 @@ public class CodeFoldingSetterTest extends TestCase {
 
     public void testIfElifElseMarks() throws Exception {
         setOptionTrue(PyDevCodeFoldingPrefPage.FOLD_IF);
-        Document doc = new Document("" + "if a:\n" + "    print 1\n" + "elif b:\n" + "    print 2\n" + "else:\n"
-                + "    print 3\n" + "\n");
+        Document doc = new Document("" +
+                "if a:\n" +
+                "    print 1\n" +
+                "elif b:\n" +
+                "    print 2\n" +
+                "else:\n"
+                +
+                "    print 3\n" +
+                "\n");
 
         List<FoldingEntry> marks = getMarks(doc);
 
@@ -315,9 +378,21 @@ public class CodeFoldingSetterTest extends TestCase {
         setOptionTrue(PyDevCodeFoldingPrefPage.FOLD_COMMENTS);
         setOptionTrue(PyDevCodeFoldingPrefPage.FOLD_IMPORTS);
         setOptionTrue(PyDevCodeFoldingPrefPage.USE_CODE_FOLDING);
-        Document doc = new Document("" + "import foo\n" + "from foo import (x,\n" + "                 y,\n"
-                + "                 )\n" + "import foo\n" + "#comment1\n" + "#comment2\n" + "#comment3\n"
-                + "def m1():\n" + "    '''start\n" + "    end'''" + "");
+        Document doc = new Document("" +
+                "import foo\n" +
+                "from foo import (x,\n" +
+                "                 y,\n"
+                +
+                "                 )\n" +
+                "import foo\n" +
+                "#comment1\n" +
+                "#comment2\n" +
+                "#comment3\n"
+                +
+                "def m1():\n" +
+                "    '''start\n" +
+                "    end'''" +
+                "");
 
         List<FoldingEntry> marks = getMarks(doc);
 

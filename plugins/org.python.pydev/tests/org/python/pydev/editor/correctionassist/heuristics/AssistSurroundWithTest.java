@@ -44,17 +44,41 @@ public class AssistSurroundWithTest extends TestCase {
         PySelection ps = new PySelection(doc, 0, 0, 3);
         List<ICompletionProposal> props = assistSurroundWith.getProps(ps, null, null, null, null, offset);
         props.get(0).apply(doc);
-        TestCaseUtils.assertContentsEqual("" + "try:\n" + "    a = 10\n" + "except${cursor}:\n" + "    raise" + "",
+        TestCaseUtils.assertContentsEqual("" +
+                "try:\n" +
+                "    a = 10\n" +
+                "except${cursor}:\n" +
+                "    raise" +
+                "",
                 doc.get());
 
-        doc = new Document("" + "def m1():\n" + "\n" + "\n" + "    a = 10\n" + "\n" + "\n");
+        doc = new Document("" +
+                "def m1():\n" +
+                "\n" +
+                "\n" +
+                "    a = 10\n" +
+                "\n" +
+                "\n");
         ps = new PySelection(doc, 1, 0, 11);
         props = assistSurroundWith.getProps(ps, null, null, null, null, offset);
         props.get(0).apply(doc);
-        TestCaseUtils.assertContentsEqual("" + "def m1():\n" + "    try:\n" + "    \n" + "    \n" + "        a = 10\n"
-                + "    except${cursor}:\n" + "        raise\n" + "\n" + "\n" + "", doc.get());
+        TestCaseUtils.assertContentsEqual("" +
+                "def m1():\n" +
+                "    try:\n" +
+                "    \n" +
+                "    \n" +
+                "        a = 10\n"
+                +
+                "    except${cursor}:\n" +
+                "        raise\n" +
+                "\n" +
+                "\n" +
+                "", doc.get());
 
-        doc = new Document("" + "\n" + "\n" + "\n");
+        doc = new Document("" +
+                "\n" +
+                "\n" +
+                "\n");
         ps = new PySelection(doc, 1, 0, 1);
         props = assistSurroundWith.getProps(ps, null, null, null, null, offset);
         assertEquals(0, props.size());

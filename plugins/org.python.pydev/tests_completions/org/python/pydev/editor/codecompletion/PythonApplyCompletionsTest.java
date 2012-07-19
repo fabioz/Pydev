@@ -63,7 +63,8 @@ public class PythonApplyCompletionsTest extends CodeCompletionTestsBase {
     }
 
     public void testApply1() throws Exception {
-        String s0 = "from extendable.nested2 import mod2, mod3\n" + "mod%s";
+        String s0 = "from extendable.nested2 import mod2, mod3\n" +
+                "mod%s";
 
         String s = StringUtils.format(s0, "2");
 
@@ -78,8 +79,12 @@ public class PythonApplyCompletionsTest extends CodeCompletionTestsBase {
     }
 
     public void testApply2() throws Exception {
-        String s = "class XX:\n" + "    def method1(self, a, b):\n" + "        return 1\n" + "    def foo(self):\n"
-                + "        self.metho";
+        String s = "class XX:\n" +
+                "    def method1(self, a, b):\n" +
+                "        return 1\n" +
+                "    def foo(self):\n"
+                +
+                "        self.metho";
 
         int offset = s.length();
         ICompletionProposal[] proposals = requestCompl(s, offset, -1, new String[] {});
@@ -88,13 +93,18 @@ public class PythonApplyCompletionsTest extends CodeCompletionTestsBase {
         Document d = new Document(s);
         p.applyOnDoc(offset, false, d, "metho".length(), '.');
         //System.out.println(d.get());
-        assertEquals(s + "d1.", d.get());
+        assertEquals(s +
+                "d1.", d.get());
         assertEquals(new Point(d.getLength(), 0), p.getSelection(d));
     }
 
     public void testApply3() throws Exception {
-        String s = "class XX:\n" + "    def method1(self, a, b):\n" + "        return 1\n" + "    def foo(self):\n"
-                + "        self.metho";
+        String s = "class XX:\n" +
+                "    def method1(self, a, b):\n" +
+                "        return 1\n" +
+                "    def foo(self):\n"
+                +
+                "        self.metho";
 
         int offset = s.length() - 1;
         ICompletionProposal[] proposals = requestCompl(s, offset, -1, new String[] {});
@@ -104,13 +114,18 @@ public class PythonApplyCompletionsTest extends CodeCompletionTestsBase {
         Document d = new Document(s);
         p.applyOnDoc(offset, true, d, "meth".length(), '\n');
         //System.out.println(d.get());
-        assertEquals(s + "d1", d.get());
+        assertEquals(s +
+                "d1", d.get());
         assertEquals(new Point(d.getLength(), 0), p.getSelection(d));
     }
 
     public void testApply4() throws Exception {
-        String s = "class XX:\n" + "    def method1(self, a, b):\n" + "        return 1\n" + "    def foo(self):\n"
-                + "        self.metho";
+        String s = "class XX:\n" +
+                "    def method1(self, a, b):\n" +
+                "        return 1\n" +
+                "    def foo(self):\n"
+                +
+                "        self.metho";
 
         int offset = s.length() - 1;
         ICompletionProposal[] proposals = requestCompl(s, offset, -1, new String[] {});
@@ -121,13 +136,18 @@ public class PythonApplyCompletionsTest extends CodeCompletionTestsBase {
         Document d = new Document(s);
         p.applyOnDoc(offset, true, d, "meth".length(), '(');
         //System.out.println(d.get());
-        assertEquals(s + "d1", d.get());
+        assertEquals(s +
+                "d1", d.get());
         assertEquals(new Point(d.getLength(), 0), p.getSelection(d));
     }
 
     public void testApply5() throws Exception {
-        String s = "class XX:\n" + "    def method1(self, a, b):\n" + "        return 1\n" + "    def foo(self):\n"
-                + "        self.meth";
+        String s = "class XX:\n" +
+                "    def method1(self, a, b):\n" +
+                "        return 1\n" +
+                "    def foo(self):\n"
+                +
+                "        self.meth";
 
         int offset = s.length();
         ICompletionProposal[] proposals = requestCompl(s, offset, -1, new String[] {});
@@ -137,13 +157,18 @@ public class PythonApplyCompletionsTest extends CodeCompletionTestsBase {
         Document d = new Document(s);
         p.applyOnDoc(offset, false, d, 4, '(');
         //System.out.println(d.get());
-        assertEquals(s + "od1()", d.get());
+        assertEquals(s +
+                "od1()", d.get());
         assertEquals(new Point(d.getLength() - 1, 0), p.getSelection(d));
     }
 
     public void testApply6() throws Exception {
-        String s = "class XX:\n" + "    def method1(self, a, b):\n" + "        return 1\n" + "    def foo(self):\n"
-                + "        self.meth";
+        String s = "class XX:\n" +
+                "    def method1(self, a, b):\n" +
+                "        return 1\n" +
+                "    def foo(self):\n"
+                +
+                "        self.meth";
 
         int offset = s.length();
         ICompletionProposal[] proposals = requestCompl(s, offset, -1, new String[] {});
@@ -153,7 +178,8 @@ public class PythonApplyCompletionsTest extends CodeCompletionTestsBase {
         Document d = new Document(s);
         p.applyOnDoc(offset, false, d, 4, ')');
         //System.out.println(d.get());
-        assertEquals(s + "od1(a, b)", d.get());
+        assertEquals(s +
+                "od1(a, b)", d.get());
         assertEquals(new Point(d.getLength() - "a, b)".length(), 0), p.getSelection(d));
     }
 

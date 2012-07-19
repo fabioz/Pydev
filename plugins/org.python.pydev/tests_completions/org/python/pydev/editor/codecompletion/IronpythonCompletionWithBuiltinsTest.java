@@ -74,7 +74,8 @@ public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompleti
     }
 
     public void testRecursion() throws FileNotFoundException, Exception, CompletionRecursionException {
-        String file = TestDependent.TEST_PYSRC_LOC + "testrec3/rec.py";
+        String file = TestDependent.TEST_PYSRC_LOC +
+                "testrec3/rec.py";
         String strDoc = "RuntimeError.";
         File f = new File(file);
         ICompletionState state = CompletionStateFactory.getEmptyCompletionState("RuntimeError", nature,
@@ -93,10 +94,12 @@ public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompleti
 
         String s;
 
-        s = "from datetime import datetime\n" + "datetime.";
+        s = "from datetime import datetime\n" +
+                "datetime.";
 
         //for some reason, this is failing only when the module is specified...
-        File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "tests/pysrc/simpledatetimeimport.py");
+        File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC +
+                "tests/pysrc/simpledatetimeimport.py");
         assertTrue(file.exists());
         assertTrue(file.isFile());
         requestCompl(file, s, s.length(), -1, new String[] { "today()", "utcnow()" });
@@ -115,18 +118,27 @@ public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompleti
         //look... 
         s = "" +
 
-        "class bla(object):pass\n" + "\n" + "def newFunc(): \n"
-                + "    callSomething( bla.__get#complete here... stack error \n" + "                  keepGoing) \n";
+                "class bla(object):pass\n" +
+                "\n" +
+                "def newFunc(): \n"
+                +
+                "    callSomething( bla.__get#complete here... stack error \n" +
+                "                  keepGoing) \n";
 
         //If we improve the parser to get the error above, uncomment line below to check it...
         requestCompl(s, s.indexOf('#'), 1, new String[] { "__getattribute__(self, name: str)" });
 
         //check for builtins..1
-        s = "" + "\n" + "";
+        s = "" +
+                "\n" +
+                "";
         requestCompl(s, s.length(), -1, new String[] { "RuntimeError" });
 
         //check for builtins..2
-        s = "" + "from testlib import *\n" + "\n" + "";
+        s = "" +
+                "from testlib import *\n" +
+                "\n" +
+                "";
         requestCompl(s, s.length(), -1, new String[] { "RuntimeError" });
 
         //check for builtins..3 (builtins should not be available because it is an import request for completions)
@@ -151,19 +163,25 @@ public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompleti
 
     public void testDeepNested6() throws Exception {
         String s;
-        s = "" + "from extendable.nested2 import hub\n" + "hub.c1.f.";
+        s = "" +
+                "from extendable.nested2 import hub\n" +
+                "hub.c1.f.";
         requestCompl(s, s.length(), -1, new String[] { "curdir" });
     }
 
     public void testDeepNested10() throws Exception {
         String s;
-        s = "" + "from extendable.nested3 import hub2\n" + "hub2.c.a.";
+        s = "" +
+                "from extendable.nested3 import hub2\n" +
+                "hub2.c.a.";
         requestCompl(s, s.length(), -1, new String[] { "fun()" });
     }
 
     public void testRelativeOnSameProj() throws Exception {
         String s;
-        s = "" + "import prefersrc\n" + "prefersrc.";
+        s = "" +
+                "import prefersrc\n" +
+                "prefersrc.";
         AbstractModule.MODULE_NAME_WHEN_FILE_IS_UNDEFINED = "foo";
         try {
             requestCompl(s, s.length(), -1, new String[] { "OkGotHere" }, nature2);
@@ -174,30 +192,40 @@ public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompleti
 
     public void testDeepNested7() throws Exception {
         String s;
-        s = "" + "from extendable.nested2 import hub\n" + "hub.c1.f.curdir.";
+        s = "" +
+                "from extendable.nested2 import hub\n" +
+                "hub.c1.f.curdir.";
         requestCompl(s, s.length(), -1, new String[] { "upper()" });
     }
 
     public void testDeepNested8() throws Exception {
         String s;
-        s = "" + "from extendable.nested2 import hub\n" + "hub.C1.f.sep."; //changed: was altsep (may be None in linux).
+        s = "" +
+                "from extendable.nested2 import hub\n" +
+                "hub.C1.f.sep."; //changed: was altsep (may be None in linux).
         requestCompl(s, s.length(), -1, new String[] { "upper()" });
     }
 
     public void testDeepNested9() throws Exception {
         String s;
-        s = "" + "from extendable.nested2 import hub\n" + "hub.C1.f.inexistant.";
+        s = "" +
+                "from extendable.nested2 import hub\n" +
+                "hub.C1.f.inexistant.";
         requestCompl(s, s.length(), -1, new String[] {});
     }
 
     public void testDictAssign() throws Exception {
         String s;
-        s = "" + "a = {}\n" + "a.";
+        s = "" +
+                "a = {}\n" +
+                "a.";
         requestCompl(s, s.length(), -1, new String[] { "keys()" });
     }
 
     public void testPreferSrc() throws BadLocationException, IOException, Exception {
-        String s = "" + "import prefersrc\n" + "prefersrc.";
+        String s = "" +
+                "import prefersrc\n" +
+                "prefersrc.";
         requestCompl(s, s.length(), -1, new String[] { "PreferSrc" });
     }
 
@@ -205,38 +233,54 @@ public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompleti
 
         String s;
 
-        s = "" + "import os\n" + "                \n" + "os.";
-        File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "tests/pysrc/simpleosimport.py");
+        s = "" +
+                "import os\n" +
+                "                \n" +
+                "os.";
+        File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC +
+                "tests/pysrc/simpleosimport.py");
         assertTrue(file.exists());
         assertTrue(file.isFile());
         requestCompl(file, s, s.length(), -1, new String[] { "path" });
 
-        s = "" + "import os\n" + "                \n" + "os.";
+        s = "" +
+                "import os\n" +
+                "                \n" +
+                "os.";
         requestCompl(s, s.length(), -1, new String[] { "path" });
 
         //check for builtins with reference..3
-        s = "" + "from testlib.unittest import anothertest\n" + "anothertest.";
+        s = "" +
+                "from testlib.unittest import anothertest\n" +
+                "anothertest.";
         requestCompl(s, s.length(), 5, new String[] { "__file__", "__dict__", "__name__", "AnotherTest", "t" });
 
     }
 
     public void testInstanceCompletion() throws Exception {
-        String s = "class A:\n" + "    def __init__(self):\n" + "        self.list1 = []\n"
-                + "if __name__ == '__main__':\n" + "    a = A()\n" + "    a.list1.";
+        String s = "class A:\n" +
+                "    def __init__(self):\n" +
+                "        self.list1 = []\n"
+                +
+                "if __name__ == '__main__':\n" +
+                "    a = A()\n" +
+                "    a.list1.";
 
         //        requestCompl(s, -1, new String[] {"pop(int index)", "remove(object value)"});
         requestCompl(s, -1, new String[] { "pop(index: int)", "remove(value: object)" });
     }
 
     public void test__all__() throws Exception {
-        String s = "from extendable.all_check import *\n" + "";
+        String s = "from extendable.all_check import *\n" +
+                "";
 
         //should keep the variables from the __builtins__ in this module
         requestCompl(s, -1, new String[] { "ThisGoes", "RuntimeError" });
     }
 
     public void testSortParamsCorrect() throws Exception {
-        String s = "[].sort" + "";
+        String s = "[].sort" +
+                "";
 
         //should keep the variables from the __builtins__ in this module
         ICompletionProposal[] requestCompl = requestCompl(s, -1,

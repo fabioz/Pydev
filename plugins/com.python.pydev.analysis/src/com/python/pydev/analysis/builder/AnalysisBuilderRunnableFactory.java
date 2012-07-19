@@ -161,9 +161,11 @@ public class AnalysisBuilderRunnableFactory {
 
     private static String createExistinTimeHigherMessage(long oldTime, long documentTime, long oldResourceTime,
             long resourceTime) {
-        return "The document time from an existing is higher than a new one, so, leave it be... " + oldTime + " > "
-                + documentTime + " - " + DELTA_TO_CONSIDER_SAME
-                + " (delta to consider equal) -- resource stamp (old, new): " + oldResourceTime + ", " + resourceTime;
+        return "The document time from an existing is higher than a new one, so, leave it be... " + oldTime +
+                " > " + documentTime +
+                " - " + DELTA_TO_CONSIDER_SAME +
+                " (delta to consider equal) -- resource stamp (old, new): " + oldResourceTime +
+                ", " + resourceTime;
     }
 
     // Factory creation methods -----------------------------------------

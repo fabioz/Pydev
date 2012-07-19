@@ -21,11 +21,22 @@ import org.python.pydev.refactoring.core.base.RefactoringInfo;
  */
 public class PyCreateClass extends AbstractPyCreateClassOrMethodOrField {
 
-    private final static String baseClassStr = "" + "class %s(${object}):\n" + "    ${pass}${cursor}\n" + "\n" + "\n"
-            + "";
+    private final static String baseClassStr = "" +
+            "class %s(${object}):\n" +
+            "    ${pass}${cursor}\n" +
+            "\n" +
+            "\n" +
+            "";
 
-    private final static String baseClassWithInitStr = "" + "class %s(${object}):\n" + "    \n"
-            + "    def __init__(self, %s):\n" + "        ${pass}${cursor}\n" + "\n" + "\n" + "";
+    private final static String baseClassWithInitStr = "" +
+            "class %s(${object}):\n" +
+            "    \n"
+            +
+            "    def __init__(self, %s):\n" +
+            "        ${pass}${cursor}\n" +
+            "\n" +
+            "\n" +
+            "";
 
     public String getCreationStr() {
         return "class";

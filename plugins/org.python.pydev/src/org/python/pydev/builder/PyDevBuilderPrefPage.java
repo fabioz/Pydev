@@ -88,9 +88,15 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
 
-        String s = "WARNING: \n\n" + "PyDev builders are required for many features \n"
-                + "provided by Pydev such as:\n" + "\n" + "- Code completion\n" + "- PyLint\n" + "- TODO tasks\n"
-                + "\n" + "So, if you choose to disable it, note that the features \n"
+        String s = "WARNING: \n\n" +
+                "PyDev builders are required for many features \n"
+                + "provided by Pydev such as:\n" +
+                "\n" +
+                "- Code completion\n" +
+                "- PyLint\n" +
+                "- TODO tasks\n"
+                + "\n" +
+                "So, if you choose to disable it, note that the features \n"
                 + "mentioned above may not work as expected or may even not \n"
                 + "work at all (use at your own risk).\n";
 
@@ -103,7 +109,8 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
         addField(new IntegerFieldEditor(PyParserManager.PYDEV_ELAPSE_BEFORE_ANALYSIS,
                 "Time to elapse before reparsing changed file (millis)", p));
 
-        s = "If only open editors are analyzed, markers will only be added\n" + "to the opened PyDev editors.\n";
+        s = "If only open editors are analyzed, markers will only be added\n" +
+                "to the opened PyDev editors.\n";
         addField(new LabelFieldEditor("ActiveBufferLabelFieldEditor", s, p));
 
         BooleanFieldEditorWithPublicGetControl onlyAnalyzeOpen = new BooleanFieldEditorWithPublicGetControl(

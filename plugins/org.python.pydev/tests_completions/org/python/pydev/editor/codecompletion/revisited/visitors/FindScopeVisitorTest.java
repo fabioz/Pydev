@@ -55,17 +55,31 @@ public class FindScopeVisitorTest extends PyParserTestBase {
 
     public void testFindLocalScope() throws Exception {
         String s = ""
-                + "#file mod3.py \n"
+                +
+                "#file mod3.py \n"
                 + //line = 1 (in ast)
-                "class SomeA(object):\n" + "    def fun(self):\n" + "        pass\n" + "    \n" + "class C1(object):\n"
-                + "  a = SomeA() #yes, these are class-defined\n" + "  \n" + "  def someFunct(self):\n"
-                + "      pass\n" + "    \n" + "\n" + "";
+                "class SomeA(object):\n" +
+                "    def fun(self):\n" +
+                "        pass\n" +
+                "    \n" +
+                "class C1(object):\n"
+                +
+                "  a = SomeA() #yes, these are class-defined\n" +
+                "  \n" +
+                "  def someFunct(self):\n"
+                +
+                "      pass\n" +
+                "    \n" +
+                "\n" +
+                "";
         ILocalScope localScope = findLocalScope(s, 8, 3);
         assertTrue(localScope.getClassDef() != null);
     }
 
     public void testFindAssertInLocalScope() throws Exception {
-        String s = "def m1(a):\n" + "    assert isinstance(a, str)\n" + "    ";
+        String s = "def m1(a):\n" +
+                "    assert isinstance(a, str)\n" +
+                "    ";
 
         ILocalScope localScope = findLocalScope(s, 2, 1);
         List<String> found = localScope.getPossibleClassesForActivationToken("a");
@@ -74,7 +88,9 @@ public class FindScopeVisitorTest extends PyParserTestBase {
     }
 
     public void testFindAssertInLocalScope2() throws Exception {
-        String s = "def m1(a):\n" + "    assert isinstance(a, (list, tuple))\n" + "    ";
+        String s = "def m1(a):\n" +
+                "    assert isinstance(a, (list, tuple))\n" +
+                "    ";
 
         ILocalScope localScope = findLocalScope(s, 2, 1);
         List<String> found = localScope.getPossibleClassesForActivationToken("a");

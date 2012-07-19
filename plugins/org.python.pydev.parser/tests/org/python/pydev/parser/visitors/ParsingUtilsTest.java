@@ -37,17 +37,23 @@ public class ParsingUtilsTest extends TestCase {
     }
 
     public void testRemoveCommentsWhitespacesAndLiterals() throws SyntaxErrorException {
-        String s = "a , b = 0,#ignore\n" + "*args, **kwargs\n" + "'''";
+        String s = "a , b = 0,#ignore\n" +
+                "*args, **kwargs\n" +
+                "'''";
         FastStringBuffer buf = new FastStringBuffer(s, 0);
         ParsingUtils.removeCommentsWhitespacesAndLiterals(buf, false);
         assertEquals("a,b=0,*args,**kwargs", buf.toString());
 
-        s = "a , b = 0,#ignore\n" + "*args, **kwargs\n" + "'''remove'\"";
+        s = "a , b = 0,#ignore\n" +
+                "*args, **kwargs\n" +
+                "'''remove'\"";
         buf = new FastStringBuffer(s, 0);
         ParsingUtils.removeCommentsWhitespacesAndLiterals(buf, false);
         assertEquals("a,b=0,*args,**kwargs", buf.toString());
 
-        s = "a , b = 0,#ignore\n" + "*args, **kwargs\n" + "'''remove'''keep";
+        s = "a , b = 0,#ignore\n" +
+                "*args, **kwargs\n" +
+                "'''remove'''keep";
         buf = new FastStringBuffer(s, 0);
         ParsingUtils.removeCommentsWhitespacesAndLiterals(buf, true);
         assertEquals("a,b=0,*args,**kwargskeep", buf.toString());

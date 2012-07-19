@@ -103,41 +103,88 @@ public class AssistDocStringTest extends TestCase {
 
     public void testApply() throws Exception {
         String expected;
-        expected = "def foo(a): #comment\r\n" + "    '''\r\n" + "    \r\n" + "    @param a:\r\n" + "    @type a:\r\n"
-                + "    '''";
+        expected = "def foo(a): #comment\r\n" +
+                "    '''\r\n" +
+                "    \r\n" +
+                "    @param a:\r\n" +
+                "    @type a:\r\n"
+                +
+                "    '''";
         check(expected, "def foo(a): #comment");
 
-        expected = "def f( x, ):\r\n" + "    '''\r\n" + "    \r\n" + "    @param x:\r\n" + "    @type x:\r\n"
-                + "    '''";
+        expected = "def f( x, ):\r\n" +
+                "    '''\r\n" +
+                "    \r\n" +
+                "    @param x:\r\n" +
+                "    @type x:\r\n"
+                +
+                "    '''";
         check(expected, "def f( x, ):");
 
-        expected = "def f( x, ):\n" + "    '''\n" + "    \n" + "    @param x:\n" + "    @type x:\n" + "    '''\n";
-        check(expected, "def f( x, ):\n" + "    pass\n");
+        expected = "def f( x, ):\n" +
+                "    '''\n" +
+                "    \n" +
+                "    @param x:\n" +
+                "    @type x:\n" +
+                "    '''\n";
+        check(expected, "def f( x, ):\n" +
+                "    pass\n");
 
-        expected = "def f( x y ):\r\n" + "    '''\r\n" + "    \r\n" + "    '''";
+        expected = "def f( x y ):\r\n" +
+                "    '''\r\n" +
+                "    \r\n" +
+                "    '''";
         check(expected, "def f( x y ):");
 
-        expected = "def f( x,y=10 ):\r\n" + "    '''\r\n" + "    \r\n" + "    @param x:\r\n" + "    @type x:\r\n"
-                + "    @param y:\r\n" + "    @type y:\r\n" + "    '''";
+        expected = "def f( x,y=10 ):\r\n" +
+                "    '''\r\n" +
+                "    \r\n" +
+                "    @param x:\r\n" +
+                "    @type x:\r\n"
+                +
+                "    @param y:\r\n" +
+                "    @type y:\r\n" +
+                "    '''";
         check(expected, "def f( x,y=10 ):");
 
-        expected = "def f( , ):\r\n" + "    '''\r\n" + "    \r\n" + "    '''";
+        expected = "def f( , ):\r\n" +
+                "    '''\r\n" +
+                "    \r\n" +
+                "    '''";
         check(expected, "def f( , ):");
 
-        expected = "def f( ):\r\n" + "    '''\r\n" + "    \r\n" + "    '''";
+        expected = "def f( ):\r\n" +
+                "    '''\r\n" +
+                "    \r\n" +
+                "    '''";
         check(expected, "def f( ):");
 
-        expected = "def f(:\r\n" + "    '''\r\n" + "    \r\n" + "    '''";
+        expected = "def f(:\r\n" +
+                "    '''\r\n" +
+                "    \r\n" +
+                "    '''";
         check(expected, "def f(:");
 
-        expected = "class f:\r\n" + "    '''\r\n" + "    \r\n" + "    '''";
+        expected = "class f:\r\n" +
+                "    '''\r\n" +
+                "    \r\n" +
+                "    '''";
         check(expected, "class f:");
 
         check("def f):", "def f):", 0);
 
-        expected = "" + "def seek(self, pos:int, whence: int) -> int:\r\n" + "    '''\r\n" + "    \r\n"
-                + "    @param pos:\r\n" + "    @type pos:\r\n" + "    @param whence:\r\n" + "    @type whence:\r\n"
-                + "    '''" + "";
+        expected = "" +
+                "def seek(self, pos:int, whence: int) -> int:\r\n" +
+                "    '''\r\n" +
+                "    \r\n"
+                +
+                "    @param pos:\r\n" +
+                "    @type pos:\r\n" +
+                "    @param whence:\r\n" +
+                "    @type whence:\r\n"
+                +
+                "    '''" +
+                "";
         check(expected, "def seek(self, pos:int, whence: int) -> int:");
 
     }

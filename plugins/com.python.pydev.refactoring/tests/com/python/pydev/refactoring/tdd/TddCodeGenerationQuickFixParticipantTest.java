@@ -51,8 +51,11 @@ public class TddCodeGenerationQuickFixParticipantTest extends CodeCompletionTest
         super.setUp();
         AbstractPyRefactoring.setPyRefactoring(new Refactorer());
         CompiledModule.COMPILED_MODULES_ENABLED = false;
-        this.restorePythonPath(TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.PYTHON_PIL_PACKAGES + "|"
-                + TestDependent.TEST_PYSRC_LOC + "configobj-4.6.0-py2.6.egg", false);
+        this.restorePythonPath(TestDependent.GetCompletePythonLib(true) +
+                "|" + TestDependent.PYTHON_PIL_PACKAGES +
+                "|"
+                + TestDependent.TEST_PYSRC_LOC +
+                "configobj-4.6.0-py2.6.egg", false);
 
         this.restorePythonPath(false);
         codeCompletion = new PyCodeCompletion();
@@ -82,9 +85,22 @@ public class TddCodeGenerationQuickFixParticipantTest extends CodeCompletionTest
     }
 
     public void testCreate() throws Exception {
-        String s = "" + "class MyClass(object):\n" + "    pass\n" + "\n" + "def makeTestObj():\n"
-                + "    return MyClass()\n" + "\n" + "def makeTestObj2():\n" + "    return makeTestObj()\n" + "\n"
-                + "def testName():\n" + "    obj = makeTestObj2()\n" + "    obj.unimplementedFunction()\n" + "";
+        String s = "" +
+                "class MyClass(object):\n" +
+                "    pass\n" +
+                "\n" +
+                "def makeTestObj():\n"
+                +
+                "    return MyClass()\n" +
+                "\n" +
+                "def makeTestObj2():\n" +
+                "    return makeTestObj()\n" +
+                "\n"
+                +
+                "def testName():\n" +
+                "    obj = makeTestObj2()\n" +
+                "    obj.unimplementedFunction()\n" +
+                "";
         TddCodeGenerationQuickFixParticipant participant = new TddCodeGenerationQuickFixParticipant();
         Document doc = new Document(s);
         List<ICompletionProposal> props = participant.getTddProps(new PySelection(doc, s.length() - 1), null, null,
@@ -94,10 +110,25 @@ public class TddCodeGenerationQuickFixParticipantTest extends CodeCompletionTest
     }
 
     public void testDontCreate() throws Exception {
-        String s = "" + "class MyClass(object):\n" + "\n" + "    def unimplementedFunction(self):\n" + "        pass\n"
-                + "\n" + "def makeTestObj():\n" + "    return MyClass()\n" + "\n" + "def makeTestObj2():\n"
-                + "    return makeTestObj()\n" + "\n" + "def testName():\n" + "    obj = makeTestObj2()\n"
-                + "    obj.unimplementedFunction()\n" + "";
+        String s = "" +
+                "class MyClass(object):\n" +
+                "\n" +
+                "    def unimplementedFunction(self):\n" +
+                "        pass\n"
+                +
+                "\n" +
+                "def makeTestObj():\n" +
+                "    return MyClass()\n" +
+                "\n" +
+                "def makeTestObj2():\n"
+                +
+                "    return makeTestObj()\n" +
+                "\n" +
+                "def testName():\n" +
+                "    obj = makeTestObj2()\n"
+                +
+                "    obj.unimplementedFunction()\n" +
+                "";
         TddCodeGenerationQuickFixParticipant participant = new TddCodeGenerationQuickFixParticipant();
         Document doc = new Document(s);
         List<ICompletionProposal> props = participant.getTddProps(new PySelection(doc, s.length() - 1), null, null,

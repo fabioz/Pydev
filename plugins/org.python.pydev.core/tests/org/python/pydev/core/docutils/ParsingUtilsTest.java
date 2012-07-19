@@ -39,28 +39,44 @@ public class ParsingUtilsTest extends TestCase {
     }
 
     public void testIsInCommOrStr() {
-        String str = "" + "#comm1\n" + "'str'\n" + "pass\n" + "";
+        String str = "" +
+                "#comm1\n" +
+                "'str'\n" +
+                "pass\n" +
+                "";
         assertEquals(ParsingUtils.PY_COMMENT, ParsingUtils.getContentType(str, 2));
         assertEquals(ParsingUtils.PY_SINGLELINE_STRING1, ParsingUtils.getContentType(str, 10));
         assertEquals(ParsingUtils.PY_DEFAULT, ParsingUtils.getContentType(str, 17));
     }
 
     public void testIsInCommOrStr2() {
-        String str = "" + "'''\n" + "foo\n" + "'''" + "";
+        String str = "" +
+                "'''\n" +
+                "foo\n" +
+                "'''" +
+                "";
         assertEquals(ParsingUtils.PY_DEFAULT, ParsingUtils.getContentType(str, str.length()));
         assertEquals(ParsingUtils.PY_DEFAULT, ParsingUtils.getContentType(str, str.length() - 1));
         assertEquals(ParsingUtils.PY_MULTILINE_STRING1, ParsingUtils.getContentType(str, str.length() - 2));
     }
 
     public void testEatComments() {
-        String str = "" + "#comm1\n" + "pass\n" + "";
+        String str = "" +
+                "#comm1\n" +
+                "pass\n" +
+                "";
         ParsingUtils parsingUtils = ParsingUtils.create(str);
         int i = parsingUtils.eatComments(null, 0);
         assertEquals('\n', parsingUtils.charAt(i));
     }
 
     public void testEatLiterals() throws SyntaxErrorException {
-        String str = "" + "'''\n" + "pass\n" + "'''" + "w" + "";
+        String str = "" +
+                "'''\n" +
+                "pass\n" +
+                "'''" +
+                "w" +
+                "";
         ParsingUtils parsingUtils = ParsingUtils.create(str);
         int i = parsingUtils.eatLiterals(null, 0);
         assertEquals(11, i);
@@ -68,7 +84,8 @@ public class ParsingUtilsTest extends TestCase {
     }
 
     public void testInvalidSyntax() {
-        String str = "" + "'" + //not properly closed
+        String str = "" +
+                "'" + //not properly closed
                 "";
         ParsingUtils parsingUtils = ParsingUtils.create(str, true);
         try {
@@ -78,7 +95,8 @@ public class ParsingUtilsTest extends TestCase {
             //expected
         }
 
-        str = "" + "'''" + //not properly closed
+        str = "" +
+                "'''" + //not properly closed
                 "";
         parsingUtils = ParsingUtils.create(str, true);
         try {
@@ -88,7 +106,8 @@ public class ParsingUtilsTest extends TestCase {
             //expected
         }
 
-        str = "" + "(" + //not properly closed
+        str = "" +
+                "(" + //not properly closed
                 "";
         parsingUtils = ParsingUtils.create(str, true);
         try {
@@ -101,7 +120,10 @@ public class ParsingUtilsTest extends TestCase {
     }
 
     public void testEatWhitespaces() {
-        String str = "" + "    #comm\n" + "pass\n" + "";
+        String str = "" +
+                "    #comm\n" +
+                "pass\n" +
+                "";
         ParsingUtils parsingUtils = ParsingUtils.create(str);
         FastStringBuffer buf = new FastStringBuffer();
         int i = parsingUtils.eatWhitespaces(buf, 0);
@@ -111,7 +133,8 @@ public class ParsingUtilsTest extends TestCase {
     }
 
     public void testEatWhitespaces2() {
-        String str = "" + "    ";
+        String str = "" +
+                "    ";
         ParsingUtils parsingUtils = ParsingUtils.create(str);
         FastStringBuffer buf = new FastStringBuffer();
         int i = parsingUtils.eatWhitespaces(buf, 0);
@@ -121,7 +144,11 @@ public class ParsingUtilsTest extends TestCase {
     }
 
     public void testIterator() throws Exception {
-        String str = "" + "#c\n" + "'s'\n" + "pass\n" + "";
+        String str = "" +
+                "#c\n" +
+                "'s'\n" +
+                "pass\n" +
+                "";
         Document d = new Document(str);
         Iterator<String> it = ParsingUtils.getNoLiteralsOrCommentsIterator(d);
         assertEquals("\n", it.next());
@@ -133,7 +160,14 @@ public class ParsingUtilsTest extends TestCase {
     }
 
     public void testGetFlattenedLine() throws Exception {
-        String str = "" + "line #c\n" + "start =\\\n" + "10 \\\n" + "30\n" + "call(\n" + "   ttt,\n" + ")\n";
+        String str = "" +
+                "line #c\n" +
+                "start =\\\n" +
+                "10 \\\n" +
+                "30\n" +
+                "call(\n" +
+                "   ttt,\n" +
+                ")\n";
         ParsingUtils parsing = ParsingUtils.create(str);
         FastStringBuffer buf = new FastStringBuffer();
         assertEquals(6, parsing.getFullFlattenedLine(0, buf.clear()));
@@ -153,7 +187,10 @@ public class ParsingUtilsTest extends TestCase {
     }
 
     public void testGetFlattenedLine2() throws Exception {
-        String str = "" + "line = '''\n" + "bla bla bla''' = xxy\n" + "what";
+        String str = "" +
+                "line = '''\n" +
+                "bla bla bla''' = xxy\n" +
+                "what";
         ParsingUtils parsing = ParsingUtils.create(str);
         FastStringBuffer buf = new FastStringBuffer();
         assertEquals(30, parsing.getFullFlattenedLine(0, buf.clear()));
@@ -162,7 +199,10 @@ public class ParsingUtilsTest extends TestCase {
     }
 
     public void testGetFlattenedLine3() throws Exception {
-        String str = "" + "a = c(\r\n" + "a)\r\n" + "b = 20\r\n";
+        String str = "" +
+                "a = c(\r\n" +
+                "a)\r\n" +
+                "b = 20\r\n";
         ParsingUtils parsing = ParsingUtils.create(str);
         FastStringBuffer buf = new FastStringBuffer();
         assertEquals(9, parsing.getFullFlattenedLine(0, buf.clear()));
@@ -171,7 +211,10 @@ public class ParsingUtilsTest extends TestCase {
     }
 
     public void testGetFlattenedLine4() throws Exception {
-        String str = "" + "a = c(\r" + "a)\r" + "b = 20\r";
+        String str = "" +
+                "a = c(\r" +
+                "a)\r" +
+                "b = 20\r";
         ParsingUtils parsing = ParsingUtils.create(str);
         FastStringBuffer buf = new FastStringBuffer();
         assertEquals(8, parsing.getFullFlattenedLine(0, buf.clear()));
@@ -180,7 +223,9 @@ public class ParsingUtilsTest extends TestCase {
     }
 
     public void testGetFlattenedLine5() throws Exception {
-        String str = "" + "a = c(\n" + "a)\n" + //char 8 == )
+        String str = "" +
+                "a = c(\n" +
+                "a)\n" + //char 8 == )
                 "b = 20\n";
         ParsingUtils parsing = ParsingUtils.create(str);
         FastStringBuffer buf = new FastStringBuffer();
@@ -190,7 +235,11 @@ public class ParsingUtilsTest extends TestCase {
     }
 
     public void testGetFlattenedLine6() throws Exception {
-        String str = "" + "a = '''" + "a)\n" + "'''\n" + "b = 10";
+        String str = "" +
+                "a = '''" +
+                "a)\n" +
+                "'''\n" +
+                "b = 10";
         ParsingUtils parsing = ParsingUtils.create(str);
         FastStringBuffer buf = new FastStringBuffer();
         assertEquals(12, parsing.getFullFlattenedLine(0, buf.clear()));
@@ -199,7 +248,10 @@ public class ParsingUtilsTest extends TestCase {
     }
 
     public void testGetFlattenedLine7() throws Exception {
-        String str = "" + "a = '''" + "a)\n" + "'''";
+        String str = "" +
+                "a = '''" +
+                "a)\n" +
+                "'''";
         ParsingUtils parsing = ParsingUtils.create(str);
         FastStringBuffer buf = new FastStringBuffer();
         assertEquals(12, parsing.getFullFlattenedLine(0, buf.clear()));
@@ -208,7 +260,10 @@ public class ParsingUtilsTest extends TestCase {
     }
 
     public void testGetFlattenedLine8() throws Exception {
-        String str = "" + "a = '''" + "a)\n" + "'''\\";
+        String str = "" +
+                "a = '''" +
+                "a)\n" +
+                "'''\\";
         ParsingUtils parsing = ParsingUtils.create(str);
         FastStringBuffer buf = new FastStringBuffer();
         assertEquals(13, parsing.getFullFlattenedLine(0, buf.clear()));
@@ -217,7 +272,10 @@ public class ParsingUtilsTest extends TestCase {
     }
 
     public void testIterator2() throws Exception {
-        String str = "" + "#c\n" + "'s'" + "";
+        String str = "" +
+                "#c\n" +
+                "'s'" +
+                "";
         Document d = new Document(str);
         PyDocIterator it = (PyDocIterator) ParsingUtils.getNoLiteralsOrCommentsIterator(d);
         assertEquals(-1, it.getLastReturnedLine());
@@ -232,7 +290,8 @@ public class ParsingUtilsTest extends TestCase {
     }
 
     public void testIterator3() throws Exception {
-        String str = "" + "#c";
+        String str = "" +
+                "#c";
         Document d = new Document(str);
         PyDocIterator it = (PyDocIterator) ParsingUtils.getNoLiteralsOrCommentsIterator(d);
         assertEquals(-1, it.getLastReturnedLine());
@@ -244,7 +303,14 @@ public class ParsingUtilsTest extends TestCase {
     }
 
     public void testIterator5() throws Exception {
-        String str = "" + "class Foo:\n" + "    '''\n" + "    \"\n" + "    b\n" + "    '''a\n" + "    pass\n" + "\n";
+        String str = "" +
+                "class Foo:\n" +
+                "    '''\n" +
+                "    \"\n" +
+                "    b\n" +
+                "    '''a\n" +
+                "    pass\n" +
+                "\n";
         Document d = new Document(str);
         PyDocIterator it = new PyDocIterator(d, false, true, true);
         assertEquals(-1, it.getLastReturnedLine());
@@ -280,7 +346,11 @@ public class ParsingUtilsTest extends TestCase {
     }
 
     public void testIterator7() throws Exception {
-        String str = "" + "'''\n" + "\n" + "'''\n" + "";
+        String str = "" +
+                "'''\n" +
+                "\n" +
+                "'''\n" +
+                "";
         Document d = new Document(str);
         PyDocIterator it = new PyDocIterator(d, false, true, true);
 
@@ -298,9 +368,24 @@ public class ParsingUtilsTest extends TestCase {
     }
 
     public void testIterator6() throws Exception {
-        String str = "" + "'''\n" + "\n" + "'''\n" + "class Foo:\n" + "    '''\n" + "    \"\n" + "    b\n"
-                + "    '''a\n" + "    pass\n" + "    def m1(self):\n" + "        '''\n" + "        eueueueueue\n"
-                + "        '''\n" + "\n" + "\n";
+        String str = "" +
+                "'''\n" +
+                "\n" +
+                "'''\n" +
+                "class Foo:\n" +
+                "    '''\n" +
+                "    \"\n" +
+                "    b\n"
+                +
+                "    '''a\n" +
+                "    pass\n" +
+                "    def m1(self):\n" +
+                "        '''\n" +
+                "        eueueueueue\n"
+                +
+                "        '''\n" +
+                "\n" +
+                "\n";
         Document d = new Document(str);
         PyDocIterator it = new PyDocIterator(d, false, true, true);
         assertEquals(-1, it.getLastReturnedLine());
@@ -318,7 +403,11 @@ public class ParsingUtilsTest extends TestCase {
     }
 
     public void testIterator4() throws Exception {
-        String str = "" + "pass\r" + "foo\n" + "bla\r\n" + "what";
+        String str = "" +
+                "pass\r" +
+                "foo\n" +
+                "bla\r\n" +
+                "what";
         Document d = new Document(str);
         PyDocIterator it = (PyDocIterator) ParsingUtils.getNoLiteralsOrCommentsIterator(d);
         assertEquals(-1, it.getLastReturnedLine());
@@ -344,37 +433,73 @@ public class ParsingUtilsTest extends TestCase {
     public void testMakeParseable() throws Exception {
         assertEquals("a=1\r\n", ParsingUtils.makePythonParseable("a=1", "\r\n"));
 
-        String code = "class C:\n" + "    pass";
-        String expected = "class C:\r\n" + "    pass\r\n" + "\r\n";
+        String code = "class C:\n" +
+                "    pass";
+        String expected = "class C:\r\n" +
+                "    pass\r\n" +
+                "\r\n";
         assertEquals(expected, ParsingUtils.makePythonParseable(code, "\r\n"));
 
-        code = "class C:" + "";
-        expected = "class C:\r\n" + "";
+        code = "class C:" +
+                "";
+        expected = "class C:\r\n" +
+                "";
         assertEquals(expected, ParsingUtils.makePythonParseable(code, "\r\n"));
 
-        code = "    def m1(self):" + "";
-        expected = "    def m1(self):\r\n" + "";
+        code = "    def m1(self):" +
+                "";
+        expected = "    def m1(self):\r\n" +
+                "";
         assertEquals(expected, ParsingUtils.makePythonParseable(code, "\r\n"));
 
-        code = "class C:\n" + "    pass\n" + "a = 10";
-        expected = "class C:\r\n" + "    pass\r\n" + "\r\n" + "a = 10" + "\r\n";
+        code = "class C:\n" +
+                "    pass\n" +
+                "a = 10";
+        expected = "class C:\r\n" +
+                "    pass\r\n" +
+                "\r\n" +
+                "a = 10" +
+                "\r\n";
         assertEquals(expected, ParsingUtils.makePythonParseable(code, "\r\n"));
 
-        code = "class C:\n" + "    \n" + "    pass\n" + "a = 10";
-        expected = "class C:\r\n" + "    pass\r\n" + "\r\n" + "a = 10" + "\r\n";
+        code = "class C:\n" +
+                "    \n" +
+                "    pass\n" +
+                "a = 10";
+        expected = "class C:\r\n" +
+                "    pass\r\n" +
+                "\r\n" +
+                "a = 10" +
+                "\r\n";
         assertEquals(expected, ParsingUtils.makePythonParseable(code, "\r\n"));
 
-        code = "class AAA:\n" + "    \n" + "    \n" + "    def m1(self):\n" + "        self.bla = 10\n" + "\n" + "";
-        expected = "class AAA:\r\n" + "    def m1(self):\r\n" + "        self.bla = 10\r\n" + "\r\n";
+        code = "class AAA:\n" +
+                "    \n" +
+                "    \n" +
+                "    def m1(self):\n" +
+                "        self.bla = 10\n" +
+                "\n" +
+                "";
+        expected = "class AAA:\r\n" +
+                "    def m1(self):\r\n" +
+                "        self.bla = 10\r\n" +
+                "\r\n";
         assertEquals(expected, ParsingUtils.makePythonParseable(code, "\r\n"));
 
-        code = "a=10" + "";
-        expected = "\na=10\n" + "";
+        code = "a=10" +
+                "";
+        expected = "\na=10\n" +
+                "";
         assertEquals(expected, ParsingUtils.makePythonParseable(code, "\n", new FastStringBuffer("    pass", 16)));
     }
 
     public void testEatLiteralBackwards() throws Exception {
-        String str = "" + "'''\n" + "pass\n" + "'''" + "w" + "";
+        String str = "" +
+                "'''\n" +
+                "pass\n" +
+                "'''" +
+                "w" +
+                "";
         ParsingUtils parsingUtils = ParsingUtils.create(str, true);
         FastStringBuffer buf = new FastStringBuffer();
         int i = parsingUtils.eatLiteralsBackwards(buf.clear(), 11);
@@ -382,12 +507,16 @@ public class ParsingUtilsTest extends TestCase {
         assertEquals('\'', parsingUtils.charAt(i));
         assertEquals("'''\npass\n'''", buf.toString());
 
-        str = "" + "'ue'" + "";
+        str = "" +
+                "'ue'" +
+                "";
         parsingUtils = ParsingUtils.create(str, true);
         assertEquals(0, parsingUtils.eatLiteralsBackwards(buf.clear(), 3));
         assertEquals("'ue'", buf.toString());
 
-        str = "" + "ue'" + "";
+        str = "" +
+                "ue'" +
+                "";
         parsingUtils = ParsingUtils.create(str, true);
         try {
             parsingUtils.eatLiteralsBackwards(buf.clear(), 2);
@@ -397,7 +526,9 @@ public class ParsingUtilsTest extends TestCase {
             assertEquals("", buf.toString());
         }
 
-        str = "" + " '  \\'  \\'ue'" + "";
+        str = "" +
+                " '  \\'  \\'ue'" +
+                "";
         parsingUtils = ParsingUtils.create(str, true);
         parsingUtils.eatLiteralsBackwards(buf.clear(), str.length() - 1);
         assertEquals("'  \\'  \\'ue'", buf.toString());

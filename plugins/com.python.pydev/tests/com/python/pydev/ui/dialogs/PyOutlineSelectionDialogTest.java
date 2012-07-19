@@ -41,11 +41,26 @@ public class PyOutlineSelectionDialogTest extends SWTTest {
 
     public void testIt() throws Exception {
         if (display != null) {
-            String barDoc = "\n" + "class Bar:\n" + "    def barMethod(self):\n" + "        pass\n" + "\n" + "";
+            String barDoc = "\n" +
+                    "class Bar:\n" +
+                    "    def barMethod(self):\n" +
+                    "        pass\n" +
+                    "\n" +
+                    "";
 
-            String testDoc = "GLOBAL_ATTR = 1\n" + "GLOBAL2.IGNORE_THIS = 2\n" + "" + "class Test(Bar):\n"
-                    + "    test_attr = 1\n" + "    test_attr.ignore = 2\n" + "    test_attr2.ignore_this = 3\n" + ""
-                    + "    class Test2:\n" + "        def mmm(self):\n" + "            self.attr1 = 10";
+            String testDoc = "GLOBAL_ATTR = 1\n" +
+                    "GLOBAL2.IGNORE_THIS = 2\n" +
+                    "" +
+                    "class Test(Bar):\n"
+                    +
+                    "    test_attr = 1\n" +
+                    "    test_attr.ignore = 2\n" +
+                    "    test_attr2.ignore_this = 3\n" +
+                    ""
+                    +
+                    "    class Test2:\n" +
+                    "        def mmm(self):\n" +
+                    "            self.attr1 = 10";
 
             IGrammarVersionProvider grammarVersionProvider = new IGrammarVersionProvider() {
 

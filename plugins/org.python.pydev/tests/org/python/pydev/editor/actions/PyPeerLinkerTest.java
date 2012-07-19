@@ -124,12 +124,14 @@ public class PyPeerLinkerTest extends TestCase {
     }
 
     public void testParens3() throws Exception {
-        String initial = "class Foo:\n" + "    def m1";
+        String initial = "class Foo:\n" +
+                "    def m1";
         Document doc = new Document(initial);
         PySelection ps = new PySelection(doc, 1, 10);
 
         peerLinker.perform(ps, '(', null);
-        assertEquals(initial + "(self):", doc.get());
+        assertEquals(initial +
+                "(self):", doc.get());
         assertEquals(26, peerLinker.getLinkOffset());
         assertEquals(28, peerLinker.getLinkExitPos());
     }

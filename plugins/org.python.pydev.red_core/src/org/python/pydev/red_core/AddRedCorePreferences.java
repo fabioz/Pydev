@@ -207,14 +207,22 @@ public class AddRedCorePreferences implements IPydevPreferencesProvider, IPydevP
         colorsAndFontsLinkFieldEditor.getLinkControl(appearanceComposite);
 
         LabelFieldEditor labelFieldEditor = new LabelFieldEditor("UNUSED", "Scopes used in Aptana Themes:\n\n"
-                + "Code:          source                   " + "Backquotes: support.type\n"
-                + "Keywords:      keyword                  " + "{}, [], (): source.parens\n"
-                + "Self:          keyword.other.self       " + "Comments:   comment\n"
-                + "Decorators:    storage.type.annotation  " + "Strings:    string\n"
-                + "Numbers:       constant.numeric         " + "Stderr:     console.error\n"
-                + "Class name:    entity.name.class        " + "Stdout:     console.output\n"
-                + "Function name: entity.name.function     " + "Input:      console.input\n"
-                + "Operators:     source.operators         " + "Prompt:     console.prompt\n" + "", appearanceComposite);
+                + "Code:          source                   " +
+                "Backquotes: support.type\n" +
+                "Keywords:      keyword                  " +
+                "{}, [], (): source.parens\n" +
+                "Self:          keyword.other.self       " +
+                "Comments:   comment\n" +
+                "Decorators:    storage.type.annotation  " +
+                "Strings:    string\n" +
+                "Numbers:       constant.numeric         " +
+                "Stderr:     console.error\n" +
+                "Class name:    entity.name.class        " +
+                "Stdout:     console.output\n" +
+                "Function name: entity.name.function     " +
+                "Input:      console.input\n" +
+                "Operators:     source.operators         " +
+                "Prompt:     console.prompt\n" + "", appearanceComposite);
         Label labelControl = labelFieldEditor.getLabelControl(appearanceComposite);
         try {
             FontData labelFontData = new FontData("Courier New", 8, SWT.NONE);

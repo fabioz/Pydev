@@ -33,7 +33,13 @@ public class CodeFoldingVisitorTest extends TestCase {
 
     public void testIfElifElse() throws Exception {
         CodeFoldingVisitor visitor = new CodeFoldingVisitor();
-        String str = "if a:\n" + "    print 1\n" + "elif b:\n" + "    print 2\n" + "else:\n" + "    print 3\n" + "\n";
+        String str = "if a:\n" +
+                "    print 1\n" +
+                "elif b:\n" +
+                "    print 2\n" +
+                "else:\n" +
+                "    print 3\n" +
+                "\n";
         Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
         SimpleNode root = objects.o1;
@@ -49,8 +55,17 @@ public class CodeFoldingVisitorTest extends TestCase {
     public void testIf() throws Exception {
         CodeFoldingVisitor visitor = new CodeFoldingVisitor();
 
-        String str = "" + "if a:\n" + "    print 1\n" + "    if b:\n" + "        print 2\n" + "    elif c:\n"
-                + "        print 3\n" + "    else:\n" + "        print 4\n" + "";
+        String str = "" +
+                "if a:\n" +
+                "    print 1\n" +
+                "    if b:\n" +
+                "        print 2\n" +
+                "    elif c:\n"
+                +
+                "        print 3\n" +
+                "    else:\n" +
+                "        print 4\n" +
+                "";
         Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
         SimpleNode root = objects.o1;
@@ -71,7 +86,11 @@ public class CodeFoldingVisitorTest extends TestCase {
     public void testWith() throws Exception {
         CodeFoldingVisitor visitor = new CodeFoldingVisitor();
 
-        String str = "" + "from __future__ import with_statement\n" + "with a:\n" + "    print a\n" + "";
+        String str = "" +
+                "from __future__ import with_statement\n" +
+                "with a:\n" +
+                "    print a\n" +
+                "";
         Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_5));
         SimpleNode root = objects.o1;
@@ -85,7 +104,13 @@ public class CodeFoldingVisitorTest extends TestCase {
     public void testFor() throws Exception {
         CodeFoldingVisitor visitor = new CodeFoldingVisitor();
 
-        String str = "" + "for a in b:\n" + "    print 4\n" + "else:\n" + "    print 5\n" + "\n" + "";
+        String str = "" +
+                "for a in b:\n" +
+                "    print 4\n" +
+                "else:\n" +
+                "    print 5\n" +
+                "\n" +
+                "";
         Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
         SimpleNode root = objects.o1;
@@ -98,7 +123,10 @@ public class CodeFoldingVisitorTest extends TestCase {
     public void testImport() throws Exception {
         CodeFoldingVisitor visitor = new CodeFoldingVisitor();
 
-        String str = "" + "from a import b\n" + "import b\n" + "";
+        String str = "" +
+                "from a import b\n" +
+                "import b\n" +
+                "";
         Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
         SimpleNode root = objects.o1;
@@ -112,7 +140,13 @@ public class CodeFoldingVisitorTest extends TestCase {
     public void testWhile() throws Exception {
         CodeFoldingVisitor visitor = new CodeFoldingVisitor();
 
-        String str = "" + "while True:\n" + "    print 4\n" + "else:\n" + "    print 5\n" + "\n" + "";
+        String str = "" +
+                "while True:\n" +
+                "    print 4\n" +
+                "else:\n" +
+                "    print 5\n" +
+                "\n" +
+                "";
         Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
         SimpleNode root = objects.o1;
@@ -126,7 +160,13 @@ public class CodeFoldingVisitorTest extends TestCase {
     public void testTry() throws Exception {
         CodeFoldingVisitor visitor = new CodeFoldingVisitor();
 
-        String str = "" + "try:\n" + "    print 4\n" + "except:\n" + "    print 5\n" + "\n" + "";
+        String str = "" +
+                "try:\n" +
+                "    print 4\n" +
+                "except:\n" +
+                "    print 5\n" +
+                "\n" +
+                "";
         Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
         SimpleNode root = objects.o1;
@@ -140,7 +180,13 @@ public class CodeFoldingVisitorTest extends TestCase {
     public void testTryFinally() throws Exception {
         CodeFoldingVisitor visitor = new CodeFoldingVisitor();
 
-        String str = "" + "try:\n" + "    print 4\n" + "finally:\n" + "    print 5\n" + "\n" + "";
+        String str = "" +
+                "try:\n" +
+                "    print 4\n" +
+                "finally:\n" +
+                "    print 5\n" +
+                "\n" +
+                "";
         Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
         SimpleNode root = objects.o1;
@@ -153,7 +199,13 @@ public class CodeFoldingVisitorTest extends TestCase {
     public void testTryFinallyVersion25() throws Exception {
         CodeFoldingVisitor visitor = new CodeFoldingVisitor();
 
-        String str = "" + "try:\n" + "    print 4\n" + "finally:\n" + "    print 5\n" + "\n" + "";
+        String str = "" +
+                "try:\n" +
+                "    print 4\n" +
+                "finally:\n" +
+                "    print 5\n" +
+                "\n" +
+                "";
         Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_5));
         SimpleNode root = objects.o1;
@@ -166,7 +218,11 @@ public class CodeFoldingVisitorTest extends TestCase {
     public void testString() throws Exception {
         CodeFoldingVisitor visitor = new CodeFoldingVisitor();
 
-        String str = "" + "'''\n" + "test\n" + "'''\n" + "";
+        String str = "" +
+                "'''\n" +
+                "test\n" +
+                "'''\n" +
+                "";
         Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_5));
         SimpleNode root = objects.o1;
@@ -179,9 +235,22 @@ public class CodeFoldingVisitorTest extends TestCase {
     public void testTryFinally2() throws Exception {
         CodeFoldingVisitor visitor = new CodeFoldingVisitor();
 
-        String str = "" + "def foo():\n" + "    try:\n" + "        pass\n" + "    except(Exception):\n"
-                + "        pass\n" + "    finally:\n" + "        pass\n" + "            \n" + "    try:\n"
-                + "        pass\n" + "    finally:\n" + "        pass\n" + "\n";
+        String str = "" +
+                "def foo():\n" +
+                "    try:\n" +
+                "        pass\n" +
+                "    except(Exception):\n"
+                +
+                "        pass\n" +
+                "    finally:\n" +
+                "        pass\n" +
+                "            \n" +
+                "    try:\n"
+                +
+                "        pass\n" +
+                "    finally:\n" +
+                "        pass\n" +
+                "\n";
         Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_5));
         SimpleNode root = objects.o1;

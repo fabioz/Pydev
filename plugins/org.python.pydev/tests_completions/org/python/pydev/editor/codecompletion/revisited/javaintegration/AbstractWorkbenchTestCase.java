@@ -201,26 +201,26 @@ public class AbstractWorkbenchTestCase extends TestCase {
         final IModulesManager modulesManager = PythonNature.getPythonNature(mod1).getAstManager().getModulesManager();
         goToIdleLoopUntilCondition(
 
-        new ICallback<Boolean, Object>() {
-            public Boolean call(Object arg) {
-                SortedMap<ModulesKey, ModulesKey> allDirectModulesStartingWith = modulesManager.getAllDirectModulesStartingWith("pack1");
-                Set<ModulesKey> keySet = allDirectModulesStartingWith.keySet();
-                HashSet<ModulesKey> expected = new HashSet<ModulesKey>();
-                expected.add(new ModulesKey("pack1.__init__", null));
-                expected.add(new ModulesKey("pack1.pack2.__init__", null));
-                expected.add(new ModulesKey("pack1.pack2.mod1", null));
-                return expected.equals(keySet);
-            }
-        },
+                new ICallback<Boolean, Object>() {
+                    public Boolean call(Object arg) {
+                        SortedMap<ModulesKey, ModulesKey> allDirectModulesStartingWith = modulesManager.getAllDirectModulesStartingWith("pack1");
+                        Set<ModulesKey> keySet = allDirectModulesStartingWith.keySet();
+                        HashSet<ModulesKey> expected = new HashSet<ModulesKey>();
+                        expected.add(new ModulesKey("pack1.__init__", null));
+                        expected.add(new ModulesKey("pack1.pack2.__init__", null));
+                        expected.add(new ModulesKey("pack1.pack2.mod1", null));
+                        return expected.equals(keySet);
+                    }
+                },
 
-        new ICallback<String, Object>() {
-            public String call(Object arg) {
-                SortedMap<ModulesKey, ModulesKey> allDirectModulesStartingWith = modulesManager
-                        .getAllDirectModulesStartingWith("pack1");
-                Set<ModulesKey> keySet = allDirectModulesStartingWith.keySet();
-                return "Found: " + keySet;
-            }
-        });
+                new ICallback<String, Object>() {
+                    public String call(Object arg) {
+                        SortedMap<ModulesKey, ModulesKey> allDirectModulesStartingWith = modulesManager
+                                .getAllDirectModulesStartingWith("pack1");
+                        Set<ModulesKey> keySet = allDirectModulesStartingWith.keySet();
+                        return "Found: " + keySet;
+                    }
+                });
     }
 
     /**
@@ -424,29 +424,56 @@ public class AbstractWorkbenchTestCase extends TestCase {
         IFile javaClassFile = srcFolder.getFile("JavaDefault.java");
 
         String javaClassContents = "public class JavaDefault {\n" + //default package        
-                "   private int testJavaDefault(String[] args) {\n" + "       return 0;\n" + "   }\n" + "}\n";
+                "   private int testJavaDefault(String[] args) {\n" +
+                "       return 0;\n" +
+                "   }\n" +
+                "}\n";
 
         javaClassFile.create(new ByteArrayInputStream(javaClassContents.getBytes()), true, monitor);
 
         //create src/javamod1/JavaClass.java
         javaClassFile = javaMod1Folder.getFile("JavaClass.java");
 
-        javaClassContents = "package javamod1;\n" + "public class JavaClass {\n" + "   \n"
-                + "   public static int JAVA_CLASS_CONSTANT = 1;\n" + "   \n"
-                + "   public static void main(String[] args) {\n"
-                + "       new JavaClass().testJavaClass(new int[0]);\n" + "   }\n"
-                + "   private int testJavaClass(int[] args) {\n" + "       return 0;\n" + "   }\n" + "}\n";
+        javaClassContents = "package javamod1;\n" +
+                "public class JavaClass {\n" +
+                "   \n"
+                +
+                "   public static int JAVA_CLASS_CONSTANT = 1;\n" +
+                "   \n"
+                +
+                "   public static void main(String[] args) {\n"
+                +
+                "       new JavaClass().testJavaClass(new int[0]);\n" +
+                "   }\n"
+                +
+                "   private int testJavaClass(int[] args) {\n" +
+                "       return 0;\n" +
+                "   }\n" +
+                "}\n";
 
         javaClassFile.create(new ByteArrayInputStream(javaClassContents.getBytes()), true, monitor);
 
         //create src/javamod1/javamod2/JavaClass2.java
         javaClassFile = javaMod2Folder.getFile("JavaClass2.java");
 
-        javaClassContents = "package javamod1.javamod2;\n" + "public class JavaClass2 {\n" + "   \n"
-                + "   public static int JAVA_CLASS_CONSTANT_2 = 1;\n" + "   \n" + "   public JavaClass2(int i){};\n"
-                + "   \n" + "   public static void main(String[] args) {\n"
-                + "       new JavaClass2(1).testJavaClass2(new int[0]);\n" + "   }\n"
-                + "   private int testJavaClass2(int[] args) {\n" + "       return 0;\n" + "   }\n" + "}\n";
+        javaClassContents = "package javamod1.javamod2;\n" +
+                "public class JavaClass2 {\n" +
+                "   \n"
+                +
+                "   public static int JAVA_CLASS_CONSTANT_2 = 1;\n" +
+                "   \n" +
+                "   public JavaClass2(int i){};\n"
+                +
+                "   \n" +
+                "   public static void main(String[] args) {\n"
+                +
+                "       new JavaClass2(1).testJavaClass2(new int[0]);\n" +
+                "   }\n"
+                +
+                "   private int testJavaClass2(int[] args) {\n" +
+                "       return 0;\n" +
+                "   }\n" +
+                "}\n";
 
         javaClassFile.create(new ByteArrayInputStream(javaClassContents.getBytes()), true, monitor);
 
@@ -480,10 +507,13 @@ public class AbstractWorkbenchTestCase extends TestCase {
         if (addNature) {
             String name = project.getName();
             if (isJython) {
-                PythonNature.addNature(project, monitor, PythonNature.JYTHON_VERSION_2_1, "/" + name + "/src|/" + name
-                        + "/grinder.jar", null, null, null);
+                PythonNature.addNature(project, monitor, PythonNature.JYTHON_VERSION_2_1, "/" + name +
+                        "/src|/" + name
+                        +
+                        "/grinder.jar", null, null, null);
             } else {
-                PythonNature.addNature(project, monitor, PythonNature.PYTHON_VERSION_2_6, "/" + name + "/src", null,
+                PythonNature.addNature(project, monitor, PythonNature.PYTHON_VERSION_2_6, "/" + name +
+                        "/src", null,
                         null, null);
             }
         }
@@ -513,11 +543,13 @@ public class AbstractWorkbenchTestCase extends TestCase {
      * Creates a junit.jar file in the project.
      */
     protected void createJunitJar(NullProgressMonitor monitor, IProject project) throws CoreException {
-        String junitJarLocatioon = project.getLocation().toOSString() + "/junit.jar";
+        String junitJarLocatioon = project.getLocation().toOSString() +
+                "/junit.jar";
         File junitJarFile = new File(junitJarLocatioon);
         if (!junitJarFile.exists()) {
             REF.copyFile(TestDependent.TEST_PYDEV_PLUGIN_LOC
-                    + "tests_completions/org/python/pydev/editor/codecompletion/revisited/javaintegration/junit.jar",
+                    +
+                    "tests_completions/org/python/pydev/editor/codecompletion/revisited/javaintegration/junit.jar",
                     junitJarLocatioon);
         }
         project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
@@ -527,11 +559,13 @@ public class AbstractWorkbenchTestCase extends TestCase {
      * Creates a grinder.jar file in the project.
      */
     protected void createGrinderJar(NullProgressMonitor monitor, IProject project) throws CoreException {
-        String grinderJarLocatioon = project.getLocation().toOSString() + "/grinder.jar";
+        String grinderJarLocatioon = project.getLocation().toOSString() +
+                "/grinder.jar";
         File grinderJarFile = new File(grinderJarLocatioon);
         if (!grinderJarFile.exists()) {
             REF.copyFile(TestDependent.TEST_PYDEV_PLUGIN_LOC
-                    + "tests_completions/org/python/pydev/editor/codecompletion/revisited/javaintegration/grinder.jar",
+                    +
+                    "tests_completions/org/python/pydev/editor/codecompletion/revisited/javaintegration/grinder.jar",
                     grinderJarLocatioon);
         }
         project.refreshLocal(IResource.DEPTH_INFINITE, monitor);

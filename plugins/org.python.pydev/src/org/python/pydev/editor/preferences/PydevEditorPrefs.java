@@ -261,10 +261,19 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
 
     public void updateLabelExample(FormatStd formatStd, IPreferenceStore store) {
         if (labelExample != null && !labelExample.isDisposed()) {
-            String str = "class Example(object):\n" + "\n" + "    backquotes = `backquotes`\n" + "\n"
-                    + "    @memoize(size=10)\n" + "    def Call(self, param1=None):\n" + "        '''docstring'''\n"
-                    + "        return param1 + 10 * 10\n" + "\n" + "    def Call2(self):\n" + "        #Comment\n"
-                    + "        return self.Call(param1=10)" + "";
+            String str = "class Example(object):\n" +
+                    "\n" +
+                    "    backquotes = `backquotes`\n" +
+                    "\n" +
+                    "    @memoize(size=10)\n" +
+                    "    def Call(self, param1=None):\n" +
+                    "        '''docstring'''\n" +
+                    "        return param1 + 10 * 10\n" +
+                    "\n" +
+                    "    def Call2(self):\n" +
+                    "        #Comment\n" +
+                    "        return self.Call(param1=10)" +
+                    "";
             Tuple<String, StyleRange[]> result = formatAndStyleRangeHelper.formatAndGetStyleRanges(formatStd, str,
                     store, false);
             labelExample.setText(result.o1);

@@ -154,7 +154,12 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField 
             offsetAndIndent = getLocationOffset(locationStrategy, pySelection, moduleAdapter);
         }
 
-        source = StringUtils.format("" + "%sdef %s(%s):\n" + "%s%s${cursor}\n" + "\n" + "\n" + "", decorators, actTok,
+        source = StringUtils.format("" +
+                "%sdef %s(%s):\n" +
+                "%s%s${cursor}\n" +
+                "\n" +
+                "\n" +
+                "", decorators, actTok,
                 params, refactoringInfo.indentPrefs.getIndentationString(), body);
 
         return createProposal(pySelection, source, offsetAndIndent, true, replacePassStatement);

@@ -19,7 +19,9 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 public class JythonFindDefinitionTestWorkbench extends AbstractJythonWorkbenchTests {
 
     public void testFind() throws Exception {
-        String d = "" + "from javax import swing\n" + "print swing.JFrame()";
+        String d = "" +
+                "from javax import swing\n" +
+                "print swing.JFrame()";
 
         Document doc = new Document(d);
         IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, true);
@@ -36,7 +38,8 @@ public class JythonFindDefinitionTestWorkbench extends AbstractJythonWorkbenchTe
     }
 
     public void testFind2() throws Exception {
-        String d = "" + "import java.lang.Class";
+        String d = "" +
+                "import java.lang.Class";
 
         Document doc = new Document(d);
         IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, true);
@@ -55,7 +58,9 @@ public class JythonFindDefinitionTestWorkbench extends AbstractJythonWorkbenchTe
     }
 
     public void testFind3() throws Exception {
-        String d = "" + "import java.lang.Class\n" + "java.lang.Class.asSubclass";
+        String d = "" +
+                "import java.lang.Class\n" +
+                "java.lang.Class.asSubclass";
 
         Document doc = new Document(d);
         IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, true);

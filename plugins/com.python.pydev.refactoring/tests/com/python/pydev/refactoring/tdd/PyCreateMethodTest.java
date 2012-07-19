@@ -47,7 +47,13 @@ public class PyCreateMethodTest extends TestCaseUtils {
 
         pyCreateMethod.execute(info, AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
 
-        assertContentsEqual("" + "def MyMethod():\n" + "    ${pass}${cursor}\n" + "\n" + "\n" + "MyMethod()" + "",
+        assertContentsEqual("" +
+                "def MyMethod():\n" +
+                "    ${pass}${cursor}\n" +
+                "\n" +
+                "\n" +
+                "MyMethod()" +
+                "",
                 document.get());
     }
 
@@ -66,8 +72,14 @@ public class PyCreateMethodTest extends TestCaseUtils {
 
         pyCreateMethod.execute(info, AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
 
-        assertContentsEqual("" + "def MyMethod(${a}, ${b}):\n" + "    ${pass}${cursor}\n" + "\n" + "\n"
-                + "MyMethod(a, b())" + "", document.get());
+        assertContentsEqual("" +
+                "def MyMethod(${a}, ${b}):\n" +
+                "    ${pass}${cursor}\n" +
+                "\n" +
+                "\n"
+                +
+                "MyMethod(a, b())" +
+                "", document.get());
     }
 
     public void testPyCreateMethodGlobal1() {
@@ -85,8 +97,15 @@ public class PyCreateMethodTest extends TestCaseUtils {
 
         pyCreateMethod.execute(info, AbstractPyCreateAction.LOCATION_STRATEGY_END);
 
-        assertContentsEqual("" + "a = MyMethod()\n" + "\n" + "def MyMethod():\n" + "    ${pass}${cursor}\n" + "\n"
-                + "\n" + "", document.get());
+        assertContentsEqual("" +
+                "a = MyMethod()\n" +
+                "\n" +
+                "def MyMethod():\n" +
+                "    ${pass}${cursor}\n" +
+                "\n"
+                +
+                "\n" +
+                "", document.get());
     }
 
     public void testPyCreateMethodInEmptyDoc() {
@@ -104,19 +123,33 @@ public class PyCreateMethodTest extends TestCaseUtils {
 
         pyCreateMethod.execute(info, "MyMethod", new ArrayList<String>(), AbstractPyCreateAction.LOCATION_STRATEGY_END);
 
-        assertContentsEqual("" + "def MyMethod():\n" + "    ${pass}${cursor}\n" + "\n" + "\n" + "", document.get());
+        assertContentsEqual("" +
+                "def MyMethod():\n" +
+                "    ${pass}${cursor}\n" +
+                "\n" +
+                "\n" +
+                "", document.get());
 
         document.set("");
         pyCreateMethod.execute(info, "MyMethod2", new ArrayList<String>(),
                 AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
 
-        assertContentsEqual("" + "def MyMethod2():\n" + "    ${pass}${cursor}\n" + "\n" + "\n" + "", document.get());
+        assertContentsEqual("" +
+                "def MyMethod2():\n" +
+                "    ${pass}${cursor}\n" +
+                "\n" +
+                "\n" +
+                "", document.get());
     }
 
     public void testPyCreateMethodInClass() {
         PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
 
-        String source = "" + "class A(object):\n" + "    '''comment'''\n" + "\n" + "A.MyMethod(a, b())";
+        String source = "" +
+                "class A(object):\n" +
+                "    '''comment'''\n" +
+                "\n" +
+                "A.MyMethod(a, b())";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, document.getLength() - "hod(a, b())".length(), 0);
         RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
@@ -130,15 +163,32 @@ public class PyCreateMethodTest extends TestCaseUtils {
         pyCreateMethod.setCreateAs(PyCreateMethodOrField.CLASSMETHOD);
         pyCreateMethod.execute(info, AbstractPyCreateAction.LOCATION_STRATEGY_END);
 
-        assertContentsEqual("" + "" + "class A(object):\n" + "    '''comment'''\n" + "\n" + "    \n"
-                + "    @classmethod\n" + "    def MyMethod(cls, ${a}, ${b}):\n" + "        ${pass}${cursor}\n"
-                + "    \n" + "    \n" + "\n" + "A.MyMethod(a, b())" + "", document.get());
+        assertContentsEqual("" +
+                "" +
+                "class A(object):\n" +
+                "    '''comment'''\n" +
+                "\n" +
+                "    \n"
+                +
+                "    @classmethod\n" +
+                "    def MyMethod(cls, ${a}, ${b}):\n" +
+                "        ${pass}${cursor}\n"
+                +
+                "    \n" +
+                "    \n" +
+                "\n" +
+                "A.MyMethod(a, b())" +
+                "", document.get());
     }
 
     public void testPyCreateMethodInSelfWithDecorator() {
         PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
 
-        String source = "" + "class A(object):\n" + "    @decorator\n" + "    def m1(self):\n" + "        self.m2()";
+        String source = "" +
+                "class A(object):\n" +
+                "    @decorator\n" +
+                "    def m1(self):\n" +
+                "        self.m2()";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, document.getLength() - "2()".length(), 0);
         RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
@@ -152,9 +202,19 @@ public class PyCreateMethodTest extends TestCaseUtils {
         pyCreateMethod.setCreateAs(PyCreateMethodOrField.BOUND_METHOD);
         pyCreateMethod.execute(info, AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
 
-        String expected = "" + "class A(object):\n" + "\n" + "    \n" + "    def m2(self):\n"
-                + "        ${pass}${cursor}\n" + "    \n" + "    \n" + "    @decorator\n" + "    def m1(self):\n"
-                + "        self.m2()";
+        String expected = "" +
+                "class A(object):\n" +
+                "\n" +
+                "    \n" +
+                "    def m2(self):\n"
+                +
+                "        ${pass}${cursor}\n" +
+                "    \n" +
+                "    \n" +
+                "    @decorator\n" +
+                "    def m1(self):\n"
+                +
+                "        self.m2()";
 
         assertContentsEqual(expected, document.get());
     }
@@ -162,7 +222,13 @@ public class PyCreateMethodTest extends TestCaseUtils {
     public void testPyCreateMethod() {
         PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
 
-        String source = "" + "class A(object):\n" + "\n" + "\n" + "\n" + "    def m1(self):\n" + "        self.m2()";
+        String source = "" +
+                "class A(object):\n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "    def m1(self):\n" +
+                "        self.m2()";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, document.getLength() - "2()".length(), 0);
         RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
@@ -176,8 +242,18 @@ public class PyCreateMethodTest extends TestCaseUtils {
         pyCreateMethod.setCreateAs(PyCreateMethodOrField.BOUND_METHOD);
         pyCreateMethod.execute(info, AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
 
-        String expected = "" + "class A(object):\n" + "\n" + "\n" + "\n" + "    def m2(self):\n"
-                + "        ${pass}${cursor}\n" + "    \n" + "    \n" + "    def m1(self):\n" + "        self.m2()";
+        String expected = "" +
+                "class A(object):\n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "    def m2(self):\n"
+                +
+                "        ${pass}${cursor}\n" +
+                "    \n" +
+                "    \n" +
+                "    def m1(self):\n" +
+                "        self.m2()";
 
         assertContentsEqual(expected, document.get());
     }
@@ -185,7 +261,13 @@ public class PyCreateMethodTest extends TestCaseUtils {
     public void testPyCreateMethodWithTabs() {
         PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
 
-        String source = "" + "class A(object):\n" + "\n" + "\n" + "\n" + "\tdef m1(self):\n" + "\t\tself.m2()";
+        String source = "" +
+                "class A(object):\n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "\tdef m1(self):\n" +
+                "\t\tself.m2()";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, document.getLength() - "2()".length(), 0);
         RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
@@ -199,8 +281,18 @@ public class PyCreateMethodTest extends TestCaseUtils {
         pyCreateMethod.setCreateAs(PyCreateMethodOrField.BOUND_METHOD);
         pyCreateMethod.execute(info, AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
 
-        String expected = "" + "class A(object):\n" + "\n" + "\n" + "\n" + "\tdef m2(self):\n"
-                + "\t\t${pass}${cursor}\n" + "\t\n" + "\t\n" + "\tdef m1(self):\n" + "\t\tself.m2()";
+        String expected = "" +
+                "class A(object):\n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "\tdef m2(self):\n"
+                +
+                "\t\t${pass}${cursor}\n" +
+                "\t\n" +
+                "\t\n" +
+                "\tdef m1(self):\n" +
+                "\t\tself.m2()";
 
         assertContentsEqual(expected, document.get());
     }

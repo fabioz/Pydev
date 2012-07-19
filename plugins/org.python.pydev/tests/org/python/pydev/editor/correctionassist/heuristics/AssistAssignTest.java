@@ -75,7 +75,9 @@ public class AssistAssignTest extends TestCase {
     }
 
     public void testSimple() throws BadLocationException {
-        String d = "" + "from testAssist import assist\n" + "assist.NewMethod(a,b)";
+        String d = "" +
+                "from testAssist import assist\n" +
+                "assist.NewMethod(a,b)";
 
         Document doc = new Document(d);
 
@@ -89,7 +91,9 @@ public class AssistAssignTest extends TestCase {
     }
 
     public void testSimple2() throws BadLocationException {
-        String d = "" + "from testAssist import assist\n" + "assist.NewMethod(a = 1, b = 2)";
+        String d = "" +
+                "from testAssist import assist\n" +
+                "assist.NewMethod(a = 1, b = 2)";
 
         Document doc = new Document(d);
 
@@ -103,7 +107,9 @@ public class AssistAssignTest extends TestCase {
     }
 
     public void testSimpleUnderline() throws BadLocationException {
-        String d = "" + "from testAssist import assist\n" + "assist._NewMethod(a = 1, b = 2)";
+        String d = "" +
+                "from testAssist import assist\n" +
+                "assist._NewMethod(a = 1, b = 2)";
 
         Document doc = new Document(d);
 
@@ -117,7 +123,9 @@ public class AssistAssignTest extends TestCase {
     }
 
     public void testSimple3() throws BadLocationException {
-        String d = "" + "from testAssist import assist\n" + "a = assist.NewMethod(a,b)";
+        String d = "" +
+                "from testAssist import assist\n" +
+                "a = assist.NewMethod(a,b)";
 
         Document doc = new Document(d);
 
@@ -130,7 +138,9 @@ public class AssistAssignTest extends TestCase {
 
     public void testCodingStd() throws BadLocationException {
         assist = new AssistAssign(new NonCamelCodingStd());
-        String d = "" + "from testAssist import assist\n" + "assist.NewMethod(a = 1, b = 2)";
+        String d = "" +
+                "from testAssist import assist\n" +
+                "assist.NewMethod(a = 1, b = 2)";
 
         Document doc = new Document(d);
 
@@ -145,7 +155,9 @@ public class AssistAssignTest extends TestCase {
 
     public void testCodingStd2() throws BadLocationException {
         assist = new AssistAssign(new NonCamelCodingStd());
-        String d = "" + "from testAssist import assist\n" + "assist._NewMethod(a = 1, b = 2)";
+        String d = "" +
+                "from testAssist import assist\n" +
+                "assist._NewMethod(a = 1, b = 2)";
 
         Document doc = new Document(d);
 
@@ -160,19 +172,25 @@ public class AssistAssignTest extends TestCase {
 
         prop0.apply(doc);
 
-        String expected = "" + "from testAssist import assist\n" + "new_method = assist._NewMethod(a = 1, b = 2)";
+        String expected = "" +
+                "from testAssist import assist\n" +
+                "new_method = assist._NewMethod(a = 1, b = 2)";
 
         assertEquals(expected, doc.get());
 
         doc = new Document(d);
         prop1.apply(doc);
 
-        expected = "" + "from testAssist import assist\n" + "self._new_method = assist._NewMethod(a = 1, b = 2)";
+        expected = "" +
+                "from testAssist import assist\n" +
+                "self._new_method = assist._NewMethod(a = 1, b = 2)";
         assertEquals(expected, doc.get());
     }
 
     public void testSimple4() throws BadLocationException {
-        String d = "" + "def m1():\n" + "   foo";
+        String d = "" +
+                "def m1():\n" +
+                "   foo";
 
         Document doc = new Document(d);
 
@@ -186,7 +204,9 @@ public class AssistAssignTest extends TestCase {
     }
 
     public void testSimple5() throws BadLocationException {
-        String d = "" + "def m1():\n" + "   1+1";
+        String d = "" +
+                "def m1():\n" +
+                "   1+1";
 
         Document doc = new Document(d);
 
@@ -200,7 +220,9 @@ public class AssistAssignTest extends TestCase {
     }
 
     public void testSimple6() throws BadLocationException {
-        String d = "" + "def m1():\n" + "   a = 1";
+        String d = "" +
+                "def m1():\n" +
+                "   a = 1";
 
         Document doc = new Document(d);
 
@@ -211,7 +233,9 @@ public class AssistAssignTest extends TestCase {
     }
 
     public void testSimple7() throws BadLocationException {
-        String d = "" + "def m1():\n" + "   ALL_UPPERCASE";
+        String d = "" +
+                "def m1():\n" +
+                "   ALL_UPPERCASE";
 
         Document doc = new Document(d);
 
@@ -227,7 +251,9 @@ public class AssistAssignTest extends TestCase {
     public void testSimple8() throws BadLocationException {
         assist = new AssistAssign(new NonCamelCodingStd());
 
-        String d = "" + "def m1():\n" + "   IKVMClass";
+        String d = "" +
+                "def m1():\n" +
+                "   IKVMClass";
 
         Document doc = new Document(d);
         PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
@@ -242,7 +268,9 @@ public class AssistAssignTest extends TestCase {
     public void testSimple9() throws BadLocationException {
         assist = new AssistAssign(new NonCamelCodingStd());
 
-        String d = "" + "def m1():\n" + "   IKVMClassBBBar";
+        String d = "" +
+                "def m1():\n" +
+                "   IKVMClassBBBar";
 
         Document doc = new Document(d);
         PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
@@ -257,7 +285,9 @@ public class AssistAssignTest extends TestCase {
     public void testSimple10() throws BadLocationException {
         assist = new AssistAssign(new NonCamelCodingStd());
 
-        String d = "" + "def m1():\n" + "   my.call().NewCall()";
+        String d = "" +
+                "def m1():\n" +
+                "   my.call().NewCall()";
 
         Document doc = new Document(d);
         PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
@@ -272,7 +302,8 @@ public class AssistAssignTest extends TestCase {
     public void testSimple11() throws BadLocationException {
         assist = new AssistAssign(new NonCamelCodingStd());
 
-        String d = "" + "CustomReportDocument(self.GetDataDirectory(),'custom_report_test')";
+        String d = "" +
+                "CustomReportDocument(self.GetDataDirectory(),'custom_report_test')";
 
         Document doc = new Document(d);
         PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
@@ -287,7 +318,8 @@ public class AssistAssignTest extends TestCase {
     public void testSimple12() throws BadLocationException {
         assist = new AssistAssign(new NonCamelCodingStd());
 
-        String d = "" + "_callMe()";
+        String d = "" +
+                "_callMe()";
 
         Document doc = new Document(d);
         PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
@@ -302,7 +334,8 @@ public class AssistAssignTest extends TestCase {
     public void test12a() throws BadLocationException {
         assist = new AssistAssign(new NonCamelCodingStd());
 
-        String d = "" + "My20Provider()";
+        String d = "" +
+                "My20Provider()";
 
         Document doc = new Document(d);
         PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
@@ -317,7 +350,8 @@ public class AssistAssignTest extends TestCase {
     public void test13() throws BadLocationException {
         assist = new AssistAssign(new NonCamelCodingStd());
 
-        String d = "" + "_GetMyFoo()";
+        String d = "" +
+                "_GetMyFoo()";
 
         Document doc = new Document(d);
         PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
@@ -342,7 +376,8 @@ public class AssistAssignTest extends TestCase {
             buffer.append(proposal.getDisplayString());
             buffer.append("\n");
         }
-        fail(string + " not found. " + buffer);
+        fail(string +
+                " not found. " + buffer);
         return null;
     }
 }

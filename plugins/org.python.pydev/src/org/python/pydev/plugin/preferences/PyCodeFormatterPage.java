@@ -120,11 +120,16 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
     }
 
     private void updateLabelExample(FormatStd formatStd) {
-        String str = "class Example(object):             \n" + "                                   \n"
-                + "    def Call(self, param1=None):   \n" + "        '''docstring'''            \n"
-                + "        return param1 + 10 * 10    \n" + "                                   \n"
-                + "    def Call2(self):               \n" + "        #Comment                   \n"
-                + "        return self.Call(param1=10)" + "";
+        String str = "class Example(object):             \n" +
+                "                                   \n" +
+                "    def Call(self, param1=None):   \n" +
+                "        '''docstring'''            \n" +
+                "        return param1 + 10 * 10    \n" +
+                "                                   \n" +
+                "    def Call2(self):               \n" +
+                "        #Comment                   \n" +
+                "        return self.Call(param1=10)" +
+                "";
         Tuple<String, StyleRange[]> result = formatAndStyleRangeHelper.formatAndGetStyleRanges(formatStd, str,
                 PydevPrefs.getChainedPrefStore(), true);
         labelExample.setText(result.o1);

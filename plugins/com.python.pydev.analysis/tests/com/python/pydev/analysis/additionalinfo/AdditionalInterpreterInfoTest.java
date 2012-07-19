@@ -159,7 +159,9 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
     }
 
     public void testAddInner() throws MisconfigurationException {
-        String doc = "class Test:\n" + "    def m1(self):\n" + "        pass";
+        String doc = "class Test:\n" +
+                "    def m1(self):\n" +
+                "        pass";
         SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc("test", null, new Document(doc),
                 nature, true);
         info.addAstInfo(module.getAst(), module.getModulesKey(), false);
@@ -179,9 +181,19 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
     }
 
     public void testAddAttrs() throws MisconfigurationException {
-        String doc = "GLOBAL_ATTR = 1\n" + "GLOBAL2.IGNORE_THIS = 2\n" + "" + "class Test:\n" + "    test_attr = 1\n"
-                + "    test_attr.ignore = 2\n" + "    test_attr2.ignore_this = 3\n" + "" + "    class Test2:\n"
-                + "        def mmm(self):\n" + "            self.attr1 = 10";
+        String doc = "GLOBAL_ATTR = 1\n" +
+                "GLOBAL2.IGNORE_THIS = 2\n" +
+                "" +
+                "class Test:\n" +
+                "    test_attr = 1\n"
+                +
+                "    test_attr.ignore = 2\n" +
+                "    test_attr2.ignore_this = 3\n" +
+                "" +
+                "    class Test2:\n"
+                +
+                "        def mmm(self):\n" +
+                "            self.attr1 = 10";
 
         SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc("test", null, new Document(doc),
                 nature, true);
@@ -217,7 +229,10 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
     }
 
     public void testAddInner2() throws MisconfigurationException {
-        String doc = "class Test:\n" + "    class Test2:\n" + "        def mmm(self):\n" + "            pass";
+        String doc = "class Test:\n" +
+                "    class Test2:\n" +
+                "        def mmm(self):\n" +
+                "            pass";
         SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc("test", null, new Document(doc),
                 nature, true);
         info.addAstInfo(module.getAst(), module.getModulesKey(), false);
@@ -242,8 +257,12 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
     }
 
     public void testCompleteIndex() throws MisconfigurationException, InterruptedException {
-        String doc = "class Test:\n" + "    class Test2:\n" + "        def mmm(self):\n" + "            a = mmm1\n"
-                + "            print mmm1";
+        String doc = "class Test:\n" +
+                "    class Test2:\n" +
+                "        def mmm(self):\n" +
+                "            a = mmm1\n"
+                +
+                "            print mmm1";
         File tempFileAt = REF.getTempFileAt(baseDir, "data_temporary_file_on_additional_interpreter_info_test", ".py");
         REF.writeStrToFile(doc, tempFileAt);
         try {

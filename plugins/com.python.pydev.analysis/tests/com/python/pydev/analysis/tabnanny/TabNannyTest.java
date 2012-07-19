@@ -43,7 +43,13 @@ public class TabNannyTest extends TestCase {
     }
 
     public void testTabErrors1() throws Exception {
-        Document doc = new Document("" + "aaa\n" + "\t\n" + "    \n" + "    \t\n" + "ccc\n" + "");
+        Document doc = new Document("" +
+                "aaa\n" +
+                "\t\n" +
+                "    \n" +
+                "    \t\n" +
+                "ccc\n" +
+                "");
 
         List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4),
                 new NullProgressMonitor());
@@ -67,8 +73,16 @@ public class TabNannyTest extends TestCase {
     }
 
     public void testTabErrors2() throws Exception {
-        Document doc = new Document("" + "def m(b):\n" + "        pass\n" + "\tpass\n" + "    \n" + "    \n" + "    \n"
-                + "\n" + "");
+        Document doc = new Document("" +
+                "def m(b):\n" +
+                "        pass\n" +
+                "\tpass\n" +
+                "    \n" +
+                "    \n" +
+                "    \n"
+                +
+                "\n" +
+                "");
 
         List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4),
                 new NullProgressMonitor());
@@ -83,7 +97,12 @@ public class TabNannyTest extends TestCase {
     }
 
     public void testInconsistentIndent() throws Exception {
-        Document doc = new Document("" + "def m(b):\n" + "    pass\n" + "   \n" + "\n" + "");
+        Document doc = new Document("" +
+                "def m(b):\n" +
+                "    pass\n" +
+                "   \n" +
+                "\n" +
+                "");
 
         List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4),
                 new NullProgressMonitor());
@@ -92,8 +111,15 @@ public class TabNannyTest extends TestCase {
     }
 
     public void testNoInconsistentIndentInStrings() throws Exception {
-        Document doc = new Document("" + "def foo():\n" + "    string = \"\"\"bla\n" + "code()\n" + "  string ident\n"
-                + "  string ident\"\"\"\n" + "\n" + "");
+        Document doc = new Document("" +
+                "def foo():\n" +
+                "    string = \"\"\"bla\n" +
+                "code()\n" +
+                "  string ident\n"
+                +
+                "  string ident\"\"\"\n" +
+                "\n" +
+                "");
 
         List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4),
                 new NullProgressMonitor());
@@ -102,7 +128,11 @@ public class TabNannyTest extends TestCase {
     }
 
     public void testInconsistentIndent2() throws Exception {
-        Document doc = new Document("" + "def m(b):\n" + "   pass\n" + "\n" + "");
+        Document doc = new Document("" +
+                "def m(b):\n" +
+                "   pass\n" +
+                "\n" +
+                "");
 
         List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4),
                 new NullProgressMonitor());

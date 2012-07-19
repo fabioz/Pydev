@@ -50,14 +50,23 @@ public class Pep8Visitor {
             + "\n"
             + "options, args = pep8.process_options(argv[1:])\n"
             + //don't use sys.argv (it seems it doesn't get updated as it should).
-            //"print options\n" + uncomment for debugging options
-            "checker = pep8.Checker(options, '%s', lines)\n" + "\n"
-            + "def report_error(line_number, offset, text, check):\n" + "    code = text[:4]\n"
-            + "    if pep8.ignore_code(checker.options, code) or code in checker.expected:\n" + "        return\n"
+              //"print options\n" + uncomment for debugging options
+            "checker = pep8.Checker(options, '%s', lines)\n" +
+            "\n"
+            + "def report_error(line_number, offset, text, check):\n" +
+            "    code = text[:4]\n"
+            + "    if pep8.ignore_code(checker.options, code) or code in checker.expected:\n" +
+            "        return\n"
             + "    visitor.reportError(line_number, offset, text, check)\n"
-            + "    return original(line_number, offset, text, check)\n" + "\n" + "\n"
-            + "original = checker.report_error\n" + "checker.report_error = report_error\n" + "\n"
-            + "checker.check_all()\n" + "\n" + "";
+            + "    return original(line_number, offset, text, check)\n" +
+            "\n" +
+            "\n"
+            + "original = checker.report_error\n" +
+            "checker.report_error = report_error\n" +
+            "\n"
+            + "checker.check_all()\n" +
+            "\n" +
+            "";
 
     private final List<IMessage> messages = new ArrayList<IMessage>();
     private IAnalysisPreferences prefs;

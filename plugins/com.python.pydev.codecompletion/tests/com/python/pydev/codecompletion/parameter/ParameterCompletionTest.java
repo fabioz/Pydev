@@ -82,12 +82,17 @@ public class ParameterCompletionTest extends AdditionalInfoTestsBase {
     }
 
     public void testCompletion() throws Exception {
-        String s = "" + "def m1(a):\n" + "    a.existingM";
+        String s = "" +
+                "def m1(a):\n" +
+                "    a.existingM";
         requestCompl(s, -1, -1, new String[] { "existingMethod()" }); //at least 3 chars needed by default
     }
 
     public void testCompletion2() throws Exception {
-        String s = "" + "def m1(a):\n" + "    a.another()\n" + "    a.assertE";
+        String s = "" +
+                "def m1(a):\n" +
+                "    a.another()\n" +
+                "    a.assertE";
         requestCompl(s, -1, -1, new String[] { "assertEquals" }); //at least 3 chars needed by default
     }
 

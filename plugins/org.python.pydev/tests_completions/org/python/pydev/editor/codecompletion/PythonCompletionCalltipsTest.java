@@ -55,8 +55,12 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
 
     public void testCalltips1() throws Exception {
         String s;
-        s = "" + "GLOBAL_VAR = 10\n" + //this variable should not show in the return
-                "def m1(a, b):\n" + "    print a, b\n" + "\n" + "m1(a, b)"; //we'll request a completion inside the parentesis to check for calltips. For calltips, we
+        s = "" +
+                "GLOBAL_VAR = 10\n" + //this variable should not show in the return
+                "def m1(a, b):\n" +
+                "    print a, b\n" +
+                "\n" +
+                "m1(a, b)"; //we'll request a completion inside the parentesis to check for calltips. For calltips, we
         //should get the activation token as an empty string and the qualifier as "m1", 
         //so, the completion that should return is "m1(a, b)", with the information context
         //as "a, b". 
@@ -102,15 +106,24 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
 
     public void testCalltips2() throws Exception {
         String s;
-        s = "" + "GLOBAL_VAR = 10\n" + "def m1(a, b):\n" + "    print a, b\n" + "def m1Other(a, b):\n" + //this one should not show, as we're returning it for calltip purposes only 
-                "    print a, b\n" + "\n" + "m1()";
+        s = "" +
+                "GLOBAL_VAR = 10\n" +
+                "def m1(a, b):\n" +
+                "    print a, b\n" +
+                "def m1Other(a, b):\n" + //this one should not show, as we're returning it for calltip purposes only 
+                "    print a, b\n" +
+                "\n" +
+                "m1()";
         ICompletionProposal[] proposals = requestCompl(s, s.length() - 1, -1, new String[] { "m1(a, b)" });
         assertEquals(1, proposals.length);
     }
 
     public void testCalltips3() throws Exception {
         String s;
-        s = "" + "def m1(a, b):\n" + "    print a, b\n" + "m1()";
+        s = "" +
+                "def m1(a, b):\n" +
+                "    print a, b\n" +
+                "m1()";
         PyContextInformationValidator validator = new PyContextInformationValidator();
         int requestOffset = s.length() - 1;
         ICompletionProposal[] proposals = requestCompl(s, requestOffset, -1, new String[] {});
@@ -127,8 +140,10 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
 
     public void testCalltips3a() throws Exception {
         String s;
-        s = "" + "def m1((a, b), c):\n" + //yes, this is no longer supported (and this construct is rarely used).
-                "    print a, b, c\n" + "m1()";
+        s = "" +
+                "def m1((a, b), c):\n" + //yes, this is no longer supported (and this construct is rarely used).
+                "    print a, b, c\n" +
+                "m1()";
         PyContextInformationValidator validator = new PyContextInformationValidator();
         int requestOffset = s.length() - 1;
         ICompletionProposal[] proposals = requestCompl(s, requestOffset, -1, new String[] {});
@@ -145,7 +160,10 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
 
     public void testCalltips4() throws Exception {
         String s;
-        s = "" + "def m1(a, b):\n" + "    print a, b\n" + "m1(a,b)";
+        s = "" +
+                "def m1(a, b):\n" +
+                "    print a, b\n" +
+                "m1(a,b)";
         int requestOffset = s.length() - 4;
         ICompletionProposal[] proposals = requestCompl(s, requestOffset, -1, new String[] {});
         assertEquals(1, proposals.length);
@@ -161,8 +179,12 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
     }
 
     public void testCalltips5() throws Exception {
-        String s0 = "class TestCase(object):\n" + "    def __init__(self, a, b):\n" + "        pass\n" + "    \n"
-                + "TestCase(%s)";
+        String s0 = "class TestCase(object):\n" +
+                "    def __init__(self, a, b):\n" +
+                "        pass\n" +
+                "    \n"
+                +
+                "TestCase(%s)";
 
         String s = StringUtils.format(s0, "");
         ICompletionProposal[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
@@ -176,14 +198,19 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
     }
 
     public void testCalltips6() throws Exception {
-        String s = "from extendable import calltips\n" + "calltips.";
+        String s = "from extendable import calltips\n" +
+                "calltips.";
 
         requestCompl(s, s.length(), 5, new String[] { "__file__", "__dict__", "__name__", "method1(a, b)", "__path__" });
     }
 
     public void testCalltips7() throws Exception {
-        String s0 = "class TestCase(object):\n" + "    def __init__(self, param1, param2):\n" + "        pass\n"
-                + "    \n" + "TestCase(para%s)";
+        String s0 = "class TestCase(object):\n" +
+                "    def __init__(self, param1, param2):\n" +
+                "        pass\n"
+                +
+                "    \n" +
+                "TestCase(para%s)";
 
         String s = StringUtils.format(s0, "");
         ICompletionProposal[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
@@ -197,8 +224,12 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
     }
 
     public void testCalltips8() throws Exception {
-        String s0 = "class TestCase(object):\n" + "    def __init__(self, param1, param2):\n" + "        pass\n"
-                + "    \n" + "TestCase(param1=10, para%s)";
+        String s0 = "class TestCase(object):\n" +
+                "    def __init__(self, param1, param2):\n" +
+                "        pass\n"
+                +
+                "    \n" +
+                "TestCase(param1=10, para%s)";
 
         String s = StringUtils.format(s0, "");
         ICompletionProposal[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
@@ -212,8 +243,12 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
     }
 
     public void testCalltips8a() throws Exception {
-        String s0 = "class TestCase(object):\n" + "    def __init__(self, param1, param2):\n" + "        pass\n"
-                + "    \n" + "TestCase(param1=10, para%s=20)";
+        String s0 = "class TestCase(object):\n" +
+                "    def __init__(self, param1, param2):\n" +
+                "        pass\n"
+                +
+                "    \n" +
+                "TestCase(param1=10, para%s=20)";
         String s = StringUtils.format(s0, "m3");
         ICompletionProposal[] proposals = requestCompl(s, s.length() - 7, -1, new String[] {});
         assertEquals(2, proposals.length);
@@ -228,8 +263,12 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
     }
 
     public void testCalltips9() throws Exception {
-        String s0 = "class TestCase(object):\n" + "    def __init__(self, param1, param2, *args, **kwargs):\n"
-                + "        pass\n" + "    \n" + "TestCase(%s)";
+        String s0 = "class TestCase(object):\n" +
+                "    def __init__(self, param1, param2, *args, **kwargs):\n"
+                +
+                "        pass\n" +
+                "    \n" +
+                "TestCase(%s)";
 
         String s = StringUtils.format(s0, "");
         ICompletionProposal[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
@@ -245,8 +284,12 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
     }
 
     public void testCalltips10() throws Exception {
-        String s0 = "class TestCase(object):\n" + "    def __init__(self, param1, param2, *args, **kwargs):\n"
-                + "        pass\n" + "    \n" + "TestCase(param1=10, p)";
+        String s0 = "class TestCase(object):\n" +
+                "    def __init__(self, param1, param2, *args, **kwargs):\n"
+                +
+                "        pass\n" +
+                "    \n" +
+                "TestCase(param1=10, p)";
 
         String s = StringUtils.format(s0, "");
         ICompletionProposal[] proposals = requestCompl(s, s.length() - 2, -1, new String[] {});
@@ -262,8 +305,14 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
     }
 
     public void testCalltips11() throws Exception {
-        String s0 = "class TestCase(object):\n" + "    \n" + "    def M1(self, kkk, xxx):\n" + "        pass\n" + "\n"
-                + "    def __init__(self):\n" + "        self.M1(k%s)";
+        String s0 = "class TestCase(object):\n" +
+                "    \n" +
+                "    def M1(self, kkk, xxx):\n" +
+                "        pass\n" +
+                "\n"
+                +
+                "    def __init__(self):\n" +
+                "        self.M1(k%s)";
 
         String s = StringUtils.format(s0, "");
         ICompletionProposal[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});

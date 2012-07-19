@@ -53,39 +53,62 @@ public class PyParser27Test extends PyParserTestBase {
     }
 
     public void testWith() {
-        String str = "def m1():\n" + "    with a, b, c:\n" + "        print a, b, c\n" + "\n" + "";
+        String str = "def m1():\n" +
+                "    with a, b, c:\n" +
+                "        print a, b, c\n" +
+                "\n" +
+                "";
         parseLegalDocStr(str);
     }
 
     public void testExceptAs() {
-        String str = "" + "try:\n" + "    a = 10\n" + "except RuntimeError as x:\n" + "    print x\n" + "";
+        String str = "" +
+                "try:\n" +
+                "    a = 10\n" +
+                "except RuntimeError as x:\n" +
+                "    print x\n" +
+                "";
         parseLegalDocStr(str);
     }
 
     public void testBinaryObj() {
-        String str = "" + "b'foo'\n" + "";
+        String str = "" +
+                "b'foo'\n" +
+                "";
         parseLegalDocStr(str);
     }
 
     public void testOctal() {
-        String str = "" + "0o700\n" + "0700\n" + "";
+        String str = "" +
+                "0o700\n" +
+                "0700\n" +
+                "";
         assertEquals(
                 "Module[body=[Expr[value=Num[n=448, type=Int, num=0o700]], Expr[value=Num[n=448, type=Int, num=0700]]]]",
                 parseLegalDocStr(str).toString());
     }
 
     public void testFunctionCall() {
-        String str = "" + "Call(1,2,3, *(4,5,6), keyword=13, **kwargs)\n" + "";
+        String str = "" +
+                "Call(1,2,3, *(4,5,6), keyword=13, **kwargs)\n" +
+                "";
         parseLegalDocStr(str);
     }
 
     public void testFunctionCallWithListComp() {
-        String str = "" + "any(cls.__subclasscheck__(c) for c in [subclass, subtype])\n" + "";
+        String str = "" +
+                "any(cls.__subclasscheck__(c) for c in [subclass, subtype])\n" +
+                "";
         parseLegalDocStr(str);
     }
 
     public void testClassDecorator() {
-        String s = "" + "@classdec\n" + "@classdec2\n" + "class A:\n" + "    pass\n" + "";
+        String s = "" +
+                "@classdec\n" +
+                "@classdec2\n" +
+                "class A:\n" +
+                "    pass\n" +
+                "";
         SimpleNode ast = parseLegalDocStr(s);
         Module m = (Module) ast;
         ClassDef d = (ClassDef) m.body[0];
@@ -107,19 +130,29 @@ public class PyParser27Test extends PyParserTestBase {
     }
 
     public void testFuturePrintFunction() {
-        String s = "" + "from __future__ import print_function\n" + "print('test', 'print function', sep=' - ')\n" + "";
+        String s = "" +
+                "from __future__ import print_function\n" +
+                "print('test', 'print function', sep=' - ')\n" +
+                "";
 
         parseLegalDocStr(s);
     }
 
     public void testBinNumber() {
-        String s = "" + "0b00010\n" + "0B00010\n" + "0b00010L\n" + "0B00010l\n" + "";
+        String s = "" +
+                "0b00010\n" +
+                "0B00010\n" +
+                "0b00010L\n" +
+                "0B00010l\n" +
+                "";
 
         parseLegalDocStr(s);
     }
 
     public void testSet() {
-        String s = "" + "mutable_set = {1,2,3,4,5}\n" + "";
+        String s = "" +
+                "mutable_set = {1,2,3,4,5}\n" +
+                "";
 
         SimpleNode ast = parseLegalDocStr(s);
         Module m = (Module) ast;
@@ -131,7 +164,9 @@ public class PyParser27Test extends PyParserTestBase {
     }
 
     public void testSetComp() {
-        String s = "" + "mutable_set = {x for x in xrange(10)}\n" + "";
+        String s = "" +
+                "mutable_set = {x for x in xrange(10)}\n" +
+                "";
 
         SimpleNode ast = parseLegalDocStr(s);
         Module m = (Module) ast;
@@ -140,7 +175,9 @@ public class PyParser27Test extends PyParserTestBase {
     }
 
     public void testDictKept() {
-        String s = "" + "d = {}\n" + "";
+        String s = "" +
+                "d = {}\n" +
+                "";
 
         SimpleNode ast = parseLegalDocStr(s);
         Module m = (Module) ast;
@@ -149,7 +186,9 @@ public class PyParser27Test extends PyParserTestBase {
     }
 
     public void testDictComp() {
-        String s = "" + "d = {i: i*2 for i in range(3)}\n" + "";
+        String s = "" +
+                "d = {i: i*2 for i in range(3)}\n" +
+                "";
 
         SimpleNode ast = parseLegalDocStr(s);
         Module m = (Module) ast;
@@ -161,7 +200,8 @@ public class PyParser27Test extends PyParserTestBase {
         String base = "#comment\npass\n";
         String s = REF.BOM_UTF8 + base;
         File file = new File(TestDependent.TEST_PYDEV_PARSER_PLUGIN_LOC
-                + "/tests/org/python/pydev/parser/generated_data_test_utf8_with_bom.py");
+                +
+                "/tests/org/python/pydev/parser/generated_data_test_utf8_with_bom.py");
         FileOutputStream out = new FileOutputStream(file);
         out.write(new String(REF.BOM_UTF8).getBytes());
         out.write(base.getBytes());

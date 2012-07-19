@@ -42,7 +42,8 @@ public class PyCodeCompletion2Test extends CodeCompletionTestsBase {
     public void setUp() throws Exception {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = false;
-        this.restorePythonPath(TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.PYTHON_PIL_PACKAGES,
+        this.restorePythonPath(TestDependent.GetCompletePythonLib(true) +
+                "|" + TestDependent.PYTHON_PIL_PACKAGES,
                 false);
         this.restorePythonPath(false);
         codeCompletion = new PyCodeCompletion();
@@ -56,8 +57,17 @@ public class PyCodeCompletion2Test extends CodeCompletionTestsBase {
     }
 
     public void testSelfOrClsCompletion() throws Exception {
-        String s = "" + "class B:\n" + "    def m2(self):\n" + "        pass\n" + "\n" + "class A:\n"
-                + "    m1 = B()\n" + "    def foo(self):\n" + "        self.m1." + "";
+        String s = "" +
+                "class B:\n" +
+                "    def m2(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "class A:\n"
+                +
+                "    m1 = B()\n" +
+                "    def foo(self):\n" +
+                "        self.m1." +
+                "";
 
         SystemPythonNature nature = new SystemPythonNature(PyCodeCompletion2Test.nature.getRelatedInterpreterManager());
         PySelection ps = new PySelection(new Document(s), s.length() - 1);

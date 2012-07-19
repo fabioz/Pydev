@@ -123,8 +123,15 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase {
     }
 
     public void testFindHierarchy3() {
-        String str = "" + "import pickle             \n" + "class Bar:\n" + "    pass                  \n"
-                + "class Foo(Bar, pickle.Pickler):\n" + "    pass                  \n" + "\n" + "";
+        String str = "" +
+                "import pickle             \n" +
+                "class Bar:\n" +
+                "    pass                  \n"
+                +
+                "class Foo(Bar, pickle.Pickler):\n" +
+                "    pass                  \n" +
+                "\n" +
+                "";
         final int line = 3;
         final int col = 9;
 
@@ -140,9 +147,17 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase {
     }
 
     public void testFindHierarchy4() {
-        String str = "" + "class Bar:                \n" + "    pass                  \n"
-                + "class Foo(Bar):           \n" + "    pass                  \n" + "class Foo1(Foo):          \n"
-                + "    pass                  \n" + "\n" + "";
+        String str = "" +
+                "class Bar:                \n" +
+                "    pass                  \n"
+                +
+                "class Foo(Bar):           \n" +
+                "    pass                  \n" +
+                "class Foo1(Foo):          \n"
+                +
+                "    pass                  \n" +
+                "\n" +
+                "";
         final int line = 0;
         final int col = 8;
 
@@ -158,8 +173,18 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase {
     }
 
     public void testFindHierarchy5() {
-        String str = "" + "class Root(object):\n" + "    pass\n" + "class Mid1(Root):\n" + "    pass\n"
-                + "class Mid2(Root):\n" + "    pass\n" + "class Leaf(Mid1, Mid2):\n" + "    pass\n" + "\n" + "";
+        String str = "" +
+                "class Root(object):\n" +
+                "    pass\n" +
+                "class Mid1(Root):\n" +
+                "    pass\n"
+                +
+                "class Mid2(Root):\n" +
+                "    pass\n" +
+                "class Leaf(Mid1, Mid2):\n" +
+                "    pass\n" +
+                "\n" +
+                "";
 
         final int line = 6;
         final int col = 8;
@@ -179,9 +204,23 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase {
     }
 
     public void testFindHierarchy6() {
-        String str = "" + "class Root(object):\n" + "    pass\n" + "class Mid1(Root):\n" + "    pass\n"
-                + "class Mid2(Root):\n" + "    pass\n" + "class Leaf(Mid1, Mid2):\n" + "    pass\n" + "import pickle\n"
-                + "class Bla(Leaf, Foo):\n" + "    pass\n" + "class Foo:\n" + "    pass\n" + "";
+        String str = "" +
+                "class Root(object):\n" +
+                "    pass\n" +
+                "class Mid1(Root):\n" +
+                "    pass\n"
+                +
+                "class Mid2(Root):\n" +
+                "    pass\n" +
+                "class Leaf(Mid1, Mid2):\n" +
+                "    pass\n" +
+                "import pickle\n"
+                +
+                "class Bla(Leaf, Foo):\n" +
+                "    pass\n" +
+                "class Foo:\n" +
+                "    pass\n" +
+                "";
 
         final int line = 9;
         final int col = 8;
@@ -240,8 +279,15 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase {
     }
 
     private RefactoringRequest setUpFooModule(final int line, final int col) {
-        String str = "" + "import pickle\n" + "class Bar(pickle.Pickler):\n" + "    pass\n" + "class Foo(Bar):\n"
-                + "    pass\n" + "\n" + "";
+        String str = "" +
+                "import pickle\n" +
+                "class Bar(pickle.Pickler):\n" +
+                "    pass\n" +
+                "class Foo(Bar):\n"
+                +
+                "    pass\n" +
+                "\n" +
+                "";
         return setUpFooModule(line, col, str);
     }
 
@@ -253,7 +299,8 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase {
 
     private RefactoringRequest setUpModule(final int line, final int col, String str, String modName,
             PythonNature natureToAdd) {
-        File f = new File(baseDir, modName + ".py");
+        File f = new File(baseDir, modName +
+                ".py");
 
         Document doc = new Document(str);
         PySelection ps = new PySelection(doc, line, col);
@@ -281,7 +328,9 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase {
                 }
             }
         }
-        fail("Unable to find node with name:" + name + " mod:" + modName + "\nAvailable:" + available);
+        fail("Unable to find node with name:" + name +
+                " mod:" + modName +
+                "\nAvailable:" + available);
         return null;
     }
 }

@@ -47,15 +47,28 @@ public class PyCreateClassTest extends TestCaseUtils {
 
         pyCreateClass.execute(info, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT);
 
-        assertContentsEqual("" + "class MyClass(${object}):\n" + "    ${pass}${cursor}\n" + "\n" + "\n" + "MyClass()"
-                + "", document.get());
+        assertContentsEqual("" +
+                "class MyClass(${object}):\n" +
+                "    ${pass}${cursor}\n" +
+                "\n" +
+                "\n" +
+                "MyClass()"
+                +
+                "", document.get());
     }
 
     public void testPyCreateClassInSameModule4() throws Exception {
         PyCreateClass pyCreateClass = new PyCreateClass();
 
-        String source = "" + "#=============\n" + "#Comment\n" + "#=============\n" + "class Existing(object):\n"
-                + "    pass\n" + "\n" + "MyClass()\n";
+        String source = "" +
+                "#=============\n" +
+                "#Comment\n" +
+                "#=============\n" +
+                "class Existing(object):\n"
+                +
+                "    pass\n" +
+                "\n" +
+                "MyClass()\n";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, document.getLength() - 5, 0);
         RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
@@ -67,16 +80,37 @@ public class PyCreateClassTest extends TestCaseUtils {
 
         pyCreateClass.execute(info, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT);
 
-        assertContentsEqual("" + "#=============\n" + "#Comment\n" + "#=============\n" + "class Existing(object):\n"
-                + "    pass\n" + "\n" + "\n" + "class MyClass(${object}):\n" + "    ${pass}${cursor}\n" + "\n" + "\n"
-                + "MyClass()\n" + "", document.get());
+        assertContentsEqual("" +
+                "#=============\n" +
+                "#Comment\n" +
+                "#=============\n" +
+                "class Existing(object):\n"
+                +
+                "    pass\n" +
+                "\n" +
+                "\n" +
+                "class MyClass(${object}):\n" +
+                "    ${pass}${cursor}\n" +
+                "\n" +
+                "\n"
+                +
+                "MyClass()\n" +
+                "", document.get());
     }
 
     public void testPyCreateClassInSameModule5() throws Exception {
         PyCreateClass pyCreateClass = new PyCreateClass();
 
-        String source = "" + "a = 10\n" + "#=============\n" + "#Comment\n" + "#=============\n"
-                + "class Existing(object):\n" + "    pass\n" + "\n" + "MyClass()";
+        String source = "" +
+                "a = 10\n" +
+                "#=============\n" +
+                "#Comment\n" +
+                "#=============\n"
+                +
+                "class Existing(object):\n" +
+                "    pass\n" +
+                "\n" +
+                "MyClass()";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, document.getLength() - 5, 0);
         RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
@@ -88,16 +122,36 @@ public class PyCreateClassTest extends TestCaseUtils {
 
         pyCreateClass.execute(info, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT);
 
-        assertContentsEqual("" + "a = 10\n" + "#=============\n" + "#Comment\n" + "#=============\n"
-                + "class Existing(object):\n" + "    pass\n" + "\n" + "\n" + "class MyClass(${object}):\n"
-                + "    ${pass}${cursor}\n" + "\n" + "\n" + "MyClass()" + "", document.get());
+        assertContentsEqual("" +
+                "a = 10\n" +
+                "#=============\n" +
+                "#Comment\n" +
+                "#=============\n"
+                +
+                "class Existing(object):\n" +
+                "    pass\n" +
+                "\n" +
+                "\n" +
+                "class MyClass(${object}):\n"
+                +
+                "    ${pass}${cursor}\n" +
+                "\n" +
+                "\n" +
+                "MyClass()" +
+                "", document.get());
     }
 
     public void testPyCreateClassInSameModule6() throws Exception {
         PyCreateClass pyCreateClass = new PyCreateClass();
 
-        String source = "" + "a = 10\n" + "#=============\n" + "#Comment\n" + "#=============\n"
-                + "class Existing(object):\n" + "    MyClass()";
+        String source = "" +
+                "a = 10\n" +
+                "#=============\n" +
+                "#Comment\n" +
+                "#=============\n"
+                +
+                "class Existing(object):\n" +
+                "    MyClass()";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, document.getLength() - 5, 0);
         RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
@@ -109,9 +163,22 @@ public class PyCreateClassTest extends TestCaseUtils {
 
         pyCreateClass.execute(info, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT);
 
-        assertContentsEqual("" + "a = 10\n" + "\n" + "\n" + "class MyClass(${object}):\n" + "    ${pass}${cursor}\n"
-                + "\n" + "\n" + "#=============\n" + "#Comment\n" + "#=============\n" + "class Existing(object):\n"
-                + "    MyClass()" + "", document.get());
+        assertContentsEqual("" +
+                "a = 10\n" +
+                "\n" +
+                "\n" +
+                "class MyClass(${object}):\n" +
+                "    ${pass}${cursor}\n"
+                +
+                "\n" +
+                "\n" +
+                "#=============\n" +
+                "#Comment\n" +
+                "#=============\n" +
+                "class Existing(object):\n"
+                +
+                "    MyClass()" +
+                "", document.get());
     }
 
     public void testPyCreateClassWithParameters() throws Exception {
@@ -129,9 +196,17 @@ public class PyCreateClassTest extends TestCaseUtils {
 
         pyCreateClass.execute(info, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT);
 
-        assertContentsEqual("" + "class MyClass(${object}):\n" + "    \n"
-                + "    def __init__(self, ${aa}, ${bb}, ${param2}):\n" + "        ${pass}${cursor}\n" + "\n" + "\n"
-                + "MyClass(aa, bb, 10)" + "", document.get());
+        assertContentsEqual("" +
+                "class MyClass(${object}):\n" +
+                "    \n"
+                +
+                "    def __init__(self, ${aa}, ${bb}, ${param2}):\n" +
+                "        ${pass}${cursor}\n" +
+                "\n" +
+                "\n"
+                +
+                "MyClass(aa, bb, 10)" +
+                "", document.get());
     }
 
     public void testPyCreateClassWithParameters2() throws Exception {
@@ -149,16 +224,29 @@ public class PyCreateClassTest extends TestCaseUtils {
 
         pyCreateClass.execute(info, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT);
 
-        assertContentsEqual("" + "class MyClass(${object}):\n" + "    \n"
-                + "    def __init__(self, ${aa}, ${bb}, ${my_foo}):\n" + "        ${pass}${cursor}\n" + "\n" + "\n"
-                + "MyClass(aa, bb, MyFoo())" + "", document.get());
+        assertContentsEqual("" +
+                "class MyClass(${object}):\n" +
+                "    \n"
+                +
+                "    def __init__(self, ${aa}, ${bb}, ${my_foo}):\n" +
+                "        ${pass}${cursor}\n" +
+                "\n" +
+                "\n"
+                +
+                "MyClass(aa, bb, MyFoo())" +
+                "", document.get());
     }
 
     public void testPyCreateClassInSameModule2() throws Exception {
         PyCreateClass pyCreateClass = new PyCreateClass();
 
-        String source = "" + "import foo\n" + "\n" + "class Bar(object):\n" + "    def m1(self):\n"
-                + "        MyClass()\n";
+        String source = "" +
+                "import foo\n" +
+                "\n" +
+                "class Bar(object):\n" +
+                "    def m1(self):\n"
+                +
+                "        MyClass()\n";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, source.length() - 4, 0);
         RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
@@ -170,15 +258,32 @@ public class PyCreateClassTest extends TestCaseUtils {
 
         pyCreateClass.execute(info, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT);
 
-        assertContentsEqual("" + "import foo\n" + "\n" + "class MyClass(${object}):\n" + "    ${pass}${cursor}\n"
-                + "\n" + "\n" + "class Bar(object):\n" + "    def m1(self):\n" + "        MyClass()\n", document.get());
+        assertContentsEqual("" +
+                "import foo\n" +
+                "\n" +
+                "class MyClass(${object}):\n" +
+                "    ${pass}${cursor}\n"
+                +
+                "\n" +
+                "\n" +
+                "class Bar(object):\n" +
+                "    def m1(self):\n" +
+                "        MyClass()\n", document.get());
     }
 
     public void testPyCreateClassInSameModule3() throws Exception {
         PyCreateClass pyCreateClass = new PyCreateClass();
 
-        String source = "" + "import foo\n" + "\n" + "class Foo(object):\n" + "    pass\n" + "\n"
-                + "class Bar(object):\n" + "    def m1(self):\n" + "        MyClass()\n";
+        String source = "" +
+                "import foo\n" +
+                "\n" +
+                "class Foo(object):\n" +
+                "    pass\n" +
+                "\n"
+                +
+                "class Bar(object):\n" +
+                "    def m1(self):\n" +
+                "        MyClass()\n";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, source.length() - 4, 0);
         RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
@@ -190,16 +295,37 @@ public class PyCreateClassTest extends TestCaseUtils {
 
         pyCreateClass.execute(info, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT);
 
-        assertContentsEqual("" + "import foo\n" + "\n" + "class Foo(object):\n" + "    pass\n" + "\n" + "\n"
-                + "class MyClass(${object}):\n" + "    ${pass}${cursor}\n" + "\n" + "\n" + "class Bar(object):\n"
-                + "    def m1(self):\n" + "        MyClass()\n", document.get());
+        assertContentsEqual("" +
+                "import foo\n" +
+                "\n" +
+                "class Foo(object):\n" +
+                "    pass\n" +
+                "\n" +
+                "\n"
+                +
+                "class MyClass(${object}):\n" +
+                "    ${pass}${cursor}\n" +
+                "\n" +
+                "\n" +
+                "class Bar(object):\n"
+                +
+                "    def m1(self):\n" +
+                "        MyClass()\n", document.get());
     }
 
     public void testPyCreateClassEndOfFile() throws Exception {
         PyCreateClass pyCreateClass = new PyCreateClass();
 
-        String source = "" + "import foo\n" + "\n" + "class Foo(object):\n" + "    pass\n" + "\n"
-                + "class Bar(object):\n" + "    def m1(self):\n" + "        MyClass()\n";
+        String source = "" +
+                "import foo\n" +
+                "\n" +
+                "class Foo(object):\n" +
+                "    pass\n" +
+                "\n"
+                +
+                "class Bar(object):\n" +
+                "    def m1(self):\n" +
+                "        MyClass()\n";
         IDocument document = new Document(source);
         ITextSelection selection = new TextSelection(document, source.length() - 4, 0);
         RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
@@ -211,9 +337,23 @@ public class PyCreateClassTest extends TestCaseUtils {
 
         pyCreateClass.execute(info, PyCreateClass.LOCATION_STRATEGY_END);
 
-        assertContentsEqual("" + "import foo\n" + "\n" + "class Foo(object):\n" + "    pass\n" + "\n"
-                + "class Bar(object):\n" + "    def m1(self):\n" + "        MyClass()\n" + "\n" + "\n"
-                + "class MyClass(${object}):\n" + "    ${pass}${cursor}\n" + "\n" + "\n", document.get());
+        assertContentsEqual("" +
+                "import foo\n" +
+                "\n" +
+                "class Foo(object):\n" +
+                "    pass\n" +
+                "\n"
+                +
+                "class Bar(object):\n" +
+                "    def m1(self):\n" +
+                "        MyClass()\n" +
+                "\n" +
+                "\n"
+                +
+                "class MyClass(${object}):\n" +
+                "    ${pass}${cursor}\n" +
+                "\n" +
+                "\n", document.get());
     }
 
     public void testPyCreateClassEndOfFile2() throws Exception {
@@ -231,7 +371,11 @@ public class PyCreateClassTest extends TestCaseUtils {
         pyCreateClass.createProposal(info, "Foo", PyCreateClass.LOCATION_STRATEGY_END, new ArrayList<String>()).apply(
                 document);
 
-        assertContentsEqual("" + "class Foo(${object}):\n" + "    ${pass}${cursor}\n" + "\n" + "\n", document.get());
+        assertContentsEqual("" +
+                "class Foo(${object}):\n" +
+                "    ${pass}${cursor}\n" +
+                "\n" +
+                "\n", document.get());
     }
 
 }

@@ -22,7 +22,9 @@ public class REFTest extends TestCase {
 
         for (int i = 1; i < 20; i++) {
             //            System.out.println(i+": "+(i+Math.round(REF.log(i, 1.4))));
-            assertTrue("" + expected[i - 1] + " !=" + REF.log(i, 1.5) + "for log " + i,
+            assertTrue("" + expected[i - 1] +
+                    " !=" + REF.log(i, 1.5) +
+                    "for log " + i,
                     Math.abs(expected[i - 1] - REF.log(i, 1.5)) < 0.01);
         }
 
@@ -79,25 +81,37 @@ public class REFTest extends TestCase {
     }
 
     public void testHasPythonShebang() {
-        String s = "" + "#!bla\n" + "\n" + "";
+        String s = "" +
+                "#!bla\n" +
+                "\n" +
+                "";
         CharArrayReader reader = new CharArrayReader(s.toCharArray());
         assertFalse(REF.hasPythonShebang(reader));
     }
 
     public void testHasPythonShebang1() {
-        String s = "" + "#!python\n" + "\n" + "";
+        String s = "" +
+                "#!python\n" +
+                "\n" +
+                "";
         CharArrayReader reader = new CharArrayReader(s.toCharArray());
         assertTrue(REF.hasPythonShebang(reader));
     }
 
     public void testHasPythonShebang2() {
-        String s = "" + "#!python2\n" + "\n" + "";
+        String s = "" +
+                "#!python2\n" +
+                "\n" +
+                "";
         CharArrayReader reader = new CharArrayReader(s.toCharArray());
         assertTrue(REF.hasPythonShebang(reader));
     }
 
     public void testHasPythonShebang3() {
-        String s = "" + "#!python3\n" + "\n" + "";
+        String s = "" +
+                "#!python3\n" +
+                "\n" +
+                "";
         CharArrayReader reader = new CharArrayReader(s.toCharArray());
         assertTrue(REF.hasPythonShebang(reader));
     }

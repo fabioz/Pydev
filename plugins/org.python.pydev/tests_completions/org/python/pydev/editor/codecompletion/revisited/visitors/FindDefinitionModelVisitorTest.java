@@ -59,7 +59,10 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
      * 
      */
     public void testFind() throws Exception {
-        String d = "" + "from testAssist import assist\n" + "ex = assist.ExistingClass()\n" + "ex.newMethod(c,d)";
+        String d = "" +
+                "from testAssist import assist\n" +
+                "ex = assist.ExistingClass()\n" +
+                "ex.newMethod(c,d)";
 
         Document doc = new Document(d);
         IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, true);
@@ -86,7 +89,9 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
      * 
      */
     public void testFind4() throws Exception {
-        String d = "" + "mydict = {}\n" + "mydict['key'] = 'value'";
+        String d = "" +
+                "mydict = {}\n" +
+                "mydict['key'] = 'value'";
 
         Document doc = new Document(d);
         IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, true);
@@ -104,8 +109,14 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
      * 
      */
     public void testFind3() throws Exception {
-        String d = "" + "class Foo:\n" + "    def m1(self, bar):\n" + "        pass\n" + "    def m2(self):\n"
-                + "        bar = 10\n" + "        self.m1(bar = bar)\n" + //the definition for first bar is in m1(self, bar) 
+        String d = "" +
+                "class Foo:\n" +
+                "    def m1(self, bar):\n" +
+                "        pass\n" +
+                "    def m2(self):\n"
+                +
+                "        bar = 10\n" +
+                "        self.m1(bar = bar)\n" + //the definition for first bar is in m1(self, bar) 
                 "";
 
         Document doc = new Document(d);
@@ -125,8 +136,15 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
      * 
      */
     public void testFind5() throws Exception {
-        String d = "" + "class Foo:\n" + "    def m1(self, bar):\n" + "        pass\n" + "        xxx = \\\n"
-                + "           yyy = 10\n" + "        print xxx, yyy\n" + "";
+        String d = "" +
+                "class Foo:\n" +
+                "    def m1(self, bar):\n" +
+                "        pass\n" +
+                "        xxx = \\\n"
+                +
+                "           yyy = 10\n" +
+                "        print xxx, yyy\n" +
+                "";
 
         Document doc = new Document(d);
         IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, true);
@@ -157,9 +175,18 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
      */
     public void testFind2() throws Exception {
         String d;
-        d = "class C:            \n" + "    def met1(self): \n" + "        pass        \n" + "                    \n"
-                + "class B:            \n" + "    def met2(self): \n" + "        self.c = C()\n"
-                + "                    \n" + "    def met3(self): \n" + "        self.c.";
+        d = "class C:            \n" +
+                "    def met1(self): \n" +
+                "        pass        \n" +
+                "                    \n"
+                +
+                "class B:            \n" +
+                "    def met2(self): \n" +
+                "        self.c = C()\n"
+                +
+                "                    \n" +
+                "    def met3(self): \n" +
+                "        self.c.";
 
         Document doc = new Document(d);
         IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, true);
@@ -185,8 +212,13 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
      */
     public void testFind6() throws Exception {
         String d;
-        d = "class C:            \n" + "    def met1(self): \n" + "        pass        \n" + "                    \n"
-                + "def TestIt(foo):\n" + "    pass\n";
+        d = "class C:            \n" +
+                "    def met1(self): \n" +
+                "        pass        \n" +
+                "                    \n"
+                +
+                "def TestIt(foo):\n" +
+                "    pass\n";
 
         Document doc = new Document(d);
         IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, true);
@@ -209,8 +241,15 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
      */
     public void testFind7() throws Exception {
         String d;
-        d = "class C:            \n" + "    def met1(self): \n" + "        pass        \n" + "                    \n"
-                + "class B:            \n" + "    def met2(self): \n" + "        c = C()     \n" + "        c.met1";
+        d = "class C:            \n" +
+                "    def met1(self): \n" +
+                "        pass        \n" +
+                "                    \n"
+                +
+                "class B:            \n" +
+                "    def met2(self): \n" +
+                "        c = C()     \n" +
+                "        c.met1";
 
         Document doc = new Document(d);
         IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, true);
@@ -226,7 +265,10 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
     }
 
     public void testArgs() throws Exception {
-        String d = "" + "def func(*args):\n" + "    args" + "";
+        String d = "" +
+                "def func(*args):\n" +
+                "    args" +
+                "";
 
         Document doc = new Document(d);
         SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc("", null, doc, nature, true);
@@ -243,7 +285,10 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
     }
 
     public void testKwArgs() throws Exception {
-        String d = "" + "def func(**args):\n" + "    args" + "";
+        String d = "" +
+                "def func(**args):\n" +
+                "    args" +
+                "";
 
         Document doc = new Document(d);
         SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc("", null, doc, nature, true);
@@ -263,7 +308,10 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
         int initial = GRAMMAR_TO_USE_FOR_PARSING;
         try {
             GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
-            String d = "" + "def func(arg, *, arg2=None):\n" + "    arg2" + "";
+            String d = "" +
+                    "def func(arg, *, arg2=None):\n" +
+                    "    arg2" +
+                    "";
 
             Document doc = new Document(d);
             SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc("", null, doc, nature, true);

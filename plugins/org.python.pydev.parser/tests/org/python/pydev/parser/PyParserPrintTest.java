@@ -29,8 +29,14 @@ public class PyParserPrintTest extends PyParserTestBase {
     }
 
     public void testComments1() {
-        String s = "" + "#comment00\n" + "class Class1: #comment0        \n" + "    #comment1                  \n"
-                + "    def met1(self, a):#comment2\n" + "        pass                   \n" + "#comment3";
+        String s = "" +
+                "#comment00\n" +
+                "class Class1: #comment0        \n" +
+                "    #comment1                  \n"
+                +
+                "    def met1(self, a):#comment2\n" +
+                "        pass                   \n" +
+                "#comment3";
         parseLegalDocStr(s);
 
     }

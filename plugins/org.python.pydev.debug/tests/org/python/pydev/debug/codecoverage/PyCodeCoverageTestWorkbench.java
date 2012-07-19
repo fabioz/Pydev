@@ -72,13 +72,36 @@ public class PyCodeCoverageTestWorkbench extends AbstractWorkbenchTestCase {
      * @return
      */
     private String getModCovContents() {
-        return "" + "import unittest\n" + "\n" + "class TestCase(unittest.TestCase):\n" + "    \n"
-                + "    def testCovered1(self):\n" + "        print('t1')\n" + "        print('t2')\n"
-                + "        print('t3')\n" + "    \n" + "    def testCovered2(self):\n" + "        print('t1')\n"
-                + "        print('t2')\n" + "        print('t3')\n" + "        \n" + "    def testNotCovered(self):\n"
-                + "        if False:\n" + "            print('t1')\n" + "            print('t2')\n"
-                + "            print('t3')\n" + "        \n" + "if __name__ == '__main__':\n" + "    unittest.main()\n"
-                + "";
+        return "" +
+                "import unittest\n" +
+                "\n" +
+                "class TestCase(unittest.TestCase):\n" +
+                "    \n"
+                +
+                "    def testCovered1(self):\n" +
+                "        print('t1')\n" +
+                "        print('t2')\n"
+                +
+                "        print('t3')\n" +
+                "    \n" +
+                "    def testCovered2(self):\n" +
+                "        print('t1')\n"
+                +
+                "        print('t2')\n" +
+                "        print('t3')\n" +
+                "        \n" +
+                "    def testNotCovered(self):\n"
+                +
+                "        if False:\n" +
+                "            print('t1')\n" +
+                "            print('t2')\n"
+                +
+                "            print('t3')\n" +
+                "        \n" +
+                "if __name__ == '__main__':\n" +
+                "    unittest.main()\n"
+                +
+                "";
     }
 
     public void testPyCodeCoverageView() throws Exception {
@@ -155,20 +178,34 @@ public class PyCodeCoverageTestWorkbench extends AbstractWorkbenchTestCase {
     }
 
     private String getModCovCoverageText() {
-        return "" + "Name                                      Stmts     Miss      Cover  Missing\n"
-                + "-----------------------------------------------------------------------------\n"
-                + "__init__.py                                   0        0         -   \n"
-                + "mod_cov.py                                   17        3      82,4%  17-19\n"
-                + "-----------------------------------------------------------------------------\n"
-                + "TOTAL                                        17        3      82,4%  \n" + "";
+        return "" +
+                "Name                                      Stmts     Miss      Cover  Missing\n"
+                +
+                "-----------------------------------------------------------------------------\n"
+                +
+                "__init__.py                                   0        0         -   \n"
+                +
+                "mod_cov.py                                   17        3      82,4%  17-19\n"
+                +
+                "-----------------------------------------------------------------------------\n"
+                +
+                "TOTAL                                        17        3      82,4%  \n" +
+                "";
     }
 
     private String getInitialCoverageText() {
-        return "" + "Name                                      Stmts     Miss      Cover  Missing\n"
-                + "-----------------------------------------------------------------------------\n"
-                + "__init__.py                                   0        0         -   \n"
-                + "mod_cov.py                                   17       17         0%  1-22\n"
-                + "-----------------------------------------------------------------------------\n"
-                + "TOTAL                                        17       17         0%  \n" + "";
+        return "" +
+                "Name                                      Stmts     Miss      Cover  Missing\n"
+                +
+                "-----------------------------------------------------------------------------\n"
+                +
+                "__init__.py                                   0        0         -   \n"
+                +
+                "mod_cov.py                                   17       17         0%  1-22\n"
+                +
+                "-----------------------------------------------------------------------------\n"
+                +
+                "TOTAL                                        17       17         0%  \n" +
+                "";
     }
 }

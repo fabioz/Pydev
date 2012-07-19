@@ -59,9 +59,23 @@ public class EasyASTIteratorTest extends TestCase {
      */
     public void testClassesMethods() throws Exception {
         EasyASTIteratorVisitor visitor = new EasyASTIteratorVisitor();
-        String str = "" + "class C:\n" + "    def met1(self):pass\n" + "\n" + "if True:\n" + "    print 't'\n" + "\n"
-                + "class D:\n" + "    pass\n" + "class E:\n" + "    '''t1\n" + "    t2\n" + "    '''\n" + "c = C()\n"
-                + "";
+        String str = "" +
+                "class C:\n" +
+                "    def met1(self):pass\n" +
+                "\n" +
+                "if True:\n" +
+                "    print 't'\n" +
+                "\n"
+                +
+                "class D:\n" +
+                "    pass\n" +
+                "class E:\n" +
+                "    '''t1\n" +
+                "    t2\n" +
+                "    '''\n" +
+                "c = C()\n"
+                +
+                "";
 
         Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
@@ -81,8 +95,16 @@ public class EasyASTIteratorTest extends TestCase {
      */
     public void testMultiline() throws Exception {
         EasyASTIteratorVisitor visitor = new EasyASTIteratorVisitor();
-        String str = "" + "class C:        \n" + "    def d(self):\n" + "        c = \\\n" + "'''             \n"
-                + "a               \n" + "b               \n" + "c               \n" + "'''             \n";
+        String str = "" +
+                "class C:        \n" +
+                "    def d(self):\n" +
+                "        c = \\\n" +
+                "'''             \n"
+                +
+                "a               \n" +
+                "b               \n" +
+                "c               \n" +
+                "'''             \n";
 
         Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
@@ -100,9 +122,20 @@ public class EasyASTIteratorTest extends TestCase {
      */
     public void testMultiline2() throws Exception {
         EasyASTIteratorVisitor visitor = new EasyASTIteratorVisitor();
-        String str = "" + "class C:          \n" + "    def d(self):  \n" + "        c = '''   \n"
-                + "                  \n" + "c                 \n" + "'''               \n" + "                  \n"
-                + "class E:          \n" + "    '''t1         \n" + "    t2            \n" + "    '''           \n";
+        String str = "" +
+                "class C:          \n" +
+                "    def d(self):  \n" +
+                "        c = '''   \n"
+                +
+                "                  \n" +
+                "c                 \n" +
+                "'''               \n" +
+                "                  \n"
+                +
+                "class E:          \n" +
+                "    '''t1         \n" +
+                "    t2            \n" +
+                "    '''           \n";
 
         Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
@@ -121,8 +154,13 @@ public class EasyASTIteratorTest extends TestCase {
      */
     public void testImports() throws Exception {
         EasyASTIteratorVisitor visitor = new EasyASTIteratorVisitor();
-        String str = "" + "import test.lib\n" + "from test.lib import test\n" + "from test.lib import *\n"
-                + "from test.lib import test as alias\n" + "";
+        String str = "" +
+                "import test.lib\n" +
+                "from test.lib import test\n" +
+                "from test.lib import *\n"
+                +
+                "from test.lib import test as alias\n" +
+                "";
 
         Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
@@ -138,7 +176,13 @@ public class EasyASTIteratorTest extends TestCase {
 
     public void testDecorator() throws Exception {
         EasyASTIteratorVisitor visitor = new EasyASTIteratorVisitor();
-        String str = "" + "class D:\n" + "    @foo\n" + "    def mmm(self):\n" + "        pass\n" + "\n" + "\n";
+        String str = "" +
+                "class D:\n" +
+                "    @foo\n" +
+                "    def mmm(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "\n";
 
         Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));
@@ -160,8 +204,15 @@ public class EasyASTIteratorTest extends TestCase {
      */
     public void testAttributes() throws Exception {
         EasyASTIteratorVisitor visitor = new EasyASTIteratorVisitor();
-        String str = "" + "class C:\n" + "    def met1(self):\n" + "        self.attr1=1\n" + "        self.attr2=2\n"
-                + "\n" + "    classAttr = 10\n" + "pass";
+        String str = "" +
+                "class C:\n" +
+                "    def met1(self):\n" +
+                "        self.attr1=1\n" +
+                "        self.attr2=2\n"
+                +
+                "\n" +
+                "    classAttr = 10\n" +
+                "pass";
 
         Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_2_4));

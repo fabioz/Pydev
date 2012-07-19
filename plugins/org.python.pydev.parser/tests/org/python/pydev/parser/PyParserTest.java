@@ -84,7 +84,10 @@ public class PyParserTest extends PyParserTestBase {
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
             public Boolean call(Integer arg) {
-                String s = "" + "class Class1:         \n" + "    def met1(self, a):\n" + "        pass";
+                String s = "" +
+                        "class Class1:         \n" +
+                        "    def met1(self, a):\n" +
+                        "        pass";
                 SimpleNode node = parseLegalDocStr(s);
                 Module m = (Module) node;
                 ClassDef d = (ClassDef) m.body[0];
@@ -97,14 +100,38 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testMultilineStr() throws Throwable {
-        final String s = "" + "a = '''\n" + "really really big string\n" + "really really big string\n"
-                + "really really big string\n" + "really really big string\n" + "really really big string\n"
-                + "really really big string\n" + "really really big string\n" + "really really big string\n"
-                + "really really big string\n" + "really really big string\n" + "really really big string\n"
-                + "really really big string\n" + "really really big string\n" + "really really big string\n"
-                + "really really big string\n" + "really really big string\n" + "really really big string\n"
-                + "really really big string\n" + "really really big string\n" + "really really big string\n"
-                + "really really big string\n" + "really really big string\n" + "'''";
+        final String s = "" +
+                "a = '''\n" +
+                "really really big string\n" +
+                "really really big string\n"
+                +
+                "really really big string\n" +
+                "really really big string\n" +
+                "really really big string\n"
+                +
+                "really really big string\n" +
+                "really really big string\n" +
+                "really really big string\n"
+                +
+                "really really big string\n" +
+                "really really big string\n" +
+                "really really big string\n"
+                +
+                "really really big string\n" +
+                "really really big string\n" +
+                "really really big string\n"
+                +
+                "really really big string\n" +
+                "really really big string\n" +
+                "really really big string\n"
+                +
+                "really really big string\n" +
+                "really really big string\n" +
+                "really really big string\n"
+                +
+                "really really big string\n" +
+                "really really big string\n" +
+                "'''";
 
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
@@ -120,7 +147,9 @@ public class PyParserTest extends PyParserTestBase {
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
             public Boolean call(Integer arg) {
-                String s = "" + "pass\n" + "pass";
+                String s = "" +
+                        "pass\n" +
+                        "pass";
                 Module m = (Module) parseLegalDocStr(s);
                 assertEquals(2, m.body.length);
                 Pass p1 = (Pass) m.body[0];
@@ -137,7 +166,9 @@ public class PyParserTest extends PyParserTestBase {
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
             public Boolean call(Integer arg) {
-                String s = "" + "def m():\n" + "    call(a,";
+                String s = "" +
+                        "def m():\n" +
+                        "    call(a,";
                 Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
                 Module m = (Module) tup.o1;
                 assertEquals(1, m.body.length);
@@ -150,7 +181,10 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testEmptyBaseForClass() throws Throwable {
-        final String s = "" + "class B2(): pass\n" + "\n" + "";
+        final String s = "" +
+                "class B2(): pass\n" +
+                "\n" +
+                "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
             public Boolean call(Integer arg) {
@@ -165,7 +199,9 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testFor2() throws Throwable {
-        final String s = "" + "[x for x in 1,2,3,4]\n" + "";
+        final String s = "" +
+                "[x for x in 1,2,3,4]\n" +
+                "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
             public Boolean call(Integer arg) {
@@ -181,7 +217,9 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testFor2a() throws Throwable {
-        final String s = "" + "[x for x in 2,3,4 if x > 2]\n" + "";
+        final String s = "" +
+                "[x for x in 2,3,4 if x > 2]\n" +
+                "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
             public Boolean call(Integer arg) {
@@ -197,7 +235,9 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testFor3() throws Throwable {
-        final String s = "" + "[x() for x in lambda: True, lambda: False if x() ] \n" + "";
+        final String s = "" +
+                "[x() for x in lambda: True, lambda: False if x() ] \n" +
+                "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
             public Boolean call(Integer arg) {
@@ -213,7 +253,9 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testYield() throws Throwable {
-        final String s = "" + "def m():\n" + "    yield 1";
+        final String s = "" +
+                "def m():\n" +
+                "    yield 1";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
             public Boolean call(Integer arg) {
@@ -224,8 +266,13 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testYield2() throws Throwable {
-        final String s = "" + "class Generator:\n" + "    def __iter__(self): \n" + "        for a in range(10):\n"
-                + "            yield foo(a)\n" + "";
+        final String s = "" +
+                "class Generator:\n" +
+                "    def __iter__(self): \n" +
+                "        for a in range(10):\n"
+                +
+                "            yield foo(a)\n" +
+                "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
             public Boolean call(Integer arg) {
@@ -236,8 +283,14 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testDecorator() throws Throwable {
-        final String s = "" + "class C:\n" + "    \n" + "    @staticmethod\n" + "    def m():\n" + "        pass\n"
-                + "";
+        final String s = "" +
+                "class C:\n" +
+                "    \n" +
+                "    @staticmethod\n" +
+                "    def m():\n" +
+                "        pass\n"
+                +
+                "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
             public Boolean call(Integer arg) {
@@ -248,8 +301,14 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testDecorator2() throws Throwable {
-        final String s = "" + "@funcattrs(status=\"experimental\", author=\"BDFL\")\n" + "@staticmethod\n"
-                + "def longMethodNameForEffect(*args):\n" + "    pass\n" + "\n" + "";
+        final String s = "" +
+                "@funcattrs(status=\"experimental\", author=\"BDFL\")\n" +
+                "@staticmethod\n"
+                +
+                "def longMethodNameForEffect(*args):\n" +
+                "    pass\n" +
+                "\n" +
+                "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
             public Boolean call(Integer arg) {
@@ -260,7 +319,12 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testDecorator4() throws Throwable {
-        final String s = "" + "@funcattrs(1)\n" + "def longMethodNameForEffect(*args):\n" + "    pass\n" + "\n" + "";
+        final String s = "" +
+                "@funcattrs(1)\n" +
+                "def longMethodNameForEffect(*args):\n" +
+                "    pass\n" +
+                "\n" +
+                "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
             public Boolean call(Integer arg) {
@@ -271,8 +335,13 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testDecorator5() throws Throwable {
-        final String s = "" + "@funcattrs(a)\n" + "def longMethodNameForEffect(*args):\n" + "    funcattrs(1)\n" + "\n"
-                + "";
+        final String s = "" +
+                "@funcattrs(a)\n" +
+                "def longMethodNameForEffect(*args):\n" +
+                "    funcattrs(1)\n" +
+                "\n"
+                +
+                "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
             public Boolean call(Integer arg) {
@@ -283,9 +352,16 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testDecorator3() throws Throwable {
-        final String s = "" + "@funcattrs(a, 1, status=\"experimental\", author=\"BDFL\", *args, **kwargs)\n"
-                + "@staticmethod1\n" + "@staticmethod2(b)\n" + "def longMethodNameForEffect(*args):\n" + "    pass\n"
-                + "\n" + "";
+        final String s = "" +
+                "@funcattrs(a, 1, status=\"experimental\", author=\"BDFL\", *args, **kwargs)\n"
+                +
+                "@staticmethod1\n" +
+                "@staticmethod2(b)\n" +
+                "def longMethodNameForEffect(*args):\n" +
+                "    pass\n"
+                +
+                "\n" +
+                "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
             public Boolean call(Integer arg) {
@@ -296,8 +372,13 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testDecorator6() throws Throwable {
-        final String s = "" + "@funcattrs(b for b in x)\n" + "def longMethodNameForEffect(*args):\n" + "    pass\n"
-                + "\n" + "";
+        final String s = "" +
+                "@funcattrs(b for b in x)\n" +
+                "def longMethodNameForEffect(*args):\n" +
+                "    pass\n"
+                +
+                "\n" +
+                "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
             public Boolean call(Integer arg) {
@@ -368,7 +449,8 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testOnCgiMod2() throws Throwable {
-        String loc = TestDependent.PYTHON_LIB + "cgi.py";
+        String loc = TestDependent.PYTHON_LIB +
+                "cgi.py";
         String s = REF.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
@@ -385,14 +467,21 @@ public class PyParserTest extends PyParserTestBase {
     //    }
 
     public void testOnTestGrammar() throws Throwable {
-        String loc = TestDependent.PYTHON_LIB + "test/test_grammar.py";
+        String loc = TestDependent.PYTHON_LIB +
+                "test/test_grammar.py";
         String s = REF.getFileContents(new File(loc));
         parseLegalDocStr(s, "(file: test_grammar.py)");
     }
 
     public void testSimple() throws Throwable {
-        final String s = "" + "if maxint == 10:\n" + "    for s in 'a':\n" + "        pass\n" + "else:\n"
-                + "    pass\n" + "";
+        final String s = "" +
+                "if maxint == 10:\n" +
+                "    for s in 'a':\n" +
+                "        pass\n" +
+                "else:\n"
+                +
+                "    pass\n" +
+                "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
             public Boolean call(Integer arg) {
@@ -404,44 +493,56 @@ public class PyParserTest extends PyParserTestBase {
 
     public void testOnTestContextLib() throws Throwable {
         if (TestDependent.PYTHON_TEST_PACKAGES != null) {
-            String loc = TestDependent.PYTHON_TEST_PACKAGES + "test_contextlib.py";
+            String loc = TestDependent.PYTHON_TEST_PACKAGES +
+                    "test_contextlib.py";
             String s = REF.getFileContents(new File(loc));
             parseLegalDocStr(s, "(file: test_contextlib.py)");
         }
     }
 
     public void testOnCalendar() throws Throwable {
-        String loc = TestDependent.PYTHON_LIB + "hmac.py";
+        String loc = TestDependent.PYTHON_LIB +
+                "hmac.py";
         String s = REF.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
 
     public void testOnUnittestMod() throws Throwable {
-        String loc = TestDependent.PYTHON_LIB + "unittest.py";
+        String loc = TestDependent.PYTHON_LIB +
+                "unittest.py";
         String s = REF.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
 
     public void testOnCodecsMod() throws Throwable {
-        String loc = TestDependent.PYTHON_LIB + "codecs.py";
+        String loc = TestDependent.PYTHON_LIB +
+                "codecs.py";
         String s = REF.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
 
     public void testOnDocBaseHTTPServer() throws Throwable {
-        String loc = TestDependent.PYTHON_LIB + "BaseHTTPServer.py";
+        String loc = TestDependent.PYTHON_LIB +
+                "BaseHTTPServer.py";
         String s = REF.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
 
     public void testOnDocXMLRPCServerMod() throws Throwable {
-        String loc = TestDependent.PYTHON_LIB + "DocXMLRPCServer.py";
+        String loc = TestDependent.PYTHON_LIB +
+                "DocXMLRPCServer.py";
         String s = REF.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
 
     public void testNewImportParser() throws Throwable {
-        final String s = "" + "from a import (b,\n" + "            c,\n" + "            d)\n" + "\n" + "\n" + "";
+        final String s = "" +
+                "from a import (b,\n" +
+                "            c,\n" +
+                "            d)\n" +
+                "\n" +
+                "\n" +
+                "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
             public Boolean call(Integer arg) {
@@ -452,7 +553,13 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testNewImportParser2() throws Throwable {
-        final String s = "" + "from a import (b,\n" + "            c,\n" + "            )\n" + "\n" + "\n" + "";
+        final String s = "" +
+                "from a import (b,\n" +
+                "            c,\n" +
+                "            )\n" +
+                "\n" +
+                "\n" +
+                "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
             public Boolean call(Integer arg) {
@@ -463,8 +570,13 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testNewImportParser3() throws Throwable {
-        final String s = "" + "from a import (b,\n" + "            c,,\n" + //err
-                "            )\n" + "\n" + "\n" + "";
+        final String s = "" +
+                "from a import (b,\n" +
+                "            c,,\n" + //err
+                "            )\n" +
+                "\n" +
+                "\n" +
+                "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
             public Boolean call(Integer arg) {
@@ -487,7 +599,10 @@ public class PyParserTest extends PyParserTestBase {
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
             public Boolean call(Integer arg) {
-                String s = "class C: \n" + "    pass\n" + "#end\n" + "";
+                String s = "class C: \n" +
+                        "    pass\n" +
+                        "#end\n" +
+                        "";
                 Module ast = (Module) parseLegalDocStr(s);
                 ClassDef d = (ClassDef) ast.body[0];
                 assertEquals(1, d.specialsAfter.size());
@@ -503,7 +618,9 @@ public class PyParserTest extends PyParserTestBase {
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
             public Boolean call(Integer arg) {
-                String s = "#end\n" + "\n" + "";
+                String s = "#end\n" +
+                        "\n" +
+                        "";
                 Module ast = (Module) parseLegalDocStr(s);
                 assertEquals(1, ast.specialsBefore.size());
                 commentType c = (commentType) ast.specialsBefore.get(0);
@@ -527,20 +644,33 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testParser7() throws Throwable {
-        String s = "" + "if a < (2, 2):\n" + "    False, True = 0, 1\n" + "\n" + "\n";
+        String s = "" +
+                "if a < (2, 2):\n" +
+                "    False, True = 0, 1\n" +
+                "\n" +
+                "\n";
         parseLegalDocStr(s);
     }
 
     public void testParser8() throws Throwable {
-        String s = "" + "if type(clsinfo) in (types.TupleType, types.ListType):\n" + "    pass\n" + "\n" + "\n" + "\n";
+        String s = "" +
+                "if type(clsinfo) in (types.TupleType, types.ListType):\n" +
+                "    pass\n" +
+                "\n" +
+                "\n" +
+                "\n";
         parseLegalDocStr(s);
     }
 
     public void testParser2() throws Throwable {
-        String s = "" + "td = dict()                                                            \n"
-                + "                                                                       \n"
-                + "for foo in sorted(val for val in td.itervalues() if val[0] == 's'):    \n"
-                + "    print foo                                                          \n";
+        String s = "" +
+                "td = dict()                                                            \n"
+                +
+                "                                                                       \n"
+                +
+                "for foo in sorted(val for val in td.itervalues() if val[0] == 's'):    \n"
+                +
+                "    print foo                                                          \n";
 
         parseLegalDocStr(s);
     }
@@ -576,14 +706,26 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testParser6() throws Throwable {
-        String s = "" + "import re\n" + "def firstMatch(s,regexList):\n"
-                + "    for match in (regex.search(s) for regex in regexList):\n" + "        if match: return match\n"
-                + "\n" + "\n";
+        String s = "" +
+                "import re\n" +
+                "def firstMatch(s,regexList):\n"
+                +
+                "    for match in (regex.search(s) for regex in regexList):\n" +
+                "        if match: return match\n"
+                +
+                "\n" +
+                "\n";
         parseLegalDocStr(s);
     }
 
     public void testParser9() throws Throwable {
-        String s = "" + "a[1,]\n" + "a[1,2]\n" + "\n" + "\n" + "\n" + "\n";
+        String s = "" +
+                "a[1,]\n" +
+                "a[1,2]\n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "\n";
         parseLegalDocStr(s);
     }
 
@@ -596,7 +738,9 @@ public class PyParserTest extends PyParserTestBase {
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
             public Boolean call(Integer arg) {
-                String s = "" + "l = [ \"encode\", \"decode\" ] \n" + "\n";
+                String s = "" +
+                        "l = [ \"encode\", \"decode\" ] \n" +
+                        "\n";
                 SimpleNode node = parseLegalDocStr(s);
                 List<ASTEntry> strs = SequencialASTIteratorVisitor.create(node).getAsList(new Class[] { Str.class });
                 assertEquals(7, strs.get(0).node.beginColumn);
@@ -607,8 +751,16 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testParser11() throws Throwable {
-        final String s = "" + "if True:\n" + "    pass\n" + "elif True:\n" + "    pass\n" + "else:\n" + "    pass\n"
-                + "\n" + "\n";
+        final String s = "" +
+                "if True:\n" +
+                "    pass\n" +
+                "elif True:\n" +
+                "    pass\n" +
+                "else:\n" +
+                "    pass\n"
+                +
+                "\n" +
+                "\n";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
             public Boolean call(Integer arg) {
@@ -619,7 +771,9 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testParser12() throws Throwable {
-        final String s = "" + "m1()\n" + "\n";
+        final String s = "" +
+                "m1()\n" +
+                "\n";
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
             public Boolean call(Integer arg) {
@@ -630,7 +784,11 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testParser14() throws Throwable {
-        final String s = "" + "assert False\n" + "result = []\n" + "for text in header_values:\n" + "    pass\n";
+        final String s = "" +
+                "assert False\n" +
+                "result = []\n" +
+                "for text in header_values:\n" +
+                "    pass\n";
 
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
@@ -642,7 +800,9 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testParser15() throws Throwable {
-        final String s = "" + "def f():\n" + "    return \"(\" + (";
+        final String s = "" +
+                "def f():\n" +
+                "    return \"(\" + (";
 
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
@@ -654,7 +814,9 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testParser16() throws Throwable {
-        final String s = "" + "def f():\n" + "    return \"(\" + ()";
+        final String s = "" +
+                "def f():\n" +
+                "    return \"(\" + ()";
 
         checkWithAllGrammars(new ICallback<Boolean, Integer>() {
 
@@ -666,7 +828,13 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testParserAs1() throws Throwable {
-        final String s = "" + "as = 1\n" + "print as\n" + "" + "with = 1\n" + "print with\n" + "";
+        final String s = "" +
+                "as = 1\n" +
+                "print as\n" +
+                "" +
+                "with = 1\n" +
+                "print with\n" +
+                "";
 
         setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4);
         parseLegalDocStr(s);
@@ -681,7 +849,10 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testParserPrint() throws Throwable {
-        String s = "" + "import os.print.os\n" + "print os.print.os\n" + "";
+        String s = "" +
+                "import os.print.os\n" +
+                "print os.print.os\n" +
+                "";
 
         setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4);
         parseLegalDocStr(s);
@@ -695,12 +866,15 @@ public class PyParserTest extends PyParserTestBase {
         setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
         parseILegalDocStr(s);
 
-        s = "" + "import os.print.os\n" + "";
+        s = "" +
+                "import os.print.os\n" +
+                "";
         parseLegalDocStr(s);
     }
 
     public void testThreadingInParser() throws Exception {
-        String loc = TestDependent.PYTHON_LIB + "unittest.py";
+        String loc = TestDependent.PYTHON_LIB +
+                "unittest.py";
         String s = REF.getFileContents(new File(loc));
 
         final Integer[] calls = new Integer[] { 0 };

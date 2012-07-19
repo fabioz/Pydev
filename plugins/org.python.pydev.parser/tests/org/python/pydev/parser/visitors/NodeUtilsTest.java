@@ -73,21 +73,44 @@ public class NodeUtilsTest extends PyParserTestBase {
     }
 
     public void testClassEndLine() {
-        SimpleNode ast1 = parseLegalDocStr("" + "class env:\n" + "    pass\n" + "\n" + "#comment\n");
+        SimpleNode ast1 = parseLegalDocStr("" +
+                "class env:\n" +
+                "    pass\n" +
+                "\n" +
+                "#comment\n");
 
         checkEndLine(ast1, 4);
 
-        ast1 = parseLegalDocStr("" + "class env:\n" + "    pass\n" + "\n" + "if True:\n" + "    pass\n" + "#comment\n");
+        ast1 = parseLegalDocStr("" +
+                "class env:\n" +
+                "    pass\n" +
+                "\n" +
+                "if True:\n" +
+                "    pass\n" +
+                "#comment\n");
 
         checkEndLine(ast1, 2);
     }
 
     public void testGetContextName() {
-        SimpleNode ast1 = parseLegalDocStr("" + "class env:\n" + "    pass\n" + "\n" + "if __name__ == '__main__':\n"
-                + "    print 'step 1'\n" + "\n");
+        SimpleNode ast1 = parseLegalDocStr("" +
+                "class env:\n" +
+                "    pass\n" +
+                "\n" +
+                "if __name__ == '__main__':\n"
+                +
+                "    print 'step 1'\n" +
+                "\n");
 
-        SimpleNode ast2 = parseLegalDocStr("" + "class env:\n" + "    pass\n" + "\n" + "if __name__ == '__main__':\n"
-                + "    print 'step 1'\n" + "\n" + "#comment");
+        SimpleNode ast2 = parseLegalDocStr("" +
+                "class env:\n" +
+                "    pass\n" +
+                "\n" +
+                "if __name__ == '__main__':\n"
+                +
+                "    print 'step 1'\n" +
+                "\n" +
+                "#comment");
 
         checkEndLine(ast1, 2);
         checkEndLine(ast2, 2);
@@ -97,23 +120,61 @@ public class NodeUtilsTest extends PyParserTestBase {
     }
 
     public void testGetContextName2() {
-        SimpleNode ast = parseLegalDocStr("" + "class Simple(object):\n" + "  def m1(self):\n" + "    a = 10\n"
-                + "    i = 20\n" + "    print 'here'\n" + "  \n" + "if __name__ == '__main__':\n" + "  Simple().m1()\n"
-                + "\n");
+        SimpleNode ast = parseLegalDocStr("" +
+                "class Simple(object):\n" +
+                "  def m1(self):\n" +
+                "    a = 10\n"
+                +
+                "    i = 20\n" +
+                "    print 'here'\n" +
+                "  \n" +
+                "if __name__ == '__main__':\n" +
+                "  Simple().m1()\n"
+                +
+                "\n");
 
         assertEquals("Simple.m1", NodeUtils.getContextName(4, ast));
     }
 
     public void testIsValidContextForSetNext() {
-        SimpleNode ast = parseLegalDocStr("" + "class Simple(object): \n" + "	def m1(self): \n" + "		a = 10 \n"
-                + "		i = 20 \n" + "		for i in range(3):  \n" + "			print 'here in for'  \n"
-                + "			for j in range(3):  \n" + "				print 'here in nested for'  \n" + "		x = 1  \n"
-                + "		print 'm1 Ends Here' \n" + " \n" + "	def m2(self): \n" + "	 	print 'method m2 started' \n"
-                + "		i = 0  \n" + "		try:  \n" + "			print 'inside try'  \n" + "			while i < 5:  \n" + "				i += 1  \n"
-                + "		except:  \n" + "			print 'inside exception'  \n" + "		a = 30 \n" + "		i = 40 \n"
-                + "		print 'here' \n" + " \n" + "firstName = 'Hussain'  \n" + "lastName = 'Bohra'  \n"
-                + "print '%s, %s in Global Context'%(lastName, firstName)  \n" + "if __name__ == '__main__': \n"
-                + "	Simple().m1() \n");
+        SimpleNode ast = parseLegalDocStr("" +
+                "class Simple(object): \n" +
+                "	def m1(self): \n" +
+                "		a = 10 \n"
+                +
+                "		i = 20 \n" +
+                "		for i in range(3):  \n" +
+                "			print 'here in for'  \n"
+                +
+                "			for j in range(3):  \n" +
+                "				print 'here in nested for'  \n" +
+                "		x = 1  \n"
+                +
+                "		print 'm1 Ends Here' \n" +
+                " \n" +
+                "	def m2(self): \n" +
+                "	 	print 'method m2 started' \n"
+                +
+                "		i = 0  \n" +
+                "		try:  \n" +
+                "			print 'inside try'  \n" +
+                "			while i < 5:  \n" +
+                "				i += 1  \n"
+                +
+                "		except:  \n" +
+                "			print 'inside exception'  \n" +
+                "		a = 30 \n" +
+                "		i = 40 \n"
+                +
+                "		print 'here' \n" +
+                " \n" +
+                "firstName = 'Hussain'  \n" +
+                "lastName = 'Bohra'  \n"
+                +
+                "print '%s, %s in Global Context'%(lastName, firstName)  \n" +
+                "if __name__ == '__main__': \n"
+                +
+                "	Simple().m1() \n");
 
         // Source And Target are in Same Method
         assertTrue(NodeUtils.isValidContextForSetNext(ast, 3, 4));

@@ -61,7 +61,8 @@ public class JythonCompletionWithBuiltinsTestWorkbench extends AbstractJythonWor
     public void testCompleteImportBuiltin2() throws BadLocationException, IOException, Exception {
 
         String s;
-        s = "from java.lang import Class\n" + "Class.";
+        s = "from java.lang import Class\n" +
+                "Class.";
         requestCompl(s, s.length(), -1, new String[] { "forName(string)" });
     }
 
@@ -76,7 +77,9 @@ public class JythonCompletionWithBuiltinsTestWorkbench extends AbstractJythonWor
      */
     public void testStaticAccess() throws BadLocationException, IOException, Exception {
         String s;
-        s = "" + "from javax import swing \n" + "print swing.JFrame.";
+        s = "" +
+                "from javax import swing \n" +
+                "print swing.JFrame.";
         requestCompl(s, s.length(), -1, new String[] { "EXIT_ON_CLOSE" });
     }
 
@@ -85,7 +88,9 @@ public class JythonCompletionWithBuiltinsTestWorkbench extends AbstractJythonWor
      */
     public void testPropertiesAccess() throws Exception {
         String s;
-        s = "" + "from java.lang.Boolean import TYPE\n" + "TYPE.";
+        s = "" +
+                "from java.lang.Boolean import TYPE\n" +
+                "TYPE.";
         requestCompl(s, s.length(), -1, new String[] { "fields" });
     }
 

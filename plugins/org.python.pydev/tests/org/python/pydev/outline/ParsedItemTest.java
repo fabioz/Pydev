@@ -30,8 +30,15 @@ public class ParsedItemTest extends PyParserTestBase {
 
     public void testParsedItemCreation() throws Exception {
         setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5);
-        String str = "" + "class Foo(object):\n" + "    def m1(self):\n" + "        pass\n"
-                + "        #--- comm method\n" + "    #--- comm class\n" + "#--- comm module\n" + "";
+        String str = "" +
+                "class Foo(object):\n" +
+                "    def m1(self):\n" +
+                "        pass\n"
+                +
+                "        #--- comm method\n" +
+                "    #--- comm class\n" +
+                "#--- comm module\n" +
+                "";
 
         SimpleNode node = parseLegalDocStr(str);
 
@@ -55,8 +62,14 @@ public class ParsedItemTest extends PyParserTestBase {
 
     public void testParsedItemCreation4() throws Exception {
         setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5);
-        String str = "" + "if 0:\n" + "    #--- foo ---\n" + "    pass\n" + "else:\n" + "    #--- bar ---\n"
-                + "    pass";
+        String str = "" +
+                "if 0:\n" +
+                "    #--- foo ---\n" +
+                "    pass\n" +
+                "else:\n" +
+                "    #--- bar ---\n"
+                +
+                "    pass";
 
         SimpleNode node = parseLegalDocStr(str);
 
@@ -72,7 +85,11 @@ public class ParsedItemTest extends PyParserTestBase {
 
     public void testParsedItemCreation3() throws Exception {
         setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5);
-        String str = "" + "class Test:\n" + "    def __init__(self):\n" + "        self.foo, self.bar = 1, 2\n" + "";
+        String str = "" +
+                "class Test:\n" +
+                "    def __init__(self):\n" +
+                "        self.foo, self.bar = 1, 2\n" +
+                "";
 
         SimpleNode node = parseLegalDocStr(str);
 
@@ -94,8 +111,14 @@ public class ParsedItemTest extends PyParserTestBase {
 
     public void testParsedItemCreation2() throws Exception {
         setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5);
-        String str = "" + "class Foo(object):\n" + "    pass\n" + "if __name__ == '__main__':\n" + "    var = 10\n"
-                + "\n" + "";
+        String str = "" +
+                "class Foo(object):\n" +
+                "    pass\n" +
+                "if __name__ == '__main__':\n" +
+                "    var = 10\n"
+                +
+                "\n" +
+                "";
 
         SimpleNode node = parseLegalDocStr(str);
 
@@ -114,10 +137,21 @@ public class ParsedItemTest extends PyParserTestBase {
      */
     public void testNewChildrenStructure() throws Exception {
         setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5);
-        String str = "" + "class Foo(object):\n" + "    def m1(self):\n" + "        pass\n" + "\n" + "";
+        String str = "" +
+                "class Foo(object):\n" +
+                "    def m1(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "";
 
-        String str2 = "" + "class Foo(object):\n" + "    def m1(self):\n" + "        pass\n" + "    def m2(self):\n" + //one more member
-                "        pass\n" + "\n" + "";
+        String str2 = "" +
+                "class Foo(object):\n" +
+                "    def m1(self):\n" +
+                "        pass\n" +
+                "    def m2(self):\n" + //one more member
+                "        pass\n" +
+                "\n" +
+                "";
 
         SimpleNode node = parseLegalDocStr(str);
         SimpleNode node2 = parseLegalDocStr(str2);

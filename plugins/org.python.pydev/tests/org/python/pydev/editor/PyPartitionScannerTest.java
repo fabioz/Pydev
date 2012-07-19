@@ -32,14 +32,16 @@ public class PyPartitionScannerTest extends TestCase {
     }
 
     public void testPartitioning() throws Exception {
-        Document doc = new Document("class Foo: #comment\n" + "    pass\n");
+        Document doc = new Document("class Foo: #comment\n" +
+                "    pass\n");
         IDocumentPartitioner partitioner = PyPartitionScanner.addPartitionScanner(doc);
         assertEquals(IPythonPartitions.PY_DEFAULT, partitioner.getContentType(5));
         assertEquals(IPythonPartitions.PY_COMMENT, partitioner.getContentType(15));
     }
 
     public void testPartitioning2() throws Exception {
-        Document doc = new Document("class Foo: #comment\n" + "    pass\n");
+        Document doc = new Document("class Foo: #comment\n" +
+                "    pass\n");
         PyPartitionScanner pyPartitionScanner = new PyPartitionScanner();
         pyPartitionScanner.setRange(doc, 0, doc.getLength());
         IToken nextPartition = pyPartitionScanner.nextToken();

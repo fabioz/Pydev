@@ -39,7 +39,8 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testWx() throws Exception {
         if (TestDependent.PYTHON_WXPYTHON_PACKAGES != null) {
-            doc = new Document("from wx import glcanvas\n" + "print glcanvas");
+            doc = new Document("from wx import glcanvas\n" +
+                    "print glcanvas");
             analyzer = new OccurrencesAnalyzer();
             msgs = analyzeDoc();
 
@@ -49,8 +50,11 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testModuleTokensErr() throws Exception {
-        doc = new Document("from testlib.unittest import anothertest\n" + "print anothertest.unexistant\n" + "\n"
-                + "\n");
+        doc = new Document("from testlib.unittest import anothertest\n" +
+                "print anothertest.unexistant\n" +
+                "\n"
+                +
+                "\n");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -60,8 +64,11 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testModuleTokensErr2() throws Exception {
-        doc = new Document("from testlib.unittest import anothertest\n" + "print anothertest.unexistant()\n" + "\n"
-                + "\n");
+        doc = new Document("from testlib.unittest import anothertest\n" +
+                "print anothertest.unexistant()\n" +
+                "\n"
+                +
+                "\n");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -72,7 +79,10 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testModuleTokensErr3() throws Exception {
         doc = new Document("from testlib.unittest import anothertest\n"
-                + "print anothertest.AnotherTest.unexistant()\n" + "\n" + "\n");
+                +
+                "print anothertest.AnotherTest.unexistant()\n" +
+                "\n" +
+                "\n");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -82,8 +92,11 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testModuleTokens3() throws Exception {
-        doc = new Document("import testAssist\n" + "print testAssist.assist.ExistingClass.existingMethod\n" + "\n"
-                + "\n");
+        doc = new Document("import testAssist\n" +
+                "print testAssist.assist.ExistingClass.existingMethod\n" +
+                "\n"
+                +
+                "\n");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -91,8 +104,11 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testModuleTokens2() throws Exception {
-        doc = new Document("from testlib.unittest import anothertest\n" + "print anothertest.AnotherTest.__init__\n"
-                + "\n" + "\n");
+        doc = new Document("from testlib.unittest import anothertest\n" +
+                "print anothertest.AnotherTest.__init__\n"
+                +
+                "\n" +
+                "\n");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -101,7 +117,10 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testQtInit() throws Exception {
         if (TestDependent.PYTHON_QT4_PACKAGES != null) {
-            doc = new Document("import PyQt4.QtGui\n" + "print PyQt4.QtGui.QWidget.__init__\n" + "\n" + "\n");
+            doc = new Document("import PyQt4.QtGui\n" +
+                    "print PyQt4.QtGui.QWidget.__init__\n" +
+                    "\n" +
+                    "\n");
             analyzer = new OccurrencesAnalyzer();
             msgs = analyzeDoc();
 
@@ -110,7 +129,10 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testTokenFromWildImport() throws Exception {
-        doc = new Document("from testlib.unittest.anothertest import *\n" + "AnotherTest.__init__\n" + "\n" + "\n");
+        doc = new Document("from testlib.unittest.anothertest import *\n" +
+                "AnotherTest.__init__\n" +
+                "\n" +
+                "\n");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -118,8 +140,12 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testRedefinedToken() throws Exception {
-        doc = new Document("from testlib.unittest import anothertest\n" + "anothertest = anothertest.AnotherTest()\n"
-                + "print anothertest.__init__\n" + "\n" + "\n");
+        doc = new Document("from testlib.unittest import anothertest\n" +
+                "anothertest = anothertest.AnotherTest()\n"
+                +
+                "print anothertest.__init__\n" +
+                "\n" +
+                "\n");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -129,7 +155,8 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testImportFromInit() throws Exception {
         doc = new Document("import testlib.unittest\n" + //as it resolves to testlib.unittest.__init__
                 "print testlib.unittest.anothertest\n" + //this line works
-                "\n" + "\n");
+                "\n" +
+                "\n");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -139,7 +166,8 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testImportFromInit2() throws Exception {
         doc = new Document("import testlib.unittest\n" + //as it resolves to testlib.unittest.__init__
                 "print testlib.unittest.anothertest.AnotherTest\n" + //this line works
-                "\n" + "\n");
+                "\n" +
+                "\n");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -148,8 +176,10 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testMethod() throws Exception {
         doc = new Document("from testlib.unittest import anothertest\n"
-                + "print anothertest.AnotherTest().another.__class__\n" + //we should just get to the AnotherTest() part
-                "\n" + "\n");
+                +
+                "print anothertest.AnotherTest().another.__class__\n" + //we should just get to the AnotherTest() part
+                "\n" +
+                "\n");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -159,7 +189,8 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testUnresolvedImport() throws Exception {
         doc = new Document("from testlib import notexistant\n" + //it is not resolved, 
                 "print notexistant.foo\n" + //as it is not resolved, it should not be analyzed
-                "\n" + "\n");
+                "\n" +
+                "\n");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -169,7 +200,8 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testSilencedUnresolvedImport() throws Exception {
         doc = new Document("from testlib import notexistant #@UnresolvedImport\n" + //it is not resolved, so, let's signal this
                 "print notexistant.foo\n" + //after silencing the unresolved import, this should also be silenced
-                "\n" + "\n");
+                "\n" +
+                "\n");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -177,7 +209,10 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testStatic() throws Exception {
-        doc = new Document("import extendable.static\n" + "print extendable.static.TestStatic.static1\n" + "\n" + "\n");
+        doc = new Document("import extendable.static\n" +
+                "print extendable.static.TestStatic.static1\n" +
+                "\n" +
+                "\n");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -185,7 +220,10 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testStatic2() throws Exception {
-        doc = new Document("from extendable import static\n" + "print static.TestStatic.static1\n" + "\n" + "\n");
+        doc = new Document("from extendable import static\n" +
+                "print static.TestStatic.static1\n" +
+                "\n" +
+                "\n");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -193,7 +231,10 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testNested() throws Exception {
-        doc = new Document("from extendable import nested\n" + "print nested.NestedClass.nestedMethod\n" + "\n" + "\n");
+        doc = new Document("from extendable import nested\n" +
+                "print nested.NestedClass.nestedMethod\n" +
+                "\n" +
+                "\n");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -201,7 +242,8 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testFromNotExistent() throws Exception {
-        doc = new Document("from notExistent import foo\n" + "\n");
+        doc = new Document("from notExistent import foo\n" +
+                "\n");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -222,7 +264,10 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testQt() throws Exception {
         if (TestDependent.PYTHON_QT4_PACKAGES != null) {
-            doc = new Document("import PyQt4.QtGui\n" + "print PyQt4.QtGui.QColor.red\n" + "\n" + "\n");
+            doc = new Document("import PyQt4.QtGui\n" +
+                    "print PyQt4.QtGui.QColor.red\n" +
+                    "\n" +
+                    "\n");
             analyzer = new OccurrencesAnalyzer();
             msgs = analyzeDoc();
 

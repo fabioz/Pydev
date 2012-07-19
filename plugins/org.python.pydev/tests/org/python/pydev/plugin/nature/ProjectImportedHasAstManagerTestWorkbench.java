@@ -82,24 +82,52 @@ public class ProjectImportedHasAstManagerTestWorkbench extends AbstractWorkbench
     }
 
     private void writePydevProjectFile(IPath path) {
-        String str = "" + "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
-                + "<?eclipse-pydev version=\"1.0\"?>\n" + "<pydev_project>\n"
-                + "<pydev_pathproperty name=\"org.python.pydev.PROJECT_SOURCE_PATH\">\n"
-                + "<path>/pydev_nature_pre_configured/src</path>\n" + "</pydev_pathproperty>\n"
-                + "<pydev_property name=\"org.python.pydev.PYTHON_PROJECT_VERSION\">python 2.4</pydev_property>\n"
-                + "</pydev_project>\n" + "";
+        String str = "" +
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
+                +
+                "<?eclipse-pydev version=\"1.0\"?>\n" +
+                "<pydev_project>\n"
+                +
+                "<pydev_pathproperty name=\"org.python.pydev.PROJECT_SOURCE_PATH\">\n"
+                +
+                "<path>/pydev_nature_pre_configured/src</path>\n" +
+                "</pydev_pathproperty>\n"
+                +
+                "<pydev_property name=\"org.python.pydev.PYTHON_PROJECT_VERSION\">python 2.4</pydev_property>\n"
+                +
+                "</pydev_project>\n" +
+                "";
 
         REF.writeStrToFile(str, path.toFile());
     }
 
     private void writeProjectFile(IPath path) {
-        String str = "" + "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<projectDescription>\n"
-                + "    <name>test_python</name>\n" + "    <comment></comment>\n" + "    <projects>\n"
-                + "        <project>4DLM</project>\n" + "    </projects>\n" + "    <buildSpec>\n"
-                + "        <buildCommand>\n" + "            <name>org.python.pydev.PyDevBuilder</name>\n"
-                + "            <arguments>\n" + "            </arguments>\n" + "        </buildCommand>\n"
-                + "    </buildSpec>\n" + "    <natures>\n" + "        <nature>org.python.pydev.pythonNature</nature>\n"
-                + "    </natures>\n" + "</projectDescription>\n" + "";
+        String str = "" +
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<projectDescription>\n"
+                +
+                "    <name>test_python</name>\n" +
+                "    <comment></comment>\n" +
+                "    <projects>\n"
+                +
+                "        <project>4DLM</project>\n" +
+                "    </projects>\n" +
+                "    <buildSpec>\n"
+                +
+                "        <buildCommand>\n" +
+                "            <name>org.python.pydev.PyDevBuilder</name>\n"
+                +
+                "            <arguments>\n" +
+                "            </arguments>\n" +
+                "        </buildCommand>\n"
+                +
+                "    </buildSpec>\n" +
+                "    <natures>\n" +
+                "        <nature>org.python.pydev.pythonNature</nature>\n"
+                +
+                "    </natures>\n" +
+                "</projectDescription>\n" +
+                "";
 
         REF.writeStrToFile(str, path.toFile());
     }
