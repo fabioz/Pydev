@@ -14,11 +14,9 @@ package org.python.pydev.editor.actions;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.Region;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 
 /**
@@ -35,7 +33,7 @@ public class PyFormatStdTest extends TestCase {
             PyFormatStdTest n = new PyFormatStdTest();
             n.setUp();
             //            DEBUG = true;
-            n.testFormatSelectionNotOnStrings();
+            n.testTrimComments2();
             n.tearDown();
 
             junit.textui.TestRunner.run(PyFormatStdTest.class);
@@ -61,9 +59,17 @@ public class PyFormatStdTest extends TestCase {
         std.spaceAfterComma = true;
         std.parametersWithSpace = false;
 
-        String s = "" + "constants = [\n" + "    (qt.Qt.Key_Escape, ''), \n" + "    (qt.Qt.Key_Tab, '\t'), \n" + "\n";
+        String s = "" +
+                "constants = [\n" +
+                "    (qt.Qt.Key_Escape, ''), \n" +
+                "    (qt.Qt.Key_Tab, '\t'), \n" +
+                "\n";
 
-        String s1 = "" + "constants = [\n" + "    (qt.Qt.Key_Escape, ''),\n" + "    (qt.Qt.Key_Tab, '\t'),\n" + "\n";
+        String s1 = "" +
+                "constants = [\n" +
+                "    (qt.Qt.Key_Escape, ''),\n" +
+                "    (qt.Qt.Key_Tab, '\t'),\n" +
+                "\n";
 
         checkFormatResults(s, s1);
     }
@@ -92,9 +98,17 @@ public class PyFormatStdTest extends TestCase {
         std.spaceAfterComma = true;
         std.parametersWithSpace = false;
 
-        String original = "" + "raise RuntimeError( \n" + "    'text'\n" + "    % format )\n" + "";
+        String original = "" +
+                "raise RuntimeError( \n" +
+                "    'text'\n" +
+                "    % format )\n" +
+                "";
 
-        String expected = "" + "raise RuntimeError(\n" + "    'text'\n" + "    % format)\n" + "";
+        String expected = "" +
+                "raise RuntimeError(\n" +
+                "    'text'\n" +
+                "    % format)\n" +
+                "";
         checkFormatResults(original, expected);
     }
 
@@ -104,9 +118,13 @@ public class PyFormatStdTest extends TestCase {
         std.spaceAfterComma = true;
         std.parametersWithSpace = false;
 
-        String s = "" + "def a(  a,b, *args, **kwargs  ):\n" + "    call( *args, **kwargs)\n";
+        String s = "" +
+                "def a(  a,b, *args, **kwargs  ):\n" +
+                "    call( *args, **kwargs)\n";
 
-        String s1 = "" + "def a(a, b, *args, **kwargs):\n" + "    call(*args, **kwargs)\n";
+        String s1 = "" +
+                "def a(a, b, *args, **kwargs):\n" +
+                "    call(*args, **kwargs)\n";
 
         checkFormatResults(s, s1);
     }
@@ -115,15 +133,21 @@ public class PyFormatStdTest extends TestCase {
         std.spaceAfterComma = true;
         std.parametersWithSpace = false;
 
-        String s = "" + "def a(  a,b  ):\n" + "    pass   \n";
+        String s = "" +
+                "def a(  a,b  ):\n" +
+                "    pass   \n";
 
-        String s1 = "" + "def a(a, b):\n" + "    pass   \n";
+        String s1 = "" +
+                "def a(a, b):\n" +
+                "    pass   \n";
 
         checkFormatResults(s, s1);
 
         std.spaceAfterComma = false;
 
-        String s2 = "" + "def a(a,b):\n" + "    pass   \n";
+        String s2 = "" +
+                "def a(a,b):\n" +
+                "    pass   \n";
 
         checkFormatResults(s, s2);
 
@@ -133,9 +157,15 @@ public class PyFormatStdTest extends TestCase {
         std.spaceAfterComma = true;
         std.parametersWithSpace = false;
 
-        String s = "" + "def a(a,\n" + "      b):\n" + "    pass\n";
+        String s = "" +
+                "def a(a,\n" +
+                "      b):\n" +
+                "    pass\n";
 
-        String s1 = "" + "def a(a,\n" + "      b):\n" + "    pass\n";
+        String s1 = "" +
+                "def a(a,\n" +
+                "      b):\n" +
+                "    pass\n";
 
         checkFormatResults(s, s1);
     }
@@ -144,11 +174,13 @@ public class PyFormatStdTest extends TestCase {
         std.spaceAfterComma = false;
         std.parametersWithSpace = false;
 
-        String s = "" + "foo(bar(\"\\\"\"))";
+        String s = "" +
+                "foo(bar(\"\\\"\"))";
 
         checkFormatResults(s);
 
-        s = "" + "foo(bar('''\\''''))";
+        s = "" +
+                "foo(bar('''\\''''))";
         checkFormatResults(s);
     }
 
@@ -156,9 +188,13 @@ public class PyFormatStdTest extends TestCase {
         std.spaceAfterComma = true;
         std.parametersWithSpace = true;
 
-        String s = "" + "def a():\n" + "    pass   \n";
+        String s = "" +
+                "def a():\n" +
+                "    pass   \n";
 
-        String s1 = "" + "def a():\n" + "    pass   \n";
+        String s1 = "" +
+                "def a():\n" +
+                "    pass   \n";
 
         checkFormatResults(s, s1);
     }
@@ -167,15 +203,21 @@ public class PyFormatStdTest extends TestCase {
         std.spaceAfterComma = true;
         std.parametersWithSpace = false;
 
-        String s = "" + "def a( a,   b):\n" + "    pass   \n";
+        String s = "" +
+                "def a( a,   b):\n" +
+                "    pass   \n";
 
-        String s1 = "" + "def a(a, b):\n" + "    pass   \n";
+        String s1 = "" +
+                "def a(a, b):\n" +
+                "    pass   \n";
 
         checkFormatResults(s, s1);
 
         std.spaceAfterComma = false;
 
-        String s2 = "" + "def a(a,b):\n" + "    pass   \n";
+        String s2 = "" +
+                "def a(a,b):\n" +
+                "    pass   \n";
 
         checkFormatResults(s, s2);
     }
@@ -184,15 +226,21 @@ public class PyFormatStdTest extends TestCase {
         std.spaceAfterComma = true;
         std.parametersWithSpace = true;
 
-        String s = "" + "def a(a,   b):\n" + "    pass   \n";
+        String s = "" +
+                "def a(a,   b):\n" +
+                "    pass   \n";
 
-        String s1 = "" + "def a( a, b ):\n" + "    pass   \n";
+        String s1 = "" +
+                "def a( a, b ):\n" +
+                "    pass   \n";
 
         checkFormatResults(s, s1);
 
         std.spaceAfterComma = false;
 
-        String s2 = "" + "def a( a,b ):\n" + "    pass   \n";
+        String s2 = "" +
+                "def a( a,b ):\n" +
+                "    pass   \n";
 
         checkFormatResults(s, s2);
     }
@@ -202,15 +250,21 @@ public class PyFormatStdTest extends TestCase {
         std.parametersWithSpace = false;
         std.operatorsWithSpace = true;
 
-        String s = "" + "def a(a,   b):\n" + "    return ( (a+b) + ( a+b ) )   \n";
+        String s = "" +
+                "def a(a,   b):\n" +
+                "    return ( (a+b) + ( a+b ) )   \n";
 
-        String s1 = "" + "def a(a, b):\n" + "    return ((a + b) + (a + b))   \n";
+        String s1 = "" +
+                "def a(a, b):\n" +
+                "    return ((a + b) + (a + b))   \n";
 
         checkFormatResults(s, s1);
         checkFormatResults(s.replace('+', '*'), s1.replace('+', '*'));
 
         std.parametersWithSpace = true;
-        String s2 = "" + "def a( a, b ):\n" + "    return ( ( a + b ) + ( a + b ) )   \n";
+        String s2 = "" +
+                "def a( a, b ):\n" +
+                "    return ( ( a + b ) + ( a + b ) )   \n";
 
         checkFormatResults(s, s2);
         checkFormatResults(s.replace('+', '*'), s2.replace('+', '*'));
@@ -221,9 +275,13 @@ public class PyFormatStdTest extends TestCase {
         std.parametersWithSpace = true;
         std.operatorsWithSpace = false;
 
-        String s = "" + "def a(a,   b):\n" + "    return ( callA() + callB(b+b) )   \n";
+        String s = "" +
+                "def a(a,   b):\n" +
+                "    return ( callA() + callB(b+b) )   \n";
 
-        String s1 = "" + "def a( a, b ):\n" + "    return ( callA()+callB( b+b ) )   \n";
+        String s1 = "" +
+                "def a( a, b ):\n" +
+                "    return ( callA()+callB( b+b ) )   \n";
 
         checkFormatResults(s, s1);
         checkFormatResults(s.replace('+', '*'), s1.replace('+', '*'));
@@ -233,19 +291,31 @@ public class PyFormatStdTest extends TestCase {
         std.spaceAfterComma = true;
         std.parametersWithSpace = true;
 
-        String s = "" + "a = ''' test()\n" + "nothing changes() ((aa) )\n" + "'''";
+        String s = "" +
+                "a = ''' test()\n" +
+                "nothing changes() ((aa) )\n" +
+                "'''";
 
         checkFormatResults(s);
 
-        s = "" + "a = ''' test()\n" + "nothing changes() ((aa) )\n" + "";
+        s = "" +
+                "a = ''' test()\n" +
+                "nothing changes() ((aa) )\n" +
+                "";
 
         checkFormatResults(s);
 
-        s = "" + "a = ' test()'\n" + "'nothing changes() ((aa) )'\n" + "";
+        s = "" +
+                "a = ' test()'\n" +
+                "'nothing changes() ((aa) )'\n" +
+                "";
 
         checkFormatResults(s);
 
-        s = "" + "a = ' test()'\n" + "'nothing changes() ((aa) )\n" + "";
+        s = "" +
+                "a = ' test()'\n" +
+                "'nothing changes() ((aa) )\n" +
+                "";
 
         checkFormatResults(s);
     }
@@ -254,7 +324,10 @@ public class PyFormatStdTest extends TestCase {
         std.spaceAfterComma = true;
         std.parametersWithSpace = true;
 
-        String s = "" + "#a = ''' test()\n" + "#nothing changes() ((aa) )\n" + "#'''";
+        String s = "" +
+                "#a = ''' test()\n" +
+                "#nothing changes() ((aa) )\n" +
+                "#'''";
 
         checkFormatResults(s);
     }
@@ -264,20 +337,35 @@ public class PyFormatStdTest extends TestCase {
         std.parametersWithSpace = true;
         std.operatorsWithSpace = true;
 
-        String s = "" + "''' test()\n" + "nothing 'changes() ((aa) )\n" + "'''\n" + "thisChanges(a+b + (a+b))";
+        String s = "" +
+                "''' test()\n" +
+                "nothing 'changes() ((aa) )\n" +
+                "'''\n" +
+                "thisChanges(a+b + (a+b))";
 
-        String s2 = "" + "''' test()\n" + "nothing 'changes() ((aa) )\n" + "'''\n" + "thisChanges( a + b + ( a + b ) )";
+        String s2 = "" +
+                "''' test()\n" +
+                "nothing 'changes() ((aa) )\n" +
+                "'''\n" +
+                "thisChanges( a + b + ( a + b ) )";
 
         checkFormatResults(s, s2);
         checkFormatResults(s.replace('+', '*'), s2.replace('+', '*'));
 
         //unfinished comment
-        s = "" + "''' test()\n" + "nothing 'changes() ((aa) )\n" + "''\n" + "thisDoesNotChange()";
+        s = "" +
+                "''' test()\n" +
+                "nothing 'changes() ((aa) )\n" +
+                "''\n" +
+                "thisDoesNotChange()";
 
         checkFormatResults(s);
 
         //unfinished comment at end of string
-        s = "" + "''' test()\n" + "nothing 'changes() ((aa) )\n" + "''";
+        s = "" +
+                "''' test()\n" +
+                "nothing 'changes() ((aa) )\n" +
+                "''";
 
         checkFormatResults(s);
     }
@@ -295,7 +383,8 @@ public class PyFormatStdTest extends TestCase {
         std.spaceAfterComma = true;
         std.parametersWithSpace = true;
 
-        String s = "methodname.split( #'(' \n" + " )";
+        String s = "methodname.split( #'(' \n" +
+                " )";
 
         checkFormatResults(s);
     }
@@ -313,7 +402,10 @@ public class PyFormatStdTest extends TestCase {
         std.spaceAfterComma = true;
         std.parametersWithSpace = true;
 
-        String s = "" + "methodCall( a,\n" + "            b \n" + "           ) ";
+        String s = "" +
+                "methodCall( a,\n" +
+                "            b \n" +
+                "           ) ";
 
         checkFormatResults(s);
     }
@@ -322,7 +414,8 @@ public class PyFormatStdTest extends TestCase {
         std.spaceAfterComma = true;
         std.parametersWithSpace = false;
 
-        String s = "" + "methodCall(a,b,c))\n";
+        String s = "" +
+                "methodCall(a,b,c))\n";
 
         checkFormatResults(s, "methodCall(a, b, c))\n");
     }
@@ -332,11 +425,23 @@ public class PyFormatStdTest extends TestCase {
         std.parametersWithSpace = false;
         std.operatorsWithSpace = true;
 
-        String s = "" + "i=i+1\n" + "submitted +=1\n" + "x = x*2 - 1\n" + "hypot2 = x*x + y*y\n"
-                + "c = (a+b) * (a-b)\n" + "";
+        String s = "" +
+                "i=i+1\n" +
+                "submitted +=1\n" +
+                "x = x*2 - 1\n" +
+                "hypot2 = x*x + y*y\n"
+                +
+                "c = (a+b) * (a-b)\n" +
+                "";
 
-        String s1 = "" + "i = i + 1\n" + "submitted += 1\n" + "x = x * 2 - 1\n" + "hypot2 = x * x + y * y\n"
-                + "c = (a + b) * (a - b)\n" + "";
+        String s1 = "" +
+                "i = i + 1\n" +
+                "submitted += 1\n" +
+                "x = x * 2 - 1\n" +
+                "hypot2 = x * x + y * y\n"
+                +
+                "c = (a + b) * (a - b)\n" +
+                "";
 
         checkFormatResults(s, s1);
         checkFormatResults(s.replace('+', '*'), s1.replace('+', '*'));
@@ -349,22 +454,32 @@ public class PyFormatStdTest extends TestCase {
         std.assignWithSpaceInsideParens = true;
         std.operatorsWithSpace = true;
 
-        String s = "" + "a(xxx=10)\n" + "call(yyy = 20)\n";
+        String s = "" +
+                "a(xxx=10)\n" +
+                "call(yyy = 20)\n";
 
-        String s1 = "" + "a(xxx = 10)\n" + "call(yyy = 20)\n";
+        String s1 = "" +
+                "a(xxx = 10)\n" +
+                "call(yyy = 20)\n";
 
         checkFormatResults(s, s1);
 
-        s1 = "" + "a(xxx = 10)\n" + "call(yyy = 20)\n";
+        s1 = "" +
+                "a(xxx = 10)\n" +
+                "call(yyy = 20)\n";
         checkFormatResults(StringUtils.replaceAll(s, "=", "!="), StringUtils.replaceAll(s1, "=", "!="));
         checkFormatResults(StringUtils.replaceAll(s, "=", "<="), StringUtils.replaceAll(s1, "=", "<="));
 
         std.assignWithSpaceInsideParens = false;
-        s1 = "" + "a(xxx=10)\n" + "call(yyy=20)\n";
+        s1 = "" +
+                "a(xxx=10)\n" +
+                "call(yyy=20)\n";
 
         checkFormatResults(s, s1);
 
-        s1 = "" + "a(xxx = 10)\n" + "call(yyy = 20)\n";
+        s1 = "" +
+                "a(xxx = 10)\n" +
+                "call(yyy = 20)\n";
         checkFormatResults(StringUtils.replaceAll(s, "=", "!="), StringUtils.replaceAll(s1, "=", "!="));
         checkFormatResults(StringUtils.replaceAll(s, "=", "<="), StringUtils.replaceAll(s1, "=", "<="));
     }
@@ -386,9 +501,23 @@ public class PyFormatStdTest extends TestCase {
         std.parametersWithSpace = false;
         std.operatorsWithSpace = true;
 
-        String s = "" + "a==10\n" + "b== 20\n" + "c    =  30\n" + "d ==+1\n" + "e !=+1\n" + "e //=+1\n" + "";
+        String s = "" +
+                "a==10\n" +
+                "b== 20\n" +
+                "c    =  30\n" +
+                "d ==+1\n" +
+                "e !=+1\n" +
+                "e //=+1\n" +
+                "";
 
-        String s1 = "" + "a == 10\n" + "b == 20\n" + "c = 30\n" + "d == +1\n" + "e != +1\n" + "e //= +1\n" + "";
+        String s1 = "" +
+                "a == 10\n" +
+                "b == 20\n" +
+                "c = 30\n" +
+                "d == +1\n" +
+                "e != +1\n" +
+                "e //= +1\n" +
+                "";
 
         checkFormatResults(s, s1);
     }
@@ -398,9 +527,13 @@ public class PyFormatStdTest extends TestCase {
         std.parametersWithSpace = false;
         std.operatorsWithSpace = true;
 
-        String s = "" + "86000+10\n" + "";
+        String s = "" +
+                "86000+10\n" +
+                "";
 
-        String s1 = "" + "86000 + 10\n" + "";
+        String s1 = "" +
+                "86000 + 10\n" +
+                "";
 
         checkFormatResults(s, s1);
     }
@@ -410,10 +543,13 @@ public class PyFormatStdTest extends TestCase {
         std.parametersWithSpace = false;
         std.operatorsWithSpace = true;
 
-        String s = "" + "+1\n" + //don't change if it's not summing anything (it's a sign for the number: unary operator)
+        String s = "" +
+                "+1\n" + //don't change if it's not summing anything (it's a sign for the number: unary operator)
                 "";
 
-        String s1 = "" + "+1\n" + "";
+        String s1 = "" +
+                "+1\n" +
+                "";
 
         checkFormatResults(s, s1);
     }
@@ -423,10 +559,13 @@ public class PyFormatStdTest extends TestCase {
         std.parametersWithSpace = false;
         std.operatorsWithSpace = true;
 
-        String s = "" + "call(+1)\n" + //don't change if it's not summing anything (it's a sign for the number: unary operator)
+        String s = "" +
+                "call(+1)\n" + //don't change if it's not summing anything (it's a sign for the number: unary operator)
                 "";
 
-        String s1 = "" + "call(+1)\n" + "";
+        String s1 = "" +
+                "call(+1)\n" +
+                "";
 
         checkFormatResults(s, s1);
     }
@@ -436,10 +575,13 @@ public class PyFormatStdTest extends TestCase {
         std.parametersWithSpace = false;
         std.operatorsWithSpace = true;
 
-        String s = "" + "call(1+1+2+(-1+(-1+1)))\n" + //don't change if it's not summing anything (it's a sign for the number: unary operator)
+        String s = "" +
+                "call(1+1+2+(-1+(-1+1)))\n" + //don't change if it's not summing anything (it's a sign for the number: unary operator)
                 "";
 
-        String s1 = "" + "call(1 + 1 + 2 + (-1 + (-1 + 1)))\n" + "";
+        String s1 = "" +
+                "call(1 + 1 + 2 + (-1 + (-1 + 1)))\n" +
+                "";
 
         checkFormatResults(s, s1);
         checkFormatResults(s.replace('+', '*'), s1.replace('+', '*'));
@@ -450,10 +592,13 @@ public class PyFormatStdTest extends TestCase {
         std.parametersWithSpace = false;
         std.operatorsWithSpace = true;
 
-        String s = "" + "expected_id = int(key.split('(')[ - 1][: - 1])\n" + //don't change if it's not summing anything (it's a sign for the number: unary operator)
+        String s = "" +
+                "expected_id = int(key.split('(')[ - 1][: - 1])\n" + //don't change if it's not summing anything (it's a sign for the number: unary operator)
                 "";
 
-        String s1 = "" + "expected_id = int(key.split('(')[ -1][:-1])\n" + "";
+        String s1 = "" +
+                "expected_id = int(key.split('(')[ -1][:-1])\n" +
+                "";
 
         checkFormatResults(s, s1);
     }
@@ -461,10 +606,13 @@ public class PyFormatStdTest extends TestCase {
     public void testSimpleOperator6() {
         std.operatorsWithSpace = true;
 
-        String s = "" + "if a>-10:print a\n" + //don't change if it's not summing anything (it's a sign for the number: unary operator)
+        String s = "" +
+                "if a>-10:print a\n" + //don't change if it's not summing anything (it's a sign for the number: unary operator)
                 "";
 
-        String s1 = "" + "if a > -10:print a\n" + "";
+        String s1 = "" +
+                "if a > -10:print a\n" +
+                "";
 
         checkFormatResults(s, s1);
     }
@@ -472,10 +620,13 @@ public class PyFormatStdTest extends TestCase {
     public void testSimpleOperator7() {
         std.operatorsWithSpace = true;
 
-        String s = "" + "if a>--10:print a\n" + //don't change if it's not summing anything (it's a sign for the number: unary operator)
+        String s = "" +
+                "if a>--10:print a\n" + //don't change if it's not summing anything (it's a sign for the number: unary operator)
                 "";
 
-        String s1 = "" + "if a > - -10:print a\n" + "";
+        String s1 = "" +
+                "if a > - -10:print a\n" +
+                "";
 
         checkFormatResults(s, s1);
     }
@@ -483,10 +634,13 @@ public class PyFormatStdTest extends TestCase {
     public void testSimpleOperator8() {
         std.operatorsWithSpace = true;
 
-        String s = "" + "if a-10:print a *-10\n" + //don't change if it's not summing anything (it's a sign for the number: unary operator)
+        String s = "" +
+                "if a-10:print a *-10\n" + //don't change if it's not summing anything (it's a sign for the number: unary operator)
                 "";
 
-        String s1 = "" + "if a - 10:print a * -10\n" + "";
+        String s1 = "" +
+                "if a - 10:print a * -10\n" +
+                "";
 
         checkFormatResults(s, s1);
     }
@@ -496,11 +650,21 @@ public class PyFormatStdTest extends TestCase {
         std.parametersWithSpace = false;
         std.operatorsWithSpace = true;
 
-        String s = "" + "a = 1e-6\n" + //operators should not have space
-                "b = 1e+6\n" + "c = 1e3 + 6\n" + "d = 1e-3 - 6\n" + "e = 1+3 - 6\n" + "";
+        String s = "" +
+                "a = 1e-6\n" + //operators should not have space
+                "b = 1e+6\n" +
+                "c = 1e3 + 6\n" +
+                "d = 1e-3 - 6\n" +
+                "e = 1+3 - 6\n" +
+                "";
 
-        String s1 = "" + "a = 1e-6\n" + //operators should not have space
-                "b = 1e+6\n" + "c = 1e3 + 6\n" + "d = 1e-3 - 6\n" + "e = 1 + 3 - 6\n" + "";
+        String s1 = "" +
+                "a = 1e-6\n" + //operators should not have space
+                "b = 1e+6\n" +
+                "c = 1e3 + 6\n" +
+                "d = 1e-3 - 6\n" +
+                "e = 1 + 3 - 6\n" +
+                "";
 
         checkFormatResults(s, s1);
     }
@@ -512,16 +676,42 @@ public class PyFormatStdTest extends TestCase {
 
         String s, s1;
 
-        s = "" + "def test_formatter_unary():\n" + "   c = +1\n" + "   d = - 1\n" + "   e = (a, +2)\n"
-                + "   e = (a, + 2)\n" + "   e = 1e - 3\n" + "   e = 1E - 3\n" + "   pass\n" + "";
+        s = "" +
+                "def test_formatter_unary():\n" +
+                "   c = +1\n" +
+                "   d = - 1\n" +
+                "   e = (a, +2)\n"
+                +
+                "   e = (a, + 2)\n" +
+                "   e = 1e - 3\n" +
+                "   e = 1E - 3\n" +
+                "   pass\n" +
+                "";
 
-        s1 = "" + "def test_formatter_unary():\n" + "   c = +1\n" + "   d = -1\n" + "   e = (a, +2)\n"
-                + "   e = (a, +2)\n" + "   e = 1e-3\n" + "   e = 1E-3\n" + "   pass\n" + "";
+        s1 = "" +
+                "def test_formatter_unary():\n" +
+                "   c = +1\n" +
+                "   d = -1\n" +
+                "   e = (a, +2)\n"
+                +
+                "   e = (a, +2)\n" +
+                "   e = 1e-3\n" +
+                "   e = 1E-3\n" +
+                "   pass\n" +
+                "";
         checkFormatResults(s, s1);
 
-        s1 = "" + "def test_formatter_unary():\n" + "   e = 1e-3\n" + "   e = 1E-3\n" + "";
+        s1 = "" +
+                "def test_formatter_unary():\n" +
+                "   e = 1e-3\n" +
+                "   e = 1E-3\n" +
+                "";
 
-        s = "" + "def test_formatter_unary():\n" + "   e = 1e - 3\n" + "   e = 1E - 3\n" + "";
+        s = "" +
+                "def test_formatter_unary():\n" +
+                "   e = 1e - 3\n" +
+                "   e = 1E - 3\n" +
+                "";
 
         checkFormatResults(s, s1);
 
@@ -534,9 +724,15 @@ public class PyFormatStdTest extends TestCase {
         std.addNewLineAtEndOfFile = true;
         std.trimLines = true;
 
-        String s = "" + "a=10  \n" + "b= 20  \n" + "c    =  30  ";
+        String s = "" +
+                "a=10  \n" +
+                "b= 20  \n" +
+                "c    =  30  ";
 
-        String s1 = "" + "a = 10\n" + "b = 20\n" + "c = 30\n";
+        String s1 = "" +
+                "a = 10\n" +
+                "b = 20\n" +
+                "c = 30\n";
 
         checkFormatResults(s, s1);
     }
@@ -549,9 +745,21 @@ public class PyFormatStdTest extends TestCase {
         std.addNewLineAtEndOfFile = true;
         std.trimLines = true;
 
-        String s = "" + "#a=10  \n" + "#b= 20  \n" + "'''c    =  30 \n" + "   \n" + "''' \n" + "c =   30   ";
+        String s = "" +
+                "#a=10  \n" +
+                "#b= 20  \n" +
+                "'''c    =  30 \n" +
+                "   \n" +
+                "''' \n" +
+                "c =   30   ";
 
-        String s1 = "" + "#a=10  \n" + "#b= 20  \n" + "'''c    =  30 \n" + "   \n" + "'''\n" + "c = 30\n";
+        String s1 = "" +
+                "#a=10\n" +
+                "#b= 20\n" +
+                "'''c    =  30 \n" +
+                "   \n" +
+                "'''\n" +
+                "c = 30\n";
 
         checkFormatResults(s, s1);
     }
@@ -564,8 +772,14 @@ public class PyFormatStdTest extends TestCase {
         std.trimLines = true;
 
         final PyFormatStd pyFormatStd = new PyFormatStd();
-        String s = "" + "a  =  10  \n" + "a  =  10  " + "";
-        String expected = "" + "a = 10\n" + "a  =  10  \n" + "";
+        String s = "" +
+                "a  =  10  \n" +
+                "a  =  10  " +
+                "";
+        String expected = "" +
+                "a = 10\n" +
+                "a  =  10  \n" +
+                "";
         Document doc = new Document(s);
 
         int[] regionsForSave = new int[] { 0 };
@@ -581,8 +795,14 @@ public class PyFormatStdTest extends TestCase {
         std.trimLines = true;
 
         final PyFormatStd pyFormatStd = new PyFormatStd();
-        String s = "" + "a,b,c\n" + "a  =  10  " + "";
-        String expected = "" + "a, b, c\n" + "a  =  10  \n" + "";
+        String s = "" +
+                "a,b,c\n" +
+                "a  =  10  " +
+                "";
+        String expected = "" +
+                "a, b, c\n" +
+                "a  =  10  \n" +
+                "";
         Document doc = new Document(s);
 
         int[] regionsForSave = new int[] { 0 };
@@ -598,7 +818,10 @@ public class PyFormatStdTest extends TestCase {
         std.trimLines = true;
 
         final PyFormatStd pyFormatStd = new PyFormatStd();
-        final String s = "" + "'a,b,c'\n" + "a  =  10\n" + "";
+        final String s = "" +
+                "'a,b,c'\n" +
+                "a  =  10\n" +
+                "";
         Document doc = new Document(s);
 
         int[] regionsForSave = new int[] { 0 };
@@ -633,34 +856,60 @@ public class PyFormatStdTest extends TestCase {
         std.parametersWithSpace = false;
         std.operatorsWithSpace = true;
 
-        String s = "" + "a=10\n" + "b= 20\n" + "c    =  30";
+        String s = "" +
+                "a=10\n" +
+                "b= 20\n" +
+                "c    =  30";
 
-        String s1 = "" + "a = 10\n" + "b = 20\n" + "c = 30";
-
-        checkFormatResults(s, s1);
-        checkFormatResults(StringUtils.replaceAll(s, "=", "!="), StringUtils.replaceAll(s1, "=", "!="));
-        checkFormatResults(StringUtils.replaceAll(s, "=", "<="), StringUtils.replaceAll(s1, "=", "<="));
-
-        s = "" + "a=\\n10\n" + "b= 20\n" + "c    =  30";
-
-        s1 = "" + "a = \\n10\n" + "b = 20\n" + "c = 30";
+        String s1 = "" +
+                "a = 10\n" +
+                "b = 20\n" +
+                "c = 30";
 
         checkFormatResults(s, s1);
         checkFormatResults(StringUtils.replaceAll(s, "=", "!="), StringUtils.replaceAll(s1, "=", "!="));
         checkFormatResults(StringUtils.replaceAll(s, "=", "<="), StringUtils.replaceAll(s1, "=", "<="));
 
-        s = "" + "a=10\n" + "b= 20\n" + "c    =  30";
+        s = "" +
+                "a=\\n10\n" +
+                "b= 20\n" +
+                "c    =  30";
 
-        s1 = "" + "a=10\n" + "b=20\n" + "c=30";
+        s1 = "" +
+                "a = \\n10\n" +
+                "b = 20\n" +
+                "c = 30";
+
+        checkFormatResults(s, s1);
+        checkFormatResults(StringUtils.replaceAll(s, "=", "!="), StringUtils.replaceAll(s1, "=", "!="));
+        checkFormatResults(StringUtils.replaceAll(s, "=", "<="), StringUtils.replaceAll(s1, "=", "<="));
+
+        s = "" +
+                "a=10\n" +
+                "b= 20\n" +
+                "c    =  30";
+
+        s1 = "" +
+                "a=10\n" +
+                "b=20\n" +
+                "c=30";
 
         std.operatorsWithSpace = false;
         checkFormatResults(s, s1);
         checkFormatResults(StringUtils.replaceAll(s, "=", ">="), StringUtils.replaceAll(s1, "=", ">="));
         checkFormatResults(StringUtils.replaceAll(s, "=", "+="), StringUtils.replaceAll(s1, "=", "+="));
 
-        s = "" + "a=\\n" + "10\n" + "b= 20\n" + "c    =  30";
+        s = "" +
+                "a=\\n" +
+                "10\n" +
+                "b= 20\n" +
+                "c    =  30";
 
-        s1 = "" + "a=\\n" + "10\n" + "b=20\n" + "c=30";
+        s1 = "" +
+                "a=\\n" +
+                "10\n" +
+                "b=20\n" +
+                "c=30";
 
         checkFormatResults(s, s1);
     }
@@ -689,8 +938,10 @@ public class PyFormatStdTest extends TestCase {
             String formatStr = doc.get();
 
             if (DEBUG) {
-                System.out.println(">>" + s.replace(' ', '.') + "<<");
-                System.out.println(">>" + formatStr.replace(' ', '.') + "<<");
+                System.out.println(">>" + s.replace(' ', '.') +
+                        "<<");
+                System.out.println(">>" + formatStr.replace(' ', '.') +
+                        "<<");
             }
             if (!s.contains("\n")) {
                 expected = StringUtils.replaceAll(expected, "\n", PySelection.getDelimiter(new Document()));
@@ -749,9 +1000,13 @@ public class PyFormatStdTest extends TestCase {
         std.parametersWithSpace = false;
         std.operatorsWithSpace = true;
 
-        String s = "" + "call(aa, (1, 2)\n" + "";
+        String s = "" +
+                "call(aa, (1, 2)\n" +
+                "";
 
-        String s1 = "" + "call(aa, (1, 2)\n" + "";
+        String s1 = "" +
+                "call(aa, (1, 2)\n" +
+                "";
 
         checkFormatResults(s, s1);
     }
@@ -761,143 +1016,227 @@ public class PyFormatStdTest extends TestCase {
         std.parametersWithSpace = false;
         std.operatorsWithSpace = true;
 
-        String s = "" + "t1 = ( 1, )\n" + "t2 = ( -1, )\n" + "l1 = [ 1 ]\n" + "l2 = [ -1 ]\n" + "d1 = { 1:0 }\n"
-                + "d2 = { -1:0 }\n" + "";
+        String s = "" +
+                "t1 = ( 1, )\n" +
+                "t2 = ( -1, )\n" +
+                "l1 = [ 1 ]\n" +
+                "l2 = [ -1 ]\n" +
+                "d1 = { 1:0 }\n"
+                +
+                "d2 = { -1:0 }\n" +
+                "";
 
-        String s1 = "" + "t1 = (1,)\n" + "t2 = (-1,)\n" + "l1 = [ 1 ]\n" + "l2 = [ -1 ]\n" + "d1 = { 1:0 }\n"
-                + "d2 = { -1:0 }\n" + "";
+        String s1 = "" +
+                "t1 = (1,)\n" +
+                "t2 = (-1,)\n" +
+                "l1 = [ 1 ]\n" +
+                "l2 = [ -1 ]\n" +
+                "d1 = { 1:0 }\n"
+                +
+                "d2 = { -1:0 }\n" +
+                "";
 
         checkFormatResults(s, s1);
     }
 
     public void testKeepTab() throws Exception {
-        String s = "" + "tmp = (\n" + "\t)";
+        String s = "" +
+                "tmp = (\n" +
+                "\t)";
         checkFormatResults(s, s);
     }
 
     public void testNumber() throws Exception {
-        String s = "" + "return -1";
+        String s = "" +
+                "return -1";
         checkFormatResults(s, s);
     }
 
     public void testNumber2() throws Exception {
-        String s = "" + "call(a + 1e+10)";
+        String s = "" +
+                "call(a + 1e+10)";
         checkFormatResults(s, s);
     }
 
     public void testNumber3() throws Exception {
-        String s = "" + "call(0.0,1.E+13,1.0,0.0)";
+        String s = "" +
+                "call(0.0,1.E+13,1.0,0.0)";
         checkFormatResults(s, s);
     }
 
     public void testNumber4() throws Exception {
-        String s = "" + "1 + 2 + +3 - -3";
+        String s = "" +
+                "1 + 2 + +3 - -3";
         checkFormatResults(s, s);
     }
 
     public void testNumber5() throws Exception {
-        String s = "" + "def a():\n" + "    return -1";
+        String s = "" +
+                "def a():\n" +
+                "    return -1";
         checkFormatResults(s, s);
     }
 
     public void testNumber6() throws Exception {
-        String s = "" + "def a(a=10 + +20):\n" + "    return -1";
+        String s = "" +
+                "def a(a=10 + +20):\n" +
+                "    return -1";
         checkFormatResults(s, s);
     }
 
     public void testNumber7() throws Exception {
-        String s = "" + "def a(a=10 + +20):\n" + "    return a + -1 - (-3)";
+        String s = "" +
+                "def a(a=10 + +20):\n" +
+                "    return a + -1 - (-3)";
         checkFormatResults(s, s);
         checkFormatResults(s.replace('+', '*'), s.replace('+', '*'));
     }
 
     public void testNumber8() throws Exception {
-        String s = "" + " -1 - (-3)";
+        String s = "" +
+                " -1 - (-3)";
         checkFormatResults(s, s);
     }
 
     public void testOperator() throws Exception {
-        String s = "" + "a=('#'*3)";
+        String s = "" +
+                "a=('#'*3)";
         std.operatorsWithSpace = true;
         checkFormatResults(s, "a = ('#' * 3)");
     }
 
     public void testOperator2() throws Exception {
-        String s = "" + "a=(('#')*3)";
+        String s = "" +
+                "a=(('#')*3)";
         std.operatorsWithSpace = true;
         checkFormatResults(s, "a = (('#') * 3)");
     }
 
     public void testOperator3() throws Exception {
-        String s = "" + "in_index = is_reversed and -3 or -2";
+        String s = "" +
+                "in_index = is_reversed and -3 or -2";
         std.operatorsWithSpace = true;
         checkFormatResults(s, "in_index = is_reversed and -3 or -2");
     }
 
     public void testOperator4() throws Exception {
-        String s = "" + "in_index=is_reversed and -3 or -2";
+        String s = "" +
+                "in_index=is_reversed and -3 or -2";
         std.operatorsWithSpace = false;
         checkFormatResults(s, "in_index=is_reversed and-3 or-2");
     }
 
     public void testOperator5() throws Exception {
-        String s = "" + "a[:2] += 4";
+        String s = "" +
+                "a[:2] += 4";
         std.operatorsWithSpace = true;
         checkFormatResults(s, "a[:2] += 4");
     }
 
     public void testOperator6() throws Exception {
-        String s = "" + "a[:2] *= 4";
+        String s = "" +
+                "a[:2] *= 4";
         std.operatorsWithSpace = true;
         checkFormatResults(s, "a[:2] *= 4");
     }
 
     public void testOperator7() throws Exception {
-        String s = "" + "[2]*4";
+        String s = "" +
+                "[2]*4";
         std.operatorsWithSpace = true;
         checkFormatResults(s, "[2] * 4");
     }
 
     public void testLambdaWithArgs() throws Exception {
-        String s = "" + "a = lambda *args:10";
+        String s = "" +
+                "a = lambda *args:10";
         std.operatorsWithSpace = true;
         checkFormatResults(s, s);
     }
 
     public void testLambdaWithArgs2() throws Exception {
-        String s = "" + "a = lambda a,*args:10";
+        String s = "" +
+                "a = lambda a,*args:10";
         std.operatorsWithSpace = true;
         checkFormatResults(s, s);
     }
 
+    public void testTrimComments() throws Exception {
+        String s = "#comment ";
+        std.trimLines = true;
+        checkFormatResults(s, "#comment");
+    }
+
+    public void testTrimComments2() throws Exception {
+        String s = "a = [a, #comment \nb]";
+        String expected = "a = [a,#comment\nb]";
+        std.trimLines = true;
+        checkFormatResults(s, expected);
+    }
+
     public void testLambdaWithArgs3() throws Exception {
-        String s = "" + "foo = lambda *args,**kwargs: True";
+        String s = "" +
+                "foo = lambda *args,**kwargs: True";
         std.operatorsWithSpace = true;
         checkFormatResults(s, s);
     }
 
     public void testFormatError() throws Exception {
-        String s = "" + "class Bar:\n" + "    def Foo:\n" + "        ra( )\n" + "        a.Get(self, ra( )\n" + "";
+        String s = "" +
+                "class Bar:\n" +
+                "    def Foo:\n" +
+                "        ra( )\n" +
+                "        a.Get(self, ra( )\n" +
+                "";
         final PyFormatStd pyFormatStd = new PyFormatStd();
         try {
             pyFormatStd.formatAll(new Document(s), null, false, std, true);
             fail("Expecting exception!");
         } catch (Exception e) {
         }
-        String expected = "" + "class Bar:\n" + "    def Foo:\n" + "        ra()\n" + "        a.Get(self, ra()\n" + "";
+        String expected = "" +
+                "class Bar:\n" +
+                "    def Foo:\n" +
+                "        ra()\n" +
+                "        a.Get(self, ra()\n" +
+                "";
 
         checkFormatResults(s, expected);
     }
 
     public void testTrimMultilineLiterals() throws Exception {
-        String input = "" + "class Foo:\n" + "    '''Class docstring   '''\n" + "    def __init__(self):\n"
-                + "        '''   \n" + "        Method docstring   \n" + "        \n"
-                + "        with multiple lines   \n" + "        '''\n" + "        print 'Some information   '\n"
-                + "        print '''More\n" + "              information   \n" + "              '''\n";
-        String expected = "" + "class Foo:\n" + "    '''Class docstring   '''\n" + "    def __init__(self):\n"
-                + "        '''\n" + "        Method docstring\n" + "\n" + "        with multiple lines\n"
-                + "        '''\n" + "        print 'Some information   '\n" + "        print '''More\n"
-                + "              information\n" + "              '''\n";
+        String input = "" +
+                "class Foo:\n" +
+                "    '''Class docstring   '''\n" +
+                "    def __init__(self):\n"
+                +
+                "        '''   \n" +
+                "        Method docstring   \n" +
+                "        \n"
+                +
+                "        with multiple lines   \n" +
+                "        '''\n" +
+                "        print 'Some information   '\n"
+                +
+                "        print '''More\n" +
+                "              information   \n" +
+                "              '''\n";
+        String expected = "" +
+                "class Foo:\n" +
+                "    '''Class docstring   '''\n" +
+                "    def __init__(self):\n"
+                +
+                "        '''\n" +
+                "        Method docstring\n" +
+                "\n" +
+                "        with multiple lines\n"
+                +
+                "        '''\n" +
+                "        print 'Some information   '\n" +
+                "        print '''More\n"
+                +
+                "              information\n" +
+                "              '''\n";
 
         std.trimMultilineLiterals = true;
         checkFormatResults(input, expected);

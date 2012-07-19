@@ -362,6 +362,18 @@ public class PyFormatStd extends PyAction implements IFormatter {
 
                 case '#':
                     i = parsingUtils.eatComments(buf, i);
+                    if (std.trimLines) {
+                        String endLine = "";
+                        if (buf.endsWith("\r\n")) {
+                            endLine = "\r\n";
+                            buf.deleteLastChars(2);
+                        } else if (buf.endsWith('\r') || buf.endsWith('\n')) {
+                            endLine += buf.lastChar();
+                            buf.deleteLast();
+                        }
+                        buf.rightTrim();
+                        buf.append(endLine);
+                    }
                     break;
 
                 case ',':
