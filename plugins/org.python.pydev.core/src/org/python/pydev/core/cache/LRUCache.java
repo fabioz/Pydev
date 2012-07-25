@@ -8,7 +8,6 @@ package org.python.pydev.core.cache;
 
 import java.io.Serializable;
 
-
 /**
  * If the cache is to be used by multiple threads,
  * the cache must be wrapped with code to synchronize the methods
@@ -16,11 +15,11 @@ import java.io.Serializable;
  * 
  * (it is actually serializable or not depending on its keys and values)
  */
-public final class LRUCache<Key, Val> extends CacheMapWrapper<Key, Val> implements Serializable{
+public final class LRUCache<Key, Val> extends CacheMapWrapper<Key, Val> implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
-    public LRUCache(int maxSize){
+
+    public LRUCache(int maxSize) {
         super(new LRUMap<Key, Val>(maxSize));
     }
 

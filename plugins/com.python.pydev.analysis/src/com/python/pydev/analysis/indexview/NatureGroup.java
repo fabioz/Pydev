@@ -40,16 +40,16 @@ import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo
 
 public class NatureGroup extends ElementWithChildren {
 
-    public static class IntegrityInfo{
+    public static class IntegrityInfo {
         public IPythonNature nature;
-        
+
         public List<ModulesKey> modulesNotInDisk = new ArrayList<ModulesKey>();
         public List<ModulesKey> modulesNotInMemory = new ArrayList<ModulesKey>();
-        
+
         public List<SourceModule> moduleNotInAdditionalInfo = new ArrayList<SourceModule>();
         public List<String> additionalModulesNotInDisk = new ArrayList<String>();
     }
-    
+
     private PythonNature nature;
 
     public NatureGroup(ITreeElement parent, PythonNature nature) {
@@ -64,164 +64,170 @@ public class NatureGroup extends ElementWithChildren {
     @Override
     protected void calculateChildren() throws MisconfigurationException {
         ICodeCompletionASTManager astManager = nature.getAstManager();
-        if(astManager == null){
+        if (astManager == null) {
             addLeaf("AST manager == null (should happen only in the plugin initialization) -- skipping other checks.");
             return;
         }
-        
+
         IModulesManager projectModulesManager = astManager.getModulesManager();
-        if(projectModulesManager == null){
+        if (projectModulesManager == null) {
             addLeaf("Modules manager == null (should happen only in the plugin initialization) -- skipping other checks.");
             return;
         }
-        
+
         PythonPathHelper pythonPathHelper = (PythonPathHelper) projectModulesManager.getPythonPathHelper();
-        if(pythonPathHelper == null){
+        if (pythonPathHelper == null) {
             addLeaf("PythonPathHelper == null (should happen only in the plugin initialization) -- skipping other checks.");
             return;
         }
         List<String> pythonpath = pythonPathHelper.getPythonpath();
         for (String s : pythonpath) {
-            addLeaf("PYTHONPATH: "+s);
+            addLeaf("PYTHONPATH: " + s);
         }
-        
+
         HashSet<ModulesKey> expectedModuleNames = new HashSet<ModulesKey>();
         for (String string : pythonpath) {
             File file = new File(string);
-            if(file.isDirectory()){ //TODO: Handle zip file modules!
-                Collection<PyFileInfo> modulesBelow = pythonPathHelper.getModulesBelow(file, new NullProgressMonitor()).getFoundPyFileInfos();
+            if (file.isDirectory()) { //TODO: Handle zip file modules!
+                Collection<PyFileInfo> modulesBelow = pythonPathHelper.getModulesBelow(file, new NullProgressMonitor())
+                        .getFoundPyFileInfos();
                 for (PyFileInfo fileInfo : modulesBelow) {
                     File moduleFile = fileInfo.getFile();
                     String modName = pythonPathHelper.resolveModule(REF.getFileAbsolutePath(moduleFile), true);
-                    if(modName != null){
+                    if (modName != null) {
                         expectedModuleNames.add(new ModulesKey(modName, moduleFile));
-                    }else{
-                        if(PythonPathHelper.isValidModuleLastPart(StringUtils.stripExtension((moduleFile.getName())))){
-                            addLeaf(StringUtils.format("Unable to resolve module: %s (gotten null module name)", moduleFile));
+                    } else {
+                        if (PythonPathHelper.isValidModuleLastPart(StringUtils.stripExtension((moduleFile.getName())))) {
+                            addLeaf(StringUtils.format("Unable to resolve module: %s (gotten null module name)",
+                                    moduleFile));
                         }
                     }
                 }
-            }else{
-                if(!file.exists()){
+            } else {
+                if (!file.exists()) {
                     addLeaf(StringUtils.format("File %s is referenced in the pythonpath but does not exist.", file));
-                }else{
-                    addLeaf(StringUtils.format("File %s not handled (TODO: Fix zip files support in the viewer).", file));
+                } else {
+                    addLeaf(StringUtils
+                            .format("File %s not handled (TODO: Fix zip files support in the viewer).", file));
                 }
             }
         }
-        
+
         IntegrityInfo info = new IntegrityInfo();
         info.nature = nature;
-        
-        
+
         ModulesKey[] onlyDirectModules = projectModulesManager.getOnlyDirectModules();
         TreeSet<ModulesKey> inModulesManager = new TreeSet<ModulesKey>(Arrays.asList(onlyDirectModules));
-        
+
         Set<String> allAdditionalInfoModuleNames = new TreeSet<String>();
-        List<Tuple<AbstractAdditionalTokensInfo, IPythonNature>> additionalInfoAndNature = AdditionalProjectInterpreterInfo.getAdditionalInfoAndNature(nature, false, false, false);
+        List<Tuple<AbstractAdditionalTokensInfo, IPythonNature>> additionalInfoAndNature = AdditionalProjectInterpreterInfo
+                .getAdditionalInfoAndNature(nature, false, false, false);
         AbstractAdditionalTokensInfo additionalProjectInfo;
-        if(additionalInfoAndNature.size() == 0){
+        if (additionalInfoAndNature.size() == 0) {
             addChild(new LeafElement(this, "No additional infos found (1 expected) -- skipping other checks."));
             return;
-            
-        } else{
-            if(additionalInfoAndNature.size() > 1){
-                addChild(new LeafElement(this, 
-                        StringUtils.format("%s additional infos found (only 1 expected) -- continuing checks but analysis may be wrong.", 
-                                additionalInfoAndNature.size())));
+
+        } else {
+            if (additionalInfoAndNature.size() > 1) {
+                addChild(new LeafElement(this, StringUtils.format(
+                        "%s additional infos found (only 1 expected) -- continuing checks but analysis may be wrong.",
+                        additionalInfoAndNature.size())));
             }
             additionalProjectInfo = additionalInfoAndNature.get(0).o1;
             allAdditionalInfoModuleNames.addAll(additionalProjectInfo.getAllModulesWithTokens());
         }
-        
+
         for (ModulesKey key : inModulesManager) {
-            if(!expectedModuleNames.contains(key)){
+            if (!expectedModuleNames.contains(key)) {
                 info.modulesNotInDisk.add(key);
                 addChild(new LeafElement(this, StringUtils.format("%s exists in memory but not in the disk.", key)));
             }
         }
-        
+
         ModulesKey tempKey = new ModulesKey(null, null);
-        for(String s:allAdditionalInfoModuleNames){
+        for (String s : allAdditionalInfoModuleNames) {
             tempKey.name = s;
-            if(!expectedModuleNames.contains(tempKey)){
+            if (!expectedModuleNames.contains(tempKey)) {
                 info.additionalModulesNotInDisk.add(s);
-                addChild(new LeafElement(this, StringUtils.format("%s exists in the additional info but not in the disk.", s)));
+                addChild(new LeafElement(this, StringUtils.format(
+                        "%s exists in the additional info but not in the disk.", s)));
             }
         }
-        
+
         for (ModulesKey key : expectedModuleNames) {
             boolean isInModulesManager = inModulesManager.contains(key);
-            if(!isInModulesManager){
+            if (!isInModulesManager) {
                 info.modulesNotInMemory.add(key);
                 addChild(new LeafElement(this, StringUtils.format("%s exists in the disk but not in memory.", key)));
             }
-            if(!allAdditionalInfoModuleNames.contains(key.name)){
+            if (!allAdditionalInfoModuleNames.contains(key.name)) {
                 try {
                     AbstractModule mod = AbstractModule.createModule(key.name, key.file, info.nature, true);
-                    if(!(mod instanceof SourceModule)){
+                    if (!(mod instanceof SourceModule)) {
                         continue;
                     }
                     SourceModule module = (SourceModule) mod;
-                    if(module == null || module.getAst() == null){
-                        addChild(new LeafElement(this, StringUtils.format("Warning: cannot parse: %s - %s (so, it's ok not having additional info on it)", key.name, key.file)));
-                    }else{
+                    if (module == null || module.getAst() == null) {
+                        addChild(new LeafElement(this, StringUtils.format(
+                                "Warning: cannot parse: %s - %s (so, it's ok not having additional info on it)",
+                                key.name, key.file)));
+                    } else {
                         try {
-                            Iterator<ASTEntry> innerEntriesForAST = AbstractAdditionalDependencyInfo.getInnerEntriesForAST(module.getAst()).o2;
-                            if(innerEntriesForAST.hasNext()){
+                            Iterator<ASTEntry> innerEntriesForAST = AbstractAdditionalDependencyInfo
+                                    .getInnerEntriesForAST(module.getAst()).o2;
+                            if (innerEntriesForAST.hasNext()) {
                                 info.moduleNotInAdditionalInfo.add(module);
-                                addChild(new LeafElement(this, StringUtils.format("The additional info index of the module: %s is not updated.", key.name)));
+                                addChild(new LeafElement(this, StringUtils.format(
+                                        "The additional info index of the module: %s is not updated.", key.name)));
                             }
                         } catch (Exception e) {
-                            addChild(new LeafElement(this, StringUtils.format("Unexpected error happened on: %s - %s: %s", key.name, key.file, e.getMessage())));
+                            addChild(new LeafElement(this, StringUtils.format(
+                                    "Unexpected error happened on: %s - %s: %s", key.name, key.file, e.getMessage())));
                         }
                     }
                 } catch (IOException e) {
                     //OK, it cannot be parsed, so, we cannot generate its info
-                    addChild(new LeafElement(this, StringUtils.format("Warning: cannot parse: %s - %s (so, it's ok not having additional info on it)", key.name, key.file)));
+                    addChild(new LeafElement(this, StringUtils.format(
+                            "Warning: cannot parse: %s - %s (so, it's ok not having additional info on it)", key.name,
+                            key.file)));
                 }
             }
         }
-        
-        
+
         //modules manager
-        if(info.modulesNotInDisk.size() > 0){
-            for(ModulesKey m:info.modulesNotInDisk){
+        if (info.modulesNotInDisk.size() > 0) {
+            for (ModulesKey m : info.modulesNotInDisk) {
                 addChild(new LeafElement(this, StringUtils.format("FIX: Removing from modules manager: %s", m)));
             }
             projectModulesManager.removeModules(info.modulesNotInDisk);
         }
-        
-        
-        for(ModulesKey key:info.modulesNotInMemory){
-            addChild(new LeafElement(this, "FIX: Adding to modules manager: "+key));
+
+        for (ModulesKey key : info.modulesNotInMemory) {
+            addChild(new LeafElement(this, "FIX: Adding to modules manager: " + key));
             projectModulesManager.addModule(key);
         }
-        
-        
-        
+
         //additional info
-        for(String s:info.additionalModulesNotInDisk){
+        for (String s : info.additionalModulesNotInDisk) {
             addChild(new LeafElement(this, StringUtils.format("FIX: Removing from additional info: %s", s)));
             additionalProjectInfo.removeInfoFromModule(s, true);
         }
-        
-        
-        for(SourceModule mod:info.moduleNotInAdditionalInfo){
+
+        for (SourceModule mod : info.moduleNotInAdditionalInfo) {
             addChild(new LeafElement(this, StringUtils.format("FIX: Adding to additional info: %s", mod.getName())));
             additionalProjectInfo.addAstInfo(mod.getAst(), mod.getModulesKey(), true);
         }
-        
+
     }
 
     private void addLeaf(String msg) {
         addChild(new LeafElement(this, msg));
     }
-    
+
     @Override
     public String toString() {
         IProject project = nature.getProject();
-        if(project != null){
+        if (project != null) {
             return project.getName();
         }
         return "Project not set";

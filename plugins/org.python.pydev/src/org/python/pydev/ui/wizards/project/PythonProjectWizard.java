@@ -50,7 +50,7 @@ import org.python.pydev.ui.wizards.gettingstarted.AbstractNewProjectWizard;
  * @author Mikko Ohtamaa
  * @author Fabio Zadrozny
  */
-public class PythonProjectWizard extends AbstractNewProjectWizard implements IExecutableExtension{
+public class PythonProjectWizard extends AbstractNewProjectWizard implements IExecutableExtension {
 
     /**
      * The current selection.
@@ -71,9 +71,9 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
 
     private IProject createdProject;
 
-	private IConfigurationElement fConfigElement;
+    private IConfigurationElement fConfigElement;
 
-	protected IWorkbench workbench;
+    protected IWorkbench workbench;
 
     public void init(IWorkbench workbench, IStructuredSelection currentSelection) {
         this.selection = currentSelection;
@@ -85,7 +85,7 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
     /**
      * Creates the project page.
      */
-    protected IWizardNewProjectNameAndLocationPage createProjectPage(){
+    protected IWizardNewProjectNameAndLocationPage createProjectPage() {
         return new NewProjectNameAndLocationWizardPage("Setting project properties");
     }
 
@@ -99,29 +99,28 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
         addProjectReferencePage();
     }
 
-
     /**
      * Creates a new project resource with the entered name.
      * 
      * @return the created project resource, or <code>null</code> if the project was not created
      */
-    protected IProject createNewProject(final Object ... additionalArgsToConfigProject) {
+    protected IProject createNewProject(final Object... additionalArgsToConfigProject) {
         // get a project handle
         final IProject newProjectHandle = projectPage.getProjectHandle();
 
         // get a project descriptor
         IPath defaultPath = Platform.getLocation();
         IPath newPath = projectPage.getLocationPath();
-        if(defaultPath.equals(newPath)){
+        if (defaultPath.equals(newPath)) {
             newPath = null;
-        }else{
+        } else {
             //The user entered the path and it's the same as it'd be if he chose the default path.
             IPath withName = defaultPath.append(newProjectHandle.getName());
-            if(newPath.toFile().equals(withName.toFile())){
+            if (newPath.toFile().equals(withName.toFile())) {
                 newPath = null;
             }
         }
-        
+
         IWorkspace workspace = ResourcesPlugin.getWorkspace();
         final IProjectDescription description = workspace.newProjectDescription(newProjectHandle.getName());
         description.setLocation(newPath);
@@ -129,7 +128,7 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
         // update the referenced project if provided
         if (referencePage != null) {
             IProject[] refProjects = referencePage.getReferencedProjects();
-            if (refProjects.length > 0){
+            if (refProjects.length > 0) {
                 description.setReferencedProjects(refProjects);
             }
         }
@@ -139,8 +138,9 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
         // define the operation to create a new project
         WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
             protected void execute(IProgressMonitor monitor) throws CoreException {
-                
-                createAndConfigProject(newProjectHandle, description, projectType, projectInterpreter, monitor, additionalArgsToConfigProject);
+
+                createAndConfigProject(newProjectHandle, description, projectType, projectInterpreter, monitor,
+                        additionalArgsToConfigProject);
             }
         };
 
@@ -153,9 +153,11 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
             Throwable t = e.getTargetException();
             if (t instanceof CoreException) {
                 if (((CoreException) t).getStatus().getCode() == IResourceStatus.CASE_VARIANT_EXISTS) {
-                    MessageDialog.openError(getShell(), "Unable to create project", "Another project with the same name (and different case) already exists.");
+                    MessageDialog.openError(getShell(), "Unable to create project",
+                            "Another project with the same name (and different case) already exists.");
                 } else {
-                    ErrorDialog.openError(getShell(), "Unable to create project", null, ((CoreException) t).getStatus());
+                    ErrorDialog
+                            .openError(getShell(), "Unable to create project", null, ((CoreException) t).getStatus());
                 }
             } else {
                 // Unexpected runtime exceptions and errors may still occur.
@@ -167,7 +169,7 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
 
         return newProjectHandle;
     }
-    
+
     /**
      * This method can be overridden to provide a custom creation of the project.
      * 
@@ -175,24 +177,24 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
      * if applicable), set the project type and project interpreter.
      */
     protected void createAndConfigProject(final IProject newProjectHandle, final IProjectDescription description,
-            final String projectType, final String projectInterpreter, IProgressMonitor monitor, Object ... additionalArgsToConfigProject)
-            throws CoreException{
-        ICallback<List<IContainer>, IProject> getSourceFolderHandlesCallback = new ICallback<List<IContainer>, IProject>(){
-        
+            final String projectType, final String projectInterpreter, IProgressMonitor monitor,
+            Object... additionalArgsToConfigProject) throws CoreException {
+        ICallback<List<IContainer>, IProject> getSourceFolderHandlesCallback = new ICallback<List<IContainer>, IProject>() {
+
             public List<IContainer> call(IProject projectHandle) {
                 final int sourceFolderConfigurationStyle = projectPage.getSourceFolderConfigurationStyle();
                 List<IContainer> ret = new ArrayList<IContainer>();
-                switch(sourceFolderConfigurationStyle){
-                
+                switch (sourceFolderConfigurationStyle) {
+
                     case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_CREATE_PROJECT_AS_SRC_FOLDER:
                         //if the user hasn't selected to create a source folder, use the project itself for that.
                         ret = new ArrayList<IContainer>();
                         ret.add(projectHandle);
                         return ret;
-                        
+
                     case IWizardNewProjectNameAndLocationPage.PYDEV_NEW_PROJECT_NO_PYTHONPATH:
                         return new ArrayList<IContainer>();
-                    
+
                     default:
                         IContainer folder = projectHandle.getFolder("src");
                         ret = new ArrayList<IContainer>();
@@ -201,10 +203,9 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
                 }
             }
         };
-        PyStructureConfigHelpers.createPydevProject(
-                description, newProjectHandle, monitor, projectType, projectInterpreter, getSourceFolderHandlesCallback, null);
+        PyStructureConfigHelpers.createPydevProject(description, newProjectHandle, monitor, projectType,
+                projectInterpreter, getSourceFolderHandlesCallback, null);
     }
-
 
     /**
      * The user clicked Finish button
@@ -219,8 +220,8 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
 
         return true;
     }
-    
-    public IProject getCreatedProject(){
+
+    public IProject getCreatedProject() {
         return createdProject;
     }
 
@@ -228,13 +229,13 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
      * Set Python logo to top bar
      */
     protected void initializeDefaultPageImageDescriptor() {
-        ImageDescriptor desc = PydevPlugin.imageDescriptorFromPlugin(PydevPlugin.getPluginID(), "icons/python_logo.png");//$NON-NLS-1$
+        ImageDescriptor desc = PydevPlugin
+                .imageDescriptorFromPlugin(PydevPlugin.getPluginID(), "icons/python_logo.png");//$NON-NLS-1$
         setDefaultPageImageDescriptor(desc);
     }
 
-	
-	public void setInitializationData(IConfigurationElement config, String propertyName, Object data)
-			throws CoreException {
-		this.fConfigElement = config;
-	}
+    public void setInitializationData(IConfigurationElement config, String propertyName, Object data)
+            throws CoreException {
+        this.fConfigElement = config;
+    }
 }

@@ -20,12 +20,11 @@ import org.python.pydev.plugin.PydevPlugin;
 public class MinimapOverviewRulerPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
     private static final String USE_MINIMAP = "PYDEV_USE_MINIMAP";
-    
+
     public MinimapOverviewRulerPreferencesPage() {
         super(GRID);
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
     }
-
 
     public void init(IWorkbench workbench) {
     }
@@ -34,12 +33,12 @@ public class MinimapOverviewRulerPreferencesPage extends FieldEditorPreferencePa
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
 
-        BooleanFieldEditor useMinimap = new BooleanFieldEditor(
-                USE_MINIMAP, "Use minimap in overview ruler? (NOTE: Only applied on editor restart)", p);
+        BooleanFieldEditor useMinimap = new BooleanFieldEditor(USE_MINIMAP,
+                "Use minimap in overview ruler? (NOTE: Only applied on editor restart)", p);
         addField(useMinimap);
     }
-    
-    public static boolean useMinimap(){
+
+    public static boolean useMinimap() {
         return PydevPlugin.getDefault().getPreferenceStore().getBoolean(USE_MINIMAP);
     }
 

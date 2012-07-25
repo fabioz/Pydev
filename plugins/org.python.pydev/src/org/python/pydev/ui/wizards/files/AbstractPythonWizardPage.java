@@ -62,7 +62,7 @@ import org.python.pydev.ui.dialogs.SourceFolder;
 /**
  * The default creation page may be found at org.eclipse.ui.dialogs.WizardNewFileCreationPage
  */
-public abstract class AbstractPythonWizardPage extends WizardPage implements KeyListener{
+public abstract class AbstractPythonWizardPage extends WizardPage implements KeyListener {
 
     private IStructuredSelection selection;
     private Text textSourceFolder;
@@ -90,20 +90,24 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
     private String validatedName;
     private Text textProject;
     private Button btBrowseProject;
-    
-    public IContainer getValidatedSourceFolder(){
+
+    public IContainer getValidatedSourceFolder() {
         return validatedSourceFolder;
     }
-    public IContainer getValidatedPackage(){
+
+    public IContainer getValidatedPackage() {
         return validatedPackage;
     }
-    public String getPackageText(){
+
+    public String getPackageText() {
         return packageText;
     }
-    public String getValidatedName(){
+
+    public String getValidatedName() {
         return validatedName;
     }
-    public IProject getValidatedProject(){
+
+    public IProject getValidatedProject() {
         return validatedProject;
     }
 
@@ -119,25 +123,27 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
     private TreeMap<String, TemplatePersistenceData> nameToTemplateData;
     private Label labelWarningWillCreate;
     private Label labelWarningImageWillCreate;
+
     private void setFocusOn(Text txt, String string) {
-        if(txt != null){
+        if (txt != null) {
             //System.out.println("seting focus on:"+string);
             txt.setFocus();
             lastWithFocus = txt;
             lastWithFocusStr = string;
         }
     }
-    public void resetFocusOnLast(){
-        if(lastWithFocus != null){
+
+    public void resetFocusOnLast() {
+        if (lastWithFocus != null) {
             //System.out.println("reseting focus on:"+lastWithFocusStr);
             lastWithFocus.setFocus();
         }
     }
-    
+
     @Override
     public void setVisible(boolean visible) {
         super.setVisible(visible);
-        if(visible == true){
+        if (visible == true) {
             resetFocusOnLast();
         }
     }
@@ -150,31 +156,31 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
         topLevel.setLayout(gridLayout);
         topLevel.setLayoutData(new GridData(GridData.VERTICAL_ALIGN_FILL | GridData.HORIZONTAL_ALIGN_FILL));
         topLevel.setFont(parent.getFont());
-        
+
         boolean previousFilled = true;
         //create either source folder
-        if(shouldCreateSourceFolderSelect()){
+        if (shouldCreateSourceFolderSelect()) {
             previousFilled = createSourceFolderSelect(topLevel);
-        }else{
+        } else {
             //or the project selection
             previousFilled = createProjectSelect(topLevel);
         }
-        
+
         //always call the package create (but note that it may either create the package or not).
         boolean createPackageSelectFilled = createPackageSelect(topLevel, previousFilled);
-        if(shouldCreatePackageSelect()){
+        if (shouldCreatePackageSelect()) {
             previousFilled = createPackageSelectFilled;
         }
-        
+
         //always create the name
         createNameSelect(topLevel, previousFilled);
-        
+
         // Show description on opening
         setErrorMessage(null);
         setMessage(null);
         setControl(topLevel);
     }
-    
+
     /**
      * Decide whether a source folder must be selected to complete the dialog.
      * 
@@ -185,21 +191,20 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
     protected boolean shouldCreateSourceFolderSelect() {
         return true;
     }
-    
+
     /**
      * Subclasses should override to decide whether a package must be selected to complete the dialog.
      * @return true if a package should be selected and false if it shouldn't
      */
     protected abstract boolean shouldCreatePackageSelect();
-    
+
     /**
      * By default only creates the templates box if a package must be selected.
      */
-    protected boolean shouldCreateTemplates(){
+    protected boolean shouldCreateTemplates() {
         return shouldCreatePackageSelect();
     }
 
-    
     /**
      * @param topLevel
      */
@@ -208,85 +213,81 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
         textName = new Text(topLevel, SWT.BORDER);
         textName.addKeyListener(this);
         setLayout(null, textName, null);
-        if(initialTextName != null){
+        if (initialTextName != null) {
             textName.setText(initialTextName);
         }
-        if(setFocus){
+        if (setFocus) {
             setFocusOn(textName, "name");
             textName.setSelection(textName.getText().length());
         }
-        
-        
+
         //just create an empty to complete the line (that needs 3 items in the layout)
         Label label = new Label(topLevel, SWT.NONE);
         label.setText("");
-        
-        
-        if(shouldCreateTemplates()){
+
+        if (shouldCreateTemplates()) {
             final TemplateStore templateStore = TemplateHelper.getTemplateStore();
-            if(templateStore != null){
+            if (templateStore != null) {
                 TemplatePersistenceData[] templateData = templateStore.getTemplateData(false);
-                if(templateData != null && templateData.length > 0){
+                if (templateData != null && templateData.length > 0) {
                     //create the template selection
                     label = new Label(topLevel, SWT.NONE);
                     label.setText("Template");
-                    
+
                     templateList = new List(topLevel, SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
                     fillTemplateOptions(templateData, templateList);
-    
-                    
+
                     //if in the text, pressing down should go to the templates list
-                    textName.addKeyListener(new KeyListener(){
-    
+                    textName.addKeyListener(new KeyListener() {
+
                         public void keyPressed(KeyEvent e) {
                         }
-    
+
                         public void keyReleased(KeyEvent e) {
-                            if(e.keyCode == SWT.ARROW_DOWN){
-                                templateList.setFocus();
-                                e.doit = false;
-                            }
-                        }}
-                    );
-    
-                    textName.addTraverseListener(new TraverseListener() {
-                        
-                        public void keyTraversed(TraverseEvent e) {
-                            if(e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR){
+                            if (e.keyCode == SWT.ARROW_DOWN) {
                                 templateList.setFocus();
                                 e.doit = false;
                             }
                         }
                     });
-                    
-                    
+
+                    textName.addTraverseListener(new TraverseListener() {
+
+                        public void keyTraversed(TraverseEvent e) {
+                            if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
+                                templateList.setFocus();
+                                e.doit = false;
+                            }
+                        }
+                    });
+
                     Link link = new Link(topLevel, SWT.NONE);
                     link.setText("<a>Config...</a>");
-                    
+
                     link.addSelectionListener(new SelectionListener() {
                         public void widgetSelected(SelectionEvent e) {
-                            PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null, 
+                            PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null,
                                     "org.python.pydev.prefs.template", null, null);
-                            dialog.open(); 
+                            dialog.open();
                             //Fill it after having the settings edited.
                             TemplatePersistenceData[] templateData = templateStore.getTemplateData(false);
-                            if(templateData != null && templateData.length > 0){
+                            if (templateData != null && templateData.length > 0) {
                                 fillTemplateOptions(templateData, templateList);
-                            }else{
+                            } else {
                                 fillTemplateOptions(new TemplatePersistenceData[0], templateList);
                             }
                         }
-    
+
                         public void widgetDefaultSelected(SelectionEvent e) {
                         }
                     });
-                    
+
                     setLayout(label, templateList, link);
                 }
             }
         }
     }
-    
+
     protected Label createNameLabel(Composite topLevel) {
         Label label = new Label(topLevel, SWT.NONE);
         label.setText("Name");
@@ -295,31 +296,28 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
         label.setLayoutData(data);
         return label;
     }
-    
-    
+
     /**
      * @return the data for the selected template or null if not available.
      */
     public TemplatePersistenceData getSelectedTemplate() {
-        if(templateList != null && nameToTemplateData != null){
+        if (templateList != null && nameToTemplateData != null) {
             String[] sel = templateList.getSelection();
-            if(sel != null && sel.length > 0){
+            if (sel != null && sel.length > 0) {
                 return nameToTemplateData.get(sel[0]);
             }
         }
         return null;
     }
 
-    
-    
     /**
      * Sets the template options in the passed list (swt)
      */
     private void fillTemplateOptions(TemplatePersistenceData[] templateData, List list) {
         nameToTemplateData = new TreeMap<String, TemplatePersistenceData>();
-        
+
         for (TemplatePersistenceData data : templateData) {
-            if(PyContextType.PY_MODULES_CONTEXT_TYPE.equals(data.getTemplate().getContextTypeId())){
+            if (PyContextType.PY_MODULES_CONTEXT_TYPE.equals(data.getTemplate().getContextTypeId())) {
                 String name = data.getTemplate().getName();
                 nameToTemplateData.put(name, data);
             }
@@ -328,7 +326,6 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
         list.setItems(lst.toArray(new String[lst.size()]));
         list.setSelection(0);
     }
-
 
     private boolean createProjectSelect(Composite topLevel) {
         Label label;
@@ -340,43 +337,43 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
         setLayout(label, textProject, btBrowseProject);
         setFocusOn(textProject, "project");
 
-        btBrowseProject.addSelectionListener(new SelectionListener(){
+        btBrowseProject.addSelectionListener(new SelectionListener() {
 
             public void widgetSelected(SelectionEvent e) {
-                ElementListSelectionDialog dialog = new ElementListSelectionDialog(getShell(), new WorkbenchLabelProvider());
+                ElementListSelectionDialog dialog = new ElementListSelectionDialog(getShell(),
+                        new WorkbenchLabelProvider());
                 dialog.setTitle("Project selection");
                 dialog.setTitle("Select a project.");
                 dialog.setElements(ResourcesPlugin.getWorkspace().getRoot().getProjects());
                 dialog.open();
-                
+
                 Object[] result = dialog.getResult();
-                if(result != null && result.length > 0){
-                    textProject.setText(((IProject)result[0]).getName());
+                if (result != null && result.length > 0) {
+                    textProject.setText(((IProject) result[0]).getName());
                 }
             }
 
             public void widgetDefaultSelected(SelectionEvent e) {
             }
-            
+
         });
-        
+
         Object element = selection.getFirstElement();
-        
+
         if (element instanceof IAdaptable) {
             IAdaptable adaptable = (IAdaptable) element;
             element = adaptable.getAdapter(IResource.class);
         }
-        
+
         if (element instanceof IResource) {
             IResource f = (IResource) element;
             element = f.getProject();
         }
-        
+
         if (element instanceof IProject) {
-            textProject.setText(((IProject)element).getName());
+            textProject.setText(((IProject) element).getName());
             return true;
         }
-            
 
         return false;
     }
@@ -386,7 +383,7 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
      * @return 
      */
     private boolean createPackageSelect(Composite topLevel, boolean setFocus) {
-        if(shouldCreatePackageSelect()){
+        if (shouldCreatePackageSelect()) {
             Label label;
             label = new Label(topLevel, SWT.NONE);
             label.setText("Package");
@@ -394,37 +391,37 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
             textPackage.addKeyListener(this);
             btBrowsePackage = new Button(topLevel, SWT.NONE);
             setLayout(label, textPackage, btBrowsePackage);
-            
+
             labelWarningImageWillCreate = new Label(topLevel, SWT.NONE);
             labelWarningImageWillCreate.setVisible(false);
             labelWarningImageWillCreate.setImage(PydevPlugin.getImageCache().get(UIConstants.WARNING));
-            
+
             labelWarningWillCreate = new Label(topLevel, SWT.NONE);
             labelWarningWillCreate.setText("Note: package not found (will be created).");
             labelWarningWillCreate.setVisible(false);
             setLayout(labelWarningImageWillCreate, labelWarningWillCreate, null);
-            
+
             //just create an empty to complete the line (that needs 3 items in the layout)
             new Label(topLevel, SWT.NONE);
-            
-            if(setFocus){
+
+            if (setFocus) {
                 setFocusOn(textPackage, "package");
             }
-    
-            btBrowsePackage.addSelectionListener(new SelectionListener(){
-    
+
+            btBrowsePackage.addSelectionListener(new SelectionListener() {
+
                 public void widgetSelected(SelectionEvent e) {
                     try {
                         PythonPackageSelectionDialog dialog = new PythonPackageSelectionDialog(getShell(), false);
                         dialog.open();
                         Object firstResult = dialog.getFirstResult();
-                        if(firstResult instanceof SourceFolder){ //it is the default package
+                        if (firstResult instanceof SourceFolder) { //it is the default package
                             SourceFolder f = (SourceFolder) firstResult;
                             textPackage.setText("");
                             textSourceFolder.setText(f.folder.getFullPath().toString());
-                            
+
                         }
-                        if(firstResult instanceof org.python.pydev.ui.dialogs.Package){
+                        if (firstResult instanceof org.python.pydev.ui.dialogs.Package) {
                             org.python.pydev.ui.dialogs.Package f = (org.python.pydev.ui.dialogs.Package) firstResult;
                             textPackage.setText(f.getPackageName());
                             textSourceFolder.setText(f.sourceFolder.folder.getFullPath().toString());
@@ -432,23 +429,23 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
                     } catch (Exception e1) {
                         Log.log(e1);
                     }
-                    
+
                 }
-    
+
                 public void widgetDefaultSelected(SelectionEvent e) {
                 }
-                
+
             });
-            
+
         }
-        
+
         Object element = selection.getFirstElement();
-        
+
         try {
             if (element instanceof IAdaptable) {
                 IAdaptable adaptable = (IAdaptable) element;
                 element = adaptable.getAdapter(IFile.class);
-                if(element == null){
+                if (element == null) {
                     element = adaptable.getAdapter(IFolder.class);
                 }
             }
@@ -457,35 +454,34 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
                 IFile f = (IFile) element;
                 element = f.getParent();
             }
-            
-            
+
             if (element instanceof IFolder) {
                 IFolder f = (IFolder) element;
                 String srcPath = getSrcFolderFromFolder(f);
-                if(srcPath == null){
+                if (srcPath == null) {
                     return false;
                 }
                 String complete = f.getFullPath().toString();
-                if(complete.startsWith(srcPath)){
+                if (complete.startsWith(srcPath)) {
                     complete = complete.substring(srcPath.length()).replace('/', '.');
-                    if(complete.startsWith(".")){
+                    if (complete.startsWith(".")) {
                         complete = complete.substring(1);
                     }
-                    if(shouldCreatePackageSelect()){
+                    if (shouldCreatePackageSelect()) {
                         textPackage.setText(complete);
-                    }else{
+                    } else {
                         initialTextName = complete;
                     }
                 }
             }
-            
+
         } catch (Exception e) {
             Log.log(e);
         }
 
-        if(shouldCreatePackageSelect()){
+        if (shouldCreatePackageSelect()) {
             return textPackage.getText().length() > 0;
-        }else{
+        } else {
             return false;
         }
     }
@@ -502,43 +498,40 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
         textSourceFolder.addKeyListener(this);
         btBrowseSourceFolder = new Button(topLevel, SWT.NONE);
         setLayout(label, textSourceFolder, btBrowseSourceFolder);
-        
-        
-        btBrowseSourceFolder.addSelectionListener(new SelectionListener(){
+
+        btBrowseSourceFolder.addSelectionListener(new SelectionListener() {
 
             public void widgetSelected(SelectionEvent e) {
                 try {
                     PythonPackageSelectionDialog dialog = new PythonPackageSelectionDialog(getShell(), true);
                     dialog.open();
                     Object firstResult = dialog.getFirstResult();
-                    if(firstResult instanceof SourceFolder){
+                    if (firstResult instanceof SourceFolder) {
                         SourceFolder f = (SourceFolder) firstResult;
                         textSourceFolder.setText(f.folder.getFullPath().toString());
                     }
                 } catch (Exception e1) {
                     Log.log(e1);
                 }
-                
+
             }
 
             public void widgetDefaultSelected(SelectionEvent e) {
             }
-            
+
         });
 
-        
-        
         Object element = selection.getFirstElement();
-        
+
         try {
-            
+
             if (element instanceof IAdaptable) {
                 IAdaptable adaptable = (IAdaptable) element;
                 element = adaptable.getAdapter(IFile.class);
-                if(element == null){
+                if (element == null) {
                     element = adaptable.getAdapter(IProject.class);
                 }
-                if(element == null){
+                if (element == null) {
                     element = adaptable.getAdapter(IFolder.class);
                 }
             }
@@ -547,30 +540,29 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
                 IFile f = (IFile) element;
                 element = f.getParent();
             }
-            
+
             if (element instanceof IProject) {
                 IPythonPathNature nature = PythonNature.getPythonPathNature((IProject) element);
-                if(nature != null){
+                if (nature != null) {
                     String[] srcPaths = PythonNature.getStrAsStrItems(nature.getProjectSourcePath(true));
-                    if(srcPaths.length > 0){
+                    if (srcPaths.length > 0) {
                         textSourceFolder.setText(srcPaths[0]);
                         return true;
                     }
                 }
-                
+
             }
-            
+
             if (element instanceof IFolder) {
                 IFolder f = (IFolder) element;
                 String srcPath = getSrcFolderFromFolder(f);
-                if(srcPath == null){
+                if (srcPath == null) {
                     return true;
                 }
                 textSourceFolder.setText(srcPath);
                 return true;
             }
 
-            
         } catch (Exception e) {
             Log.log(e);
         }
@@ -584,11 +576,11 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
      */
     public String getSrcFolderFromFolder(IFolder f) throws CoreException {
         IPythonPathNature nature = PythonNature.getPythonPathNature(f.getProject());
-        if(nature != null){
+        if (nature != null) {
             String[] srcPaths = PythonNature.getStrAsStrItems(nature.getProjectSourcePath(true));
-            String relFolder = f.getFullPath().toString()+"/";
+            String relFolder = f.getFullPath().toString() + "/";
             for (String src : srcPaths) {
-                if(relFolder.startsWith(src+"/")){
+                if (relFolder.startsWith(src + "/")) {
                     return src;
                 }
             }
@@ -598,36 +590,32 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
 
     private void setLayout(Label label, Control text, Control bt) {
         GridData data;
-        
-        if(label != null){
+
+        if (label != null) {
             data = new GridData();
             data.grabExcessHorizontalSpace = false;
             label.setLayoutData(data);
         }
-        
-        if(text != null){
+
+        if (text != null) {
             data = new GridData(GridData.FILL_HORIZONTAL);
             data.grabExcessHorizontalSpace = true;
             text.setLayoutData(data);
         }
-        
-        if(bt != null){
+
+        if (bt != null) {
             data = new GridData();
             bt.setLayoutData(data);
-            if(bt instanceof Button){
-                ((Button)bt).setText("Browse...");
+            if (bt instanceof Button) {
+                ((Button) bt).setText("Browse...");
             }
         }
     }
 
-    
-    
-    
-    
     //listener interface
     public void keyPressed(KeyEvent e) {
     }
-    
+
     public void keyReleased(KeyEvent e) {
         validatePage();
     }
@@ -635,27 +623,27 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
     protected void validatePage() {
         try {
             if (textProject != null) {
-                if(checkError(checkValidProject(textProject.getText()))){
+                if (checkError(checkValidProject(textProject.getText()))) {
                     return;
                 }
             }
             if (textSourceFolder != null) {
-                if(checkError(checkValidSourceFolder(textSourceFolder.getText()))){
+                if (checkError(checkValidSourceFolder(textSourceFolder.getText()))) {
                     return;
                 }
             }
             if (textPackage != null) {
-                if(checkError(checkValidPackage(textPackage.getText()))){
+                if (checkError(checkValidPackage(textPackage.getText()))) {
                     return;
                 }
 
             }
             if (textName != null) {
-                if(checkError(checkValidName(textName.getText()))){
+                if (checkError(checkValidName(textName.getText()))) {
                     return;
                 }
             }
-            if(checkAdditionalErrors()){
+            if (checkAdditionalErrors()) {
                 return;
             }
             setErrorMessage(null);
@@ -663,11 +651,11 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
             setPageComplete(true);
         } catch (Exception e) {
             Log.log(e);
-            setErrorMessage("Error while validating page:"+e.getMessage());
+            setErrorMessage("Error while validating page:" + e.getMessage());
             setPageComplete(false);
         }
     }
-    
+
     /**
      * Subclasses may override to do additional error-checking.
      * @return
@@ -675,21 +663,21 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
     protected boolean checkAdditionalErrors() {
         return false;
     }
-    
+
     private String checkValidProject(String text) {
         validatedProject = null;
-        if(text == null || text.trim().length() == 0 ){
+        if (text == null || text.trim().length() == 0) {
             return "The project name must be filled.";
         }
         IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
         IProject project = root.getProject(text);
-        if(!project.exists()){
+        if (!project.exists()) {
             return "The project selected does not exist in the workspace.";
         }
         validatedProject = project;
         return null;
     }
-    
+
     protected boolean checkError(String error) {
         if (error != null) {
             setErrorMessage(error);
@@ -699,53 +687,50 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
         return false;
     }
 
-
     private String checkValidName(String text) {
         validatedName = null;
         String error = checkNameText(text);
-        if(error != null){
+        if (error != null) {
             return error;
         }
         validatedName = text;
         return null;
     }
-    
-    
+
     protected String checkNameText(String text) {
-        if(text == null || text.trim().length() == 0 ){
+        if (text == null || text.trim().length() == 0) {
             return "The name must be filled.";
         }
-        if(shouldCreateSourceFolderSelect()){
-            if(validatedSourceFolder == null){
+        if (shouldCreateSourceFolderSelect()) {
+            if (validatedSourceFolder == null) {
                 return "The source folder was not correctly validated.";
             }
-        }else if(validatedProject == null){
+        } else if (validatedProject == null) {
             return "The project was not correctly validated.";
         }
-        if(shouldCreatePackageSelect()){
-            if(validatedPackage == null && packageText == null){
+        if (shouldCreatePackageSelect()) {
+            if (validatedPackage == null && packageText == null) {
                 return "The package was not correctly validated.";
             }
         }
-        if(text.indexOf(' ') != -1){
+        if (text.indexOf(' ') != -1) {
             return "The name may not contain spaces";
         }
-        if(shouldCreatePackageSelect()){
+        if (shouldCreatePackageSelect()) {
             //it is a new file not a new package
-            if(text.indexOf('.') != -1){
+            if (text.indexOf('.') != -1) {
                 return "The name may not contain dots";
             }
         }
         //there are certainly other invalid chars, but let's leave it like that...
-        char[] invalid = new char[]{'/', '\\', ',', '*', '(', ')', '{', '}','[',']'
-                };
-        for (char c : invalid){
-            if(text.indexOf(c) != -1){
-                return "The name must not contain '"+c+"'.";
+        char[] invalid = new char[] { '/', '\\', ',', '*', '(', ')', '{', '}', '[', ']' };
+        for (char c : invalid) {
+            if (text.indexOf(c) != -1) {
+                return "The name must not contain '" + c + "'.";
             }
         }
 
-        if(text.endsWith(".")){
+        if (text.endsWith(".")) {
             return "The name may not end with a dot";
         }
         return null;
@@ -758,37 +743,37 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
         //if(text == null || text.trim().length() == 0 ){
         //}
         String initialText = text;
-        
-        if(text.indexOf('/') != -1){
+
+        if (text.indexOf('/') != -1) {
             labelWarningImageWillCreate.setVisible(false);
             labelWarningWillCreate.setVisible(false);
             labelWarningWillCreate.getParent().layout();
             return "The package name must not contain '/'.";
         }
-        if(text.indexOf('\\') != -1){
+        if (text.indexOf('\\') != -1) {
             labelWarningImageWillCreate.setVisible(false);
             labelWarningWillCreate.setVisible(false);
             labelWarningWillCreate.getParent().layout();
             return "The package name must not contain '\\'.";
         }
-        if(text.endsWith(".")){
+        if (text.endsWith(".")) {
             labelWarningImageWillCreate.setVisible(false);
             labelWarningWillCreate.setVisible(false);
             labelWarningWillCreate.getParent().layout();
             return "The package may not end with a dot";
         }
         text = text.replace('.', '/');
-        if(validatedSourceFolder == null){
+        if (validatedSourceFolder == null) {
             labelWarningImageWillCreate.setVisible(false);
             labelWarningWillCreate.setVisible(false);
             labelWarningWillCreate.getParent().layout();
             return "The source folder was not correctly validated.";
         }
-        
+
         IPath path = validatedSourceFolder.getFullPath().append(text);
         IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
         IResource resource = root.findMember(path);
-        if(resource == null){
+        if (resource == null) {
             packageText = initialText;
             labelWarningImageWillCreate.setVisible(true);
             labelWarningWillCreate.setVisible(true);
@@ -799,11 +784,11 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
         labelWarningImageWillCreate.setVisible(false);
         labelWarningWillCreate.setVisible(false);
         labelWarningWillCreate.getParent().layout();
-        
-        if(!(resource instanceof IContainer)){
+
+        if (!(resource instanceof IContainer)) {
             return "The resource found for the package is not a valid container.";
         }
-        if(!resource.exists()){
+        if (!resource.exists()) {
             return "The package selected does not exist in the filesystem.";
         }
         validatedPackage = (IContainer) resource;
@@ -812,29 +797,29 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
 
     private String checkValidSourceFolder(String text) throws CoreException {
         validatedSourceFolder = null;
-        if(text == null || text.trim().length() == 0 ){
+        if (text == null || text.trim().length() == 0) {
             return "The source folder must be filled.";
         }
         IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
         IResource resource = root.findMember(new Path(text));
-        if(resource == null){
+        if (resource == null) {
             return "The source folder was not found in the workspace.";
         }
-        if(!(resource instanceof IContainer)){
+        if (!(resource instanceof IContainer)) {
             return "The source folder was found in the workspace but is not a container.";
         }
         IProject project = resource.getProject();
-        if(project == null){
+        if (project == null) {
             return "Unable to find the project related to the source folder.";
         }
         IPythonPathNature nature = PythonNature.getPythonPathNature(project);
-        if(nature == null){
-            return "The pydev nature is not configured on the project: "+project.getName();
+        if (nature == null) {
+            return "The pydev nature is not configured on the project: " + project.getName();
         }
         String full = resource.getFullPath().toString();
         String[] srcPaths = PythonNature.getStrAsStrItems(nature.getProjectSourcePath(true));
         for (String str : srcPaths) {
-            if(str.equals(full)){
+            if (str.equals(full)) {
                 validatedSourceFolder = (IContainer) resource;
                 return null;
             }
@@ -842,4 +827,3 @@ public abstract class AbstractPythonWizardPage extends WizardPage implements Key
         return "The selected source folder is not recognized as a valid source folder.";
     }
 }
-

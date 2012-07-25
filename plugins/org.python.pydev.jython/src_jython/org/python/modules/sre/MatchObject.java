@@ -24,7 +24,6 @@ import org.python.core.PyString;
 import org.python.core.PyTuple;
 import org.python.core.imp;
 
-
 public class MatchObject extends PyObject {
     public PyString string; /* link to the target string */
     public PyObject regs; /* cached list of matching spans */
@@ -34,27 +33,26 @@ public class MatchObject extends PyObject {
     int groups; /* number of groups (start/end marks) */
     int[] mark;
 
-    
     public PyObject expand(PyObject[] args) {
-        if(args.length == 0) {
+        if (args.length == 0) {
             throw Py.TypeError("expand() takes exactly 1 argument (0 given)");
         }
         PyObject mod = imp.importName("sre", true);
         PyObject func = mod.__getattr__("_expand");
-        return func.__call__(new PyObject[] {pattern, this, args[0]});
+        return func.__call__(new PyObject[] { pattern, this, args[0] });
     }
 
     public PyObject group(PyObject[] args) {
         switch (args.length) {
-        case 0:
-            return getslice(Py.Zero, Py.None);
-        case 1:
-            return getslice(args[0], Py.None);
-        default:
-            PyObject[] result = new PyObject[args.length];
-            for (int i = 0; i < args.length; i++)
-                result[i] = getslice(args[i], Py.None);
-            return new PyTuple(result);
+            case 0:
+                return getslice(Py.Zero, Py.None);
+            case 1:
+                return getslice(args[0], Py.None);
+            default:
+                PyObject[] result = new PyObject[args.length];
+                for (int i = 0; i < args.length; i++)
+                    result[i] = getslice(args[i], Py.None);
+                return new PyTuple(result);
         }
     }
 
@@ -62,9 +60,9 @@ public class MatchObject extends PyObject {
         ArgParser ap = new ArgParser("groups", args, kws, "default");
         PyObject def = ap.getPyObject(0, Py.None);
 
-        PyObject[] result = new PyObject[groups-1];
+        PyObject[] result = new PyObject[groups - 1];
         for (int i = 1; i < groups; i++) {
-            result[i-1] = getslice_by_index(i, def);
+            result[i - 1] = getslice_by_index(i, def);
         }
         return new PyTuple(result);
     }
@@ -98,7 +96,7 @@ public class MatchObject extends PyObject {
         if (index < 0 || index >= groups)
             throw Py.IndexError("no such group");
 
-        return Py.newInteger(mark[index*2]);
+        return Py.newInteger(mark[index * 2]);
     }
 
     public PyObject end() {
@@ -111,7 +109,7 @@ public class MatchObject extends PyObject {
         if (index < 0 || index >= groups)
             throw Py.IndexError("no such group");
 
-        return Py.newInteger(mark[index*2+1]);
+        return Py.newInteger(mark[index * 2 + 1]);
     }
 
     public PyTuple span() {
@@ -124,8 +122,8 @@ public class MatchObject extends PyObject {
         if (index < 0 || index >= groups)
             throw Py.IndexError("no such group");
 
-        int start = mark[index*2];
-        int end = mark[index*2+1];
+        int start = mark[index * 2];
+        int end = mark[index * 2 + 1];
 
         return _pair(start, end);
     }
@@ -135,17 +133,14 @@ public class MatchObject extends PyObject {
         PyObject[] regs = new PyObject[groups];
 
         for (int index = 0; index < groups; index++) {
-            regs[index] = _pair(mark[index*2], mark[index*2+1]);
+            regs[index] = _pair(mark[index * 2], mark[index * 2 + 1]);
         }
 
         return new PyTuple(regs);
     }
 
-
     PyTuple _pair(int i1, int i2) {
-        return new PyTuple(new PyObject[] {
-            Py.newInteger(i1), Py.newInteger(i2)
-        });
+        return new PyTuple(new PyObject[] { Py.newInteger(i1), Py.newInteger(i2) });
     }
 
     private PyObject getslice(PyObject index, PyObject def) {
@@ -173,7 +168,7 @@ public class MatchObject extends PyObject {
 
         index *= 2;
         int start = mark[index];
-        int end = mark[index+1];
+        int end = mark[index + 1];
 
         //System.out.println("group:" + index + " " + start + " " +
         //                   end + " l:" + string.length());
@@ -198,12 +193,12 @@ public class MatchObject extends PyObject {
             return Py.newInteger(endpos);
         if (key == "lastindex")
             return lastindex == -1 ? Py.None : Py.newInteger(lastindex);
-        if (key == "lastgroup"){
-            if(pattern.indexgroup != null && lastindex >= 0)
+        if (key == "lastgroup") {
+            if (pattern.indexgroup != null && lastindex >= 0)
                 return pattern.indexgroup.__getitem__(lastindex);
             return Py.None;
         }
-        if ( key == "regs" ){
+        if (key == "regs") {
             return regs();
         }
         return super.__findattr__(key);

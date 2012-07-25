@@ -15,15 +15,14 @@ import org.python.pydev.core.structure.FastStringBuffer;
  * 
  * @author Fabio
  */
-public class ModulesKeyForZip extends ModulesKey{
+public class ModulesKeyForZip extends ModulesKey {
 
     /**
      * 1L = just name and file
      * 2L = + zipModulePath
      */
     private static final long serialVersionUID = 2L;
-    
-    
+
     /**
      * This should be null if it's from a file in the filesystem, now, if we're dealing with a zip file,
      * the file should be the zip file and this the path under which it was found in the zip file.
@@ -33,13 +32,12 @@ public class ModulesKeyForZip extends ModulesKey{
      * - if it was from a zip file from python this is a the .py file path inside the zip file
      */
     public String zipModulePath;
-    
+
     /**
      * Determines if this module was created because it was found as a file or a folder.
      */
     public boolean isFile;
-    
-    
+
     /**
      * Creates the module key. File may be null
      */
@@ -52,11 +50,11 @@ public class ModulesKeyForZip extends ModulesKey{
     @Override
     public String toString() {
         FastStringBuffer ret = new FastStringBuffer(name, 40);
-        if(file != null){
+        if (file != null) {
             ret.append(" - ");
             ret.appendObject(file);
         }
-        if(zipModulePath != null){
+        if (zipModulePath != null) {
             ret.append(" - zip path:");
             ret.append(zipModulePath);
         }

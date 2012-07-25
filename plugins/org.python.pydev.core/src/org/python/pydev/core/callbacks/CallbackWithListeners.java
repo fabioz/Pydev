@@ -9,37 +9,37 @@ package org.python.pydev.core.callbacks;
 import org.python.pydev.core.OrderedSet;
 import org.python.pydev.core.log.Log;
 
-public class CallbackWithListeners<X> implements ICallbackWithListeners<X>{
+public class CallbackWithListeners<X> implements ICallbackWithListeners<X> {
 
-	private final OrderedSet<ICallbackListener<X>> listeners;
+    private final OrderedSet<ICallbackListener<X>> listeners;
 
-	public CallbackWithListeners() {
-	    this.listeners = new OrderedSet<ICallbackListener<X>>();
-	}
-	
-	public CallbackWithListeners(int initialCapacity) {
-		this.listeners = new OrderedSet<ICallbackListener<X>>(initialCapacity);
-	}
-	
-	public Object call(X obj) {
-		Object result = null;
-		for(ICallbackListener<X> listener:this.listeners){
-			try {
-				Object callResult = listener.call(obj);
-				if(callResult != null){
-					result = callResult;
-				}
-			} catch (Throwable e) {
-				//Should never fail!
-				Log.log(e);
-			}
-		}
-		return result;
-	}
+    public CallbackWithListeners() {
+        this.listeners = new OrderedSet<ICallbackListener<X>>();
+    }
 
-	public void registerListener(ICallbackListener<X> listener) {
-		this.listeners.add(listener);
-	}
+    public CallbackWithListeners(int initialCapacity) {
+        this.listeners = new OrderedSet<ICallbackListener<X>>(initialCapacity);
+    }
+
+    public Object call(X obj) {
+        Object result = null;
+        for (ICallbackListener<X> listener : this.listeners) {
+            try {
+                Object callResult = listener.call(obj);
+                if (callResult != null) {
+                    result = callResult;
+                }
+            } catch (Throwable e) {
+                //Should never fail!
+                Log.log(e);
+            }
+        }
+        return result;
+    }
+
+    public void registerListener(ICallbackListener<X> listener) {
+        this.listeners.add(listener);
+    }
 
     public void unregisterListener(ICallbackListener<X> listener) {
         this.listeners.remove(listener);

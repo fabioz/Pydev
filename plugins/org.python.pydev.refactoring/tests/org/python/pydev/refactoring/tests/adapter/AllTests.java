@@ -8,16 +8,17 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 public final class AllTests {
-	private AllTests() { }
-	
-	public static Test suite() {
-		TestSuite suite = new TestSuite("Adapter tests");
-		// $JUnit-BEGIN$
-		suite.addTest(ClassDefAdapterTestSuite.suite());
-		suite.addTest(FunctionDefAdapterTestSuite.suite());
-		suite.addTest(ModuleAdapterTestSuite.suite());
-		// $JUnit-END$
-		return suite;
-	}
+    private AllTests() {
+    }
+
+    public static Test suite() {
+        TestSuite suite = new TestSuite("Adapter tests");
+        // $JUnit-BEGIN$
+        suite.addTest(ClassDefAdapterTestSuite.suite());
+        suite.addTest(FunctionDefAdapterTestSuite.suite());
+        suite.addTest(ModuleAdapterTestSuite.suite());
+        // $JUnit-END$
+        return suite;
+    }
 
 }

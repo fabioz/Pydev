@@ -26,9 +26,9 @@ public class Location {
     public int line;
     public int column;
 
-    static Location MIN_LOCATION = new Location(0,0);
+    static Location MIN_LOCATION = new Location(0, 0);
     static Location MAX_LOCATION = new Location(Integer.MAX_VALUE, Integer.MAX_VALUE);
-    
+
     public Location() {
         line = column = 0;
     }
@@ -37,7 +37,7 @@ public class Location {
         this.line = line;
         this.column = column;
     }
-    
+
     /**
      * Conversion to document coordinates.
      */
@@ -50,14 +50,14 @@ public class Location {
      */
     public boolean contained(Location start, Location end) {
         boolean startOk = (line > start.line || line == start.line && column >= start.column);
-        boolean endOk = startOk ? (line < end.line || line == end.line && column <= end.column): false;
+        boolean endOk = startOk ? (line < end.line || line == end.line && column <= end.column) : false;
         return startOk && endOk;
     }
-    
+
     public String toString() {
         return "L:" + Integer.toString(line) + " C:" + Integer.toString(column);
     }
-    
+
     /**
      * standard compare
      * @return 1 means I win, -1 means argument wins, 0 means equal
@@ -73,21 +73,21 @@ public class Location {
             return -1;
         return 0;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof Location)){
+        if (!(obj instanceof Location)) {
             return false;
         }
         Location l = (Location) obj;
         return l.line == line && l.column == column;
     }
-    
+
     @Override
     public int hashCode() {
         return (line * 99) + (column * 5);
     }
-    
+
     /**
      * Utility: Converts document's offset to Location
      * @return Location

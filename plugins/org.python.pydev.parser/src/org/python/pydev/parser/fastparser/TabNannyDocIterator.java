@@ -14,7 +14,6 @@ import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 
-
 /**
  * Class to help iterating through the document's indentation strings.
  * 
@@ -23,13 +22,13 @@ import org.python.pydev.core.structure.FastStringBuffer;
  * the indentations within literals, [, (, {, after \ are not considered 
  * (only the ones actually considered indentations are yielded through).
  */
-public class TabNannyDocIterator{
-    
+public class TabNannyDocIterator {
+
     //Mutable on iteration.
     private int offset;
     private Tuple3<String, Integer, Boolean> nextString;
     private boolean firstPass = true;
-    
+
     //Final fields.
     private final ParsingUtils parsingUtils;
     private final FastStringBuffer tempBuf = new FastStringBuffer();
@@ -37,12 +36,12 @@ public class TabNannyDocIterator{
     private final boolean yieldOnLinesWithoutContents;
     private final IDocument doc;
 
-    
-    public TabNannyDocIterator(IDocument doc) throws BadLocationException{
+    public TabNannyDocIterator(IDocument doc) throws BadLocationException {
         this(doc, false, true);
     }
-    
-    public TabNannyDocIterator(IDocument doc, boolean yieldEmptyIndents, boolean yieldOnLinesWithoutContents) throws BadLocationException{
+
+    public TabNannyDocIterator(IDocument doc, boolean yieldEmptyIndents, boolean yieldOnLinesWithoutContents)
+            throws BadLocationException {
         parsingUtils = ParsingUtils.create(doc, true);
         this.doc = doc;
         this.yieldEmptyIndents = yieldEmptyIndents;
@@ -59,17 +58,17 @@ public class TabNannyDocIterator{
      * has more than only whitespaces (i.e.: there are contents in the line).
      */
     public Tuple3<String, Integer, Boolean> next() throws BadLocationException {
-        if(!hasNext()){
+        if (!hasNext()) {
             throw new RuntimeException("Cannot iterate anymore.");
         }
-        
+
         Tuple3<String, Integer, Boolean> ret = nextString;
         buildNext(false);
         return ret;
     }
-    
+
     private void buildNext(boolean first) throws BadLocationException {
-        while(!internalBuildNext()){
+        while (!internalBuildNext()) {
             //just keep doing it... -- lot's of nothing ;-)
         }
     }
@@ -79,58 +78,65 @@ public class TabNannyDocIterator{
             //System.out.println("buildNext");
             char c = '\0';
 
-            int initial = -1; 
-            while(true){
-                
+            int initial = -1;
+            while (true) {
+
                 //safeguard... it must walk a bit every time...
-                if(initial == -1){
+                if (initial == -1) {
                     initial = offset;
-                }else{
-                    if(initial == offset){
+                } else {
+                    if (initial == offset) {
                         Log.log("Error: TabNannyDocIterator didn't walk.\n" +
-                                "Curr char:"+c+"\n" +
-                                "Curr char (as int):"+(int)c+"\n" +
-                                "Offset:"+offset+"\n" +
-                                "DocLen:"+doc.getLength()+"\n"
-                                );
+                                "Curr char:" +
+                                c +
+                                "\n" +
+                                "Curr char (as int):" +
+                                (int) c +
+                                "\n" +
+                                "Offset:" +
+                                offset +
+                                "\n" +
+                                "DocLen:" +
+                                doc.getLength() +
+                                "\n");
                         offset++;
                         return true;
-                    }else{
+                    } else {
                         initial = offset;
                     }
                 }
-                
+
                 //keep in this loop until we finish the document or until we're able to find some indent string...
-                if(offset >= doc.getLength()){
+                if (offset >= doc.getLength()) {
                     nextString = null;
                     return true;
                 }
                 c = doc.getChar(offset);
-                
-                
-                if (firstPass){
+
+                if (firstPass) {
                     //that could happen if we have comments in the 1st line...
                     firstPass = false;
-                    if((c == ' ' || c == '\t')){
+                    if ((c == ' ' || c == '\t')) {
                         break;
-                    }else{
-                        if(yieldEmptyIndents){
-                            nextString = new Tuple3<String, Integer, Boolean>(tempBuf.toString(), offset, c != '\r' && c != '\n');
-                            if(!yieldOnLinesWithoutContents){
-                                if(!nextString.o3){
+                    } else {
+                        if (yieldEmptyIndents) {
+                            nextString = new Tuple3<String, Integer, Boolean>(tempBuf.toString(), offset, c != '\r'
+                                    && c != '\n');
+                            if (!yieldOnLinesWithoutContents) {
+                                if (!nextString.o3) {
                                     return false;
                                 }
                             }
                             return true;
                         }
                     }
-                    
+
                 }
-                
-                if (c == '#'){ 
+
+                if (c == '#') {
                     //comment (doesn't consider the escape char)
                     offset = parsingUtils.eatComments(null, offset);
-                    
+
                 } else if (c == '{' || c == '[' || c == '(') {
                     //starting some call, dict, list, tuple... we're at the same indentation until it is finished
                     try {
@@ -139,44 +145,54 @@ public class TabNannyDocIterator{
                         //Ignore unbalanced parens.
                         offset++;
                     }
-    
-                    
-                } else if (c == '\r'){
+
+                } else if (c == '\r') {
                     //line end (time for a break to see if we have some indentation just after it...)
-                    if(!continueAfterIncreaseOffset()){return true;}
+                    if (!continueAfterIncreaseOffset()) {
+                        return true;
+                    }
                     c = doc.getChar(offset);
-                    if(c == '\n'){
-                        if(!continueAfterIncreaseOffset()){return true;}
+                    if (c == '\n') {
+                        if (!continueAfterIncreaseOffset()) {
+                            return true;
+                        }
                     }
                     break;
-                    
-                    
-                } else if (c == '\n'){
+
+                } else if (c == '\n') {
                     //line end (time for a break to see if we have some indentation just after it...)
-                    if(!continueAfterIncreaseOffset()){return  true;}
+                    if (!continueAfterIncreaseOffset()) {
+                        return true;
+                    }
                     break;
-                    
+
                 } else if (c == '\\') {
                     //escape char found... if it's the last in the line, we don't have a break (we're still in the same line)
                     boolean lastLineChar = false;
-                    
-                    if(!continueAfterIncreaseOffset()){return true;}
-                    
+
+                    if (!continueAfterIncreaseOffset()) {
+                        return true;
+                    }
+
                     c = doc.getChar(offset);
-                    if(c == '\r'){
-                        if(!continueAfterIncreaseOffset()){return true;}
+                    if (c == '\r') {
+                        if (!continueAfterIncreaseOffset()) {
+                            return true;
+                        }
                         c = doc.getChar(offset);
                         lastLineChar = true;
                     }
-                    
-                    if(c == '\n'){
-                        if(!continueAfterIncreaseOffset()){return true;}
+
+                    if (c == '\n') {
+                        if (!continueAfterIncreaseOffset()) {
+                            return true;
+                        }
                         lastLineChar = true;
                     }
-                    if(!lastLineChar){
+                    if (!lastLineChar) {
                         break;
                     }
-                    
+
                 } else if (c == '\'' || c == '\"') {
                     //literal found... skip to the end of the literal
                     try {
@@ -185,56 +201,58 @@ public class TabNannyDocIterator{
                         //Ignore unbalanced string
                         offset++;
                     }
-                    
+
                 } else {
                     // ok, a char is found... go to the end of the line and gather
                     // the spaces to return
-                    if(!continueAfterIncreaseOffset()){return true;}
+                    if (!continueAfterIncreaseOffset()) {
+                        return true;
+                    }
                 }
 
             }
-            
-            if(offset < doc.getLength()){
+
+            if (offset < doc.getLength()) {
                 c = doc.getChar(offset);
-            }else{
+            } else {
                 nextString = null;
                 return true;
             }
-            
+
             //ok, if we got here, we're in a position to get the indentation string as spaces and tabs...
             tempBuf.clear();
             int startingOffset = offset;
             while (c == ' ' || c == '\t') {
                 tempBuf.append(c);
                 offset++;
-                if(offset >= doc.getLength()){
+                if (offset >= doc.getLength()) {
                     break;
                 }
                 c = doc.getChar(offset);
             }
             //true if we are in a line that has more contents than only the whitespaces/tabs
-            nextString = new Tuple3<String, Integer, Boolean>(tempBuf.toString(), startingOffset, c != '\r' && c != '\n');
-            
-            if(!yieldOnLinesWithoutContents){
-                if(!nextString.o3){
+            nextString = new Tuple3<String, Integer, Boolean>(tempBuf.toString(), startingOffset, c != '\r'
+                    && c != '\n');
+
+            if (!yieldOnLinesWithoutContents) {
+                if (!nextString.o3) {
                     return false;
                 }
             }
             //now, if we didn't have any indentation, try to make another build
-            if(nextString.o1.length() == 0){
-                if(yieldEmptyIndents){
+            if (nextString.o1.length() == 0) {
+                if (yieldEmptyIndents) {
                     return true;
                 }
                 return false;
             }
-            
-            
+
         } catch (RuntimeException e) {
-            if(e.getCause() instanceof BadLocationException){
-                throw (BadLocationException)e.getCause();
+            if (e.getCause() instanceof BadLocationException) {
+                throw (BadLocationException) e.getCause();
             }
             throw e;
-            
+
         }
         return true;
     }
@@ -246,13 +264,13 @@ public class TabNannyDocIterator{
     private boolean continueAfterIncreaseOffset() {
         offset++;
         boolean ret = true;
-        if(offset >= doc.getLength()){
+        if (offset >= doc.getLength()) {
             nextString = null;
             ret = false;
         }
         return ret;
     }
-    
+
     public void remove() {
         throw new RuntimeException("Not implemented");
     }

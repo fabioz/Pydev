@@ -11,17 +11,17 @@ package org.python.pydev.dltk.console.codegen;
  */
 public interface IScriptConsoleCodeGenerator {
 
-	/**
-	 * Return a snippet of Python that represents this object.
-	 * @return Python code or null if no suitable code snippet can be created
-	 */
-	public String getPyCode();
+    /**
+     * Return a snippet of Python that represents this object.
+     * @return Python code or null if no suitable code snippet can be created
+     */
+    public String getPyCode();
 
-	/**
-	 * Return whether getPyCode has contents. This method should be fast as
-	 * it may be called multiple times during a single drag and drop.
-	 * 
-	 * @return whether or not Python code is available from getPyCode. 
-	 */
-	public boolean hasPyCode();
+    /**
+     * Return whether getPyCode has contents. This method should be fast as
+     * it may be called multiple times during a single drag and drop.
+     * 
+     * @return whether or not Python code is available from getPyCode. 
+     */
+    public boolean hasPyCode();
 }

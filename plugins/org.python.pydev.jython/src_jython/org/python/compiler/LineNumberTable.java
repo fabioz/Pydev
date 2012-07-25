@@ -23,7 +23,7 @@ public class LineNumberTable extends Attribute {
         stream.writeShort(n / 2);
         for (int i = 0; i < n; i += 2) {
             Short startpc = (Short) lines.elementAt(i);
-            Short lineno =  (Short) lines.elementAt(i+1);
+            Short lineno = (Short) lines.elementAt(i + 1);
             stream.writeShort(startpc.shortValue());
             stream.writeShort(lineno.shortValue());
         }
@@ -38,4 +38,3 @@ public class LineNumberTable extends Attribute {
         return lines.size() * 2 + 8;
     }
 }
-

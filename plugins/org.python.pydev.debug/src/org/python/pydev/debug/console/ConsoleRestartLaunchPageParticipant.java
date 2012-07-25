@@ -33,37 +33,36 @@ public class ConsoleRestartLaunchPageParticipant implements IConsolePageParticip
     private ProcessConsole fConsole;
 
     public void init(IPageBookViewPage page, IConsole console) {
-        if(!(console instanceof ProcessConsole)){
+        if (!(console instanceof ProcessConsole)) {
             return;
         }
         ProcessConsole processConsole = (ProcessConsole) console;
         IProcess process = processConsole.getProcess();
-        if(process == null){
+        if (process == null) {
             return;
         }
         String attribute = process.getAttribute(Constants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR);
-        if(!Constants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR_TRUE.equals(attribute)){
+        if (!Constants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR_TRUE.equals(attribute)) {
             //Only provide relaunch if specified
             return;
         }
         this.fConsole = processConsole;
         DebugPlugin.getDefault().addDebugEventListener(this);
-        
+
         IActionBars bars = page.getSite().getActionBars();
 
         IToolBarManager toolbarManager = bars.getToolBarManager();
 
-
         restartLaunchAction = new RestartLaunchAction(page, processConsole);
         terminateAllLaunchesAction = new TerminateAllLaunchesAction();
-        
+
         toolbarManager.appendToGroup(IConsoleConstants.LAUNCH_GROUP, restartLaunchAction);
         toolbarManager.appendToGroup(IConsoleConstants.LAUNCH_GROUP, terminateAllLaunchesAction);
 
         bars.updateActionBars();
 
     }
-    
+
     /* (non-Javadoc)
      * @see org.eclipse.debug.core.IDebugEventSetListener#handleDebugEvents(org.eclipse.debug.core.DebugEvent[])
      */
@@ -81,12 +80,12 @@ public class ConsoleRestartLaunchPageParticipant implements IConsolePageParticip
                         }
                     }
                 };
-                
-                DebugUIPlugin.getStandardDisplay().asyncExec(r);           
+
+                DebugUIPlugin.getStandardDisplay().asyncExec(r);
             }
         }
     }
-    
+
     protected IProcess getProcess() {
         return fConsole != null ? fConsole.getProcess() : null;
     }
@@ -97,11 +96,11 @@ public class ConsoleRestartLaunchPageParticipant implements IConsolePageParticip
 
     public void dispose() {
         DebugPlugin.getDefault().removeDebugEventListener(this);
-        if(restartLaunchAction != null){
+        if (restartLaunchAction != null) {
             restartLaunchAction.dispose();
             restartLaunchAction = null;
         }
-        if(terminateAllLaunchesAction != null){
+        if (terminateAllLaunchesAction != null) {
             terminateAllLaunchesAction.dispose();
             terminateAllLaunchesAction = null;
         }

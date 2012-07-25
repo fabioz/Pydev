@@ -23,7 +23,7 @@ import com.python.pydev.debug.remote.RemoteDebuggerServer;
  * The stdout and stderr are 'MyPipedInputStream' objects so that we can write to it and get
  * clients listening to them to hear it.
  */
-public class ProcessServer extends Process{
+public class ProcessServer extends Process {
 
     private MyPipedInputStream inputStream;
     private MyPipedInputStream errorStream;
@@ -32,7 +32,7 @@ public class ProcessServer extends Process{
 
     public ProcessServer() {
         super();
-        try{
+        try {
 
             inputStream = new MyPipedInputStream();
             inputStream.write(StringUtils.format("Debug Server at port: %s\r\n",
@@ -41,30 +41,30 @@ public class ProcessServer extends Process{
             outputStream = new ProcessServerOutputStream();
 
             lock = new Object();
-        }catch(Exception e){
+        } catch (Exception e) {
             Log.log(e);
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public OutputStream getOutputStream(){
+    public OutputStream getOutputStream() {
         return outputStream;
     }
 
     @Override
-    public InputStream getInputStream(){
+    public InputStream getInputStream() {
         return inputStream;
     }
 
     @Override
-    public InputStream getErrorStream(){
+    public InputStream getErrorStream() {
         return errorStream;
     }
 
     @Override
-    public int waitFor() throws InterruptedException{
-        synchronized(lock){
+    public int waitFor() throws InterruptedException {
+        synchronized (lock) {
             lock.wait();
         }
 
@@ -72,43 +72,43 @@ public class ProcessServer extends Process{
     }
 
     @Override
-    public int exitValue(){
+    public int exitValue() {
         throw new IllegalThreadStateException();
     }
 
     @Override
-    public void destroy(){
-        synchronized(lock){
+    public void destroy() {
+        synchronized (lock) {
             lock.notify();
         }
 
         //Let it manage if it was already disposed or not.
         RemoteDebuggerServer.getInstance().dispose();
-        
-        try{
-            if(outputStream != null){
+
+        try {
+            if (outputStream != null) {
                 outputStream.close();
                 outputStream = null;
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             Log.log(e);
         }
 
-        try{
-            if(inputStream != null){
+        try {
+            if (inputStream != null) {
                 inputStream.close();
                 inputStream = null;
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             Log.log(e);
         }
 
-        try{
-            if(errorStream != null){
+        try {
+            if (errorStream != null) {
                 errorStream.close();
                 errorStream = null;
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             Log.log(e);
         }
     }
@@ -116,13 +116,13 @@ public class ProcessServer extends Process{
     /**
      * Print something to the stdout in the server console
      */
-    public void writeToStdOut(String str){
-        try{
+    public void writeToStdOut(String str) {
+        try {
             MyPipedInputStream p = inputStream;
-            if(p != null){
+            if (p != null) {
                 p.write(str.getBytes());
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             Log.log(e);
         }
     }
@@ -130,13 +130,13 @@ public class ProcessServer extends Process{
     /**
      * Print something to the stdout in the server console
      */
-    public void writeToStdErr(String str){
-        try{
+    public void writeToStdErr(String str) {
+        try {
             MyPipedInputStream p = errorStream;
-            if(p != null){
+            if (p != null) {
                 p.write(str.getBytes());
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             Log.log(e);
         }
     }

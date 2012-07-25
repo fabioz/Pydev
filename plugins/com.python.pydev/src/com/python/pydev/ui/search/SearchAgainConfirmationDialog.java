@@ -31,10 +31,9 @@ public class SearchAgainConfirmationDialog extends Dialog {
     private List fOutOfSync;
     private List fOutOfDate;
     private ILabelProvider fLabelProvider;
-    
+
     private class ProxyLabelProvider extends LabelProvider {
-        
-        
+
         /* (non-Javadoc)
          * @see org.eclipse.jface.viewers.ILabelProvider#getImage(java.lang.Object)
          */
@@ -43,7 +42,7 @@ public class SearchAgainConfirmationDialog extends Dialog {
                 return fLabelProvider.getImage(element);
             return null;
         }
-        
+
         /* (non-Javadoc)
          * @see org.eclipse.jface.viewers.ILabelProvider#getText(java.lang.Object)
          */
@@ -52,60 +51,60 @@ public class SearchAgainConfirmationDialog extends Dialog {
                 return fLabelProvider.getText(element);
             return null;
         }
-        
+
     }
-    
+
     public SearchAgainConfirmationDialog(Shell shell, ILabelProvider labelProvider, List outOfSync, List outOfDate) {
         super(shell);
-        fOutOfSync= outOfSync;
-        fOutOfDate= outOfDate;
-        fLabelProvider= labelProvider;
+        fOutOfSync = outOfSync;
+        fOutOfDate = outOfDate;
+        fLabelProvider = labelProvider;
         setShellStyle(getShellStyle() | SWT.RESIZE);
     }
-    
+
     /* (non-Javadoc)
      * @see org.eclipse.jface.dialogs.Dialog#createDialogArea(org.eclipse.swt.widgets.Composite)
      */
     protected Control createDialogArea(Composite parent) {
-        Composite result= (Composite) super.createDialogArea(parent);
-        
+        Composite result = (Composite) super.createDialogArea(parent);
+
         if (fOutOfSync.size() > 0) {
-            createLabel(result, SearchMessages.SearchAgainConfirmationDialog_outofsync_message); 
-            
-            createLabel(result, SearchMessages.SearchAgainConfirmationDialog_outofsync_label); 
+            createLabel(result, SearchMessages.SearchAgainConfirmationDialog_outofsync_message);
+
+            createLabel(result, SearchMessages.SearchAgainConfirmationDialog_outofsync_label);
             createTableViewer(fOutOfSync, result);
         } else {
-            createLabel(result, SearchMessages.SearchAgainConfirmationDialog_stale_message); 
+            createLabel(result, SearchMessages.SearchAgainConfirmationDialog_stale_message);
         }
-        
-        createLabel(result, SearchMessages.SearchAgainConfirmationDialog_stale_label); 
+
+        createLabel(result, SearchMessages.SearchAgainConfirmationDialog_stale_label);
         createTableViewer(fOutOfDate, result);
         return result;
     }
-    
+
     private void createLabel(Composite parent, String text) {
-        Label message= new Label(parent, SWT.WRAP);
-        GridData gd= new GridData(GridData.FILL_HORIZONTAL);
-        gd.widthHint= convertWidthInCharsToPixels(70);
+        Label message = new Label(parent, SWT.WRAP);
+        GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+        gd.widthHint = convertWidthInCharsToPixels(70);
         message.setLayoutData(gd);
         message.setText(text);
     }
-    
+
     private TableViewer createTableViewer(List input, Composite result) {
-        TableViewer viewer= new TableViewer(result);
+        TableViewer viewer = new TableViewer(result);
         viewer.setContentProvider(new ArrayContentProvider());
         viewer.setLabelProvider(new ProxyLabelProvider());
         viewer.setInput(input);
-        GridData gd= new GridData(GridData.FILL_BOTH);
-        gd.widthHint= convertWidthInCharsToPixels(70);
-        gd.heightHint= convertHeightInCharsToPixels(5);
+        GridData gd = new GridData(GridData.FILL_BOTH);
+        gd.widthHint = convertWidthInCharsToPixels(70);
+        gd.heightHint = convertHeightInCharsToPixels(5);
         viewer.getControl().setLayoutData(gd);
         return viewer;
     }
-    
+
     protected void configureShell(Shell shell) {
         super.configureShell(shell);
-        shell.setText(SearchMessages.SearchAgainConfirmationDialog_title); 
+        shell.setText(SearchMessages.SearchAgainConfirmationDialog_title);
     }
-    
+
 }

@@ -47,28 +47,24 @@ public class GetVariableCommand extends AbstractDebuggerCommand {
             this.payload = payload;
         else {
             isError = true;
-            PydevDebugPlugin.log(IStatus.ERROR, "Unexpected response to "+this.getClass(), null);
+            PydevDebugPlugin.log(IStatus.ERROR, "Unexpected response to " + this.getClass(), null);
         }
     }
 
     protected int getCommandId() {
         return CMD_GET_VARIABLE;
     }
-    
+
     public void processErrorResponse(int cmdCode, String payload) {
         responseCode = cmdCode;
         this.payload = payload;
         isError = true;
     }
-        
+
     public String getResponse() throws CoreException {
-        if (isError) 
-            throw new CoreException(
-                            PydevDebugPlugin.makeStatus(IStatus.ERROR,
-                            "pydevd error:" + payload , 
-                             null));
+        if (isError)
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "pydevd error:" + payload, null));
         else
             return payload;
     }
 }
-

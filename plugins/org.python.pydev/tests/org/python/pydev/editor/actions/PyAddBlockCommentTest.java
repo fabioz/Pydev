@@ -13,70 +13,71 @@ import junit.framework.TestCase;
 
 public class PyAddBlockCommentTest extends TestCase {
 
-
-    
     public void testBlock() throws Exception {
         Document doc = null;
-        
+
         doc = new Document("cc");
-        new PyAddBlockComment(10, true, true, true).perform(new PySelection(doc, 0,0,0));
+        new PyAddBlockComment(10, true, true, true).perform(new PySelection(doc, 0, 0, 0));
         PySelectionTest.checkStrEquals("" +
                 "#---------\r\n" +
                 "# cc\r\n" +
                 "#---------", doc.get());
-        
+
         doc = new Document("\t cc");
-        new PyAddBlockComment(10, true, true, true).perform(new PySelection(doc, 0,0,0));
+        new PyAddBlockComment(10, true, true, true).perform(new PySelection(doc, 0, 0, 0));
         PySelectionTest.checkStrEquals("" +
                 "\t #----\r\n" +
                 "\t # cc\r\n" +
                 "\t #----", doc.get());
-        
+
         doc = new Document("class Foo(object):");
-        new PyAddBlockComment(10, true, true, true).perform(new PySelection(doc, 0,0,0));
+        new PyAddBlockComment(10, true, true, true).perform(new PySelection(doc, 0, 0, 0));
         PySelectionTest.checkStrEquals("" +
                 "#---------\r\n" +
                 "# Foo\r\n" +
                 "#---------\r\n" +
-                "class Foo(object):", doc.get());
-        
-        
+                "class Foo(object):",
+                doc.get());
+
         doc = new Document("class Information( UserDict.UserDict, IInformation ):");
-        new PyAddBlockComment(10, true, true, true).perform(new PySelection(doc, 0,0,0));
+        new PyAddBlockComment(10, true, true, true).perform(new PySelection(doc, 0, 0, 0));
         PySelectionTest.checkStrEquals("" +
                 "#---------\r\n" +
                 "# Information\r\n" +
-                "#---------\r\n" +
+                "#---------\r\n"
+                +
                 "class Information( UserDict.UserDict, IInformation ):", doc.get());
-        
+
         doc = new Document("def Information( (UserDict, IInformation) ):");
-        new PyAddBlockComment(10, true, true, true).perform(new PySelection(doc, 0,0,0));
+        new PyAddBlockComment(10, true, true, true).perform(new PySelection(doc, 0, 0, 0));
         PySelectionTest.checkStrEquals("" +
                 "#---------\r\n" +
                 "# Information\r\n" +
-                "#---------\r\n" +
+                "#---------\r\n"
+                +
                 "def Information( (UserDict, IInformation) ):", doc.get());
-        
+
         //without class behavior
         doc = new Document("class Foo(object):");
-        new PyAddBlockComment(10, true, false, true).perform(new PySelection(doc, 0,0,0));
+        new PyAddBlockComment(10, true, false, true).perform(new PySelection(doc, 0, 0, 0));
         PySelectionTest.checkStrEquals("" +
                 "#---------\r\n" +
                 "# class Foo(object):\r\n" +
                 "#---------" +
-                "", doc.get());
-        
+                "",
+                doc.get());
+
         //aligned class
         doc = new Document("    class Foo(object):");
-        new PyAddBlockComment(10, true, true, true).perform(new PySelection(doc, 0,0,0));
+        new PyAddBlockComment(10, true, true, true).perform(new PySelection(doc, 0, 0, 0));
         PySelectionTest.checkStrEquals("" +
                 "    #-----\r\n" +
                 "    # Foo\r\n" +
-                "    #-----\r\n" +
+                "    #-----\r\n"
+                +
                 "    class Foo(object):" +
                 "", doc.get());
-        
-        
+
     }
-    
+
 }

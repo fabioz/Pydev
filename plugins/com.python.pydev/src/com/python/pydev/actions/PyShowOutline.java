@@ -8,18 +8,18 @@
  * Created on Jan 15, 2006
  */
 package com.python.pydev.actions;
+
 import org.eclipse.jface.action.IAction;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.ui.dialogs.TreeSelectionDialog;
 
-
-public class PyShowOutline extends PyAction{
+public class PyShowOutline extends PyAction {
 
     public void run(IAction action) {
-        
+
         PyEdit pyEdit = getPyEdit();
-        
+
         TreeSelectionDialog dialog = new PyOutlineSelectionDialog(PyAction.getShell(), pyEdit);
 
         dialog.open(); //The dialog will take care of everything.

@@ -32,10 +32,8 @@ import java.util.SortedSet;
  * @param <K>
  * @param <V>
  */
-public final class PyPublicTreeMap<K,V>
-    extends AbstractMap<K,V>
-    implements SortedMap<K,V>, Cloneable, java.io.Serializable
-{
+public final class PyPublicTreeMap<K, V> extends AbstractMap<K, V> implements SortedMap<K, V>, Cloneable,
+        java.io.Serializable {
     /**
      * The Comparator used to maintain order in this TreeMap, or
      * null if this TreeMap uses its elements natural ordering.
@@ -44,7 +42,7 @@ public final class PyPublicTreeMap<K,V>
      */
     private Comparator<? super K> comparator = null;
 
-    private transient Entry<K,V> root = null;
+    private transient Entry<K, V> root = null;
 
     /**
      * The number of entries in the tree
@@ -56,8 +54,15 @@ public final class PyPublicTreeMap<K,V>
      */
     private transient int modCount = 0;
 
-    private void incrementSize()   { modCount++; size++; }
-    private void decrementSize()   { modCount++; size--; }
+    private void incrementSize() {
+        modCount++;
+        size++;
+    }
+
+    private void decrementSize() {
+        modCount++;
+        size--;
+    }
 
     /**
      * Constructs a new, empty map, sorted according to the keys' natural
@@ -128,7 +133,6 @@ public final class PyPublicTreeMap<K,V>
         }
     }
 
-
     // Query Operations
 
     /**
@@ -172,9 +176,7 @@ public final class PyPublicTreeMap<K,V>
      * @since 1.2
      */
     public boolean containsValue(Object value) {
-        return (root==null ? false :
-                (value==null ? valueSearchNull(root)
-                             : valueSearchNonNull(root, value)));
+        return (root == null ? false : (value == null ? valueSearchNull(root) : valueSearchNonNull(root, value)));
     }
 
     private boolean valueSearchNull(Entry n) {
@@ -182,8 +184,7 @@ public final class PyPublicTreeMap<K,V>
             return true;
 
         // Check left and right subtrees for value
-        return (n.left  != null && valueSearchNull(n.left)) ||
-               (n.right != null && valueSearchNull(n.right));
+        return (n.left != null && valueSearchNull(n.left)) || (n.right != null && valueSearchNull(n.right));
     }
 
     private boolean valueSearchNonNull(Entry n, Object value) {
@@ -192,8 +193,8 @@ public final class PyPublicTreeMap<K,V>
             return true;
 
         // Check left and right subtrees for value
-        return (n.left  != null && valueSearchNonNull(n.left, value)) ||
-               (n.right != null && valueSearchNonNull(n.right, value));
+        return (n.left != null && valueSearchNonNull(n.left, value))
+                || (n.right != null && valueSearchNonNull(n.right, value));
     }
 
     /**
@@ -216,8 +217,8 @@ public final class PyPublicTreeMap<K,V>
      * @see #containsKey(Object)
      */
     public V get(Object key) {
-        Entry<K,V> p = getEntry(key);
-        return (p==null ? null : p.value);
+        Entry<K, V> p = getEntry(key);
+        return (p == null ? null : p.value);
     }
 
     /**
@@ -266,17 +267,16 @@ public final class PyPublicTreeMap<K,V>
      */
     public void putAll(Map<? extends K, ? extends V> map) {
         int mapSize = map.size();
-        if (size==0 && mapSize!=0 && map instanceof SortedMap) {
-            Comparator c = ((SortedMap)map).comparator();
+        if (size == 0 && mapSize != 0 && map instanceof SortedMap) {
+            Comparator c = ((SortedMap) map).comparator();
             if (c == comparator || (c != null && c.equals(comparator))) {
-        ++modCount;
-        try {
-            buildFromSorted(mapSize, map.entrySet().iterator(),
-                    null, null);
-        } catch (java.io.IOException cannotHappen) {
-        } catch (ClassNotFoundException cannotHappen) {
-        }
-        return;
+                ++modCount;
+                try {
+                    buildFromSorted(mapSize, map.entrySet().iterator(), null, null);
+                } catch (java.io.IOException cannotHappen) {
+                } catch (ClassNotFoundException cannotHappen) {
+                }
+                return;
             }
         }
         super.putAll(map);
@@ -294,9 +294,9 @@ public final class PyPublicTreeMap<K,V>
      *                  natural order, or its comparator does not tolerate *
      *                  <tt>null</tt> keys.
      */
-    public Entry<K,V> getEntry(Object key) {
-        Entry<K,V> p = root;
-    K k = (K) key;
+    public Entry<K, V> getEntry(Object key) {
+        Entry<K, V> p = root;
+        K k = (K) key;
         while (p != null) {
             int cmp = compare(k, p.key);
             if (cmp == 0)
@@ -315,9 +315,9 @@ public final class PyPublicTreeMap<K,V>
      * key; if no such entry exists (i.e., the greatest key in the Tree is less
      * than the specified key), returns <tt>null</tt>.
      */
-    private Entry<K,V> getCeilEntry(K key) {
-        Entry<K,V> p = root;
-        if (p==null)
+    private Entry<K, V> getCeilEntry(K key) {
+        Entry<K, V> p = root;
+        if (p == null)
             return null;
 
         while (true) {
@@ -333,8 +333,8 @@ public final class PyPublicTreeMap<K,V>
                 if (p.right != null) {
                     p = p.right;
                 } else {
-                    Entry<K,V> parent = p.parent;
-                    Entry<K,V> ch = p;
+                    Entry<K, V> parent = p.parent;
+                    Entry<K, V> ch = p;
                     while (parent != null && ch == parent.right) {
                         ch = parent;
                         parent = parent.parent;
@@ -350,9 +350,9 @@ public final class PyPublicTreeMap<K,V>
      * no such entry exists (i.e., the least key in the Tree is greater than
      * the specified key), returns <tt>null</tt>.
      */
-    private Entry<K,V> getPrecedingEntry(K key) {
-        Entry<K,V> p = root;
-        if (p==null)
+    private Entry<K, V> getPrecedingEntry(K key) {
+        Entry<K, V> p = root;
+        if (p == null)
             return null;
 
         while (true) {
@@ -366,8 +366,8 @@ public final class PyPublicTreeMap<K,V>
                 if (p.left != null) {
                     p = p.left;
                 } else {
-                    Entry<K,V> parent = p.parent;
-                    Entry<K,V> ch = p;
+                    Entry<K, V> parent = p.parent;
+                    Entry<K, V> ch = p;
                     while (parent != null && ch == parent.left) {
                         ch = parent;
                         parent = parent.parent;
@@ -382,8 +382,8 @@ public final class PyPublicTreeMap<K,V>
      * Returns the key corresponding to the specified Entry.  Throw
      * NoSuchElementException if the Entry is <tt>null</tt>.
      */
-    private static <K> K key(Entry<K,?> e) {
-        if (e==null)
+    private static <K> K key(Entry<K, ?> e) {
+        if (e == null)
             throw new NoSuchElementException();
         return e.key;
     }
@@ -407,13 +407,13 @@ public final class PyPublicTreeMap<K,V>
      *         <tt>null</tt> keys.
      */
     public V put(K key, V value) {
-        Entry<K,V> t = root;
+        Entry<K, V> t = root;
 
         if (t == null) {
             incrementSize();
-            root = new Entry<K,V>(key, value, null);
+            root = new Entry<K, V>(key, value, null);
             return null;
-       }
+        }
 
         while (true) {
             int cmp = compare(key, t.key);
@@ -424,7 +424,7 @@ public final class PyPublicTreeMap<K,V>
                     t = t.left;
                 } else {
                     incrementSize();
-                    t.left = new Entry<K,V>(key, value, t);
+                    t.left = new Entry<K, V>(key, value, t);
                     fixAfterInsertion(t.left);
                     return null;
                 }
@@ -433,7 +433,7 @@ public final class PyPublicTreeMap<K,V>
                     t = t.right;
                 } else {
                     incrementSize();
-                    t.right = new Entry<K,V>(key, value, t);
+                    t.right = new Entry<K, V>(key, value, t);
                     fixAfterInsertion(t.right);
                     return null;
                 }
@@ -457,7 +457,7 @@ public final class PyPublicTreeMap<K,V>
      *         <tt>null</tt> keys.
      */
     public V remove(Object key) {
-        Entry<K,V> p = getEntry(key);
+        Entry<K, V> p = getEntry(key);
         if (p == null)
             return null;
 
@@ -482,9 +482,9 @@ public final class PyPublicTreeMap<K,V>
      * @return a shallow copy of this Map.
      */
     public Object clone() {
-        PyPublicTreeMap<K,V> clone = null;
+        PyPublicTreeMap<K, V> clone = null;
         try {
-            clone = (PyPublicTreeMap<K,V>) super.clone();
+            clone = (PyPublicTreeMap<K, V>) super.clone();
         } catch (CloneNotSupportedException e) {
             throw new InternalError();
         }
@@ -505,7 +505,6 @@ public final class PyPublicTreeMap<K,V>
         return clone;
     }
 
-
     // Views
 
     /**
@@ -513,7 +512,7 @@ public final class PyPublicTreeMap<K,V>
      * view the first time this view is requested.  The view is stateless,
      * so there's no reason to create more than one.
      */
-    private transient volatile Set<Map.Entry<K,V>> entrySet = null;
+    private transient volatile Set<Map.Entry<K, V>> entrySet = null;
 
     /**
      * Returns a Set view of the keys contained in this map.  The set's
@@ -529,28 +528,28 @@ public final class PyPublicTreeMap<K,V>
      */
     public Set<K> keySet() {
         return new AbstractSet<K>() {
-                public Iterator<K> iterator() {
-                    return new KeyIterator();
-                }
+            public Iterator<K> iterator() {
+                return new KeyIterator();
+            }
 
-                public int size() {
-                    return PyPublicTreeMap.this.size();
-                }
+            public int size() {
+                return PyPublicTreeMap.this.size();
+            }
 
-                public boolean contains(Object o) {
-                    return containsKey(o);
-                }
+            public boolean contains(Object o) {
+                return containsKey(o);
+            }
 
-                public boolean remove(Object o) {
-                    int oldSize = size;
-                    PyPublicTreeMap.this.remove(o);
-                    return size != oldSize;
-                }
+            public boolean remove(Object o) {
+                int oldSize = size;
+                PyPublicTreeMap.this.remove(o);
+                return size != oldSize;
+            }
 
-                public void clear() {
-                    PyPublicTreeMap.this.clear();
-                }
-            };
+            public void clear() {
+                PyPublicTreeMap.this.clear();
+            }
+        };
     }
 
     /**
@@ -568,35 +567,35 @@ public final class PyPublicTreeMap<K,V>
      */
     public Collection<V> values() {
         return new AbstractCollection<V>() {
-                public Iterator<V> iterator() {
-                    return new ValueIterator();
-                }
+            public Iterator<V> iterator() {
+                return new ValueIterator();
+            }
 
-                public int size() {
-                    return PyPublicTreeMap.this.size();
-                }
+            public int size() {
+                return PyPublicTreeMap.this.size();
+            }
 
-                public boolean contains(Object o) {
-                    for (Entry<K,V> e = firstEntry(); e != null; e = successor(e))
-                        if (valEquals(e.getValue(), o))
-                            return true;
-                    return false;
-                }
+            public boolean contains(Object o) {
+                for (Entry<K, V> e = firstEntry(); e != null; e = successor(e))
+                    if (valEquals(e.getValue(), o))
+                        return true;
+                return false;
+            }
 
-                public boolean remove(Object o) {
-                    for (Entry<K,V> e = firstEntry(); e != null; e = successor(e)) {
-                        if (valEquals(e.getValue(), o)) {
-                            deleteEntry(e);
-                            return true;
-                        }
+            public boolean remove(Object o) {
+                for (Entry<K, V> e = firstEntry(); e != null; e = successor(e)) {
+                    if (valEquals(e.getValue(), o)) {
+                        deleteEntry(e);
+                        return true;
                     }
-                    return false;
                 }
+                return false;
+            }
 
-                public void clear() {
-                    PyPublicTreeMap.this.clear();
-                }
-            };
+            public void clear() {
+                PyPublicTreeMap.this.clear();
+            }
+        };
     }
 
     /**
@@ -613,28 +612,28 @@ public final class PyPublicTreeMap<K,V>
      * @return a set view of the mappings contained in this map.
      * @see Map.Entry
      */
-    public Set<Map.Entry<K,V>> entrySet() {
+    public Set<Map.Entry<K, V>> entrySet() {
         if (entrySet == null) {
-            entrySet = new AbstractSet<Map.Entry<K,V>>() {
-        public Iterator<Map.Entry<K,V>> iterator() {
+            entrySet = new AbstractSet<Map.Entry<K, V>>() {
+                public Iterator<Map.Entry<K, V>> iterator() {
                     return new EntryIterator();
                 }
 
                 public boolean contains(Object o) {
                     if (!(o instanceof Map.Entry))
                         return false;
-                    Map.Entry<K,V> entry = (Map.Entry<K,V>) o;
-            V value = entry.getValue();
-                    Entry<K,V> p = getEntry(entry.getKey());
+                    Map.Entry<K, V> entry = (Map.Entry<K, V>) o;
+                    V value = entry.getValue();
+                    Entry<K, V> p = getEntry(entry.getKey());
                     return p != null && valEquals(p.getValue(), value);
                 }
 
                 public boolean remove(Object o) {
                     if (!(o instanceof Map.Entry))
                         return false;
-                    Map.Entry<K,V> entry = (Map.Entry<K,V>) o;
-            V value = entry.getValue();
-                    Entry<K,V> p = getEntry(entry.getKey());
+                    Map.Entry<K, V> entry = (Map.Entry<K, V>) o;
+                    V value = entry.getValue();
+                    Entry<K, V> p = getEntry(entry.getKey());
                     if (p != null && valEquals(p.getValue(), value)) {
                         deleteEntry(p);
                         return true;
@@ -698,7 +697,7 @@ public final class PyPublicTreeMap<K,V>
      *               <tt>null</tt> and this map uses natural order, or its
      *               comparator does not tolerate <tt>null</tt> keys.
      */
-    public SortedMap<K,V> subMap(K fromKey, K toKey) {
+    public SortedMap<K, V> subMap(K fromKey, K toKey) {
         return new SubMap(fromKey, toKey);
     }
 
@@ -739,7 +738,7 @@ public final class PyPublicTreeMap<K,V>
      *               this map uses natural order, or its comparator does not
      *               tolerate <tt>null</tt> keys.
      */
-    public SortedMap<K,V> headMap(K toKey) {
+    public SortedMap<K, V> headMap(K toKey) {
         return new SubMap(toKey, true);
     }
 
@@ -778,13 +777,11 @@ public final class PyPublicTreeMap<K,V>
      *               this map uses natural order, or its comparator does not
      *               tolerate <tt>null</tt> keys.
      */
-    public SortedMap<K,V> tailMap(K fromKey) {
+    public SortedMap<K, V> tailMap(K fromKey) {
         return new SubMap(fromKey, false);
     }
 
-    private class SubMap
-    extends AbstractMap<K,V>
-    implements SortedMap<K,V>, java.io.Serializable {
+    private class SubMap extends AbstractMap<K, V> implements SortedMap<K, V>, java.io.Serializable {
         private static final long serialVersionUID = -6520786458950516097L;
 
         /**
@@ -815,7 +812,7 @@ public final class PyPublicTreeMap<K,V>
 
         SubMap(boolean fromStart, K fromKey, boolean toEnd, K toKey) {
             this.fromStart = fromStart;
-            this.fromKey= fromKey;
+            this.fromKey = fromKey;
             this.toEnd = toEnd;
             this.toKey = toKey;
         }
@@ -845,33 +842,34 @@ public final class PyPublicTreeMap<K,V>
         }
 
         public K firstKey() {
-        PyPublicTreeMap.Entry<K,V> e = fromStart ? firstEntry() : getCeilEntry(fromKey);
+            PyPublicTreeMap.Entry<K, V> e = fromStart ? firstEntry() : getCeilEntry(fromKey);
             K first = key(e);
             if (!toEnd && compare(first, toKey) >= 0)
-                throw(new NoSuchElementException());
+                throw (new NoSuchElementException());
             return first;
         }
 
         public K lastKey() {
-        PyPublicTreeMap.Entry<K,V> e = toEnd ? lastEntry() : getPrecedingEntry(toKey);
+            PyPublicTreeMap.Entry<K, V> e = toEnd ? lastEntry() : getPrecedingEntry(toKey);
             K last = key(e);
             if (!fromStart && compare(last, fromKey) < 0)
-                throw(new NoSuchElementException());
+                throw (new NoSuchElementException());
             return last;
         }
 
-        private transient Set<Map.Entry<K,V>> entrySet = new EntrySetView();
+        private transient Set<Map.Entry<K, V>> entrySet = new EntrySetView();
 
-        public Set<Map.Entry<K,V>> entrySet() {
+        public Set<Map.Entry<K, V>> entrySet() {
             return entrySet;
         }
 
-        private class EntrySetView extends AbstractSet<Map.Entry<K,V>> {
+        private class EntrySetView extends AbstractSet<Map.Entry<K, V>> {
             private transient int size = -1, sizeModCount;
 
             public int size() {
                 if (size == -1 || sizeModCount != PyPublicTreeMap.this.modCount) {
-                    size = 0;  sizeModCount = PyPublicTreeMap.this.modCount;
+                    size = 0;
+                    sizeModCount = PyPublicTreeMap.this.modCount;
                     Iterator i = iterator();
                     while (i.hasNext()) {
                         size++;
@@ -888,38 +886,36 @@ public final class PyPublicTreeMap<K,V>
             public boolean contains(Object o) {
                 if (!(o instanceof Map.Entry))
                     return false;
-                Map.Entry<K,V> entry = (Map.Entry<K,V>) o;
+                Map.Entry<K, V> entry = (Map.Entry<K, V>) o;
                 K key = entry.getKey();
                 if (!inRange(key))
                     return false;
                 PyPublicTreeMap.Entry node = getEntry(key);
-                return node != null &&
-                       valEquals(node.getValue(), entry.getValue());
+                return node != null && valEquals(node.getValue(), entry.getValue());
             }
 
             public boolean remove(Object o) {
                 if (!(o instanceof Map.Entry))
                     return false;
-                Map.Entry<K,V> entry = (Map.Entry<K,V>) o;
+                Map.Entry<K, V> entry = (Map.Entry<K, V>) o;
                 K key = entry.getKey();
                 if (!inRange(key))
                     return false;
-                PyPublicTreeMap.Entry<K,V> node = getEntry(key);
-                if (node!=null && valEquals(node.getValue(),entry.getValue())){
+                PyPublicTreeMap.Entry<K, V> node = getEntry(key);
+                if (node != null && valEquals(node.getValue(), entry.getValue())) {
                     deleteEntry(node);
                     return true;
                 }
                 return false;
             }
 
-            public Iterator<Map.Entry<K,V>> iterator() {
-                return new SubMapEntryIterator(
-                    (fromStart ? firstEntry() : getCeilEntry(fromKey)),
-                    (toEnd     ? null         : getCeilEntry(toKey)));
+            public Iterator<Map.Entry<K, V>> iterator() {
+                return new SubMapEntryIterator((fromStart ? firstEntry() : getCeilEntry(fromKey)), (toEnd ? null
+                        : getCeilEntry(toKey)));
             }
         }
 
-        public SortedMap<K,V> subMap(K fromKey, K toKey) {
+        public SortedMap<K, V> subMap(K fromKey, K toKey) {
             if (!inRange2(fromKey))
                 throw new IllegalArgumentException("fromKey out of range");
             if (!inRange2(toKey))
@@ -927,27 +923,25 @@ public final class PyPublicTreeMap<K,V>
             return new SubMap(fromKey, toKey);
         }
 
-        public SortedMap<K,V> headMap(K toKey) {
+        public SortedMap<K, V> headMap(K toKey) {
             if (!inRange2(toKey))
                 throw new IllegalArgumentException("toKey out of range");
             return new SubMap(fromStart, fromKey, false, toKey);
         }
 
-        public SortedMap<K,V> tailMap(K fromKey) {
+        public SortedMap<K, V> tailMap(K fromKey) {
             if (!inRange2(fromKey))
                 throw new IllegalArgumentException("fromKey out of range");
             return new SubMap(false, fromKey, toEnd, toKey);
         }
 
         private boolean inRange(K key) {
-            return (fromStart || compare(key, fromKey) >= 0) &&
-                   (toEnd     || compare(key, toKey)   <  0);
+            return (fromStart || compare(key, fromKey) >= 0) && (toEnd || compare(key, toKey) < 0);
         }
 
         // This form allows the high endpoint (as well as all legit keys)
         private boolean inRange2(K key) {
-            return (fromStart || compare(key, fromKey) >= 0) &&
-                   (toEnd     || compare(key, toKey)   <= 0);
+            return (fromStart || compare(key, fromKey) >= 0) && (toEnd || compare(key, toKey) <= 0);
         }
     }
 
@@ -956,15 +950,15 @@ public final class PyPublicTreeMap<K,V>
      */
     private abstract class PrivateEntryIterator<T> implements Iterator<T> {
         private int expectedModCount = PyPublicTreeMap.this.modCount;
-        private Entry<K,V> lastReturned = null;
-        Entry<K,V> next;
+        private Entry<K, V> lastReturned = null;
+        Entry<K, V> next;
 
         PrivateEntryIterator() {
             next = firstEntry();
         }
 
         // Used by SubMapEntryIterator
-        PrivateEntryIterator(Entry<K,V> first) {
+        PrivateEntryIterator(Entry<K, V> first) {
             next = first;
         }
 
@@ -972,7 +966,7 @@ public final class PyPublicTreeMap<K,V>
             return next != null;
         }
 
-        final Entry<K,V> nextEntry() {
+        final Entry<K, V> nextEntry() {
             if (next == null)
                 throw new NoSuchElementException();
             if (modCount != expectedModCount)
@@ -995,8 +989,8 @@ public final class PyPublicTreeMap<K,V>
         }
     }
 
-    private class EntryIterator extends PrivateEntryIterator<Map.Entry<K,V>> {
-        public Map.Entry<K,V> next() {
+    private class EntryIterator extends PrivateEntryIterator<Map.Entry<K, V>> {
+        public Map.Entry<K, V> next() {
             return nextEntry();
         }
     }
@@ -1013,21 +1007,19 @@ public final class PyPublicTreeMap<K,V>
         }
     }
 
-    private class SubMapEntryIterator extends PrivateEntryIterator<Map.Entry<K,V>> {
+    private class SubMapEntryIterator extends PrivateEntryIterator<Map.Entry<K, V>> {
         private final K firstExcludedKey;
 
-        SubMapEntryIterator(Entry<K,V> first, Entry<K,V> firstExcluded) {
+        SubMapEntryIterator(Entry<K, V> first, Entry<K, V> firstExcluded) {
             super(first);
-            firstExcludedKey = (firstExcluded == null
-                ? null
-                : firstExcluded.key);
+            firstExcludedKey = (firstExcluded == null ? null : firstExcluded.key);
         }
 
         public boolean hasNext() {
             return next != null && next.key != firstExcludedKey;
         }
 
-        public Map.Entry<K,V> next() {
+        public Map.Entry<K, V> next() {
             if (next == null || next.key == firstExcludedKey)
                 throw new NoSuchElementException();
             return nextEntry();
@@ -1038,8 +1030,7 @@ public final class PyPublicTreeMap<K,V>
      * Compares two keys using the correct comparison method for this ModulesKeyTreeMap.
      */
     private int compare(K k1, K k2) {
-        return (comparator==null ? ((Comparable</*-*/K>)k1).compareTo(k2)
-                                 : comparator.compare((K)k1, (K)k2));
+        return (comparator == null ? ((Comparable</*-*/K>) k1).compareTo(k2) : comparator.compare((K) k1, (K) k2));
     }
 
     /**
@@ -1047,10 +1038,10 @@ public final class PyPublicTreeMap<K,V>
      * that it copes with <tt>null</tt> o1 properly.
      */
     private static boolean valEquals(Object o1, Object o2) {
-        return (o1==null ? o2==null : o1.equals(o2));
+        return (o1 == null ? o2 == null : o1.equals(o2));
     }
 
-    private static final boolean RED   = false;
+    private static final boolean RED = false;
     private static final boolean BLACK = true;
 
     /**
@@ -1058,19 +1049,19 @@ public final class PyPublicTreeMap<K,V>
      * user (see Map.Entry).
      */
 
-    static class Entry<K,V> implements Map.Entry<K,V> {
-    K key;
+    static class Entry<K, V> implements Map.Entry<K, V> {
+        K key;
         V value;
-        Entry<K,V> left = null;
-        Entry<K,V> right = null;
-        Entry<K,V> parent;
+        Entry<K, V> left = null;
+        Entry<K, V> right = null;
+        Entry<K, V> parent;
         boolean color = BLACK;
 
         /**
          * Make a new cell with given key, value, and parent, and with
          * <tt>null</tt> child links, and BLACK color.
          */
-        Entry(K key, V value, Entry<K,V> parent) {
+        Entry(K key, V value, Entry<K, V> parent) {
             this.key = key;
             this.value = value;
             this.parent = parent;
@@ -1110,14 +1101,14 @@ public final class PyPublicTreeMap<K,V>
         public boolean equals(Object o) {
             if (!(o instanceof Map.Entry))
                 return false;
-            Map.Entry e = (Map.Entry)o;
+            Map.Entry e = (Map.Entry) o;
 
-            return valEquals(key,e.getKey()) && valEquals(value,e.getValue());
+            return valEquals(key, e.getKey()) && valEquals(value, e.getValue());
         }
 
         public int hashCode() {
-            int keyHash = (key==null ? 0 : key.hashCode());
-            int valueHash = (value==null ? 0 : value.hashCode());
+            int keyHash = (key == null ? 0 : key.hashCode());
+            int valueHash = (value == null ? 0 : value.hashCode());
             return keyHash ^ valueHash;
         }
 
@@ -1130,8 +1121,8 @@ public final class PyPublicTreeMap<K,V>
      * Returns the first Entry in the ModulesKeyTreeMap (according to the ModulesKeyTreeMap's
      * key-sort function).  Returns null if the ModulesKeyTreeMap is empty.
      */
-    private Entry<K,V> firstEntry() {
-        Entry<K,V> p = root;
+    private Entry<K, V> firstEntry() {
+        Entry<K, V> p = root;
         if (p != null)
             while (p.left != null)
                 p = p.left;
@@ -1142,8 +1133,8 @@ public final class PyPublicTreeMap<K,V>
      * Returns the last Entry in the ModulesKeyTreeMap (according to the ModulesKeyTreeMap's
      * key-sort function).  Returns null if the ModulesKeyTreeMap is empty.
      */
-    private Entry<K,V> lastEntry() {
-        Entry<K,V> p = root;
+    private Entry<K, V> lastEntry() {
+        Entry<K, V> p = root;
         if (p != null)
             while (p.right != null)
                 p = p.right;
@@ -1153,17 +1144,17 @@ public final class PyPublicTreeMap<K,V>
     /**
      * Returns the successor of the specified Entry, or null if no such.
      */
-    private Entry<K,V> successor(Entry<K,V> t) {
+    private Entry<K, V> successor(Entry<K, V> t) {
         if (t == null)
             return null;
         else if (t.right != null) {
-            Entry<K,V> p = t.right;
+            Entry<K, V> p = t.right;
             while (p.left != null)
                 p = p.left;
             return p;
         } else {
-            Entry<K,V> p = t.parent;
-            Entry<K,V> ch = t;
+            Entry<K, V> p = t.parent;
+            Entry<K, V> ch = t;
             while (p != null && ch == p.right) {
                 ch = p;
                 p = p.parent;
@@ -1182,30 +1173,30 @@ public final class PyPublicTreeMap<K,V>
      * algorithms.
      */
 
-    private static <K,V> boolean colorOf(Entry<K,V> p) {
+    private static <K, V> boolean colorOf(Entry<K, V> p) {
         return (p == null ? BLACK : p.color);
     }
 
-    private static <K,V> Entry<K,V> parentOf(Entry<K,V> p) {
-        return (p == null ? null: p.parent);
+    private static <K, V> Entry<K, V> parentOf(Entry<K, V> p) {
+        return (p == null ? null : p.parent);
     }
 
-    private static <K,V> void setColor(Entry<K,V> p, boolean c) {
+    private static <K, V> void setColor(Entry<K, V> p, boolean c) {
         if (p != null)
-        p.color = c;
+            p.color = c;
     }
 
-    private static <K,V> Entry<K,V> leftOf(Entry<K,V> p) {
-        return (p == null) ? null: p.left;
+    private static <K, V> Entry<K, V> leftOf(Entry<K, V> p) {
+        return (p == null) ? null : p.left;
     }
 
-    private static <K,V> Entry<K,V> rightOf(Entry<K,V> p) {
-        return (p == null) ? null: p.right;
+    private static <K, V> Entry<K, V> rightOf(Entry<K, V> p) {
+        return (p == null) ? null : p.right;
     }
 
     /** From CLR **/
-    private void rotateLeft(Entry<K,V> p) {
-        Entry<K,V> r = p.right;
+    private void rotateLeft(Entry<K, V> p) {
+        Entry<K, V> r = p.right;
         p.right = r.left;
         if (r.left != null)
             r.left.parent = p;
@@ -1221,28 +1212,29 @@ public final class PyPublicTreeMap<K,V>
     }
 
     /** From CLR **/
-    private void rotateRight(Entry<K,V> p) {
-        Entry<K,V> l = p.left;
+    private void rotateRight(Entry<K, V> p) {
+        Entry<K, V> l = p.left;
         p.left = l.right;
-        if (l.right != null) l.right.parent = p;
+        if (l.right != null)
+            l.right.parent = p;
         l.parent = p.parent;
         if (p.parent == null)
             root = l;
         else if (p.parent.right == p)
             p.parent.right = l;
-        else p.parent.left = l;
+        else
+            p.parent.left = l;
         l.right = p;
         p.parent = l;
     }
 
-
     /** From CLR **/
-    private void fixAfterInsertion(Entry<K,V> x) {
+    private void fixAfterInsertion(Entry<K, V> x) {
         x.color = RED;
 
         while (x != null && x != root && x.parent.color == RED) {
             if (parentOf(x) == leftOf(parentOf(parentOf(x)))) {
-                Entry<K,V> y = rightOf(parentOf(parentOf(x)));
+                Entry<K, V> y = rightOf(parentOf(parentOf(x)));
                 if (colorOf(y) == RED) {
                     setColor(parentOf(x), BLACK);
                     setColor(y, BLACK);
@@ -1259,7 +1251,7 @@ public final class PyPublicTreeMap<K,V>
                         rotateRight(parentOf(parentOf(x)));
                 }
             } else {
-                Entry<K,V> y = leftOf(parentOf(parentOf(x)));
+                Entry<K, V> y = leftOf(parentOf(parentOf(x)));
                 if (colorOf(y) == RED) {
                     setColor(parentOf(x), BLACK);
                     setColor(y, BLACK);
@@ -1270,7 +1262,7 @@ public final class PyPublicTreeMap<K,V>
                         x = parentOf(x);
                         rotateRight(x);
                     }
-                    setColor(parentOf(x),  BLACK);
+                    setColor(parentOf(x), BLACK);
                     setColor(parentOf(parentOf(x)), RED);
                     if (parentOf(parentOf(x)) != null)
                         rotateLeft(parentOf(parentOf(x)));
@@ -1284,20 +1276,20 @@ public final class PyPublicTreeMap<K,V>
      * Delete node p, and then rebalance the tree.
      */
 
-    private void deleteEntry(Entry<K,V> p) {
+    private void deleteEntry(Entry<K, V> p) {
         decrementSize();
 
         // If strictly internal, copy successor's element to p and then make p
         // point to successor.
         if (p.left != null && p.right != null) {
-            Entry<K,V> s = successor (p);
+            Entry<K, V> s = successor(p);
             p.key = s.key;
             p.value = s.value;
             p = s;
         } // p has 2 children
 
         // Start fixup at replacement node, if it exists.
-        Entry<K,V> replacement = (p.left != null ? p.left : p.right);
+        Entry<K, V> replacement = (p.left != null ? p.left : p.right);
 
         if (replacement != null) {
             // Link replacement to parent
@@ -1305,7 +1297,7 @@ public final class PyPublicTreeMap<K,V>
             if (p.parent == null)
                 root = replacement;
             else if (p == p.parent.left)
-                p.parent.left  = replacement;
+                p.parent.left = replacement;
             else
                 p.parent.right = replacement;
 
@@ -1332,10 +1324,10 @@ public final class PyPublicTreeMap<K,V>
     }
 
     /** From CLR **/
-    private void fixAfterDeletion(Entry<K,V> x) {
+    private void fixAfterDeletion(Entry<K, V> x) {
         while (x != root && colorOf(x) == BLACK) {
             if (x == leftOf(parentOf(x))) {
-                Entry<K,V> sib = rightOf(parentOf(x));
+                Entry<K, V> sib = rightOf(parentOf(x));
 
                 if (colorOf(sib) == RED) {
                     setColor(sib, BLACK);
@@ -1344,9 +1336,8 @@ public final class PyPublicTreeMap<K,V>
                     sib = rightOf(parentOf(x));
                 }
 
-                if (colorOf(leftOf(sib))  == BLACK &&
-                    colorOf(rightOf(sib)) == BLACK) {
-                    setColor(sib,  RED);
+                if (colorOf(leftOf(sib)) == BLACK && colorOf(rightOf(sib)) == BLACK) {
+                    setColor(sib, RED);
                     x = parentOf(x);
                 } else {
                     if (colorOf(rightOf(sib)) == BLACK) {
@@ -1362,7 +1353,7 @@ public final class PyPublicTreeMap<K,V>
                     x = root;
                 }
             } else { // symmetric
-                Entry<K,V> sib = leftOf(parentOf(x));
+                Entry<K, V> sib = leftOf(parentOf(x));
 
                 if (colorOf(sib) == RED) {
                     setColor(sib, BLACK);
@@ -1371,9 +1362,8 @@ public final class PyPublicTreeMap<K,V>
                     sib = leftOf(parentOf(x));
                 }
 
-                if (colorOf(rightOf(sib)) == BLACK &&
-                    colorOf(leftOf(sib)) == BLACK) {
-                    setColor(sib,  RED);
+                if (colorOf(rightOf(sib)) == BLACK && colorOf(leftOf(sib)) == BLACK) {
+                    setColor(sib, RED);
                     x = parentOf(x);
                 } else {
                     if (colorOf(leftOf(sib)) == BLACK) {
@@ -1408,8 +1398,7 @@ public final class PyPublicTreeMap<K,V>
      *             or by the keys' natural ordering if the ModulesKeyTreeMap has no
      *             Comparator).
      */
-    private void writeObject(java.io.ObjectOutputStream s)
-        throws java.io.IOException {
+    private void writeObject(java.io.ObjectOutputStream s) throws java.io.IOException {
         // Write out the Comparator and any hidden stuff
         s.defaultWriteObject();
 
@@ -1417,21 +1406,18 @@ public final class PyPublicTreeMap<K,V>
         s.writeInt(size);
 
         // Write out keys and values (alternating)
-        for (Iterator<Map.Entry<K,V>> i = entrySet().iterator(); i.hasNext(); ) {
-            Map.Entry<K,V> e = i.next();
+        for (Iterator<Map.Entry<K, V>> i = entrySet().iterator(); i.hasNext();) {
+            Map.Entry<K, V> e = i.next();
             s.writeObject(e.getKey());
             s.writeObject(e.getValue());
         }
     }
 
-
-
     /**
      * Reconstitute the <tt>ModulesKeyTreeMap</tt> instance from a stream (i.e.,
      * deserialize it).
      */
-    private void readObject(final java.io.ObjectInputStream s)
-        throws java.io.IOException, ClassNotFoundException {
+    private void readObject(final java.io.ObjectInputStream s) throws java.io.IOException, ClassNotFoundException {
         // Read in the Comparator and any hidden stuff
         s.defaultReadObject();
 
@@ -1442,20 +1428,19 @@ public final class PyPublicTreeMap<K,V>
     }
 
     /** Intended to be called only from TreeSet.readObject **/
-    void readTreeSet(int size, java.io.ObjectInputStream s, V defaultVal)
-        throws java.io.IOException, ClassNotFoundException {
+    void readTreeSet(int size, java.io.ObjectInputStream s, V defaultVal) throws java.io.IOException,
+            ClassNotFoundException {
         buildFromSorted(size, null, s, defaultVal);
     }
 
     /** Intended to be called only from TreeSet.addAll **/
-    void addAllForTreeSet(SortedSet<Map.Entry<K,V>> set, V defaultVal) {
-    try {
-        buildFromSorted(set.size(), set.iterator(), null, defaultVal);
-    } catch (java.io.IOException cannotHappen) {
-    } catch (ClassNotFoundException cannotHappen) {
+    void addAllForTreeSet(SortedSet<Map.Entry<K, V>> set, V defaultVal) {
+        try {
+            buildFromSorted(set.size(), set.iterator(), null, defaultVal);
+        } catch (java.io.IOException cannotHappen) {
+        } catch (ClassNotFoundException cannotHappen) {
+        }
     }
-    }
-
 
     /**
      * Linear time tree building algorithm from sorted data.  Can accept keys
@@ -1488,14 +1473,10 @@ public final class PyPublicTreeMap<K,V>
      *         This cannot occur if str is null.
      */
     /*default changed in PyDev!!*/
-    public void buildFromSorted(int size, Iterator it,
-             java.io.ObjectInputStream str,
-             V defaultVal)
-        throws  java.io.IOException, ClassNotFoundException {
+    public void buildFromSorted(int size, Iterator it, java.io.ObjectInputStream str, V defaultVal)
+            throws java.io.IOException, ClassNotFoundException {
         this.size = size;
-        root =
-        buildFromSorted(0, 0, size-1, computeRedLevel(size),
-                it, str, defaultVal);
+        root = buildFromSorted(0, 0, size - 1, computeRedLevel(size), it, str, defaultVal);
     }
 
     /**
@@ -1512,12 +1493,8 @@ public final class PyPublicTreeMap<K,V>
      * @param redLevel the level at which nodes should be red.
      *        Must be equal to computeRedLevel for tree of this size.
      */
-    private final Entry<K,V> buildFromSorted(int level, int lo, int hi,
-                         int redLevel,
-                         Iterator it,
-                         java.io.ObjectInputStream str,
-                         V defaultVal)
-        throws  java.io.IOException, ClassNotFoundException {
+    private final Entry<K, V> buildFromSorted(int level, int lo, int hi, int redLevel, Iterator it,
+            java.io.ObjectInputStream str, V defaultVal) throws java.io.IOException, ClassNotFoundException {
         /*
          * Strategy: The root is the middlemost element. To get to it, we
          * have to first recursively construct the entire left subtree,
@@ -1530,25 +1507,25 @@ public final class PyPublicTreeMap<K,V>
          * ensuring that items are extracted in corresponding order.
          */
 
-        if (hi < lo) return null;
+        if (hi < lo)
+            return null;
 
         int mid = (lo + hi) / 2;
 
-        Entry<K,V> left  = null;
+        Entry<K, V> left = null;
         if (lo < mid)
-            left = buildFromSorted(level+1, lo, mid - 1, redLevel,
-                   it, str, defaultVal);
+            left = buildFromSorted(level + 1, lo, mid - 1, redLevel, it, str, defaultVal);
 
         // extract key and/or value from iterator or stream
         K key;
         V value;
         if (it != null) {
-            if (defaultVal==null) {
-                Map.Entry<K,V> entry = (Map.Entry<K,V>)it.next();
+            if (defaultVal == null) {
+                Map.Entry<K, V> entry = (Map.Entry<K, V>) it.next();
                 key = entry.getKey();
                 value = entry.getValue();
             } else {
-                key = (K)it.next();
+                key = (K) it.next();
                 value = defaultVal;
             }
         } else { // use stream
@@ -1556,7 +1533,7 @@ public final class PyPublicTreeMap<K,V>
             value = (defaultVal != null ? defaultVal : (V) str.readObject());
         }
 
-        Entry<K,V> middle =  new Entry<K,V>(key, value, null);
+        Entry<K, V> middle = new Entry<K, V>(key, value, null);
 
         // color nodes in non-full bottommost level red
         if (level == redLevel)
@@ -1568,8 +1545,7 @@ public final class PyPublicTreeMap<K,V>
         }
 
         if (mid < hi) {
-            Entry<K,V> right = buildFromSorted(level+1, mid+1, hi, redLevel,
-                           it, str, defaultVal);
+            Entry<K, V> right = buildFromSorted(level + 1, mid + 1, hi, redLevel, it, str, defaultVal);
             middle.right = right;
             right.parent = middle;
         }
@@ -1593,4 +1569,3 @@ public final class PyPublicTreeMap<K,V>
         return level;
     }
 }
-

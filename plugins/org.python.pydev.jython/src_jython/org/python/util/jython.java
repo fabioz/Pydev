@@ -19,30 +19,21 @@ import org.python.core.PyStringMap;
 import org.python.core.PySystemState;
 import org.python.core.imp;
 
-public class jython
-{
-    private static String usage =
-        "usage: jython [options] [-jar jar | -c cmd | file | -] [args]\n"+
-        "Options and arguments:\n"+
-        "-i       : inspect interactively after running script, and force\n"+
-        "           prompts, even if stdin does not appear to be a "+
-                    "terminal\n"+
-        "-S       : don't imply `import site' on initialization\n"+
-        "-v       : verbose (trace import statements)\n"+
-        "-Dprop=v : Set the property `prop' to value `v'\n"+
-        "-jar jar : program read from __run__.py in jar file\n"+
-        "-c cmd   : program passed in as string (terminates option list)\n"+
-        "-W arg   : warning control (arg is action:message:category:module:"+
-                    "lineno)\n"+
-        "-E codec : Use a different codec the reading from the console.\n"+
-        "-Q arg   : division options: -Qold (default), -Qwarn, -Qwarnall, " +
-                    "-Qnew\n"+
-        "file     : program read from script file\n"+
-        "-        : program read from stdin (default; interactive mode if a "+
-        "tty)\n"+
-        "--help   : print this usage message and exit\n"+
-        "--version: print Jython version number and exit\n"+
-        "args     : arguments passed to program in sys.argv[1:]";
+public class jython {
+    private static String usage = "usage: jython [options] [-jar jar | -c cmd | file | -] [args]\n"
+            + "Options and arguments:\n" + "-i       : inspect interactively after running script, and force\n"
+            + "           prompts, even if stdin does not appear to be a " + "terminal\n"
+            + "-S       : don't imply `import site' on initialization\n"
+            + "-v       : verbose (trace import statements)\n" + "-Dprop=v : Set the property `prop' to value `v'\n"
+            + "-jar jar : program read from __run__.py in jar file\n"
+            + "-c cmd   : program passed in as string (terminates option list)\n"
+            + "-W arg   : warning control (arg is action:message:category:module:" + "lineno)\n"
+            + "-E codec : Use a different codec the reading from the console.\n"
+            + "-Q arg   : division options: -Qold (default), -Qwarn, -Qwarnall, " + "-Qnew\n"
+            + "file     : program read from script file\n"
+            + "-        : program read from stdin (default; interactive mode if a " + "tty)\n"
+            + "--help   : print this usage message and exit\n" + "--version: print Jython version number and exit\n"
+            + "args     : arguments passed to program in sys.argv[1:]";
 
     public static void runJar(String filename) {
         // TBD: this is kind of gross because a local called `zipfile' just
@@ -61,7 +52,7 @@ public class jython
                 throw Py.ValueError("jar file missing '__run__.py'");
 
             PyStringMap locals = new PyStringMap();
-            
+
             // Stripping the stuff before the last File.separator fixes Bug 
             // #931129 by keeping illegal characters out of the generated 
             // proxy class name 
@@ -69,7 +60,7 @@ public class jython
             if ((beginIndex = filename.lastIndexOf(File.separator)) != -1) {
                 filename = filename.substring(beginIndex + 1);
             }
-            
+
             locals.__setitem__("__name__", new PyString(filename));
             locals.__setitem__("zipfile", Py.java2py(zip));
 
@@ -101,8 +92,7 @@ public class jython
         }
 
         // Setup the basic python system state from these options
-        PySystemState.initialize(PySystemState.getBaseProperties(),
-                                 opts.properties, opts.argv);
+        PySystemState.initialize(PySystemState.getBaseProperties(), opts.properties, opts.argv);
 
         if (opts.notice) {
             System.err.println(InteractiveConsole.getDefaultBanner());
@@ -111,11 +101,9 @@ public class jython
         // Now create an interpreter
         InteractiveConsole interp = null;
         try {
-            String interpClass = PySystemState.registry.getProperty(
-                                    "python.console",
-                                    "org.python.util.InteractiveConsole");
-            interp = (InteractiveConsole)
-                             Class.forName(interpClass).newInstance();
+            String interpClass = PySystemState.registry.getProperty("python.console",
+                    "org.python.util.InteractiveConsole");
+            interp = (InteractiveConsole) Class.forName(interpClass).newInstance();
         } catch (Exception e) {
             interp = new InteractiveConsole();
         }
@@ -137,12 +125,9 @@ public class jython
 
                 if (opts.notice) {
                     PyObject builtins = Py.getSystemState().builtins;
-                    boolean copyright =
-                                builtins.__finditem__("copyright") != null;
-                    boolean credits =
-                                builtins.__finditem__("credits") != null;
-                    boolean license =
-                                builtins.__finditem__("license") != null;
+                    boolean copyright = builtins.__finditem__("copyright") != null;
+                    boolean credits = builtins.__finditem__("credits") != null;
+                    boolean license = builtins.__finditem__("license") != null;
                     if (copyright) {
                         msg += "\"copyright\"";
                         if (credits && license)
@@ -158,8 +143,7 @@ public class jython
                     if (license)
                         msg += "\"license\"";
                     if (msg.length() > 0)
-                        System.err.println("Type " + msg +
-                                           " for more information.");
+                        System.err.println("Type " + msg + " for more information.");
                 }
             } catch (PyException pye) {
                 if (!Py.matchException(pye, Py.ImportError)) {
@@ -194,18 +178,17 @@ public class jython
             } else if (opts.filename.equals("-")) {
                 try {
                     throw new RuntimeException("Can not run from <stdin> in internal PyDev version.");
-//                    interp.locals.__setitem__(new PyString("__file__"),
-//                                              new PyString("<stdin>"));
-//                    interp.execfile(System.in, "<stdin>");
+                    //                    interp.locals.__setitem__(new PyString("__file__"),
+                    //                                              new PyString("<stdin>"));
+                    //                    interp.execfile(System.in, "<stdin>");
                 } catch (Throwable t) {
                     Py.printException(t);
                 }
             } else {
                 try {
-                   interp.locals.__setitem__(new PyString("__file__"),
-                                             new PyString(opts.filename));
+                    interp.locals.__setitem__(new PyString("__file__"), new PyString(opts.filename));
                     interp.execfile(opts.filename);
-                } catch(Throwable t) {
+                } catch (Throwable t) {
                     Py.printException(t);
                     if (!opts.interactive) {
                         interp.cleanup();
@@ -213,8 +196,7 @@ public class jython
                     }
                 }
             }
-        }
-        else {
+        } else {
             // if there was no file name on the command line, then "" is
             // the first element on sys.path.  This is here because if
             // there /was/ a filename on the c.l., and say the -i option
@@ -233,13 +215,13 @@ public class jython
 
         if (opts.interactive) {
             if (opts.encoding == null) {
-                opts.encoding = PySystemState.registry.getProperty(
-                                "python.console.encoding", null);
+                opts.encoding = PySystemState.registry.getProperty("python.console.encoding", null);
             }
-            if(opts.encoding != null) {
-                if(!Charset.isSupported(opts.encoding)) {
-                    System.err.println(opts.encoding
-                            + " is not a supported encoding on this JVM, so it can't be used in python.console.encoding.");
+            if (opts.encoding != null) {
+                if (!Charset.isSupported(opts.encoding)) {
+                    System.err
+                            .println(opts.encoding
+                                    + " is not a supported encoding on this JVM, so it can't be used in python.console.encoding.");
                     System.exit(1);
                 }
                 interp.cflags.encoding = opts.encoding;
@@ -257,8 +239,7 @@ public class jython
     }
 }
 
-class CommandLineOptions
-{
+class CommandLineOptions {
     public String filename;
     public boolean jar, interactive, notice;
     private boolean fixInteractive;
@@ -282,61 +263,50 @@ class CommandLineOptions
         properties.put(key, value);
         try {
             System.setProperty(key, value);
+        } catch (SecurityException e) {
         }
-        catch (SecurityException e) {}
     }
 
     public boolean parse(String[] args) {
-        int index=0;
+        int index = 0;
         while (index < args.length && args[index].startsWith("-")) {
             String arg = args[index];
             if (arg.equals("--help")) {
                 help = true;
                 return false;
-            }
-            else if (arg.equals("--version")) {
+            } else if (arg.equals("--version")) {
                 version = true;
                 return false;
-            }
-            else if (arg.equals("-")) {
+            } else if (arg.equals("-")) {
                 if (!fixInteractive)
                     interactive = false;
                 filename = "-";
-            }
-            else if (arg.equals("-i")) {
+            } else if (arg.equals("-i")) {
                 fixInteractive = true;
                 interactive = true;
-            }
-            else if (arg.equals("-jar")) {
+            } else if (arg.equals("-jar")) {
                 jar = true;
                 if (!fixInteractive)
                     interactive = false;
-            }
-            else if (arg.equals("-v")) {
+            } else if (arg.equals("-v")) {
                 Options.verbose++;
-            }
-            else if (arg.equals("-vv")) {
+            } else if (arg.equals("-vv")) {
                 Options.verbose += 2;
-            }
-            else if (arg.equals("-vvv")) {
-                Options.verbose +=3 ;
-            }
-            else if (arg.equals("-S")) {
+            } else if (arg.equals("-vvv")) {
+                Options.verbose += 3;
+            } else if (arg.equals("-S")) {
                 Options.importSite = false;
-            }
-            else if (arg.equals("-c")) {
+            } else if (arg.equals("-c")) {
                 command = args[++index];
-                if (!fixInteractive) interactive = false;
+                if (!fixInteractive)
+                    interactive = false;
                 index++;
                 break;
-            }
-            else if (arg.equals("-W")) {
+            } else if (arg.equals("-W")) {
                 warnoptions.addElement(args[++index]);
-            }
-            else if (arg.equals("-E")) {
+            } else if (arg.equals("-E")) {
                 encoding = args[++index];
-            }
-            else if (arg.startsWith("-D")) {
+            } else if (arg.startsWith("-D")) {
                 String key = null;
                 String value = null;
                 int equals = arg.indexOf("=");
@@ -344,20 +314,17 @@ class CommandLineOptions
                     String arg2 = args[++index];
                     key = arg.substring(2, arg.length());
                     value = arg2;
-                }
-                else {
+                } else {
                     key = arg.substring(2, equals);
-                    value = arg.substring(equals+1, arg.length());
+                    value = arg.substring(equals + 1, arg.length());
                 }
                 setProperty(key, value);
-            }
-            else if (arg.startsWith("-Q")) {
+            } else if (arg.startsWith("-Q")) {
                 if (arg.length() > 2)
                     division = arg.substring(2);
                 else
                     division = args[++index];
-            }
-            else {
+            } else {
                 String opt = args[index];
                 if (opt.startsWith("--"))
                     opt = opt.substring(2);
@@ -378,7 +345,7 @@ class CommandLineOptions
         if (command != null)
             notice = false;
 
-        int n = args.length-index+1;
+        int n = args.length - index + 1;
         argv = new String[n];
         //new String[args.length-index+1];
         if (filename != null)
@@ -388,7 +355,7 @@ class CommandLineOptions
         else
             argv[0] = "";
 
-        for(int i=1; i<n; i++, index++) {
+        for (int i = 1; i < n; i++, index++) {
             argv[i] = args[index];
         }
 

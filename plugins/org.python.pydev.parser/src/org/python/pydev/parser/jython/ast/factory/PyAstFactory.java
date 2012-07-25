@@ -39,7 +39,7 @@ public class PyAstFactory {
         FunctionDef functionDef = new FunctionDef(new NameTok(name, NameTok.FunctionName), null, null, null, null);
         return functionDef;
     }
-    
+
     public ClassDef createClassDef(String name) {
         exprType[] bases = null;
         stmtType[] body = null;
@@ -47,15 +47,15 @@ public class PyAstFactory {
         keywordType[] keywords = null;
         exprType starargs = null;
         exprType kwargs = null;
-        
+
         ClassDef def = new ClassDef(new NameTok(name, NameTok.ClassName), bases, body, decs, keywords, starargs, kwargs);
         return def;
-        
+
     }
-    
-    public void setBaseClasses(ClassDef classDef, String ... baseClasses){
+
+    public void setBaseClasses(ClassDef classDef, String... baseClasses) {
         ArrayList<exprType> bases = new ArrayList<exprType>();
-        for(String s: baseClasses){
+        for (String s : baseClasses) {
             Name n = createName(s);
             bases.add(n);
         }
@@ -78,15 +78,16 @@ public class PyAstFactory {
     public argumentsType createArguments(boolean addSelf, String... simpleParams) {
         List<exprType> params = new ArrayList<exprType>();
 
-        if(addSelf){
+        if (addSelf) {
             params.add(new Name("self", Name.Param, true));
         }
 
-        for(String s:simpleParams){
+        for (String s : simpleParams) {
             params.add(new Name(s, Name.Param, false));
         }
 
-        return new argumentsType(params.toArray(new exprType[params.size()]), null, null, null, null, null, null, null, null, null);
+        return new argumentsType(params.toArray(new exprType[params.size()]), null, null, null, null, null, null, null,
+                null, null);
     }
 
     private stmtType[] createSetterBody(String attributeName) {
@@ -100,72 +101,69 @@ public class PyAstFactory {
         return new stmtType[] { assign };
     }
 
-    public Call createCall(String call, String ... params) {
+    public Call createCall(String call, String... params) {
         List<exprType> lst = createParamsList(params);
         return createCall(call, lst, null, null, null);
     }
 
     public List<exprType> createParamsList(String... params) {
         ArrayList<exprType> lst = new ArrayList<exprType>();
-        for(String p:params){
+        for (String p : params) {
             lst.add(new Name(p, Name.Param, false));
         }
         return lst;
     }
-    
-    public Call createCall(String call, List<exprType> params, keywordType[] keywords, exprType starargs, exprType kwargs) {
-        exprType[] array = params!=null?params.toArray(new Name[params.size()]):new exprType[0];
-        if(call.indexOf(".") != -1){
+
+    public Call createCall(String call, List<exprType> params, keywordType[] keywords, exprType starargs,
+            exprType kwargs) {
+        exprType[] array = params != null ? params.toArray(new Name[params.size()]) : new exprType[0];
+        if (call.indexOf(".") != -1) {
             return new Call(createAttribute(call), array, keywords, starargs, kwargs);
         }
         return new Call(new Name(call, Name.Load, false), array, keywords, starargs, kwargs);
-        
+
     }
 
     public Attribute createAttribute(String attribute) {
         List<String> splitted = StringUtils.split(attribute, '.');
-        if(splitted.size() <= 1){
+        if (splitted.size() <= 1) {
             throw new RuntimeException("Cannot create attribute without dot access.");
         }
-        if(splitted.size() == 2){
-            return new Attribute(
-                    new Name(splitted.get(0), Name.Load, false), 
-                    new NameTok(splitted.get(1), NameTok.Attrib),
-                    Attribute.Load);
+        if (splitted.size() == 2) {
+            return new Attribute(new Name(splitted.get(0), Name.Load, false), new NameTok(splitted.get(1),
+                    NameTok.Attrib), Attribute.Load);
         }
         //>2
-        return new Attribute(
-                createAttribute(FullRepIterable.getWithoutLastPart(attribute)), 
-                new NameTok(splitted.get(splitted.size()-1), NameTok.Attrib),
-                Attribute.Load);
+        return new Attribute(createAttribute(FullRepIterable.getWithoutLastPart(attribute)), new NameTok(
+                splitted.get(splitted.size() - 1), NameTok.Attrib), Attribute.Load);
 
     }
 
-    public Assign createAssign(exprType ... targetsAndVal) {
-        exprType[] targets = new exprType[targetsAndVal.length-1];
+    public Assign createAssign(exprType... targetsAndVal) {
+        exprType[] targets = new exprType[targetsAndVal.length - 1];
         System.arraycopy(targetsAndVal, 0, targets, 0, targets.length);
-        exprType value = targetsAndVal[targetsAndVal.length-1];
+        exprType value = targetsAndVal[targetsAndVal.length - 1];
         return new Assign(targets, value);
     }
 
-    public void setBody(FunctionDef functionDef, Object ... body) {
+    public void setBody(FunctionDef functionDef, Object... body) {
         functionDef.body = createStmtArray(body);
     }
-    
-    public void setBody(ClassDef def, Object ... body) {
+
+    public void setBody(ClassDef def, Object... body) {
         def.body = createStmtArray(body);
     }
 
     private stmtType[] createStmtArray(Object... body) {
         ArrayList<stmtType> newBody = new ArrayList<stmtType>();
-        
-        for(Object o:body){
-            if(o instanceof exprType){
+
+        for (Object o : body) {
+            if (o instanceof exprType) {
                 newBody.add(new Expr((exprType) o));
-            }else if(o instanceof stmtType){
+            } else if (o instanceof stmtType) {
                 newBody.add((stmtType) o);
-            }else{
-                throw new RuntimeException("Unhandled: "+o);
+            } else {
+                throw new RuntimeException("Unhandled: " + o);
             }
         }
         stmtType[] bodyArray = newBody.toArray(new stmtType[newBody.size()]);
@@ -181,26 +179,27 @@ public class PyAstFactory {
     }
 
     private static final RuntimeException stopVisitingException = new RuntimeException("stop visiting");
-    
+
     /**
      * @param functionDef the function for the override body
      * @param currentClassName 
      */
     public stmtType createOverrideBody(FunctionDef functionDef, String parentClassName, String currentClassName) {
         //create a copy because we do not want to retain the original line/col and we may change the originals here.
-        final boolean[] addReturn = new boolean[]{false};
-        VisitorBase visitor = new VisitorBase(){
-            
+        final boolean[] addReturn = new boolean[] { false };
+        VisitorBase visitor = new VisitorBase() {
+
             public Object visitClassDef(ClassDef node) throws Exception {
                 return null;
             }
+
             public Object visitFunctionDef(FunctionDef node) throws Exception {
                 return null; //don't visit internal scopes.
             }
-            
+
             @Override
             protected Object unhandled_node(SimpleNode node) throws Exception {
-                if(node instanceof Return){
+                if (node instanceof Return) {
                     addReturn[0] = true;
                     throw stopVisitingException;
                 }
@@ -215,54 +214,54 @@ public class PyAstFactory {
         try {
             visitor.traverse(functionDef);
         } catch (Exception e) {
-            if(e != stopVisitingException){
+            if (e != stopVisitingException) {
                 Log.log(e);
             }
         }
-        
+
         boolean isClassMethod = false;
-        if(functionDef.decs != null){
-            for(decoratorsType dec: functionDef.decs){
+        if (functionDef.decs != null) {
+            for (decoratorsType dec : functionDef.decs) {
                 String rep = NodeUtils.getRepresentationString(dec.func);
-                if("classmethod".equals(rep)){
+                if ("classmethod".equals(rep)) {
                     isClassMethod = true;
                     break;
                 }
             }
         }
-        
-        argumentsType args = functionDef.args.createCopy(false); 
+
+        argumentsType args = functionDef.args.createCopy(false);
         List<exprType> params = new ArrayList<exprType>();
-        for(exprType expr:args.args){ //note: self should be there already!
+        for (exprType expr : args.args) { //note: self should be there already!
             params.add((exprType) expr);
         }
-        
-        exprType starargs = args.vararg != null?new Name(((NameTok)args.vararg).id, Name.Load, false):null;
-        exprType kwargs = args.kwarg != null?new Name(((NameTok)args.kwarg).id, Name.Load, false):null;
+
+        exprType starargs = args.vararg != null ? new Name(((NameTok) args.vararg).id, Name.Load, false) : null;
+        exprType kwargs = args.kwarg != null ? new Name(((NameTok) args.kwarg).id, Name.Load, false) : null;
         List<keywordType> keywords = new ArrayList<keywordType>();
-        if(args.defaults!= null){
-            int diff = args.args.length-args.defaults.length;
-            
+        if (args.defaults != null) {
+            int diff = args.args.length - args.defaults.length;
+
             FastStack<Integer> removePositions = new FastStack<Integer>(args.defaults.length);
-            for(int i=0;i<args.defaults.length;i++){
+            for (int i = 0; i < args.defaults.length; i++) {
                 exprType expr = args.defaults[i];
-                if(expr != null){
-                    exprType name = params.get(i+diff);
-                    if(name instanceof Name){
-                        removePositions.push(i+diff); //it's removed backwards, that's why it's a stack
+                if (expr != null) {
+                    exprType name = params.get(i + diff);
+                    if (name instanceof Name) {
+                        removePositions.push(i + diff); //it's removed backwards, that's why it's a stack
                         keywords.add(new keywordType(new NameTok(((Name) name).id, NameTok.KeywordName), name, false));
-                    }else{
-                        Log.log("Expected: "+name+" to be a Name instance.");
+                    } else {
+                        Log.log("Expected: " + name + " to be a Name instance.");
                     }
                 }
             }
-            while(removePositions.size()>0){
+            while (removePositions.size() > 0) {
                 Integer pop = removePositions.pop();
-                params.remove((int)pop);
+                params.remove((int) pop);
             }
         }
         Call call;
-        if(isClassMethod && params.size() > 0){
+        if (isClassMethod && params.size() > 0) {
             //We need to use the super() construct
             //Something as:
             //Expr[value=
@@ -272,28 +271,24 @@ public class PyAstFactory {
             //        attr=NameTok[id=test, ctx=Attrib], ctx=Load], 
             //    args=[], keywords=[], starargs=null, kwargs=null]
             //]
-            
+
             exprType firstParam = params.remove(0);
-            
+
             Call innerCall = createCall("super", currentClassName, NodeUtils.getRepresentationString(firstParam));
-            Attribute attr = new Attribute(innerCall, new NameTok(NodeUtils.getRepresentationString(functionDef), NameTok.Attrib), Attribute.Load);
-            call = new Call(attr, params.toArray(new Name[params.size()]), keywords.toArray(new keywordType[keywords.size()]), starargs, kwargs);
-            
-        }else{
-            call = createCall(
-                    parentClassName+"."+NodeUtils.getRepresentationString(functionDef), 
-                    params, 
-                    keywords.toArray(new keywordType[keywords.size()]), 
-                    starargs, 
-                    kwargs);
+            Attribute attr = new Attribute(innerCall, new NameTok(NodeUtils.getRepresentationString(functionDef),
+                    NameTok.Attrib), Attribute.Load);
+            call = new Call(attr, params.toArray(new Name[params.size()]), keywords.toArray(new keywordType[keywords
+                    .size()]), starargs, kwargs);
+
+        } else {
+            call = createCall(parentClassName + "." + NodeUtils.getRepresentationString(functionDef), params,
+                    keywords.toArray(new keywordType[keywords.size()]), starargs, kwargs);
         }
-        if(addReturn[0]){
+        if (addReturn[0]) {
             return new Return(call);
-        }else{
-            return new Expr(call);   
+        } else {
+            return new Expr(call);
         }
     }
-
-
 
 }

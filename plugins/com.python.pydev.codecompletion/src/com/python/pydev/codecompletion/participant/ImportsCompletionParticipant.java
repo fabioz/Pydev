@@ -47,92 +47,91 @@ import com.python.pydev.codecompletion.ui.CodeCompletionPreferencesPage;
  *
  * @author Fabio
  */
-public class ImportsCompletionParticipant implements IPyDevCompletionParticipant, IPyDevCompletionParticipant2{
+public class ImportsCompletionParticipant implements IPyDevCompletionParticipant, IPyDevCompletionParticipant2 {
 
     // Console completions ---------------------------------------------------------------------------------------------
-    
+
     public Collection<ICompletionProposal> computeConsoleCompletions(ActivationTokenAndQual tokenAndQual,
             List<IPythonNature> naturesUsed, IScriptConsoleViewer viewer, int requestOffset) {
         ArrayList<ICompletionProposal> completions = new ArrayList<ICompletionProposal>();
-        
-        if(tokenAndQual.activationToken != null && tokenAndQual.activationToken.length() > 0){
+
+        if (tokenAndQual.activationToken != null && tokenAndQual.activationToken.length() > 0) {
             //we only want 
             return completions;
         }
 
         String qual = tokenAndQual.qualifier;
-        if(qual.length() >= CodeCompletionPreferencesPage.getCharsForContextInsensitiveModulesCompletion() && 
-                naturesUsed != null && naturesUsed.size() > 0){ //at least n characters required...
-            
+        if (qual.length() >= CodeCompletionPreferencesPage.getCharsForContextInsensitiveModulesCompletion()
+                && naturesUsed != null && naturesUsed.size() > 0) { //at least n characters required...
+
             int qlen = qual.length();
             boolean addAutoImport = AutoImportsPreferencesPage.doAutoImport();
-            
-            for(IPythonNature nature : naturesUsed){
+
+            for (IPythonNature nature : naturesUsed) {
                 fillCompletions(requestOffset, completions, qual, nature, qlen, addAutoImport, viewer, false);
             }
-            
+
             fillCompletions(requestOffset, completions, qual, naturesUsed.get(0), qlen, addAutoImport, viewer, true);
-            
+
         }
         return completions;
     }
 
-
     private void fillCompletions(int requestOffset, ArrayList<ICompletionProposal> completions, String qual,
             IPythonNature nature, int qlen, boolean addAutoImport, IScriptConsoleViewer viewer, boolean getSystem) {
-        
+
         ICodeCompletionASTManager astManager = nature.getAstManager();
-        if(astManager == null){
-        	return;
+        if (astManager == null) {
+            return;
         }
-        
+
         Image img = PyCodeCompletionImages.getImageForType(IToken.TYPE_PACKAGE);
-        
+
         IModulesManager modulesManager = astManager.getModulesManager();
-        try{
-            if(modulesManager == null){
+        try {
+            if (modulesManager == null) {
                 nature.getProjectInterpreter(); //Just getting it here is likely to raise an error if it's not well configured.
             }
-            
-            if(getSystem){
+
+            if (getSystem) {
                 modulesManager = modulesManager.getSystemModulesManager();
-                if(modulesManager == null){
+                if (modulesManager == null) {
                     nature.getProjectInterpreter(); //Just getting it here is likely to raise an error if it's not well configured.
                 }
             }
-        }catch(PythonNatureWithoutProjectException e){
+        } catch (PythonNatureWithoutProjectException e) {
             throw new RuntimeException(e);
         } catch (MisconfigurationException e) {
             throw new RuntimeException(e);
-        } 
-        
+        }
+
         String lowerQual = qual.toLowerCase();
         Set<String> allModuleNames = modulesManager.getAllModuleNames(false, lowerQual);
 
-        FastStringBuffer realImportRep=new FastStringBuffer();
+        FastStringBuffer realImportRep = new FastStringBuffer();
         FastStringBuffer displayString = new FastStringBuffer();
         HashSet<String> alreadyFound = new HashSet<String>();
-        
-        for (String name:allModuleNames) {
-            
+
+        for (String name : allModuleNames) {
+
             FullRepIterable iterable = new FullRepIterable(name);
             for (String string : iterable) {
                 //clear the buffer...
                 realImportRep.clear();
-                
+
                 String[] strings = FullRepIterable.headAndTail(string);
                 String importRep = strings[1];
                 String lowerImportRep = importRep.toLowerCase();
-                if(!lowerImportRep.startsWith(lowerQual)){
+                if (!lowerImportRep.startsWith(lowerQual)) {
                     continue;
                 }
 
                 displayString.clear();
                 displayString.append(importRep);
-                
+
                 String packageName = strings[0];
-                if(packageName.length() > 0){
-                    if(addAutoImport){
+                if (packageName.length() > 0) {
+                    if (addAutoImport) {
                         realImportRep.append("from ");
                         realImportRep.append(packageName);
                         realImportRep.append(" ");
@@ -140,91 +139,80 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
                     displayString.append(" - ");
                     displayString.append(packageName);
                 }
-                
-                if(addAutoImport){
+
+                if (addAutoImport) {
                     realImportRep.append("import ");
                     realImportRep.append(strings[1]);
                 }
-                
-                
+
                 String found = displayString.toString();
-                if(alreadyFound.contains(found)){
+                if (alreadyFound.contains(found)) {
                     continue;
                 }
                 alreadyFound.add(found);
-                
-                PyConsoleCompletion  proposal = new PyConsoleCompletion (
-                        importRep,
-                        requestOffset - qlen, 
-                        qlen, 
-                        realImportRep.length(), 
-                        img, 
-                        found, 
-                        (IContextInformation)null, 
-                        "", 
-                        lowerImportRep.equals(lowerQual)? IPyCompletionProposal.PRIORITY_LOCALS_2 : IPyCompletionProposal.PRIORITY_PACKAGES,
-                        realImportRep.toString(), viewer);
+
+                PyConsoleCompletion proposal = new PyConsoleCompletion(importRep, requestOffset - qlen, qlen,
+                        realImportRep.length(), img, found, (IContextInformation) null, "",
+                        lowerImportRep.equals(lowerQual) ? IPyCompletionProposal.PRIORITY_LOCALS_2
+                                : IPyCompletionProposal.PRIORITY_PACKAGES, realImportRep.toString(), viewer);
 
                 completions.add(proposal);
             }
         }
     }
 
-
     // Editor completions ----------------------------------------------------------------------------------------------
-    
-    private Collection<CtxInsensitiveImportComplProposal> getThem(
-            CompletionRequest request, 
-            ICompletionState state, 
-            boolean addAutoImport
-            ) throws MisconfigurationException {
+
+    private Collection<CtxInsensitiveImportComplProposal> getThem(CompletionRequest request, ICompletionState state,
+            boolean addAutoImport) throws MisconfigurationException {
         ArrayList<CtxInsensitiveImportComplProposal> list = new ArrayList<CtxInsensitiveImportComplProposal>();
-        if(request.isInCalltip){
+        if (request.isInCalltip) {
             return list;
         }
-        
-        if(request.qualifier.length() >= CodeCompletionPreferencesPage.getCharsForContextInsensitiveModulesCompletion()){ //at least n characters required...
-            
+
+        if (request.qualifier.length() >= CodeCompletionPreferencesPage
+                .getCharsForContextInsensitiveModulesCompletion()) { //at least n characters required...
+
             ICodeCompletionASTManager astManager = request.nature.getAstManager();
-            if(astManager == null){
-            	return list;
+            if (astManager == null) {
+                return list;
             }
             String initialModule = request.resolveModule();
-            
+
             Image img = PyCodeCompletionImages.getImageForType(IToken.TYPE_PACKAGE);
-            
+
             IModulesManager projectModulesManager = astManager.getModulesManager();
-            
+
             String lowerQual = request.qualifier.toLowerCase();
             Set<String> allModuleNames = projectModulesManager.getAllModuleNames(true, lowerQual);
 
-            FastStringBuffer realImportRep=new FastStringBuffer();
-            FastStringBuffer displayString=new FastStringBuffer();
+            FastStringBuffer realImportRep = new FastStringBuffer();
+            FastStringBuffer displayString = new FastStringBuffer();
             HashSet<String> importedNames = getImportedNames(state);
-            
-            for (String name:allModuleNames) {
-                if(name.equals(initialModule)){
+
+            for (String name : allModuleNames) {
+                if (name.equals(initialModule)) {
                     continue;
                 }
-                
+
                 FullRepIterable iterable = new FullRepIterable(name);
                 for (String string : iterable) {
                     //clear the buffer...
                     realImportRep.clear();
-                    
+
                     String[] strings = FullRepIterable.headAndTail(string);
                     String importRep = strings[1];
                     String lowerImportRep = importRep.toLowerCase();
-                    if(!lowerImportRep.startsWith(lowerQual) || importedNames.contains(importRep)){
+                    if (!lowerImportRep.startsWith(lowerQual) || importedNames.contains(importRep)) {
                         continue;
                     }
 
                     displayString.clear();
                     displayString.append(importRep);
-                    
+
                     String packageName = strings[0];
-                    if(packageName.length() > 0){
-                        if(addAutoImport){
+                    if (packageName.length() > 0) {
+                        if (addAutoImport) {
                             realImportRep.append("from ");
                             realImportRep.append(packageName);
                             realImportRep.append(" ");
@@ -232,24 +220,17 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
                         displayString.append(" - ");
                         displayString.append(packageName);
                     }
-                    
-                    if(addAutoImport){
+
+                    if (addAutoImport) {
                         realImportRep.append("import ");
                         realImportRep.append(strings[1]);
                     }
-                    
-                    
-                    CtxInsensitiveImportComplProposal  proposal = new CtxInsensitiveImportComplProposal (
-                            importRep,
-                            request.documentOffset - request.qlen, 
-                            request.qlen, 
-                            realImportRep.length(), 
-                            img, 
-                            displayString.toString(), 
-                            (IContextInformation)null, 
-                            "", 
-                            lowerImportRep.equals(lowerQual)? IPyCompletionProposal.PRIORITY_LOCALS_2 : IPyCompletionProposal.PRIORITY_PACKAGES,
-                            realImportRep.toString());
+
+                    CtxInsensitiveImportComplProposal proposal = new CtxInsensitiveImportComplProposal(importRep,
+                            request.documentOffset - request.qlen, request.qlen, realImportRep.length(), img,
+                            displayString.toString(), (IContextInformation) null, "",
+                            lowerImportRep.equals(lowerQual) ? IPyCompletionProposal.PRIORITY_LOCALS_2
+                                    : IPyCompletionProposal.PRIORITY_PACKAGES, realImportRep.toString());
 
                     list.add(proposal);
                 }
@@ -261,7 +242,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
     private HashSet<String> getImportedNames(ICompletionState state) {
         List<IToken> tokenImportedModules = state.getTokenImportedModules();
         HashSet<String> importedNames = new HashSet<String>();
-        if(tokenImportedModules != null){
+        if (tokenImportedModules != null) {
             for (IToken token : tokenImportedModules) {
                 importedNames.add(token.getRepresentation());
             }
@@ -270,30 +251,31 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
     }
 
     @SuppressWarnings("unchecked")
-    public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state) throws MisconfigurationException {
+    public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state)
+            throws MisconfigurationException {
         return getThem(request, state, AutoImportsPreferencesPage.doAutoImport());
     }
-    
+
     @SuppressWarnings("unchecked")
-    public Collection getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope, Collection<IToken> interfaceForLocal) {
+    public Collection getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,
+            Collection<IToken> interfaceForLocal) {
         return Collections.emptyList();
     }
 
     @SuppressWarnings("unchecked")
-    public Collection getStringGlobalCompletions(CompletionRequest request, ICompletionState state) throws MisconfigurationException {
+    public Collection getStringGlobalCompletions(CompletionRequest request, ICompletionState state)
+            throws MisconfigurationException {
         return getThem(request, state, false);
     }
 
     public Collection<Object> getArgsCompletion(ICompletionState state, ILocalScope localScope,
-            Collection<IToken> interfaceForLocal){
+            Collection<IToken> interfaceForLocal) {
         throw new RuntimeException("Deprecated");
     }
 
-
     public Collection<IToken> getCompletionsForTokenWithUndefinedType(ICompletionState state, ILocalScope localScope,
-            Collection<IToken> interfaceForLocal){
+            Collection<IToken> interfaceForLocal) {
         return Collections.emptyList();
     }
 
-    
 }

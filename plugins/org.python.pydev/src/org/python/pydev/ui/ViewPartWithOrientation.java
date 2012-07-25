@@ -26,93 +26,91 @@ public abstract class ViewPartWithOrientation extends ViewPart implements IPrope
     protected int fCurrentOrientation;
     private int orientationPreference;
 
-    
-    protected ViewPartWithOrientation(){
+    protected ViewPartWithOrientation() {
         String orientationPreferencesKey = getOrientationPreferencesKey();
-        if(PydevPlugin.getDefault() != null){
+        if (PydevPlugin.getDefault() != null) {
             IPreferenceStore preferenceStore = PydevPrefs.getPreferenceStore();
             orientationPreference = preferenceStore.getInt(orientationPreferencesKey);
             PydevPrefs.getPreferenceStore().addPropertyChangeListener(this);
         }
     }
-    
-    /*default*/ static final int PREFERENCES_VIEW_ORIENTATION_AUTOMATIC = 0;
-    /*default*/ static final int PREFERENCES_VIEW_ORIENTATION_HORIZONTAL = 1;
-    /*default*/ static final int PREFERENCES_VIEW_ORIENTATION_VERTICAL = 2;
-    
+
+    /*default*/static final int PREFERENCES_VIEW_ORIENTATION_AUTOMATIC = 0;
+    /*default*/static final int PREFERENCES_VIEW_ORIENTATION_HORIZONTAL = 1;
+    /*default*/static final int PREFERENCES_VIEW_ORIENTATION_VERTICAL = 2;
+
     //Subclasses will be passed these constants!
     public static final int VIEW_ORIENTATION_HORIZONTAL = 1;
     public static final int VIEW_ORIENTATION_VERTICAL = 2;
-    
+
     @SuppressWarnings("rawtypes")
     public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();
-    
+
     @SuppressWarnings("rawtypes")
     public final ICallbackWithListeners onControlDisposed = new CallbackWithListeners();
-    
 
     public void createPartControl(Composite parent) {
-        fParent= parent;
+        fParent = parent;
         addResizeListener(parent);
     }
-    
+
     public abstract String getOrientationPreferencesKey();
 
-    /*default*/ int getOrientationPreferenceValue(){
+    /*default*/int getOrientationPreferenceValue() {
         return orientationPreference;
     }
-    
-    protected void addOrientationPreferences(IMenuManager menuManager){
+
+    protected void addOrientationPreferences(IMenuManager menuManager) {
         menuManager.add(new SetOrientationAction(this));
     }
-    
+
     protected void updateOrientation() {
-        switch(orientationPreference){
+        switch (orientationPreference) {
             case PREFERENCES_VIEW_ORIENTATION_HORIZONTAL:
                 setNewOrientation(VIEW_ORIENTATION_HORIZONTAL);
                 break;
-                
+
             case PREFERENCES_VIEW_ORIENTATION_VERTICAL:
                 setNewOrientation(VIEW_ORIENTATION_VERTICAL);
                 break;
-                
+
             default:
                 //automatic
-                Point size= fParent.getSize();
+                Point size = fParent.getSize();
                 if (size.x != 0 && size.y != 0) {
-                    if (size.x > size.y){
+                    if (size.x > size.y) {
                         setNewOrientation(VIEW_ORIENTATION_HORIZONTAL);
-                    }else{
+                    } else {
                         setNewOrientation(VIEW_ORIENTATION_VERTICAL);
                     }
                 }
         }
     }
-    
+
     private void addResizeListener(Composite parent) {
         parent.addControlListener(new ControlListener() {
             public void controlMoved(ControlEvent e) {
             }
+
             public void controlResized(ControlEvent e) {
                 updateOrientation();
             }
         });
     }
-    
+
     protected abstract void setNewOrientation(int orientation);
 
-    
     @Override
     public void dispose() {
         PydevPrefs.getPreferenceStore().removePropertyChangeListener(this);
         super.dispose();
     }
-    
+
     /* (non-Javadoc)
      * @see org.eclipse.jface.util.IPropertyChangeListener#propertyChange(org.eclipse.jface.util.PropertyChangeEvent)
      */
     public void propertyChange(PropertyChangeEvent event) {
-        if(event.getProperty().equals(this.getOrientationPreferencesKey())){
+        if (event.getProperty().equals(this.getOrientationPreferencesKey())) {
             orientationPreference = (Integer) event.getNewValue();
             updateOrientation();
         }

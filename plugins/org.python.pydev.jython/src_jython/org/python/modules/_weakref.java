@@ -6,7 +6,6 @@ import java.lang.ref.*;
 import java.util.*;
 import org.python.core.*;
 
-
 public class _weakref implements ClassDictInit {
     static ReferenceQueue referenceQueue = new ReferenceQueue();
 
@@ -22,13 +21,9 @@ public class _weakref implements ClassDictInit {
     }
 
     /** <i>Internal use only. Do not call this method explicit.</i> */
-    public static void classDictInit(PyObject dict)
-        throws PyIgnoreMethodTag
-    {
-        ReferenceError = Py.makeClass("ReferenceError",
-                            new PyObject[] { Py.RuntimeError },
-                            Py.newJavaCode(_weakref.class, "empty__init__"),
-                            Py.None);
+    public static void classDictInit(PyObject dict) throws PyIgnoreMethodTag {
+        ReferenceError = Py.makeClass("ReferenceError", new PyObject[] { Py.RuntimeError },
+                Py.newJavaCode(_weakref.class, "empty__init__"), Py.None);
         dict.__setitem__("ReferenceError", ReferenceError);
     }
 
@@ -39,9 +34,9 @@ public class _weakref implements ClassDictInit {
         return dict;
     }
 
-    public static ReferenceType ref(PyObject object)  {
+    public static ReferenceType ref(PyObject object) {
         GlobalRef gref = mkGlobal(object);
-        ReferenceType ret = (ReferenceType)gref.find(ReferenceType.class);
+        ReferenceType ret = (ReferenceType) gref.find(ReferenceType.class);
         if (ret != null) {
             return ret;
         }
@@ -52,9 +47,9 @@ public class _weakref implements ClassDictInit {
         return new ReferenceType(mkGlobal(object), callback);
     }
 
-    public static ProxyType proxy(PyObject object)  {
+    public static ProxyType proxy(PyObject object) {
         GlobalRef gref = mkGlobal(object);
-        ProxyType ret = (ProxyType)gref.find(ProxyType.class);
+        ProxyType ret = (ProxyType) gref.find(ProxyType.class);
         if (ret != null) {
             return ret;
         }
@@ -112,17 +107,17 @@ public class _weakref implements ClassDictInit {
             while (true) {
                 try {
                     collect();
-                } catch (InterruptedException exc) { }
-             }
+                } catch (InterruptedException exc) {
+                }
+            }
         }
     }
-
 
     public static class GlobalRef extends WeakReference {
         private Vector references = new Vector();
         private int hash;
         private boolean realHash; // If the hash value was calculated by the underlying object
-        
+
         public GlobalRef(PyObject object) {
             super(object);
             calcHash(object);
@@ -132,7 +127,7 @@ public class _weakref implements ClassDictInit {
             super(object, queue);
             calcHash(object);
         }
-        
+
         /**
          * Calculate a hash code to use for this object.  If the PyObject we're
          * referencing implements hashCode, we use that value.  If not, we use
@@ -140,7 +135,7 @@ public class _weakref implements ClassDictInit {
          * used in a Map while allowing Python ref objects to tell if the 
          * hashCode is actually valid for the object.
          */
-        private void calcHash (PyObject object) {
+        private void calcHash(PyObject object) {
             try {
                 hash = object.hashCode();
                 realHash = true;
@@ -218,12 +213,16 @@ public class _weakref implements ClassDictInit {
          * Allow GlobalRef's to be used as hashtable keys.
          */
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof GlobalRef)) return false;
+            if (this == o)
+                return true;
+            if (!(o instanceof GlobalRef))
+                return false;
             Object t = this.get();
-            Object u = ((GlobalRef)o).get();
-            if ((t == null) || (u == null)) return false;
-            if (t == u) return true;
+            Object u = ((GlobalRef) o).get();
+            if ((t == null) || (u == null))
+                return false;
+            if (t == u)
+                return true;
             return t.equals(u);
         }
 
@@ -234,7 +233,6 @@ public class _weakref implements ClassDictInit {
             return hash;
         }
     }
-
 
     public static abstract class AbstractReference extends PyObject {
         PyObject callback;
@@ -259,8 +257,7 @@ public class _weakref implements ClassDictInit {
         protected PyObject py() {
             PyObject o = (PyObject) gref.get();
             if (o == null) {
-                throw new PyException(ReferenceError,
-                              "weakly-referenced object no longer exists");
+                throw new PyException(ReferenceError, "weakly-referenced object no longer exists");
             }
             return o;
         }
@@ -276,15 +273,13 @@ public class _weakref implements ClassDictInit {
             if (other.getClass() != getClass())
                 return null;
             PyObject pythis = (PyObject) gref.get();
-            PyObject pyother = (PyObject) ((AbstractReference) other).
-                                                            gref.get();
+            PyObject pyother = (PyObject) ((AbstractReference) other).gref.get();
             if (pythis == null || pyother == null)
                 return this == other ? Py.One : Py.Zero;
-            return  pythis._eq(pyother);
+            return pythis._eq(pyother);
         }
 
     }
-
 
     public static class ReferenceType extends AbstractReference {
         ReferenceType(GlobalRef gref, PyObject callback) {
@@ -296,8 +291,7 @@ public class _weakref implements ClassDictInit {
         }
 
         public String toString() {
-            String ret = "<weakref " +
-                    Py.idstr(this) +";";
+            String ret = "<weakref " + Py.idstr(this) + ";";
             PyObject obj = (PyObject) gref.get();
             if (obj != null)
                 ret += " to " + obj.safeRepr() + ">";
@@ -324,62 +318,196 @@ public class _weakref implements ClassDictInit {
             py().__delattr__(name);
         }
 
-        public PyString __str__() { return py().__str__(); }
-        public PyString __hex__() { return py().__hex__(); }
-        public PyString __oct__() { return py().__oct__(); }
-        public PyObject __int__() { return py().__int__(); }
-        public PyFloat __float__() { return py().__float__(); }
-        public PyLong __long__() { return py().__long__(); }
-        public PyComplex __complex__() { return py().__complex__(); }
-        public PyObject __pos__() { return py().__pos__(); }
-        public PyObject __neg__() { return py().__neg__(); }
-        public PyObject __abs__() { return py().__abs__(); }
-        public PyObject __invert__() { return py().__invert__(); }
+        public PyString __str__() {
+            return py().__str__();
+        }
 
-        public PyObject __add__(PyObject o) { return py().__add__(o); }
-        public PyObject __radd__(PyObject o) { return py().__radd__(o); }
-        public PyObject __iadd__(PyObject o) { return py().__iadd__(o); }
-        public PyObject __sub__(PyObject o) { return py().__sub__(o); }
-        public PyObject __rsub__(PyObject o) { return py().__rsub__(o); }
-        public PyObject __isub__(PyObject o) { return py().__isub__(o); }
-        public PyObject __mul__(PyObject o) { return py().__mul__(o); }
-        public PyObject __rmul__(PyObject o) { return py().__rmul__(o); }
-        public PyObject __imul__(PyObject o) { return py().__imul__(o); }
-        public PyObject __div__(PyObject o) { return py().__div__(o); }
-        public PyObject __rdiv__(PyObject o) { return py().__rdiv__(o); }
-        public PyObject __idiv__(PyObject o) { return py().__idiv__(o); }
-        public PyObject __mod__(PyObject o) { return py().__mod__(o); }
-        public PyObject __rmod__(PyObject o) { return py().__rmod__(o); }
-        public PyObject __imod__(PyObject o) { return py().__imod__(o); }
-        public PyObject __divmod__(PyObject o) { return py().__divmod__(o); }
-        public PyObject __rdivmod__(PyObject o) { return py().__rdivmod__(o);}
-        public PyObject __pow__(PyObject o) { return py().__pow__(o); }
-        public PyObject __rpow__(PyObject o) { return py().__rpow__(o); }
-        public PyObject __ipow__(PyObject o) { return py().__ipow__(o); }
-        public PyObject __lshift__(PyObject o) { return py().__lshift__(o); }
-        public PyObject __rlshift__(PyObject o) { return py().__rlshift__(o);}
-        public PyObject __ilshift__(PyObject o) { return py().__ilshift__(o);}
+        public PyString __hex__() {
+            return py().__hex__();
+        }
 
-        public PyObject __rshift__(PyObject o) { return py().__rshift__(o); }
-        public PyObject __rrshift__(PyObject o) { return py().__rrshift__(o);}
-        public PyObject __irshift__(PyObject o) { return py().__irshift__(o);}
-        public PyObject __and__(PyObject o) { return py().__and__(o); }
-        public PyObject __rand__(PyObject o) { return py().__rand__(o); }
-        public PyObject __iand__(PyObject o) { return py().__iand__(o); }
-        public PyObject __or__(PyObject o) { return py().__or__(o); }
-        public PyObject __ror__(PyObject o) { return py().__ror__(o); }
-        public PyObject __ior__(PyObject o) { return py().__ior__(o); }
-        public PyObject __xor__(PyObject o) { return py().__xor__(o); }
-        public PyObject __rxor__(PyObject o) { return py().__rxor__(o); }
-        public PyObject __ixor__(PyObject o) { return py().__ixor__(o); }
+        public PyString __oct__() {
+            return py().__oct__();
+        }
+
+        public PyObject __int__() {
+            return py().__int__();
+        }
+
+        public PyFloat __float__() {
+            return py().__float__();
+        }
+
+        public PyLong __long__() {
+            return py().__long__();
+        }
+
+        public PyComplex __complex__() {
+            return py().__complex__();
+        }
+
+        public PyObject __pos__() {
+            return py().__pos__();
+        }
+
+        public PyObject __neg__() {
+            return py().__neg__();
+        }
+
+        public PyObject __abs__() {
+            return py().__abs__();
+        }
+
+        public PyObject __invert__() {
+            return py().__invert__();
+        }
+
+        public PyObject __add__(PyObject o) {
+            return py().__add__(o);
+        }
+
+        public PyObject __radd__(PyObject o) {
+            return py().__radd__(o);
+        }
+
+        public PyObject __iadd__(PyObject o) {
+            return py().__iadd__(o);
+        }
+
+        public PyObject __sub__(PyObject o) {
+            return py().__sub__(o);
+        }
+
+        public PyObject __rsub__(PyObject o) {
+            return py().__rsub__(o);
+        }
+
+        public PyObject __isub__(PyObject o) {
+            return py().__isub__(o);
+        }
+
+        public PyObject __mul__(PyObject o) {
+            return py().__mul__(o);
+        }
+
+        public PyObject __rmul__(PyObject o) {
+            return py().__rmul__(o);
+        }
+
+        public PyObject __imul__(PyObject o) {
+            return py().__imul__(o);
+        }
+
+        public PyObject __div__(PyObject o) {
+            return py().__div__(o);
+        }
+
+        public PyObject __rdiv__(PyObject o) {
+            return py().__rdiv__(o);
+        }
+
+        public PyObject __idiv__(PyObject o) {
+            return py().__idiv__(o);
+        }
+
+        public PyObject __mod__(PyObject o) {
+            return py().__mod__(o);
+        }
+
+        public PyObject __rmod__(PyObject o) {
+            return py().__rmod__(o);
+        }
+
+        public PyObject __imod__(PyObject o) {
+            return py().__imod__(o);
+        }
+
+        public PyObject __divmod__(PyObject o) {
+            return py().__divmod__(o);
+        }
+
+        public PyObject __rdivmod__(PyObject o) {
+            return py().__rdivmod__(o);
+        }
+
+        public PyObject __pow__(PyObject o) {
+            return py().__pow__(o);
+        }
+
+        public PyObject __rpow__(PyObject o) {
+            return py().__rpow__(o);
+        }
+
+        public PyObject __ipow__(PyObject o) {
+            return py().__ipow__(o);
+        }
+
+        public PyObject __lshift__(PyObject o) {
+            return py().__lshift__(o);
+        }
+
+        public PyObject __rlshift__(PyObject o) {
+            return py().__rlshift__(o);
+        }
+
+        public PyObject __ilshift__(PyObject o) {
+            return py().__ilshift__(o);
+        }
+
+        public PyObject __rshift__(PyObject o) {
+            return py().__rshift__(o);
+        }
+
+        public PyObject __rrshift__(PyObject o) {
+            return py().__rrshift__(o);
+        }
+
+        public PyObject __irshift__(PyObject o) {
+            return py().__irshift__(o);
+        }
+
+        public PyObject __and__(PyObject o) {
+            return py().__and__(o);
+        }
+
+        public PyObject __rand__(PyObject o) {
+            return py().__rand__(o);
+        }
+
+        public PyObject __iand__(PyObject o) {
+            return py().__iand__(o);
+        }
+
+        public PyObject __or__(PyObject o) {
+            return py().__or__(o);
+        }
+
+        public PyObject __ror__(PyObject o) {
+            return py().__ror__(o);
+        }
+
+        public PyObject __ior__(PyObject o) {
+            return py().__ior__(o);
+        }
+
+        public PyObject __xor__(PyObject o) {
+            return py().__xor__(o);
+        }
+
+        public PyObject __rxor__(PyObject o) {
+            return py().__rxor__(o);
+        }
+
+        public PyObject __ixor__(PyObject o) {
+            return py().__ixor__(o);
+        }
 
         public String toString() {
-            String ret = "<weakref " +Py.idstr(this);
+            String ret = "<weakref " + Py.idstr(this);
             PyObject obj = (PyObject) gref.get();
             if (obj == null)
                 obj = Py.None;
-            ret += " to " + obj.safeRepr() + " "+
-                    Py.idstr(obj) + ">";
+            ret += " to " + obj.safeRepr() + " " + Py.idstr(obj) + ">";
             return ret;
         }
     }
@@ -388,12 +516,10 @@ public class _weakref implements ClassDictInit {
         CallableProxyType(GlobalRef ref, PyObject callback) {
             super(ref, callback);
         }
+
         public PyObject __call__(PyObject[] args, String[] kws) {
             return py().__call__(args, kws);
         }
     }
 
-
 }
-
-

@@ -48,21 +48,21 @@ public class PyBreakpoint extends LineBreakpoint {
     public static final String PY_BREAK_EXTERNAL_PATH_ID = "org.python.pydev.debug.PYDEV_EXTERNAL_PATH_ID";
 
     static public final String PY_BREAK_MARKER = "org.python.pydev.debug.pyStopBreakpointMarker";
-    
+
     static public final String PY_CONDITIONAL_BREAK_MARKER = "org.python.pydev.debug.pyConditionalStopBreakpointMarker";
-    
+
     /**
      * Breakpoint attribute storing a breakpoint's conditional expression
      * (value <code>"org.eclipse.jdt.debug.core.condition"</code>). This attribute is stored as a
      * <code>String</code>.
      */
-    protected static final String CONDITION= "org.python.pydev.debug.condition"; //$NON-NLS-1$
+    protected static final String CONDITION = "org.python.pydev.debug.condition"; //$NON-NLS-1$
     /**
      * Breakpoint attribute storing a breakpoint's condition enablement
      * (value <code>"org.eclipse.jdt.debug.core.conditionEnabled"</code>). This attribute is stored as an
      * <code>boolean</code>.
      */
-    protected static final String CONDITION_ENABLED= "org.python.pydev.debug.conditionEnabled";
+    protected static final String CONDITION_ENABLED = "org.python.pydev.debug.conditionEnabled";
 
     public PyBreakpoint() {
     }
@@ -70,20 +70,20 @@ public class PyBreakpoint extends LineBreakpoint {
     public String getModelIdentifier() {
         return PyDebugModelPresentation.PY_DEBUG_MODEL_ID;
     }
-    
+
     /**
      * @return the file to be debugged or null if it cannot be determined.
      */
     public String getFile() {
         IMarker marker = getMarker();
         IResource r = marker.getResource();
-        if(r instanceof IFile){
+        if (r instanceof IFile) {
             IPath location = r.getLocation();
-            if(location == null){
+            if (location == null) {
                 return null;
             }
             return location.toOSString();
-        }else{
+        } else {
             //it's an external file...
             try {
                 return (String) marker.getAttribute(PyBreakpoint.PY_BREAK_EXTERNAL_PATH_ID);
@@ -92,34 +92,35 @@ public class PyBreakpoint extends LineBreakpoint {
             }
         }
     }
-    
-    private IDocument getDocument(){
+
+    private IDocument getDocument() {
         IMarker marker = getMarker();
         IResource r = marker.getResource();
-        if(r instanceof IFile){
+        if (r instanceof IFile) {
             return REF.getDocFromResource(r);
-        }else{
+        } else {
             //it's an external file...
             try {
-                return REF.getDocFromFile(new File((String) marker.getAttribute(PyBreakpoint.PY_BREAK_EXTERNAL_PATH_ID)));
+                return REF
+                        .getDocFromFile(new File((String) marker.getAttribute(PyBreakpoint.PY_BREAK_EXTERNAL_PATH_ID)));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
     }
-    
+
     /**
      * @return The nature to be used for this breakpoint or null if it cannot be determined.
      */
     private IPythonNature getPythonNature() {
         IMarker marker = getMarker();
         IPythonNature nature = PythonNature.getPythonNature(marker.getResource());
-        if(nature == null){
+        if (nature == null) {
             try {
                 String externalPath = (String) marker.getAttribute(PyBreakpoint.PY_BREAK_EXTERNAL_PATH_ID);
-                if(externalPath != null){
+                if (externalPath != null) {
                     Tuple<IPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(new File(externalPath));
-                    if(infoForFile != null){
+                    if (infoForFile != null) {
                         nature = infoForFile.o1;
                     }
                 }
@@ -130,7 +131,6 @@ public class PyBreakpoint extends LineBreakpoint {
         return nature;
     }
 
-    
     public Object getLine() {
         try {
             return getMarker().getAttribute(IMarker.LINE_NUMBER);
@@ -152,17 +152,16 @@ public class PyBreakpoint extends LineBreakpoint {
     }
 
     public void setConditionEnabled(boolean conditionEnabled) throws CoreException {
-        setAttributes(new String[]{CONDITION_ENABLED}, new Object[]{new Boolean(conditionEnabled)});
+        setAttributes(new String[] { CONDITION_ENABLED }, new Object[] { new Boolean(conditionEnabled) });
     }
 
     public void setCondition(String condition) throws CoreException {
         if (condition != null && condition.trim().length() == 0) {
             condition = null;
         }
-        setAttributes(new String []{CONDITION}, new Object[]{condition});
+        setAttributes(new String[] { CONDITION }, new Object[] { condition });
     }
-    
-    
+
     /**
      * Returns the marker associated with this breakpoint.
      * 
@@ -173,12 +172,12 @@ public class PyBreakpoint extends LineBreakpoint {
     protected IMarker ensureMarker() throws DebugException {
         IMarker m = getMarker();
         if (m == null || !m.exists()) {
-            throw new DebugException(new Status(IStatus.ERROR, DebugPlugin.getUniqueIdentifier(), DebugException.REQUEST_FAILED,
-                "Breakpoint_no_associated_marker", null));
+            throw new DebugException(new Status(IStatus.ERROR, DebugPlugin.getUniqueIdentifier(),
+                    DebugException.REQUEST_FAILED, "Breakpoint_no_associated_marker", null));
         }
         return m;
     }
-    
+
     private String functionName;
     private long lastModifiedTimeCached;
 
@@ -191,75 +190,75 @@ public class PyBreakpoint extends LineBreakpoint {
     public String getFunctionName() {
         String fileStr = getFile();
         File file = fileStr != null ? new File(fileStr) : null;
-        if(file == null || !file.exists()){
+        if (file == null || !file.exists()) {
             return "None";
         }
-        
-        if(file.lastModified() == lastModifiedTimeCached){
+
+        if (file.lastModified() == lastModifiedTimeCached) {
             return functionName;
         }
-        
+
         try {
             IPythonNature nature = getPythonNature();
-            if(nature == null){
-            	lastModifiedTimeCached = 0;
-            	return "None";
+            if (nature == null) {
+                lastModifiedTimeCached = 0;
+                return "None";
             }
-        	ICodeCompletionASTManager astManager = nature.getAstManager();
-        	if(astManager == null){
-        		lastModifiedTimeCached = 0;
-        		return "None";
-        	}
+            ICodeCompletionASTManager astManager = nature.getAstManager();
+            if (astManager == null) {
+                lastModifiedTimeCached = 0;
+                return "None";
+            }
             //Only mark it as found if we were able to get the python nature (otherwise, this could change later
             //if requesting during a setup)
-            if(nature.startRequests()){ //start requests, as we'll ask for resolve and get module.
-            	SourceModule sourceModule = null;
-                try{
-	                String modName = nature.resolveModule(fileStr);
-	                if(modName != null){
-	                    //when all is set up, this is the most likely path we're going to use
-	                    //so, we shouldn't have delays when the module is changed, as it's already
-	                    //ok for use.
-	                    IModule module = astManager.getModule(modName, nature, true);
-	                    if(module instanceof SourceModule){
-	                        sourceModule = (SourceModule) module;
-	                    }
-	                }
-                }finally{
-                	nature.endRequests();
+            if (nature.startRequests()) { //start requests, as we'll ask for resolve and get module.
+                SourceModule sourceModule = null;
+                try {
+                    String modName = nature.resolveModule(fileStr);
+                    if (modName != null) {
+                        //when all is set up, this is the most likely path we're going to use
+                        //so, we shouldn't have delays when the module is changed, as it's already
+                        //ok for use.
+                        IModule module = astManager.getModule(modName, nature, true);
+                        if (module instanceof SourceModule) {
+                            sourceModule = (SourceModule) module;
+                        }
+                    }
+                } finally {
+                    nature.endRequests();
                 }
                 lastModifiedTimeCached = file.lastModified();
-	                
-                if(sourceModule == null){
+
+                if (sourceModule == null) {
                     //the text for the breakpoint requires the function name, and it may be requested before
                     //the ast manager is actually restored (so, modName is None, and we have little alternative
                     //but making a parse to get the function name)
                     IDocument doc = getDocument();
                     sourceModule = (SourceModule) AbstractModule.createModuleFromDoc("", null, doc, nature, true);
                 }
-                
+
                 int lineToUse = getLineNumber() - 1;
-                
-                if(sourceModule == null || sourceModule.getAst() == null || lineToUse < 0){
+
+                if (sourceModule == null || sourceModule.getAst() == null || lineToUse < 0) {
                     functionName = "None";
                     return functionName;
                 }
-                
+
                 SimpleNode ast = sourceModule.getAst();
-                
+
                 functionName = NodeUtils.getContextName(lineToUse, ast);
-                if(functionName == null){
+                if (functionName == null) {
                     functionName = ""; //global context
                 }
                 return functionName;
-                
+
             }
             //If it was found, it would've already returned. So, match anything as we couldn't determine it.
             functionName = "None";
-            
+
         } catch (Exception e) {
             //Some error happened determining it. Match anything.
-            Log.log("Error determining breakpoint context. Breakpoint at: "+file+" will match any context.", e);
+            Log.log("Error determining breakpoint context. Breakpoint at: " + file + " will match any context.", e);
             functionName = "None";
         }
         return functionName;

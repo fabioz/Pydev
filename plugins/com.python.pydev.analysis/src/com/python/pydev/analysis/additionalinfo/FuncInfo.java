@@ -9,25 +9,21 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
+public final class FuncInfo extends AbstractInfo {
 
-public final class FuncInfo extends AbstractInfo{
-    
     /**
      * Changed for 2.1
      */
     private static final long serialVersionUID = 3L;
 
-
     public FuncInfo(String defName, String moduleDeclared, String path) {
         super(defName, moduleDeclared, path);
     }
-    
+
     public FuncInfo(String defName, String moduleDeclared, String path, boolean doNotInternOnThisContstruct) {
         super(defName, moduleDeclared, path, doNotInternOnThisContstruct);
     }
 
-
-    
     public int getType() {
         return METHOD_WITH_IMPORT_TYPE;
     }

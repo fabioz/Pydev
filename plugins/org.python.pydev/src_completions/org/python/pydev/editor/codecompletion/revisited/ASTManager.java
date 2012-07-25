@@ -27,7 +27,6 @@ import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.IASTManagerObserver;
 
-
 /**
  * This structure should be in memory, so that it acts very quickly.
  * 
@@ -40,18 +39,19 @@ import org.python.pydev.editor.codecompletion.IASTManagerObserver;
  * 
  * @author Fabio Zadrozny
  */
-public final class ASTManager extends AbstractASTManager implements ICodeCompletionASTManager{
+public final class ASTManager extends AbstractASTManager implements ICodeCompletionASTManager {
 
-    
-    public ASTManager() {}
-    
+    public ASTManager() {
+    }
+
     /**
      * Set the project this ast manager works with.
      */
     @SuppressWarnings("unchecked")
-    public void setProject(IProject project, IPythonNature nature, boolean restoreDeltas){
+    public void setProject(IProject project, IPythonNature nature, boolean restoreDeltas) {
         getProjectModulesManager().setProject(project, nature, restoreDeltas);
-        List<IASTManagerObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_MANAGER_OBSERVER);
+        List<IASTManagerObserver> participants = ExtensionHelper
+                .getParticipants(ExtensionHelper.PYDEV_MANAGER_OBSERVER);
         for (IASTManagerObserver observer : participants) {
             try {
                 observer.notifyASTManagerAttached(this);
@@ -62,7 +62,7 @@ public final class ASTManager extends AbstractASTManager implements ICodeComplet
         }
     }
 
-    public IModulesManager getModulesManager(){
+    public IModulesManager getModulesManager() {
         return getProjectModulesManager();
     }
 
@@ -70,22 +70,23 @@ public final class ASTManager extends AbstractASTManager implements ICodeComplet
      * @return modules manager wrapped cast to the interface we expect. Creates it if needed.
      */
     private synchronized IProjectModulesManager getProjectModulesManager() {
-        if(modulesManager == null){
+        if (modulesManager == null) {
             modulesManager = new ProjectModulesManager();
         }
         return (IProjectModulesManager) modulesManager;
     }
-    
-    
-    //----------------------- AUXILIARIES
 
+    //----------------------- AUXILIARIES
 
     public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor) {
         getProjectModulesManager().changePythonPath(pythonpath, project, monitor);
     }
-    public void rebuildModule(File f, ICallback0<IDocument> doc, final IProject project, IProgressMonitor monitor, IPythonNature nature) {
+
+    public void rebuildModule(File f, ICallback0<IDocument> doc, final IProject project, IProgressMonitor monitor,
+            IPythonNature nature) {
         getProjectModulesManager().rebuildModule(f, doc, project, monitor, nature);
     }
+
     public void removeModule(File file, IProject project, IProgressMonitor monitor) {
         getProjectModulesManager().removeModule(file, project, monitor);
     }
@@ -100,7 +101,7 @@ public final class ASTManager extends AbstractASTManager implements ICodeComplet
     public void saveToFile(File astOutputFile) {
         modulesManager.saveToFile(astOutputFile);
     }
-    
+
     public static ICodeCompletionASTManager loadFromFile(File astOutputFile) throws IOException {
         ASTManager astManager = new ASTManager();
         ProjectModulesManager projectModulesManager = new ProjectModulesManager();
@@ -110,4 +111,3 @@ public final class ASTManager extends AbstractASTManager implements ICodeComplet
     }
 
 }
-

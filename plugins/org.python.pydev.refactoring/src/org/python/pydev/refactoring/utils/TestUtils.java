@@ -40,21 +40,21 @@ public final class TestUtils {
 
         int beginLine = 0;
 
-        for(String line:lines){
+        for (String line : lines) {
             beginLine += 1;
 
             line = line.trim();
             int pos = line.indexOf("##");
-            if(pos < 0){
+            if (pos < 0) {
                 continue;
             }
 
             StringTokenizer tok = new StringTokenizer(line.substring(pos + 2));
             String test = tok.nextToken();
 
-            if("exit".equals(test)){
+            if ("exit".equals(test)) {
                 break;
-            }else if("type".equals(test)){
+            } else if ("type".equals(test)) {
                 String type = tok.nextToken();
                 String expr = line.substring(0, line.indexOf("##")).trim();
 
@@ -82,10 +82,10 @@ public final class TestUtils {
         List<Integer> positions = new LinkedList<Integer>();
         String text = input;
 
-        while(true){
+        while (true) {
             int index = text.indexOf(CURSOR);
 
-            if(index < 0){
+            if (index < 0) {
                 break;
             }
 

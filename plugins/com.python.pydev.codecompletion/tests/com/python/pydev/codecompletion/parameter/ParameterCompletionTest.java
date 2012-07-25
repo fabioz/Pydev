@@ -52,62 +52,61 @@ public class ParameterCompletionTest extends AdditionalInfoTestsBase {
 
         useOriginalRequestCompl = true;
         participant = new CtxParticipant();
-        
+
         ExtensionHelper.testingParticipants = new HashMap<String, List<Object>>();
         ArrayList<Object> participants = new ArrayList<Object>(); /*IPyDevCompletionParticipant*/
         participants.add(participant);
         ExtensionHelper.testingParticipants.put(ExtensionHelper.PYDEV_COMPLETION, participants);
-        
+
         codeCompletion = new PyCodeCompletion();
         this.restorePythonPath(false);
     }
-    
+
     @Override
     public void tearDown() throws Exception {
         super.tearDown();
         useOriginalRequestCompl = false;
         ExtensionHelper.testingParticipants = null;
     }
-    
 
     // ------------------------------------------------------------------------------------------------- tests
-    
+
     public void testSetup() throws MisconfigurationException {
-        AbstractAdditionalTokensInfo additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
+        AbstractAdditionalTokensInfo additionalInfo = AdditionalProjectInterpreterInfo
+                .getAdditionalInfoForProject(nature);
         assertTrue(additionalInfo.getAllTokens().size() > 0);
-        Collection<IInfo> tokensStartingWith = additionalInfo.getTokensStartingWith("existingM", AbstractAdditionalTokensInfo.INNER);
+        Collection<IInfo> tokensStartingWith = additionalInfo.getTokensStartingWith("existingM",
+                AbstractAdditionalTokensInfo.INNER);
         assertTrue(tokensStartingWith.size() == 1);
         assertIsIn("existingMethod", "testAssist.assist", tokensStartingWith);
     }
 
-    
     public void testCompletion() throws Exception {
         String s = "" +
                 "def m1(a):\n" +
                 "    a.existingM";
-        requestCompl(s, -1, -1, new String[]{"existingMethod()"}); //at least 3 chars needed by default
+        requestCompl(s, -1, -1, new String[] { "existingMethod()" }); //at least 3 chars needed by default
     }
-    
+
     public void testCompletion2() throws Exception {
         String s = "" +
-        "def m1(a):\n" +
-        "    a.another()\n" +
-        "    a.assertE";
-        requestCompl(s, -1, -1, new String[]{"assertEquals"}); //at least 3 chars needed by default
+                "def m1(a):\n" +
+                "    a.another()\n" +
+                "    a.assertE";
+        requestCompl(s, -1, -1, new String[] { "assertEquals" }); //at least 3 chars needed by default
     }
 
     // ----------------------------------------------------------------------------------------------- asserts
-    
-    
+
     private void assertIsIn(String tok, String mod, Collection<IInfo> tokensStartingWith) {
         for (IInfo info : tokensStartingWith) {
-            if(info.getName().equals(tok)){
-                if(info.getDeclaringModuleName().equals(mod)){
+            if (info.getName().equals(tok)) {
+                if (info.getDeclaringModuleName().equals(mod)) {
                     return;
                 }
             }
         }
-        fail("The tok "+tok+" was not found for the module "+mod);
+        fail("The tok " + tok + " was not found for the module " + mod);
     }
 
 }

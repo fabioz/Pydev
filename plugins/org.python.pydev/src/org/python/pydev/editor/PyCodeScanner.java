@@ -36,51 +36,40 @@ import org.python.pydev.ui.ColorAndStyleCache;
  * GreatWhite, GreatKeywordDetector came from PyEditConfiguration
  */
 public class PyCodeScanner extends RuleBasedScanner {
-    
+
     // keywords list has to be alphabetized for the keyword detector to work properly
-    static final public String[] DEFAULT_KEYWORDS = {
-        "and","as","assert","break","class","continue",
-        "def","del","elif","else","except","exec",
-        "finally","for","from","global",
-        "if","import","in","is","lambda", "nonlocal", "not",
-        "or","pass","print","raise","return",
-        "self", "try","while","with","yield","False", "None", "True",
-    
+    static final public String[] DEFAULT_KEYWORDS = { "and", "as", "assert", "break", "class", "continue", "def",
+            "del", "elif", "else", "except", "exec", "finally", "for", "from", "global", "if", "import", "in", "is",
+            "lambda", "nonlocal", "not", "or", "pass", "print", "raise", "return", "self", "try", "while", "with",
+            "yield", "False", "None", "True",
+
     };
-    
+
     static public String[] CYTHON_KEYWORDS;
-    
-    static{
-        CYTHON_KEYWORDS = new String[]{
-            "cimport", "cdef", "ctypedef"
-        };
+
+    static {
+        CYTHON_KEYWORDS = new String[] { "cimport", "cdef", "ctypedef" };
         CYTHON_KEYWORDS = ArrayUtils.concatArrays(DEFAULT_KEYWORDS, CYTHON_KEYWORDS);
         // keywords list has to be alphabetized for the keyword detector to work properly
         Arrays.sort(CYTHON_KEYWORDS);
     }
-    
 
     private ColorAndStyleCache colorCache;
 
-    private IToken keywordToken  ; 
-    private IToken selfToken     ; 
-    private IToken defaultToken  ; 
-    private IToken decoratorToken; 
-    private IToken numberToken   ; 
-    private IToken classNameToken; 
-    private IToken funcNameToken ;
-    private IToken parensToken; 
+    private IToken keywordToken;
+    private IToken selfToken;
+    private IToken defaultToken;
+    private IToken decoratorToken;
+    private IToken numberToken;
+    private IToken classNameToken;
+    private IToken funcNameToken;
+    private IToken parensToken;
     private IToken operatorsToken;
 
     private String[] keywords;
 
     private ICodeScannerKeywords codeScannerKeywords;
 
-
-    
-    
-    
-    
     /**
      * Whitespace detector.
      * 
@@ -91,9 +80,11 @@ public class PyCodeScanner extends RuleBasedScanner {
      * f$%@#$!!
      */
     static private class GreatWhite implements IWhitespaceDetector {
-        public boolean isWhitespace(char c) {return Character.isWhitespace(c);}
+        public boolean isWhitespace(char c) {
+            return Character.isWhitespace(c);
+        }
     }
-    
+
     /**
      * Python keyword detector
      */
@@ -101,15 +92,17 @@ public class PyCodeScanner extends RuleBasedScanner {
 
         public GreatKeywordDetector() {
         }
+
         public boolean isWordStart(char c) {
             return Character.isJavaIdentifierStart(c);
         }
+
         public boolean isWordPart(char c) {
             return Character.isJavaIdentifierPart(c);
         }
     }
-    
-    static private class DecoratorDetector implements IWordDetector{
+
+    static private class DecoratorDetector implements IWordDetector {
 
         /**
          * @see org.eclipse.jface.text.rules.IWordDetector#isWordStart(char)
@@ -124,21 +117,21 @@ public class PyCodeScanner extends RuleBasedScanner {
         public boolean isWordPart(char c) {
             return c != '\n' && c != '\r' && c != '(';
         }
-        
+
     }
-    
-    static public class NumberDetector implements IWordDetector{
+
+    static public class NumberDetector implements IWordDetector {
 
         /**
          * Used to keep the state of the token
          */
         private FastStringBuffer buffer = new FastStringBuffer();
-        
+
         /**
          * Defines if we are at an hexa number
          */
         private boolean isInHexa;
-        
+
         /**
          * @see org.eclipse.jface.text.rules.IWordDetector#isWordStart(char)
          */
@@ -154,43 +147,38 @@ public class PyCodeScanner extends RuleBasedScanner {
          */
         public boolean isWordPart(char c) {
             //ok, we have to test for scientific notation e.g.: 10.9e10
-            
-            if((c == 'x' || c == 'X') && buffer.length() == 1 && buffer.charAt(0) == '0'){
+
+            if ((c == 'x' || c == 'X') && buffer.length() == 1 && buffer.charAt(0) == '0') {
                 //it is an hexadecimal
                 buffer.append(c);
                 isInHexa = true;
                 return true;
-            }else{
+            } else {
                 buffer.append(c);
             }
 
-            if(isInHexa){
-                return Character.isDigit(c) || c == 'a'  || c == 'A'
-                                            || c == 'b'  || c == 'B'
-                                            || c == 'c'  || c == 'C'
-                                            || c == 'd'  || c == 'D'
-                                            || c == 'e'  || c == 'E'
-                                            || c == 'f'  || c == 'F';
-                
-            }else{
-                return Character.isDigit(c) || c == 'e'  || c == '.';
+            if (isInHexa) {
+                return Character.isDigit(c) || c == 'a' || c == 'A' || c == 'b' || c == 'B' || c == 'c' || c == 'C'
+                        || c == 'd' || c == 'D' || c == 'e' || c == 'E' || c == 'f' || c == 'F';
+
+            } else {
+                return Character.isDigit(c) || c == 'e' || c == '.';
             }
         }
-        
+
     }
-    
+
     public PyCodeScanner(ColorAndStyleCache colorCache) {
         this(colorCache, DEFAULT_KEYWORDS);
     }
-    
+
     public PyCodeScanner(ColorAndStyleCache colorCache, String[] keywords) {
         super();
         this.keywords = keywords;
         this.colorCache = colorCache;
-        
+
         setupRules();
     }
-    
 
     /**
      * @param colorCache2
@@ -202,9 +190,9 @@ public class PyCodeScanner extends RuleBasedScanner {
         this.colorCache = colorCache;
         this.codeScannerKeywords = codeScannerKeywords;
         this.keywords = codeScannerKeywords.getKeywords();
-        
+
         setupRules();
-        
+
         codeScannerKeywords.getOnChangeCallbackWithListeners().registerListener(new ICallbackListener() {
 
             public Object call(Object obj) {
@@ -218,55 +206,61 @@ public class PyCodeScanner extends RuleBasedScanner {
     public void updateColors() {
         setupRules();
     }
-    
+
     private void setupRules() {
-        keywordToken   = new Token( colorCache.getKeywordTextAttribute() );
-        
-        selfToken      = new Token( colorCache.getSelfTextAttribute() );
-        
-        defaultToken   = new Token( colorCache.getCodeTextAttribute() );
-        
-        decoratorToken = new Token( colorCache.getDecoratorTextAttribute() );
-        
-        numberToken    = new Token( colorCache.getNumberTextAttribute() );
-        
-        classNameToken = new Token( colorCache.getClassNameTextAttribute() );
-        
-        funcNameToken  = new Token( colorCache.getFuncNameTextAttribute() );
-        
-        parensToken  = new Token( colorCache.getParensTextAttribute() );
-        
-        operatorsToken  = new Token( colorCache.getOperatorsTextAttribute() );
-        
+        keywordToken = new Token(colorCache.getKeywordTextAttribute());
+
+        selfToken = new Token(colorCache.getSelfTextAttribute());
+
+        defaultToken = new Token(colorCache.getCodeTextAttribute());
+
+        decoratorToken = new Token(colorCache.getDecoratorTextAttribute());
+
+        numberToken = new Token(colorCache.getNumberTextAttribute());
+
+        classNameToken = new Token(colorCache.getClassNameTextAttribute());
+
+        funcNameToken = new Token(colorCache.getFuncNameTextAttribute());
+
+        parensToken = new Token(colorCache.getParensTextAttribute());
+
+        operatorsToken = new Token(colorCache.getOperatorsTextAttribute());
+
         setDefaultReturnToken(defaultToken);
         List<IRule> rules = new ArrayList<IRule>();
-        
+
         // Scanning strategy:
         // 1) whitespace
         // 2) code
         // 3) regular words?
-        
-        rules.add(new WhitespaceRule(new GreatWhite(), defaultToken));
-        
-        Map<String,IToken> defaults = new HashMap<String, IToken>();
+
+        WhitespaceRule whitespaceRule;
+        try {
+            whitespaceRule = new WhitespaceRule(new GreatWhite(), defaultToken);
+        } catch (Throwable e) {
+            //Compatibility with Eclipse 3.4 and below.
+            whitespaceRule = new WhitespaceRule(new GreatWhite());
+        }
+        rules.add(whitespaceRule);
+
+        Map<String, IToken> defaults = new HashMap<String, IToken>();
         defaults.put("self", selfToken);
-        
-        PyWordRule wordRule = new PyWordRule(
-                new GreatKeywordDetector(), defaultToken, classNameToken, funcNameToken, parensToken, operatorsToken);
+
+        PyWordRule wordRule = new PyWordRule(new GreatKeywordDetector(), defaultToken, classNameToken, funcNameToken,
+                parensToken, operatorsToken);
         for (String keyword : keywords) {
             IToken token = defaults.get(keyword);
-            if(token == null){
+            if (token == null) {
                 token = keywordToken;
             }
-            wordRule.addWord( keyword, token);
+            wordRule.addWord(keyword, token);
         }
-        
+
         rules.add(wordRule);
 
-        
         rules.add(new WordRule(new DecoratorDetector(), decoratorToken));
         rules.add(new WordRule(new NumberDetector(), numberToken));
-        
+
         setRules(rules.toArray(new IRule[0]));
     }
 

@@ -9,7 +9,7 @@ package com.python.pydev.analysis.indexview;
 public class LeafElement extends ElementWithParent {
 
     private Object[] EMPTY = new Object[0];
-    
+
     private Object o;
 
     public LeafElement(ITreeElement parent, Object o) {
@@ -24,7 +24,7 @@ public class LeafElement extends ElementWithParent {
     public Object[] getChildren() {
         return EMPTY;
     }
-    
+
     @Override
     public String toString() {
         return o.toString();

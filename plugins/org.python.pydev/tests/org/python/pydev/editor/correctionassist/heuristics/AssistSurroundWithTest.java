@@ -28,16 +28,15 @@ public class AssistSurroundWithTest extends TestCase {
             builtins.setUp();
             builtins.testSurround();
             builtins.tearDown();
-            
+
             junit.textui.TestRunner.run(AssistSurroundWithTest.class);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
     }
-    
-    
+
     public void testSurround() throws Exception {
         AssistSurroundWith assistSurroundWith = new AssistSurroundWith();
         int offset = 0;
@@ -46,19 +45,20 @@ public class AssistSurroundWithTest extends TestCase {
         List<ICompletionProposal> props = assistSurroundWith.getProps(ps, null, null, null, null, offset);
         props.get(0).apply(doc);
         TestCaseUtils.assertContentsEqual("" +
-        		"try:\n" +
-        		"    a = 10\n" +
-        		"except${cursor}:\n" +
-        		"    raise" +
-        		"", doc.get());
-        
+                "try:\n" +
+                "    a = 10\n" +
+                "except${cursor}:\n" +
+                "    raise" +
+                "",
+                doc.get());
+
         doc = new Document("" +
-        		"def m1():\n" +
-        		"\n" +
-        		"\n" +
-        		"    a = 10\n" +
-        		"\n" +
-        		"\n");
+                "def m1():\n" +
+                "\n" +
+                "\n" +
+                "    a = 10\n" +
+                "\n" +
+                "\n");
         ps = new PySelection(doc, 1, 0, 11);
         props = assistSurroundWith.getProps(ps, null, null, null, null, offset);
         props.get(0).apply(doc);
@@ -67,17 +67,18 @@ public class AssistSurroundWithTest extends TestCase {
                 "    try:\n" +
                 "    \n" +
                 "    \n" +
-                "        a = 10\n" +
+                "        a = 10\n"
+                +
                 "    except${cursor}:\n" +
                 "        raise\n" +
                 "\n" +
                 "\n" +
                 "", doc.get());
-        
+
         doc = new Document("" +
                 "\n" +
                 "\n" +
-        "\n");
+                "\n");
         ps = new PySelection(doc, 1, 0, 1);
         props = assistSurroundWith.getProps(ps, null, null, null, null, offset);
         assertEquals(0, props.size());

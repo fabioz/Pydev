@@ -33,28 +33,27 @@ public class ItemPointer {
      * IFile or File object (may be null)
      */
     public final Object file;
-    
+
     /**
      * Position of the 1st character 
      */
-    public final Location start; 
-    
+    public final Location start;
+
     /**
      * Position of the last character
      */
     public final Location end;
-    
+
     /**
      * The definition that originated this ItemPointer (good chance of being null).
      */
     public final Definition definition;
-    
+
     /**
      * The path within the zip file for this pointer (null if we're not dealing with a zip file)
      */
     public final String zipFilePath;
-    
-    
+
     public ItemPointer(Object file) {
         this(file, new Location(), new Location());
     }
@@ -62,18 +61,18 @@ public class ItemPointer {
     public ItemPointer(Object file, SimpleNode n) {
         int line = n.beginLine;
         int col = n.beginColumn;
-        
+
         this.file = file;
-        this.start = new Location(line-1, col-1);
-        this.end = new Location(line-1, col-1);
+        this.start = new Location(line - 1, col - 1);
+        this.end = new Location(line - 1, col - 1);
         this.definition = null;
         this.zipFilePath = null;
     }
-    
+
     public ItemPointer(Object file, Location start, Location end) {
         this(file, start, end, null, null);
     }
-    
+
     public ItemPointer(Object file, Location start, Location end, Definition definition, String zipFilePath) {
         this.file = file;
         this.start = start;
@@ -93,41 +92,41 @@ public class ItemPointer {
         buffer.append("]");
         return buffer.toString();
     }
-    
+
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof ItemPointer)){
+        if (!(obj instanceof ItemPointer)) {
             return false;
         }
-        
+
         ItemPointer i = (ItemPointer) obj;
-        if(!i.file.equals(file)){
+        if (!i.file.equals(file)) {
             return false;
         }
-        if(!i.start.equals(start)){
+        if (!i.start.equals(start)) {
             return false;
         }
-        if(!i.end.equals(end)){
+        if (!i.end.equals(end)) {
             return false;
         }
-        if(i.zipFilePath != null && zipFilePath == null){
+        if (i.zipFilePath != null && zipFilePath == null) {
             return false;
         }
-        if(zipFilePath != null){
-            if(!zipFilePath.equals(i.zipFilePath)){
+        if (zipFilePath != null) {
+            if (!zipFilePath.equals(i.zipFilePath)) {
                 return false;
             }
         }
-        
+
         return true;
     }
-    
+
     @Override
     public int hashCode() {
         int colLineBasedHash = (this.end.column + this.start.line + 7) * 3;
-        if(this.file != null){
+        if (this.file != null) {
             return this.file.hashCode() + colLineBasedHash;
-        }else{
+        } else {
             return colLineBasedHash;
         }
     }
@@ -148,58 +147,57 @@ public class ItemPointer {
         } else if (file instanceof File) {
             String absPath = REF.getFileAbsolutePath((File) file);
             path = Path.fromOSString(absPath);
-            
+
         } else if (file instanceof String) {
             path = Path.fromOSString((String) file);
-            
+
         } else if (file == null) {
-        	path = null;
-         	
-        }else{
-            throw new RuntimeException("Don't know how to handle: "+file.getClass());
+            path = null;
+
+        } else {
+            throw new RuntimeException("Don't know how to handle: " + file.getClass());
         }
-        if(path == null){
+        if (path == null) {
             return null; //the path is really needed.
         }
-        
+
         Properties properties = new Properties();
         properties.put("FILE_PATH", path.toPortableString());
-        if(start!=null){
+        if (start != null) {
             properties.put("START_LINE", String.valueOf(start.line));
             properties.put("START_COL", String.valueOf(start.column));
         }
-        if(end!=null){
+        if (end != null) {
             properties.put("END_LINE", String.valueOf(end.line));
             properties.put("END_COL", String.valueOf(end.column));
         }
-        if(zipFilePath!=null){
+        if (zipFilePath != null) {
             properties.put("ZIP", zipFilePath);
         }
-        
+
         return PropertiesHelper.createStringFromProperties(properties);
     }
-    
 
     public static ItemPointer fromPortableString(String asPortableString) {
-    	Properties properties = PropertiesHelper.createPropertiesFromString(asPortableString);
+        Properties properties = PropertiesHelper.createPropertiesFromString(asPortableString);
         String filePath = (String) properties.get("FILE_PATH");
-        if(filePath == null){
+        if (filePath == null) {
             return null;
         }
         String startLine = (String) properties.get("START_LINE");
         String startCol = (String) properties.get("START_COL");
         Location start;
-        if(startLine!=null && startCol!=null){
+        if (startLine != null && startCol != null) {
             start = new Location(Integer.parseInt(startLine), Integer.parseInt(startCol));
-        }else{
+        } else {
             start = new Location();
         }
         String endLine = (String) properties.get("END_LINE");
         String endCol = (String) properties.get("END_COL");
         Location end;
-        if(endLine!=null && endCol!=null){
+        if (endLine != null && endCol != null) {
             end = new Location(Integer.parseInt(endLine), Integer.parseInt(endCol));
-        }else{
+        } else {
             end = new Location();
         }
         String zip = (String) properties.get("ZIP");

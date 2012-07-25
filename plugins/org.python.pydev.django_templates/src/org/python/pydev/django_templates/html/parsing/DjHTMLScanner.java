@@ -13,14 +13,14 @@ import com.aptana.editor.html.parsing.HTMLScanner;
 public class DjHTMLScanner extends HTMLScanner {
 
     private DjScanner djScanner = new DjScanner();
-    
+
     public DjHTMLScanner() {
         super(new DjHTMLTokenScanner(), DjScanner.SWITCH_STRATEGY);
     }
 
     public short getTokenType(Object data) {
         Short tokenType = djScanner.getTokenType(this, data);
-        if(tokenType != null){
+        if (tokenType != null) {
             return tokenType;
         }
         return super.getTokenType(data);

@@ -35,43 +35,46 @@ public class PyCodeCompletion2Test extends CodeCompletionTestsBase {
     public static void main(String[] args) {
         junit.textui.TestRunner.run(PyCodeCompletion2Test.class);
     }
-    
-    
+
     /*
      * @see TestCase#setUp()
      */
     public void setUp() throws Exception {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = false;
-        this.restorePythonPath(TestDependent.GetCompletePythonLib(true)+"|"+TestDependent.PYTHON_PIL_PACKAGES, false);
+        this.restorePythonPath(TestDependent.GetCompletePythonLib(true) +
+                "|" + TestDependent.PYTHON_PIL_PACKAGES,
+                false);
         this.restorePythonPath(false);
         codeCompletion = new PyCodeCompletion();
-        PyCodeCompletion.onCompletionRecursionException = new ICallback<Object, CompletionRecursionException>(){
+        PyCodeCompletion.onCompletionRecursionException = new ICallback<Object, CompletionRecursionException>() {
 
             public Object call(CompletionRecursionException e) {
-                throw new RuntimeException("Recursion error:"+Log.getExceptionStr(e));
+                throw new RuntimeException("Recursion error:" + Log.getExceptionStr(e));
             }
-            
+
         };
     }
-    
-    
+
     public void testSelfOrClsCompletion() throws Exception {
         String s = "" +
-    		"class B:\n" +
-    		"    def m2(self):\n" +
-    		"        pass\n" +
-    		"\n" +
-    		"class A:\n" +
-    		"    m1 = B()\n" +
-    		"    def foo(self):\n" +
-    		"        self.m1." +
-    		"";
-        
+                "class B:\n" +
+                "    def m2(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "class A:\n"
+                +
+                "    m1 = B()\n" +
+                "    def foo(self):\n" +
+                "        self.m1." +
+                "";
+
         SystemPythonNature nature = new SystemPythonNature(PyCodeCompletion2Test.nature.getRelatedInterpreterManager());
-        PySelection ps = new PySelection(new Document(s), s.length()-1);
-        ICompletionState state = new CompletionState(ps.getStartLineIndex(), ps.getAbsoluteCursorOffset() - ps.getStartLine().getOffset(), null, nature,"");
-        CompletionRequest request = new CompletionRequest(null, nature, ps.getDoc(), "self.m1", ps.getAbsoluteCursorOffset(), 0, new PyCodeCompletion(), "");
+        PySelection ps = new PySelection(new Document(s), s.length() - 1);
+        ICompletionState state = new CompletionState(ps.getStartLineIndex(), ps.getAbsoluteCursorOffset()
+                - ps.getStartLine().getOffset(), null, nature, "");
+        CompletionRequest request = new CompletionRequest(null, nature, ps.getDoc(), "self.m1",
+                ps.getAbsoluteCursorOffset(), 0, new PyCodeCompletion(), "");
         List<IToken> selfCompletions = new ArrayList<IToken>();
         PyCodeCompletion.getSelfOrClsCompletions(request, selfCompletions, state, false, false, "self.m1");
         assertEquals(1, selfCompletions.size());

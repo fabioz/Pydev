@@ -81,7 +81,7 @@ public abstract class TextInputWizardPage extends UserInputWizardPage {
      * not text input field has been created
      */
     protected String getText() {
-        if(fTextField == null){
+        if (fTextField == null) {
             return null;
         }
         return fTextField.getText();
@@ -92,7 +92,7 @@ public abstract class TextInputWizardPage extends UserInputWizardPage {
      * @param text the new value
      */
     protected void setText(String text) {
-        if(fTextField == null){
+        if (fTextField == null) {
             return;
         }
         fTextField.setText(text);
@@ -145,13 +145,13 @@ public abstract class TextInputWizardPage extends UserInputWizardPage {
      * is computed by calling <code>validatePage</code>.
      */
     protected void textModified(String text) {
-        if(!isEmptyInputValid() && "".equals(text)){ //$NON-NLS-1$
+        if (!isEmptyInputValid() && "".equals(text)) { //$NON-NLS-1$
             setPageComplete(false);
             setErrorMessage(null);
             restoreMessage();
             return;
         }
-        if((!isInitialInputValid()) && getInitialValue().equals(text)){
+        if ((!isInitialInputValid()) && getInitialValue().equals(text)) {
             setPageComplete(false);
             setErrorMessage(null);
             restoreMessage();
@@ -159,7 +159,7 @@ public abstract class TextInputWizardPage extends UserInputWizardPage {
         }
 
         RefactoringStatus status = validateTextField(text);
-        if(status == null){
+        if (status == null) {
             status = new RefactoringStatus();
         }
         setPageComplete(status);
@@ -185,11 +185,11 @@ public abstract class TextInputWizardPage extends UserInputWizardPage {
      * Method declared in WizardPage
      */
     public void setVisible(boolean visible) {
-        if(visible){
+        if (visible) {
             textModified(getText());
         }
         super.setVisible(visible);
-        if(visible && fTextField != null){
+        if (visible && fTextField != null) {
             fTextField.setFocus();
         }
     }

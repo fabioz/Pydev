@@ -35,7 +35,7 @@ public class EnableDisableBreakpointRulerAction extends AbstractBreakpointRulerA
         setBreakpoint(breakpoint);
         if (breakpoint == null) {
             setEnabled(false);
-        }else{
+        } else {
             setEnabled(true);
             try {
                 boolean enabled = breakpoint.isEnabled();
@@ -59,7 +59,8 @@ public class EnableDisableBreakpointRulerAction extends AbstractBreakpointRulerA
                     } catch (final CoreException e) {
                         Display.getDefault().asyncExec(new Runnable() {
                             public void run() {
-                                ErrorDialog.openError(getTextEditor().getEditorSite().getShell(), "Enabling/disabling breakpoints",
+                                ErrorDialog.openError(getTextEditor().getEditorSite().getShell(),
+                                        "Enabling/disabling breakpoints",
                                         "Exceptions occurred enabling disabling the breakpoint", e.getStatus());
                             }
                         });

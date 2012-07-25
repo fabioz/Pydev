@@ -6,7 +6,7 @@
  */
 package org.python.pydev.parser.prettyprinterv2;
 
-public class LinePartStatementMark extends AbstractLinePart implements ILinePartStatementMark{
+public class LinePartStatementMark extends AbstractLinePart implements ILinePartStatementMark {
 
     private boolean isStart;
 
@@ -14,15 +14,13 @@ public class LinePartStatementMark extends AbstractLinePart implements ILinePart
         super(beginCol, token, lineEntry);
         this.isStart = isStart;
     }
-    
+
     public boolean isStart() {
         return isStart;
     }
 
-    
     @Override
     public String toString() {
-        return isStart?"START_STMT":"END_STMT";
+        return isStart ? "START_STMT" : "END_STMT";
     }
 }
-

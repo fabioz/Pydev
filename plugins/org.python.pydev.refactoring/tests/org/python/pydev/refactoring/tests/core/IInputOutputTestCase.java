@@ -7,5 +7,5 @@ package org.python.pydev.refactoring.tests.core;
 import junit.framework.Test;
 
 public interface IInputOutputTestCase extends Test {
-	void setData(TestData data);
+    void setData(TestData data);
 }

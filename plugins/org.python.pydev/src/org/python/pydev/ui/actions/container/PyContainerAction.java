@@ -36,21 +36,19 @@ public abstract class PyContainerAction implements IObjectActionDelegate {
     /**
      * Subclasses can override to determine if the container should be refreshed before the action is executed or not.
      */
-    protected boolean getRefreshBeforeExecute(){
+    protected boolean getRefreshBeforeExecute() {
         return true;
     }
-    
+
     /**
      * List with the containers the user selected 
      */
     protected List<IContainer> selectedContainers;
 
-    
     public void setActivePart(IAction action, IWorkbenchPart targetPart) {
         //empty
     }
-    
-    
+
     /**
      * When the selection changes, we've to keep the selected containers...
      */
@@ -60,52 +58,51 @@ public abstract class PyContainerAction implements IObjectActionDelegate {
             selectedContainers = null;
             return;
         }
-        
+
         IStructuredSelection selections = (IStructuredSelection) selection;
         ArrayList<IContainer> containers = new ArrayList<IContainer>();
-        
-        for(Iterator<Object> it = selections.iterator(); it.hasNext();){
+
+        for (Iterator<Object> it = selections.iterator(); it.hasNext();) {
             Object o = it.next();
-            if(o instanceof IContainer){
+            if (o instanceof IContainer) {
                 containers.add((IContainer) o);
-                
-            }else if(o instanceof IAdaptable){
+
+            } else if (o instanceof IAdaptable) {
                 IAdaptable adaptable = (IAdaptable) o;
                 IContainer container = (IContainer) adaptable.getAdapter(IContainer.class);
-                if(container != null){
+                if (container != null) {
                     containers.add(container);
                 }
             }
         }
-        
+
         this.selectedContainers = containers;
     }
-    
-    
+
     /**
      * Act on the selection to do the needed action (will confirm and make a refresh before executing)
      */
     public void run(IAction action) {
         //should not happen
-        if(selectedContainers == null){
+        if (selectedContainers == null) {
             return;
         }
-        
-        if (!confirmRun()){
+
+        if (!confirmRun()) {
             return;
         }
-        
+
         beforeRun();
-        
-        final Integer[] nChanged = new Integer[]{0};
+
+        final Integer[] nChanged = new Integer[] { 0 };
         ProgressMonitorDialog monitorDialog = new AsynchronousProgressMonitorDialog(PyAction.getShell());
         try {
-            IRunnableWithProgress operation = new IRunnableWithProgress(){
+            IRunnableWithProgress operation = new IRunnableWithProgress() {
 
                 public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
                     for (Iterator<IContainer> iter = selectedContainers.iterator(); iter.hasNext();) {
                         IContainer next = iter.next();
-                        if(getRefreshBeforeExecute()){
+                        if (getRefreshBeforeExecute()) {
                             //as files are generated externally, if we don't refresh, it's very likely that we won't delete a bunch of files.
                             try {
                                 next.refreshLocal(IResource.DEPTH_INFINITE, monitor);
@@ -122,26 +119,22 @@ public abstract class PyContainerAction implements IObjectActionDelegate {
         } catch (Throwable e) {
             Log.log(e);
         }
-        
-        
-        
+
         afterRun(nChanged[0]);
     }
-
 
     /**
      * Called before actually running the action.
      */
-    protected void beforeRun(){
+    protected void beforeRun() {
         //do nothing by default.
     }
-
 
     /**
      * @return true if the action should be run and false otherwise
      */
-    protected abstract boolean confirmRun() ;
-    
+    protected abstract boolean confirmRun();
+
     /**
      * If it needs UI access, 
      * @return true if UI access is needed (and false -- which is the default -- otherwise).
@@ -149,18 +142,16 @@ public abstract class PyContainerAction implements IObjectActionDelegate {
      * @note If it needs the UI access, it needs to call Display.readAndDispatch() to assure that 
      * the interface remains responsive.
      */
-    protected boolean needsUIThread(){
+    protected boolean needsUIThread() {
         return false;
     }
 
-    
     /**
      * Hook for clients to implement after the run is done (useful to show message)
      * 
      * @param resourcesAffected the number of resources that've been affected.
      */
     protected abstract void afterRun(int resourcesAffected);
-
 
     /**
      * Executes the action on the container passed

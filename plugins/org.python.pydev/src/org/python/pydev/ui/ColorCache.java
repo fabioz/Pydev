@@ -8,7 +8,7 @@
  * author: atotic
  * date: 7/8/03
  * IBM's wizard code
- */ 
+ */
 package org.python.pydev.ui;
 
 import java.util.HashMap;
@@ -39,31 +39,31 @@ public abstract class ColorCache {
     private Map<RGB, Color> fColorTable = new HashMap<RGB, Color>();
     private Map<String, Color> fNamedColorTable = new HashMap<String, Color>();
     protected IPreferenceStore preferences;
-    
-    
+
     public ColorCache(IPreferenceStore prefs) {
         preferences = prefs;
     }
-    
+
     public void dispose() {
         Iterator<Color> it = fColorTable.values().iterator();
-        while (it.hasNext()){
-             it.next().dispose();
-        }
-        
-        it = fNamedColorTable.values().iterator();
-        
-        while (it.hasNext()){
+        while (it.hasNext()) {
             it.next().dispose();
         }
-        
+
+        it = fNamedColorTable.values().iterator();
+
+        while (it.hasNext()) {
+            it.next().dispose();
+        }
+
         fColorTable.clear();
         fNamedColorTable.clear();
     }
-    
+
     public Color getColor(String name) {
         return getNamedColor(name);
     }
+
     public Color getColor(RGB rgb) {
         Color color = (Color) fColorTable.get(rgb);
         if (color == null) {
@@ -72,36 +72,34 @@ public abstract class ColorCache {
         }
         return color;
     }
-    
+
     // getNamedColor gets color from preferences
     // if preference is not found, then it looks whether color is one
     // of the well-known predefined names
     protected Color getNamedColor(String name) {
-        Color color = (Color)fNamedColorTable.get(name);
+        Color color = (Color) fNamedColorTable.get(name);
         if (color == null) {
-            String colorCode =  preferences.getString(name);
+            String colorCode = preferences.getString(name);
             if (colorCode.length() == 0) {
                 if (name.equals("RED")) {
                     color = getColor(new RGB(255, 0, 0));
-                    
+
                 } else if (name.equals("BLACK")) {
                     color = getColor(new RGB(0, 0, 0));
-                    
+
                 } else if (name.equals("WHITE")) {
                     color = getColor(new RGB(255, 255, 255));
-                    
+
                 } else {
                     Log.log("Unknown color:" + name);
                     color = getColor(new RGB(255, 0, 0));
                 }
-            }
-            else {
+            } else {
                 try {
                     RGB rgb = StringConverter.asRGB(colorCode);
                     color = new Color(Display.getCurrent(), rgb);
                     fNamedColorTable.put(name, color);
-                }
-                catch (DataFormatException e) {
+                } catch (DataFormatException e) {
                     // Data conversion failure, maybe someone edited our prefs by hand
                     Log.log(e);
                     color = new Color(Display.getCurrent(), new RGB(255, 50, 0));
@@ -110,13 +108,12 @@ public abstract class ColorCache {
         }
         return color;
     }
-    
+
     //reloads the specified color from preferences
-    public void reloadNamedColor(String name)
-    {
-        if( fNamedColorTable.containsKey(name) ) {
+    public void reloadNamedColor(String name) {
+        if (fNamedColorTable.containsKey(name)) {
             //UndisposedColors.add(fNamedColorTable.get(name));
-            ((Color)fNamedColorTable.get(name)).dispose();
+            ((Color) fNamedColorTable.get(name)).dispose();
             fNamedColorTable.remove(name);
         }
     }
@@ -124,7 +121,7 @@ public abstract class ColorCache {
     /**
      * When new preferences are set, the contents of the cache are cleared.
      */
-    public void setPreferences(IPreferenceStore prefs){
+    public void setPreferences(IPreferenceStore prefs) {
         this.dispose();
         this.preferences = prefs;
     }

@@ -17,7 +17,7 @@ public class RefactoringPlugin extends AbstractUIPlugin {
 
     //The shared instance.
     private static RefactoringPlugin plugin;
-    
+
     /**
      * The constructor.
      */

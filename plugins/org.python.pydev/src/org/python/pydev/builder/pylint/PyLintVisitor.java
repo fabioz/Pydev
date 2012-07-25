@@ -62,34 +62,34 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
     public static final String PYLINT_PROBLEM_MARKER = "org.python.pydev.pylintproblemmarker";
 
     public static final List<PyLintThread> pyLintThreads = new ArrayList<PyLintThread>();
-    
+
     private static Object lock = new Object();
-    
+
     /**
      * This class runs as a thread to get the markers, and only stops the IDE when the markers are being added.
      * 
      * @author Fabio Zadrozny
      */
-    public static class PyLintThread extends Thread{
-        
-        IResource resource; 
-        ICallback0<IDocument> document; 
+    public static class PyLintThread extends Thread {
+
+        IResource resource;
+        ICallback0<IDocument> document;
         IPath location;
 
         List<Object[]> markers = new ArrayList<Object[]>();
-        
-        public PyLintThread(IResource resource, ICallback0<IDocument> document, IPath location){
+
+        public PyLintThread(IResource resource, ICallback0<IDocument> document, IPath location) {
             setName("PyLint thread");
             this.resource = resource;
             this.document = document;
             this.location = location;
         }
-        
+
         /**
          * @return
          */
         private boolean canPassPyLint() {
-            if(pyLintThreads.size() < PyLintPrefPage.getMaxPyLintDelta()){
+            if (pyLintThreads.size() < PyLintPrefPage.getMaxPyLintDelta()) {
                 pyLintThreads.add(this);
                 return true;
             }
@@ -101,46 +101,46 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
          */
         public void run() {
             try {
-                if(canPassPyLint()){
-                    
-                    IOConsoleOutputStream out=getConsoleOutputStream();
+                if (canPassPyLint()) {
+
+                    IOConsoleOutputStream out = getConsoleOutputStream();
 
                     final IDocument doc = document.call();
                     passPyLint(resource, out, doc);
-                    
-                    new Job("Adding markers"){
-                    
+
+                    new Job("Adding markers") {
+
                         protected IStatus run(IProgressMonitor monitor) {
-                            
+
                             ArrayList<MarkerInfo> lst = new ArrayList<PydevMarkerUtils.MarkerInfo>();
-    
+
                             for (Iterator<Object[]> iter = markers.iterator(); iter.hasNext();) {
                                 Object[] el = iter.next();
-                                
-                                String tok   = (String) el[0];
-                                int priority = ((Integer)el[1]).intValue();
-                                String id    = (String) el[2];
-                                int line     = ((Integer)el[3]).intValue();
-                                
+
+                                String tok = (String) el[0];
+                                int priority = ((Integer) el[1]).intValue();
+                                String id = (String) el[2];
+                                int line = ((Integer) el[3]).intValue();
+
                                 lst.add(new PydevMarkerUtils.MarkerInfo(doc, "ID:" + id + " " + tok,
                                         PYLINT_PROBLEM_MARKER, priority, false, false, line, 0, line, 0, null));
                             }
-                            
+
                             PydevMarkerUtils.replaceMarkers(lst, resource, PYLINT_PROBLEM_MARKER, true, monitor);
-    
+
                             return PydevPlugin.makeStatus(Status.OK, "", null);
                         }
                     }.schedule();
                 }
-                
+
             } catch (final Exception e) {
-                new Job("Error reporting"){
+                new Job("Error reporting") {
                     protected IStatus run(IProgressMonitor monitor) {
                         Log.log(e);
                         return PydevPlugin.makeStatus(Status.OK, "", null);
                     }
                 }.schedule();
-            }finally{
+            } finally {
                 try {
                     pyLintThreads.remove(this);
                 } catch (Exception e) {
@@ -150,13 +150,12 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         }
 
         private IOConsoleOutputStream getConsoleOutputStream() throws MalformedURLException {
-            if(PyLintPrefPage.useConsole()){
+            if (PyLintPrefPage.useConsole()) {
                 return MessageConsoles.getConsoleOutputStream("PyLint", UIConstants.PY_LINT_ICON);
-            }else{
+            } else {
                 return null;
             }
         }
-
 
         /**
          * @param tok
@@ -166,9 +165,9 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
          * @param line
          */
         private void addToMarkers(String tok, int priority, String id, int line) {
-            markers.add(new Object[]{tok, priority, id, line} );
+            markers.add(new Object[] { tok, priority, id, line });
         }
-        
+
         /**
          * @param resource
          * @param out 
@@ -179,132 +178,129 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
          * @throws MisconfigurationException 
          * @throws PythonNatureWithoutProjectException 
          */
-        private void passPyLint(IResource resource, IOConsoleOutputStream out, IDocument doc) throws CoreException, MisconfigurationException, PythonNatureWithoutProjectException {
+        private void passPyLint(IResource resource, IOConsoleOutputStream out, IDocument doc) throws CoreException,
+                MisconfigurationException, PythonNatureWithoutProjectException {
             File script = new File(PyLintPrefPage.getPyLintLocation());
             File arg = new File(location.toOSString());
 
             ArrayList<String> list = new ArrayList<String>();
             list.add("--include-ids=y");
-            
+
             //user args
             String userArgs = StringUtils.replaceNewLines(PyLintPrefPage.getPyLintArgs(), " ");
             StringTokenizer tokenizer2 = new StringTokenizer(userArgs);
-            while(tokenizer2.hasMoreTokens()){
+            while (tokenizer2.hasMoreTokens()) {
                 list.add(tokenizer2.nextToken());
             }
             list.add(REF.getFileAbsolutePath(arg));
-            
-            
+
             IProject project = resource.getProject();
-            
+
             String scriptToExe = REF.getFileAbsolutePath(script);
             String[] paramsToExe = list.toArray(new String[0]);
             write("PyLint: Executing command line:'", out, scriptToExe, paramsToExe, "'");
-            
+
             PythonNature nature = PythonNature.getPythonNature(project);
-            if(nature == null){
-                Throwable e = new RuntimeException("PyLint ERROR: Nature not configured for: "+project);
+            if (nature == null) {
+                Throwable e = new RuntimeException("PyLint ERROR: Nature not configured for: " + project);
                 Log.log(e);
                 return;
             }
-            
-            Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutputFromPythonScript(
-                    nature.getProjectInterpreter().getExecutableOrJar(), scriptToExe, paramsToExe, arg.getParentFile(), project);
-            
-            write("PyLint: The stdout of the command line is: "+outTup.o1, out);
-            write("PyLint: The stderr of the command line is: "+outTup.o2, out);
-            
+
+            Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutputFromPythonScript(nature
+                    .getProjectInterpreter().getExecutableOrJar(), scriptToExe, paramsToExe, arg.getParentFile(),
+                    project);
+
+            write("PyLint: The stdout of the command line is: " + outTup.o1, out);
+            write("PyLint: The stderr of the command line is: " + outTup.o2, out);
+
             String output = outTup.o1;
 
             StringTokenizer tokenizer = new StringTokenizer(output, "\r\n");
-            
+
             boolean useW = PyLintPrefPage.useWarnings();
             boolean useE = PyLintPrefPage.useErrors();
             boolean useF = PyLintPrefPage.useFatal();
             boolean useC = PyLintPrefPage.useCodingStandard();
             boolean useR = PyLintPrefPage.useRefactorTips();
-            
+
             //Set up local values for severity
             int wSeverity = PyLintPrefPage.wSeverity();
             int eSeverity = PyLintPrefPage.eSeverity();
             int fSeverity = PyLintPrefPage.fSeverity();
             int cSeverity = PyLintPrefPage.cSeverity();
             int rSeverity = PyLintPrefPage.rSeverity();
-            
+
             //System.out.println(output);
-            if(output.indexOf("Traceback (most recent call last):") != -1){
-                Throwable e = new RuntimeException("PyLint ERROR: \n"+output);
+            if (output.indexOf("Traceback (most recent call last):") != -1) {
+                Throwable e = new RuntimeException("PyLint ERROR: \n" + output);
                 Log.log(e);
                 return;
             }
-            if(outTup.o2.indexOf("Traceback (most recent call last):") != -1){
-                Throwable e = new RuntimeException("PyLint ERROR: \n"+outTup.o2);
+            if (outTup.o2.indexOf("Traceback (most recent call last):") != -1) {
+                Throwable e = new RuntimeException("PyLint ERROR: \n" + outTup.o2);
                 Log.log(e);
                 return;
             }
-            while(tokenizer.hasMoreTokens()){
+            while (tokenizer.hasMoreTokens()) {
                 String tok = tokenizer.nextToken();
-                
+
                 try {
-                    boolean found=false;
+                    boolean found = false;
                     int priority = 0;
-                    
+
                     //W0611:  3: Unused import finalize
                     //F0001:  0: Unable to load module test.test2 (list index out of range)
                     //C0321: 25:fdfd: More than one statement on a single line
                     int indexOfDoublePoints = tok.indexOf(":");
-                    if(indexOfDoublePoints != -1){
-                        
-                        if(tok.startsWith("C")&& useC){
-                            found=true;
+                    if (indexOfDoublePoints != -1) {
+
+                        if (tok.startsWith("C") && useC) {
+                            found = true;
                             //priority = IMarker.SEVERITY_WARNING;
                             priority = cSeverity;
-                        }
-                        else if(tok.startsWith("R")  && useR ){
-                            found=true;
+                        } else if (tok.startsWith("R") && useR) {
+                            found = true;
                             //priority = IMarker.SEVERITY_WARNING;
                             priority = rSeverity;
-                        }
-                        else if(tok.startsWith("W")  && useW ){
-                            found=true;
+                        } else if (tok.startsWith("W") && useW) {
+                            found = true;
                             //priority = IMarker.SEVERITY_WARNING;
                             priority = wSeverity;
-                        }
-                        else if(tok.startsWith("E") && useE ){
-                            found=true;
+                        } else if (tok.startsWith("E") && useE) {
+                            found = true;
                             //priority = IMarker.SEVERITY_ERROR;
                             priority = eSeverity;
-                        }
-                        else if(tok.startsWith("F") && useF ){
-                            found=true;
+                        } else if (tok.startsWith("F") && useF) {
+                            found = true;
                             //priority = IMarker.SEVERITY_ERROR;
                             priority = fSeverity;
-                        }else{
+                        } else {
                             continue;
                         }
-                        
-                    }else{
+
+                    } else {
                         continue;
                     }
-                    
+
                     try {
-                        if(found){
+                        if (found) {
                             String id = tok.substring(0, tok.indexOf(":")).trim();
-                            
+
                             int i = tok.indexOf(":");
-                            if(i == -1)
+                            if (i == -1)
                                 continue;
-                            
-                            tok = tok.substring(i+1);
+
+                            tok = tok.substring(i + 1);
 
                             i = tok.indexOf(":");
-                            if(i == -1)
+                            if (i == -1)
                                 continue;
-                            
+
                             final String substring = tok.substring(0, i).trim();
                             //On PyLint 0.24 it started giving line,col (and not only the line).
-                            int line = Integer.parseInt(StringUtils.split(substring, ',').get(0) );
-                            
+                            int line = Integer.parseInt(StringUtils.split(substring, ',').get(0));
+
                             IRegion region = null;
                             try {
                                 region = doc.getLineInformation(line - 1);
@@ -312,21 +308,21 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                                 region = doc.getLineInformation(line);
                             }
                             String lineContents = doc.get(region.getOffset(), region.getLength());
-                            
+
                             int pos = -1;
-                            if( ( pos = lineContents.indexOf("IGNORE:") ) != -1){
-                                String lintW = lineContents.substring(pos+"IGNORE:".length());
-                                if (lintW.startsWith(id)){
+                            if ((pos = lineContents.indexOf("IGNORE:")) != -1) {
+                                String lintW = lineContents.substring(pos + "IGNORE:".length());
+                                if (lintW.startsWith(id)) {
                                     continue;
                                 }
                             }
-                            
+
                             i = tok.indexOf(":");
-                            if(i == -1)
+                            if (i == -1)
                                 continue;
 
-                            tok = tok.substring(i+1);
-                            addToMarkers(tok, priority, id, line-1);
+                            tok = tok.substring(i + 1);
+                            addToMarkers(tok, priority, id, line - 1);
                         }
                     } catch (RuntimeException e2) {
                         Log.log(e2);
@@ -337,12 +333,11 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             }
         }
 
-
     }
-    
+
     @Override
     public void visitChangedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {
-        if(document == null){
+        if (document == null) {
             return;
         }
         //Whenever PyLint is passed, the markers will be deleted.
@@ -351,20 +346,20 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         } catch (CoreException e3) {
             Log.log(e3);
         }
-        if(PyLintPrefPage.usePyLint() == false){
+        if (PyLintPrefPage.usePyLint() == false) {
             return;
         }
-        
+
         IProject project = resource.getProject();
         PythonNature pythonNature = PythonNature.getPythonNature(project);
         try {
             //pylint can only be used for jython projects
-            if (pythonNature.getInterpreterType() != IInterpreterManager.INTERPRETER_TYPE_PYTHON){
+            if (pythonNature.getInterpreterType() != IInterpreterManager.INTERPRETER_TYPE_PYTHON) {
                 return;
             }
             //must be in a source folder (not external)
-            if(!isResourceInPythonpathProjectSources(resource, pythonNature, false)){
-            	return;
+            if (!isResourceInPythonpathProjectSources(resource, pythonNature, false)) {
+                return;
             }
         } catch (Exception e) {
             return;
@@ -373,25 +368,25 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
 
             IFile file = (IFile) resource;
             IPath location = file.getRawLocation();
-            if(location != null){
+            if (location != null) {
                 PyLintThread thread = new PyLintThread(resource, document, location);
                 thread.start();
             }
         }
     }
-    
-    public static void write(String cmdLineToExe, IOConsoleOutputStream out, Object ... args) {
+
+    public static void write(String cmdLineToExe, IOConsoleOutputStream out, Object... args) {
         try {
-            if(out != null){
-                synchronized(lock){
-                    if(args != null){
+            if (out != null) {
+                synchronized (lock) {
+                    if (args != null) {
                         for (Object arg : args) {
-                            if(arg instanceof String){
-                                cmdLineToExe += " "+arg;
-                            }else if(arg instanceof String[]){
+                            if (arg instanceof String) {
+                                cmdLineToExe += " " + arg;
+                            } else if (arg instanceof String[]) {
                                 String[] strings = (String[]) arg;
                                 for (String string : strings) {
-                                    cmdLineToExe += " "+string;
+                                    cmdLineToExe += " " + string;
                                 }
                             }
                         }
@@ -413,7 +408,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
      */
     public int maxResourcesToVisit() {
         int i = PyLintPrefPage.getMaxPyLintDelta();
-        if (i < 0){
+        if (i < 0) {
             i = 0;
         }
         return i;

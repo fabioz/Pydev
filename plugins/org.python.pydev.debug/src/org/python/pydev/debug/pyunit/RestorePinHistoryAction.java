@@ -16,9 +16,8 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
  * @author fabioz
  *
  */
-public class RestorePinHistoryAction extends Action implements ICallbackListener<PyUnitTestRun>{
+public class RestorePinHistoryAction extends Action implements ICallbackListener<PyUnitTestRun> {
 
-    
     private WeakReference<PyUnitView> view;
     private PinHistoryAction pinHistory;
     private PyUnitTestRun testRun;
@@ -40,24 +39,22 @@ public class RestorePinHistoryAction extends Action implements ICallbackListener
     }
 
     public Object call(PyUnitTestRun obj) {
-        if(obj != null){
-            this.setToolTipText("Click to restore test run: "+obj.name);
-        }else{
+        if (obj != null) {
+            this.setToolTipText("Click to restore test run: " + obj.name);
+        } else {
             setInitialTooltipText();
         }
         this.setEnabled(obj != null);
         this.testRun = obj;
         return null;
     }
-    
-    
+
     @Override
     public void run() {
-        if(testRun != null){
+        if (testRun != null) {
             SetCurrentRunAction setCurrentRunAction = new SetCurrentRunAction(view, testRun);
             setCurrentRunAction.run();
         }
     }
-    
 
 }

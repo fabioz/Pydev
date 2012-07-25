@@ -36,7 +36,6 @@ public class PyTodoPrefPage extends FieldEditorPreferencePage implements IWorkbe
         setDescription("Task tags");
     }
 
-
     /* (non-Javadoc)
      * @see org.eclipse.jface.preference.FieldEditorPreferencePage#createFieldEditors()
      */
@@ -49,15 +48,15 @@ public class PyTodoPrefPage extends FieldEditorPreferencePage implements IWorkbe
      * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
      */
     public void init(IWorkbench workbench) {
-        
+
     }
 
-    public static List<String> getTodoTags(){
+    public static List<String> getTodoTags() {
         String string = PydevPrefs.getPreferences().getString(PY_TODO_TAGS);
         String[] strings = string.split(" ");
         ArrayList<String> list = new ArrayList<String>();
         for (int i = 0; i < strings.length; i++) {
-            if(strings[i].length() > 0){
+            if (strings[i].length() > 0) {
                 list.add(strings[i]);
             }
         }

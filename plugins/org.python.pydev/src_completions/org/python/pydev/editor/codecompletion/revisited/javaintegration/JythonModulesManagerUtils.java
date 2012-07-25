@@ -20,10 +20,11 @@ import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModuleForZi
  */
 public class JythonModulesManagerUtils {
 
-    public static AbstractModule createModuleFromJar(EmptyModuleForZip emptyModuleForZip) throws JDTNotAvailableException{
-        try{
+    public static AbstractModule createModuleFromJar(EmptyModuleForZip emptyModuleForZip)
+            throws JDTNotAvailableException {
+        try {
             return new JavaZipModule(emptyModuleForZip);
-        }catch(Exception e){
+        } catch (Exception e) {
             tryRethrowAsJDTNotAvailableException(e);
             throw new RuntimeException("Should never get here", e);
         }
@@ -38,18 +39,18 @@ public class JythonModulesManagerUtils {
      * @throws JDTNotAvailableException
      */
     public static void tryRethrowAsJDTNotAvailableException(Throwable e) throws JDTNotAvailableException {
-        if(isOptionalJDTClassNotFound(e)){
+        if (isOptionalJDTClassNotFound(e)) {
             throw new JDTNotAvailableException();
-            
-        }else if(e instanceof JDTNotAvailableException){
+
+        } else if (e instanceof JDTNotAvailableException) {
             JDTNotAvailableException jdtNotAvailableException = (JDTNotAvailableException) e;
             throw jdtNotAvailableException;
-            
-        }else if(e instanceof RuntimeException){
+
+        } else if (e instanceof RuntimeException) {
             RuntimeException runtimeException = (RuntimeException) e;
             throw runtimeException;
         }
-        
+
         Log.log(e);
         throw new RuntimeException(e);
     }

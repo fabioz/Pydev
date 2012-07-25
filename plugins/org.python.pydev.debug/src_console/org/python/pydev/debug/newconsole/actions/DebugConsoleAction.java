@@ -14,15 +14,15 @@ import org.python.pydev.editor.actions.PyAction;
  */
 public class DebugConsoleAction extends PyAction {
 
-	// Initialize the console factory class
-	private static final PydevConsoleFactory fFactory = new PydevConsoleFactory();
+    // Initialize the console factory class
+    private static final PydevConsoleFactory fFactory = new PydevConsoleFactory();
 
-	public void run(IAction action) {
-		try {
-			PyStackFrame suspendedFrame = PydevDebugConsoleFrame.getCurrentSuspendedPyStackFrame();
-			fFactory.createDebugConsole(suspendedFrame, null);
-		} catch (Exception e) {
-			ConsolePlugin.log(e);
-		}
-	}
+    public void run(IAction action) {
+        try {
+            PyStackFrame suspendedFrame = PydevDebugConsoleFrame.getCurrentSuspendedPyStackFrame();
+            fFactory.createDebugConsole(suspendedFrame, null);
+        } catch (Exception e) {
+            ConsolePlugin.log(e);
+        }
+    }
 }

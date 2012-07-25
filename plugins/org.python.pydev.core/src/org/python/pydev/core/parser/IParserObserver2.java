@@ -14,11 +14,11 @@ public interface IParserObserver2 {
     /**
      * Has the argsToReparse additional Parameter
      */
-    void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc, Object ... argsToReparse);
-    
+    void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc, Object... argsToReparse);
+
     /**
      * Has the argsToReparse additional Parameter
      */
-    void parserError(Throwable error, IAdaptable file, IDocument doc, Object ... argsToReparse);
+    void parserError(Throwable error, IAdaptable file, IDocument doc, Object... argsToReparse);
 
 }

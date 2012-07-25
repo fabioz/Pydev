@@ -80,23 +80,23 @@ import com.python.pydev.analysis.visitors.ScopeItems;
  * 
  * @author Fabio
  */
-public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
+public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
 
     /**
      * nature is needed for imports
      */
     public final IPythonNature nature;
-    
+
     /**
      * this is the name of the module we are visiting
      */
     public final String moduleName;
-    
+
     /**
      * manage the scopes...
      */
     public final Scope scope;
-    
+
     /**
      * this should get the tokens that are probably not used, but may be if they are defined
      * later (e.g.: if we have a method call inside a scope and the method is defined later)
@@ -104,63 +104,67 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      * objects should not be added to it if we are at the global scope.
      */
     protected final List<Found> probablyNotDefined = new ArrayList<Found>();
-    
+
     /**
      * this is the module we are visiting
      */
     public final IModule current;
-    
+
     /**
      * To keep track of cancels
      */
     protected final IProgressMonitor monitor;
-    
+
     /**
      * Document we're working on.
      */
     protected final IDocument document;
-    
+
     /**
      * Helper so that we can keep a cache among the many requests to the code-completion engine.
      */
     public final ICompletionCache completionCache;
 
     private final LocalScope currentLocalScope = new LocalScope();
-    
+
     private final Set<String> builtinTokens = new HashSet<String>();
-    
-    public AbstractScopeAnalyzerVisitor(IPythonNature nature, String moduleName, IModule current, IDocument document, IProgressMonitor monitor) {
+
+    public AbstractScopeAnalyzerVisitor(IPythonNature nature, String moduleName, IModule current, IDocument document,
+            IProgressMonitor monitor) {
         this.monitor = monitor;
         this.current = current;
         this.nature = nature;
         this.moduleName = moduleName;
         this.document = document;
         this.scope = new Scope(this, nature, moduleName);
-        if(current instanceof SourceModule){
+        if (current instanceof SourceModule) {
             this.currentLocalScope.getScopeStack().push(((SourceModule) current).getAst());
         }
-        
+
         startScope(Scope.SCOPE_TYPE_GLOBAL, null); //initial scope - there is only one 'global' 
-        ICompletionState completionState = CompletionStateFactory.getEmptyCompletionState(nature, new CompletionCache());
+        ICompletionState completionState = CompletionStateFactory
+                .getEmptyCompletionState(nature, new CompletionCache());
         this.completionCache = completionState;
-        
-        List<IToken> builtinCompletions = nature.getAstManager().getBuiltinCompletions(completionState, new ArrayList<IToken>());
-        
-        if(moduleName != null && moduleName.endsWith("__init__")){
+
+        List<IToken> builtinCompletions = nature.getAstManager().getBuiltinCompletions(completionState,
+                new ArrayList<IToken>());
+
+        if (moduleName != null && moduleName.endsWith("__init__")) {
             //__path__ should be added to modules that have __init__
-            builtinCompletions.add(new SourceToken(new Name("__path__", Name.Load, false), "__path__", "", "", moduleName));
+            builtinCompletions.add(new SourceToken(new Name("__path__", Name.Load, false), "__path__", "", "",
+                    moduleName));
         }
-        
-        for(IToken t : builtinCompletions){
+
+        for (IToken t : builtinCompletions) {
             Found found = makeFound(t);
             org.python.pydev.core.Tuple<IToken, Found> tup = new org.python.pydev.core.Tuple<IToken, Found>(t, found);
             addToNamesToIgnore(t, scope.getCurrScopeItems(), tup);
             builtinTokens.add(t.getRepresentation());
         }
     }
-    
-    protected void checkStop(){
-        if(monitor.isCanceled()){
+
+    protected void checkStop() {
+        if (monitor.isCanceled()) {
             throw new OperationCanceledException();
         }
     }
@@ -184,48 +188,40 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         checkStop();
         node.traverse(this);
     }
-    
-    
+
     @Override
     public Object visitCall(final Call callNode) throws Exception {
-        if (callNode.func != null){
+        if (callNode.func != null) {
             onVisitCallFunc(callNode);
         }
-        
-        
+
         if (callNode.args != null) {
             for (int i = 0; i < callNode.args.length; i++) {
-                if (callNode.args[i] != null){
+                if (callNode.args[i] != null) {
                     callNode.args[i].accept(this);
                 }
             }
         }
         if (callNode.keywords != null) {
             for (int i = 0; i < callNode.keywords.length; i++) {
-                if (callNode.keywords[i] != null){
+                if (callNode.keywords[i] != null) {
                     callNode.keywords[i].accept(this);
                 }
             }
         }
-        if (callNode.starargs != null){
+        if (callNode.starargs != null) {
             callNode.starargs.accept(this);
         }
-        if (callNode.kwargs != null){
+        if (callNode.kwargs != null) {
             callNode.kwargs.accept(this);
         }
-        
-        
-        
-        
+
         return null;
     }
-
 
     protected void onVisitCallFunc(Call callNode) throws Exception {
         callNode.func.accept(this);
     }
-
-
 
     /**
      * we are starting a new scope when visiting a class 
@@ -233,11 +229,11 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      */
     public Object visitClassDef(ClassDef node) throws Exception {
         unhandled_node(node);
-        
+
         AbstractScopeAnalyzerVisitor visitor = this;
 
         handleDecorators(node.decs);
-        
+
         //we want to visit the bases before actually starting the class scope (as it's as if they're attribute
         //accesses).
         if (node.bases != null) {
@@ -249,25 +245,24 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
 
         this.currentLocalScope.getScopeStack().push(node);
         startScope(Scope.SCOPE_TYPE_CLASS, node);
-        
-        if (node.name != null){
+
+        if (node.name != null) {
             node.name.accept(visitor);
         }
-        
+
         if (node.body != null) {
             for (int i = 0; i < node.body.length; i++) {
                 if (node.body[i] != null)
                     node.body[i].accept(visitor);
             }
         }
-        
+
         endScope(node);
         this.currentLocalScope.getScopeStack().pop();
-        
+
         //the class is only added to the names to ignore when it's scope is resolved!
         addToNamesToIgnore(node, true, true);
-        
-        
+
         return null;
     }
 
@@ -276,43 +271,45 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      */
     protected void addToNamesToIgnore(SimpleNode node, boolean finishClassScope, boolean checkBuiltins) {
         SourceToken token = AbstractVisitor.makeToken(node, "");
-        
-        if(checkBuiltins){
-            if(checkCurrentScopeForAssignmentsToBuiltins()){
+
+        if (checkBuiltins) {
+            if (checkCurrentScopeForAssignmentsToBuiltins()) {
                 String rep = token.getRepresentation();
-                if (builtinTokens.contains(rep)){
+                if (builtinTokens.contains(rep)) {
                     // Overriding builtin...
                     onAddAssignmentToBuiltinMessage(token, rep);
                 }
             }
         }
-        
+
         ScopeItems currScopeItems = scope.getCurrScopeItems();
-        
+
         Found found = new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems());
         org.python.pydev.core.Tuple<IToken, Found> tup = new org.python.pydev.core.Tuple<IToken, Found>(token, found);
         addToNamesToIgnore(token, currScopeItems, tup);
-        
+
         //after adding it to the names to ignore, let's see if there is someone waiting for this declaration
         //in the 'probably not defined' stack. 
-        for(Iterator<Found> it = probablyNotDefined.iterator(); it.hasNext();){
+        for (Iterator<Found> it = probablyNotDefined.iterator(); it.hasNext();) {
             Found n = it.next();
 
             GenAndTok single = n.getSingle();
             int foundScopeType = single.scopeFound.getScopeType();
             //ok, if we are in a scope method, we may not get things that were defined in a class scope.
-            if(((foundScopeType & Scope.ACCEPTED_METHOD_AND_LAMBDA) != 0) && scope.getCurrScopeItems().getScopeType() == Scope.SCOPE_TYPE_CLASS){
+            if (((foundScopeType & Scope.ACCEPTED_METHOD_AND_LAMBDA) != 0)
+                    && scope.getCurrScopeItems().getScopeType() == Scope.SCOPE_TYPE_CLASS) {
                 continue;
             }
             IToken tok = single.tok;
             String rep = tok.getRepresentation();
-            if(rep.equals(token.getRepresentation())){
+            if (rep.equals(token.getRepresentation())) {
                 //found match in names to ignore...
-                
-                if(finishClassScope && foundScopeType == Scope.SCOPE_TYPE_CLASS && scope.getCurrScopeId() < single.scopeFound.getScopeId()){
+
+                if (finishClassScope && foundScopeType == Scope.SCOPE_TYPE_CLASS
+                        && scope.getCurrScopeId() < single.scopeFound.getScopeId()) {
                     it.remove();
-                    onAddUndefinedMessage(tok, found);   
-                }else{
+                    onAddUndefinedMessage(tok, found);
+                } else {
                     it.remove();
                     onNotDefinedFoundLater(n, found);
                 }
@@ -334,13 +331,11 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         return this.scope.getCurrScopeItems().getScopeType() != Scope.SCOPE_TYPE_CLASS;
     }
 
-
-
-    protected void addToNamesToIgnore(IToken token, ScopeItems currScopeItems, org.python.pydev.core.Tuple<IToken, Found> tup) {
+    protected void addToNamesToIgnore(IToken token, ScopeItems currScopeItems,
+            org.python.pydev.core.Tuple<IToken, Found> tup) {
         currScopeItems.namesToIgnore.put(token.getRepresentation(), tup);
         onAfterAddToNamesToIgnore(currScopeItems, tup);
     }
-
 
     /**
      * we are starting a new scope when visiting a function 
@@ -354,44 +349,43 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         argumentsType args = node.args;
 
         //visit the defaults first (before starting the scope, because this is where the load of variables from other scopes happens)
-        if(args.defaults != null){
-            for(exprType expr : args.defaults){
-                if(expr != null){
+        if (args.defaults != null) {
+            for (exprType expr : args.defaults) {
+                if (expr != null) {
                     expr.accept(visitor);
                 }
             }
         }
-        
+
         //then the decorators (no, still not in method scope)
         handleDecorators(node.decs);
 
         startScope(Scope.SCOPE_TYPE_METHOD, node);
         this.currentLocalScope.getScopeStack().push(node);
 
-
         scope.isInMethodDefinition = true;
         //visit regular args
-        if (args.args != null){
-            for(exprType expr : args.args){
+        if (args.args != null) {
+            for (exprType expr : args.args) {
                 expr.accept(visitor);
             }
         }
 
         //visit varargs
-        if(args.vararg != null){
+        if (args.vararg != null) {
             args.vararg.accept(visitor);
         }
-        
+
         //visit kwargs
-        if(args.kwarg != null){
+        if (args.kwarg != null) {
             args.kwarg.accept(visitor);
         }
-        
+
         //visit keyword only args
-        if(args.kwonlyargs != null){
-        	for(exprType expr : args.kwonlyargs){
-        		expr.accept(visitor);
-        	}
+        if (args.kwonlyargs != null) {
+            for (exprType expr : args.kwonlyargs) {
+                expr.accept(visitor);
+            }
         }
         scope.isInMethodDefinition = false;
 
@@ -409,11 +403,11 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         if (node.returns != null) {
             node.returns.accept(visitor);
         }
-        
+
         //visit the body
         if (node.body != null) {
             for (int i = 0; i < node.body.length; i++) {
-                if (node.body[i] != null){
+                if (node.body[i] != null) {
                     node.body[i].accept(visitor);
                 }
             }
@@ -425,9 +419,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     }
 
     protected void handleDecorators(decoratorsType[] decs) throws Exception {
-        if(decs != null){
-            for (decoratorsType dec : decs){
-                if(dec != null){
+        if (decs != null) {
+            for (decoratorsType dec : decs) {
+                if (dec != null) {
                     handleDecorator(dec);
                 }
             }
@@ -441,64 +435,61 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         dec.accept(this);
     }
 
-    
     /**
      * we are starting a new scope when visiting a lambda 
      */
     public Object visitLambda(org.python.pydev.parser.jython.ast.Lambda node) throws Exception {
         unhandled_node(node);
-        
+
         AbstractScopeAnalyzerVisitor visitor = this;
         argumentsType args = node.args;
-        
+
         //visit the defaults first (before starting the scope, because this is where the load of variables from other scopes happens)
-        if(args.defaults != null){
-            for(exprType expr : args.defaults){
-                if(expr != null){
+        if (args.defaults != null) {
+            for (exprType expr : args.defaults) {
+                if (expr != null) {
                     expr.accept(visitor);
                 }
             }
         }
-        
+
         startScope(Scope.SCOPE_TYPE_LAMBDA, node);
-        
-        
+
         scope.isInMethodDefinition = true;
         //visit regular args
-        if (args.args != null){
-            for(exprType expr : args.args){
+        if (args.args != null) {
+            for (exprType expr : args.args) {
                 expr.accept(visitor);
             }
         }
-        
+
         //visit varargs
-        if(args.vararg != null){
+        if (args.vararg != null) {
             args.vararg.accept(visitor);
         }
-        
+
         //visit kwargs
-        if(args.kwarg != null){
+        if (args.kwarg != null) {
             args.kwarg.accept(visitor);
         }
-        
+
         //visit keyword only args
-        if(args.kwonlyargs != null){
-        	for(exprType expr : args.kwonlyargs){
-        		expr.accept(visitor);
-        	}
+        if (args.kwonlyargs != null) {
+            for (exprType expr : args.kwonlyargs) {
+                expr.accept(visitor);
+            }
         }
 
         scope.isInMethodDefinition = false;
-        
+
         //visit the body
         if (node.body != null) {
             node.body.accept(visitor);
         }
-        
+
         endScope(node);
         return null;
     }
-    
 
     /**
      * We want to make the name tok a regular name for interpreting purposes.
@@ -506,12 +497,12 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     @Override
     public Object visitNameTok(NameTok nameTok) throws Exception {
         unhandled_node(nameTok);
-        if(nameTok.ctx == NameTok.VarArg || nameTok.ctx == NameTok.KwArg){
-            
+        if (nameTok.ctx == NameTok.VarArg || nameTok.ctx == NameTok.KwArg) {
+
             SourceToken token = AbstractVisitor.makeToken(nameTok, moduleName);
             scope.addToken(token, token, (nameTok).id);
-            if(checkCurrentScopeForAssignmentsToBuiltins()){
-                if (builtinTokens.contains(token.getRepresentation())){
+            if (checkCurrentScopeForAssignmentsToBuiltins()) {
+                if (builtinTokens.contains(token.getRepresentation())) {
                     // Overriding builtin...
                     onAddAssignmentToBuiltinMessage(token, token.getRepresentation());
                 }
@@ -519,12 +510,12 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         }
         return null;
     }
-    
+
     @Override
     public Object visitAugAssign(AugAssign node) throws Exception {
         return super.visitAugAssign(node);
     }
-    
+
     /**
      * when visiting an import, just make the token and add it
      * 
@@ -532,22 +523,21 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      *  
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitImport(org.python.pydev.parser.jython.ast.Import)
      */
-	public Object visitImport(Import node) throws Exception {
-		unhandled_node(node);
-		List<IToken> list = AbstractVisitor.makeImportToken(node, null,
-				moduleName, true);
+    public Object visitImport(Import node) throws Exception {
+        unhandled_node(node);
+        List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
 
-		if(checkCurrentScopeForAssignmentsToBuiltins()){
-    		for (IToken token : list) {
-    		    if(builtinTokens.contains(token.getRepresentation())){
-    		        // Overriding builtin...
-    		        onAddAssignmentToBuiltinMessage(token, token.getRepresentation());
-    			}
-    		}
-		}
-		scope.addImportTokens(list, null, this.completionCache);
-		return null;
-	}
+        if (checkCurrentScopeForAssignmentsToBuiltins()) {
+            for (IToken token : list) {
+                if (builtinTokens.contains(token.getRepresentation())) {
+                    // Overriding builtin...
+                    onAddAssignmentToBuiltinMessage(token, token.getRepresentation());
+                }
+            }
+        }
+        scope.addImportTokens(list, null, this.completionCache);
+        return null;
+    }
 
     /**
      * visit some import 
@@ -556,23 +546,24 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     public Object visitImportFrom(ImportFrom node) throws Exception {
         unhandled_node(node);
         try {
-            
-            if(AbstractVisitor.isWildImport(node)){
+
+            if (AbstractVisitor.isWildImport(node)) {
                 IToken wildImport = AbstractVisitor.makeWildImportToken(node, null, moduleName);
-                
+
                 ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature, this.completionCache);
-                state.setBuiltinsGotten (true); //we don't want any builtins
+                state.setBuiltinsGotten(true); //we don't want any builtins
                 List<IToken> completionsForWildImport = new ArrayList<IToken>();
-                if(nature.getAstManager().getCompletionsForWildImport(state, current, completionsForWildImport, wildImport)){
+                if (nature.getAstManager().getCompletionsForWildImport(state, current, completionsForWildImport,
+                        wildImport)) {
                     scope.addImportTokens(completionsForWildImport, wildImport, this.completionCache);
                 }
-            }else{
+            } else {
                 List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
                 scope.addImportTokens(list, null, this.completionCache);
             }
-            
+
         } catch (Exception e) {
-            Log.log(IStatus.ERROR, ("Error when analyzing module "+moduleName), e);
+            Log.log(IStatus.ERROR, ("Error when analyzing module " + moduleName), e);
         }
         return null;
     }
@@ -591,27 +582,28 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         if (node.ctx == Name.Load || node.ctx == Name.Del || node.ctx == Name.AugStore) {
             found = markRead(token);
         }
-        
-        if (node.ctx == Name.Store || node.ctx == Name.Param || node.ctx == Name.KwOnlyParam || (node.ctx == Name.AugStore && found)) { //if it was undefined on augstore, we do not go on to creating the token
+
+        if (node.ctx == Name.Store || node.ctx == Name.Param || node.ctx == Name.KwOnlyParam
+                || (node.ctx == Name.AugStore && found)) { //if it was undefined on augstore, we do not go on to creating the token
             String rep = token.getRepresentation();
-            if(checkCurrentScopeForAssignmentsToBuiltins()){
-            	if (builtinTokens.contains(rep)){
-            	    // Overriding builtin...
-            		onAddAssignmentToBuiltinMessage(token, rep);
-            	}
+            if (checkCurrentScopeForAssignmentsToBuiltins()) {
+                if (builtinTokens.contains(rep)) {
+                    // Overriding builtin...
+                    onAddAssignmentToBuiltinMessage(token, rep);
+                }
             }
             org.python.pydev.core.Tuple<IToken, Found> foundInNamesToIgnore = findInNamesToIgnore(rep, token);
-            
-            if(foundInNamesToIgnore == null){
-                
-                if(!rep.equals("self") && !rep.equals("cls")){ 
-                    scope.addToken(token,token);
-                }else{
+
+            if (foundInNamesToIgnore == null) {
+
+                if (!rep.equals("self") && !rep.equals("cls")) {
+                    scope.addToken(token, token);
+                } else {
                     addToNamesToIgnore(node, false, false); //ignore self
                 }
             }
-        } 
-        
+        }
+
         return token;
     }
 
@@ -623,14 +615,12 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         org.python.pydev.core.Tuple<IToken, Found> found = scope.findInNamesToIgnore(rep);
         return found;
     }
-    
-    
-    
+
     @Override
     public Object visitGlobal(Global node) throws Exception {
         unhandled_node(node);
-        for(NameTokType name :node.names){
-            Name nameAst = new Name(((NameTok)name).id, Name.Store, false);
+        for (NameTokType name : node.names) {
+            Name nameAst = new Name(((NameTok) name).id, Name.Store, false);
             nameAst.beginLine = name.beginLine;
             nameAst.beginColumn = name.beginColumn;
 
@@ -640,7 +630,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         }
         return null;
     }
-    
+
     /**
      * visiting some attribute, as os.path or math().val or (10,10).__class__
      *  
@@ -649,38 +639,39 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     public Object visitAttribute(Attribute node) throws Exception {
         unhandled_node(node);
         boolean doReturn = visitNeededAttributeParts(node, this);
-        
-        if(doReturn){
+
+        if (doReturn) {
             return null;
         }
 
         SourceToken token = AbstractVisitor.makeFullNameToken(node, moduleName);
-        if(token.getRepresentation().equals("")){
+        if (token.getRepresentation().equals("")) {
             return null;
         }
         String fullRep = token.getRepresentation();
 
-        if (node.ctx == Attribute.Store || node.ctx == Attribute.Param || node.ctx == Attribute.KwOnlyParam || node.ctx == Attribute.AugStore) {
+        if (node.ctx == Attribute.Store || node.ctx == Attribute.Param || node.ctx == Attribute.KwOnlyParam
+                || node.ctx == Attribute.AugStore) {
             //in a store attribute, the first part is always a load
             int i = fullRep.indexOf('.', 0);
             String sub = fullRep;
-            if( i > 0){
-                sub = fullRep.substring(0,i);
+            if (i > 0) {
+                sub = fullRep.substring(0, i);
             }
             markRead(token, sub, true, false);
-            
+
         } else if (node.ctx == Attribute.Load) {
-    
+
             Iterator<String> it = new FullRepIterable(fullRep).iterator();
             boolean found = false;
-            
-            while(it.hasNext()){
+
+            while (it.hasNext()) {
                 String sub = it.next();
-                if(it.hasNext()){
-                    if( markRead(token, sub, false, false) ){
+                if (it.hasNext()) {
+                    if (markRead(token, sub, false, false)) {
                         found = true;
                     }
-                }else{
+                } else {
                     markRead(token, fullRep, !found, true); //only set it to add to not defined if it was still not found
                 }
             }
@@ -688,7 +679,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         return null;
     }
 
-        
     /**
      * In this function, the visitor will traverse the value of the attribute as needed,
      * if it is a subscript, call, etc, as those things are not actually a part of the attribute,
@@ -703,12 +693,12 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         exprType value = node.value;
         boolean valueVisited = false;
         boolean doReturn = false;
-        if(value instanceof Subscript){
+        if (value instanceof Subscript) {
             Subscript subs = (Subscript) value;
             base.traverse(subs.slice);
-            if(subs.value instanceof Name){
+            if (subs.value instanceof Name) {
                 base.visitName((Name) subs.value);
-            }else{
+            } else {
                 base.traverse(subs.value);
             }
             //No need to keep visiting. Reason:
@@ -721,21 +711,21 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             //so, when we visit it directly, we don't have to visit the first part anymore,
             //because it was just visited... kind of strange to think about it though.
             doReturn = true;
-            
-        } else if(value instanceof Call){
+
+        } else if (value instanceof Call) {
             visitCallAttr((Call) value, base);
             valueVisited = true;
-            
-        }else if(value instanceof Tuple){
+
+        } else if (value instanceof Tuple) {
             base.visitTuple((Tuple) value);
             valueVisited = true;
-            
-        }else if(value instanceof Dict){
+
+        } else if (value instanceof Dict) {
             base.visitDict((Dict) value);
             doReturn = true;
         }
-        if(!doReturn && !valueVisited){
-            if(visitNeededValues(value, base)){
+        if (!doReturn && !valueVisited) {
+            if (visitNeededValues(value, base)) {
                 doReturn = true;
             }
         }
@@ -743,11 +733,11 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     }
 
     protected static boolean visitNeededValues(exprType value, VisitorBase base) throws Exception {
-        if(value instanceof Name){
+        if (value instanceof Name) {
             return false;
-        }else if (value instanceof Attribute){
-            return visitNeededValues(((Attribute)value).value, base);
-        }else{
+        } else if (value instanceof Attribute) {
+            return visitNeededValues(((Attribute) value).value, base);
+        } else {
             value.accept(base);
             return true;
         }
@@ -759,7 +749,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     protected static void visitCallAttr(Call c, VisitorBase base) throws Exception {
         //now, visit all inside it but the func itself 
         VisitorBase visitor = base;
-        if(c.func instanceof Attribute){
+        if (c.func instanceof Attribute) {
             base.visitAttribute((Attribute) c.func);
         }
         if (c.args != null) {
@@ -787,7 +777,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         scope.removeIfSubScope();
         return ret;
     }
-    
+
     /**
      * Overridden because we want the value to be visited before the targets 
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitAssign(org.python.pydev.parser.jython.ast.Assign)
@@ -795,14 +785,14 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     public Object visitAssign(Assign node) throws Exception {
         unhandled_node(node);
         //in 'target1 = target2 = value', this is 'value'
-        if (node.value != null){
+        if (node.value != null) {
             node.value.accept(this);
         }
 
         //in 'target1 = target2 = a', this is 'target1, target2'
         if (node.targets != null) {
             for (int i = 0; i < node.targets.length; i++) {
-                if (node.targets[i] != null){
+                if (node.targets[i] != null) {
                     node.targets[i].accept(this);
                 }
             }
@@ -810,7 +800,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         onAfterVisitAssign(node);
         return null;
     }
-    
 
     /**
      * Overridden because we need to know about if scopes
@@ -821,13 +810,13 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         scope.removeIfSubScope();
         return r;
     }
-    
+
     /**
      * Overridden because we need to know about while scopes
      */
     public Object visitWhile(While node) throws Exception {
         scope.addIfSubScope();
-        Object r =  super.visitWhile(node);
+        Object r = super.visitWhile(node);
         scope.removeIfSubScope();
         return r;
     }
@@ -839,7 +828,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         scope.removeTryExceptSubScope();
         return r;
     }
-    
+
     @Override
     public Object visitTryFinally(TryFinally node) throws Exception {
         scope.addIfSubScope();
@@ -847,42 +836,42 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         scope.removeIfSubScope();
         return r;
     }
-    
+
     @Override
     public Object visitDictComp(DictComp node) throws Exception {
         unhandled_node(node);
         if (node.generators != null) {
             for (int i = 0; i < node.generators.length; i++) {
-                if (node.generators[i] != null){
+                if (node.generators[i] != null) {
                     node.generators[i].accept(this);
                 }
             }
         }
-        if (node.key != null){
+        if (node.key != null) {
             node.key.accept(this);
         }
-        if (node.value != null){
+        if (node.value != null) {
             node.value.accept(this);
         }
         return null;
     }
-    
+
     @Override
     public Object visitSetComp(SetComp node) throws Exception {
         unhandled_node(node);
         if (node.generators != null) {
             for (int i = 0; i < node.generators.length; i++) {
-                if (node.generators[i] != null){
+                if (node.generators[i] != null) {
                     node.generators[i].accept(this);
                 }
             }
         }
-        if (node.elt != null){
+        if (node.elt != null) {
             node.elt.accept(this);
         }
         return null;
     }
-    
+
     /**
      * Overridden because we need to visit the generators first
      * 
@@ -890,85 +879,82 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      */
     public Object visitListComp(final ListComp node) throws Exception {
         unhandled_node(node);
-        if(node.ctx == ListComp.TupleCtx){
+        if (node.ctx == ListComp.TupleCtx) {
             startScope(Scope.SCOPE_TYPE_LIST_COMP, node);
         }
-        try{
+        try {
             Comprehension type = null;
-            if(node.generators != null && node.generators.length > 0){
+            if (node.generators != null && node.generators.length > 0) {
                 type = (Comprehension) node.generators[0];
             }
             List<exprType> eltsToVisit = new ArrayList<exprType>();
-            
+
             //we need to take care of 'nested list comprehensions'
-            if(type != null && type.iter instanceof ListComp){
+            if (type != null && type.iter instanceof ListComp) {
                 //print dict((day, index) for index, daysRep in (day for day in enumeratedDays))
-                final ListComp listComp = (ListComp)type.iter;
-                
+                final ListComp listComp = (ListComp) type.iter;
+
                 //the "(day for day in enumeratedDays)" is in its own scope
-                if(listComp.ctx == ListComp.TupleCtx){
+                if (listComp.ctx == ListComp.TupleCtx) {
                     startScope(Scope.SCOPE_TYPE_LIST_COMP, listComp);
                 }
-                try{
+                try {
                     visitListCompGenerators(listComp, eltsToVisit);
                     for (exprType type2 : eltsToVisit) {
                         type2.accept(this);
                     }
-                }finally{
-                    if(listComp.ctx == ListComp.TupleCtx){
+                } finally {
+                    if (listComp.ctx == ListComp.TupleCtx) {
                         endScope(listComp);
                     }
                 }
                 type.target.accept(this);
-                if (node.elt != null){
+                if (node.elt != null) {
                     node.elt.accept(this);
                 }
-    
-    
+
                 return null;
             }
-            
+
             //then the generators...
             if (node.generators != null) {
                 for (int i = 0; i < node.generators.length; i++) {
-                    if (node.generators[i] != null){
+                    if (node.generators[i] != null) {
                         node.generators[i].accept(this);
                     }
                 }
             }
-        
-            
+
             //we need to take care of 'nested list comprehensions'
-            if(node.elt instanceof ListComp){
+            if (node.elt instanceof ListComp) {
                 //print dict((day, index) for index, daysRep in enumeratedDays for day in daysRep)
                 //note that the daysRep is actually generated and used later in the expression
-                visitListCompGenerators((ListComp)node.elt, eltsToVisit);
+                visitListCompGenerators((ListComp) node.elt, eltsToVisit);
                 for (exprType type2 : eltsToVisit) {
                     type2.accept(this);
                 }
                 return null;
             }
-            
-            if (node.elt != null){
+
+            if (node.elt != null) {
                 node.elt.accept(this);
             }
-    
+
             return null;
-        }finally{
-            if(node.ctx == ListComp.TupleCtx){
+        } finally {
+            if (node.ctx == ListComp.TupleCtx) {
                 endScope(node);
             }
         }
     }
-    
 
     private void visitListCompGenerators(ListComp node, List<exprType> eltsToVisit) throws Exception {
-        for(comprehensionType c: node.generators){
+        for (comprehensionType c : node.generators) {
             Comprehension comp = (Comprehension) c;
-            if(node.elt instanceof ListComp){
+            if (node.elt instanceof ListComp) {
                 visitListCompGenerators((ListComp) node.elt, eltsToVisit);
                 comp.accept(this);
-            }else{
+            } else {
                 comp.accept(this);
                 eltsToVisit.add(node.elt);
             }
@@ -984,7 +970,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         onAfterStartScope(newScopeType, node);
     }
 
-    
     /**
      * finalizes the current scope
      * @param reportUnused: defines whether we should report unused things found (we may not want to do that 
@@ -992,44 +977,43 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      */
     protected void endScope(SimpleNode node) {
         onBeforeEndScope(node);
-        
+
         ScopeItems m = scope.endScope(); //clear the last scope
-        for(Iterator<Found> it = probablyNotDefined.iterator(); it.hasNext();){
+        for (Iterator<Found> it = probablyNotDefined.iterator(); it.hasNext();) {
             Found n = it.next();
-            
+
             final GenAndTok probablyNotDefinedFirst = n.getSingle();
             IToken tok = probablyNotDefinedFirst.tok;
             String rep = tok.getRepresentation();
             //we also get a last pass to the unused to see if they might have been defined later on the higher scope
-            
+
             List<Found> foundItems = find(m, rep);
             boolean setUsed = false;
             for (Found found : foundItems) {
                 //the scope where it is defined must be an outer scope so that we can say it was defined later...
                 final GenAndTok foundItemFirst = found.getSingle();
-                
+
                 //if something was not defined in a method, if we are in the class definition, it won't be found.
-                
-                if((probablyNotDefinedFirst.scopeFound.getScopeType() & Scope.ACCEPTED_METHOD_AND_LAMBDA) != 0 &&
-                    m.getScopeType() != Scope.SCOPE_TYPE_CLASS){
-                    if(foundItemFirst.scopeId < probablyNotDefinedFirst.scopeId){
+
+                if ((probablyNotDefinedFirst.scopeFound.getScopeType() & Scope.ACCEPTED_METHOD_AND_LAMBDA) != 0
+                        && m.getScopeType() != Scope.SCOPE_TYPE_CLASS) {
+                    if (foundItemFirst.scopeId < probablyNotDefinedFirst.scopeId) {
                         found.setUsed(true);
                         setUsed = true;
                     }
                 }
             }
-            if(setUsed){
+            if (setUsed) {
                 it.remove();
             }
         }
-        
+
         //ok, this was the last scope, so, the ones probably not defined are really not defined at this
         //point
-        if(scope.size() == 0){
+        if (scope.size() == 0) {
             onLastScope(m);
         }
-        
-        
+
         onAfterEndScope(node, m);
     }
 
@@ -1038,23 +1022,22 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      */
     protected List<Found> find(ScopeItems m, String fullRep) {
         ArrayList<Found> foundItems = new ArrayList<Found>();
-        if(m == null){
+        if (m == null) {
             return foundItems;
         }
-        
+
         int i = fullRep.indexOf('.', 0);
 
-        while(i >= 0){
-            String sub = fullRep.substring(0,i);
-            i = fullRep.indexOf('.', i+1);
+        while (i >= 0) {
+            String sub = fullRep.substring(0, i);
+            i = fullRep.indexOf('.', i + 1);
             foundItems.addAll(m.getAll(sub));
         }
-        
+
         foundItems.addAll(m.getAll(fullRep));
         return foundItems;
     }
 
-    
     /**
      * we just found a token, so let's mark the correspondent tokens read (or undefined)
      * @return true if it was found
@@ -1064,9 +1047,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         return markRead(token, rep, true, false);
     }
 
-    
-    
-    
     /**
      * marks a token as read given its representation
      * 
@@ -1079,17 +1059,17 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         boolean found = false;
         Found foundAs = null;
         String foundAsStr = null;
-        
+
         int acceptedScopes = 0;
         ScopeItems currScopeItems = scope.getCurrScopeItems();
-        
-        if((currScopeItems.getScopeType() & Scope.ACCEPTED_METHOD_AND_LAMBDA) != 0){
+
+        if ((currScopeItems.getScopeType() & Scope.ACCEPTED_METHOD_AND_LAMBDA) != 0) {
             acceptedScopes = Scope.ACCEPTED_METHOD_SCOPES;
-        }else{
+        } else {
             acceptedScopes = Scope.ACCEPTED_ALL_SCOPES;
         }
-        
-        if("locals".equals(rep)){
+
+        if ("locals".equals(rep)) {
             //if locals() is accessed, all the tokens currently found are marked as 'used'
             //use case:
             //
@@ -1101,98 +1081,98 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             currScopeItems.setAllUsed();
             return true;
         }
-        
+
         Iterator<String> it = new FullRepIterable(rep, true).iterator();
         //search for it
-        while (found == false && it.hasNext()){
+        while (found == false && it.hasNext()) {
             String nextTokToSearch = it.next();
             foundAs = scope.findFirst(nextTokToSearch, true, acceptedScopes);
             found = foundAs != null;
-            if(found){
+            if (found) {
                 foundAsStr = nextTokToSearch;
                 foundAs.getSingle().references.add(token);
                 onFoundTokenAs(token, foundAs);
             }
         }
-        
-        
-        if(!found){
+
+        if (!found) {
             //this token might not be defined... (still, might be in names to ignore)
             int i;
-            if((i = rep.indexOf('.')) != -1){
+            if ((i = rep.indexOf('.')) != -1) {
                 //if it is an attribute, we have to check the names to ignore just with its first part
                 rep = rep.substring(0, i);
             }
-            if(addToNotDefined){
+            if (addToNotDefined) {
                 org.python.pydev.core.Tuple<IToken, Found> foundInNamesToIgnore = findInNamesToIgnore(rep, token);
-                if(foundInNamesToIgnore == null){
+                if (foundInNamesToIgnore == null) {
                     Found foundForProbablyNotDefined = makeFound(token);
-                    if(scope.size() > 1){ //if we're not in the global scope, it might be defined later
+                    if (scope.size() > 1) { //if we're not in the global scope, it might be defined later
                         probablyNotDefined.add(foundForProbablyNotDefined); //we are not in the global scope, so it might be defined later...
                         onAddToProbablyNotDefined(token, foundForProbablyNotDefined);
-                    }else{
+                    } else {
                         onAddUndefinedMessage(token, foundForProbablyNotDefined); //it is in the global scope, so, it is undefined.
                     }
-                }else{
+                } else {
                     IToken tokenInNamesToIgnore = foundInNamesToIgnore.o1;
                     onFoundInNamesToIgnore(token, tokenInNamesToIgnore);
                 }
             }
-        }else if(checkIfIsValidImportToken){
+        } else if (checkIfIsValidImportToken) {
             //ok, it was found, but is it an attribute (and if so, are all the parts in the import defined?)
             //if it was an attribute (say xxx and initially it was xxx.foo, we will have to check if the token foo
             //really exists in xxx, if it was found as an import)
             try {
-                if (foundAs.isImport() && !rep.equals(foundAsStr) && foundAs.importInfo != null && foundAs.importInfo.wasResolved) {
+                if (foundAs.isImport() && !rep.equals(foundAsStr) && foundAs.importInfo != null
+                        && foundAs.importInfo.wasResolved) {
                     //the foundAsStr equals the module resolved in the Found tok
-                    
+
                     IModule m = foundAs.importInfo.mod;
                     String tokToCheck;
-                    if(foundAs.isWildImport()){
+                    if (foundAs.isWildImport()) {
                         tokToCheck = foundAsStr;
-                        
-                    }else{
+
+                    } else {
                         String tok = foundAs.importInfo.rep;
                         tokToCheck = rep.substring(foundAsStr.length() + 1);
                         if (tok.length() > 0) {
                             tokToCheck = tok + "." + tokToCheck;
                         }
                     }
-                    
-                    for(String repToCheck : new FullRepIterable(tokToCheck)){
+
+                    for (String repToCheck : new FullRepIterable(tokToCheck)) {
                         int inGlobalTokens = m.isInGlobalTokens(repToCheck, nature, true, true, this.completionCache);
-                        
+
                         if (inGlobalTokens == IModule.NOT_FOUND) {
-                            if(!isDefinitionUnknown(m, repToCheck)){
+                            if (!isDefinitionUnknown(m, repToCheck)) {
                                 //Check if there's some hasattr (if there is, we'll consider that the token which
                                 //had the hasattr checked will actually have it).
                                 Collection<IToken> interfaceForLocal = this.currentLocalScope.getInterfaceForLocal(
                                         foundAsStr, false, true);
                                 boolean foundInHasAttr = false;
-                                for(IToken iToken:interfaceForLocal){
-                                    if(iToken.getRepresentation().equals(repToCheck)){
+                                for (IToken iToken : interfaceForLocal) {
+                                    if (iToken.getRepresentation().equals(repToCheck)) {
                                         foundInHasAttr = true;
                                         break;
                                     }
                                 }
-                                
-                                if(!foundInHasAttr){
+
+                                if (!foundInHasAttr) {
                                     IToken foundTok = findNameTok(token, repToCheck);
                                     onAddUndefinedVarInImportMessage(foundTok, foundAs);
                                 }
                             }
                             break;//no need to keep checking once one is not defined
-                            
-                        }else if(inGlobalTokens == IModule.FOUND_BECAUSE_OF_GETATTR){
+
+                        } else if (inGlobalTokens == IModule.FOUND_BECAUSE_OF_GETATTR) {
                             break;
                         }
                     }
-                }else if(foundAs.isImport() && (foundAs.importInfo == null || !foundAs.importInfo.wasResolved)){
+                } else if (foundAs.isImport() && (foundAs.importInfo == null || !foundAs.importInfo.wasResolved)) {
                     //import was not resolved
                     onFoundUnresolvedImportPart(token, rep, foundAs);
                 }
             } catch (Exception e) {
-                Log.log("Error checking for valid tokens (imports) for "+moduleName, e);
+                Log.log("Error checking for valid tokens (imports) for " + moduleName, e);
             }
         }
         return found;
@@ -1206,7 +1186,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
 
     }
 
-
     /**
      * @return whether we're actually unable to identify that the representation
      * we're looking exists or not, so, 
@@ -1216,68 +1195,70 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      */
     private boolean isDefinitionUnknown(IModule m, String repToCheck) throws Exception {
         String name = m.getName();
-        TupleN key = new TupleN("isDefinitionUnknown", name!=null?name:"", repToCheck);
+        TupleN key = new TupleN("isDefinitionUnknown", name != null ? name : "", repToCheck);
         Boolean isUnknown = (Boolean) this.completionCache.getObj(key);
-        if(isUnknown == null){
+        if (isUnknown == null) {
             isUnknown = internalGenerateIsDefinitionUnknown(m, repToCheck);
             this.completionCache.add(key, isUnknown);
         }
         return isUnknown;
     }
-    
+
     /**
      * Actually makes the check to see if a given representation is unknown in a given module (without using caches)
      */
     private boolean internalGenerateIsDefinitionUnknown(IModule m, String repToCheck) throws Exception {
-        if(!(m instanceof SourceModule)){
+        if (!(m instanceof SourceModule)) {
             return false;
         }
         repToCheck = FullRepIterable.headAndTail(repToCheck, true)[0];
-        if(repToCheck.length() == 0){
+        if (repToCheck.length() == 0) {
             return false;
         }
-        IDefinition[] definitions = m.findDefinition(CompletionStateFactory.getEmptyCompletionState(repToCheck, nature, this.completionCache), -1, -1, nature);
+        IDefinition[] definitions = m.findDefinition(
+                CompletionStateFactory.getEmptyCompletionState(repToCheck, nature, this.completionCache), -1, -1,
+                nature);
         for (int i = 0; i < definitions.length; i++) {
             IDefinition foundDefinition = definitions[i];
-            if(foundDefinition instanceof AssignDefinition){
+            if (foundDefinition instanceof AssignDefinition) {
                 AssignDefinition d = (AssignDefinition) foundDefinition;
-                
+
                 //if the value is currently None, it will be set later on
-                if(d.value.equals("None")){
+                if (d.value.equals("None")) {
                     return true;
                 }
-                
+
                 //ok, go to the definition of whatever is set
                 IDefinition[] definitions2 = d.module.findDefinition(
-                        CompletionStateFactory.getEmptyCompletionState(d.value, nature, this.completionCache), 
-                        d.line, d.col, nature);
-                
-                if(definitions2.length == 1){
+                        CompletionStateFactory.getEmptyCompletionState(d.value, nature, this.completionCache), d.line,
+                        d.col, nature);
+
+                if (definitions2.length == 1) {
                     //and if it is a function, we're actually unable to find
                     //out about its return value
-                    if(definitions2[0] instanceof Definition){
+                    if (definitions2[0] instanceof Definition) {
                         Definition definition = (Definition) definitions2[0];
-                        if(definition.ast instanceof FunctionDef){
+                        if (definition.ast instanceof FunctionDef) {
                             return true;
-                            
-                        }else if(definition.ast instanceof ClassDef){
+
+                        } else if (definition.ast instanceof ClassDef) {
                             ClassDef def = (ClassDef) definition.ast;
-                            if(isDynamicClass(def)){
+                            if (isDynamicClass(def)) {
                                 return true;
                             }
                         }
                     }
                 }
-            }else if (foundDefinition instanceof Definition){ //not Assign definition
-                Definition definition = (Definition) foundDefinition; 
-                if(definition.ast instanceof ClassDef){
+            } else if (foundDefinition instanceof Definition) { //not Assign definition
+                Definition definition = (Definition) foundDefinition;
+                if (definition.ast instanceof ClassDef) {
                     //direct class access
                     ClassDef classDef = (ClassDef) definition.ast;
-                    if(isDynamicClass(classDef)){
+                    if (isDynamicClass(classDef)) {
                         return true;
                     }
                 }
-                
+
             }
         }
         return false;
@@ -1288,8 +1269,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      */
     private boolean isDynamicClass(ClassDef def) {
         String docString = NodeUtils.getNodeDocString(def);
-        if(docString != null){
-            if(docString.indexOf("@DynamicAttrs") != -1){
+        if (docString != null) {
+            if (docString.indexOf("@DynamicAttrs") != -1) {
                 //class that has things dynamically defined.
                 return true;
             }
@@ -1301,20 +1282,19 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         return new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems());
     }
 
-
     protected IToken findNameTok(IToken token, String tokToCheck) {
-        if(token instanceof SourceToken){
+        if (token instanceof SourceToken) {
             SourceToken s = (SourceToken) token;
             SimpleNode ast = s.getAst();
-            
+
             String searchFor = FullRepIterable.getLastPart(tokToCheck);
-            while(ast instanceof Attribute){
+            while (ast instanceof Attribute) {
                 Attribute a = (Attribute) ast;
-                
-                if(((NameTok)a.attr).id.equals(searchFor)){
+
+                if (((NameTok) a.attr).id.equals(searchFor)) {
                     return new SourceToken(a.attr, searchFor, "", "", token.getParentPackage());
-                    
-                }else if(a.value.toString().equals(searchFor)){
+
+                } else if (a.value.toString().equals(searchFor)) {
                     return new SourceToken(a.value, searchFor, "", "", token.getParentPackage());
                 }
                 ast = a.value;
@@ -1322,8 +1302,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         }
         return token;
     }
-    
-    
+
     //these are the methods that should be overridden. Those are hooks to subclasses do whatever they need to do
     //on those cases
     protected abstract void onAfterVisitAssign(Assign node);
@@ -1337,13 +1316,13 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     protected abstract void onLastScope(ScopeItems m);
 
     protected abstract void onAddUndefinedMessage(IToken token, Found foundAs);
-    
+
     /**
      * Called when a token is not found.
      */
-    protected void onAddToProbablyNotDefined(IToken token, Found foundForProbablyNotDefined){
+    protected void onAddToProbablyNotDefined(IToken token, Found foundForProbablyNotDefined) {
     }
-    
+
     /**
      * Called when a token that was thought to be not defined is found later on in the visiting process.
      */
@@ -1352,7 +1331,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     }
 
     protected abstract void onAddUndefinedVarInImportMessage(IToken foundTok, Found foundAs);
-    
+
     public abstract void onAddUnusedMessage(SimpleNode node, Found found);
 
     public abstract void onAddReimportMessage(Found newFound);
@@ -1366,17 +1345,17 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      */
     protected void onAfterAddToNamesToIgnore(ScopeItems currScopeItems, org.python.pydev.core.Tuple<IToken, Found> tup) {
     }
+
     /**
      * This one is not abstract, but is provided as a hook, as the others.
      */
     protected void onFoundUnresolvedImportPart(IToken token, String rep, Found foundAs) {
     }
+
     /**
      * This one is not abstract, but is provided as a hook, as the others.
      */
     public void onImportInfoSetOnFound(Found found) {
     }
-
-
 
 }

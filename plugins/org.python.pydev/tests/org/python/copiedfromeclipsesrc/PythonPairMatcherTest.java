@@ -19,7 +19,7 @@ public class PythonPairMatcherTest extends TestCase {
             test.setUp();
             test.testSearchesOnlyInCurrentStatement();
             test.tearDown();
-            
+
             junit.textui.TestRunner.run(PythonPairMatcherTest.class);
         } catch (Exception e) {
             e.printStackTrace();
@@ -33,7 +33,7 @@ public class PythonPairMatcherTest extends TestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
     }
-    
+
     public void testMatch() throws Exception {
         PythonPairMatcher matcher = getMatcher();
         String s = "test (";
@@ -43,35 +43,35 @@ public class PythonPairMatcherTest extends TestCase {
         s = "test () ";
         assertEquals(-1, matcher.searchForOpeningPeer(s.length(), '(', ')', new Document(s)));
     }
-    
+
     public void testSearchesOnlyInCurrentStatement() throws Exception {
         PythonPairMatcher matcher = getMatcher();
         String s = "" +
-        		"a = (\n" +
-        		"def m1():\n" +
-        		"    b = ()";
+                "a = (\n" +
+                "def m1():\n" +
+                "    b = ()";
         assertEquals(-1, matcher.searchForOpeningPeer(s.length(), '(', ')', new Document(s)));
     }
-    
+
     public void testMatch1() throws Exception {
         PythonPairMatcher matcher = getMatcher();
         String s = "\ntest ('[#') ";
         assertEquals(-1, matcher.searchForAnyOpeningPeer(s.length(), new Document(s)));
-        
+
     }
-    
+
     public void testMatch2() throws Exception {
         PythonPairMatcher matcher = getMatcher();
         String s = "\ntest ('''\n[#''') ";
         assertEquals(-1, matcher.searchForAnyOpeningPeer(s.length(), new Document(s)));
-        
+
         s = "\ntest (    ";
         assertEquals(6, matcher.searchForAnyOpeningPeer(s.length(), new Document(s)));
-        
+
     }
 
     private PythonPairMatcher getMatcher() {
-        return new PythonPairMatcher(new char[]{'(', ')', '[', ']'});
+        return new PythonPairMatcher(new char[] { '(', ')', '[', ']' });
     }
 
 }

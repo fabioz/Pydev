@@ -13,17 +13,18 @@ import org.python.pydev.refactoring.tests.coderefactoring.extractmethod.ExtractM
 import org.python.pydev.refactoring.tests.coderefactoring.inlinelocal.InlineLocalTestSuite;
 
 public final class AllTests {
-	/* Hide Constructor */
-	private AllTests() { }
+    /* Hide Constructor */
+    private AllTests() {
+    }
 
-	public static Test suite() {
-		TestSuite suite = new TestSuite("Coderefactoring Tests");
-		// $JUnit-BEGIN$
-		suite.addTest(ExtractLocalTestSuite.suite());
-		suite.addTest(ExtractMethodTestSuite.suite());
-		suite.addTest(InlineLocalTestSuite.suite());
-		// $JUnit-END$
-		return suite;
-	}
+    public static Test suite() {
+        TestSuite suite = new TestSuite("Coderefactoring Tests");
+        // $JUnit-BEGIN$
+        suite.addTest(ExtractLocalTestSuite.suite());
+        suite.addTest(ExtractMethodTestSuite.suite());
+        suite.addTest(InlineLocalTestSuite.suite());
+        // $JUnit-END$
+        return suite;
+    }
 
 }

@@ -17,11 +17,7 @@ import junit.framework.TestCase;
 public class XMLUtilsTest extends TestCase {
 
     public void testXmlUtils() throws Exception {
-        String payload = "" +
-        		"<xml><comp p0=\"pow\" p1=\"%25\" p2=\"(x, y)\" p3=\"2\"/>"+
-        		"</xml>\n" +
-        		"\n" +
-        		"";
+        String payload = "" + "<xml><comp p0=\"pow\" p1=\"%25\" p2=\"(x, y)\" p3=\"2\"/>" + "</xml>\n" + "\n" + "";
         List<Object[]> xmlToCompletions = XMLUtils.convertXMLcompletionsFromConsole(payload);
         for (Object[] objects : xmlToCompletions) {
             assertEquals("%", objects[1]);

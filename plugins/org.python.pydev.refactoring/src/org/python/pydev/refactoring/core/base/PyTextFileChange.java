@@ -8,48 +8,48 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.core.uiutils.RunInUiThread;
 
 public class PyTextFileChange extends TextFileChange {
-	
-	public PyTextFileChange(String name, IFile file) {
-		super(name, file);
-	}
 
-	public Change perform(final org.eclipse.core.runtime.IProgressMonitor pm) throws CoreException {
+    public PyTextFileChange(String name, IFile file) {
+        super(name, file);
+    }
 
-		final Object[] superPerform = new Object[1];
-		//We need to sync it to have UI access because otherwise we're unable to start a document rewrite session.
-		RunInUiThread.sync(new Runnable() {
-			
-			public void run() {
-				try {
-					superPerform[0] = superPerform(pm);
-				} catch (CoreException e) {
-					superPerform[0] = e;
-					Log.log(e);
-				} catch (Throwable e) {
-					superPerform[0] = new RuntimeException(e);
-					Log.log(e);
-				}
-			}
-		});
-		Object object = superPerform[0];
-		
-		if(object == null){
-			return null;
-		}
-		
-		if(object instanceof Change){
-			return(Change) object;
-		}
-		
-		if (object instanceof CoreException){
-			throw (CoreException)object;
-		}else{
-			throw (RuntimeException)object;
-			
-		}
-	}
+    public Change perform(final org.eclipse.core.runtime.IProgressMonitor pm) throws CoreException {
 
-	public Change superPerform(org.eclipse.core.runtime.IProgressMonitor pm) throws CoreException {
-		return super.perform(pm);
-	}
+        final Object[] superPerform = new Object[1];
+        //We need to sync it to have UI access because otherwise we're unable to start a document rewrite session.
+        RunInUiThread.sync(new Runnable() {
+
+            public void run() {
+                try {
+                    superPerform[0] = superPerform(pm);
+                } catch (CoreException e) {
+                    superPerform[0] = e;
+                    Log.log(e);
+                } catch (Throwable e) {
+                    superPerform[0] = new RuntimeException(e);
+                    Log.log(e);
+                }
+            }
+        });
+        Object object = superPerform[0];
+
+        if (object == null) {
+            return null;
+        }
+
+        if (object instanceof Change) {
+            return (Change) object;
+        }
+
+        if (object instanceof CoreException) {
+            throw (CoreException) object;
+        } else {
+            throw (RuntimeException) object;
+
+        }
+    }
+
+    public Change superPerform(org.eclipse.core.runtime.IProgressMonitor pm) throws CoreException {
+        return super.perform(pm);
+    }
 }

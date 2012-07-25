@@ -30,10 +30,10 @@ class Label {
         if (noffsets > 0 && position == -1)
             throw new InternalError("position never set for label");
 
-        for (int i=0; i<noffsets; i++) {
+        for (int i = 0; i < noffsets; i++) {
             //System.out.println("o: "+offsets[i]+", "+position+", "+
             //                   positions[i]);
-            int off = position-offsets[i];
+            int off = position - offsets[i];
             int p = positions[i];
             if (sizes[i] == 2) {
                 stream.writeShort(off);
@@ -48,14 +48,12 @@ class Label {
         }
     }
 
-
     public void setStack(int stack) {
         if (this.stack == -1) {
             this.stack = stack;
         } else {
             if (this.stack != stack) {
-                throw new InternalError("stack sizes don't agree: "+
-                                        this.stack+", "+stack);
+                throw new InternalError("stack sizes don't agree: " + this.stack + ", " + stack);
             }
         }
     }
@@ -73,22 +71,22 @@ class Label {
 
     public void setBranch(int offset, int size) throws IOException {
         if (noffsets >= offsets.length) {
-            int[] new_offsets = new int[offsets.length*2];
+            int[] new_offsets = new int[offsets.length * 2];
             System.arraycopy(offsets, 0, new_offsets, 0, noffsets);
             offsets = new_offsets;
 
-            int[] new_positions = new int[positions.length*2];
+            int[] new_positions = new int[positions.length * 2];
             System.arraycopy(positions, 0, new_positions, 0, noffsets);
             positions = new_positions;
 
-            int[] new_sizes = new int[sizes.length*2];
+            int[] new_sizes = new int[sizes.length * 2];
             System.arraycopy(sizes, 0, new_sizes, 0, noffsets);
             sizes = new_sizes;
         }
         positions[noffsets] = code.size();
         offsets[noffsets] = offset;
         sizes[noffsets] = size;
-        noffsets = noffsets+1;
+        noffsets = noffsets + 1;
         if (size == 2) {
             code.code.writeShort(0);
         } else {

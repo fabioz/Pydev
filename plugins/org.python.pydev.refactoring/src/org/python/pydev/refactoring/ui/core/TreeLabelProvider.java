@@ -30,7 +30,7 @@ public class TreeLabelProvider implements ILabelProvider {
     }
 
     public String getText(Object element) {
-        if(element instanceof ITreeNode){
+        if (element instanceof ITreeNode) {
             return ((ITreeNode) element).getLabel();
         }
 

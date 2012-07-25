@@ -23,10 +23,10 @@ public class PythonHyperlink implements IHyperlink {
 
     private final IRegion fRegion;
     private PyEdit fEditor;
-    
+
     public PythonHyperlink(IRegion region, PyEdit editor) {
         Assert.isNotNull(region);
-        fRegion= region;
+        fRegion = region;
         fEditor = editor;
     }
 
@@ -46,9 +46,9 @@ public class PythonHyperlink implements IHyperlink {
      * Try to find a definition and open it.
      */
     public void open() {
-    	PyGoToDefinition pyGoToDefinition = new PyGoToDefinition();
-    	pyGoToDefinition.setEditor(this.fEditor);
-    	pyGoToDefinition.run((IAction)null);
+        PyGoToDefinition pyGoToDefinition = new PyGoToDefinition();
+        pyGoToDefinition.setEditor(this.fEditor);
+        pyGoToDefinition.run((IAction) null);
     }
 
 }

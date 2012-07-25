@@ -53,17 +53,17 @@ public class PyContextActivator implements ICallbackListener {
 
         IContextService contextService = (IContextService) PlatformUI.getWorkbench().getService(IContextService.class);
         //May be null on shutdown on Eclipse 4. 
-        if(contextService != null){
-	        if (isActive) {
-	            if (activateContext == null) {
-	                activateContext = contextService.activateContext("com.python.pydev.contexts.window");
-	            }
-	        } else {
-	            if (activateContext != null) {
-	                contextService.deactivateContext(activateContext);
-	            }
-	            activateContext = null;
-	        }
+        if (contextService != null) {
+            if (isActive) {
+                if (activateContext == null) {
+                    activateContext = contextService.activateContext("com.python.pydev.contexts.window");
+                }
+            } else {
+                if (activateContext != null) {
+                    contextService.deactivateContext(activateContext);
+                }
+                activateContext = null;
+            }
         }
     }
 

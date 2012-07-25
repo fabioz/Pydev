@@ -91,7 +91,7 @@ public class TextEditCreation {
      * occurrences to be renamed
      */
     private Map<Tuple<String, File>, HashSet<ASTEntry>> fileOccurrences;
-    
+
     /**
      * Occurrences to be renamed in the current module.
      */
@@ -122,23 +122,23 @@ public class TextEditCreation {
                 break;
             }
             HashSet<ASTEntry> occurrences = p.getOccurrences();
-            if(docOccurrences == null){
+            if (docOccurrences == null) {
                 docOccurrences = occurrences;
-            }else{
+            } else {
                 docOccurrences.addAll(occurrences);
             }
-            
+
             Map<Tuple<String, File>, HashSet<ASTEntry>> occurrencesInOtherFiles = p.getOccurrencesInOtherFiles();
-            if(fileOccurrences == null){
+            if (fileOccurrences == null) {
                 fileOccurrences = occurrencesInOtherFiles;
-            }else{
+            } else {
                 //iterate in a copy
-                for (Map.Entry<Tuple<String, File>, HashSet<ASTEntry>> entry : 
-                        new HashMap<Tuple<String, File>, HashSet<ASTEntry>>(occurrencesInOtherFiles).entrySet()) {
+                for (Map.Entry<Tuple<String, File>, HashSet<ASTEntry>> entry : new HashMap<Tuple<String, File>, HashSet<ASTEntry>>(
+                        occurrencesInOtherFiles).entrySet()) {
                     HashSet<ASTEntry> set = occurrencesInOtherFiles.get(entry.getKey());
-                    if(set == null){
+                    if (set == null) {
                         occurrencesInOtherFiles.put(entry.getKey(), entry.getValue());
-                    }else{
+                    } else {
                         set.addAll(entry.getValue());
                     }
                 }
@@ -163,26 +163,24 @@ public class TextEditCreation {
             Tuple<String, File> tup = entry.getKey();
 
             //now, let's make the mapping from the filesystem to the Eclipse workspace
-            IFile workspaceFile = null; 
-            try{
+            IFile workspaceFile = null;
+            try {
                 workspaceFile = new PySourceLocatorBase().getWorkspaceFile(tup.o2);
-                if(workspaceFile == null){
-                    status.addWarning(StringUtils.format("Error. Unable to resolve the file:\n" +
-                            "%s\n" +
-                            "to a file in the Eclipse workspace.",
-                            tup.o2));
+                if (workspaceFile == null) {
+                    status.addWarning(StringUtils.format("Error. Unable to resolve the file:\n" + "%s\n"
+                            + "to a file in the Eclipse workspace.", tup.o2));
                     continue;
                 }
-            }catch(IllegalStateException e){
+            } catch (IllegalStateException e) {
                 //this can happen on tests (but if not on tests, we want to re-throw it
                 String message = e.getMessage();
-                if(message == null || !message.equals("Workspace is closed.")){
-                    throw e; 
+                if (message == null || !message.equals("Workspace is closed.")) {
+                    throw e;
                 }
                 //otherwise, let's just keep going in the test...
                 continue;
             }
-                
+
             //check the text changes
             HashSet<ASTEntry> astEntries = filterAstEntries(entry.getValue(), AST_ENTRIES_FILTER_TEXT);
             if (astEntries.size() > 0) {
@@ -210,11 +208,9 @@ public class TextEditCreation {
                     newName = inputName;
 
                     if (!resourceToRename.getName().equals(initialName)) {
-                        status
-                                .addFatalError(StringUtils
-                                        .format(
-                                                "Error. The package that was found (%s) for renaming does not match the initial token found (%s)",
-                                                resourceToRename.getName(), initialName));
+                        status.addFatalError(StringUtils
+                                .format("Error. The package that was found (%s) for renaming does not match the initial token found (%s)",
+                                        resourceToRename.getName(), initialName));
                         return;
                     }
                 }
@@ -256,9 +252,9 @@ public class TextEditCreation {
      */
     private void createCurrModuleChange() {
         TextChange docChange;
-        if(this.currentFile != null){
+        if (this.currentFile != null) {
             docChange = new PyTextFileChange("Current module: " + moduleName, this.currentFile);
-        }else{
+        } else {
             //used for tests
             docChange = PyDocumentChange.create("Current module: " + moduleName, this.currentDoc);
         }

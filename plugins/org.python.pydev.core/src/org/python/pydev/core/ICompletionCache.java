@@ -14,6 +14,6 @@ import org.python.pydev.core.cache.Cache;
  *
  * @author Fabio
  */
-public interface ICompletionCache extends Cache<Object, Object>{
+public interface ICompletionCache extends Cache<Object, Object> {
 
 }

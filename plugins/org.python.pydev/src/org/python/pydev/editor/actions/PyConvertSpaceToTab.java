@@ -27,7 +27,7 @@ import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
  * @author Parhaum Toofanian
  */
 public class PyConvertSpaceToTab extends PyAction {
-    
+
     /* Selection element */
     private PySelection ps;
 
@@ -36,9 +36,9 @@ public class PyConvertSpaceToTab extends PyAction {
      */
     public void run(IAction action) {
         try {
-        	if(!canModifyEditor()){
-        		return;
-        	}
+            if (!canModifyEditor()) {
+                return;
+            }
 
             // Select from text editor
             ps = new PySelection(getTextEditor());
@@ -52,6 +52,7 @@ public class PyConvertSpaceToTab extends PyAction {
             beep(e);
         }
     }
+
     /**
      * Performs the action with a given PySelection
      * 
@@ -71,13 +72,13 @@ public class PyConvertSpaceToTab extends PyAction {
         try {
             // For each line, strip their whitespace
             String tabSpace = getTabSpace();
-            if(tabSpace == null){
+            if (tabSpace == null) {
                 return false; //could not get it
             }
             IDocument doc = ps.getDoc();
             int endLineIndex = ps.getEndLineIndex();
             String endLineDelim = ps.getEndLineDelim();
-            
+
             for (i = ps.getStartLineIndex(); i <= endLineIndex; i++) {
                 IRegion lineInformation = doc.getLineInformation(i);
                 String line = doc.get(lineInformation.getOffset(), lineInformation.getLength());
@@ -109,10 +110,10 @@ public class PyConvertSpaceToTab extends PyAction {
             public String isValid(String input) {
 
                 if (input == null || input.length() == 0)
-                    return " "; 
+                    return " ";
 
                 try {
-                    int i= Integer.parseInt(input);
+                    int i = Integer.parseInt(input);
                     if (i <= 0)
                         return "Must be more than 0.";
 
@@ -124,14 +125,14 @@ public class PyConvertSpaceToTab extends PyAction {
             }
         }
 
-        InputDialog inputDialog = new InputDialog(getShell(), "Tab lenght", 
-                "How many spaces should be considered for each tab?", 
-                ""+DefaultIndentPrefs.getStaticTabWidth(), new NumberValidator());
-        
-        if(inputDialog.open() != InputDialog.OK){
+        InputDialog inputDialog = new InputDialog(getShell(), "Tab lenght",
+                "How many spaces should be considered for each tab?", "" + DefaultIndentPrefs.getStaticTabWidth(),
+                new NumberValidator());
+
+        if (inputDialog.open() != InputDialog.OK) {
             return null;
         }
-        
+
         StringBuffer sbuf = new StringBuffer();
         int tabWidth = Integer.parseInt(inputDialog.getValue());
         for (int i = 0; i < tabWidth; i++) {

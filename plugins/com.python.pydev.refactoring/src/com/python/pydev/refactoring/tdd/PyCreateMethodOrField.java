@@ -26,122 +26,113 @@ import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 
-public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField{
+public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField {
 
     public static final int BOUND_METHOD = 0;
     public static final int CLASSMETHOD = 1;
     public static final int STATICMETHOD = 2;
     public static final int FIELD = 3;
     public static final int CONSTANT = 4;
-    
+
     private String createInClass;
     private int createAs;
 
-
-    public String getCreationStr(){
-        if(createAs == FIELD){
+    public String getCreationStr() {
+        if (createAs == FIELD) {
             return "field";
         }
-        if(createAs == CONSTANT){
+        if (createAs == CONSTANT) {
             return "constant";
         }
         return "method";
     }
 
-    
     /**
      * Returns a proposal that can be used to generate the code.
      */
-    public ICompletionProposal createProposal(
-            RefactoringInfo refactoringInfo, String actTok, int locationStrategy, List<String> parametersAfterCall) {
+    public ICompletionProposal createProposal(RefactoringInfo refactoringInfo, String actTok, int locationStrategy,
+            List<String> parametersAfterCall) {
         PySelection pySelection = refactoringInfo.getPySelection();
         ModuleAdapter moduleAdapter = refactoringInfo.getModuleAdapter();
         String decorators = "";
-        
+
         IClassDefAdapter targetClass = null;
         String body = "${pass}";
-        if(createInClass != null){
+        if (createInClass != null) {
             List<IClassDefAdapter> classes = moduleAdapter.getClasses();
             for (IClassDefAdapter iClassDefAdapter : classes) {
-                if(createInClass.equals(iClassDefAdapter.getName())){
+                if (createInClass.equals(iClassDefAdapter.getName())) {
                     targetClass = iClassDefAdapter;
                     break;
                 }
             }
-            
-            if(targetClass != null){
-                switch(createAs){
+
+            if (targetClass != null) {
+                switch (createAs) {
                     case BOUND_METHOD:
                         parametersAfterCall = checkFirst(parametersAfterCall, "self");
                         break;
-                        
+
                     case CLASSMETHOD:
                         parametersAfterCall = checkFirst(parametersAfterCall, "cls");
                         decorators = "@classmethod\n";
                         break;
-                        
+
                     case STATICMETHOD:
                         decorators = "@staticmethod\n";
                         break;
-                        
+
                     case CONSTANT:
                         String indent = targetClass.getNodeBodyIndent();
                         Pass replacePassStatement = getLastPassFromNode(targetClass.getASTNode());
-                        
+
                         String constant = StringUtils.format("\n%s = ${None}${cursor}\n", actTok);
                         Tuple<Integer, String> offsetAndIndent;
-                        offsetAndIndent = getLocationOffset(
-                                AbstractPyCreateAction.LOCATION_STRATEGY_FIRST_METHOD, pySelection, moduleAdapter, targetClass);
-                            
-                        
+                        offsetAndIndent = getLocationOffset(AbstractPyCreateAction.LOCATION_STRATEGY_FIRST_METHOD,
+                                pySelection, moduleAdapter, targetClass);
+
                         return createProposal(pySelection, constant, offsetAndIndent, false, replacePassStatement);
-                        
+
                     case FIELD:
-                        
+
                         parametersAfterCall = checkFirst(parametersAfterCall, "self");
                         FunctionDefAdapter firstInit = targetClass.getFirstInit();
-                        if(firstInit != null){
+                        if (firstInit != null) {
                             FunctionDef astNode = firstInit.getASTNode();
                             replacePassStatement = getLastPassFromNode(astNode);
-                            
+
                             //Create the field as the last line in the __init__
-                            int nodeLastLine = firstInit.getNodeLastLine()-1;
+                            int nodeLastLine = firstInit.getNodeLastLine() - 1;
                             indent = firstInit.getNodeBodyIndent();
                             String pattern;
-                            
-                            if(replacePassStatement==null){
+
+                            if (replacePassStatement == null) {
                                 pattern = StringUtils.format("\nself.%s = ${None}${cursor}", actTok);
                                 try {
                                     IRegion region = pySelection.getDoc().getLineInformation(nodeLastLine);
-                                    int offset = region.getOffset()+region.getLength();
+                                    int offset = region.getOffset() + region.getLength();
                                     offsetAndIndent = new Tuple<Integer, String>(offset, indent);
                                 } catch (BadLocationException e) {
                                     Log.log(e);
                                     return null;
                                 }
-                                
-                            }else{
+
+                            } else {
                                 pattern = StringUtils.format("self.%s = ${None}${cursor}", actTok);
                                 offsetAndIndent = new Tuple<Integer, String>(-1, ""); //offset will be from the pass stmt
                             }
-                            return createProposal(
-                                    pySelection, 
-                                    pattern, 
-                                    offsetAndIndent, 
-                                    false,
-                                    replacePassStatement);
+                            return createProposal(pySelection, pattern, offsetAndIndent, false, replacePassStatement);
 
-                        }else{
+                        } else {
                             //Create the __init__ with the field declaration!
                             body = StringUtils.format("self.%s = ${None}${cursor}", actTok);
                             actTok = "__init__";
                             locationStrategy = AbstractPyCreateAction.LOCATION_STRATEGY_FIRST_METHOD;
                         }
-                        
-                        
+
                         break;
                 }
-            }else{
+            } else {
                 //We should create in a class and couldn't find it!
                 return null;
             }
@@ -149,71 +140,64 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField{
 
         String params = "";
         String source;
-        if(parametersAfterCall != null && parametersAfterCall.size() > 0){
+        if (parametersAfterCall != null && parametersAfterCall.size() > 0) {
             params = createParametersList(parametersAfterCall).toString();
         }
-        
 
-        
         Tuple<Integer, String> offsetAndIndent;
         Pass replacePassStatement = null;
-        if(targetClass != null){
+        if (targetClass != null) {
             replacePassStatement = getLastPassFromNode(targetClass.getASTNode());
             offsetAndIndent = getLocationOffset(locationStrategy, pySelection, moduleAdapter, targetClass);
-            
-        }else{
+
+        } else {
             offsetAndIndent = getLocationOffset(locationStrategy, pySelection, moduleAdapter);
         }
-        
+
         source = StringUtils.format("" +
                 "%sdef %s(%s):\n" +
                 "%s%s${cursor}\n" +
                 "\n" +
                 "\n" +
-                "", decorators, actTok, params, refactoringInfo.indentPrefs.getIndentationString(), body);
-        
+                "", decorators, actTok,
+                params, refactoringInfo.indentPrefs.getIndentationString(), body);
+
         return createProposal(pySelection, source, offsetAndIndent, true, replacePassStatement);
     }
-
 
     private Pass getLastPassFromNode(SimpleNode astNode) {
         stmtType[] body = NodeUtils.getBody(astNode);
         Pass replacePassStatement = null;
-        if(body.length > 0){
-             SimpleNode lastNode = body[body.length-1];
-             if(lastNode instanceof Pass){
-                 //Remove the pass and add the statement!
-                 replacePassStatement = (Pass) lastNode;
-             }
+        if (body.length > 0) {
+            SimpleNode lastNode = body[body.length - 1];
+            if (lastNode instanceof Pass) {
+                //Remove the pass and add the statement!
+                replacePassStatement = (Pass) lastNode;
+            }
         }
         return replacePassStatement;
     }
 
-
-
     private List<String> checkFirst(List<String> parametersAfterCall, String first) {
-        if(parametersAfterCall == null){
+        if (parametersAfterCall == null) {
             parametersAfterCall = new ArrayList<String>();
         }
-        if(parametersAfterCall.size() == 0){
+        if (parametersAfterCall.size() == 0) {
             parametersAfterCall.add(first);
-        }else{
+        } else {
             String string = parametersAfterCall.get(0);
-            if(!first.equals(string)){
+            if (!first.equals(string)) {
                 parametersAfterCall.add(0, first);
             }
         }
         return parametersAfterCall;
     }
 
-
     public void setCreateInClass(String createInClass) {
-       this.createInClass = createInClass;
+        this.createInClass = createInClass;
     }
-
 
     public void setCreateAs(int createAs) {
         this.createAs = createAs;
     }
 }
-

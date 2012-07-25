@@ -47,34 +47,23 @@ public class SimpleJythonRunner extends SimpleRunner {
 
     }
 
-    public Tuple<String, String> runAndGetOutputWithJar(
-        String script,
-        String jythonJar,
-        String[] args,
-        File workingDir,
-        IProject project,
-        IProgressMonitor monitor,
-        String encoding) {
+    public Tuple<String, String> runAndGetOutputWithJar(String script, String jythonJar, String[] args,
+            File workingDir, IProject project, IProgressMonitor monitor, String encoding) {
         File javaExecutable = JavaVmLocationFinder.findDefaultJavaExecutable();
         if (javaExecutable == null) {
-            throw new JavaNotConfiguredException("Error: the java environment must be configured before jython.\n\n"
-                + "Please make sure that the java executable to be\nused is correctly configured in the preferences at:\n\n"
-                + "Java > Installed JREs.");
+            throw new JavaNotConfiguredException(
+                    "Error: the java environment must be configured before jython.\n\n"
+                            + "Please make sure that the java executable to be\nused is correctly configured in the preferences at:\n\n"
+                            + "Java > Installed JREs.");
         }
 
-        return runAndGetOutputWithJar(javaExecutable, script, jythonJar, args, workingDir, project, monitor, null, encoding);
+        return runAndGetOutputWithJar(javaExecutable, script, jythonJar, args, workingDir, project, monitor, null,
+                encoding);
     }
 
-    public Tuple<String, String> runAndGetOutputWithJar(
-        File javaExecutable,
-        String script,
-        String jythonJar,
-        String[] args,
-        File workingDir,
-        IProject project,
-        IProgressMonitor monitor,
-        String additionalPythonpath,
-        String encoding) {
+    public Tuple<String, String> runAndGetOutputWithJar(File javaExecutable, String script, String jythonJar,
+            String[] args, File workingDir, IProject project, IProgressMonitor monitor, String additionalPythonpath,
+            String encoding) {
         //"C:\Program Files\Java\jdk1.5.0_04\bin\java.exe" "-Dpython.home=C:\bin\jython21" 
         //-classpath "C:\bin\jython21\jython.jar;%CLASSPATH%" org.python.util.jython %ARGS%
         //used just for getting info without any classpath nor pythonpath
@@ -92,16 +81,11 @@ public class SimpleJythonRunner extends SimpleRunner {
             if (additionalPythonpath != null) {
                 jythonJar += SimpleRunner.getPythonPathSeparator();
                 jythonJar += additionalPythonpath;
-                s = new String[] {
-                    javaLoc,
-                    "-Dpython.path=" + additionalPythonpath,
-                    "-Dpython.home=" + pythonHome,
-                    "-classpath",
-                    jythonJar,
-                    "org.python.util.jython",
-                    script };
+                s = new String[] { javaLoc, "-Dpython.path=" + additionalPythonpath, "-Dpython.home=" + pythonHome,
+                        "-classpath", jythonJar, "org.python.util.jython", script };
             } else {
-                s = new String[] { javaLoc, "-Dpython.home=" + pythonHome, "-classpath", jythonJar, "org.python.util.jython", script };
+                s = new String[] { javaLoc, "-Dpython.home=" + pythonHome, "-classpath", jythonJar,
+                        "org.python.util.jython", script };
             }
 
             if (args != null && args.length > 0) {
@@ -117,10 +101,8 @@ public class SimpleJythonRunner extends SimpleRunner {
 
     }
 
-    public static String[] makeExecutableCommandStr(String jythonJar, String script, String basePythonPath, String... args)
-        throws IOException,
-        JDTNotAvailableException,
-        MisconfigurationException {
+    public static String[] makeExecutableCommandStr(String jythonJar, String script, String basePythonPath,
+            String... args) throws IOException, JDTNotAvailableException, MisconfigurationException {
         return makeExecutableCommandStrWithVMArgs(jythonJar, script, basePythonPath, "", args);
     }
 
@@ -130,12 +112,8 @@ public class SimpleJythonRunner extends SimpleRunner {
      * @throws IOException
      * @throws MisconfigurationException 
      */
-    public static String[] makeExecutableCommandStrWithVMArgs(
-        String jythonJar,
-        String script,
-        String basePythonPath,
-        String vmArgs,
-        String... args) throws IOException, JDTNotAvailableException, MisconfigurationException {
+    public static String[] makeExecutableCommandStrWithVMArgs(String jythonJar, String script, String basePythonPath,
+            String vmArgs, String... args) throws IOException, JDTNotAvailableException, MisconfigurationException {
 
         IInterpreterManager interpreterManager = PydevPlugin.getJythonInterpreterManager();
         String javaLoc = JavaVmLocationFinder.findDefaultJavaExecutable().getCanonicalPath();
@@ -149,9 +127,11 @@ public class SimpleJythonRunner extends SimpleRunner {
         }
 
         if (!new File(jythonJar).exists()) {
-            throw new RuntimeException(StringUtils.format("Error. The default configured interpreter: %s does not exist!", jythonJar));
+            throw new RuntimeException(StringUtils.format(
+                    "Error. The default configured interpreter: %s does not exist!", jythonJar));
         }
-        InterpreterInfo info = (InterpreterInfo) interpreterManager.getInterpreterInfo(jythonJar, new NullProgressMonitor());
+        InterpreterInfo info = (InterpreterInfo) interpreterManager.getInterpreterInfo(jythonJar,
+                new NullProgressMonitor());
 
         //pythonpath is: base path + libs path.
         String libs = SimpleRunner.makePythonPathEnvFromPaths(info.libs);
@@ -179,24 +159,13 @@ public class SimpleJythonRunner extends SimpleRunner {
 
         String[] s;
         if (cacheDir != null) {
-            s = new String[] {
-                javaLoc,
-                cacheDir,
-                "-Dpython.path=" + jythonPath.toString(),
-                "-classpath",
-                jythonJar + pathSeparator + jythonPath,
-                vmArgs,
-                "org.python.util.jython",
-                script };
+            s = new String[] { javaLoc, cacheDir, "-Dpython.path=" + jythonPath.toString(), "-classpath",
+                    jythonJar + pathSeparator + jythonPath, vmArgs, "org.python.util.jython", script };
         } else {
             s = new String[] { javaLoc,
-                //cacheDir, no cache dir if it's not available
-                "-Dpython.path=" + jythonPath.toString(),
-                "-classpath",
-                jythonJar + pathSeparator + jythonPath,
-                vmArgs,
-                "org.python.util.jython",
-                script };
+                    //cacheDir, no cache dir if it's not available
+                    "-Dpython.path=" + jythonPath.toString(), "-classpath", jythonJar + pathSeparator + jythonPath,
+                    vmArgs, "org.python.util.jython", script };
 
         }
 

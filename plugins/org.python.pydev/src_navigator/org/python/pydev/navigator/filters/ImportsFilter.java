@@ -12,18 +12,18 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 
-public class ImportsFilter extends AbstractFilter{
+public class ImportsFilter extends AbstractFilter {
 
     @Override
     public boolean select(Viewer viewer, Object parentElement, Object element) {
-        if(element instanceof PythonNode){
+        if (element instanceof PythonNode) {
             PythonNode node = (PythonNode) element;
             ASTEntryWithChildren astThis = node.entry.getAstThis();
-            if(astThis == null){
+            if (astThis == null) {
                 return true;
             }
             SimpleNode n = astThis.node;
-            if(NodeUtils.isImport(n)){
+            if (NodeUtils.isImport(n)) {
                 return false;
             }
         }

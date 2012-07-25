@@ -16,7 +16,7 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
  * @author fabioz
  *
  */
-public class PinHistoryAction extends Action{
+public class PinHistoryAction extends Action {
 
     private WeakReference<PyUnitView> view;
     private PyUnitTestRun currentTestRun;
@@ -37,11 +37,11 @@ public class PinHistoryAction extends Action{
     private void setInitialTooltipText() {
         this.setToolTipText("Click to mark the currently selected run as the base-run.");
     }
-    
+
     public PyUnitTestRun getCurrentTestRun() {
         return currentTestRun;
     }
-    
+
     /* (non-Javadoc)
      * @see org.eclipse.jface.action.Action#run()
      */
@@ -49,26 +49,26 @@ public class PinHistoryAction extends Action{
     public void run() {
         boolean worked = false;
         try {
-            if(this.isChecked()){
-                if(view == null){
+            if (this.isChecked()) {
+                if (view == null) {
                     return;
                 }
                 PyUnitView pyUnitView = view.get();
-                if(pyUnitView == null){
+                if (pyUnitView == null) {
                     return;
                 }
                 PyUnitTestRun currentTestRun = pyUnitView.getCurrentTestRun();
-                if(currentTestRun != null){
+                if (currentTestRun != null) {
                     worked = true;
                     onRunSelected.call(currentTestRun);
                     this.currentTestRun = currentTestRun;
                     this.setImageDescriptor(PydevDebugPlugin.getImageCache().getDescriptor("icons/pin_arrow.png"));
-                    this.setToolTipText("Currently pin: "+currentTestRun.name+". Click again to unpin.");
+                    this.setToolTipText("Currently pin: " + currentTestRun.name + ". Click again to unpin.");
                 }
             }
-            
+
         } finally {
-            if(!worked){
+            if (!worked) {
                 this.setImageDescriptor(PydevDebugPlugin.getImageCache().getDescriptor("icons/pin.png"));
                 this.setInitialTooltipText();
                 this.setChecked(false);

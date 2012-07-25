@@ -9,25 +9,24 @@ import org.eclipse.ui.IMemento;
 public class PyEditorInputFactory implements IElementFactory {
 
     public static final String FACTORY_ID = "org.python.pydev.editorinput.pyEditorInputFactory";
-    
+
     public IAdaptable createElement(IMemento memento) {
         String file = memento.getString(TAG_FILE);
-        if(file == null || file.length() == 0){
+        if (file == null || file.length() == 0) {
             return null;
         }
-        
+
         String zipPath = memento.getString(TAG_ZIP_PATH);
-        if(zipPath == null || zipPath.length() == 0){
+        if (zipPath == null || zipPath.length() == 0) {
             return PydevFileEditorInput.create(new File(file), false);
         }
-        
+
         return new PydevZipFileEditorInput(new PydevZipFileStorage(new File(file), zipPath));
     }
-    
-    private static final String TAG_FILE = "file"; //$NON-NLS-1$
-    
-    private static final String TAG_ZIP_PATH = "zip_path"; //$NON-NLS-1$
 
+    private static final String TAG_FILE = "file"; //$NON-NLS-1$
+
+    private static final String TAG_ZIP_PATH = "zip_path"; //$NON-NLS-1$
 
     public static void saveState(IMemento memento, PydevZipFileEditorInput pydevZipFileEditorInput) {
         memento.putString(TAG_FILE, pydevZipFileEditorInput.getFile().toString());

@@ -49,8 +49,8 @@ public class PyContextActivatorViewCreatedObserver implements IViewCreatedObserv
         }
 
         protected void stop(Widget widget) {
-            if(widget == currWidget){
-                if(!currWidget.isDisposed()){
+            if (widget == currWidget) {
+                if (!currWidget.isDisposed()) {
                     currWidget.removeDisposeListener(this);
                 }
                 currWidget = null;
@@ -59,38 +59,38 @@ public class PyContextActivatorViewCreatedObserver implements IViewCreatedObserv
         }
 
         public void focusGained(FocusEvent e) {
-            if(e.widget == currWidget){
+            if (e.widget == currWidget) {
                 return; //Nothing did really change...
             }
-            
-            if(currWidget != null){
-                if(!currWidget.isDisposed()){
+
+            if (currWidget != null) {
+                if (!currWidget.isDisposed()) {
                     currWidget.removeDisposeListener(this);
                 }
                 currWidget = null;
             }
-            
+
             Widget widget = e.widget;
-            if(widget.isDisposed()){
+            if (widget.isDisposed()) {
                 Log.log("Gained focus on disposed widget?");
                 stop(widget);
                 return; //this can't be right...
             }
-            
+
             widget.addDisposeListener(this);
             currWidget = widget;
             changeState(true);
         }
 
         protected void changeState(boolean newActiveState) {
-            if(this.active != newActiveState){
+            if (this.active != newActiveState) {
                 this.active = newActiveState;
                 onStateChange.call(null);
             }
         }
 
         public void widgetDisposed(DisposeEvent e) {
-            if(e.widget != currWidget){
+            if (e.widget != currWidget) {
                 Log.log("Heard disposed on non current widget?");
             }
             stop(currWidget);
@@ -130,7 +130,7 @@ public class PyContextActivatorViewCreatedObserver implements IViewCreatedObserv
 
                 if (obj instanceof Control) {
                     Control control = (Control) obj;
-                    if(!control.isDisposed()){
+                    if (!control.isDisposed()) {
                         control.removeFocusListener(pyContextObserver);
                     }
                 }

@@ -65,7 +65,7 @@ public class ProjectSelectionDialog extends SelectionStatusDialog {
         composite.setFont(font);
 
         createMessageArea(composite);
-        
+
         patternFilter = new PatternFilter();
         filteredTree = PyFilteredTree.create(composite, patternFilter, true);
 
@@ -131,35 +131,33 @@ public class ProjectSelectionDialog extends SelectionStatusDialog {
     }
 }
 
+final class ArrayContentProvider implements ITreeContentProvider {
 
-final class ArrayContentProvider implements ITreeContentProvider{
-
-
-    public Object[] getChildren(Object element){
-        if(element instanceof Object[]){
+    public Object[] getChildren(Object element) {
+        if (element instanceof Object[]) {
             Object[] list = (Object[]) element;
             return list;
         }
         return new Object[0];
     }
 
-    public Object getParent(Object element){
+    public Object getParent(Object element) {
         return null;
     }
 
-    public boolean hasChildren(Object element){
-        return element instanceof Object[] && ((Object[])element).length > 0;
+    public boolean hasChildren(Object element) {
+        return element instanceof Object[] && ((Object[]) element).length > 0;
     }
 
-    public Object[] getElements(Object inputElement){
+    public Object[] getElements(Object inputElement) {
         return getChildren(inputElement);
     }
 
-    public void dispose(){
+    public void dispose() {
         //do nothing
     }
 
-    public void inputChanged(Viewer viewer, Object oldInput, Object newInput){
+    public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
         //do nothing
     }
 }

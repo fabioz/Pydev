@@ -61,70 +61,69 @@ import org.python.pydev.ui.IViewWithControls;
  * This class is the package explorer for pydev. It uses the CNF (Common Navigator Framework) to show
  * the resources as python elements.
  */
-@SuppressWarnings({"restriction", "rawtypes", "unchecked"})
+@SuppressWarnings({ "restriction", "rawtypes", "unchecked" })
 public class PydevPackageExplorer extends CommonNavigator implements IShowInTarget, IViewWithControls {
 
     /**
      * This viewer is the one used instead of the common viewer -- should only be used to fix failures in the base class.
      */
     public static class PydevCommonViewer extends CommonViewer {
-        
+
         /**
          * This is used so that we only restore the memento in the 'right' place
          */
         public boolean availableToRestoreMemento = false;
-        
+
         /**
          * This is the pydev package explorer
          */
         private PydevPackageExplorer pydevPackageExplorer;
-        
+
         public PydevPackageExplorer getPydevPackageExplorer() {
             return pydevPackageExplorer;
         }
-        
+
         public PydevCommonViewer(String id, Composite parent, int style, PydevPackageExplorer pydevPackageExplorer) {
             super(id, parent, style);
             this.pydevPackageExplorer = pydevPackageExplorer;
-            
+
             //We need to be able to compare actual resources and IWrappedResources
             //as if they were the same thing.
-            setComparer(new IElementComparer(){
-            
+            setComparer(new IElementComparer() {
+
                 public int hashCode(Object element) {
-                    if(element instanceof IWrappedResource){
+                    if (element instanceof IWrappedResource) {
                         IWrappedResource wrappedResource = (IWrappedResource) element;
                         return wrappedResource.getActualObject().hashCode();
                     }
                     return element.hashCode();
                 }
-            
+
                 public boolean equals(Object a, Object b) {
-                    if(a instanceof IWrappedResource){
+                    if (a instanceof IWrappedResource) {
                         IWrappedResource wrappedResource = (IWrappedResource) a;
                         a = wrappedResource.getActualObject();
                     }
-                    if(b instanceof IWrappedResource){
+                    if (b instanceof IWrappedResource) {
                         IWrappedResource wrappedResource = (IWrappedResource) b;
                         b = wrappedResource.getActualObject();
                     }
-                    if(a == null){
-                        if(b == null){
+                    if (a == null) {
+                        if (b == null) {
                             return true;
-                        }else{
+                        } else {
                             return false;
                         }
                     }
-                    if(b == null){
+                    if (b == null) {
                         return false;
                     }
-                    
+
                     return a.equals(b);
                 }
             });
         }
-        
-        
+
         /**
          * Returns the tree path for the given item.
          * 
@@ -135,9 +134,9 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
         @Override
         protected TreePath getTreePathFromItem(Item item) {
             LinkedList<Object> segments = new LinkedList<Object>();
-            while(item!=null) {
+            while (item != null) {
                 Object segment = item.getData();
-                if(segment == null){
+                if (segment == null) {
                     return null;
                 }
                 segments.addFirst(segment);
@@ -151,20 +150,20 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
      * This is the memento to be used.
      */
     private IMemento memento;
-	public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();
-	public final ICallbackWithListeners onControlDisposed = new CallbackWithListeners();
+    public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();
+    public final ICallbackWithListeners onControlDisposed = new CallbackWithListeners();
     private PydevCommonViewer viewer;
     private final PythonLinkHelper pythonLinkHelper = new PythonLinkHelper();
 
-	public PydevPackageExplorer() {
-		super();
-		List<IViewCreatedObserver> participants = ExtensionHelper.getParticipants(
-				ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
-		for (IViewCreatedObserver iViewCreatedObserver : participants) {
-			iViewCreatedObserver.notifyViewCreated(this);
-		}
-	}
-	
+    public PydevPackageExplorer() {
+        super();
+        List<IViewCreatedObserver> participants = ExtensionHelper
+                .getParticipants(ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
+        for (IViewCreatedObserver iViewCreatedObserver : participants) {
+            iViewCreatedObserver.notifyViewCreated(this);
+        }
+    }
+
     /**
      * Overridden to keep the memento to be used later (it's private in the superclass).
      */
@@ -182,12 +181,13 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
     @Override
     protected CommonViewer createCommonViewer(Composite aParent) {
         //super.createCommonViewer(aParent); -- don't even call the super class
-        CommonViewer aViewer = new PydevCommonViewer(getViewSite().getId(), aParent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL, this);
+        CommonViewer aViewer = new PydevCommonViewer(getViewSite().getId(), aParent, SWT.MULTI | SWT.H_SCROLL
+                | SWT.V_SCROLL, this);
         initListeners(aViewer);
-        
+
         //commented: we do that only after the part is completely created (because otherwise the state is reverted later)
         //aViewer.getNavigatorContentService().restoreState(memento);
-        
+
         return aViewer;
     }
 
@@ -202,27 +202,27 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
         onControlCreated.call(viewer);
 
         viewer.availableToRestoreMemento = true;
-        for(int i=0;i<3;i++){
+        for (int i = 0; i < 3; i++) {
             try {
                 //I don't know why the 1st time we restore it it doesn't work... so, we have to do it twice 
                 //(and the other 1 is because we may have an exception in the 1st step).
                 viewer.getNavigatorContentService().restoreState(memento);
             } catch (Exception e1) {
-                if(i>1){
+                if (i > 1) {
                     Log.log("Unable to restore the state of the Pydev Package Explorer.", e1);
                 }
             }
         }
     }
-    
+
     public void dispose() {
-        if(viewer != null){
+        if (viewer != null) {
             onControlDisposed.call(viewer);
             viewer = null;
         }
-    	super.dispose();
+        super.dispose();
     };
-    
+
     /**
      * Returns the element contained in the EditorInput
      */
@@ -230,25 +230,24 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
         if (input instanceof IFileEditorInput) {
             return ((IFileEditorInput) input).getFile();
         }
-        if(input instanceof IURIEditorInput){
+        if (input instanceof IURIEditorInput) {
             IURIEditorInput iuriEditorInput = (IURIEditorInput) input;
             URI uri = iuriEditorInput.getURI();
             return new File(uri);
-            
+
         }
-        if(input instanceof PydevZipFileEditorInput){
+        if (input instanceof PydevZipFileEditorInput) {
             PydevZipFileEditorInput pydevZipFileEditorInput = (PydevZipFileEditorInput) input;
             try {
                 IStorage storage = pydevZipFileEditorInput.getStorage();
-                if(storage instanceof PydevZipFileStorage){
+                if (storage instanceof PydevZipFileStorage) {
                     PydevZipFileStorage pydevZipFileStorage = (PydevZipFileStorage) storage;
                     return pydevZipFileStorage;
                 }
             } catch (CoreException e) {
                 Log.log(e);
             }
-            
-            
+
         }
         return null;
     }
@@ -273,7 +272,7 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
 
         return elementOfInput != null && tryToReveal(elementOfInput);
     }
-    
+
     /**
      * This is the method that actually tries to reveal some item in the tree.
      * 
@@ -281,16 +280,16 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
      */
     public boolean tryToReveal(Object element) {
         element = getPythonModelElement(element);
-        
-        if(element instanceof PydevZipFileStorage){
+
+        if (element instanceof PydevZipFileStorage) {
             pythonLinkHelper.setCommonViewer(this.getCommonViewer());
             PydevZipFileStorage pydevZipFileStorage = (PydevZipFileStorage) element;
-            
-            IStructuredSelection externalFileSelectionInTree = pythonLinkHelper.findExternalFileSelection(
-                    (File) pydevZipFileStorage.zipFile);
-            if(externalFileSelectionInTree != null && !externalFileSelectionInTree.isEmpty()){
+
+            IStructuredSelection externalFileSelectionInTree = pythonLinkHelper
+                    .findExternalFileSelection((File) pydevZipFileStorage.zipFile);
+            if (externalFileSelectionInTree != null && !externalFileSelectionInTree.isEmpty()) {
                 Object firstElement = externalFileSelectionInTree.getFirstElement();
-                if(firstElement instanceof TreeNode){
+                if (firstElement instanceof TreeNode) {
                     TreeNode treeNode = (TreeNode) firstElement;
                     //Ok, got to the zip file, let's try to find the path below it...
                     String zipPath = pydevZipFileStorage.zipPath;
@@ -298,37 +297,37 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
                     for (String string : split) {
                         List<TreeNode> children = treeNode.getChildren();
                         for (TreeNode<LabelAndImage> child : children) {
-                            if(string.equals(child.getData().label)){
+                            if (string.equals(child.getData().label)) {
                                 treeNode = child;
                                 break; //Goes on to the next substring...
                             }
                         }
                     }
-                    
-                    if(revealAndVerify(new StructuredSelection(treeNode))){
+
+                    if (revealAndVerify(new StructuredSelection(treeNode))) {
                         return true;
                     }
-                }else{
-                    Log.log("Expected a TreeNode. Found: "+firstElement);
+                } else {
+                    Log.log("Expected a TreeNode. Found: " + firstElement);
                     //Just go on to show the zip, not the internal contents...
-                    if(revealAndVerify(externalFileSelectionInTree)){
+                    if (revealAndVerify(externalFileSelectionInTree)) {
                         return true;
                     }
                 }
             }
-            
-        } else if(element instanceof File) {
+
+        } else if (element instanceof File) {
             pythonLinkHelper.setCommonViewer(this.getCommonViewer());
-            
-            IStructuredSelection externalFileSelectionInTree = pythonLinkHelper.findExternalFileSelection(
-                    (File) element);
-            if(externalFileSelectionInTree != null && !externalFileSelectionInTree.isEmpty()){
-                if(revealAndVerify(externalFileSelectionInTree)){
+
+            IStructuredSelection externalFileSelectionInTree = pythonLinkHelper
+                    .findExternalFileSelection((File) element);
+            if (externalFileSelectionInTree != null && !externalFileSelectionInTree.isEmpty()) {
+                if (revealAndVerify(externalFileSelectionInTree)) {
                     return true;
                 }
             }
         }
-        
+
         //null is checked in the revealAndVerify function
         if (revealAndVerify(element)) {
             return true;
@@ -339,7 +338,7 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
             IAdaptable adaptable = (IAdaptable) element;
             IResource resource = (IResource) adaptable.getAdapter(IResource.class);
             if (resource != null) {
-                if (revealAndVerify(resource)){
+                if (revealAndVerify(resource)) {
                     return true;
                 }
             }
@@ -352,43 +351,43 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
      * @return a pydev element or the same element passed as a parameter.
      */
     private Object getPythonModelElement(Object element) {
-        if(element instanceof IWrappedResource){
+        if (element instanceof IWrappedResource) {
             return element;
         }
         INavigatorPipelineService pipelineService = this.getNavigatorContentService().getPipelineService();
-        if(element instanceof IAdaptable){
+        if (element instanceof IAdaptable) {
             IAdaptable adaptable = (IAdaptable) element;
             IFile file = (IFile) adaptable.getAdapter(IFile.class);
-            if(file != null){
-                HashSet<Object> files = new ContributorTrackingSet((NavigatorContentService) this.getNavigatorContentService());
+            if (file != null) {
+                HashSet<Object> files = new ContributorTrackingSet(
+                        (NavigatorContentService) this.getNavigatorContentService());
                 files.add(file);
                 pipelineService.interceptAdd(new PipelinedShapeModification(file.getParent(), files));
-                if(files.size() > 0){
+                if (files.size() > 0) {
                     element = files.iterator().next();
                 }
             }
         }
         return element;
     }
-    
+
     /**
      * Tries to reveal some selection
      * @return if it revealed the selection correctly (and false otherwise)
      */
     private boolean revealAndVerify(Object element) {
-        if (element == null){
+        if (element == null) {
             return false;
         }
-        if(element instanceof ISelection){
+        if (element instanceof ISelection) {
             selectReveal((ISelection) element);
-            
-        }else{
+
+        } else {
             selectReveal(new StructuredSelection(element));
         }
         return !getSite().getSelectionProvider().getSelection().isEmpty();
     }
 
-    
     public ICallbackWithListeners getOnControlCreated() {
         return onControlCreated;
     }
@@ -396,7 +395,5 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
     public ICallbackWithListeners getOnControlDisposed() {
         return onControlDisposed;
     }
-
-
 
 }

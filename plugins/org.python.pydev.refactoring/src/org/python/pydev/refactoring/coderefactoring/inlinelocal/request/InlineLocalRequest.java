@@ -35,6 +35,5 @@ public class InlineLocalRequest implements IRefactoringRequest {
     public AdapterPrefs getAdapterPrefs() {
         return info.getAdapterPrefs();
     }
-    
 
 }

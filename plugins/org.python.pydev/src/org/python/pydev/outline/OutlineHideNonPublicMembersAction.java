@@ -23,11 +23,9 @@ public class OutlineHideNonPublicMembersAction extends AbstractOutlineFilterActi
 
     private static final String PREF_HIDE_NONPUBLICMEMBERS = "org.python.pydev.OUTLINE_HIDE_NONPUBLICMEMBERS";
 
-
     public OutlineHideNonPublicMembersAction(PyOutlinePage page, ImageCache imageCache) {
         super("Hide Non-Public Members", page, imageCache, PREF_HIDE_NONPUBLICMEMBERS, UIConstants.PUBLIC_ATTR_ICON);
     }
-
 
     /**
      * @return the filter used to hide comments
@@ -40,22 +38,22 @@ public class OutlineHideNonPublicMembersAction extends AbstractOutlineFilterActi
             public boolean select(Viewer viewer, Object parentElement, Object element) {
                 if (element instanceof ParsedItem) {
                     ParsedItem item = (ParsedItem) element;
-                    if(item == null){
+                    if (item == null) {
                         return true;
                     }
-                    
+
                     ASTEntryWithChildren astThis = item.getAstThis();
-                    if(astThis == null){
+                    if (astThis == null) {
                         return true;
                     }
-                    
+
                     SimpleNode token = astThis.node;
-                    if(token == null){
+                    if (token == null) {
                         return true;
                     }
 
                     String name = NodeUtils.getRepresentationString(token);
-                    
+
                     if (name != null) {
                         return (!name.startsWith("_")) || (name.startsWith("__") && name.endsWith("__"));
                     }

@@ -53,20 +53,20 @@ public class JavaElementToken extends CompiledToken {
      * Used for backward compatibility to eclipse 3.2
      */
     static boolean HAS_ADDITIONAL_FLAGS = true;
-    static{
-        try{
+    static {
+        try {
             Method m = REF.findMethod(CompletionProposal.class, "getAdditionalFlags");
-            if(m == null){
+            if (m == null) {
                 HAS_ADDITIONAL_FLAGS = false;
             }
-        }catch(Throwable e){
+        } catch (Throwable e) {
             HAS_ADDITIONAL_FLAGS = false;
         }
     }
-    
-    protected JavaElementToken(String rep, String doc, String args, String parentPackage, int type, IJavaElement javaElement,
-            int completionProposalKind, int completionProposalFlags, int completionProposalAdditionalFlags,
-            char[] completionPropsoalSignature) {
+
+    protected JavaElementToken(String rep, String doc, String args, String parentPackage, int type,
+            IJavaElement javaElement, int completionProposalKind, int completionProposalFlags,
+            int completionProposalAdditionalFlags, char[] completionPropsoalSignature) {
         super(rep, doc, args, parentPackage, type);
         this.javaElement = javaElement;
         this.completionProposalKind = completionProposalKind;
@@ -74,36 +74,35 @@ public class JavaElementToken extends CompiledToken {
         this.completionProposalAdditionalFlags = completionProposalAdditionalFlags;
         this.completionPropsoalSignature = completionPropsoalSignature;
     }
-    
-    public JavaElementToken(String rep, String doc, String args, String parentPackage, int type, IJavaElement javaElement,
-            CompletionProposal completionProposal) {
+
+    public JavaElementToken(String rep, String doc, String args, String parentPackage, int type,
+            IJavaElement javaElement, CompletionProposal completionProposal) {
         super(rep, doc, args, parentPackage, type);
         this.javaElement = javaElement;
         this.completionProposalKind = completionProposal.getKind();
         this.completionProposalFlags = completionProposal.getFlags();
-        if(HAS_ADDITIONAL_FLAGS){
+        if (HAS_ADDITIONAL_FLAGS) {
             this.completionProposalAdditionalFlags = completionProposal.getAdditionalFlags();
         }
         this.completionPropsoalSignature = completionProposal.getSignature();
     }
-    
-    public JavaElementToken(String rep, String doc, String args, String parentPackage, int type, IJavaElement javaElement, Image image) {
+
+    public JavaElementToken(String rep, String doc, String args, String parentPackage, int type,
+            IJavaElement javaElement, Image image) {
         super(rep, doc, args, parentPackage, type);
         this.javaElement = javaElement;
         this.image = image;
     }
-    
-    
 
     @Override
     public Image getImage() {
-        if(this.image != null){
+        if (this.image != null) {
             return this.image;
         }
         CompletionProposalLabelProvider provider = new CompletionProposalLabelProvider();
         CompletionProposal generatedProposal = CompletionProposal.create(completionProposalKind, 0);
         generatedProposal.setFlags(completionProposalFlags);
-        if(HAS_ADDITIONAL_FLAGS){
+        if (HAS_ADDITIONAL_FLAGS) {
             generatedProposal.setAdditionalFlags(completionProposalAdditionalFlags);
         }
         generatedProposal.setDeclarationSignature(completionPropsoalSignature);
@@ -114,8 +113,6 @@ public class JavaElementToken extends CompiledToken {
         return descriptor.createImage();
     }
 
-    
-    
     @Override
     public String getDocStr() {
         if (javaElement instanceof IMember) {
@@ -125,15 +122,12 @@ public class JavaElementToken extends CompiledToken {
             } catch (JavaModelException e) {
                 //just ignore it in this case (that may happen when no docstring is available)
             } catch (Exception e) {
-                Log.log("Error getting completion for "+member, e);
+                Log.log("Error getting completion for " + member, e);
             }
         }
         return null;
     }
-    
-    
-    
-    
+
     //Helpers to get the docstring (adapted from org.eclipse.jdt.internal.ui.text.java.ProposalInfo)
 
     /**
@@ -184,6 +178,5 @@ public class JavaElementToken extends CompiledToken {
         }
         return buf.toString();
     }
-
 
 }

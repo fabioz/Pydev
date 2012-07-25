@@ -53,7 +53,6 @@ import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.DefinitionsASTIteratorVisitor;
 
-
 /**
  * This class contains additional information on an interpreter, so that we are able to make code-completion in
  * a context-insensitive way (and make additionally auto-import).
@@ -99,13 +98,11 @@ public abstract class AbstractAdditionalTokensInfo {
      * Defines that some operation should be done on top level tokens
      */
     public final static int TOP_LEVEL = 1;
-    
+
     /**
      * Defines that some operation should be done on inner level tokens
      */
     public final static int INNER = 2;
-    
-    
 
     /**
      * indexes used so that we can access the information faster - it is ordered through a tree map, and should be
@@ -116,46 +113,45 @@ public abstract class AbstractAdditionalTokensInfo {
      * This map is persisted.
      */
     protected SortedMap<String, Set<IInfo>> topLevelInitialsToInfo = new PyPublicTreeMap<String, Set<IInfo>>();
-    
+
     /**
      * indexes so that we can get 'inner information' from classes, such as methods or inner classes from a class 
      */
     protected SortedMap<String, Set<IInfo>> innerInitialsToInfo = new PyPublicTreeMap<String, Set<IInfo>>();
-    
 
     /**
      * Should be used before re-creating the info, so that we have enough memory. 
      */
     public void clearAllInfo() {
         synchronized (lock) {
-            if(topLevelInitialsToInfo != null){
+            if (topLevelInitialsToInfo != null) {
                 topLevelInitialsToInfo.clear();
             }
-            if(innerInitialsToInfo != null){
+            if (innerInitialsToInfo != null) {
                 innerInitialsToInfo.clear();
             }
         }
     }
-        
-    
-    protected Object lock = new Object();
 
+    protected Object lock = new Object();
 
     /**
      * The filter interface
      */
-    public interface Filter{
+    public interface Filter {
         boolean doCompare(String lowerCaseQual, IInfo info);
+
         boolean doCompare(String lowerCaseQual, String infoName);
     }
-    
+
     /**
      * A filter that checks if tokens are equal
      */
-    private final Filter equalsFilter  = new Filter(){
+    private final Filter equalsFilter = new Filter() {
         public boolean doCompare(String qualifier, IInfo info) {
             return info.getName().equals(qualifier);
         }
+
         public boolean doCompare(String qualifier, String infoName) {
             return infoName.equals(qualifier);
         }
@@ -164,15 +160,16 @@ public abstract class AbstractAdditionalTokensInfo {
     /**
      * A filter that checks if the tokens starts with a qualifier
      */
-    private final Filter startingWithFilter = new Filter(){
+    private final Filter startingWithFilter = new Filter() {
 
         public boolean doCompare(String lowerCaseQual, IInfo info) {
             return doCompare(lowerCaseQual, info.getName());
         }
+
         public boolean doCompare(String qualifier, String infoName) {
             return infoName.toLowerCase().startsWith(qualifier);
         }
-        
+
     };
 
     /**
@@ -181,9 +178,9 @@ public abstract class AbstractAdditionalTokensInfo {
      */
     protected static final int version = 3;
 
-    public AbstractAdditionalTokensInfo(){
+    public AbstractAdditionalTokensInfo() {
     }
-    
+
     /**
      * That's the function actually used to add some info
      * 
@@ -194,21 +191,24 @@ public abstract class AbstractAdditionalTokensInfo {
             String name = info.getName();
             String initials = getInitials(name);
             SortedMap<String, Set<IInfo>> initialsToInfo;
-            
-            if(doOn == TOP_LEVEL){
-                if(info.getPath() != null && info.getPath().length() > 0){
-                    throw new RuntimeException("Error: the info being added is added as an 'top level' info, but has path. Info:"+info);
+
+            if (doOn == TOP_LEVEL) {
+                if (info.getPath() != null && info.getPath().length() > 0) {
+                    throw new RuntimeException(
+                            "Error: the info being added is added as an 'top level' info, but has path. Info:" + info);
                 }
                 initialsToInfo = topLevelInitialsToInfo;
-                
-            }else if (doOn == INNER){
-                if(info.getPath() == null || info.getPath().length() == 0){
-                    throw new RuntimeException("Error: the info being added is added as an 'inner' info, but does not have a path. Info: "+info);
+
+            } else if (doOn == INNER) {
+                if (info.getPath() == null || info.getPath().length() == 0) {
+                    throw new RuntimeException(
+                            "Error: the info being added is added as an 'inner' info, but does not have a path. Info: "
+                                    + info);
                 }
                 initialsToInfo = innerInitialsToInfo;
-                
-            }else{
-                throw new RuntimeException("List to add is invalid: "+doOn);
+
+            } else {
+                throw new RuntimeException("List to add is invalid: " + doOn);
             }
             Set<IInfo> listForInitials = getAndCreateListForInitials(initials, initialsToInfo);
             listForInitials.add(info);
@@ -220,12 +220,12 @@ public abstract class AbstractAdditionalTokensInfo {
      * @return the initials for the name
      */
     protected String getInitials(String name) {
-        if(name.length() < NUMBER_OF_INITIALS_TO_INDEX){
+        if (name.length() < NUMBER_OF_INITIALS_TO_INDEX) {
             return name;
         }
         return name.substring(0, NUMBER_OF_INITIALS_TO_INDEX).toLowerCase();
     }
-    
+
     /**
      * @param initials the initials we are looking for
      * @param initialsToInfo this is the list we should use (top level or inner)
@@ -233,93 +233,84 @@ public abstract class AbstractAdditionalTokensInfo {
      */
     protected Set<IInfo> getAndCreateListForInitials(String initials, SortedMap<String, Set<IInfo>> initialsToInfo) {
         Set<IInfo> lInfo = initialsToInfo.get(initials);
-        if(lInfo == null){
+        if (lInfo == null) {
             lInfo = new HashSet<IInfo>();
             initialsToInfo.put(initials, lInfo);
         }
         return lInfo;
     }
 
-    private IInfo addAssignTargets(ASTEntry entry, String moduleName, int doOn, String path, boolean lastIsMethod ) {
+    private IInfo addAssignTargets(ASTEntry entry, String moduleName, int doOn, String path, boolean lastIsMethod) {
         String rep = NodeUtils.getFullRepresentationString(entry.node);
-        if(lastIsMethod){
+        if (lastIsMethod) {
             List<String> parts = StringUtils.dotSplit(rep);
-            if(parts.size() >= 2){
+            if (parts.size() >= 2) {
                 //at least 2 parts are required
-                if(parts.get(0).equals("self")){
+                if (parts.get(0).equals("self")) {
                     rep = parts.get(1);
                     //no intern construct (locked in the loop that calls this method)
-                    AttrInfo info = new AttrInfo(
-                            ObjectsPool.internUnsynched(rep), 
-                            moduleName, 
-                            ObjectsPool.internUnsynched(path),
-                            false
-                    );
+                    AttrInfo info = new AttrInfo(ObjectsPool.internUnsynched(rep), moduleName,
+                            ObjectsPool.internUnsynched(path), false);
                     add(info, doOn);
                     return info;
                 }
             }
-        }else{
+        } else {
             //no intern construct (locked in the loop that calls this method)
-            AttrInfo info = new AttrInfo(
-                    ObjectsPool.internUnsynched(FullRepIterable.getFirstPart(rep)), 
-                    moduleName, 
-                    ObjectsPool.internUnsynched(path), 
-                    false
-            );
+            AttrInfo info = new AttrInfo(ObjectsPool.internUnsynched(FullRepIterable.getFirstPart(rep)), moduleName,
+                    ObjectsPool.internUnsynched(path), false);
             add(info, doOn);
             return info;
         }
         return null;
     }
-    
-    
+
     public List<IInfo> addAstInfo(ModulesKey key, boolean generateDelta) throws Exception {
         boolean isZipModule = key instanceof ModulesKeyForZip;
         ModulesKeyForZip modulesKeyForZip = null;
-        if(isZipModule){
+        if (isZipModule) {
             modulesKeyForZip = (ModulesKeyForZip) key;
         }
 
         Object doc;
-        if(isZipModule){
+        if (isZipModule) {
             doc = REF.getCustomReturnFromZip(modulesKeyForZip.file, modulesKeyForZip.zipModulePath, null);
-            
-        }else{
+
+        } else {
             doc = REF.getCustomReturnFromFile(key.file, true, null);
         }
-        
-        char [] charArray;
+
+        char[] charArray;
         int len;
-        if(doc instanceof IDocument){
+        if (doc instanceof IDocument) {
             IDocument document = (IDocument) doc;
             charArray = document.get().toCharArray();
             len = charArray.length;
-            
-        }else if(doc instanceof FastStringBuffer){
+
+        } else if (doc instanceof FastStringBuffer) {
             FastStringBuffer fastStringBuffer = (FastStringBuffer) doc;
             //In this case, we can actually get the internal array without doing any copies (and just specifying the len).
             charArray = fastStringBuffer.getInternalCharsArray();
             len = fastStringBuffer.length();
-            
-        }else if(doc instanceof String){
+
+        } else if (doc instanceof String) {
             String str = (String) doc;
             charArray = str.toCharArray();
             len = charArray.length;
-            
-        }else if(doc instanceof char[]){
+
+        } else if (doc instanceof char[]) {
             charArray = (char[]) doc;
             len = charArray.length;
-            
-        }else{
-            throw new RuntimeException("Don't know how to handle: "+doc+" -- "+doc.getClass());
+
+        } else {
+            throw new RuntimeException("Don't know how to handle: " + doc + " -- " + doc.getClass());
         }
-        
+
         SimpleNode node = FastDefinitionsParser.parse(charArray, key.file.getName(), len);
-        if(node == null){
+        if (node == null) {
             return null;
         }
-        
+
         return addAstInfo(node, key, generateDelta);
     }
 
@@ -329,131 +320,121 @@ public abstract class AbstractAdditionalTokensInfo {
      * @param m the module we want to add to the info
      */
     public List<IInfo> addAstInfo(SimpleNode node, ModulesKey key, boolean generateDelta) {
-    	List <IInfo> createdInfos = new ArrayList<IInfo>();
-    	if(node == null || key.name == null){
-    		return createdInfos;
-    	}
-    	try {
-			Tuple<DefinitionsASTIteratorVisitor, Iterator<ASTEntry>> tup = getInnerEntriesForAST(node);
-			if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-			    Log.toLogFile(this, "Adding ast info to: "+key.name);
-			}
-			
-			try {
-			    Iterator<ASTEntry> entries = tup.o2;
-			
-			    FastStack<SimpleNode> tempStack = new FastStack<SimpleNode>(10);
-			    
-			    synchronized (this.lock) {
-			        synchronized (ObjectsPool.lock) {
+        List<IInfo> createdInfos = new ArrayList<IInfo>();
+        if (node == null || key.name == null) {
+            return createdInfos;
+        }
+        try {
+            Tuple<DefinitionsASTIteratorVisitor, Iterator<ASTEntry>> tup = getInnerEntriesForAST(node);
+            if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
+                Log.toLogFile(this, "Adding ast info to: " + key.name);
+            }
+
+            try {
+                Iterator<ASTEntry> entries = tup.o2;
+
+                FastStack<SimpleNode> tempStack = new FastStack<SimpleNode>(10);
+
+                synchronized (this.lock) {
+                    synchronized (ObjectsPool.lock) {
                         key.name = ObjectsPool.internUnsynched(key.name);
-                        
-    			        while (entries.hasNext()) {
-    			            ASTEntry entry = entries.next();
-    			            IInfo infoCreated = null;
-    			            
-    			            if(entry.parent == null){ //we only want those that are in the global scope
-    			                if(entry.node instanceof ClassDef){
-    			                    //no intern construct (locked in this loop)
-    			                    ClassInfo info = new ClassInfo(
-    			                            ObjectsPool.internUnsynched(((NameTok)((ClassDef)entry.node).name).id), 
-    			                            key.name, 
-    			                            null, 
-    			                            false
-    			                    );
+
+                        while (entries.hasNext()) {
+                            ASTEntry entry = entries.next();
+                            IInfo infoCreated = null;
+
+                            if (entry.parent == null) { //we only want those that are in the global scope
+                                if (entry.node instanceof ClassDef) {
+                                    //no intern construct (locked in this loop)
+                                    ClassInfo info = new ClassInfo(
+                                            ObjectsPool.internUnsynched(((NameTok) ((ClassDef) entry.node).name).id),
+                                            key.name, null, false);
                                     add(info, TOP_LEVEL);
                                     infoCreated = info;
-    			                    
-    			                }else if(entry.node instanceof FunctionDef){
-    			                    //no intern construct (locked in this loop)
-    			                    FuncInfo info2 = new FuncInfo(
-    			                            ObjectsPool.internUnsynched(((NameTok)((FunctionDef) entry.node).name).id), 
-    			                            key.name, 
-    			                            null,
-    			                            false
-    			                    );
+
+                                } else if (entry.node instanceof FunctionDef) {
+                                    //no intern construct (locked in this loop)
+                                    FuncInfo info2 = new FuncInfo(
+                                            ObjectsPool.internUnsynched(((NameTok) ((FunctionDef) entry.node).name).id),
+                                            key.name, null, false);
                                     add(info2, TOP_LEVEL);
                                     infoCreated = info2;
-    			                    
-    			                }else{
-    			                    //it is an assign
-    			                	infoCreated = this.addAssignTargets(entry, key.name, TOP_LEVEL, null, false);
-    			                	
-    			                	
-    			                	
-    			                }
-    			            }else{
-    			                if(entry.node instanceof ClassDef || entry.node instanceof FunctionDef){
-    			                    //ok, it has a parent, so, let's check to see if the path we got only has class definitions
-    			                    //as the parent (and get that path)
-    			                    Tuple<String,Boolean> pathToRoot = this.getPathToRoot(entry, false, false, tempStack);
-    			                    if(pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0){
-    			                        //if the root is not valid, it is not only classes in the path (could be a method inside
-    			                        //a method, or something similar).
-    			                        
-    			                        if(entry.node instanceof ClassDef){
-    		                                ClassInfo info = new ClassInfo(
-    		                                        ObjectsPool.internUnsynched(((NameTok)((ClassDef)entry.node).name).id), 
-    		                                        key.name, 
-    		                                        ObjectsPool.internUnsynched(pathToRoot.o1),
-    		                                        false
-    		                                );
+
+                                } else {
+                                    //it is an assign
+                                    infoCreated = this.addAssignTargets(entry, key.name, TOP_LEVEL, null, false);
+
+                                }
+                            } else {
+                                if (entry.node instanceof ClassDef || entry.node instanceof FunctionDef) {
+                                    //ok, it has a parent, so, let's check to see if the path we got only has class definitions
+                                    //as the parent (and get that path)
+                                    Tuple<String, Boolean> pathToRoot = this.getPathToRoot(entry, false, false,
+                                            tempStack);
+                                    if (pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0) {
+                                        //if the root is not valid, it is not only classes in the path (could be a method inside
+                                        //a method, or something similar).
+
+                                        if (entry.node instanceof ClassDef) {
+                                            ClassInfo info = new ClassInfo(
+                                                    ObjectsPool
+                                                            .internUnsynched(((NameTok) ((ClassDef) entry.node).name).id),
+                                                    key.name, ObjectsPool.internUnsynched(pathToRoot.o1), false);
                                             add(info, INNER);
                                             infoCreated = info;
-    		                                
-    		                            }else{
-    		                                //FunctionDef
-    		                                FuncInfo info2 = new FuncInfo(
-    		                                        ObjectsPool.internUnsynched(((NameTok)((FunctionDef) entry.node).name).id), 
-    		                                        key.name, 
-    		                                        ObjectsPool.internUnsynched(pathToRoot.o1),
-    		                                        false
-    		                                );
+
+                                        } else {
+                                            //FunctionDef
+                                            FuncInfo info2 = new FuncInfo(
+                                                    ObjectsPool
+                                                            .internUnsynched(((NameTok) ((FunctionDef) entry.node).name).id),
+                                                    key.name, ObjectsPool.internUnsynched(pathToRoot.o1), false);
                                             add(info2, INNER);
                                             infoCreated = info2;
-    		                                
-    		                            }
-    			                    }
-    			                }else{
-    			                    //it is an assign
-    			                    Tuple<String,Boolean> pathToRoot = this.getPathToRoot(entry, true, false, tempStack);
-    			                    if(pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0){
-    			                    	infoCreated = this.addAssignTargets(entry, key.name, INNER, pathToRoot.o1, pathToRoot.o2);
-    			                    }
-    			                }
-    			            }
-    			            
-    			            if(infoCreated != null){
-    			            	createdInfos.add(infoCreated);
-    			            }
-    			            
-    			        } //end while
-    			        
-			        }//end lock ObjectsPool.lock
-			        
-			    }//end this.lock        
-			    
-			} catch (Exception e) {
-			    Log.log(e);
-			}
-		} catch (Exception e) {
-			Log.log(e);
-		}
-		return createdInfos;
+
+                                        }
+                                    }
+                                } else {
+                                    //it is an assign
+                                    Tuple<String, Boolean> pathToRoot = this.getPathToRoot(entry, true, false,
+                                            tempStack);
+                                    if (pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0) {
+                                        infoCreated = this.addAssignTargets(entry, key.name, INNER, pathToRoot.o1,
+                                                pathToRoot.o2);
+                                    }
+                                }
+                            }
+
+                            if (infoCreated != null) {
+                                createdInfos.add(infoCreated);
+                            }
+
+                        } //end while
+
+                    }//end lock ObjectsPool.lock
+
+                }//end this.lock        
+
+            } catch (Exception e) {
+                Log.log(e);
+            }
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        return createdInfos;
     }
-    
+
     /**
      * @return an iterator that'll get the outline entries for the given ast.
      */
-    public static Tuple<DefinitionsASTIteratorVisitor, Iterator<ASTEntry>> getInnerEntriesForAST(SimpleNode node) throws Exception {
+    public static Tuple<DefinitionsASTIteratorVisitor, Iterator<ASTEntry>> getInnerEntriesForAST(SimpleNode node)
+            throws Exception {
         DefinitionsASTIteratorVisitor visitor = new DefinitionsASTIteratorVisitor();
         node.accept(visitor);
         Iterator<ASTEntry> entries = visitor.getOutline();
         return new Tuple<DefinitionsASTIteratorVisitor, Iterator<ASTEntry>>(visitor, entries);
     }
-    
-    
-    
+
     /**
      * @return a set with the module names that have tokens.
      */
@@ -467,7 +448,7 @@ public abstract class AbstractAdditionalTokensInfo {
                     ret.add(info.getDeclaringModuleName());
                 }
             }
-            
+
             entrySet = this.innerInitialsToInfo.entrySet();
             for (Entry<String, Set<IInfo>> entry : entrySet) {
                 Set<IInfo> value = entry.getValue();
@@ -480,8 +461,6 @@ public abstract class AbstractAdditionalTokensInfo {
 
     }
 
-
-
     /**
      * @param lastMayBeMethod if true, it gets the path and accepts a method (if it is the last in the stack)
      * if false, null is returned if a method is found. 
@@ -491,55 +470,55 @@ public abstract class AbstractAdditionalTokensInfo {
      * @return a tuple, where the first element is the path where the entry is located (may return null).
      * and the second element is a boolean that indicates if the last was actually a method or not.
      */
-    private Tuple<String, Boolean> getPathToRoot(ASTEntry entry, boolean lastMayBeMethod, boolean acceptAny, 
+    private Tuple<String, Boolean> getPathToRoot(ASTEntry entry, boolean lastMayBeMethod, boolean acceptAny,
             FastStack<SimpleNode> tempStack) {
-        if(entry.parent == null){
+        if (entry.parent == null) {
             return null;
         }
         //just to be sure that it's empty
         tempStack.clear();
-        
-        boolean lastIsMethod = false; 
+
+        boolean lastIsMethod = false;
         //if the last 'may be a method', in this case, we have to remember that it will actually be the first one 
         //to be analyzed.
-        
+
         //let's get the stack
-        while(entry.parent != null){
-            if(entry.parent.node instanceof ClassDef){
+        while (entry.parent != null) {
+            if (entry.parent.node instanceof ClassDef) {
                 tempStack.push(entry.parent.node);
-                
-            }else if(entry.parent.node instanceof FunctionDef){
-                if(!acceptAny){
-                    if(lastIsMethod){
+
+            } else if (entry.parent.node instanceof FunctionDef) {
+                if (!acceptAny) {
+                    if (lastIsMethod) {
                         //already found a method
                         return null;
                     }
-                    
-                    if(!lastMayBeMethod){
+
+                    if (!lastMayBeMethod) {
                         return null;
                     }
-                    
+
                     //ok, the last one may be a method... (in this search, it MUST be the first one...)
-                    if(tempStack.size() != 0){
-                        return null; 
+                    if (tempStack.size() != 0) {
+                        return null;
                     }
                 }
-                
+
                 //ok, there was a class, so, let's go and set it
                 tempStack.push(entry.parent.node);
                 lastIsMethod = true;
-                
-            }else{
+
+            } else {
                 return null;
-                
+
             }
             entry = entry.parent;
         }
 
         //now that we have the stack, let's make it into a path...
         FastStringBuffer buf = new FastStringBuffer();
-        while(tempStack.size() > 0){
-            if(buf.length() > 0){
+        while (tempStack.size() > 0) {
+            if (buf.length() > 0) {
                 buf.append(".");
             }
             buf.append(NodeUtils.getRepresentationString(tempStack.pop()));
@@ -552,14 +531,14 @@ public abstract class AbstractAdditionalTokensInfo {
      * @param moduleName the name of the module we want to remove info from
      */
     public void removeInfoFromModule(String moduleName, boolean generateDelta) {
-        if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-            Log.toLogFile(this, "Removing ast info from: "+moduleName);
+        if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
+            Log.toLogFile(this, "Removing ast info from: " + moduleName);
         }
         synchronized (lock) {
             removeInfoFromMap(moduleName, topLevelInitialsToInfo);
             removeInfoFromMap(moduleName, innerInitialsToInfo);
         }
-        
+
     }
 
     /**
@@ -574,16 +553,14 @@ public abstract class AbstractAdditionalTokensInfo {
             while (it.hasNext()) {
 
                 IInfo info = it.next();
-                if(info != null && info.getDeclaringModuleName() != null){
-                    if(info.getDeclaringModuleName().equals(moduleName)){
+                if (info != null && info.getDeclaringModuleName() != null) {
+                    if (info.getDeclaringModuleName().equals(moduleName)) {
                         it.remove();
                     }
                 }
             }
         }
     }
-    
-
 
     /**
      * This is the function for which we are most optimized!
@@ -602,37 +579,35 @@ public abstract class AbstractAdditionalTokensInfo {
             return getWithFilter(qualifier, getWhat, startingWithFilter, true, result);
         }
     }
-    
 
     public Collection<IInfo> getTokensEqualTo(String qualifier, int getWhat) {
         synchronized (lock) {
             return getWithFilter(qualifier, getWhat, equalsFilter, false, null);
         }
     }
-    
+
     public Collection<IInfo> getTokensEqualTo(String qualifier, int getWhat, Collection<IInfo> result) {
         synchronized (lock) {
             return getWithFilter(qualifier, getWhat, equalsFilter, false, result);
         }
     }
-    
-    protected Collection<IInfo> getWithFilter(String qualifier, int getWhat, Filter filter, boolean useLowerCaseQual, Collection<IInfo> result) {
+
+    protected Collection<IInfo> getWithFilter(String qualifier, int getWhat, Filter filter, boolean useLowerCaseQual,
+            Collection<IInfo> result) {
         synchronized (lock) {
-            if(result == null){
+            if (result == null) {
                 result = new ArrayList<IInfo>();
             }
-            
-            if((getWhat & TOP_LEVEL) != 0){
+
+            if ((getWhat & TOP_LEVEL) != 0) {
                 getWithFilter(qualifier, topLevelInitialsToInfo, result, filter, useLowerCaseQual);
             }
-            if((getWhat & INNER) != 0){
+            if ((getWhat & INNER) != 0) {
                 getWithFilter(qualifier, innerInitialsToInfo, result, filter, useLowerCaseQual);
             }
             return result;
         }
     }
-        
-    
 
     /**
      * @param qualifier
@@ -640,34 +615,34 @@ public abstract class AbstractAdditionalTokensInfo {
      * @param toks (out) the tokens will be added to this list
      * @return
      */
-    protected void getWithFilter(String qualifier, SortedMap<String, Set<IInfo>> initialsToInfo, Collection<IInfo> toks, Filter filter, boolean useLowerCaseQual) {
+    protected void getWithFilter(String qualifier, SortedMap<String, Set<IInfo>> initialsToInfo,
+            Collection<IInfo> toks, Filter filter, boolean useLowerCaseQual) {
         String initials = getInitials(qualifier);
         String qualToCompare = qualifier;
-        if(useLowerCaseQual){
+        if (useLowerCaseQual) {
             qualToCompare = qualifier.toLowerCase();
         }
-        
+
         //get until the end of the alphabet
-        SortedMap<String, Set<IInfo>> subMap = initialsToInfo.subMap(initials, initials+"z");
-        
+        SortedMap<String, Set<IInfo>> subMap = initialsToInfo.subMap(initials, initials + "z");
+
         for (Set<IInfo> listForInitials : subMap.values()) {
-            
+
             for (IInfo info : listForInitials) {
-                if(filter.doCompare(qualToCompare, info)){
+                if (filter.doCompare(qualToCompare, info)) {
                     toks.add(info);
                 }
             }
         }
     }
-    
 
     /**
      * @return all the tokens that are in this info (top level or inner)
      */
-    public Collection<IInfo> getAllTokens(){
+    public Collection<IInfo> getAllTokens() {
         synchronized (lock) {
             Collection<Set<IInfo>> lInfo = this.topLevelInitialsToInfo.values();
-            
+
             ArrayList<IInfo> toks = new ArrayList<IInfo>();
             for (Set<IInfo> list : lInfo) {
                 for (IInfo info : list) {
@@ -684,22 +659,23 @@ public abstract class AbstractAdditionalTokensInfo {
             return toks;
         }
     }
-    
+
     /**
      * this can be used to save the file
      */
     public void save() {
         File persistingLocation;
-		try {
-			persistingLocation = getPersistingLocation();
-		} catch (MisconfigurationException e) {
-			Log.log("Error. Unable to get persisting location for additional interprer info. Configuration may be corrupted.", e);
-			return;
-		}
-        if(DEBUG_ADDITIONAL_INFO){
-            System.out.println("Saving to "+persistingLocation);
+        try {
+            persistingLocation = getPersistingLocation();
+        } catch (MisconfigurationException e) {
+            Log.log("Error. Unable to get persisting location for additional interprer info. Configuration may be corrupted.",
+                    e);
+            return;
         }
-        
+        if (DEBUG_ADDITIONAL_INFO) {
+            System.out.println("Saving to " + persistingLocation);
+        }
+
         save(persistingLocation);
 
     }
@@ -735,34 +711,32 @@ public abstract class AbstractAdditionalTokensInfo {
      */
     protected abstract File getPersistingLocation() throws MisconfigurationException;
 
-
     /**
      * @return the path to the folder we want to keep things on
      * @throws MisconfigurationException 
      */
     protected abstract File getPersistingFolder();
-    
 
-    protected void saveTo(OutputStreamWriter writer, FastStringBuffer tempBuf, File pathToSave) throws IOException{
+    protected void saveTo(OutputStreamWriter writer, FastStringBuffer tempBuf, File pathToSave) throws IOException {
         synchronized (lock) {
-            if(DEBUG_ADDITIONAL_INFO){
-                System.out.println("Saving info "+this.getClass().getName()+" to file (size = "+getAllTokens().size()+") "+pathToSave);
+            if (DEBUG_ADDITIONAL_INFO) {
+                System.out.println("Saving info " + this.getClass().getName() + " to file (size = "
+                        + getAllTokens().size() + ") " + pathToSave);
             }
-            
+
             Map<String, Integer> dictionary = new HashMap<String, Integer>();
             tempBuf.append("-- START TREE 1\n");
             TreeIO.dumpTreeToBuffer(this.topLevelInitialsToInfo, tempBuf, dictionary);
-            
+
             tempBuf.append("-- START TREE 2\n");
             TreeIO.dumpTreeToBuffer(this.innerInitialsToInfo, tempBuf, dictionary);
-            
-            FastStringBuffer buf2 = new FastStringBuffer(50*(dictionary.size()+4));
+
+            FastStringBuffer buf2 = new FastStringBuffer(50 * (dictionary.size() + 4));
             TreeIO.dumpDictToBuffer(dictionary, buf2);
-            
+
             //Write the dictionary before the actual trees.
             writer.write(buf2.getInternalCharsArray(), 0, buf2.length());
             buf2 = null;
-            
 
             //Note: tried LZFFileInputStream from https://github.com/ning/compress
             //and Snappy from https://github.com/dain/snappy checking to see if by writing less we'd
@@ -771,47 +745,42 @@ public abstract class AbstractAdditionalTokensInfo {
         }
     }
 
-    
-
-
     /**
      * Restores the saved info in the object (if overridden, getInfoToSave should be overridden too)
      * @param o the read object from the file
      * @throws MisconfigurationException 
      */
     @SuppressWarnings("unchecked")
-    protected void restoreSavedInfo(Object o) throws MisconfigurationException{
+    protected void restoreSavedInfo(Object o) throws MisconfigurationException {
         synchronized (lock) {
             Tuple3 readFromFile = (Tuple3) o;
             SortedMap o1 = (SortedMap) readFromFile.o1;
             SortedMap o2 = (SortedMap) readFromFile.o2;
-            
+
             this.topLevelInitialsToInfo = (SortedMap<String, Set<IInfo>>) o1;
             this.innerInitialsToInfo = (SortedMap<String, Set<IInfo>>) o2;
-            if(readFromFile.o3 != null){
+            if (readFromFile.o3 != null) {
                 //may be null in new format (where that's checked during load time).
-                if(AbstractAdditionalTokensInfo.version != (Integer)readFromFile.o3){
+                if (AbstractAdditionalTokensInfo.version != (Integer) readFromFile.o3) {
                     throw new RuntimeException("I/O version doesn't match. Rebuilding internal info.");
                 }
             }
         }
     }
 
-
-
     @Override
     public String toString() {
         synchronized (lock) {
             FastStringBuffer buffer = new FastStringBuffer();
             buffer.append("AdditionalInfo{");
-    
+
             buffer.append("topLevel=[");
             entrySetToString(buffer, this.topLevelInitialsToInfo.entrySet());
             buffer.append("]\n");
             buffer.append("inner=[");
             entrySetToString(buffer, this.innerInitialsToInfo.entrySet());
             buffer.append("]");
-    
+
             buffer.append("}");
             return buffer.toString();
         }
@@ -840,11 +809,6 @@ public abstract class AbstractAdditionalTokensInfo {
      * @return List<ModulesKey> a list with all the modules that contains the passed token.
      */
     public abstract List<ModulesKey> getModulesWithToken(String token, IProgressMonitor monitor);
-
-
-
-
-
 
 }
 

@@ -55,9 +55,9 @@ public class InlineLocalRefactoring extends AbstractPythonRefactoring {
         SimpleNode node = scope.getASTNode();
 
         LocalVariablesVisitor visitor = new LocalVariablesVisitor();
-        try{
+        try {
             node.accept(visitor);
-        }catch(Exception e){
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
@@ -65,7 +65,7 @@ public class InlineLocalRefactoring extends AbstractPythonRefactoring {
 
         Name selectedVariable = findSelectedVariable(selection, variables);
 
-        if(selectedVariable == null){
+        if (selectedVariable == null) {
             status.addFatalError(Messages.validationNoNameSelected);
             return status;
         }
@@ -74,13 +74,13 @@ public class InlineLocalRefactoring extends AbstractPythonRefactoring {
 
         Assign assignment = findAssignment(relatedVariables);
 
-        if(assignment == null){
+        if (assignment == null) {
             String id = selectedVariable.id;
             status.addFatalError(Messages.format(Messages.inlinelocalNoAssignment, id));
             return status;
         }
 
-        if(!isValid(relatedVariables)){
+        if (!isValid(relatedVariables)) {
             return status;
         }
 
@@ -92,25 +92,25 @@ public class InlineLocalRefactoring extends AbstractPythonRefactoring {
 
     private boolean isValid(List<Name> variables) {
         int assignCounter = 0;
-        for(Name variable:variables){
-            if(variable.parent instanceof Assign){
+        for (Name variable : variables) {
+            if (variable.parent instanceof Assign) {
                 Assign assign = (Assign) variable.parent;
                 /* The given name has to be one of the targets of this assignment */
-                for(exprType x:assign.targets){
-                    if(x == variable){
+                for (exprType x : assign.targets) {
+                    if (x == variable) {
                         assignCounter++;
                         break;
                     }
                 }
             }
 
-            if(variable.ctx == expr_contextType.Param || variable.ctx == expr_contextType.KwOnlyParam){
+            if (variable.ctx == expr_contextType.Param || variable.ctx == expr_contextType.KwOnlyParam) {
                 status.addFatalError(Messages.format(Messages.inlineLocalParameter, variable.getId()));
                 return false;
             }
         }
 
-        if(assignCounter > 1){
+        if (assignCounter > 1) {
             status.addFatalError(Messages.format(Messages.inlineLocalMultipleAssignments, variables.get(0).getId()));
             return false;
         }
@@ -120,16 +120,16 @@ public class InlineLocalRefactoring extends AbstractPythonRefactoring {
 
     private Assign findAssignment(List<Name> relatedVariables) {
         /* Search for the assignment */
-        for(Name variable:relatedVariables){
+        for (Name variable : relatedVariables) {
 
             SimpleNode parent = variable.parent;
 
-            if(parent instanceof Assign){
+            if (parent instanceof Assign) {
                 Assign assign = (Assign) parent;
 
                 /* The given name has to be one of the targets of this assignment */
-                for(exprType x:assign.targets){
-                    if(x == variable){
+                for (exprType x : assign.targets) {
+                    if (x == variable) {
                         return assign;
                     }
                 }
@@ -143,8 +143,8 @@ public class InlineLocalRefactoring extends AbstractPythonRefactoring {
     private List<Name> findAllRelatedVariables(List<Name> variables, Name selectedVariable) {
         List<Name> relatedVariables = new LinkedList<Name>();
 
-        for(Name variable:variables){
-            if(variable.id.equals(selectedVariable.id)){
+        for (Name variable : variables) {
+            if (variable.id.equals(selectedVariable.id)) {
                 relatedVariables.add(variable);
             }
         }
@@ -154,12 +154,12 @@ public class InlineLocalRefactoring extends AbstractPythonRefactoring {
     private Name findSelectedVariable(ITextSelection selection, List<Name> variables) {
         int selectionOffset = selection.getOffset();
 
-        for(Name variable:variables){
+        for (Name variable : variables) {
             int nodeLength = variable.id.length();
             int nodeOffsetBegin = org.python.pydev.parser.visitors.NodeUtils.getOffset(info.getDocument(), variable);
             int nodeOffsetEnd = nodeOffsetBegin + nodeLength;
 
-            if(selectionOffset >= nodeOffsetBegin && selectionOffset <= nodeOffsetEnd){
+            if (selectionOffset >= nodeOffsetBegin && selectionOffset <= nodeOffsetEnd) {
                 return variable;
             }
         }

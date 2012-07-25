@@ -13,7 +13,6 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
 
-
 public interface IScriptConsoleInterpreter extends IScriptConsoleShell, IConsoleRequest {
 
     /**
@@ -22,18 +21,16 @@ public interface IScriptConsoleInterpreter extends IScriptConsoleShell, IConsole
      * @return the response from the interpreter.
      * @throws Exception if something wrong happened while doing the request.
      */
-    void exec(
-            String command, 
-            ICallback<Object, InterpreterResponse> onResponseReceived, 
+    void exec(String command, ICallback<Object, InterpreterResponse> onResponseReceived,
             ICallback<Object, Tuple<String, String>> onContentsReceived);
 
-	IInterpreterInfo getInterpreterInfo();
+    IInterpreterInfo getInterpreterInfo();
 
     /**
      * Link pydev debug console with the suspended frame  
      * 
      * @param isLinkedWithDebug
      */
-	public void linkWithDebugSelection(boolean isLinkedWithDebug);
+    public void linkWithDebugSelection(boolean isLinkedWithDebug);
 
 }

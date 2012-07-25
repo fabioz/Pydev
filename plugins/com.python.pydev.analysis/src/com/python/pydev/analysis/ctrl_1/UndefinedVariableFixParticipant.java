@@ -53,63 +53,57 @@ import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
  *
  * @author Fabio
  */
-public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticipant{
+public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticipant {
 
     /**
      * Defines whether a reparse should be forced after applying the completion.
      */
     private boolean forceReparseOnApply;
 
-    public UndefinedVariableFixParticipant(){
+    public UndefinedVariableFixParticipant() {
         this(true);
     }
-    
-    public UndefinedVariableFixParticipant(boolean forceReparseOnApply){
+
+    public UndefinedVariableFixParticipant(boolean forceReparseOnApply) {
         this.forceReparseOnApply = forceReparseOnApply;
     }
-    
+
     /**
      * @see IAnalysisMarkersParticipant#addProps(MarkerAnnotation, IAnalysisPreferences, String, PySelection, int, IPythonNature, 
      * PyEdit, List)
      * 
      */
-    public void addProps(
-            MarkerAnnotationAndPosition markerAnnotation, 
-            IAnalysisPreferences analysisPreferences, 
-            String line, 
-            PySelection ps, 
-            int offset, 
-            IPythonNature nature,
-            PyEdit edit, 
-            List<ICompletionProposal> props) throws BadLocationException, CoreException {
+    public void addProps(MarkerAnnotationAndPosition markerAnnotation, IAnalysisPreferences analysisPreferences,
+            String line, PySelection ps, int offset, IPythonNature nature, PyEdit edit, List<ICompletionProposal> props)
+            throws BadLocationException, CoreException {
         IMarker marker = markerAnnotation.markerAnnotation.getMarker();
         Integer id = (Integer) marker.getAttribute(AnalysisRunner.PYDEV_ANALYSIS_TYPE);
-        if(id != IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE){
+        if (id != IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE) {
             return;
         }
-        if(nature == null){
+        if (nature == null) {
             return;
         }
         ICodeCompletionASTManager astManager = nature.getAstManager();
-        if(astManager == null){
-        	return;
+        if (astManager == null) {
+            return;
         }
-        
-        if(markerAnnotation.position == null){
+
+        if (markerAnnotation.position == null) {
             return;
         }
         int start = markerAnnotation.position.offset;
-        int end = start+markerAnnotation.position.length;
+        int end = start + markerAnnotation.position.length;
         ps.setSelection(start, end);
         String markerContents = ps.getSelectedText();
         String fullRep = ps.getFullRepAfterSelection();
-        
+
         ImageCache imageCache = PydevPlugin.getImageCache();
         Image packageImage = null;
-        if(imageCache != null){ //making tests
+        if (imageCache != null) { //making tests
             packageImage = imageCache.get(UIConstants.COMPLETION_PACKAGE_ICON);
         }
-		IModulesManager projectModulesManager = astManager.getModulesManager();
+        IModulesManager projectModulesManager = astManager.getModulesManager();
         Set<String> allModules = projectModulesManager.getAllModuleNames(true, markerContents.toLowerCase());
 
         //when an undefined variable is found, we can:
@@ -117,24 +111,23 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         // - declare it as a local or global variable
         // - change its name to some other global or local (mistyped)
         // - create a method or class for it (if it is a call)
-        
-        Set<Tuple<String,String>> mods = new HashSet<Tuple<String,String>>();
+
+        Set<Tuple<String, String>> mods = new HashSet<Tuple<String, String>>();
         //1. check if it is some module
-        
+
         //use a single buffer to create all the strings
         FastStringBuffer buffer = new FastStringBuffer();
         boolean doIgnoreImportsStartingWithUnder = AutoImportsPreferencesPage.doIgnoreImportsStartingWithUnder();
-        
+
         for (String completeName : allModules) {
             FullRepIterable iterable = new FullRepIterable(completeName);
 
             for (String mod : iterable) {
-                
-                if(fullRep.startsWith(mod)){
-                    
-                    if(fullRep.length() == mod.length() //it does not only start with, but it is equal to it.
-                       || (fullRep.length() > mod.length() && fullRep.charAt(mod.length()) == '.')
-                       ){ 
+
+                if (fullRep.startsWith(mod)) {
+
+                    if (fullRep.length() == mod.length() //it does not only start with, but it is equal to it.
+                            || (fullRep.length() > mod.length() && fullRep.charAt(mod.length()) == '.')) {
                         buffer.clear();
                         String realImportRep = buffer.append("import ").append(mod).toString();
                         buffer.clear();
@@ -142,20 +135,22 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                         addProp(props, realImportRep, displayString, packageImage, offset, mods);
                     }
                 }
-                
+
                 String[] strings = FullRepIterable.headAndTail(mod);
                 String packageName = strings[0];
                 String importRep = strings[1];
-                
-                if(importRep.equals(markerContents)){
-                    if(packageName.length() > 0){
+
+                if (importRep.equals(markerContents)) {
+                    if (packageName.length() > 0) {
                         buffer.clear();
-                        String realImportRep = buffer.append("from ").append(packageName).append(" ").append("import ").append(strings[1]).toString();
+                        String realImportRep = buffer.append("from ").append(packageName).append(" ").append("import ")
+                                .append(strings[1]).toString();
                         buffer.clear();
-                        String displayString = buffer.append("Import ").append(importRep).append(" (").append(packageName).append(")").toString();
+                        String displayString = buffer.append("Import ").append(importRep).append(" (")
+                                .append(packageName).append(")").toString();
                         addProp(props, realImportRep, displayString, packageImage, offset, mods);
-                        
-                    }else{
+
+                    } else {
                         buffer.clear();
                         String realImportRep = buffer.append("import ").append(strings[1]).toString();
                         buffer.clear();
@@ -165,88 +160,77 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                 }
             }
         }
-        
-        
+
         //2. check if it is some global class or method
         List<AbstractAdditionalTokensInfo> additionalInfo;
-		try {
-			additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfo(nature);
-		} catch (MisconfigurationException e) {
-			return;
-		}
+        try {
+            additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfo(nature);
+        } catch (MisconfigurationException e) {
+            return;
+        }
         FastStringBuffer tempBuf = new FastStringBuffer();
         for (AbstractAdditionalTokensInfo info : additionalInfo) {
-            Collection<IInfo> tokensEqualTo = info.getTokensEqualTo(markerContents, AbstractAdditionalTokensInfo.TOP_LEVEL);
+            Collection<IInfo> tokensEqualTo = info.getTokensEqualTo(markerContents,
+                    AbstractAdditionalTokensInfo.TOP_LEVEL);
             for (IInfo found : tokensEqualTo) {
                 //there always is a declaring module
                 String name = found.getName();
                 String declPackage = found.getDeclaringModuleName();
                 String declPackageWithoutInit = declPackage;
-                if(declPackageWithoutInit.endsWith(".__init__")){
-                    declPackageWithoutInit = declPackageWithoutInit.substring(0, declPackageWithoutInit.length()-9);
+                if (declPackageWithoutInit.endsWith(".__init__")) {
+                    declPackageWithoutInit = declPackageWithoutInit.substring(0, declPackageWithoutInit.length() - 9);
                 }
-                
-                declPackageWithoutInit = AutoImportsPreferencesPage
-                        .removeImportsStartingWithUnderIfNeeded(
-                                declPackageWithoutInit, tempBuf, doIgnoreImportsStartingWithUnder);
-                
-                
+
+                declPackageWithoutInit = AutoImportsPreferencesPage.removeImportsStartingWithUnderIfNeeded(
+                        declPackageWithoutInit, tempBuf, doIgnoreImportsStartingWithUnder);
+
                 buffer.clear();
                 String importDeclaration = buffer.append("from ").append(declPackageWithoutInit).append(" import ")
                         .append(name).toString();
-                
+
                 buffer.clear();
                 String displayImport = buffer.append("Import ").append(name).append(" (").append(declPackage)
                         .append(")").toString();
-                
-                addProp(props, importDeclaration, displayImport, AnalysisPlugin.getImageForAutoImportTypeInfo(found), offset, mods);
+
+                addProp(props, importDeclaration, displayImport, AnalysisPlugin.getImageForAutoImportTypeInfo(found),
+                        offset, mods);
             }
         }
     }
 
-
-    private void addProp(List<ICompletionProposal> props, String importDeclaration, String displayImport, 
+    private void addProp(List<ICompletionProposal> props, String importDeclaration, String displayImport,
             Image importImage, int offset, Set<Tuple<String, String>> mods) {
         Tuple<String, String> tuple = new Tuple<String, String>(importDeclaration, displayImport);
-        if(mods.contains(tuple)){
+        if (mods.contains(tuple)) {
             return;
         }
-        
+
         mods.add(tuple);
-        
-        String tooltip = importDeclaration+"\n\nNote: Hold Ctrl on apply to do local import.";
-        props.add(new CtxInsensitiveImportComplProposal(
-                "",
-                offset,
-                0,
-                0,
-                importImage,
-                displayImport,
-                null,
-                tooltip,
-                IPyCompletionProposal.PRIORITY_LOCALS,
-                importDeclaration
-                ){
-            
+
+        String tooltip = importDeclaration + "\n\nNote: Hold Ctrl on apply to do local import.";
+        props.add(new CtxInsensitiveImportComplProposal("", offset, 0, 0, importImage, displayImport, null, tooltip,
+                IPyCompletionProposal.PRIORITY_LOCALS, importDeclaration) {
+
             @Override
             public void selected(ITextViewer viewer, boolean smartToggle) {
                 //Overridden to do nothing (i.e.: don't leave yellow when ctrl is pressed).
             }
-            
+
             @Override
             public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
-                if((stateMask & SWT.CTRL) != 0){
+                if ((stateMask & SWT.CTRL) != 0) {
                     this.setAddLocalImport(true);
                 }
                 super.apply(viewer, trigger, stateMask, offset);
-                if(forceReparseOnApply){
+                if (forceReparseOnApply) {
                     //and after applying it, let's request a reanalysis
-                    if(viewer instanceof PySourceViewer){
+                    if (viewer instanceof PySourceViewer) {
                         PySourceViewer sourceViewer = (PySourceViewer) viewer;
                         PyEdit edit = sourceViewer.getEdit();
-                        if(edit != null){
-                            edit.getParser().forceReparse(new Tuple<String, Boolean>(
-                                AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
+                        if (edit != null) {
+                            edit.getParser().forceReparse(
+                                    new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE,
+                                            true));
                         }
                     }
                 }
@@ -254,7 +238,5 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
 
         });
     }
-    
-    
 
 }

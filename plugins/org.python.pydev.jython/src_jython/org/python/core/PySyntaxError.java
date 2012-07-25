@@ -14,19 +14,12 @@ public class PySyntaxError extends PyException {
     String text;
     String filename;
 
-
-    public PySyntaxError(String s, int line, int column, String text,
-                         String filename)
-    {
+    public PySyntaxError(String s, int line, int column, String text, String filename) {
         super(Py.SyntaxError);
-        PyObject[] tmp = new PyObject[] {
-            new PyString(filename), new PyInteger(line),
-            new PyInteger(column), new PyString(text)
-        };
+        PyObject[] tmp = new PyObject[] { new PyString(filename), new PyInteger(line), new PyInteger(column),
+                new PyString(text) };
 
-        this.value = new PyTuple(new PyObject[] {
-            new PyString(s), new PyTuple(tmp)
-        });
+        this.value = new PyTuple(new PyObject[] { new PyString(s), new PyTuple(tmp) });
 
         this.lineno = line;
         this.column = column;

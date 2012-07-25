@@ -9,20 +9,17 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
-
-
-public final class AttrInfo extends AbstractInfo{
+public final class AttrInfo extends AbstractInfo {
 
     /**
      * Changed for 2.1
      */
     private static final long serialVersionUID = 3L;
 
-
     public AttrInfo(String name, String moduleDeclared, String path) {
         super(name, moduleDeclared, path);
     }
-    
+
     public AttrInfo(String name, String moduleDeclared, String path, boolean doNotInternOnThisContstruct) {
         super(name, moduleDeclared, path, doNotInternOnThisContstruct);
     }

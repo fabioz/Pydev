@@ -8,16 +8,14 @@ package com.python.pydev.analysis.builder;
 
 import org.python.pydev.core.concurrency.IRunnableWithMonitor;
 
-
 public interface IAnalysisBuilderRunnable extends IRunnableWithMonitor {
 
     public static final int ANALYSIS_CAUSE_BUILDER = 1;
     public static final int ANALYSIS_CAUSE_PARSER = 2;
-    
+
     public static final int FULL_MODULE = 1;
     public static final int DEFINITIONS_MODULE = 2;
 
-    
     /**
      * ANALYSIS_CAUSE_BUILDER
      * ANALYSIS_CAUSE_PARSER
@@ -28,7 +26,7 @@ public interface IAnalysisBuilderRunnable extends IRunnableWithMonitor {
      * Forces the current analysis to stop
      */
     void stopAnalysis();
-    
+
     /**
      * @return whether the analysis should be forced.
      * 
@@ -40,13 +38,13 @@ public interface IAnalysisBuilderRunnable extends IRunnableWithMonitor {
      *      PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor();
      */
     boolean getForceAnalysis();
-    
+
     boolean getRunFinished();
 
     String getModuleName();
-    
+
     String getAnalysisCauseStr();
-    
+
     long getDocumentTime();
 
     long getResourceModificationStamp();

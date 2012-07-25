@@ -42,9 +42,9 @@ public abstract class AbstractPythonRefactoring extends Refactoring {
     public Change createChange(IProgressMonitor pm) {
         IChangeProcessor changeProcessor = new CompositeChangeProcessor(getName(), getChangeProcessors());
 
-        try{
+        try {
             return changeProcessor.createChange();
-        }catch(MisconfigurationException e){
+        } catch (MisconfigurationException e) {
             throw new RuntimeException(e);
         }
     }

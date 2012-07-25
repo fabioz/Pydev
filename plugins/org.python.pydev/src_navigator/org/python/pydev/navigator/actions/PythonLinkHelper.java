@@ -58,18 +58,18 @@ public class PythonLinkHelper implements ILinkHelper {
      * @see org.eclipse.ui.navigator.ILinkHelper#findSelection(org.eclipse.ui.IEditorInput)
      */
     public IStructuredSelection findSelection(IEditorInput anInput) {
-        if (anInput instanceof IFileEditorInput){
+        if (anInput instanceof IFileEditorInput) {
             return new StructuredSelection(((IFileEditorInput) anInput).getFile());
         }
-        
-        if(anInput instanceof IAdaptable){
+
+        if (anInput instanceof IAdaptable) {
             //handles org.eclipse.compare.CompareEditorInput without a specific reference to it
             Object adapter = anInput.getAdapter(IFile.class);
-            if(adapter != null){
+            if (adapter != null) {
                 return new StructuredSelection(adapter);
             }
         }
-        
+
         return StructuredSelection.EMPTY;
     }
 
@@ -79,61 +79,43 @@ public class PythonLinkHelper implements ILinkHelper {
      * @see org.eclipse.ui.navigator.ILinkHelper#activateEditor(org.eclipse.ui.IWorkbenchPage, org.eclipse.jface.viewers.IStructuredSelection)
      */
     public void activateEditor(IWorkbenchPage aPage, IStructuredSelection aSelection) {
-        if (aSelection == null || aSelection.isEmpty()){
+        if (aSelection == null || aSelection.isEmpty()) {
             return;
         }
-        
+
         Object firstElement = aSelection.getFirstElement();
-        
+
         //if it is a python element, let's first get the actual object for finding the editor
         if (firstElement instanceof IWrappedResource) {
             IWrappedResource resource = (IWrappedResource) firstElement;
             firstElement = resource.getActualObject();
         }
-        
+
         //and now, if it is really a file...
         if (firstElement instanceof IFile) {
-            
+
             //ok, let's check if the active editor is already the selection, because although the findEditor(editorInput) method
             //may return an editor for the correct file, we may have multiple editors for the same file, and if the current
             //editor is already correct, we don't want to change it
             //@see bug: https://sourceforge.net/tracker/?func=detail&atid=577329&aid=2037682&group_id=85796
             IEditorPart activeEditor = aPage.getActiveEditor();
-            if(activeEditor != null){
+            if (activeEditor != null) {
                 IEditorInput editorInput = activeEditor.getEditorInput();
                 IFile currFile = (IFile) editorInput.getAdapter(IFile.class);
-                if(currFile != null && currFile.equals(firstElement)){
+                if (currFile != null && currFile.equals(firstElement)) {
                     return; //the current editor is already the active editor.
                 }
             }
-            
+
             //if we got here, the active editor is not a match, so, let's find one and show it.
             IEditorPart editor = null;
             IEditorInput fileInput = new FileEditorInput((IFile) firstElement);
-            if ((editor = aPage.findEditor(fileInput)) != null){
+            if ((editor = aPage.findEditor(fileInput)) != null) {
                 aPage.bringToTop(editor);
             }
         }
 
     }
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 
     /**
      * Here we'll try to make a show -> in for an external file. The idea is that we'll traverse the 
@@ -156,37 +138,37 @@ public class PythonLinkHelper implements ILinkHelper {
      * 3. We may need to look into zip files too.
      */
     public IStructuredSelection findExternalFileSelection(File f) {
-        if(this.commonViewer == null){
+        if (this.commonViewer == null) {
             return null;
         }
         CommonViewer commonViewer = this.commonViewer.get();
-        if(commonViewer == null){
+        if (commonViewer == null) {
             return null;
         }
-        
+
         ISelection treeSelection = commonViewer.getSelection();
-        
+
         Set<IInterpreterInfo> infosSearched = new HashSet<IInterpreterInfo>();
-        
+
         IContentProvider contentProvider = commonViewer.getContentProvider();
         ITreeContentProvider treeContentProvider;
-        if(contentProvider instanceof ITreeContentProvider){
+        if (contentProvider instanceof ITreeContentProvider) {
             treeContentProvider = (ITreeContentProvider) contentProvider;
-        }else{
-            Log.log("On tryToRevealExternalFile, the common viewer content provider is not an ITreeContentProvider. Found: "+
-                    contentProvider);
+        } else {
+            Log.log("On tryToRevealExternalFile, the common viewer content provider is not an ITreeContentProvider. Found: "
+                    + contentProvider);
             return null;
         }
-        
+
         //Step 1: look into a selection
-        if(treeSelection instanceof IStructuredSelection && !treeSelection.isEmpty()){
+        if (treeSelection instanceof IStructuredSelection && !treeSelection.isEmpty()) {
             IStructuredSelection structuredSelection = (IStructuredSelection) treeSelection;
             Iterator it = structuredSelection.iterator();
-            while(it.hasNext()){
+            while (it.hasNext()) {
                 Object next = it.next();
-                IStructuredSelection sel = findExternalFileSelectionGivenTreeSelection(
-                        f, commonViewer, treeContentProvider, infosSearched, next);
-                if(sel != null && !sel.isEmpty()){
+                IStructuredSelection sel = findExternalFileSelectionGivenTreeSelection(f, commonViewer,
+                        treeContentProvider, infosSearched, next);
+                if (sel != null && !sel.isEmpty()) {
                     return sel;
                 }
             }
@@ -194,56 +176,53 @@ public class PythonLinkHelper implements ILinkHelper {
         //Step 2: look into what's expanded in the package explorer
         Object[] expandedElements = commonViewer.getVisibleExpandedElements();
         for (Object expandedElement : expandedElements) {
-            IStructuredSelection sel = findExternalFileSelectionGivenTreeSelection(
-                    f, commonViewer, treeContentProvider, infosSearched, expandedElement);
-            if(sel != null && !sel.isEmpty()){
+            IStructuredSelection sel = findExternalFileSelectionGivenTreeSelection(f, commonViewer,
+                    treeContentProvider, infosSearched, expandedElement);
+            if (sel != null && !sel.isEmpty()) {
                 return sel;
             }
-            
+
         }
-        
+
         //Step 3: look into existing editors
         Set<IFile> openFiles = PyAction.getOpenFiles();
         for (IFile iFile : openFiles) {
-            IStructuredSelection sel = findExternalFileSelectionGivenTreeSelection(
-                    f, commonViewer, treeContentProvider, infosSearched, iFile);
-            if(sel != null && !sel.isEmpty()){
+            IStructuredSelection sel = findExternalFileSelectionGivenTreeSelection(f, commonViewer,
+                    treeContentProvider, infosSearched, iFile);
+            if (sel != null && !sel.isEmpty()) {
                 return sel;
             }
         }
-        
+
         //Step 4: look into what's available in the package explorer
         Object input = commonViewer.getInput();
         for (Object child : treeContentProvider.getChildren(input)) {
-            IStructuredSelection sel = findExternalFileSelectionGivenTreeSelection(
-                    f, commonViewer, treeContentProvider, infosSearched, child);
-            if(sel != null && !sel.isEmpty()){
+            IStructuredSelection sel = findExternalFileSelectionGivenTreeSelection(f, commonViewer,
+                    treeContentProvider, infosSearched, child);
+            if (sel != null && !sel.isEmpty()) {
                 return sel;
             }
         }
-        
+
         //If all failed, just return null!
         return null;
     }
 
-    private IStructuredSelection findExternalFileSelectionGivenTreeSelection(
-            File f, 
-            CommonViewer commonViewer, 
-            ITreeContentProvider treeContentProvider, 
-            Set<IInterpreterInfo> infosSearched, 
-            Object next) {
-        
-        if(next instanceof IAdaptable){
+    private IStructuredSelection findExternalFileSelectionGivenTreeSelection(File f, CommonViewer commonViewer,
+            ITreeContentProvider treeContentProvider, Set<IInterpreterInfo> infosSearched, Object next) {
+
+        if (next instanceof IAdaptable) {
             IAdaptable adaptable = (IAdaptable) next;
             IResource resource = (IResource) adaptable.getAdapter(IResource.class);
-            if(resource != null){
+            if (resource != null) {
                 IProject project = resource.getProject();
-                if(project != null){
+                if (project != null) {
                     Object[] children = treeContentProvider.getChildren(project);
                     for (Object object : children) {
-                        if(object instanceof InterpreterInfoTreeNodeRoot){
-                            IStructuredSelection sel = findMatchInTreeNodeRoot(f, commonViewer, (InterpreterInfoTreeNodeRoot)object, infosSearched);
-                            if(sel != null){
+                        if (object instanceof InterpreterInfoTreeNodeRoot) {
+                            IStructuredSelection sel = findMatchInTreeNodeRoot(f, commonViewer,
+                                    (InterpreterInfoTreeNodeRoot) object, infosSearched);
+                            if (sel != null) {
                                 return sel;
                             }
                         }
@@ -252,60 +231,62 @@ public class PythonLinkHelper implements ILinkHelper {
                 }
             }
             //Keep on going to try to find a parent that'll adapt to IResource...
-            
-        }else if(next instanceof TreeNode){
+
+        } else if (next instanceof TreeNode) {
             TreeNode treeNode = (TreeNode) next;
-            while(true){
-                if(treeNode instanceof InterpreterInfoTreeNodeRoot){
-                    IStructuredSelection sel = findMatchInTreeNodeRoot(f, commonViewer, (InterpreterInfoTreeNodeRoot)treeNode, infosSearched);
-                    if(sel != null){
+            while (true) {
+                if (treeNode instanceof InterpreterInfoTreeNodeRoot) {
+                    IStructuredSelection sel = findMatchInTreeNodeRoot(f, commonViewer,
+                            (InterpreterInfoTreeNodeRoot) treeNode, infosSearched);
+                    if (sel != null) {
                         return sel;
                     }
                     return null;
                 }
                 Object parent = treeNode.getParent();
-                if(parent instanceof TreeNode){
+                if (parent instanceof TreeNode) {
                     treeNode = (TreeNode) parent;
-                }else{
+                } else {
                     break;
                 }
             }
             //Couldn't find a proper InterpreterInfoTreeNodeRoot already having a TreeNode? Let's log it, as a TreeNode
             //should always map to an InterpreterInfoTreeNodeRoot.
-            Log.log("Couldn't find a proper InterpreterInfoTreeNodeRoot already having TreeNode: "+next);
-            return null; 
+            Log.log("Couldn't find a proper InterpreterInfoTreeNodeRoot already having TreeNode: " + next);
+            return null;
         }
-        
+
         //Some unexpected type... let's get its parent until we find one expected (or just end up trying if we get to the root).
         Object parent = next;
-        int i= 10000;
+        int i = 10000;
         //just playing safe to make sure we won't get into a recursion (the tree should never group up to 10000 levels,
         //so, this is likely a problem in the content provider).
-        while(i>0){ 
-            i--; 
-            if(i == 0){
-                Log.log("Found a recursion for the element: "+next+" when searching parents. Please report this a a bug!");
+        while (i > 0) {
+            i--;
+            if (i == 0) {
+                Log.log("Found a recursion for the element: " + next
+                        + " when searching parents. Please report this a a bug!");
             }
-            if(parent == null || parent instanceof IWorkspaceRoot || parent instanceof IWorkingSet){
+            if (parent == null || parent instanceof IWorkspaceRoot || parent instanceof IWorkingSet) {
                 break;
             }
-            if(parent instanceof TreeNode){
-                return findExternalFileSelectionGivenTreeSelection(
-                        f, commonViewer, treeContentProvider, infosSearched, parent);
-            }else if(parent instanceof IAdaptable){
+            if (parent instanceof TreeNode) {
+                return findExternalFileSelectionGivenTreeSelection(f, commonViewer, treeContentProvider, infosSearched,
+                        parent);
+            } else if (parent instanceof IAdaptable) {
                 IAdaptable adaptable = (IAdaptable) parent;
                 IResource resource = (IResource) adaptable.getAdapter(IResource.class);
-                if(resource != null){
+                if (resource != null) {
                     IProject project = resource.getProject();
-                    if(project != null){
-                        return findExternalFileSelectionGivenTreeSelection(
-                                f, commonViewer, treeContentProvider, infosSearched, project);
+                    if (project != null) {
+                        return findExternalFileSelectionGivenTreeSelection(f, commonViewer, treeContentProvider,
+                                infosSearched, project);
                     }
                 }
             }
             parent = treeContentProvider.getParent(parent);
         }
-     
+
         return null;
     }
 
@@ -315,40 +296,38 @@ public class PythonLinkHelper implements ILinkHelper {
      * @param infosSearched: a memo to know which infos were already searched to prevent searching many times in
      * the same place.
      */
-    private IStructuredSelection findMatchInTreeNodeRoot(
-            File element, CommonViewer commonViewer, 
+    private IStructuredSelection findMatchInTreeNodeRoot(File element, CommonViewer commonViewer,
             InterpreterInfoTreeNodeRoot treeNodeRoot, Set<IInterpreterInfo> infosSearched) {
-        if(infosSearched.contains(treeNodeRoot.interpreterInfo)){
+        if (infosSearched.contains(treeNodeRoot.interpreterInfo)) {
             return null;
         }
         infosSearched.add(treeNodeRoot.interpreterInfo);
-        
+
         List<TreeNode> nodesOrderedForFileSearch = treeNodeRoot.getNodesOrderedForFileSearch();
         for (TreeNode node : nodesOrderedForFileSearch) {
             PythonpathTreeNode match = findMatch(node, element);
-            if(match != null){
+            if (match != null) {
                 return new StructuredSelection(match);
             }
         }
         return null;
     }
-    
 
     /**
      * Recursively iterates a tree node structure from parent -> children to find a match for the given element.
      * The match is returned if found (null is returned if not found).
      */
     private PythonpathTreeNode findMatch(TreeNode treeNode, Object element) {
-        if(treeNode instanceof PythonpathTreeNode){
+        if (treeNode instanceof PythonpathTreeNode) {
             PythonpathTreeNode pythonpathTreeNode = (PythonpathTreeNode) treeNode;
-            if(element.equals(pythonpathTreeNode.file)){
+            if (element.equals(pythonpathTreeNode.file)) {
                 return pythonpathTreeNode;
             }
         }
         List<TreeNode> children = treeNode.getChildren();
         for (TreeNode object : children) {
             PythonpathTreeNode m = findMatch(object, element);
-            if(m != null){
+            if (m != null) {
                 return m;
             }
         }

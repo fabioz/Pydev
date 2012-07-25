@@ -61,43 +61,41 @@ public class PythonPathBlock extends AbstractLaunchConfigurationTab {
         try {
             String id = configuration.getType().getIdentifier();
             IInterpreterManager manager = null;
-            if(Constants.ID_JYTHON_LAUNCH_CONFIGURATION_TYPE.equals(id) || 
-                    Constants.ID_JYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE.equals(id)){
+            if (Constants.ID_JYTHON_LAUNCH_CONFIGURATION_TYPE.equals(id)
+                    || Constants.ID_JYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE.equals(id)) {
                 manager = PydevPlugin.getJythonInterpreterManager();
-                
-            }else if(Constants.ID_IRONPYTHON_LAUNCH_CONFIGURATION_TYPE.equals(id) || 
-                    Constants.ID_IRONPYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE.equals(id)){
+
+            } else if (Constants.ID_IRONPYTHON_LAUNCH_CONFIGURATION_TYPE.equals(id)
+                    || Constants.ID_IRONPYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE.equals(id)) {
                 manager = PydevPlugin.getIronpythonInterpreterManager();
-                
-            }else if(Constants.ID_PYTHON_REGULAR_LAUNCH_CONFIGURATION_TYPE.equals(id) || 
-                    Constants.ID_PYTHON_COVERAGE_LAUNCH_CONFIGURATION_TYPE.equals(id) ||
-                    Constants.ID_PYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE.equals(id)
-                    ){
+
+            } else if (Constants.ID_PYTHON_REGULAR_LAUNCH_CONFIGURATION_TYPE.equals(id)
+                    || Constants.ID_PYTHON_COVERAGE_LAUNCH_CONFIGURATION_TYPE.equals(id)
+                    || Constants.ID_PYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE.equals(id)) {
                 manager = PydevPlugin.getPythonInterpreterManager();
-            }else{
-            	//Get from the project
-            	try {
-            		//could throw core exception if project does not exist.
-					IProject project = PythonRunnerConfig.getProjectFromConfiguration(configuration);
-					PythonNature nature = PythonNature.getPythonNature(project);
-					if(nature != null){
-						manager = PydevPlugin.getInterpreterManager(nature);
-					}
-				} catch (Exception e) {
-					Log.log(e);
-				}
-            	
-                
-				if(manager == null){
-					Log.log("Could not recognize: '"+id+"' using default python interpreter manager.");
-					manager = PydevPlugin.getPythonInterpreterManager();
-				}
+            } else {
+                //Get from the project
+                try {
+                    //could throw core exception if project does not exist.
+                    IProject project = PythonRunnerConfig.getProjectFromConfiguration(configuration);
+                    PythonNature nature = PythonNature.getPythonNature(project);
+                    if (nature != null) {
+                        manager = PydevPlugin.getInterpreterManager(nature);
+                    }
+                } catch (Exception e) {
+                    Log.log(e);
+                }
+
+                if (manager == null) {
+                    Log.log("Could not recognize: '" + id + "' using default python interpreter manager.");
+                    manager = PydevPlugin.getPythonInterpreterManager();
+                }
             }
             String pythonPath = PythonRunnerConfig.getPythonpathFromConfiguration(configuration, manager);
 
             fPythonPathList.removeAll();
             java.util.List<String> paths = SimpleRunner.splitPythonpath(pythonPath);
-            for (String p:paths) {
+            for (String p : paths) {
                 fPythonPathList.add(p);
             }
             setErrorMessage(null);
@@ -106,14 +104,14 @@ public class PythonPathBlock extends AbstractLaunchConfigurationTab {
             // - The interpreter is incorrectly configured
             // - The arguments use an unresolved variable.
             // In each case, the exception contains a meaningful message, that is displayed
-        	Log.log(e);
-        	
+            Log.log(e);
+
             String message = e.getMessage();
-            if(message == null){
-            	message = "null (see error log for the traceback).";
+            if (message == null) {
+                message = "null (see error log for the traceback).";
             }
-			String errorMsg = StringUtils.replaceNewLines(message, " ");
-            
+            String errorMsg = StringUtils.replaceNewLines(message, " ");
+
             fPythonPathList.removeAll();
             fPythonPathList.add(errorMsg);
             setErrorMessage(errorMsg);

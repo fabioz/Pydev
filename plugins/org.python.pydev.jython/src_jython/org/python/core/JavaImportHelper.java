@@ -180,8 +180,7 @@ public class JavaImportHelper {
      *         Py classloader setup
      */
     private static boolean isJavaClass(String packageName, String className) {
-        return className != null && className.length() > 0
-                && Py.findClass(packageName + "." + className) != null;
+        return className != null && className.length() > 0 && Py.findClass(packageName + "." + className) != null;
     }
 
     /**
@@ -198,7 +197,7 @@ public class JavaImportHelper {
             int dotPos = 0;
             do {
                 PyJavaPackage p = PySystemState.add_package(packageName);
-                if(dotPos == 0) {
+                if (dotPos == 0) {
                     modules.__setitem__(internedPackageName, p);
                 } else {
                     module = modules.__finditem__(internedPackageName);
@@ -211,7 +210,7 @@ public class JavaImportHelper {
                     packageName = packageName.substring(0, dotPos);
                     internedPackageName = packageName.intern();
                 }
-            } while(dotPos > 0);
+            } while (dotPos > 0);
             // make sure not to turn off the packageAdded flag
             packageAdded = true;
         }

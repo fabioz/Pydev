@@ -7,11 +7,8 @@ import org.python.core.*;
 public class xreadlines {
     private final static int CHUNKSIZE = 8192;
 
-    public static PyString __doc__xreadlines = new PyString(
-        "xreadlines(f)\n" +
-        "\n" +
-        "Return an xreadlines object for the file f."
-    );
+    public static PyString __doc__xreadlines = new PyString("xreadlines(f)\n" + "\n"
+            + "Return an xreadlines object for the file f.");
 
     public static PyObject xreadlines$(PyObject file) {
         return new XReadlineObj(file);
@@ -33,13 +30,12 @@ public class xreadlines {
         }
 
         public PyObject __finditem__(PyObject idx) {
-            return __finditem__(((PyInteger)idx.__int__()).getValue());
+            return __finditem__(((PyInteger) idx.__int__()).getValue());
         }
 
         public PyObject __finditem__(int idx) {
             if (idx != abslineno) {
-                throw Py.RuntimeError(
-                            "xreadlines object accessed out of order");
+                throw Py.RuntimeError("xreadlines object accessed out of order");
             }
 
             if (lineno >= lineslen) {

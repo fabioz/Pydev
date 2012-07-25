@@ -8,9 +8,9 @@ package org.python.pydev.core.callbacks;
 
 public interface ICallbackWithListeners<X> {
 
-	Object call(X obj);
+    Object call(X obj);
 
-	void registerListener(ICallbackListener<X> listener);
+    void registerListener(ICallbackListener<X> listener);
 
     void unregisterListener(ICallbackListener<X> listener);
 }

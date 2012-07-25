@@ -5,8 +5,7 @@ import org.python.core.*;
 
 // Implementation of the MD5 object as returned from md5.new()
 
-public class MD5Object extends PyObject
-{
+public class MD5Object extends PyObject {
     private String data;
 
     public int digest_size = 16;
@@ -40,9 +39,9 @@ public class MD5Object extends PyObject
         String s = md5obj.toString();
         char[] x = new char[s.length() / 2];
 
-        for (int i=0, j=0; i < s.length(); i+=2, j++) {
-            String chr = s.substring(i, i+2);
-            x[j] = (char)java.lang.Integer.parseInt(chr, 16);
+        for (int i = 0, j = 0; i < s.length(); i += 2, j++) {
+            String chr = s.substring(i, i + 2);
+            x[j] = (char) java.lang.Integer.parseInt(chr, 16);
         }
         return new PyString(new String(x));
     }

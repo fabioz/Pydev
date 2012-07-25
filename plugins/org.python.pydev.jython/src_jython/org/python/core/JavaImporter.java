@@ -8,9 +8,9 @@ public class JavaImporter extends PyObject {
     public JavaImporter() {
         super();
     }
-    
+
     public PyObject __call__(PyObject args[], String keywords[]) {
-        if(args[0].toString().endsWith("__classpath__")){
+        if (args[0].toString().endsWith("__classpath__")) {
             return this;
         }
         throw Py.ImportError("unable to handle");
@@ -36,8 +36,7 @@ public class JavaImporter extends PyObject {
      *         otherwise
      */
     public PyObject find_module(String name, PyObject path) {
-        Py.writeDebug("import", "trying " + name
-                + " in packagemanager for path " + path);
+        Py.writeDebug("import", "trying " + name + " in packagemanager for path " + path);
         PyObject ret = PySystemState.packageManager.lookupName(name.intern());
         if (ret != null) {
             Py.writeComment("import", "'" + name + "' as java package");

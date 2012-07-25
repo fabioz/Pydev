@@ -1,5 +1,5 @@
-
 package org.python.core;
+
 import java.io.*;
 import java.util.zip.*;
 
@@ -9,11 +9,11 @@ public class SyspathArchive extends PyString {
     public SyspathArchive(String archiveName) throws IOException {
         super(archiveName);
         archiveName = getArchiveName(archiveName);
-        if(archiveName == null) {
+        if (archiveName == null) {
             throw new IOException("path '" + archiveName + "' not an archive");
         }
         this.zipFile = new ZipFile(new File(archiveName));
-        if(PySystemState.isPackageCacheEnabled()) {
+        if (PySystemState.isPackageCacheEnabled()) {
             PySystemState.packageManager.addJar(archiveName, true);
         }
     }
@@ -36,9 +36,9 @@ public class SyspathArchive extends PyString {
         if (idx == dir.length() - 4) {
             return dir;
         }
-        char ch = dir.charAt(idx+4);
+        char ch = dir.charAt(idx + 4);
         if (ch == File.separatorChar || ch == '/') {
-            return dir.substring(0, idx+4);
+            return dir.substring(0, idx + 4);
         }
         return null;
     }
@@ -53,7 +53,7 @@ public class SyspathArchive extends PyString {
         if (archive.length() == folder.length()) {
             return entry;
         } else {
-            return archive.substring(folder.length()+1) + "/" + entry;
+            return archive.substring(folder.length() + 1) + "/" + entry;
         }
     }
 
@@ -86,14 +86,14 @@ public class SyspathArchive extends PyString {
         return buffer;
     }
 
-/*
-    protected void finalize() {
-        System.out.println("closing zip file " + toString());
-        try {
-            zipFile.close();
-        } catch (IOException e) {
-            Py.writeDebug("import", "closing zipEntry failed");
+    /*
+        protected void finalize() {
+            System.out.println("closing zip file " + toString());
+            try {
+                zipFile.close();
+            } catch (IOException e) {
+                Py.writeDebug("import", "closing zipEntry failed");
+            }
         }
-    }
-*/
+    */
 }

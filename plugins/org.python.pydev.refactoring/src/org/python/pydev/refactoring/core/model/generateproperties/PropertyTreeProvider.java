@@ -25,7 +25,7 @@ public class PropertyTreeProvider implements ITreeContentProvider {
     }
 
     public Object[] getChildren(Object parentElement) {
-        if(parentElement instanceof ITreeNode){
+        if (parentElement instanceof ITreeNode) {
             return ((ITreeNode) parentElement).getChildren();
         }
         return null;
@@ -36,7 +36,7 @@ public class PropertyTreeProvider implements ITreeContentProvider {
     }
 
     public boolean hasChildren(Object element) {
-        if(element instanceof ITreeNode){
+        if (element instanceof ITreeNode) {
             ITreeNode node = (ITreeNode) element;
             return node.hasChildren();
         }
@@ -45,8 +45,8 @@ public class PropertyTreeProvider implements ITreeContentProvider {
 
     public Object[] getElements(Object inputElement) {
         Collection<TreeClassNode> elements = new ArrayList<TreeClassNode>();
-        for(IClassDefAdapter elem:adapters){
-            if(elem.hasAttributes()){
+        for (IClassDefAdapter elem : adapters) {
+            if (elem.hasAttributes()) {
                 elements.add(new TreeClassNode(elem));
             }
         }

@@ -18,10 +18,10 @@ public class EndOffset extends AbstractOffsetStrategy {
     public EndOffset(IASTNodeAdapter<? extends SimpleNode> adapter, IDocument doc, AdapterPrefs adapterPrefs) {
         super(adapter, doc, adapterPrefs);
     }
-    
+
     protected int getLine() {
         int endLine = adapter.getNodeLastLine();
-        if(endLine < 0){
+        if (endLine < 0) {
             endLine = 0;
         }
         return endLine;

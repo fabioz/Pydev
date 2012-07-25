@@ -45,92 +45,89 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
      * @throws BadLocationException
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection, org.python.pydev.core.bundle.ImageCache)
      */
-    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature, PyEdit edit, int offset) throws BadLocationException {
-        
+    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature,
+            PyEdit edit, int offset) throws BadLocationException {
+
         ArrayList<ICompletionProposal> l = new ArrayList<ICompletionProposal>();
-        String indentation = edit!=null?edit.getIndentPrefs().getIndentationString():DefaultIndentPrefs.get().getIndentationString();
-        
+        String indentation = edit != null ? edit.getIndentPrefs().getIndentationString() : DefaultIndentPrefs.get()
+                .getIndentationString();
+
         ps.selectCompleteLine();
         String selectedText = ps.getSelectedText();
         List<String> splitInLines = StringUtils.splitInLines(selectedText);
         int firstCharPosition = -1;
         for (String string : splitInLines) {
-            if(string.trim().length() > 0){
+            if (string.trim().length() > 0) {
                 int localFirst = PySelection.getFirstCharPosition(string);
-                if(firstCharPosition == -1){
+                if (firstCharPosition == -1) {
                     firstCharPosition = localFirst;
-                }else if(localFirst < firstCharPosition){
+                } else if (localFirst < firstCharPosition) {
                     firstCharPosition = localFirst;
                 }
             }
         }
-        if(firstCharPosition == -1){
+        if (firstCharPosition == -1) {
             return l;
         }
-        
+
         //delimiter to use
         String delimiter = PyAction.getDelimiter(ps.getDoc());
-        
+
         //get the 1st char (determines indent)
-        FastStringBuffer startIndentBuffer = new FastStringBuffer(firstCharPosition+1);
+        FastStringBuffer startIndentBuffer = new FastStringBuffer(firstCharPosition + 1);
         startIndentBuffer.appendN(' ', firstCharPosition);
         final String startIndent = startIndentBuffer.toString();
-        
+
         //code to be surrounded
         String surroundedCode = selectedText;
-        surroundedCode = indentation+surroundedCode.replaceAll(delimiter, delimiter+indentation);
-        
+        surroundedCode = indentation + surroundedCode.replaceAll(delimiter, delimiter + indentation);
 
         //region
         IRegion region = ps.getRegion();
         TemplateContext context = null;
-        if(edit != null){
+        if (edit != null) {
             context = createContext(edit.getPySourceViewer(), region, ps.getDoc());
         }
-        
-        
+
         //not static because we need the actual code.
-        String[] replace0to3 = new String[]{startIndent, delimiter, surroundedCode, delimiter, startIndent, delimiter, startIndent, indentation, indentation};
-        String[] replace4toEnd = new String[]{startIndent, delimiter, surroundedCode, delimiter, startIndent, indentation};
-        
+        String[] replace0to3 = new String[] { startIndent, delimiter, surroundedCode, delimiter, startIndent,
+                delimiter, startIndent, indentation, indentation };
+        String[] replace4toEnd = new String[] { startIndent, delimiter, surroundedCode, delimiter, startIndent,
+                indentation };
+
         //actually create the template
-        for (int iComp = 0, iRep=0; iComp < SURROUND_WITH_COMPLETIONS.length; iComp+= 2,iRep++) {
+        for (int iComp = 0, iRep = 0; iComp < SURROUND_WITH_COMPLETIONS.length; iComp += 2, iRep++) {
             String comp = SURROUND_WITH_COMPLETIONS[iComp];
-            if(iRep < 4){
-                comp = StringUtils.format(comp, (Object [])replace0to3);
-            }else{
-                comp = StringUtils.format(comp, (Object [])replace4toEnd);
+            if (iRep < 4) {
+                comp = StringUtils.format(comp, (Object[]) replace0to3);
+            } else {
+                comp = StringUtils.format(comp, (Object[]) replace4toEnd);
             }
-            
+
             l.add(createProposal(ps, imageCache, edit, startIndent, region, iComp, comp, context));
         }
-        
-        
 
         return l;
     }
 
-    private ICompletionProposal createProposal(
-            PySelection ps, ImageCache imageCache, PyEdit edit, final String startIndent, IRegion region,
-            int iComp, String comp, TemplateContext context) {
-        Template t = new Template("Surround with", SURROUND_WITH_COMPLETIONS[iComp+1], "", comp, false);
-        if(context != null){
-            TemplateProposal proposal = new TemplateProposal(
-                    t, context, region, imageCache.get(UIConstants.COMPLETION_TEMPLATE), 5){
+    private ICompletionProposal createProposal(PySelection ps, ImageCache imageCache, PyEdit edit,
+            final String startIndent, IRegion region, int iComp, String comp, TemplateContext context) {
+        Template t = new Template("Surround with", SURROUND_WITH_COMPLETIONS[iComp + 1], "", comp, false);
+        if (context != null) {
+            TemplateProposal proposal = new TemplateProposal(t, context, region,
+                    imageCache.get(UIConstants.COMPLETION_TEMPLATE), 5) {
                 @Override
                 public String getAdditionalProposalInfo() {
-                    return startIndent+super.getAdditionalProposalInfo();
+                    return startIndent + super.getAdditionalProposalInfo();
                 }
             };
             return proposal;
-        }else{
+        } else {
             //In tests
             return new CompletionProposal(comp, region.getOffset(), region.getLength(), 0);
         }
     }
 
-    
-    
     /**
      * Template completions available for surround with... They %s will be replaced later for the actual code/indentation.
      * 
@@ -140,20 +137,15 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
      * Another nice thing may be analyzing the current context for local variables so that
      * for item in collection could have 'good' choices for the collection variable based on the local variables.
      */
-    public static final String[] SURROUND_WITH_COMPLETIONS = new String[]{
-        "%stry:%s%s%s%sexcept${cursor}:%s%s%sraise", "try..except",
-        "%stry:%s%s%s%sexcept (${RuntimeError}, ), e:%s%s%s${raise}${cursor}", "try..except (RuntimeError, ), e",
-        "%stry:%s%s%s%sfinally:%s%s%s${pass}", "try..finally",
-        "%sif ${True}:%s%s%s%selse:%s%s%s${pass}", "if..else",
-        
-        
-        "%swhile ${True}:%s%s%s%s%s", "while",
-        "%sfor ${item} in ${collection}:%s%s%s%s%s${cursor}", "for",
-        "%sif ${True}:%s%s%s%s%s${cursor}", "if",
-        "%swith ${var}:%s%s%s%s%s${cursor}", "with",
-    };
+    public static final String[] SURROUND_WITH_COMPLETIONS = new String[] {
+            "%stry:%s%s%s%sexcept${cursor}:%s%s%sraise", "try..except",
+            "%stry:%s%s%s%sexcept (${RuntimeError}, ), e:%s%s%s${raise}${cursor}", "try..except (RuntimeError, ), e",
+            "%stry:%s%s%s%sfinally:%s%s%s${pass}", "try..finally", "%sif ${True}:%s%s%s%selse:%s%s%s${pass}",
+            "if..else",
 
-    
+            "%swhile ${True}:%s%s%s%s%s", "while", "%sfor ${item} in ${collection}:%s%s%s%s%s${cursor}", "for",
+            "%sif ${True}:%s%s%s%s%s${cursor}", "if", "%swith ${var}:%s%s%s%s%s${cursor}", "with", };
+
     /**
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid(org.python.pydev.core.docutils.PySelection)
      */
@@ -165,7 +157,5 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
             BadLocationException {
         throw new RuntimeException("Not implemented: completions should be gotten from the IAssistProps interface.");
     }
-    
-    
 
 }

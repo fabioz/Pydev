@@ -20,16 +20,17 @@ import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.expr_contextType;
 
 public final class CtxVisitor extends Visitor {
-    
+
     private int ctx;
 
-    public CtxVisitor() { }
+    public CtxVisitor() {
+    }
 
     public void setParam(SimpleNode node) throws Exception {
         this.ctx = expr_contextType.Param;
         visit(node);
     }
-    
+
     public void setKwOnlyParam(SimpleNode node) throws Exception {
         this.ctx = expr_contextType.KwOnlyParam;
         visit(node);
@@ -41,7 +42,7 @@ public final class CtxVisitor extends Visitor {
     }
 
     public void setStore(SimpleNode[] nodes) throws Exception {
-        for (int i = 0; i < nodes.length; i++) 
+        for (int i = 0; i < nodes.length; i++)
             setStore(nodes[i]);
     }
 
@@ -51,7 +52,7 @@ public final class CtxVisitor extends Visitor {
     }
 
     public void setDelete(SimpleNode[] nodes) throws Exception {
-        for (int i = 0; i < nodes.length; i++) 
+        for (int i = 0; i < nodes.length; i++)
             setDelete(nodes[i]);
     }
 
@@ -61,9 +62,10 @@ public final class CtxVisitor extends Visitor {
     }
 
     public Object visitName(Name node) throws Exception {
-        if(ctx == expr_contextType.Store){
-            if(node.reserved){
-                throw new ParseException(StringUtils.format("Cannot assign value to %s (because it's a keyword)", node.id), node);
+        if (ctx == expr_contextType.Store) {
+            if (node.reserved) {
+                throw new ParseException(StringUtils.format("Cannot assign value to %s (because it's a keyword)",
+                        node.id), node);
             }
         }
         node.ctx = ctx;
@@ -75,7 +77,7 @@ public final class CtxVisitor extends Visitor {
         traverse(node);
         return null;
     }
-    
+
     public Object visitAttribute(Attribute node) throws Exception {
         node.ctx = ctx;
         return null;
@@ -88,8 +90,7 @@ public final class CtxVisitor extends Visitor {
 
     public Object visitList(List node) throws Exception {
         if (ctx == expr_contextType.AugStore) {
-            throw new ParseException(
-                    "augmented assign to list not possible", node);
+            throw new ParseException("augmented assign to list not possible", node);
         }
         node.ctx = ctx;
         traverse(node);
@@ -98,8 +99,7 @@ public final class CtxVisitor extends Visitor {
 
     public Object visitTuple(Tuple node) throws Exception {
         if (ctx == expr_contextType.AugStore) {
-            throw new ParseException(
-                    "augmented assign to tuple not possible", node);
+            throw new ParseException("augmented assign to tuple not possible", node);
         }
         node.ctx = ctx;
         traverse(node);
@@ -111,11 +111,10 @@ public final class CtxVisitor extends Visitor {
     }
 
     public Object visitListComp(Call node) throws Exception {
-        throw new ParseException("can't assign to list comprehension call",
-                                 node);
+        throw new ParseException("can't assign to list comprehension call", node);
     }
 
     public Object unhandled_node(SimpleNode node) throws Exception {
-        throw new ParseException("can't assign to operator:"+node, node);
+        throw new ParseException("can't assign to operator:" + node, node);
     }
 }

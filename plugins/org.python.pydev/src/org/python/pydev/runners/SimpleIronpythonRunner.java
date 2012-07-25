@@ -35,7 +35,6 @@ import org.python.pydev.plugin.nature.PythonNature;
  */
 public class SimpleIronpythonRunner extends SimpleRunner {
 
-    
     /**
      * Execute the script specified with the interpreter for a given project 
      * 
@@ -46,9 +45,11 @@ public class SimpleIronpythonRunner extends SimpleRunner {
      * 
      * @return a string with the output of the process (stdout)
      */
-    public Tuple<String,String> runAndGetOutputFromPythonScript(String interpreter, String script, String[] args, File workingDir, IProject project) {
+    public Tuple<String, String> runAndGetOutputFromPythonScript(String interpreter, String script, String[] args,
+            File workingDir, IProject project) {
         String[] parameters = addInterpreterToArgs(interpreter, script, args);
-        return runAndGetOutput(parameters, workingDir, PythonNature.getPythonNature(project), new NullProgressMonitor(), null);
+        return runAndGetOutput(parameters, workingDir, PythonNature.getPythonNature(project),
+                new NullProgressMonitor(), null);
     }
 
     /**
@@ -58,7 +59,7 @@ public class SimpleIronpythonRunner extends SimpleRunner {
      */
     public static String[] makeExecutableCommandStr(String interpreter, String script, String[] args) {
         String[] s = addInterpreterToArgs(interpreter, script, args);
-        
+
         List<String> asList = new ArrayList<String>(Arrays.asList(s));
         asList.addAll(Arrays.asList(args));
 
@@ -81,10 +82,11 @@ public class SimpleIronpythonRunner extends SimpleRunner {
      * 
      * @return the stdout of the run (if any)
      */
-    public Tuple<String,String> runAndGetOutputWithInterpreter(String interpreter, String script, String[] args, File workingDir, IProject project, IProgressMonitor monitor, String encoding) {
+    public Tuple<String, String> runAndGetOutputWithInterpreter(String interpreter, String script, String[] args,
+            File workingDir, IProject project, IProgressMonitor monitor, String encoding) {
         monitor.setTaskName("Mounting executable string...");
         monitor.worked(5);
-        
+
         String[] s = preparePythonCallParameters(interpreter, script, args, true);
         monitor.worked(1);
         return runAndGetOutput(s, workingDir, PythonNature.getPythonNature(project), monitor, encoding);
@@ -98,49 +100,46 @@ public class SimpleIronpythonRunner extends SimpleRunner {
      * @param args additional arguments to pass to iron python
      * @return the created array
      */
-    public static String[] preparePythonCallParameters(String interpreter, String script, String[] args, boolean scriptExists) {
-    	if(scriptExists){
-	        File file = new File(script);
-	        if(file.exists() == false){
-	            throw new RuntimeException("The script passed for execution ("+script+") does not exist.");
-	        }
-    	}
-        
+    public static String[] preparePythonCallParameters(String interpreter, String script, String[] args,
+            boolean scriptExists) {
+        if (scriptExists) {
+            File file = new File(script);
+            if (file.exists() == false) {
+                throw new RuntimeException("The script passed for execution (" + script + ") does not exist.");
+            }
+        }
+
         //Note that we don't check it (interpreter could be just the string 'ipy')
-//        file = new File(interpreter);
-//        if(file.exists() == false){
-//            throw new RuntimeException("The interpreter passed for execution ("+interpreter+") does not exist.");
-//        }
+        //        file = new File(interpreter);
+        //        if(file.exists() == false){
+        //            throw new RuntimeException("The interpreter passed for execution ("+interpreter+") does not exist.");
+        //        }
 
         PydevPlugin plugin = PydevPlugin.getDefault();
         String defaultVmArgs;
-        if(plugin == null){
+        if (plugin == null) {
             //in tests
             defaultVmArgs = IInterpreterManager.IRONPYTHON_DEFAULT_INTERNAL_SHELL_VM_ARGS;
-        }else{
+        } else {
             IPreferenceStore preferenceStore = plugin.getPreferenceStore();
             defaultVmArgs = preferenceStore.getString(IInterpreterManager.IRONPYTHON_INTERNAL_SHELL_VM_ARGS);
         }
         List<String> defaultVmArgsSplit = new ArrayList<String>();
-        if(defaultVmArgs != null){
+        if (defaultVmArgs != null) {
             defaultVmArgsSplit = StringUtils.split(defaultVmArgs, ' ');
         }
-        
-        
+
         if (args == null) {
             args = new String[0];
         }
-        
+
         List<String> call = new ArrayList<String>();
         call.add(interpreter);
         call.addAll(defaultVmArgsSplit);
         call.add(script);
         call.addAll(Arrays.asList(args));
-        
+
         return call.toArray(new String[0]);
     }
 
-
-
-    
 }

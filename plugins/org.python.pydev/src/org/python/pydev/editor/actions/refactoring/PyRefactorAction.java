@@ -45,7 +45,6 @@ public abstract class PyRefactorAction extends PyAction {
 
     private final class Operation extends WorkspaceModifyOperation {
 
-
         /**
          * The action to be performed
          */
@@ -73,24 +72,22 @@ public abstract class PyRefactorAction extends PyAction {
 
         }
     }
-    
 
-    public RefactoringRequest getRefactoringRequest() throws MisconfigurationException{
+    public RefactoringRequest getRefactoringRequest() throws MisconfigurationException {
         return getRefactoringRequest(null);
     }
 
-    
     /**
      * This is the refactoring request
      */
-    protected volatile RefactoringRequest request; 
-    
+    protected volatile RefactoringRequest request;
+
     /**
      * @return the refactoring request (it is created and cached if still not available)
      * @throws MisconfigurationException 
      */
-    public RefactoringRequest getRefactoringRequest(IProgressMonitor monitor) throws MisconfigurationException{
-        if(request == null){
+    public RefactoringRequest getRefactoringRequest(IProgressMonitor monitor) throws MisconfigurationException {
+        if (request == null) {
             //testing first with whole lines.
             PyEdit pyEdit = getPyEdit(); //may not be available in tests, that's why it is important to be able to operate without it
             request = createRefactoringRequest(monitor, pyEdit, ps);
@@ -104,12 +101,12 @@ public abstract class PyRefactorAction extends PyAction {
      * @param pyEdit the editor from where we'll get the info
      * @throws MisconfigurationException 
      */
-    public static RefactoringRequest createRefactoringRequest(IProgressMonitor monitor, PyEdit pyEdit, PySelection ps) throws MisconfigurationException {
+    public static RefactoringRequest createRefactoringRequest(IProgressMonitor monitor, PyEdit pyEdit, PySelection ps)
+            throws MisconfigurationException {
         File file = pyEdit.getEditorFile();
         IPythonNature nature = pyEdit.getPythonNature();
         return new RefactoringRequest(file, ps, monitor, nature, pyEdit);
     }
-
 
     /**
      * Checks if the refactoring preconditions are met.
@@ -144,7 +141,6 @@ public abstract class PyRefactorAction extends PyAction {
      * This is the current text selection
      */
     protected PySelection ps;
-    
 
     /**
      * Actually executes this action.
@@ -157,9 +153,9 @@ public abstract class PyRefactorAction extends PyAction {
         ps = new PySelection(getTextEditor());
 
         RefactoringRequest req;
-        try{
+        try {
             req = getRefactoringRequest();
-        }catch(MisconfigurationException e2){
+        } catch (MisconfigurationException e2) {
             Log.log(e2);
             return;
         }
@@ -168,12 +164,11 @@ public abstract class PyRefactorAction extends PyAction {
             return;
         }
 
-        
-        UIJob job = new UIJob("Performing: "+this.getClass().getName()){
+        UIJob job = new UIJob("Performing: " + this.getClass().getName()) {
 
             @Override
             public IStatus runInUIThread(final IProgressMonitor monitor) {
-                try{
+                try {
                     Operation o = new Operation(action);
                     o.execute(monitor);
                 } catch (Exception e) {
@@ -181,12 +176,11 @@ public abstract class PyRefactorAction extends PyAction {
                 }
                 return Status.OK_STATUS;
             }
-            
+
         };
         job.setSystem(true);
         job.schedule();
     }
-
 
     /**
      * @return a shell from the PyEdit

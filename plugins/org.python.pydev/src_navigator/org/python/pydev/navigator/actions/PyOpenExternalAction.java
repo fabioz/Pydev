@@ -25,7 +25,7 @@ import org.python.pydev.navigator.PythonpathZipChildTreeNode;
  * This open action extends the action that tries to open files with the Pydev Editor, just changing the implementation
  * to try to open the files with the 'correct' editor in the ide.
  */
-public class PyOpenExternalAction extends PyOpenPythonFileAction{
+public class PyOpenExternalAction extends PyOpenPythonFileAction {
 
     private IWorkbenchPage page;
 
@@ -34,34 +34,32 @@ public class PyOpenExternalAction extends PyOpenPythonFileAction{
         this.page = page;
         this.setText("Open with System Editor");
     }
-    
 
     @Override
-	protected void openFiles(PythonpathTreeNode[] pythonPathFilesSelected) {
-		for(PythonpathTreeNode n:pythonPathFilesSelected){
-			try {
-				IDE.openEditor(page, PydevFileEditorInput.create(n.file, false), IEditorRegistry.SYSTEM_EXTERNAL_EDITOR_ID);
-			} catch (PartInitException e) {
-				Log.log(e);
-			}
-		}
-	}
-    
-    
-    @Override
-    protected void openFiles(PythonpathZipChildTreeNode[] pythonPathFilesSelected) {
-    	for(PythonpathZipChildTreeNode n:pythonPathFilesSelected){
-    		try {
-				PydevZipFileStorage storage = new PydevZipFileStorage(n.zipStructure.file, n.zipPath);
-				PydevZipFileEditorInput input = new PydevZipFileEditorInput(storage);
-				IDE.openEditor(page, input, IEditorRegistry.SYSTEM_EXTERNAL_EDITOR_ID);
-    		} catch (PartInitException e) {
-    			Log.log(e);
-    		}
-    	}
+    protected void openFiles(PythonpathTreeNode[] pythonPathFilesSelected) {
+        for (PythonpathTreeNode n : pythonPathFilesSelected) {
+            try {
+                IDE.openEditor(page, PydevFileEditorInput.create(n.file, false),
+                        IEditorRegistry.SYSTEM_EXTERNAL_EDITOR_ID);
+            } catch (PartInitException e) {
+                Log.log(e);
+            }
+        }
     }
 
-    
+    @Override
+    protected void openFiles(PythonpathZipChildTreeNode[] pythonPathFilesSelected) {
+        for (PythonpathZipChildTreeNode n : pythonPathFilesSelected) {
+            try {
+                PydevZipFileStorage storage = new PydevZipFileStorage(n.zipStructure.file, n.zipPath);
+                PydevZipFileEditorInput input = new PydevZipFileEditorInput(storage);
+                IDE.openEditor(page, input, IEditorRegistry.SYSTEM_EXTERNAL_EDITOR_ID);
+            } catch (PartInitException e) {
+                Log.log(e);
+            }
+        }
+    }
+
     /**
      * Overridden to open the given files with the match provided by the platform.
      */
@@ -76,21 +74,19 @@ public class PyOpenExternalAction extends PyOpenPythonFileAction{
         }
     }
 
-
     /**
      * @return whether the current selection enables this action (not considering selected containers).
      */
     @Override
     public boolean isEnabledForSelectionWithoutContainers() {
         fillSelections();
-        
+
         //only available for the files we generate (the default is already available in other cases)
         //note it's not available for .zip resources
-        if(pythonPathFilesSelected.size() > 0){
+        if (pythonPathFilesSelected.size() > 0) {
             return true;
         }
         return false;
     }
-
 
 }

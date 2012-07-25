@@ -53,9 +53,9 @@ import org.python.pydev.utils.PrintProgressMonitor;
 public class CodeCompletionTestsBase extends TestCase {
 
     public CodeCompletionTestsBase() {
-        
+
     }
-    
+
     public CodeCompletionTestsBase(String name) {
         super(name);
     }
@@ -71,21 +71,21 @@ public class CodeCompletionTestsBase extends TestCase {
      * Check the restorePythonPath function.
      */
     public static PythonNature nature;
-    
+
     /**
      * Nature for the second project. 
      * 
      * This nature has the other nature as a dependency.
      */
     public static PythonNature nature2;
-    
+
     /**
      * A map with the name of the project pointing to the last class that restored the
      * nature. This is done in this way because we don't want the nature to be recreated
      * all the time among tests from the same test case.
      */
     public static Map<String, Class<?>> restoredClass = new HashMap<String, Class<?>>();
-    
+
     /**
      * Serves the same purpose that the restoredClass serves, but for the system 
      * python nature.
@@ -93,16 +93,16 @@ public class CodeCompletionTestsBase extends TestCase {
     public static Class<?> restoredSystem;
     private PreferenceStore preferences;
 
-    public PreferenceStore getPreferences(){
-        if(this.preferences == null){
+    public PreferenceStore getPreferences() {
+        if (this.preferences == null) {
             this.preferences = new PreferenceStore();
         }
         return this.preferences;
     }
-    
+
     protected boolean ADD_MX_TO_FORCED_BUILTINS = true;
     protected boolean ADD_NUMPY_TO_FORCED_BUILTINS = true;
-    
+
     /**
      * Whether we want to debug problems in this class.
      */
@@ -118,7 +118,7 @@ public class CodeCompletionTestsBase extends TestCase {
         REF.IN_TESTS = true;
         PydevTestUtils.setTestPlatformStateLocation();
     }
-    
+
     /*
      * @see TestCase#tearDown()
      */
@@ -128,21 +128,21 @@ public class CodeCompletionTestsBase extends TestCase {
         ProjectModulesManager.IN_TESTS = false;
         REF.IN_TESTS = false;
     }
-    
+
     /**
      * Backwards-compatibility interface
      */
-    protected boolean restoreProjectPythonPath(boolean force, String path){
+    protected boolean restoreProjectPythonPath(boolean force, String path) {
         return restoreProjectPythonPath(force, path, "testProjectStub");
     }
-    
+
     /**
      * Backwards-compatibility interface
      */
-    protected boolean restoreProjectPythonPath2(boolean force, String path){
+    protected boolean restoreProjectPythonPath2(boolean force, String path) {
         return restoreProjectPythonPath2(force, path, "testProjectStub2");
     }
-    
+
     /**
      * A method that creates the default nature
      * 
@@ -151,18 +151,18 @@ public class CodeCompletionTestsBase extends TestCase {
      * @param name the name for the project
      * @return true if the creation was needed and false if it wasn't
      */
-    protected boolean restoreProjectPythonPath(boolean force, String path, String name){
+    protected boolean restoreProjectPythonPath(boolean force, String path, String name) {
         PythonNature n = checkNewNature(name, force);
-        if(n != null){
+        if (n != null) {
             nature = n;
             ProjectStub projectStub = new ProjectStub(name, path, new IProject[0], new IProject[0]);
-            
+
             setAstManager(path, projectStub, nature);
             return true;
         }
         return false;
     }
-    
+
     /**
      * A method that creates a project that references the project from the 'default' nature
      * (and adds itself as a reference in the other project). 
@@ -172,24 +172,25 @@ public class CodeCompletionTestsBase extends TestCase {
      * @param name the name for the project
      * @return true if the creation was needed and false if it wasn't
      */
-    protected boolean restoreProjectPythonPath2(boolean force, String path, String name){
+    protected boolean restoreProjectPythonPath2(boolean force, String path, String name) {
         PythonNature n = checkNewNature(name, force);
-        if(n != null){
+        if (n != null) {
             nature2 = n;
-            
+
             ProjectStub projectFromNature1 = (ProjectStub) nature.getProject();
             //create a new project referencing the first one
-            ProjectStub projectFromNature2 = new ProjectStub(name, path, new IProject[]{projectFromNature1}, new IProject[0]);
-            
+            ProjectStub projectFromNature2 = new ProjectStub(name, path, new IProject[] { projectFromNature1 },
+                    new IProject[0]);
+
             //as we're adding a reference, we also have to set the referencing...
-            projectFromNature1.referencingProjects = new IProject[]{projectFromNature2};
-            
+            projectFromNature1.referencingProjects = new IProject[] { projectFromNature2 };
+
             setAstManager(path, projectFromNature2, nature2);
             return true;
         }
         return false;
     }
-    
+
     /**
      * Checks if we have to create a new nature for the given name
      * 
@@ -197,13 +198,13 @@ public class CodeCompletionTestsBase extends TestCase {
      * @param force whether the creation of the new nature should be forced
      * @return the PythonNature created (if needed) or null if the creation was not needed
      */
-    protected PythonNature checkNewNature(String name, boolean force){
+    protected PythonNature checkNewNature(String name, boolean force) {
         Class<?> restored = CodeCompletionTestsBase.restoredClass.get(name);
-        if(restored == null || restored != this.getClass() || force){
+        if (restored == null || restored != this.getClass() || force) {
             //cache
             CodeCompletionTestsBase.restoredClass.put(name, this.getClass());
             return createNature();
-        }        
+        }
         return null;
     }
 
@@ -218,8 +219,8 @@ public class CodeCompletionTestsBase extends TestCase {
         pNature.setProject(projectStub); //references the project 1
         projectStub.setNature(pNature);
         pNature.setAstManager(new ASTManager());
-        
-        ASTManager astManager = ((ASTManager)pNature.getAstManager());
+
+        ASTManager astManager = ((ASTManager) pNature.getAstManager());
         astManager.setNature(pNature);
         astManager.setProject(projectStub, pNature, false);
         astManager.changePythonPath(path, projectStub, getProgressMonitor());
@@ -231,48 +232,50 @@ public class CodeCompletionTestsBase extends TestCase {
     protected IInterpreterManager getInterpreterManager() {
         return PydevPlugin.getPythonInterpreterManager();
     }
-    
+
     protected static int GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.LATEST_GRAMMAR_VERSION;
 
     /**
      * @return a PythonNature that is regarded as a python nature with the latest grammar.
      */
     public static PythonNature createStaticNature() {
-        return new PythonNature(){
+        return new PythonNature() {
             @Override
             public int getInterpreterType() throws CoreException {
                 return IInterpreterManager.INTERPRETER_TYPE_PYTHON;
             }
+
             @Override
             public int getGrammarVersion() {
                 return GRAMMAR_TO_USE_FOR_PARSING;
             }
         };
     }
+
     /**
      * @return a nature that is python-specific
      */
     protected PythonNature createNature() {
         return createStaticNature();
     }
-    
+
     /**
      * @return whether is was actually restored (given the force parameter)
      */
-    protected boolean restoreSystemPythonPath(boolean force, String path){
-        if(restoredSystem == null || restoredSystem != this.getClass() || force){
+    protected boolean restoreSystemPythonPath(boolean force, String path) {
+        if (restoredSystem == null || restoredSystem != this.getClass() || force) {
             //restore manager and cache
             setInterpreterManager(path);
             restoredSystem = this.getClass();
-            
+
             //get default and restore the pythonpath
             InterpreterInfo info = getDefaultInterpreterInfo();
             this.beforeRestore(info);
             info.restoreCompiledLibs(getProgressMonitor());
-            if(ADD_MX_TO_FORCED_BUILTINS){
+            if (ADD_MX_TO_FORCED_BUILTINS) {
                 info.addForcedLib("mx");
             }
-            if(ADD_NUMPY_TO_FORCED_BUILTINS){
+            if (ADD_NUMPY_TO_FORCED_BUILTINS) {
                 info.addForcedLib("numpy");
             }
 
@@ -287,18 +290,18 @@ public class CodeCompletionTestsBase extends TestCase {
      * Give subclasses a chance to configure the interpreter info.
      */
     protected void beforeRestore(InterpreterInfo info) {
-		
-	}
 
-	/**
+    }
+
+    /**
      * @return the default interpreter info for the current manager
      */
     protected InterpreterInfo getDefaultInterpreterInfo() {
         IInterpreterManager iMan = getInterpreterManager();
         InterpreterInfo info;
-        try{
+        try {
             info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(false);
-        }catch(MisconfigurationException e){
+        } catch (MisconfigurationException e) {
             throw new RuntimeException(e);
         }
         return info;
@@ -308,7 +311,7 @@ public class CodeCompletionTestsBase extends TestCase {
      * @return a progress monitor
      */
     protected IProgressMonitor getProgressMonitor() {
-        if (DEBUG_TESTS_BASE){
+        if (DEBUG_TESTS_BASE) {
             return new PrintProgressMonitor();
         }
         return new NullProgressMonitor();
@@ -320,44 +323,43 @@ public class CodeCompletionTestsBase extends TestCase {
      */
     protected void setInterpreterManager(String path) {
         PythonInterpreterManager interpreterManager = new PythonInterpreterManager(this.getPreferences());
-        
+
         InterpreterInfo info;
-        info = (InterpreterInfo) interpreterManager.createInterpreterInfo(
-                TestDependent.PYTHON_EXE, new NullProgressMonitor(), false);
+        info = (InterpreterInfo) interpreterManager.createInterpreterInfo(TestDependent.PYTHON_EXE,
+                new NullProgressMonitor(), false);
         TestDependent.PYTHON_EXE = info.executableOrJar;
-        if(path != null){
-            info = new InterpreterInfo(
-                    info.getVersion(), info.executableOrJar, PythonPathHelper.parsePythonPathFromStr(path, new ArrayList<String>()));
+        if (path != null) {
+            info = new InterpreterInfo(info.getVersion(), info.executableOrJar,
+                    PythonPathHelper.parsePythonPathFromStr(path, new ArrayList<String>()));
         }
-        
-        interpreterManager.setInfos(new IInterpreterInfo[]{info}, null, null);
+
+        interpreterManager.setInfos(new IInterpreterInfo[] { info }, null, null);
         PydevPlugin.setPythonInterpreterManager(interpreterManager);
     }
-    
-    
+
     /**
      * @param info the information for the system manager that we just restored
      */
     protected void afterRestorSystemPythonPath(InterpreterInfo info) {
         nature = null; //has to be restored for the project, as we just restored the system pythonpath
-        
+
         //ok, the system manager must be there
         assertTrue(info.getModulesManager().getSize(true) > 0);
 
         //and it must be registered as the pydev interpreter manager
         IInterpreterManager iMan2 = getInterpreterManager();
         InterpreterInfo info2;
-        try{
+        try {
             info2 = (InterpreterInfo) iMan2.getDefaultInterpreterInfo(false);
-        }catch(MisconfigurationException e){
+        } catch (MisconfigurationException e) {
             throw new RuntimeException(e);
         }
         assertTrue(info2 == info);
-        
+
         //does it have the loaded modules?
         assertTrue(info2.getModulesManager().getSize(true) > 0);
         assertTrue(info2.getModulesManager().getBuiltins().length > 0);
-        
+
     }
 
     /**
@@ -365,121 +367,117 @@ public class CodeCompletionTestsBase extends TestCase {
      * 
      * same as the restorePythonPath function but also includes the site packages in the distribution
      */
-    public void restorePythonPath(String path, boolean force){
+    public void restorePythonPath(String path, boolean force) {
         restoreSystemPythonPath(force, path);
         restoreProjectPythonPath(force, TestDependent.TEST_PYSRC_LOC);
         restoreProjectPythonPath2(force, TestDependent.TEST_PYSRC_LOC2);
         checkSize();
     }
-    
+
     /**
      * @see #restorePythonPath(boolean)
      * 
      * same as the restorePythonPath function but also includes the site packages in the distribution
      */
-    public void restorePythonPathWithSitePackages(boolean force){
+    public void restorePythonPathWithSitePackages(boolean force) {
         restoreSystemPythonPath(force, TestDependent.GetCompletePythonLib(true));
         restoreProjectPythonPath(force, TestDependent.TEST_PYSRC_LOC);
         restoreProjectPythonPath2(force, TestDependent.TEST_PYSRC_LOC2);
         checkSize();
     }
 
-
     /**
      * restores the pythonpath with the source library (system manager) and the source location for the tests (project manager)
      * 
      * @param force whether this should be forced, even if it was previously created for this class
      */
-    public void restorePythonPath(boolean force){
-        if(DEBUG_TESTS_BASE){
+    public void restorePythonPath(boolean force) {
+        if (DEBUG_TESTS_BASE) {
             System.out.println("-------------- Restoring system pythonpath");
         }
         restoreSystemPythonPath(force, TestDependent.GetCompletePythonLib(false));
-        if(DEBUG_TESTS_BASE){
+        if (DEBUG_TESTS_BASE) {
             System.out.println("-------------- Restoring project pythonpath");
         }
         restoreProjectPythonPath(force, TestDependent.TEST_PYSRC_LOC);
         restoreProjectPythonPath2(force, TestDependent.TEST_PYSRC_LOC2);
-        if(DEBUG_TESTS_BASE){
+        if (DEBUG_TESTS_BASE) {
             System.out.println("-------------- Checking size (for proj1 and proj2)");
         }
-        
+
         checkSize();
     }
-    
-    public void restorePythonPathWithCustomSystemPath(boolean force, String systemPath){
-        if(DEBUG_TESTS_BASE){
+
+    public void restorePythonPathWithCustomSystemPath(boolean force, String systemPath) {
+        if (DEBUG_TESTS_BASE) {
             System.out.println("-------------- Restoring system pythonpath");
         }
         restoreSystemPythonPath(force, systemPath);
-        if(DEBUG_TESTS_BASE){
+        if (DEBUG_TESTS_BASE) {
             System.out.println("-------------- Restoring project pythonpath");
         }
         restoreProjectPythonPath(force, TestDependent.TEST_PYSRC_LOC);
         restoreProjectPythonPath2(force, TestDependent.TEST_PYSRC_LOC2);
-        if(DEBUG_TESTS_BASE){
+        if (DEBUG_TESTS_BASE) {
             System.out.println("-------------- Checking size (for proj1 and proj2)");
         }
-        
+
         checkSize();
     }
-    
+
     /**
      * checks if the size of the system modules manager and the project moule manager are coherent
      * (we must have more modules in the system than in the project)
      */
     protected void checkSize() {
-        try{
+        try {
             IInterpreterManager iMan = getInterpreterManager();
             InterpreterInfo info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(false);
             assertTrue(info.getModulesManager().getSize(true) > 0);
-            
-            int size = ((ASTManager)nature.getAstManager()).getSize();
-            assertTrue("Interpreter size:"+info.getModulesManager().getSize(true)+" should be smaller than project size:"+size+" " +
-                    "(because it contains system+project info)" , info.getModulesManager().getSize(true) < size );
-            
-            size = ((ASTManager)nature2.getAstManager()).getSize();
-            assertTrue("Interpreter size:"+info.getModulesManager().getSize(true)+" should be smaller than project size:"+size+" " +
-                    "(because it contains system+project info)" , info.getModulesManager().getSize(true) < size );
-        }catch(MisconfigurationException e){
+
+            int size = ((ASTManager) nature.getAstManager()).getSize();
+            assertTrue("Interpreter size:" + info.getModulesManager().getSize(true)
+                    + " should be smaller than project size:" + size + " "
+                    + "(because it contains system+project info)", info.getModulesManager().getSize(true) < size);
+
+            size = ((ASTManager) nature2.getAstManager()).getSize();
+            assertTrue("Interpreter size:" + info.getModulesManager().getSize(true)
+                    + " should be smaller than project size:" + size + " "
+                    + "(because it contains system+project info)", info.getModulesManager().getSize(true) < size);
+        } catch (MisconfigurationException e) {
             throw new RuntimeException(e);
         }
     }
-   
 
-
-    
-    
-    
-    
     public void testEmpty() {
         //just so that we don't get 'no tests found' warning
     }
-    
-    
-    
-    
-    
+
     // ================================================================= helpers for doing code completion requests
-    
+
     public IPyCodeCompletion codeCompletion;
-    
-    public ICompletionProposal[] requestCompl(String strDoc, int documentOffset, int returned, String []retCompl) throws Exception{
+
+    public ICompletionProposal[] requestCompl(String strDoc, int documentOffset, int returned, String[] retCompl)
+            throws Exception {
         return requestCompl(strDoc, documentOffset, returned, retCompl, nature);
     }
-    public ICompletionProposal[] requestCompl(String strDoc, int documentOffset, int returned, String []retCompl, PythonNature nature) throws Exception{
+
+    public ICompletionProposal[] requestCompl(String strDoc, int documentOffset, int returned, String[] retCompl,
+            PythonNature nature) throws Exception {
         return requestCompl(null, strDoc, documentOffset, returned, retCompl, nature);
     }
-    
-    public ICompletionProposal[] requestCompl(File file, int documentOffset, int returned, String []retCompl) throws Exception{
+
+    public ICompletionProposal[] requestCompl(File file, int documentOffset, int returned, String[] retCompl)
+            throws Exception {
         String strDoc = REF.getFileContents(file);
         return requestCompl(file, strDoc, documentOffset, returned, retCompl);
     }
-    
-    public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned, String []retCompl) throws Exception{
+
+    public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned,
+            String[] retCompl) throws Exception {
         return requestCompl(file, strDoc, documentOffset, returned, retCompl, nature);
     }
-    
+
     /**
      * make a request for a code completion
      * 
@@ -495,28 +493,30 @@ public class CodeCompletionTestsBase extends TestCase {
      * @throws BadLocationException
      * @throws MisconfigurationException 
      */
-    public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned, String []retCompl, PythonNature nature) throws Exception, MisconfigurationException{
-        if(documentOffset == -1)
+    public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned,
+            String[] retCompl, PythonNature nature) throws Exception, MisconfigurationException {
+        if (documentOffset == -1)
             documentOffset = strDoc.length();
-        
+
         IDocument doc = new Document(strDoc);
         CompletionRequest request = new CompletionRequest(file, nature, doc, documentOffset, codeCompletion);
 
         List<Object> props = codeCompletion.getCodeCompletionProposals(null, request);
-        ICompletionProposal[] codeCompletionProposals = PyCodeCompletionUtils.onlyValidSorted(props, request.qualifier, request.isInCalltip);
-        
-        
+        ICompletionProposal[] codeCompletionProposals = PyCodeCompletionUtils.onlyValidSorted(props, request.qualifier,
+                request.isInCalltip);
+
         for (int i = 0; i < retCompl.length; i++) {
             assertContains(retCompl[i], codeCompletionProposals);
         }
 
-        if(returned > -1){
+        if (returned > -1) {
             StringBuffer buffer = getAvailableAsStr(codeCompletionProposals);
-            assertEquals("Expected "+returned+" received: "+codeCompletionProposals.length+"\n"+buffer, returned, codeCompletionProposals.length);
+            assertEquals("Expected " + returned + " received: " + codeCompletionProposals.length + "\n" + buffer,
+                    returned, codeCompletionProposals.length);
         }
         return codeCompletionProposals;
     }
-    
+
     /**
      * If this method does not find the completion we're looking for, it throws
      * a failure exception.
@@ -527,16 +527,16 @@ public class CodeCompletionTestsBase extends TestCase {
     public static ICompletionProposal assertContains(String string, ICompletionProposal[] codeCompletionProposals) {
         for (int i = 0; i < codeCompletionProposals.length; i++) {
             ICompletionProposal completionProposal = codeCompletionProposals[i];
-            if(checkIfEquals(string, completionProposal)){
+            if (checkIfEquals(string, completionProposal)) {
                 return completionProposal;
             }
         }
         StringBuffer buffer = getAvailableAsStr(codeCompletionProposals);
-        
-        fail("The string >>"+string+"<< was not found in the returned completions.\nAvailable:\n"+buffer);
+
+        fail("The string >>" + string + "<< was not found in the returned completions.\nAvailable:\n" + buffer);
         return null;
     }
-    
+
     /**
      * If this method does not find the completion we're looking for, it throws
      * a failure exception.
@@ -547,8 +547,9 @@ public class CodeCompletionTestsBase extends TestCase {
     protected void assertNotContains(String string, ICompletionProposal[] codeCompletionProposals) {
         for (int i = 0; i < codeCompletionProposals.length; i++) {
             ICompletionProposal completionProposal = codeCompletionProposals[i];
-            if(checkIfEquals(string, completionProposal)){
-                fail("The string >>"+string+"<< was found in the returned completions (was not expected to be found).");
+            if (checkIfEquals(string, completionProposal)) {
+                fail("The string >>" + string
+                        + "<< was found in the returned completions (was not expected to be found).");
             }
         }
     }
@@ -576,34 +577,35 @@ public class CodeCompletionTestsBase extends TestCase {
         return buffer;
     }
 
-    public ICompletionProposal[] requestCompl(String strDoc, String []retCompl) throws Exception{
+    public ICompletionProposal[] requestCompl(String strDoc, String[] retCompl) throws Exception {
         return requestCompl(strDoc, -1, retCompl.length, retCompl);
     }
-    
-    public ICompletionProposal[] requestCompl(String strDoc, int expectedCompletions, String []retCompl) throws Exception{
+
+    public ICompletionProposal[] requestCompl(String strDoc, int expectedCompletions, String[] retCompl)
+            throws Exception {
         return requestCompl(strDoc, -1, expectedCompletions, retCompl);
     }
-    
-    public ICompletionProposal[] requestCompl(String strDoc, String retCompl) throws Exception{
-        return requestCompl(strDoc, new String[]{retCompl});
+
+    public ICompletionProposal[] requestCompl(String strDoc, String retCompl) throws Exception {
+        return requestCompl(strDoc, new String[] { retCompl });
     }
 
     public static void assertContains(List<String> found, String toFind) {
         for (String str : found) {
-            if (str.equals(toFind)){
+            if (str.equals(toFind)) {
                 return;
             }
         }
-        fail("The string "+toFind+" was not found amongst the passed strings.");
+        fail("The string " + toFind + " was not found amongst the passed strings.");
     }
-    
+
     public static void assertContains(Map found, Object toFind) {
-        if(found.containsKey(toFind)){
+        if (found.containsKey(toFind)) {
             return;
         }
-        
+
         FastStringBuffer available = new FastStringBuffer();
-        for(Object o:found.keySet()){
+        for (Object o : found.keySet()) {
             available.append(o.toString());
             available.append('\n');
         }

@@ -19,14 +19,14 @@ import org.python.pydev.core.bundle.ImageCache;
  *
  * @author Fabio
  */
-public abstract class AbstractOutlineFilterAction extends Action{
+public abstract class AbstractOutlineFilterAction extends Action {
 
     protected ViewerFilter filter;
 
     protected WeakReference<PyOutlinePage> page;
 
     protected String preference;
-    
+
     /**
      * @param text This is the text explaining this action (shown to the user)
      * @param page the outline page where the action should take place
@@ -34,11 +34,11 @@ public abstract class AbstractOutlineFilterAction extends Action{
      * @param preference the name of the preference that should keep the preferences (to keep it checked among sessions)
      * @param uiConstant the name of the constant in UIConstants to get the icon from the image cache.
      */
-    public AbstractOutlineFilterAction(String text, PyOutlinePage page, ImageCache imageCache, String preference, 
+    public AbstractOutlineFilterAction(String text, PyOutlinePage page, ImageCache imageCache, String preference,
             String uiConstant) {
         super(text, IAction.AS_CHECK_BOX);
         this.preference = preference;
-        
+
         this.page = new WeakReference<PyOutlinePage>(page);
 
         setChecked(page.getStore().getBoolean(preference));
@@ -46,11 +46,10 @@ public abstract class AbstractOutlineFilterAction extends Action{
 
         setImageDescriptor(imageCache.getDescriptor(uiConstant));
     }
-    
+
     public void run() {
         setActionEnabled(isChecked());
     }
-
 
     /**
      * Should we hide things?
@@ -59,12 +58,12 @@ public abstract class AbstractOutlineFilterAction extends Action{
         PyOutlinePage p = this.page.get();
         if (p != null) {
             p.getStore().setValue(preference, enableAction);
-            if(filter == null){
+            if (filter == null) {
                 filter = createFilter();
             }
-            
+
             TreeViewer treeViewer = p.getTreeViewer();
-            if(treeViewer != null){
+            if (treeViewer != null) {
                 if (enableAction) {
                     treeViewer.addFilter(filter);
                 } else {

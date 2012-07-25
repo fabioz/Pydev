@@ -17,35 +17,36 @@ public class PyObject implements java.io.Serializable {
     //~ BEGIN GENERATED REGION -- DO NOT EDIT SEE gexpose.py
     /* type info */
 
-    public static final String exposed_name="object";
+    public static final String exposed_name = "object";
 
-    public static void typeSetup(PyObject dict,PyType.Newstyle marker) {
-        dict.__setitem__("__class__",new PyGetSetDescr("__class__",PyObject.class,"getType","setType","delType"));
-        dict.__setitem__("__doc__",new PyGetSetDescr("__doc__",PyObject.class,"getDoc",null,null));
+    public static void typeSetup(PyObject dict, PyType.Newstyle marker) {
+        dict.__setitem__("__class__", new PyGetSetDescr("__class__", PyObject.class, "getType", "setType", "delType"));
+        dict.__setitem__("__doc__", new PyGetSetDescr("__doc__", PyObject.class, "getDoc", null, null));
         class exposed___reduce__ extends PyBuiltinMethodNarrow {
 
-            exposed___reduce__(PyObject self,PyBuiltinFunction.Info info) {
-                super(self,info);
+            exposed___reduce__(PyObject self, PyBuiltinFunction.Info info) {
+                super(self, info);
             }
 
             public PyBuiltinFunction bind(PyObject self) {
-                return new exposed___reduce__(self,info);
+                return new exposed___reduce__(self, info);
             }
 
             public PyObject __call__() {
-                return((PyObject)self).object___reduce__();
+                return ((PyObject) self).object___reduce__();
             }
 
         }
-        dict.__setitem__("__reduce__",new PyMethodDescr("__reduce__",PyObject.class,0,0,new exposed___reduce__(null,null)));
+        dict.__setitem__("__reduce__", new PyMethodDescr("__reduce__", PyObject.class, 0, 0, new exposed___reduce__(
+                null, null)));
         class exposed___str__ extends PyBuiltinMethodNarrow {
 
-            exposed___str__(PyObject self,PyBuiltinFunction.Info info) {
-                super(self,info);
+            exposed___str__(PyObject self, PyBuiltinFunction.Info info) {
+                super(self, info);
             }
 
             public PyBuiltinFunction bind(PyObject self) {
-                return new exposed___str__(self,info);
+                return new exposed___str__(self, info);
             }
 
             public PyObject __call__() {
@@ -53,105 +54,108 @@ public class PyObject implements java.io.Serializable {
             }
 
         }
-        dict.__setitem__("__str__",new PyMethodDescr("__str__",PyObject.class,0,0,new exposed___str__(null,null)));
+        dict.__setitem__("__str__", new PyMethodDescr("__str__", PyObject.class, 0, 0, new exposed___str__(null, null)));
         class exposed___getattribute__ extends PyBuiltinMethodNarrow {
 
-            exposed___getattribute__(PyObject self,PyBuiltinFunction.Info info) {
-                super(self,info);
+            exposed___getattribute__(PyObject self, PyBuiltinFunction.Info info) {
+                super(self, info);
             }
 
             public PyBuiltinFunction bind(PyObject self) {
-                return new exposed___getattribute__(self,info);
+                return new exposed___getattribute__(self, info);
             }
 
             public PyObject __call__(PyObject arg0) {
                 try {
-                    String name=(arg0.asName(0));
-                    PyObject ret=self.object___findattr__(name);
-                    if (ret==null)
+                    String name = (arg0.asName(0));
+                    PyObject ret = self.object___findattr__(name);
+                    if (ret == null)
                         self.noAttributeError(name);
                     return ret;
                 } catch (PyObject.ConversionException e) {
                     String msg;
                     switch (e.index) {
-                    case 0:
-                        msg="attribute name must be a string";
-                        break;
-                    default:
-                        msg="xxx";
+                        case 0:
+                            msg = "attribute name must be a string";
+                            break;
+                        default:
+                            msg = "xxx";
                     }
                     throw Py.TypeError(msg);
                 }
             }
 
         }
-        dict.__setitem__("__getattribute__",new PyMethodDescr("__getattribute__",PyObject.class,1,1,new exposed___getattribute__(null,null)));
+        dict.__setitem__("__getattribute__", new PyMethodDescr("__getattribute__", PyObject.class, 1, 1,
+                new exposed___getattribute__(null, null)));
         class exposed___setattr__ extends PyBuiltinMethodNarrow {
 
-            exposed___setattr__(PyObject self,PyBuiltinFunction.Info info) {
-                super(self,info);
+            exposed___setattr__(PyObject self, PyBuiltinFunction.Info info) {
+                super(self, info);
             }
 
             public PyBuiltinFunction bind(PyObject self) {
-                return new exposed___setattr__(self,info);
+                return new exposed___setattr__(self, info);
             }
 
-            public PyObject __call__(PyObject arg0,PyObject arg1) {
+            public PyObject __call__(PyObject arg0, PyObject arg1) {
                 try {
-                    ((PyObject)self).object___setattr__(arg0.asName(0),arg1);
+                    ((PyObject) self).object___setattr__(arg0.asName(0), arg1);
                     return Py.None;
                 } catch (PyObject.ConversionException e) {
                     String msg;
                     switch (e.index) {
-                    case 0:
-                        msg="attribute name must be a string";
-                        break;
-                    default:
-                        msg="xxx";
+                        case 0:
+                            msg = "attribute name must be a string";
+                            break;
+                        default:
+                            msg = "xxx";
                     }
                     throw Py.TypeError(msg);
                 }
             }
 
         }
-        dict.__setitem__("__setattr__",new PyMethodDescr("__setattr__",PyObject.class,2,2,new exposed___setattr__(null,null)));
+        dict.__setitem__("__setattr__", new PyMethodDescr("__setattr__", PyObject.class, 2, 2, new exposed___setattr__(
+                null, null)));
         class exposed___delattr__ extends PyBuiltinMethodNarrow {
 
-            exposed___delattr__(PyObject self,PyBuiltinFunction.Info info) {
-                super(self,info);
+            exposed___delattr__(PyObject self, PyBuiltinFunction.Info info) {
+                super(self, info);
             }
 
             public PyBuiltinFunction bind(PyObject self) {
-                return new exposed___delattr__(self,info);
+                return new exposed___delattr__(self, info);
             }
 
             public PyObject __call__(PyObject arg0) {
                 try {
-                    ((PyObject)self).object___delattr__(arg0.asName(0));
+                    ((PyObject) self).object___delattr__(arg0.asName(0));
                     return Py.None;
                 } catch (PyObject.ConversionException e) {
                     String msg;
                     switch (e.index) {
-                    case 0:
-                        msg="attribute name must be a string";
-                        break;
-                    default:
-                        msg="xxx";
+                        case 0:
+                            msg = "attribute name must be a string";
+                            break;
+                        default:
+                            msg = "xxx";
                     }
                     throw Py.TypeError(msg);
                 }
             }
 
         }
-        dict.__setitem__("__delattr__",new PyMethodDescr("__delattr__",PyObject.class,1,1,new exposed___delattr__(null,null)));
+        dict.__setitem__("__delattr__", new PyMethodDescr("__delattr__", PyObject.class, 1, 1, new exposed___delattr__(
+                null, null)));
         class exposed___hash__ extends PyBuiltinMethodNarrow {
 
-            exposed___hash__(PyObject self,PyBuiltinFunction.Info info) {
-                super(self,info);
+            exposed___hash__(PyObject self, PyBuiltinFunction.Info info) {
+                super(self, info);
             }
 
             public PyBuiltinFunction bind(PyObject self) {
-                return new exposed___hash__(self,info);
+                return new exposed___hash__(self, info);
             }
 
             public PyObject __call__() {
@@ -159,15 +163,16 @@ public class PyObject implements java.io.Serializable {
             }
 
         }
-        dict.__setitem__("__hash__",new PyMethodDescr("__hash__",PyObject.class,0,0,new exposed___hash__(null,null)));
+        dict.__setitem__("__hash__", new PyMethodDescr("__hash__", PyObject.class, 0, 0, new exposed___hash__(null,
+                null)));
         class exposed___repr__ extends PyBuiltinMethodNarrow {
 
-            exposed___repr__(PyObject self,PyBuiltinFunction.Info info) {
-                super(self,info);
+            exposed___repr__(PyObject self, PyBuiltinFunction.Info info) {
+                super(self, info);
             }
 
             public PyBuiltinFunction bind(PyObject self) {
-                return new exposed___repr__(self,info);
+                return new exposed___repr__(self, info);
             }
 
             public PyObject __call__() {
@@ -175,44 +180,47 @@ public class PyObject implements java.io.Serializable {
             }
 
         }
-        dict.__setitem__("__repr__",new PyMethodDescr("__repr__",PyObject.class,0,0,new exposed___repr__(null,null)));
+        dict.__setitem__("__repr__", new PyMethodDescr("__repr__", PyObject.class, 0, 0, new exposed___repr__(null,
+                null)));
         class exposed___init__ extends PyBuiltinMethod {
 
-            exposed___init__(PyObject self,PyBuiltinFunction.Info info) {
-                super(self,info);
+            exposed___init__(PyObject self, PyBuiltinFunction.Info info) {
+                super(self, info);
             }
 
             public PyBuiltinFunction bind(PyObject self) {
-                return new exposed___init__(self,info);
+                return new exposed___init__(self, info);
             }
 
-            public PyObject __call__(PyObject[]args) {
-                return __call__(args,Py.NoKeywords);
+            public PyObject __call__(PyObject[] args) {
+                return __call__(args, Py.NoKeywords);
             }
 
-            public PyObject __call__(PyObject[]args,String[]keywords) {
-                ((PyObject)self).object_init(args,keywords);
+            public PyObject __call__(PyObject[] args, String[] keywords) {
+                ((PyObject) self).object_init(args, keywords);
                 return Py.None;
             }
 
         }
-        dict.__setitem__("__init__",new PyMethodDescr("__init__",PyObject.class,-1,-1,new exposed___init__(null,null)));
-        dict.__setitem__("__new__",new PyNewWrapper(PyObject.class,"__new__",-1,-1) {
+        dict.__setitem__("__init__", new PyMethodDescr("__init__", PyObject.class, -1, -1, new exposed___init__(null,
+                null)));
+        dict.__setitem__("__new__", new PyNewWrapper(PyObject.class, "__new__", -1, -1) {
 
-                                                                                        public PyObject new_impl(boolean init,PyType subtype,PyObject[]args,String[]keywords) {
-                                                                                            PyObject newobj;
-                                                                                            if (for_type==subtype) {
-                                                                                                newobj=new PyObject();
-                                                                                                if (init)
-                                                                                                    newobj.object_init(args,keywords);
-                                                                                            } else {
-                                                                                                newobj=new PyObjectDerived(subtype);
-                                                                                            }
-                                                                                            return newobj;
-                                                                                        }
+            public PyObject new_impl(boolean init, PyType subtype, PyObject[] args, String[] keywords) {
+                PyObject newobj;
+                if (for_type == subtype) {
+                    newobj = new PyObject();
+                    if (init)
+                        newobj.object_init(args, keywords);
+                } else {
+                    newobj = new PyObjectDerived(subtype);
+                }
+                return newobj;
+            }
 
-                                                                                    });
+        });
     }
+
     //~ END GENERATED REGION -- DO NOT EDIT SEE gexpose.py
 
     final void object_init(PyObject[] args, String[] keywords) {
@@ -227,8 +235,7 @@ public class PyObject implements java.io.Serializable {
     }
 
     public void setType(PyType type) {
-        if(getType().layoutAligns(type) &&
-                !type.equals(PyType.fromClass(PyObject.class))){
+        if (getType().layoutAligns(type) && !type.equals(PyType.fromClass(PyObject.class))) {
             this.objtype = type;
         } else {
             throw Py.TypeError("Can only assign subtypes of object to __class__ on subclasses of object");
@@ -248,7 +255,7 @@ public class PyObject implements java.io.Serializable {
         PyObject d = fastGetDict();
         if (d != null) {
             PyObject doc = d.__finditem__("__doc__");
-            if(doc != null) {
+            if (doc != null) {
                 return doc;
             }
         }
@@ -301,9 +308,8 @@ public class PyObject implements java.io.Serializable {
     /**
      * Dispatch __init__ behavior
      */
-    public void dispatch__init__(PyType type,PyObject[] args,String[] keywords) {
+    public void dispatch__init__(PyType type, PyObject[] args, String[] keywords) {
     }
-
 
     /**
      * Equivalent to the standard Python __repr__ method.  This method
@@ -328,7 +334,7 @@ public class PyObject implements java.io.Serializable {
         if (name == null)
             return "unknown object";
 
-        return "<"+name+" object "+Py.idstr(this)+">";
+        return "<" + name + " object " + Py.idstr(this) + ">";
     }
 
     public String safeRepr() throws PyIgnoreMethodTag {
@@ -356,7 +362,7 @@ public class PyObject implements java.io.Serializable {
     public PyUnicode __unicode__() {
         return new PyUnicode(__str__());
     }
- 
+
     /**
      * Equivalent to the standard Python __hash__ method.  This method can
      * not be overridden.  Instead, you should override the standard Java
@@ -381,8 +387,7 @@ public class PyObject implements java.io.Serializable {
      * <code>a.equals(b) == true</code> iff <code>cmp(a,b) == 0</code>
      **/
     public boolean equals(Object ob_other) {
-        return (ob_other instanceof PyObject)
-            && _eq((PyObject) ob_other).__nonzero__();
+        return (ob_other instanceof PyObject) && _eq((PyObject) ob_other).__nonzero__();
     }
 
     /**
@@ -438,10 +443,7 @@ public class PyObject implements java.io.Serializable {
      *                 keyword arguments).
      * @param keywords the keywords used for all keyword arguments.
      **/
-    public PyObject __call__(
-        PyObject arg1,
-        PyObject args[],
-        String keywords[]) {
+    public PyObject __call__(PyObject arg1, PyObject args[], String keywords[]) {
         PyObject[] newArgs = new PyObject[args.length + 1];
         System.arraycopy(args, 0, newArgs, 1, args.length);
         newArgs[0] = arg1;
@@ -520,21 +522,12 @@ public class PyObject implements java.io.Serializable {
      * @param arg2     the third argument to the function.
      * @param arg3     the fourth argument to the function.
      **/
-    public PyObject __call__(
-        PyObject arg0,
-        PyObject arg1,
-        PyObject arg2,
-        PyObject arg3) {
-        return __call__(
-            new PyObject[] { arg0, arg1, arg2, arg3 },
-            Py.NoKeywords);
+    public PyObject __call__(PyObject arg0, PyObject arg1, PyObject arg2, PyObject arg3) {
+        return __call__(new PyObject[] { arg0, arg1, arg2, arg3 }, Py.NoKeywords);
     }
 
     /** @deprecated **/
-    public PyObject _callextra(PyObject[] args,
-                               String[] keywords,
-                               PyObject starargs,
-                               PyObject kwargs) {
+    public PyObject _callextra(PyObject[] args, String[] keywords, PyObject starargs, PyObject kwargs) {
 
         int argslen = args.length;
 
@@ -546,26 +539,20 @@ public class PyObject implements java.io.Serializable {
         }
         if (kwargs != null) {
             PyObject keys = kwargs.__findattr__("keys");
-            if(keys == null)
-                throw Py.TypeError(name
-                        + "argument after ** must be a dictionary");
+            if (keys == null)
+                throw Py.TypeError(name + "argument after ** must be a dictionary");
             for (int i = 0; i < keywords.length; i++)
                 if (kwargs.__finditem__(keywords[i]) != null)
-                    throw Py.TypeError(
-                        name
-                            + "got multiple values for "
-                            + "keyword argument '"
-                            + keywords[i]
-                            + "'");
+                    throw Py.TypeError(name + "got multiple values for " + "keyword argument '" + keywords[i] + "'");
             argslen += kwargs.__len__();
         }
         List starObjs = null;
-        if(starargs != null) {
-            if(starargs.__findattr__("__iter__") != null){
+        if (starargs != null) {
+            if (starargs.__findattr__("__iter__") != null) {
                 PyObject iter = starargs.__iter__();
                 starObjs = new ArrayList();
                 PyObject cur;
-                while((cur = iter.__iternext__()) != null) {
+                while ((cur = iter.__iternext__()) != null) {
                     starObjs.add(cur);
                 }
             } else {
@@ -573,14 +560,12 @@ public class PyObject implements java.io.Serializable {
                     int nstar = starargs.__len__();
                     PyObject cur;
                     starObjs = new ArrayList(nstar);
-                    for(int i = 0; (cur = starargs.__finditem__(i)) != null
-                            && i < nstar; i++) {
+                    for (int i = 0; (cur = starargs.__finditem__(i)) != null && i < nstar; i++) {
                         starObjs.add(cur);
                     }
-                } catch(PyException e) {
-                    if(Py.matchException(e, Py.AttributeError)) {
-                        throw Py.TypeError(name + "argument after * must "
-                                + "be a sequence");
+                } catch (PyException e) {
+                    if (Py.matchException(e, Py.AttributeError)) {
+                        throw Py.TypeError(name + "argument after * must " + "be a sequence");
                     }
                     throw e;
                 }
@@ -590,31 +575,25 @@ public class PyObject implements java.io.Serializable {
         PyObject[] newargs = new PyObject[argslen];
         int argidx = args.length - keywords.length;
         System.arraycopy(args, 0, newargs, 0, argidx);
-        if(starObjs != null) {
+        if (starObjs != null) {
             Iterator it = starObjs.iterator();
-            while(it.hasNext()) {
-                newargs[argidx++] = (PyObject)it.next();
+            while (it.hasNext()) {
+                newargs[argidx++] = (PyObject) it.next();
             }
         }
-        System.arraycopy(args,
-                         args.length - keywords.length,
-                         newargs,
-                         argidx,
-                         keywords.length);
+        System.arraycopy(args, args.length - keywords.length, newargs, argidx, keywords.length);
         argidx += keywords.length;
 
         if (kwargs != null) {
-            String[] newkeywords =
-                new String[keywords.length + kwargs.__len__()];
+            String[] newkeywords = new String[keywords.length + kwargs.__len__()];
             System.arraycopy(keywords, 0, newkeywords, 0, keywords.length);
 
             PyObject keys = kwargs.invoke("keys");
             PyObject key;
-            for (int i = 0;(key = keys.__finditem__(i)) != null; i++) {
+            for (int i = 0; (key = keys.__finditem__(i)) != null; i++) {
                 if (!(key instanceof PyString))
                     throw Py.TypeError(name + "keywords must be strings");
-                newkeywords[keywords.length + i] =
-                    ((PyString) key).internedString();
+                newkeywords[keywords.length + i] = ((PyString) key).internedString();
                 newargs[argidx++] = kwargs.__finditem__(key);
             }
             keywords = newkeywords;
@@ -633,12 +612,15 @@ public class PyObject implements java.io.Serializable {
     public boolean isCallable() {
         return __findattr__("__call__") != null;
     }
+
     public boolean isMappingType() {
         return true;
     }
+
     public boolean isNumberType() {
         return true;
     }
+
     public boolean isSequenceType() {
         return true;
     }
@@ -817,27 +799,17 @@ public class PyObject implements java.io.Serializable {
         __delitem__(new PyString(key));
     }
 
-    public PyObject __getslice__(
-        PyObject s_start,
-        PyObject s_stop,
-        PyObject s_step) {
+    public PyObject __getslice__(PyObject s_start, PyObject s_stop, PyObject s_step) {
         PySlice s = new PySlice(s_start, s_stop, s_step);
         return __getitem__(s);
     }
 
-    public void __setslice__(
-        PyObject s_start,
-        PyObject s_stop,
-        PyObject s_step,
-        PyObject value) {
+    public void __setslice__(PyObject s_start, PyObject s_stop, PyObject s_step, PyObject value) {
         PySlice s = new PySlice(s_start, s_stop, s_step);
         __setitem__(s, value);
     }
 
-    public void __delslice__(
-        PyObject s_start,
-        PyObject s_stop,
-        PyObject s_step) {
+    public void __delslice__(PyObject s_start, PyObject s_stop, PyObject s_step) {
         PySlice s = new PySlice(s_start, s_stop, s_step);
         __delitem__(s);
     }
@@ -988,13 +960,11 @@ public class PyObject implements java.io.Serializable {
     }
 
     public void noAttributeError(String name) {
-        throw Py.AttributeError(
-            safeRepr() + " has no attribute '" + name + "'");
+        throw Py.AttributeError(safeRepr() + " has no attribute '" + name + "'");
     }
 
     public void readonlyAttributeError(String name) {
-        throw Py.AttributeError(
-            safeRepr() + " attribute '" + name + "' is read-only");
+        throw Py.AttributeError(safeRepr() + " attribute '" + name + "' is read-only");
     }
 
     /**
@@ -1067,7 +1037,7 @@ public class PyObject implements java.io.Serializable {
         if (obj instanceof PyList) {
             PyObject lst_iter = obj.__iter__();
             PyObject name;
-            for (; (name = lst_iter.__iternext__())!= null; ) {
+            for (; (name = lst_iter.__iternext__()) != null;) {
                 accum.__setitem__(name, Py.None);
             }
         } else {
@@ -1136,24 +1106,23 @@ public class PyObject implements java.io.Serializable {
      */
     PyObject[] _coerce(PyObject other) {
         Object result;
-        if (this.getType() == other.getType() &&
-            !(this instanceof PyInstance)) {
-            return new PyObject[] {this, other};
+        if (this.getType() == other.getType() && !(this instanceof PyInstance)) {
+            return new PyObject[] { this, other };
         }
         result = this.__coerce_ex__(other);
         if (result != null && result != Py.None) {
             if (result instanceof PyObject[]) {
-                return (PyObject[])result;
+                return (PyObject[]) result;
             } else {
-                return new PyObject[] {this, (PyObject)result};
+                return new PyObject[] { this, (PyObject) result };
             }
         }
         result = other.__coerce_ex__(this);
         if (result != null && result != Py.None) {
             if (result instanceof PyObject[]) {
-                return (PyObject[])result;
+                return (PyObject[]) result;
             } else {
-                return new PyObject[] {(PyObject)result, other};
+                return new PyObject[] { (PyObject) result, other };
             }
         }
         return null;
@@ -1182,8 +1151,6 @@ public class PyObject implements java.io.Serializable {
         else
             return new PyTuple(new PyObject[] { this, (PyObject) o });
     }
-
-
 
     /* The basic comparision operations */
 
@@ -1324,12 +1291,12 @@ public class PyObject implements java.io.Serializable {
         PyType this_type = this.getType();
         PyType other_type = other.getType();
         if (this_type == other_type) {
-            return Py.id(this) < Py.id(other)? -1: 1;
+            return Py.id(this) < Py.id(other) ? -1 : 1;
         }
         result = this_type.fastGetName().compareTo(other_type.fastGetName());
         if (result == 0)
-            return Py.id(this_type)<Py.id(other_type)? -1: 1;
-        return result < 0? -1: 1;
+            return Py.id(this_type) < Py.id(other_type) ? -1 : 1;
+        return result < 0 ? -1 : 1;
     }
 
     private final int _cmp_unsafe(PyObject other) {
@@ -1371,15 +1338,10 @@ public class PyObject implements java.io.Serializable {
                 return -result;
         }
 
-        return this._is(other).__nonzero__()?0:1;
+        return this._is(other).__nonzero__() ? 0 : 1;
     }
 
-
-
-    private final static PyObject check_recursion(
-        ThreadState ts,
-        PyObject o1,
-        PyObject o2) {
+    private final static PyObject check_recursion(ThreadState ts, PyObject o1, PyObject o2) {
         PyDictionary stateDict = ts.getCompareStateDict();
 
         PyObject pair = o1.make_pair(o2);
@@ -1409,7 +1371,7 @@ public class PyObject implements java.io.Serializable {
         PyObject token = null;
         PyType t1 = this.getType();
         PyType t2 = o.getType();
-        
+
         if (t1 != t2 && t2.isSubType(t1)) {
             return o._eq(this);
         }
@@ -1448,7 +1410,7 @@ public class PyObject implements java.io.Serializable {
         PyObject token = null;
         PyType t1 = this.getType();
         PyType t2 = o.getType();
-        
+
         if (t1 != t2 && t2.isSubType(t1)) {
             return o._ne(this);
         }
@@ -1482,7 +1444,7 @@ public class PyObject implements java.io.Serializable {
         PyObject token = null;
         PyType t1 = this.getType();
         PyType t2 = o.getType();
-        
+
         if (t1 != t2 && t2.isSubType(t1)) {
             return o._ge(this);
         }
@@ -1516,7 +1478,7 @@ public class PyObject implements java.io.Serializable {
         PyObject token = null;
         PyType t1 = this.getType();
         PyType t2 = o.getType();
-        
+
         if (t1 != t2 && t2.isSubType(t1)) {
             return o._gt(this);
         }
@@ -1550,7 +1512,7 @@ public class PyObject implements java.io.Serializable {
         PyObject token = null;
         PyType t1 = this.getType();
         PyType t2 = o.getType();
-        
+
         if (t1 != t2 && t2.isSubType(t1)) {
             return o._le(this);
         }
@@ -1584,7 +1546,7 @@ public class PyObject implements java.io.Serializable {
         PyObject token = null;
         PyType t1 = this.getType();
         PyType t2 = o.getType();
-        
+
         if (t1 != t2 && t2.isSubType(t1)) {
             return o._lt(this);
         }
@@ -1661,7 +1623,7 @@ public class PyObject implements java.io.Serializable {
 
     final boolean object___contains__(PyObject o) {
         PyObject iter = __iter__();
-        for (PyObject item = null;(item = iter.__iternext__()) != null;) {
+        for (PyObject item = null; (item = iter.__iternext__()) != null;) {
             if (o._eq(item).__nonzero__())
                 return true;
         }
@@ -1780,13 +1742,13 @@ public class PyObject implements java.io.Serializable {
     public PyObject __invert__() {
         throw Py.AttributeError("__invert__");
     }
-    
+
     /**
      * @param op the String form of the op (e.g. "+")
      * @param o2 the right operand
      */
     protected final String _unsupportedop(String op, PyObject o2) {
-        Object[] args = {op, getType().fastGetName(), o2.getType().fastGetName()};
+        Object[] args = { op, getType().fastGetName(), o2.getType().fastGetName() };
         String msg = unsupportedopMessage(op, o2);
         if (msg == null) {
             msg = o2.runsupportedopMessage(op, o2);
@@ -1807,7 +1769,7 @@ public class PyObject implements java.io.Serializable {
     protected String unsupportedopMessage(String op, PyObject o2) {
         return null;
     }
-    
+
     /**
      * Should return an error message suitable for substitution where.
      *
@@ -1831,9 +1793,7 @@ public class PyObject implements java.io.Serializable {
         return null;
     }
 
-
-    private PyObject _binop_rule(PyType t1, PyObject o2, PyType t2,
-            String left, String right, String op) {
+    private PyObject _binop_rule(PyType t1, PyObject o2, PyType t2, String left, String right, String op) {
         /*
          * this is the general rule for binary operation dispatching try first
          * __xxx__ with this and then __rxxx__ with o2 unless o2 is an instance
@@ -1921,12 +1881,12 @@ public class PyObject implements java.io.Serializable {
       *            with these operands.
       **/
     public final PyObject _add(PyObject o2) {
-        PyType t1=this.getType();
-        PyType t2=o2.getType();
-        if (t1==t2||t1.builtin&&t2.builtin) {
+        PyType t1 = this.getType();
+        PyType t2 = o2.getType();
+        if (t1 == t2 || t1.builtin && t2.builtin) {
             return this._basic_add(o2);
         }
-        return _binop_rule(t1,o2,t2,"__add__","__radd__","+");
+        return _binop_rule(t1, o2, t2, "__add__", "__radd__", "+");
     }
 
     /**
@@ -1938,13 +1898,13 @@ public class PyObject implements java.io.Serializable {
      *            with these operands.
      **/
     final PyObject _basic_add(PyObject o2) {
-        PyObject x=__add__(o2);
-        if (x!=null)
+        PyObject x = __add__(o2);
+        if (x != null)
             return x;
-        x=o2.__radd__(this);
-        if (x!=null)
+        x = o2.__radd__(this);
+        if (x != null)
             return x;
-        throw Py.TypeError(_unsupportedop("+",o2));
+        throw Py.TypeError(_unsupportedop("+", o2));
     }
 
     /**
@@ -1988,12 +1948,12 @@ public class PyObject implements java.io.Serializable {
       *            with these operands.
       **/
     public final PyObject _sub(PyObject o2) {
-        PyType t1=this.getType();
-        PyType t2=o2.getType();
-        if (t1==t2||t1.builtin&&t2.builtin) {
+        PyType t1 = this.getType();
+        PyType t2 = o2.getType();
+        if (t1 == t2 || t1.builtin && t2.builtin) {
             return this._basic_sub(o2);
         }
-        return _binop_rule(t1,o2,t2,"__sub__","__rsub__","-");
+        return _binop_rule(t1, o2, t2, "__sub__", "__rsub__", "-");
     }
 
     /**
@@ -2005,13 +1965,13 @@ public class PyObject implements java.io.Serializable {
      *            with these operands.
      **/
     final PyObject _basic_sub(PyObject o2) {
-        PyObject x=__sub__(o2);
-        if (x!=null)
+        PyObject x = __sub__(o2);
+        if (x != null)
             return x;
-        x=o2.__rsub__(this);
-        if (x!=null)
+        x = o2.__rsub__(this);
+        if (x != null)
             return x;
-        throw Py.TypeError(_unsupportedop("-",o2));
+        throw Py.TypeError(_unsupportedop("-", o2));
     }
 
     /**
@@ -2055,12 +2015,12 @@ public class PyObject implements java.io.Serializable {
       *            with these operands.
       **/
     public final PyObject _mul(PyObject o2) {
-        PyType t1=this.getType();
-        PyType t2=o2.getType();
-        if (t1==t2||t1.builtin&&t2.builtin) {
+        PyType t1 = this.getType();
+        PyType t2 = o2.getType();
+        if (t1 == t2 || t1.builtin && t2.builtin) {
             return this._basic_mul(o2);
         }
-        return _binop_rule(t1,o2,t2,"__mul__","__rmul__","*");
+        return _binop_rule(t1, o2, t2, "__mul__", "__rmul__", "*");
     }
 
     /**
@@ -2072,13 +2032,13 @@ public class PyObject implements java.io.Serializable {
      *            with these operands.
      **/
     final PyObject _basic_mul(PyObject o2) {
-        PyObject x=__mul__(o2);
-        if (x!=null)
+        PyObject x = __mul__(o2);
+        if (x != null)
             return x;
-        x=o2.__rmul__(this);
-        if (x!=null)
+        x = o2.__rmul__(this);
+        if (x != null)
             return x;
-        throw Py.TypeError(_unsupportedop("*",o2));
+        throw Py.TypeError(_unsupportedop("*", o2));
     }
 
     /**
@@ -2122,12 +2082,12 @@ public class PyObject implements java.io.Serializable {
       *            with these operands.
       **/
     public final PyObject _div(PyObject o2) {
-        PyType t1=this.getType();
-        PyType t2=o2.getType();
-        if (t1==t2||t1.builtin&&t2.builtin) {
+        PyType t1 = this.getType();
+        PyType t2 = o2.getType();
+        if (t1 == t2 || t1.builtin && t2.builtin) {
             return this._basic_div(o2);
         }
-        return _binop_rule(t1,o2,t2,"__div__","__rdiv__","/");
+        return _binop_rule(t1, o2, t2, "__div__", "__rdiv__", "/");
     }
 
     /**
@@ -2141,13 +2101,13 @@ public class PyObject implements java.io.Serializable {
     final PyObject _basic_div(PyObject o2) {
         if (Options.Qnew)
             return _truediv(o2);
-        PyObject x=__div__(o2);
-        if (x!=null)
+        PyObject x = __div__(o2);
+        if (x != null)
             return x;
-        x=o2.__rdiv__(this);
-        if (x!=null)
+        x = o2.__rdiv__(this);
+        if (x != null)
             return x;
-        throw Py.TypeError(_unsupportedop("/",o2));
+        throw Py.TypeError(_unsupportedop("/", o2));
     }
 
     /**
@@ -2191,12 +2151,12 @@ public class PyObject implements java.io.Serializable {
       *            with these operands.
       **/
     public final PyObject _floordiv(PyObject o2) {
-        PyType t1=this.getType();
-        PyType t2=o2.getType();
-        if (t1==t2||t1.builtin&&t2.builtin) {
+        PyType t1 = this.getType();
+        PyType t2 = o2.getType();
+        if (t1 == t2 || t1.builtin && t2.builtin) {
             return this._basic_floordiv(o2);
         }
-        return _binop_rule(t1,o2,t2,"__floordiv__","__rfloordiv__","//");
+        return _binop_rule(t1, o2, t2, "__floordiv__", "__rfloordiv__", "//");
     }
 
     /**
@@ -2208,13 +2168,13 @@ public class PyObject implements java.io.Serializable {
      *            with these operands.
      **/
     final PyObject _basic_floordiv(PyObject o2) {
-        PyObject x=__floordiv__(o2);
-        if (x!=null)
+        PyObject x = __floordiv__(o2);
+        if (x != null)
             return x;
-        x=o2.__rfloordiv__(this);
-        if (x!=null)
+        x = o2.__rfloordiv__(this);
+        if (x != null)
             return x;
-        throw Py.TypeError(_unsupportedop("//",o2));
+        throw Py.TypeError(_unsupportedop("//", o2));
     }
 
     /**
@@ -2258,12 +2218,12 @@ public class PyObject implements java.io.Serializable {
       *            with these operands.
       **/
     public final PyObject _truediv(PyObject o2) {
-        PyType t1=this.getType();
-        PyType t2=o2.getType();
-        if (t1==t2||t1.builtin&&t2.builtin) {
+        PyType t1 = this.getType();
+        PyType t2 = o2.getType();
+        if (t1 == t2 || t1.builtin && t2.builtin) {
             return this._basic_truediv(o2);
         }
-        return _binop_rule(t1,o2,t2,"__truediv__","__rtruediv__","/");
+        return _binop_rule(t1, o2, t2, "__truediv__", "__rtruediv__", "/");
     }
 
     /**
@@ -2275,13 +2235,13 @@ public class PyObject implements java.io.Serializable {
      *            with these operands.
      **/
     final PyObject _basic_truediv(PyObject o2) {
-        PyObject x=__truediv__(o2);
-        if (x!=null)
+        PyObject x = __truediv__(o2);
+        if (x != null)
             return x;
-        x=o2.__rtruediv__(this);
-        if (x!=null)
+        x = o2.__rtruediv__(this);
+        if (x != null)
             return x;
-        throw Py.TypeError(_unsupportedop("/",o2));
+        throw Py.TypeError(_unsupportedop("/", o2));
     }
 
     /**
@@ -2325,12 +2285,12 @@ public class PyObject implements java.io.Serializable {
       *            with these operands.
       **/
     public final PyObject _mod(PyObject o2) {
-        PyType t1=this.getType();
-        PyType t2=o2.getType();
-        if (t1==t2||t1.builtin&&t2.builtin) {
+        PyType t1 = this.getType();
+        PyType t2 = o2.getType();
+        if (t1 == t2 || t1.builtin && t2.builtin) {
             return this._basic_mod(o2);
         }
-        return _binop_rule(t1,o2,t2,"__mod__","__rmod__","%");
+        return _binop_rule(t1, o2, t2, "__mod__", "__rmod__", "%");
     }
 
     /**
@@ -2342,13 +2302,13 @@ public class PyObject implements java.io.Serializable {
      *            with these operands.
      **/
     final PyObject _basic_mod(PyObject o2) {
-        PyObject x=__mod__(o2);
-        if (x!=null)
+        PyObject x = __mod__(o2);
+        if (x != null)
             return x;
-        x=o2.__rmod__(this);
-        if (x!=null)
+        x = o2.__rmod__(this);
+        if (x != null)
             return x;
-        throw Py.TypeError(_unsupportedop("%",o2));
+        throw Py.TypeError(_unsupportedop("%", o2));
     }
 
     /**
@@ -2392,12 +2352,12 @@ public class PyObject implements java.io.Serializable {
       *            with these operands.
       **/
     public final PyObject _divmod(PyObject o2) {
-        PyType t1=this.getType();
-        PyType t2=o2.getType();
-        if (t1==t2||t1.builtin&&t2.builtin) {
+        PyType t1 = this.getType();
+        PyType t2 = o2.getType();
+        if (t1 == t2 || t1.builtin && t2.builtin) {
             return this._basic_divmod(o2);
         }
-        return _binop_rule(t1,o2,t2,"__divmod__","__rdivmod__","divmod");
+        return _binop_rule(t1, o2, t2, "__divmod__", "__rdivmod__", "divmod");
     }
 
     /**
@@ -2409,13 +2369,13 @@ public class PyObject implements java.io.Serializable {
      *            with these operands.
      **/
     final PyObject _basic_divmod(PyObject o2) {
-        PyObject x=__divmod__(o2);
-        if (x!=null)
+        PyObject x = __divmod__(o2);
+        if (x != null)
             return x;
-        x=o2.__rdivmod__(this);
-        if (x!=null)
+        x = o2.__rdivmod__(this);
+        if (x != null)
             return x;
-        throw Py.TypeError(_unsupportedop("divmod",o2));
+        throw Py.TypeError(_unsupportedop("divmod", o2));
     }
 
     /**
@@ -2426,7 +2386,7 @@ public class PyObject implements java.io.Serializable {
      *            is not defined
      **/
     public PyObject __pow__(PyObject other) {
-        return __pow__(other,null);
+        return __pow__(other, null);
     }
 
     /**
@@ -2459,12 +2419,12 @@ public class PyObject implements java.io.Serializable {
       *            with these operands.
       **/
     public final PyObject _pow(PyObject o2) {
-        PyType t1=this.getType();
-        PyType t2=o2.getType();
-        if (t1==t2||t1.builtin&&t2.builtin) {
+        PyType t1 = this.getType();
+        PyType t2 = o2.getType();
+        if (t1 == t2 || t1.builtin && t2.builtin) {
             return this._basic_pow(o2);
         }
-        return _binop_rule(t1,o2,t2,"__pow__","__rpow__","**");
+        return _binop_rule(t1, o2, t2, "__pow__", "__rpow__", "**");
     }
 
     /**
@@ -2476,13 +2436,13 @@ public class PyObject implements java.io.Serializable {
      *            with these operands.
      **/
     final PyObject _basic_pow(PyObject o2) {
-        PyObject x=__pow__(o2);
-        if (x!=null)
+        PyObject x = __pow__(o2);
+        if (x != null)
             return x;
-        x=o2.__rpow__(this);
-        if (x!=null)
+        x = o2.__rpow__(this);
+        if (x != null)
             return x;
-        throw Py.TypeError(_unsupportedop("**",o2));
+        throw Py.TypeError(_unsupportedop("**", o2));
     }
 
     /**
@@ -2526,12 +2486,12 @@ public class PyObject implements java.io.Serializable {
       *            with these operands.
       **/
     public final PyObject _lshift(PyObject o2) {
-        PyType t1=this.getType();
-        PyType t2=o2.getType();
-        if (t1==t2||t1.builtin&&t2.builtin) {
+        PyType t1 = this.getType();
+        PyType t2 = o2.getType();
+        if (t1 == t2 || t1.builtin && t2.builtin) {
             return this._basic_lshift(o2);
         }
-        return _binop_rule(t1,o2,t2,"__lshift__","__rlshift__","<<");
+        return _binop_rule(t1, o2, t2, "__lshift__", "__rlshift__", "<<");
     }
 
     /**
@@ -2543,13 +2503,13 @@ public class PyObject implements java.io.Serializable {
      *            with these operands.
      **/
     final PyObject _basic_lshift(PyObject o2) {
-        PyObject x=__lshift__(o2);
-        if (x!=null)
+        PyObject x = __lshift__(o2);
+        if (x != null)
             return x;
-        x=o2.__rlshift__(this);
-        if (x!=null)
+        x = o2.__rlshift__(this);
+        if (x != null)
             return x;
-        throw Py.TypeError(_unsupportedop("<<",o2));
+        throw Py.TypeError(_unsupportedop("<<", o2));
     }
 
     /**
@@ -2593,12 +2553,12 @@ public class PyObject implements java.io.Serializable {
       *            with these operands.
       **/
     public final PyObject _rshift(PyObject o2) {
-        PyType t1=this.getType();
-        PyType t2=o2.getType();
-        if (t1==t2||t1.builtin&&t2.builtin) {
+        PyType t1 = this.getType();
+        PyType t2 = o2.getType();
+        if (t1 == t2 || t1.builtin && t2.builtin) {
             return this._basic_rshift(o2);
         }
-        return _binop_rule(t1,o2,t2,"__rshift__","__rrshift__",">>");
+        return _binop_rule(t1, o2, t2, "__rshift__", "__rrshift__", ">>");
     }
 
     /**
@@ -2610,13 +2570,13 @@ public class PyObject implements java.io.Serializable {
      *            with these operands.
      **/
     final PyObject _basic_rshift(PyObject o2) {
-        PyObject x=__rshift__(o2);
-        if (x!=null)
+        PyObject x = __rshift__(o2);
+        if (x != null)
             return x;
-        x=o2.__rrshift__(this);
-        if (x!=null)
+        x = o2.__rrshift__(this);
+        if (x != null)
             return x;
-        throw Py.TypeError(_unsupportedop(">>",o2));
+        throw Py.TypeError(_unsupportedop(">>", o2));
     }
 
     /**
@@ -2660,12 +2620,12 @@ public class PyObject implements java.io.Serializable {
       *            with these operands.
       **/
     public final PyObject _and(PyObject o2) {
-        PyType t1=this.getType();
-        PyType t2=o2.getType();
-        if (t1==t2||t1.builtin&&t2.builtin) {
+        PyType t1 = this.getType();
+        PyType t2 = o2.getType();
+        if (t1 == t2 || t1.builtin && t2.builtin) {
             return this._basic_and(o2);
         }
-        return _binop_rule(t1,o2,t2,"__and__","__rand__","&");
+        return _binop_rule(t1, o2, t2, "__and__", "__rand__", "&");
     }
 
     /**
@@ -2677,13 +2637,13 @@ public class PyObject implements java.io.Serializable {
      *            with these operands.
      **/
     final PyObject _basic_and(PyObject o2) {
-        PyObject x=__and__(o2);
-        if (x!=null)
+        PyObject x = __and__(o2);
+        if (x != null)
             return x;
-        x=o2.__rand__(this);
-        if (x!=null)
+        x = o2.__rand__(this);
+        if (x != null)
             return x;
-        throw Py.TypeError(_unsupportedop("&",o2));
+        throw Py.TypeError(_unsupportedop("&", o2));
     }
 
     /**
@@ -2727,12 +2687,12 @@ public class PyObject implements java.io.Serializable {
       *            with these operands.
       **/
     public final PyObject _or(PyObject o2) {
-        PyType t1=this.getType();
-        PyType t2=o2.getType();
-        if (t1==t2||t1.builtin&&t2.builtin) {
+        PyType t1 = this.getType();
+        PyType t2 = o2.getType();
+        if (t1 == t2 || t1.builtin && t2.builtin) {
             return this._basic_or(o2);
         }
-        return _binop_rule(t1,o2,t2,"__or__","__ror__","|");
+        return _binop_rule(t1, o2, t2, "__or__", "__ror__", "|");
     }
 
     /**
@@ -2744,13 +2704,13 @@ public class PyObject implements java.io.Serializable {
      *            with these operands.
      **/
     final PyObject _basic_or(PyObject o2) {
-        PyObject x=__or__(o2);
-        if (x!=null)
+        PyObject x = __or__(o2);
+        if (x != null)
             return x;
-        x=o2.__ror__(this);
-        if (x!=null)
+        x = o2.__ror__(this);
+        if (x != null)
             return x;
-        throw Py.TypeError(_unsupportedop("|",o2));
+        throw Py.TypeError(_unsupportedop("|", o2));
     }
 
     /**
@@ -2794,12 +2754,12 @@ public class PyObject implements java.io.Serializable {
       *            with these operands.
       **/
     public final PyObject _xor(PyObject o2) {
-        PyType t1=this.getType();
-        PyType t2=o2.getType();
-        if (t1==t2||t1.builtin&&t2.builtin) {
+        PyType t1 = this.getType();
+        PyType t2 = o2.getType();
+        if (t1 == t2 || t1.builtin && t2.builtin) {
             return this._basic_xor(o2);
         }
-        return _binop_rule(t1,o2,t2,"__xor__","__rxor__","^");
+        return _binop_rule(t1, o2, t2, "__xor__", "__rxor__", "^");
     }
 
     /**
@@ -2811,13 +2771,13 @@ public class PyObject implements java.io.Serializable {
      *            with these operands.
      **/
     final PyObject _basic_xor(PyObject o2) {
-        PyObject x=__xor__(o2);
-        if (x!=null)
+        PyObject x = __xor__(o2);
+        if (x != null)
             return x;
-        x=o2.__rxor__(this);
-        if (x!=null)
+        x = o2.__rxor__(this);
+        if (x != null)
             return x;
-        throw Py.TypeError(_unsupportedop("^",o2));
+        throw Py.TypeError(_unsupportedop("^", o2));
     }
 
     // Generated by make_binops.py (End)
@@ -2848,8 +2808,7 @@ public class PyObject implements java.io.Serializable {
                     Py.maybeSystemExit(e);
                 }
                 if (Options.showPythonProxyExceptions) {
-                    Py.stderr.println(
-                        "Exception in Python proxy returning to Java:");
+                    Py.stderr.println("Exception in Python proxy returning to Java:");
                     Py.printException(e);
                 }
             }
@@ -2952,13 +2911,13 @@ public class PyObject implements java.io.Serializable {
     }
 
     public void setDict(PyObject newDict) {
-    	// fallback if setDict not implemented in subclass
-    	throw Py.TypeError("can't set attribute '__dict__' of instance of " + getType().safeRepr());
+        // fallback if setDict not implemented in subclass
+        throw Py.TypeError("can't set attribute '__dict__' of instance of " + getType().safeRepr());
     }
 
     public void delDict() {
         // fallback to error
-        throw Py.TypeError("can't delete attribute '__dict__' of instance of '" + getType().safeRepr()+ "'");
+        throw Py.TypeError("can't delete attribute '__dict__' of instance of '" + getType().safeRepr() + "'");
     }
 
     public boolean implementsDescrSet() {
@@ -3095,9 +3054,7 @@ public class PyObject implements java.io.Serializable {
 
     final PyObject object___reduce__() {
         PyTuple newargs = __getnewargs__();
-        return new PyTuple(new PyObject[]{
-            getType(), newargs
-        });
+        return new PyTuple(new PyObject[] { getType(), newargs });
     }
 
     public PyTuple __getnewargs__() {
@@ -3122,7 +3079,7 @@ public class PyObject implements java.io.Serializable {
     }
 
     public String asStringOrNull(int index) throws ConversionException {
-       return asString(index);
+        return asString(index);
     }
 
     public String asName(int index) throws ConversionException {

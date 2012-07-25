@@ -21,10 +21,10 @@ public class BundleUtils {
             URL fileURL;
             fileURL = FileLocator.toFileURL(bundleURL);
             File f = new File(fileURL.getPath());
-    
+
             return f;
         } catch (Exception e) {
-            throw new RuntimeException("Can't find relative path:"+relative+" within:"+bundle, e);
+            throw new RuntimeException("Can't find relative path:" + relative + " within:" + bundle, e);
         }
     }
 

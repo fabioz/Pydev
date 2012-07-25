@@ -53,87 +53,84 @@ public class AssignAnalysis {
      * so, first thing is discovering in which scope we are (Storing previous scopes so 
      * that we can search in other scopes as well).
      */
-    public AssignCompletionInfo getAssignCompletions(ICodeCompletionASTManager manager, IModule module, ICompletionState state) {
+    public AssignCompletionInfo getAssignCompletions(ICodeCompletionASTManager manager, IModule module,
+            ICompletionState state) {
         ArrayList<IToken> ret = new ArrayList<IToken>();
         Definition[] defs = new Definition[0];
         if (module instanceof SourceModule) {
             SourceModule s = (SourceModule) module;
-            
+
             try {
-                defs = s.findDefinition(state, state.getLine()+1, state.getCol()+1, state.getNature());
+                defs = s.findDefinition(state, state.getLine() + 1, state.getCol() + 1, state.getNature());
                 for (int i = 0; i < defs.length; i++) {
                     //go through all definitions found and make a merge of it...
                     Definition definition = defs[i];
-                    
-                    if(state.getLine() == definition.line && 
-                            state.getCol() == definition.col){
+
+                    if (state.getLine() == definition.line && state.getCol() == definition.col) {
                         //Check the module
-                        if(definition.module != null && definition.module.equals(s)){
+                        if (definition.module != null && definition.module.equals(s)) {
                             //initial and final are the same
-                            if(state.checkFoudSameDefinition(definition.line, definition.col, definition.module)){
+                            if (state.checkFoudSameDefinition(definition.line, definition.col, definition.module)) {
                                 //We found the same place we found previously (so, we're recursing here... Just go on)
                                 continue;
                             }
                         }
                     }
-                    
+
                     AssignDefinition assignDefinition = null;
-                    if(definition instanceof AssignDefinition){
+                    if (definition instanceof AssignDefinition) {
                         assignDefinition = (AssignDefinition) definition;
                     }
-                    
-                    if(definition.ast instanceof FunctionDef){
+
+                    if (definition.ast instanceof FunctionDef) {
                         addFunctionDefCompletionsFromReturn(manager, state, ret, s, definition);
-                    }else{
+                    } else {
                         addNonFunctionDefCompletionsFromAssign(manager, state, ret, s, definition, assignDefinition);
                     }
                 }
-                
-                
+
             } catch (CompletionRecursionException e) {
                 //thats ok
             } catch (Exception e) {
                 Log.log(e);
-                throw new RuntimeException("Error when getting assign completions for:"+module.getName(), e);
+                throw new RuntimeException("Error when getting assign completions for:" + module.getName(), e);
             } catch (Throwable t) {
-                throw new RuntimeException("A throwable exception has been detected "+t.getClass());
+                throw new RuntimeException("A throwable exception has been detected " + t.getClass());
             }
         }
         return new AssignCompletionInfo(defs, ret);
     }
 
-
-
-    private void addFunctionDefCompletionsFromReturn(ICodeCompletionASTManager manager, ICompletionState state, ArrayList<IToken> ret, SourceModule s, Definition definition) throws CompletionRecursionException {
+    private void addFunctionDefCompletionsFromReturn(ICodeCompletionASTManager manager, ICompletionState state,
+            ArrayList<IToken> ret, SourceModule s, Definition definition) throws CompletionRecursionException {
         FunctionDef functionDef = (FunctionDef) definition.ast;
-        for(Return return1: ReturnVisitor.findReturns(functionDef)){
+        for (Return return1 : ReturnVisitor.findReturns(functionDef)) {
             ICompletionState copy = state.getCopy();
             String act = NodeUtils.getFullRepresentationString(return1.value);
-            if(act == null){
+            if (act == null) {
                 return; //may happen if the return we're seeing is a return without anything
             }
-            copy.setActivationToken (act);
-            copy.setLine(return1.value.beginLine-1);
-            copy.setCol(return1.value.beginColumn-1);
+            copy.setActivationToken(act);
+            copy.setLine(return1.value.beginLine - 1);
+            copy.setCol(return1.value.beginColumn - 1);
             IModule module = definition.module;
-  
+
             state.checkDefinitionMemory(module, definition);
-                    
+
             IToken[] tks = manager.getCompletionsForModule(module, copy);
-            if(tks.length > 0){
+            if (tks.length > 0) {
                 ret.addAll(Arrays.asList(tks));
-            }            
+            }
         }
     }
-
 
     /**
      * The user should be able to configure that, but let's leave it hard-coded until the next release...
      * 
      * Names of methods that will return instance of the passed class -> index of class parameter.
      */
-    public final static Map<String, Integer> CALLS_FOR_ASSIGN_WITH_RESULTING_CLASS = new HashMap<String,Integer>();
-    static{
+    public final static Map<String, Integer> CALLS_FOR_ASSIGN_WITH_RESULTING_CLASS = new HashMap<String, Integer>();
+    static {
         //method factory that receives parameter with class -> class parameter index
         CALLS_FOR_ASSIGN_WITH_RESULTING_CLASS.put("adapt".toLowerCase(), 2);
         CALLS_FOR_ASSIGN_WITH_RESULTING_CLASS.put("GetSingleton".toLowerCase(), 1);
@@ -149,56 +146,55 @@ public class AssignAnalysis {
      * @param ret the place where the completions should be added
      * @param assignDefinition may be null if it was not actually found as an assign
      */
-    private void addNonFunctionDefCompletionsFromAssign(ICodeCompletionASTManager manager, ICompletionState state, 
-            ArrayList<IToken> ret, SourceModule sourceModule, Definition definition, AssignDefinition assignDefinition) throws CompletionRecursionException {
+    private void addNonFunctionDefCompletionsFromAssign(ICodeCompletionASTManager manager, ICompletionState state,
+            ArrayList<IToken> ret, SourceModule sourceModule, Definition definition, AssignDefinition assignDefinition)
+            throws CompletionRecursionException {
         IModule module;
-        if(definition.ast instanceof ClassDef){
+        if (definition.ast instanceof ClassDef) {
             state.setLookingFor(ICompletionState.LOOKING_FOR_UNBOUND_VARIABLE);
-            ret.addAll(((SourceModule)definition.module).getClassToks(state, manager, definition.ast));
-            
-            
-        }else{
+            ret.addAll(((SourceModule) definition.module).getClassToks(state, manager, definition.ast));
+
+        } else {
             boolean lookForAssign = true;
-            
+
             //ok, see what we can do about adaptation here... 
             //pyprotocols does adapt(xxx, Interface), so, knowing the type of the interface can get us to nice results...
             //the user can usually have other factory methods that do that too. E.g.: GetSingleton(Class) may return an
             //expected class and so on, so, this should be configured somehow
-            if(assignDefinition != null){
+            if (assignDefinition != null) {
 
                 Assign assign = (Assign) assignDefinition.ast;
-                if(assign.value instanceof Call){
+                if (assign.value instanceof Call) {
                     Call call = (Call) assign.value;
                     String lastPart = FullRepIterable.getLastPart(assignDefinition.value);
                     Integer parameterIndex = CALLS_FOR_ASSIGN_WITH_RESULTING_CLASS.get(lastPart.toLowerCase());
-                    if(parameterIndex != null && call.args.length >= parameterIndex){
-                        String rep = NodeUtils.getFullRepresentationString(call.args[parameterIndex-1]);
-                        
+                    if (parameterIndex != null && call.args.length >= parameterIndex) {
+                        String rep = NodeUtils.getFullRepresentationString(call.args[parameterIndex - 1]);
+
                         HashSet<IToken> hashSet = new HashSet<IToken>();
                         List<String> lookForClass = new ArrayList<String>();
                         lookForClass.add(rep);
-                        
-                        manager.getCompletionsForClassInLocalScope(sourceModule, state, true, 
-                                false, lookForClass, hashSet);
-                        if(hashSet.size() > 0){
+
+                        manager.getCompletionsForClassInLocalScope(sourceModule, state, true, false, lookForClass,
+                                hashSet);
+                        if (hashSet.size() > 0) {
                             lookForAssign = false;
                             ret.addAll(hashSet);
                         }
                     }
                 }
-                
-                
-                
-                if(lookForAssign && assignDefinition.foundAsGlobal){
+
+                if (lookForAssign && assignDefinition.foundAsGlobal) {
                     //it may be declared as a global with a class defined in the local scope
                     IToken[] allLocalTokens = assignDefinition.scope.getAllLocalTokens();
                     for (IToken token : allLocalTokens) {
-                        if(token.getRepresentation().equals(assignDefinition.value)){
-                            if(token instanceof SourceToken){
+                        if (token.getRepresentation().equals(assignDefinition.value)) {
+                            if (token instanceof SourceToken) {
                                 SourceToken srcToken = (SourceToken) token;
-                                if(srcToken.getAst() instanceof ClassDef){
-                                    List<IToken> classToks = ((SourceModule)assignDefinition.module).getClassToks(state, manager, srcToken.getAst());
-                                    if(classToks.size() > 0){
+                                if (srcToken.getAst() instanceof ClassDef) {
+                                    List<IToken> classToks = ((SourceModule) assignDefinition.module).getClassToks(
+                                            state, manager, srcToken.getAst());
+                                    if (classToks.size() > 0) {
                                         lookForAssign = false;
                                         ret.addAll(classToks);
                                         break;
@@ -209,30 +205,28 @@ public class AssignAnalysis {
                     }
                 }
             }
-            
-            
-            
-            
-            if(lookForAssign){
+
+            if (lookForAssign) {
                 //TODO: we might want to extend that later to check the return of some function for code-completion purposes...
                 state.setLookingFor(ICompletionState.LOOKING_FOR_ASSIGN);
                 ICompletionState copy = state.getCopy();
-                if(definition.ast instanceof Attribute){
+                if (definition.ast instanceof Attribute) {
                     copy.setActivationToken(NodeUtils.getFullRepresentationString(definition.ast));
-                }else{
+                } else {
                     copy.setActivationToken(definition.value);
                 }
                 copy.setLine(definition.line);
                 copy.setCol(definition.col);
                 module = definition.module;
-      
+
                 state.checkDefinitionMemory(module, definition);
-                        
-                if(assignDefinition != null){
-                    Collection<IToken> interfaceForLocal = assignDefinition.scope.getInterfaceForLocal(assignDefinition.target);
+
+                if (assignDefinition != null) {
+                    Collection<IToken> interfaceForLocal = assignDefinition.scope
+                            .getInterfaceForLocal(assignDefinition.target);
                     ret.addAll(interfaceForLocal);
                 }
-                
+
                 IToken[] tks = manager.getCompletionsForModule(module, copy);
                 ret.addAll(Arrays.asList(tks));
             }

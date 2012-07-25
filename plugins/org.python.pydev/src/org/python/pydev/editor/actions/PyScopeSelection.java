@@ -51,20 +51,20 @@ public class PyScopeSelection extends PyAction {
         PyEdit pyEdit = getPyEdit();
         FastStack<IRegion> cache = getCache(pyEdit);
         Region initialRegion = new Region(selection.getOffset(), selection.getLength());
-        if(cache.size() > 0){
+        if (cache.size() > 0) {
             IRegion peek = cache.peek();
-            if(!peek.equals(initialRegion)){
+            if (!peek.equals(initialRegion)) {
                 cache.clear();
             }
         }
-        if(cache.size() == 0){
+        if (cache.size() == 0) {
             cache.push(initialRegion);
         }
         ITextSelection newSelection = getNewSelection(doc, selection);
-        if(initialRegion.equals(new Region(newSelection.getOffset(), newSelection.getLength()))){
+        if (initialRegion.equals(new Region(newSelection.getOffset(), newSelection.getLength()))) {
             return;
         }
-        
+
         pyEdit.setSelection(newSelection.getOffset(), newSelection.getLength());
         cache.push(new Region(newSelection.getOffset(), newSelection.getLength()));
     }
@@ -87,7 +87,8 @@ public class PyScopeSelection extends PyAction {
                     }
                     if (StringUtils.isClosingPeer(c)) {
                         PythonPairMatcher pairMatcher = new PythonPairMatcher();
-                        int openingOffset = pairMatcher.searchForOpeningPeer(ps.getAbsoluteCursorOffset(), StringUtils.getPeer(c), c, doc);
+                        int openingOffset = pairMatcher.searchForOpeningPeer(ps.getAbsoluteCursorOffset(),
+                                StringUtils.getPeer(c), c, doc);
                         if (openingOffset >= 0) {
                             return new TextSelection(openingOffset, ps.getAbsoluteCursorOffset() - openingOffset + 1);
                         }
@@ -99,7 +100,7 @@ public class PyScopeSelection extends PyAction {
                 boolean hasDotSelected = false; //value only valid if tryMatchWithQualifier == true!
                 for (int i = 0; i < selectedText.length(); i++) {
                     char c = selectedText.charAt(i);
-                    if(c=='.'){
+                    if (c == '.') {
                         hasDotSelected = true;
                         continue;
                     }
@@ -122,52 +123,49 @@ public class PyScopeSelection extends PyAction {
                 }
             }
             Scopes scopes = ScopesParser.createScopes(doc);
-//            System.out.println(scopes.debugString(doc));
+            //            System.out.println(scopes.debugString(doc));
             IRegion scope = scopes.getScopeForSelection(selection.getOffset(), selection.getLength());
-            if(scope != null){
+            if (scope != null) {
                 return new TextSelection(scope.getOffset(), scope.getLength());
             }
-            
+
         } catch (BadLocationException e) {
             Log.log(e);
         }
-        
+
         return selection;
     }
 
-
     private static String getCurrentSelectionCacheKey(PyEdit pyEdit) {
         IDocument doc = pyEdit.getDocument();
-        
+
         int length = doc.getLength();
         String key = Integer.toString(length);
-        if(doc instanceof IDocumentExtension4){
+        if (doc instanceof IDocumentExtension4) {
             IDocumentExtension4 document = (IDocumentExtension4) doc;
             long modificationStamp = document.getModificationStamp();
-            key += " - "+modificationStamp;
+            key += " - " + modificationStamp;
         }
         return key;
     }
-    
 
     @SuppressWarnings("unchecked")
     public static FastStack<IRegion> getCache(PyEdit pyEdit) {
         Map<String, Object> cache = pyEdit.getCache();
         String key = getCurrentSelectionCacheKey(pyEdit);
         try {
-            Tuple<String, FastStack<IRegion>> object = (Tuple<String, FastStack<IRegion>>) cache.get(
-                    PyScopeSelection.SELECTION_SCOPE_CACHE);
-            
-            
-            if(object != null){
-                if(key.equals(object.o1)){
+            Tuple<String, FastStack<IRegion>> object = (Tuple<String, FastStack<IRegion>>) cache
+                    .get(PyScopeSelection.SELECTION_SCOPE_CACHE);
+
+            if (object != null) {
+                if (key.equals(object.o1)) {
                     return object.o2;
                 }
             }
         } catch (Exception e) {
             Log.log(e);
         }
-        
+
         FastStack<IRegion> stack = new FastStack<IRegion>(20);
         cache.put(PyScopeSelection.SELECTION_SCOPE_CACHE, new Tuple<String, FastStack<IRegion>>(key, stack));
         return stack;

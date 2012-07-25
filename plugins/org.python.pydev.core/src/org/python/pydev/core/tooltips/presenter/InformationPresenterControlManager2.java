@@ -14,24 +14,22 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
-
 /**
  * This class is an attempt to have an information control that has a replacer, but it doesn't work because the 
  * methods to do the replace are 'default' methods (and not public ones), as are the replacers we'd need, so,
  * unfortunately, there's no API to make it work for now (so, this class is currently useless, but kept
  * so that this attempt is remembered).
  */
-public class InformationPresenterControlManager2 extends AbstractHoverInformationControlManager implements IInformationPresenterControlManager{
+public class InformationPresenterControlManager2 extends AbstractHoverInformationControlManager implements
+        IInformationPresenterControlManager {
 
     public InformationPresenterControlManager2(IInformationPresenter presenter) {
         super(new InformationPresenterHelpers.TooltipInformationControlCreator(presenter));
-        if(presenter instanceof IInformationPresenterAsTooltip){
+        if (presenter instanceof IInformationPresenterAsTooltip) {
             IInformationPresenterAsTooltip presenterAsTooltip = (IInformationPresenterAsTooltip) presenter;
             presenterAsTooltip.setInformationPresenterControlManager(this);
         }
     }
-
-
 
     private Control fControl;
     private ITooltipInformationProvider fProvider;
@@ -59,8 +57,7 @@ public class InformationPresenterControlManager2 extends AbstractHoverInformatio
         //the width and height are later calculated base on the size of the information to be shown.
         setInformation(info, new Rectangle(point.x, point.y, 0, 0));
     }
-    
-    
+
     @Override
     public void hideInformationControl() {
         super.hideInformationControl();
@@ -70,24 +67,21 @@ public class InformationPresenterControlManager2 extends AbstractHoverInformatio
      * @see org.python.pydev.core.tooltips.presenter.IInformationPresenterControlManager#setActivateEditorBinding(org.eclipse.jface.bindings.keys.KeySequence)
      */
     public void setActivateEditorBinding(KeySequence activateEditorBinding) {
-        
-        
+
     }
 
     /* (non-Javadoc)
      * @see org.python.pydev.core.tooltips.presenter.IInformationPresenterControlManager#setInitiallyActiveShell(org.eclipse.swt.widgets.Shell)
      */
     public void setInitiallyActiveShell(Shell activeShell) {
-        
-        
+
     }
 
     /* (non-Javadoc)
      * @see org.python.pydev.core.tooltips.presenter.IInformationPresenterControlManager#hideInformationControl(boolean, boolean)
      */
     public void hideInformationControl(boolean activateEditor, boolean restoreFocus) {
-        
-        
+
     }
 
 }

@@ -12,5 +12,4 @@ public interface IDebugPreferencesPageParticipant {
 
     void createFieldEditors(DebugPrefsPage page, Composite parent);
 
-    
 }

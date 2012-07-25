@@ -27,21 +27,21 @@ public class PyContextType extends TemplateContextType {
      * Context type used for code-completions
      */
     public static final String PY_COMPLETIONS_CONTEXT_TYPE = "org.python.pydev.editor.templates.python";
-    
+
     /**
      * Context type used for new modules (wizard)
      */
     public static final String PY_MODULES_CONTEXT_TYPE = "org.python.pydev.editor.templates.python.modules";
 
     private IPythonInterpreter interpreter;
-    
+
     /**
      * Creates a new XML context type. 
      */
     public PyContextType() {
-		interpreter = JythonPlugin.newPythonInterpreter();
+        interpreter = JythonPlugin.newPythonInterpreter();
         addGlobalResolvers();
-        
+
     }
 
     private void addGlobalResolvers() {
@@ -53,17 +53,14 @@ public class PyContextType extends TemplateContextType {
         addResolver(new GlobalTemplateVariables.Year());
         addResolver(new GlobalTemplateVariables.Time());
         addResolver(new GlobalTemplateVariables.User());
-        
+
         HashMap<String, Object> locals = new HashMap<String, Object>();
         locals.put("py_context_type", this);
-        
+
         //execute all the files that start with 'pytemplate' that are located beneath
         //the org.python.pydev.jython/jysrc directory and some user specified dir (if any).
-        JythonPlugin.execAll(locals, "pytemplate", interpreter); 
-        
+        JythonPlugin.execAll(locals, "pytemplate", interpreter);
+
     }
-    
-
-
 
 }

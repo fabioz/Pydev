@@ -37,7 +37,7 @@ import org.python.pydev.plugin.PydevPlugin;
  * @author Mikko Ohtamaa
  */
 public class MainModuleTab extends AbstractLaunchConfigurationTab {
-    
+
     // Widget blocks
     public final ProjectBlock fProjectBlock;
     public final MainModuleBlock fMainModuleBlock;
@@ -57,13 +57,13 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
 
         Composite composite = new Composite(parent, SWT.NONE);
         setControl(composite);
-        GridLayout gridLayout = new GridLayout();        
-        composite.setLayout(gridLayout);        
+        GridLayout gridLayout = new GridLayout();
+        composite.setLayout(gridLayout);
 
         fProjectBlock.createControl(composite);
         fMainModuleBlock.createControl(composite);
         fPythonPathBlock.createControl(composite);
-        
+
         // Add a modify listener, that updates the module block
         // when the selected project changes
         fProjectBlock.addModifyListener(fMainModuleBlock.getProjectModifyListener());
@@ -76,7 +76,7 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
     public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
         // No defaults to set
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#initializeFrom(org.eclipse.debug.core.ILaunchConfiguration)
@@ -96,7 +96,7 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
         fMainModuleBlock.performApply(configuration);
         fPythonPathBlock.performApply(configuration);
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.AbstractLaunchConfigurationTab#setLaunchConfigurationDialog(org.eclipse.debug.ui.ILaunchConfigurationDialog)
@@ -104,12 +104,12 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
     @Override
     public void setLaunchConfigurationDialog(ILaunchConfigurationDialog dialog) {
         super.setLaunchConfigurationDialog(dialog);
-        
+
         fProjectBlock.setLaunchConfigurationDialog(dialog);
         fMainModuleBlock.setLaunchConfigurationDialog(dialog);
         fPythonPathBlock.setLaunchConfigurationDialog(dialog);
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.AbstractLaunchConfigurationTab#getErrorMessage()
@@ -117,19 +117,19 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
     @Override
     public String getErrorMessage() {
         String result = super.getErrorMessage();
-        
+
         if (result == null) {
             result = fProjectBlock.getErrorMessage();
         }
-        
+
         if (result == null) {
             result = fMainModuleBlock.getErrorMessage();
         }
-        
+
         if (result == null) {
             result = fPythonPathBlock.getErrorMessage();
         }
-        
+
         return result;
     }
 
@@ -140,22 +140,22 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
     @Override
     public String getMessage() {
         String result = super.getMessage();
-        
+
         if (result == null) {
             result = fProjectBlock.getMessage();
         }
-        
+
         if (result == null) {
             result = fMainModuleBlock.getMessage();
         }
-        
+
         if (result == null) {
             result = fPythonPathBlock.getMessage();
         }
-        
+
         return result;
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.AbstractLaunchConfigurationTab#isValid(org.eclipse.debug.core.ILaunchConfiguration)
@@ -163,22 +163,22 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
     @Override
     public boolean isValid(ILaunchConfiguration launchConfig) {
         boolean result = super.isValid(launchConfig);
-        
+
         if (result) {
             result = fProjectBlock.isValid(launchConfig);
         }
-        
+
         if (result) {
             result = fMainModuleBlock.isValid(launchConfig);
         }
-        
+
         if (result) {
             result = fPythonPathBlock.isValid(launchConfig);
         }
-        
+
         return result;
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#getName()
@@ -186,7 +186,7 @@ public class MainModuleTab extends AbstractLaunchConfigurationTab {
     public String getName() {
         return "Main";
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.AbstractLaunchConfigurationTab#getImage()

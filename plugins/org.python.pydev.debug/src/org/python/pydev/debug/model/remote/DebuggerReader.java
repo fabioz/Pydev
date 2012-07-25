@@ -28,37 +28,37 @@ public class DebuggerReader implements Runnable {
      * can be specified to debug this class 
      */
     private static final boolean DEBUG = false;
-    
+
     /**
      * socket we are reading
      */
     private Socket socket;
-    
+
     /**
      * Volatile, as multiple threads may ask it to be 'done'
      */
     private volatile boolean done = false;
-    
+
     /**
      * Lock object for sleeping.
      */
     private Object lock = new Object();
-    
+
     /**
      * commands waiting for response. Their keys are the sequence ids
      */
     private Dictionary<Integer, AbstractDebuggerCommand> responseQueue = new Hashtable<Integer, AbstractDebuggerCommand>();
-    
+
     /**
      * we read from this
      */
     private InputStreamReader in;
-    
+
     /**
      * that's the debugger that made us... we have to finish it when we are done
      */
     private AbstractDebugTarget remote;
-    
+
     /**
      * Create it
      * 
@@ -67,13 +67,13 @@ public class DebuggerReader implements Runnable {
      * 
      * @throws IOException
      */
-    public DebuggerReader(Socket s, AbstractDebugTargetWithTransmission r ) throws IOException {
+    public DebuggerReader(Socket s, AbstractDebugTargetWithTransmission r) throws IOException {
         remote = (AbstractDebugTarget) r;
         socket = s;
         InputStream sin = socket.getInputStream();
         in = new InputStreamReader(sin);
     }
-    
+
     /**
      * mark things as done
      */
@@ -90,7 +90,7 @@ public class DebuggerReader implements Runnable {
             responseQueue.put(new Integer(sequence), cmd);
         }
     }
-    
+
     /**
      * Parses & dispatches the command
      */
@@ -101,20 +101,19 @@ public class DebuggerReader implements Runnable {
             int seqCode = Integer.parseInt(cmdParsed[1]);
             String payload = URLDecoder.decode(cmdParsed[2], "UTF-8");
 
-            
             // is there a response waiting
             AbstractDebuggerCommand cmd;
             synchronized (responseQueue) {
                 cmd = (AbstractDebuggerCommand) responseQueue.remove(new Integer(seqCode));
             }
-            
-            if (cmd == null){
-                if ( remote != null){
+
+            if (cmd == null) {
+                if (remote != null) {
                     remote.processCommand(cmdParsed[0], cmdParsed[1], payload);
-                } else{ 
+                } else {
                     PydevDebugPlugin.log(IStatus.ERROR, "internal error, command received no target", null);
                 }
-            } else{
+            } else {
                 cmd.processResponse(cmdCode, payload);
             }
         } catch (Exception e) {
@@ -128,29 +127,29 @@ public class DebuggerReader implements Runnable {
      * done from outside)
      * 
      * @see java.lang.Runnable#run()
-     */    
+     */
     public void run() {
         while (!done) {
             try {
                 String cmdLine = readLine();
-                if(cmdLine != null && cmdLine.trim().length() > 0){
+                if (cmdLine != null && cmdLine.trim().length() > 0) {
                     processCommand(cmdLine);
                 }
-                synchronized(lock) {
+                synchronized (lock) {
                     Thread.sleep(50);
                 }
             } catch (Exception e1) {
                 done = true;
                 //that's ok, it means that the client finished
-                if(DEBUG){
+                if (DEBUG) {
                     e1.printStackTrace();
                 }
             }
-            
-            if (done || socket == null || !socket.isConnected() ) {
+
+            if (done || socket == null || !socket.isConnected()) {
                 AbstractDebugTarget target = remote;
-                
-                if ( target != null) {
+
+                if (target != null) {
                     target.terminate();
                 }
                 done = true;
@@ -169,7 +168,7 @@ public class DebuggerReader implements Runnable {
         int i;
         while ((i = in.read()) != -1) {
             char c = (char) i;
-            if(c == '\n' || c == '\r'){
+            if (c == '\n' || c == '\r') {
                 return contents.toString();
             }
             contents.append(c);

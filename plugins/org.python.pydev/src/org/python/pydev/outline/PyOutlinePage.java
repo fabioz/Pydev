@@ -68,41 +68,41 @@ import org.python.pydev.ui.UIConstants;
  * based on ParsedItems.
  **/
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShowInTarget, IAdaptable, IViewWithControls{
+public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShowInTarget, IAdaptable, IViewWithControls {
 
     PyEdit editorView;
     IDocument document;
     IOutlineModel model;
     ImageCache imageCache;
-    
+
     // listeners to rawPartition
     ISelectionChangedListener selectionListener;
-    
+
     private OutlineLinkWithEditorAction linkWithEditor;
     public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();
-	public final ICallbackWithListeners onControlDisposed = new CallbackWithListeners();
+    public final ICallbackWithListeners onControlDisposed = new CallbackWithListeners();
     private List createdCallbacksForControls;
 
     public PyOutlinePage(PyEdit editorView) {
         super();
-        List<IViewCreatedObserver> participants = ExtensionHelper.getParticipants(
-				ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
-		for (IViewCreatedObserver iViewCreatedObserver : participants) {
-			iViewCreatedObserver.notifyViewCreated(this);
-		}
+        List<IViewCreatedObserver> participants = ExtensionHelper
+                .getParticipants(ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
+        for (IViewCreatedObserver iViewCreatedObserver : participants) {
+            iViewCreatedObserver.notifyViewCreated(this);
+        }
         this.editorView = editorView;
         imageCache = new ImageCache(PydevPlugin.getDefault().getBundle().getEntry("/"));
     }
-    
+
     public void dispose() {
         onControlDisposed.call(getTreeViewer());
-        if(createdCallbacksForControls != null){
-            for(Object o:createdCallbacksForControls){
+        if (createdCallbacksForControls != null) {
+            for (Object o : createdCallbacksForControls) {
                 onControlDisposed.call(o);
             }
             createdCallbacksForControls = null;
         }
-        
+
         if (model != null) {
             model.dispose();
             model = null;
@@ -113,13 +113,12 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
         if (imageCache != null) {
             imageCache.dispose();
         }
-        if(linkWithEditor != null){
+        if (linkWithEditor != null) {
             linkWithEditor.dispose();
             linkWithEditor = null;
         }
         super.dispose();
     }
-
 
     /**
      * Parsed partition creates an outline that shows imports/classes/methods
@@ -142,11 +141,11 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
     public ParsedModel getParsedModel() {
         return new ParsedModel(this, editorView);
     }
-    
-    public boolean isDisposed(){
+
+    public boolean isDisposed() {
         return getTreeViewer().getTree().isDisposed();
     }
-    
+
     /**
      * called when model has structural changes, refreshes all items underneath
      * @param items: items to refresh, or null for the whole tree
@@ -158,7 +157,7 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
             TreeViewer viewer = getTreeViewer();
             if (viewer != null) {
                 Tree treeWidget = viewer.getTree();
-                if(isDisposed()){
+                if (isDisposed()) {
                     return;
                 }
 
@@ -167,21 +166,21 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
                 if (bar != null) {
                     barPosition = bar.getSelection();
                 }
-                if (items == null){
-                    if(isDisposed()){
+                if (items == null) {
+                    if (isDisposed()) {
                         return;
                     }
                     viewer.refresh();
-                
-                }else{
-                    if(isDisposed()){
+
+                } else {
+                    if (isDisposed()) {
                         return;
                     }
                     for (int i = 0; i < items.length; i++) {
                         viewer.refresh(items[i]);
                     }
                 }
-                
+
                 if (barPosition != 0) {
                     bar.setSelection(Math.min(bar.getMaximum(), barPosition));
                 }
@@ -189,22 +188,22 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
         } catch (Throwable e) {
             //things may be disposed...
             Log.log(e);
-        }finally{
+        } finally {
             relinkAll();
         }
     }
-    
+
     /**
      * called when a single item changes
      */
     public void updateItems(Object[] items) {
         try {
             unlinkAll();
-            if(isDisposed()){
+            if (isDisposed()) {
                 return;
             }
             TreeViewer tree = getTreeViewer();
-            if (tree != null){
+            if (tree != null) {
                 tree.update(items, null);
             }
         } finally {
@@ -212,49 +211,46 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
         }
     }
 
-    
-    
-
     /**
      * @return the preference store we should use
      */
     /*package*/IPreferenceStore getStore() {
         return PydevPlugin.getDefault().getPreferenceStore();
     }
-    
+
     @Override
     public TreeViewer getTreeViewer() {
         return super.getTreeViewer();
     }
-    
+
     private void createActions() {
         linkWithEditor = new OutlineLinkWithEditorAction(this, imageCache);
-        
+
         //---- Collapse all
         Action collapseAll = new Action("Collapse all", IAction.AS_PUSH_BUTTON) {
             public void run() {
                 getTreeViewer().collapseAll();
             }
         };
-        
+
         //---- Expand all
         Action expandAll = new Action("Expand all", IAction.AS_PUSH_BUTTON) {
             public void run() {
                 getTreeViewer().expandAll();
             }
         };
-        
+
         collapseAll.setImageDescriptor(imageCache.getDescriptor(UIConstants.COLLAPSE_ALL));
         expandAll.setImageDescriptor(imageCache.getDescriptor(UIConstants.EXPAND_ALL));
 
         // Add actions to the toolbar
         IActionBars actionBars = getSite().getActionBars();
         IToolBarManager toolbarManager = actionBars.getToolBarManager();
-        
+
         toolbarManager.add(new OutlineSortByNameAction(this, imageCache));
         toolbarManager.add(collapseAll);
         toolbarManager.add(expandAll);
-        
+
         IMenuManager menuManager = actionBars.getMenuManager();
         menuManager.add(linkWithEditor);
         menuManager.add(new OutlineHideCommentsAction(this, imageCache));
@@ -265,49 +261,48 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
         menuManager.add(new OutlineHideStaticMethodsAction(this, imageCache));
     }
 
-    
     /**
      * create the outline view widgets
      */
     public void createControl(Composite parent) {
         super.createControl(parent); // this creates a tree viewer
-        try{
+        try {
             createParsedOutline();
             // selecting an item in the outline scrolls the document
             selectionListener = new ISelectionChangedListener() {
 
                 public void selectionChanged(SelectionChangedEvent event) {
-                    if(linkWithEditor == null){
+                    if (linkWithEditor == null) {
                         return;
                     }
-                    try{
+                    try {
                         unlinkAll();
-                        StructuredSelection sel = (StructuredSelection)event.getSelection();
-                        
+                        StructuredSelection sel = (StructuredSelection) event.getSelection();
+
                         boolean alreadySelected = false;
-                        if(sel.size() == 1) { // only sync the editing view if it is a single-selection
+                        if (sel.size() == 1) { // only sync the editing view if it is a single-selection
                             ParsedItem firstElement = (ParsedItem) sel.getFirstElement();
                             ErrorDescription errorDesc = firstElement.getErrorDesc();
-                            
+
                             //select the error
-                            if(errorDesc != null && errorDesc.message != null){
-                                int len = errorDesc.errorEnd-errorDesc.errorStart;
+                            if (errorDesc != null && errorDesc.message != null) {
+                                int len = errorDesc.errorEnd - errorDesc.errorStart;
                                 editorView.setSelection(errorDesc.errorStart, len);
                                 alreadySelected = true;
                             }
                         }
-                        if(!alreadySelected){
+                        if (!alreadySelected) {
                             SimpleNode[] node = model.getSelectionPosition(sel);
                             editorView.revealModelNodes(node);
                         }
-                    }finally{
+                    } finally {
                         relinkAll();
                     }
                 }
             };
-            addSelectionChangedListener(selectionListener);    
+            addSelectionChangedListener(selectionListener);
             createActions();
-            
+
             //OK, instead of using the default selection engine, we recreate it only to handle mouse
             //and key events directly, because it seems that sometimes, SWT creates spurious select events
             //when those shouldn't be created, and there's also a risk of creating loops with the selection,
@@ -319,8 +314,8 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
             TreeViewer treeViewer = getTreeViewer();
             treeViewer.removeSelectionChangedListener(this);
             Tree tree = treeViewer.getTree();
-            
-            tree.addMouseListener(new MouseListener(){
+
+            tree.addMouseListener(new MouseListener() {
 
                 public void mouseDoubleClick(MouseEvent e) {
                     tryToMakeSelection();
@@ -331,35 +326,35 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
 
                 public void mouseUp(MouseEvent e) {
                     tryToMakeSelection();
-                }}
-            );
-            
-            tree.addKeyListener(new KeyListener(){
+                }
+            });
+
+            tree.addKeyListener(new KeyListener() {
 
                 public void keyPressed(KeyEvent e) {
                 }
 
                 public void keyReleased(KeyEvent e) {
-                    if(e.keyCode == SWT.ARROW_UP || e.keyCode == SWT.ARROW_DOWN){
+                    if (e.keyCode == SWT.ARROW_UP || e.keyCode == SWT.ARROW_DOWN) {
                         tryToMakeSelection();
                     }
-                }}
-            );
-            
+                }
+            });
+
             onControlCreated.call(getTreeViewer());
             createdCallbacksForControls = callRecursively(onControlCreated, filter, new ArrayList());
-        }catch(Throwable e){
+        } catch (Throwable e) {
             Log.log(e);
         }
     }
-    
+
     /**
      * Calls the callback with the composite c and all of its children (recursively).
      */
     private List callRecursively(ICallbackWithListeners callback, Composite c, ArrayList controls) {
         try {
-            for(Control child:c.getChildren()){
-                if(child instanceof Composite){
+            for (Control child : c.getChildren()) {
+                if (child instanceof Composite) {
                     callRecursively(callback, (Composite) child, controls);
                 }
                 controls.add(child);
@@ -377,28 +372,27 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
     }
 
     public Object getAdapter(Class adapter) {
-        if(adapter == IShowInTarget.class){
+        if (adapter == IShowInTarget.class) {
             return this;
         }
         return null;
     }
 
-    
     @Override
     public void selectionChanged(SelectionChangedEvent event) {
         super.selectionChanged(event);
     }
-    
+
     /**
      * Used to hold a link level to know when it should be unlinked or relinked, as calls can be 'cascaded'
      */
     private int linkLevel = 1;
-    
+
     /**
      * Used for locking link/unlink access.
      */
     private Object lock = new Object();
-    
+
     /**
      * Stops listening to changes (the linkLevel is used so that multiple unlinks can be called and later
      * multiple relinks should be used)
@@ -406,9 +400,9 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
     void unlinkAll() {
         synchronized (lock) {
             linkLevel--;
-            if(linkLevel == 0){
+            if (linkLevel == 0) {
                 removeSelectionChangedListener(selectionListener);
-                if(linkWithEditor != null){
+                if (linkWithEditor != null) {
                     linkWithEditor.unlink();
                 }
             }
@@ -421,12 +415,12 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
     void relinkAll() {
         synchronized (lock) {
             linkLevel++;
-            if(linkLevel == 1){
+            if (linkLevel == 1) {
                 addSelectionChangedListener(selectionListener);
-                if(linkWithEditor != null){
+                if (linkWithEditor != null) {
                     linkWithEditor.relink();
                 }
-            }else if(linkLevel > 1){
+            } else if (linkLevel > 1) {
                 throw new RuntimeException("Error: relinking without unlinking 1st");
             }
         }
@@ -438,9 +432,9 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
     private SelectionChangedEvent createSelectionEvent() {
         SelectionChangedEvent event = null;
         ISelection selection = getSelection();
-        if(selection instanceof IStructuredSelection){
+        if (selection instanceof IStructuredSelection) {
             IStructuredSelection s = (IStructuredSelection) selection;
-            if(s.iterator().hasNext()){
+            if (s.iterator().hasNext()) {
                 //only make the selection if there's some item selected
                 event = new SelectionChangedEvent(getTreeViewer(), selection);
             }
@@ -453,7 +447,7 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
      */
     private void tryToMakeSelection() {
         SelectionChangedEvent event = createSelectionEvent();
-        if(event != null){
+        if (event != null) {
             selectionChanged(event);
         }
     }
@@ -465,6 +459,5 @@ public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShow
     public ICallbackWithListeners getOnControlDisposed() {
         return onControlDisposed;
     }
-
 
 }

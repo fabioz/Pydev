@@ -43,8 +43,7 @@ public class PyCollapse extends PyAction {
                 //put annotations in array list.
                 Iterator iter = model.getAnnotationIterator();
                 while (iter != null && iter.hasNext()) {
-                    PyProjectionAnnotation element = (PyProjectionAnnotation) iter
-                            .next();
+                    PyProjectionAnnotation element = (PyProjectionAnnotation) iter.next();
                     Position position = model.getPosition(element);
 
                     int line = ps.getDoc().getLineOfOffset(position.offset);
@@ -63,6 +62,6 @@ public class PyCollapse extends PyAction {
             }
         } catch (BadLocationException e) {
             Log.log(IStatus.ERROR, "Unexpected error collapsing", e);
-         }
+        }
     }
 }

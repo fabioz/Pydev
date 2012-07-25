@@ -79,7 +79,7 @@ public class ScopesParser {
          */
         private Map<Integer, List<ScopeEntry>> offsetToEntries = new HashMap<Integer, List<ScopeEntry>>();
         private int scopeId = 0;
-        private Map<Integer, Tuple<ScopeEntry, ScopeEntry>>  idToStartEnd = new HashMap<Integer, Tuple<ScopeEntry,ScopeEntry>>();
+        private Map<Integer, Tuple<ScopeEntry, ScopeEntry>> idToStartEnd = new HashMap<Integer, Tuple<ScopeEntry, ScopeEntry>>();
 
         private List<ScopeEntry> getAtOffset(int offset) {
             List<ScopeEntry> list = offsetToEntries.get(offset);
@@ -89,35 +89,34 @@ public class ScopesParser {
             }
             return list;
         }
-        
+
         public IRegion getScopeForSelection(final int offset, final int len) {
-            final int endOffset = offset+len-1;
-            for(int i=offset;i>=0;i--){
+            final int endOffset = offset + len - 1;
+            for (int i = offset; i >= 0; i--) {
                 //We have to get a scope that starts before the current offset and ends after offset+len
                 //If it's the same, we must expand to an outer scope!
                 List<ScopeEntry> list = offsetToEntries.get(i);
-                if(list != null){
+                if (list != null) {
                     ListIterator<ScopeEntry> listIterator = list.listIterator(list.size());
-                    while(listIterator.hasPrevious()){
+                    while (listIterator.hasPrevious()) {
                         ScopeEntry scopeEntry = listIterator.previous();
-                        if(scopeEntry.open){
+                        if (scopeEntry.open) {
                             //Only interested in the opening ones at this point
                             Tuple<ScopeEntry, ScopeEntry> tup = idToStartEnd.get(scopeEntry.id);
-                            if(i == offset && endOffset == tup.o2.offset){
+                            if (i == offset && endOffset == tup.o2.offset) {
                                 continue;
                             }
-                            if(endOffset > tup.o2.offset){
+                            if (endOffset > tup.o2.offset) {
                                 continue;
                             }
-                            
-                            return new Region(tup.o1.offset, tup.o2.offset-tup.o1.offset+1);
+
+                            return new Region(tup.o1.offset, tup.o2.offset - tup.o1.offset + 1);
                         }
                     }
                 }
             }
             return null;
         }
-
 
         public int startScope(int offset, int type) {
             scopeId++;
@@ -213,124 +212,124 @@ public class ScopesParser {
 
             switch (ch) {
 
-            case '#':
-                id = this.scopes.startScope(offsetDelta + offset, Scopes.TYPE_COMMENT);
-                offset = parsingUtils.eatComments(buf.clear(), offset);
-                this.scopes.endScope(id, offsetDelta + offset, Scopes.TYPE_COMMENT);
-                break;
+                case '#':
+                    id = this.scopes.startScope(offsetDelta + offset, Scopes.TYPE_COMMENT);
+                    offset = parsingUtils.eatComments(buf.clear(), offset);
+                    this.scopes.endScope(id, offsetDelta + offset, Scopes.TYPE_COMMENT);
+                    break;
 
-            case '{':
-            case '[':
-            case '(':
-                int baseOffset = offset;
-                try {
-                    offset = parsingUtils.eatPar(offset, buf.clear(), ch); //If a SyntaxError is raised here, we won't create a scope!
-                    id = this.scopes.startScope(offsetDelta + baseOffset + 1, Scopes.TYPE_PEER);
-                    
+                case '{':
+                case '[':
+                case '(':
+                    int baseOffset = offset;
                     try {
-                        String cs = doc.get(offsetDelta+baseOffset+1, offset-baseOffset-1);
-                        createInternalScopes(ParsingUtils.create(cs, true), offsetDelta+baseOffset+1);
-                    } catch (BadLocationException e1) {
-                        Log.log(e1);
-                    }
-                    
-                    this.scopes.endScope(id, offsetDelta + offset, Scopes.TYPE_PEER);
-                    
-                } catch (SyntaxErrorException e2) {
-                    
-                }
-                
-                break;
+                        offset = parsingUtils.eatPar(offset, buf.clear(), ch); //If a SyntaxError is raised here, we won't create a scope!
+                        id = this.scopes.startScope(offsetDelta + baseOffset + 1, Scopes.TYPE_PEER);
 
-            case '\'':
-                //Fallthrough
+                        try {
+                            String cs = doc.get(offsetDelta + baseOffset + 1, offset - baseOffset - 1);
+                            createInternalScopes(ParsingUtils.create(cs, true), offsetDelta + baseOffset + 1);
+                        } catch (BadLocationException e1) {
+                            Log.log(e1);
+                        }
 
-            case '\"':
-                baseOffset = offset;
-                
-                try {
-                    offset = parsingUtils.eatLiterals(buf.clear(), offset); //If a SyntaxError is raised here, we won't create a scope!
-                    id = this.scopes.startScope(offsetDelta + baseOffset, Scopes.TYPE_STRING);
-                    this.scopes.endScope(id, offsetDelta + offset + 1, Scopes.TYPE_STRING);
-                } catch (SyntaxErrorException e1) {
-                    
-                }
-                break;
+                        this.scopes.endScope(id, offsetDelta + offset, Scopes.TYPE_PEER);
 
-            case ':':
-                if (PySelection.startsWithIndentToken(lineMemo.toString().trim())) {
-                    SortedMap<Integer, Integer> subMap = lineOffsetToIndent.tailMap(offsetDelta + memoStart + 1);
-                    Integer level = lineOffsetToIndent.get(offsetDelta + memoStart);
-                    if(level == null){
-                        //It's a ':' inside a parens
-                        continue;
+                    } catch (SyntaxErrorException e2) {
+
                     }
 
-                    Set<Entry<Integer, Integer>> entrySet = subMap.entrySet();
-                    boolean found = false;
-                    id = this.scopes.startScope(memoStart + level, Scopes.TYPE_SUITE);
-                    
-                    int id2 = -1;
-                    for(int j=offset+1;j<docLen;j++ ){
-                        char c = parsingUtils.charAt(j);
-                        if(Character.isWhitespace(c)){
+                    break;
+
+                case '\'':
+                    //Fallthrough
+
+                case '\"':
+                    baseOffset = offset;
+
+                    try {
+                        offset = parsingUtils.eatLiterals(buf.clear(), offset); //If a SyntaxError is raised here, we won't create a scope!
+                        id = this.scopes.startScope(offsetDelta + baseOffset, Scopes.TYPE_STRING);
+                        this.scopes.endScope(id, offsetDelta + offset + 1, Scopes.TYPE_STRING);
+                    } catch (SyntaxErrorException e1) {
+
+                    }
+                    break;
+
+                case ':':
+                    if (PySelection.startsWithIndentToken(lineMemo.toString().trim())) {
+                        SortedMap<Integer, Integer> subMap = lineOffsetToIndent.tailMap(offsetDelta + memoStart + 1);
+                        Integer level = lineOffsetToIndent.get(offsetDelta + memoStart);
+                        if (level == null) {
+                            //It's a ':' inside a parens
                             continue;
                         }
-                        if(c == '#'){
-                            j = parsingUtils.eatComments(null, j);
-                            continue;
-                        }
-                        id2 = this.scopes.startScope(offsetDelta + j, Scopes.TYPE_SUITE);
-                        break;
-                    }
-                    
-                    for (Entry<Integer, Integer> entry : entrySet) {
-                        if (level >= entry.getValue()) {
-                            found = true;
-                            Integer scopeEndOffset = entry.getKey();
-                            try {
-                                int line = doc.getLineOfOffset(scopeEndOffset);
-                                if (line > 0) {
-                                    //We want it to end at the end of the previous line (not at the start of the next scope)
-                                    IRegion lineInformation = doc.getLineInformation(line - 1);
-                                    scopeEndOffset = lineInformation.getOffset() + lineInformation.getLength();
-                                }
-                            } catch (BadLocationException e) {
-                                Log.log(e);
+
+                        Set<Entry<Integer, Integer>> entrySet = subMap.entrySet();
+                        boolean found = false;
+                        id = this.scopes.startScope(memoStart + level, Scopes.TYPE_SUITE);
+
+                        int id2 = -1;
+                        for (int j = offset + 1; j < docLen; j++) {
+                            char c = parsingUtils.charAt(j);
+                            if (Character.isWhitespace(c)) {
+                                continue;
                             }
-                            this.scopes.endScope(id, scopeEndOffset, Scopes.TYPE_SUITE);
-                            if(id2 >0){
-                                this.scopes.endScope(id2, scopeEndOffset, Scopes.TYPE_SUITE);
+                            if (c == '#') {
+                                j = parsingUtils.eatComments(null, j);
+                                continue;
                             }
+                            id2 = this.scopes.startScope(offsetDelta + j, Scopes.TYPE_SUITE);
                             break;
                         }
-                    }
-                    if (!found) {
-                        //Ends at the end of the document!
-                        this.scopes.endScope(id, offsetDelta + parsingUtils.len(), Scopes.TYPE_SUITE);
-                        if(id2 >0){
-                            this.scopes.endScope(id2,  offsetDelta + parsingUtils.len(), Scopes.TYPE_SUITE);
+
+                        for (Entry<Integer, Integer> entry : entrySet) {
+                            if (level >= entry.getValue()) {
+                                found = true;
+                                Integer scopeEndOffset = entry.getKey();
+                                try {
+                                    int line = doc.getLineOfOffset(scopeEndOffset);
+                                    if (line > 0) {
+                                        //We want it to end at the end of the previous line (not at the start of the next scope)
+                                        IRegion lineInformation = doc.getLineInformation(line - 1);
+                                        scopeEndOffset = lineInformation.getOffset() + lineInformation.getLength();
+                                    }
+                                } catch (BadLocationException e) {
+                                    Log.log(e);
+                                }
+                                this.scopes.endScope(id, scopeEndOffset, Scopes.TYPE_SUITE);
+                                if (id2 > 0) {
+                                    this.scopes.endScope(id2, scopeEndOffset, Scopes.TYPE_SUITE);
+                                }
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            //Ends at the end of the document!
+                            this.scopes.endScope(id, offsetDelta + parsingUtils.len(), Scopes.TYPE_SUITE);
+                            if (id2 > 0) {
+                                this.scopes.endScope(id2, offsetDelta + parsingUtils.len(), Scopes.TYPE_SUITE);
+                            }
                         }
                     }
-                }
-                break;
+                    break;
 
-            case '\r':
-                //Fallthrough
+                case '\r':
+                    //Fallthrough
 
-            case '\n':
-                //Note that we don't add the \r nor \n to the memo (but we clear it if the  line did not end with a \).
-                if (lineMemo.length() > 0 && lineMemo.lastChar() != '\\') {
-                    lineMemo.clear();
-                }
-                break;
+                case '\n':
+                    //Note that we don't add the \r nor \n to the memo (but we clear it if the  line did not end with a \).
+                    if (lineMemo.length() > 0 && lineMemo.lastChar() != '\\') {
+                        lineMemo.clear();
+                    }
+                    break;
 
-            default:
-                if (lineMemo.length() == 0) {
-                    memoStart = offset;
-                }
-                lineMemo.append(ch);
-                break;
+                default:
+                    if (lineMemo.length() == 0) {
+                        memoStart = offset;
+                    }
+                    lineMemo.append(ch);
+                    break;
             }
 
         }

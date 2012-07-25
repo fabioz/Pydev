@@ -14,7 +14,7 @@ import org.python.pydev.core.log.Log;
  * It allows you to specify the number of times that the callback should be called.  
  *
  */
-public class CounterThread extends Thread{
+public class CounterThread extends Thread {
     private ICallback callback;
     private int elapseTime;
     private int stopWhenReaches;
@@ -25,13 +25,13 @@ public class CounterThread extends Thread{
      * @param elapseTime this is the millis that should elapse between the calls
      * @param stopWhenReaches this is the number of times that it should be called
      */
-    public CounterThread(ICallback callback, int elapseTime, int stopWhenReaches){
-        this.callback      = callback;       
-        this.elapseTime    = elapseTime;    
+    public CounterThread(ICallback callback, int elapseTime, int stopWhenReaches) {
+        this.callback = callback;
+        this.elapseTime = elapseTime;
         this.stopWhenReaches = stopWhenReaches;
         setName("Callback (CounterThread)");
     }
-    
+
     @Override
     public void run() {
         try {
@@ -44,7 +44,7 @@ public class CounterThread extends Thread{
                     return;
                 }
             }
-            
+
         } catch (Exception e) {
             Log.log(e);
             return;

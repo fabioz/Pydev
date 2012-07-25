@@ -1,6 +1,7 @@
 // Copyright (c) Corporation for National Research Initiatives
 
 package org.python.compiler;
+
 import java.io.*;
 
 public class APIVersion extends Attribute {

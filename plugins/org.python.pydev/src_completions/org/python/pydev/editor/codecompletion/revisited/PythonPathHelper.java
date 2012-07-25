@@ -52,7 +52,7 @@ import org.python.pydev.utils.PyFileListing.PyFileInfo;
  * @author Fabio Zadrozny
  */
 public final class PythonPathHelper implements IPythonPathHelper {
-    
+
     /**
      * This is a list of Files containing the pythonpath. It's always an immutable list. The instance must
      * be changed to change the pythonpath.
@@ -72,7 +72,8 @@ public final class PythonPathHelper implements IPythonPathHelper {
         return StringUtils.replaceAllSlashes(str.trim());
     }
 
-    public PythonPathHelper() {}
+    public PythonPathHelper() {
+    }
 
     /**
      * This method returns all modules that can be obtained from a root File.
@@ -117,60 +118,61 @@ public final class PythonPathHelper implements IPythonPathHelper {
 
             //the major difference from handling jars from regular python files is that we don't have to check for __init__.py files
             ModulesFoundStructure.ZipContents zipContents = new ModulesFoundStructure.ZipContents(root);
-            
+
             //by default it's a zip (for python) -- may change if a .class is found.
             zipContents.zipContentsType = ZipContents.ZIP_CONTENTS_TYPE_PY_ZIP;
-            
+
             try {
                 String zipFileName = root.getName();
-                
-                
+
                 ZipFile zipFile = new ZipFile(root);
-                try{
+                try {
                     Enumeration<? extends ZipEntry> entries = zipFile.entries();
-    
-                    int i=0;
+
+                    int i = 0;
                     FastStringBuffer buffer = new FastStringBuffer();
                     //ok, now that we have the zip entries, let's map them to modules
                     while (entries.hasMoreElements()) {
                         ZipEntry entry = entries.nextElement();
                         String name = entry.getName();
                         if (!entry.isDirectory()) {
-                            if(isValidFileMod(name) || name.endsWith(".class")){
-                                
-                                if(name.endsWith(".class")){
+                            if (isValidFileMod(name) || name.endsWith(".class")) {
+
+                                if (name.endsWith(".class")) {
                                     zipContents.zipContentsType = ZipContents.ZIP_CONTENTS_TYPE_JAR;
                                 }
-                                
+
                                 //it is a valid python file
-                                if(i % 15 == 0){
-                                    if(monitor.isCanceled()){
+                                if (i % 15 == 0) {
+                                    if (monitor.isCanceled()) {
                                         return null;
                                     }
                                     buffer.clear();
-                                    monitor.setTaskName(buffer.append("Found in ").append(zipFileName).append(" module ").append(name).toString());
+                                    monitor.setTaskName(buffer.append("Found in ").append(zipFileName)
+                                            .append(" module ").append(name).toString());
                                     monitor.worked(1);
                                 }
-                                
-                                if(isValidInitFile(name)){
-                                    zipContents.pyInitFilesLowerWithoutExtension.add(StringUtils.stripExtension(name).toLowerCase());
+
+                                if (isValidInitFile(name)) {
+                                    zipContents.pyInitFilesLowerWithoutExtension.add(StringUtils.stripExtension(name)
+                                            .toLowerCase());
                                 }
                                 zipContents.pyFilesLowerToRegular.put(name.toLowerCase(), name);
                             }
-                            
-                        }else{ //!isDirectory
+
+                        } else { //!isDirectory
                             zipContents.pyfoldersLower.add(name.toLowerCase());
                         }
                         i++;
                     }
-                }finally{
+                } finally {
                     zipFile.close();
                 }
-                
+
                 //now, on to actually filling the structure if we have a zip file (just add the ones that are actually under
                 //the pythonpath)
                 zipContents.consolidatePythonpathInfo(monitor);
-                
+
                 return zipContents;
 
             } catch (Exception e) {
@@ -180,7 +182,6 @@ public final class PythonPathHelper implements IPythonPathHelper {
         }
         return null;
     }
-
 
     /**
      * @return if the path passed belongs to a valid python source file (checks for the extension)
@@ -192,8 +193,8 @@ public final class PythonPathHelper implements IPythonPathHelper {
                 return true;
             }
         }
-        if(path.endsWith(".pypredef")){
-        	return true;
+        if (path.endsWith(".pypredef")) {
+            return true;
         }
         return false;
     }
@@ -212,8 +213,8 @@ public final class PythonPathHelper implements IPythonPathHelper {
                 return true;
             }
         }
-        if(ext.equals(".pypredef")){
-        	return true;
+        if (ext.equals(".pypredef")) {
+            return true;
         }
         return false;
     }
@@ -238,14 +239,14 @@ public final class PythonPathHelper implements IPythonPathHelper {
         return resolveModule(fullPath, false);
     }
 
-	public String resolveModule(String fullPath, ArrayList<String> pythonPathToUse) {
-		return resolveModule(fullPath, false, pythonPathToUse);
-	}
+    public String resolveModule(String fullPath, ArrayList<String> pythonPathToUse) {
+        return resolveModule(fullPath, false, pythonPathToUse);
+    }
 
-    
-	public String resolveModule(String fullPath, final boolean requireFileToExist) {
-		return resolveModule(fullPath, requireFileToExist, getPythonpath());
-	}
+    public String resolveModule(String fullPath, final boolean requireFileToExist) {
+        return resolveModule(fullPath, requireFileToExist, getPythonpath());
+    }
+
     /**
      * DAMN... when I started thinking this up, it seemed much better... (and easier)
      * 
@@ -272,7 +273,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
         boolean isFile = moduleFile.isFile();
 
         //go through our pythonpath and check the beginning
-        for(String pathEntry : pythonPathCopy) {
+        for (String pathEntry : pythonPathCopy) {
 
             String element = getDefaultPathStr(pathEntry);
             if (fullPath.startsWith(element)) {
@@ -430,9 +431,9 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * @return
      */
     public static boolean isValidModuleLastPart(String s) {
-        for(int i=0;i<s.length();i++){
+        for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
-            if(c == '-' || c == ' ' || c == '.'|| c == '+'){
+            if (c == '-' || c == ' ' || c == '.' || c == '+') {
                 return false;
             }
         }
@@ -442,7 +443,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
     public void setPythonPath(List<String> newPythonpath) {
         this.pythonpath = Collections.unmodifiableList(new ArrayList<String>(newPythonpath));
     }
-    
+
     /**
      * @param string with paths separated by |
      * @return
@@ -457,7 +458,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * @return 
      */
     public static List<String> parsePythonPathFromStr(String string, List<String> lPath) {
-        if(lPath == null){
+        if (lPath == null) {
             lPath = new ArrayList<String>();
         }
         String[] strings = string.split("\\|");
@@ -469,7 +470,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
                     //we have to get it with the appropriate cases and in a canonical form
                     String path = REF.getFileAbsolutePath(file);
                     lPath.add(path);
-                }else{
+                } else {
                     lPath.add(defaultPathStr);
                 }
             }
@@ -492,11 +493,11 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * python modules.
      */
     public ModulesFoundStructure getModulesFoundStructure(IProgressMonitor monitor) {
-        if(monitor == null){
+        if (monitor == null) {
             monitor = new NullProgressMonitor();
         }
         List<String> pythonpathList = getPythonpath();
-        
+
         ModulesFoundStructure ret = new ModulesFoundStructure();
 
         FastStringBuffer tempBuf = new FastStringBuffer();
@@ -517,7 +518,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
                     PyFileInfo pyFileInfo = e1.next();
                     File file = pyFileInfo.getFile();
                     String modName = pyFileInfo.getModuleName(tempBuf);
-                    if(isValidModuleLastPart(FullRepIterable.getLastPart(modName))){
+                    if (isValidModuleLastPart(FullRepIterable.getLastPart(modName))) {
                         ret.regularModules.put(file, modName);
                     }
                 }
@@ -538,8 +539,8 @@ public final class PythonPathHelper implements IPythonPathHelper {
      */
     public void loadFromFile(File pythonpatHelperFile) throws IOException {
         String fileContents = REF.getFileContents(pythonpatHelperFile);
-        if(fileContents == null || fileContents.trim().length() == 0){
-            throw new IOException("No loaded contents from: "+pythonpatHelperFile);
+        if (fileContents == null || fileContents.trim().length() == 0) {
+            throw new IOException("No loaded contents from: " + pythonpatHelperFile);
         }
         this.pythonpath = Collections.unmodifiableList(StringUtils.split(fileContents, '\n'));
     }
@@ -552,16 +553,16 @@ public final class PythonPathHelper implements IPythonPathHelper {
     }
 
     public static boolean canAddAstInfoFor(ModulesKey key) {
-        if(key.file != null && key.file.exists()){
-            
-            if (PythonPathHelper.isValidSourceFile(key.file.getName())){
+        if (key.file != null && key.file.exists()) {
+
+            if (PythonPathHelper.isValidSourceFile(key.file.getName())) {
                 return true;
             }
-            
+
             boolean isZipModule = key instanceof ModulesKeyForZip;
-            if(isZipModule){
+            if (isZipModule) {
                 ModulesKeyForZip modulesKeyForZip = (ModulesKeyForZip) key;
-                if(PythonPathHelper.isValidSourceFile(modulesKeyForZip.zipModulePath)){
+                if (PythonPathHelper.isValidSourceFile(modulesKeyForZip.zipModulePath)) {
                     return true;
                 }
             }
@@ -574,26 +575,26 @@ public final class PythonPathHelper implements IPythonPathHelper {
      */
     public static boolean markAsPyDevFileIfDetected(IFile file) {
         String name = file.getName();
-        if(name == null || name.indexOf('.') != -1){
+        if (name == null || name.indexOf('.') != -1) {
             return false;
         }
-        
+
         String editorID;
         try {
             editorID = file.getPersistentProperty(IDE.EDITOR_KEY);
-            if(editorID == null){
+            if (editorID == null) {
                 InputStream contents = file.getContents(true);
                 Reader inputStreamReader = new InputStreamReader(new BufferedInputStream(contents));
-                if(REF.hasPythonShebang(inputStreamReader)){
+                if (REF.hasPythonShebang(inputStreamReader)) {
                     IDE.setDefaultEditor(file, PyEdit.EDITOR_ID);
                     return true;
                 }
-            }else{
+            } else {
                 return PyEdit.EDITOR_ID.equals(editorID);
             }
-            
+
         } catch (Exception e) {
-            if(file.exists()){
+            if (file.exists()) {
                 Log.log(e);
             }
         }

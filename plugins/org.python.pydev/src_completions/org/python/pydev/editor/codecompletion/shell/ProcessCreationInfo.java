@@ -13,44 +13,40 @@ import java.util.Arrays;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.runners.ThreadStreamReader;
 
-public class ProcessCreationInfo{
+public class ProcessCreationInfo {
 
     public final String[] parameters;
     public final String[] envp;
     public final File workingDir;
     public final Process process;
-    
-    
+
     private ThreadStreamReader stdReader;
     private ThreadStreamReader errReader;
 
-
     public ProcessCreationInfo(String[] parameters, String[] envp, File workingDir, Process process) {
         this.parameters = parameters;
-        if(envp != null){
+        if (envp != null) {
             Arrays.sort(envp); //Keep it sorted!
         }
         this.envp = envp;
         this.workingDir = workingDir;
         this.process = process;
-        
+
         try {
             process.getOutputStream().close(); //we won't write to it...
         } catch (IOException e2) {
         }
-        
+
         //will print things if we are debugging or just get it (and do nothing except emptying it)
         stdReader = new ThreadStreamReader(process.getInputStream());
         errReader = new ThreadStreamReader(process.getErrorStream());
-        
+
         stdReader.setName("Shell reader (stdout)");
         errReader.setName("Shell reader (stderr)");
-        
+
         stdReader.start();
         errReader.start();
     }
-
-
 
     public String getProcessLog() {
 
@@ -75,20 +71,10 @@ public class ProcessCreationInfo{
         String errContents = errReader.getContents();
 
         //Pre-allocate it in a proper size.
-        String[] splitted = new String[] {
-            "ProcessInfo:\n\n - Executed: ",
-            joinedParams,
-            "\n\n - Environment:\n",
-            environment,
-            "\n\n - Working Dir:\n",
-            workDir,
-            "\n\n - OS:\n",
-            osName,
-            "\n\n - Std output:\n",
-            stdContents,
-            "\n\n - Err output:\n",
-            errContents };
-        
+        String[] splitted = new String[] { "ProcessInfo:\n\n - Executed: ", joinedParams, "\n\n - Environment:\n",
+                environment, "\n\n - Working Dir:\n", workDir, "\n\n - OS:\n", osName, "\n\n - Std output:\n",
+                stdContents, "\n\n - Err output:\n", errContents };
+
         return StringUtils.join("", splitted);
     }
 

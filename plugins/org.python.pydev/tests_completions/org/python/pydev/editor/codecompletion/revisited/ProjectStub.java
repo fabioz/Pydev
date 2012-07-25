@@ -28,19 +28,19 @@ public class ProjectStub extends AbstractIProjectStub implements IProject {
     public IProject[] referencingProjects;
     private PythonNature nature;
     private String path;
-    
+
     public ProjectStub(String name, String path2, IProject[] referencedProjects, IProject[] referencingProjects) {
         this.path = path2;
         this.name = name;
         this.referencedProjects = referencedProjects;
         this.referencingProjects = referencingProjects;
     }
-    
-    public void setReferencedProjects(IProject ... referencedProjects){
+
+    public void setReferencedProjects(IProject... referencedProjects) {
         this.referencedProjects = referencedProjects;
     }
-    
-    public void setReferencingProjects(IProject ... referencingProjects){
+
+    public void setReferencingProjects(IProject... referencingProjects) {
         this.referencingProjects = referencingProjects;
     }
 
@@ -48,24 +48,22 @@ public class ProjectStub extends AbstractIProjectStub implements IProject {
         fileStub = new FileStub2(name);
         return fileStub;
     }
-    
+
     public FileStub2 fileStub;
 
-
     public IProjectNature getNature(String natureId) throws CoreException {
-        if(nature == null){
+        if (nature == null) {
             throw new RuntimeException("not expected");
         }
         return nature;
     }
 
-
     public IPath getWorkingLocation(String id) {
         return new Path(path);
     }
-    
+
     public IPath getFullPath() {
-    	return new Path(path);
+        return new Path(path);
     }
 
     public IProject[] getReferencedProjects() throws CoreException {
@@ -78,7 +76,7 @@ public class ProjectStub extends AbstractIProjectStub implements IProject {
     }
 
     public boolean hasNature(String natureId) throws CoreException {
-        if(PythonNature.PYTHON_NATURE_ID.equals(natureId)){
+        if (PythonNature.PYTHON_NATURE_ID.equals(natureId)) {
             return true;
         }
         throw new RuntimeException("not expected");
@@ -87,28 +85,26 @@ public class ProjectStub extends AbstractIProjectStub implements IProject {
     public boolean isOpen() {
         return true;
     }
-    
+
     public String getName() {
         return name;
     }
 
-
     public String getPersistentProperty(QualifiedName key) throws CoreException {
-        if(key.getLocalName().equals("PYTHON_PROJECT_VERSION")){
+        if (key.getLocalName().equals("PYTHON_PROJECT_VERSION")) {
             return IPythonNature.PYTHON_VERSION_2_5;//for tests, always the latest version
         }
-        if(key.getLocalName().equals("PROJECT_SOURCE_PATH")){
+        if (key.getLocalName().equals("PROJECT_SOURCE_PATH")) {
             return this.path;
         }
-        if(key.getLocalName().equals("PROJECT_EXTERNAL_SOURCE_PATH")){
+        if (key.getLocalName().equals("PROJECT_EXTERNAL_SOURCE_PATH")) {
             return "";
         }
         throw new RuntimeException("not impl");
     }
 
-
     public void setPersistentProperty(QualifiedName key, String value) throws CoreException {
-        if(value == null){
+        if (value == null) {
             return;
         }
         throw new RuntimeException("not impl");
@@ -123,6 +119,6 @@ public class ProjectStub extends AbstractIProjectStub implements IProject {
      */
     @Override
     public String toString() {
-        return "ProjectStub: "+this.name;
+        return "ProjectStub: " + this.name;
     }
 }

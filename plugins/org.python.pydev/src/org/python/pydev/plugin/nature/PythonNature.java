@@ -83,41 +83,38 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * Contains a list with the natures created.
      */
     private final static List<WeakReference<PythonNature>> createdNatures = new ArrayList<WeakReference<PythonNature>>();
-    
+
     /**
      * @return the natures that were created.
      */
-    public static List<PythonNature> getInitializedPythonNatures(){
+    public static List<PythonNature> getInitializedPythonNatures() {
         ArrayList<PythonNature> ret = new ArrayList<PythonNature>();
-        synchronized(createdNatures){
-            for(Iterator<WeakReference<PythonNature>> it=createdNatures.iterator();it.hasNext();){
+        synchronized (createdNatures) {
+            for (Iterator<WeakReference<PythonNature>> it = createdNatures.iterator(); it.hasNext();) {
                 PythonNature pythonNature = it.next().get();
-                if(pythonNature == null){
+                if (pythonNature == null) {
                     it.remove();
-                }else if(pythonNature.getProject() != null){
+                } else if (pythonNature.getProject() != null) {
                     ret.add(pythonNature);
                 }
             }
         }
         return ret;
     }
-    
+
     /**
      * Constructor
      * 
      * Adds the nature to the list of created natures.
      */
-    public PythonNature(){
-        synchronized(createdNatures){
+    public PythonNature() {
+        synchronized (createdNatures) {
             createdNatures.add(new WeakReference<PythonNature>(this));
         }
     }
-    
-    
+
     private final Object initLock = new Object();
-    
-    
-    
+
     /**
      * This is the job that is used to rebuild the python nature modules.
      * 
@@ -126,9 +123,9 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     protected class RebuildPythonNatureModules extends Job {
 
         protected RebuildPythonNatureModules() {
-          super("Python Nature: rebuilding modules");
+            super("Python Nature: rebuilding modules");
         }
-    
+
         @SuppressWarnings("unchecked")
         protected IStatus run(IProgressMonitor monitor) {
 
@@ -139,35 +136,37 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 Log.log(e1);
                 return Status.OK_STATUS;
             }
-            
+
             try {
-                if(monitor.isCanceled()){
+                if (monitor.isCanceled()) {
                     return Status.OK_STATUS;
                 }
-                final JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitor, "Rebuilding modules", IProgressMonitor.UNKNOWN, this);
+                final JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitor,
+                        "Rebuilding modules", IProgressMonitor.UNKNOWN, this);
                 final PythonNature nature = PythonNature.this;
                 try {
                     ICodeCompletionASTManager tempAstManager = astManager;
                     if (tempAstManager == null) {
                         tempAstManager = new ASTManager();
                     }
-                    if(monitor.isCanceled()){
+                    if (monitor.isCanceled()) {
                         return Status.OK_STATUS;
                     }
-                    synchronized(tempAstManager.getLock()){
+                    synchronized (tempAstManager.getLock()) {
                         astManager = tempAstManager;
                         tempAstManager.setProject(getProject(), nature, false); //it is a new manager, so, remove all deltas
 
                         //begins task automatically
                         tempAstManager.changePythonPath(paths, project, jobProgressComunicator);
-                        if(monitor.isCanceled()){
+                        if (monitor.isCanceled()) {
                             return Status.OK_STATUS;
                         }
                         saveAstManager();
 
-                        List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
+                        List<IInterpreterObserver> participants = ExtensionHelper
+                                .getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
                         for (IInterpreterObserver observer : participants) {
-                            if(monitor.isCanceled()){
+                            if (monitor.isCanceled()) {
                                 return Status.OK_STATUS;
                             }
                             try {
@@ -182,13 +181,13 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                     Log.log(e);
                 }
 
-                if(monitor.isCanceled()){
+                if (monitor.isCanceled()) {
                     return Status.OK_STATUS;
                 }
-                PythonNatureListenersManager.notifyPythonPathRebuilt(project, nature); 
+                PythonNatureListenersManager.notifyPythonPathRebuilt(project, nature);
                 //end task
                 jobProgressComunicator.done();
-            }catch (Exception e) {
+            } catch (Exception e) {
                 Log.log(e);
             }
             return Status.OK_STATUS;
@@ -199,7 +198,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * This is the nature ID
      */
     public static final String PYTHON_NATURE_ID = "org.python.pydev.pythonNature";
-    
+
     /**
      * Nature ID for projects that are django configured (it's here because the icon managing
      * needs this information).
@@ -215,7 +214,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * Builder id for pydev (code completion todo and others)
      */
     public static final String BUILDER_ID = "org.python.pydev.PyDevBuilder";
-    
+
     /**
      * Project associated with this nature.
      */
@@ -235,62 +234,63 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * Manages pythonpath things
      */
     private final IPythonPathNature pythonPathNature = new PythonPathNature();
-    
+
     /**
      * Used to actually store settings for the pythonpath
      */
     private final IPythonNatureStore pythonNatureStore = new PythonNatureStore();
-    
-    
+
     /**
      * constant that stores the name of the python version we are using for the project with this nature
      */
     private static QualifiedName pythonProjectVersion = null;
+
     static QualifiedName getPythonProjectVersionQualifiedName() {
-        if(pythonProjectVersion == null){
+        if (pythonProjectVersion == null) {
             //we need to do this because the plugin ID may not be known on 'static' time
             pythonProjectVersion = new QualifiedName(PydevPlugin.getPluginID(), "PYTHON_PROJECT_VERSION");
         }
         return pythonProjectVersion;
     }
-    
+
     /**
      * constant that stores the name of the python version we are using for the project with this nature
      */
     private static QualifiedName pythonProjectInterpreter = null;
+
     static QualifiedName getPythonProjectInterpreterQualifiedName() {
-        if(pythonProjectInterpreter == null){
+        if (pythonProjectInterpreter == null) {
             //we need to do this because the plugin ID may not be known on 'static' time
             pythonProjectInterpreter = new QualifiedName(PydevPlugin.getPluginID(), "PYTHON_PROJECT_INTERPRETER");
         }
         return pythonProjectInterpreter;
     }
 
-    public boolean isResourceInPythonpathProjectSources(IResource resource, boolean addExternal) throws MisconfigurationException, CoreException {
+    public boolean isResourceInPythonpathProjectSources(IResource resource, boolean addExternal)
+            throws MisconfigurationException, CoreException {
         String resourceOSString = PydevPlugin.getIResourceOSString(resource);
-        if(resourceOSString == null){
+        if (resourceOSString == null) {
             return false;
         }
         return isResourceInPythonpathProjectSources(resourceOSString, addExternal);
-        
+
     }
-    
-    public boolean isResourceInPythonpathProjectSources(String absPath, boolean addExternal) throws MisconfigurationException, CoreException {
-        return resolveModuleOnlyInProjectSources(absPath, addExternal) != null; 
+
+    public boolean isResourceInPythonpathProjectSources(String absPath, boolean addExternal)
+            throws MisconfigurationException, CoreException {
+        return resolveModuleOnlyInProjectSources(absPath, addExternal) != null;
     }
-    
 
     public String resolveModuleOnlyInProjectSources(IResource fileAbsolutePath, boolean addExternal)
-    		throws CoreException, MisconfigurationException {
-    	
-    	String resourceOSString = PydevPlugin.getIResourceOSString(fileAbsolutePath);
-    	if(resourceOSString == null){
-    		return null;
-    	}
-    	return resolveModuleOnlyInProjectSources(resourceOSString, addExternal); 
+            throws CoreException, MisconfigurationException {
+
+        String resourceOSString = PydevPlugin.getIResourceOSString(fileAbsolutePath);
+        if (resourceOSString == null) {
+            return null;
+        }
+        return resolveModuleOnlyInProjectSources(resourceOSString, addExternal);
     }
 
-    
     /**
      * This method is called only when the project has the nature added..
      * 
@@ -313,7 +313,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     public IProject getProject() {
         return project;
     }
-    
+
     /**
      * Sets this nature's project - called from the eclipse platform.
      * 
@@ -323,20 +323,20 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         getStore().setProject(project);
         this.project = project;
         this.pythonPathNature.setProject(project, this);
-        
-        if(project != null){
-        	//call initialize always - let it do the control.
+
+        if (project != null) {
+            //call initialize always - let it do the control.
             init(null, null, null, new NullProgressMonitor(), null, null);
-        }else{
-        	this.clearCaches(false);
+        } else {
+            this.clearCaches(false);
         }
 
     }
 
     public static IPythonNature addNature(IEditorInput element) {
-        if(element instanceof FileEditorInput){
-            IFile file = (IFile)((FileEditorInput)element).getAdapter(IFile.class);
-            if (file != null){
+        if (element instanceof FileEditorInput) {
+            IFile file = (IFile) ((FileEditorInput) element).getAdapter(IFile.class);
+            if (file != null) {
                 try {
                     return PythonNature.addNature(file.getProject(), null, null, null, null, null, null);
                 } catch (CoreException e) {
@@ -346,45 +346,45 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         }
         return null;
     }
-    
+
     /**
      * Utility routine to remove a PythonNature from a project.
      */
     public static synchronized void removeNature(IProject project, IProgressMonitor monitor) throws CoreException {
-        if(monitor == null){
+        if (monitor == null) {
             monitor = new NullProgressMonitor();
         }
-        
+
         PythonNature nature = PythonNature.getPythonNature(project);
         if (nature == null) {
             return;
         }
-        
+
         try {
             //we have to set the nature store to stop listening changes to .pydevproject
             nature.pythonNatureStore.setProject(null);
         } catch (Exception e) {
             Log.log(e);
         }
-        
+
         try {
             //we have to remove the project from the pythonpath nature too...
             nature.pythonPathNature.setProject(null, null);
         } catch (Exception e) {
             Log.log(e);
         }
-        
+
         //notify listeners that the pythonpath nature is now empty for this project
         try {
-            PythonNatureListenersManager.notifyPythonPathRebuilt(project, null); 
+            PythonNatureListenersManager.notifyPythonPathRebuilt(project, null);
         } catch (Exception e) {
             Log.log(e);
         }
-        
+
         try {
             //actually remove the pydev configurations
             IResource member = project.findMember(".pydevproject");
-            if(member != null){
+            if (member != null) {
                 member.delete(true, null);
             }
         } catch (CoreException e) {
@@ -392,7 +392,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         }
 
         //and finally... remove the nature
-        
+
         IProjectDescription description = project.getDescription();
         List<String> natures = new ArrayList<String>(Arrays.asList(description.getNatureIds()));
         natures.remove(PYTHON_NATURE_ID);
@@ -404,44 +404,40 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * Lock to access the map below.
      */
     private final static Object mapLock = new Object();
-    
+
     /**
      * If some project has a value here, we're already in the process of adding a nature to it.
      */
     private final static Map<IProject, Object> mapLockAddNature = new HashMap<IProject, Object>();
-    
+
     /**
      * Utility routine to add PythonNature to the project
      * 
      * @param projectPythonpath: @see {@link IPythonPathNature#setProjectSourcePath(String)}
      */
-    public static IPythonNature addNature( //Only synchronized internally!
-            IProject project, 
-            IProgressMonitor monitor, 
-            String version, 
-            String projectPythonpath, 
-            String externalProjectPythonpath, 
-            String projectInterpreter,
-            Map<String, String> variableSubstitution
-        ) throws CoreException {
-        
+    public static IPythonNature addNature(
+            //Only synchronized internally!
+            IProject project, IProgressMonitor monitor, String version, String projectPythonpath,
+            String externalProjectPythonpath, String projectInterpreter, Map<String, String> variableSubstitution)
+            throws CoreException {
+
         if (project == null || !project.isOpen()) {
             return null;
         }
 
         if (project.hasNature(PYTHON_NATURE_ID)) {
-        	//Return if it already has the nature configured.
+            //Return if it already has the nature configured.
             return getPythonNature(project);
         }
         boolean alreadyLocked = false;
         synchronized (mapLock) {
-            if(mapLockAddNature.get(project) == null){
+            if (mapLockAddNature.get(project) == null) {
                 mapLockAddNature.put(project, new Object());
-            }else{
+            } else {
                 alreadyLocked = true;
             }
         }
-        if(alreadyLocked){
+        if (alreadyLocked) {
             //Ok, there's some execution path already adding the nature. Let's simply wait a bit here and return
             //the nature that's there (this way we avoid any possible deadlock) -- in the worse case, null
             //will be returned here, but this is a part of the protocol anyways.
@@ -453,12 +449,12 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 //ignore
             }
             return getPythonNature(project);
-        }else{
+        } else {
             IProjectDescription desc = project.getDescription();
-            if(monitor == null){
+            if (monitor == null) {
                 monitor = new NullProgressMonitor();
             }
-            if(projectInterpreter == null){
+            if (projectInterpreter == null) {
                 projectInterpreter = IPythonNature.DEFAULT_INTERPRETER;
             }
             try {
@@ -468,28 +464,29 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 System.arraycopy(natures, 0, newNatures, 0, natures.length);
                 newNatures[natures.length] = PYTHON_NATURE_ID;
                 desc.setNatureIds(newNatures);
-                
+
                 //add the builder. It is used for pylint, pychecker, code completion, etc.
                 ICommand[] commands = desc.getBuildSpec();
-                
+
                 //now, add the builder if it still hasn't been added.
                 if (hasBuilder(commands) == false && PyDevBuilderPrefPage.usePydevBuilders()) {
-                    
+
                     ICommand command = desc.newCommand();
                     command.setBuilderName(BUILDER_ID);
                     ICommand[] newCommands = new ICommand[commands.length + 1];
-                    
+
                     System.arraycopy(commands, 0, newCommands, 1, commands.length);
                     newCommands[0] = command;
                     desc.setBuildSpec(newCommands);
                 }
                 project.setDescription(desc, monitor);
-                
+
                 IProjectNature n = getPythonNature(project);
                 if (n instanceof PythonNature) {
                     PythonNature nature = (PythonNature) n;
                     //call initialize always - let it do the control.
-                    nature.init(version, projectPythonpath, externalProjectPythonpath, monitor, projectInterpreter, variableSubstitution);
+                    nature.init(version, projectPythonpath, externalProjectPythonpath, monitor, projectInterpreter,
+                            variableSubstitution);
                     return nature;
                 }
             } finally {
@@ -498,7 +495,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 }
             }
         }
-        
+
         return null;
     }
 
@@ -526,75 +523,69 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * @param interpreter 
      */
     @SuppressWarnings("unchecked")
-    private void init(
-            String version, 
-            String projectPythonpath, 
-            String externalProjectPythonpath, 
-            IProgressMonitor monitor, 
-            String interpreter,
-            Map<String, String> variableSubstitution
-        ) {
-        
+    private void init(String version, String projectPythonpath, String externalProjectPythonpath,
+            IProgressMonitor monitor, String interpreter, Map<String, String> variableSubstitution) {
 
-    	//if some information is passed, restore it (even if it was already initialized)
-    	boolean updatePaths = version != null || projectPythonpath != null ||
-    		externalProjectPythonpath != null || variableSubstitution != null || interpreter != null; 
-    	
-        if(updatePaths){
+        //if some information is passed, restore it (even if it was already initialized)
+        boolean updatePaths = version != null || projectPythonpath != null || externalProjectPythonpath != null
+                || variableSubstitution != null || interpreter != null;
+
+        if (updatePaths) {
             this.getStore().startInit();
             try {
-                if(variableSubstitution != null){
+                if (variableSubstitution != null) {
                     this.getPythonPathNature().setVariableSubstitution(variableSubstitution);
                 }
-                if(projectPythonpath != null){
+                if (projectPythonpath != null) {
                     this.getPythonPathNature().setProjectSourcePath(projectPythonpath);
                 }
-                if(externalProjectPythonpath != null){
+                if (externalProjectPythonpath != null) {
                     this.getPythonPathNature().setProjectExternalSourcePath(externalProjectPythonpath);
                 }
-                if(version != null || interpreter != null){
+                if (version != null || interpreter != null) {
                     this.setVersion(version, interpreter);
                 }
             } catch (CoreException e) {
                 Log.log(e);
-            }finally{
+            } finally {
                 this.getStore().endInit();
             }
-        }else{
+        } else {
             //Change: 1.3.10: it could be reloaded more than once... (when it shouldn't) 
-            if(astManager != null){
+            if (astManager != null) {
                 return; //already initialized...
             }
         }
-        
-        synchronized(initLock){
-        	if(initialized && !updatePaths){
-        		return;
-        	}
-        	initialized = true;
+
+        synchronized (initLock) {
+            if (initialized && !updatePaths) {
+                return;
+            }
+            initialized = true;
         }
-        
-        if(updatePaths){
-        	//If updating the paths, rebuild and return (don't try to load an existing ast manager
-        	//and restore anything already there)
-			rebuildPath();
-			return;
+
+        if (updatePaths) {
+            //If updating the paths, rebuild and return (don't try to load an existing ast manager
+            //and restore anything already there)
+            rebuildPath();
+            return;
         }
-        
-        if(monitor.isCanceled()){
+
+        if (monitor.isCanceled()) {
             checkPythonPathHelperPathsJob.schedule(500);
             return;
         }
-        
+
         //Change: 1.3.10: no longer in a Job... should already be called in a job if that's needed.
 
         try {
             File astOutputFile = getAstOutputFile();
-            if(astOutputFile == null){
-            	Log.log(IStatus.INFO, "Not saving ast manager for: "+this.project+". No write area available.", null);
-            	return; //The project was deleted
+            if (astOutputFile == null) {
+                Log.log(IStatus.INFO, "Not saving ast manager for: " + this.project + ". No write area available.",
+                        null);
+                return; //The project was deleted
             }
-			astManager = ASTManager.loadFromFile(astOutputFile);
+            astManager = ASTManager.loadFromFile(astOutputFile);
             if (astManager != null) {
                 synchronized (astManager.getLock()) {
                     astManager.setProject(getProject(), this, true); // this is the project related to it, restore the deltas (we may have some crash)
@@ -605,7 +596,8 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                     }
 
                     if (astManager != null) {
-                        List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
+                        List<IInterpreterObserver> participants = ExtensionHelper
+                                .getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
                         for (IInterpreterObserver observer : participants) {
                             try {
                                 observer.notifyNatureRecreated(this, monitor);
@@ -621,30 +613,31 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             //Log.logInfo("Info: Rebuilding internal caches for: "+this.project, e);
             astManager = null;
         }
-        
+
         //errors can happen when restoring it
-        if(astManager == null){
+        if (astManager == null) {
             try {
                 rebuildPath();
             } catch (Exception e) {
                 Log.log(e);
             }
-        }else{
+        } else {
             checkPythonPathHelperPathsJob.schedule(500);
         }
     }
 
-    private final Job checkPythonPathHelperPathsJob = new Job("Check restored pythonpath"){
+    private final Job checkPythonPathHelperPathsJob = new Job("Check restored pythonpath") {
 
         @Override
         protected IStatus run(IProgressMonitor monitor) {
             try {
-                if(astManager != null){
-                    String pythonpath  = pythonPathNature.getOnlyProjectPythonPathStr(true);
-                    PythonPathHelper pythonPathHelper = (PythonPathHelper) astManager.getModulesManager().getPythonPathHelper();
+                if (astManager != null) {
+                    String pythonpath = pythonPathNature.getOnlyProjectPythonPathStr(true);
+                    PythonPathHelper pythonPathHelper = (PythonPathHelper) astManager.getModulesManager()
+                            .getPythonPathHelper();
                     //If it doesn't match, rebuid the pythonpath!
-                    if(!new HashSet<String>(PythonPathHelper.parsePythonPathFromStr(pythonpath, null)).equals(
-                            new HashSet<String>(pythonPathHelper.getPythonpath()))){
+                    if (!new HashSet<String>(PythonPathHelper.parsePythonPathFromStr(pythonpath, null))
+                            .equals(new HashSet<String>(pythonPathHelper.getPythonpath()))) {
                         rebuildPath();
                     }
                 }
@@ -653,7 +646,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             }
             return Status.OK_STATUS;
         }
-        
+
     };
 
     /**
@@ -664,16 +657,15 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      */
     private File getCompletionsCacheDir(IProject p) {
         IPath path = p.getWorkingLocation(PydevPlugin.getPluginID());
-    
-        if(path == null){
+
+        if (path == null) {
             //this can happen if the project was removed.
             return null;
         }
         File file = new File(path.toOSString());
         return file;
     }
-    
-    
+
     public File getCompletionsCacheDir() {
         return getCompletionsCacheDir(getProject());
     }
@@ -683,10 +675,10 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      */
     private File getAstOutputFile() {
         File completionsCacheDir = getCompletionsCacheDir();
-        if(completionsCacheDir == null){
-        	return null;
+        if (completionsCacheDir == null) {
+            return null;
         }
-		return new File(completionsCacheDir, "v1_astmanager");
+        return new File(completionsCacheDir, "v1_astmanager");
     }
 
     /**
@@ -702,32 +694,30 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         this.rebuildJob.schedule(20L);
     }
 
-
     private RebuildPythonNatureModules rebuildJob = new RebuildPythonNatureModules();
-    
+
     /**
      * @return Returns the completionsCache. Note that it can be null.
      */
     public ICodeCompletionASTManager getAstManager() {
         return astManager; //Change: don't wait if it's still not initialized.
     }
-    
-    public boolean isOkToUse(){
+
+    public boolean isOkToUse() {
         return this.astManager != null && this.pythonPathNature != null;
     }
 
-    
-    public void setAstManager(ICodeCompletionASTManager astManager){
+    public void setAstManager(ICodeCompletionASTManager astManager) {
         this.astManager = astManager;
     }
 
     public IPythonPathNature getPythonPathNature() {
         return pythonPathNature;
     }
-    
+
     public static IPythonPathNature getPythonPathNature(IProject project) {
         PythonNature pythonNature = getPythonNature(project);
-        if(pythonNature != null){
+        if (pythonNature != null) {
             return pythonNature.pythonPathNature;
         }
         return null;
@@ -742,23 +732,22 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         IProject[] projects = root.getProjects();
         for (IProject project : projects) {
             PythonNature nature = getPythonNature(project);
-            if(nature != null){
+            if (nature != null) {
                 natures.add(nature);
             }
         }
         return natures;
     }
-    
+
     public static PythonNature getPythonNature(IResource resource) {
-        if(resource == null){
+        if (resource == null) {
             return null;
         }
         return getPythonNature(resource.getProject());
     }
-    
-    
+
     private static final Object lockGetNature = new Object();
-    
+
     /**
      * @param project the project we want to know about (if it is null, null is returned)
      * @return the python nature for a project (or null if it does not exist for the project)
@@ -767,17 +756,17 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * than one nature ended up being created from project.getNature().
      */
     public static PythonNature getPythonNature(IProject project) {
-        if(project != null && project.isOpen()){
+        if (project != null && project.isOpen()) {
             try {
                 //Speedup: as this method is called a lot, we just check if the nature is available internally without
                 //any locks, and just lock if it's not (which is needed to avoid a racing condition creating more
                 //than 1 nature).
                 try {
-                    if(project instanceof Project){
+                    if (project instanceof Project) {
                         Project p = (Project) project;
-                        ProjectInfo info = (ProjectInfo)p.getResourceInfo(false, false);
+                        ProjectInfo info = (ProjectInfo) p.getResourceInfo(false, false);
                         IProjectNature nature = info.getNature(PYTHON_NATURE_ID);
-                        if(nature instanceof PythonNature){
+                        if (nature instanceof PythonNature) {
                             return (PythonNature) nature;
                         }
                     }
@@ -786,10 +775,10 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                     //from one version to another.
                     Log.log(e);
                 }
-                
+
                 synchronized (lockGetNature) {
                     IProjectNature n = project.getNature(PYTHON_NATURE_ID);
-                    if(n instanceof PythonNature){
+                    if (n instanceof PythonNature) {
                         return (PythonNature) n;
                     }
                 }
@@ -806,7 +795,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      */
     private String versionPropertyCache = null;
     private String interpreterPropertyCache = null;
-    
+
     /**
      * Returns the Python version of the Project. 
      * 
@@ -820,43 +809,43 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     public String getVersion() throws CoreException {
         return getVersionAndError().o1;
     }
-    
+
     private Tuple<String, String> getVersionAndError() throws CoreException {
-        if(project != null){
+        if (project != null) {
             if (versionPropertyCache == null) {
                 String storeVersion = getStore().getPropertyFromXml(getPythonProjectVersionQualifiedName());
-                if(storeVersion == null){ //there is no such property set (let's set it to the default)
+                if (storeVersion == null) { //there is no such property set (let's set it to the default)
                     setVersion(getDefaultVersion(), null); //will set the versionPropertyCache too
-                }else{
+                } else {
                     //now, before returning and setting in the cache, let's make sure it's a valid version.
-                    if(!IPythonNature.Versions.ALL_VERSIONS_ANY_FLAVOR.contains(storeVersion)){
-                        Log.log("The stored version is invalid ("+storeVersion+"). Setting default.");
+                    if (!IPythonNature.Versions.ALL_VERSIONS_ANY_FLAVOR.contains(storeVersion)) {
+                        Log.log("The stored version is invalid (" + storeVersion + "). Setting default.");
                         setVersion(getDefaultVersion(), null); //will set the versionPropertyCache too
-                    }else{
+                    } else {
                         //Ok, it's correct.
-                        versionPropertyCache = storeVersion;   
+                        versionPropertyCache = storeVersion;
                     }
                 }
-            } 
-        }else{
+            }
+        } else {
             String msg = "Trying to get version without project set. Returning default.";
             Log.log(msg);
             return new Tuple<String, String>(getDefaultVersion(), msg);
         }
-        
-        if(versionPropertyCache == null){
+
+        if (versionPropertyCache == null) {
             String msg = "The cached version is null. Returning default.";
             Log.log(msg);
             return new Tuple<String, String>(getDefaultVersion(), msg);
-            
-        }else if(!IPythonNature.Versions.ALL_VERSIONS_ANY_FLAVOR.contains(versionPropertyCache)){
-            String msg = "The cached version ("+versionPropertyCache+") is invalid. Returning default.";
+
+        } else if (!IPythonNature.Versions.ALL_VERSIONS_ANY_FLAVOR.contains(versionPropertyCache)) {
+            String msg = "The cached version (" + versionPropertyCache + ") is invalid. Returning default.";
             Log.log(msg);
             return new Tuple<String, String>(getDefaultVersion(), msg);
         }
         return new Tuple<String, String>(versionPropertyCache, null);
     }
-    
+
     /**
      * @param version: the project version given the constants PYTHON_VERSION_XX and 
      * JYTHON_VERSION_XX in IPythonNature. If null, nothing is done for the version.
@@ -865,95 +854,93 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * 
      * @throws CoreException 
      */
-    public void setVersion(String version, String interpreter) throws CoreException{
+    public void setVersion(String version, String interpreter) throws CoreException {
         clearCaches(false);
-        
-        if(version != null){
+
+        if (version != null) {
             this.versionPropertyCache = version;
         }
-        
-        if(interpreter != null){
+
+        if (interpreter != null) {
             this.interpreterPropertyCache = interpreter;
         }
-        
-        if(project != null){
+
+        if (project != null) {
             boolean notify = false;
-            if(version != null){
+            if (version != null) {
                 IPythonNatureStore store = getStore();
                 QualifiedName pythonProjectVersionQualifiedName = getPythonProjectVersionQualifiedName();
                 String current = store.getPropertyFromXml(pythonProjectVersionQualifiedName);
-                
-                if(current == null || !current.equals(version)){
+
+                if (current == null || !current.equals(version)) {
                     store.setPropertyToXml(pythonProjectVersionQualifiedName, version, true);
                     notify = true;
                 }
             }
-            if(interpreter != null){
+            if (interpreter != null) {
                 IPythonNatureStore store = getStore();
                 QualifiedName pythonProjectInterpreterQualifiedName = getPythonProjectInterpreterQualifiedName();
                 String current = store.getPropertyFromXml(pythonProjectInterpreterQualifiedName);
-                
-                if(current == null || !current.equals(interpreter)){
+
+                if (current == null || !current.equals(interpreter)) {
                     store.setPropertyToXml(pythonProjectInterpreterQualifiedName, interpreter, true);
                     notify = true;
                 }
             }
-            if(notify){
+            if (notify) {
                 PythonNatureListenersManager.notifyPythonPathRebuilt(project, this);
             }
         }
     }
 
-    public String getDefaultVersion(){
+    public String getDefaultVersion() {
         return PYTHON_VERSION_LATEST;
     }
 
-    
     public void saveAstManager() {
         File astOutputFile = getAstOutputFile();
-        if(astOutputFile == null){
+        if (astOutputFile == null) {
             //The project was removed. Nothing to save here.
-            Log.log(IStatus.INFO, "Not saving ast manager for: "+this.project+". No write area available.", null);
+            Log.log(IStatus.INFO, "Not saving ast manager for: " + this.project + ". No write area available.", null);
             return;
         }
-        
-        if(astManager == null){
+
+        if (astManager == null) {
             return;
-            
-        }else{
-            synchronized(astManager.getLock()){
+
+        } else {
+            synchronized (astManager.getLock()) {
                 astManager.saveToFile(astOutputFile);
             }
         }
     }
 
     public int getInterpreterType() throws CoreException {
-        if(interpreterType == null){
+        if (interpreterType == null) {
             String version = getVersion();
             interpreterType = getInterpreterTypeFromVersion(version);
         }
-        
+
         return interpreterType;
-        
+
     }
-    
-    
+
     public static int getInterpreterTypeFromVersion(String version) throws CoreException {
         int interpreterType;
-        if(IPythonNature.Versions.ALL_JYTHON_VERSIONS.contains(version)){
+        if (IPythonNature.Versions.ALL_JYTHON_VERSIONS.contains(version)) {
             interpreterType = INTERPRETER_TYPE_JYTHON;
-            
-        }else if(IPythonNature.Versions.ALL_IRONPYTHON_VERSIONS.contains(version)){
+
+        } else if (IPythonNature.Versions.ALL_IRONPYTHON_VERSIONS.contains(version)) {
             interpreterType = INTERPRETER_TYPE_IRONPYTHON;
-            
-        }else{
+
+        } else {
             //if others fail, consider it python
             interpreterType = INTERPRETER_TYPE_PYTHON;
         }
-        
+
         return interpreterType;
     }
-    
+
     /**
      * Resolve the module given the absolute path of the file in the filesystem.
      * 
@@ -962,13 +949,13 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      */
     public String resolveModule(String fileAbsolutePath) {
         String moduleName = null;
-        
-        if(astManager != null){
+
+        if (astManager != null) {
             moduleName = astManager.getModulesManager().resolveModule(fileAbsolutePath);
         }
         return moduleName;
     }
-    
+
     /**
      * Resolve the module given the absolute path of the file in the filesystem.
      * 
@@ -977,88 +964,88 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * @throws CoreException 
      */
     public String resolveModuleOnlyInProjectSources(String fileAbsolutePath, boolean addExternal) throws CoreException {
-    	String moduleName = null;
-    	
-    	if(astManager != null){
-    		IModulesManager modulesManager = astManager.getModulesManager();
-    		if(modulesManager instanceof ProjectModulesManager){
-    			moduleName = ((ProjectModulesManager)modulesManager).resolveModuleOnlyInProjectSources(fileAbsolutePath, addExternal);
-    		}
-    	}
-    	return moduleName;
+        String moduleName = null;
+
+        if (astManager != null) {
+            IModulesManager modulesManager = astManager.getModulesManager();
+            if (modulesManager instanceof ProjectModulesManager) {
+                moduleName = ((ProjectModulesManager) modulesManager).resolveModuleOnlyInProjectSources(
+                        fileAbsolutePath, addExternal);
+            }
+        }
+        return moduleName;
     }
-    
-    
-    public static String[] getStrAsStrItems(String str){
+
+    public static String[] getStrAsStrItems(String str) {
         return str.split("\\|");
     }
 
     public IInterpreterManager getRelatedInterpreterManager() {
         try {
             int interpreterType = getInterpreterType();
-            switch(interpreterType){
+            switch (interpreterType) {
                 case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
                     return PydevPlugin.getPythonInterpreterManager();
-                    
+
                 case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
                     return PydevPlugin.getJythonInterpreterManager();
-                    
+
                 case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
                     return PydevPlugin.getIronpythonInterpreterManager();
-                    
+
                 default:
-                    throw new RuntimeException("Unable to find the related interpreter manager for type: "+interpreterType);
+                    throw new RuntimeException("Unable to find the related interpreter manager for type: "
+                            + interpreterType);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        
+
     }
 
-    
     // ------------------------------------------------------------------------------------------ LOCAL CACHES
     public void clearCaches(boolean clearGlobalModulesCache) {
         this.interpreterType = null;
         this.versionPropertyCache = null;
         this.interpreterPropertyCache = null;
         this.pythonPathNature.clearCaches();
-        if(clearGlobalModulesCache){
+        if (clearGlobalModulesCache) {
             ModulesManager.clearCache();
         }
     }
-    
+
     Integer interpreterType = null; //cache
-    
+
     public void clearBuiltinCompletions() {
         try {
-			this.getRelatedInterpreterManager().clearBuiltinCompletions(this.getProjectInterpreterName());
-		} catch (CoreException e) {
-			throw new RuntimeException(e);
-		}
+            this.getRelatedInterpreterManager().clearBuiltinCompletions(this.getProjectInterpreterName());
+        } catch (CoreException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public IToken[] getBuiltinCompletions() {
         try {
-			return this.getRelatedInterpreterManager().getBuiltinCompletions(this.getProjectInterpreterName());
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+            return this.getRelatedInterpreterManager().getBuiltinCompletions(this.getProjectInterpreterName());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public IModule getBuiltinMod(){
+    public IModule getBuiltinMod() {
         try {
-			return this.getRelatedInterpreterManager().getBuiltinMod(this.getProjectInterpreterName());
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+            return this.getRelatedInterpreterManager().getBuiltinMod(this.getProjectInterpreterName());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public void clearBuiltinMod(){
+    public void clearBuiltinMod() {
         try {
-			this.getRelatedInterpreterManager().clearBuiltinMod(this.getProjectInterpreterName());
-		} catch (CoreException e) {
-			throw new RuntimeException(e);
-		}
+            this.getRelatedInterpreterManager().clearBuiltinMod(this.getProjectInterpreterName());
+        } catch (CoreException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static List<IPythonNature> getPythonNaturesRelatedTo(int relatedTo) {
@@ -1068,8 +1055,8 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         for (IProject project : projects) {
             PythonNature nature = getPythonNature(project);
             try {
-                if(nature != null){
-                    if(nature.getInterpreterType() == relatedTo){
+                if (nature != null) {
+                    if (nature.getInterpreterType() == relatedTo) {
                         ret.add(nature);
                     }
                 }
@@ -1077,7 +1064,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 throw new RuntimeException(e);
             }
         }
-        
+
         return ret;
     }
 
@@ -1087,29 +1074,36 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     public int getGrammarVersion() {
         try {
             String version = getVersion();
-            if(version == null){
+            if (version == null) {
                 Log.log("Found null version. Returning default.");
                 return LATEST_GRAMMAR_VERSION;
             }
-            
+
             List<String> splitted = StringUtils.split(version, ' ');
-            if(splitted.size() != 2){
+            if (splitted.size() != 2) {
                 String storeVersion;
                 try {
                     storeVersion = getStore().getPropertyFromXml(getPythonProjectVersionQualifiedName());
                 } catch (Exception e) {
-                    storeVersion = "Unable to get storeVersion. Reason: "+e.getMessage();
+                    storeVersion = "Unable to get storeVersion. Reason: " + e.getMessage();
                 }
-                
-                Log.log("Found invalid version: "+version+"\n" +
-                		"Returning default\n" +
-                		"Project: "+this.project+"\n" +
-        				"versionPropertyCache: "+ versionPropertyCache+"\n" +
-						"storeVersion:" + storeVersion);
-                
+
+                Log.log("Found invalid version: " +
+                        version +
+                        "\n" +
+                        "Returning default\n" +
+                        "Project: " +
+                        this.project +
+                        "\n" +
+                        "versionPropertyCache: " +
+                        versionPropertyCache +
+                        "\n" +
+                        "storeVersion:" +
+                        storeVersion);
+
                 return LATEST_GRAMMAR_VERSION;
             }
-            
+
             String grammarVersion = splitted.get(1);
             return getGrammarVersionFromStr(grammarVersion);
 
@@ -1117,57 +1111,57 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             throw new RuntimeException(e);
         }
     }
-    
+
     /**
      * @param grammarVersion a string in the format 2.x or 3.x
      * @return the grammar version as given in IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION
      */
-    public static int getGrammarVersionFromStr(String grammarVersion){
+    public static int getGrammarVersionFromStr(String grammarVersion) {
         //Note that we don't have the grammar for all versions, so, we use the one closer to it (which is
         //fine as they're backward compatible).
-        if("2.1".equals(grammarVersion)){
+        if ("2.1".equals(grammarVersion)) {
             return GRAMMAR_PYTHON_VERSION_2_4;
-            
-        }else if("2.2".equals(grammarVersion)){
+
+        } else if ("2.2".equals(grammarVersion)) {
             return GRAMMAR_PYTHON_VERSION_2_4;
-            
-        }else if("2.3".equals(grammarVersion)){
+
+        } else if ("2.3".equals(grammarVersion)) {
             return GRAMMAR_PYTHON_VERSION_2_4;
-            
-        }else if("2.4".equals(grammarVersion)){
+
+        } else if ("2.4".equals(grammarVersion)) {
             return GRAMMAR_PYTHON_VERSION_2_4;
-            
-        }else if("2.5".equals(grammarVersion)){
+
+        } else if ("2.5".equals(grammarVersion)) {
             return GRAMMAR_PYTHON_VERSION_2_5;
-            
-        }else if("2.6".equals(grammarVersion)){
+
+        } else if ("2.6".equals(grammarVersion)) {
             return GRAMMAR_PYTHON_VERSION_2_6;
-            
-        }else if("2.7".equals(grammarVersion)){
+
+        } else if ("2.7".equals(grammarVersion)) {
             return GRAMMAR_PYTHON_VERSION_2_7;
-            
-        }else if("3.0".equals(grammarVersion)){
+
+        } else if ("3.0".equals(grammarVersion)) {
             return GRAMMAR_PYTHON_VERSION_3_0;
         }
-        
-        if(grammarVersion != null){
-            if(grammarVersion.startsWith("3")){
+
+        if (grammarVersion != null) {
+            if (grammarVersion.startsWith("3")) {
                 return GRAMMAR_PYTHON_VERSION_3_0;
-                
-            }else if(grammarVersion.startsWith("2")){
+
+            } else if (grammarVersion.startsWith("2")) {
                 //latest in the 2.x series
                 return LATEST_GRAMMAR_VERSION;
             }
         }
-        
-        Log.log("Unable to recognize version: "+grammarVersion+" returning default.");
+
+        Log.log("Unable to recognize version: " + grammarVersion + " returning default.");
         return LATEST_GRAMMAR_VERSION;
     }
-    
-    protected IPythonNatureStore getStore(){
+
+    protected IPythonNatureStore getStore() {
         return pythonNatureStore;
     }
-    
+
     /**
      * This flag identifies that we're in tests (when that happens, some verifications are more relaxed).
      */
@@ -1179,43 +1173,45 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * 
      * @note that an exception will be raised if the 
      */
-    public IInterpreterInfo getProjectInterpreter() throws MisconfigurationException, PythonNatureWithoutProjectException{
-        if(this.project == null){
+    public IInterpreterInfo getProjectInterpreter() throws MisconfigurationException,
+            PythonNatureWithoutProjectException {
+        if (this.project == null) {
             throw new PythonNatureWithoutProjectException("Project is not set.");
         }
-        
+
         try {
             String projectInterpreterName = getProjectInterpreterName();
             IInterpreterInfo ret;
             IInterpreterManager relatedInterpreterManager = getRelatedInterpreterManager();
-            if(relatedInterpreterManager == null){
-                if(IN_TESTS){
+            if (relatedInterpreterManager == null) {
+                if (IN_TESTS) {
                     return null;
                 }
                 throw new ProjectMisconfiguredException("Did not expect the interpreter manager to be null.");
             }
-            
-            if(IPythonNature.DEFAULT_INTERPRETER.equals(projectInterpreterName)){
+
+            if (IPythonNature.DEFAULT_INTERPRETER.equals(projectInterpreterName)) {
                 //if it's the default, let's translate it to the outside world 
                 ret = relatedInterpreterManager.getDefaultInterpreterInfo(true);
-            }else{
+            } else {
                 ret = relatedInterpreterManager.getInterpreterInfo(projectInterpreterName, null);
             }
-            if(ret == null){
+            if (ret == null) {
                 final IProject p = this.getProject();
                 final String projectName;
-                if(p != null){
+                if (p != null) {
                     projectName = p.getName();
-                }else{
+                } else {
                     projectName = "null";
                 }
 
-                String msg = "Invalid interpreter: "+projectInterpreterName+" configured for project: "+projectName+".";
+                String msg = "Invalid interpreter: " + projectInterpreterName + " configured for project: "
+                        + projectName + ".";
                 ProjectMisconfiguredException e = new ProjectMisconfiguredException(msg);
                 Log.log(e);
                 throw e;
-                
-            }else{
+
+            } else {
                 return ret;
             }
         } catch (CoreException e) {
@@ -1223,7 +1219,6 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         }
     }
 
-    
     /**
      * @return The name of the interpreter that should be used for the nature this project is associated to.
      * 
@@ -1231,16 +1226,16 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * 
      * It can be null if the project is still not set!
      */
-    public String getProjectInterpreterName() throws CoreException{
-        if(project != null){
+    public String getProjectInterpreterName() throws CoreException {
+        if (project != null) {
             if (interpreterPropertyCache == null) {
                 String storeInterpreter = getStore().getPropertyFromXml(getPythonProjectInterpreterQualifiedName());
-                if(storeInterpreter == null){ //there is no such property set (let's set it to the default)
+                if (storeInterpreter == null) { //there is no such property set (let's set it to the default)
                     setVersion(null, IPythonNature.DEFAULT_INTERPRETER); //will set the interpreterPropertyCache too
-                }else{
-                    interpreterPropertyCache = storeInterpreter;   
+                } else {
+                    interpreterPropertyCache = storeInterpreter;
                 }
-            } 
+            }
         }
         return interpreterPropertyCache;
     }
@@ -1249,74 +1244,70 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * @return a list of configuration errors and the interpreter info for the project (the interpreter info can be null)
      * @throws PythonNatureWithoutProjectException 
      */
-    public Tuple<List<ProjectConfigError>, IInterpreterInfo> getConfigErrorsAndInfo(final IProject relatedToProject) throws PythonNatureWithoutProjectException {
-        if(IN_TESTS){
+    public Tuple<List<ProjectConfigError>, IInterpreterInfo> getConfigErrorsAndInfo(final IProject relatedToProject)
+            throws PythonNatureWithoutProjectException {
+        if (IN_TESTS) {
             return new Tuple<List<ProjectConfigError>, IInterpreterInfo>(new ArrayList<ProjectConfigError>(), null);
         }
         ArrayList<ProjectConfigError> lst = new ArrayList<ProjectConfigError>();
-        if(this.project == null){
-            lst.add(new ProjectConfigError(
-                relatedToProject, "The configured nature has no associated project."));
+        if (this.project == null) {
+            lst.add(new ProjectConfigError(relatedToProject, "The configured nature has no associated project."));
         }
         IInterpreterInfo info = null;
         try {
             info = this.getProjectInterpreter();
-            
+
             String executableOrJar = info.getExecutableOrJar();
-            if(!new File(executableOrJar).exists()){
-                lst.add(new ProjectConfigError(relatedToProject, "The interpreter configured does not exist in the filesystem: "+executableOrJar));
+            if (!new File(executableOrJar).exists()) {
+                lst.add(new ProjectConfigError(relatedToProject,
+                        "The interpreter configured does not exist in the filesystem: " + executableOrJar));
             }
-            
-            List<String> projectSourcePathSet = new ArrayList<String>(this.getPythonPathNature().getProjectSourcePathSet(true));
+
+            List<String> projectSourcePathSet = new ArrayList<String>(this.getPythonPathNature()
+                    .getProjectSourcePathSet(true));
             Collections.sort(projectSourcePathSet);
             IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-            
+
             for (String path : projectSourcePathSet) {
-                if(path.trim().length() > 0){
+                if (path.trim().length() > 0) {
                     IPath p = new Path(path);
                     IResource resource = root.findMember(p);
-                    if(resource == null){
+                    if (resource == null) {
                         relatedToProject.refreshLocal(p.segmentCount(), null);
                         resource = root.findMember(p); //2nd attempt (after refresh)
                     }
-                    if(resource == null || !resource.exists()){
-                        lst.add(new ProjectConfigError(
-                                relatedToProject, "Source folder: "+path+" not found"));
+                    if (resource == null || !resource.exists()) {
+                        lst.add(new ProjectConfigError(relatedToProject, "Source folder: " + path + " not found"));
                     }
                 }
             }
-            
+
             List<String> externalPaths = this.getPythonPathNature().getProjectExternalSourcePathAsList(true);
             Collections.sort(externalPaths);
             for (String path : externalPaths) {
-                if(!new File(path).exists()){
-                    lst.add(new ProjectConfigError(
-                            relatedToProject, "Invalid external source folder specified: "+path));
+                if (!new File(path).exists()) {
+                    lst.add(new ProjectConfigError(relatedToProject, "Invalid external source folder specified: "
+                            + path));
                 }
             }
-            
+
             Tuple<String, String> versionAndError = getVersionAndError();
-            if(versionAndError.o2 != null){
-                lst.add(new ProjectConfigError(
-                        relatedToProject, StringUtils.replaceNewLines(versionAndError.o2, " ")));
+            if (versionAndError.o2 != null) {
+                lst.add(new ProjectConfigError(relatedToProject, StringUtils.replaceNewLines(versionAndError.o2, " ")));
             }
-            
+
         } catch (MisconfigurationException e) {
-            lst.add(new ProjectConfigError(
-                    relatedToProject, StringUtils.replaceNewLines(e.getMessage(), " ")));
-            
+            lst.add(new ProjectConfigError(relatedToProject, StringUtils.replaceNewLines(e.getMessage(), " ")));
+
         } catch (Throwable e) {
-            lst.add(new ProjectConfigError(
-                    relatedToProject, StringUtils.replaceNewLines("Unexpected error:"+e.getMessage(), " ")));
+            lst.add(new ProjectConfigError(relatedToProject, StringUtils.replaceNewLines(
+                    "Unexpected error:" + e.getMessage(), " ")));
         }
         return new Tuple<List<ProjectConfigError>, IInterpreterInfo>(lst, info);
     }
 
-    
     @Override
     public String toString() {
-        return "PythonNature: "+this.project;
+        return "PythonNature: " + this.project;
     }
 }
-
-

@@ -38,120 +38,115 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyShiftLeft;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 
-
 public class PySourceViewer extends ProjectionViewer implements IAdaptable {
-
 
     private WeakReference<PyEdit> projection;
 
-    public PySourceViewer(
-            Composite parent, IVerticalRuler ruler, IOverviewRuler overviewRuler, boolean showsAnnotationOverview, 
-            int styles, PyEditProjection projection) {
+    public PySourceViewer(Composite parent, IVerticalRuler ruler, IOverviewRuler overviewRuler,
+            boolean showsAnnotationOverview, int styles, PyEditProjection projection) {
         super(parent, ruler, overviewRuler, showsAnnotationOverview, styles);
         this.projection = new WeakReference<PyEdit>((PyEdit) projection);
     }
-    
+
     private boolean isInToggleCompletionStyle;
-    
-    public void setInToggleCompletionStyle(boolean b){
+
+    public void setInToggleCompletionStyle(boolean b) {
         this.isInToggleCompletionStyle = b;
     }
-    
-    public boolean getIsInToggleCompletionStyle(){
+
+    public boolean getIsInToggleCompletionStyle() {
         return this.isInToggleCompletionStyle;
     }
-    
-    public PyEdit getEdit(){
+
+    public PyEdit getEdit() {
         return projection.get();
     }
-    
-        
+
     /**
      * @param markerLine the line we want markers on
      * @param markerType the type of the marker (if null, it is not used)
      * @return a list of markers at the given line
      */
-    public List<MarkerAnnotationAndPosition> getMarkersAtLine(int markerLine, String markerType){
+    public List<MarkerAnnotationAndPosition> getMarkersAtLine(int markerLine, String markerType) {
         ArrayList<MarkerAnnotationAndPosition> markers = new ArrayList<MarkerAnnotationAndPosition>();
         IDocumentProvider documentProvider = this.getEdit().getDocumentProvider();
-        if(documentProvider == null){
+        if (documentProvider == null) {
             return markers;
         }
         IEditorInput editorInput = this.getEdit().getEditorInput();
-        if(editorInput == null){
+        if (editorInput == null) {
             return markers;
         }
-        IAnnotationModel annotationModel= documentProvider.getAnnotationModel(editorInput);
-        if(annotationModel == null){
+        IAnnotationModel annotationModel = documentProvider.getAnnotationModel(editorInput);
+        if (annotationModel == null) {
             return markers;
         }
         IDocument document = documentProvider.getDocument(editorInput);
-        if(document == null){
+        if (document == null) {
             return markers;
         }
 
         int lineStartOffset = -1;
         int lineEndOffset = -1;
-        try{
+        try {
             lineStartOffset = document.getLineOffset(markerLine);
             lineEndOffset = lineStartOffset + document.getLineLength(markerLine);
-        }catch(BadLocationException e){
+        } catch (BadLocationException e) {
             return markers;
         }
-        
-        
-        for(Iterator<MarkerAnnotationAndPosition> it=getMarkerIterator();it.hasNext();){
+
+        for (Iterator<MarkerAnnotationAndPosition> it = getMarkerIterator(); it.hasNext();) {
             MarkerAnnotationAndPosition annotation = it.next();
-            
+
             Position position = annotation.position;
-            if(position == null){
+            if (position == null) {
                 continue;
             }
             int offset = position.getOffset();
-            if(offset >= lineStartOffset && offset <= lineEndOffset){
+            if (offset >= lineStartOffset && offset <= lineEndOffset) {
                 IMarker marker = annotation.markerAnnotation.getMarker();
                 String type;
-                try{
+                try {
                     type = marker.getType();
-                }catch(CoreException e){
+                } catch (CoreException e) {
                     continue;
                 }
-                if(markerType == null || markerType.equals(type)){
+                if (markerType == null || markerType.equals(type)) {
                     markers.add(annotation);
                 }
             }
-            
+
         }
-        
+
         return markers;
     }
-    
+
     /**
      * @return a class that iterates through the markers available in this source viewer
      */
-    public Iterator<MarkerAnnotationAndPosition> getMarkerIterator(){
+    public Iterator<MarkerAnnotationAndPosition> getMarkerIterator() {
         final IAnnotationModel annotationModel = getAnnotationModel();
         //it may be null on external files, because I simply cannot make it get the org.python.copiedfromeclipsesrc.PydevFileEditorInput
         //(if it did, I could enhance it...). Instead, it returns a org.eclipse.ui.internal.editors.text.JavaFileEditorInput
         //that never has an annotation model. (shortly, eclipse bug).
-        if(annotationModel != null){
+        if (annotationModel != null) {
             final Iterator annotationIterator = annotationModel.getAnnotationIterator();
-    
-            return new Iterator<MarkerAnnotationAndPosition>(){
+
+            return new Iterator<MarkerAnnotationAndPosition>() {
 
                 private MarkerAnnotationAndPosition marker;
 
                 public boolean hasNext() {
-                    while(annotationIterator.hasNext()){
-                        if(marker != null){
+                    while (annotationIterator.hasNext()) {
+                        if (marker != null) {
                             return true;
                         }
-                        
-                        while(annotationIterator.hasNext()){
+
+                        while (annotationIterator.hasNext()) {
                             Object object = annotationIterator.next();
-                            if(object instanceof MarkerAnnotation){
+                            if (object instanceof MarkerAnnotation) {
                                 MarkerAnnotation m = (MarkerAnnotation) object;
-                                if(m.isMarkedDeleted()){
+                                if (m.isMarkedDeleted()) {
                                     continue;
                                 }
                                 marker = new MarkerAnnotationAndPosition(m, annotationModel.getPosition(m));
@@ -164,7 +159,7 @@ public class PySourceViewer extends ProjectionViewer implements IAdaptable {
 
                 public MarkerAnnotationAndPosition next() {
                     hasNext();
-                    
+
                     MarkerAnnotationAndPosition m = marker;
                     marker = null;
                     return m;
@@ -173,10 +168,10 @@ public class PySourceViewer extends ProjectionViewer implements IAdaptable {
                 public void remove() {
                     throw new RuntimeException("not implemented");
                 }
-                
+
             };
         }
-        return new Iterator<MarkerAnnotationAndPosition>(){
+        return new Iterator<MarkerAnnotationAndPosition>() {
             public boolean hasNext() {
                 return false;
             }
@@ -190,36 +185,34 @@ public class PySourceViewer extends ProjectionViewer implements IAdaptable {
             }
         };
     }
-    
 
     /**
      * Overridden to provide a shift left that can work even if the number of chars for the dedent
      * is lower than the number of chars of the indentation string.
      */
     @Override
-    public void doOperation(int operation){
-        if (operation == SHIFT_LEFT){
+    public void doOperation(int operation) {
+        if (operation == SHIFT_LEFT) {
             doShiftLeft();
             return;
         }
         super.doOperation(operation);
     }
 
-    
     /**
      * Do a shift while properly handling undo/redo and rewrite sessions.
      * Uses the PyShiftLeft action to actually do the shift.
      */
-    private void doShiftLeft(){
+    private void doShiftLeft() {
         if (fUndoManager != null)
             fUndoManager.beginCompoundChange();
 
-        IDocument d= getDocument();
-        DocumentRewriteSession rewriteSession= null;
+        IDocument d = getDocument();
+        DocumentRewriteSession rewriteSession = null;
         try {
             if (d instanceof IDocumentExtension4) {
-                IDocumentExtension4 extension= (IDocumentExtension4) d;
-                rewriteSession= extension.startRewriteSession(DocumentRewriteSessionType.SEQUENTIAL);
+                IDocumentExtension4 extension = (IDocumentExtension4) d;
+                rewriteSession = extension.startRewriteSession(DocumentRewriteSessionType.SEQUENTIAL);
             }
             // Perform the shift operation.
             PyShiftLeft pyShiftLeft = new PyShiftLeft();
@@ -228,9 +221,8 @@ public class PySourceViewer extends ProjectionViewer implements IAdaptable {
 
         } finally {
 
-
             if (d instanceof IDocumentExtension4) {
-                IDocumentExtension4 extension= (IDocumentExtension4) d;
+                IDocumentExtension4 extension = (IDocumentExtension4) d;
                 extension.stopRewriteSession(rewriteSession);
             }
 
@@ -238,38 +230,35 @@ public class PySourceViewer extends ProjectionViewer implements IAdaptable {
                 fUndoManager.endCompoundChange();
         }
     }
- 
+
     private PyAutoIndentStrategy pyAutoIndentStrategy;
-    
+
     /**
      * Overridden because we want to do things differently in block selection mode.
      */
     @Override
     protected void customizeDocumentCommand(DocumentCommand command) {
-    	if(pyAutoIndentStrategy == null){
-    		pyAutoIndentStrategy = this.getEdit().getAutoEditStrategy();
-    	}
-    	
-    	boolean blockSelection = false;
+        if (pyAutoIndentStrategy == null) {
+            pyAutoIndentStrategy = this.getEdit().getAutoEditStrategy();
+        }
+
+        boolean blockSelection = false;
         try {
-			blockSelection = this.getTextWidget().getBlockSelection();
-        }catch(Throwable e){
+            blockSelection = this.getTextWidget().getBlockSelection();
+        } catch (Throwable e) {
             //that's OK (only available in eclipse 3.5)
         }
-        
+
         pyAutoIndentStrategy.setBlockSelection(blockSelection);
         super.customizeDocumentCommand(command);
     }
 
     public Object getAdapter(Class adapter) {
         PyEdit pyEdit = projection.get();
-        if(pyEdit != null){
+        if (pyEdit != null) {
             return pyEdit.getAdapter(adapter);
         }
         return null;
     }
-    
 
-
-    
 }

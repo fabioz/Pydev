@@ -24,7 +24,8 @@ public class DjTemplateProposal extends TemplateProposal implements ICommonCompl
     private boolean displayOnlyName;
     private int relevance;
 
-    public DjTemplateProposal(Template template, TemplateContext context, IRegion region, Image image, int relevance, boolean displayOnlyName) {
+    public DjTemplateProposal(Template template, TemplateContext context, IRegion region, Image image, int relevance,
+            boolean displayOnlyName) {
         super(template, context, region, image, relevance);
         this.displayOnlyName = displayOnlyName;
     }
@@ -56,9 +57,9 @@ public class DjTemplateProposal extends TemplateProposal implements ICommonCompl
     public void setIsSuggestedSelection(boolean isSuggested) {
         this.isSuggested = isSuggested;
     }
-    
+
     public String getDisplayString() {
-        if(displayOnlyName){
+        if (displayOnlyName) {
             return getTemplate().getName();
         }
         return super.getDisplayString();
@@ -68,24 +69,23 @@ public class DjTemplateProposal extends TemplateProposal implements ICommonCompl
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
     public int compareTo(ICompletionProposal o) {
-        if (this == o)
-        {
+        if (this == o) {
             return 0;
         }
 
         // not yet sorting on relevance
         String s1 = this.getDisplayString();
         String s2 = o.getDisplayString();
-        if(s1 == null){
+        if (s1 == null) {
             s1 = "";
         }
-        if(s2 == null){
+        if (s2 == null) {
             s2 = "";
         }
         return s1.compareToIgnoreCase(s2);
 
     }
-    
+
     public int getRelevance() {
         return this.relevance;
     }
@@ -98,8 +98,7 @@ public class DjTemplateProposal extends TemplateProposal implements ICommonCompl
      * (non-Javadoc)
      * @see com.aptana.editor.common.contentassist.ICommonCompletionProposal#validateTrigger(org.eclipse.jface.text.IDocument, int, org.eclipse.swt.events.KeyEvent)
      */
-	public boolean validateTrigger(IDocument document, int offset, KeyEvent keyEvent)
-	{
-		return true;
-	}
+    public boolean validateTrigger(IDocument document, int offset, KeyEvent keyEvent) {
+        return true;
+    }
 }

@@ -72,8 +72,8 @@ import com.python.pydev.analysis.additionalinfo.ModInfo;
 /**
  * Let us choose from a list of IInfo (and the related additional info)
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
-public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialog implements IViewWithControls{
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialog implements IViewWithControls {
 
     private static final String DIALOG_SETTINGS = "com.python.pydev.analysis.actions.GlobalsTwoPanelElementSelector2"; //$NON-NLS-1$
 
@@ -88,12 +88,11 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
     private List<AbstractAdditionalTokensInfo> additionalInfo;
 
     private String selectedText;
-    
+
     public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();
     public final ICallbackWithListeners onControlDisposed = new CallbackWithListeners();
 
     private List createdCallbacksForControls;
-
 
     public GlobalsTwoPanelElementSelector2(Shell shell, boolean multi, String selectedText) {
         super(shell, multi);
@@ -102,9 +101,8 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
         setSelectionHistory(new InfoSelectionHistory());
 
         setTitle("PyDev: Globals Browser");
-        setMessage(
-                "Matching: ? = any char    * = any str    CamelCase (TC=TestCase)    Space in the end = exact match.\n" +
-        		"Dotted names may be used to filter with package (e.g.: django.utils.In or just dj.ut.in)");
+        setMessage("Matching: ? = any char    * = any str    CamelCase (TC=TestCase)    Space in the end = exact match.\n"
+                + "Dotted names may be used to filter with package (e.g.: django.utils.In or just dj.ut.in)");
 
         NameIInfoLabelProvider resourceItemLabelProvider = new NameIInfoStyledLabelProvider(true);
 
@@ -114,7 +112,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
         setDetailsLabelProvider(resourceItemDetailsLabelProvider);
     }
 
-    public void setTitle(String title){
+    public void setTitle(String title) {
         super.setTitle(title);
         this.title = title;
     }
@@ -122,50 +120,50 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
     /**
      * Used to add the working set to the title.
      */
-    private void setSubtitle(String text){
-        if(text == null || text.length() == 0){
+    private void setSubtitle(String text) {
+        if (text == null || text.length() == 0) {
             getShell().setText(title);
-        }else{
+        } else {
             getShell().setText(title + " - " + text); //$NON-NLS-1$
         }
     }
 
-    protected IDialogSettings getDialogSettings(){
+    protected IDialogSettings getDialogSettings() {
         IDialogSettings settings = AnalysisPlugin.getDefault().getDialogSettings().getSection(DIALOG_SETTINGS);
 
-        if(settings == null){
+        if (settings == null) {
             settings = AnalysisPlugin.getDefault().getDialogSettings().addNewSection(DIALOG_SETTINGS);
         }
 
         return settings;
     }
 
-    protected void storeDialog(IDialogSettings settings){
+    protected void storeDialog(IDialogSettings settings) {
         super.storeDialog(settings);
 
         XMLMemento memento = XMLMemento.createWriteRoot("workingSet"); //$NON-NLS-1$
         workingSetFilterActionGroup.saveState(memento);
         workingSetFilterActionGroup.dispose();
         StringWriter writer = new StringWriter();
-        try{
+        try {
             memento.save(writer);
             settings.put(WORKINGS_SET_SETTINGS, writer.getBuffer().toString());
-        }catch(IOException e){
+        } catch (IOException e) {
             StatusManager.getManager().handle(
                     new Status(IStatus.ERROR, AnalysisPlugin.getPluginID(), IStatus.ERROR, "", e)); //$NON-NLS-1$
             // don't do anything. Simply don't store the settings
         }
     }
 
-    protected void restoreDialog(IDialogSettings settings){
+    protected void restoreDialog(IDialogSettings settings) {
         super.restoreDialog(settings);
 
         String setting = settings.get(WORKINGS_SET_SETTINGS);
-        if(setting != null){
-            try{
+        if (setting != null) {
+            try {
                 IMemento memento = XMLMemento.createReadRoot(new StringReader(setting));
                 workingSetFilterActionGroup.restoreState(memento);
-            }catch(WorkbenchException e){
+            } catch (WorkbenchException e) {
                 StatusManager.getManager().handle(
                         new Status(IStatus.ERROR, AnalysisPlugin.getPluginID(), IStatus.ERROR, "", e)); //$NON-NLS-1$
                 // don't do anything. Simply don't restore the settings
@@ -180,28 +178,28 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
     /**
      * We need to add the action for the working set.
      */
-    protected void fillViewMenu(IMenuManager menuManager){
+    protected void fillViewMenu(IMenuManager menuManager) {
         super.fillViewMenu(menuManager);
 
-        workingSetFilterActionGroup = new WorkingSetFilterActionGroup(getShell(), new IPropertyChangeListener(){
-            public void propertyChange(PropertyChangeEvent event){
+        workingSetFilterActionGroup = new WorkingSetFilterActionGroup(getShell(), new IPropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent event) {
                 String property = event.getProperty();
 
-                if(WorkingSetFilterActionGroup.CHANGE_WORKING_SET.equals(property)){
+                if (WorkingSetFilterActionGroup.CHANGE_WORKING_SET.equals(property)) {
 
                     IWorkingSet workingSet = (IWorkingSet) event.getNewValue();
 
-                    if(workingSet != null && !(workingSet.isAggregateWorkingSet() && workingSet.isEmpty())){
+                    if (workingSet != null && !(workingSet.isAggregateWorkingSet() && workingSet.isEmpty())) {
                         workingSetFilter.setWorkingSet(workingSet);
                         setSubtitle(workingSet.getLabel());
-                    }else{
+                    } else {
                         IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 
-                        if(window != null){
+                        if (window != null) {
                             IWorkbenchPage page = window.getActivePage();
                             workingSet = page.getAggregateWorkingSet();
 
-                            if(workingSet.isAggregateWorkingSet() && workingSet.isEmpty()){
+                            if (workingSet.isAggregateWorkingSet() && workingSet.isEmpty()) {
                                 workingSet = null;
                             }
                         }
@@ -219,20 +217,20 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
         workingSetFilterActionGroup.fillContextMenu(menuManager);
     }
 
-    protected Control createExtendedContentArea(Composite parent){
+    protected Control createExtendedContentArea(Composite parent) {
         return null;
     }
-    
+
     @Override
     protected Control createDialogArea(Composite parent) {
         Control ret = super.createDialogArea(parent);
-        
-        List<IViewCreatedObserver> participants = ExtensionHelper.getParticipants(
-                ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
+
+        List<IViewCreatedObserver> participants = ExtensionHelper
+                .getParticipants(ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
         for (IViewCreatedObserver iViewCreatedObserver : participants) {
             iViewCreatedObserver.notifyViewCreated(this);
         }
-        
+
         createdCallbacksForControls = callRecursively(onControlCreated, parent, new ArrayList());
 
         return ret;
@@ -243,11 +241,11 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
      */
     private List callRecursively(ICallbackWithListeners callback, Composite c, ArrayList controls) {
         try {
-            for(Control child:c.getChildren()){
-                if(child instanceof Composite){
+            for (Control child : c.getChildren()) {
+                if (child instanceof Composite) {
                     callRecursively(callback, (Composite) child, controls);
                 }
-                if(child instanceof Text || child instanceof Table){
+                if (child instanceof Text || child instanceof Table) {
                     controls.add(child);
                     callback.call(child);
                 }
@@ -258,16 +256,16 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
         return controls;
     }
 
-    public Object[] getResult(){
+    public Object[] getResult() {
         Object[] result = super.getResult();
 
-        if(result == null)
+        if (result == null)
             return null;
 
         List<AdditionalInfoAndIInfo> resultToReturn = new ArrayList<AdditionalInfoAndIInfo>();
 
-        for(int i = 0; i < result.length; i++){
-            if(result[i] instanceof AdditionalInfoAndIInfo){
+        for (int i = 0; i < result.length; i++) {
+            if (result[i] instanceof AdditionalInfoAndIInfo) {
                 resultToReturn.add((AdditionalInfoAndIInfo) result[i]);
             }
         }
@@ -278,15 +276,15 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
     /**
      * Overridden to set the initial pattern (if null we have an exception, so, it must at least be empty)
      */
-    public int open(){
-        if(getInitialPattern() == null){
-            setInitialPattern(selectedText==null?"": selectedText);
-        }else{
+    public int open() {
+        if (getInitialPattern() == null) {
+            setInitialPattern(selectedText == null ? "" : selectedText);
+        } else {
             setInitialPattern("");
         }
         int ret = super.open();
-        if(this.createdCallbacksForControls != null){
-            for(Object o:this.createdCallbacksForControls){
+        if (this.createdCallbacksForControls != null) {
+            for (Object o : this.createdCallbacksForControls) {
                 onControlDisposed.call(o);
             }
             this.createdCallbacksForControls = null;
@@ -294,29 +292,28 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
         return ret;
     }
 
-    public String getElementName(Object item){
+    public String getElementName(Object item) {
         AdditionalInfoAndIInfo info = (AdditionalInfoAndIInfo) item;
         return info.info.getName();
     }
 
-    protected IStatus validateItem(Object item){
+    protected IStatus validateItem(Object item) {
         return Status.OK_STATUS;
     }
 
-    protected ItemsFilter createFilter(){
+    protected ItemsFilter createFilter() {
         return new InfoFilter();
     }
 
     /**
      * Sets the elements we should work on (must be set before open())
      */
-    public void setElements(List<AbstractAdditionalTokensInfo> additionalInfo){
+    public void setElements(List<AbstractAdditionalTokensInfo> additionalInfo) {
         this.additionalInfo = additionalInfo;
     }
 
-
-    protected Comparator<AdditionalInfoAndIInfo> getItemsComparator(){
-        return new Comparator<AdditionalInfoAndIInfo>(){
+    protected Comparator<AdditionalInfoAndIInfo> getItemsComparator() {
+        return new Comparator<AdditionalInfoAndIInfo>() {
 
             /*
              * (non-Javadoc)
@@ -324,22 +321,22 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
              * @see java.util.Comparator#compare(java.lang.Object,
              *      java.lang.Object)
              */
-            public int compare(AdditionalInfoAndIInfo resource1, AdditionalInfoAndIInfo resource2){
+            public int compare(AdditionalInfoAndIInfo resource1, AdditionalInfoAndIInfo resource2) {
                 Collator collator = Collator.getInstance();
                 String s1 = resource1.info.getName();
                 String s2 = resource2.info.getName();
                 int comparability = collator.compare(s1, s2);
                 //same name
-                if(comparability == 0){
+                if (comparability == 0) {
                     String p1 = resource1.info.getDeclaringModuleName();
                     String p2 = resource2.info.getDeclaringModuleName();
-                    if(p1 == null && p2 == null){
+                    if (p1 == null && p2 == null) {
                         return 0;
                     }
-                    if(p1 != null && p2 == null){
+                    if (p1 != null && p2 == null) {
                         return -1;
                     }
-                    if(p1 == null && p2 != null){
+                    if (p1 == null && p2 != null) {
                         return 1;
                     }
                     return p1.compareTo(p2);
@@ -355,84 +352,82 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
      * ALL the info -- later, we'll filter it based on the active working set.
      */
     protected void fillContentProvider(AbstractContentProvider contentProvider, ItemsFilter itemsFilter,
-            IProgressMonitor progressMonitor) throws CoreException{
-        if(itemsFilter instanceof InfoFilter){
-            if (progressMonitor != null){
-                progressMonitor.beginTask("Searching...",this.additionalInfo.size());
+            IProgressMonitor progressMonitor) throws CoreException {
+        if (itemsFilter instanceof InfoFilter) {
+            if (progressMonitor != null) {
+                progressMonitor.beginTask("Searching...", this.additionalInfo.size());
             }
-            
-            for(AbstractAdditionalTokensInfo additionalInfo:this.additionalInfo){
-                if(progressMonitor != null){
-                    if (progressMonitor.isCanceled()){
+
+            for (AbstractAdditionalTokensInfo additionalInfo : this.additionalInfo) {
+                if (progressMonitor != null) {
+                    if (progressMonitor.isCanceled()) {
                         return;
-                    }else{
+                    } else {
                         progressMonitor.worked(1);
                     }
                 }
                 Collection<IInfo> allTokens = new HashSet<IInfo>(additionalInfo.getAllTokens()); //no duplicates
-                for(IInfo iInfo:allTokens){
+                for (IInfo iInfo : allTokens) {
                     contentProvider.add(new AdditionalInfoAndIInfo(additionalInfo, iInfo), itemsFilter);
                 }
-                
-                
+
                 //Also show to the user the modules available as globals (2.2.3)
                 IModulesManager modulesManager = null;
                 try {
-                    if(additionalInfo instanceof AdditionalProjectInterpreterInfo){
+                    if (additionalInfo instanceof AdditionalProjectInterpreterInfo) {
                         AdditionalProjectInterpreterInfo projectInterpreterInfo = (AdditionalProjectInterpreterInfo) additionalInfo;
                         IProject project = projectInterpreterInfo.getProject();
                         PythonNature nature = PythonNature.getPythonNature(project);
-                        if(nature != null){
+                        if (nature != null) {
                             ICodeCompletionASTManager astManager = nature.getAstManager();
-                            if(astManager != null){
+                            if (astManager != null) {
                                 modulesManager = astManager.getModulesManager();
                             }
-                            
+
                         }
-                    }else if(additionalInfo instanceof AdditionalSystemInterpreterInfo){
+                    } else if (additionalInfo instanceof AdditionalSystemInterpreterInfo) {
                         AdditionalSystemInterpreterInfo systemInterpreterInfo = (AdditionalSystemInterpreterInfo) additionalInfo;
-                        IInterpreterInfo defaultInterpreterInfo = systemInterpreterInfo.getManager().getDefaultInterpreterInfo(false);
+                        IInterpreterInfo defaultInterpreterInfo = systemInterpreterInfo.getManager()
+                                .getDefaultInterpreterInfo(false);
                         modulesManager = defaultInterpreterInfo.getModulesManager();
                     }
                 } catch (Throwable e) {
                     Log.log(e);
                 }
-                
-                if(modulesManager != null){
-                    SortedMap<ModulesKey, ModulesKey> allDirectModulesStartingWith = 
-                        modulesManager.getAllDirectModulesStartingWith("");
+
+                if (modulesManager != null) {
+                    SortedMap<ModulesKey, ModulesKey> allDirectModulesStartingWith = modulesManager
+                            .getAllDirectModulesStartingWith("");
                     Collection<ModulesKey> values = allDirectModulesStartingWith.values();
                     for (ModulesKey modulesKey : values) {
-                        contentProvider.add(new AdditionalInfoAndIInfo(additionalInfo, new ModInfo(modulesKey.name)), itemsFilter);
+                        contentProvider.add(new AdditionalInfoAndIInfo(additionalInfo, new ModInfo(modulesKey.name)),
+                                itemsFilter);
                     }
                 }
             }
         }
-        
-        
-        if(progressMonitor != null){
+
+        if (progressMonitor != null) {
             progressMonitor.done();
         }
 
     }
 
-
     /**
      * Viewer filter which filters resources due to current working set
      */
-    private class CustomWorkingSetFilter extends ViewerFilter{
-        
+    private class CustomWorkingSetFilter extends ViewerFilter {
+
         private ResourceWorkingSetFilter resourceWorkingSetFilter = new ResourceWorkingSetFilter();
 
-        public void setWorkingSet(IWorkingSet workingSet){
+        public void setWorkingSet(IWorkingSet workingSet) {
             resourceWorkingSetFilter.setWorkingSet(workingSet);
         }
-        
 
-        public boolean select(Viewer viewer, Object parentElement, Object element){
-            if(element instanceof AdditionalInfoAndIInfo){
+        public boolean select(Viewer viewer, Object parentElement, Object element) {
+            if (element instanceof AdditionalInfoAndIInfo) {
                 AdditionalInfoAndIInfo info = (AdditionalInfoAndIInfo) element;
-                if(info.additionalInfo instanceof AdditionalProjectInterpreterInfo){
+                if (info.additionalInfo instanceof AdditionalProjectInterpreterInfo) {
                     AdditionalProjectInterpreterInfo projectInterpreterInfo = (AdditionalProjectInterpreterInfo) info.additionalInfo;
                     return resourceWorkingSetFilter.select(viewer, parentElement, projectInterpreterInfo.getProject());
                 }
@@ -441,14 +436,12 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
         }
     }
 
-
     /**
      * Filters the info based on the pattern (considers each dot as a new scope in the pattern.)
      */
-    protected class InfoFilter extends ItemsFilter{
+    protected class InfoFilter extends ItemsFilter {
 
         private String initialPattern;
-
 
         public InfoFilter() {
             super();
@@ -461,27 +454,26 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
             this.initialPattern = stringPattern;
         }
 
-        
         /**
          * Must have a valid name.
          */
-        public boolean isConsistentItem(Object item){
-            if(!(item instanceof AdditionalInfoAndIInfo)){
+        public boolean isConsistentItem(Object item) {
+            if (!(item instanceof AdditionalInfoAndIInfo)) {
                 return false;
             }
             AdditionalInfoAndIInfo iInfo = (AdditionalInfoAndIInfo) item;
-            if(iInfo.info.getName() != null){
+            if (iInfo.info.getName() != null) {
                 return true;
             }
             return false;
         }
-        
+
         /**
          * We must override it so that the results are properly updating according to the scopes in the pattern
          * (if we only returned false it'd also work, but it'd need to traverse all the items at each step).
          */
-        public boolean isSubFilter(ItemsFilter filter){
-            if(!(filter instanceof InfoFilter)){
+        public boolean isSubFilter(ItemsFilter filter) {
+            if (!(filter instanceof InfoFilter)) {
                 return false;
             }
 
@@ -491,19 +483,18 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
         /**
          * Override so that we consider scopes.
          */
-        public boolean equalsFilter(ItemsFilter filter){
-            if(!(filter instanceof InfoFilter)){
+        public boolean equalsFilter(ItemsFilter filter) {
+            if (!(filter instanceof InfoFilter)) {
                 return false;
             }
             return MatchHelper.equalsFilter(this.initialPattern, ((InfoFilter) filter).initialPattern);
         }
 
-
         /**
          * Overridden to consider each dot as a new scope in the pattern (and match according to modules)
          */
-        public boolean matchItem(Object item){
-            if(!(item instanceof AdditionalInfoAndIInfo)){
+        public boolean matchItem(Object item) {
+            if (!(item instanceof AdditionalInfoAndIInfo)) {
                 return false;
             }
             AdditionalInfoAndIInfo info = (AdditionalInfoAndIInfo) item;
@@ -511,87 +502,85 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
         }
 
     }
-    
+
     /**
      * Used to store/restore the selections.
      */
-    private class InfoSelectionHistory extends SelectionHistory{
-
+    private class InfoSelectionHistory extends SelectionHistory {
 
         public InfoSelectionHistory() {
         }
 
-        protected Object restoreItemFromMemento(IMemento element){
+        protected Object restoreItemFromMemento(IMemento element) {
             InfoFactory infoFactory = new InfoFactory();
             AdditionalInfoAndIInfo resource = (AdditionalInfoAndIInfo) infoFactory.createElement(element);
-            if(resource != null){
-                if(resource.additionalInfo instanceof AdditionalSystemInterpreterInfo){
-                    AdditionalInfoAndIInfo found = checkAdditionalInfo(
-                            resource, resource.info.getName(), (AdditionalSystemInterpreterInfo) resource.additionalInfo);
-                    if(found != null){
+            if (resource != null) {
+                if (resource.additionalInfo instanceof AdditionalSystemInterpreterInfo) {
+                    AdditionalInfoAndIInfo found = checkAdditionalInfo(resource, resource.info.getName(),
+                            (AdditionalSystemInterpreterInfo) resource.additionalInfo);
+                    if (found != null) {
                         return found;
                     }
-                    
-                    
-                    
-                }else if(resource.additionalInfo instanceof AdditionalProjectInterpreterInfo){
+
+                } else if (resource.additionalInfo instanceof AdditionalProjectInterpreterInfo) {
                     AdditionalProjectInterpreterInfo projectInterpreterInfo = (AdditionalProjectInterpreterInfo) resource.additionalInfo;
                     IProject project = projectInterpreterInfo.getProject();
-                    if(project != null){
+                    if (project != null) {
                         List<IPythonNature> natures = new ArrayList<IPythonNature>();
                         PythonNature n = PythonNature.getPythonNature(project);
-                        if(n != null){
+                        if (n != null) {
                             natures.add(n);
                             try {
-                                List<Tuple<AbstractAdditionalTokensInfo, IPythonNature>> additionalInfoAndNature = 
-                                    AdditionalProjectInterpreterInfo.getAdditionalInfoAndNature(n, true, false);
-                                
+                                List<Tuple<AbstractAdditionalTokensInfo, IPythonNature>> additionalInfoAndNature = AdditionalProjectInterpreterInfo
+                                        .getAdditionalInfoAndNature(n, true, false);
+
                                 for (Tuple<AbstractAdditionalTokensInfo, IPythonNature> tuple : additionalInfoAndNature) {
-                                    AdditionalInfoAndIInfo found = checkAdditionalInfo(resource, resource.info.getName(), tuple.o1);
-                                    if(found != null){
+                                    AdditionalInfoAndIInfo found = checkAdditionalInfo(resource,
+                                            resource.info.getName(), tuple.o1);
+                                    if (found != null) {
                                         return found;
                                     }
                                 }
-                                
+
                             } catch (Exception e) {
                                 Log.log(e);
                             }
                         }
                     }
-                    
+
                 }
-                
-//                for(IPythonNature pythonNature:natures){
-//                    //Try to find in one of the natures... if we don't find it, return null, as that means
-//                    //it doesn't exist anymore!
-//                    ICodeCompletionASTManager astManager = pythonNature.getAstManager();
-//                    if(astManager == null){
-//                        continue;
-//                    }
-//                    List<ItemPointer> pointers = new ArrayList<ItemPointer>();
-//                    AnalysisPlugin.getDefinitionFromIInfo(pointers, astManager, pythonNature, resource.info, completionCache);
-//                    if(pointers.size() > 0){
-//                        return resource;
-//                    }
-//                }
+
+                //                for(IPythonNature pythonNature:natures){
+                //                    //Try to find in one of the natures... if we don't find it, return null, as that means
+                //                    //it doesn't exist anymore!
+                //                    ICodeCompletionASTManager astManager = pythonNature.getAstManager();
+                //                    if(astManager == null){
+                //                        continue;
+                //                    }
+                //                    List<ItemPointer> pointers = new ArrayList<ItemPointer>();
+                //                    AnalysisPlugin.getDefinitionFromIInfo(pointers, astManager, pythonNature, resource.info, completionCache);
+                //                    if(pointers.size() > 0){
+                //                        return resource;
+                //                    }
+                //                }
             }
 
             return null;
         }
 
-        private AdditionalInfoAndIInfo checkAdditionalInfo(AdditionalInfoAndIInfo resource, String name, AbstractAdditionalTokensInfo additionalInfoToSearch) {
-            Collection<IInfo> tokensEqualTo = 
-                additionalInfoToSearch.getTokensEqualTo(
-                        name, AbstractAdditionalTokensInfo.TOP_LEVEL | AbstractAdditionalTokensInfo.INNER);
+        private AdditionalInfoAndIInfo checkAdditionalInfo(AdditionalInfoAndIInfo resource, String name,
+                AbstractAdditionalTokensInfo additionalInfoToSearch) {
+            Collection<IInfo> tokensEqualTo = additionalInfoToSearch.getTokensEqualTo(name,
+                    AbstractAdditionalTokensInfo.TOP_LEVEL | AbstractAdditionalTokensInfo.INNER);
             for (IInfo iInfo : tokensEqualTo) {
-                if(iInfo.equals(resource.info)){
+                if (iInfo.equals(resource.info)) {
                     return resource;
                 }
             }
             return null;
         }
 
-        protected void storeItemToMemento(Object item, IMemento element){
+        protected void storeItemToMemento(Object item, IMemento element) {
             AdditionalInfoAndIInfo resource = (AdditionalInfoAndIInfo) item;
             InfoFactory infoFactory = new InfoFactory(resource);
             infoFactory.saveState(element);
@@ -606,6 +595,5 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
     public ICallbackWithListeners getOnControlDisposed() {
         return onControlDisposed;
     }
-
 
 }

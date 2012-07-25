@@ -68,7 +68,8 @@ public class PyRefactoringFindDefinition {
             }
             String modName = request.moduleName;
             request.communicateWork("Module name found:" + modName);
-            tokenAndQual = PySelection.getActivationTokenAndQual(request.getDoc(), request.ps.getAbsoluteCursorOffset(), true);
+            tokenAndQual = PySelection.getActivationTokenAndQual(request.getDoc(),
+                    request.ps.getAbsoluteCursorOffset(), true);
             String tok = tokenAndQual[0] + tokenAndQual[1];
             //2. check findDefinition (SourceModule)
             try {
@@ -76,8 +77,8 @@ public class PyRefactoringFindDefinition {
                 int beginCol = request.getBeginCol() + 1;
                 IPythonNature pythonNature = request.nature;
 
-                PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), mod, tok, selected, beginLine, beginCol, pythonNature,
-                        completionCache);
+                PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), mod, tok, selected, beginLine,
+                        beginCol, pythonNature, completionCache);
             } catch (OperationCanceledException e) {
                 throw e;
             } catch (CompletionRecursionException e) {
@@ -90,7 +91,6 @@ public class PyRefactoringFindDefinition {
         }
         return tokenAndQual;
     }
-    
 
     /**
      * Prepares a request to a find definition operation.
@@ -102,47 +102,46 @@ public class PyRefactoringFindDefinition {
      */
     private static IModule prepareRequestForFindDefinition(RefactoringRequest request) {
         String modName = null;
-        
+
         //all that to try to give the user a 'default' interpreter manager, for whatever he is trying to search
         //if it is in some pythonpath, that's easy, but if it is some file somewhere else in the computer, this
         //might turn out a little tricky.
-        if(request.nature == null){
+        if (request.nature == null) {
             //the request is not associated to any project. It is probably a system file. So, let's check it...
-            Tuple<IPythonNature,String> infoForFile = PydevPlugin.getInfoForFile(request.file);
-            if(infoForFile != null){
+            Tuple<IPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(request.file);
+            if (infoForFile != null) {
                 modName = infoForFile.o2;
                 request.nature = infoForFile.o1;
                 request.inputName = modName;
-            }else{
+            } else {
                 return null;
             }
         }
-        
-        
-        if(modName == null){
+
+        if (modName == null) {
             modName = request.resolveModule();
         }
-        
-        if(request.nature == null){
+
+        if (request.nature == null) {
             Log.logInfo("Unable to resolve nature for find definition request (python or jython interpreter may not be configured).");
             return null;
         }
-        
+
         IModule mod = request.getModule();
-        if(mod == null){
+        if (mod == null) {
             Log.logInfo("Unable to resolve module for find definition request.");
             return null;
         }
 
-        if(modName == null){
-            if(mod.getName() == null){
-                if(mod instanceof SourceModule){
+        if (modName == null) {
+            if (mod.getName() == null) {
+                if (mod instanceof SourceModule) {
                     SourceModule m = (SourceModule) mod;
                     modName = "__module_not_in_the_pythonpath__";
                     m.setName(modName);
                 }
             }
-            if(modName == null){
+            if (modName == null) {
                 Log.logInfo("Unable to resolve module for find definition request (modName == null).");
                 return null;
             }
@@ -150,7 +149,6 @@ public class PyRefactoringFindDefinition {
         request.moduleName = modName;
         return mod;
     }
-    
 
     /**
      * This method will try to find the actual definition given all the needed parameters (but it will not try to find
@@ -171,39 +169,39 @@ public class PyRefactoringFindDefinition {
      * 
      * @throws Exception
      */
-    public static void findActualDefinition(IProgressMonitor monitor, IModule mod, String tok, ArrayList<IDefinition> selected, 
-            int beginLine, int beginCol, IPythonNature pythonNature, ICompletionCache completionCache) throws Exception, CompletionRecursionException {
-        
-        ICompletionState completionState = CompletionStateFactory.getEmptyCompletionState(tok, pythonNature, 
-                        beginLine-1, beginCol-1, completionCache);
+    public static void findActualDefinition(IProgressMonitor monitor, IModule mod, String tok,
+            ArrayList<IDefinition> selected, int beginLine, int beginCol, IPythonNature pythonNature,
+            ICompletionCache completionCache) throws Exception, CompletionRecursionException {
+
+        ICompletionState completionState = CompletionStateFactory.getEmptyCompletionState(tok, pythonNature,
+                beginLine - 1, beginCol - 1, completionCache);
         IDefinition[] definitions = mod.findDefinition(completionState, beginLine, beginCol, pythonNature);
-        
-        if(monitor != null){
-            monitor.setTaskName("Found:"+definitions.length+ " definitions");
+
+        if (monitor != null) {
+            monitor.setTaskName("Found:" + definitions.length + " definitions");
             monitor.worked(1);
-            if(monitor.isCanceled()){
+            if (monitor.isCanceled()) {
                 return;
             }
         }
-        
+
         int len = definitions.length;
         for (int i = 0; i < len; i++) {
             IDefinition definition = definitions[i];
             boolean doAdd = true;
-            if(definition instanceof Definition){
+            if (definition instanceof Definition) {
                 Definition d = (Definition) definition;
                 doAdd = !findActualTokenFromImportFromDefinition(pythonNature, tok, selected, d, completionCache);
             }
-            if(monitor != null && monitor.isCanceled()){
+            if (monitor != null && monitor.isCanceled()) {
                 return;
             }
-            if(doAdd){
+            if (doAdd) {
                 selected.add(definition);
             }
         }
     }
-    
-    
+
     /** 
      * Given some definition, find its actual token (if that's possible)
      * @param request the original request
@@ -216,60 +214,60 @@ public class PyRefactoringFindDefinition {
      * @return true if we found a new definition (and false otherwise)
      * @throws Exception
      */
-    private static boolean findActualTokenFromImportFromDefinition(IPythonNature nature, String tok, ArrayList<IDefinition> selected, 
-            Definition d, ICompletionCache completionCache) throws Exception {
+    private static boolean findActualTokenFromImportFromDefinition(IPythonNature nature, String tok,
+            ArrayList<IDefinition> selected, Definition d, ICompletionCache completionCache) throws Exception {
         boolean didFindNewDef = false;
-        
+
         Set<Tuple3<String, Integer, Integer>> whereWePassed = new HashSet<Tuple3<String, Integer, Integer>>();
-        
+
         tok = FullRepIterable.getLastPart(tok); //in an import..from, the last part will always be the token imported 
-        
-        while(d.ast instanceof ImportFrom){
+
+        while (d.ast instanceof ImportFrom) {
             Tuple3<String, Integer, Integer> t1 = getTupFromDefinition(d);
-            if(t1 == null){
+            if (t1 == null) {
                 break;
             }
             whereWePassed.add(t1);
-            
-            Definition[] found = (Definition[]) d.module.findDefinition(CompletionStateFactory.getEmptyCompletionState(tok, nature, completionCache), d.line, d.col, nature);
-            if(found != null && found.length == 1){
-                Tuple3<String,Integer,Integer> tupFromDefinition = getTupFromDefinition(found[0]);
-                if(tupFromDefinition == null){
+
+            Definition[] found = (Definition[]) d.module
+                    .findDefinition(CompletionStateFactory.getEmptyCompletionState(tok, nature, completionCache),
+                            d.line, d.col, nature);
+            if (found != null && found.length == 1) {
+                Tuple3<String, Integer, Integer> tupFromDefinition = getTupFromDefinition(found[0]);
+                if (tupFromDefinition == null) {
                     break;
                 }
-                if(!whereWePassed.contains(tupFromDefinition)){ //avoid recursions
+                if (!whereWePassed.contains(tupFromDefinition)) { //avoid recursions
                     didFindNewDef = true;
                     d = found[0];
-                }else{
+                } else {
                     break;
                 }
-            }else{
+            } else {
                 break;
             }
         }
-        
-        if(didFindNewDef){
+
+        if (didFindNewDef) {
             selected.add(d);
         }
-        
+
         return didFindNewDef;
     }
-    
-    
+
     /**
      * @return a tuple with the absolute path to the definition, its line and col.
      */
     private static Tuple3<String, Integer, Integer> getTupFromDefinition(Definition d) {
-        if(d == null){
+        if (d == null) {
             return null;
         }
         File file = d.module.getFile();
-        if(file == null){
+        if (file == null) {
             return null;
         }
         return new Tuple3<String, Integer, Integer>(REF.getFileAbsolutePath(file), d.line, d.col);
     }
-
 
     /**
      * @param pointers: OUT: list where the pointers will be added
@@ -282,17 +280,13 @@ public class PyRefactoringFindDefinition {
         }
     }
 
-
     public static ItemPointer createItemPointer(IDefinition definition) {
         File file = definition.getModule().getFile();
         int line = definition.getLine();
         int col = definition.getCol();
-        
-        ItemPointer itemPointer = new ItemPointer(file,
-                new Location(line-1, col-1),
-                new Location(line-1, col-1), 
-                (Definition)definition,
-                definition.getModule().getZipFilePath());
+
+        ItemPointer itemPointer = new ItemPointer(file, new Location(line - 1, col - 1),
+                new Location(line - 1, col - 1), (Definition) definition, definition.getModule().getZipFilePath());
         return itemPointer;
     }
 }

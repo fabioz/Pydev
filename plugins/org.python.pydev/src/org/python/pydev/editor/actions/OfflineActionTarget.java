@@ -9,7 +9,6 @@
  */
 package org.python.pydev.editor.actions;
 
-
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -50,17 +49,17 @@ import org.python.pydev.editor.PyEdit;
 
  * @author Fabio
  */
-public class OfflineActionTarget implements VerifyKeyListener, MouseListener, FocusListener, ISelectionChangedListener, ITextListener {
-
+public class OfflineActionTarget implements VerifyKeyListener, MouseListener, FocusListener, ISelectionChangedListener,
+        ITextListener {
 
     /** The string representing rendered tab */
-    private final static String TAB= "<TAB>";
+    private final static String TAB = "<TAB>";
     /** The text viewer to operate on */
     private final ITextViewer fTextViewer;
     /** The status line manager for output */
     private final IStatusLineManager fStatusLine;
     /** The current find string */
-    private StringBuffer fFindString= new StringBuffer();
+    private StringBuffer fFindString = new StringBuffer();
     /** A flag indicating listeners are installed. */
     private boolean fInstalled;
     /**
@@ -74,18 +73,16 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
      */
     private boolean fIsStatusFieldExtension;
     private PyEdit fEdit;
-    
+
     /**
      * Shows a dialog with the available keys registered.
      */
-	private KeyAssistDialog keyAssistDialog;
+    private KeyAssistDialog keyAssistDialog;
 
-	/**
+    /**
      * This lock should be used to check for fInstalled and accessing the keyAssistDialog.
      */
     private Object lock = new Object();
-    
-
 
     /**
      * Creates an instance of an incremental find target.
@@ -95,8 +92,8 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
     public OfflineActionTarget(ITextViewer viewer, IStatusLineManager manager, PyEdit edit) {
         Assert.isNotNull(viewer);
         Assert.isNotNull(manager);
-        fTextViewer= viewer;
-        fStatusLine= manager;
+        fTextViewer = viewer;
+        fStatusLine = manager;
         fEdit = edit;
     }
 
@@ -124,7 +121,7 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
         if (fInstalled)
             return;
 
-        StyledText text= fTextViewer.getTextWidget();
+        StyledText text = fTextViewer.getTextWidget();
         if (text == null)
             return;
 
@@ -132,7 +129,7 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
         text.addFocusListener(this);
         fTextViewer.addTextListener(this);
 
-        ISelectionProvider selectionProvider= fTextViewer.getSelectionProvider();
+        ISelectionProvider selectionProvider = fTextViewer.getSelectionProvider();
         if (selectionProvider != null)
             selectionProvider.addSelectionChangedListener(this);
 
@@ -142,61 +139,58 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
             text.addVerifyKeyListener(this);
 
         keyAssistDialog = new KeyAssistDialog(this.fEdit);
-        fInstalled= true;
-        
+        fInstalled = true;
+
         //Wait a bit until showing the key assist dialog
         new UIJob("") {
-			
-			public IStatus runInUIThread(IProgressMonitor monitor) {
-				synchronized (lock) {
-					if(fInstalled && keyAssistDialog != null){
-						keyAssistDialog.open(
-								OfflineActionTarget.this.fEdit.getOfflineActionDescriptions(), 
-								OfflineActionTarget.this);
-					}
-				}
-				return Status.OK_STATUS;
-			}
-		}.schedule(700);
+
+            public IStatus runInUIThread(IProgressMonitor monitor) {
+                synchronized (lock) {
+                    if (fInstalled && keyAssistDialog != null) {
+                        keyAssistDialog.open(OfflineActionTarget.this.fEdit.getOfflineActionDescriptions(),
+                                OfflineActionTarget.this);
+                    }
+                }
+                return Status.OK_STATUS;
+            }
+        }.schedule(700);
     }
 
-    
     /**
      * Uninstalls itself. I.e. removes all listeners installed in <code>install</code>.
      */
     private void uninstall() {
-    	synchronized(lock){
-    		if(!fInstalled){
-    			return;
-    		}
-	        fTextViewer.removeTextListener(this);
-	
-	        ISelectionProvider selectionProvider= fTextViewer.getSelectionProvider();
-	        if (selectionProvider != null)
-	            selectionProvider.removeSelectionChangedListener(this);
-	
-	        StyledText text= fTextViewer.getTextWidget();
-	        if (text != null) {
-	            text.removeMouseListener(this);
-	            text.removeFocusListener(this);
-	        }
-	
-	        if (fTextViewer instanceof ITextViewerExtension) {
-	            ((ITextViewerExtension) fTextViewer).removeVerifyKeyListener(this);
-	
-	        } else {
-	            if (text != null)
-	                text.removeVerifyKeyListener(this);
-	        }
-	        
-	        if(keyAssistDialog != null){
-	        	keyAssistDialog.close();
-	        }
-	        keyAssistDialog = null;
-	        fInstalled= false;
-    	}
+        synchronized (lock) {
+            if (!fInstalled) {
+                return;
+            }
+            fTextViewer.removeTextListener(this);
+
+            ISelectionProvider selectionProvider = fTextViewer.getSelectionProvider();
+            if (selectionProvider != null)
+                selectionProvider.removeSelectionChangedListener(this);
+
+            StyledText text = fTextViewer.getTextWidget();
+            if (text != null) {
+                text.removeMouseListener(this);
+                text.removeFocusListener(this);
+            }
+
+            if (fTextViewer instanceof ITextViewerExtension) {
+                ((ITextViewerExtension) fTextViewer).removeVerifyKeyListener(this);
+
+            } else {
+                if (text != null)
+                    text.removeVerifyKeyListener(this);
+            }
+
+            if (keyAssistDialog != null) {
+                keyAssistDialog.close();
+            }
+            keyAssistDialog = null;
+            fInstalled = false;
+        }
     }
-    	
 
     /**
      * Updates the status line.
@@ -205,10 +199,10 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
         if (!fInstalled)
             return;
 
-        String string= fFindString.toString();
+        String string = fFindString.toString();
 
         statusMessage(string);
-//        statusError("Error");
+        //        statusError("Error");
     }
 
     /*
@@ -223,74 +217,74 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
 
             switch (event.keyCode) {
 
-            case SWT.ARROW_DOWN:
-            	//special case: 
-            	//if there's a key dialog with a table shown, set its focus when down is pressed
-            	synchronized (lock) {
-            		KeyAssistDialog tempKeyAssistDialog = this.keyAssistDialog;
-            		if(tempKeyAssistDialog != null){
-            			Table completionsTable = this.keyAssistDialog.getCompletionsTable();
-            			if(completionsTable != null && !completionsTable.isDisposed()){
-            				completionsTable.setFocus();
-            				completionsTable.setSelection(0);
-            				event.doit = false;
-            				break;
-            			}
-            		}
-				}
-            // ALT, CTRL, ARROW_LEFT, ARROW_RIGHT == leave
-            case SWT.ARROW_LEFT:
-            case SWT.ARROW_RIGHT:
-            case SWT.HOME:
-            case SWT.END:
-            case SWT.PAGE_DOWN:
-            case SWT.PAGE_UP:
-            case SWT.ARROW_UP:
-                leave();
-                break;
+                case SWT.ARROW_DOWN:
+                    //special case: 
+                    //if there's a key dialog with a table shown, set its focus when down is pressed
+                    synchronized (lock) {
+                        KeyAssistDialog tempKeyAssistDialog = this.keyAssistDialog;
+                        if (tempKeyAssistDialog != null) {
+                            Table completionsTable = this.keyAssistDialog.getCompletionsTable();
+                            if (completionsTable != null && !completionsTable.isDisposed()) {
+                                completionsTable.setFocus();
+                                completionsTable.setSelection(0);
+                                event.doit = false;
+                                break;
+                            }
+                        }
+                    }
+                    // ALT, CTRL, ARROW_LEFT, ARROW_RIGHT == leave
+                case SWT.ARROW_LEFT:
+                case SWT.ARROW_RIGHT:
+                case SWT.HOME:
+                case SWT.END:
+                case SWT.PAGE_DOWN:
+                case SWT.PAGE_UP:
+                case SWT.ARROW_UP:
+                    leave();
+                    break;
 
             }
 
-        // event.character != 0
+            // event.character != 0
         } else {
 
             switch (event.character) {
 
             // ESC = quit
-            case 0x1B:
-                leave();
-                event.doit= false;
-                break;
-                
-            //CR = exec and quit
-            case 0x0D:
-                boolean executed = doExec();
-                event.doit= false;
-                if(!executed){
-                    return; //we don't want to update the status
-                }
-                break;
+                case 0x1B:
+                    leave();
+                    event.doit = false;
+                    break;
 
-            // backspace    and delete
-            case 0x08:
-            case 0x7F:
-                removeLastCharSearch();
-                event.doit= false;
-                break;
-
-            default:
-                if (event.stateMask == 0 || event.stateMask == SWT.SHIFT || event.stateMask == (SWT.ALT | SWT.CTRL)) { // SWT.ALT | SWT.CTRL covers AltGr (see bug 43049)
-                    event.doit= false;
-                    if(addCharSearch(event.character)){
-                        //ok, triggered some automatic action (does not need enter)
-                        executed = doExec();
-                        if(!executed){
-                            return; //we don't want to update the status
-                        }
-                        
+                //CR = exec and quit
+                case 0x0D:
+                    boolean executed = doExec();
+                    event.doit = false;
+                    if (!executed) {
+                        return; //we don't want to update the status
                     }
-                }
-                break;
+                    break;
+
+                // backspace    and delete
+                case 0x08:
+                case 0x7F:
+                    removeLastCharSearch();
+                    event.doit = false;
+                    break;
+
+                default:
+                    if (event.stateMask == 0 || event.stateMask == SWT.SHIFT || event.stateMask == (SWT.ALT | SWT.CTRL)) { // SWT.ALT | SWT.CTRL covers AltGr (see bug 43049)
+                        event.doit = false;
+                        if (addCharSearch(event.character)) {
+                            //ok, triggered some automatic action (does not need enter)
+                            executed = doExec();
+                            if (!executed) {
+                                return; //we don't want to update the status
+                            }
+
+                        }
+                    }
+                    break;
             }
         }
         updateStatus();
@@ -302,24 +296,23 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
     private boolean doExec() {
         statusClear();
         String key = fFindString.toString();
-		if(fEdit.hasOfflineAction(key)){
-        	synchronized (lock) {
-        		//if the user matched the key, don't show the key assist dialog anymore.
-        		if(this.keyAssistDialog != null){
-	        		this.keyAssistDialog.close();
-	        		this.keyAssistDialog = null;
-        		}
-			}
+        if (fEdit.hasOfflineAction(key)) {
+            synchronized (lock) {
+                //if the user matched the key, don't show the key assist dialog anymore.
+                if (this.keyAssistDialog != null) {
+                    this.keyAssistDialog.close();
+                    this.keyAssistDialog = null;
+                }
+            }
         }
         final boolean executed = fEdit.onOfflineAction(key, this);
-        if(executed){
+        if (executed) {
             //Don't use leave() because we don't want to clear the final status message
             //(in case the action actually changed it)
             uninstall();
         }
         return executed;
     }
-
 
     /**
      * Is called from the outside on a backspace action (because it will eat the backspace, we have to make this
@@ -329,11 +322,11 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
         removeLastCharSearch();
         updateStatus();
     }
-    
+
     private void removeLastCharSearch() {
         final int len = fFindString.length();
-        if(len > 0){
-            fFindString.deleteCharAt(len-1);
+        if (len > 0) {
+            fFindString.deleteCharAt(len - 1);
         }
     }
 
@@ -396,53 +389,53 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
      * @see FocusListener#focusLost(org.eclipse.swt.events.FocusEvent)
      */
     public void focusLost(FocusEvent e) {
-		// When the focus is lost, we have to treat the case where the focus went to the key assist
-		// dialog, so, if that was the case, we won't leave right now, only when the focus is 
-    	// removed from that dialog or ESC is pressed.
-    	KeyAssistDialog tempKeyAssistDialog = keyAssistDialog;
-    	if(tempKeyAssistDialog != null){
-    		final Table completionsTable = tempKeyAssistDialog.getCompletionsTable();
-    		if(completionsTable != null && !completionsTable.isDisposed()){
-	    		
-	    		new UIJob("Check leave") {
-					
-					public IStatus runInUIThread(IProgressMonitor monitor) {
-						synchronized (lock) {
-							if(fInstalled && keyAssistDialog!= null && !completionsTable.isDisposed()){
-								if(!completionsTable.isFocusControl()){
-									leave();
-								}else{
-									completionsTable.addFocusListener(new FocusListener() {
-										
-										public void focusLost(FocusEvent e) {
-											leave();
-										}
-										
-										public void focusGained(FocusEvent e) {
-											leave();
-										}
-									});
-									completionsTable.addKeyListener(new KeyListener() {
-										
-										public void keyReleased(KeyEvent e) {
-											if(e.character == 0x1B){ //ESC
-												leave();
-											}
-										}
-										
-										public void keyPressed(KeyEvent e) {
-										}
-									});
-								}
-							}else{
-								leave();
-							}
-						}
-						return Status.OK_STATUS;
-					}
-				}.schedule(50);
-    		}
-    	}
+        // When the focus is lost, we have to treat the case where the focus went to the key assist
+        // dialog, so, if that was the case, we won't leave right now, only when the focus is 
+        // removed from that dialog or ESC is pressed.
+        KeyAssistDialog tempKeyAssistDialog = keyAssistDialog;
+        if (tempKeyAssistDialog != null) {
+            final Table completionsTable = tempKeyAssistDialog.getCompletionsTable();
+            if (completionsTable != null && !completionsTable.isDisposed()) {
+
+                new UIJob("Check leave") {
+
+                    public IStatus runInUIThread(IProgressMonitor monitor) {
+                        synchronized (lock) {
+                            if (fInstalled && keyAssistDialog != null && !completionsTable.isDisposed()) {
+                                if (!completionsTable.isFocusControl()) {
+                                    leave();
+                                } else {
+                                    completionsTable.addFocusListener(new FocusListener() {
+
+                                        public void focusLost(FocusEvent e) {
+                                            leave();
+                                        }
+
+                                        public void focusGained(FocusEvent e) {
+                                            leave();
+                                        }
+                                    });
+                                    completionsTable.addKeyListener(new KeyListener() {
+
+                                        public void keyReleased(KeyEvent e) {
+                                            if (e.character == 0x1B) { //ESC
+                                                leave();
+                                            }
+                                        }
+
+                                        public void keyPressed(KeyEvent e) {
+                                        }
+                                    });
+                                }
+                            } else {
+                                leave();
+                            }
+                        }
+                        return Status.OK_STATUS;
+                    }
+                }.schedule(50);
+            }
+        }
     }
 
     /**
@@ -452,9 +445,9 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
     private void statusMessage(String string) {
         if (fStatusField != null) {
             if (fIsStatusFieldExtension) {
-                ((IStatusFieldExtension)fStatusField).setErrorText(null);
+                ((IStatusFieldExtension) fStatusField).setErrorText(null);
                 fStatusField.setText(escapeTabs(string));
-                ((IStatusFieldExtension)fStatusField).setVisible(true);
+                ((IStatusFieldExtension) fStatusField).setVisible(true);
                 fStatusLine.update(true);
             } else {
                 fStatusLine.setErrorMessage(null);
@@ -473,9 +466,9 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
     public void statusError(String string) {
         if (fStatusField != null) {
             if (fIsStatusFieldExtension) {
-                ((IStatusFieldExtension)fStatusField).setErrorText(escapeTabs(string));
+                ((IStatusFieldExtension) fStatusField).setErrorText(escapeTabs(string));
                 fStatusField.setText(""); //$NON-NLS-1$
-                ((IStatusFieldExtension)fStatusField).setVisible(true);
+                ((IStatusFieldExtension) fStatusField).setVisible(true);
                 fStatusLine.update(true);
             } else {
                 fStatusLine.setErrorMessage(escapeTabs(string));
@@ -494,8 +487,8 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
         if (fStatusField != null) {
             if (fIsStatusFieldExtension) {
                 fStatusField.setText(""); //$NON-NLS-1$
-                ((IStatusFieldExtension)fStatusField).setErrorText(null);
-                ((IStatusFieldExtension)fStatusField).setVisible(false);
+                ((IStatusFieldExtension) fStatusField).setErrorText(null);
+                ((IStatusFieldExtension) fStatusField).setVisible(false);
                 fStatusLine.update(true);
             } else {
                 fStatusField.setText(""); //$NON-NLS-1$
@@ -513,16 +506,16 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
      * @return the given string with all tab characters replace with a proper status line presentation
      */
     private String escapeTabs(String string) {
-        FastStringBuffer buffer= new FastStringBuffer();
+        FastStringBuffer buffer = new FastStringBuffer();
 
-        int begin= 0;
-        int end= string.indexOf('\t', begin);
+        int begin = 0;
+        int end = string.indexOf('\t', begin);
 
         while (end >= 0) {
             buffer.append(string.substring(begin, end));
             buffer.append(TAB);
-            begin= end + 1;
-            end= string.indexOf('\t', begin);
+            begin = end + 1;
+            end = string.indexOf('\t', begin);
         }
         buffer.append(string.substring(begin));
 
@@ -542,10 +535,9 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
      * @param statusField the status field
      */
     void setStatusField(IStatusField statusField) {
-        fStatusField= statusField;
-        fIsStatusFieldExtension= fStatusField instanceof IStatusFieldExtension;
+        fStatusField = statusField;
+        fIsStatusFieldExtension = fStatusField instanceof IStatusFieldExtension;
     }
-
 
     public boolean isInstalled() {
         return fInstalled;

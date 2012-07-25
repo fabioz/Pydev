@@ -47,19 +47,19 @@ public class ConstructorFieldRequestProcessor implements IRequestProcessor<Const
     private List<ConstructorFieldRequest> generateRequests() {
         List<ConstructorFieldRequest> requests = new ArrayList<ConstructorFieldRequest>();
         List<ITreeNode> nodes = new ArrayList<ITreeNode>();
-        for(Object o:checked){
+        for (Object o : checked) {
             nodes.add((ITreeNode) o);
         }
 
         Iterator<ITreeNode> iter = nodes.iterator();
-        while(iter.hasNext()){
+        while (iter.hasNext()) {
             ITreeNode node = iter.next();
-            if(node instanceof TreeNodeClassField){
+            if (node instanceof TreeNodeClassField) {
                 List<INodeAdapter> fields = getFields(iter);
-                if(!fields.isEmpty()){
+                if (!fields.isEmpty()) {
                     ClassDefAdapter clazz = (ClassDefAdapter) node.getAdapter();
-                    ConstructorFieldRequest request = new ConstructorFieldRequest(
-                            clazz, fields, offsetStrategy, adapterPrefs);
+                    ConstructorFieldRequest request = new ConstructorFieldRequest(clazz, fields, offsetStrategy,
+                            adapterPrefs);
                     requests.add(request);
                 }
             }
@@ -71,11 +71,11 @@ public class ConstructorFieldRequestProcessor implements IRequestProcessor<Const
     private List<INodeAdapter> getFields(Iterator<ITreeNode> iter) {
         List<INodeAdapter> fields = new ArrayList<INodeAdapter>();
         ITreeNode field = iter.next();
-        while(field instanceof TreeNodeField){
+        while (field instanceof TreeNodeField) {
             fields.add(field.getAdapter());
-            if(iter.hasNext()){
+            if (iter.hasNext()) {
                 field = iter.next();
-            }else{
+            } else {
                 break;
             }
         }

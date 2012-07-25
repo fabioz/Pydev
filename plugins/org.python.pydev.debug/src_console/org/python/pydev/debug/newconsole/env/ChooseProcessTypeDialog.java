@@ -45,25 +45,25 @@ import org.python.pydev.plugin.nature.PythonNature;
  * Helper to choose which kind of jython run will it be.
  */
 final class ChooseProcessTypeDialog extends Dialog {
-    
+
     private Button checkboxForCurrentEditor;
 
     private Button checkboxPython;
-    
+
     private Button checkboxPythonDebug;
-    
+
     private Button checkboxJython;
-    
+
     private Button checkboxIronpython;
-    
+
     private Button checkboxJythonEclipse;
 
     private PyEdit activeEditor;
 
     private IInterpreterManager interpreterManager;
-    
+
     private List<IPythonNature> natures = new ArrayList<IPythonNature>();
-    
+
     private PyStackFrame selectedFrame;
 
     private Link link;
@@ -77,83 +77,83 @@ final class ChooseProcessTypeDialog extends Dialog {
     protected Control createDialogArea(Composite parent) {
         Composite area = (Composite) super.createDialogArea(parent);
 
-		boolean debugButtonCreated = false;
-		if (getSuspendedFrame() != null) {
-			// when debugger is running and valid frame is selected then
-			// displaying debug console as first option
-			createDebugButton(area);
-			debugButtonCreated = true;
-		}
+        boolean debugButtonCreated = false;
+        if (getSuspendedFrame() != null) {
+            // when debugger is running and valid frame is selected then
+            // displaying debug console as first option
+            createDebugButton(area);
+            debugButtonCreated = true;
+        }
 
         checkboxForCurrentEditor = new Button(area, SWT.RADIO);
-        checkboxForCurrentEditor.setToolTipText("Creates a console with the PYTHONPATH used by the current editor (and jython/python/iron python depending on the project type).");
+        checkboxForCurrentEditor
+                .setToolTipText("Creates a console with the PYTHONPATH used by the current editor (and jython/python/iron python depending on the project type).");
         configureEditorButton();
 
-        
         checkboxPython = new Button(area, SWT.RADIO);
-        checkboxPython.setToolTipText("Creates a Python console with the PYTHONPATH containing all the python projects in the workspace.");
+        checkboxPython
+                .setToolTipText("Creates a Python console with the PYTHONPATH containing all the python projects in the workspace.");
         configureButton(checkboxPython, "Python", PydevPlugin.getPythonInterpreterManager());
 
-       
         checkboxJython = new Button(area, SWT.RADIO);
-        checkboxJython.setToolTipText("Creates a Jython console with the PYTHONPATH containing all the python projects in the workspace.");
+        checkboxJython
+                .setToolTipText("Creates a Jython console with the PYTHONPATH containing all the python projects in the workspace.");
         configureButton(checkboxJython, "Jython", PydevPlugin.getJythonInterpreterManager());
-        
+
         checkboxIronpython = new Button(area, SWT.RADIO);
-        checkboxIronpython.setToolTipText("Creates an Iron Python console with the PYTHONPATH containing all the python projects in the workspace.");
+        checkboxIronpython
+                .setToolTipText("Creates an Iron Python console with the PYTHONPATH containing all the python projects in the workspace.");
         configureButton(checkboxIronpython, "Iron Python", PydevPlugin.getIronpythonInterpreterManager());
-        
+
         checkboxJythonEclipse = new Button(area, SWT.RADIO);
-        checkboxJythonEclipse.setToolTipText("Creates a Jython console using the running Eclipse environment (can potentially halt Eclipse depending on what's done).");
+        checkboxJythonEclipse
+                .setToolTipText("Creates a Jython console using the running Eclipse environment (can potentially halt Eclipse depending on what's done).");
         configureButton(checkboxJythonEclipse, "Jython using VM running Eclipse", new JythonEclipseInterpreterManager());
-        
-        if(!debugButtonCreated){
+
+        if (!debugButtonCreated) {
             createDebugButton(area);
         }
-        
+
         link = new Link(area, SWT.LEFT | SWT.WRAP);
-        link.setText(
-                "<a>Configure interactive console preferences.</a>\n" +
-                "I.e.: send contents to console on creation,\n" +
-                "connect to variables view, initial commands, etc."
-        );
+        link.setText("<a>Configure interactive console preferences.</a>\n"
+                + "I.e.: send contents to console on creation,\n" + "connect to variables view, initial commands, etc.");
 
         link.addSelectionListener(new SelectionListener() {
             public void widgetSelected(SelectionEvent e) {
-                PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(
-                        null, InteractiveConsolePrefs.PREFERENCES_ID, null, null);
-                dialog.open(); 
+                PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null,
+                        InteractiveConsolePrefs.PREFERENCES_ID, null, null);
+                dialog.open();
             }
 
             public void widgetDefaultSelected(SelectionEvent e) {
             }
         });
-        
-        
+
         return area;
     }
 
-	private void createDebugButton(Composite area) {
-		checkboxPythonDebug = new Button(area, SWT.RADIO);
-        checkboxPythonDebug.setToolTipText("Creates a Python debug console associated with the frame selected in the debug view");
+    private void createDebugButton(Composite area) {
+        checkboxPythonDebug = new Button(area, SWT.RADIO);
+        checkboxPythonDebug
+                .setToolTipText("Creates a Python debug console associated with the frame selected in the debug view");
         configureDebugButton();
-	}
-    
+    }
+
     /**
      * Configures a button related to a given interpreter manager.
      */
     private void configureButton(Button checkBox, String python, IInterpreterManager interpreterManager) {
         boolean enabled = false;
         String text;
-        try{
-            if(interpreterManager.getDefaultInterpreterInfo(false) != null){
-                text = python+" console";
+        try {
+            if (interpreterManager.getDefaultInterpreterInfo(false) != null) {
+                text = python + " console";
                 enabled = true;
-            }else{
+            } else {
                 throw new NotConfiguredInterpreterException();
             }
-        }catch(MisconfigurationException e){
-            text = "Unable to create console for "+python+" (interpreter not configured)";
+        } catch (MisconfigurationException e) {
+            text = "Unable to create console for " + python + " (interpreter not configured)";
         }
         checkBox.setText(text);
         checkBox.setEnabled(enabled);
@@ -163,27 +163,27 @@ final class ChooseProcessTypeDialog extends Dialog {
      * Configures a button related to an editor.
      * @throws MisconfigurationException 
      */
-    private void configureEditorButton(){
+    private void configureEditorButton() {
         boolean enabled = false;
         String text;
-        try{
-            if(this.activeEditor != null){
+        try {
+            if (this.activeEditor != null) {
                 IPythonNature nature = this.activeEditor.getPythonNature();
-                if(nature != null){
-                    
-                    if(nature.getRelatedInterpreterManager().getDefaultInterpreterInfo(false) != null){
+                if (nature != null) {
+
+                    if (nature.getRelatedInterpreterManager().getDefaultInterpreterInfo(false) != null) {
                         text = "Console for currently active editor";
                         enabled = true;
-                    }else{
+                    } else {
                         throw new NotConfiguredInterpreterException();
                     }
-                }else{
+                } else {
                     text = "No python nature configured for the current editor";
                 }
-            }else{
+            } else {
                 text = "Unable to create console for current editor (no active editor)";
             }
-        }catch(MisconfigurationException e){
+        } catch (MisconfigurationException e) {
             //expected
             text = "Unable to create console for current editor (interpreter not configured for the editor)";
         }
@@ -202,73 +202,71 @@ final class ChooseProcessTypeDialog extends Dialog {
         boolean enabled = false;
         String text = "PyDev Debug Console (Start the debugger and select the valid frame)";
         if (getSuspendedFrame() != null) {
-        	enabled = true;
-        	text = "PyDev Debug Console";
+            enabled = true;
+            text = "PyDev Debug Console";
         }
         checkboxPythonDebug.setText(text);
         checkboxPythonDebug.setEnabled(enabled);
     }
-    
+
     /**
      * Determine if any frame is selected in the Launch view
      * 
      * @return
      */
     private PyStackFrame getSuspendedFrame() {
-		IAdaptable context = DebugUITools.getDebugContext();
-		if (context instanceof PyStackFrame) {
-			return (PyStackFrame) context;
-		}
-		return null;
-	}
-    
+        IAdaptable context = DebugUITools.getDebugContext();
+        if (context instanceof PyStackFrame) {
+            return (PyStackFrame) context;
+        }
+        return null;
+    }
+
     /**
      * Sets the internal pythonpath chosen.
      */
     @Override
     protected void okPressed() {
-    	setSelectedFrame(null);
-        if(checkboxForCurrentEditor.isEnabled() && checkboxForCurrentEditor.getSelection()){
+        setSelectedFrame(null);
+        if (checkboxForCurrentEditor.isEnabled() && checkboxForCurrentEditor.getSelection()) {
             IProject project = this.activeEditor.getProject();
             PythonNature nature = PythonNature.getPythonNature(project);
             natures.add(nature);
             IInterpreterManager relatedInterpreterManager = nature.getRelatedInterpreterManager();
             this.interpreterManager = relatedInterpreterManager;
-            
-        }else if(checkboxPython.isEnabled() && checkboxPython.getSelection()){
+
+        } else if (checkboxPython.isEnabled() && checkboxPython.getSelection()) {
             this.interpreterManager = PydevPlugin.getPythonInterpreterManager();
-            
-        }else if(checkboxPythonDebug.isEnabled() && checkboxPythonDebug.getSelection()){
-        	setSelectedFrame(getSuspendedFrame());
+
+        } else if (checkboxPythonDebug.isEnabled() && checkboxPythonDebug.getSelection()) {
+            setSelectedFrame(getSuspendedFrame());
             this.interpreterManager = PydevPlugin.getPythonInterpreterManager();
-            
-        }else if(checkboxJython.isEnabled() && checkboxJython.getSelection()){
+
+        } else if (checkboxJython.isEnabled() && checkboxJython.getSelection()) {
             this.interpreterManager = PydevPlugin.getJythonInterpreterManager();
-            
-        }else if(checkboxJythonEclipse.isEnabled() && checkboxJythonEclipse.getSelection()){
+
+        } else if (checkboxJythonEclipse.isEnabled() && checkboxJythonEclipse.getSelection()) {
             this.interpreterManager = new JythonEclipseInterpreterManager();
-            
-        }else if(checkboxIronpython.isEnabled() && checkboxIronpython.getSelection()){
+
+        } else if (checkboxIronpython.isEnabled() && checkboxIronpython.getSelection()) {
             this.interpreterManager = PydevPlugin.getIronpythonInterpreterManager();
-            
+
         }
-        
+
         super.okPressed();
     }
 
-    
     /**
      * @return the pythonpath/nature to be used or null if not configured (note that the nature can be null)
      */
     public Tuple<Collection<String>, IPythonNature> getPythonpathAndNature(IInterpreterInfo interpreter) {
-        
-        if(this.interpreterManager != null){
-            if(this.natures.size() == 1){
+
+        if (this.interpreterManager != null) {
+            if (this.natures.size() == 1) {
                 //chosen for the editor
                 IPythonNature nature = this.natures.get(0);
-                return new Tuple<Collection<String>, IPythonNature>(new ArrayList<String>(
-                        nature.getPythonPathNature().getCompleteProjectPythonPath(
-                        interpreter, this.interpreterManager)), nature);
+                return new Tuple<Collection<String>, IPythonNature>(new ArrayList<String>(nature.getPythonPathNature()
+                        .getCompleteProjectPythonPath(interpreter, this.interpreterManager)), nature);
 
             }
 
@@ -282,54 +280,55 @@ final class ChooseProcessTypeDialog extends Dialog {
 
             //we need to get the natures matching the one selected in all the projects.
             IWorkspace w = ResourcesPlugin.getWorkspace();
-            for(IProject p:w.getRoot().getProjects()){
+            for (IProject p : w.getRoot().getProjects()) {
                 PythonNature nature = PythonNature.getPythonNature(p);
-                try{
-                    if(nature != null){
-                        if(nature.getRelatedInterpreterManager() == this.interpreterManager){
+                try {
+                    if (nature != null) {
+                        if (nature.getRelatedInterpreterManager() == this.interpreterManager) {
                             natures.add(nature);
-                            List<String> completeProjectPythonPath = nature.getPythonPathNature().
-                                    getCompleteProjectPythonPath(interpreter, this.interpreterManager);
-                            if(completeProjectPythonPath != null){
+                            List<String> completeProjectPythonPath = nature.getPythonPathNature()
+                                    .getCompleteProjectPythonPath(interpreter, this.interpreterManager);
+                            if (completeProjectPythonPath != null) {
                                 pythonpath.addAll(completeProjectPythonPath);
-                            }else{
-                                Log.logInfo("Unable to get pythonpath for project: "+nature.getProject()+" (initialization not finished).");
+                            } else {
+                                Log.logInfo("Unable to get pythonpath for project: " + nature.getProject()
+                                        + " (initialization not finished).");
                             }
                         }
                     }
-                }catch(Exception e){
+                } catch (Exception e) {
                     Log.log(e);
                 }
             }
             return new Tuple<Collection<String>, IPythonNature>(pythonpath, null);
         }
-        
+
         return null;
     }
 
     public IInterpreterManager getInterpreterManager() {
         return this.interpreterManager;
     }
-    
+
     public List<IPythonNature> getNatures() {
         return natures;
     }
 
-	/**
-	 * Return the selected frame
-	 * 
-	 * @return
-	 */
-	public PyStackFrame getSelectedFrame() {
-		return selectedFrame;
-	}
+    /**
+     * Return the selected frame
+     * 
+     * @return
+     */
+    public PyStackFrame getSelectedFrame() {
+        return selectedFrame;
+    }
 
-	/**
-	 * Set the selectedFrame
-	 * 
-	 * @param selectedFrame
-	 */
-	public void setSelectedFrame(PyStackFrame selectedFrame) {
-		this.selectedFrame = selectedFrame;
-	}
+    /**
+     * Set the selectedFrame
+     * 
+     * @param selectedFrame
+     */
+    public void setSelectedFrame(PyStackFrame selectedFrame) {
+        this.selectedFrame = selectedFrame;
+    }
 }

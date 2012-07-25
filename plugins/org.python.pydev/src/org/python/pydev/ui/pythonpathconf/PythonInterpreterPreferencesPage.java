@@ -15,7 +15,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.plugin.PydevPlugin;
 
-public class PythonInterpreterPreferencesPage extends AbstractInterpreterPreferencesPage{
+public class PythonInterpreterPreferencesPage extends AbstractInterpreterPreferencesPage {
 
     public String getTitle() {
         return "Python Interpreters";
@@ -33,11 +33,9 @@ public class PythonInterpreterPreferencesPage extends AbstractInterpreterPrefere
      * @return an interpreter editor (used to add/edit/remove the information on an editor)
      */
     protected AbstractInterpreterEditor getInterpreterEditor(Composite p) {
-        return new PythonInterpreterEditor (getInterpretersTitle(), p, PydevPlugin.getPythonInterpreterManager(true));
+        return new PythonInterpreterEditor(getInterpretersTitle(), p, PydevPlugin.getPythonInterpreterManager(true));
     }
-    
 
-    
     @Override
     protected IInterpreterManager getInterpreterManager() {
         return PydevPlugin.getPythonInterpreterManager(true);

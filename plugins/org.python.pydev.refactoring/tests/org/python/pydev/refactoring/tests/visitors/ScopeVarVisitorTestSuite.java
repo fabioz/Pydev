@@ -14,21 +14,21 @@ import org.python.pydev.refactoring.tests.core.IInputOutputTestCase;
 
 public class ScopeVarVisitorTestSuite extends AbstractIOTestSuite {
 
-	public ScopeVarVisitorTestSuite(String name) {
-		super(name);
-	}
+    public ScopeVarVisitorTestSuite(String name) {
+        super(name);
+    }
 
-	public static Test suite() {
-		String testdir = "tests" + File.separator + "python" + File.separator + "visitor" + File.separator + "scopevar";
-		ScopeVarVisitorTestSuite testSuite = new ScopeVarVisitorTestSuite("Scope Variable Visitor");
+    public static Test suite() {
+        String testdir = "tests" + File.separator + "python" + File.separator + "visitor" + File.separator + "scopevar";
+        ScopeVarVisitorTestSuite testSuite = new ScopeVarVisitorTestSuite("Scope Variable Visitor");
 
-		testSuite.createTests(testdir);
+        testSuite.createTests(testdir);
 
-		return testSuite;
-	}
+        return testSuite;
+    }
 
-	@Override
-	protected IInputOutputTestCase createTestCase(String testCaseName) {
-		return new ScopeVarVisitorTestCase(testCaseName);
-	}
+    @Override
+    protected IInputOutputTestCase createTestCase(String testCaseName) {
+        return new ScopeVarVisitorTestCase(testCaseName);
+    }
 }

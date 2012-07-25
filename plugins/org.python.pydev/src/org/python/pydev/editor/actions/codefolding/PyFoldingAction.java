@@ -23,7 +23,7 @@ import org.python.pydev.editor.codefolding.PyProjectionAnnotation;
 /**
  * @author Fabio
  */
-public abstract class PyFoldingAction extends PyAction{
+public abstract class PyFoldingAction extends PyAction {
 
     /**
      * @param model
@@ -32,34 +32,34 @@ public abstract class PyFoldingAction extends PyAction{
     protected Iterator getAnnotationsIterator(final ProjectionAnnotationModel model, boolean useExpanded) {
         //put annotations in array list.
         Iterator iter = model.getAnnotationIterator();
-        if(iter != null){
-        
+        if (iter != null) {
+
             //get the not collapsed (expanded) and sort them
             ArrayList expanded = new ArrayList();
             while (iter.hasNext()) {
                 PyProjectionAnnotation element = (PyProjectionAnnotation) iter.next();
-                if(element.isCollapsed() == useExpanded ){
+                if (element.isCollapsed() == useExpanded) {
                     expanded.add(element);
                 }
             }
-    
-            Collections.sort(expanded, new Comparator(){
-    
+
+            Collections.sort(expanded, new Comparator() {
+
                 public int compare(Object o1, Object o2) {
-                    PyProjectionAnnotation e1 = (PyProjectionAnnotation)o1;
-                    PyProjectionAnnotation e2 = (PyProjectionAnnotation)o2;
+                    PyProjectionAnnotation e1 = (PyProjectionAnnotation) o1;
+                    PyProjectionAnnotation e2 = (PyProjectionAnnotation) o2;
                     int e1Off = model.getPosition(e1).getOffset();
                     int e2Off = model.getPosition(e2).getOffset();
-                    if( e1Off < e2Off){
+                    if (e1Off < e2Off) {
                         return -1;
                     }
-                    if( e1Off > e2Off){
+                    if (e1Off > e2Off) {
                         return 1;
                     }
                     return 0;
-                }}
-            );
-            
+                }
+            });
+
             iter = expanded.iterator();
         }
         return iter;
@@ -69,8 +69,8 @@ public abstract class PyFoldingAction extends PyAction{
      * @return
      */
     protected ProjectionAnnotationModel getModel() {
-        final ProjectionAnnotationModel model = (ProjectionAnnotationModel) getTextEditor ( )
-                .getAdapter(ProjectionAnnotationModel.class);
+        final ProjectionAnnotationModel model = (ProjectionAnnotationModel) getTextEditor().getAdapter(
+                ProjectionAnnotationModel.class);
         return model;
     }
 
@@ -81,20 +81,20 @@ public abstract class PyFoldingAction extends PyAction{
      * @return
      */
     protected boolean isInsideLast(PyProjectionAnnotation element, List elements, ProjectionAnnotationModel model) {
-        if(elements.size() == 0){
+        if (elements.size() == 0) {
             return false;
         }
-        
-        PyProjectionAnnotation top = (PyProjectionAnnotation) elements.get(elements.size()-1);
+
+        PyProjectionAnnotation top = (PyProjectionAnnotation) elements.get(elements.size() - 1);
         Position p1 = model.getPosition(element);
         Position pTop = model.getPosition(top);
-        
+
         int p1Offset = p1.getOffset();
-    
+
         int pTopoffset = pTop.getOffset();
         int pTopLen = pTopoffset + pTop.getLength();
-    
-        if(p1Offset > pTopoffset && p1Offset < pTopLen){
+
+        if (p1Offset > pTopoffset && p1Offset < pTopLen) {
             return true;
         }
         return false;
@@ -108,7 +108,8 @@ public abstract class PyFoldingAction extends PyAction{
     protected boolean isInside(Position position, List elements) {
         for (Iterator iter = elements.iterator(); iter.hasNext();) {
             Position element = (Position) iter.next();
-            if(position.getOffset() > element.getOffset() && position.getOffset() < element.getOffset() + element.getLength()){
+            if (position.getOffset() > element.getOffset()
+                    && position.getOffset() < element.getOffset() + element.getLength()) {
                 return true;
             }
         }

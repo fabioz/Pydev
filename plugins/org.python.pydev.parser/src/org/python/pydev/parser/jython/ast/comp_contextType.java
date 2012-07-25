@@ -6,10 +6,5 @@ public interface comp_contextType {
     public static final int TupleCtx = 2;
     public static final int EmptyCtx = 3;
 
-    public static final String[] comp_contextTypeNames = new String[] {
-        "<undef>",
-        "ListCtx",
-        "TupleCtx",
-        "EmptyCtx",
-    };
+    public static final String[] comp_contextTypeNames = new String[] { "<undef>", "ListCtx", "TupleCtx", "EmptyCtx", };
 }

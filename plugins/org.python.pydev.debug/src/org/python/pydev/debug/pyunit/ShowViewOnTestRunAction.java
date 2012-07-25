@@ -11,7 +11,7 @@ import java.lang.ref.WeakReference;
 import org.eclipse.jface.action.Action;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 
-public class ShowViewOnTestRunAction extends Action{
+public class ShowViewOnTestRunAction extends Action {
 
     private WeakReference<PyUnitView> pyUnitView;
 
@@ -26,13 +26,13 @@ public class ShowViewOnTestRunAction extends Action{
     public void run() {
         setShowViewOnTestRun(this.isChecked());
     }
-    
-    
-    public static boolean getShowViewOnTestRun(){
-        return PydevDebugPlugin.getDefault().getPreferenceStore().getBoolean(PyUnitView.PYUNIT_VIEW_SHOW_VIEW_ON_TEST_RUN);
+
+    public static boolean getShowViewOnTestRun() {
+        return PydevDebugPlugin.getDefault().getPreferenceStore()
+                .getBoolean(PyUnitView.PYUNIT_VIEW_SHOW_VIEW_ON_TEST_RUN);
     }
-    
-    public static void setShowViewOnTestRun(boolean b){
+
+    public static void setShowViewOnTestRun(boolean b) {
         PydevDebugPlugin.getDefault().getPreferenceStore().setValue(PyUnitView.PYUNIT_VIEW_SHOW_VIEW_ON_TEST_RUN, b);
     }
 }

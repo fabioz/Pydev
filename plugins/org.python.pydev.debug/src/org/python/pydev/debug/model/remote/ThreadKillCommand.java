@@ -19,12 +19,12 @@ import org.python.pydev.debug.model.AbstractDebugTarget;
 public class ThreadKillCommand extends AbstractDebuggerCommand {
 
     String thread_id;
-    
+
     public ThreadKillCommand(AbstractDebugTarget debugger, String thread_id) {
         super(debugger);
-        this.thread_id = thread_id;    
+        this.thread_id = thread_id;
     }
-    
+
     public String getOutgoing() {
         return makeCommand(CMD_THREAD_KILL, sequence, thread_id);
     }

@@ -29,7 +29,7 @@ import org.python.pydev.parser.jython.ast.stmtType;
  * Test for parsing python 2.5
  * @author Fabio
  */
-public class PyParser25Test extends PyParserTestBase{
+public class PyParser25Test extends PyParserTestBase {
 
     public static void main(String[] args) {
         try {
@@ -50,39 +50,42 @@ public class PyParser25Test extends PyParserTestBase{
     }
 
     public void testForWithCondExp() {
-        String s = "" +
-        "verify([ x(False) for x in (lambda x: False if x else True, lambda x: True if x else False) if x(False) ] == [True])\n" +
-        "";
+        String s = ""
+                +
+                "verify([ x(False) for x in (lambda x: False if x else True, lambda x: True if x else False) if x(False) ] == [True])\n"
+                +
+                "";
         parseLegalDocStr(s);
     }
-    
+
     /**
      * This test checks the new conditional expression.
      */
-    public void testConditionalExp1(){
+    public void testConditionalExp1() {
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "a = 1 if True else 2\n";
         parseLegalDocStr(str);
     }
-    
+
     /**
      * This test checks the new conditional expression.
      */
-    public void testNewYield(){
+    public void testNewYield() {
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "" +
-        "def counter (maximum):\n" +
-        "    i = 0\n" +
-        "    while i < maximum:\n" +
-        "        val = (yield i)\n" +
-        "";
+                "def counter (maximum):\n" +
+                "    i = 0\n" +
+                "    while i < maximum:\n"
+                +
+                "        val = (yield i)\n" +
+                "";
         parseLegalDocStr(str);
     }
-    
+
     /**
      * This test checks the new conditional expression.
      */
-    public void testEmptyYield(){
+    public void testEmptyYield() {
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "" +
                 "def whee():\n" +
@@ -90,53 +93,53 @@ public class PyParser25Test extends PyParserTestBase{
                 "";
         parseLegalDocStr(str);
     }
-    
+
     /**
      * This test checks the new relative import
      */
-    public void testNewRelativeImport(){
+    public void testNewRelativeImport() {
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "from . import foo\n";
         Module mod = (Module) parseLegalDocStr(str);
         ImportFrom f = (ImportFrom) mod.body[0];
         assertEquals(1, f.level);
-        assertEquals("", ((NameTok)f.module).id);
+        assertEquals("", ((NameTok) f.module).id);
     }
-    
-    public void testNewRelativeImport2(){
+
+    public void testNewRelativeImport2() {
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "from ..bar import foo\n";
         Module mod = (Module) parseLegalDocStr(str);
         ImportFrom f = (ImportFrom) mod.body[0];
         assertEquals(2, f.level);
-        assertEquals("bar", ((NameTok)f.module).id);
+        assertEquals("bar", ((NameTok) f.module).id);
     }
-    
-    public void testNewRelativeImport3(){
+
+    public void testNewRelativeImport3() {
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "from ... import foo\n";
         Module mod = (Module) parseLegalDocStr(str);
         ImportFrom f = (ImportFrom) mod.body[0];
         assertEquals(3, f.level);
-        assertEquals("", ((NameTok)f.module).id);
+        assertEquals("", ((NameTok) f.module).id);
     }
-    
-    public void testNewRelativeImport4(){
+
+    public void testNewRelativeImport4() {
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "from ...bar import foo\n";
         Module mod = (Module) parseLegalDocStr(str);
         ImportFrom f = (ImportFrom) mod.body[0];
         assertEquals(3, f.level);
-        assertEquals("bar", ((NameTok)f.module).id);
+        assertEquals("bar", ((NameTok) f.module).id);
     }
-    
-    public void testImportFails(){
+
+    public void testImportFails() {
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "from import foo\n";
         parseILegalDoc(new Document(str));
     }
-    
-    public void testNewWithStmt(){
+
+    public void testNewWithStmt() {
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "" +
                 "from __future__ import with_statement\n" +
@@ -148,11 +151,11 @@ public class PyParser25Test extends PyParserTestBase{
         assertEquals(2, mod.body.length);
         assertTrue(mod.body[1] instanceof With);
         With w = (With) mod.body[1];
-        assertTrue(((WithItem)w.with_item[0]).optional_vars == null);
-        
+        assertTrue(((WithItem) w.with_item[0]).optional_vars == null);
+
     }
-    
-    public void testNewWithStmt2(){
+
+    public void testNewWithStmt2() {
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "" +
                 "from __future__ import with_statement\n" +
@@ -164,68 +167,71 @@ public class PyParser25Test extends PyParserTestBase{
         assertEquals(2, mod.body.length);
         assertTrue(mod.body[1] instanceof With);
         With w = (With) mod.body[1];
-        assertTrue(((WithItem)w.with_item[0]).optional_vars != null);
-        
+        assertTrue(((WithItem) w.with_item[0]).optional_vars != null);
+
     }
-    
-    public void testNewWithStmt3(){
+
+    public void testNewWithStmt3() {
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "" +
-        "from __future__ import division, with_statement\n" +
-        "with foo as x:\n" +
-        "    print 'bla'\n" +
-        "";
+                "from __future__ import division, with_statement\n" +
+                "with foo as x:\n"
+                +
+                "    print 'bla'\n" +
+                "";
         //we'll actually treat this as a try..finally with a body with try..except..else
         Module mod = (Module) parseLegalDocStr(str);
         assertEquals(2, mod.body.length);
         assertTrue(mod.body[1] instanceof With);
         With w = (With) mod.body[1];
-        assertTrue(((WithItem)w.with_item[0]).optional_vars != null);
-        
+        assertTrue(((WithItem) w.with_item[0]).optional_vars != null);
+
     }
-    
-    public void testNewWithStmt4(){
+
+    public void testNewWithStmt4() {
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "" +
-        "from __future__ import (division, with_statement)\n" +
-        "with foo as x:\n" +
-        "    print 'bla'\n" +
-        "";
+                "from __future__ import (division, with_statement)\n" +
+                "with foo as x:\n"
+                +
+                "    print 'bla'\n" +
+                "";
         Module mod = (Module) parseLegalDocStr(str);
         assertEquals(2, mod.body.length);
         assertTrue(mod.body[1] instanceof With);
         With w = (With) mod.body[1];
-        assertTrue(((WithItem)w.with_item[0]).optional_vars != null);
-        
+        assertTrue(((WithItem) w.with_item[0]).optional_vars != null);
+
     }
-    
-    public void testNewWithStmt5(){
-    	setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
-    	String str = "" +
-    	"\n" +
-    	"from __future__ import with_statement\n" +
-    	"\n" +
-    	"def fun():\n" +
-    	"   with open('somepath') as f:\n" +
-    	"       return f.read()\n" +
-    	"";
-    	Module mod = (Module) parseLegalDocStr(str);
-    	assertEquals(2, mod.body.length);
-    	
-    }
-    
-    public void testNewWithStmtError(){
+
+    public void testNewWithStmt5() {
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "" +
-        //"from __future__ import with_statement\n"  -- as it is not specified, it should throw an error
-        "with foo as x:\n" +
-        "    print 'bla'\n" +
-        "";
+                "\n" +
+                "from __future__ import with_statement\n" +
+                "\n" +
+                "def fun():\n"
+                +
+                "   with open('somepath') as f:\n" +
+                "       return f.read()\n" +
+                "";
+        Module mod = (Module) parseLegalDocStr(str);
+        assertEquals(2, mod.body.length);
+
+    }
+
+    public void testNewWithStmtError() {
+        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
+        String str = "" +
+                //"from __future__ import with_statement\n"  -- as it is not specified, it should throw an error
+                "with foo as x:\n" +
+                "    print 'bla'\n" +
+                "";
         //we'll actually treat this as a try..finally with a body with try..except..else
         parseILegalDoc(new Document(str));
     }
-    
-    public void testNewTryFinally(){
+
+    public void testNewTryFinally() {
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "" +
                 "try:\n" +
@@ -233,7 +239,8 @@ public class PyParser25Test extends PyParserTestBase{
                 "except:\n" +
                 "    'except'\n" +
                 "else:\n" +
-                "    'else'\n" +
+                "    'else'\n"
+                +
                 "finally:\n" +
                 "    'finally'\n" +
                 "\n" +
@@ -242,27 +249,27 @@ public class PyParser25Test extends PyParserTestBase{
         Module mod = (Module) parseLegalDocStr(str);
         assertEquals(1, mod.body.length);
         TryFinally f = (TryFinally) mod.body[0];
-        
+
         assertEquals(1, f.body.length);
         TryExcept exc = (TryExcept) f.body[0];
         assertTrue(exc.orelse != null);
         assertEquals(1, exc.handlers.length);
-        
+
     }
-    
+
     /**
      * This test checks that the old version still gives an error
      */
-    public void testConditionalExp1err(){
+    public void testConditionalExp1err() {
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_4);
         String str = "a = 1 if True else 2\n";
         parseILegalDoc(new Document(str));
     }
-    
+
     /**
      * This test checks that the old version still gives an error
      */
-    public void testWith(){
+    public void testWith() {
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_4);
         String str = "" +
                 "with foo:\n" +
@@ -270,55 +277,55 @@ public class PyParser25Test extends PyParserTestBase{
                 "";
         parseILegalDoc(new Document(str));
     }
-    
+
     /**
      * This test checks that the old version still gives an error
      */
-    public void testWith2(){
-    	setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
-    	String str = "" +
-    	"from __future__ import with_statement\n" + //1
-    	"\n" +
-    	"\n" +
-    	"class OBJ:\n" + //4
-    	"    def Install(self):\n" +
-    	"        pass\n" +
-    	"\n" +
-    	"class Test:\n" + //8
-    	"\n" +
-    	"\n" +
-    	"    def test1(self):\n" + //11
-    	"        print 'here'\n" +
-    	"\n" +
-    	"\n" +
-    	"    def test2(self):\n" + //15
-    	"        with a:\n" + //16
-    	"            pass\n" + //17
-    	"";
-    	SimpleNode ast = parseLegalDocStr(str);
-    	stmtType[] body = ((Module)ast).body;
-		assertEquals(3, body.length);
-		ClassDef test = (ClassDef) body[2];
-		body = test.body;
-		assertEquals(2, body.length);
-		assertEquals(8, test.beginLine);
+    public void testWith2() {
+        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
+        String str = "" +
+                "from __future__ import with_statement\n" + //1
+                "\n" +
+                "\n" +
+                "class OBJ:\n" + //4
+                "    def Install(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "class Test:\n" + //8
+                "\n" +
+                "\n" +
+                "    def test1(self):\n" + //11
+                "        print 'here'\n" +
+                "\n" +
+                "\n" +
+                "    def test2(self):\n" + //15
+                "        with a:\n" + //16
+                "            pass\n" + //17
+                "";
+        SimpleNode ast = parseLegalDocStr(str);
+        stmtType[] body = ((Module) ast).body;
+        assertEquals(3, body.length);
+        ClassDef test = (ClassDef) body[2];
+        body = test.body;
+        assertEquals(2, body.length);
+        assertEquals(8, test.beginLine);
     }
 
-    
     public void testSuiteLineNumber() throws Exception {
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "" +
-        		"class Process:\n" +
-        		"\n" +
-        		"    def Foo(self):\n" +
-        		"        if a == 1:\n" +
-        		"            pass\n" +
-        		"        elif a == 1:\n" +
-        		"            pass\n" +
-        		"\n" +
-        		"";
+                "class Process:\n" +
+                "\n" +
+                "    def Foo(self):\n" +
+                "        if a == 1:\n"
+                +
+                "            pass\n" +
+                "        elif a == 1:\n" +
+                "            pass\n" +
+                "\n" +
+                "";
         SimpleNode ast = parseLegalDocStr(str);
-        stmtType[] body = ((Module)ast).body;
+        stmtType[] body = ((Module) ast).body;
         assertEquals(1, body.length);
         ClassDef classFound = (ClassDef) body[0];
         body = classFound.body;
@@ -326,9 +333,9 @@ public class PyParser25Test extends PyParserTestBase{
         FunctionDef func = (FunctionDef) body[0];
         If ifFound = (If) func.body[0];
         assertEquals(6, ifFound.orelse.beginLine);
-        
+
     }
-    
+
     public void testJythonParsing1() throws Exception {
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "" +
@@ -337,7 +344,7 @@ public class PyParser25Test extends PyParserTestBase{
                 "";
         parseLegalDocStr(str);
     }
-    
+
     public void testJythonParsing1a() throws Exception {
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "" +
@@ -345,7 +352,7 @@ public class PyParser25Test extends PyParserTestBase{
                 "";
         parseLegalDocStr(str);
     }
-    
+
     public void testJythonParsing2() throws Exception {
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "" +
@@ -354,8 +361,5 @@ public class PyParser25Test extends PyParserTestBase{
                 "";
         parseLegalDocStr(str);
     }
-    
-    
-    
-    
+
 }

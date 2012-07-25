@@ -57,7 +57,8 @@ public final class ModuleIInfoLabelProvider extends LabelProvider {
         int pathLen;
         if (path != null && (pathLen = path.length()) > 0) {
             int suffixLen = suffix != null ? suffix.length() + 5 : 0;
-            FastStringBuffer buf = new FastStringBuffer(info.getDeclaringModuleName(), pathLen + 5 + suffixLen).append("/").append(path);
+            FastStringBuffer buf = new FastStringBuffer(info.getDeclaringModuleName(), pathLen + 5 + suffixLen).append(
+                    "/").append(path);
             if (suffix != null) {
                 return buf.append("   (").append(suffix).append(")").toString();
             }
@@ -66,7 +67,8 @@ public final class ModuleIInfoLabelProvider extends LabelProvider {
 
         String declaringModuleName = info.getDeclaringModuleName();
         if (suffix != null) {
-            return new FastStringBuffer(declaringModuleName, suffix.length() + 6).append("   (").append(suffix).append(")").toString();
+            return new FastStringBuffer(declaringModuleName, suffix.length() + 6).append("   (").append(suffix)
+                    .append(")").toString();
         }
         return declaringModuleName;
     }

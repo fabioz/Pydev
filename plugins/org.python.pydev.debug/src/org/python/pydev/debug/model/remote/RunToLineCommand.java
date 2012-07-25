@@ -17,7 +17,7 @@ public class RunToLineCommand extends AbstractDebuggerCommand {
     String threadId;
     String funcName;
     int line;
-    
+
     /**
      * @param command_id CMD_RUN_TO_LINE
      */
@@ -30,7 +30,7 @@ public class RunToLineCommand extends AbstractDebuggerCommand {
     }
 
     public String getOutgoing() {
-        return makeCommand(commandId, sequence, threadId+"\t"+line+"\t"+funcName);
+        return makeCommand(commandId, sequence, threadId + "\t" + line + "\t" + funcName);
     }
 
 }

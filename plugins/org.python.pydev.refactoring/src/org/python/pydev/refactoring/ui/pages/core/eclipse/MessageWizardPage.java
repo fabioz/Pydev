@@ -42,17 +42,17 @@ public abstract class MessageWizardPage extends UserInputWizardPage {
     protected abstract String getMessageString();
 
     protected Image getMessageImage() {
-        switch(fStyle){
-        case STYLE_ERROR:
-            return Display.getCurrent().getSystemImage(SWT.ICON_ERROR);
-        case STYLE_WARNING:
-            return Display.getCurrent().getSystemImage(SWT.ICON_WARNING);
-        case STYLE_INFORMATION:
-            return Display.getCurrent().getSystemImage(SWT.ICON_INFORMATION);
-        case STYLE_QUESTION:
-            return Display.getCurrent().getSystemImage(SWT.ICON_QUESTION);
-        default:
-            return null;
+        switch (fStyle) {
+            case STYLE_ERROR:
+                return Display.getCurrent().getSystemImage(SWT.ICON_ERROR);
+            case STYLE_WARNING:
+                return Display.getCurrent().getSystemImage(SWT.ICON_WARNING);
+            case STYLE_INFORMATION:
+                return Display.getCurrent().getSystemImage(SWT.ICON_INFORMATION);
+            case STYLE_QUESTION:
+                return Display.getCurrent().getSystemImage(SWT.ICON_QUESTION);
+            default:
+                return null;
         }
     }
 
@@ -72,7 +72,7 @@ public abstract class MessageWizardPage extends UserInputWizardPage {
         result.setLayout(layout);
 
         Image image = getMessageImage();
-        if(image != null){
+        if (image != null) {
             Label label = new Label(result, SWT.NULL);
             image.setBackground(label.getBackground());
             label.setImage(image);
@@ -80,10 +80,11 @@ public abstract class MessageWizardPage extends UserInputWizardPage {
         }
 
         String message = getMessageString();
-        if(message != null){
+        if (message != null) {
             Label messageLabel = new Label(result, SWT.WRAP);
             messageLabel.setText(message);
-            GridData data = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL | GridData.VERTICAL_ALIGN_BEGINNING);
+            GridData data = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL
+                    | GridData.VERTICAL_ALIGN_BEGINNING);
             data.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH);
             messageLabel.setLayoutData(data);
             messageLabel.setFont(result.getFont());

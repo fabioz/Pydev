@@ -5,26 +5,26 @@ import org.python.pydev.parser.jython.ast.Name;
 
 public final class NullTreeBuilder implements ITreeBuilder {
 
-	private final Name nameConstant = new Name("", Name.Load, false);
-	
-	public SimpleNode closeNode(SimpleNode sn, int num) throws Exception {
-		return null;
-	}
+    private final Name nameConstant = new Name("", Name.Load, false);
 
-	public SimpleNode openNode(int id) {
+    public SimpleNode closeNode(SimpleNode sn, int num) throws Exception {
+        return null;
+    }
+
+    public SimpleNode openNode(int id) {
         switch (id) {
 
-        case ITreeConstants.JJTNAME:
-        case ITreeConstants.JJTDOTTED_NAME:
-            //If null is returned here, we may have an NPE.
-			return nameConstant;
+            case ITreeConstants.JJTNAME:
+            case ITreeConstants.JJTDOTTED_NAME:
+                //If null is returned here, we may have an NPE.
+                return nameConstant;
 
         }
-		return null;
-	}
+        return null;
+    }
 
-	public SimpleNode getLastOpened() {
-		return null;
-	}
+    public SimpleNode getLastOpened() {
+        return null;
+    }
 
 }

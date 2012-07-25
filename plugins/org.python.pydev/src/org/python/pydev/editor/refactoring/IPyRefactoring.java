@@ -11,7 +11,6 @@
  */
 package org.python.pydev.editor.refactoring;
 
-
 import org.python.pydev.editor.model.ItemPointer;
 
 /**
@@ -26,7 +25,6 @@ public interface IPyRefactoring {
      */
     public String getName();
 
-
     /**
      * Rename something (class, method, local...)
      */
@@ -37,6 +35,5 @@ public interface IPyRefactoring {
      * @return an ItemPointer to some definition
      */
     public ItemPointer[] findDefinition(RefactoringRequest request) throws TooManyMatchesException;
-
 
 }

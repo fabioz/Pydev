@@ -111,11 +111,9 @@ public class ZipFileImporter extends PyObject {
 
         ZipModuleInfo info = null;
         if (sourceEntry != null) {
-            Py.writeDebug("import", "trying source entry: " + sourceName
-                    + " from jar/zip file " + zipArchive);
+            Py.writeDebug("import", "trying source entry: " + sourceName + " from jar/zip file " + zipArchive);
             if (compiledEntry != null) {
-                Py.writeDebug("import", "trying precompiled entry "
-                        + compiledName + " from jar/zip file " + zipArchive);
+                Py.writeDebug("import", "trying precompiled entry " + compiledName + " from jar/zip file " + zipArchive);
                 long pyTime = sourceEntry.getTime();
                 long classTime = compiledEntry.getTime();
                 if (classTime >= pyTime) {
@@ -164,16 +162,15 @@ public class ZipFileImporter extends PyObject {
             try {
                 is = this._info.archive.getInputStream(entry);
             } catch (IOException e) {
-                Py.writeDebug("import", "loadFromZipFile exception: "
-                        + e.toString());
+                Py.writeDebug("import", "loadFromZipFile exception: " + e.toString());
                 throw Py.ImportError("error loading from zipfile");
             }
             String pathToEntry = pathToArchive + entry.getName();
             PyObject o;
             if (this._info.compiled) {
                 o = imp.createFromPyClass(moduleName, is, true, pathToEntry);
-            } else { 
-                o = imp.createFromSource(moduleName, is,pathToEntry, null);
+            } else {
+                o = imp.createFromSource(moduleName, is, pathToEntry, null);
             }
             return (m == null) ? o : m;
         }
@@ -201,13 +198,11 @@ public class ZipFileImporter extends PyObject {
         /** The archive in which the zip entry resides. */
         public SyspathArchive archive;
 
-        public ZipModuleInfo(SyspathArchive archive, ZipEntry zipEntry,
-                boolean compiled) {
+        public ZipModuleInfo(SyspathArchive archive, ZipEntry zipEntry, boolean compiled) {
             this(archive, zipEntry, compiled, null);
         }
 
-        public ZipModuleInfo(SyspathArchive archive, ZipEntry zipEntry,
-                boolean compiled, PyObject path) {
+        public ZipModuleInfo(SyspathArchive archive, ZipEntry zipEntry, boolean compiled, PyObject path) {
             this.path = path;
             this.archive = archive;
             this.zipEntry = zipEntry;

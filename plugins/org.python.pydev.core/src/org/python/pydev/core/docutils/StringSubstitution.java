@@ -24,16 +24,16 @@ import org.python.pydev.core.log.Log;
 /**
  * Implements a part of IStringVariableManager (just the performStringSubstitution methods).
  */
-public class StringSubstitution{
+public class StringSubstitution {
 
     private Map<String, String> variableSubstitution = null;
 
     public StringSubstitution(IPythonNature nature) {
-        if(nature != null){
-            try{
-            	IPythonPathNature pythonPathNature = nature.getPythonPathNature();
+        if (nature != null) {
+            try {
+                IPythonPathNature pythonPathNature = nature.getPythonPathNature();
                 variableSubstitution = pythonPathNature.getVariableSubstitution();
-            }catch(Exception e){
+            } catch (Exception e) {
                 Log.log(e);
             }
         }
@@ -54,26 +54,26 @@ public class StringSubstitution{
      * @return expression with variable references replaced with variable values
      * @throws CoreException if unable to resolve the value of one or more variables
      */
-    public String performStringSubstitution(String expression, boolean reportUndefinedVariables) throws CoreException{
+    public String performStringSubstitution(String expression, boolean reportUndefinedVariables) throws CoreException {
         VariablesPlugin plugin = VariablesPlugin.getDefault();
         expression = performPythonpathStringSubstitution(expression);
         expression = plugin.getStringVariableManager().performStringSubstitution(expression, reportUndefinedVariables);
         return expression;
     }
-    
+
     /**
      * String substitution for the pythonpath does not use the default eclipse string substitution (only variables
      * defined explicitly in this class) 
      */
-    public String performPythonpathStringSubstitution(String expression) throws CoreException{
-        if(variableSubstitution != null && variableSubstitution.size() > 0){
+    public String performPythonpathStringSubstitution(String expression) throws CoreException {
+        if (variableSubstitution != null && variableSubstitution.size() > 0) {
             //Only throw exception here if the 
-            expression = new StringSubstitutionEngine().performStringSubstitution(expression, true, variableSubstitution);
+            expression = new StringSubstitutionEngine().performStringSubstitution(expression, true,
+                    variableSubstitution);
         }
         return expression;
-        
-    }
 
+    }
 
     /**
      * Recursively resolves and replaces all variable references in the given
@@ -85,7 +85,7 @@ public class StringSubstitution{
      * @return expression with variable references replaced with variable values
      * @throws CoreException if unable to resolve the value of one or more variables
      */
-    public String performStringSubstitution(String expression) throws CoreException{
+    public String performStringSubstitution(String expression) throws CoreException {
         return performStringSubstitution(expression, true);
     }
 
@@ -93,7 +93,7 @@ public class StringSubstitution{
      * Performs string substitution for context and value variables.
      */
     @SuppressWarnings("unchecked")
-    class StringSubstitutionEngine{
+    class StringSubstitutionEngine {
 
         // delimiters
         private static final String VARIABLE_START = "${"; //$NON-NLS-1$
@@ -118,7 +118,7 @@ public class StringSubstitution{
          */
         private Stack fStack;
 
-        class VariableReference{
+        class VariableReference {
 
             // the text inside the variable reference
             private StringBuffer fText;
@@ -127,11 +127,11 @@ public class StringSubstitution{
                 fText = new StringBuffer();
             }
 
-            public void append(String text){
+            public void append(String text) {
                 fText.append(text);
             }
 
-            public String getText(){
+            public String getText() {
                 return fText.toString();
             }
 
@@ -149,31 +149,31 @@ public class StringSubstitution{
          *  in referenced variables
          */
 
-        public String performStringSubstitution(String expression,
-                boolean resolveVariables, Map<String, String> variableSubstitution) throws CoreException{
+        public String performStringSubstitution(String expression, boolean resolveVariables,
+                Map<String, String> variableSubstitution) throws CoreException {
             substitute(expression, resolveVariables, variableSubstitution);
             List resolvedVariableSets = new ArrayList();
-            while(fSubs){
+            while (fSubs) {
                 HashSet resolved = substitute(fResult.toString(), true, variableSubstitution);
 
-                for(int i = resolvedVariableSets.size() - 1; i >= 0; i--){
+                for (int i = resolvedVariableSets.size() - 1; i >= 0; i--) {
 
                     HashSet prevSet = (HashSet) resolvedVariableSets.get(i);
 
-                    if(prevSet.equals(resolved)){
+                    if (prevSet.equals(resolved)) {
                         HashSet conflictingSet = new HashSet();
-                        for(; i < resolvedVariableSets.size(); i++)
+                        for (; i < resolvedVariableSets.size(); i++)
                             conflictingSet.addAll((HashSet) resolvedVariableSets.get(i));
 
                         StringBuffer problemVariableList = new StringBuffer();
-                        for(Iterator it = conflictingSet.iterator(); it.hasNext();){
+                        for (Iterator it = conflictingSet.iterator(); it.hasNext();) {
                             problemVariableList.append(it.next().toString());
                             problemVariableList.append(", "); //$NON-NLS-1$
                         }
                         problemVariableList.setLength(problemVariableList.length() - 2); //truncate the last ", "
                         throw new CoreException(new Status(IStatus.ERROR, VariablesPlugin.getUniqueIdentifier(),
-                                VariablesPlugin.REFERENCE_CYCLE_ERROR, 
-                                StringUtils.format("Cycle error on:", problemVariableList.toString()), null));
+                                VariablesPlugin.REFERENCE_CYCLE_ERROR, StringUtils.format("Cycle error on:",
+                                        problemVariableList.toString()), null));
                     }
                 }
 
@@ -181,7 +181,6 @@ public class StringSubstitution{
             }
             return fResult.toString();
         }
-
 
         /**
          * Makes a substitution pass of the given expression returns a Set of the variables that were resolved in this
@@ -191,8 +190,8 @@ public class StringSubstitution{
          * @param resolveVariables whether to resolve the value of any variables
          * @exception CoreException if unable to resolve a variable
          */
-        private HashSet substitute(String expression, boolean resolveVariables,
-                Map<String, String> variableSubstitution) throws CoreException{
+        private HashSet substitute(String expression, boolean resolveVariables, Map<String, String> variableSubstitution)
+                throws CoreException {
             fResult = new StringBuffer(expression.length());
             fStack = new Stack();
             fSubs = false;
@@ -201,21 +200,21 @@ public class StringSubstitution{
 
             int pos = 0;
             int state = SCAN_FOR_START;
-            while(pos < expression.length()){
-                switch(state){
+            while (pos < expression.length()) {
+                switch (state) {
                     case SCAN_FOR_START:
                         int start = expression.indexOf(VARIABLE_START, pos);
-                        if(start >= 0){
+                        if (start >= 0) {
                             int length = start - pos;
                             // copy non-variable text to the result
-                            if(length > 0){
+                            if (length > 0) {
                                 fResult.append(expression.substring(pos, start));
                             }
                             pos = start + 2;
                             state = SCAN_FOR_END;
 
                             fStack.push(new VariableReference());
-                        }else{
+                        } else {
                             // done - no more variables
                             fResult.append(expression.substring(pos));
                             pos = expression.length();
@@ -225,22 +224,22 @@ public class StringSubstitution{
                         // be careful of nested variables
                         start = expression.indexOf(VARIABLE_START, pos);
                         int end = expression.indexOf(VARIABLE_END, pos);
-                        if(end < 0){
+                        if (end < 0) {
                             // variables are not completed
                             VariableReference tos = (VariableReference) fStack.peek();
                             tos.append(expression.substring(pos));
                             pos = expression.length();
-                        }else{
-                            if(start >= 0 && start < end){
+                        } else {
+                            if (start >= 0 && start < end) {
                                 // start of a nested variable
                                 int length = start - pos;
-                                if(length > 0){
+                                if (length > 0) {
                                     VariableReference tos = (VariableReference) fStack.peek();
                                     tos.append(expression.substring(pos, start));
                                 }
                                 pos = start + 2;
                                 fStack.push(new VariableReference());
-                            }else{
+                            } else {
                                 // end of variable reference
                                 VariableReference tos = (VariableReference) fStack.pop();
                                 String substring = expression.substring(pos, end);
@@ -249,14 +248,14 @@ public class StringSubstitution{
 
                                 pos = end + 1;
                                 String value = resolve(tos, resolveVariables, variableSubstitution);
-                                if(value == null){
+                                if (value == null) {
                                     value = ""; //$NON-NLS-1$
                                 }
-                                if(fStack.isEmpty()){
+                                if (fStack.isEmpty()) {
                                     // append to result
                                     fResult.append(value);
                                     state = SCAN_FOR_START;
-                                }else{
+                                } else {
                                     // append to previous variable
                                     tos = (VariableReference) fStack.peek();
                                     tos.append(value);
@@ -267,12 +266,12 @@ public class StringSubstitution{
                 }
             }
             // process incomplete variable references
-            while(!fStack.isEmpty()){
+            while (!fStack.isEmpty()) {
                 VariableReference tos = (VariableReference) fStack.pop();
-                if(fStack.isEmpty()){
+                if (fStack.isEmpty()) {
                     fResult.append(VARIABLE_START);
                     fResult.append(tos.getText());
-                }else{
+                } else {
                     VariableReference var = (VariableReference) fStack.peek();
                     var.append(VARIABLE_START);
                     var.append(tos.getText());
@@ -292,30 +291,29 @@ public class StringSubstitution{
          * @return variable value, possibly <code>null</code>
          * @exception CoreException if unable to resolve a value
          */
-        private String resolve(VariableReference var, boolean resolveVariables,
-                Map<String, String> variableSubstitution) throws CoreException{
+        private String resolve(VariableReference var, boolean resolveVariables, Map<String, String> variableSubstitution)
+                throws CoreException {
             String text = var.getText();
             int pos = text.indexOf(VARIABLE_ARG);
             String name = null;
             String arg = null;
-            if(pos > 0){
+            if (pos > 0) {
                 name = text.substring(0, pos);
                 pos++;
-                if(pos < text.length()){
+                if (pos < text.length()) {
                     arg = text.substring(pos);
                 }
-            }else{
+            } else {
                 name = text;
             }
             String valueVariable = variableSubstitution.get(name);
-            if(valueVariable == null){
+            if (valueVariable == null) {
                 //leave as is
                 return getOriginalVarText(var);
             }
 
-
-            if(arg == null){
-                if(resolveVariables){
+            if (arg == null) {
+                if (resolveVariables) {
                     fSubs = true;
                     return valueVariable;
                 }
@@ -324,16 +322,15 @@ public class StringSubstitution{
             }
             // error - an argument specified for a value variable
             throw new CoreException(new Status(IStatus.ERROR, VariablesPlugin.getUniqueIdentifier(),
-                    VariablesPlugin.INTERNAL_ERROR, "Error substituting: "+name+" var: "+valueVariable, null));
+                    VariablesPlugin.INTERNAL_ERROR, "Error substituting: " + name + " var: " + valueVariable, null));
         }
 
-        private String getOriginalVarText(VariableReference var){
+        private String getOriginalVarText(VariableReference var) {
             StringBuffer res = new StringBuffer(var.getText());
             res.insert(0, VARIABLE_START);
             res.append(VARIABLE_END);
             return res.toString();
         }
     }
-
 
 }

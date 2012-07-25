@@ -58,9 +58,10 @@ public class math implements ClassDictInit {
     public static double log(PyObject v) {
         if (v instanceof PyLong) {
             int e[] = new int[1];
-            double x = ((PyLong)v).scaledDoubleValue(e);
-            if (x <= 0.0) throw Py.ValueError("math domain error");
-            return log(x) + (e[0]*8.0)*log(2.0);
+            double x = ((PyLong) v).scaledDoubleValue(e);
+            if (x <= 0.0)
+                throw Py.ValueError("math domain error");
+            return log(x) + (e[0] * 8.0) * log(2.0);
         }
         return log(v.__float__().getValue());
     }
@@ -96,9 +97,10 @@ public class math implements ClassDictInit {
     public static double log10(PyObject v) {
         if (v instanceof PyLong) {
             int e[] = new int[1];
-            double x = ((PyLong)v).scaledDoubleValue(e);
-            if (x <= 0.0) throw Py.ValueError("math domain error");
-            return log10(x) + (e[0]*8.0)*log10(2.0);
+            double x = ((PyLong) v).scaledDoubleValue(e);
+            if (x <= 0.0)
+                throw Py.ValueError("math domain error");
+            return log10(x) + (e[0] * 8.0) * log10(2.0);
         }
         return log10(v.__float__().getValue());
     }
@@ -130,7 +132,7 @@ public class math implements ClassDictInit {
     public static PyTuple modf(double v) {
         double w = v % 1.0;
         v -= w;
-        return new PyTuple(new PyObject[] {new PyFloat(w), new PyFloat(v)});
+        return new PyTuple(new PyObject[] { new PyFloat(w), new PyFloat(v) });
     }
 
     public static PyTuple frexp(double v) {
@@ -143,16 +145,16 @@ public class math implements ClassDictInit {
             }
             // slow...
             while (v < 0.5) {
-                v = v*2.0;
-                i = i-1;
+                v = v * 2.0;
+                i = i - 1;
             }
             while (v >= 1.0) {
-                v = v*0.5;
-                i = i+1;
+                v = v * 0.5;
+                i = i + 1;
             }
-            v = v*sign;
+            v = v * sign;
         }
-        return new PyTuple(new PyObject[] {new PyFloat(v), new PyInteger(i)});
+        return new PyTuple(new PyObject[] { new PyFloat(v), new PyInteger(i) });
     }
 
     public static double ldexp(double v, int w) {

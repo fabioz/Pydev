@@ -30,22 +30,21 @@ public class DjEditor {
         return modified;
     }
 
-    
     public void registerPrefChangeListener(final ICallback getISourceViewer) {
         this.prefChangeListener = createPrefChangeListener(getISourceViewer);
         getChainedPrefStore().addPropertyChangeListener(prefChangeListener);
         TemplateHelper.getTemplatesPreferenceStore().addPropertyChangeListener(prefChangeListener);
     }
-    
-    
+
     private IPropertyChangeListener createPrefChangeListener(final ICallback getISourceViewer) {
         return new IPropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent event) {
                 String property = event.getProperty();
-                if (ColorAndStyleCache.isColorOrStyleProperty(property) || TemplateHelper.CUSTOM_TEMPLATES_DJ_KEY.equals(property)) {
+                if (ColorAndStyleCache.isColorOrStyleProperty(property)
+                        || TemplateHelper.CUSTOM_TEMPLATES_DJ_KEY.equals(property)) {
                     try {
-                        ((ISourceViewer)getISourceViewer.call(null)).invalidateTextPresentation();
+                        ((ISourceViewer) getISourceViewer.call(null)).invalidateTextPresentation();
                     } catch (Exception e) {
                         Log.log(e);
                     }
@@ -54,22 +53,19 @@ public class DjEditor {
         };
     }
 
-
     public IPreferenceStore getChainedPrefStore() {
         return PydevPrefs.getChainedPrefStore();
     }
 
-
     public void dispose() {
-        if(prefChangeListener != null){
+        if (prefChangeListener != null) {
             getChainedPrefStore().removePropertyChangeListener(prefChangeListener);
             prefChangeListener = null;
         }
     }
 
-
     public void onCreateSourceViewer(ISourceViewer viewer) {
-        if(viewer instanceof TextViewer){
+        if (viewer instanceof TextViewer) {
             TextViewer textViewer = (TextViewer) viewer;
             ((TextViewer) viewer).appendVerifyKeyListener(PyBackspace.createVerifyKeyListener(textViewer, null));
         }

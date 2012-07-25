@@ -44,19 +44,18 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
             super(viewer, ISourceViewer.CONTENTASSIST_PROPOSALS);
         }
     }
-    
+
     /**
      * Action to request quick assist proposals.
      *
      * @author Fabio
      */
     protected class QuickAssistProposalsAction extends TextViewerAction {
-        
+
         public QuickAssistProposalsAction(ITextViewer viewer) {
             super(viewer, ISourceViewer.QUICK_ASSIST);
         }
     }
-
 
     private SourceViewerConfiguration cfg;
 
@@ -95,17 +94,16 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
 
         toolbarManager.appendToGroup(SCRIPT_GROUP, saveSessionAction);
 
-		if (getConsole().getType().contains(ScriptConsoleUIConstants.DEBUG_CONSOLE_TYPE)) {
-			// initialize LinkWithFrameAction only for Debug Console
-			linkWithDebugSelectionAction = new LinkWithDebugSelectionAction(
-					(ScriptConsole) getConsole(), ScriptConsoleMessages.LinkWithDebugAction,
-					ScriptConsoleMessages.LinkWithDebugToolTip);
-	        toolbarManager.appendToGroup(SCRIPT_GROUP, linkWithDebugSelectionAction);
-		}
- 
+        if (getConsole().getType().contains(ScriptConsoleUIConstants.DEBUG_CONSOLE_TYPE)) {
+            // initialize LinkWithFrameAction only for Debug Console
+            linkWithDebugSelectionAction = new LinkWithDebugSelectionAction((ScriptConsole) getConsole(),
+                    ScriptConsoleMessages.LinkWithDebugAction, ScriptConsoleMessages.LinkWithDebugToolTip);
+            toolbarManager.appendToGroup(SCRIPT_GROUP, linkWithDebugSelectionAction);
+        }
+
         bars.updateActionBars();
     }
-    
+
     @Override
     protected void contextMenuAboutToShow(IMenuManager menuManager) {
         super.contextMenuAboutToShow(menuManager);
@@ -116,7 +114,8 @@ public class ScriptConsolePage extends TextConsolePage implements IScriptConsole
 
     protected TextConsoleViewer createViewer(Composite parent) {
         ScriptConsole console = (ScriptConsole) getConsole();
-        viewer = new ScriptConsoleViewer(parent, console, this, console.createStyleProvider(), console.getInitialCommands(), console.getFocusOnStart());
+        viewer = new ScriptConsoleViewer(parent, console, this, console.createStyleProvider(),
+                console.getInitialCommands(), console.getFocusOnStart());
         viewer.configure(cfg);
         return viewer;
     }

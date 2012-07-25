@@ -26,9 +26,9 @@ public class OverrideMethodsAction extends AbstractRefactoringAction {
     @Override
     protected IWizardPage createPage(RefactoringInfo info) {
         ClassMethodsTreeProvider provider;
-        try{
+        try {
             provider = new ClassMethodsTreeProvider(info.getScopeClassAndBases());
-        }catch(MisconfigurationException e){
+        } catch (MisconfigurationException e) {
             throw new RuntimeException(e);
         }
         return new OverrideMethodsPage(provider);

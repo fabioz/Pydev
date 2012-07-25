@@ -4,11 +4,11 @@ package org.python.core;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-
 public class PyReflectedField extends PyObject {
     public Field field;
 
-    public PyReflectedField() {}
+    public PyReflectedField() {
+    }
 
     public PyReflectedField(Field field) {
         this.field = field;
@@ -36,8 +36,7 @@ public class PyReflectedField extends PyObject {
         Object iself = null;
         if (!Modifier.isStatic(field.getModifiers())) {
             if (self == null) {
-                throw Py.AttributeError("set instance variable as static: "+
-                                        field.toString());
+                throw Py.AttributeError("set instance variable as static: " + field.toString());
             }
             iself = Py.tojava(self, field.getDeclaringClass());
         }
@@ -52,6 +51,6 @@ public class PyReflectedField extends PyObject {
     }
 
     public String toString() {
-        return "<reflected field "+field.toString()+" "+Py.idstr(this)+">";
+        return "<reflected field " + field.toString() + " " + Py.idstr(this) + ">";
     }
 }

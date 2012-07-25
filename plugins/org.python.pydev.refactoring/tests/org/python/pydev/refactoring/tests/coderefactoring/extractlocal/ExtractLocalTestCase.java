@@ -24,35 +24,37 @@ import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
 
 public class ExtractLocalTestCase extends AbstractIOTestCase {
 
-	public ExtractLocalTestCase(String name) {
-		super(name);
-	}
+    public ExtractLocalTestCase(String name) {
+        super(name);
+    }
 
-	@Override
-	public void runTest() throws Throwable {
-	    REF.IN_TESTS = true;
-	    
-	    IDocument document = new Document(data.source);
-	    ITextSelection selection = new TextSelection(document, data.sourceSelection.getOffset(), data.sourceSelection.getLength());
-	    IGrammarVersionProvider versionProvider = createVersionProvider();
+    @Override
+    public void runTest() throws Throwable {
+        REF.IN_TESTS = true;
+
+        IDocument document = new Document(data.source);
+        ITextSelection selection = new TextSelection(document, data.sourceSelection.getOffset(),
+                data.sourceSelection.getLength());
+        IGrammarVersionProvider versionProvider = createVersionProvider();
         RefactoringInfo info = new RefactoringInfo(document, selection, versionProvider);
-	    ExtractLocalRefactoring refactoring = new ExtractLocalRefactoring(info);
-	    
-	    ExtractLocalRequestProcessor requestProcessor = refactoring.getRequestProcessor();
-	    requestProcessor.setVariableName("extracted_variable");
-	    requestProcessor.setReplaceDuplicates(true);
-	    
-	    NullProgressMonitor monitor = new NullProgressMonitor();
-	    RefactoringStatus result = refactoring.checkAllConditions(monitor);
-	    
-	    assertTrue("Refactoring is not ok: " + result.getMessageMatchingSeverity(RefactoringStatus.WARNING), result.isOK());
-	    
-	    Change change = refactoring.createChange(monitor);
-	    change.perform(monitor);
-	    
-	    assertContentsEqual(data.result, document.get());
-	    
-		REF.IN_TESTS = false;
-	}
+        ExtractLocalRefactoring refactoring = new ExtractLocalRefactoring(info);
+
+        ExtractLocalRequestProcessor requestProcessor = refactoring.getRequestProcessor();
+        requestProcessor.setVariableName("extracted_variable");
+        requestProcessor.setReplaceDuplicates(true);
+
+        NullProgressMonitor monitor = new NullProgressMonitor();
+        RefactoringStatus result = refactoring.checkAllConditions(monitor);
+
+        assertTrue("Refactoring is not ok: " + result.getMessageMatchingSeverity(RefactoringStatus.WARNING),
+                result.isOK());
+
+        Change change = refactoring.createChange(monitor);
+        change.perform(monitor);
+
+        assertContentsEqual(data.result, document.get());
+
+        REF.IN_TESTS = false;
+    }
 
 }

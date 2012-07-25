@@ -26,7 +26,6 @@ import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.Tuple;
 
-
 /**
  * @author Fabio
  */
@@ -36,28 +35,28 @@ public class Log {
      * Only applicable when plugin == null (i.e.: running tests)
      */
     private static final int DEBUG_LEVEL = IStatus.WARNING;
-    
+
     /**
      * Console used to log contents
      */
     private static MessageConsole fConsole;
-	private static IOConsoleOutputStream fOutputStream;
+    private static IOConsoleOutputStream fOutputStream;
 
-	private static final Map<Tuple<Integer, String>, Long> lastLoggedTime = new HashMap<Tuple<Integer,String>, Long>();
+    private static final Map<Tuple<Integer, String>, Long> lastLoggedTime = new HashMap<Tuple<Integer, String>, Long>();
 
     /**
      * @param errorLevel IStatus.[OK|INFO|WARNING|ERROR]
      * @return CoreException that can be thrown for the given log event
      */
-	public static CoreException log(int errorLevel, String message, Throwable e) {
-	    CorePlugin plugin = CorePlugin.getDefault();
+    public static CoreException log(int errorLevel, String message, Throwable e) {
+        CorePlugin plugin = CorePlugin.getDefault();
         String id;
-        if(plugin == null){
+        if (plugin == null) {
             id = "CorePlugin";
-        }else{
+        } else {
             id = plugin.getBundle().getSymbolicName();
         }
-        
+
         Status s = new Status(errorLevel, id, errorLevel, message, e);
         CoreException coreException = new CoreException(s);
 
@@ -65,8 +64,8 @@ public class Log {
         synchronized (lastLoggedTime) {
             Long lastLoggedMillis = lastLoggedTime.get(key);
             long currentTimeMillis = System.currentTimeMillis();
-            if(lastLoggedMillis != null){
-                if(currentTimeMillis < lastLoggedMillis + (20 * 1000)) {
+            if (lastLoggedMillis != null) {
+                if (currentTimeMillis < lastLoggedMillis + (20 * 1000)) {
                     //System.err.println("Skipped report of:"+message);
                     return coreException; //Logged in the last 20 seconds, so, just skip it for now
                 }
@@ -76,10 +75,10 @@ public class Log {
         try {
             if (plugin != null) {
                 plugin.getLog().log(s);
-            }else{
-                if(DEBUG_LEVEL <= errorLevel){
+            } else {
+                if (DEBUG_LEVEL <= errorLevel) {
                     System.err.println(message);
-                    if(e != null){
+                    if (e != null) {
                         e.printStackTrace();
                     }
                 }
@@ -89,41 +88,39 @@ public class Log {
         }
         return coreException;
     }
-	
+
     public static CoreException log(Throwable e) {
-        return log(IStatus.ERROR, e.getMessage() != null ? e.getMessage() : 
-            "No message gotten (null message).", e);
+        return log(IStatus.ERROR, e.getMessage() != null ? e.getMessage() : "No message gotten (null message).", e);
     }
 
     public static CoreException log(String msg) {
         return log(IStatus.ERROR, msg, new RuntimeException(msg));
     }
-    
+
     public static CoreException log(String msg, Throwable e) {
         return log(IStatus.ERROR, msg, e);
     }
 
-
     public static CoreException logInfo(Throwable e) {
         return log(IStatus.INFO, e.getMessage(), e);
     }
-    
+
     public static CoreException logInfo(String msg) {
         return log(IStatus.INFO, msg, new RuntimeException(msg));
     }
-    
+
     public static CoreException logInfo(String msg, Throwable e) {
         return log(IStatus.INFO, msg, e);
     }
-    
+
     //------------ Log that writes to a new console
 
-    private final static Object lock = new Object(); 
+    private final static Object lock = new Object();
     private final static StringBuffer logIndent = new StringBuffer();
-    
+
     public static void toLogFile(Object obj, String string) {
-        synchronized(lock){
-            if(obj == null){
+        synchronized (lock) {
+            if (obj == null) {
                 obj = new Object();
             }
             Class<? extends Object> class1 = obj.getClass();
@@ -137,69 +134,69 @@ public class Log {
         buffer.append(FullRepIterable.getLastPart(class1.getName()));
         buffer.append(": ");
         buffer.append(string);
-        
+
         toLogFile(buffer.toString());
     }
 
     private static void toLogFile(final String buffer) {
-        final Runnable r = new Runnable(){
+        final Runnable r = new Runnable() {
 
             public void run() {
-                synchronized(lock){
-                    try{
+                synchronized (lock) {
+                    try {
                         CorePlugin default1 = CorePlugin.getDefault();
-                        if(default1 == null){
+                        if (default1 == null) {
                             //in tests
                             System.out.println(buffer);
                             return;
                         }
-                        
+
                         //also print to console
                         System.out.println(buffer);
                         IOConsoleOutputStream c = getConsoleOutputStream();
                         c.write(buffer.toString());
                         c.write("\r\n");
-                        
-//                IPath stateLocation = default1.getStateLocation().append("PyDevLog.log");
-//                String file = stateLocation.toOSString();
-//                REF.appendStrToFile(buffer+"\r\n", file);
-                    }catch(Throwable e){
+
+                        //                IPath stateLocation = default1.getStateLocation().append("PyDevLog.log");
+                        //                String file = stateLocation.toOSString();
+                        //                REF.appendStrToFile(buffer+"\r\n", file);
+                    } catch (Throwable e) {
                         log(e); //default logging facility
                     }
                 }
-                
+
             }
         };
-        
+
         Display current = Display.getCurrent();
-        if(current != null && current.getThread() == Thread.currentThread ()){
+        if (current != null && current.getThread() == Thread.currentThread()) {
             //ok, just run it
             r.run();
-        }else{
-            if(current == null){
+        } else {
+            if (current == null) {
                 current = Display.getDefault();
                 current.asyncExec(r);
             }
         }
     }
-    
-    
-    private static IOConsoleOutputStream getConsoleOutputStream(){
-        if (fConsole == null){
-			fConsole = new MessageConsole("PyDev Logging", CorePlugin.getImageCache().getDescriptor("icons/python_logging.png"));
-			
+
+    private static IOConsoleOutputStream getConsoleOutputStream() {
+        if (fConsole == null) {
+            fConsole = new MessageConsole("PyDev Logging", CorePlugin.getImageCache().getDescriptor(
+                    "icons/python_logging.png"));
+
             fOutputStream = fConsole.newOutputStream();
-            
-			HashMap<IOConsoleOutputStream, String> themeConsoleStreamToColor = new HashMap<IOConsoleOutputStream, String>();
-			themeConsoleStreamToColor.put(fOutputStream, "console.output");
+
+            HashMap<IOConsoleOutputStream, String> themeConsoleStreamToColor = new HashMap<IOConsoleOutputStream, String>();
+            themeConsoleStreamToColor.put(fOutputStream, "console.output");
 
             fConsole.setAttribute("themeConsoleStreamToColor", themeConsoleStreamToColor);
 
-            ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[]{fConsole});
+            ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[] { fConsole });
         }
         return fOutputStream;
     }
-    
+
     public static void toLogFile(Exception e) {
         String msg = getExceptionStr(e);
         toLogFile(msg);
@@ -215,19 +212,19 @@ public class Log {
     }
 
     public static void addLogLevel() {
-        synchronized(lock){
+        synchronized (lock) {
             logIndent.append("    ");
-        }        
+        }
     }
 
     public static void remLogLevel() {
-        synchronized(lock){
-            if(logIndent.length() > 3){
-                logIndent.delete(0,4);
+        synchronized (lock) {
+            if (logIndent.length() > 3) {
+                logIndent.delete(0, 4);
             }
         }
     }
-    
+
     /**
      * @deprecated use one of the other log methods
      * XXX: At time of deprecation, none of the PyDev bundles

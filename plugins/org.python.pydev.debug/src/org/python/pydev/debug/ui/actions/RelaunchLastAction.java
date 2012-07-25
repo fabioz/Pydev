@@ -17,7 +17,6 @@ public class RelaunchLastAction implements IEditorActionDelegate {
         RestartLaunchAction.relaunchLast();
     }
 
-
     public void selectionChanged(IAction action, ISelection selection) {
 
     }

@@ -24,7 +24,7 @@ public class ClassTreeNode extends TreeNodeSimple<IClassDefAdapter> {
     @Override
     public Object[] getChildren() {
         List<ITreeNode> children = new ArrayList<ITreeNode>();
-        for(FunctionDefAdapter function:this.adapter.getFunctionsInitFiltered()){
+        for (FunctionDefAdapter function : this.adapter.getFunctionsInitFiltered()) {
             children.add(new FunctionTreeNode(this, function));
         }
         return children.toArray();

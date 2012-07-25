@@ -20,13 +20,12 @@ import com.aptana.parsing.ast.ParseNode;
 public class DjOutlineLabelProvider {
 
     private IDocument fDocument;
-    
+
     private static final int TRIM_TO_LENGTH = 20;
 
     public DjOutlineLabelProvider(IDocument document) {
         this.fDocument = document;
     }
-
 
     public Image getImage(Object element) {
         if (element instanceof CommonOutlineItem) {
@@ -38,7 +37,6 @@ public class DjOutlineLabelProvider {
         }
         return null;
     }
-    
 
     private String getDisplayText(DjangoTemplatesNode script) {
         StringBuilder text = new StringBuilder();
@@ -59,9 +57,6 @@ public class DjOutlineLabelProvider {
         return text.toString();
     }
 
-
-
-
     public String getText(Object element) {
         if (element instanceof CommonOutlineItem) {
             IParseNode node = ((CommonOutlineItem) element).getReferenceNode();
@@ -71,6 +66,5 @@ public class DjOutlineLabelProvider {
         }
         return null;
     }
-
 
 }

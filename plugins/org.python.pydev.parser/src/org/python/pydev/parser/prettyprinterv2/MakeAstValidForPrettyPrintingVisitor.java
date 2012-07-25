@@ -87,9 +87,10 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     private void nextLine() {
         nextLine(false);
     }
+
     private void nextLine(boolean force) {
         //on a multi-line statement, we don't need to add tokens in new lines.
-        if(force || isInMultiLine == 0){
+        if (force || isInMultiLine == 0) {
             currentLine += 1;
             currentCol = 0;
         }
@@ -101,9 +102,9 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
     @Override
     protected Object unhandled_node(SimpleNode node) throws Exception {
-        throw new RuntimeException("Unhandled: "+node);
+        throw new RuntimeException("Unhandled: " + node);
     }
-    
+
     @Override
     public Object visitIndex(Index node) throws Exception {
         fixNode(node);
@@ -119,49 +120,49 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
         fixAfterNode(node);
         return null;
     }
-    
+
     @Override
     public void traverse(SimpleNode node) throws Exception {
         node.traverse(this);
     }
 
     protected void fixAfterNode(SimpleNode node) {
-        if(node.specialsAfter != null){
-            for(Object o:node.specialsAfter){
-                if(o instanceof commentType){
+        if (node.specialsAfter != null) {
+            for (Object o : node.specialsAfter) {
+                if (o instanceof commentType) {
                     fixNode((SimpleNode) o);
                     nextLine();
                 }
             }
         }
     }
-    
+
     protected void fixNode(SimpleNode node) {
-        if(node instanceof stmtType){
+        if (node instanceof stmtType) {
             nextLine();
         }
-        if(node.specialsBefore != null){
-            for(Object o:node.specialsBefore){
-                if(o instanceof commentType){
+        if (node.specialsBefore != null) {
+            for (Object o : node.specialsBefore) {
+                if (o instanceof commentType) {
                     fixNode((SimpleNode) o);
                     nextLine();
                 }
             }
         }
 
-        if(node.beginLine < currentLine){
+        if (node.beginLine < currentLine) {
             node.beginLine = currentLine;
             node.beginColumn = currentCol;
 
-        }else if(node.beginLine == currentLine && node.beginColumn < currentCol){
+        } else if (node.beginLine == currentLine && node.beginColumn < currentCol) {
             node.beginColumn = currentCol;
 
-        }else{
+        } else {
             currentLine = node.beginLine;
             currentCol = node.beginColumn;
         }
-        
-        if(node instanceof stmtType){
+
+        if (node instanceof stmtType) {
             nextCol();
         }
     }
@@ -174,7 +175,7 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     public Object visitAssign(Assign node) throws Exception {
         fixNode(node);
 
-        for(int i = 0; i < node.targets.length; i++){
+        for (int i = 0; i < node.targets.length; i++) {
             exprType target = node.targets[i];
             target.accept(this);
             nextCol();
@@ -219,7 +220,7 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     @Override
     public Object visitBoolOp(BoolOp node) throws Exception {
         fixNode(node);
-        for(int i = 0; i < node.values.length; i++){
+        for (int i = 0; i < node.values.length; i++) {
             node.values[i].accept(this);
         }
 
@@ -232,7 +233,7 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
         fixNode(node);
         node.left.accept(this);
 
-        for(int i = 0; i < node.comparators.length; i++){
+        for (int i = 0; i < node.comparators.length; i++) {
             node.comparators[i].accept(this);
         }
         fixAfterNode(node);
@@ -252,8 +253,8 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
         this.pushInMultiline();
         exprType[] keys = node.keys;
         exprType[] values = node.values;
-        for(int i = 0; i < values.length; i++){
-            if(i > 0){
+        for (int i = 0; i < values.length; i++) {
+            if (i > 0) {
 
             }
             keys[i].accept(this);
@@ -270,7 +271,7 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     public Object visitTuple(Tuple node) throws Exception {
         fixNode(node);
         this.pushInMultiline();
-        if(node.elts != null && node.elts.length > 0){
+        if (node.elts != null && node.elts.length > 0) {
             //tuple inside tuple
             visitCommaSeparated(node.elts, node.endsWithComma);
 
@@ -283,15 +284,15 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     private void pushInMultiline() {
         this.isInMultiLine += 1;
     }
-    
+
     private void popInMultiline() {
         this.isInMultiLine -= 1;
     }
 
     private void visitCommaSeparated(exprType[] elts, boolean requireEndWithCommaSingleElement) throws Exception {
-        if(elts != null){
-            for(int i = 0; i < elts.length; i++){
-                if(elts[i] != null){
+        if (elts != null) {
+            for (int i = 0; i < elts.length; i++) {
+                if (elts[i] != null) {
                     elts[i].accept(this);
                 }
             }
@@ -314,7 +315,7 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
         node.elt.accept(this);
 
-        for(SimpleNode c:node.generators){
+        for (SimpleNode c : node.generators) {
             c.accept(this);
         }
         fixAfterNode(node);
@@ -327,7 +328,7 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
         fixNode(node);
 
         node.elt.accept(this);
-        for(comprehensionType c:node.generators){
+        for (comprehensionType c : node.generators) {
             c.accept(this);
         }
 
@@ -342,7 +343,7 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
         node.key.accept(this);
 
         node.value.accept(this);
-        for(comprehensionType c:node.generators){
+        for (comprehensionType c : node.generators) {
             c.accept(this);
         }
 
@@ -372,7 +373,7 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
         node.iter.accept(this);
 
-        for(SimpleNode s:reverseNodeArray(node.ifs)){
+        for (SimpleNode s : reverseNodeArray(node.ifs)) {
             s.accept(this);
         }
 
@@ -386,11 +387,11 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
         fixNode(node);
         node.test.accept(this);
 
-        if(node.body == null || node.body.length == 0){
-            node.body = new stmtType[]{new Pass()};
+        if (node.body == null || node.body.length == 0) {
+            node.body = new stmtType[] { new Pass() };
         }
 
-        for(SimpleNode n:node.body){
+        for (SimpleNode n : node.body) {
             n.accept(this);
         }
         endSuiteWithOrElse(node.orelse);
@@ -398,12 +399,11 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
         fixAfterNode(node);
         return null;
     }
-    
-    
+
     @Override
     public Object visitSuite(Suite node) throws Exception {
         fixNode(node);
-        for(SimpleNode n:node.body){
+        for (SimpleNode n : node.body) {
             n.accept(this);
         }
         fixAfterNode(node);
@@ -414,26 +414,26 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     public Object visitWith(With node) throws Exception {
 
         fixNode(node);
-    	for(SimpleNode n:node.with_item){
-    		n.accept(this);
-    	}
-        
-        if(node.body != null){
+        for (SimpleNode n : node.with_item) {
+            n.accept(this);
+        }
+
+        if (node.body != null) {
             node.body.accept(this);
         }
 
         fixAfterNode(node);
         return null;
     }
-    
+
     @Override
     public Object visitWithItem(WithItem node) throws Exception {
-    	fixNode(node);
-    	
-		traverse(node);
-    	
-    	fixAfterNode(node);
-    	return null;
+        fixNode(node);
+
+        traverse(node);
+
+        fixAfterNode(node);
+        return null;
     }
 
     @Override
@@ -449,11 +449,11 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
         //in b
         node.iter.accept(this);
 
-        if(node.body == null || node.body.length == 0){
-            node.body = new stmtType[]{new Pass()};
+        if (node.body == null || node.body.length == 0) {
+            node.body = new stmtType[] { new Pass() };
         }
 
-        for(SimpleNode n:node.body){
+        for (SimpleNode n : node.body) {
             n.accept(this);
         }
         suiteType orelse = node.orelse;
@@ -464,7 +464,7 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     }
 
     private void endSuiteWithOrElse(suiteType orelse) throws Exception {
-        if(orelse != null){
+        if (orelse != null) {
             visitOrElsePart(orelse, "else");
         }
     }
@@ -497,8 +497,7 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
         //try:
         fixNode(node);
 
-
-        for(stmtType st:body){
+        for (stmtType st : body) {
             st.accept(this);
         }
 
@@ -507,9 +506,9 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
     public void visitOrElsePart(suiteType orelse, String expectedToken) throws Exception {
 
-        if(orelse != null){
+        if (orelse != null) {
             fixNode(orelse);
-            for(stmtType st:((Suite)orelse).body){
+            for (stmtType st : ((Suite) orelse).body) {
                 st.accept(this);
             }
             fixAfterNode(orelse);
@@ -519,8 +518,8 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
     @Override
     public Object visitTryFinally(TryFinally node) throws Exception {
-        if(node.body == null || node.body.length == 0){
-            node.body = new stmtType[]{new Pass()};
+        if (node.body == null || node.body.length == 0) {
+            node.body = new stmtType[] { new Pass() };
         }
 
         visitTryPart(node, node.body);
@@ -530,27 +529,27 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
     @Override
     public Object visitTryExcept(TryExcept node) throws Exception {
-        if(node.body == null || node.body.length == 0){
-            node.body = new stmtType[]{new Pass()};
+        if (node.body == null || node.body.length == 0) {
+            node.body = new stmtType[] { new Pass() };
         }
 
         visitTryPart(node, node.body);
-        for(excepthandlerType h:node.handlers){
+        for (excepthandlerType h : node.handlers) {
 
             fixNode(h);
 
-            if(h.type != null){
+            if (h.type != null) {
                 h.type.accept(this);
             }
-            if(h.name != null){
+            if (h.name != null) {
                 h.name.accept(this);
             }
 
-            if(h.body == null || h.body.length == 0){
-                h.body = new stmtType[]{new Pass()};
+            if (h.body == null || h.body.length == 0) {
+                h.body = new stmtType[] { new Pass() };
             }
 
-            for(stmtType st:h.body){
+            for (stmtType st : h.body) {
                 st.accept(this);
             }
             fixAfterNode(h);
@@ -564,17 +563,17 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     public Object visitPrint(Print node) throws Exception {
         fixNode(node);
 
-        if(node.dest != null){
+        if (node.dest != null) {
             node.dest.accept(this);
         }
 
-        if(node.values != null){
-            for(int i = 0; i < node.values.length; i++){
-                if(i > 0 || node.dest != null){
+        if (node.values != null) {
+            for (int i = 0; i < node.values.length; i++) {
+                if (i > 0 || node.dest != null) {
 
                 }
                 exprType value = node.values[i];
-                if(value != null){
+                if (value != null) {
                     value.accept(this);
                 }
             }
@@ -628,10 +627,10 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     @Override
     public Object visitAssert(Assert node) throws Exception {
         fixNode(node);
-        if(node.test != null){
+        if (node.test != null) {
             node.test.accept(this);
         }
-        if(node.msg != null){
+        if (node.msg != null) {
             node.msg.accept(this);
         }
 
@@ -641,12 +640,12 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
     @Override
     public Object visitStrJoin(StrJoin node) throws Exception {
-        
+
         fixNode(node);
-        if(node.strs != null){
-            for(int i = 0; i < node.strs.length; i++){
+        if (node.strs != null) {
+            for (int i = 0; i < node.strs.length; i++) {
                 exprType str = node.strs[i];
-                if(str != null){
+                if (str != null) {
                     str.accept(this);
                     nextLine(true);
                 }
@@ -661,17 +660,17 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     public Object visitGlobal(Global node) throws Exception {
         fixNode(node);
 
-        if(node.names != null){
-            for(int i = 0; i < node.names.length; i++){
-                if(i > 0){
+        if (node.names != null) {
+            for (int i = 0; i < node.names.length; i++) {
+                if (i > 0) {
 
                 }
-                if(node.names[i] != null){
+                if (node.names[i] != null) {
                     node.names[i].accept(this);
                 }
             }
         }
-        if(node.value != null){
+        if (node.value != null) {
 
             node.value.accept(this);
         }
@@ -684,15 +683,15 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     public Object visitExec(Exec node) throws Exception {
         fixNode(node);
 
-        if(node.body != null){
+        if (node.body != null) {
             node.body.accept(this);
         }
 
-        if(node.globals != null){
+        if (node.globals != null) {
             node.globals.accept(this);
         }
 
-        if(node.locals != null){
+        if (node.locals != null) {
             node.locals.accept(this);
         }
 
@@ -702,9 +701,9 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
     @Override
     public Object visitClassDef(ClassDef node) throws Exception {
-        if(node.decs != null){
-            for(decoratorsType n:node.decs){
-                if(n != null){
+        if (node.decs != null) {
+            for (decoratorsType n : node.decs) {
+                if (n != null) {
                     handleDecorator(n);
                 }
             }
@@ -715,11 +714,11 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
         handleArguments(node.bases, node.keywords, node.starargs, node.kwargs);
 
-        if(node.body == null || node.body.length == 0){
-            node.body = new stmtType[]{new Pass()};
+        if (node.body == null || node.body.length == 0) {
+            node.body = new stmtType[] { new Pass() };
         }
 
-        for(SimpleNode n:node.body){
+        for (SimpleNode n : node.body) {
             n.accept(this);
         }
 
@@ -733,10 +732,11 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
     private void handleDecorator(decoratorsType node) throws Exception {
         fixNode(node);
-        if(node.func != null)
+        if (node.func != null)
             node.func.accept(this);
 
-        if((node.args != null && node.args.length > 0) || (node.keywords != null && node.keywords.length > 0) || node.starargs != null || node.kwargs != null){
+        if ((node.args != null && node.args.length > 0) || (node.keywords != null && node.keywords.length > 0)
+                || node.starargs != null || node.kwargs != null) {
             handleArguments(reverseNodeArray(node.args), reverseNodeArray(node.keywords), node.starargs, node.kwargs);
         }
         fixAfterNode(node);
@@ -755,7 +755,7 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
         int diff = argsLen - defaultsLen;
 
         fixNode(completeArgs);
-        for(int i = 0; i < argsLen; i++){
+        for (int i = 0; i < argsLen; i++) {
             exprType argName = args[i];
 
             //this is something as >>var:int=10<<
@@ -763,18 +763,18 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
             argName.accept(this);
 
             //handle annotation
-            if(anns != null){
+            if (anns != null) {
                 exprType ann = anns[i];
-                if(ann != null){
+                if (ann != null) {
 
                     ann.accept(this); //right after the '='
                 }
             }
 
             //handle defaults
-            if(i >= diff){
+            if (i >= diff) {
                 exprType defaulArgValue = d[i - diff];
-                if(defaulArgValue != null){
+                if (defaulArgValue != null) {
 
                     defaulArgValue.accept(this);
                 }
@@ -783,9 +783,9 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
         }
 
         //varargs
-        if(completeArgs.vararg != null){
+        if (completeArgs.vararg != null) {
             completeArgs.vararg.accept(this);
-            if(completeArgs.varargannotation != null){
+            if (completeArgs.varargannotation != null) {
 
                 completeArgs.varargannotation.accept(this);
             }
@@ -793,18 +793,18 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
         }
 
         //keyword only arguments (after varargs)
-        if(completeArgs.kwonlyargs != null){
-            for(int i = 0; i < completeArgs.kwonlyargs.length; i++){
+        if (completeArgs.kwonlyargs != null) {
+            for (int i = 0; i < completeArgs.kwonlyargs.length; i++) {
                 exprType kwonlyarg = completeArgs.kwonlyargs[i];
-                if(kwonlyarg != null){
+                if (kwonlyarg != null) {
 
                     kwonlyarg.accept(this);
 
-                    if(completeArgs.kwonlyargannotation != null && completeArgs.kwonlyargannotation[i] != null){
+                    if (completeArgs.kwonlyargannotation != null && completeArgs.kwonlyargannotation[i] != null) {
 
                         completeArgs.kwonlyargannotation[i].accept(this);
                     }
-                    if(completeArgs.kw_defaults != null && completeArgs.kw_defaults[i] != null){
+                    if (completeArgs.kw_defaults != null && completeArgs.kw_defaults[i] != null) {
 
                         completeArgs.kw_defaults[i].accept(this);
                     }
@@ -813,10 +813,10 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
         }
 
         //keyword arguments
-        if(completeArgs.kwarg != null){
+        if (completeArgs.kwarg != null) {
 
             completeArgs.kwarg.accept(this);
-            if(completeArgs.kwargannotation != null){
+            if (completeArgs.kwargannotation != null) {
 
                 completeArgs.kwargannotation.accept(this);
             }
@@ -827,9 +827,9 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
     @Override
     public Object visitFunctionDef(FunctionDef node) throws Exception {
-        if(node.decs != null){
-            for(decoratorsType n:node.decs){
-                if(n != null){
+        if (node.decs != null) {
+            for (decoratorsType n : node.decs) {
+                if (n != null) {
                     handleDecorator(n);
                 }
             }
@@ -837,7 +837,7 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
         fixNode(node);
         node.name.accept(this);
 
-        if(node.args != null){
+        if (node.args != null) {
 
             handleArguments(node.args);
 
@@ -847,17 +847,17 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
         // parameters: '(' [typedargslist] ')'
 
         // this is the "['->' test]"
-        if(node.returns != null){
+        if (node.returns != null) {
             node.returns.accept(this);
         }
 
-        if(node.body == null || node.body.length == 0){
-            node.body = new stmtType[]{new Pass()};
+        if (node.body == null || node.body.length == 0) {
+            node.body = new stmtType[] { new Pass() };
         }
 
         int length = node.body.length;
-        for(int i = 0; i < length; i++){
-            if(node.body[i] != null){
+        for (int i = 0; i < length; i++) {
+            if (node.body[i] != null) {
                 node.body[i].accept(this);
             }
         }
@@ -897,7 +897,7 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
         node.test.accept(this);
 
-        if(node.orelse != null){
+        if (node.orelse != null) {
             node.orelse.accept(this);
         }
         fixAfterNode(node);
@@ -924,10 +924,10 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     public Object visitSubscript(Subscript node) throws Exception {
         fixNode(node);
 
-        if(node.value != null)
+        if (node.value != null)
             node.value.accept(this);
 
-        if(node.slice != null)
+        if (node.slice != null)
             node.slice.accept(this);
 
         fixAfterNode(node);
@@ -938,16 +938,16 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     public Object visitSlice(Slice node) throws Exception {
         fixNode(node);
 
-        if(node.lower != null){
+        if (node.lower != null) {
             node.lower.accept(this);
 
         }
 
-        if(node.upper != null){
+        if (node.upper != null) {
             node.upper.accept(this);
         }
 
-        if(node.step != null){
+        if (node.step != null) {
 
             node.step.accept(this);
         }
@@ -967,13 +967,13 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
         fixNode(node);
 
-        for(int i = 0; i < node.names.length; i++){
-            if(i > 0){
+        for (int i = 0; i < node.names.length; i++) {
+            if (i > 0) {
 
             }
             aliasType alias = node.names[i];
             handleAlias(alias);
-            
+
         }
 
         fixAfterNode(node);
@@ -985,11 +985,11 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
         fixNode(node);
 
-        if(node.module != null){
+        if (node.module != null) {
             node.module.accept(this);
         }
 
-        for(int i = 0; i < node.names.length; i++){
+        for (int i = 0; i < node.names.length; i++) {
             aliasType alias = node.names[i];
             handleAlias(alias);
         }
@@ -1000,10 +1000,10 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
     private void handleAlias(aliasType alias) throws Exception {
         fixNode(alias);
-        if(alias.name != null)
+        if (alias.name != null)
             alias.name.accept(this);
 
-        if(alias.asname != null){
+        if (alias.asname != null) {
             alias.asname.accept(this);
         }
         fixAfterNode(alias);
@@ -1013,21 +1013,21 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     public Object visitRaise(Raise node) throws Exception {
         fixNode(node);
 
-        if(node.type != null){
+        if (node.type != null) {
             node.type.accept(this);
         }
 
-        if(node.inst != null){
+        if (node.inst != null) {
 
             node.inst.accept(this);
         }
 
-        if(node.tback != null){
+        if (node.tback != null) {
 
             node.tback.accept(this);
         }
 
-        if(node.cause != null){
+        if (node.cause != null) {
             node.cause.accept(this);
         }
         fixAfterNode(node);
@@ -1041,36 +1041,37 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
         handleArguments(node.args);
 
-        if(node.body != null){
+        if (node.body != null) {
             node.body.accept(this);
         }
 
         fixAfterNode(node);
         return null;
     }
-    
+
     @Override
     public Object visitExpr(Expr node) throws Exception {
         handleSimpleNode(node);
         return null;
     }
 
-    private void handleArguments(SimpleNode[] args, SimpleNode[] keywords, exprType starargs, exprType kwargs) throws Exception, IOException {
-        if(args != null){
-            for(int i = 0; i < args.length; i++){
-                if(args[i] != null)
+    private void handleArguments(SimpleNode[] args, SimpleNode[] keywords, exprType starargs, exprType kwargs)
+            throws Exception, IOException {
+        if (args != null) {
+            for (int i = 0; i < args.length; i++) {
+                if (args[i] != null)
                     args[i].accept(this);
             }
         }
 
         java.util.List<keywordType> keywordsLater = new ArrayList<keywordType>();
-        if(keywords != null){
-            for(int i = 0; i < keywords.length; i++){
+        if (keywords != null) {
+            for (int i = 0; i < keywords.length; i++) {
                 keywordType keyword = (keywordType) keywords[i];
-                if(keyword == null){
+                if (keyword == null) {
                     continue;
                 }
-                if(keyword.afterstarargs){
+                if (keyword.afterstarargs) {
                     keywordsLater.add(keyword);
                     continue; //this one won't be added right now
                 }
@@ -1078,26 +1079,26 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
             }
         }
 
-        if(starargs != null){
+        if (starargs != null) {
             starargs.accept(this);
         }
 
-        for(keywordType keyword:keywordsLater){
+        for (keywordType keyword : keywordsLater) {
             handleKeyword(keyword);
         }
 
-        if(kwargs != null){
+        if (kwargs != null) {
             kwargs.accept(this);
         }
     }
 
     private void handleKeyword(keywordType keyword) throws Exception, IOException {
         fixNode(keyword);
-        if(keyword.arg != null){
+        if (keyword.arg != null) {
             keyword.arg.accept(this);
         }
 
-        if(keyword.value != null){
+        if (keyword.value != null) {
             keyword.value.accept(this);
         }
         fixAfterNode(keyword);
@@ -1110,58 +1111,57 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
     private void visitIfPart(suiteType orelse, If node, boolean isElif) throws Exception {
 
-        if(orelse != null){
+        if (orelse != null) {
             fixNode(orelse);
         }
         fixNode(node);
 
         node.test.accept(this);
 
-        if(node.body == null || node.body.length == 0){
-            node.body = new stmtType[]{new Pass()};
+        if (node.body == null || node.body.length == 0) {
+            node.body = new stmtType[] { new Pass() };
         }
 
         //write the body and dedent
-        for(SimpleNode n:node.body){
+        for (SimpleNode n : node.body) {
             n.accept(this);
         }
 
-        if(orelse != null){
+        if (orelse != null) {
             fixAfterNode(orelse);
         }
-        
-        if(node.orelse != null && ((Suite)node.orelse).body != null && ((Suite)node.orelse).body.length > 0){
-            stmtType[] body = ((Suite)node.orelse).body;
-            if(body.length == 1 && body[0] instanceof If){
+
+        if (node.orelse != null && ((Suite) node.orelse).body != null && ((Suite) node.orelse).body.length > 0) {
+            stmtType[] body = ((Suite) node.orelse).body;
+            if (body.length == 1 && body[0] instanceof If) {
                 If if1 = (If) body[0];
-                if(if1.test == null){
+                if (if1.test == null) {
                     visitOrElsePart(node.orelse, "else");
-                }else{
+                } else {
                     boolean foundIf = false;
-                    if(if1.specialsBefore != null){
-                        for(Object o:if1.specialsBefore){
-                            if(o.toString().equals("if")){
+                    if (if1.specialsBefore != null) {
+                        for (Object o : if1.specialsBefore) {
+                            if (o.toString().equals("if")) {
                                 foundIf = true;
                                 break;
                             }
                         }
                     }
-                    if(foundIf){
+                    if (foundIf) {
 
                         visitIfPart(node.orelse, if1, false);
 
-                    }else{
+                    } else {
                         visitIfPart(node.orelse, if1, true);
                     }
                 }
 
-            }else{
+            } else {
                 visitOrElsePart(node.orelse, "else");
             }
         }
-        
-        fixAfterNode(node);
 
+        fixAfterNode(node);
 
     }
 
@@ -1169,19 +1169,19 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
      * This should be the entry point for any node, as it properly handles nodes that aren't usually handled.
      */
     protected SimpleNode visitNode(SimpleNode node) throws Exception {
-        if(node == null){
+        if (node == null) {
             return null;
         }
 
-        if(node instanceof decoratorsType){
+        if (node instanceof decoratorsType) {
             handleDecorator((decoratorsType) node);
-        }else if(node instanceof keywordType){
+        } else if (node instanceof keywordType) {
             handleKeyword((keywordType) node);
-        }else if(node instanceof argumentsType){
+        } else if (node instanceof argumentsType) {
             handleArguments((argumentsType) node);
-        }else if(node instanceof aliasType){
+        } else if (node instanceof aliasType) {
             handleAlias((aliasType) node);
-        }else{
+        } else {
             node.accept(this);
         }
 

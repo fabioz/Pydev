@@ -8,7 +8,7 @@ import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.prettyprinter.AbstractPrettyPrinterTestBase;
 import org.python.pydev.parser.prettyprinterv2.MakeAstValidForPrettyPrintingVisitor;
 
-public class PyAstFactoryWithPrettyPrinting extends AbstractPrettyPrinterTestBase{
+public class PyAstFactoryWithPrettyPrinting extends AbstractPrettyPrinterTestBase {
 
     public static void main(String[] args) {
         try {
@@ -23,32 +23,32 @@ public class PyAstFactoryWithPrettyPrinting extends AbstractPrettyPrinterTestBas
             e.printStackTrace();
         }
     }
-    
 
     public void testVarious22() throws Throwable {
-        final String s = ""+
-        "\n" +
-        "\n" +
-        "\n" +
-        "[\n" +
-        "    1, \n" +
-        "    2,\n" +
-        "    self.call(*a)\n" +
-        "]\n" +
-        "\n" +
-        "";
-        
+        final String s = "" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "[\n" +
+                "    1, \n" +
+                "    2,\n" +
+                "    self.call(*a)\n" +
+                "]\n"
+                +
+                "\n" +
+                "";
+
         final String expected = "return [1,2,self.call(*a)]\n";
-        
-        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
-            
+
+        checkWithAllGrammars(new ICallback<Boolean, Integer>() {
+
             public Boolean call(Integer version) {
                 Module module = (Module) parseLegalDocStr(s);
-                exprType value = ((Expr)module.body[0]).value;
+                exprType value = ((Expr) module.body[0]).value;
                 Return node = new Return((exprType) value.createCopy());
-                try{
+                try {
                     MakeAstValidForPrettyPrintingVisitor.makeValid(node);
-                }catch(Exception e){
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
                 String makePrint = makePrint(prefs, node);

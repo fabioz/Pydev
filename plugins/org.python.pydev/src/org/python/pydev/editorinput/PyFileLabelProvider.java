@@ -23,13 +23,13 @@ public class PyFileLabelProvider implements ILabelProvider {
     public PyFileLabelProvider() {
         provider = new WorkbenchLabelProvider();
     }
-    
+
     public Image getImage(Object element) {
         return provider.getImage(element);
     }
 
     public String getText(Object element) {
-        if(element instanceof IFile){
+        if (element instanceof IFile) {
             IFile f = (IFile) element;
             FastStringBuffer buffer = new FastStringBuffer();
             buffer.append(f.getName());

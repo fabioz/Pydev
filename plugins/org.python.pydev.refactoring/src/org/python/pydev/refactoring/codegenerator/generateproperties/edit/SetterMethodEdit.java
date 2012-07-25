@@ -40,8 +40,6 @@ public class SetterMethodEdit extends AbstractInsertEdit {
         return astFactory.createSetterFunctionDef(accessorName, attributeName);
     }
 
-
-
     @Override
     public int getOffsetStrategy() {
         return offsetStrategy;

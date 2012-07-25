@@ -44,73 +44,79 @@ import com.python.pydev.util.UIUtils;
  * 
  * @author Fabio
  */
-public class AdditionalInfoIntegrityChecker implements IPyEditListener{
+public class AdditionalInfoIntegrityChecker implements IPyEditListener {
 
-    public static class IntegrityInfo{
-        public boolean allOk=true;
+    public static class IntegrityInfo {
+        public boolean allOk = true;
         public StringBuffer desc = new StringBuffer();
-        
+
         public IPythonNature nature;
-        
+
         public IModulesManager modulesManager;
         public List<ModulesKey> modulesNotInDisk = new ArrayList<ModulesKey>();
         public List<ModulesKey> modulesNotInMemory = new ArrayList<ModulesKey>();
-        
+
         public AdditionalProjectInterpreterInfo additionalProjectInfo;
         public List<SourceModule> moduleNotInAdditionalInfo = new ArrayList<SourceModule>();
         public List<String> additionalModulesNotInDisk = new ArrayList<String>();
-        
+
         public String toString() {
             return desc.toString();
         }
     }
-    
-    public static IntegrityInfo checkIntegrity(IPythonNature nature, IProgressMonitor monitor, boolean fix) throws MisconfigurationException{
+
+    public static IntegrityInfo checkIntegrity(IPythonNature nature, IProgressMonitor monitor, boolean fix)
+            throws MisconfigurationException {
         IntegrityInfo info = new IntegrityInfo();
         StringBuffer buffer = info.desc;
-        
+
         info.nature = nature;
         info.modulesManager = nature.getAstManager().getModulesManager();
-        info.additionalProjectInfo = (AdditionalProjectInterpreterInfo)AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
-        if(info.additionalProjectInfo == null){
-            buffer.append(StringUtils.format("Unable to get additional project info for: %s (gotten null)", nature.getProject()));
+        info.additionalProjectInfo = (AdditionalProjectInterpreterInfo) AdditionalProjectInterpreterInfo
+                .getAdditionalInfoForProject(nature);
+        if (info.additionalProjectInfo == null) {
+            buffer.append(StringUtils.format("Unable to get additional project info for: %s (gotten null)",
+                    nature.getProject()));
             info.allOk = false;
         }
-        
+
         PythonPathHelper pythonPathHelper = (PythonPathHelper) info.modulesManager.getPythonPathHelper();
         List<String> pythonpath = pythonPathHelper.getPythonpath();
-        buffer.append(StringUtils.format("Checking the integrity of the project: %s\n\n", nature.getProject().getName()));
+        buffer.append(StringUtils
+                .format("Checking the integrity of the project: %s\n\n", nature.getProject().getName()));
         buffer.append("Pythonpath:\n");
         for (String string : pythonpath) {
             buffer.append(string);
             buffer.append("\n");
         }
         buffer.append("\n");
-        
+
         HashSet<ModulesKey> expectedModuleNames = new HashSet<ModulesKey>();
         for (String string : pythonpath) {
             File file = new File(string);
-            if(file.exists() && file.isDirectory()){ //TODO: Handle zip file modules!
-                Collection<PyFileInfo> modulesBelow = pythonPathHelper.getModulesBelow(file, monitor).getFoundPyFileInfos();
+            if (file.exists() && file.isDirectory()) { //TODO: Handle zip file modules!
+                Collection<PyFileInfo> modulesBelow = pythonPathHelper.getModulesBelow(file, monitor)
+                        .getFoundPyFileInfos();
                 for (PyFileInfo fileInfo : modulesBelow) {
                     File moduleFile = fileInfo.getFile();
                     String modName = pythonPathHelper.resolveModule(REF.getFileAbsolutePath(moduleFile), true);
-                    if(modName != null){
+                    if (modName != null) {
                         expectedModuleNames.add(new ModulesKey(modName, moduleFile));
                         buffer.append(StringUtils.format("Found module: %s - %s\n", modName, moduleFile));
-                    }else{
-                        if(PythonPathHelper.isValidModuleLastPart(StringUtils.stripExtension((moduleFile.getName())))){
+                    } else {
+                        if (PythonPathHelper.isValidModuleLastPart(StringUtils.stripExtension((moduleFile.getName())))) {
                             info.allOk = false;
-                            buffer.append(StringUtils.format("Unable to resolve module: %s (gotten null module name)\n", moduleFile));
+                            buffer.append(StringUtils.format(
+                                    "Unable to resolve module: %s (gotten null module name)\n", moduleFile));
                         }
                     }
                 }
-            }else{
+            } else {
                 info.allOk = false;
                 buffer.append(StringUtils.format("File %s is referenced in the pythonpath but does not exist.", file));
             }
         }
-        
+
         check(expectedModuleNames, info, fix);
         return info;
     }
@@ -119,90 +125,96 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener{
      * @param expectedModuleNames the modules that exist in the disk (an actual file is found and checked for the module it resolves to)
      * @throws MisconfigurationException 
      */
-    private static void check(HashSet<ModulesKey> expectedModuleNames, IntegrityInfo info, boolean fix) throws MisconfigurationException {
+    private static void check(HashSet<ModulesKey> expectedModuleNames, IntegrityInfo info, boolean fix)
+            throws MisconfigurationException {
         StringBuffer buffer = info.desc;
         ModulesKey[] onlyDirectModules = info.modulesManager.getOnlyDirectModules();
         TreeSet<ModulesKey> inModulesManager = new TreeSet<ModulesKey>(Arrays.asList(onlyDirectModules));
         Set<String> allAdditionalInfoTrackedModules = info.additionalProjectInfo.getAllModulesWithTokens();
-        
+
         for (ModulesKey key : inModulesManager) {
-            if(!expectedModuleNames.contains(key)){
+            if (!expectedModuleNames.contains(key)) {
                 info.allOk = false;
                 info.modulesNotInDisk.add(key);
                 buffer.append(StringUtils.format("ModulesKey %s exists in memory but not in the disk.\n", key));
             }
         }
-        
-        for(String s:allAdditionalInfoTrackedModules){
-            if(!expectedModuleNames.contains(new ModulesKey(s, null))){
+
+        for (String s : allAdditionalInfoTrackedModules) {
+            if (!expectedModuleNames.contains(new ModulesKey(s, null))) {
                 info.allOk = false;
                 info.additionalModulesNotInDisk.add(s);
-                buffer.append(StringUtils.format("The module %s exists in the additional info memory but not in the disk.\n", s));
+                buffer.append(StringUtils.format(
+                        "The module %s exists in the additional info memory but not in the disk.\n", s));
             }
         }
-        
+
         for (ModulesKey key : expectedModuleNames) {
-            if(!inModulesManager.contains(key)){
+            if (!inModulesManager.contains(key)) {
                 info.allOk = false;
                 info.modulesNotInMemory.add(key);
                 buffer.append(StringUtils.format("ModulesKey %s exists in the disk but not in memory.\n", key));
             }
-            if(!allAdditionalInfoTrackedModules.contains(key.name)){
+            if (!allAdditionalInfoTrackedModules.contains(key.name)) {
                 try {
                     AbstractModule mod = AbstractModule.createModule(key.name, key.file, info.nature, true);
-                    if(!(mod instanceof SourceModule)){
+                    if (!(mod instanceof SourceModule)) {
                         continue;
                     }
                     SourceModule module = (SourceModule) mod;
-                    if(module == null || module.getAst() == null){
-                        buffer.append(StringUtils.format("Warning: cannot parse: %s - %s (so, it's ok not having additional info on it)\n", key.name, key.file));
-                    }else{
+                    if (module == null || module.getAst() == null) {
+                        buffer.append(StringUtils.format(
+                                "Warning: cannot parse: %s - %s (so, it's ok not having additional info on it)\n",
+                                key.name, key.file));
+                    } else {
                         try {
-                            Iterator<ASTEntry> innerEntriesForAST = AbstractAdditionalDependencyInfo.getInnerEntriesForAST(module.getAst()).o2;
-                            if(innerEntriesForAST.hasNext()){
+                            Iterator<ASTEntry> innerEntriesForAST = AbstractAdditionalDependencyInfo
+                                    .getInnerEntriesForAST(module.getAst()).o2;
+                            if (innerEntriesForAST.hasNext()) {
                                 info.allOk = false;
                                 info.moduleNotInAdditionalInfo.add(module);
-                                buffer.append(StringUtils.format("The additional info index of the module: %s is not updated.\n", key.name));
+                                buffer.append(StringUtils.format(
+                                        "The additional info index of the module: %s is not updated.\n", key.name));
                             }
                         } catch (Exception e) {
-                            buffer.append(StringUtils.format("Unexpected error happened on: %s - %s: %s\n", key.name, key.file, e.getMessage()));
+                            buffer.append(StringUtils.format("Unexpected error happened on: %s - %s: %s\n", key.name,
+                                    key.file, e.getMessage()));
                         }
                     }
                 } catch (IOException e) {
                     //OK, it cannot be parsed, so, we cannot generate its info
-                    buffer.append(StringUtils.format("Warning: cannot parse: %s - %s (so, it's ok not having additional info on it)\n", key.name, key.file));
+                    buffer.append(StringUtils.format(
+                            "Warning: cannot parse: %s - %s (so, it's ok not having additional info on it)\n",
+                            key.name, key.file));
                 }
             }
         }
-        
-        
-        if(info.allOk){
+
+        if (info.allOk) {
             buffer.append("All checks OK!\n");
-        }else{
-            if(fix){
+        } else {
+            if (fix) {
                 buffer.append("Fixing:\n");
                 //modules manager
                 buffer.append(StringUtils.format("Removing modules from memory: %s\n", info.modulesNotInDisk));
                 info.modulesManager.removeModules(info.modulesNotInDisk);
-                
-                
+
                 buffer.append(StringUtils.format("Adding to memory modules: %s\n", info.modulesNotInMemory));
-                for(ModulesKey key:info.modulesNotInMemory){
+                for (ModulesKey key : info.modulesNotInMemory) {
                     buffer.append("Adding modules ...\n");
                     info.modulesManager.addModule(key);
                 }
-                
-                
-                
+
                 //additional info
-                buffer.append(StringUtils.format("Removing from additional info: %s\n", info.additionalModulesNotInDisk));
-                for(String s:info.additionalModulesNotInDisk){
+                buffer.append(StringUtils
+                        .format("Removing from additional info: %s\n", info.additionalModulesNotInDisk));
+                for (String s : info.additionalModulesNotInDisk) {
                     info.additionalProjectInfo.removeInfoFromModule(s, true);
                 }
-                
-                
-                buffer.append(StringUtils.format("Adding to additional info modules found in disk: %s\n", info.moduleNotInAdditionalInfo));
-                for(SourceModule mod:info.moduleNotInAdditionalInfo){
+
+                buffer.append(StringUtils.format("Adding to additional info modules found in disk: %s\n",
+                        info.moduleNotInAdditionalInfo));
+                for (SourceModule mod : info.moduleNotInAdditionalInfo) {
                     info.additionalProjectInfo.addAstInfo(mod.getAst(), mod.getModulesKey(), true);
                 }
             }
@@ -210,16 +222,16 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener{
     }
 
     public void onCreateActions(ListResourceBundle resources, final PyEdit edit, IProgressMonitor monitor) {
-        edit.addOfflineActionListener("--internal-test-modules", new Action(){
+        edit.addOfflineActionListener("--internal-test-modules", new Action() {
             @Override
             public void run() {
                 List<IPythonNature> allPythonNatures = PythonNature.getAllPythonNatures();
                 StringBuffer buf = new StringBuffer();
-                try{
+                try {
                     for (IPythonNature nature : allPythonNatures) {
                         buf.append(checkIntegrity(nature, new NullProgressMonitor(), true));
                     }
-                }catch(MisconfigurationException e){
+                } catch (MisconfigurationException e) {
                     buf.append(e.getMessage());
                 }
                 UIUtils.showString(buf.toString());
@@ -228,16 +240,15 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener{
     }
 
     public void onDispose(PyEdit edit, IProgressMonitor monitor) {
-        
+
     }
 
     public void onSave(PyEdit edit, IProgressMonitor monitor) {
-        
+
     }
 
     public void onSetDocument(IDocument document, PyEdit edit, IProgressMonitor monitor) {
-        
-    }
 
+    }
 
 }

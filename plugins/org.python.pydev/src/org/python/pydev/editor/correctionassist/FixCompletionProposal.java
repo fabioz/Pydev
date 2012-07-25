@@ -26,8 +26,8 @@ import org.eclipse.swt.graphics.Point;
  * 
  * @author Fabio Zadrozny
  */
-public class FixCompletionProposal  implements ICompletionProposal {
-    
+public class FixCompletionProposal implements ICompletionProposal {
+
     /** The string to be displayed in the completion proposal popup. */
     private String fDisplayString;
     /** The replacement string. */
@@ -55,8 +55,10 @@ public class FixCompletionProposal  implements ICompletionProposal {
      * @param replacementLength the length of the text to be replaced
      * @param cursorPosition the position of the cursor following the insert relative to replacementOffset
      */
-    public FixCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, int lineToRemove) {
-        this(replacementString, replacementOffset, replacementLength, cursorPosition, null, null, null, null, lineToRemove);
+    public FixCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
+            int cursorPosition, int lineToRemove) {
+        this(replacementString, replacementOffset, replacementLength, cursorPosition, null, null, null, null,
+                lineToRemove);
     }
 
     /**
@@ -71,20 +73,22 @@ public class FixCompletionProposal  implements ICompletionProposal {
      * @param contextInformation the context information associated with this proposal
      * @param additionalProposalInfo the additional information associated with this proposal
      */
-    public FixCompletionProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, int lineToRemove) {
+    public FixCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
+            int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
+            String additionalProposalInfo, int lineToRemove) {
         Assert.isNotNull(replacementString);
         Assert.isTrue(replacementOffset >= 0);
         Assert.isTrue(replacementLength >= 0);
         Assert.isTrue(cursorPosition >= 0);
-        
-        fReplacementString= replacementString;
-        fReplacementOffset= replacementOffset;
-        fReplacementLength= replacementLength;
-        fCursorPosition= cursorPosition;
-        fImage= image;
-        fDisplayString= displayString;
-        fContextInformation= contextInformation;
-        fAdditionalProposalInfo= additionalProposalInfo;
+
+        fReplacementString = replacementString;
+        fReplacementOffset = replacementOffset;
+        fReplacementLength = replacementLength;
+        fCursorPosition = cursorPosition;
+        fImage = image;
+        fDisplayString = displayString;
+        fContextInformation = contextInformation;
+        fAdditionalProposalInfo = additionalProposalInfo;
         this.lineToRemove = lineToRemove;
     }
 
@@ -94,7 +98,7 @@ public class FixCompletionProposal  implements ICompletionProposal {
     public void apply(IDocument document) {
         try {
             document.replace(fReplacementOffset, fReplacementLength, fReplacementString);
-            if(lineToRemove >=0 && lineToRemove <= document.getNumberOfLines()){
+            if (lineToRemove >= 0 && lineToRemove <= document.getNumberOfLines()) {
                 IRegion lineInformation = document.getLineInformation(lineToRemove);
                 document.replace(lineInformation.getOffset(), lineInformation.getLength(), "");
             }
@@ -102,20 +106,20 @@ public class FixCompletionProposal  implements ICompletionProposal {
             // ignore
         }
     }
-    
+
     /*
      * @see ICompletionProposal#getSelection(IDocument)
      */
     public Point getSelection(IDocument document) {
-        if(lineToRemove >=0 && lineToRemove <= document.getNumberOfLines()){
+        if (lineToRemove >= 0 && lineToRemove <= document.getNumberOfLines()) {
             try {
                 IRegion lineInformation = document.getLineInformation(lineToRemove);
-                int pos = lineInformation.getOffset(); 
+                int pos = lineInformation.getOffset();
                 return new Point(pos, 0);
             } catch (BadLocationException e) {
                 return new Point(fReplacementOffset + fCursorPosition, 0);
             }
-        }else{
+        } else {
             return new Point(fReplacementOffset + fCursorPosition, 0);
         }
     }

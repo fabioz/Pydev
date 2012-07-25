@@ -16,15 +16,15 @@ import org.osgi.framework.BundleContext;
 public class DebugPlugin extends AbstractUIPlugin {
 
     public static final String DEFAULT_PYDEV_DEBUG_SCOPE = "org.python.pydev.debug";
-    
+
     //The shared instance.
-    private static DebugPlugin plugin;    
-    
+    private static DebugPlugin plugin;
+
     /**
      * The constructor.
      */
     public DebugPlugin() {
-        plugin = this;    
+        plugin = this;
     }
 
     /**

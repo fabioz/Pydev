@@ -30,7 +30,6 @@ import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 
-
 /**
  * This class represents a resource that is wrapped for the python model.
  * 
@@ -38,21 +37,22 @@ import org.python.pydev.core.structure.FastStringBuffer;
  *
  * @param <X>
  */
-public class WrappedResource<X extends IResource> implements IWrappedResource, IContributorResourceAdapter, IAdaptable{
+public class WrappedResource<X extends IResource> implements IWrappedResource, IContributorResourceAdapter, IAdaptable {
 
     protected IWrappedResource parentElement;
     protected X actualObject;
     protected PythonSourceFolder pythonSourceFolder;
     protected int rank;
 
-    public WrappedResource(IWrappedResource parentElement, X actualObject, PythonSourceFolder pythonSourceFolder, int rank) {
+    public WrappedResource(IWrappedResource parentElement, X actualObject, PythonSourceFolder pythonSourceFolder,
+            int rank) {
         this.parentElement = parentElement;
         this.actualObject = actualObject;
         this.pythonSourceFolder = pythonSourceFolder;
         this.pythonSourceFolder.addChild(this);
         this.rank = rank;
     }
-    
+
     public X getActualObject() {
         return actualObject;
     }
@@ -64,7 +64,7 @@ public class WrappedResource<X extends IResource> implements IWrappedResource, I
     public PythonSourceFolder getSourceFolder() {
         return pythonSourceFolder;
     }
-    
+
     public int getRank() {
         return rank;
     }
@@ -74,37 +74,36 @@ public class WrappedResource<X extends IResource> implements IWrappedResource, I
     }
 
     public boolean equals(Object other) {
-        if(other instanceof IWrappedResource){
-            if(other == this){
+        if (other instanceof IWrappedResource) {
+            if (other == this) {
                 return true;
             }
             IWrappedResource w = (IWrappedResource) other;
             return this.actualObject.equals(w.getActualObject());
         }
         return false;
-        
-//now returns always false because it could generate null things in the search page... the reason is that when the
-//decorator manager had an update and passed in the search page, it thought that a file/folder was the python file/folder,
-//and then, later when it tried to update it with that info, it ended up removing the element because it didn't know how
-//to handle it.
-//
-// -- and this was also not a correct equals, because other.equals(this) would not return true as this was returning
-// (basically we can't compare apples to oranges)
-//        return actualObject.equals(other);
+
+        //now returns always false because it could generate null things in the search page... the reason is that when the
+        //decorator manager had an update and passed in the search page, it thought that a file/folder was the python file/folder,
+        //and then, later when it tried to update it with that info, it ended up removing the element because it didn't know how
+        //to handle it.
+        //
+        // -- and this was also not a correct equals, because other.equals(this) would not return true as this was returning
+        // (basically we can't compare apples to oranges)
+        //        return actualObject.equals(other);
     }
 
     @Override
     public int hashCode() {
         return this.getActualObject().hashCode();
     }
-    
+
     public Object getAdapter(Class adapter) {
-        if(adapter == IContributorResourceAdapter.class){
+        if (adapter == IContributorResourceAdapter.class) {
             return this;
         }
-        return this.getAdapterFromActualObject((IResource)this.getActualObject(), adapter);
+        return this.getAdapterFromActualObject((IResource) this.getActualObject(), adapter);
     }
-
 
     public String toString() {
         FastStringBuffer buf = new FastStringBuffer();
@@ -114,49 +113,39 @@ public class WrappedResource<X extends IResource> implements IWrappedResource, I
         buf.append(")");
         return buf.toString();
     }
-    
+
     public static Set<Class> logged = new HashSet<Class>();
     private static Object lock = new Object();
 
     public static Object getAdapterFromActualObject(IResource actualObject2, Class adapter) {
-        if(     
-                IProject.class.equals(adapter) || 
-                IResource.class.equals(adapter) ||
-                IFolder.class.equals(adapter) ||
-                IContainer.class.equals(adapter) ||
-                IFile.class.equals(adapter) ||
-                ResourceMapping.class.equals(adapter) ||
-                IFileStore.class.equals(adapter) ||
-                
+        if (IProject.class.equals(adapter) || IResource.class.equals(adapter) || IFolder.class.equals(adapter)
+                || IContainer.class.equals(adapter) || IFile.class.equals(adapter)
+                || ResourceMapping.class.equals(adapter) || IFileStore.class.equals(adapter)
+                ||
+
                 //Added in 3.6
-                ISearchPageScoreComputer.class.equals(adapter)||
-                IToggleBreakpointsTarget.class.equals(adapter)||
-                ITaskListResourceAdapter.class.equals(adapter) ||
-                IFileInfo.class.equals(adapter)
-                ){
+                ISearchPageScoreComputer.class.equals(adapter) || IToggleBreakpointsTarget.class.equals(adapter)
+                || ITaskListResourceAdapter.class.equals(adapter) || IFileInfo.class.equals(adapter)) {
             return actualObject2.getAdapter(adapter);
         }
-        
+
         try {
-            if(IWatchExpressionFactoryAdapter2.class.equals(adapter)){
+            if (IWatchExpressionFactoryAdapter2.class.equals(adapter)) {
                 return actualObject2.getAdapter(adapter);
             }
         } catch (Throwable e) {
             //Ignore (not available in eclipse 3.2)
         }
-        
-        if(
-                IDeferredWorkbenchAdapter.class.equals(adapter)||
-                IWorkbenchAdapter2.class.equals(adapter)||
-                IWorkbenchAdapter.class.equals(adapter)
-                ){
+
+        if (IDeferredWorkbenchAdapter.class.equals(adapter) || IWorkbenchAdapter2.class.equals(adapter)
+                || IWorkbenchAdapter.class.equals(adapter)) {
             return null;
         }
         synchronized (lock) {
-            if(!logged.contains(adapter)){
+            if (!logged.contains(adapter)) {
                 logged.add(adapter);
                 //Only log once per session.
-                Log.logInfo("Did not expect adapter request: "+adapter);
+                Log.logInfo("Did not expect adapter request: " + adapter);
             }
         }
         return null;

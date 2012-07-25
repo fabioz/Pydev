@@ -28,63 +28,59 @@ public class NodeUtilsTest extends PyParserTestBase {
             test.setUp();
             test.testGetContextName2();
             test.tearDown();
-            
+
             junit.textui.TestRunner.run(NodeUtilsTest.class);
         } catch (Throwable e) {
             e.printStackTrace();
         }
-        
+
     }
 
     public void testFullRep() throws Exception {
         Module node = (Module) parseLegalDocStr("a.b.c.d");
-        exprType attr = ((Expr)node.body[0]).value;
+        exprType attr = ((Expr) node.body[0]).value;
         assertEquals("a.b.c.d", NodeUtils.getFullRepresentationString(attr));
         exprType attr1 = NodeUtils.makeAttribute("a.b.c.d");
         assertEquals("a.b.c.d", NodeUtils.getFullRepresentationString(attr1));
         assertEquals(attr1.toString(), attr.toString());
-        
+
         node = (Module) parseLegalDocStr("a.b.c.d()");
         exprType callAttr = NodeUtils.makeAttribute("a.b.c.d()");
-        assertEquals(((Expr)node.body[0]).value.toString(), callAttr.toString());
-        
-        
-        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(parseLegalDocStr(
-                "print a.b.c().d.__class__"));
-        
+        assertEquals(((Expr) node.body[0]).value.toString(), callAttr.toString());
+
+        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor
+                .create(parseLegalDocStr("print a.b.c().d.__class__"));
+
         Iterator<ASTEntry> iterator = visitor.getIterator();
         iterator.next(); //Module
         iterator.next(); //Print
         ASTEntry entry = iterator.next(); //Attribute
         assertEquals("a.b.c", NodeUtils.getFullRepresentationString(entry.node));
 
-
-        visitor = SequencialASTIteratorVisitor.create(parseLegalDocStr(
-            "'r.a.s.b'.join('a')"));
+        visitor = SequencialASTIteratorVisitor.create(parseLegalDocStr("'r.a.s.b'.join('a')"));
         iterator = visitor.getIterator();
         iterator.next(); //Module
         iterator.next(); //Expr
         entry = iterator.next(); //Attribute
         assertEquals("str.join", NodeUtils.getFullRepresentationString(entry.node));
-        
-        visitor = SequencialASTIteratorVisitor.create(parseLegalDocStr(
-            "print aa.bbb.cccc[comp.id].hasSimulate"));
+
+        visitor = SequencialASTIteratorVisitor.create(parseLegalDocStr("print aa.bbb.cccc[comp.id].hasSimulate"));
         iterator = visitor.getIterator();
         iterator.next(); //Module
         iterator.next(); //Expr
         entry = iterator.next(); //Attribute
         assertEquals("aa.bbb.cccc", NodeUtils.getFullRepresentationString(entry.node));
     }
-    
+
     public void testClassEndLine() {
         SimpleNode ast1 = parseLegalDocStr("" +
                 "class env:\n" +
                 "    pass\n" +
                 "\n" +
                 "#comment\n");
-        
+
         checkEndLine(ast1, 4);
-        
+
         ast1 = parseLegalDocStr("" +
                 "class env:\n" +
                 "    pass\n" +
@@ -92,84 +88,94 @@ public class NodeUtilsTest extends PyParserTestBase {
                 "if True:\n" +
                 "    pass\n" +
                 "#comment\n");
-        
+
         checkEndLine(ast1, 2);
     }
-    
+
     public void testGetContextName() {
         SimpleNode ast1 = parseLegalDocStr("" +
                 "class env:\n" +
                 "    pass\n" +
                 "\n" +
-                "if __name__ == '__main__':\n" +
+                "if __name__ == '__main__':\n"
+                +
                 "    print 'step 1'\n" +
                 "\n");
-        
+
         SimpleNode ast2 = parseLegalDocStr("" +
                 "class env:\n" +
                 "    pass\n" +
                 "\n" +
-                "if __name__ == '__main__':\n" +
+                "if __name__ == '__main__':\n"
+                +
                 "    print 'step 1'\n" +
                 "\n" +
                 "#comment");
-        
+
         checkEndLine(ast1, 2);
         checkEndLine(ast2, 2);
-        
+
         assertEquals(null, NodeUtils.getContextName(4, ast1));
         assertEquals(null, NodeUtils.getContextName(4, ast2));
     }
-    
-    
+
     public void testGetContextName2() {
         SimpleNode ast = parseLegalDocStr("" +
                 "class Simple(object):\n" +
                 "  def m1(self):\n" +
-                "    a = 10\n" +
+                "    a = 10\n"
+                +
                 "    i = 20\n" +
                 "    print 'here'\n" +
                 "  \n" +
                 "if __name__ == '__main__':\n" +
-                "  Simple().m1()\n" +
+                "  Simple().m1()\n"
+                +
                 "\n");
-        
+
         assertEquals("Simple.m1", NodeUtils.getContextName(4, ast));
     }
 
-    
-    public void testIsValidContextForSetNext(){
+    public void testIsValidContextForSetNext() {
         SimpleNode ast = parseLegalDocStr("" +
-        		"class Simple(object): \n" +
-        		"	def m1(self): \n" +
-        		"		a = 10 \n" + 
-        		"		i = 20 \n" +
-        		"		for i in range(3):  \n" +
-        		"			print 'here in for'  \n" +
-        		"			for j in range(3):  \n" +
-        		"				print 'here in nested for'  \n" +
-        		"		x = 1  \n" +
-        		"		print 'm1 Ends Here' \n" +
-        		" \n" +
-        		"	def m2(self): \n" +
-        		"	 	print 'method m2 started' \n" +
-        		"		i = 0  \n" +
-        		"		try:  \n" +
-        		"			print 'inside try'  \n" +
-        		"			while i < 5:  \n" +
-        		"				i += 1  \n" +
-        		"		except:  \n" +
-        		"			print 'inside exception'  \n" +
-        		"		a = 30 \n" +
-        		"		i = 40 \n" +
-        		"		print 'here' \n" +
-        		" \n" +
-        		"firstName = 'Hussain'  \n" +
-        		"lastName = 'Bohra'  \n" +
-        		"print '%s, %s in Global Context'%(lastName, firstName)  \n" +
-        		"if __name__ == '__main__': \n" +
-        		"	Simple().m1() \n");
-        
+                "class Simple(object): \n" +
+                "	def m1(self): \n" +
+                "		a = 10 \n"
+                +
+                "		i = 20 \n" +
+                "		for i in range(3):  \n" +
+                "			print 'here in for'  \n"
+                +
+                "			for j in range(3):  \n" +
+                "				print 'here in nested for'  \n" +
+                "		x = 1  \n"
+                +
+                "		print 'm1 Ends Here' \n" +
+                " \n" +
+                "	def m2(self): \n" +
+                "	 	print 'method m2 started' \n"
+                +
+                "		i = 0  \n" +
+                "		try:  \n" +
+                "			print 'inside try'  \n" +
+                "			while i < 5:  \n" +
+                "				i += 1  \n"
+                +
+                "		except:  \n" +
+                "			print 'inside exception'  \n" +
+                "		a = 30 \n" +
+                "		i = 40 \n"
+                +
+                "		print 'here' \n" +
+                " \n" +
+                "firstName = 'Hussain'  \n" +
+                "lastName = 'Bohra'  \n"
+                +
+                "print '%s, %s in Global Context'%(lastName, firstName)  \n" +
+                "if __name__ == '__main__': \n"
+                +
+                "	Simple().m1() \n");
+
         // Source And Target are in Same Method
         assertTrue(NodeUtils.isValidContextForSetNext(ast, 3, 4));
         assertTrue(NodeUtils.isValidContextForSetNext(ast, 10, 8));
@@ -186,25 +192,25 @@ public class NodeUtilsTest extends PyParserTestBase {
         // Source And Target are in Global Context
         assertTrue(NodeUtils.isValidContextForSetNext(ast, 25, 26));
     }
-    
+
     private void checkEndLine(SimpleNode ast1, int endLine) {
         EasyASTIteratorVisitor visitor = EasyASTIteratorVisitor.create(ast1);
-        
+
         List<ASTEntry> classes = visitor.getClassesAndMethodsList();
         assertEquals(1, classes.size());
         assertEquals(endLine, classes.get(0).endLine);
     }
-    
+
     public void testFindStmtForNode() throws Exception {
         Module ast = (Module) parseLegalDocStr("a=10;b=20;c=30");
         Assign assign = (Assign) ast.body[1];
         Name b = (Name) assign.targets[0];
         assertSame(assign, NodeUtils.findStmtForNode(ast, b));
-        
+
         ast = (Module) parseLegalDocStr("a=10\nb=20\nc=30");
         assign = (Assign) ast.body[1];
         b = (Name) assign.targets[0];
         assertSame(assign, NodeUtils.findStmtForNode(ast, b));
-        
+
     }
 }

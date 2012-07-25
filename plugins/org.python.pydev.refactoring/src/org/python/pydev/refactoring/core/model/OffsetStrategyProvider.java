@@ -46,15 +46,15 @@ public class OffsetStrategyProvider implements IStructuredContentProvider {
     }
 
     private int updateLabel(AbstractScopeNode<?> scopeAdapter, int strategyOption) {
-        if(scopeAdapter != null){
+        if (scopeAdapter != null) {
 
-            if(scopeAdapter.getNodeBodyIndent().length() == 0){
+            if (scopeAdapter.getNodeBodyIndent().length() == 0) {
                 beginLabel = Messages.offsetStrategyBeginModule;
                 endLabel = Messages.offsetStrategyEndModule;
-                if((strategyOption & IOffsetStrategy.AFTERINIT) == IOffsetStrategy.AFTERINIT){
+                if ((strategyOption & IOffsetStrategy.AFTERINIT) == IOffsetStrategy.AFTERINIT) {
                     strategyOption &= ~IOffsetStrategy.AFTERINIT;
                 }
-            }else{
+            } else {
                 initLabel();
             }
         }
@@ -69,7 +69,7 @@ public class OffsetStrategyProvider implements IStructuredContentProvider {
     }
 
     private void setStrategy(int strategyOption, int id, String label) {
-        if((strategyOption & id) == id){
+        if ((strategyOption & id) == id) {
             strategies.add(new OffsetStrategyModel(id, label));
         }
     }

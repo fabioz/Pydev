@@ -23,10 +23,9 @@ import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.EvaluateExpressionCommand;
 import org.python.pydev.debug.model.remote.ICommandResponseListener;
 
-public class PyWatchExpressionDelegate 
-    implements IWatchExpressionDelegate, IWatchExpressionResult,
-    ICommandResponseListener {
-    
+public class PyWatchExpressionDelegate implements IWatchExpressionDelegate, IWatchExpressionResult,
+        ICommandResponseListener {
+
     protected PyVariable variables[] = new PyVariable[0];
     protected IDebugElement context;
     protected String expression;
@@ -40,35 +39,35 @@ public class PyWatchExpressionDelegate
         this.context = context;
         this.listener = listener;
         if (context instanceof PyStackFrame) {
-            
-            AbstractDebugTarget target = (AbstractDebugTarget)context.getDebugTarget();
-            if(target == null){
+
+            AbstractDebugTarget target = (AbstractDebugTarget) context.getDebugTarget();
+            if (target == null) {
                 return; //disposed
             }
-            
+
             // send the command, and then busy-wait
-            EvaluateExpressionCommand cmd = new EvaluateExpressionCommand( 
-                target, expression,((PyStackFrame)context).getLocalsLocator().getPyDBLocation(), false );
+            EvaluateExpressionCommand cmd = new EvaluateExpressionCommand(target, expression, ((PyStackFrame) context)
+                    .getLocalsLocator().getPyDBLocation(), false);
             cmd.setCompletionListener(this);
             target.postCommand(cmd);
-            
-        }else{
-            addError( "unknown expression context" );
-            listener.watchEvaluationFinished( this );
+
+        } else {
+            addError("unknown expression context");
+            listener.watchEvaluationFinished(this);
         }
     }
-    
+
     protected String errors[] = new String[0];
 
     /* (non-Javadoc)
      * @see org.eclipse.debug.core.model.IWatchExpressionResult#getValue()
      */
     public IValue getValue() {
-        synchronized(variables) {
+        synchronized (variables) {
             if (variables.length == 0) {
                 variables = new PyVariable[1];
-                variables[0] = new PyVariable(
-                    (AbstractDebugTarget)context.getDebugTarget(), "Error", "pydev ERROR", "Could not resolve variable", null);
+                variables[0] = new PyVariable((AbstractDebugTarget) context.getDebugTarget(), "Error", "pydev ERROR",
+                        "Could not resolve variable", null);
             }
             return variables[0];
         }
@@ -101,41 +100,40 @@ public class PyWatchExpressionDelegate
     public DebugException getException() {
         return null;
     }
-    
-    public void addError( String error_string ) {
+
+    public void addError(String error_string) {
         String resized_errors[] = new String[errors.length + 1];
-        for( int i = 0; i < errors.length; i++ ) {
+        for (int i = 0; i < errors.length; i++) {
             resized_errors[i] = errors[i];
         }
         errors = resized_errors;
-        errors[errors.length-1] = error_string;
+        errors[errors.length - 1] = error_string;
     }
 
     /* (non-Javadoc)
      * @see org.python.pydev.debug.model.remote.ICommandResponseListener#commandComplete(org.python.pydev.debug.model.remote.AbstractDebuggerCommand)
      */
-    public void commandComplete(AbstractDebuggerCommand cmd) {        
+    public void commandComplete(AbstractDebuggerCommand cmd) {
         try {
             String payload = ((EvaluateExpressionCommand) cmd).getResponse();
-            synchronized(variables) {
-                variables = XMLUtils.XMLToVariables(
-                    (AbstractDebugTarget)context.getDebugTarget(), 
-                    ((PyStackFrame)context).getExpressionLocator(), payload);
+            synchronized (variables) {
+                variables = XMLUtils.XMLToVariables((AbstractDebugTarget) context.getDebugTarget(),
+                        ((PyStackFrame) context).getExpressionLocator(), payload);
             }
         } catch (CoreException e) {
-            synchronized(variables) {
+            synchronized (variables) {
                 variables = new PyVariable[1];
-                variables[0] = new PyVariable(
-                    (PyDebugTarget)context.getDebugTarget(), "Error", "pydev ERROR", "Could not resolve variable", null);
+                variables[0] = new PyVariable((PyDebugTarget) context.getDebugTarget(), "Error", "pydev ERROR",
+                        "Could not resolve variable", null);
             }
             PydevDebugPlugin.log(IStatus.ERROR, "Error fetching a variable", e);
         }
-        synchronized(variables) {
+        synchronized (variables) {
             if (variables[0] instanceof PyVariableCollection) {
-                ((PyVariableCollection)variables[0]).isWatchExpression = true;
+                ((PyVariableCollection) variables[0]).isWatchExpression = true;
             }
         }
-        
-        listener.watchEvaluationFinished( this );        
+
+        listener.watchEvaluationFinished(this);
     }
 }

@@ -20,51 +20,43 @@ import org.python.pydev.refactoring.core.request.IRequestProcessor;
 
 public class MockupExtractMethodRequestProcessor implements IRequestProcessor<ExtractMethodRequest> {
 
-	private AbstractScopeNode<?> scopeAdapter;
+    private AbstractScopeNode<?> scopeAdapter;
 
-	private int offsetStrategy;
+    private int offsetStrategy;
 
-	private ModuleAdapter parsedSelection;
+    private ModuleAdapter parsedSelection;
 
-	private ParameterReturnDeduce deducer;
+    private ParameterReturnDeduce deducer;
 
-	private Map<String, String> renameMap;
+    private Map<String, String> renameMap;
 
-	private ITextSelection selection;
+    private ITextSelection selection;
 
-	public MockupExtractMethodRequestProcessor(AbstractScopeNode<?> scopeAdapter, ITextSelection selection, ModuleAdapter parsedSelection,
-			ParameterReturnDeduce deducer, Map<String, String> renameMap, int offsetStrategy) {
+    public MockupExtractMethodRequestProcessor(AbstractScopeNode<?> scopeAdapter, ITextSelection selection,
+            ModuleAdapter parsedSelection, ParameterReturnDeduce deducer, Map<String, String> renameMap,
+            int offsetStrategy) {
 
-		this.scopeAdapter = scopeAdapter;
-		this.selection = selection;
-		this.parsedSelection = parsedSelection;
-		this.offsetStrategy = offsetStrategy;
-		this.deducer = deducer;
-		this.renameMap = renameMap;
-	}
+        this.scopeAdapter = scopeAdapter;
+        this.selection = selection;
+        this.parsedSelection = parsedSelection;
+        this.offsetStrategy = offsetStrategy;
+        this.deducer = deducer;
+        this.renameMap = renameMap;
+    }
 
-	public List<ExtractMethodRequest> getRefactoringRequests() {
-		List<ExtractMethodRequest> requests = new ArrayList<ExtractMethodRequest>();
-		ExtractMethodRequest req = new ExtractMethodRequest(
-		        "extracted_method", 
-		        this.selection, 
-		        this.scopeAdapter, 
-		        this.parsedSelection,
-				deducer.getParameters(), 
-				deducer.getReturns(), 
-				this.renameMap, 
-				this.offsetStrategy, 
-				new AdapterPrefs("\n", new IGrammarVersionProvider() {
-                    
+    public List<ExtractMethodRequest> getRefactoringRequests() {
+        List<ExtractMethodRequest> requests = new ArrayList<ExtractMethodRequest>();
+        ExtractMethodRequest req = new ExtractMethodRequest("extracted_method", this.selection, this.scopeAdapter,
+                this.parsedSelection, deducer.getParameters(), deducer.getReturns(), this.renameMap,
+                this.offsetStrategy, new AdapterPrefs("\n", new IGrammarVersionProvider() {
+
                     public int getGrammarVersion() throws MisconfigurationException {
                         return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
                     }
-                }
-			)
-		);
-		requests.add(req);
+                }));
+        requests.add(req);
 
-		return requests;
+        return requests;
 
-	}
+    }
 }

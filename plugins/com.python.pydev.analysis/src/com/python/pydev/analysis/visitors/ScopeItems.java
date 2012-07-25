@@ -28,46 +28,46 @@ public final class ScopeItems {
     /**
      * This is the class that is used to wrap the try..except node (so that we can add additional info to it).
      */
-    public static class TryExceptInfo{
+    public static class TryExceptInfo {
         public TryExcept except;
-        private Map<String,List<Found>> importsMapInTryExcept = new HashMap<String, List<Found>>();
-        
-        public TryExceptInfo(TryExcept except){
+        private Map<String, List<Found>> importsMapInTryExcept = new HashMap<String, List<Found>>();
+
+        public TryExceptInfo(TryExcept except) {
             this.except = except;
         }
-        
+
         /**
          * When we add a new import found within a try..except ImportError, we mark the previous import
          * with the same name as used (as this one will redefine it in an expected way).
          */
         public void addFoundImportToTryExcept(Found found) {
-            if(!found.isImport()){
+            if (!found.isImport()) {
                 return;
             }
             String rep = found.getSingle().generator.getRepresentation();
             List<Found> importsListInTryExcept = importsMapInTryExcept.get(rep);
-            if(importsListInTryExcept == null){
+            if (importsListInTryExcept == null) {
                 importsListInTryExcept = new ArrayList<Found>();
                 importsMapInTryExcept.put(rep, importsListInTryExcept);
-                
-            }else if(importsListInTryExcept.size() > 0){
-                importsListInTryExcept.get(importsListInTryExcept.size()-1).setUsed(true);
+
+            } else if (importsListInTryExcept.size() > 0) {
+                importsListInTryExcept.get(importsListInTryExcept.size() - 1).setUsed(true);
             }
-            
+
             importsListInTryExcept.add(found);
         }
     }
-    
+
     /**
      * @return the TryExcept from a try..except ImportError if we are currently within such a scope
      * (otherwise will return null;.
      */
     public ScopeItems.TryExceptInfo getTryExceptImportError() {
         for (ScopeItems.TryExceptInfo except : getCurrTryExceptNodes()) {
-            for(excepthandlerType handler : except.except.handlers){
-                if(handler.type != null){
+            for (excepthandlerType handler : except.except.handlers) {
+                if (handler.type != null) {
                     String rep = NodeUtils.getRepresentationString(handler.type);
-                    if(rep != null && rep.equals("ImportError")){
+                    if (rep != null && rep.equals("ImportError")) {
                         return except;
                     }
                 }
@@ -76,14 +76,13 @@ public final class ScopeItems {
         return null;
     }
 
-    
-    private final Map<String,List<Found>> m = new HashMap<String,List<Found>>();
-    
+    private final Map<String, List<Found>> m = new HashMap<String, List<Found>>();
+
     /**
      * Stack for names that should not generate warnings, such as builtins, method names, etc.
      */
     public Map<String, Tuple<IToken, Found>> namesToIgnore = new HashMap<String, Tuple<IToken, Found>>();
-    
+
     public int ifSubScope = 0;
     public FastStack<TryExceptInfo> tryExceptSubScope = new FastStack<TryExceptInfo>(10);
     private int scopeId;
@@ -94,49 +93,48 @@ public final class ScopeItems {
         this.scopeType = scopeType;
     }
 
-
     public Found getLastAppearance(String rep) {
         List<Found> foundItems = m.get(rep);
-        if(foundItems == null || foundItems.size() == 0){
+        if (foundItems == null || foundItems.size() == 0) {
             return null;
         }
-        return foundItems.get(foundItems.size()-1);
+        return foundItems.get(foundItems.size() - 1);
     }
 
-    public void setAllUsed(){
+    public void setAllUsed() {
         for (List<Found> list : m.values()) {
             int len = list.size();
-            for(int i=0;i<len;i++){
+            for (int i = 0; i < len; i++) {
                 list.get(i).setUsed(true);
             }
         }
     }
-    
+
     /**
      * @return a list with all the found items in this scope
      */
-    public Collection<List<Found>> getAll(){
+    public Collection<List<Found>> getAll() {
         return m.values();
     }
-    
+
     /**
      * @return all the found items that match the given representation.
      */
-    public List<Found> getAll(String rep){
+    public List<Found> getAll(String rep) {
         List<Found> r = m.get(rep);
-        if(r == null){
+        if (r == null) {
             return new ArrayList<Found>(0);
         }
         return r;
     }
-    
+
     public void put(String rep, Found found) {
         List<Found> foundItems = m.get(rep);
-        if(foundItems == null){
+        if (foundItems == null) {
             foundItems = new ArrayList<Found>();
             m.put(rep, foundItems);
         }
-        
+
         foundItems.add(found);
     }
 
@@ -151,11 +149,11 @@ public final class ScopeItems {
     public void addTryExceptSubScope(TryExcept node) {
         tryExceptSubScope.push(new TryExceptInfo(node));
     }
-    
+
     public void removeTryExceptSubScope() {
         tryExceptSubScope.pop();
     }
-    
+
     public FastStack<TryExceptInfo> getCurrTryExceptNodes() {
         return tryExceptSubScope;
     }
@@ -163,7 +161,7 @@ public final class ScopeItems {
     public boolean getIsInSubSubScope() {
         return ifSubScope != 0 || tryExceptSubScope.size() != 0;
     }
-    
+
     public boolean getIsInIfSubScope() {
         return ifSubScope != 0;
     }
@@ -174,14 +172,14 @@ public final class ScopeItems {
     public int getScopeId() {
         return scopeId;
     }
-    
+
     /**
      * @return Returns the scopeType.
      */
     public int getScopeType() {
         return scopeType;
     }
-    
+
     @Override
     public String toString() {
         FastStringBuffer buffer = new FastStringBuffer();
@@ -196,7 +194,6 @@ public final class ScopeItems {
         }
         return buffer.toString();
     }
-    
 
     /**
      * @return all the used items
@@ -205,14 +202,12 @@ public final class ScopeItems {
         ArrayList<Tuple<String, Found>> found = new ArrayList<Tuple<String, Found>>();
         for (Map.Entry<String, List<Found>> entry : m.entrySet()) {
             for (Found f : entry.getValue()) {
-                if(f.isUsed()){
+                if (f.isUsed()) {
                     found.add(new Tuple<String, Found>(entry.getKey(), f));
                 }
             }
         }
         return found;
     }
-
-
 
 }

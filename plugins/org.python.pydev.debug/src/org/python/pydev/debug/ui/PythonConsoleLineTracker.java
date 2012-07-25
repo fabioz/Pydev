@@ -39,7 +39,7 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
 
     private ILinkContainer linkContainer; // console we are attached to
     private boolean onlyCreateLinksForExistingFiles = true;
-    
+
     /** pattern for detecting error lines */
     static Pattern linePattern = Pattern.compile(".*(File) \\\"([^\\\"]*)\\\", line (\\d*).*");
 
@@ -47,19 +47,19 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
      * Opens up a file with a given line
      */
     public class ConsoleLink implements IHyperlink {
-    
+
         ItemPointer pointer;
-    
+
         public ConsoleLink(ItemPointer pointer) {
             this.pointer = pointer;
         }
-        
-        public void linkEntered(){
-            
+
+        public void linkEntered() {
+
         }
-        
-        public void linkExited(){
-            
+
+        public void linkExited() {
+
         }
 
         public void linkActivated() {
@@ -67,20 +67,20 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
             open.run(pointer);
         }
     }
-    
+
     public void init(final IConsole console) {
         this.linkContainer = new ILinkContainer() {
-            
+
             public void addLink(IHyperlink link, int offset, int length) {
                 console.addLink(link, offset, length);
             }
-            
-            public String getContents(int offset, int length) throws BadLocationException{
+
+            public String getContents(int offset, int length) throws BadLocationException {
                 return console.getDocument().get(offset, length);
             }
         };
     }
-    
+
     public void init(ILinkContainer linkContainer) {
         this.linkContainer = linkContainer;
     }
@@ -100,7 +100,7 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
             PydevDebugPlugin.log(IStatus.ERROR, "unexpected error", e);
             return;
         }
-        
+
         Matcher m = linePattern.matcher(text);
         String fileName = null;
         String lineNumber = null;
@@ -117,28 +117,27 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
             int num = -1;
             try {
                 num = lineNumber != null ? Integer.parseInt(lineNumber) : 0;
-            }
-            catch (NumberFormatException e) {
+            } catch (NumberFormatException e) {
                 num = 0;
             }
             IFile[] files;
-            if(PydevPlugin.getDefault() == null){
+            if (PydevPlugin.getDefault() == null) {
                 files = null;
-            }else{
+            } else {
                 files = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(new File(fileName).toURI());
-                
+
             }
             if (files != null && files.length > 0 && files[0].exists())
                 link = new FileLink(files[0], null, -1, -1, num);
-            else {    
+            else {
                 // files outside of the workspace
                 File realFile = new File(fileName);
                 if (!onlyCreateLinksForExistingFiles || realFile.exists()) {
-                    ItemPointer p = new ItemPointer(realFile, new Location(num-1, 0), null);
+                    ItemPointer p = new ItemPointer(realFile, new Location(num - 1, 0), null);
                     link = new ConsoleLink(p);
                 }
             }
-            if (link != null){
+            if (link != null) {
                 linkContainer.addLink(link, lineOffset + fileStart, lineLength - fileStart);
             }
         }
@@ -155,27 +154,26 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
         this.onlyCreateLinksForExistingFiles = b;
     }
 
-    
-    public void splitInLinesAndAppendToLineTracker(String string){
+    public void splitInLinesAndAppendToLineTracker(String string) {
         int len = string.length();
         int last = 0;
         char c;
         for (int i = 0; i < len; i++) {
             c = string.charAt(i);
-            
+
             if (c == '\r') {
-                this.lineAppended(new Region(last, (i-last)-1));
+                this.lineAppended(new Region(last, (i - last) - 1));
                 if (i < len - 1 && string.charAt(i + 1) == '\n') {
                     i++;
                 }
-                last = i+1;
+                last = i + 1;
             }
             if (c == '\n') {
-                this.lineAppended(new Region(last, (i-last)-1));
-                last = i+1;
+                this.lineAppended(new Region(last, (i - last) - 1));
+                last = i + 1;
             }
         }
-        this.lineAppended(new Region(last, len-last));
+        this.lineAppended(new Region(last, len - last));
     }
 
 }

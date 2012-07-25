@@ -18,7 +18,7 @@ import org.python.pydev.parser.PyParser;
 
 import com.python.pydev.analysis.builder.AnalysisParserObserver;
 
-public class AnalyzeOnRequestSetter implements IPyEditListener{
+public class AnalyzeOnRequestSetter implements IPyEditListener {
 
     public static class AnalyzeOnRequestAction extends Action {
 
@@ -27,12 +27,13 @@ public class AnalyzeOnRequestSetter implements IPyEditListener{
         public AnalyzeOnRequestAction(PyEdit edit) {
             this.edit = edit;
         }
-        public  void run(){
+
+        public void run() {
             PyParser parser = edit.getParser();
             parser.forceReparse(new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
         }
     }
-    
+
     public void onSave(PyEdit edit, IProgressMonitor monitor) {
     }
 

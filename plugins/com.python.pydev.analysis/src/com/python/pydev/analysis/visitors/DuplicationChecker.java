@@ -33,16 +33,16 @@ public final class DuplicationChecker {
     /**
      * used to know the defined signatures
      */
-    private final FastStack<Map<String,String>> stack = new FastStack<Map<String,String>>(10);
+    private final FastStack<Map<String, String>> stack = new FastStack<Map<String, String>>(10);
     private final Scope scope;
     private final MessagesManager messagesManager;
-    
+
     /**
      * constructor
      * @param visitor 
      */
     public DuplicationChecker(OccurrencesVisitor visitor) {
-        startScope("", null); 
+        startScope("", null);
         this.scope = visitor.scope;
         this.messagesManager = visitor.messagesManager;
     }
@@ -63,52 +63,50 @@ public final class DuplicationChecker {
         stack.pop();
         stack.peek().put(name, name);
     }
-    
+
     /**
      * checks if some name is already defined (and therefore, this can be a duplication)
      */
     private void checkDuplication(String name, SimpleNode node) {
-        if(stack.size() > 0){
-            if(!scope.getPrevScopeItems().getIsInSubSubScope()){
+        if (stack.size() > 0) {
+            if (!scope.getPrevScopeItems().getIsInSubSubScope()) {
                 String exists = stack.peek().get(name);
-                if(exists != null){
-                    if(node instanceof FunctionDef){
+                if (exists != null) {
+                    if (node instanceof FunctionDef) {
                         FunctionDef functionDef = (FunctionDef) node;
-                        if(functionDef.decs != null && functionDef.decs.length > 0){
+                        if (functionDef.decs != null && functionDef.decs.length > 0) {
                             for (decoratorsType dec : functionDef.decs) {
-                                if(dec.func != null){
+                                if (dec.func != null) {
                                     String fullRepresentationString = NodeUtils.getFullRepresentationString(dec.func);
-                                    if(fullRepresentationString.startsWith(name+".")){
+                                    if (fullRepresentationString.startsWith(name + ".")) {
                                         return;
                                     }
                                 }
                             }
                         }
-                        
+
                     }
                     SourceToken token = AbstractVisitor.makeToken(node, "");
-                    messagesManager.addMessage(IAnalysisPreferences.TYPE_DUPLICATED_SIGNATURE, token, name );
+                    messagesManager.addMessage(IAnalysisPreferences.TYPE_DUPLICATED_SIGNATURE, token, name);
                 }
             }
         }
     }
 
     public void beforeClassDef(ClassDef node) {
-        startScope(NodeUtils.getRepresentationString(node), node); 
+        startScope(NodeUtils.getRepresentationString(node), node);
     }
 
     public void afterClassDef(ClassDef node) {
         endScope(NodeUtils.getRepresentationString(node));
     }
 
-
     public void beforeFunctionDef(FunctionDef node) {
-        startScope(NodeUtils.getRepresentationString(node), node); 
+        startScope(NodeUtils.getRepresentationString(node), node);
     }
 
     public void afterFunctionDef(FunctionDef node) {
         endScope(NodeUtils.getRepresentationString(node));
     }
 
-    
 }

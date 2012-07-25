@@ -41,51 +41,52 @@ public class DjangoProjectProperties extends PropertyPage {
 
     @Override
     protected Control createContents(Composite parent) {
-        project = (IProject)getElement().getAdapter(IProject.class);
-        
-        Composite topComp= new Composite(parent, SWT.NONE);
+        project = (IProject) getElement().getAdapter(IProject.class);
 
-        GridLayout innerLayout= new GridLayout();
-        innerLayout.numColumns= 2;
-        innerLayout.marginHeight= 0;
-        innerLayout.marginWidth= 0;
+        Composite topComp = new Composite(parent, SWT.NONE);
+
+        GridLayout innerLayout = new GridLayout();
+        innerLayout.numColumns = 2;
+        innerLayout.marginHeight = 0;
+        innerLayout.marginWidth = 0;
         topComp.setLayout(innerLayout);
         GridData gd = new GridData(GridData.FILL_BOTH);
         topComp.setLayoutData(gd);
-        
-        
-        if(project != null){
+
+        if (project != null) {
             try {
                 IPythonPathNature pathNature = PythonNature.getPythonPathNature(project);
                 final PythonNature nature = PythonNature.getPythonNature(project);
-                
+
                 Map<String, String> variableSubstitution = pathNature.getVariableSubstitution(false);
-                
+
                 Label label = new Label(topComp, SWT.None);
                 label.setText("Django manage.py");
-                
+
                 Text text = new Text(topComp, SWT.BORDER);
                 textDjangoManage = text;
-                textDjangoManage.setToolTipText("This is the name of the project-relative location of manage.py (i.e.: src/myapp/manage.py)");
-                
+                textDjangoManage
+                        .setToolTipText("This is the name of the project-relative location of manage.py (i.e.: src/myapp/manage.py)");
+
                 label = new Label(topComp, SWT.None);
                 labelErrorManage = new Label(topComp, SWT.None);
                 labelErrorManage.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-                
+
                 ModifyListener manageValidator = new ModifyListener() {
-                    
+
                     public void modifyText(ModifyEvent e) {
                         try {
                             String path = textDjangoManage.getText().trim();
-                            if(path.trim().length() == 0){
-                                labelErrorSettings.setText("Please specify the manage.py relative name (i.e.: src/myapp/manage.py)");
+                            if (path.trim().length() == 0) {
+                                labelErrorSettings
+                                        .setText("Please specify the manage.py relative name (i.e.: src/myapp/manage.py)");
                                 return;
                             }
 
                             IFile file = project.getFile(new Path(path));
-                            if(!file.exists()){
+                            if (!file.exists()) {
                                 labelErrorManage.setText(StringUtils.format("File: %s could not be found.", path));
-                            }else{
+                            } else {
                                 labelErrorManage.setText("");
                             }
                         } catch (Exception e1) {
@@ -94,44 +95,46 @@ public class DjangoProjectProperties extends PropertyPage {
                     }
                 };
                 text.addModifyListener(manageValidator);
-                
+
                 text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
                 String string = variableSubstitution.get(DjangoConstants.DJANGO_MANAGE_VARIABLE);
-                if(string != null){
+                if (string != null) {
                     text.setText(string);
-                }else{
+                } else {
                     text.setText("");
                 }
-                
-                
+
                 // Settings
                 label = new Label(topComp, SWT.None);
                 label.setText("Django settings module");
                 text = new Text(topComp, SWT.BORDER);
                 textDjangoSettings = text;
-                textDjangoSettings.setToolTipText("This is the name of the django settings module (i.e.: myapp.settings)");
+                textDjangoSettings
+                        .setToolTipText("This is the name of the django settings module (i.e.: myapp.settings)");
 
-                
                 label = new Label(topComp, SWT.None);
                 labelErrorSettings = new Label(topComp, SWT.None);
                 labelErrorSettings.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
                 ModifyListener settingsValidator = new ModifyListener() {
-                    
+
                     public void modifyText(ModifyEvent e) {
                         try {
                             String moduleName = textDjangoSettings.getText().trim();
-                            if(moduleName.trim().length() == 0){
-                                labelErrorSettings.setText("Please specify the name of the module (i.e.: myapp.settings)");
+                            if (moduleName.trim().length() == 0) {
+                                labelErrorSettings
+                                        .setText("Please specify the name of the module (i.e.: myapp.settings)");
                                 return;
                             }
-                            
+
                             ICodeCompletionASTManager astManager = nature.getAstManager();
-                            ProjectModulesManager modulesManager = (ProjectModulesManager) astManager.getModulesManager();
-                            IModule moduleInDirectManager = modulesManager.getModuleInDirectManager(
-                                    moduleName, nature, true);
-                            if(moduleInDirectManager == null){
-                                labelErrorSettings.setText(StringUtils.format("Module: %s could not be found.", moduleName));
-                            }else{
+                            ProjectModulesManager modulesManager = (ProjectModulesManager) astManager
+                                    .getModulesManager();
+                            IModule moduleInDirectManager = modulesManager.getModuleInDirectManager(moduleName, nature,
+                                    true);
+                            if (moduleInDirectManager == null) {
+                                labelErrorSettings.setText(StringUtils.format("Module: %s could not be found.",
+                                        moduleName));
+                            } else {
                                 labelErrorSettings.setText("");
                             }
                         } catch (Exception e1) {
@@ -140,62 +143,59 @@ public class DjangoProjectProperties extends PropertyPage {
                     }
                 };
                 text.addModifyListener(settingsValidator);
-                
+
                 text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
                 string = variableSubstitution.get(DjangoConstants.DJANGO_SETTINGS_MODULE);
-                if(string != null){
+                if (string != null) {
                     text.setText(string);
-                }else{
+                } else {
                     text.setText("");
                 }
-                
-                
+
             } catch (Exception e) {
                 Log.log(e);
             }
-            
-        }else{
+
+        } else {
             Label label = new Label(topComp, SWT.None);
             label.setText("Internal error: project not set!");
         }
         return topComp;
     }
-    
+
     @Override
     public void dispose() {
         super.dispose();
-        if(textDjangoManage != null){
+        if (textDjangoManage != null) {
             textDjangoManage.dispose();
             textDjangoManage = null;
         }
-        if(textDjangoSettings != null){
+        if (textDjangoSettings != null) {
             textDjangoSettings.dispose();
             textDjangoSettings = null;
         }
     }
 
-
     /**
      * Saves values.
      */
     public boolean performOk() {
-        
+
         try {
             IPythonPathNature pythonPathNature = PythonNature.getPythonPathNature(project);
             Map<String, String> variableSubstitution = pythonPathNature.getVariableSubstitution(false);
-            
-            boolean changed = update(DjangoConstants.DJANGO_MANAGE_VARIABLE, variableSubstitution, 
-                    textDjangoManage.getText(), pythonPathNature);
-            
-            changed = update(DjangoConstants.DJANGO_SETTINGS_MODULE, variableSubstitution, 
-                    textDjangoSettings.getText(), pythonPathNature) || changed;
-            
 
-            if(changed){
+            boolean changed = update(DjangoConstants.DJANGO_MANAGE_VARIABLE, variableSubstitution,
+                    textDjangoManage.getText(), pythonPathNature);
+
+            changed = update(DjangoConstants.DJANGO_SETTINGS_MODULE, variableSubstitution,
+                    textDjangoSettings.getText(), pythonPathNature) || changed;
+
+            if (changed) {
                 pythonPathNature.setVariableSubstitution(variableSubstitution);
                 PythonNature pythonNature = PythonNature.getPythonNature(project);
-                
-                if(pythonNature != null && (changed || pythonNature.getAstManager() == null)){
+
+                if (pythonNature != null && (changed || pythonNature.getAstManager() == null)) {
                     pythonNature.rebuildPath();
                 }
             }
@@ -206,23 +206,22 @@ public class DjangoProjectProperties extends PropertyPage {
         return true;
     }
 
-    
     private boolean update(String varName, Map<String, String> currVariableSubstitution, String text,
             IPythonPathNature pythonPathNature) {
         boolean changed = false;
         String currVal = currVariableSubstitution.get(varName);
         String trimmed = text.trim();
-        
-        if(currVal == null){
+
+        if (currVal == null) {
             changed = trimmed.length() != 0;
-        }else{
+        } else {
             changed = !currVal.equals(trimmed);
         }
-        
-        if(changed){
-            if(trimmed.length() == 0){
+
+        if (changed) {
+            if (trimmed.length() == 0) {
                 currVariableSubstitution.remove(varName);
-            }else{
+            } else {
                 currVariableSubstitution.put(varName, trimmed);
             }
         }

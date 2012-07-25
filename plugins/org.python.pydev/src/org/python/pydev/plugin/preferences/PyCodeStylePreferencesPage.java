@@ -19,27 +19,24 @@ import org.python.pydev.plugin.PydevPlugin;
 public class PyCodeStylePreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
     public static final String USE_LOCALS_AND_ATTRS_CAMELCASE = "USE_LOCALS_AND_ATTRS_CAMELCASE";
-    
+
     public static final String USE_METHODS_FORMAT = "USE_METHODS_FORMAT";
 
     public static final boolean DEFAULT_USE_LOCALS_AND_ATTRS_CAMELCASE = false;
-    
+
     public static final int METHODS_FORMAT_CAMELCASE_FIRST_LOWER = 0;
     public static final int METHODS_FORMAT_CAMELCASE_FIRST_UPPER = 1;
     public static final int METHODS_FORMAT_UNDERSCORE_SEPARATED = 2;
-    
+
     public static final int DEFAULT_USE_METHODS_FORMAT = METHODS_FORMAT_UNDERSCORE_SEPARATED;
-    
-    public static final String[][] LABEL_AND_VALUE = new String[][]{
-        {"underscore_separated" , String.valueOf(METHODS_FORMAT_UNDERSCORE_SEPARATED)},
-        {"CamelCase() with first upper"  , String.valueOf(METHODS_FORMAT_CAMELCASE_FIRST_UPPER)},
-        {"camelCase() with first lower", String.valueOf(METHODS_FORMAT_CAMELCASE_FIRST_LOWER)},
-    };
-    
-    public static final String[][] LOCALS_LABEL_AND_VALUE = new String[][]{
-        {"underscore_separated" , String.valueOf(false)},
-        {"camelCase with first lower", String.valueOf(true)},
-    };
+
+    public static final String[][] LABEL_AND_VALUE = new String[][] {
+            { "underscore_separated", String.valueOf(METHODS_FORMAT_UNDERSCORE_SEPARATED) },
+            { "CamelCase() with first upper", String.valueOf(METHODS_FORMAT_CAMELCASE_FIRST_UPPER) },
+            { "camelCase() with first lower", String.valueOf(METHODS_FORMAT_CAMELCASE_FIRST_LOWER) }, };
+
+    public static final String[][] LOCALS_LABEL_AND_VALUE = new String[][] {
+            { "underscore_separated", String.valueOf(false) }, { "camelCase with first lower", String.valueOf(true) }, };
 
     private Label labelLocalsFormat;
     private Label labelMethodsFormat;
@@ -57,46 +54,44 @@ public class PyCodeStylePreferencesPage extends FieldEditorPreferencePage implem
      */
     public void createFieldEditors() {
         Composite p = getFieldEditorParent();
-        
 
-        useLocalsAndAttrsCamelCase = new RadioGroupFieldEditor(
-                USE_LOCALS_AND_ATTRS_CAMELCASE, "Locals and attributes format (used for assign quick-assist)?", 1, LOCALS_LABEL_AND_VALUE, p, true);
+        useLocalsAndAttrsCamelCase = new RadioGroupFieldEditor(USE_LOCALS_AND_ATTRS_CAMELCASE,
+                "Locals and attributes format (used for assign quick-assist)?", 1, LOCALS_LABEL_AND_VALUE, p, true);
         addField(useLocalsAndAttrsCamelCase);
-        
-        useMethodsFormat = new RadioGroupFieldEditor(
-                USE_METHODS_FORMAT, "Methods format (used for generate properties refactoring)", 1, LABEL_AND_VALUE, p, true);
+
+        useMethodsFormat = new RadioGroupFieldEditor(USE_METHODS_FORMAT,
+                "Methods format (used for generate properties refactoring)", 1, LABEL_AND_VALUE, p, true);
         addField(useMethodsFormat);
-        
+
         labelLocalsFormat = new Label(p, SWT.NONE);
-        
+
         labelMethodsFormat = new Label(p, SWT.NONE);
         updateLabelLocalsAndAttrs(useLocalsAndAttrsCamelCase());
         updateLabelMethods(useMethodsCamelCase());
-        
-    }
 
+    }
 
     /**
      * Updates the label showing an example given the user suggestion.
      */
-    private void updateLabelMethods(int useMethodsFormat){
-        
-        if(useMethodsFormat == METHODS_FORMAT_CAMELCASE_FIRST_UPPER){
+    private void updateLabelMethods(int useMethodsFormat) {
+
+        if (useMethodsFormat == METHODS_FORMAT_CAMELCASE_FIRST_UPPER) {
             labelMethodsFormat.setText("Refactoring property methods in the format def MyMethod()    ");
-            
-        }else if(useMethodsFormat == METHODS_FORMAT_UNDERSCORE_SEPARATED){
+
+        } else if (useMethodsFormat == METHODS_FORMAT_UNDERSCORE_SEPARATED) {
             labelMethodsFormat.setText("Refactoring property methods in the format def my_method()   ");
-            
-        }else{
+
+        } else {
             //camelcase first lower is the default
             labelMethodsFormat.setText("Refactoring property methods in the format def myMethod()    ");
         }
     }
-    
-    private void updateLabelLocalsAndAttrs(boolean useCamelCase){
-        if(useCamelCase){
+
+    private void updateLabelLocalsAndAttrs(boolean useCamelCase) {
+        if (useCamelCase) {
             labelLocalsFormat.setText("Ctrl+1 for assign to variable will suggest: myValue = MyValue()    ");
-        }else{
+        } else {
             labelLocalsFormat.setText("Ctrl+1 for assign to variable will suggest: my_value = MyValue()   ");
         }
     }
@@ -108,45 +103,45 @@ public class PyCodeStylePreferencesPage extends FieldEditorPreferencePage implem
     }
 
     public static int TESTING_METHOD_FORMAT = DEFAULT_USE_METHODS_FORMAT;
+
     public static int useMethodsCamelCase() {
-        try{
-            if(PydevPlugin.getDefault() == null){
+        try {
+            if (PydevPlugin.getDefault() == null) {
                 return TESTING_METHOD_FORMAT;
             }
             return Integer.parseInt(PydevPrefs.getPreferences().getString(USE_METHODS_FORMAT));
-        }catch(NumberFormatException e){
+        } catch (NumberFormatException e) {
             return DEFAULT_USE_METHODS_FORMAT;
         }
     }
-    
-    
+
     public static boolean TESTING_METHOD_LOCALS_AND_ATTRS_CAMEL_CASE = DEFAULT_USE_LOCALS_AND_ATTRS_CAMELCASE;
+
     public static boolean useLocalsAndAttrsCamelCase() {
-        if(PydevPlugin.getDefault() == null){
+        if (PydevPlugin.getDefault() == null) {
             return TESTING_METHOD_LOCALS_AND_ATTRS_CAMEL_CASE;
         }
         return PydevPrefs.getPreferences().getBoolean(USE_LOCALS_AND_ATTRS_CAMELCASE);
     }
 
     @Override
-    public void propertyChange(PropertyChangeEvent event){
+    public void propertyChange(PropertyChangeEvent event) {
         super.propertyChange(event);
-        
-        if(useLocalsAndAttrsCamelCase.equals(event.getSource())){
-            boolean newValue = Boolean.parseBoolean((String)event.getNewValue());
+
+        if (useLocalsAndAttrsCamelCase.equals(event.getSource())) {
+            boolean newValue = Boolean.parseBoolean((String) event.getNewValue());
             updateLabelLocalsAndAttrs(newValue);
-            
-        }else if(useMethodsFormat.equals(event.getSource())){
+
+        } else if (useMethodsFormat.equals(event.getSource())) {
             int val;
-            try{
+            try {
                 String newValue = (String) event.getNewValue();
                 val = Integer.parseInt(newValue);
-            }catch(NumberFormatException e){
+            } catch (NumberFormatException e) {
                 val = DEFAULT_USE_METHODS_FORMAT;
             }
-            
+
             updateLabelMethods(val);
         }
     }
 }
-

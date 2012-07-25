@@ -38,8 +38,8 @@ public class ProgressOperation extends WorkspaceModifyOperation {
         this.action = action;
     }
 
-    protected void execute(IProgressMonitor monitor) throws CoreException,
-            InvocationTargetException, InterruptedException {
+    protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
+            InterruptedException {
 
         try {
             this.monitor = monitor;
@@ -52,14 +52,13 @@ public class ProgressOperation extends WorkspaceModifyOperation {
         }
 
     }
-    
+
     /**
      * @param shell
      * 
      */
     public static void startAction(Shell shell, ProgressAction action, boolean cancelable) {
-        ProgressMonitorDialog monitorDialog = new AsynchronousProgressMonitorDialog(
-                shell);
+        ProgressMonitorDialog monitorDialog = new AsynchronousProgressMonitorDialog(shell);
         monitorDialog.setCancelable(cancelable);
         monitorDialog.setBlockOnOpen(false);
         try {
@@ -74,5 +73,3 @@ public class ProgressOperation extends WorkspaceModifyOperation {
 
     }
 }
-
-

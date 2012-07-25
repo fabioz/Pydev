@@ -44,7 +44,7 @@ public class PyBackspace extends PyAction {
 
     private IIndentPrefs prefs;
     private int dontEraseMoreThan = -1;
-    
+
     public void setIndentPrefs(IIndentPrefs prefs) {
         this.prefs = prefs;
     }
@@ -55,7 +55,7 @@ public class PyBackspace extends PyAction {
         }
         return this.prefs;
     }
-    
+
     public void perform(PySelection ps) {
         // Perform the action
         try {
@@ -124,7 +124,6 @@ public class PyBackspace extends PyAction {
         }
     }
 
-    
     /**
      * Makes a backspace happen...
      * 
@@ -136,15 +135,15 @@ public class PyBackspace extends PyAction {
      */
     public void run(IAction action) {
         OfflineActionTarget adapter = (OfflineActionTarget) getPyEdit().getAdapter(OfflineActionTarget.class);
-        if(adapter != null){
-            if(adapter.isInstalled()){
+        if (adapter != null) {
+            if (adapter.isInstalled()) {
                 adapter.removeLastCharSearchAndUpdateStatus();
                 return;
             }
         }
-    	if(!canModifyEditor()){
-    		return;
-    	}
+        if (!canModifyEditor()) {
+            return;
+        }
 
         PySelection ps = new PySelection(getTextEditor());
         perform(ps);
@@ -175,15 +174,14 @@ public class PyBackspace extends PyAction {
             //TODO: use the conditions above and not just erase a single
             // char.
 
-            if(PySelection.containsOnlyWhitespaces(lineContentsToCursor)){
+            if (PySelection.containsOnlyWhitespaces(lineContentsToCursor)) {
                 eraseToIndentation(ps, lineContentsToCursor);
-                
-            }else{
+
+            } else {
                 eraseSingleChar(ps);
             }
         }
     }
-
 
     /**
      * 
@@ -194,51 +192,52 @@ public class PyBackspace extends PyAction {
         ITextSelection textSelection = ps.getTextSelection();
 
         int replaceLength = 1;
-		int replaceOffset = textSelection.getOffset() - replaceLength;
-		IDocument doc = ps.getDoc();
-		
-		if(replaceOffset >= 0 && replaceOffset + replaceLength < doc.getLength()){
-			char c = doc.getChar(replaceOffset);
-			if(c == '(' || c == '[' || c == '{'){
-				//When removing a (, check if we have to delete the corresponding ) too.
-				char peer = StringUtils.getPeer(c);
-				if(replaceOffset + replaceLength < doc.getLength()){
-					char c2 = doc.getChar(replaceOffset+1);
-					if(c2 == peer){
-						//Ok, there's a closing one right next to it, now, what we have to do is
-						//check if the user was actually removing that one because there's an opening
-						//one without a match.
-						//To do that, we go backwards in the document searching for an opening match and then
-						//search its match. If it's found, it means we can delete both, otherwise, this
-						//delete will make things correct.
-						
-						//Create a matcher only matching this char
-						PythonPairMatcher pythonPairMatcher = new PythonPairMatcher(new char[]{c, peer});
-						int openingPeerOffset = pythonPairMatcher.searchForAnyOpeningPeer(replaceOffset, doc);
-						if(openingPeerOffset == -1){
-							replaceLength += 1;
-						}else{
-							int closingPeerOffset = pythonPairMatcher.searchForClosingPeer(openingPeerOffset, c, peer, doc);
-							if(closingPeerOffset != -1){
-								//we have a match, so, things are balanced and we can delete the next
-								replaceLength += 1;
-							}
-						}
-					}
-				}
-				
-			}else if(c == '\'' || c == '"'){
-				//when removing a ' or ", check if we have to delete another ' or " too.
-				Tuple<String, String> beforeAndAfterMatchingChars = ps.getBeforeAndAfterMatchingChars(c);
-				int matchesBefore = beforeAndAfterMatchingChars.o1.length();
-				int matchesAfter = beforeAndAfterMatchingChars.o2.length();
-				if(matchesBefore == 1 && matchesBefore == matchesAfter){
-					replaceLength += 1;
-				}
-			}
-		}
-		
-		makeDelete(doc, replaceOffset, replaceLength);
+        int replaceOffset = textSelection.getOffset() - replaceLength;
+        IDocument doc = ps.getDoc();
+
+        if (replaceOffset >= 0 && replaceOffset + replaceLength < doc.getLength()) {
+            char c = doc.getChar(replaceOffset);
+            if (c == '(' || c == '[' || c == '{') {
+                //When removing a (, check if we have to delete the corresponding ) too.
+                char peer = StringUtils.getPeer(c);
+                if (replaceOffset + replaceLength < doc.getLength()) {
+                    char c2 = doc.getChar(replaceOffset + 1);
+                    if (c2 == peer) {
+                        //Ok, there's a closing one right next to it, now, what we have to do is
+                        //check if the user was actually removing that one because there's an opening
+                        //one without a match.
+                        //To do that, we go backwards in the document searching for an opening match and then
+                        //search its match. If it's found, it means we can delete both, otherwise, this
+                        //delete will make things correct.
+
+                        //Create a matcher only matching this char
+                        PythonPairMatcher pythonPairMatcher = new PythonPairMatcher(new char[] { c, peer });
+                        int openingPeerOffset = pythonPairMatcher.searchForAnyOpeningPeer(replaceOffset, doc);
+                        if (openingPeerOffset == -1) {
+                            replaceLength += 1;
+                        } else {
+                            int closingPeerOffset = pythonPairMatcher.searchForClosingPeer(openingPeerOffset, c, peer,
+                                    doc);
+                            if (closingPeerOffset != -1) {
+                                //we have a match, so, things are balanced and we can delete the next
+                                replaceLength += 1;
+                            }
+                        }
+                    }
+                }
+
+            } else if (c == '\'' || c == '"') {
+                //when removing a ' or ", check if we have to delete another ' or " too.
+                Tuple<String, String> beforeAndAfterMatchingChars = ps.getBeforeAndAfterMatchingChars(c);
+                int matchesBefore = beforeAndAfterMatchingChars.o1.length();
+                int matchesAfter = beforeAndAfterMatchingChars.o2.length();
+                if (matchesBefore == 1 && matchesBefore == matchesAfter) {
+                    replaceLength += 1;
+                }
+            }
+        }
+
+        makeDelete(doc, replaceOffset, replaceLength);
     }
 
     /**
@@ -297,77 +296,76 @@ public class PyBackspace extends PyAction {
         final int cursorOffset = ps.getAbsoluteCursorOffset();
         final int cursorLine = ps.getCursorLine();
         final int lineContentsToCursorLen = lineContentsToCursor.length();
-        
-        if(lineContentsToCursorLen > 0){
-            char c = lineContentsToCursor.charAt(lineContentsToCursorLen-1);
-            if(c == '\t'){
+
+        if (lineContentsToCursorLen > 0) {
+            char c = lineContentsToCursor.charAt(lineContentsToCursorLen - 1);
+            if (c == '\t') {
                 eraseSingleChar(ps);
                 return;
             }
         }
-        
+
         String indentationString = getIndentPrefs().getIndentationString();
-        
+
         int replaceLength;
         int replaceOffset;
-        
+
         final int indentationLength = indentationString.length();
         final int modLen = lineContentsToCursorLen % indentationLength;
-        
-        if(modLen == 0){
+
+        if (modLen == 0) {
             replaceOffset = cursorOffset - indentationLength;
             replaceLength = indentationLength;
-        }else{
-            replaceOffset = cursorOffset-modLen;
+        } else {
+            replaceOffset = cursorOffset - modLen;
             replaceLength = modLen;
         }
-        
-        
+
         IDocument doc = ps.getDoc();
-        if(cursorLine > 0){
-            IRegion prevLineInfo = doc.getLineInformation(cursorLine-1);
-            int prevLineEndOffset = prevLineInfo.getOffset()+prevLineInfo.getLength();
+        if (cursorLine > 0) {
+            IRegion prevLineInfo = doc.getLineInformation(cursorLine - 1);
+            int prevLineEndOffset = prevLineInfo.getOffset() + prevLineInfo.getLength();
             Tuple<Integer, Boolean> tup = PyAutoIndentStrategy.determineSmartIndent(prevLineEndOffset, doc, prefs);
             Integer previousContextSmartIndent = tup.o1;
-            if(previousContextSmartIndent > 0 && lineContentsToCursorLen > previousContextSmartIndent){
-                int initialLineOffset = cursorOffset-lineContentsToCursorLen;
-                if(replaceOffset < initialLineOffset+previousContextSmartIndent){
-                    int newReplaceOffset = initialLineOffset+previousContextSmartIndent+1;
-                    if(newReplaceOffset != cursorOffset){
+            if (previousContextSmartIndent > 0 && lineContentsToCursorLen > previousContextSmartIndent) {
+                int initialLineOffset = cursorOffset - lineContentsToCursorLen;
+                if (replaceOffset < initialLineOffset + previousContextSmartIndent) {
+                    int newReplaceOffset = initialLineOffset + previousContextSmartIndent + 1;
+                    if (newReplaceOffset != cursorOffset) {
                         replaceOffset = newReplaceOffset;
-                        replaceLength = cursorOffset-replaceOffset;
+                        replaceLength = cursorOffset - replaceOffset;
                     }
                 }
             }
         }
-        
+
         //now, check what we're actually removing here... we can only remove chars if they are the
         //same, so, if we have a replace for '\t ', we should only remove the ' ', and not the '\t'
-        if(replaceLength > 1){
+        if (replaceLength > 1) {
             String strToReplace = doc.get(replaceOffset, replaceLength);
             char prev = 0;
-            for (int i = strToReplace.length()-1; i >= 0; i--) {
+            for (int i = strToReplace.length() - 1; i >= 0; i--) {
                 char c = strToReplace.charAt(i);
-                if(prev != 0){
-                    if(c != prev){
-                        replaceOffset += (i+1);
-                        replaceLength -= (i+1);
+                if (prev != 0) {
+                    if (c != prev) {
+                        replaceOffset += (i + 1);
+                        replaceLength -= (i + 1);
                         break;
                     }
                 }
                 prev = c;
             }
         }
-        
+
         makeDelete(doc, replaceOffset, replaceLength);
     }
 
     private void makeDelete(IDocument doc, int replaceOffset, int replaceLength) throws BadLocationException {
-        if(replaceOffset < dontEraseMoreThan){
+        if (replaceOffset < dontEraseMoreThan) {
             int delta = dontEraseMoreThan - replaceOffset;
             replaceOffset = dontEraseMoreThan;
             replaceLength -= delta;
-            if(replaceLength <= 0){
+            if (replaceLength <= 0) {
                 return;
             }
         }
@@ -378,42 +376,39 @@ public class PyBackspace extends PyAction {
         this.dontEraseMoreThan = offset;
     }
 
-    
     /**
      * Creates a handler that will properly treat backspaces considering python code.
      */
     public static VerifyKeyListener createVerifyKeyListener(final TextViewer viewer, final PyEdit edit) {
-        return new VerifyKeyListener(){
-            
+        return new VerifyKeyListener() {
+
             public void verifyKey(VerifyEvent event) {
-                if((event.doit && event.character == SWT.BS && event.stateMask == 0 && viewer != null && viewer.isEditable())){ //isBackspace
+                if ((event.doit && event.character == SWT.BS && event.stateMask == 0 && viewer != null && viewer
+                        .isEditable())) { //isBackspace
                     boolean blockSelection = false;
-                    try{
+                    try {
                         blockSelection = viewer.getTextWidget().getBlockSelection();
-                    }catch(Throwable e){
+                    } catch (Throwable e) {
                         //that's OK (only available in eclipse 3.5)
                     }
-                    if(!blockSelection){
+                    if (!blockSelection) {
                         ISelection selection = viewer.getSelection();
-                        if(selection instanceof ITextSelection){
+                        if (selection instanceof ITextSelection) {
                             //Only do our custom backspace if we're not in block selection mode.
                             PyBackspace pyBackspace = new PyBackspace();
-                            if(edit != null){
+                            if (edit != null) {
                                 pyBackspace.setEditor(edit);
-                            }else{
+                            } else {
                                 pyBackspace.setIndentPrefs(new DefaultIndentPrefs());
                             }
-                            PySelection ps = new PySelection(viewer.getDocument(), (ITextSelection)selection);
+                            PySelection ps = new PySelection(viewer.getDocument(), (ITextSelection) selection);
                             pyBackspace.perform(ps);
                             event.doit = false;
                         }
                     }
                 }
             }
-        };        
+        };
     }
-
-
-
 
 }

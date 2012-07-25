@@ -17,9 +17,9 @@ import java.util.List;
  */
 public interface IOfflineActionWithParameters {
 
-	/**
-	 * The parameters the user typed for the action -- cannot be null.
-	 */
-	void setParameters(List<String> parameters);
+    /**
+     * The parameters the user typed for the action -- cannot be null.
+     */
+    void setParameters(List<String> parameters);
 
 }

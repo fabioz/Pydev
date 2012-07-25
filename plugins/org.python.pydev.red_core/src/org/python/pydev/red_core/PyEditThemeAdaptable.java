@@ -20,34 +20,32 @@ import com.aptana.editor.common.extensions.IThemeableEditor;
 /**
  * Provides the needed adaptation so that the pydev editor can use the features from Aptana red core.
  */
-public class PyEditThemeAdaptable implements IAdaptable, IThemeableEditor{
+public class PyEditThemeAdaptable implements IAdaptable, IThemeableEditor {
 
-	private WeakReference<PyEdit> edit;
+    private WeakReference<PyEdit> edit;
 
+    public PyEditThemeAdaptable(PyEdit edit) {
+        this.edit = new WeakReference<PyEdit>(edit);
+    }
 
-	public PyEditThemeAdaptable(PyEdit edit) {
-		this.edit = new WeakReference<PyEdit>(edit);
-	}
+    @SuppressWarnings("rawtypes")
+    public Object getAdapter(Class adapter) {
+        if (ITextEditor.class == adapter) {
+            return edit.get();
+        }
+        return null;
+    }
 
-	
-	@SuppressWarnings("rawtypes")
-	public Object getAdapter(Class adapter) {
-		if(ITextEditor.class == adapter){
-			return edit.get();
-		}
-		return null;
-	}
+    public ISourceViewer getISourceViewer() {
+        return edit.get().getISourceViewer();
+    }
 
-	public ISourceViewer getISourceViewer() {
-		return edit.get().getISourceViewer();
-	}
+    public ISelectionProvider getSelectionProvider() {
+        return edit.get().getSelectionProvider();
+    }
 
-	public ISelectionProvider getSelectionProvider() {
-		return edit.get().getSelectionProvider();
-	}
+    public IVerticalRuler getIVerticalRuler() {
+        return edit.get().getIVerticalRuler();
+    }
 
-	public IVerticalRuler getIVerticalRuler() {
-		return edit.get().getIVerticalRuler();
-	}
-	
 }

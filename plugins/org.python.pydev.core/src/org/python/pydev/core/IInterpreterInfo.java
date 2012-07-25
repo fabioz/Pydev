@@ -15,22 +15,21 @@ import java.util.Properties;
 import java.util.Set;
 
 public interface IInterpreterInfo {
-    
+
     /**
      * @return a String such as 2.5 or 2.4 representing the python version that created this interpreter. 
      */
     public String getVersion();
-    
+
     /**
      * @return a constant as defined in IGrammarVersionProvider.
      */
     public int getGrammarVersion();
-    
+
     /**
      * @return a list of strings representing the pythonpath for this interpreter info.
      */
     public List<String> getPythonPath();
-
 
     public ISystemModulesManager getModulesManager();
 
@@ -38,13 +37,13 @@ public interface IInterpreterInfo {
      * @return a valid path for the interpreter (may not be human readable)
      */
     public String getExeAsFileSystemValidPath();
-    
+
     /**
      * @return the environment variables that should be set when running this interpreter.
      * It can be null if the default environment should be used.
      */
     public String[] getEnvVariables();
-    
+
     /**
      * This method receives the environment variables available for a run and updates them with the environment
      * variables that are contained in this interpreter.
@@ -88,16 +87,14 @@ public interface IInterpreterInfo {
      * @return true if the passed name matches the name or the executable or jar specified.
      */
     public boolean matchNameBackwardCompatible(String interpreter);
-    
+
     /**
      * @return an iterator that can traverse the forced builtins;
      */
     public Iterator<String> forcedLibsIterator();
-    
-    
+
     public Properties getStringSubstitutionVariables();
-    
-    
+
     public List<String> getPredefinedCompletionsPath();
 
     /**

@@ -19,7 +19,7 @@ import org.python.pydev.core.callbacks.ICallback;
  * This interface is meant to be the way to communicate with the shell.
  */
 public interface IScriptConsoleCommunication {
-    
+
     /**
      * Executes a given command in the interpreter (push a line)
      * 
@@ -28,9 +28,7 @@ public interface IScriptConsoleCommunication {
      * @return the response from the interpreter (contains the stdout, stderr, etc).
      * @throws Exception
      */
-    void execInterpreter(
-            String command, 
-            ICallback<Object, InterpreterResponse> onResponseReceived, 
+    void execInterpreter(String command, ICallback<Object, InterpreterResponse> onResponseReceived,
             ICallback<Object, Tuple<String, String>> onContentsReceived);
 
     /**
@@ -43,7 +41,7 @@ public interface IScriptConsoleCommunication {
      * @throws Exception
      */
     public ICompletionProposal[] getCompletions(String text, String actTok, int offset) throws Exception;
-    
+
     /**
      * Gets the description to be shown on hover to the user
      * 
@@ -58,12 +56,12 @@ public interface IScriptConsoleCommunication {
      * @throws Exception
      */
     void close() throws Exception;
-    
+
     /**
      * Link pydev debug console with the suspended frame  
      * 
      * @param isLinkedWithDebug
      */
     public void linkWithDebugSelection(boolean isLinkedWithDebug);
-    
+
 }

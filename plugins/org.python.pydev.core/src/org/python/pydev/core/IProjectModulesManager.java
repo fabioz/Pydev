@@ -19,7 +19,6 @@ import org.python.pydev.core.callbacks.ICallback0;
 
 public interface IProjectModulesManager extends IModulesManager {
 
-
     /**
      * Set the project this modules manager works with.
      * 
@@ -36,7 +35,8 @@ public interface IProjectModulesManager extends IModulesManager {
 
     public abstract void endProcessing();
 
-    public abstract void rebuildModule(File f, ICallback0<IDocument> doc, IProject project, IProgressMonitor monitor, IPythonNature nature);
+    public abstract void rebuildModule(File f, ICallback0<IDocument> doc, IProject project, IProgressMonitor monitor,
+            IPythonNature nature);
 
     public abstract void removeModule(File file, IProject project, IProgressMonitor monitor);
 
@@ -54,7 +54,5 @@ public interface IProjectModulesManager extends IModulesManager {
      * @return the name of a given module or null if it can't resolve it for this modules manager.
      */
     public abstract String resolveModuleInDirectManager(String full);
-
-
 
 }

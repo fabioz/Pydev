@@ -46,7 +46,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @author Fabio
      */
     public static class FormatStd {
-        
+
         /**
          * Defines whether spaces should be added after a comma
          */
@@ -56,13 +56,13 @@ public class PyFormatStd extends PyAction implements IFormatter {
          * Defines whether ( and ) should have spaces
          */
         public boolean parametersWithSpace;
-        
+
         /**
          * Defines whether = should be spaces surrounded when inside of a parens (function call)
          * (as well as others related: *= +=, -=, !=, ==, etc).
          */
         public boolean assignWithSpaceInsideParens;
-        
+
         /**
          * Defines whether operators should be spaces surrounded:
          * + - * / // ** | & ^ ~ =
@@ -72,43 +72,40 @@ public class PyFormatStd extends PyAction implements IFormatter {
         public boolean addNewLineAtEndOfFile;
 
         public boolean trimLines;
-        
+
         public boolean trimMultilineLiterals;
     }
-    
-    
 
     /**
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
      */
     public void run(IAction action) {
         try {
-        	if(!canModifyEditor()){
-        		return;
-        	}
+            if (!canModifyEditor()) {
+                return;
+            }
 
             PyEdit pyEdit = getPyEdit();
             PySelection ps = new PySelection(pyEdit);
-            
-            
-            try{
+
+            try {
                 int[] regionsToFormat = null;
-                if(ps.getSelLength() > 0){
+                if (ps.getSelLength() > 0) {
                     int startLineIndex = ps.getStartLineIndex();
                     int endLineIndex = ps.getEndLineIndex();
-                    regionsToFormat = new int[endLineIndex-startLineIndex+1];
-                    for(int i=startLineIndex,j=0;i<=endLineIndex;i++,j++){
-                        regionsToFormat[j]=i;
+                    regionsToFormat = new int[endLineIndex - startLineIndex + 1];
+                    for (int i = startLineIndex, j = 0; i <= endLineIndex; i++, j++) {
+                        regionsToFormat[j] = i;
                     }
-                }else{
-                	//For full-formatting, we cannot have a syntax error.
-                	if(pyEdit.hasSyntaxError(ps.getDoc())){
-                		return;
-                	}
+                } else {
+                    //For full-formatting, we cannot have a syntax error.
+                    if (pyEdit.hasSyntaxError(ps.getDoc())) {
+                        return;
+                    }
                 }
 
                 applyFormatAction(pyEdit, ps, regionsToFormat, true);
-            }catch(SyntaxErrorException e){
+            } catch (SyntaxErrorException e) {
                 pyEdit.getStatusLineManager().setErrorMessage(e.getMessage());
             }
 
@@ -117,7 +114,6 @@ public class PyFormatStd extends PyAction implements IFormatter {
         }
     }
 
-    
     /**
      * This method applies the code-formatting to the document in the PySelection
      * 
@@ -127,41 +123,39 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * be formatted. 
      * @throws SyntaxErrorException 
      */
-    public void applyFormatAction(PyEdit pyEdit, PySelection ps, int[] regionsToFormat, boolean throwSyntaxError) throws BadLocationException, SyntaxErrorException {
+    public void applyFormatAction(PyEdit pyEdit, PySelection ps, int[] regionsToFormat, boolean throwSyntaxError)
+            throws BadLocationException, SyntaxErrorException {
         final IFormatter participant = getFormatter();
         final IDocument doc = ps.getDoc();
         final SelectionKeeper selectionKeeper = new SelectionKeeper(ps);
-        
+
         DocumentRewriteSession session = null;
-        try{
-        
+        try {
+
             if (regionsToFormat == null || regionsToFormat.length == 0) {
-                if(doc instanceof IDocumentExtension4){
+                if (doc instanceof IDocumentExtension4) {
                     IDocumentExtension4 ext = (IDocumentExtension4) doc;
                     session = ext.startRewriteSession(DocumentRewriteSessionType.STRICTLY_SEQUENTIAL);
                 }
                 participant.formatAll(doc, pyEdit, true, throwSyntaxError);
-                
+
             } else {
-                if(doc instanceof IDocumentExtension4){
+                if (doc instanceof IDocumentExtension4) {
                     IDocumentExtension4 ext = (IDocumentExtension4) doc;
                     session = ext.startRewriteSession(DocumentRewriteSessionType.SEQUENTIAL);
                 }
                 participant.formatSelection(doc, regionsToFormat, pyEdit, ps);
             }
 
-            
-        }finally{
-            if(session != null){
-                ((IDocumentExtension4)doc).stopRewriteSession(session);
+        } finally {
+            if (session != null) {
+                ((IDocumentExtension4) doc).stopRewriteSession(session);
             }
         }
 
-        
         selectionKeeper.restoreSelection(pyEdit.getSelectionProvider(), doc);
     }
 
-    
     /**
      * @return the source code formatter to be used.
      */
@@ -172,24 +166,23 @@ public class PyFormatStd extends PyAction implements IFormatter {
         }
         return participant;
     }
-    
 
     public void formatSelection(IDocument doc, int[] regionsForSave, IPyEdit edit, PySelection ps) {
         FormatStd formatStd = getFormat();
         formatSelection(doc, regionsForSave, edit, ps, formatStd);
     }
-    
+
     /**
      * Formats the given selection
      * @see IFormatter
      */
     public void formatSelection(IDocument doc, int[] regionsForSave, IPyEdit edit, PySelection ps, FormatStd formatStd) {
-//        Formatter formatter = new Formatter();
-//        formatter.formatSelection(doc, startLine, endLineIndex, edit, ps);
-        
+        //        Formatter formatter = new Formatter();
+        //        formatter.formatSelection(doc, startLine, endLineIndex, edit, ps);
+
         @SuppressWarnings({ "rawtypes", "unchecked" })
         List<Tuple3<Integer, Integer, String>> replaces = new ArrayList();
-        
+
         String docContents = doc.get();
         String delimiter = PySelection.getDelimiter(doc);
         IDocument formatted;
@@ -200,7 +193,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         }
         //Actually replace the formatted lines: in our formatting, lines don't change, so, this is OK :)
         try {
-            for(int i:regionsForSave){
+            for (int i : regionsForSave) {
                 IRegion r = doc.getLineInformation(i);
                 int iStart = r.getOffset();
                 int iEnd = r.getOffset() + r.getLength();
@@ -208,13 +201,12 @@ public class PyFormatStd extends PyAction implements IFormatter {
                 String line = PySelection.getLine(formatted, i);
                 replaces.add(new Tuple3<Integer, Integer, String>(iStart, iEnd - iStart, line));
             }
-            
+
         } catch (BadLocationException e) {
             Log.log(e);
             return;
         }
-        
-        
+
         //Apply the formatting from bottom to top (so that the indexes are still valid).
         Collections.reverse(replaces);
         for (Tuple3<Integer, Integer, String> tup : replaces) {
@@ -224,13 +216,13 @@ public class PyFormatStd extends PyAction implements IFormatter {
                 Log.log(e);
             }
         }
-            
-        if(formatStd.addNewLineAtEndOfFile){
+
+        if (formatStd.addNewLineAtEndOfFile) {
             try {
                 int len = doc.getLength();
-                if(len > 0){
-                    char lastChar = doc.getChar(len-1);
-                    if(lastChar != '\r' && lastChar != '\n'){
+                if (len > 0) {
+                    char lastChar = doc.getChar(len - 1);
+                    if (lastChar != '\r' && lastChar != '\n') {
                         doc.replace(len, 0, PySelection.getDelimiter(doc));
                     }
                 }
@@ -245,65 +237,66 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @throws SyntaxErrorException 
      * @see IFormatter
      */
-    public void formatAll(IDocument doc, IPyEdit edit, boolean isOpenedFile, boolean throwSyntaxError) throws SyntaxErrorException {
-//        Formatter formatter = new Formatter();
-//        formatter.formatAll(doc, edit);
-        
+    public void formatAll(IDocument doc, IPyEdit edit, boolean isOpenedFile, boolean throwSyntaxError)
+            throws SyntaxErrorException {
+        //        Formatter formatter = new Formatter();
+        //        formatter.formatAll(doc, edit);
+
         FormatStd formatStd = getFormat();
         formatAll(doc, edit, isOpenedFile, formatStd, throwSyntaxError);
-        
 
     }
-    
-    public void formatAll(IDocument doc, IPyEdit edit, boolean isOpenedFile, FormatStd formatStd, boolean throwSyntaxError) throws SyntaxErrorException {
+
+    public void formatAll(IDocument doc, IPyEdit edit, boolean isOpenedFile, FormatStd formatStd,
+            boolean throwSyntaxError) throws SyntaxErrorException {
         String d = doc.get();
         String delimiter = PySelection.getDelimiter(doc);
         String formatted = formatAll(formatStd, throwSyntaxError, d, delimiter);
-        
+
         String contents = doc.get();
-        if(contents.equals(formatted)){
+        if (contents.equals(formatted)) {
             return; //it's the same: nothing to do.
         }
-        if(!isOpenedFile){
+        if (!isOpenedFile) {
             doc.set(formatted);
-        }else{
+        } else {
             //let's try to apply only the differences
             int minorLen;
             int contentsLen = contents.length();
-            if(contentsLen > formatted.length()){
+            if (contentsLen > formatted.length()) {
                 minorLen = formatted.length();
-            }else{
+            } else {
                 minorLen = contentsLen;
             }
-            int applyFrom=0;
-            for(;applyFrom<minorLen;applyFrom++){
-                if(contents.charAt(applyFrom) == formatted.charAt(applyFrom)){
+            int applyFrom = 0;
+            for (; applyFrom < minorLen; applyFrom++) {
+                if (contents.charAt(applyFrom) == formatted.charAt(applyFrom)) {
                     continue;
-                }else{
+                } else {
                     //different
                     break;
                 }
             }
-            
+
             try {
-                doc.replace(applyFrom, contentsLen-applyFrom, formatted.substring(applyFrom));
+                doc.replace(applyFrom, contentsLen - applyFrom, formatted.substring(applyFrom));
             } catch (BadLocationException e) {
                 Log.log(e);
             }
         }
     }
 
-
-    private String formatAll(FormatStd formatStd, boolean throwSyntaxError, String d, String delimiter) throws SyntaxErrorException {
+    private String formatAll(FormatStd formatStd, boolean throwSyntaxError, String d, String delimiter)
+            throws SyntaxErrorException {
         String formatted = formatStr(d, formatStd, delimiter, throwSyntaxError);
-        
+
         //To finish, check the end of line.
-        if(formatStd.addNewLineAtEndOfFile){
+        if (formatStd.addNewLineAtEndOfFile) {
             try {
                 int len = formatted.length();
-                if(len > 0){
-                    char lastChar = formatted.charAt(len-1);
-                    if(lastChar != '\r' && lastChar != '\n'){
+                if (len > 0) {
+                    char lastChar = formatted.charAt(len - 1);
+                    if (lastChar != '\r' && lastChar != '\n') {
                         formatted += delimiter;
                     }
                 }
@@ -314,7 +307,6 @@ public class PyFormatStd extends PyAction implements IFormatter {
         return formatted;
     }
 
-    
     /**
      * @return the format standard that should be used to do the formatting
      */
@@ -338,10 +330,11 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @return a new (formatted) string
      * @throws SyntaxErrorException 
      */
-    /*default*/ String formatStr(String str, FormatStd std, String delimiter, boolean throwSyntaxError) throws SyntaxErrorException {
+    /*default*/String formatStr(String str, FormatStd std, String delimiter, boolean throwSyntaxError)
+            throws SyntaxErrorException {
         return formatStr(str, std, 0, delimiter, throwSyntaxError);
     }
-    
+
     /**
      * This method formats a string given some standard.
      * 
@@ -351,7 +344,8 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @return a new (formatted) string
      * @throws SyntaxErrorException 
      */
-    private String formatStr(String str, FormatStd std, int parensLevel, String delimiter, boolean throwSyntaxError) throws SyntaxErrorException {
+    private String formatStr(String str, FormatStd std, int parensLevel, String delimiter, boolean throwSyntaxError)
+            throws SyntaxErrorException {
         char[] cs = str.toCharArray();
         FastStringBuffer buf = new FastStringBuffer();
         ParsingUtils parsingUtils = ParsingUtils.create(cs, throwSyntaxError);
@@ -359,16 +353,27 @@ public class PyFormatStd extends PyAction implements IFormatter {
         for (int i = 0; i < cs.length; i++) {
             char c = cs[i];
 
-            switch(c){
+            switch (c) {
                 case '\'':
                 case '"':
                     //ignore literals and multi-line literals, including comments...
                     i = parsingUtils.eatLiterals(buf, i, std.trimMultilineLiterals);
                     break;
 
-                    
                 case '#':
                     i = parsingUtils.eatComments(buf, i);
+                    if (std.trimLines) {
+                        String endLine = "";
+                        if (buf.endsWith("\r\n")) {
+                            endLine = "\r\n";
+                            buf.deleteLastChars(2);
+                        } else if (buf.endsWith('\r') || buf.endsWith('\n')) {
+                            endLine += buf.lastChar();
+                            buf.deleteLast();
+                        }
+                        buf.rightTrim();
+                        buf.append(endLine);
+                    }
                     break;
 
                 case ',':
@@ -376,10 +381,9 @@ public class PyFormatStd extends PyAction implements IFormatter {
                     break;
 
                 case '(':
-                    i = formatForPar(parsingUtils, cs, i, std, buf, parensLevel+1, delimiter, throwSyntaxError);
+                    i = formatForPar(parsingUtils, cs, i, std, buf, parensLevel + 1, delimiter, throwSyntaxError);
                     break;
-                    
-                    
+
                 //Things to treat:
                 //+, -, *, /, %
                 //** // << >>
@@ -388,100 +392,101 @@ public class PyFormatStd extends PyAction implements IFormatter {
                 case '*':
                     //for *, we also need to treat when it's used in varargs, kwargs and list expansion
                     boolean isOperator = false;
-                    for(int j=buf.length()-1;j>=0;j--){
+                    for (int j = buf.length() - 1; j >= 0; j--) {
                         char localC = buf.charAt(j);
-                        if(Character.isWhitespace(localC)){
+                        if (Character.isWhitespace(localC)) {
                             continue;
                         }
-                        if(localC == '(' || localC == ','){
+                        if (localC == '(' || localC == ',') {
                             //it's not an operator, but vararg. kwarg or list expansion
                         }
-                        if(Character.isJavaIdentifierPart(localC)){
+                        if (Character.isJavaIdentifierPart(localC)) {
                             //ok, there's a chance that it can be an operator, but we still have to check
                             //the chance that it's a wild import
                             FastStringBuffer localBufToCheckWildImport = new FastStringBuffer();
-                            while(Character.isJavaIdentifierPart(localC)){
+                            while (Character.isJavaIdentifierPart(localC)) {
                                 localBufToCheckWildImport.append(localC);
                                 j--;
-                                if(j < 0){
+                                if (j < 0) {
                                     break; //break while
                                 }
                                 localC = buf.charAt(j);
                             }
                             String reversed = localBufToCheckWildImport.reverse().toString();
-                            if(!reversed.equals("import") && !reversed.equals("lambda")){
+                            if (!reversed.equals("import") && !reversed.equals("lambda")) {
                                 isOperator = true;
                             }
                         }
-                        if(localC == '\'' || localC == ')' || localC == ']'){
+                        if (localC == '\'' || localC == ')' || localC == ']') {
                             isOperator = true;
                         }
-                        
+
                         //If it got here (i.e.: not whitespace), get out of the for loop.
                         break;
                     }
-                    if(!isOperator){
+                    if (!isOperator) {
                         buf.append('*');
                         break;//break switch
                     }
                     //Otherwise, FALLTHROUGH
-                    
+
                 case '+':
                 case '-':
-                    
-                    if(c == '-' || c == '+'){ // could also be *
-                        
+
+                    if (c == '-' || c == '+') { // could also be *
+
                         //handle exponentials correctly: e.g.: 1e-6 cannot have a space
                         FastStringBuffer localBufToCheckNumber = new FastStringBuffer();
                         boolean started = false;
-                        
-                        for(int j=buf.length()-1;;j--){
-                            if(j<0){
+
+                        for (int j = buf.length() - 1;; j--) {
+                            if (j < 0) {
                                 break;
                             }
                             char localC = buf.charAt(j);
-                            if(localC == ' ' || localC == '\t'){
-                                if(!started){
+                            if (localC == ' ' || localC == '\t') {
+                                if (!started) {
                                     continue;
-                                }else{
+                                } else {
                                     break;
                                 }
                             }
                             started = true;
-                            if(Character.isJavaIdentifierPart(localC) || localC == '.'){
+                            if (Character.isJavaIdentifierPart(localC) || localC == '.') {
                                 localBufToCheckNumber.append(localC);
-                            }else{
+                            } else {
                                 break;//break for
                             }
                         }
                         boolean isExponential = true;
                         String partialNumber = localBufToCheckNumber.reverse().toString();
                         int partialLen = partialNumber.length();
-                        if(partialLen < 2 || !Character.isDigit(partialNumber.charAt(0))){
+                        if (partialLen < 2 || !Character.isDigit(partialNumber.charAt(0))) {
                             //at least 2 chars: the number and the 'e'
                             isExponential = false;
-                        }else{
+                        } else {
                             //first char checked... now, if the last is an 'e', we must leave it together no matter what
-                            if(partialNumber.charAt(partialLen-1) != 'e' && partialNumber.charAt(partialLen-1) != 'E'){
+                            if (partialNumber.charAt(partialLen - 1) != 'e'
+                                    && partialNumber.charAt(partialLen - 1) != 'E') {
                                 isExponential = false;
                             }
                         }
-                        if(isExponential){
+                        if (isExponential) {
                             buf.rightTrim();
                             buf.append(c);
                             //skip the next whitespaces from the buffer
                             int initial = i;
-                            do{
+                            do {
                                 i++;
-                            }while(i<cs.length && (c=cs[i]) == ' ' || c == '\t');
-                            if(i > initial){
+                            } while (i < cs.length && (c = cs[i]) == ' ' || c == '\t');
+                            if (i > initial) {
                                 i--;//backup 1 because we walked 1 too much.
                             }
                             break;//break switch
                         }
                         //Otherwise, FALLTHROUGH
                     }
-                    
+
                 case '/':
                 case '%':
                 case '<':
@@ -491,46 +496,45 @@ public class PyFormatStd extends PyAction implements IFormatter {
                 case '^':
                 case '~':
                 case '|':
-                    
+
                     i = handleOperator(std, cs, buf, parsingUtils, i, c);
                     c = cs[i];
                     break;
 
-                    
                 //check for = and == (other cases that have an = as the operator should already be treated)
                 case '=':
-                    if(i < cs.length-1 && cs[i+1] == '='){
+                    if (i < cs.length - 1 && cs[i + 1] == '=') {
                         //if == handle as if a regular operator
                         i = handleOperator(std, cs, buf, parsingUtils, i, c);
                         c = cs[i];
                         break;
                     }
-                        
-                    while(buf.length() > 0 && buf.lastChar() == ' '){
+
+                    while (buf.length() > 0 && buf.lastChar() == ' ') {
                         buf.deleteLast();
                     }
-                    
+
                     boolean surroundWithSpaces = std.operatorsWithSpace;
-                    if(parensLevel > 0){
+                    if (parensLevel > 0) {
                         surroundWithSpaces = std.assignWithSpaceInsideParens;
                     }
-                    
+
                     //add space before
-                    if(surroundWithSpaces){
+                    if (surroundWithSpaces) {
                         buf.append(' ');
                     }
-                    
+
                     //add the operator and the '='
                     buf.append('=');
-                    
+
                     //add space after
-                    if(surroundWithSpaces){
+                    if (surroundWithSpaces) {
                         buf.append(' ');
                     }
-                    
-                    i = parsingUtils.eatWhitespaces(null, i+1);
+
+                    i = parsingUtils.eatWhitespaces(null, i + 1);
                     break;
-                    
+
                 default:
                     if (c == '\r' || c == '\n') {
                         if (lastChar == ',' && std.spaceAfterComma && buf.lastChar() == ' ') {
@@ -541,7 +545,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                         }
                     }
                     buf.append(c);
-                    
+
             }
             lastChar = c;
 
@@ -566,39 +570,39 @@ public class PyFormatStd extends PyAction implements IFormatter {
     private int handleOperator(FormatStd std, char[] cs, FastStringBuffer buf, ParsingUtils parsingUtils, int i, char c) {
         //let's discover if it's an unary operator (~ + -)
         boolean isUnaryWithContents = true;
-        
+
         boolean isUnary = false;
         boolean changeWhitespacesBefore = true;
-        if(c == '~' || c == '+' || c == '-'){
+        if (c == '~' || c == '+' || c == '-') {
             //could be an unary operator...
             String trimmedLastWord = buf.getLastWord().trim();
             isUnary = trimmedLastWord.length() == 0 || PySelection.ALL_KEYWORD_TOKENS.contains(trimmedLastWord);
-            
-            if(!isUnary){
-                for(char itChar:buf.reverseIterator()){
-                    if(itChar == ' ' || itChar == '\t'){
+
+            if (!isUnary) {
+                for (char itChar : buf.reverseIterator()) {
+                    if (itChar == ' ' || itChar == '\t') {
                         continue;
                     }
-                    if(itChar == '=' || itChar == ','){
+                    if (itChar == '=' || itChar == ',') {
                         isUnary = true;
                     }
-                    
-                    switch(itChar){
+
+                    switch (itChar) {
                         case '[':
                         case '{':
                             changeWhitespacesBefore = false;
-                            
+
                         case '(':
                         case ':':
                             isUnaryWithContents = false;
-                            
+
                         case '>':
                         case '<':
-                            
+
                         case '-':
                         case '+':
                         case '~':
-                            
+
                         case '*':
                         case '/':
                         case '%':
@@ -611,70 +615,69 @@ public class PyFormatStd extends PyAction implements IFormatter {
                     }
                     break;
                 }
-            }else{
+            } else {
                 isUnaryWithContents = buf.length() > 0;
             }
         }
-        
-        if(!isUnary){
+
+        if (!isUnary) {
             //We don't want to change whitespaces before in a binary operator that is in a new line.
-            for(char ch:buf.reverseIterator()){
-                if(!Character.isWhitespace(ch)){
+            for (char ch : buf.reverseIterator()) {
+                if (!Character.isWhitespace(ch)) {
                     break;
                 }
-                if(ch == '\r' || ch == '\n'){
+                if (ch == '\r' || ch == '\n') {
                     changeWhitespacesBefore = false;
                     break;
                 }
             }
         }
-        
-        if(changeWhitespacesBefore){
-            while(buf.length() > 0 && (buf.lastChar() == ' ' || buf.lastChar() == ' ')){
+
+        if (changeWhitespacesBefore) {
+            while (buf.length() > 0 && (buf.lastChar() == ' ' || buf.lastChar() == ' ')) {
                 buf.deleteLast();
             }
         }
-        
+
         boolean surroundWithSpaces = std.operatorsWithSpace;
-        
-        if(changeWhitespacesBefore){
+
+        if (changeWhitespacesBefore) {
             //add spaces before
-            if(isUnaryWithContents && surroundWithSpaces){
+            if (isUnaryWithContents && surroundWithSpaces) {
                 buf.append(' ');
             }
         }
-        
+
         char localC = c;
         char prev = '\0';
         boolean backOne = true;
-        while(isOperatorPart(localC, prev)){
+        while (isOperatorPart(localC, prev)) {
             buf.append(localC);
             prev = localC;
             i++;
-            if(i == cs.length){
+            if (i == cs.length) {
                 break;
             }
             localC = cs[i];
-            if(localC == '='){
+            if (localC == '=') {
                 //when we get to an assign, we have found a full stmt (with assign) -- e.g.: a \\=  a += a ==
                 buf.append(localC);
                 backOne = false;
                 break;
             }
         }
-        if(backOne){
+        if (backOne) {
             i--;
         }
-        
+
         //add space after only if it's not unary
-        if(!isUnary && surroundWithSpaces){
+        if (!isUnary && surroundWithSpaces) {
             buf.append(' ');
         }
-       
-        i = parsingUtils.eatWhitespaces(null, i+1);
+
+        i = parsingUtils.eatWhitespaces(null, i + 1);
         return i;
     }
-
 
     /**
      * @param c the char to be checked
@@ -682,18 +685,18 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @return true if the passed char is part of an operator
      */
     private boolean isOperatorPart(char c, char prev) {
-        switch(c){
+        switch (c) {
             case '+':
             case '-':
             case '~':
-                if(prev == '\0'){
+                if (prev == '\0') {
                     return true;
                 }
                 return false;
-            
+
         }
-        
-        switch(c){
+
+        switch (c) {
             case '*':
             case '/':
             case '%':
@@ -710,21 +713,14 @@ public class PyFormatStd extends PyAction implements IFormatter {
         return false;
     }
 
-
     /**
      * Formats the contents for when a parenthesis is found (so, go until the closing parens and format it accordingly)
      * @param throwSyntaxError 
      * @throws SyntaxErrorException 
      */
-    private int formatForPar(
-            final ParsingUtils parsingUtils, 
-            final char[] cs, 
-            final int i, 
-            final FormatStd std, 
-            final FastStringBuffer buf, 
-            final int parensLevel, 
-            final String delimiter, 
-            boolean throwSyntaxError) throws SyntaxErrorException {
+    private int formatForPar(final ParsingUtils parsingUtils, final char[] cs, final int i, final FormatStd std,
+            final FastStringBuffer buf, final int parensLevel, final String delimiter, boolean throwSyntaxError)
+            throws SyntaxErrorException {
         char c = ' ';
         FastStringBuffer locBuf = new FastStringBuffer();
 
@@ -744,20 +740,20 @@ public class PyFormatStd extends PyAction implements IFormatter {
                 end = j;
 
             } else if (c == '(') { //open another par.
-                if(end > start){
-                    locBuf.append(cs, start, end-start);
+                if (end > start) {
+                    locBuf.append(cs, start, end - start);
                     start = end;
                 }
-                j = formatForPar(parsingUtils, cs, j - 1, std, locBuf, parensLevel+1, delimiter, throwSyntaxError) + 1;
+                j = formatForPar(parsingUtils, cs, j - 1, std, locBuf, parensLevel + 1, delimiter, throwSyntaxError) + 1;
                 start = j;
 
             } else {
                 end = j;
-                
+
             }
         }
-        if(end > start){
-            locBuf.append(cs, start, end-start);
+        if (end > start) {
+            locBuf.append(cs, start, end - start);
             start = end;
         }
 
@@ -803,7 +799,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
             }
             return j;
         } else {
-            if(throwSyntaxError){
+            if (throwSyntaxError) {
                 throw new SyntaxErrorException("No closing ')' found.");
             }
             //we found no closing parens but we finished looking already, so, let's just add anything without
@@ -826,7 +822,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         rtrim(locBuf);
         return locBuf;
     }
-    
+
     /**
      * We just want to trim whitespaces, not newlines!
      * @param locBuf the buffer to be trimmed

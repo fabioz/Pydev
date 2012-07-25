@@ -28,13 +28,13 @@ import org.python.pydev.editor.codecompletion.revisited.javaintegration.Abstract
 /**
  * This test uses actual launches!
  */
-public class PyUnitView2TestTestWorkbench extends AbstractWorkbenchTestCase implements ILaunchListener{
+public class PyUnitView2TestTestWorkbench extends AbstractWorkbenchTestCase implements ILaunchListener {
 
     public static Test suite() {
         TestSuite suite = new TestSuite(PyUnitView2TestTestWorkbench.class.getName());
-        
-        suite.addTestSuite(PyUnitView2TestTestWorkbench.class); 
-        
+
+        suite.addTestSuite(PyUnitView2TestTestWorkbench.class);
+
         if (suite.countTestCases() == 0) {
             throw new Error("There are no test cases to run");
         } else {
@@ -42,88 +42,85 @@ public class PyUnitView2TestTestWorkbench extends AbstractWorkbenchTestCase impl
         }
     }
 
-
     private ILaunch launchAdded;
     private List<ILaunch> launchesRemoved = new ArrayList<ILaunch>();
 
-    
     protected void setUp() throws Exception {
         //no need for default setup
         closeWelcomeView();
         super.setUp();
         String testCaseContents = "" +
-        		"import unittest\n" +
-        		"\n" +
-        		"class TestCase(unittest.TestCase):\n" +
-        		"    \n" +
-        		"    def testMet1(self):\n" +
-        		"        print 'ok'\n" +
-        		"\n" +
-        		"    def testMet2(self):\n" +
-        		"        self.fail('failed')\n" +
-        		"        \n" +
-        		"    def testMet2__todo(self):\n" +
-        		"        raise RuntimeError('error')\n" +
-        		"        \n" +
-        		"";
+                "import unittest\n" +
+                "\n" +
+                "class TestCase(unittest.TestCase):\n" +
+                "    \n"
+                +
+                "    def testMet1(self):\n" +
+                "        print 'ok'\n" +
+                "\n" +
+                "    def testMet2(self):\n"
+                +
+                "        self.fail('failed')\n" +
+                "        \n" +
+                "    def testMet2__todo(self):\n"
+                +
+                "        raise RuntimeError('error')\n" +
+                "        \n" +
+                "";
         setFileContents(testCaseContents);
     }
-    
-    
+
     public void testPyUnitView2() throws Exception {
         ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
         launchManager.addLaunchListener(this);
         UnitTestLaunchShortcut unitTestLaunchShortcut = new UnitTestLaunchShortcut();
         unitTestLaunchShortcut.launch(editor, "run");
 
-
-        
         //1 minute for the launch to complete should be enough
-        goToManual(60*1000, new ICallback<Boolean, Object>() {
-            
+        goToManual(60 * 1000, new ICallback<Boolean, Object>() {
+
             public Boolean call(Object arg) {
                 PyUnitView view = PyUnitView.getView();
                 PyUnitTestRun currentTestRun = view.getCurrentTestRun();
-                if(currentTestRun == null){
+                if (currentTestRun == null) {
                     return false;
                 }
                 return launchesRemoved.size() == 1;
             }
         });
-        
+
         PyUnitView view = PyUnitView.getView();
         ShowOnlyFailuresAction action = (ShowOnlyFailuresAction) getPyUnitViewAction(view, ShowOnlyFailuresAction.class);
         action.setChecked(false);//clicking it should do this.
         action.run();
         assertTrue(!action.isChecked());
-        
+
         //note that only 3 methods appear in the tree because we've selected to show all methods (not only errors/failures)
         ICallback<Boolean, Object> callback = getPyUnitViewOkCallback(0, 3);
-        goToManual(15*1000, callback);
+        goToManual(15 * 1000, callback);
         assertTrue(callback.call(THROW_ERROR));
-        
+
         executePyUnitViewAction(PyUnitView.getView(), RelaunchAction.class);
-        
+
         callback = getPyUnitViewOkCallback(1, 3);
-        goToManual(15*1000, callback);
+        goToManual(15 * 1000, callback);
         assertTrue(callback.call(THROW_ERROR));
-        
+
         executePyUnitViewAction(PyUnitView.getView(), RelaunchErrorsAction.class);
-        
+
         action = (ShowOnlyFailuresAction) getPyUnitViewAction(view, ShowOnlyFailuresAction.class);
         action.setChecked(true);//clicking it should do this.
         action.run();
         assertTrue(action.isChecked());
-        
+
         //note that only 2 methods appear in the tree because we've selected to show only errors/failures
         callback = getPyUnitViewOkCallback(2, 2);
-        goToManual(15*1000, callback);
+        goToManual(15 * 1000, callback);
         assertTrue(callback.call(THROW_ERROR));
-        
-    }
-    
-    private static final String THROW_ERROR = "THROW_ERROR";
 
+    }
+
+    private static final String THROW_ERROR = "THROW_ERROR";
 
     private ICallback<Boolean, Object> getPyUnitViewOkCallback(final int historySize, final int methodsAppearingInTree) {
         return new ICallback<Boolean, Object>() {
@@ -131,34 +128,36 @@ public class PyUnitView2TestTestWorkbench extends AbstractWorkbenchTestCase impl
             public Boolean call(Object arg) {
                 PyUnitView view = PyUnitView.getView();
                 PyUnitTestRun currentTestRun = view.getCurrentTestRun();
-                if(currentTestRun == null){
-                    if(arg == THROW_ERROR){
+                if (currentTestRun == null) {
+                    if (arg == THROW_ERROR) {
                         throw new AssertionError("currentTestRun == null");
                     }
                     return false;
                 }
-                if(!currentTestRun.getFinished()){
-                    if(arg == THROW_ERROR){
+                if (!currentTestRun.getFinished()) {
+                    if (arg == THROW_ERROR) {
                         throw new AssertionError("!currentTestRun.getFinished()");
                     }
                     return false;
                 }
                 Tree tree = view.getTree();
-                if(tree.getItemCount() != methodsAppearingInTree){
-                    if(arg == THROW_ERROR){
-                        throw new AssertionError("tree.getItemCount() "+tree.getItemCount()+"!= methodsRun "+methodsAppearingInTree);
+                if (tree.getItemCount() != methodsAppearingInTree) {
+                    if (arg == THROW_ERROR) {
+                        throw new AssertionError("tree.getItemCount() " + tree.getItemCount() +
+                                "!= methodsRun "
+                                + methodsAppearingInTree);
                     }
                     return false;
                 }
                 CounterPanel counterPanel = view.getCounterPanel();
-                if(!counterPanel.fNumberOfErrors.getText().equals("1")){
-                    if(arg == THROW_ERROR){
+                if (!counterPanel.fNumberOfErrors.getText().equals("1")) {
+                    if (arg == THROW_ERROR) {
                         throw new AssertionError("!counterPanel.fNumberOfErrors.getText().equals(\"1\")");
                     }
                     return false;
                 }
-                if(!counterPanel.fNumberOfFailures.getText().equals("1")){
-                    if(arg == THROW_ERROR){
+                if (!counterPanel.fNumberOfFailures.getText().equals("1")) {
+                    if (arg == THROW_ERROR) {
                         throw new AssertionError("!counterPanel.fNumberOfFailures.getText().equals(\"1\")");
                     }
                     return false;
@@ -168,28 +167,27 @@ public class PyUnitView2TestTestWorkbench extends AbstractWorkbenchTestCase impl
                 final List<SetCurrentRunAction> actions = new ArrayList<SetCurrentRunAction>();
                 final List<ClearTerminatedAction> terminatedActions = new ArrayList<ClearTerminatedAction>();
                 IActionsMenu actionsMenu = new IActionsMenu() {
-                    
+
                     public void add(IAction action) {
-                        if(action instanceof SetCurrentRunAction){
+                        if (action instanceof SetCurrentRunAction) {
                             actions.add((SetCurrentRunAction) action);
-                        }else if(action instanceof ClearTerminatedAction){
+                        } else if (action instanceof ClearTerminatedAction) {
                             terminatedActions.add((ClearTerminatedAction) action);
                         }
                     }
                 };
                 menuCreator.fillMenuManager(actionsMenu);
-                if(historySize + 1 != actions.size()){ //+1 to count for the current!
-                    if(arg == THROW_ERROR){
+                if (historySize + 1 != actions.size()) { //+1 to count for the current!
+                    if (arg == THROW_ERROR) {
                         throw new AssertionError("historySize + 1 != actions.size()");
                     }
                     return false;
                 }
-                
+
                 return true;
             }
         };
     }
-
 
     public void launchRemoved(ILaunch launch) {
         Assert.isTrue(this.launchAdded == launch);
@@ -197,16 +195,13 @@ public class PyUnitView2TestTestWorkbench extends AbstractWorkbenchTestCase impl
         this.launchAdded = null;
     }
 
-
     public void launchAdded(ILaunch launch) {
         Assert.isTrue(this.launchAdded == null);
         this.launchAdded = launch;
     }
 
-
     public void launchChanged(ILaunch launch) {
-        
-    }
 
+    }
 
 }

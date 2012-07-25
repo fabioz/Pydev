@@ -30,5 +30,4 @@ public interface IConsoleInputListener {
      */
     void pasteReceived(String text, AbstractDebugTarget target);
 
-    
 }

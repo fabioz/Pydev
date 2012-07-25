@@ -17,7 +17,8 @@ public class ChangedParserInfoForObservers {
     public final Object[] argsToReparse;
     public final long documentTime;
 
-    public ChangedParserInfoForObservers(ISimpleNode root, IAdaptable file, IDocument doc, long documentTime, Object ... argsToReparse){
+    public ChangedParserInfoForObservers(ISimpleNode root, IAdaptable file, IDocument doc, long documentTime,
+            Object... argsToReparse) {
         this.root = root;
         this.file = file;
         this.doc = doc;

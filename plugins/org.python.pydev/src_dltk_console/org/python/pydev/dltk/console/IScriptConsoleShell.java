@@ -30,7 +30,8 @@ public interface IScriptConsoleShell {
      * @return the proposals to be applied.
      * @throws Exception
      */
-    ICompletionProposal[] getCompletions(IScriptConsoleViewer viewer, String commandLine, int position, int offset, int whatToShow) throws Exception;
+    ICompletionProposal[] getCompletions(IScriptConsoleViewer viewer, String commandLine, int position, int offset,
+            int whatToShow) throws Exception;
 
     /**
      * @param doc the document with all the contents of the console 

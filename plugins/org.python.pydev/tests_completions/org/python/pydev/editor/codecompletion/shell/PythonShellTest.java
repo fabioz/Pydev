@@ -27,7 +27,7 @@ import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
  * 
  * @author Fabio Zadrozny
  */
-public class PythonShellTest extends CodeCompletionTestsBase{
+public class PythonShellTest extends CodeCompletionTestsBase {
 
     private PythonShell shell;
 
@@ -48,11 +48,11 @@ public class PythonShellTest extends CodeCompletionTestsBase{
      */
     public void setUp() throws Exception {
         super.setUp();
-        if(TestDependent.PYTHON_OPENGL_PACKAGES == null){
+        if (TestDependent.PYTHON_OPENGL_PACKAGES == null) {
             restorePythonPathWithSitePackages(false);
-        }else{
-            restorePythonPathWithCustomSystemPath(false, 
-                    TestDependent.GetCompletePythonLib(true)+"|"+TestDependent.PYTHON_OPENGL_PACKAGES);
+        } else {
+            restorePythonPathWithCustomSystemPath(false, TestDependent.GetCompletePythonLib(true) + "|"
+                    + TestDependent.PYTHON_OPENGL_PACKAGES);
         }
         this.shell = startShell();
     }
@@ -66,7 +66,7 @@ public class PythonShellTest extends CodeCompletionTestsBase{
         shell.startIt(nature);
         return shell;
     }
-    
+
     /**
      * @throws IOException
      * @throws CoreException
@@ -91,11 +91,9 @@ public class PythonShellTest extends CodeCompletionTestsBase{
         Object[] element = null;
         element = (Object[]) list.get(0);
         assertEquals("__doc__", element[0]);
-        assertTrue(list.size() >= 29); 
+        assertTrue(list.size() >= 29);
 
-        
     }
-
 
     public void testErrorOnCompletions() throws IOException, CoreException {
         List<String[]> list = shell.getImportCompletions("dfjslkfjds\n\n", getPythonpath()).o2;
@@ -108,33 +106,31 @@ public class PythonShellTest extends CodeCompletionTestsBase{
      */
     private List<String> getPythonpath() {
         try {
-            return nature.getAstManager().getModulesManager().getCompletePythonPath(nature.getProjectInterpreter(), 
-                    nature.getRelatedInterpreterManager());
-        }catch(PythonNatureWithoutProjectException e){
+            return nature.getAstManager().getModulesManager()
+                    .getCompletePythonPath(nature.getProjectInterpreter(), nature.getRelatedInterpreterManager());
+        } catch (PythonNatureWithoutProjectException e) {
             throw new RuntimeException(e);
         } catch (MisconfigurationException e) {
             throw new RuntimeException(e);
-        } 
+        }
     }
-    
 
     public void testGlu() throws IOException, CoreException {
-        if(TestDependent.PYTHON_OPENGL_PACKAGES != null){
+        if (TestDependent.PYTHON_OPENGL_PACKAGES != null) {
             List<String[]> list = shell.getImportCompletions("OpenGL.GLUT", getPythonpath()).o2;
-            
-            
-            assertTrue("Expected the number of completions to be > 10. Found: \n"+list, list.size() > 10);
+
+            assertTrue("Expected the number of completions to be > 10. Found: \n" + list, list.size() > 10);
             assertIsIn(list, "glutInitDisplayMode");
         }
     }
 
-    private void assertIsIn(List<String []> list, String expected) {
+    private void assertIsIn(List<String[]> list, String expected) {
         for (String[] o : list) {
-            if(o[0].equals(expected)){
+            if (o[0].equals(expected)) {
                 return;
             }
         }
         fail(StringUtils.format("The string %s was not found in the returned completions", expected));
     }
-    
+
 }

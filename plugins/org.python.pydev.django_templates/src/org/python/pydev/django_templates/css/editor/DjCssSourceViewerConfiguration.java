@@ -39,18 +39,22 @@ public class DjCssSourceViewerConfiguration extends CompositeSourceViewerConfigu
         IContentTypeTranslator c = CommonEditorPlugin.getDefault().getContentTypeTranslator();
         c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_CSS), new QualifiedContentType(
                 TOPLEVEL_DJANGO_TEMPLATES_CSS_SCOPE));
-        
-        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_CSS, CompositePartitionScanner.START_SWITCH_TAG),
-                new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_CSS_SCOPE, EMBEDDED_DJANGO_TEMPLATES_TAG_SCOPE));
-        
-        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_CSS, CompositePartitionScanner.END_SWITCH_TAG),
-                new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_CSS_SCOPE, EMBEDDED_DJANGO_TEMPLATES_TAG_SCOPE));
 
-        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_CSS, ICSSConstants.CONTENT_TYPE_CSS),
+        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_CSS,
+                CompositePartitionScanner.START_SWITCH_TAG), new QualifiedContentType(
+                TOPLEVEL_DJANGO_TEMPLATES_CSS_SCOPE, EMBEDDED_DJANGO_TEMPLATES_TAG_SCOPE));
+
+        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_CSS,
+                CompositePartitionScanner.END_SWITCH_TAG), new QualifiedContentType(
+                TOPLEVEL_DJANGO_TEMPLATES_CSS_SCOPE, EMBEDDED_DJANGO_TEMPLATES_TAG_SCOPE));
+
+        c.addTranslation(
+                new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_CSS, ICSSConstants.CONTENT_TYPE_CSS),
                 new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_CSS_SCOPE));
-        
-        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_CSS, IDjConstants.CONTENT_TYPE_DJANGO_CSS),
-                new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_CSS_SCOPE, EMBEDDED_DJANGO_TEMPLATES_CSS_SCOPE));
+
+        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_CSS,
+                IDjConstants.CONTENT_TYPE_DJANGO_CSS), new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_CSS_SCOPE,
+                EMBEDDED_DJANGO_TEMPLATES_CSS_SCOPE));
     }
 
     private Map<String, DjDoubleClickStrategy> fDoubleClickStrategy = new HashMap<String, DjDoubleClickStrategy>();
@@ -98,12 +102,13 @@ public class DjCssSourceViewerConfiguration extends CompositeSourceViewerConfigu
 
     @Override
     protected IContentAssistProcessor getContentAssistProcessor(ISourceViewer sourceViewer, String contentType) {
-        if(DjCssSourceConfiguration.DEFAULT.equals(contentType)){
+        if (DjCssSourceConfiguration.DEFAULT.equals(contentType)) {
             return DjCssSourceConfiguration.getDefault().getContentAssistProcessor(getEditor(), contentType);
         }
         //Note: The HTMLSourceViewerConfiguration should get the CSS content assist based on the content type. 
-        IContentAssistProcessor cssContentAssistProcessor = CSSSourceConfiguration.getDefault().getContentAssistProcessor(getEditor(), contentType);
-        if(CSSSourceConfiguration.DEFAULT.equals(contentType) || IDocument.DEFAULT_CONTENT_TYPE.equals(contentType)){
+        IContentAssistProcessor cssContentAssistProcessor = CSSSourceConfiguration.getDefault()
+                .getContentAssistProcessor(getEditor(), contentType);
+        if (CSSSourceConfiguration.DEFAULT.equals(contentType) || IDocument.DEFAULT_CONTENT_TYPE.equals(contentType)) {
             return new DjContentAssistProcessor(contentType, cssContentAssistProcessor);
         }
         return cssContentAssistProcessor;

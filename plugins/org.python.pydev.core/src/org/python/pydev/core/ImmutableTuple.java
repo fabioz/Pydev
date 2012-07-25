@@ -20,7 +20,7 @@ import org.python.pydev.core.structure.FastStringBuffer;
  * 
  * @author Fabio
  */
-public final class ImmutableTuple<X ,Y> implements Serializable{
+public final class ImmutableTuple<X, Y> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -31,55 +31,54 @@ public final class ImmutableTuple<X ,Y> implements Serializable{
         this.o1 = o1;
         this.o2 = o2;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof ImmutableTuple)){
+        if (!(obj instanceof ImmutableTuple)) {
             return false;
         }
-        
+
         ImmutableTuple t2 = (ImmutableTuple) obj;
-        if(o1 == t2.o1 && o2 == t2.o2){ //all the same 
+        if (o1 == t2.o1 && o2 == t2.o2) { //all the same 
             return true;
         }
-        
-        if(o1 == null && t2.o1 != null){
+
+        if (o1 == null && t2.o1 != null) {
             return false;
         }
-        if(o2 == null && t2.o2 != null){
+        if (o2 == null && t2.o2 != null) {
             return false;
         }
-        if(o1 != null && t2.o1 == null){
+        if (o1 != null && t2.o1 == null) {
             return false;
         }
-        if(o2 != null && t2.o2 == null){
+        if (o2 != null && t2.o2 == null) {
             return false;
         }
-        
-        
-        if(!o1.equals(t2.o1)){
+
+        if (!o1.equals(t2.o1)) {
             return false;
         }
-        if(!o2.equals(t2.o2)){
+        if (!o2.equals(t2.o2)) {
             return false;
         }
         return true;
     }
-    
+
     @Override
     public int hashCode() {
-        if(o1 != null && o2 != null){
+        if (o1 != null && o2 != null) {
             return o1.hashCode() * o2.hashCode();
         }
-        if(o1 != null){
+        if (o1 != null) {
             return o1.hashCode();
         }
-        if(o2 != null){
+        if (o2 != null) {
             return o2.hashCode();
         }
         return 7;
     }
-    
+
     @Override
     public String toString() {
         FastStringBuffer buffer = new FastStringBuffer();

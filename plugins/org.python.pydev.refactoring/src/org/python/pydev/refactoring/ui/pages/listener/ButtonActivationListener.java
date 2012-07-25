@@ -38,13 +38,13 @@ public class ButtonActivationListener implements Listener {
         editButton.setEnabled(false);
         upButton.setEnabled(true);
         downButton.setEnabled(true);
-        if(table.getSelectionCount() == 1){
+        if (table.getSelectionCount() == 1) {
             editButton.setEnabled(true);
-            if(table.getSelectionIndex() == table.getItemCount() - 1){
+            if (table.getSelectionIndex() == table.getItemCount() - 1) {
                 downButton.setEnabled(false);
             }
 
-            if(table.getSelectionIndex() == 0){
+            if (table.getSelectionIndex() == 0) {
                 upButton.setEnabled(false);
             }
         }

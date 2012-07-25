@@ -104,8 +104,8 @@ public class ProblemsLabelDecorator implements ILabelDecorator, ILightweightLabe
             fProblemChangedListener = new IProblemChangedListener() {
                 public void problemsChanged(IResource[] changedResources, boolean isMarkerChange) {
                     if (fListeners != null && !fListeners.isEmpty()) {
-                        LabelProviderChangedEvent event = new ProblemsLabelChangedEvent(ProblemsLabelDecorator.this, changedResources,
-                                isMarkerChange);
+                        LabelProviderChangedEvent event = new ProblemsLabelChangedEvent(ProblemsLabelDecorator.this,
+                                changedResources, isMarkerChange);
                         Object[] listeners = fListeners.getListeners();
                         for (int i = 0; i < listeners.length; i++) {
                             ((ILabelProviderListener) listeners[i]).labelProviderChanged(event);
@@ -136,10 +136,12 @@ public class ProblemsLabelDecorator implements ILabelDecorator, ILightweightLabe
     public void decorate(Object element, IDecoration decoration) {
         int errorState = getErrorState(element);
         if (errorState == IMarker.SEVERITY_ERROR) {
-            decoration.addOverlay(PydevPlugin.getImageCache().getDescriptor(UIConstants.ERROR_DECORATION), IDecoration.BOTTOM_LEFT);
-            
-        }else if (errorState == IMarker.SEVERITY_WARNING) {
-            decoration.addOverlay(PydevPlugin.getImageCache().getDescriptor(UIConstants.WARNING_DECORATION), IDecoration.BOTTOM_LEFT);
+            decoration.addOverlay(PydevPlugin.getImageCache().getDescriptor(UIConstants.ERROR_DECORATION),
+                    IDecoration.BOTTOM_LEFT);
+
+        } else if (errorState == IMarker.SEVERITY_WARNING) {
+            decoration.addOverlay(PydevPlugin.getImageCache().getDescriptor(UIConstants.WARNING_DECORATION),
+                    IDecoration.BOTTOM_LEFT);
         }
     }
 

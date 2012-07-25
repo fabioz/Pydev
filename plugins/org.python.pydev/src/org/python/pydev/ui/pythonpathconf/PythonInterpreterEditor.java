@@ -29,7 +29,7 @@ import org.python.pydev.ui.UIConstants;
 import at.jta.Key;
 import at.jta.Regor;
 
-public class PythonInterpreterEditor extends AbstractInterpreterEditor{
+public class PythonInterpreterEditor extends AbstractInterpreterEditor {
 
     public PythonInterpreterEditor(String labelText, Composite parent, IInterpreterManager interpreterManager) {
         super(IInterpreterManager.PYTHON_INTERPRETER_PATH, labelText, parent, interpreterManager);
@@ -39,22 +39,21 @@ public class PythonInterpreterEditor extends AbstractInterpreterEditor{
     public String[] getInterpreterFilterExtensions() {
         if (REF.isWindowsPlatform()) {
             return new String[] { "*.exe", "*.*" };
-        } 
+        }
         return null;
     }
 
-    
     @Override
     protected Tuple<String, String> getAutoNewInput() throws CancelException {
         List<String> pathsToSearch = new ArrayList<String>();
-        if(!REF.isWindowsPlatform()){
+        if (!REF.isWindowsPlatform()) {
             pathsToSearch.add("/usr/bin");
             pathsToSearch.add("/usr/local/bin");
             Tuple<String, String> ret = super.getAutoNewInputFromPaths(pathsToSearch, "python", "python");
-            if(ret != null){
+            if (ret != null) {
                 return ret;
             }
-        }else{
+        } else {
             //On windows we can try to see the installed versions...
             List<File> foundVersions = new ArrayList<File>();
             try {
@@ -75,7 +74,7 @@ public class PythonInterpreterEditor extends AbstractInterpreterEditor{
                                             String parseValue = Regor.parseValue(buf);
                                             //Ok, this should be the directory where it's installed, try to find a 'python.exe' there...
                                             File file = new File(parseValue, "python.exe");
-                                            if(file.isFile()){
+                                            if (file.isFile()) {
                                                 foundVersions.add(file);
                                             }
                                         }
@@ -93,47 +92,43 @@ public class PythonInterpreterEditor extends AbstractInterpreterEditor{
             } catch (Throwable e) {
                 Log.log(e);
             }
-            if(foundVersions.size() == 1){
+            if (foundVersions.size() == 1) {
                 return new Tuple<String, String>(getUniqueInterpreterName("python"), foundVersions.get(0).toString());
             }
-            if(foundVersions.size() > 1){
+            if (foundVersions.size() > 1) {
                 //The user should select which one to use...
                 ListDialog listDialog = new ListDialog(PyAction.getShell());
-                
+
                 listDialog.setContentProvider(new ArrayContentProvider());
-                listDialog.setLabelProvider(new LabelProvider(){
+                listDialog.setLabelProvider(new LabelProvider() {
                     @Override
                     public Image getImage(Object element) {
                         return PydevPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON);
                     }
                 });
                 listDialog.setInput(foundVersions.toArray());
-                listDialog.setMessage("Multiple interpreters were found installed.\nPlease select which one you want to configure.");
+                listDialog
+                        .setMessage("Multiple interpreters were found installed.\nPlease select which one you want to configure.");
 
                 int open = listDialog.open();
-                if(open != ListDialog.OK){
+                if (open != ListDialog.OK) {
                     throw cancelException;
                 }
                 Object[] result = listDialog.getResult();
-                if(result == null || result.length == 0){
+                if (result == null || result.length == 0) {
                     throw cancelException;
                 }
                 return new Tuple<String, String>(getUniqueInterpreterName("python"), result[0].toString());
-                
+
             }
         }
-        
 
         return new Tuple<String, String>(getUniqueInterpreterName("python"), "python"); //This should be enough to find it from the PATH or any other way it's defined.
     }
-    
-    
+
     protected void doFillIntoGrid(Composite parent, int numColumns) {
         super.doFillIntoGrid(parent, numColumns);
         this.autoConfigButton.setToolTipText("Will try to find Python on the PATH (will fail if not available)");
     }
-    
-    
-    
-    
+
 }

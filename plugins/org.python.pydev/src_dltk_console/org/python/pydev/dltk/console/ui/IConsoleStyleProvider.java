@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.python.pydev.core.Tuple;
 
-
 /**
  * Interface that will create the style range for the contents entered in the console.
  */

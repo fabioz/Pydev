@@ -30,11 +30,11 @@ public class OutlineEntry {
     public OutlineEntry(ASTEntry entry, HierarchyNodeModel model) {
         this.node = entry.node;
         this.model = model;
-        
+
         String p = null;
-        if(!(this.node instanceof ClassDef)){
-            while(entry.parent != null){
-                if(entry.parent.node instanceof ClassDef){
+        if (!(this.node instanceof ClassDef)) {
+            while (entry.parent != null) {
+                if (entry.parent.node instanceof ClassDef) {
                     ClassDef classDef = (ClassDef) entry.parent.node;
                     p = NodeUtils.getRepresentationString(classDef);
                     break;

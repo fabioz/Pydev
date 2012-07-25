@@ -19,21 +19,20 @@ public class IronPythonUniversalRunnerTest extends IronPythonCodeCompletionTests
         junit.textui.TestRunner.run(IronPythonUniversalRunnerTest.class);
     }
 
-    
     public void testUniversalRunnerWithIronPython() throws Exception {
-		AbstractRunner runner = UniversalRunner.getRunner(nature);
-		assertEquals(nature.getInterpreterType(), IPythonNature.INTERPRETER_TYPE_IRONPYTHON);
-		Tuple<String, String> output = runner.runCodeAndGetOutput(
-				"import sys\nprint 'test'\nprint >> sys.stderr, 'err'", null, null, new NullProgressMonitor());
-		assertEquals("test", output.o1.trim());
-		assertEquals("err", output.o2.trim());
-		
-		Tuple<Process, String> createProcess = 
-			runner.createProcess(TestDependent.TEST_PYSRC_LOC+"universal_runner_test.py", null, null, new NullProgressMonitor());
-		output = SimpleRunner.getProcessOutput(createProcess.o1, "", new NullProgressMonitor(), "utf-8");
-		assertEquals("stdout", output.o1.trim());
-		assertEquals("stderr", output.o2.trim());
-		
-	}
-    
+        AbstractRunner runner = UniversalRunner.getRunner(nature);
+        assertEquals(nature.getInterpreterType(), IPythonNature.INTERPRETER_TYPE_IRONPYTHON);
+        Tuple<String, String> output = runner.runCodeAndGetOutput(
+                "import sys\nprint 'test'\nprint >> sys.stderr, 'err'", null, null, new NullProgressMonitor());
+        assertEquals("test", output.o1.trim());
+        assertEquals("err", output.o2.trim());
+
+        Tuple<Process, String> createProcess = runner.createProcess(TestDependent.TEST_PYSRC_LOC
+                + "universal_runner_test.py", null, null, new NullProgressMonitor());
+        output = SimpleRunner.getProcessOutput(createProcess.o1, "", new NullProgressMonitor(), "utf-8");
+        assertEquals("stdout", output.o1.trim());
+        assertEquals("stderr", output.o2.trim());
+
+    }
+
 }

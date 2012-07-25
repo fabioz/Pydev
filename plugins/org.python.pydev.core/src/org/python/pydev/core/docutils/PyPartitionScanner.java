@@ -50,7 +50,7 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner implements IPy
         addSinglelineStringRule(rules);
         addReprRule(rules);
         addCommentRule(rules);
-        
+
         setPredicateRules(rules.toArray(new IPredicateRule[0]));
     }
 
@@ -59,11 +59,10 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner implements IPy
     }
 
     private void addSinglelineStringRule(List<IPredicateRule> rules) {
-//        IToken singleLineString = new Token(PY_SINGLELINE_STRING);
-//        rules.add(new SingleLineRule("\"", "\"", singleLineString, '\\'));
-//        rules.add(new SingleLineRule("'", "'", singleLineString, '\\')); -- changed to the construct below because we need to continue on escape
+        //        IToken singleLineString = new Token(PY_SINGLELINE_STRING);
+        //        rules.add(new SingleLineRule("\"", "\"", singleLineString, '\\'));
+        //        rules.add(new SingleLineRule("'", "'", singleLineString, '\\')); -- changed to the construct below because we need to continue on escape
 
-        
         IToken singleLineString1 = new Token(IPythonPartitions.PY_SINGLELINE_STRING1);
         IToken singleLineString2 = new Token(IPythonPartitions.PY_SINGLELINE_STRING2);
         // deal with "" and '' strings
@@ -78,17 +77,17 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner implements IPy
         IToken multiLineString1 = new Token(IPythonPartitions.PY_MULTILINE_STRING1);
         IToken multiLineString2 = new Token(IPythonPartitions.PY_MULTILINE_STRING2);
         // deal with ''' and """ strings
-        
-        boolean breaksOnEOF = true; 
+
+        boolean breaksOnEOF = true;
         //If we don't add breaksOnEOF = true it won't properly recognize the rule while typing
         //in the following case:
         ///'''<new line>
         //text
         //''' <-- it's already lost at this point and the 'text' will not be in a multiline string partition.
-        
-        rules.add(new MultiLineRule("'''", "'''", multiLineString1, '\\', breaksOnEOF)); 
-        rules.add(new MultiLineRule("\"\"\"", "\"\"\"", multiLineString2,'\\', breaksOnEOF));
-        
+
+        rules.add(new MultiLineRule("'''", "'''", multiLineString1, '\\', breaksOnEOF));
+        rules.add(new MultiLineRule("\"\"\"", "\"\"\"", multiLineString2, '\\', breaksOnEOF));
+
         //there is a bug in this construct: When parsing a simple document such as:
         //
         //"""ttt"""
@@ -110,7 +109,7 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner implements IPy
         IToken comment = new Token(IPythonPartitions.PY_COMMENT);
         rules.add(new EndOfLineRule("#", comment));
     }
-    
+
     /**
      * @return all types recognized by this scanner (used by doc partitioner)
      */
@@ -123,23 +122,23 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner implements IPy
      * @return the partitioner that is set in the document
      */
     public static IDocumentPartitioner checkPartitionScanner(IDocument document) {
-        if(document == null){
+        if (document == null) {
             return null;
         }
-        
-        IDocumentExtension3 docExtension= (IDocumentExtension3) document;
+
+        IDocumentExtension3 docExtension = (IDocumentExtension3) document;
         IDocumentPartitioner partitioner = docExtension.getDocumentPartitioner(IPythonPartitions.PYTHON_PARTITION_TYPE);
-        if (partitioner == null){
+        if (partitioner == null) {
             addPartitionScanner(document);
             //get it again for the next check
             partitioner = docExtension.getDocumentPartitioner(IPythonPartitions.PYTHON_PARTITION_TYPE);
         }
-        if (!(partitioner instanceof PyPartitioner)){
-            Log.log("Partitioner should be subclass of PyPartitioner. It is "+partitioner.getClass());
+        if (!(partitioner instanceof PyPartitioner)) {
+            Log.log("Partitioner should be subclass of PyPartitioner. It is " + partitioner.getClass());
         }
         return partitioner;
     }
-    
+
     /**
      * @see http://help.eclipse.org/help31/index.jsp?topic=/org.eclipse.platform.doc.isv/guide/editors_documents.htm
      * @see http://jroller.com/page/bobfoster -  Saturday July 16, 2005
@@ -148,16 +147,16 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner implements IPy
      */
     public static IDocumentPartitioner addPartitionScanner(IDocument document) {
         if (document != null) {
-            IDocumentExtension3 docExtension= (IDocumentExtension3) document;
+            IDocumentExtension3 docExtension = (IDocumentExtension3) document;
             IDocumentPartitioner curr = docExtension.getDocumentPartitioner(IPythonPartitions.PYTHON_PARTITION_TYPE);
-            
-            if(curr == null){
+
+            if (curr == null) {
                 //set the new one
                 FastPartitioner partitioner = createPyPartitioner();
                 partitioner.connect(document);
-                docExtension.setDocumentPartitioner(IPythonPartitions.PYTHON_PARTITION_TYPE,partitioner);
+                docExtension.setDocumentPartitioner(IPythonPartitions.PYTHON_PARTITION_TYPE, partitioner);
                 return partitioner;
-            }else{
+            } else {
                 return curr;
             }
         }
@@ -167,8 +166,5 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner implements IPy
     public static PyPartitioner createPyPartitioner() {
         return new PyPartitioner(new PyPartitionScanner(), getTypes());
     }
-    
-    
-    
-    
+
 }

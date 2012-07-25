@@ -17,7 +17,6 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.refactoring.wizards.rename.PyRenameFunctionProcess;
 
-
 /**
  * Class that should test the renaming of classes within a number of modules in
  * the workspace.
@@ -25,7 +24,6 @@ import com.python.pydev.refactoring.wizards.rename.PyRenameFunctionProcess;
  * @author Fabio
  */
 public class RenameFunctionRefactoringTest extends RefactoringRenameTestBase {
-
 
     public static void main(String[] args) {
         try {
@@ -46,61 +44,60 @@ public class RenameFunctionRefactoringTest extends RefactoringRenameTestBase {
         return PyRenameFunctionProcess.class;
     }
 
-    
     public void testRename1() throws Exception {
         Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamefunction.renfoo", 0, 8);
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
-        assertTrue(references.containsKey("reflib.renamefunction.accessfoo")); 
-        
+        assertTrue(references.containsKey("reflib.renamefunction.accessfoo"));
+
         assertFalse(references.containsKey("reflib.renamefunction.renfoo")); //the current module does not have a separated key here
         assertFalse(references.containsKey("reflib.renamefunction.__init__"));
-        
+
         //the modules with a duplicate definition here should not be in the results.
         //CHANGE: Now, access even in those places (duck typing in python can
         //make it valid).
         assertTrue(references.containsKey("reflib.renamefunction.accessdup"));
         assertTrue(references.containsKey("reflib.renamefunction.duprenfoo"));
-        
+
         assertEquals(4, references.get(CURRENT_MODULE_IN_REFERENCES).size());
         assertContains(1, 5, references.get(CURRENT_MODULE_IN_REFERENCES));
         assertContains(4, 7, references.get(CURRENT_MODULE_IN_REFERENCES));
         assertContains(5, 14, references.get(CURRENT_MODULE_IN_REFERENCES));
         assertContains(6, 15, references.get(CURRENT_MODULE_IN_REFERENCES));
-        
+
         assertEquals(4, references.get("reflib.renamefunction.accessfoo").size());
         assertContains(1, 20, references.get("reflib.renamefunction.accessfoo"));
         assertContains(4, 7, references.get("reflib.renamefunction.accessfoo"));
         assertContains(5, 17, references.get("reflib.renamefunction.accessfoo"));
         assertContains(7, 5, references.get("reflib.renamefunction.accessfoo"));
-        
+
         assertEquals(8, references.size());
     }
 
-    
     public void testRename2() throws Exception {
-        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamefunction.accessfoo", 0, 22);
+        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamefunction.accessfoo", 0,
+                22);
         assertTrue(references.containsKey("reflib.renamefunction.accessfoo") == false); //the current module does not have a separated key here
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
         assertTrue(references.containsKey("reflib.renamefunction.renfoo")); //the module where it is actually defined
         checkProcessors();
     }
-    
+
     public void testRename3() throws Exception {
-        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameparameter.methoddef", 1, 6);
-        assertTrue(references.containsKey("reflib.renameparameter.methodaccess")); 
-        assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); 
+        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameparameter.methoddef", 1,
+                6);
+        assertTrue(references.containsKey("reflib.renameparameter.methodaccess"));
+        assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES));
         assertEquals(4, references.get("reflib.renameparameter.methodaccess").size());
         assertEquals(1, references.get(CURRENT_MODULE_IN_REFERENCES).size());
         checkProcessors();
     }
-    
+
     public void testRename4() throws Exception {
-        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamefunction.classfunc", 1, 8);
-        assertEquals(1, references.size()); 
+        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamefunction.classfunc", 1,
+                8);
+        assertEquals(1, references.size());
         assertEquals(2, references.get(CURRENT_MODULE_IN_REFERENCES).size());
         checkProcessors();
     }
-    
-    
 
 }

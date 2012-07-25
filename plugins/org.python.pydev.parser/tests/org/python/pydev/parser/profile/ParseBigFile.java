@@ -31,7 +31,6 @@ public class ParseBigFile extends PyParserTestBase {
         super.tearDown();
     }
 
-
     /**
      * Initial times with 5 iterations:
      * 
@@ -59,22 +58,23 @@ public class ParseBigFile extends PyParserTestBase {
      * @throws Exception
      */
     public void testBigFileParsing() throws Exception {
-        String loc = TestDependent.TEST_PYDEV_PARSER_PLUGIN_LOC+"/tests/pysrc/data_string.py";
+        String loc = TestDependent.TEST_PYDEV_PARSER_PLUGIN_LOC + "/tests/pysrc/data_string.py";
         String s = REF.getFileContents(new File(loc));
         for (int i = 0; i < 5; i++) {
-            @SuppressWarnings("unused") long curr = System.currentTimeMillis();
+            @SuppressWarnings("unused")
+            long curr = System.currentTimeMillis();
             SimpleNode node = parseLegalDocStr(s);
-            
+
             //uncomment line below to see the time for parsing
             //System.out.println(StringUtils.format("Took: %s secs", (System.currentTimeMillis()-curr)/1000.0));
             SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(node);
-            
+
             ASTEntry entry = visitor.getAsList(Str.class).get(0);
-            String s0 = ((Str)entry.node).s;
+            String s0 = ((Str) entry.node).s;
             assertEquals(42, entry.node.beginLine);
             assertEquals(8, entry.node.beginColumn);
-            assertTrue("Expecting big string. Received"+s0, s0.length() > 100 );
-            
+            assertTrue("Expecting big string. Received" + s0, s0.length() > 100);
+
         }
     }
 }

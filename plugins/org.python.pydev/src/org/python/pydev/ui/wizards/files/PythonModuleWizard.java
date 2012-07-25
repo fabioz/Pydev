@@ -25,7 +25,6 @@ import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProc
 import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
-
 /**
  * Python module creation wizard
  * 
@@ -44,13 +43,13 @@ public class PythonModuleWizard extends AbstractPythonWizard {
 
     @Override
     protected AbstractPythonWizardPage createPathPage() {
-        return new AbstractPythonWizardPage(this.description, selection){
+        return new AbstractPythonWizardPage(this.description, selection) {
 
             @Override
             protected boolean shouldCreatePackageSelect() {
                 return true;
             }
-            
+
         };
     }
 
@@ -63,59 +62,56 @@ public class PythonModuleWizard extends AbstractPythonWizard {
     @Override
     protected IFile doCreateNew(IProgressMonitor monitor) throws CoreException {
         IContainer validatedSourceFolder = filePage.getValidatedSourceFolder();
-        if(validatedSourceFolder == null){
+        if (validatedSourceFolder == null) {
             return null;
         }
         IContainer validatedPackage = filePage.getValidatedPackage();
-        if(validatedPackage == null){
+        if (validatedPackage == null) {
             String packageText = filePage.getPackageText();
-            if(packageText == null){
+            if (packageText == null) {
                 Log.log("Package text not available");
                 return null;
             }
             IFile packageInit = PythonPackageWizard.createPackage(monitor, validatedSourceFolder, packageText);
-            if(packageInit == null){
+            if (packageInit == null) {
                 Log.log("Package not created");
                 return null;
             }
             validatedPackage = packageInit.getParent();
         }
-        String validatedName = filePage.getValidatedName()+FileTypesPreferencesPage.getDefaultDottedPythonExtension();
-        
+        String validatedName = filePage.getValidatedName() + FileTypesPreferencesPage.getDefaultDottedPythonExtension();
+
         IFile file = validatedPackage.getFile(new Path(validatedName));
-        if(!file.exists()){
+        if (!file.exists()) {
             file.create(new ByteArrayInputStream(new byte[0]), true, monitor);
         }
-        
+
         return file;
     }
 
-    
     /**
      * Applies the template if one was specified.
      */
     @Override
     protected void afterEditorCreated(IEditorPart openEditor) {
-        if(!(openEditor instanceof PyEdit)){
+        if (!(openEditor instanceof PyEdit)) {
             return; //only works for PyEdit...
         }
-        
+
         TemplatePersistenceData selectedTemplate = filePage.getSelectedTemplate();
-        if(selectedTemplate == null){
+        if (selectedTemplate == null) {
             return; //no template selected, nothing to apply!
         }
-        
+
         Template template = selectedTemplate.getTemplate();
 
         PyEdit pyEdit = (PyEdit) openEditor;
         Region region = new Region(0, 0);
-        PyDocumentTemplateContext context = PyTemplateCompletionProcessor.createContext(new PyContextType(), 
+        PyDocumentTemplateContext context = PyTemplateCompletionProcessor.createContext(new PyContextType(),
                 pyEdit.getPySourceViewer(), region);
-        
+
         TemplateProposal templateProposal = new TemplateProposal(template, context, region, null);
         templateProposal.apply(pyEdit.getPySourceViewer(), '\n', 0, 0);
     }
-
-
 
 }

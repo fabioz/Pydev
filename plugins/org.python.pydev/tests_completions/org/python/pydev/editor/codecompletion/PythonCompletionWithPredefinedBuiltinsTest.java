@@ -24,41 +24,41 @@ import org.python.pydev.editor.codecompletion.shell.PythonShellTest;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
-public class PythonCompletionWithPredefinedBuiltinsTest extends CodeCompletionTestsBase{
-    
-    
+public class PythonCompletionWithPredefinedBuiltinsTest extends CodeCompletionTestsBase {
+
     protected boolean isInTestFindDefinition = false;
-    
+
     public static void main(String[] args) {
         try {
             PythonCompletionWithPredefinedBuiltinsTest builtins = new PythonCompletionWithPredefinedBuiltinsTest();
             builtins.setUp();
             builtins.testPredefinedPaths();
             builtins.tearDown();
-            
+
             junit.textui.TestRunner.run(PythonCompletionWithPredefinedBuiltinsTest.class);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
     }
-    
+
     @Override
     protected PythonNature createNature() {
-        return new PythonNature(){
+        return new PythonNature() {
             @Override
             public int getInterpreterType() throws CoreException {
                 return IInterpreterManager.INTERPRETER_TYPE_PYTHON;
             }
+
             @Override
             public int getGrammarVersion() {
                 return IPythonNature.LATEST_GRAMMAR_VERSION;
             }
-            
+
             @Override
             public String resolveModule(File file) throws MisconfigurationException {
-                if(isInTestFindDefinition){
+                if (isInTestFindDefinition) {
                     return null;
                 }
                 return super.resolveModule(file);
@@ -67,32 +67,30 @@ public class PythonCompletionWithPredefinedBuiltinsTest extends CodeCompletionTe
     }
 
     private static PythonShell shell;
-    
+
     /*
      * @see TestCase#setUp()
      */
     public void setUp() throws Exception {
         super.setUp();
-        
+
         ADD_MX_TO_FORCED_BUILTINS = false;
 
         CompiledModule.COMPILED_MODULES_ENABLED = true;
-        this.restorePythonPath(TestDependent.GetCompletePythonLib(true)+"|"+
-                TestDependent.PYTHON_WXPYTHON_PACKAGES+"|"+
-                TestDependent.PYTHON_MX_PACKAGES+"|"+
-                TestDependent.PYTHON_NUMPY_PACKAGES+"|"+
-                TestDependent.PYTHON_DJANGO_PACKAGES
-                
-                , false);
-        
+        this.restorePythonPath(TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.PYTHON_WXPYTHON_PACKAGES
+                + "|" + TestDependent.PYTHON_MX_PACKAGES + "|" + TestDependent.PYTHON_NUMPY_PACKAGES + "|"
+                + TestDependent.PYTHON_DJANGO_PACKAGES
+
+        , false);
+
         codeCompletion = new PyCodeCompletion();
 
         //we don't want to start it more than once
-        if(shell == null){
+        if (shell == null) {
             shell = PythonShellTest.startShell();
         }
         AbstractShell.putServerShell(nature, AbstractShell.COMPLETION_SHELL, shell);
-    
+
     }
 
     /*
@@ -103,22 +101,19 @@ public class PythonCompletionWithPredefinedBuiltinsTest extends CodeCompletionTe
         super.tearDown();
         AbstractShell.putServerShell(nature, AbstractShell.COMPLETION_SHELL, null);
     }
-    
-    
+
     @Override
     protected void beforeRestore(InterpreterInfo info) {
-    	String path = TestDependent.TEST_PYDEV_PLUGIN_LOC+"tests_completions/predefined_completions/";
-    	assertTrue(new File(path).exists());
-    	assertTrue(new File(path+"PyQtTest.QtCore.pypredef").exists());
-    	info.addPredefinedCompletionsPath(path);
+        String path = TestDependent.TEST_PYDEV_PLUGIN_LOC + "tests_completions/predefined_completions/";
+        assertTrue(new File(path).exists());
+        assertTrue(new File(path + "PyQtTest.QtCore.pypredef").exists());
+        info.addPredefinedCompletionsPath(path);
     }
-    
+
     public void testPredefinedPaths() throws Exception {
-        String s = 
-            "import PyQtTest.QtCore\n" +
-            "PyQtTest.QtCore.";
-        
-        requestCompl(s, -1, new String[] {"QAbstractEventDispatcher", "Bool", "QPersistentModelIndex"});
-	}
-    
+        String s = "import PyQtTest.QtCore\n" + "PyQtTest.QtCore.";
+
+        requestCompl(s, -1, new String[] { "QAbstractEventDispatcher", "Bool", "QPersistentModelIndex" });
+    }
+
 }

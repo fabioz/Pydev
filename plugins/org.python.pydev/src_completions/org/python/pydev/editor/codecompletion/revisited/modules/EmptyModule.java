@@ -27,7 +27,7 @@ public class EmptyModule extends AbstractModule {
 
     private static final long serialVersionUID = 1L;
     public File f;
-    
+
     @Override
     public File getFile() {
         return f;
@@ -40,7 +40,7 @@ public class EmptyModule extends AbstractModule {
         super(name);
         this.f = f;
     }
-    
+
     public boolean hasFutureImportAbsoluteImportDeclared() {
         throw new RuntimeException("Not intended to be called");
     }
@@ -83,7 +83,8 @@ public class EmptyModule extends AbstractModule {
     /**
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#findDefinition(java.lang.String, int, int)
      */
-    public Definition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature) throws Exception {
+    public Definition[] findDefinition(ICompletionState state, int line, int col, IPythonNature nature)
+            throws Exception {
         throw new RuntimeException("Not intended to be called");
     }
 
@@ -95,43 +96,42 @@ public class EmptyModule extends AbstractModule {
     public boolean isInDirectImportTokens(String tok) {
         throw new RuntimeException("Not implemented");
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof EmptyModule)) {
             return false;
         }
         EmptyModule m = (EmptyModule) obj;
-        
-        if(name == null || m.name == null){
-            if(name != m.name){
+
+        if (name == null || m.name == null) {
+            if (name != m.name) {
                 return false;
             }
             //both null at this point
-        }else if(!name.equals(m.name)){
+        } else if (!name.equals(m.name)) {
             return false;
         }
-        
-        if(f == null || m.f == null){
-            if(f != m.f){
+
+        if (f == null || m.f == null) {
+            if (f != m.f) {
                 return false;
             }
             //both null at this point
-        }else if(!f.equals(m.f)){
+        } else if (!f.equals(m.f)) {
             return false;
         }
-        
-        
-        return true; 
+
+        return true;
     }
-    
+
     @Override
     public int hashCode() {
         int hash = 71;
-        if(f != null){
+        if (f != null) {
             hash += f.hashCode();
         }
-        if(name != null){
+        if (name != null) {
             hash += name.hashCode();
         }
         return hash;

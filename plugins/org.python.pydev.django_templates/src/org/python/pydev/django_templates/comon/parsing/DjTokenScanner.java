@@ -18,10 +18,9 @@ import org.python.pydev.django_templates.common.parsing.lexer.DjangoTemplatesTok
 
 public class DjTokenScanner {
 
-
     @SuppressWarnings("nls")
     private static final String[] DJ_START = { "{%", "{{" };
-    
+
     @SuppressWarnings("nls")
     private static final String[] DJ_END = new String[] { "%}", "}}" };
 
@@ -42,16 +41,14 @@ public class DjTokenScanner {
         rules.add(wordRule);
         return rules;
     }
-    
-    
 
     private static final class DjStartDetector implements IWordDetector {
 
         public boolean isWordPart(char c) {
             switch (c) {
-            case '{':
-            case '%':
-                return true;
+                case '{':
+                case '%':
+                    return true;
             }
             return false;
         }
@@ -65,9 +62,9 @@ public class DjTokenScanner {
 
         public boolean isWordPart(char c) {
             switch (c) {
-            case '%':
-            case '}':
-                return true;
+                case '%':
+                case '}':
+                    return true;
             }
             return false;
         }
@@ -77,11 +74,10 @@ public class DjTokenScanner {
         }
     }
 
-    protected IToken createToken(String string)
-    {
+    protected IToken createToken(String string) {
         return new Token(string);
     }
-    
+
     private static String getTokenName(short token) {
         return DjangoTemplatesTokens.getTokenName(token);
     }

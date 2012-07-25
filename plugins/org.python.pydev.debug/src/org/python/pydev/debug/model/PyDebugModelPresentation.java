@@ -50,38 +50,38 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
      */
     public Image getImage(Object element) {
         ImageCache imageCache = PydevDebugPlugin.getImageCache();
-        
+
         if (element instanceof PyBreakpoint) {
             try {
                 PyBreakpoint pyBreakpoint = (PyBreakpoint) element;
-                
+
                 if ((pyBreakpoint).isEnabled())
-                    if (pyBreakpoint.isConditionEnabled()){
+                    if (pyBreakpoint.isConditionEnabled()) {
                         return imageCache.get("icons/breakmarker_conditional.gif");
-                    }else{
+                    } else {
                         return imageCache.get("icons/breakmarker.gif");
                     }
-                
-                else if (pyBreakpoint.isConditionEnabled()){
+
+                else if (pyBreakpoint.isConditionEnabled()) {
                     return imageCache.get("icons/breakmarker_gray_conditional.gif");
-                }else{
+                } else {
                     return imageCache.get("icons/breakmarker_gray.gif");
                 }
-                
+
             } catch (CoreException e) {
                 PydevDebugPlugin.log(IStatus.ERROR, "getImage error", e);
             }
-            
+
         } else if (element instanceof PyVariableCollection) {
             return imageCache.get("icons/greendot_big.gif");
-            
+
         } else if (element instanceof PyVariable) {
             return imageCache.get("icons/greendot.gif");
-            
-        } else if (element instanceof PyDebugTarget || element instanceof PyThread || element instanceof PyStackFrame){
+
+        } else if (element instanceof PyDebugTarget || element instanceof PyThread || element instanceof PyStackFrame) {
             return null;
         }
-        
+
         return null;
     }
 
@@ -94,42 +94,42 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
             IMarker marker = ((PyBreakpoint) element).getMarker();
             try {
                 Map attrs = marker.getAttributes();
-                
+
                 //get the filename
                 String ioFile = pyBreakpoint.getFile();
                 String fileName = "unknown";
-                if(ioFile != null){
+                if (ioFile != null) {
                     File file = new File(ioFile);
                     fileName = file.getName();
                 }
-                
-                
+
                 //get the line number
                 Object lineNumber = attrs.get(IMarker.LINE_NUMBER);
                 String functionName = pyBreakpoint.getFunctionName();
-                
-                if (lineNumber == null){
+
+                if (lineNumber == null) {
                     lineNumber = "unknown";
                 }
-                
+
                 //get the location
                 String location = fileName + ":" + lineNumber.toString();
-                if (functionName == null){
+                if (functionName == null) {
                     return location;
-                }else{
+                } else {
                     return functionName + " [" + location + "]";
                 }
-                
+
             } catch (CoreException e) {
                 PydevDebugPlugin.log(IStatus.ERROR, "error retreiving marker attributes", e);
                 return "error";
             }
-        } else if (element instanceof AbstractDebugTarget || element instanceof PyStackFrame || element instanceof PyThread) {
+        } else if (element instanceof AbstractDebugTarget || element instanceof PyStackFrame
+                || element instanceof PyThread) {
             return null; // defaults work
-            
+
         } else if (element instanceof PyVariableCollection || element instanceof PyVariable) {
             return null; // defaults are fine
-            
+
         } else if (element instanceof IWatchExpression) {
             try {
                 IWatchExpression watch_expression = (IWatchExpression) element;
@@ -142,13 +142,14 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
             } catch (DebugException e) {
                 return null;
             }
-            
-        }else if(element == null){
+
+        } else if (element == null) {
             PydevDebugPlugin.log(IStatus.ERROR, "PyDebugModelPresentation: element == null", null);
             return null;
-            
-        }else{
-            PydevDebugPlugin.log(IStatus.ERROR, "PyDebugModelPresentation:\nclass not expected for presentation:"+element.getClass()+"\n(returning default presentation).", null);
+
+        } else {
+            PydevDebugPlugin.log(IStatus.ERROR, "PyDebugModelPresentation:\nclass not expected for presentation:"
+                    + element.getClass() + "\n(returning default presentation).", null);
             return null;
         }
     }
@@ -174,9 +175,9 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
     public IEditorInput getEditorInput(Object element) {
         if (element instanceof PyBreakpoint) {
             String file = ((PyBreakpoint) element).getFile();
-            if(file != null){
-				return PydevFileEditorInput.create(new File(file), false);
-                
+            if (file != null) {
+                return PydevFileEditorInput.create(new File(file), false);
+
                 //We should not open the editor here, just create the input... the debug framework opens it later on.
                 //IPath path = new Path(file);
                 //IEditorPart part = PyOpenEditor.doOpenEditor(path);
@@ -194,9 +195,9 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
     }
 
     public void setAttribute(String attribute, Object value) {
-        if (attribute.equals(IDebugModelPresentation.DISPLAY_VARIABLE_TYPE_NAMES)){
+        if (attribute.equals(IDebugModelPresentation.DISPLAY_VARIABLE_TYPE_NAMES)) {
             displayVariableTypeNames = ((Boolean) value).booleanValue();
-        }else{
+        } else {
             Log.log("setattribute");
         }
     }

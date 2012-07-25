@@ -11,33 +11,30 @@
  */
 package org.python.pydev.debug.codecoverage;
 
-
 /**
  * @author Fabio Zadrozny
  */
-public class ErrorFileNode implements ICoverageLeafNode{
+public class ErrorFileNode implements ICoverageLeafNode {
     public Object node;
     public String desc;
-    
+
     /* (non-Javadoc)
      * @see java.lang.Object#equals(java.lang.Object)
      */
     public boolean equals(Object obj) {
-        if(!(obj instanceof ErrorFileNode)){
+        if (!(obj instanceof ErrorFileNode)) {
             return false;
         }
-        
+
         ErrorFileNode f = (ErrorFileNode) obj;
-        return f.node.equals(node) && f.desc == desc; 
+        return f.node.equals(node) && f.desc == desc;
     }
-    
+
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     public String toString() {
-        return FileNode.getName(node.toString(), PyCoveragePreferences.getNameNumberOfColumns()) + "   " +desc;
+        return FileNode.getName(node.toString(), PyCoveragePreferences.getNameNumberOfColumns()) + "   " + desc;
     }
-    
-    
 
 }

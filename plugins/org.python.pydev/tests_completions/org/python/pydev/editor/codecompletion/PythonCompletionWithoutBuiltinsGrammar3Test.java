@@ -29,7 +29,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionTestsBase {
 
     public static void main(String[] args) {
-        
+
         try {
             //DEBUG_TESTS_BASE = true;
             PythonCompletionWithoutBuiltinsGrammar3Test test = new PythonCompletionWithoutBuiltinsGrammar3Test();
@@ -39,10 +39,10 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
             System.out.println("Finished");
 
             junit.textui.TestRunner.run(PythonCompletionWithoutBuiltinsGrammar3Test.class);
-        } catch(Throwable e){
+        } catch (Throwable e) {
             e.printStackTrace();
         }
-      }
+    }
 
     /*
      * @see TestCase#setUp()
@@ -50,22 +50,22 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
     public void setUp() throws Exception {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = false;
-        this.restorePythonPath("",false);
+        this.restorePythonPath("", false);
         codeCompletion = new PyCodeCompletion();
-        PyCodeCompletion.onCompletionRecursionException = new ICallback<Object, CompletionRecursionException>(){
+        PyCodeCompletion.onCompletionRecursionException = new ICallback<Object, CompletionRecursionException>() {
 
             public Object call(CompletionRecursionException e) {
-                throw new RuntimeException("Recursion error:"+Log.getExceptionStr(e));
+                throw new RuntimeException("Recursion error:" + Log.getExceptionStr(e));
             }
-            
+
         };
     }
-    
+
     @Override
     protected void afterRestorSystemPythonPath(InterpreterInfo info) {
         //No checks: created it without a system pythonpath
     }
-    
+
     @Override
     protected void checkSize() {
         //No checks: created it without a system pythonpath
@@ -80,30 +80,27 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
         PyCodeCompletion.onCompletionRecursionException = null;
     }
 
-
     @Override
     protected PythonNature createNature() {
-        return new PythonNature(){
+        return new PythonNature() {
             @Override
             public int getInterpreterType() throws CoreException {
                 return IInterpreterManager.INTERPRETER_TYPE_PYTHON;
             }
+
             @Override
             public int getGrammarVersion() {
                 return IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
             }
         };
     }
-    
+
     public void testGrammar3AbsoluteAndRelativeImports() throws Exception {
-        String file = TestDependent.TEST_PYSRC_LOC+"extendable/grammar3/sub1.py";
+        String file = TestDependent.TEST_PYSRC_LOC + "extendable/grammar3/sub1.py";
         String strDoc = "from relative import ";
-        ICompletionProposal[] codeCompletionProposals = requestCompl(
-                new File(file), strDoc, strDoc.length(), -1, new String[]{"DTest"});   
+        ICompletionProposal[] codeCompletionProposals = requestCompl(new File(file), strDoc, strDoc.length(), -1,
+                new String[] { "DTest" });
         assertNotContains("NotFound", codeCompletionProposals);
     }
 
 }
-
-
-

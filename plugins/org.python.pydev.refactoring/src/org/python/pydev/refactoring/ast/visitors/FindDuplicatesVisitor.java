@@ -87,16 +87,15 @@ public class FindDuplicatesVisitor implements VisitorIF {
 
     private final exprType expression;
     private final ITextSelection selection;
-    private final List<Tuple<ITextSelection, SimpleNode>> duplicates = 
-        new ArrayList<Tuple<ITextSelection, SimpleNode>>();
-    
+    private final List<Tuple<ITextSelection, SimpleNode>> duplicates = new ArrayList<Tuple<ITextSelection, SimpleNode>>();
+
     private final IDocument doc;
     private final PySelection ps;
     private final char[] selectedText;
-    
+
     private SimpleNode lastFound = null;
     private ParsingUtils parsingUtils;
-    
+
     public FindDuplicatesVisitor(ITextSelection selection, exprType expression, IDocument doc) {
         this.selection = selection;
         this.expression = expression;
@@ -123,14 +122,14 @@ public class FindDuplicatesVisitor implements VisitorIF {
     }
 
     private int getLineDefinition(SimpleNode ast2) {
-        while(ast2 instanceof Attribute || ast2 instanceof Call){
-            if(ast2 instanceof Attribute){
-                ast2 = ((Attribute)ast2).value;
-            }else{
+        while (ast2 instanceof Attribute || ast2 instanceof Call) {
+            if (ast2 instanceof Attribute) {
+                ast2 = ((Attribute) ast2).value;
+            } else {
                 Call c = (Call) ast2;
-                if(c.func != null){
+                if (c.func != null) {
                     ast2 = c.func;
-                }else{
+                } else {
                     break;
                 }
             }
@@ -138,27 +137,26 @@ public class FindDuplicatesVisitor implements VisitorIF {
         return ast2.beginLine;
     }
 
-    
     private void addLastFound(SimpleNode nextNode) {
-        if(lastFound != null){
-            int offset = ps.getAbsoluteCursorOffset(
-                    getLineDefinition(lastFound)-1, NodeUtils.getColDefinition(lastFound)-1);
-    
+        if (lastFound != null) {
+            int offset = ps.getAbsoluteCursorOffset(getLineDefinition(lastFound) - 1,
+                    NodeUtils.getColDefinition(lastFound) - 1);
+
             //OK, we have the start point, let's calculate the match based on the document
             //(with the next node as a boundary if it was provided)
 
             int maxOffset = doc.getLength();
-            if(nextNode != null){
-                int nextTokenOffset = ps.getAbsoluteCursorOffset(
-                        NodeUtils.getLineDefinition(nextNode)-1, NodeUtils.getColDefinition(nextNode)-1)+1;
-                if(nextTokenOffset < maxOffset){
+            if (nextNode != null) {
+                int nextTokenOffset = ps.getAbsoluteCursorOffset(NodeUtils.getLineDefinition(nextNode) - 1,
+                        NodeUtils.getColDefinition(nextNode) - 1) + 1;
+                if (nextTokenOffset < maxOffset) {
                     maxOffset = nextTokenOffset;
                 }
             }
-            
-            int j=0;
-            int len=0;
-            for(int i=offset;i < maxOffset && j < selectedText.length;i++,len++){
+
+            int j = 0;
+            int len = 0;
+            for (int i = offset; i < maxOffset && j < selectedText.length; i++, len++) {
                 char c;
                 try {
                     c = doc.getChar(i);
@@ -167,25 +165,24 @@ public class FindDuplicatesVisitor implements VisitorIF {
                 }
                 //Let's see if we have the match
                 char c1 = selectedText[j];
-                if(c == c1){
+                if (c == c1) {
                     j++;
-                }else{
-                    if(c == '#'){
-                        int start=i;
+                } else {
+                    if (c == '#') {
+                        int start = i;
                         i = parsingUtils.eatComments(null, i);
-                        len += i-start;
-                    }else if(!Character.isWhitespace(c) && c != '\\'){
+                        len += i - start;
+                    } else if (!Character.isWhitespace(c) && c != '\\') {
                         //We removed comments and whitespaces from the original, so, we can ignore it 
                         //here too, but if we found some other char, it's NOT a match...
-                        break; 
+                        break;
                     }
                 }
             }
-            
-            
-            if(j == selectedText.length){
-                
-                if(!ps.intersects(offset, len)){
+
+            if (j == selectedText.length) {
+
+                if (!ps.intersects(offset, len)) {
                     ITextSelection sel = new TextSelection(this.doc, offset, len);
                     duplicates.add(new Tuple<ITextSelection, SimpleNode>(sel, lastFound));
                 }
@@ -208,12 +205,7 @@ public class FindDuplicatesVisitor implements VisitorIF {
     public List<Tuple<ITextSelection, SimpleNode>> getDuplicates() {
         return duplicates;
     }
-    
-    
-    
-    
-    
-    
+
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         boolean ret = unhandled_node(node);
         if (ret) {
@@ -221,7 +213,7 @@ public class FindDuplicatesVisitor implements VisitorIF {
         }
         return null;
     }
-    
+
     public Object visitClassDef(ClassDef node) throws Exception {
         boolean ret = unhandled_node(node);
         if (ret) {
@@ -685,6 +677,5 @@ public class FindDuplicatesVisitor implements VisitorIF {
         }
         return null;
     }
-
 
 }

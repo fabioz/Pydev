@@ -42,45 +42,44 @@ public class PydevConsoleQuickAssistProcessor implements IQuickAssistProcessor {
     public boolean canFix(Annotation annotation) {
         return false;
     }
-    
-    
+
     /**
      * Computes quick assists for the console.
      */
     public ICompletionProposal[] computeQuickAssistProposals(IQuickAssistInvocationContext invocationContext) {
         ISourceViewer sourceViewer = invocationContext.getSourceViewer();
         List<ICompletionProposal> props = new ArrayList<ICompletionProposal>();
-        if(sourceViewer instanceof ScriptConsoleViewer){
+        if (sourceViewer instanceof ScriptConsoleViewer) {
             ScriptConsoleViewer viewer = (ScriptConsoleViewer) sourceViewer;
-            
+
             //currently, only the assign quick assist is used
             AssistAssign assistAssign = new AssistAssign();
-            
+
             ISelection selection = sourceViewer.getSelectionProvider().getSelection();
-            if(selection instanceof ITextSelection){
+            if (selection instanceof ITextSelection) {
                 PySelection ps = new PySelection(sourceViewer.getDocument(), (ITextSelection) selection);
                 int offset = viewer.getCaretOffset();
                 String commandLine = viewer.getCommandLine();
-                
+
                 //let's calculate the 1st line that is not a whitespace.
-                if(assistAssign.isValid(ps.getSelLength(), commandLine, offset)){
+                if (assistAssign.isValid(ps.getSelLength(), commandLine, offset)) {
                     int commandLineOffset = viewer.getCommandLineOffset();
                     try {
                         IDocument doc = sourceViewer.getDocument();
-                        while(true){
-                            if(commandLineOffset == doc.getLength()-1){
+                        while (true) {
+                            if (commandLineOffset == doc.getLength() - 1) {
                                 break;
                             }
                             char c = doc.getChar(commandLineOffset);
-                            if(Character.isWhitespace(c)){
+                            if (Character.isWhitespace(c)) {
                                 commandLineOffset++;
-                            }else{
+                            } else {
                                 break;
                             }
                         }
-                        props.addAll(assistAssign.getProps(ps, PydevPlugin.getImageCache(), sourceViewer, 
-                                offset, commandLine, commandLineOffset));
-                        
+                        props.addAll(assistAssign.getProps(ps, PydevPlugin.getImageCache(), sourceViewer, offset,
+                                commandLine, commandLineOffset));
+
                     } catch (BadLocationException e) {
                         Log.log(e);
                     }

@@ -32,9 +32,9 @@ import org.python.pydev.parser.jython.SimpleNode;
  * @author fabioz
  *
  */
-public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditionalDependencyInfo implements IDeltaProcessor<Object>{
-    
-    
+public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditionalDependencyInfo implements
+        IDeltaProcessor<Object> {
+
     /**
      * @param callInit
      * @throws MisconfigurationException
@@ -42,7 +42,7 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
     public AbstractAdditionalInfoWithBuild(boolean callInit) throws MisconfigurationException {
         super(callInit);
     }
-    
+
     protected void init() throws MisconfigurationException {
         super.init();
         deltaSaver = createDeltaSaver();
@@ -60,34 +60,32 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
      */
     private void checkDeltaSize() {
         synchronized (lock) {
-            if(deltaSaver.availableDeltas() > MAXIMUN_NUMBER_OF_DELTAS){
+            if (deltaSaver.availableDeltas() > MAXIMUN_NUMBER_OF_DELTAS) {
                 this.save();
             }
         }
     }
-    
+
     /**
      * Used to save things in deltas
      */
     protected DeltaSaver<Object> deltaSaver;
-    
-    
+
     @Override
     public void removeInfoFromModule(String moduleName, boolean generateDelta) {
         synchronized (lock) {
             super.removeInfoFromModule(moduleName, generateDelta);
-            if(generateDelta){
+            if (generateDelta) {
                 this.deltaSaver.addDeleteCommand(moduleName);
                 checkDeltaSize();
             }
         }
     }
-    
 
     @Override
     public List<IInfo> addAstInfo(SimpleNode node, ModulesKey key, boolean generateDelta) {
         List<IInfo> addAstInfo = super.addAstInfo(node, key, generateDelta);
-        if(generateDelta && addAstInfo.size() > 0){
+        if (generateDelta && addAstInfo.size() > 0) {
             deltaSaver.addInsertCommand(new Tuple<ModulesKey, List<IInfo>>(key, addAstInfo));
             checkDeltaSize();
         }
@@ -99,80 +97,76 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
         synchronized (lock) {
             super.restoreSavedInfo(o);
             //when we do a load, we have to process the deltas that may exist
-            if(deltaSaver.availableDeltas() > 0){
+            if (deltaSaver.availableDeltas() > 0) {
                 deltaSaver.processDeltas(this);
             }
         }
     }
 
     protected DeltaSaver<Object> createDeltaSaver() {
-        return new DeltaSaver<Object>(
-                getPersistingFolder(), 
-                "v1_projectinfodelta", 
-                new ICallback<Object, String>(){
+        return new DeltaSaver<Object>(getPersistingFolder(), "v1_projectinfodelta", new ICallback<Object, String>() {
 
-                    public Object call(String arg) {
-                        if(arg.startsWith("STR")){
-                            return arg.substring(3);
-                        }
-                        if(arg.startsWith("TUP")){
-                            //Backward compatibility
-                            String tup = arg.substring(3);
-                            int i = tup.indexOf('\n');
-                            int j = tup.indexOf('\n', i+1);
-                            
-                            String modName = new String(tup.substring(0, i));
-                            File file = new File(tup.substring(i+1, j));
-                            
-                            return new Tuple<ModulesKey, List>(
-                                    new ModulesKey(modName, file), InfoStrFactory.strToInfo(tup.substring(j+1))); 
-                        }
-                        if(arg.startsWith("LST")){
-                            //Backward compatibility
-                            return InfoStrFactory.strToInfo(arg.substring(3));
-                        }
-                        
-                        throw new AssertionError("Expecting string starting with STR or LST");
-                    }}, 
-                    
-                new ICallback<String, Object>() {
+            public Object call(String arg) {
+                if (arg.startsWith("STR")) {
+                    return arg.substring(3);
+                }
+                if (arg.startsWith("TUP")) {
+                    //Backward compatibility
+                    String tup = arg.substring(3);
+                    int i = tup.indexOf('\n');
+                    int j = tup.indexOf('\n', i + 1);
 
-                    /**
-                     * Here we'll convert the object we added to a string.
-                     * 
-                     * The objects we can add are:
-                     * Tuple<String (module name), List<IInfo>) -- on addition
-                     * String (module name) -- on deletion
-                     */
-                    public String call(Object arg) {
-                        if(arg instanceof String){
-                            return "STR"+(String) arg;
-                        }
-                        if(arg instanceof Tuple){
-                            Tuple tuple = (Tuple) arg;
-                            if(tuple.o1 instanceof ModulesKey && tuple.o2 instanceof List){
-                                ModulesKey modName = (ModulesKey) tuple.o1;
-                                List<IInfo> l = (List<IInfo>) tuple.o2;
-                                String infoToString = InfoStrFactory.infoToString(l);
-                                String fileStr = modName.file.toString();
-                                
-                                FastStringBuffer buf = new FastStringBuffer("TUP", modName.name.length()+fileStr.length()+infoToString.length()+3);
-                                buf.append(modName.name);
-                                buf.append('\n');
-                                buf.append(fileStr);
-                                buf.append('\n');
-                                buf.append(infoToString);
-                                return buf.toString();
-                            }
-                        }
-                        throw new AssertionError("Expecting Tuple<String, List<IInfo>> or String. Found: "+arg);
+                    String modName = new String(tup.substring(0, i));
+                    File file = new File(tup.substring(i + 1, j));
+
+                    return new Tuple<ModulesKey, List>(new ModulesKey(modName, file), InfoStrFactory.strToInfo(tup
+                            .substring(j + 1)));
+                }
+                if (arg.startsWith("LST")) {
+                    //Backward compatibility
+                    return InfoStrFactory.strToInfo(arg.substring(3));
+                }
+
+                throw new AssertionError("Expecting string starting with STR or LST");
+            }
+        },
+
+        new ICallback<String, Object>() {
+
+            /**
+             * Here we'll convert the object we added to a string.
+             * 
+             * The objects we can add are:
+             * Tuple<String (module name), List<IInfo>) -- on addition
+             * String (module name) -- on deletion
+             */
+            public String call(Object arg) {
+                if (arg instanceof String) {
+                    return "STR" + (String) arg;
+                }
+                if (arg instanceof Tuple) {
+                    Tuple tuple = (Tuple) arg;
+                    if (tuple.o1 instanceof ModulesKey && tuple.o2 instanceof List) {
+                        ModulesKey modName = (ModulesKey) tuple.o1;
+                        List<IInfo> l = (List<IInfo>) tuple.o2;
+                        String infoToString = InfoStrFactory.infoToString(l);
+                        String fileStr = modName.file.toString();
+
+                        FastStringBuffer buf = new FastStringBuffer("TUP", modName.name.length() + fileStr.length()
+                                + infoToString.length() + 3);
+                        buf.append(modName.name);
+                        buf.append('\n');
+                        buf.append(fileStr);
+                        buf.append('\n');
+                        buf.append(infoToString);
+                        return buf.toString();
                     }
                 }
-        );
+                throw new AssertionError("Expecting Tuple<String, List<IInfo>> or String. Found: " + arg);
+            }
+        });
     }
-    
 
-    
     public void processUpdate(Object data) {
         throw new RuntimeException("There is no update generation, only add.");
     }
@@ -183,11 +177,10 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
             this.removeInfoFromModule((String) data, false);
         }
     }
-        
 
     public void processInsert(Object data) {
         synchronized (lock) {
-            if(data instanceof Tuple){
+            if (data instanceof Tuple) {
                 this.addInfoToModuleOnRestoreInsertCommand((Tuple<ModulesKey, List<IInfo>>) data);
             }
         }
@@ -199,7 +192,7 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
             this.save();
         }
     }
-    
+
     /**
      * Whenever it's properly saved, clear all the deltas.
      */
@@ -209,7 +202,6 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
             deltaSaver.clearAll();
         }
     }
-    
 
     /**
      * Restores the info for a module manager
@@ -221,35 +213,35 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
      * 
      * @return the info generated from the module manager
      */
-    public static AbstractAdditionalTokensInfo restoreInfoForModuleManager(IProgressMonitor monitor, IModulesManager m, String additionalFeedback, 
-            AbstractAdditionalTokensInfo info, IPythonNature nature, int grammarVersion) {
-        if(monitor == null){
+    public static AbstractAdditionalTokensInfo restoreInfoForModuleManager(IProgressMonitor monitor, IModulesManager m,
+            String additionalFeedback, AbstractAdditionalTokensInfo info, IPythonNature nature, int grammarVersion) {
+        if (monitor == null) {
             monitor = new NullProgressMonitor();
         }
         //TODO: Check if keeping a zip file open makes things faster...
         //Timer timer = new Timer();
         ModulesKey[] allModules = m.getOnlyDirectModules();
         int i = 0;
-        
+
         FastStringBuffer msgBuffer = new FastStringBuffer();
 
         for (ModulesKey key : allModules) {
-            if(monitor.isCanceled()){
+            if (monitor.isCanceled()) {
                 return null;
             }
             i++;
 
             if (PythonPathHelper.canAddAstInfoFor(key)) { //otherwise it should be treated as a compiled module (no ast generation)
 
-                if(i % 17 == 0){
+                if (i % 17 == 0) {
                     msgBuffer.clear();
                     msgBuffer.append("Creating ");
                     msgBuffer.append(additionalFeedback);
-                    msgBuffer.append(" additional info (" );
-                    msgBuffer.append(i );
-                    msgBuffer.append(" of " );
-                    msgBuffer.append(allModules.length );
-                    msgBuffer.append(") for " );
+                    msgBuffer.append(" additional info (");
+                    msgBuffer.append(i);
+                    msgBuffer.append(" of ");
+                    msgBuffer.append(allModules.length);
+                    msgBuffer.append(") for ");
                     msgBuffer.append(key.file.getName());
                     monitor.setTaskName(msgBuffer.toString());
                     monitor.worked(1);
@@ -259,10 +251,10 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
                     if (info.addAstInfo(key, false) == null) {
                         String str = "Unable to generate ast -- using %s.\nError:%s";
                         ErrorDescription errorDesc = null;
-                        throw new RuntimeException(StringUtils.format(str, 
-                                PyParser.getGrammarVersionStr(grammarVersion),
-                                (errorDesc!=null && errorDesc.message!=null)?
-                                        errorDesc.message:"unable to determine"));
+                        throw new RuntimeException(StringUtils.format(str, PyParser
+                                .getGrammarVersionStr(grammarVersion),
+                                (errorDesc != null && errorDesc.message != null) ? errorDesc.message
+                                        : "unable to determine"));
                     }
 
                 } catch (Throwable e) {
@@ -273,5 +265,5 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
         //timer.printDiff("Time to restore additional info");
         return info;
     }
-    
+
 }

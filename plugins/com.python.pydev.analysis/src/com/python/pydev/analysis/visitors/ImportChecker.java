@@ -50,7 +50,7 @@ public final class ImportChecker {
      * This is the information stored about some import:
      * Contains the actual module, the representation in the current module and whether it was resolved or not.
      */
-    public static class ImportInfo{
+    public static class ImportInfo {
         /**
          * This is the module where this info was found
          */
@@ -67,54 +67,55 @@ public final class ImportChecker {
          * Determines whether it was resolved or not (if not resolved, the other attributes may be null)
          */
         public final boolean wasResolved;
-        
+
         /**
          * Should we use the definition cache?
          */
         private boolean useActualDefinitionCache = false;
-        
+
         /**
          * This is the cache for the definitions.
          */
         private IDefinition[] definitionCache;
-            
-        public ImportInfo(IModule mod, String rep, IToken token, boolean wasResolved){
+
+        public ImportInfo(IModule mod, String rep, IToken token, boolean wasResolved) {
             this.mod = mod;
             this.rep = rep;
             this.token = token;
             this.wasResolved = wasResolved;
         }
-        
+
         @Override
         public String toString() {
             FastStringBuffer buffer = new FastStringBuffer();
             buffer.append("ImportInfo(");
             buffer.append(" Resolved:");
             buffer.append(wasResolved);
-            if(wasResolved){
+            if (wasResolved) {
                 buffer.append(" Rep:");
                 buffer.append(rep);
                 buffer.append(" Mod:");
-                buffer.append(mod!= null?mod.getName():"null");
+                buffer.append(mod != null ? mod.getName() : "null");
             }
             buffer.append(")");
             return buffer.toString();
         }
-        
-        public IDefinition[] getDefinitions(IPythonNature nature, ICompletionCache completionCache) throws Exception{
-            if(useActualDefinitionCache){
+
+        public IDefinition[] getDefinitions(IPythonNature nature, ICompletionCache completionCache) throws Exception {
+            if (useActualDefinitionCache) {
                 return definitionCache;
             }
             useActualDefinitionCache = true;
-            
-            if(this.mod != null){
+
+            if (this.mod != null) {
                 definitionCache = this.mod.findDefinition(
-                        CompletionStateFactory.getEmptyCompletionState(this.rep, nature, completionCache), -1, -1, nature);
-            }else{
-                definitionCache = new IDefinition[0]; 
-                
+                        CompletionStateFactory.getEmptyCompletionState(this.rep, nature, completionCache), -1, -1,
+                        nature);
+            } else {
+                definitionCache = new IDefinition[0];
+
             }
-            
+
             return definitionCache;
         }
 
@@ -127,12 +128,12 @@ public final class ImportChecker {
                 int len = definitions.length;
                 for (int i = 0; i < len; i++) {
                     IDefinition definition = definitions[i];
-                    if(definition instanceof Definition){
+                    if (definition instanceof Definition) {
                         Definition d = (Definition) definition;
-                        if(d.module != null && d.value.length() == 0 && d.ast == null){
+                        if (d.module != null && d.value.length() == 0 && d.ast == null) {
                             return d;
                         }
-                        
+
                     }
                 }
             } catch (Exception e) {
@@ -141,7 +142,7 @@ public final class ImportChecker {
             return null;
         }
     }
-    
+
     /**
      * constructor - will remove all dependency info on the project that we will start to analyze
      */
@@ -174,27 +175,27 @@ public final class ImportChecker {
         //try to find it as a relative import
         boolean wasResolved = false;
         Tuple3<IModule, String, IToken> modTok = null;
-        String checkForToken="";
-        if(token instanceof SourceToken){
-            
+        String checkForToken = "";
+        if (token instanceof SourceToken) {
+
             ICodeCompletionASTManager astManager = nature.getAstManager();
-            ICompletionState state = CompletionStateFactory.getEmptyCompletionState(
-                    token.getRepresentation(), nature, completionCache);
-            
+            ICompletionState state = CompletionStateFactory.getEmptyCompletionState(token.getRepresentation(), nature,
+                    completionCache);
+
             try {
-                modTok = astManager.findOnImportedMods(new IToken[]{token}, state, moduleName, visitor.current);
+                modTok = astManager.findOnImportedMods(new IToken[] { token }, state, moduleName, visitor.current);
             } catch (CompletionRecursionException e1) {
                 modTok = null;//unable to resolve it
             }
-            if(modTok != null && modTok.o1 != null){
-            	checkForToken = modTok.o2;
-                if(modTok.o2.length() == 0){
+            if (modTok != null && modTok.o1 != null) {
+                checkForToken = modTok.o2;
+                if (modTok.o2.length() == 0) {
                     wasResolved = true;
-                    
-                } else{
+
+                } else {
                     try {
-                    	checkForToken = AbstractASTManager.getTokToSearchInOtherModule(modTok);
-                        if( astManager.getRepInModule(modTok.o1, checkForToken, nature) != null){
+                        checkForToken = AbstractASTManager.getTokToSearchInOtherModule(modTok);
+                        if (astManager.getRepInModule(modTok.o1, checkForToken, nature) != null) {
                             wasResolved = true;
                         }
                     } catch (CompletionRecursionException e) {
@@ -202,19 +203,18 @@ public final class ImportChecker {
                     }
                 }
             }
-            
-            
+
             //if it got here, it was not resolved
-            if(!wasResolved && reportUndefinedImports){
+            if (!wasResolved && reportUndefinedImports) {
                 visitor.onAddUnresolvedImport(token);
             }
-            
+
         }
-        
+
         //might still return a modTok, even if the token we were looking for was not found.
-        if(modTok != null){
+        if (modTok != null) {
             return new ImportInfo(modTok.o1, checkForToken, modTok.o3, wasResolved);
-        }else{
+        } else {
             return new ImportInfo(null, null, null, wasResolved);
         }
     }

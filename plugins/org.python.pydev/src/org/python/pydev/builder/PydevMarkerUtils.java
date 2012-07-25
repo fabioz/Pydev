@@ -37,28 +37,27 @@ import org.python.pydev.core.structure.FastStringBuffer;
  * @author Fabio
  */
 public class PydevMarkerUtils {
-    
+
     /**
      * This class represents the information to create a marker.
      *
      * @author Fabio
      */
-    public static class MarkerInfo{
+    public static class MarkerInfo {
         public IDocument doc;
-        public String message; 
+        public String message;
         public String markerType;
-        public int severity; 
-        public boolean userEditable; 
+        public int severity;
+        public boolean userEditable;
         public boolean isTransient;
         public int lineStart;
         public int colStart;
-        public int lineEnd; 
-        public int absoluteStart=-1;
-        public int absoluteEnd=-1; 
-        public int colEnd; 
+        public int lineEnd;
+        public int absoluteStart = -1;
+        public int absoluteEnd = -1;
+        public int colEnd;
         public Map<String, Object> additionalInfo;
-        
-        
+
         /**
          * Constructor passing lines and relative positions
          */
@@ -78,14 +77,12 @@ public class PydevMarkerUtils {
             this.colEnd = colEnd;
             this.additionalInfo = additionalInfo;
         }
-        
-        
+
         /**
          * Constructor passing absolute position
          */
         public MarkerInfo(IDocument doc, String message, String markerType, int severity, boolean userEditable,
-                boolean isTransient, int line, int absoluteStart, int absoluteEnd,
-                Map<String, Object> additionalInfo) {
+                boolean isTransient, int line, int absoluteStart, int absoluteEnd, Map<String, Object> additionalInfo) {
             super();
             this.doc = doc;
             this.message = message;
@@ -105,13 +102,12 @@ public class PydevMarkerUtils {
          * @throws BadLocationException 
          */
         private HashMap<String, Object> getAsMap() throws BadLocationException {
-            
+
             if (lineStart < 0) {
                 lineStart = 0;
             }
 
-            
-            if(absoluteStart == -1 || absoluteEnd == -1){
+            if (absoluteStart == -1 || absoluteEnd == -1) {
                 //if the absolute wasn't specified, let's calculate it
                 IRegion start;
                 try {
@@ -122,11 +118,11 @@ public class PydevMarkerUtils {
                     //(a new request should fix this)
                     return null;
                 } catch (Exception e) {
-                    Log.log(IStatus.ERROR, "Could not get line: "+lineStart+" to add message: "+message, e);
+                    Log.log(IStatus.ERROR, "Could not get line: " + lineStart + " to add message: " + message, e);
                     return null;
                 }
-                
-                try{
+
+                try {
                     absoluteStart = start.getOffset() + colStart;
                     if (lineEnd >= 0 && colEnd >= 0) {
                         IRegion end = doc.getLineInformation(lineEnd);
@@ -152,12 +148,12 @@ public class PydevMarkerUtils {
                     //(a new request should fix this and create the markers correctly because of the change in the document)
                     return null;
 
-                }catch (Exception e) {
-                    Log.log(IStatus.INFO, "Problem creating map for:"+this.toString(), e);
+                } catch (Exception e) {
+                    Log.log(IStatus.INFO, "Problem creating map for:" + this.toString(), e);
                     return null;
                 }
             }
-            
+
             HashMap<String, Object> map = new HashMap<String, Object>();
             map.put(IMarker.MESSAGE, message);
             map.put(IMarker.LINE_NUMBER, lineStart);
@@ -166,13 +162,12 @@ public class PydevMarkerUtils {
             map.put(IMarker.SEVERITY, severity);
             map.put(IMarker.USER_EDITABLE, userEditable);
             map.put(IMarker.TRANSIENT, isTransient);
-            
-            if(additionalInfo != null){
+
+            if (additionalInfo != null) {
                 map.putAll(additionalInfo);
             }
             return map;
         }
-
 
         /**
          * Constructs a <code>String</code> with all attributes
@@ -181,34 +176,25 @@ public class PydevMarkerUtils {
          * @return a <code>String</code> representation 
          * of this object.
          */
-        public String toString(){
+        public String toString() {
             final String NL = "\n";
-            
+
             StringBuffer retValue = new StringBuffer();
-            
-            retValue.append("MarkerInfo (\n")
-                .append("doc = ").append(this.doc).append(NL)
-                .append("message = ").append(this.message).append(NL)
-                .append("markerType = ").append(this.markerType).append(NL)
-                .append("severity = ").append(this.severity).append(NL)
-                .append("userEditable = ").append(this.userEditable).append(NL)
-                .append("isTransient = ").append(this.isTransient).append(NL)
-                .append("lineStart = ").append(this.lineStart).append(NL)
-                .append("colStart = ").append(this.colStart).append(NL)
-                .append("lineEnd = ").append(this.lineEnd).append(NL)
-                .append("absoluteStart = ").append(this.absoluteStart).append(NL)
-                .append("absoluteEnd = ").append(this.absoluteEnd).append(NL)
-                .append("colEnd = ").append(this.colEnd).append(NL)
-                .append("additionalInfo = ").append(this.additionalInfo).append(NL)
-                .append(")");
-            
+
+            retValue.append("MarkerInfo (\n").append("doc = ").append(this.doc).append(NL).append("message = ")
+                    .append(this.message).append(NL).append("markerType = ").append(this.markerType).append(NL)
+                    .append("severity = ").append(this.severity).append(NL).append("userEditable = ")
+                    .append(this.userEditable).append(NL).append("isTransient = ").append(this.isTransient).append(NL)
+                    .append("lineStart = ").append(this.lineStart).append(NL).append("colStart = ")
+                    .append(this.colStart).append(NL).append("lineEnd = ").append(this.lineEnd).append(NL)
+                    .append("absoluteStart = ").append(this.absoluteStart).append(NL).append("absoluteEnd = ")
+                    .append(this.absoluteEnd).append(NL).append("colEnd = ").append(this.colEnd).append(NL)
+                    .append("additionalInfo = ").append(this.additionalInfo).append(NL).append(")");
+
             return retValue.toString();
         }
-        
-        
+
     }
-
-
 
     /**
      * This method allows clients to replace the existing markers of some type in a given resource for other markers.
@@ -219,78 +205,67 @@ public class PydevMarkerUtils {
      * @param removeUserEditable if true, will remove the user-editable markers too (otherwise, will leave the user-editable markers)
      * @param monitor used to check whether this process should be canceled.
      */
-    public static void replaceMarkers(
-            final List<MarkerInfo> lst, 
-            final IResource resource, 
-            final String markerType, 
-            final boolean removeUserEditable, 
-            IProgressMonitor monitor) {
+    public static void replaceMarkers(final List<MarkerInfo> lst, final IResource resource, final String markerType,
+            final boolean removeUserEditable, IProgressMonitor monitor) {
         IWorkspaceRunnable r = new IWorkspaceRunnable() {
-            
+
             public void run(IProgressMonitor monitor) throws CoreException {
-                if(!resource.exists()){
+                if (!resource.exists()) {
                     return;
                 }
                 try {
-                    if(removeUserEditable){
+                    if (removeUserEditable) {
                         resource.deleteMarkers(markerType, true, IResource.DEPTH_ZERO);
-                        
-                    }else{
+
+                    } else {
                         IMarker[] existingMarkers;
                         existingMarkers = resource.findMarkers(markerType, false, IResource.DEPTH_ZERO);
                         //we don't want to remove the user-editable markers, so, let's filter them out!
-                        existingMarkers = ArrayUtils.filter(existingMarkers, new ICallback<Boolean, IMarker>(){
-                            
+                        existingMarkers = ArrayUtils.filter(existingMarkers, new ICallback<Boolean, IMarker>() {
+
                             public Boolean call(IMarker marker) {
                                 //if it's user-editable, it should not be included in the list
                                 return !marker.getAttribute(IMarker.USER_EDITABLE, true); //default for user-editable is true.
-                            }}
-                        ).toArray(new IMarker[0]);
+                            }
+                        }).toArray(new IMarker[0]);
                         ResourcesPlugin.getWorkspace().deleteMarkers(existingMarkers);
                     }
                 } catch (Exception e1) {
                     Log.log(e1);
                 }
-                
-                
+
                 try {
                     for (MarkerInfo markerInfo : lst) {
                         HashMap<String, Object> asMap = markerInfo.getAsMap();
-                        IMarker marker= resource.createMarker(markerType);
+                        IMarker marker = resource.createMarker(markerType);
                         marker.setAttributes(asMap);
                     }
                 } catch (Exception e) {
                     Log.log(e);
                 }
-                
+
             }
         };
         try {
-			resource.getWorkspace().run(
-					r,
-					ResourcesPlugin.getWorkspace().getRuleFactory().markerRule(resource),
-					IWorkspace.AVOID_UPDATE, 
-					monitor);
+            resource.getWorkspace().run(r, ResourcesPlugin.getWorkspace().getRuleFactory().markerRule(resource),
+                    IWorkspace.AVOID_UPDATE, monitor);
         } catch (Exception e) {
             Log.log(e);
         }
     }
-
-
-
 
     /**
      * @param original 
      * @param pydevCoverageMarker
      */
     public static void removeMarkers(IResource resource, String markerType) {
-        if(resource == null){
+        if (resource == null) {
             return;
         }
         try {
             resource.deleteMarkers(markerType, false, IResource.DEPTH_ZERO);
         } catch (Exception e) {
             Log.log(e);
-        }        
+        }
     }
 }

@@ -60,22 +60,22 @@ import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
  * 
  * @author Fabio
  */
-public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase{
+public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase {
     /**
      * We want to keep it initialized among runs from the same class.
      * Check the restorePythonPath function.
      */
     public static PythonNature natureRefactoring;
-    
+
     /**
      * This is the last rename processor used (so, we may query it about other things)
      */
     protected PyRenameEntryPoint lastProcessorUsed;
-    
+
     /**
      * Backwards-compatibility interface
      */
-    protected boolean restoreProjectPythonPathRefactoring(boolean force, String path){
+    protected boolean restoreProjectPythonPathRefactoring(boolean force, String path) {
         return restoreProjectPythonPathRefactoring(force, path, "testProjectStubRefactoring");
     }
 
@@ -83,42 +83,41 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
      * The list of python files contained in the refactoring pysrc project
      */
     protected static Collection<PyFileInfo> filesInRefactoringProject;
-    
+
     public static final String CURRENT_MODULE_IN_REFERENCES = "__current_module__";
 
     protected static boolean DEBUG_REFERENCES = false;
-    
 
-    
-    
     /**
      * In the setUp, it initializes the files in the refactoring project
      * @see com.python.pydev.refactoring.refactorer.refactorings.renamelocal.RefactoringLocalTestBase#setUp()
      */
     public void setUp() throws Exception {
         super.setUp();
-        if (filesInRefactoringProject == null){
-            filesInRefactoringProject = PyFileListing.getPyFilesBelow(new File(TestDependent.TEST_COM_REFACTORING_PYSRC_LOC), 
-                    new NullProgressMonitor(), true, false).getFoundPyFileInfos();
-            
+        if (filesInRefactoringProject == null) {
+            filesInRefactoringProject = PyFileListing.getPyFilesBelow(
+                    new File(TestDependent.TEST_COM_REFACTORING_PYSRC_LOC), new NullProgressMonitor(), true, false)
+                    .getFoundPyFileInfos();
+
             ArrayList<Tuple<List<ModulesKey>, IPythonNature>> iFiles = new ArrayList<Tuple<List<ModulesKey>, IPythonNature>>();
             List<ModulesKey> modules = new ArrayList<ModulesKey>();
-            
+
             iFiles.add(new Tuple<List<ModulesKey>, IPythonNature>(modules, natureRefactoring));
             FastStringBuffer tempBuf = new FastStringBuffer();
-            for (PyFileInfo info: filesInRefactoringProject) {
+            for (PyFileInfo info : filesInRefactoringProject) {
                 File f = info.getFile();
                 String modName = info.getModuleName(tempBuf);
                 ModulesKey modulesKey = new ModulesKey(modName, f);
                 modules.add(modulesKey);
-                
+
                 SourceModule mod = (SourceModule) AbstractModule.createModule(modName, f, natureRefactoring, true);
-                
+
                 //also create the additional info so that it can be used for finds
-                AbstractAdditionalTokensInfo additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(natureRefactoring);
+                AbstractAdditionalTokensInfo additionalInfo = AdditionalProjectInterpreterInfo
+                        .getAdditionalInfoForProject(natureRefactoring);
                 additionalInfo.addAstInfo(mod.getAst(), modulesKey, false);
             }
-            
+
             RefactorerFindReferences.FORCED_RETURN = iFiles;
         }
     }
@@ -127,18 +126,18 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
     public void tearDown() throws Exception {
         super.tearDown();
     }
-    
+
     /**
      * Checks if the refactor processes are all of the type we're testing here.
      */
     protected void checkProcessors() {
-        if(lastProcessorUsed != null){
+        if (lastProcessorUsed != null) {
             List<IRefactorRenameProcess> processes = lastProcessorUsed.process;
             assertEquals(1, processes.size());
-            
-            for(IRefactorRenameProcess p:processes){
-                assertTrue( StringUtils.format("Expected %s. Received:%s", getProcessUnderTest(), p.getClass()),
-                            getProcessUnderTest().isInstance(p)); //we should only activate the rename class process in this test case
+
+            for (IRefactorRenameProcess p : processes) {
+                assertTrue(StringUtils.format("Expected %s. Received:%s", getProcessUnderTest(), p.getClass()),
+                        getProcessUnderTest().isInstance(p)); //we should only activate the rename class process in this test case
             }
         }
     }
@@ -156,11 +155,11 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
      * @param name the name for the project
      * @return true if the creation was needed and false if it wasn't
      */
-    protected boolean restoreProjectPythonPathRefactoring(boolean force, String path, String name){
+    protected boolean restoreProjectPythonPathRefactoring(boolean force, String path, String name) {
         PythonNature n = checkNewNature(name, force);
-        if(n != null){
+        if (n != null) {
             natureRefactoring = n;
-            
+
             ProjectStub projectFromNatureRefactoring = new ProjectStub(name, path, new IProject[0], new IProject[0]);
             setAstManager(path, projectFromNatureRefactoring, natureRefactoring);
             return true;
@@ -174,40 +173,40 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
      * @param force whether this should be forced, even if it was previously created for this class
      */
     @Override
-    public void restorePythonPath(boolean force){
-        if(DEBUG_TESTS_BASE){
+    public void restorePythonPath(boolean force) {
+        if (DEBUG_TESTS_BASE) {
             System.out.println("-------------- Restoring system pythonpath");
         }
         restoreSystemPythonPath(force, TestDependent.PYTHON_LIB);
-        if(DEBUG_TESTS_BASE){
+        if (DEBUG_TESTS_BASE) {
             System.out.println("-------------- Restoring project pythonpath for refactoring nature");
         }
         restoreProjectPythonPathRefactoring(force, TestDependent.TEST_COM_REFACTORING_PYSRC_LOC);
-        if(DEBUG_TESTS_BASE){
+        if (DEBUG_TESTS_BASE) {
             System.out.println("-------------- Checking size (for projrefactoring)");
         }
-        
+
         checkSize();
     }
 
-    
     /**
      * checks if the size of the system modules manager and the project moule manager are coherent
      * (we must have more modules in the system than in the project)
      */
     protected void checkSize() {
-        try{
+        try {
             IInterpreterManager iMan = getInterpreterManager();
             InterpreterInfo info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(false);
             assertTrue(info.getModulesManager().getSize(true) > 0);
-            
-            int size = ((ASTManager)natureRefactoring.getAstManager()).getSize();
-            assertTrue("Interpreter size:"+info.getModulesManager().getSize(true)+" should be smaller than project size:"+size+" " +
-                    "(because it contains system+project info)" , info.getModulesManager().getSize(true) < size );
-        }catch(MisconfigurationException e){
+
+            int size = ((ASTManager) natureRefactoring.getAstManager()).getSize();
+            assertTrue("Interpreter size:" + info.getModulesManager().getSize(true)
+                    + " should be smaller than project size:" + size + " "
+                    + "(because it contains system+project info)", info.getModulesManager().getSize(true) < size);
+        } catch (MisconfigurationException e) {
             throw new RuntimeException(e);
         }
-        
+
     }
 
     /**
@@ -217,34 +216,36 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
      */
     protected Map<String, HashSet<ASTEntry>> getReferencesForRenameSimple(String moduleName, int line, int col) {
         Map<String, HashSet<ASTEntry>> referencesForRename = getReferencesForRenameSimple(moduleName, line, col, false);
-        if(DEBUG_REFERENCES){
+        if (DEBUG_REFERENCES) {
             for (Map.Entry<String, HashSet<ASTEntry>> entry : referencesForRename.entrySet()) {
                 System.out.println(entry.getKey());
-                for(ASTEntry e :entry.getValue()){
+                for (ASTEntry e : entry.getValue()) {
                     System.out.println(e);
                 }
             }
         }
         return referencesForRename;
     }
-    
+
     /**
      * Same as {@link #getReferencesForRename(String, int, int, boolean)} but returning
      * the key for the map as a string with the module name.
      */
-    protected Map<String, HashSet<ASTEntry>> getReferencesForRenameSimple(String moduleName, int line, int col, boolean expectError) {
-        Map<String, HashSet<ASTEntry>> occurrencesToReturn=new HashMap<String, HashSet<ASTEntry>>();
-        
-        Map<Tuple<String, File>, HashSet<ASTEntry>> referencesForRename = getReferencesForRename(moduleName, line, col, expectError);
+    protected Map<String, HashSet<ASTEntry>> getReferencesForRenameSimple(String moduleName, int line, int col,
+            boolean expectError) {
+        Map<String, HashSet<ASTEntry>> occurrencesToReturn = new HashMap<String, HashSet<ASTEntry>>();
+
+        Map<Tuple<String, File>, HashSet<ASTEntry>> referencesForRename = getReferencesForRename(moduleName, line, col,
+                expectError);
         for (Map.Entry<Tuple<String, File>, HashSet<ASTEntry>> entry : referencesForRename.entrySet()) {
-            if(occurrencesToReturn.get(entry.getKey()) != null){
-                throw new RuntimeException("Error. Module: "+entry.getKey()+" already exists.");
+            if (occurrencesToReturn.get(entry.getKey()) != null) {
+                throw new RuntimeException("Error. Module: " + entry.getKey() + " already exists.");
             }
             occurrencesToReturn.put(entry.getKey().o1, entry.getValue());
-        }        
+        }
         return occurrencesToReturn;
     }
-    
+
     /**
      * Goes through all the workspace (in this case the refactoring project) and gathers the references
      * for the current selection.
@@ -256,24 +257,26 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
      * @return a map with the name of the module and the file representing it pointing to the
      * references found in that module.
      */
-    protected Map<Tuple<String, File>, HashSet<ASTEntry>> getReferencesForRename(String moduleName, int line, int col, boolean expectError) {
-        Map<Tuple<String, File>, HashSet<ASTEntry>> occurrencesToReturn=null;
+    protected Map<Tuple<String, File>, HashSet<ASTEntry>> getReferencesForRename(String moduleName, int line, int col,
+            boolean expectError) {
+        Map<Tuple<String, File>, HashSet<ASTEntry>> occurrencesToReturn = null;
         try {
-            IProjectModulesManager modulesManager = (IProjectModulesManager) natureRefactoring.getAstManager().getModulesManager();
+            IProjectModulesManager modulesManager = (IProjectModulesManager) natureRefactoring.getAstManager()
+                    .getModulesManager();
             IModule module = modulesManager.getModuleInDirectManager(moduleName, natureRefactoring, true);
-            if(module == null){
-                throw new RuntimeException("Unable to get source module for module:"+moduleName);
+            if (module == null) {
+                throw new RuntimeException("Unable to get source module for module:" + moduleName);
             }
             String strDoc = REF.getFileContents(module.getFile());
-            
+
             Document doc = new Document(strDoc);
             PySelection ps = new PySelection(doc, line, col);
-            
+
             RefactoringRequest request = new RefactoringRequest(null, ps, natureRefactoring);
             request.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false);
             request.moduleName = moduleName;
             request.fillInitialNameAndOffset();
-    
+
             PyRenameEntryPoint processor = new PyRenameEntryPoint(request);
             NullProgressMonitor nullProgressMonitor = new NullProgressMonitor();
             checkStatus(processor.checkInitialConditions(nullProgressMonitor), expectError);
@@ -282,33 +285,33 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
 
             checkStatus(processor.checkFinalConditions(nullProgressMonitor, null, false), expectError);
             occurrencesToReturn = processor.getOccurrencesInOtherFiles();
-            occurrencesToReturn.put(new Tuple<String, File>(CURRENT_MODULE_IN_REFERENCES, null), processor.getOccurrences());
+            occurrencesToReturn.put(new Tuple<String, File>(CURRENT_MODULE_IN_REFERENCES, null),
+                    processor.getOccurrences());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
         return occurrencesToReturn;
     }
-   
+
     /**
      * Used to see if some line/col is available in a list of entries.
      */
     protected void assertContains(int line, int col, HashSet<ASTEntry> names) {
         for (ASTEntry name : names) {
             SimpleNode node = name.node;
-            if(node instanceof ClassDef){
-                node = ((ClassDef)node).name; 
+            if (node instanceof ClassDef) {
+                node = ((ClassDef) node).name;
             }
-            if(node instanceof FunctionDef){
-                node = ((FunctionDef)node).name; 
+            if (node instanceof FunctionDef) {
+                node = ((FunctionDef) node).name;
             }
-            if(node.beginLine == line && node.beginColumn == col){
+            if (node.beginLine == line && node.beginColumn == col) {
                 return;
             }
         }
         fail(StringUtils.format("Unable to find line:%s col:%s in %s", line, col, names));
-        
-    }
 
+    }
 
 }

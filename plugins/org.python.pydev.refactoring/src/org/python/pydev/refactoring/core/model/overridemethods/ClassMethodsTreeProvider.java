@@ -39,8 +39,8 @@ public class ClassMethodsTreeProvider implements ITreeContentProvider {
 
     public Object[] getElements(Object inputElement) {
         Collection<ClassTreeNode> elements = new ArrayList<ClassTreeNode>();
-        for(IClassDefAdapter elem:classes){
-            if(elem.hasFunctionsInitFiltered()){
+        for (IClassDefAdapter elem : classes) {
+            if (elem.hasFunctionsInitFiltered()) {
                 elements.add(new ClassTreeNode(elem));
             }
         }

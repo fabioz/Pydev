@@ -9,7 +9,6 @@
  *******************************************************************************/
 package org.python.pydev.dltk.console.ui.internal;
 
-
 import java.util.List;
 
 import org.eclipse.core.runtime.SafeRunner;
@@ -73,14 +72,14 @@ import org.python.pydev.editor.codecompletion.PyContentAssistant;
  * user does are issued in the correct places in the document and that only editable places are
  * actually editable 
  */
-public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptConsoleViewer, 
-    IScriptConsoleViewer2ForDocumentListener {
+public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptConsoleViewer,
+        IScriptConsoleViewer2ForDocumentListener {
 
     /**
      * Boolean determining if we're currently requesting a completion
      */
     private boolean inCompletion = false;
-    
+
     /**
      * Holds the command history for the console
      */
@@ -105,23 +104,24 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
      * Attribute defines if this is the main viewer (other viewers may be associated to the same document) 
      */
     private boolean isMainViewer;
-    
+
     /**
      * This class is responsible for checking if commands should be issued or not given the command requested
      * and updating the caret to the correct position for it to happen (if needed).
      */
     private final class KeyChecker implements VerifyKeyListener {
-        
+
         public void verifyKey(VerifyEvent event) {
             try {
                 if (event.character != '\0') { // Printable character
-                    
-                    if(Character.isLetter(event.character) && (event.stateMask == 0 || (event.stateMask & SWT.SHIFT) != 0)){
+
+                    if (Character.isLetter(event.character)
+                            && (event.stateMask == 0 || (event.stateMask & SWT.SHIFT) != 0)) {
                         //it's a valid letter without any stateMask (so, just entering regular text or upper/lowercase -- if shift is there).
                         if (!isSelectedRangeEditable()) {
                             getTextWidget().setCaretOffset(getDocument().getLength());
                         }
-                        
+
                     }
 
                     if (!isSelectedRangeEditable()) {
@@ -130,13 +130,13 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                     }
 
                     if (event.character == SWT.CR || event.character == SWT.LF) {
-                        
+
                         //if we had an enter with the shift pressed and we're in a completion, we must stop it
-                        if(inCompletion && (event.stateMask & SWT.SHIFT) != 0){
-                            ((PyContentAssistant)ScriptConsoleViewer.this.fContentAssistant).hide();
+                        if (inCompletion && (event.stateMask & SWT.SHIFT) != 0) {
+                            ((PyContentAssistant) ScriptConsoleViewer.this.fContentAssistant).hide();
                         }
-                        
-                        if(!inCompletion){
+
+                        if (!inCompletion) {
                             //in a new line, always set the caret to the end of the document (if not in completion)
                             //(note that when we make a hide in the previous 'if', it will automatically exit the
                             //completion mode (so, it'll also get into this part of the code)
@@ -144,26 +144,26 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                         }
                         return;
                     }
-                    
+
                     if (event.character == SWT.ESC) {
-                        if(!inCompletion){
+                        if (!inCompletion) {
                             //while in a completion, esc won't clear the line (just stop the completion)
                             listener.setCommandLine("");
                         }
                         return;
                     }
-                }else{ //not printable char
+                } else { //not printable char
                     if (isCaretInEditableRange()) {
-                        if(!inCompletion && event.keyCode == SWT.PAGE_UP){
+                        if (!inCompletion && event.keyCode == SWT.PAGE_UP) {
                             event.doit = false;
                             List<String> commands = history.getAsList();
                             List<String> commandsToExecute = ScriptConsoleHistorySelector.select(commands);
-                            if(commandsToExecute != null){
+                            if (commandsToExecute != null) {
                                 //remove the current command (substituted by the one gotten from page up)
                                 listener.setCommandLine("");
                                 IDocument d = getDocument();
                                 //Pass them all at once (let the document listener separate the command in lines).
-                                d.replace(d.getLength(), 0, StringUtils.join("\n", commandsToExecute)+"\n");
+                                d.replace(d.getLength(), 0, StringUtils.join("\n", commandsToExecute) + "\n");
                             }
                             return;
                         }
@@ -175,12 +175,11 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         }
     }
 
-    
     /**
      * Marks if a history request just started.
      */
     volatile int inHistoryRequests = 0;
-    volatile boolean changedAfterLastHistoryRequest=false;
+    volatile boolean changedAfterLastHistoryRequest = false;
 
     private final boolean focusOnStart;
 
@@ -196,7 +195,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
          * line -- nor in the prompt)
          */
         private HandleBackspaceAction handleBackspaceAction;
-        
+
         /**
          * Handles a delete previous word (should guarantee that it does not delete things that are not in the last
          * line -- nor in the prompt)
@@ -208,17 +207,17 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
          * 1st char of text, beginning of prompt, beginning of line.
          */
         private HandleLineStartAction handleLineStartAction;
-        
+
         /**
          * Contains the caret offset that has been set from the console API.
          */
         private volatile int internalCaretSet = -1;
-        
+
         /**
          * Set to true when drag source/target are the same console
          */
         private boolean thisConsoleInitiatedDrag = false;
-        
+
         /**
          * Constructor.
          * 
@@ -227,7 +226,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
          */
         public ScriptConsoleStyledText(Composite parent, int style) {
             super(parent, style);
-            
+
             /**
              * The StyledText will change the caretOffset that we've updated during the modifications,
              * so, the verify and the extended modify listener will keep track if it actually does
@@ -235,189 +234,186 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
              * 
              * Feels like a hack but I couldn't find a better way to do it.
              */
-            addVerifyListener(new VerifyListener(){
+            addVerifyListener(new VerifyListener() {
 
                 public void verifyText(VerifyEvent e) {
                     internalCaretSet = -1;
-                }}
-            );
+                }
+            });
 
             /**
              * Set it to the location we've set it to be.
              */
-            addExtendedModifyListener(new ExtendedModifyListener(){
+            addExtendedModifyListener(new ExtendedModifyListener() {
 
                 public void modifyText(ExtendedModifyEvent event) {
-                    if(internalCaretSet != -1){
-                        if(internalCaretSet != getCaretOffset()){
+                    if (internalCaretSet != -1) {
+                        if (internalCaretSet != getCaretOffset()) {
                             setCaretOffset(internalCaretSet);
                         }
                         internalCaretSet = -1;
                     }
-                }}
-            );
-            
+                }
+            });
+
             initDragDrop();
-            
+
             handleBackspaceAction = new HandleBackspaceAction();
             handleDeletePreviousWord = new HandleDeletePreviousWord();
             handleLineStartAction = new HandleLineStartAction();
         }
 
-    	private void initDragDrop() {
-    		DragSource dragSource = new DragSource(this, DND.DROP_COPY | DND.DROP_MOVE);
-    		dragSource.addDragListener(new DragSourceAdapter());
-    		dragSource.setTransfer(new Transfer[] {org.eclipse.swt.dnd.TextTransfer.getInstance()});
-    		
-    		DropTarget dropTarget = new DropTarget(this, DND.DROP_COPY | DND.DROP_MOVE);
-			dropTarget.setTransfer(new Transfer[] { LocalSelectionTransfer.getTransfer(),
-					org.eclipse.swt.dnd.TextTransfer.getInstance() });
-    		dropTarget.addDropListener(new DragTargetAdapter());
-    	}
-    	
-		private final class DragSourceAdapter implements DragSourceListener {
-    		private Point selection;
-			private String selectionText = null;
-			private boolean selectionIsEditable;
+        private void initDragDrop() {
+            DragSource dragSource = new DragSource(this, DND.DROP_COPY | DND.DROP_MOVE);
+            dragSource.addDragListener(new DragSourceAdapter());
+            dragSource.setTransfer(new Transfer[] { org.eclipse.swt.dnd.TextTransfer.getInstance() });
 
-			public void dragStart(DragSourceEvent event) {
-				thisConsoleInitiatedDrag = false;
-				selectionText = null;
-				event.doit = false;
-				if (getSelectedRange().y > 0) {
-					String temp_selection = new ClipboardHandler().getPlainText(getDocument(), getSelectedRange());
-					if (temp_selection != null && temp_selection.length() > 0) {
-						event.doit = true;
-						selectionText = temp_selection;
-						selection = getSelection();
-						selectionIsEditable = isSelectedRangeEditable();
-					}
-				}
-			}
-			
+            DropTarget dropTarget = new DropTarget(this, DND.DROP_COPY | DND.DROP_MOVE);
+            dropTarget.setTransfer(new Transfer[] { LocalSelectionTransfer.getTransfer(),
+                    org.eclipse.swt.dnd.TextTransfer.getInstance() });
+            dropTarget.addDropListener(new DragTargetAdapter());
+        }
 
-			public void dragSetData(DragSourceEvent event) {
-				if (TextTransfer.getInstance().isSupportedType(event.dataType)) {
-					event.data = selectionText;
-					thisConsoleInitiatedDrag = true;
-				}
-			}
+        private final class DragSourceAdapter implements DragSourceListener {
+            private Point selection;
+            private String selectionText = null;
+            private boolean selectionIsEditable;
 
-			public void dragFinished(DragSourceEvent event) {
-				try {
-					if (event.detail == DND.DROP_MOVE && selectionIsEditable) {
-						Point newSelection = getSelection();
-						int length = selection.y - selection.x;
-						int delta = 0;
-						if (newSelection.x < selection.x)
-							delta = length;
-						replaceTextRange(selection.x + delta, length, "");
-					}
-				} finally {
-    				thisConsoleInitiatedDrag = false;
-    			}
-    		}
-    	}
+            public void dragStart(DragSourceEvent event) {
+                thisConsoleInitiatedDrag = false;
+                selectionText = null;
+                event.doit = false;
+                if (getSelectedRange().y > 0) {
+                    String temp_selection = new ClipboardHandler().getPlainText(getDocument(), getSelectedRange());
+                    if (temp_selection != null && temp_selection.length() > 0) {
+                        event.doit = true;
+                        selectionText = temp_selection;
+                        selection = getSelection();
+                        selectionIsEditable = isSelectedRangeEditable();
+                    }
+                }
+            }
 
-		private final class DragTargetAdapter implements DropTargetListener {
+            public void dragSetData(DragSourceEvent event) {
+                if (TextTransfer.getInstance().isSupportedType(event.dataType)) {
+                    event.data = selectionText;
+                    thisConsoleInitiatedDrag = true;
+                }
+            }
 
-			private SafeScriptConsoleCodeGenerator getSafeGenerator() {
-				ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
-				IScriptConsoleCodeGenerator codeGenerator = PythonSnippetUtils.getScriptConsoleCodeGeneratorAdapter(selection);
-				return new SafeScriptConsoleCodeGenerator(codeGenerator);
-			}
+            public void dragFinished(DragSourceEvent event) {
+                try {
+                    if (event.detail == DND.DROP_MOVE && selectionIsEditable) {
+                        Point newSelection = getSelection();
+                        int length = selection.y - selection.x;
+                        int delta = 0;
+                        if (newSelection.x < selection.x)
+                            delta = length;
+                        replaceTextRange(selection.x + delta, length, "");
+                    }
+                } finally {
+                    thisConsoleInitiatedDrag = false;
+                }
+            }
+        }
 
-			/**
-			 * We cancel the drop if we don't have anything to drop
-			 */
-			private boolean forceDropNone(DropTargetEvent event) {
-				if (LocalSelectionTransfer.getTransfer().isSupportedType(event.currentDataType)) {
-					IScriptConsoleCodeGenerator codeGenerator = getSafeGenerator();
-					if (codeGenerator == null || codeGenerator.hasPyCode() == false) {
-						return true;
-					}
-				}
-				return false;
-			}
+        private final class DragTargetAdapter implements DropTargetListener {
 
-			private void adjustEventDetail(DropTargetEvent event) {
-				if (forceDropNone(event)) {
-					event.detail = DND.DROP_NONE;
-				} else if (!thisConsoleInitiatedDrag && (event.operations & DND.DROP_COPY) != 0) {
-					event.detail = DND.DROP_COPY;
-				} else if ((event.operations & DND.DROP_MOVE) != 0) {
-					event.detail = DND.DROP_MOVE;
-				} else if ((event.operations & DND.DROP_COPY) != 0) {
-					event.detail = DND.DROP_COPY;
-				} else {
-					event.detail = DND.DROP_NONE;
-				}
-			}
+            private SafeScriptConsoleCodeGenerator getSafeGenerator() {
+                ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
+                IScriptConsoleCodeGenerator codeGenerator = PythonSnippetUtils
+                        .getScriptConsoleCodeGeneratorAdapter(selection);
+                return new SafeScriptConsoleCodeGenerator(codeGenerator);
+            }
 
-			public void dragEnter(DropTargetEvent event) {
-				thisConsoleInitiatedDrag = false;
-				adjustEventDetail(event);
-			}
+            /**
+             * We cancel the drop if we don't have anything to drop
+             */
+            private boolean forceDropNone(DropTargetEvent event) {
+                if (LocalSelectionTransfer.getTransfer().isSupportedType(event.currentDataType)) {
+                    IScriptConsoleCodeGenerator codeGenerator = getSafeGenerator();
+                    if (codeGenerator == null || codeGenerator.hasPyCode() == false) {
+                        return true;
+                    }
+                }
+                return false;
+            }
 
-			public void dragOver(DropTargetEvent event) {
-				event.feedback |= DND.FEEDBACK_SCROLL;
-			}
+            private void adjustEventDetail(DropTargetEvent event) {
+                if (forceDropNone(event)) {
+                    event.detail = DND.DROP_NONE;
+                } else if (!thisConsoleInitiatedDrag && (event.operations & DND.DROP_COPY) != 0) {
+                    event.detail = DND.DROP_COPY;
+                } else if ((event.operations & DND.DROP_MOVE) != 0) {
+                    event.detail = DND.DROP_MOVE;
+                } else if ((event.operations & DND.DROP_COPY) != 0) {
+                    event.detail = DND.DROP_COPY;
+                } else {
+                    event.detail = DND.DROP_NONE;
+                }
+            }
 
-			public void dragOperationChanged(DropTargetEvent event) {
-				adjustEventDetail(event);
-			}
+            public void dragEnter(DropTargetEvent event) {
+                thisConsoleInitiatedDrag = false;
+                adjustEventDetail(event);
+            }
 
-			public void dropAccept(DropTargetEvent event) {
-				adjustEventDetail(event);
-			}
+            public void dragOver(DropTargetEvent event) {
+                event.feedback |= DND.FEEDBACK_SCROLL;
+            }
 
-			public void drop(DropTargetEvent event) {
-				if (event.operations == DND.DROP_NONE) {
-					// nothing to do
-					return;
-				}
+            public void dragOperationChanged(DropTargetEvent event) {
+                adjustEventDetail(event);
+            }
 
-				String text = null;
-				if (TextTransfer.getInstance().isSupportedType(event.currentDataType)) {
-					text = (String) event.data;
+            public void dropAccept(DropTargetEvent event) {
+                adjustEventDetail(event);
+            }
 
-				} else if (LocalSelectionTransfer.getTransfer().isSupportedType(event.currentDataType)) {
-					IScriptConsoleCodeGenerator codeGenerator = getSafeGenerator();
-					if (codeGenerator != null) {
-						text = codeGenerator.getPyCode();
-					}
-				}
+            public void drop(DropTargetEvent event) {
+                if (event.operations == DND.DROP_NONE) {
+                    // nothing to do
+                    return;
+                }
 
-				if (text != null && text.length() > 0) {
-					Point selectedRange = getSelectedRange();
-					if (selectedRange.x < getLastLineOffset()) {
-						changeSelectionToEditableRange();
-					} else {
-						int commandLineOffset = getCommandLineOffset();
-						if (selectedRange.x < commandLineOffset) {
-							setSelectedRange(commandLineOffset, 0);
-						}
-					}
-					// else, is in range
+                String text = null;
+                if (TextTransfer.getInstance().isSupportedType(event.currentDataType)) {
+                    text = (String) event.data;
 
-					Point newSelection = getSelection();
-					try {
-						getDocument().replace(newSelection.x, 0, text);
-					} catch (BadLocationException e) {
-						return;
-					}
-					setSelectionRange(newSelection.x, text.length());
-					changeSelectionToEditableRange();
-				}
+                } else if (LocalSelectionTransfer.getTransfer().isSupportedType(event.currentDataType)) {
+                    IScriptConsoleCodeGenerator codeGenerator = getSafeGenerator();
+                    if (codeGenerator != null) {
+                        text = codeGenerator.getPyCode();
+                    }
+                }
 
-			}
+                if (text != null && text.length() > 0) {
+                    Point selectedRange = getSelectedRange();
+                    if (selectedRange.x < getLastLineOffset()) {
+                        changeSelectionToEditableRange();
+                    } else {
+                        int commandLineOffset = getCommandLineOffset();
+                        if (selectedRange.x < commandLineOffset) {
+                            setSelectedRange(commandLineOffset, 0);
+                        }
+                    }
+                    // else, is in range
 
-			public void dragLeave(DropTargetEvent event) {
-			}
-    	}
+                    Point newSelection = getSelection();
+                    try {
+                        getDocument().replace(newSelection.x, 0, text);
+                    } catch (BadLocationException e) {
+                        return;
+                    }
+                    setSelectionRange(newSelection.x, text.length());
+                    changeSelectionToEditableRange();
+                }
 
+            }
 
-
+            public void dragLeave(DropTargetEvent event) {
+            }
+        }
 
         /**
          * Overridden to keep track of changes in the caret.
@@ -427,7 +423,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
             internalCaretSet = offset;
             super.setCaretOffset(offset);
         }
-        
+
         /**
          * Execute some action.
          */
@@ -435,50 +431,50 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
             //some actions have a different scope (not in selected range / out of selected range)
             switch (action) {
                 case ST.LINE_START:
-                    if(handleLineStartAction.execute(getDocument(), getCaretOffset(), 
-                            getCommandLineOffset(), ScriptConsoleViewer.this)){
+                    if (handleLineStartAction.execute(getDocument(), getCaretOffset(), getCommandLineOffset(),
+                            ScriptConsoleViewer.this)) {
                         return;
-                    }else{
+                    } else {
                         super.invokeAction(action);
                     }
 
             }
-            
-            
+
             if (isSelectedRangeEditable()) {
                 try {
                     int historyChange = 0;
                     switch (action) {
-                    case ST.LINE_UP:
-                        historyChange = 1;
-                        break;
+                        case ST.LINE_UP:
+                            historyChange = 1;
+                            break;
 
-                    case ST.LINE_DOWN:
-                        historyChange = 2;
-                        break;
+                        case ST.LINE_DOWN:
+                            historyChange = 2;
+                            break;
 
-                    case ST.DELETE_PREVIOUS:
-                        handleBackspaceAction.execute(getDocument(), (ITextSelection) ScriptConsoleViewer.this.getSelection(), getCommandLineOffset());
-                        return;
+                        case ST.DELETE_PREVIOUS:
+                            handleBackspaceAction.execute(getDocument(),
+                                    (ITextSelection) ScriptConsoleViewer.this.getSelection(), getCommandLineOffset());
+                            return;
 
-                    case ST.DELETE_WORD_PREVIOUS:
-                        handleDeletePreviousWord.execute(getDocument(), getCaretOffset(), getCommandLineOffset());
-                        return;
+                        case ST.DELETE_WORD_PREVIOUS:
+                            handleDeletePreviousWord.execute(getDocument(), getCaretOffset(), getCommandLineOffset());
+                            return;
                     }
-                    
-                    if(historyChange != 0){
-                        if(changedAfterLastHistoryRequest){
+
+                    if (historyChange != 0) {
+                        if (changedAfterLastHistoryRequest) {
                             //only set a new match if it didn't change since the last time we did an UP/DOWN
                             history.setMatchStart(getCommandLine());
                         }
                         boolean didChange;
-                        if(historyChange == 1){
+                        if (historyChange == 1) {
                             didChange = history.prev();
-                        }else{
+                        } else {
                             didChange = history.next();
                         }
-                        
-                        if(didChange){
+
+                        if (didChange) {
                             inHistoryRequests += 1;
                             try {
                                 listener.setCommandLine(history.get());
@@ -490,7 +486,6 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                         changedAfterLastHistoryRequest = false;
                         return;
                     }
-
 
                 } catch (BadLocationException e) {
                     Log.log(e);
@@ -506,9 +501,6 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
             }
         }
 
-        
-
-        
         /**
          * When cutting something, we must be sure that it'll only mess with the contents
          * in the command line.
@@ -518,7 +510,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
             changeSelectionToEditableRange();
             super.cut();
         }
-        
+
         /**
          * When pasting something, we must be sure that it'll only mess with the contents
          * in the command line.
@@ -528,7 +520,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
             changeSelectionToEditableRange();
             super.paste();
         }
-        
+
         /**
          * When copying something, we don't want to copy the prompt contents.
          */
@@ -536,22 +528,21 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         public void copy() {
             copy(DND.CLIPBOARD);
         }
-        
+
         /**
          * When copying something, we don't want to copy the prompt contents.
          */
         @Override
         public void copy(int clipboardType) {
             checkWidget();
-            
+
             Point selectedRange = getSelectedRange();
             if (selectedRange.y > 0) {
                 IDocument doc = getDocument();
-                
+
                 new ClipboardHandler().putIntoClipboard(doc, selectedRange, clipboardType, getDisplay());
             }
         }
-        
 
         /**
          * Changes the selected range to be all editable. 
@@ -559,26 +550,26 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         protected void changeSelectionToEditableRange() {
             Point range = getSelectedRange();
             int commandLineOffset = getCommandLineOffset();
-            
+
             int minOffset = range.x;
-            int maxOffset = range.x+range.y;
+            int maxOffset = range.x + range.y;
             boolean changed = false;
             boolean goToEnd = false;
-            
-            if(minOffset < commandLineOffset){
+
+            if (minOffset < commandLineOffset) {
                 minOffset = commandLineOffset;
                 changed = true;
             }
-            
-            if(maxOffset < commandLineOffset){
+
+            if (maxOffset < commandLineOffset) {
                 maxOffset = commandLineOffset;
                 changed = true;
                 // Only go to the end of the buffer if  the max offset isn't in range
                 goToEnd = true;
             }
-            
-            if(changed){
-                setSelectedRange(minOffset, maxOffset-minOffset);
+
+            if (changed) {
+                setSelectedRange(minOffset, maxOffset - minOffset);
             }
 
             if (goToEnd) {
@@ -600,10 +591,10 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
     public int getCaretOffset() {
         return getTextWidget().getCaretOffset();
     }
-    
+
     public IInterpreterInfo getInterpreterInfo() {
-		return this.console.getInterpreterInfo();
-	}
+        return this.console.getInterpreterInfo();
+    }
 
     /**
      * Sets the new caret position in the console.
@@ -612,17 +603,17 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
      */
     public void setCaretOffset(final int offset, boolean async) {
         final StyledText textWidget = getTextWidget();
-        if(textWidget != null){
-            if(async){
+        if (textWidget != null) {
+            if (async) {
                 Display display = textWidget.getDisplay();
-                if(display != null){
+                if (display != null) {
                     display.asyncExec(new Runnable() {
                         public void run() {
                             textWidget.setCaretOffset(offset);
                         }
                     });
                 }
-            }else{
+            } else {
                 textWidget.setCaretOffset(offset);
             }
         }
@@ -631,36 +622,36 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
     /**
      * @return true if the currently selected range is editable (all chars must be editable)
      */
-    protected boolean isSelectedRangeEditable(){
+    protected boolean isSelectedRangeEditable() {
         Point range = getSelectedRange();
         int commandLineOffset = getCommandLineOffset();
-        
-        if(range.x < commandLineOffset){
+
+        if (range.x < commandLineOffset) {
             return false;
         }
-        
-        if((range.x+range.y) < commandLineOffset){
+
+        if ((range.x + range.y) < commandLineOffset) {
             return false;
         }
-        
+
         return true;
     }
-    
+
     /**
      * @return true if the caret is currently in a position that can be edited.
      * @throws BadLocationException 
      */
-    protected boolean isCaretInLastLine() throws BadLocationException{
+    protected boolean isCaretInLastLine() throws BadLocationException {
         return getTextWidget().getCaretOffset() >= listener.getLastLineOffset();
     }
 
     /**
      * @return true if the caret is currently in a position that can be edited.
      */
-    protected boolean isCaretInEditableRange(){
+    protected boolean isCaretInEditableRange() {
         return getTextWidget().getCaretOffset() >= getCommandLineOffset();
     }
-    
+
     /**
      * Creates the styled text for the console
      */
@@ -677,62 +668,60 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
      * @param contentHandler
      */
     public ScriptConsoleViewer(Composite parent, ScriptConsole console,
-            final IScriptConsoleContentHandler contentHandler, IConsoleStyleProvider styleProvider, String initialCommands, boolean focusOnStart) {
+            final IScriptConsoleContentHandler contentHandler, IConsoleStyleProvider styleProvider,
+            String initialCommands, boolean focusOnStart) {
         super(parent, console);
         this.focusOnStart = focusOnStart;
 
         this.console = console;
         this.getTextWidget().setBackground(console.getPydevConsoleBackground());
 
-        
         ScriptConsoleViewer existingViewer = this.console.getViewer();
-        
-        if(existingViewer == null){
+
+        if (existingViewer == null) {
             this.isMainViewer = true;
             this.console.setViewer(this);
             this.styleProvider = styleProvider;
             this.history = console.getHistory();
-            
-            this.listener = new ScriptConsoleDocumentListener(this, console, console.getPrompt(), 
-                    console.getHistory(), console.getLineTrackers(), initialCommands);
-            
+
+            this.listener = new ScriptConsoleDocumentListener(this, console, console.getPrompt(), console.getHistory(),
+                    console.getLineTrackers(), initialCommands);
+
             this.listener.setDocument(getDocument());
-        }else{
+        } else {
             this.isMainViewer = false;
             this.styleProvider = existingViewer.styleProvider;
             this.history = existingViewer.history;
             this.listener = existingViewer.listener;
             this.listener.addViewer(this);
         }
-        
 
         final StyledText styledText = getTextWidget();
-        
-        
+
         //Added because we don't want the console to close when the user presses ESC
         //(as it would when it's on a floating window)
         //we do that because ESC is meant to clear the current line (and as such, 
         //should do that action and not close the console).
-        styledText.addTraverseListener(new TraverseListener(){
+        styledText.addTraverseListener(new TraverseListener() {
 
             public void keyTraversed(TraverseEvent e) {
-                if(e.detail == SWT.TRAVERSE_ESCAPE){
+                if (e.detail == SWT.TRAVERSE_ESCAPE) {
                     e.doit = false;
                 }
-            }});
+            }
+        });
 
-        
-        getDocument().addDocumentListener(new IDocumentListener(){
+        getDocument().addDocumentListener(new IDocumentListener() {
 
             public void documentAboutToBeChanged(DocumentEvent event) {
             }
 
             public void documentChanged(DocumentEvent event) {
-                if(inHistoryRequests == 0){
+                if (inHistoryRequests == 0) {
                     changedAfterLastHistoryRequest = true;
                 }
-            }}
-        );
+            }
+        });
 
         styledText.addFocusListener(new FocusListener() {
 
@@ -751,30 +740,29 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         });
 
         styledText.addVerifyKeyListener(new KeyChecker());
-        
+
         //content assist handling (we don't want to execute the event because the content assist handling
         //will be done here).
-        
+
         //verify if it was a content assist
-        styledText.addVerifyKeyListener(new VerifyKeyListener(){
+        styledText.addVerifyKeyListener(new VerifyKeyListener() {
             public void verifyKey(VerifyEvent event) {
-                if (KeyBindingHelper.matchesContentAssistKeybinding(event) || KeyBindingHelper.matchesQuickAssistKeybinding(event)) {
+                if (KeyBindingHelper.matchesContentAssistKeybinding(event)
+                        || KeyBindingHelper.matchesQuickAssistKeybinding(event)) {
                     event.doit = false;
                     return;
                 }
-            }}
-        );
+            }
+        });
 
-
-        
         //execute the content assist
         styledText.addKeyListener(new KeyListener() {
             public void keyPressed(KeyEvent e) {
-                if (getCaretOffset() >= getCommandLineOffset()){
+                if (getCaretOffset() >= getCommandLineOffset()) {
                     if (KeyBindingHelper.matchesContentAssistKeybinding(e)) {
                         contentHandler.contentAssistRequired();
-                        
-                    }else if (KeyBindingHelper.matchesQuickAssistKeybinding(e)) {
+
+                    } else if (KeyBindingHelper.matchesQuickAssistKeybinding(e)) {
                         contentHandler.quickAssistRequired();
                     }
                 }
@@ -786,44 +774,42 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 
     }
 
-
     /**
      * Listen to the completions because we've to know when we're doing a completion or not.
      */
     @Override
     public void configure(SourceViewerConfiguration configuration) {
         super.configure(configuration);
-        ICompletionListener completionListener = new ICompletionListener(){
-            
+        ICompletionListener completionListener = new ICompletionListener() {
+
             public void assistSessionStarted(ContentAssistEvent event) {
                 inCompletion = true;
             }
-            
+
             public void assistSessionEnded(ContentAssistEvent event) {
                 inCompletion = false;
             }
-            
+
             public void selectionChanged(ICompletionProposal proposal, boolean smartToggle) {
             }
         };
-        
-        if(fContentAssistant != null){
-            ((IContentAssistantExtension2)fContentAssistant).addCompletionListener(completionListener);
+
+        if (fContentAssistant != null) {
+            ((IContentAssistantExtension2) fContentAssistant).addCompletionListener(completionListener);
         }
-        
-        if(fQuickAssistAssistant != null){
+
+        if (fQuickAssistAssistant != null) {
             fQuickAssistAssistant.addCompletionListener(completionListener);
         }
-        
-        if(isMainViewer){
+
+        if (isMainViewer) {
             clear(true);
         }
-        if(focusOnStart){
+        if (focusOnStart) {
             this.getTextWidget().setFocus();
         }
     }
-    
-    
+
     /**
      * @return the contents of the current buffer (text edited still not passed to the shell)
      */
@@ -842,7 +828,6 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         }
     }
 
-
     /**
      * @return the offset where the line containing the current buffer starts (editable area of the document)
      */
@@ -853,8 +838,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
             return -1;
         }
     }
-    
-	
+
     /**
      * Used to clear the contents of the document
      */
@@ -868,7 +852,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
     public long getLastChangeMillis() {
         return listener.getLastChangeMillis();
     }
-    
+
     /*
      * Overridden just to change visibility.
      * 

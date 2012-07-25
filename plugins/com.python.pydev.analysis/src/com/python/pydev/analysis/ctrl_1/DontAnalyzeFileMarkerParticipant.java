@@ -27,27 +27,21 @@ import com.python.pydev.analysis.builder.AnalysisRunner;
 public class DontAnalyzeFileMarkerParticipant implements IAssistProps {
 
     private Image annotationImage;
-    public DontAnalyzeFileMarkerParticipant(){
+
+    public DontAnalyzeFileMarkerParticipant() {
         ImageCache analysisImageCache = PydevPlugin.getImageCache();
         annotationImage = analysisImageCache.get(UIConstants.ASSIST_ANNOTATION);
     }
 
-
-    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature, PyEdit edit, int offset) throws BadLocationException {
+    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature,
+            PyEdit edit, int offset) throws BadLocationException {
         List<ICompletionProposal> props = new ArrayList<ICompletionProposal>();
-        if(ps.getCursorLine() == 0){
-            IgnoreCompletionProposal proposal = new IgnoreCompletionProposal(
-                    AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE+ps.getEndLineDelim(),
-                    0, 
-                    0,
-                    AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE.length()+ps.getEndLineDelim().length(),
-                    annotationImage,
-                    AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE.substring(1),
-                    null,
-                    null,
-                    PyCompletionProposal.PRIORITY_DEFAULT,
-                    edit
-                    );
+        if (ps.getCursorLine() == 0) {
+            IgnoreCompletionProposal proposal = new IgnoreCompletionProposal(AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE
+                    + ps.getEndLineDelim(), 0, 0, AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE.length()
+                    + ps.getEndLineDelim().length(), annotationImage,
+                    AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE.substring(1), null, null,
+                    PyCompletionProposal.PRIORITY_DEFAULT, edit);
             props.add(proposal);
 
         }
@@ -55,7 +49,8 @@ public class DontAnalyzeFileMarkerParticipant implements IAssistProps {
     }
 
     public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
-        return ps.getCursorLine() == 0 && ps.getCursorLineContents().indexOf(AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE) == -1;
+        return ps.getCursorLine() == 0
+                && ps.getCursorLineContents().indexOf(AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE) == -1;
     }
 
 }

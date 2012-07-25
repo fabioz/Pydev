@@ -65,7 +65,7 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
         super(consoleName, consoleType, null, true);
 
         this.interpreter = interpreterArg;
-        
+
         this.consoleListeners = new ListenerList(ListenerList.IDENTITY);
         this.prompt = createConsolePrompt();
         this.history = new ScriptConsoleHistory();
@@ -78,12 +78,11 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
         partitioner.connect(getDocument());
     }
 
-    
     /**
      * @return the assistant that should handle content assist requests (code completion)
      */
     protected abstract IContentAssistProcessor createConsoleCompletionProcessor(PyContentAssistant pyContentAssistant);
-    
+
     /**
      * @return the assistant that should handle quick assist requests (quick fixes)
      */
@@ -99,7 +98,6 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
      */
     protected abstract ScriptConsolePrompt createConsolePrompt();
 
-    
     public IScriptConsoleSession getSession() {
         return session;
     }
@@ -124,13 +122,12 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
         return history;
     }
 
-
     /**
      * Creates the actual page to be shown to the user.
      */
     @Override
     public IPageBookViewPage createPage(IConsoleView view) {
-        
+
         PyContentAssistant contentAssist = new PyContentAssistant();
         IContentAssistProcessor processor = createConsoleCompletionProcessor(contentAssist);
         contentAssist.setContentAssistProcessor(processor, ScriptConsoleSourceViewerConfiguration.PARTITION_TYPE);
@@ -139,7 +136,6 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
         contentAssist.enableAutoInsert(false);
         contentAssist.setAutoActivationDelay(PyCodeCompletionPreferencesPage.getAutocompleteDelay());
 
-        
         PyCorrectionAssistant quickAssist = new PyCorrectionAssistant();
         // next create a content assistant processor to populate the completions window
         IQuickAssistProcessor quickAssistProcessor = createConsoleQuickAssistProcessor(quickAssist);
@@ -147,12 +143,12 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
         // Correction assist works on all
         quickAssist.setQuickAssistProcessor(quickAssistProcessor);
 
-        SourceViewerConfiguration cfg = new ScriptConsoleSourceViewerConfiguration(createHover(), contentAssist, quickAssist);
-        
+        SourceViewerConfiguration cfg = new ScriptConsoleSourceViewerConfiguration(createHover(), contentAssist,
+                quickAssist);
+
         page = new ScriptConsolePage(this, view, cfg);
         return page;
     }
-
 
     /**
      * Clears the console
@@ -161,16 +157,13 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
         page.clearConsolePage();
     }
 
-
     /**
      * Handles some command that the user entered
      * 
      * @param userInput that's the command to be evaluated by the user.
      */
-    public void handleCommand(
-            String userInput, 
-            final ICallback<Object, InterpreterResponse> onResponseReceived, 
-            final ICallback<Object, Tuple<String, String>> onContentsReceived){
+    public void handleCommand(String userInput, final ICallback<Object, InterpreterResponse> onResponseReceived,
+            final ICallback<Object, Tuple<String, String>> onContentsReceived) {
         final Object[] listeners = consoleListeners.getListeners();
 
         //notify about the user request
@@ -179,13 +172,13 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
         }
 
         //executes the user input in the interpreter
-        interpreter.exec(userInput, new ICallback<Object, InterpreterResponse>(){
+        interpreter.exec(userInput, new ICallback<Object, InterpreterResponse>() {
 
-            public Object call(final InterpreterResponse response){
+            public Object call(final InterpreterResponse response) {
                 //sets the new mode
                 prompt.setMode(!response.more);
                 prompt.setNeedInput(response.need_input);
-                
+
                 //notify about the console answer
                 for (Object listener : listeners) {
                     ((IScriptConsoleListener) listener).interpreterResponse(response, prompt);
@@ -211,9 +204,9 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
     public void setViewer(ScriptConsoleViewer scriptConsoleViewer) {
         this.viewer = new WeakReference<ScriptConsoleViewer>(scriptConsoleViewer);
     }
-    
-    public ScriptConsoleViewer getViewer(){
-        if(this.viewer != null){
+
+    public ScriptConsoleViewer getViewer() {
+        if (this.viewer != null) {
             return this.viewer.get();
         }
         return null;
@@ -235,40 +228,39 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
      */
     public abstract String getInitialCommands();
 
-    
     /**
      * Used for backward compatibility because the setBackground/getBackground is not available for eclipse 3.2
      */
     private Color fPydevConsoleBackground;
-    
+
     /**
      * Used for backward compatibility because the setBackground/getBackground is not available for eclipse 3.2
      */
     public Color getPydevConsoleBackground() {
-        try{
+        try {
             Color ret = (Color) REF.invoke(this, "getBackground");
             return ret;
-        }catch(Throwable e){
+        } catch (Throwable e) {
             //not available in eclipse 3.2
             return fPydevConsoleBackground;
         }
     }
-    
+
     /**
      * Used for backward compatibility because the setBackground/getBackground is not available for eclipse 3.2
      */
     public void setPydevConsoleBackground(Color color) {
-        try{
+        try {
             REF.invoke(this, "setBackground", color);
-        }catch(Throwable e){
+        } catch (Throwable e) {
             //not available in eclipse 3.2
             fPydevConsoleBackground = color;
         }
     }
 
-	public IInterpreterInfo getInterpreterInfo() {
-		return this.interpreter.getInterpreterInfo();
-	}
+    public IInterpreterInfo getInterpreterInfo() {
+        return this.interpreter.getInterpreterInfo();
+    }
 
     /**
      * @return
@@ -278,7 +270,7 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
     /**
      * Enable/Disable linking of the debug console with the suspended frame.
      */
-    public void linkWithDebugSelection(boolean isLinkedWithDebug){
-    	this.interpreter.linkWithDebugSelection(isLinkedWithDebug);
+    public void linkWithDebugSelection(boolean isLinkedWithDebug) {
+        this.interpreter.linkWithDebugSelection(isLinkedWithDebug);
     }
 }

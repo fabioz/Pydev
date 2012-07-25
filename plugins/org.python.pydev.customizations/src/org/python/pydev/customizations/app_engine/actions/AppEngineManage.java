@@ -16,12 +16,13 @@ import org.python.pydev.editor.actions.PyAction;
 /**
  * Just opens a dialog where the user can manage things.
  */
-public class AppEngineManage extends AbstractAppEngineHandler{
+public class AppEngineManage extends AbstractAppEngineHandler {
 
-    protected void handleExecution(IContainer container, IPythonPathNature pythonPathNature, File appcfg, File appEngineLocation){
+    protected void handleExecution(IContainer container, IPythonPathNature pythonPathNature, File appcfg,
+            File appEngineLocation) {
         AppEngineProcessWindow processWindow = new AppEngineProcessWindow(PyAction.getShell());
         processWindow.setParameters(container, pythonPathNature, appcfg, appEngineLocation);
         processWindow.open();
     }
-    
+
 }

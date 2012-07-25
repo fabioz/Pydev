@@ -38,12 +38,12 @@ import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
  * 
  * @author Fabio
  */
-public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2{
-    
+public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2 {
+
     public String getName() {
         return "PyDev Extensions Refactorer";
     }
-    
+
     /**
      * Renames something... 
      * 
@@ -55,7 +55,8 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
         try {
             RenameRefactoring renameRefactoring = new RenameRefactoring(new PyRenameEntryPoint(request));
             request.fillInitialNameAndOffset();
-            final PyRenameRefactoringWizard wizard = new PyRenameRefactoringWizard(renameRefactoring, "Rename", "inputPageDescription", request, request.initialName);
+            final PyRenameRefactoringWizard wizard = new PyRenameRefactoringWizard(renameRefactoring, "Rename",
+                    "inputPageDescription", request, request.initialName);
             try {
                 RefactoringWizardOpenOperation op = new RefactoringWizardOpenOperation(wizard);
                 op.run(PyAction.getShell(), "Rename Refactor Action");
@@ -67,30 +68,30 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
         }
         return null;
     }
-    
+
     public ItemPointer[] findDefinition(RefactoringRequest request) throws TooManyMatchesException {
         return new RefactorerFindDefinition().findDefinition(request);
     }
-    
-    
+
     // --------------------------------------------------------- IPyRefactoring2
     public boolean areAllInSameClassHierarchy(List<AssignDefinition> defs) {
         return new RefactorerFinds(this).areAllInSameClassHierarchy(defs);
     }
-    
+
     public HierarchyNodeModel findClassHierarchy(RefactoringRequest request, boolean findOnlyParents) {
         return new RefactorerFinds(this).findClassHierarchy(request, findOnlyParents);
     }
 
-    public Map<Tuple<String, File>, HashSet<ASTEntry>> findAllOccurrences(RefactoringRequest req) throws OperationCanceledException, CoreException{
+    public Map<Tuple<String, File>, HashSet<ASTEntry>> findAllOccurrences(RefactoringRequest req)
+            throws OperationCanceledException, CoreException {
         PyRenameEntryPoint processor = new PyRenameEntryPoint(req);
         //to see if a new request was not created in the meantime (in which case this one will be cancelled)
         req.checkCancelled();
-        
+
         IProgressMonitor monitor = req.getMonitor();
-        
+
         Map<Tuple<String, File>, HashSet<ASTEntry>> occurrencesInOtherFiles;
-        
+
         try {
             monitor.beginTask("Find all occurrences", 100);
             monitor.setTaskName("Find all occurrences");
@@ -117,15 +118,14 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
             req.checkCancelled();
             occurrencesInOtherFiles = processor.getOccurrencesInOtherFiles();
             HashSet<ASTEntry> occurrences = processor.getOccurrences();
-            occurrencesInOtherFiles.put(new Tuple<String, File>(req.moduleName, req.pyEdit.getEditorFile()), occurrences);
-            
+            occurrencesInOtherFiles.put(new Tuple<String, File>(req.moduleName, req.pyEdit.getEditorFile()),
+                    occurrences);
+
             req.getMonitor().worked(5);
         } finally {
             monitor.done();
         }
         return occurrencesInOtherFiles;
     }
-    
-
 
 }

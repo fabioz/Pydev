@@ -26,7 +26,7 @@ public class ImportHandleTest extends TestCase {
             e.printStackTrace();
         }
     }
-    
+
     protected void setUp() throws Exception {
         super.setUp();
     }
@@ -34,7 +34,7 @@ public class ImportHandleTest extends TestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
     }
-    
+
     public void testImportHandleInfo2() throws Exception {
         ImportHandle importHandle = new ImportHandle(null, "import BBB", 0, 0);
         List<ImportHandleInfo> importInfo = importHandle.getImportInfo();
@@ -43,7 +43,7 @@ public class ImportHandleTest extends TestCase {
         ArrayList<String> lst = new ArrayList<String>();
         lst.add("BBB");
         assertEquals(lst, importInfo.get(0).getImportedStr());
-        
+
         importHandle = new ImportHandle(null, "import BBB, CCC", 0, 0);
         importInfo = importHandle.getImportInfo();
         assertEquals(1, importInfo.size());
@@ -52,7 +52,7 @@ public class ImportHandleTest extends TestCase {
         lst.add("BBB");
         lst.add("CCC");
         assertEquals(lst, importInfo.get(0).getImportedStr());
-        
+
         importHandle = new ImportHandle(null, "import BBB, CCC #Comment", 0, 0);
         importInfo = importHandle.getImportInfo();
         assertEquals(1, importInfo.size());
@@ -67,7 +67,7 @@ public class ImportHandleTest extends TestCase {
         assertEquals(comments, importInfo.get(0).getCommentsForImports());
 
     }
-    
+
     public void testImportHandleInfoLines() throws Exception {
         ImportHandle importHandle = new ImportHandle(null, "from AAA import (BBB, \nCCC);from XXX import YYY", 0, 1);
         List<ImportHandleInfo> importInfo = importHandle.getImportInfo();
@@ -79,14 +79,15 @@ public class ImportHandleTest extends TestCase {
         assertEquals(1, importInfo.get(1).getStartLine());
         assertEquals(1, importInfo.get(1).getEndLine());
         assertTrue(importInfo.get(1).getStartedInMiddleOfLine());
-        
+
     }
-    
+
     public void testImportHandleInfo3() throws Exception {
-        ImportHandle importHandle = new ImportHandle(null, "from wx.xrc import XML_ATTRIBUTE_NODE, XML_CDATA_SECTION_NODE,\\\n"+
-            "XML_DOCUMENT_FRAG_NODE, XML_DOCUMENT_TYPE_NODE, XML_ELEMENT_NODE,\\\n"+
-            "XML_COMMENT_NODE", 0, 0);
-        
+        ImportHandle importHandle = new ImportHandle(null,
+                "from wx.xrc import XML_ATTRIBUTE_NODE, XML_CDATA_SECTION_NODE,\\\n"
+                        + "XML_DOCUMENT_FRAG_NODE, XML_DOCUMENT_TYPE_NODE, XML_ELEMENT_NODE,\\\n" + "XML_COMMENT_NODE",
+                0, 0);
+
         List<ImportHandleInfo> importInfo = importHandle.getImportInfo();
         assertEquals(1, importInfo.size());
         assertEquals("wx.xrc", importInfo.get(0).getFromImportStr());
@@ -99,7 +100,7 @@ public class ImportHandleTest extends TestCase {
         lst.add("XML_COMMENT_NODE");
         assertEquals(lst, importInfo.get(0).getImportedStr());
     }
-    
+
     public void testImportHandleInfo() throws Exception {
         ImportHandle importHandle = new ImportHandle(null, "from AAA import BBB", 0, 0);
         List<ImportHandleInfo> importInfo = importHandle.getImportInfo();
@@ -108,7 +109,7 @@ public class ImportHandleTest extends TestCase {
         ArrayList<String> lst = new ArrayList<String>();
         lst.add("BBB");
         assertEquals(lst, importInfo.get(0).getImportedStr());
-        
+
         importHandle = new ImportHandle(null, "from AAA import BBB, CCC", 0, 0);
         importInfo = importHandle.getImportInfo();
         assertEquals(1, importInfo.size());
@@ -117,7 +118,7 @@ public class ImportHandleTest extends TestCase {
         lst.add("BBB");
         lst.add("CCC");
         assertEquals(lst, importInfo.get(0).getImportedStr());
-        
+
         importHandle = new ImportHandle(null, "from AAA import BBB, DDD as CCC", 0, 0);
         importInfo = importHandle.getImportInfo();
         assertEquals(1, importInfo.size());
@@ -126,7 +127,7 @@ public class ImportHandleTest extends TestCase {
         lst.add("BBB");
         lst.add("DDD as CCC");
         assertEquals(lst, importInfo.get(0).getImportedStr());
-        
+
         importHandle = new ImportHandle(null, "from AAA import BBB #, DDD as CCC", 0, 0);
         importInfo = importHandle.getImportInfo();
         assertEquals(1, importInfo.size());
@@ -137,8 +138,7 @@ public class ImportHandleTest extends TestCase {
         ArrayList<String> comments = new ArrayList<String>();
         comments.add("#, DDD as CCC");
         assertEquals(comments, importInfo.get(0).getCommentsForImports());
-        
-        
+
         importHandle = new ImportHandle(null, "from AAA.bbb.ccc import BBB", 0, 0);
         importInfo = importHandle.getImportInfo();
         assertEquals(1, importInfo.size());
@@ -147,7 +147,6 @@ public class ImportHandleTest extends TestCase {
         lst.add("BBB");
         assertEquals(lst, importInfo.get(0).getImportedStr());
 
-        
         importHandle = new ImportHandle(null, "from AAA import (BBB, #, DDD as CCC\nKKK)", 0, 0);
         importInfo = importHandle.getImportInfo();
         assertEquals(1, importInfo.size());
@@ -160,7 +159,7 @@ public class ImportHandleTest extends TestCase {
         comments.add("");
         assertEquals(lst, importInfo.get(0).getImportedStr());
         assertEquals(comments, importInfo.get(0).getCommentsForImports());
-        
+
         importHandle = new ImportHandle(null, "from .AAA import (BBB, #, DDD as CCC\nKKK)", 0, 1);
         importInfo = importHandle.getImportInfo();
         assertEquals(1, importInfo.size());
@@ -176,14 +175,14 @@ public class ImportHandleTest extends TestCase {
         assertEquals(0, importInfo.get(0).getStartLine());
         assertEquals(1, importInfo.get(0).getEndLine());
     }
-    
+
     public void testImportMatches() throws Exception {
         ImportHandle importHandle = new ImportHandle(null, "from AAA import BBB", 0, 0);
         assertFalse(importHandle.contains(new ImportHandle.ImportHandleInfo("from  X import BBB")));
         assertFalse(importHandle.contains(new ImportHandle.ImportHandleInfo("from  XXX  import   BBB")));
         assertFalse(importHandle.contains(new ImportHandle.ImportHandleInfo("from  AAA  import   CCC")));
         assertTrue(importHandle.contains(new ImportHandle.ImportHandleInfo("from  AAA  import   BBB")));
-        
+
         importHandle = new ImportHandle(null, "from AAA import BBB;from XXX import YYY", 0, 0);
         assertTrue(importHandle.contains(new ImportHandle.ImportHandleInfo("from  XXX  import   YYY")));
     }

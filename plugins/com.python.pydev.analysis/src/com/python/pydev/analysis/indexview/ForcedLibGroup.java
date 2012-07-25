@@ -16,7 +16,7 @@ import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
-public class ForcedLibGroup extends ElementWithChildren{
+public class ForcedLibGroup extends ElementWithChildren {
 
     private InterpreterInfo interpreterInfo;
     private String forcedLib;
@@ -36,7 +36,7 @@ public class ForcedLibGroup extends ElementWithChildren{
         SystemModulesManager m = (SystemModulesManager) this.interpreterInfo.getModulesManager();
         AbstractModule builtinModule = m.getBuiltinModule(forcedLib, true);
         IToken[] globalTokens = builtinModule.getGlobalTokens();
-        
+
         ArrayList<LeafElement> lst = new ArrayList<LeafElement>();
 
         for (IToken iToken : globalTokens) {
@@ -52,9 +52,9 @@ public class ForcedLibGroup extends ElementWithChildren{
             addChild(leafElement);
         }
     }
-    
+
     @Override
     public String toString() {
-        return "Forced builtin: "+forcedLib;
+        return "Forced builtin: " + forcedLib;
     }
 }

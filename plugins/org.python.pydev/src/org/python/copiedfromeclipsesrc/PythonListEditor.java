@@ -64,7 +64,7 @@ public abstract class PythonListEditor extends FieldEditor {
      * The Add button.
      */
     private Button addButton;
-    
+
     /**
      * The Auto-config button.
      */
@@ -99,7 +99,7 @@ public abstract class PythonListEditor extends FieldEditor {
      * Creates a new list field editor
      */
     protected PythonListEditor() {
-        if(USE_ICONS){
+        if (USE_ICONS) {
             imageInterpreter = PydevPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON);
         }
     }
@@ -122,29 +122,28 @@ public abstract class PythonListEditor extends FieldEditor {
      */
     public void autoConfigPressed() {
         Tuple<String, String> input = getNewInputObject(true);
-        if(input != null){
+        if (input != null) {
             addNewInput(input.o1, input.o2);
         }
     }
-    
+
     /**
      * Notifies that the Add button has been pressed.
      */
     protected void addPressed() {
         Tuple<String, String> input = getNewInputObject(false);
-        if(input != null){
+        if (input != null) {
             addNewInput(input.o1, input.o2);
         }
     }
 
-    
     private void addNewInput(String name, String executable) {
         if (name != null && executable != null) {
             setPresentsDefaultValue(false);
             TreeItem item = createInterpreterItem(name, executable);
-            try{
+            try {
                 treeWithInterpreters.setSelection(item);
-            }catch(Exception e){
+            } catch (Exception e) {
                 Log.log(e);
             }
             selectionChanged();
@@ -154,13 +153,13 @@ public abstract class PythonListEditor extends FieldEditor {
 
     protected abstract void updateTree();
 
-	/**
+    /**
      * Adds a new tree item to the interpreter tree.
      * @return 
      */
     protected TreeItem createInterpreterItem(String name, String executable) {
         TreeItem item = new TreeItem(treeWithInterpreters, SWT.NULL);
-        item.setText(new String[]{name, executable});
+        item.setText(new String[] { name, executable });
         item.setImage(this.imageInterpreter);
         return item;
     }
@@ -190,8 +189,8 @@ public abstract class PythonListEditor extends FieldEditor {
     /**
      * This method is not longer used!
      */
-    protected String createList(String[] items){
-        throw new RuntimeException("doLoad/doStore should be overridden (so that it's not needed)"); 
+    protected String createList(String[] items) {
+        throw new RuntimeException("doLoad/doStore should be overridden (so that it's not needed)");
     }
 
     /**
@@ -206,7 +205,7 @@ public abstract class PythonListEditor extends FieldEditor {
         button.setText(JFaceResources.getString(key));
         button.setFont(parent.getFont());
         GridData data = new GridData(GridData.FILL_HORIZONTAL);
-//        data.heightHint = convertVerticalDLUsToPixels(button, IDialogConstants.BUTTON_HEIGHT);
+        //        data.heightHint = convertVerticalDLUsToPixels(button, IDialogConstants.BUTTON_HEIGHT);
         int widthHint = convertHorizontalDLUsToPixels(button, IDialogConstants.BUTTON_WIDTH);
         data.widthHint = Math.max(widthHint, button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x);
         button.setLayoutData(data);
@@ -323,7 +322,7 @@ public abstract class PythonListEditor extends FieldEditor {
     public Tree getListControl(Composite parent) {
         if (treeWithInterpreters == null) {
             treeWithInterpreters = new Tree(parent, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL);
-            
+
             treeWithInterpreters.setHeaderVisible(true);
             TreeColumn column1 = new TreeColumn(treeWithInterpreters, SWT.LEFT);
             column1.setText("Name");
@@ -331,8 +330,7 @@ public abstract class PythonListEditor extends FieldEditor {
             TreeColumn column2 = new TreeColumn(treeWithInterpreters, SWT.LEFT);
             column2.setText("Location");
             column2.setWidth(200);
-            
-            
+
             treeWithInterpreters.setFont(parent.getFont());
             treeWithInterpreters.addSelectionListener(getSelectionListener());
             treeWithInterpreters.addDisposeListener(new DisposeListener() {
@@ -391,7 +389,7 @@ public abstract class PythonListEditor extends FieldEditor {
     /**
      * This method is no longer used.
      */
-    protected String[] parseString(String stringList){
+    protected String[] parseString(String stringList) {
         throw new RuntimeException("doLoad/doStore should be overridden (so that it's not needed)");
     }
 
@@ -402,15 +400,15 @@ public abstract class PythonListEditor extends FieldEditor {
         setPresentsDefaultValue(false);
         TreeItem[] selection = treeWithInterpreters.getSelection();
         if (selection != null && selection.length > 0) {
-            for(TreeItem t:selection){
+            for (TreeItem t : selection) {
                 disposeOfTreeItem(t);
             }
             selectionChanged();
             updateTree();
         }
     }
-    
-    protected void disposeOfTreeItem(TreeItem t){
+
+    protected void disposeOfTreeItem(TreeItem t) {
         t.dispose();
     }
 
@@ -426,7 +424,6 @@ public abstract class PythonListEditor extends FieldEditor {
         downButton.setEnabled(size > 1 && index >= 0 && index < size - 1);
     }
 
-
     /*
      * (non-Javadoc) Method declared on FieldEditor.
      */
@@ -436,21 +433,19 @@ public abstract class PythonListEditor extends FieldEditor {
         }
     }
 
-
     protected int getSelectionIndex() {
-        if(this.treeWithInterpreters.getSelectionCount() != 1){
+        if (this.treeWithInterpreters.getSelectionCount() != 1) {
             return -1;
         }
-        
+
         TreeItem[] selection = treeWithInterpreters.getSelection();
         int index = -1;
-        if(selection != null && selection.length > 0){
+        if (selection != null && selection.length > 0) {
             index = treeWithInterpreters.indexOf(selection[0]);
         }
         return index;
     }
-    
-    
+
     /**
      * Moves the currently selected item up or down.
      * 
@@ -464,13 +459,13 @@ public abstract class PythonListEditor extends FieldEditor {
         if (index >= 0) {
             TreeItem curr = treeWithInterpreters.getItem(index);
             TreeItem replace = treeWithInterpreters.getItem(target);
-            
+
             //Just update the text!
             String col0 = replace.getText(0);
             String col1 = replace.getText(1);
-            replace.setText(new String[]{curr.getText(0), curr.getText(1)});
-            curr.setText(new String[]{col0, col1});
-            
+            replace.setText(new String[] { curr.getText(0), curr.getText(1) });
+            curr.setText(new String[] { col0, col1 });
+
             treeWithInterpreters.setSelection(treeWithInterpreters.getItem(target));
         }
         selectionChanged();
@@ -483,7 +478,6 @@ public abstract class PythonListEditor extends FieldEditor {
         swap(true);
     }
 
-    
     /*
      * @see FieldEditor.setEnabled(boolean,Composite).
      */

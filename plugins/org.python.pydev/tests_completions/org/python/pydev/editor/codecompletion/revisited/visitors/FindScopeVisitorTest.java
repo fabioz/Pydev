@@ -18,15 +18,15 @@ import org.python.pydev.parser.PyParserTestBase;
 import org.python.pydev.parser.jython.SimpleNode;
 
 public class FindScopeVisitorTest extends PyParserTestBase {
-    
+
     public static void main(String[] args) {
-        try{
+        try {
             FindScopeVisitorTest test = new FindScopeVisitorTest();
             test.setUp();
             test.testFindAssertInLocalScope2();
             test.tearDown();
             junit.textui.TestRunner.run(FindScopeVisitorTest.class);
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -42,7 +42,7 @@ public class FindScopeVisitorTest extends PyParserTestBase {
     private ILocalScope findLocalScope(String s, int line, int col) {
         SimpleNode ast = parseLegalDocStr(s);
         FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col);
-        if (ast != null){
+        if (ast != null) {
             try {
                 ast.accept(scopeVisitor);
             } catch (Exception e) {
@@ -52,18 +52,22 @@ public class FindScopeVisitorTest extends PyParserTestBase {
         ILocalScope localScope = scopeVisitor.scope;
         return localScope;
     }
-    
+
     public void testFindLocalScope() throws Exception {
-        String s = "" +
-                "#file mod3.py \n" + //line = 1 (in ast)
+        String s = ""
+                +
+                "#file mod3.py \n"
+                + //line = 1 (in ast)
                 "class SomeA(object):\n" +
                 "    def fun(self):\n" +
                 "        pass\n" +
                 "    \n" +
-                "class C1(object):\n" +
+                "class C1(object):\n"
+                +
                 "  a = SomeA() #yes, these are class-defined\n" +
                 "  \n" +
-                "  def someFunct(self):\n" +
+                "  def someFunct(self):\n"
+                +
                 "      pass\n" +
                 "    \n" +
                 "\n" +
@@ -72,27 +76,22 @@ public class FindScopeVisitorTest extends PyParserTestBase {
         assertTrue(localScope.getClassDef() != null);
     }
 
-    
- 
     public void testFindAssertInLocalScope() throws Exception {
-        String s = 
-                "def m1(a):\n" +
+        String s = "def m1(a):\n" +
                 "    assert isinstance(a, str)\n" +
                 "    ";
-        
+
         ILocalScope localScope = findLocalScope(s, 2, 1);
         List<String> found = localScope.getPossibleClassesForActivationToken("a");
         assertEquals(1, found.size());
         assertEquals("str", found.get(0));
     }
-    
-    
+
     public void testFindAssertInLocalScope2() throws Exception {
-        String s = 
-            "def m1(a):\n" +
-            "    assert isinstance(a, (list, tuple))\n" +
-            "    ";
-        
+        String s = "def m1(a):\n" +
+                "    assert isinstance(a, (list, tuple))\n" +
+                "    ";
+
         ILocalScope localScope = findLocalScope(s, 2, 1);
         List<String> found = localScope.getPossibleClassesForActivationToken("a");
         assertEquals(2, found.size());

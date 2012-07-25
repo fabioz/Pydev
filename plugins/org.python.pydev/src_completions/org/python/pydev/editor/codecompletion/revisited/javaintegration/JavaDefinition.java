@@ -10,7 +10,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.python.pydev.core.IModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 
-public class JavaDefinition extends Definition{
+public class JavaDefinition extends Definition {
 
     public IJavaElement javaElement;
 

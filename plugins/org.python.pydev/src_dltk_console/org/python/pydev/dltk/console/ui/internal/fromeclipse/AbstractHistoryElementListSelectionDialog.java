@@ -34,8 +34,7 @@ import org.eclipse.ui.dialogs.SelectionStatusDialog;
  * 
  * @since 2.0
  */
-public abstract class AbstractHistoryElementListSelectionDialog extends
-        SelectionStatusDialog {
+public abstract class AbstractHistoryElementListSelectionDialog extends SelectionStatusDialog {
 
     private ILabelProvider fRenderer;
 
@@ -72,8 +71,7 @@ public abstract class AbstractHistoryElementListSelectionDialog extends
      * @param parent The parent for the list.
      * @param renderer ILabelProvider for the list
      */
-    protected AbstractHistoryElementListSelectionDialog(Shell parent,
-            ILabelProvider renderer) {
+    protected AbstractHistoryElementListSelectionDialog(Shell parent, ILabelProvider renderer) {
         super(parent);
         fRenderer = renderer;
 
@@ -210,7 +208,7 @@ public abstract class AbstractHistoryElementListSelectionDialog extends
         Assert.isNotNull(fFilteredList);
         return fFilteredList.getSelectionIndices();
     }
-    
+
     /**
      * Sets the indices to be selected. E.g.: if the last element should be selected,
      * it would be an array with a single indice (for the last element).
@@ -304,17 +302,14 @@ public abstract class AbstractHistoryElementListSelectionDialog extends
             if (fValidator != null) {
                 status = fValidator.validate(elements);
             } else {
-                status = new Status(IStatus.OK, PlatformUI.PLUGIN_ID,
-                        IStatus.OK, "", //$NON-NLS-1$
+                status = new Status(IStatus.OK, PlatformUI.PLUGIN_ID, IStatus.OK, "", //$NON-NLS-1$
                         null);
             }
         } else {
             if (fFilteredList.isEmpty()) {
-                status = new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID,
-                        IStatus.ERROR, fEmptyListMessage, null);
+                status = new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID, IStatus.ERROR, fEmptyListMessage, null);
             } else {
-                status = new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID,
-                        IStatus.ERROR, fEmptySelectionMessage, null);
+                status = new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID, IStatus.ERROR, fEmptySelectionMessage, null);
             }
         }
 
@@ -337,11 +332,10 @@ public abstract class AbstractHistoryElementListSelectionDialog extends
      * @return returns the filtered list widget.
      */
     protected HistoryFilteredList createFilteredList(Composite parent) {
-        int flags = SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL
-                | (fIsMultipleSelection ? SWT.MULTI : SWT.SINGLE);
+        int flags = SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | (fIsMultipleSelection ? SWT.MULTI : SWT.SINGLE);
 
-        HistoryFilteredList list = new HistoryFilteredList(parent, flags, fRenderer,
-                fIgnoreCase, fAllowDuplicates, fMatchEmptyString);
+        HistoryFilteredList list = new HistoryFilteredList(parent, flags, fRenderer, fIgnoreCase, fAllowDuplicates,
+                fMatchEmptyString);
 
         GridData data = new GridData();
         data.widthHint = convertWidthInCharsToPixels(fWidth);

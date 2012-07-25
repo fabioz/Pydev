@@ -21,7 +21,7 @@ import org.python.pydev.core.structure.FastStringBuffer;
 /**
  * @author Fabio Zadrozny
  */
-public abstract class AbstractIndentPrefs implements IIndentPrefs{
+public abstract class AbstractIndentPrefs implements IIndentPrefs {
 
     private boolean forceTabs = false;
 
@@ -49,7 +49,7 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
     /**
      * Converts spaces to tabs or vice-versa depending on the user preferences
      */
-    public void convertToStd(IDocument document, DocumentCommand command){
+    public void convertToStd(IDocument document, DocumentCommand command) {
         try {
             if (getUseSpaces(true)) {
                 command.text = convertTabsToSpaces(document, command.text, command.offset, getIndentationString());
@@ -64,37 +64,32 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
 
     }
 
-
-    
-    
     //------------------------------------------------------------- UTILS
-    
+
     /**
      * Replaces tabs if needed by indent string or just a space depending of the
      * tab location
      * 
      */
-    private String convertTabsToSpaces(
-        IDocument document, String text, int offset, 
-        String indentString) throws BadLocationException 
-    {
+    private String convertTabsToSpaces(IDocument document, String text, int offset, String indentString)
+            throws BadLocationException {
         // only interesting if it contains a tab (also if it is a tab only)
         if (text.indexOf("\t") != -1) {
             // get some text infos
-            
+
             if (text.equals("\t")) {
                 //only a single tab?
                 deleteWhitespaceAfter(document, offset);
                 text = indentString;
-                
+
             } else {
                 // contains a char (pasted text)
                 char[] chars = text.toCharArray();
                 FastStringBuffer newText = new FastStringBuffer();
                 for (int count = 0; count < chars.length; count++) {
-                    if (chars[count] == '\t'){
+                    if (chars[count] == '\t') {
                         newText.append(indentString);
-                        
+
                     } else { // if it is not a tab add the char
                         newText.append((char) chars[count]);
                     }
@@ -104,16 +99,14 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
         }
         return text;
     }
-    
+
     /**
      * Converts spaces to strings. Useful when pasting
      */
-    private String convertSpacesToTabs(IDocument document,
-            String text, int offset, String indentString)
-            throws BadLocationException
-    {
+    private String convertSpacesToTabs(IDocument document, String text, int offset, String indentString)
+            throws BadLocationException {
         String spaceStr = StringUtils.createSpaceString(getTabWidth());
-        while(text.startsWith(spaceStr)){
+        while (text.startsWith(spaceStr)) {
             text = text.replaceAll(spaceStr, "\t");
         }
         return text;
@@ -122,21 +115,18 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
     /**
      * When hitting TAB, delete the whitespace after the cursor in the line
      */
-    private void deleteWhitespaceAfter(IDocument document, int offset)
-        throws BadLocationException {
+    private void deleteWhitespaceAfter(IDocument document, int offset) throws BadLocationException {
         if (offset < document.getLength() && !endsWithNewline(document, document.get(offset, 1))) {
-            
+
             int lineLength = document.getLineInformationOfOffset(offset).getLength();
             int lineStart = document.getLineInformationOfOffset(offset).getOffset();
             String textAfter = document.get(offset, (lineStart + lineLength) - offset);
-            
-            if (textAfter.length() > 0
-                && isWhitespace(textAfter)) {
+
+            if (textAfter.length() > 0 && isWhitespace(textAfter)) {
                 document.replace(offset, textAfter.length(), "");
             }
         }
     }
-
 
     /**
      * Checks if the string is solely composed of spaces 
@@ -146,17 +136,16 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
      */
     private boolean isWhitespace(String s) {
         int len = s.length();
-        
+
         //it's done backwards because the chance of finding a non-whitespace char is higher at the end of the string
         //than at the beggining
-        for (int i = len - 1; i > -1 ; i--){
-            if (!Character.isWhitespace(s.charAt(i))){
+        for (int i = len - 1; i > -1; i--) {
+            if (!Character.isWhitespace(s.charAt(i))) {
                 return false;
             }
         }
         return true;
     }
-    
 
     /**
      * True if text ends with a newline delimiter

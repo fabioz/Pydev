@@ -20,15 +20,13 @@ import org.python.pydev.core.structure.FastStringBuffer;
 public class PrettyPrinterPrefsV2 implements IPrettyPrinterPrefs {
 
     private String newLine;
-    private String spacesBeforeComment="";
-    private Map<String,String> tokReplacement = new HashMap<String, String>();
+    private String spacesBeforeComment = "";
+    private Map<String, String> tokReplacement = new HashMap<String, String>();
     private int linesAfterMethod = 0;
     private int linesAfterClass = 0;
-    private int linesAfterSuite=0;
+    private int linesAfterSuite = 0;
     private String indent;
     private IGrammarVersionProvider versionProvider;
-    
-    
 
     public PrettyPrinterPrefsV2(String newLine, String indent, IGrammarVersionProvider versionProvider) {
         this.newLine = newLine;
@@ -49,96 +47,46 @@ public class PrettyPrinterPrefsV2 implements IPrettyPrinterPrefs {
         this.tokReplacement.put("with", "with ");
         this.versionProvider = versionProvider;
     }
-    
+
     public int getGrammarVersion() throws MisconfigurationException {
         return versionProvider.getGrammarVersion();
     }
-    
-    
-    public final String[] boolOperatorMapping = new String[] {
-        "<undef>",
-        "and",
-        "or",
-    };
-    
-    public final String[] unaryopOperatorMapping = new String[] {
-        "<undef>",
-        "~",
-        "not",
-        "+",
-        "-",
-    };
 
-    public final String[] operatorMapping = new String[] {
-        "<undef>",
-        "+",
-        "-",
-        "*",
-        "/",
-        "%",
-        "**",
-        "<<",
-        ">>",
-        "|",
-        "^",
-        "&",
-        "//",
-    };
-    
-    public final String[] augOperatorMapping = new String[] {
-        "<undef>",
-        "+=",
-        "-=",
-        "*=",
-        "/=",
-        "%=",
-        "**=",
-        "<<=",
-        ">>=",
-        "|=",
-        "^=",
-        "&=",
-        "//=",
-    };
-    
-    public static final String[] cmpop = new String[] {
-        "<undef>",
-        "==",
-        "!=",
-        "<",
-        "<=",
-        ">",
-        ">=",
-        "is",
-        "is not",
-        "in",
-        "not in",
-    };
+    public final String[] boolOperatorMapping = new String[] { "<undef>", "and", "or", };
 
-    
+    public final String[] unaryopOperatorMapping = new String[] { "<undef>", "~", "not", "+", "-", };
+
+    public final String[] operatorMapping = new String[] { "<undef>", "+", "-", "*", "/", "%", "**", "<<", ">>", "|",
+            "^", "&", "//", };
+
+    public final String[] augOperatorMapping = new String[] { "<undef>", "+=", "-=", "*=", "/=", "%=", "**=", "<<=",
+            ">>=", "|=", "^=", "&=", "//=", };
+
+    public static final String[] cmpop = new String[] { "<undef>", "==", "!=", "<", "<=", ">", ">=", "is", "is not",
+            "in", "not in", };
+
     public String getBoolOperatorMapping(int op) {
-        return " "+boolOperatorMapping[op]+" ";
+        return " " + boolOperatorMapping[op] + " ";
     }
 
     public String getOperatorMapping(int op) {
-        return " "+operatorMapping[op]+" ";
+        return " " + operatorMapping[op] + " ";
     }
 
     public String getUnaryopOperatorMapping(int op) {
         String str = unaryopOperatorMapping[op];
-        if(str.equals("not")){
-            return str+" ";
+        if (str.equals("not")) {
+            return str + " ";
         }
         return str;
     }
-    
+
     public String getAugOperatorMapping(int op) {
-        return " "+augOperatorMapping[op]+" ";
+        return " " + augOperatorMapping[op] + " ";
     }
 
-    
     public String getCmpOp(int op) {
-        return " "+cmpop[op]+" ";
+        return " " + cmpop[op] + " ";
     }
 
     public String getNewLine() {
@@ -152,13 +100,11 @@ public class PrettyPrinterPrefsV2 implements IPrettyPrinterPrefs {
     public void setSpacesAfterComma(int i) {
         this.tokReplacement.put(",", createSpacesStr(i, ","));
     }
-    
-    
+
     //spaces after colon (dict, lambda)
     public void setSpacesAfterColon(int i) {
         this.tokReplacement.put(":", createSpacesStr(i, ":"));
     }
-    
 
     private String createSpacesStr(int i, String startingWith) {
         FastStringBuffer buf = new FastStringBuffer(startingWith, i);
@@ -166,45 +112,36 @@ public class PrettyPrinterPrefsV2 implements IPrettyPrinterPrefs {
         return buf.toString();
     }
 
-    
     public void setReplacement(String original, String replacement) {
         this.tokReplacement.put(original, replacement);
     }
 
-    
     public String getReplacement(String tok) {
         String r = tokReplacement.get(tok);
-        if(r == null){
+        if (r == null) {
             return tok;
         }
         return r;
     }
-    
-    
 
     //spaces before comment
     public void setSpacesBeforeComment(int i) {
         spacesBeforeComment = createSpacesStr(i, "");
     }
-    
+
     public String getSpacesBeforeComment() {
         return spacesBeforeComment;
     }
-    
-    
-
-    
 
     //lines after method
     public void setLinesAfterMethod(int i) {
         linesAfterMethod = i;
     }
-    
-    public int getLinesAfterMethod(){
+
+    public int getLinesAfterMethod() {
         return linesAfterMethod;
     }
-    
-    
+
     //lines after class
     public void setLinesAfterClass(int i) {
         linesAfterClass = i;
@@ -214,11 +151,11 @@ public class PrettyPrinterPrefsV2 implements IPrettyPrinterPrefs {
         return linesAfterClass;
     }
 
-    
     //lines after any suite (if, for, etc)
     public void setLinesAfterSuite(int i) {
         linesAfterSuite = i;
     }
+
     public int getLinesAfterSuite() {
         return linesAfterSuite;
     }
@@ -226,6 +163,5 @@ public class PrettyPrinterPrefsV2 implements IPrettyPrinterPrefs {
     public String getAssignPunctuation() {
         return " = ";
     }
-
 
 }

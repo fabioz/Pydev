@@ -23,7 +23,8 @@ public interface IInterpreterObserver {
      * @param defaultSelectedInterpreter 
      * @param monitor the monitor used in the restore
      */
-    void notifyDefaultPythonpathRestored(IInterpreterManager manager, String defaultSelectedInterpreter, IProgressMonitor monitor);
+    void notifyDefaultPythonpathRestored(IInterpreterManager manager, String defaultSelectedInterpreter,
+            IProgressMonitor monitor);
 
     /**
      * Notifies observers that the given interpreter manager has just been recreated (this is due to restarting the plugin)
@@ -39,7 +40,7 @@ public interface IInterpreterObserver {
      * @param monitor 
      */
     void notifyProjectPythonpathRestored(PythonNature nature, IProgressMonitor monitor);
-    
+
     /**
      * Notifies observers that the given nature has just been recreated (after the plugin restarted)
      * 
@@ -47,6 +48,5 @@ public interface IInterpreterObserver {
      * @param monitor 
      */
     void notifyNatureRecreated(PythonNature nature, IProgressMonitor monitor);
-
 
 }

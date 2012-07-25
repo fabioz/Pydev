@@ -43,8 +43,7 @@ import com.python.pydev.analysis.IAnalysisPreferences;
  * 
  * @author Fabio
  */
-public class AnalysisParserObserver implements IParserObserver, IParserObserver3{
-
+public class AnalysisParserObserver implements IParserObserver, IParserObserver3 {
 
     /**
      * @author fabioz
@@ -56,26 +55,27 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
         private SimpleNode root;
         private IFile fileAdapter;
         private boolean force;
-        private int rescheduleTimes=15;
+        private int rescheduleTimes = 15;
 
-        private AnalyzeLaterJob(String name, ChangedParserInfoForObservers info, SimpleNode root, IFile fileAdapter, boolean force, IPythonNature nature) {
+        private AnalyzeLaterJob(String name, ChangedParserInfoForObservers info, SimpleNode root, IFile fileAdapter,
+                boolean force, IPythonNature nature) {
             super(name);
             this.nature = nature;
             this.info = info;
             this.root = root;
             this.fileAdapter = fileAdapter;
-            this.force=force;
+            this.force = force;
         }
 
         @Override
         protected IStatus run(IProgressMonitor monitor) {
             rescheduleTimes--;
             try {
-                if(!nature.isOkToUse()){
-                    if(rescheduleTimes >= 0){
+                if (!nature.isOkToUse()) {
+                    if (rescheduleTimes >= 0) {
                         this.schedule(200);
                     }
-                }else{
+                } else {
                     analyze(info, root, fileAdapter, force, nature);
                 }
             } catch (Throwable e) {
@@ -85,85 +85,84 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
         }
     }
 
-
     public static final String ANALYSIS_PARSER_OBSERVER_FORCE = "AnalysisParserObserver:force";
 
     public void parserChanged(final ChangedParserInfoForObservers info) {
-        if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+        if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
             System.out.println("AnalysisParserObserver: parserChanged");
         }
         final SimpleNode root = (SimpleNode) info.root;
-        if(info.file == null){
+        if (info.file == null) {
             return;
         }
         IFile fileAdapter = null;
-        if(info.file instanceof IFile){
+        if (info.file instanceof IFile) {
             fileAdapter = (IFile) info.file;
         }
-        
-        if(fileAdapter == null){
+
+        if (fileAdapter == null) {
             fileAdapter = (IFile) info.file.getAdapter(IFile.class);
-            if(fileAdapter == null){
+            if (fileAdapter == null) {
                 return;
             }
         }
         boolean force = false;
-        if(info.argsToReparse != null && info.argsToReparse.length > 0){
-            if(info.argsToReparse[0] instanceof Tuple){
+        if (info.argsToReparse != null && info.argsToReparse.length > 0) {
+            if (info.argsToReparse[0] instanceof Tuple) {
                 Tuple t = (Tuple) info.argsToReparse[0];
-                if (t.o1 instanceof String && t.o2 instanceof Boolean){
-                    if (t.o1.equals(ANALYSIS_PARSER_OBSERVER_FORCE)){ 
+                if (t.o1 instanceof String && t.o2 instanceof Boolean) {
+                    if (t.o1.equals(ANALYSIS_PARSER_OBSERVER_FORCE)) {
                         //if this message is passed, it will decide whether we will force the analysis or not
-                        force = (Boolean)t.o2;
+                        force = (Boolean) t.o2;
                     }
                 }
             }
         }
 
         int whenAnalyze = AnalysisPreferences.getAnalysisPreferences().getWhenAnalyze();
-        if(whenAnalyze == IAnalysisPreferences.ANALYZE_ON_SUCCESFUL_PARSE || force){
-            
+        if (whenAnalyze == IAnalysisPreferences.ANALYZE_ON_SUCCESFUL_PARSE || force) {
+
             //create the module
             final IPythonNature nature = PythonNature.getPythonNature(fileAdapter);
-            if(nature == null){
+            if (nature == null) {
                 return;
             }
-            
+
             //don't analyze it if we're still not 'all set'
-            if(!nature.isOkToUse()){
+            if (!nature.isOkToUse()) {
                 Job job = new AnalyzeLaterJob("Analyze later", info, root, fileAdapter, force, nature);
                 job.schedule(100);
                 return;
             }
-            
+
             analyze(info, root, fileAdapter, force, nature);
         }
     }
 
-
-    private void analyze(ChangedParserInfoForObservers info, SimpleNode root, IFile fileAdapter, boolean force, IPythonNature nature) {
-        if(!nature.startRequests()){
+    private void analyze(ChangedParserInfoForObservers info, SimpleNode root, IFile fileAdapter, boolean force,
+            IPythonNature nature) {
+        if (!nature.startRequests()) {
             return;
         }
         IModule module;
-        try{
-        	//we visit external because we must index them
-        	String moduleName = nature.resolveModuleOnlyInProjectSources(fileAdapter, true);
-            if(moduleName == null){
+        try {
+            //we visit external because we must index them
+            String moduleName = nature.resolveModuleOnlyInProjectSources(fileAdapter, true);
+            if (moduleName == null) {
                 AnalysisRunner.deleteMarkers(fileAdapter);
                 return; // we only analyze resources that are in the pythonpath
             }
-   
+
             String file = fileAdapter.getRawLocation().toOSString();
             module = AbstractModule.createModule(root, new File(file), moduleName);
-            
-        }catch(Exception e){
+
+        } catch (Exception e) {
             Log.log(e); //Not much we can do about it.
             return;
-        }finally{
+        } finally {
             nature.endRequests();
         }
-        
+
         //visit it
         AnalysisBuilderVisitor visitor = new AnalysisBuilderVisitor();
         visitor.memo = new HashMap<String, Object>();
@@ -171,25 +170,22 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
         visitor.memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, info.documentTime);
         visitor.visitingWillStart(new NullProgressMonitor(), false, null);
         try {
-            visitor.doVisitChangedResource(nature, fileAdapter, info.doc, null, module, new NullProgressMonitor(), force, 
-                    AnalysisBuilderRunnable.ANALYSIS_CAUSE_PARSER, info.documentTime);
+            visitor.doVisitChangedResource(nature, fileAdapter, info.doc, null, module, new NullProgressMonitor(),
+                    force, AnalysisBuilderRunnable.ANALYSIS_CAUSE_PARSER, info.documentTime);
         } finally {
             visitor.visitingEnded(new NullProgressMonitor());
-        } 
-        
+        }
+
     }
 
-    
     public void parserChanged(ISimpleNode root, IAdaptable resource, IDocument doc) {
         throw new RuntimeException("As it uses IParserObserver2, this interface should not be asked for.");
     }
 
-    
     public void parserError(Throwable error, IAdaptable file, IDocument doc) {
         //ignore errors...
     }
 
-    
     public void parserError(ErrorParserInfoForObservers info) {
         //ignore
     }

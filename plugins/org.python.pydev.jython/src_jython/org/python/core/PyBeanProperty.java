@@ -1,5 +1,6 @@
 // Copyright (c) Corporation for National Research Initiatives
 package org.python.core;
+
 import java.lang.reflect.*;
 
 public class PyBeanProperty extends PyReflectedField {
@@ -7,9 +8,7 @@ public class PyBeanProperty extends PyReflectedField {
     public Class myType;
     String __name__;
 
-    public PyBeanProperty(String name, Class myType,
-                          Method getMethod, Method setMethod)
-    {
+    public PyBeanProperty(String name, Class myType, Method getMethod, Method setMethod) {
         __name__ = name;
         this.getMethod = getMethod;
         this.setMethod = setMethod;
@@ -21,17 +20,17 @@ public class PyBeanProperty extends PyReflectedField {
             if (field != null) {
                 return super._doget(null);
             }
-            throw Py.AttributeError("instance attr: "+__name__);
+            throw Py.AttributeError("instance attr: " + __name__);
         }
 
         if (getMethod == null) {
-            throw Py.AttributeError("write-only attr: "+__name__);
+            throw Py.AttributeError("write-only attr: " + __name__);
         }
 
         Object iself = Py.tojava(self, getMethod.getDeclaringClass());
 
         try {
-            Object value = getMethod.invoke(iself, (Object[])Py.EmptyObjects);
+            Object value = getMethod.invoke(iself, (Object[]) Py.EmptyObjects);
             return Py.java2py(value);
         } catch (Exception e) {
             throw Py.JavaError(e);
@@ -43,22 +42,22 @@ public class PyBeanProperty extends PyReflectedField {
             if (field != null) {
                 return super._doset(null, value);
             }
-            throw Py.AttributeError("instance attr: "+__name__);
+            throw Py.AttributeError("instance attr: " + __name__);
         }
 
         if (setMethod == null) {
-            throw Py.AttributeError("read-only attr: "+__name__);
+            throw Py.AttributeError("read-only attr: " + __name__);
         }
 
         Object iself = Py.tojava(self, setMethod.getDeclaringClass());
 
-        Object jvalue=null;
+        Object jvalue = null;
 
         // Special handling of tuples
         // try to call a class constructor
         if (value instanceof PyTuple) {
             try {
-                PyTuple vtup = (PyTuple)value;
+                PyTuple vtup = (PyTuple) value;
                 value = PyJavaClass.lookup(myType).__call__(vtup.getArray()); // xxx PyObject subclasses
             } catch (Throwable t) {
                 // If something goes wrong ignore it?
@@ -69,7 +68,7 @@ public class PyBeanProperty extends PyReflectedField {
         }
 
         try {
-            setMethod.invoke(iself, new Object[] {jvalue});
+            setMethod.invoke(iself, new Object[] { jvalue });
         } catch (Exception e) {
             throw Py.JavaError(e);
         }
@@ -85,8 +84,6 @@ public class PyBeanProperty extends PyReflectedField {
         if (myType != null) {
             typeName = myType.getName();
         }
-        return "<beanProperty "+__name__+" type: "+typeName+" "+
-            Py.idstr(this)+">";
+        return "<beanProperty " + __name__ + " type: " + typeName + " " + Py.idstr(this) + ">";
     }
 }
-

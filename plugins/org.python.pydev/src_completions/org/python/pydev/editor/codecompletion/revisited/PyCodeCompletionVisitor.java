@@ -37,13 +37,12 @@ import org.python.pydev.plugin.nature.PythonNature;
 public class PyCodeCompletionVisitor extends PyDevBuilderVisitor {
 
     public static final int PRIORITY_CODE_COMPLETION = PRIORITY_DEFAULT;
-    
+
     @Override
     protected int getPriority() {
         return PRIORITY_CODE_COMPLETION;
     }
 
-    
     /**
      * The code completion visitor is responsible for checking the changed resources in order to
      * update the code completion cache for the project. 
@@ -53,106 +52,103 @@ public class PyCodeCompletionVisitor extends PyDevBuilderVisitor {
     @Override
     public void visitChangedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {
         PythonNature pythonNature = getPythonNature(resource);
-        if(pythonNature != null){
+        if (pythonNature != null) {
             ICodeCompletionASTManager astManager = pythonNature.getAstManager();
-            
-            if (astManager != null){
-                IPath location = resource.getLocation(); 
-                astManager.rebuildModule(new File(location.toOSString()), document, resource.getProject(), new NullProgressMonitor(), pythonNature);
+
+            if (astManager != null) {
+                IPath location = resource.getLocation();
+                astManager.rebuildModule(new File(location.toOSString()), document, resource.getProject(),
+                        new NullProgressMonitor(), pythonNature);
             }
         }
     }
 
     @Override
-    public void visitAddedResource(IResource resource,
-    		ICallback0<IDocument> document, IProgressMonitor monitor) {
-    	visitChangedResource(resource, document, monitor);
-    	
-    	if(PythonPathHelper.isValidInitFile(resource.getName())){
-    		//When some init file is added, we have to visit the whole structure below it as we'll have to enable
-    		//code-completion for all of that!
-    		Long originalTime = (Long) memo.get(PyDevBuilderVisitor.DOCUMENT_TIME);
-    		try{
-    			IResource[] initDependents = getInitDependents(resource);
-    			for (int i = 0; i < initDependents.length; i++) {
-    				IResource dependent = initDependents[i];
-    				memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, System.currentTimeMillis());
-    				this.visitChangedResource(dependent, REF.getDocOnCallbackFromResource(dependent), monitor);
-    			}
-    		} finally {
-    			memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, originalTime);
-    		}
-    	}
+    public void visitAddedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {
+        visitChangedResource(resource, document, monitor);
+
+        if (PythonPathHelper.isValidInitFile(resource.getName())) {
+            //When some init file is added, we have to visit the whole structure below it as we'll have to enable
+            //code-completion for all of that!
+            Long originalTime = (Long) memo.get(PyDevBuilderVisitor.DOCUMENT_TIME);
+            try {
+                IResource[] initDependents = getInitDependents(resource);
+                for (int i = 0; i < initDependents.length; i++) {
+                    IResource dependent = initDependents[i];
+                    memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, System.currentTimeMillis());
+                    this.visitChangedResource(dependent, REF.getDocOnCallbackFromResource(dependent), monitor);
+                }
+            } finally {
+                memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, originalTime);
+            }
+        }
     }
-    
-    
+
     @Override
     public void visitRemovedResource(IResource resource, ICallback0<IDocument> document, IProgressMonitor monitor) {
         PythonNature pythonNature = getPythonNature(resource);
-        if(pythonNature != null){
+        if (pythonNature != null) {
 
             ICodeCompletionASTManager astManager = pythonNature.getAstManager();
-            if (astManager != null){
-                IPath location = resource.getLocation(); 
-    
-                astManager.removeModule(new File(location.toOSString()), resource.getProject(), new NullProgressMonitor());
+            if (astManager != null) {
+                IPath location = resource.getLocation();
+
+                astManager.removeModule(new File(location.toOSString()), resource.getProject(),
+                        new NullProgressMonitor());
             }
         }
     }
-    
+
     /**
      * @return all the IFiles that are below the folder where initResource is located.
      */
-    protected IResource[] getInitDependents(IResource initResource){
-        
+    protected IResource[] getInitDependents(IResource initResource) {
+
         List<IResource> toRet = new ArrayList<IResource>();
         IContainer parent = initResource.getParent();
-        
+
         try {
-        	//Remove the __init__ that originated this request.
-			IResource[] members = parent.members();
-			ArrayList<IResource> lst = new ArrayList<IResource>(members.length-1);
-			for (int i = 0; i < members.length; i++) {
-				IResource resource = members[i];
-				if(!PythonPathHelper.isValidInitFile(resource.getName())){
-					lst.add(resource);
-				}
-			}
-			
-			fillWithMembers(toRet, parent, lst.toArray(new IResource[lst.size()]));
-		} catch (CoreException e) {
-			//That's OK: it may not exist anymore.
-		}
+            //Remove the __init__ that originated this request.
+            IResource[] members = parent.members();
+            ArrayList<IResource> lst = new ArrayList<IResource>(members.length - 1);
+            for (int i = 0; i < members.length; i++) {
+                IResource resource = members[i];
+                if (!PythonPathHelper.isValidInitFile(resource.getName())) {
+                    lst.add(resource);
+                }
+            }
+
+            fillWithMembers(toRet, parent, lst.toArray(new IResource[lst.size()]));
+        } catch (CoreException e) {
+            //That's OK: it may not exist anymore.
+        }
         return toRet.toArray(new IResource[0]);
     }
-    
-    
-    private void fillWithMembers(List<IResource> toRet, IContainer parent, IResource[] resources){
+
+    private void fillWithMembers(List<IResource> toRet, IContainer parent, IResource[] resources) {
         for (int i = 0; i < resources.length; i++) {
             IResource resource = resources[i];
-			if(resource.getType() == IResource.FILE){
-            	if(PythonPathHelper.isValidSourceFile(resource.getName())){
-            		toRet.add(resource);
-            	}
+            if (resource.getType() == IResource.FILE) {
+                if (PythonPathHelper.isValidSourceFile(resource.getName())) {
+                    toRet.add(resource);
+                }
 
-            }else if(resource.getType() == IResource.FOLDER){
-                IFolder folder = (IFolder)resource;
+            } else if (resource.getType() == IResource.FOLDER) {
+                IFolder folder = (IFolder) resource;
                 IResource[] members;
-				try {
-					members = folder.members();
-					for (int j = 0; j < members.length; j++) {
-						if(PythonPathHelper.isValidInitFile(members[j].getName())){
-							fillWithMembers(toRet, folder, members);
-							break;
-						}
-					}
-				} catch (CoreException e) {
-					//That's OK: it may not exist anymore.
-				}
+                try {
+                    members = folder.members();
+                    for (int j = 0; j < members.length; j++) {
+                        if (PythonPathHelper.isValidInitFile(members[j].getName())) {
+                            fillWithMembers(toRet, folder, members);
+                            break;
+                        }
+                    }
+                } catch (CoreException e) {
+                    //That's OK: it may not exist anymore.
+                }
             }
         }
     }
-
-
 
 }

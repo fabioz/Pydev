@@ -44,7 +44,7 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
 
     public ArgumentsTab(MainModuleTab mainModuleTab) {
         programArgumentsBlock = createProgramArgumentsBlock(mainModuleTab);
-        vmArgumentsBlock      = createVmArgumentsBlock(mainModuleTab);
+        vmArgumentsBlock = createVmArgumentsBlock(mainModuleTab);
         workingDirectoryBlock = createWorkingDirectoryBlock(mainModuleTab);
     }
 
@@ -66,14 +66,14 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
     public void createControl(Composite parent) {
         Composite comp = new Composite(parent, SWT.NONE);
         setControl(comp);
-        GridLayout gridLayout = new GridLayout();        
+        GridLayout gridLayout = new GridLayout();
         comp.setLayout(gridLayout);
-        
+
         programArgumentsBlock.createControl(comp);
         vmArgumentsBlock.createControl(comp);
         workingDirectoryBlock.createControl(comp);
     }
-    
+
     /* (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#isValid(org.eclipse.debug.core.ILaunchConfiguration)
      */
@@ -84,7 +84,7 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
         if (!programArgumentsBlock.isValid(launchConfig)) {
             return false;
         }
-        
+
         if (!vmArgumentsBlock.isValid(launchConfig)) {
             return false;
         }
@@ -92,7 +92,7 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
         if (!workingDirectoryBlock.isValid(launchConfig)) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -109,7 +109,7 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
     public Image getImage() {
         return PydevDebugPlugin.getImageCache().get(Constants.ARGUMENTS_ICON);
     }
-    
+
     /* (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#setDefaults(org.eclipse.debug.core.ILaunchConfigurationWorkingCopy)
      */
@@ -125,7 +125,7 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
         vmArgumentsBlock.initializeFrom(configuration);
         workingDirectoryBlock.initializeFrom(configuration);
     }
-    
+
     /* (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#performApply(org.eclipse.debug.core.ILaunchConfigurationWorkingCopy)
      */
@@ -134,7 +134,7 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
         vmArgumentsBlock.performApply(configuration);
         workingDirectoryBlock.performApply(configuration);
     }
-    
+
     /* (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#setLaunchConfigurationDialog(ILaunchConfigurationDialog)
      */
@@ -144,7 +144,7 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
         workingDirectoryBlock.setLaunchConfigurationDialog(dialog);
         vmArgumentsBlock.setLaunchConfigurationDialog(dialog);
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.AbstractLaunchConfigurationTab#getErrorMessage()
@@ -152,19 +152,19 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
     @Override
     public String getErrorMessage() {
         String result = super.getErrorMessage();
-        
+
         if (result == null) {
             result = programArgumentsBlock.getErrorMessage();
         }
-        
+
         if (result == null) {
             result = workingDirectoryBlock.getErrorMessage();
         }
-        
+
         if (result == null) {
             result = vmArgumentsBlock.getErrorMessage();
         }
-        
+
         return result;
     }
 
@@ -175,19 +175,19 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
     @Override
     public String getMessage() {
         String result = super.getMessage();
-        
+
         if (result == null) {
             result = programArgumentsBlock.getMessage();
         }
-        
+
         if (result == null) {
             result = workingDirectoryBlock.getMessage();
         }
-        
+
         if (result == null) {
             result = vmArgumentsBlock.getMessage();
         }
-        
+
         return result;
     }
 }

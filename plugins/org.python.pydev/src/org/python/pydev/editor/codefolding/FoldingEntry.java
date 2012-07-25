@@ -12,10 +12,10 @@ package org.python.pydev.editor.codefolding;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
-public class FoldingEntry{
+public class FoldingEntry {
 
     public FoldingEntry(int type, int startLine, int endLine, ASTEntry astEntry) {
-        if(endLine < startLine){
+        if (endLine < startLine) {
             endLine = startLine;
         }
         this.type = type;
@@ -23,20 +23,20 @@ public class FoldingEntry{
         this.endLine = endLine;
         this.astEntry = astEntry;
     }
-    public final static int TYPE_IMPORT=1;
-    public final static int TYPE_DEF=2;
-    public final static int TYPE_COMMENT=3;
-    public final static int TYPE_STR=4;
-    public final static int TYPE_STATEMENT=5;
-    public final static int TYPE_ELSE=6;
-    public final static int TYPE_EXCEPT=7;
-    public final static int TYPE_FINALLY=8;
+
+    public final static int TYPE_IMPORT = 1;
+    public final static int TYPE_DEF = 2;
+    public final static int TYPE_COMMENT = 3;
+    public final static int TYPE_STR = 4;
+    public final static int TYPE_STATEMENT = 5;
+    public final static int TYPE_ELSE = 6;
+    public final static int TYPE_EXCEPT = 7;
+    public final static int TYPE_FINALLY = 8;
     public int type;
     public int startLine;
     public int endLine;
     public ASTEntry astEntry;
-    
-    
+
     @Override
     public int hashCode() {
         final int PRIME = 31;
@@ -46,7 +46,7 @@ public class FoldingEntry{
         result = PRIME * result + type;
         return result;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -64,7 +64,7 @@ public class FoldingEntry{
             return false;
         return true;
     }
-    
+
     @Override
     public String toString() {
         FastStringBuffer buf = new FastStringBuffer();

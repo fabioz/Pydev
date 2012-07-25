@@ -14,7 +14,7 @@ import java.util.Collection;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 
 public interface ISimpleAssistParticipant2 {
-    
+
     /**
      * This method should be overridden to compute the completions for the console.
      * 

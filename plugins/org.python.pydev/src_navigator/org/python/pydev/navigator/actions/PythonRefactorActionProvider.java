@@ -16,33 +16,32 @@ import org.eclipse.ui.navigator.ICommonMenuConstants;
 import org.eclipse.ui.navigator.ICommonViewerSite;
 import org.eclipse.ui.navigator.ICommonViewerWorkbenchSite;
 
-public class PythonRefactorActionProvider extends CommonActionProvider{
-    
+public class PythonRefactorActionProvider extends CommonActionProvider {
+
     private PyRenameResourceAction renameResourceAction;
 
     @Override
     public void init(ICommonActionExtensionSite aSite) {
         ICommonViewerSite viewSite = aSite.getViewSite();
-        if(viewSite instanceof ICommonViewerWorkbenchSite){
+        if (viewSite instanceof ICommonViewerWorkbenchSite) {
             ICommonViewerWorkbenchSite site = (ICommonViewerWorkbenchSite) viewSite;
             Shell shell = site.getShell();
             renameResourceAction = new PyRenameResourceAction(shell, site.getSelectionProvider());
         }
     }
-    
-    public void fillActionBars(IActionBars actionBars) { 
-        if(renameResourceAction.isEnabled()){
+
+    public void fillActionBars(IActionBars actionBars) {
+        if (renameResourceAction.isEnabled()) {
             actionBars.setGlobalActionHandler(ActionFactory.RENAME.getId(), renameResourceAction);
         }
     }
-    
-    
+
     /* (non-Javadoc)
      * @see org.eclipse.ui.actions.ActionGroup#fillContextMenu(org.eclipse.jface.action.IMenuManager)
      */
     public void fillContextMenu(IMenuManager menu) {
-        if(renameResourceAction.isEnabled()){
-            menu.appendToGroup(ICommonMenuConstants.GROUP_EDIT, renameResourceAction);        
+        if (renameResourceAction.isEnabled()) {
+            menu.appendToGroup(ICommonMenuConstants.GROUP_EDIT, renameResourceAction);
         }
     }
 

@@ -20,46 +20,46 @@ public class PyCodeCompletionImages {
      * @param type
      * @return
      */
-    public static Image getImageForType(int type){
+    public static Image getImageForType(int type) {
         try {
             ImageCache imageCache = PydevPlugin.getImageCache();
             if (imageCache == null)
                 return null;
-    
+
             switch (type) {
-            case IToken.TYPE_IMPORT:
-                return imageCache.get(UIConstants.COMPLETION_IMPORT_ICON);
-    
-            case IToken.TYPE_CLASS:
-                return imageCache.get(UIConstants.COMPLETION_CLASS_ICON);
-    
-            case IToken.TYPE_FUNCTION:
-                return imageCache.get(UIConstants.METHOD_ICON);
-    
-            case IToken.TYPE_ATTR:
-                return imageCache.get(UIConstants.PUBLIC_ATTR_ICON);
-    
-            case IToken.TYPE_BUILTIN:
-                return imageCache.get(UIConstants.BUILTINS_ICON);
-    
-            case IToken.TYPE_PARAM:
-            case IToken.TYPE_LOCAL:
-            case IToken.TYPE_OBJECT_FOUND_INTERFACE:
-                return imageCache.get(UIConstants.COMPLETION_PARAMETERS_ICON);
-    
-            case IToken.TYPE_PACKAGE:
-                return imageCache.get(UIConstants.COMPLETION_PACKAGE_ICON);
-                
-            case IToken.TYPE_RELATIVE_IMPORT:
-                return imageCache.get(UIConstants.COMPLETION_RELATIVE_IMPORT_ICON);
-                
-            case IToken.TYPE_EPYDOC:
-                return imageCache.get(UIConstants.COMPLETION_EPYDOC);
-    
-            default:
-                return null;
+                case IToken.TYPE_IMPORT:
+                    return imageCache.get(UIConstants.COMPLETION_IMPORT_ICON);
+
+                case IToken.TYPE_CLASS:
+                    return imageCache.get(UIConstants.COMPLETION_CLASS_ICON);
+
+                case IToken.TYPE_FUNCTION:
+                    return imageCache.get(UIConstants.METHOD_ICON);
+
+                case IToken.TYPE_ATTR:
+                    return imageCache.get(UIConstants.PUBLIC_ATTR_ICON);
+
+                case IToken.TYPE_BUILTIN:
+                    return imageCache.get(UIConstants.BUILTINS_ICON);
+
+                case IToken.TYPE_PARAM:
+                case IToken.TYPE_LOCAL:
+                case IToken.TYPE_OBJECT_FOUND_INTERFACE:
+                    return imageCache.get(UIConstants.COMPLETION_PARAMETERS_ICON);
+
+                case IToken.TYPE_PACKAGE:
+                    return imageCache.get(UIConstants.COMPLETION_PACKAGE_ICON);
+
+                case IToken.TYPE_RELATIVE_IMPORT:
+                    return imageCache.get(UIConstants.COMPLETION_RELATIVE_IMPORT_ICON);
+
+                case IToken.TYPE_EPYDOC:
+                    return imageCache.get(UIConstants.COMPLETION_EPYDOC);
+
+                default:
+                    return null;
             }
-            
+
         } catch (Exception e) {
             Log.logInfo(e);
             return null;

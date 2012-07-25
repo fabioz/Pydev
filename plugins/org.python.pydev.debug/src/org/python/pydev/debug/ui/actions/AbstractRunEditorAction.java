@@ -16,51 +16,52 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
 
-public abstract class AbstractRunEditorAction extends PyAction{
-    
-    protected Tuple<String, IInterpreterManager> getLaunchConfigurationTypeAndInterpreterManager(PyEdit pyEdit, boolean isUnitTest){
+public abstract class AbstractRunEditorAction extends PyAction {
+
+    protected Tuple<String, IInterpreterManager> getLaunchConfigurationTypeAndInterpreterManager(PyEdit pyEdit,
+            boolean isUnitTest) {
         String launchConfigurationType;
         String defaultType = Constants.ID_PYTHON_REGULAR_LAUNCH_CONFIGURATION_TYPE;
         IInterpreterManager interpreterManager = PydevPlugin.getPythonInterpreterManager();
 
-        try{
+        try {
             IPythonNature nature = pyEdit.getPythonNature();
-            if(nature == null){
+            if (nature == null) {
                 launchConfigurationType = defaultType;
-            }else{
+            } else {
                 int interpreterType = nature.getInterpreterType();
                 interpreterManager = nature.getRelatedInterpreterManager();
-                switch(interpreterType){
+                switch (interpreterType) {
                     case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
-                        if(isUnitTest){
+                        if (isUnitTest) {
                             launchConfigurationType = Constants.ID_PYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE;
-                        }else{
+                        } else {
                             launchConfigurationType = Constants.ID_PYTHON_REGULAR_LAUNCH_CONFIGURATION_TYPE;
                         }
                         break;
                     case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
-                        if(isUnitTest){
+                        if (isUnitTest) {
                             launchConfigurationType = Constants.ID_IRONPYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE;
-                        }else{
+                        } else {
                             launchConfigurationType = Constants.ID_IRONPYTHON_LAUNCH_CONFIGURATION_TYPE;
                         }
                         break;
                     case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
-                        if(isUnitTest){
+                        if (isUnitTest) {
                             launchConfigurationType = Constants.ID_JYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE;
-                        }else{
+                        } else {
                             launchConfigurationType = Constants.ID_JYTHON_LAUNCH_CONFIGURATION_TYPE;
                         }
                         break;
                     default:
-                        throw new RuntimeException("Cannot recognize type: "+interpreterType);
+                        throw new RuntimeException("Cannot recognize type: " + interpreterType);
                 }
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             Log.log(IStatus.INFO, "Problem determining nature type. Using regular python launch.", e);
             launchConfigurationType = defaultType;
         }
-        
+
         return new Tuple<String, IInterpreterManager>(launchConfigurationType, interpreterManager);
     }
 

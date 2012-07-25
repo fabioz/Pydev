@@ -43,7 +43,7 @@ public final class GlobalModelVisitor extends AbstractVisitor {
     private final FastStack<Assign> lastAssign = new FastStack<Assign>(20);
     private final boolean onlyAllowTokensIn__all__;
     private final Map<String, SourceToken> repToTokenWithArgs = new HashMap<String, SourceToken>();
-    
+
     private SourceToken __all__;
     private Assign __all__Assign;
     private exprType[] __all__AssignTargets;
@@ -51,20 +51,21 @@ public final class GlobalModelVisitor extends AbstractVisitor {
     public GlobalModelVisitor(int visitWhat, String moduleName, boolean onlyAllowTokensIn__all__) {
         this(visitWhat, moduleName, onlyAllowTokensIn__all__, false);
     }
-    
+
     /**
      * @param moduleName
      * @param global_tokens2
      */
-    public GlobalModelVisitor(int visitWhat, String moduleName, boolean onlyAllowTokensIn__all__, boolean lookingInLocalContext) {
+    public GlobalModelVisitor(int visitWhat, String moduleName, boolean onlyAllowTokensIn__all__,
+            boolean lookingInLocalContext) {
         this.visitWhat = visitWhat;
         this.moduleName = moduleName;
         this.onlyAllowTokensIn__all__ = onlyAllowTokensIn__all__;
         this.tokens.add(new SourceToken(new Name("__dict__", Name.Load, false), "__dict__", "", "", moduleName));
-        if(moduleName != null && moduleName.endsWith("__init__")){
+        if (moduleName != null && moduleName.endsWith("__init__")) {
             this.tokens.add(new SourceToken(new Name("__path__", Name.Load, false), "__path__", "", "", moduleName));
         }
-        if(!lookingInLocalContext && ((this.visitWhat & GLOBAL_TOKENS) != 0)){
+        if (!lookingInLocalContext && ((this.visitWhat & GLOBAL_TOKENS) != 0)) {
             //__file__ is always available for any module
             this.tokens.add(new SourceToken(new Name("__file__", Name.Load, false), "__file__", "", "", moduleName));
             this.tokens.add(new SourceToken(new Name("__name__", Name.Load, false), "__name__", "", "", moduleName));
@@ -74,12 +75,12 @@ public final class GlobalModelVisitor extends AbstractVisitor {
     @Override
     protected SourceToken addToken(SimpleNode node) {
         SourceToken tok = super.addToken(node);
-        if(tok.getArgs().length() > 0){
+        if (tok.getArgs().length() > 0) {
             this.repToTokenWithArgs.put(tok.getRepresentation(), tok);
         }
         return tok;
     }
-    
+
     protected Object unhandled_node(SimpleNode node) throws Exception {
         return null;
     }
@@ -92,7 +93,7 @@ public final class GlobalModelVisitor extends AbstractVisitor {
         //when visiting the global namespace, we don't go into any inner scope.
         if ((this.visitWhat & GLOBAL_TOKENS) != 0) {
             addToken(node);
-        } 
+        }
         return null;
     }
 
@@ -126,23 +127,23 @@ public final class GlobalModelVisitor extends AbstractVisitor {
         if ((this.visitWhat & GLOBAL_TOKENS) != 0) {
             if (node.ctx == Name.Store) {
                 SourceToken added = addToken(node);
-                if(lastAssign.size() > 0){
+                if (lastAssign.size() > 0) {
                     Assign last = lastAssign.peek();
-                    if(added.getRepresentation().equals("__all__") && __all__Assign == null){
+                    if (added.getRepresentation().equals("__all__") && __all__Assign == null) {
                         __all__ = added;
                         __all__Assign = last;
                         __all__AssignTargets = last.targets;
-                    }else{
-                        if(last.value != null && !(last.value instanceof Call)){
+                    } else {
+                        if (last.value != null && !(last.value instanceof Call)) {
                             //Checking if it's a Call, because we don't want to enter in the use-case:
                             //def method(a, b):
                             //   ...
                             //other = method()
-                            
+
                             String rep = NodeUtils.getRepresentationString(last.value);
-                            if(rep != null){
+                            if (rep != null) {
                                 SourceToken methodTok = repToTokenWithArgs.get(rep);
-                                if(methodTok != null){
+                                if (methodTok != null) {
                                     //The use case is the following: we have a method and an assign to it:
                                     //def method(a, b):
                                     //   ...
@@ -155,8 +156,8 @@ public final class GlobalModelVisitor extends AbstractVisitor {
                         }
                     }
                 }
-            }else if(node.ctx == Name.Load){
-                if(node.id.equals("__all__")){
+            } else if (node.ctx == Name.Load) {
+                if (node.id.equals("__all__")) {
                     //if we find __all__ more than once, let's clear it (we can only have __all__ = list of strings... if later
                     //an append, extend, etc is done in it, we have to skip this heuristic).
                     __all__AssignTargets = null;
@@ -173,15 +174,13 @@ public final class GlobalModelVisitor extends AbstractVisitor {
     public Object visitImportFrom(ImportFrom node) throws Exception {
         if ((this.visitWhat & WILD_MODULES) != 0) {
             makeWildImportToken(node, this.tokens, moduleName);
-        } 
-        
+        }
+
         if ((this.visitWhat & ALIAS_MODULES) != 0) {
             makeImportToken(node, this.tokens, moduleName, true);
         }
         return null;
     }
-
-
 
     /**
      * Visiting some import
@@ -194,74 +193,70 @@ public final class GlobalModelVisitor extends AbstractVisitor {
         return null;
     }
 
-    
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitStr(org.python.pydev.parser.jython.ast.Str)
      */
     public Object visitStr(Str node) throws Exception {
-        if((this.visitWhat & MODULE_DOCSTRING) != 0){
+        if ((this.visitWhat & MODULE_DOCSTRING) != 0) {
             this.tokens.add(new SourceToken(node, node.s, "", "", moduleName));
         }
         return null;
     }
-    
-    
+
     /**
      * Overridden to check __all__
      */
     @Override
     protected void finishVisit() {
-        if(onlyAllowTokensIn__all__){
+        if (onlyAllowTokensIn__all__) {
             filterAll(this.tokens);
         }
     }
 
-    
     /**
      * This method will filter the passed tokens given the __all__ that was found when visiting.
      * 
      * @param tokens the tokens to be filtered (IN and OUT parameter)
      */
     public void filterAll(java.util.List<IToken> tokens) {
-        if(__all__ != null){
+        if (__all__ != null) {
             SimpleNode ast = __all__.getAst();
             //just checking it
-            if(__all__AssignTargets != null && __all__AssignTargets.length == 1 && __all__AssignTargets[0] == ast){
+            if (__all__AssignTargets != null && __all__AssignTargets.length == 1 && __all__AssignTargets[0] == ast) {
                 HashSet<String> validTokensInAll = new HashSet<String>();
                 exprType value = __all__Assign.value;
                 exprType[] elts = null;
-                if(value instanceof List){
+                if (value instanceof List) {
                     List valueList = (List) value;
-                    if(valueList.elts != null){
-                    	elts = valueList.elts;
+                    if (valueList.elts != null) {
+                        elts = valueList.elts;
                     }
-                }else if(value instanceof Tuple){
-                	Tuple valueList = (Tuple) value;
-                	if(valueList.elts != null){
-                		elts = valueList.elts;
-                	}
-                }
-                
-                if(elts != null){
-                    int len = elts.length;
-                    for (int i = 0; i < len; i++) {
-                        exprType elt = elts[i];
-	                    if(elt instanceof Str){
-	                        Str str = (Str) elt;
-	                        validTokensInAll.add(str.s);
-	                    }
+                } else if (value instanceof Tuple) {
+                    Tuple valueList = (Tuple) value;
+                    if (valueList.elts != null) {
+                        elts = valueList.elts;
                     }
                 }
 
-                
-                if(validTokensInAll.size() > 0){
+                if (elts != null) {
+                    int len = elts.length;
+                    for (int i = 0; i < len; i++) {
+                        exprType elt = elts[i];
+                        if (elt instanceof Str) {
+                            Str str = (Str) elt;
+                            validTokensInAll.add(str.s);
+                        }
+                    }
+                }
+
+                if (validTokensInAll.size() > 0) {
                     int len = tokens.size();
                     for (int i = 0; i < len; i++) {
                         IToken tok = tokens.get(i);
-                        if(!validTokensInAll.contains(tok.getRepresentation())){
+                        if (!validTokensInAll.contains(tok.getRepresentation())) {
                             tokens.remove(i);
                             //update the len and current pos to reflect the removal.
-                            i--; 
+                            i--;
                             len--;
                         }
                     }

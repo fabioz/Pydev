@@ -72,21 +72,21 @@ public class NodeUtils {
      * @return a string with the representation of the parameters of the function
      */
     public static String getNodeArgs(SimpleNode node) {
-        if(node instanceof ClassDef){
+        if (node instanceof ClassDef) {
             node = getClassDefInit((ClassDef) node);
         }
 
-        if(node instanceof FunctionDef){
-            FunctionDef f = (FunctionDef)node;
+        if (node instanceof FunctionDef) {
+            FunctionDef f = (FunctionDef) node;
 
             String startPar = "( ";
             FastStringBuffer buffer = new FastStringBuffer(startPar, 40);
 
             for (int i = 0; i < f.args.args.length; i++) {
-                if(buffer.length() > startPar.length()){
+                if (buffer.length() > startPar.length()) {
                     buffer.append(", ");
                 }
-                buffer.append( getRepresentationString(f.args.args[i]) );
+                buffer.append(getRepresentationString(f.args.args[i]));
             }
             buffer.append(" )");
             return buffer.toString();
@@ -94,24 +94,23 @@ public class NodeUtils {
         return "";
     }
 
-
     public static String getFullArgs(SimpleNode ast) {
-        if(ast != null){
-            if(ast instanceof ClassDef){
+        if (ast != null) {
+            if (ast instanceof ClassDef) {
                 ast = NodeUtils.getClassDefInit((ClassDef) ast);
             }
-            if(ast instanceof FunctionDef){
+            if (ast instanceof FunctionDef) {
                 FunctionDef functionDef = (FunctionDef) ast;
-                if(functionDef.args != null){
+                if (functionDef.args != null) {
                     String printed = PrettyPrinterV2.printArguments(new IGrammarVersionProvider() {
 
                         public int getGrammarVersion() throws MisconfigurationException {
                             return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0;
                         }
                     }, functionDef.args);
-                    if(printed != null){
-                        if(!printed.startsWith("(") || !printed.endsWith(")")){
-                            printed = "("+printed+")";
+                    if (printed != null) {
+                        if (!printed.startsWith("(") || !printed.endsWith(")")) {
+                            printed = "(" + printed + ")";
                         }
                         return printed;
                     }
@@ -121,12 +120,11 @@ public class NodeUtils {
         return "";
     }
 
-
     public static SimpleNode getClassDefInit(ClassDef classDef) {
-        for(stmtType t: classDef.body){
-            if(t instanceof FunctionDef){
+        for (stmtType t : classDef.body) {
+            if (t instanceof FunctionDef) {
                 FunctionDef def = (FunctionDef) t;
-                if(((NameTok)def.name).id.equals("__init__")){
+                if (((NameTok) def.name).id.equals("__init__")) {
                     return def;
                 }
             }
@@ -134,19 +132,18 @@ public class NodeUtils {
         return null;
     }
 
-
     /**
      * Get the representation for the passed parameter (if it is a String, it is itself, if it
      * is a SimpleNode, get its representation
      */
-    private static String discoverRep(Object o){
-        if(o instanceof String){
+    private static String discoverRep(Object o) {
+        if (o instanceof String) {
             return (String) o;
         }
-        if(o instanceof NameTok){
+        if (o instanceof NameTok) {
             return ((NameTok) o).id;
         }
-        if(o instanceof SimpleNode){
+        if (o instanceof SimpleNode) {
             return getRepresentationString((SimpleNode) o);
         }
         throw new RuntimeException("Expecting a String or a SimpleNode");
@@ -161,130 +158,127 @@ public class NodeUtils {
      * @return A suitable String representation for some node.
      */
     public static String getRepresentationString(SimpleNode node, boolean useTypeRepr) {
-        if(node instanceof NameTok){
+        if (node instanceof NameTok) {
             NameTok tok = (NameTok) node;
             return tok.id;
         }
 
-        if(node instanceof Name){
+        if (node instanceof Name) {
             Name name = (Name) node;
             return name.id;
         }
 
-        if(node instanceof aliasType){
+        if (node instanceof aliasType) {
             aliasType type = (aliasType) node;
-            return ((NameTok)type.name).id;
+            return ((NameTok) type.name).id;
         }
-        if(node instanceof Attribute){
+        if (node instanceof Attribute) {
             Attribute attribute = (Attribute) node;
             return discoverRep(attribute.attr);
 
         }
 
-        if(node instanceof keywordType){
+        if (node instanceof keywordType) {
             keywordType type = (keywordType) node;
             return discoverRep(type.arg);
         }
 
-        if(node instanceof ClassDef){
+        if (node instanceof ClassDef) {
             ClassDef def = (ClassDef) node;
-            return ((NameTok)def.name).id;
+            return ((NameTok) def.name).id;
         }
 
-        if(node instanceof FunctionDef){
+        if (node instanceof FunctionDef) {
             FunctionDef def = (FunctionDef) node;
-            return ((NameTok)def.name).id;
+            return ((NameTok) def.name).id;
         }
 
-        if (node instanceof Call){
-            Call call = ((Call)node);
+        if (node instanceof Call) {
+            Call call = ((Call) node);
             return getRepresentationString(call.func, useTypeRepr);
         }
 
-        if (node instanceof org.python.pydev.parser.jython.ast.List || node instanceof ListComp){
+        if (node instanceof org.python.pydev.parser.jython.ast.List || node instanceof ListComp) {
             String val = "[]";
-            if(useTypeRepr){
+            if (useTypeRepr) {
                 val = getBuiltinType(val);
             }
             return val;
         }
 
-        if (node instanceof org.python.pydev.parser.jython.ast.Dict){
+        if (node instanceof org.python.pydev.parser.jython.ast.Dict) {
             String val = "{}";
-            if(useTypeRepr){
+            if (useTypeRepr) {
                 val = getBuiltinType(val);
             }
             return val;
         }
 
-        if(node instanceof BinOp){
+        if (node instanceof BinOp) {
             BinOp binOp = (BinOp) node;
-            if(binOp.left instanceof Str && binOp.op == BinOp.Mod){
+            if (binOp.left instanceof Str && binOp.op == BinOp.Mod) {
                 node = binOp.left;
                 //Just change the node... the check below will work with the Str already.
             }
         }
-        
-        if (node instanceof Str){
+
+        if (node instanceof Str) {
             String val;
-            if(useTypeRepr){
+            if (useTypeRepr) {
                 val = getBuiltinType("''");
-            }else{
-                val = "'"+((Str)node).s+"'";
+            } else {
+                val = "'" + ((Str) node).s + "'";
             }
             return val;
         }
-        
 
-        if (node instanceof Tuple){
+        if (node instanceof Tuple) {
             StringBuffer buf = new StringBuffer();
-            Tuple t = (Tuple)node;
-            for ( exprType e : t.elts){
+            Tuple t = (Tuple) node;
+            for (exprType e : t.elts) {
                 buf.append(getRepresentationString(e, useTypeRepr));
                 buf.append(", ");
             }
-            if(t.elts.length > 0){
+            if (t.elts.length > 0) {
                 int l = buf.length();
-                buf.deleteCharAt(l-1);
-                buf.deleteCharAt(l-2);
+                buf.deleteCharAt(l - 1);
+                buf.deleteCharAt(l - 2);
             }
-            String val = "("+buf+")";
-            if(useTypeRepr){
+            String val = "(" + buf + ")";
+            if (useTypeRepr) {
                 val = getBuiltinType(val);
             }
             return val;
         }
 
-        if (node instanceof Num){
-            String val = ((Num)node).n.toString();
-            if(useTypeRepr){
+        if (node instanceof Num) {
+            String val = ((Num) node).n.toString();
+            if (useTypeRepr) {
                 val = getBuiltinType(val);
             }
             return val;
         }
 
-        if (node instanceof Import){
-            aliasType[] names = ((Import)node).names;
+        if (node instanceof Import) {
+            aliasType[] names = ((Import) node).names;
             for (aliasType n : names) {
-                if(n.asname != null){
-                    return ((NameTok)n.asname).id;
+                if (n.asname != null) {
+                    return ((NameTok) n.asname).id;
                 }
-                return ((NameTok)n.name).id;
+                return ((NameTok) n.name).id;
             }
         }
 
-
-        if(node instanceof commentType){
+        if (node instanceof commentType) {
             commentType type = (commentType) node;
             return type.id;
         }
 
-        if(node instanceof excepthandlerType){
+        if (node instanceof excepthandlerType) {
             excepthandlerType type = (excepthandlerType) node;
             return type.name.toString();
 
         }
-
 
         return null;
     }
@@ -295,20 +289,19 @@ public class NodeUtils {
      */
     public static String getNodeDocString(SimpleNode node) {
         Str s = getNodeDocStringNode(node);
-        if(s != null){
+        if (s != null) {
             return s.s;
         }
         return null;
     }
 
-
     public static Str getNodeDocStringNode(SimpleNode node) {
         Str s = null;
         stmtType body[] = null;
-        if(node instanceof FunctionDef){
+        if (node instanceof FunctionDef) {
             FunctionDef def = (FunctionDef) node;
             body = def.body;
-        } else if(node instanceof ClassDef){
+        } else if (node instanceof ClassDef) {
             ClassDef def = (ClassDef) node;
             body = def.body;
 
@@ -324,67 +317,64 @@ public class NodeUtils {
         return s;
     }
 
-
-
     public static String getFullRepresentationString(SimpleNode node) {
         return getFullRepresentationString(node, false);
     }
 
     public static String getFullRepresentationString(SimpleNode node, boolean fullOnSubscriptOrCall) {
-        if (node instanceof Dict){
+        if (node instanceof Dict) {
             return "dict";
         }
 
-        if (node instanceof Str || node instanceof Num){
+        if (node instanceof Str || node instanceof Num) {
             return getRepresentationString(node, true);
         }
 
-        if (node instanceof Tuple){
+        if (node instanceof Tuple) {
             return getRepresentationString(node, true);
         }
 
-        if (node instanceof Subscript){
-            return getFullRepresentationString(((Subscript)node).value);
+        if (node instanceof Subscript) {
+            return getFullRepresentationString(((Subscript) node).value);
         }
 
-
-        if(node instanceof Call){
+        if (node instanceof Call) {
             Call c = (Call) node;
             node = c.func;
             if (REF.hasAttr(node, "value") && REF.hasAttr(node, "attr")) {
-                return getFullRepresentationString((SimpleNode) REF.getAttrObj(node, "value")) + "." +discoverRep(REF.getAttrObj(node, "attr"));
+                return getFullRepresentationString((SimpleNode) REF.getAttrObj(node, "value")) + "."
+                        + discoverRep(REF.getAttrObj(node, "attr"));
             }
         }
 
-
-        if (node instanceof Attribute){
+        if (node instanceof Attribute) {
             //attributes are tricky because we only have backwards access initially, so, we have to:
 
             //get it forwards
             List<SimpleNode> attributeParts = getAttributeParts((Attribute) node);
             StringBuffer buf = new StringBuffer();
             for (Object part : attributeParts) {
-                if(part instanceof Call){
+                if (part instanceof Call) {
                     //stop on a call (that's what we usually want, since the end will depend on the things that
                     //return from the call).
-                    if(!fullOnSubscriptOrCall){
+                    if (!fullOnSubscriptOrCall) {
                         return buf.toString();
-                    }else{
+                    } else {
                         buf.append("()");//call
                     }
 
-                }else if (part instanceof Subscript){
-                    if(!fullOnSubscriptOrCall){
+                } else if (part instanceof Subscript) {
+                    if (!fullOnSubscriptOrCall) {
                         //stop on a subscript : e.g.: in bb.cc[10].d we only want the bb.cc part
-                        return getFullRepresentationString(((Subscript)part).value);
-                    }else{
-                        buf.append(getFullRepresentationString(((Subscript)part).value));
+                        return getFullRepresentationString(((Subscript) part).value);
+                    } else {
+                        buf.append(getFullRepresentationString(((Subscript) part).value));
                         buf.append("[]");//subscript access
                     }
 
-                }else{
+                } else {
                     //otherwise, just add another dot and keep going.
-                    if(buf.length() > 0){
+                    if (buf.length() > 0) {
                         buf.append(".");
                     }
                     buf.append(getRepresentationString((SimpleNode) part, true));
@@ -393,41 +383,38 @@ public class NodeUtils {
             return buf.toString();
 
         }
-        
-        if(node instanceof BinOp){
+
+        if (node instanceof BinOp) {
             BinOp binOp = (BinOp) node;
-            if(binOp.left instanceof Str && binOp.op == BinOp.Mod){
+            if (binOp.left instanceof Str && binOp.op == BinOp.Mod) {
                 //It's something as 'aaa' % (1,2), so, we know it's a string.
                 return getRepresentationString(node, true);
             }
         }
-        
 
         return getRepresentationString(node, true);
     }
 
-
     /**
      * line and col start at 1
      */
-    public static boolean isWithin(int line, int col, SimpleNode node){
+    public static boolean isWithin(int line, int col, SimpleNode node) {
         int colDefinition = NodeUtils.getColDefinition(node);
         int lineDefinition = NodeUtils.getLineDefinition(node);
         int[] colLineEnd = NodeUtils.getColLineEnd(node, false);
 
-        if(lineDefinition <= line && colDefinition <= col &&
-            colLineEnd[0] >= line && colLineEnd[1] >= col){
+        if (lineDefinition <= line && colDefinition <= col && colLineEnd[0] >= line && colLineEnd[1] >= col) {
             return true;
         }
         return false;
     }
 
-    public static SimpleNode getNameTokFromNode(SimpleNode ast2){
-        if (ast2 instanceof ClassDef){
+    public static SimpleNode getNameTokFromNode(SimpleNode ast2) {
+        if (ast2 instanceof ClassDef) {
             ClassDef c = (ClassDef) ast2;
             return c.name;
         }
-        if (ast2 instanceof FunctionDef){
+        if (ast2 instanceof FunctionDef) {
             FunctionDef c = (FunctionDef) ast2;
             return c.name;
         }
@@ -448,23 +435,22 @@ public class NodeUtils {
      * @return the line definition of a node
      */
     public static int getLineDefinition(SimpleNode ast2) {
-        while(ast2 instanceof Attribute){
-            exprType val = ((Attribute)ast2).value;
-            if(!(val instanceof Call)){
+        while (ast2 instanceof Attribute) {
+            exprType val = ((Attribute) ast2).value;
+            if (!(val instanceof Call)) {
                 ast2 = val;
-            }else{
+            } else {
                 break;
             }
         }
-        if(ast2 instanceof FunctionDef){
-            return ((FunctionDef)ast2).name.beginLine;
+        if (ast2 instanceof FunctionDef) {
+            return ((FunctionDef) ast2).name.beginLine;
         }
-        if(ast2 instanceof ClassDef){
-            return ((ClassDef)ast2).name.beginLine;
+        if (ast2 instanceof ClassDef) {
+            return ((ClassDef) ast2).name.beginLine;
         }
         return ast2.beginLine;
     }
-
 
     public static int getColDefinition(SimpleNode ast2) {
         return getColDefinition(ast2, true);
@@ -475,43 +461,41 @@ public class NodeUtils {
      * @return the column definition of a node
      */
     public static int getColDefinition(SimpleNode ast2, boolean always1ForImports) {
-        if(ast2 instanceof Attribute){
+        if (ast2 instanceof Attribute) {
             //if it is an attribute, we always have to move backward to the first defined token (Attribute.value)
-            exprType value = ((Attribute)ast2).value;
+            exprType value = ((Attribute) ast2).value;
             return getColDefinition(value);
         }
 
         //call and subscript are special cases, because they are not gotten directly (we have to go to the first
         //part of it (which in turn may be an attribute)
-        else if(ast2 instanceof Call){
+        else if (ast2 instanceof Call) {
             Call c = (Call) ast2;
             return getColDefinition(c.func);
 
-        } else if(ast2 instanceof Subscript){
+        } else if (ast2 instanceof Subscript) {
             Subscript s = (Subscript) ast2;
             return getColDefinition(s.value);
 
-        } else if(always1ForImports){
-            if(ast2 instanceof Import || ast2 instanceof ImportFrom){
+        } else if (always1ForImports) {
+            if (ast2 instanceof Import || ast2 instanceof ImportFrom) {
                 return 1;
             }
         }
         return getClassOrFuncColDefinition(ast2);
     }
 
-
     public static int getClassOrFuncColDefinition(SimpleNode ast2) {
-        if(ast2 instanceof ClassDef){
+        if (ast2 instanceof ClassDef) {
             ClassDef def = (ClassDef) ast2;
             return def.name.beginColumn;
         }
-        if(ast2 instanceof FunctionDef){
+        if (ast2 instanceof FunctionDef) {
             FunctionDef def = (FunctionDef) ast2;
             return def.name.beginColumn;
         }
         return ast2.beginColumn;
     }
-
 
     public static int[] getColLineEnd(SimpleNode v) {
         return getColLineEnd(v, true);
@@ -525,29 +509,28 @@ public class NodeUtils {
         int lineEnd = getLineEnd(v);
         int col = 0;
 
-        if(v instanceof Import || v instanceof ImportFrom){
-            return new int[]{lineEnd, -1}; //col is -1... import is always full line
+        if (v instanceof Import || v instanceof ImportFrom) {
+            return new int[] { lineEnd, -1 }; //col is -1... import is always full line
         }
 
-
-        if(v instanceof Str){
-            if(lineEnd == getLineDefinition(v)){
-                String s = ((Str)v).s;
+        if (v instanceof Str) {
+            if (lineEnd == getLineDefinition(v)) {
+                String s = ((Str) v).s;
                 col = getColDefinition(v) + s.length();
-                return new int[]{lineEnd, col};
-            }else{
+                return new int[] { lineEnd, col };
+            } else {
                 //it is another line...
-                String s = ((Str)v).s;
+                String s = ((Str) v).s;
                 int i = s.lastIndexOf('\n');
                 String sub = s.substring(i, s.length());
 
                 col = sub.length();
-                return new int[]{lineEnd, col};
+                return new int[] { lineEnd, col };
             }
         }
 
         col = getEndColFromRepresentation(v, getOnlyToFirstDot);
-        return new int[]{lineEnd, col};
+        return new int[] { lineEnd, col };
     }
 
     /**
@@ -557,19 +540,19 @@ public class NodeUtils {
     private static int getEndColFromRepresentation(SimpleNode v, boolean getOnlyToFirstDot) {
         int col;
         String representationString = getFullRepresentationString(v);
-        if(representationString == null){
+        if (representationString == null) {
             return -1;
         }
 
-        if(getOnlyToFirstDot){
+        if (getOnlyToFirstDot) {
             int i;
-            if((i = representationString.indexOf('.') )  != -1){
-                representationString = representationString.substring(0,i);
+            if ((i = representationString.indexOf('.')) != -1) {
+                representationString = representationString.substring(0, i);
             }
         }
 
         int colDefinition = getColDefinition(v);
-        if(colDefinition == -1){
+        if (colDefinition == -1) {
             return -1;
         }
 
@@ -578,28 +561,28 @@ public class NodeUtils {
     }
 
     public static int getLineEnd(SimpleNode v) {
-        if(v instanceof Expr){
+        if (v instanceof Expr) {
             Expr expr = (Expr) v;
             v = expr.value;
         }
-        if(v instanceof ImportFrom){
+        if (v instanceof ImportFrom) {
             ImportFrom f = (ImportFrom) v;
             FindLastLineVisitor findLastLineVisitor = new FindLastLineVisitor();
             try {
                 f.accept(findLastLineVisitor);
                 SimpleNode lastNode = findLastLineVisitor.getLastNode();
                 ISpecialStr lastSpecialStr = findLastLineVisitor.getLastSpecialStr();
-                if(lastSpecialStr != null && lastSpecialStr.toString().equals(")")){
+                if (lastSpecialStr != null && lastSpecialStr.toString().equals(")")) {
                     //it was an from xxx import (euheon, utehon)
                     return lastSpecialStr.getBeginLine();
-                }else{
+                } else {
                     return lastNode.beginLine;
                 }
             } catch (Exception e) {
                 Log.log(e);
             }
         }
-        if(v instanceof Import){
+        if (v instanceof Import) {
             Import f = (Import) v;
             FindLastLineVisitor findLastLineVisitor = new FindLastLineVisitor();
             try {
@@ -610,12 +593,12 @@ public class NodeUtils {
                 Log.log(e);
             }
         }
-        if(v instanceof Str){
-            String s = ((Str)v).s;
+        if (v instanceof Str) {
+            String s = ((Str) v).s;
             int found = 0;
             for (int i = 0; i < s.length(); i++) {
 
-                if(s.charAt(i) == '\n'){
+                if (s.charAt(i) == '\n') {
                     found += 1;
                 }
             }
@@ -628,24 +611,21 @@ public class NodeUtils {
      * @return the builtin type (if any) for some token (e.g.: '' would return str, 1.0 would return float...
      */
     public static String getBuiltinType(String tok) {
-        if(tok.endsWith("'") || tok.endsWith("\"")){
+        if (tok.endsWith("'") || tok.endsWith("\"")) {
             //ok, we are getting code completion for a string.
             return "str";
 
-
-        } else if(tok.endsWith("]") && tok.startsWith("[")){
+        } else if (tok.endsWith("]") && tok.startsWith("[")) {
             //ok, we are getting code completion for a list.
             return "list";
 
-
-        } else if(tok.endsWith("}") && tok.startsWith("{")){
+        } else if (tok.endsWith("}") && tok.startsWith("{")) {
             //ok, we are getting code completion for a dict.
             return "dict";
 
-        } else if(tok.endsWith(")") && tok.startsWith("(")){
+        } else if (tok.endsWith(")") && tok.startsWith("(")) {
             //ok, we are getting code completion for a tuple.
             return "tuple";
-
 
         } else {
             try {
@@ -664,13 +644,13 @@ public class NodeUtils {
         return null;
     }
 
-    public static String getNameFromNameTok(NameTokType tok){
-        return ((NameTok)tok).id;
-    }
-    public static String getNameFromNameTok(NameTok tok){
-        return tok.id;
+    public static String getNameFromNameTok(NameTokType tok) {
+        return ((NameTok) tok).id;
     }
 
+    public static String getNameFromNameTok(NameTok tok) {
+        return tok.id;
+    }
 
     /**
      * Gets all the parts contained in some attribute in the right order (when we visit
@@ -686,16 +666,16 @@ public class NodeUtils {
         nodes.add(node.attr);
         SimpleNode s = node.value;
 
-        while(true){
-            if(s instanceof Attribute){
+        while (true) {
+            if (s instanceof Attribute) {
                 nodes.add(s);
                 s = ((Attribute) s).value;
 
-            }else if(s instanceof Call){
+            } else if (s instanceof Call) {
                 nodes.add(s);
                 s = ((Call) s).func;
 
-            }else{
+            } else {
                 nodes.add(s);
                 break;
             }
@@ -706,7 +686,6 @@ public class NodeUtils {
         return nodes;
     }
 
-
     /**
      * Gets the parent names for a class definition
      *
@@ -715,9 +694,9 @@ public class NodeUtils {
      */
     public static List<String> getParentNames(ClassDef def, boolean onlyLastSegment) {
         ArrayList<String> ret = new ArrayList<String>();
-        for(exprType base: def.bases){
+        for (exprType base : def.bases) {
             String rep = getFullRepresentationString(base);
-            if(onlyLastSegment){
+            if (onlyLastSegment) {
                 rep = FullRepIterable.getLastPart(rep);
             }
             ret.add(rep);
@@ -725,12 +704,11 @@ public class NodeUtils {
         return ret;
     }
 
-
     /**
      * @return true if the node is an import node (and false otherwise).
      */
     public static boolean isImport(SimpleNode ast) {
-        if(ast instanceof Import || ast instanceof ImportFrom){
+        if (ast instanceof Import || ast instanceof ImportFrom) {
             return true;
         }
         return false;
@@ -740,33 +718,30 @@ public class NodeUtils {
      * @return true if the node is a comment import node (and false otherwise).
      */
     public static boolean isComment(SimpleNode ast) {
-        if(ast instanceof commentType) {
+        if (ast instanceof commentType) {
             return true;
         }
         return false;
     }
 
-
     public static NameTok getNameForAlias(aliasType t) {
-        if(t.asname != null){
+        if (t.asname != null) {
             return (NameTok) t.asname;
-        }else{
+        } else {
             return (NameTok) t.name;
         }
     }
-
 
     public static NameTok getNameForRep(aliasType[] names, String representation) {
         for (aliasType name : names) {
             NameTok nameForAlias = getNameForAlias(name);
             String aliasRep = NodeUtils.getRepresentationString(nameForAlias);
-            if(representation.equals(aliasRep)){
+            if (representation.equals(aliasRep)) {
                 return nameForAlias;
             }
         }
         return null;
     }
-
 
     /**
      * @param lineNumber the line we want to get the context from (starts at 0)
@@ -774,25 +749,25 @@ public class NodeUtils {
      * @return the full name for the context where we are (in the format Class.method.xxx.xxx)
      */
     public static String getContextName(int lineNumber, SimpleNode ast) {
-        if(ast != null){
+        if (ast != null) {
             EasyASTIteratorVisitor visitor = EasyASTIteratorVisitor.create(ast);
             Iterator<ASTEntry> classesAndMethodsIterator = visitor.getClassesAndMethodsIterator();
             ASTEntry last = null;
             while (classesAndMethodsIterator.hasNext()) {
                 ASTEntry entry = classesAndMethodsIterator.next();
-                if(entry.node.beginLine > lineNumber+1){
+                if (entry.node.beginLine > lineNumber + 1) {
                     //ok, now, let's find out which context actually contains it...
                     break;
                 }
                 last = entry;
             }
 
-            while(last != null && last.endLine <= lineNumber){
+            while (last != null && last.endLine <= lineNumber) {
                 last = last.parent;
             }
 
-            if(last != null){
-            	return getFullMethodName(last);
+            if (last != null) {
+                return getFullMethodName(last);
             }
         }
         return null;
@@ -802,343 +777,308 @@ public class NodeUtils {
      * @param ASTEntry last
      * @return classdef.method_name
      */
-	public static String getFullMethodName(ASTEntry last) {
-		StringBuffer buffer = new StringBuffer();
-		boolean first = true;
-		while (last != null) {
-			String name = last.getName();
-			buffer.insert(0, name);
-			last = last.parent;
-			if (!first) {
-				buffer.insert(name.length(), ".");
-			}
-			first = false;
-		}
-		return buffer.toString();
-	}
-
-	/**
-	 * Identifies the context for both source and target line
-	 *
-	 * @param ASTEntry
-	 *            ast
-	 * @param int sourceLine: the line at which debugger is stopped currently
-	 *        (starts at 1)
-	 * @param int targetLine: the line at which we need to set next (starts at
-	 *        0)
-	 * @return
-	 */
-	public static boolean isValidContextForSetNext(SimpleNode ast,
-			int sourceLine, int targetLine) {
-		String sourceFunctionName = NodeUtils.getContextName((sourceLine - 1),
-				ast);
-		String targetFunctionName = NodeUtils.getContextName(targetLine, ast);
-		if (compareMethodName(sourceFunctionName, targetFunctionName)) {
-			ASTEntry sourceAST = NodeUtils.getLoopContextName(sourceLine, ast);
-			ASTEntry targetAST = NodeUtils.getLoopContextName(targetLine + 1,
-					ast);
-
-			if (targetAST == null) {
-				return true; // Target line is not inside some loop
-			}
-			if (isValidElseBlock(sourceAST, targetAST, sourceLine, targetLine)) {
-				return true; // Debug pointer can be set inside else block of
-								// for..else/while..else
-			}
-			if (sourceAST == null && targetAST != null) {
-				return false; // Source is outside loop and target is inside
-								// loop
-			}
-			if (sourceAST != null && targetAST != null) {
-				// Both Source and Target is inside some loop
-				if (sourceAST.equals(targetAST)) {
-					return isValidInterLoopContext(sourceLine, targetLine,
-							sourceAST, targetAST);
-				} else {
-					ASTEntry last = sourceAST;
-					boolean retVal = false;
-					while (last != null) {
-						ASTEntry parentAST = last.parent;
-						if (parentAST != null && parentAST.equals(targetAST)) {
-							retVal = true;
-							break;
-						}
-						last = parentAST;
-					}
-					return retVal;
-				}
-			}
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	/**
-	 * Compare name of two methods. return true if either both methods are same
-	 * or global context
-	 *
-	 * @param sourceMethodName
-	 * @param targetMethodName
-	 * @return
-	 */
-	public static boolean compareMethodName(String sourceMethodName,
-			String targetMethodName) {
-		if ((sourceMethodName == null && targetMethodName == null))
-			return true;
-		if ((sourceMethodName != null)
-				&& sourceMethodName.equals(targetMethodName))
-			return true;
-		return false;
-	}
-
-	/**
-	 * Identifies the for/while/try..except/try..finally and with for a provided
-	 * line number.
-	 *
-	 * @param lineNumber
-	 *            the line we want to get the loop context (starts at 1)
-	 * @param ast
-	 * @return
-	 */
-	public static ASTEntry getLoopContextName(int lineNumber, SimpleNode ast) {
-		ASTEntry loopContext = null;
-		if (ast != null) {
-			int highestBeginLine = 0;
-			ArrayList<ASTEntry> contextBlockList = new ArrayList<ASTEntry>();
-			EasyASTIteratorWithLoop visitor = EasyASTIteratorWithLoop
-					.create(ast);
-			Iterator<ASTEntry> blockIterator = visitor.getIterators();
-			while (blockIterator.hasNext()) {
-				ASTEntry entry = blockIterator.next();
-				if ((entry.node.beginLine) < lineNumber
-						&& entry.endLine >= lineNumber) {
-					contextBlockList.add(entry);
-					if (entry.node.beginLine > highestBeginLine) {
-						highestBeginLine = entry.node.beginLine;
-					}
-				}
-			}
-			Iterator<ASTEntry> contextBlockListIterator = contextBlockList
-					.iterator();
-			while (contextBlockListIterator.hasNext()) {
-				ASTEntry astEntry = contextBlockListIterator.next();
-				if (astEntry.node.beginLine == highestBeginLine) {
-					loopContext = astEntry;
-				}
-			}
-		}
-		return loopContext;
-	}
-
-	/**
-	 * Set Next into else block of for..else/while..else is also allowed even if
-	 * current pointer is outside for..else/while..else but current pointer
-	 * context should be immediate parent of target for..else/while..else
-	 *
-	 * @param sourceAST
-	 * @param targetAST
-	 * @param sourceLine
-	 *            : the line at which debugger is stopped currently (starts at
-	 *            1)
-	 * @param targetLine
-	 *            : the line at which we need to set next (starts at 0)
-	 * @return
-	 */
-	public static boolean isValidElseBlock(ASTEntry sourceAST,
-			ASTEntry targetAST, int sourceLine, int targetLine) {
-		boolean retval = false;
-		if (targetAST.node instanceof For || targetAST.node instanceof While) {
-			int targetElseBeginLine = getElseBeginLine(targetAST);
-			if (targetElseBeginLine > 0 && targetLine + 1 > targetElseBeginLine) {
-				if ((targetAST.parent == null || targetAST.parent.node instanceof FunctionDef)
-						&& sourceAST == null) {
-					retval = true;
-				} else if (targetAST.parent != null
-						&& targetAST.parent.equals(sourceAST)) {
-					int sourceElseBeginLine = getElseBeginLine(sourceAST);
-					if (sourceLine > sourceElseBeginLine) {
-						retval = false;
-					} else {
-						retval = true;
-					}
-				}
-			}
-		}
-		return retval;
-	}
-
-	/**
-	 * Identifies the begin line of else block for for..else/while..else and
-	 * first exception begin line for try..except..else block
-	 *
-	 * @param astEntry
-	 * @return
-	 */
-	public static int getElseBeginLine(ASTEntry astEntry) {
-		int beginLine = 0;
-		if (astEntry.node instanceof TryExcept
-				&& ((TryExcept) astEntry.node).handlers.length > 0) {
-			beginLine = ((TryExcept) astEntry.node).handlers[0].beginLine;
-		} else if (astEntry.node instanceof For
-				&& ((For) astEntry.node).orelse != null) {
-			beginLine = ((For) astEntry.node).orelse.beginLine;
-		} else if (astEntry.node instanceof While
-				&& ((While) astEntry.node).orelse != null) {
-			beginLine = ((While) astEntry.node).orelse.beginLine;
-		}
-		return beginLine;
-	}
-
-	/**
-	 *
-	 *
-	 * @param sourceLine
-	 * @param targetLine
-	 * @param sourceAST
-	 * @param targetAST
-	 * @return
-	 */
-	public static boolean isValidInterLoopContext(int sourceLine,
-			int targetLine, ASTEntry sourceAST, ASTEntry targetAST) {
-		boolean retval = true;
-		if (sourceAST.node instanceof TryExcept
-				&& targetAST.node instanceof TryExcept
-				&& (!isValidTryExceptContext(sourceAST, targetAST, sourceLine,
-						targetLine))) {
-			retval = false;
-		} else if (sourceAST.node instanceof For
-				&& targetAST.node instanceof For
-				&& (!isValidForContext(sourceAST, targetAST, sourceLine,
-						targetLine))) {
-			retval = false;
-		} else if (sourceAST.node instanceof While
-				&& targetAST.node instanceof While
-				&& (!isValidWhileContext(sourceAST, targetAST, sourceLine,
-						targetLine))) {
-			retval = false;
-		}
-		return retval;
-	}
-
-	/**
-	 * Identifies the valid set next target inside Try..except..else block
-	 *
-	 * @param sourceAST
-	 * @param targetAST
-	 * @param sourceLine
-	 *            : the line at which debugger is stopped currently (starts at
-	 *            1)
-	 * @param targetLine
-	 *            : the line at which we need to set next (starts at 0)
-	 * @return
-	 */
-	public static boolean isValidTryExceptContext(ASTEntry sourceAST,
-			ASTEntry targetAST, int sourceLine, int targetLine) {
-
-		excepthandlerType[] exceptionHandlers = ((TryExcept) sourceAST.node).handlers;
-		if (((TryExcept) sourceAST.node).specialsAfter != null) {
-			// Pointer can't be set on comment(s) in try block
-			List<Object> specialList = ((TryExcept) sourceAST.node).specialsAfter;
-			for (Object obj : specialList) {
-				if (obj instanceof commentType
-						&& targetLine + 1 == ((commentType) obj).beginLine) {
-					return false;
-				}
-			}
-		}
-		for (int i = 0; i < exceptionHandlers.length; i++) {
-			excepthandlerType exceptionHandler = exceptionHandlers[i];
-			// Pointer can't be set on except... statement(s)
-			if (targetLine + 1 == exceptionHandler.beginLine) {
-				return false;
-			}
-		}
-
-		// Pointer can't be moved inside try block from except or else block
-		if (exceptionHandlers.length > 0) {
-			int exceptionBeginLine = exceptionHandlers[0].beginLine;
-			if (targetLine + 1 > ((TryExcept) sourceAST.node).beginLine
-					&& targetLine + 1 < exceptionBeginLine
-					&& sourceLine >= exceptionBeginLine) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * Identifies the valid set next target inside while..else block
-	 *
-	 * @param sourceAST
-	 * @param targetAST
-	 * @param sourceLine
-	 *            : the line at which debugger is stopped currently (starts at
-	 *            1)
-	 * @param targetLine
-	 *            : the line at which we need to set next (starts at 0)
-	 * @return
-	 */
-	public static boolean isValidWhileContext(ASTEntry sourceAST,
-			ASTEntry targetAST, int sourceLine, int targetLine) {
-		// Pointer can't be moved inside while block from else block
-		if (((While) sourceAST.node).orelse != null) {
-			int elseBeginLine = ((While) sourceAST.node).orelse.beginLine;
-			if (targetLine + 1 > ((While) sourceAST.node).beginLine
-					&& targetLine + 1 < elseBeginLine
-					&& sourceLine >= elseBeginLine) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * Identifies the valid set next target inside for..else block
-	 *
-	 * @param sourceAST
-	 * @param targetAST
-	 * @param sourceLine
-	 *            : the line at which debugger is stopped currently (starts at
-	 *            1)
-	 * @param targetLine
-	 *            : the line at which we need to set next (starts at 0)
-	 * @return
-	 */
-	public static boolean isValidForContext(ASTEntry sourceAST,
-			ASTEntry targetAST, int sourceLine, int targetLine) {
-		// Pointer can't be moved inside for block from else block
-		if (((For) sourceAST.node).orelse != null) {
-			int elseBeginLine = ((For) sourceAST.node).orelse.beginLine;
-			if (targetLine + 1 > ((For) sourceAST.node).beginLine
-					&& targetLine + 1 < elseBeginLine
-					&& sourceLine >= elseBeginLine) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-
-    protected static final String[] strTypes = new String[]{
-        "'''",
-        "\"\"\"",
-        "'",
-        "\""
-    };
-
-    public static String getStringToPrint(Str node){
+    public static String getFullMethodName(ASTEntry last) {
         StringBuffer buffer = new StringBuffer();
-        if(node.unicode){
+        boolean first = true;
+        while (last != null) {
+            String name = last.getName();
+            buffer.insert(0, name);
+            last = last.parent;
+            if (!first) {
+                buffer.insert(name.length(), ".");
+            }
+            first = false;
+        }
+        return buffer.toString();
+    }
+
+    /**
+     * Identifies the context for both source and target line
+     *
+     * @param ASTEntry
+     *            ast
+     * @param int sourceLine: the line at which debugger is stopped currently
+     *        (starts at 1)
+     * @param int targetLine: the line at which we need to set next (starts at
+     *        0)
+     * @return
+     */
+    public static boolean isValidContextForSetNext(SimpleNode ast, int sourceLine, int targetLine) {
+        String sourceFunctionName = NodeUtils.getContextName((sourceLine - 1), ast);
+        String targetFunctionName = NodeUtils.getContextName(targetLine, ast);
+        if (compareMethodName(sourceFunctionName, targetFunctionName)) {
+            ASTEntry sourceAST = NodeUtils.getLoopContextName(sourceLine, ast);
+            ASTEntry targetAST = NodeUtils.getLoopContextName(targetLine + 1, ast);
+
+            if (targetAST == null) {
+                return true; // Target line is not inside some loop
+            }
+            if (isValidElseBlock(sourceAST, targetAST, sourceLine, targetLine)) {
+                return true; // Debug pointer can be set inside else block of
+                             // for..else/while..else
+            }
+            if (sourceAST == null && targetAST != null) {
+                return false; // Source is outside loop and target is inside
+                              // loop
+            }
+            if (sourceAST != null && targetAST != null) {
+                // Both Source and Target is inside some loop
+                if (sourceAST.equals(targetAST)) {
+                    return isValidInterLoopContext(sourceLine, targetLine, sourceAST, targetAST);
+                } else {
+                    ASTEntry last = sourceAST;
+                    boolean retVal = false;
+                    while (last != null) {
+                        ASTEntry parentAST = last.parent;
+                        if (parentAST != null && parentAST.equals(targetAST)) {
+                            retVal = true;
+                            break;
+                        }
+                        last = parentAST;
+                    }
+                    return retVal;
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Compare name of two methods. return true if either both methods are same
+     * or global context
+     *
+     * @param sourceMethodName
+     * @param targetMethodName
+     * @return
+     */
+    public static boolean compareMethodName(String sourceMethodName, String targetMethodName) {
+        if ((sourceMethodName == null && targetMethodName == null))
+            return true;
+        if ((sourceMethodName != null) && sourceMethodName.equals(targetMethodName))
+            return true;
+        return false;
+    }
+
+    /**
+     * Identifies the for/while/try..except/try..finally and with for a provided
+     * line number.
+     *
+     * @param lineNumber
+     *            the line we want to get the loop context (starts at 1)
+     * @param ast
+     * @return
+     */
+    public static ASTEntry getLoopContextName(int lineNumber, SimpleNode ast) {
+        ASTEntry loopContext = null;
+        if (ast != null) {
+            int highestBeginLine = 0;
+            ArrayList<ASTEntry> contextBlockList = new ArrayList<ASTEntry>();
+            EasyASTIteratorWithLoop visitor = EasyASTIteratorWithLoop.create(ast);
+            Iterator<ASTEntry> blockIterator = visitor.getIterators();
+            while (blockIterator.hasNext()) {
+                ASTEntry entry = blockIterator.next();
+                if ((entry.node.beginLine) < lineNumber && entry.endLine >= lineNumber) {
+                    contextBlockList.add(entry);
+                    if (entry.node.beginLine > highestBeginLine) {
+                        highestBeginLine = entry.node.beginLine;
+                    }
+                }
+            }
+            Iterator<ASTEntry> contextBlockListIterator = contextBlockList.iterator();
+            while (contextBlockListIterator.hasNext()) {
+                ASTEntry astEntry = contextBlockListIterator.next();
+                if (astEntry.node.beginLine == highestBeginLine) {
+                    loopContext = astEntry;
+                }
+            }
+        }
+        return loopContext;
+    }
+
+    /**
+     * Set Next into else block of for..else/while..else is also allowed even if
+     * current pointer is outside for..else/while..else but current pointer
+     * context should be immediate parent of target for..else/while..else
+     *
+     * @param sourceAST
+     * @param targetAST
+     * @param sourceLine
+     *            : the line at which debugger is stopped currently (starts at
+     *            1)
+     * @param targetLine
+     *            : the line at which we need to set next (starts at 0)
+     * @return
+     */
+    public static boolean isValidElseBlock(ASTEntry sourceAST, ASTEntry targetAST, int sourceLine, int targetLine) {
+        boolean retval = false;
+        if (targetAST.node instanceof For || targetAST.node instanceof While) {
+            int targetElseBeginLine = getElseBeginLine(targetAST);
+            if (targetElseBeginLine > 0 && targetLine + 1 > targetElseBeginLine) {
+                if ((targetAST.parent == null || targetAST.parent.node instanceof FunctionDef) && sourceAST == null) {
+                    retval = true;
+                } else if (targetAST.parent != null && targetAST.parent.equals(sourceAST)) {
+                    int sourceElseBeginLine = getElseBeginLine(sourceAST);
+                    if (sourceLine > sourceElseBeginLine) {
+                        retval = false;
+                    } else {
+                        retval = true;
+                    }
+                }
+            }
+        }
+        return retval;
+    }
+
+    /**
+     * Identifies the begin line of else block for for..else/while..else and
+     * first exception begin line for try..except..else block
+     *
+     * @param astEntry
+     * @return
+     */
+    public static int getElseBeginLine(ASTEntry astEntry) {
+        int beginLine = 0;
+        if (astEntry.node instanceof TryExcept && ((TryExcept) astEntry.node).handlers.length > 0) {
+            beginLine = ((TryExcept) astEntry.node).handlers[0].beginLine;
+        } else if (astEntry.node instanceof For && ((For) astEntry.node).orelse != null) {
+            beginLine = ((For) astEntry.node).orelse.beginLine;
+        } else if (astEntry.node instanceof While && ((While) astEntry.node).orelse != null) {
+            beginLine = ((While) astEntry.node).orelse.beginLine;
+        }
+        return beginLine;
+    }
+
+    /**
+     *
+     *
+     * @param sourceLine
+     * @param targetLine
+     * @param sourceAST
+     * @param targetAST
+     * @return
+     */
+    public static boolean isValidInterLoopContext(int sourceLine, int targetLine, ASTEntry sourceAST, ASTEntry targetAST) {
+        boolean retval = true;
+        if (sourceAST.node instanceof TryExcept && targetAST.node instanceof TryExcept
+                && (!isValidTryExceptContext(sourceAST, targetAST, sourceLine, targetLine))) {
+            retval = false;
+        } else if (sourceAST.node instanceof For && targetAST.node instanceof For
+                && (!isValidForContext(sourceAST, targetAST, sourceLine, targetLine))) {
+            retval = false;
+        } else if (sourceAST.node instanceof While && targetAST.node instanceof While
+                && (!isValidWhileContext(sourceAST, targetAST, sourceLine, targetLine))) {
+            retval = false;
+        }
+        return retval;
+    }
+
+    /**
+     * Identifies the valid set next target inside Try..except..else block
+     *
+     * @param sourceAST
+     * @param targetAST
+     * @param sourceLine
+     *            : the line at which debugger is stopped currently (starts at
+     *            1)
+     * @param targetLine
+     *            : the line at which we need to set next (starts at 0)
+     * @return
+     */
+    public static boolean isValidTryExceptContext(ASTEntry sourceAST, ASTEntry targetAST, int sourceLine, int targetLine) {
+
+        excepthandlerType[] exceptionHandlers = ((TryExcept) sourceAST.node).handlers;
+        if (((TryExcept) sourceAST.node).specialsAfter != null) {
+            // Pointer can't be set on comment(s) in try block
+            List<Object> specialList = ((TryExcept) sourceAST.node).specialsAfter;
+            for (Object obj : specialList) {
+                if (obj instanceof commentType && targetLine + 1 == ((commentType) obj).beginLine) {
+                    return false;
+                }
+            }
+        }
+        for (int i = 0; i < exceptionHandlers.length; i++) {
+            excepthandlerType exceptionHandler = exceptionHandlers[i];
+            // Pointer can't be set on except... statement(s)
+            if (targetLine + 1 == exceptionHandler.beginLine) {
+                return false;
+            }
+        }
+
+        // Pointer can't be moved inside try block from except or else block
+        if (exceptionHandlers.length > 0) {
+            int exceptionBeginLine = exceptionHandlers[0].beginLine;
+            if (targetLine + 1 > ((TryExcept) sourceAST.node).beginLine && targetLine + 1 < exceptionBeginLine
+                    && sourceLine >= exceptionBeginLine) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Identifies the valid set next target inside while..else block
+     *
+     * @param sourceAST
+     * @param targetAST
+     * @param sourceLine
+     *            : the line at which debugger is stopped currently (starts at
+     *            1)
+     * @param targetLine
+     *            : the line at which we need to set next (starts at 0)
+     * @return
+     */
+    public static boolean isValidWhileContext(ASTEntry sourceAST, ASTEntry targetAST, int sourceLine, int targetLine) {
+        // Pointer can't be moved inside while block from else block
+        if (((While) sourceAST.node).orelse != null) {
+            int elseBeginLine = ((While) sourceAST.node).orelse.beginLine;
+            if (targetLine + 1 > ((While) sourceAST.node).beginLine && targetLine + 1 < elseBeginLine
+                    && sourceLine >= elseBeginLine) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Identifies the valid set next target inside for..else block
+     *
+     * @param sourceAST
+     * @param targetAST
+     * @param sourceLine
+     *            : the line at which debugger is stopped currently (starts at
+     *            1)
+     * @param targetLine
+     *            : the line at which we need to set next (starts at 0)
+     * @return
+     */
+    public static boolean isValidForContext(ASTEntry sourceAST, ASTEntry targetAST, int sourceLine, int targetLine) {
+        // Pointer can't be moved inside for block from else block
+        if (((For) sourceAST.node).orelse != null) {
+            int elseBeginLine = ((For) sourceAST.node).orelse.beginLine;
+            if (targetLine + 1 > ((For) sourceAST.node).beginLine && targetLine + 1 < elseBeginLine
+                    && sourceLine >= elseBeginLine) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    protected static final String[] strTypes = new String[] { "'''", "\"\"\"", "'", "\"" };
+
+    public static String getStringToPrint(Str node) {
+        StringBuffer buffer = new StringBuffer();
+        if (node.unicode) {
             buffer.append("u");
         }
-        if(node.binary){
+        if (node.binary) {
             buffer.append("b");
         }
-        if(node.raw){
+        if (node.raw) {
             buffer.append("r");
         }
-        final String s = strTypes[node.type-1];
+        final String s = strTypes[node.type - 1];
 
         buffer.append(s);
         buffer.append(node.s);
@@ -1146,25 +1086,20 @@ public class NodeUtils {
         return buffer.toString();
     }
 
-
     /**
      * @param node the if node that we want to check.
      * @return null if the passed node is not
      */
     public static boolean isIfMAinNode(If node) {
         if (node.test instanceof Compare) {
-            Compare compareNode = (Compare)node.test;
+            Compare compareNode = (Compare) node.test;
             // handcrafted structure walking
-            if (compareNode.left instanceof Name
-                && ((Name)compareNode.left).id.equals("__name__")
-                && compareNode.ops != null
-                && compareNode.ops.length == 1
-                && compareNode.ops[0] == Compare.Eq){
+            if (compareNode.left instanceof Name && ((Name) compareNode.left).id.equals("__name__")
+                    && compareNode.ops != null && compareNode.ops.length == 1 && compareNode.ops[0] == Compare.Eq) {
 
-                if ( compareNode.comparators != null
-                    && compareNode.comparators.length == 1
-                    && compareNode.comparators[0] instanceof Str
-                    && ((Str)compareNode.comparators[0]).s.equals("__main__")){
+                if (compareNode.comparators != null && compareNode.comparators.length == 1
+                        && compareNode.comparators[0] instanceof Str
+                        && ((Str) compareNode.comparators[0]).s.equals("__main__")) {
                     return true;
                 }
             }
@@ -1176,10 +1111,10 @@ public class NodeUtils {
      * @return true if the given name is a valid python name.
      */
     public static boolean isValidNameRepresentation(String rep) {
-        if(rep == null){
+        if (rep == null) {
             return false;
         }
-        if("pass".equals(rep) || rep.startsWith("!<") || rep.indexOf(' ') != -1){
+        if ("pass".equals(rep) || rep.startsWith("!<") || rep.indexOf(' ') != -1) {
             //Name generated during the parsing (in AbstractPythonGrammar)
             return false;
         }
@@ -1194,106 +1129,105 @@ public class NodeUtils {
      * Note that the call is only accepted as the last part.
      * @return an Attribute representing the string.
      */
-    public static exprType makeAttribute(String attrString){
+    public static exprType makeAttribute(String attrString) {
         List<String> dotSplit = StringUtils.dotSplit(attrString);
         Assert.isTrue(dotSplit.size() > 1);
 
         exprType first = null;
         Attribute last = null;
         Attribute attr = null;
-        for(int i=dotSplit.size()-1;i>0;i--){
+        for (int i = dotSplit.size() - 1; i > 0; i--) {
             Call call = null;
             String part = dotSplit.get(i);
-            if(part.endsWith("()")){
-                if(i == dotSplit.size()-1){
-                    part = part.substring(0, part.length()-2);
+            if (part.endsWith("()")) {
+                if (i == dotSplit.size() - 1) {
+                    part = part.substring(0, part.length() - 2);
                     call = new Call(null, new exprType[0], new keywordType[0], null, null);
                     first = call;
-                }else{
+                } else {
                     throw new RuntimeException("Call only accepted in the last part.");
                 }
             }
             attr = new Attribute(null, new NameTok(part, NameTok.Attrib), Attribute.Load);
-            if(call != null){
+            if (call != null) {
                 call.func = attr;
             }
-            if(last != null){
+            if (last != null) {
                 last.value = attr;
             }
             last = attr;
-            if(first == null){
+            if (first == null) {
                 first = last;
             }
         }
 
         String lastPart = dotSplit.get(0);
-        if(lastPart.endsWith("()")){
-            last.value = new Call(new Name(lastPart.substring(0, lastPart.length()-2), Name.Load, false), null, null, null, null);
-        }else{
+        if (lastPart.endsWith("()")) {
+            last.value = new Call(new Name(lastPart.substring(0, lastPart.length() - 2), Name.Load, false), null, null,
+                    null, null);
+        } else {
             last.value = new Name(lastPart, Name.Load, false);
         }
         return first;
     }
 
-
     /**
      * @return the body of the passed node (if it doesn't have a body, an empty array is returned).
      */
     public static stmtType[] getBody(SimpleNode node) {
-        if(node instanceof Module){
+        if (node instanceof Module) {
             Module module = (Module) node;
             return module.body;
         }
 
-        if(node instanceof ClassDef){
+        if (node instanceof ClassDef) {
             ClassDef module = (ClassDef) node;
             return module.body;
         }
 
-        if(node instanceof FunctionDef){
+        if (node instanceof FunctionDef) {
             FunctionDef module = (FunctionDef) node;
             return module.body;
         }
 
-        if(node instanceof excepthandlerType){
+        if (node instanceof excepthandlerType) {
             excepthandlerType module = (excepthandlerType) node;
             return module.body;
         }
-        if(node instanceof For){
+        if (node instanceof For) {
             For module = (For) node;
             return module.body;
         }
-        if(node instanceof If){
+        if (node instanceof If) {
             If module = (If) node;
             return module.body;
         }
-        if(node instanceof Suite){
+        if (node instanceof Suite) {
             Suite module = (Suite) node;
             return module.body;
         }
-        if(node instanceof suiteType){
+        if (node instanceof suiteType) {
             suiteType module = (suiteType) node;
             return module.body;
         }
-        if(node instanceof TryExcept){
+        if (node instanceof TryExcept) {
             TryExcept module = (TryExcept) node;
             return module.body;
         }
-        if(node instanceof TryFinally){
+        if (node instanceof TryFinally) {
             TryFinally module = (TryFinally) node;
             return module.body;
         }
-        if(node instanceof While){
+        if (node instanceof While) {
             While module = (While) node;
             return module.body;
         }
-        if(node instanceof With){
+        if (node instanceof With) {
             With module = (With) node;
             return module.body.body;
         }
         return new stmtType[0];
     }
-
 
     /**
      * @param node This is the node where we should start looking (usually the Module)
@@ -1305,27 +1239,26 @@ public class NodeUtils {
         SimpleNode leafTestNode = null;
 
         SimpleNode last = node;
-        for(String s:StringUtils.dotSplit(path)){
+        for (String s : StringUtils.dotSplit(path)) {
 
             stmtType found = null;
-            for(stmtType n:NodeUtils.getBody(last)){
-                if(s.equals(NodeUtils.getRepresentationString(n))){
+            for (stmtType n : NodeUtils.getBody(last)) {
+                if (s.equals(NodeUtils.getRepresentationString(n))) {
                     found = n;
                     last = n;
                     break;
                 }
             }
 
-            if(found == null){
+            if (found == null) {
                 leafTestNode = null;
                 break;
-            }else{
+            } else {
                 leafTestNode = found;
             }
         }
         return leafTestNode;
     }
-
 
     /**
      * Finds the statement that contains the given node.
@@ -1340,10 +1273,11 @@ public class NodeUtils {
 
             @Override
             protected Object unhandled_node(SimpleNode node) throws Exception {
-                if(node instanceof stmtType){
+                if (node instanceof stmtType) {
                     lastStmtFound = (stmtType) node;
                 }
-                if(node.beginColumn == ast.beginColumn && node.beginLine == ast.beginLine && node.getClass() == ast.getClass() && node.toString().equals(ast.toString())){
+                if (node.beginColumn == ast.beginColumn && node.beginLine == ast.beginLine
+                        && node.getClass() == ast.getClass() && node.toString().equals(ast.toString())) {
                     throw new StopVisitingException(lastStmtFound);
                 }
                 return null;
@@ -1358,37 +1292,36 @@ public class NodeUtils {
 
         stmtType last = null;
         for (stmtType stmtType : body) {
-            if(stmtType.beginLine > ast.beginLine){
+            if (stmtType.beginLine > ast.beginLine) {
                 //already passed the possible statement, check the last one (which is the last statement that
                 //has a beginLine <= ast.beginLine) and return even if we didn't find it, as we already passed the
                 //target line.
-                if(last != null){
+                if (last != null) {
                     return checkNode(v, last);
                 }
             }
-            if(stmtType.beginLine == ast.beginLine){
+            if (stmtType.beginLine == ast.beginLine) {
                 //If we have a case in the same line, we must also check it. Don't mark it as last in this case as we've
                 //already checked it.
                 stmtType n = checkNode(v, stmtType);
-                if(n != null){
+                if (n != null) {
                     return n;
                 }
-            }else{
+            } else {
                 last = stmtType;
             }
         }
         return null;
     }
 
-
     private static stmtType checkNode(VisitorBase v, stmtType last) {
         try {
             last.accept(v);
-        }catch(StopVisitingException e){
-            if(e.lastStmtFound != null){
+        } catch (StopVisitingException e) {
+            if (e.lastStmtFound != null) {
                 //it could be that we found a statement inside this statement.
                 return e.lastStmtFound;
-            }else{
+            } else {
                 //Ok, there were no more statements there, so, just go on with the last we received.
                 return last;
             }
@@ -1398,7 +1331,6 @@ public class NodeUtils {
         //Not found!
         return null;
     }
-
 
     public static int getOffset(IDocument doc, SimpleNode node) {
         int nodeOffsetBegin = PySelection.getAbsoluteCursorOffset(doc, node.beginLine - 1, node.beginColumn - 1);

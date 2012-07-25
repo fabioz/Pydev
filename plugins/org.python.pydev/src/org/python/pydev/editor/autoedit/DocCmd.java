@@ -14,12 +14,12 @@ import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.structure.FastStringBuffer;
 
-public class DocCmd extends DocumentCommand{
-    
-    public DocCmd(int offset, int length, String text){
+public class DocCmd extends DocumentCommand {
+
+    public DocCmd(int offset, int length, String text) {
         this.offset = offset;
         this.length = length;
-        this.text   = text;
+        this.text = text;
         this.caretOffset = -1;
         this.shiftsCaret = true;
     }
@@ -45,11 +45,9 @@ public class DocCmd extends DocumentCommand{
         buf.append("\n)");
         return buf.toString();
     }
-    
-    
+
     public void doExecute(IDocument document) throws BadLocationException {
         document.replace(offset, length, text);
     }
 
 }
-

@@ -29,29 +29,29 @@ public class InfoStrFactory {
      */
     public static String infoToString(List<IInfo> iInfo) {
         HashMap<String, Integer> map = new HashMap<String, Integer>();
-        
+
         FastStringBuffer infos = new FastStringBuffer();
-        
+
         int next = 0;
         map.put(null, next);
         next++;
-        
-        for (Iterator<IInfo> it= iInfo.iterator();it.hasNext();) {
+
+        for (Iterator<IInfo> it = iInfo.iterator(); it.hasNext();) {
             IInfo info = it.next();
             infos.append("&&");
             infos.append(info.getType());
             String name = info.getName();
             String declaringModuleName = info.getDeclaringModuleName();
             String path = info.getPath();
-            
+
             next = add(map, infos, next, name);
             next = add(map, infos, next, declaringModuleName);
             next = add(map, infos, next, path);
         }
-        
-        FastStringBuffer header = new FastStringBuffer("INFOS:", map.size()*30);
+
+        FastStringBuffer header = new FastStringBuffer("INFOS:", map.size() * 30);
         Set<Entry<String, Integer>> entrySet = map.entrySet();
-        
+
         //null is always 0 (not written to header)
         header.append(infos);
         header.append('\n');
@@ -62,13 +62,13 @@ public class InfoStrFactory {
             header.append(entry.getValue());
             header.append("\n");
         }
-        
+
         return header.toString();
     }
 
     private static int add(HashMap<String, Integer> map, FastStringBuffer infos, int next, String d) {
         Integer v = map.get(d);
-        if(v == null){
+        if (v == null) {
             v = next;
             map.put(d, next);
             next++;
@@ -92,35 +92,35 @@ public class InfoStrFactory {
      * where number 0 is always null and the others are the numbers mapped as needed.
      */
     public static List<IInfo> strToInfo(String s) {
-        if(!s.startsWith("INFOS:")){
+        if (!s.startsWith("INFOS:")) {
             return null;
         }
         s = s.substring(6);
-        
+
         Iterable<String> iterLines = StringUtils.iterLines(s);
         Iterator<String> linesIt = iterLines.iterator();
-        if(!linesIt.hasNext()){
+        if (!linesIt.hasNext()) {
             return null;
         }
         String firstLine = linesIt.next().trim(); //line with the infos (we must read the other parts to actually 'get' it).
-        
+
         HashMap<Integer, String> map = new HashMap<Integer, String>();
         map.put(0, null);
         synchronized (ObjectsPool.lock) {
-            while(linesIt.hasNext()){
+            while (linesIt.hasNext()) {
                 String line = linesIt.next().trim();
                 int i = StringUtils.rFind(line, '=');
-                if(i > 0){
+                if (i > 0) {
                     String token = line.substring(0, i);
-                    String value = line.substring(i+1);
-                    
+                    String value = line.substring(i + 1);
+
                     map.put(Integer.parseInt(value), ObjectsPool.internUnsynched(token));
                 }
             }
         }
-        
+
         ArrayList<IInfo> ret = new ArrayList<IInfo>();
-        
+
         List<String> split = StringUtils.split(firstLine, "&&");
         for (String string : split) {
             List<String> parts = StringUtils.split(string, '|');
@@ -128,30 +128,28 @@ public class InfoStrFactory {
             int name = Integer.parseInt(parts.get(1));
             int declaringModuleName = Integer.parseInt(parts.get(2));
             int path = Integer.parseInt(parts.get(3));
-            
-            
+
             switch (type) {
                 case AbstractInfo.NAME_WITH_IMPORT_TYPE:
                     //no intern construct (already interned when creating the map)
                     ret.add(new NameInfo(map.get(name), map.get(declaringModuleName), map.get(path), true));
                     break;
-    
+
                 case AbstractInfo.ATTRIBUTE_WITH_IMPORT_TYPE:
                     //no intern construct (already interned when creating the map)
                     ret.add(new AttrInfo(map.get(name), map.get(declaringModuleName), map.get(path), true));
                     break;
-                    
-                    
+
                 case AbstractInfo.METHOD_WITH_IMPORT_TYPE:
                     //no intern construct (already interned when creating the map)
                     ret.add(new FuncInfo(map.get(name), map.get(declaringModuleName), map.get(path), true));
                     break;
-                    
+
                 case AbstractInfo.CLASS_WITH_IMPORT_TYPE:
                     //no intern construct (already interned when creating the map)
                     ret.add(new ClassInfo(map.get(name), map.get(declaringModuleName), map.get(path), true));
                     break;
-                    
+
             }
         }
         return ret;

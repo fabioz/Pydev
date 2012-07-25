@@ -20,44 +20,43 @@ import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.editorinput.PyOpenEditor;
 
-public class PyEditTitleTestWorkbench extends AbstractWorkbenchTestCase{
-    
-	public static Test suite() {
-		TestSuite suite = new TestSuite(PyEditTitleTestWorkbench.class.getName());
-		
-        suite.addTestSuite(PyEditTitleTestWorkbench.class); 
-        
+public class PyEditTitleTestWorkbench extends AbstractWorkbenchTestCase {
+
+    public static Test suite() {
+        TestSuite suite = new TestSuite(PyEditTitleTestWorkbench.class.getName());
+
+        suite.addTestSuite(PyEditTitleTestWorkbench.class);
+
         if (suite.countTestCases() == 0) {
             throw new Error("There are no test cases to run");
         } else {
             return suite;
         }
-	}
-    
+    }
+
     protected void setUp() throws Exception {
-    	//no need for default setup
+        //no need for default setup
         closeWelcomeView();
     }
-    
+
     public void testEditorTitle() throws Exception {
         NullProgressMonitor monitor = new NullProgressMonitor();
         IProject project = createProject(monitor, "pydev_title_project");
-        
+
         IFile myFile = project.getFile("my_file.py");
         myFile.create(new ByteArrayInputStream("".getBytes()), true, monitor);
-        
+
         IFolder folder = project.getFolder("folder");
         folder.create(true, true, null);
-        
+
         IFile file2 = folder.getFile("my_file.py");
         file2.create(new ByteArrayInputStream("".getBytes()), true, monitor);
-        
+
         project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
-        
-        
+
         PyEdit editor2 = null;
         PyEdit editor = null;
-		try {
+        try {
             editor = (PyEdit) PyOpenEditor.doOpenEditor(myFile);
             final PyEdit editorRef = editor;
             String partName = editor.getPartName();
@@ -67,21 +66,21 @@ public class PyEditTitleTestWorkbench extends AbstractWorkbenchTestCase{
             //We may wait until 10 seconds for the condition to happen (we must not keep the ui-thread
             //otherwise it won't work).
             goToManual(10000, new ICallback<Boolean, Object>() {
-                
+
                 public Boolean call(Object arg) {
-                    return "my_file (pydev_title_project)".equals(editorRef.getPartName()) && 
-                    "my_file (folder)".equals(editor2final.getPartName());
+                    return "my_file (pydev_title_project)".equals(editorRef.getPartName())
+                            && "my_file (folder)".equals(editor2final.getPartName());
                 }
             });
         } finally {
-            if(editor2 != null){
+            if (editor2 != null) {
                 editor2.close(false);
             }
-            if(editor != null){
+            if (editor != null) {
                 editor.close(false);
             }
         }
-        
+
     }
 
 }

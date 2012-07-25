@@ -19,7 +19,7 @@ import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.actions.RestartLaunchAction;
 
-public class PyUnitLaunch implements IPyUnitLaunch{
+public class PyUnitLaunch implements IPyUnitLaunch {
 
     private ILaunchConfiguration configuration;
     private ILaunch launch;
@@ -44,30 +44,31 @@ public class PyUnitLaunch implements IPyUnitLaunch{
     public void relaunchTestResults(List<PyUnitTestResult> runsToRelaunch) {
         this.relaunchTestResults(runsToRelaunch, null);
     }
+
     public void relaunchTestResults(List<PyUnitTestResult> runsToRelaunch, String mode) {
-        FastStringBuffer buf = new FastStringBuffer(100*runsToRelaunch.size());
+        FastStringBuffer buf = new FastStringBuffer(100 * runsToRelaunch.size());
         for (PyUnitTestResult pyUnitTestResult : runsToRelaunch) {
             buf.append(pyUnitTestResult.location).append("|").append(pyUnitTestResult.test).append('\n');
         }
-        
+
         try {
             ILaunchConfigurationWorkingCopy workingCopy;
             String name = configuration.getName();
-            if(name.indexOf("[pyunit run]") != -1){
+            if (name.indexOf("[pyunit run]") != -1) {
                 //if it's already an errors relaunch, just change it
                 workingCopy = configuration.getWorkingCopy();
-            }else{
+            } else {
                 //if it's not, create a copy, as we don't want to screw with the original launch
-                workingCopy = configuration.copy(name+" [pyunit run]");
+                workingCopy = configuration.copy(name + " [pyunit run]");
             }
             //When running it, it'll put the contents we set in the buf string into a file and pass that 
             //file to the actual unittest run.
             workingCopy.setAttribute(Constants.ATTR_UNITTEST_CONFIGURATION_FILE, buf.toString());
             ILaunchConfiguration newConf = workingCopy.doSave();
             ILaunch l = launch;
-            if(mode != null){
+            if (mode != null) {
                 String launchMode = launch.getLaunchMode();
-                if(!mode.equals(launchMode)){
+                if (!mode.equals(launchMode)) {
                     l = new Launch(newConf, mode, launch.getSourceLocator());
                 }
             }
@@ -75,7 +76,7 @@ public class PyUnitLaunch implements IPyUnitLaunch{
         } catch (CoreException e) {
             throw new RuntimeException(e);
         }
-        
+
     }
 
 }

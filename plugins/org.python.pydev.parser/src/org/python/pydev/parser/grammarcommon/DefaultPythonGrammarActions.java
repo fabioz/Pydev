@@ -18,57 +18,55 @@ import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 
 public final class DefaultPythonGrammarActions implements IPythonGrammarActions {
-	
-	private final AbstractPythonGrammar grammar;
-    private ISpecialStr lastSpecial; 
-    private SimpleNode lastNodeWithSpecial; 
+
+    private final AbstractPythonGrammar grammar;
+    private ISpecialStr lastSpecial;
+    private SimpleNode lastNodeWithSpecial;
     private SimpleNode prev;
 
+    /*default*/DefaultPythonGrammarActions(AbstractPythonGrammar grammar) {
+        this.grammar = grammar;
+    }
 
-	/*default*/ DefaultPythonGrammarActions(AbstractPythonGrammar grammar){
-		this.grammar = grammar;
-	}
-
-    public void markDecoratorWithCall(){
+    public void markDecoratorWithCall() {
         decoratorsType d = (decoratorsType) this.prev;
         d.isCall = true;
     }
-    
 
-    public ISpecialStr convertStringToSpecialStr(Object o) throws ParseException{
+    public ISpecialStr convertStringToSpecialStr(Object o) throws ParseException {
         if (o instanceof ISpecialStr) {
             return (ISpecialStr) o;
-        }else{
-            if(o instanceof Token){
+        } else {
+            if (o instanceof Token) {
                 return ((Token) o).asSpecialStr();
             }
             return createSpecialStr(((String) o).trim(), AbstractPythonGrammar.DEFAULT_SEARCH_ON_LAST, false);
         }
     }
-    
+
     private ParseException createException(String token, final Token currentToken) {
         ParseException e;
         //return put;
         if (currentToken != null) {
             e = new ParseException("Expected:" + token, currentToken);
-            
+
         } else if (grammar.getJJLastPos() != null) {
             e = new ParseException("Expected:" + token, grammar.getJJLastPos());
-            
+
         } else {
             e = new ParseException("Expected:" + token);
         }
         return e;
     }
-    
+
     public void setImportFromLevel(int level) {
-    	((ImportFrom)grammar.getJJTree().peekNode()).level = level;
+        ((ImportFrom) grammar.getJJTree().peekNode()).level = level;
     }
 
     public final ISpecialStr createSpecialStr(String token) throws ParseException {
         return createSpecialStr(token, AbstractPythonGrammar.DEFAULT_SEARCH_ON_LAST);
     }
-    
+
     /**
      * This is where we do a lookahead to see if we find some token and if we do find it, but not on the correct
      * position, we skip some tokens to go to it.
@@ -76,14 +74,15 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
     public final ISpecialStr createSpecialStr(String token, boolean searchOnLast) throws ParseException {
         return createSpecialStr(token, searchOnLast, true);
     }
-    
+
     /**
      * This is where we do a lookahead to see if we find some token and if we do find it, but not on the correct
      * position, we skip some tokens to go to it.
      */
-    public ISpecialStr createSpecialStr(String token, boolean searchOnLast, boolean throwException) throws ParseException {
+    public ISpecialStr createSpecialStr(String token, boolean searchOnLast, boolean throwException)
+            throws ParseException {
         final Token currentToken = grammar.getCurrentToken();
-        
+
         Token firstTokenToIterate;
         if (searchOnLast) {
             firstTokenToIterate = grammar.getJJLastPos();
@@ -91,64 +90,62 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
             firstTokenToIterate = currentToken;
         }
         Token foundToken = null;
-        
-        
+
         int foundAtPos = 0;
-        
+
         //lot's of tokens, but we'll bail out on an indent, or dedent, so, that's OK.
         TokensIterator iterTokens = grammar.getTokensIterator(firstTokenToIterate, 50, true);
-        while(iterTokens.hasNext()){
+        while (iterTokens.hasNext()) {
             foundAtPos += 1;
             Token next = iterTokens.next();
-            if(next.image != null && next.image.equals(token)){
+            if (next.image != null && next.image.equals(token)) {
                 //Found what we were looking for!
                 foundToken = next;
                 break;
             }
         }
-        
-        
+
         if (foundToken != null) {
-            if(foundAtPos <= 2 //found at correct position. 
-                || searchOnLast //we already matched it... right now we're just adding it to the stack!
-                ){
+            if (foundAtPos <= 2 //found at correct position. 
+                    || searchOnLast //we already matched it... right now we're just adding it to the stack!
+            ) {
                 return foundToken.asSpecialStr();
-                
+
             }
         }
-        
-        if(throwException){
+
+        if (throwException) {
             ParseException e = createException(token, currentToken);
-            
+
             //we found it at the wrong position!
-            if(foundToken != null){
+            if (foundToken != null) {
                 //we found it, but not on the position we were expecting, so, we must skip some tokens to get to it --
                 //and report the needed exception)
-            	grammar.addAndReport(e, "Found at wrong position: "+foundToken);
+                grammar.addAndReport(e, "Found at wrong position: " + foundToken);
                 Token beforeLastReturned = iterTokens.getBeforeLastReturned();
                 grammar.setCurrentToken(beforeLastReturned);
                 return foundToken.asSpecialStr();
             }
-            
+
             //create a 'synthetic token' in the place we were expecting it.
-            if(currentToken != null){
+            if (currentToken != null) {
                 AbstractTokenManager tokenManager = grammar.getTokenManager();
                 FastCharStream inputStream = tokenManager.getInputStream();
 
                 final int created = tokenManager.addCustom(currentToken, token);
-                if(created != AbstractTokenManager.CUSTOM_NOT_CREATED){
-                    if(created == AbstractTokenManager.CUSTOM_CREATED_WAS_PARENS){
+                if (created != AbstractTokenManager.CUSTOM_NOT_CREATED) {
+                    if (created == AbstractTokenManager.CUSTOM_CREATED_WAS_PARENS) {
                         //if we had a parens, let's clear the tokens we iterated because we can have skipped indentations!
                         currentToken.next.next = null;
-                        
+
                         //EOF was already found... let's restore the previous indentation level!
-                        if(tokenManager.levelBeforeEof != -1){
+                        if (tokenManager.levelBeforeEof != -1) {
                             tokenManager.level = tokenManager.levelBeforeEof;
                             tokenManager.levelBeforeEof = -1; //mark it as not found again.
                         }
                         inputStream.restoreLineColPos(currentToken.endLine, currentToken.endColumn);
                     }
-                    grammar.addAndReport(e, "Created custom token: "+token);
+                    grammar.addAndReport(e, "Created custom token: " + token);
                     return new SpecialStr(token, currentToken.beginLine, currentToken.beginColumn);
                 }
             }
@@ -157,7 +154,6 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
         return null;
     }
 
-    
     /**
      * Adds a special token to the current token that's in the top of the stack (the peeked token)
      * Considers that the token at the stack is a Call and adds it to its function.
@@ -166,22 +162,21 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
         Call n = (Call) grammar.getJJTree().peekNode();
         addSpecial(n.func, t, after);
     }
-    
-    
-    public void addSpecialTokenToLastOpened(Object o) throws ParseException{
+
+    public void addSpecialTokenToLastOpened(Object o) throws ParseException {
         o = convertStringToSpecialStr(o);
-        if(o != null){
+        if (o != null) {
             SimpleNode lastOpened = grammar.getJJTree().getLastOpened();
-            if(o instanceof ISpecialStr){
+            if (o instanceof ISpecialStr) {
                 lastSpecial = (ISpecialStr) o;
                 lastNodeWithSpecial = lastOpened;
             }
-            
+
             lastOpened.getSpecialsBefore().add(o);
 
         }
     }
-    
+
     /**
      * Adds a special token to the current token that's in the top of the stack (the peeked token)
      */
@@ -189,24 +184,22 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
         addToPeek(t, after, null);
     }
 
-    
     /**
      * Adds a special token to the current token that's in the top of the stack (the peeked token)
      * @return the peeked node.
      */
     @SuppressWarnings("rawtypes")
-	public SimpleNode addToPeek(Object t, boolean after, Class class_) throws ParseException {
+    public SimpleNode addToPeek(Object t, boolean after, Class class_) throws ParseException {
         SimpleNode peeked = (SimpleNode) grammar.getJJTree().peekNode();
         addToPeek(peeked, t, after, class_);
         return peeked;
     }
 
-    
     /**
      * Adds a special token to the current token that's in the top of the stack (the peeked token)
      */
     @SuppressWarnings("rawtypes")
-	public void addToPeek(SimpleNode peeked, Object t, boolean after, Class class_) throws ParseException {
+    public void addToPeek(SimpleNode peeked, Object t, boolean after, Class class_) throws ParseException {
         if (class_ != null) {
             // just check if it is the class we were expecting.
             if (peeked.getClass().equals(class_) == false) {
@@ -215,13 +208,12 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
             }
         }
         t = convertStringToSpecialStr(t);
-        if(t != null){
+        if (t != null) {
             addSpecial(peeked, t, after);
         }
 
     }
-    
-    
+
     /**
      * Closes a node scope
      * 
@@ -266,8 +258,7 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
             this.prev = (SimpleNode) peeked;
         }
     }
-    
-    
+
     private SimpleNode findTokenToAdd(Token next) {
         SimpleNode curr = (SimpleNode) grammar.getJJTree().peekNode();
         if (curr != this.prev) {
@@ -286,55 +277,56 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
         }
         return this.prev;
     }
-    
 
     private void addSpecial(SimpleNode node, Object special, boolean after) {
-        if(special instanceof Token){
+        if (special instanceof Token) {
             Token t = (Token) special;
-            if(t.toString().trim().startsWith("#")){
+            if (t.toString().trim().startsWith("#")) {
                 commentType comment = new commentType(t.image.trim());
                 comment.beginColumn = t.beginColumn;
                 comment.beginLine = t.beginLine;
                 special = comment;
-                
-                if(node.beginLine != comment.beginLine){
-                    if(lastSpecial != null && lastNodeWithSpecial != null){
-                        if(comment.beginLine < lastSpecial.getBeginLine() ||
-                                (comment.beginLine == lastSpecial.getBeginLine() && comment.beginColumn < lastSpecial.getBeginCol())){
+
+                if (node.beginLine != comment.beginLine) {
+                    if (lastSpecial != null && lastNodeWithSpecial != null) {
+                        if (comment.beginLine < lastSpecial.getBeginLine()
+                                || (comment.beginLine == lastSpecial.getBeginLine() && comment.beginColumn < lastSpecial
+                                        .getBeginCol())) {
                             List<Object> specialsBefore = lastNodeWithSpecial.getSpecialsBefore();
                             specialsBefore.add(specialsBefore.indexOf(lastSpecial), comment);
                             return;
                         }
                     }
                 }
-            }else{
+            } else {
                 special = t.asSpecialStr();
             }
         }
-        
+
         node.addSpecial(special, after);
     }
-    
+
     public void addSpecialToken(Object o, int strategy) throws ParseException {
         ISpecialStr t = convertStringToSpecialStr(o);
-        if(t != null){
-        	grammar.getTokenSourceSpecialTokensList().add(new Object[] { t, strategy });
+        if (t != null) {
+            grammar.getTokenSourceSpecialTokensList().add(new Object[] { t, strategy });
         }
     }
-    
+
     public void addSpecialToken(Object o) throws ParseException {
         if (!(o instanceof ISpecialStr)) {
             o = convertStringToSpecialStr(o);
         }
         //the default is adding after the previous token
-        grammar.getTokenSourceSpecialTokensList().add(new Object[] { o, AbstractPythonGrammar.STRATEGY_ADD_AFTER_PREV });
+        grammar.getTokenSourceSpecialTokensList()
+                .add(new Object[] { o, AbstractPythonGrammar.STRATEGY_ADD_AFTER_PREV });
     }
 
     public void findTokenAndAdd(String token) throws ParseException {
         ISpecialStr s = createSpecialStr(token, AbstractPythonGrammar.DEFAULT_SEARCH_ON_LAST, true);
-        grammar.getTokenSourceSpecialTokensList().add(new Object[] { s, AbstractPythonGrammar.STRATEGY_ADD_AFTER_PREV });
-    }    
-    
+        grammar.getTokenSourceSpecialTokensList()
+                .add(new Object[] { s, AbstractPythonGrammar.STRATEGY_ADD_AFTER_PREV });
+    }
 
     /**
      * @param s the string found without any preceding char to identify the radix.
@@ -344,28 +336,27 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
      * @throws ParseException 
      */
     public void makeInt(Token t, int radix, Token token, Num numberToFill) throws ParseException {
-    	makeInt(t.image, radix, token, numberToFill);
-    }
-    
-    public void makeIntSub2(Token t, int radix, Token token, Num numberToFill) throws ParseException {
-    	makeInt(t.image.substring(2, t.image.length()), radix, token, numberToFill);
+        makeInt(t.image, radix, token, numberToFill);
     }
 
-	public void makeIntSub2CheckingOct(Token t, int radix, Token token,
-			Num numberToFill) throws ParseException {
-		String s = t.image;
-		if (s.length() >= 2) {
-			char c = s.charAt(1);
-			if (c == 'o' || c == 'O') {
-				s = t.image.substring(2, t.image.length());
-			}
-		}
-		makeInt(s, radix, token, numberToFill);
-	}
-    
-	private void makeInt(String s, int radix, Token token, Num numberToFill) throws ParseException {
+    public void makeIntSub2(Token t, int radix, Token token, Num numberToFill) throws ParseException {
+        makeInt(t.image.substring(2, t.image.length()), radix, token, numberToFill);
+    }
+
+    public void makeIntSub2CheckingOct(Token t, int radix, Token token, Num numberToFill) throws ParseException {
+        String s = t.image;
+        if (s.length() >= 2) {
+            char c = s.charAt(1);
+            if (c == 'o' || c == 'O') {
+                s = t.image.substring(2, t.image.length());
+            }
+        }
+        makeInt(s, radix, token, numberToFill);
+    }
+
+    private void makeInt(String s, int radix, Token token, Num numberToFill) throws ParseException {
         numberToFill.num = token.image;
-        
+
         if (s.endsWith("L") || s.endsWith("l")) {
             s = s.substring(0, s.length() - 1);
             numberToFill.n = new java.math.BigInteger(s, radix);
@@ -383,12 +374,12 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
         }
 
         long l;
-		try {
-			l = Long.valueOf(s, radix).longValue();
-		} catch (NumberFormatException e) {
-			handleNumberFormatException(token, e);
-			l = 0;
-		}
+        try {
+            l = Long.valueOf(s, radix).longValue();
+        } catch (NumberFormatException e) {
+            handleNumberFormatException(token, e);
+            l = 0;
+        }
         if (l > 0xffffffffl || (radix == 10 && l > Integer.MAX_VALUE)) {
             numberToFill.n = new java.math.BigInteger(s, radix);
             numberToFill.type = Num.Long;
@@ -397,34 +388,31 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
         numberToFill.n = (int) l;
         numberToFill.type = Num.Int;
     }
-    
 
     public void makeFloat(Token t, Num numberToFill) throws ParseException {
-    	String s = t.image;
+        String s = t.image;
         numberToFill.num = s;
         try {
-			numberToFill.n = Float.valueOf(s);
-		} catch (NumberFormatException e) {
-			handleNumberFormatException(t, e);
-		}
+            numberToFill.n = Float.valueOf(s);
+        } catch (NumberFormatException e) {
+            handleNumberFormatException(t, e);
+        }
         numberToFill.type = Num.Float;
     }
 
-	private void handleNumberFormatException(Token t, NumberFormatException e)
-			throws ParseException {
-		grammar.addAndReport(new ParseException("Unable to parse number: "+t.image, t), e.getMessage());
-	}
-
+    private void handleNumberFormatException(Token t, NumberFormatException e) throws ParseException {
+        grammar.addAndReport(new ParseException("Unable to parse number: " + t.image, t), e.getMessage());
+    }
 
     public void makeComplex(Token t, Num numberToFill) throws ParseException {
-    	String s = t.image;
+        String s = t.image;
         String compNumber = s.substring(0, s.length() - 1);
         numberToFill.num = s;
         try {
-			numberToFill.n = Double.valueOf(compNumber);
-		} catch (NumberFormatException e) {
-			handleNumberFormatException(t,  e);
-		}
+            numberToFill.n = Double.valueOf(compNumber);
+        } catch (NumberFormatException e) {
+            handleNumberFormatException(t, e);
+        }
         numberToFill.type = Num.Comp;
     }
 
@@ -438,7 +426,7 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
      * 4 = boolean indicating binary
      */
     public void makeString(Token t, int quotes, Str strToFill) {
-    	String s = t.image;
+        String s = t.image;
         //System.out.println("enter: "+s);
         char quoteChar = s.charAt(0);
         int start = 0;
@@ -489,7 +477,7 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
         throw new RuntimeException("Unable to determine type. Char: " + c + " quotes:" + quotes);
     }
 
-	public void addSpecialToPrev(Object special, boolean after) {
-		this.prev.addSpecial(special, after);
-	}
+    public void addSpecialToPrev(Object special, boolean after) {
+        this.prev.addSpecial(special, after);
+    }
 }

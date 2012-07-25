@@ -18,30 +18,28 @@ import org.eclipse.debug.internal.ui.viewers.model.provisional.IViewerUpdate;
  * It should be removed when it's actually fixed.
  * @author Fabio
  */
-public class PyVariableContentProviderHack extends VariableContentProvider{
+public class PyVariableContentProviderHack extends VariableContentProvider {
 
-
-    protected boolean hasChildren(Object element, IPresentationContext context, IViewerUpdate monitor) throws CoreException {
-        if(element instanceof IWatchExpression){
+    protected boolean hasChildren(Object element, IPresentationContext context, IViewerUpdate monitor)
+            throws CoreException {
+        if (element instanceof IWatchExpression) {
             IWatchExpression watchExpression = (IWatchExpression) element;
             return super.hasChildren(watchExpression.getValue(), context, monitor);
         }
-        if(element instanceof PyVariableCollection){
+        if (element instanceof PyVariableCollection) {
             PyVariableCollection pyVariableCollection = (PyVariableCollection) element;
             return pyVariableCollection.hasVariables();
         }
         return super.hasChildren(element, context, monitor);
     }
 
-    
     @Override
-    protected Object[] getAllChildren(Object parent,
-            IPresentationContext context) throws CoreException {
-        if(parent instanceof IWatchExpression){
+    protected Object[] getAllChildren(Object parent, IPresentationContext context) throws CoreException {
+        if (parent instanceof IWatchExpression) {
             IWatchExpression watchExpression = (IWatchExpression) parent;
             return super.getAllChildren(watchExpression.getValue(), context);
         }
-        if(parent instanceof PyVariableCollection){
+        if (parent instanceof PyVariableCollection) {
             PyVariableCollection pyVariableCollection = (PyVariableCollection) parent;
             return pyVariableCollection.getVariables();
         }

@@ -15,7 +15,7 @@ import org.python.pydev.dltk.console.ui.IScriptConsoleListener;
 import org.python.pydev.dltk.console.ui.IScriptConsoleSession;
 
 public class ScriptConsoleSession implements IScriptConsoleListener, IScriptConsoleSession {
-    
+
     private StringBuffer session;
 
     public ScriptConsoleSession() {
@@ -24,10 +24,10 @@ public class ScriptConsoleSession implements IScriptConsoleListener, IScriptCons
 
     public void interpreterResponse(InterpreterResponse response, ScriptConsolePrompt prompt) {
         if (response != null) {
-            if(response.err != null && response.err.length() > 0){
+            if (response.err != null && response.err.length() > 0) {
                 session.append(response.err);
             }
-            if(response.out != null && response.out.length() > 0){
+            if (response.out != null && response.out.length() > 0) {
                 session.append(response.out);
             }
         }

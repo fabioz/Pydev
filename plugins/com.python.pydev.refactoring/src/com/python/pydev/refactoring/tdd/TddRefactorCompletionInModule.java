@@ -26,18 +26,19 @@ import org.python.pydev.editor.model.ItemPointer;
  * creating that proposal may be slower.
  */
 public final class TddRefactorCompletionInModule extends AbstractTddRefactorCompletion {
-    
+
     private File module;
     private List<String> parametersAfterCall;
     private AbstractPyCreateAction pyCreateAction;
     private PySelection ps;
     public int locationStrategy = AbstractPyCreateAction.LOCATION_STRATEGY_END;
 
-    public TddRefactorCompletionInModule(String replacementString, 
-            Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, 
-            int priority, PyEdit edit, File module, List<String> parametersAfterCall, AbstractPyCreateAction pyCreateAction, PySelection ps) {
-        
-        super(edit, replacementString, 0, 0, 0, image, displayString, contextInformation, additionalProposalInfo, priority);
+    public TddRefactorCompletionInModule(String replacementString, Image image, String displayString,
+            IContextInformation contextInformation, String additionalProposalInfo, int priority, PyEdit edit,
+            File module, List<String> parametersAfterCall, AbstractPyCreateAction pyCreateAction, PySelection ps) {
+
+        super(edit, replacementString, 0, 0, 0, image, displayString, contextInformation, additionalProposalInfo,
+                priority);
         this.module = module;
         this.parametersAfterCall = parametersAfterCall;
         this.pyCreateAction = pyCreateAction;
@@ -53,7 +54,7 @@ public final class TddRefactorCompletionInModule extends AbstractTddRefactorComp
     public boolean isAutoInsertable() {
         return false;
     }
-    
+
     @Override
     public Point getSelection(IDocument document) {
         return null;
@@ -64,26 +65,15 @@ public final class TddRefactorCompletionInModule extends AbstractTddRefactorComp
         PyOpenAction openAction = new PyOpenAction();
         openAction.run(new ItemPointer(module));
         PyEdit pyEdit = (PyEdit) openAction.editor;
-        TddRefactorCompletion completion = new TddRefactorCompletion(
-                fReplacementString, 
-                fImage, 
-                fDisplayString, 
-                fContextInformation, 
-                fAdditionalProposalInfo, 
-                0, 
-                pyEdit,
-                locationStrategy,
-                parametersAfterCall,
-                pyCreateAction,
-                ps
-                );
+        TddRefactorCompletion completion = new TddRefactorCompletion(fReplacementString, fImage, fDisplayString,
+                fContextInformation, fAdditionalProposalInfo, 0, pyEdit, locationStrategy, parametersAfterCall,
+                pyCreateAction, ps);
         completion.apply(pyEdit.getEditorSourceViewer(), '\n', 0, 0);
-        
+
         //As the change was done in another module, let's ask for a new code analysis for the current editor,
         //as the new contents should fix the marker which we used for the fix.
         forceReparseInBaseEditorAnd(pyEdit);
     }
-    
 
     public void selected(ITextViewer viewer, boolean smartToggle) {
     }

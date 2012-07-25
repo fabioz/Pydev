@@ -27,222 +27,228 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 
-public class StringSubstitutionTest extends TestCase{
+public class StringSubstitutionTest extends TestCase {
 
-    public void testStringSubstitution() throws Exception{
-        final Map<String, String> variableSubstitution= new HashMap<String, String>();
+    public void testStringSubstitution() throws Exception {
+        final Map<String, String> variableSubstitution = new HashMap<String, String>();
         variableSubstitution.put("AA", "XX");
-        assertEquals("aaXXbb", createStringSubstitution(variableSubstitution).performPythonpathStringSubstitution("aa${AA}bb"));
-        
+        assertEquals("aaXXbb",
+                createStringSubstitution(variableSubstitution).performPythonpathStringSubstitution("aa${AA}bb"));
+
         variableSubstitution.put("AA", "${XX}");
         variableSubstitution.put("XX", "YY");
-        assertEquals("aaYYbb", createStringSubstitution(variableSubstitution).performPythonpathStringSubstitution("aa${AA}bb"));
-        
-        assertEquals("aa${unknown}bb", createStringSubstitution(variableSubstitution).performPythonpathStringSubstitution("aa${unknown}bb"));
+        assertEquals("aaYYbb",
+                createStringSubstitution(variableSubstitution).performPythonpathStringSubstitution("aa${AA}bb"));
+
+        assertEquals("aa${unknown}bb", createStringSubstitution(variableSubstitution)
+                .performPythonpathStringSubstitution("aa${unknown}bb"));
     }
 
-    
-    
     //Just creating stub...
-    private StringSubstitution createStringSubstitution(final Map<String, String> variableSubstitution){
-        StringSubstitution s = new StringSubstitution(new IPythonNature(){
+    private StringSubstitution createStringSubstitution(final Map<String, String> variableSubstitution) {
+        StringSubstitution s = new StringSubstitution(new IPythonNature() {
 
-            public void endRequests(){
+            public void endRequests() {
                 throw new RuntimeException("Not implemented");
             }
 
-            public ICodeCompletionASTManager getAstManager(){
+            public ICodeCompletionASTManager getAstManager() {
                 throw new RuntimeException("Not implemented");
             }
 
-            public IToken[] getBuiltinCompletions(){
+            public IToken[] getBuiltinCompletions() {
                 throw new RuntimeException("Not implemented");
             }
 
-            public IModule getBuiltinMod(){
+            public IModule getBuiltinMod() {
                 throw new RuntimeException("Not implemented");
             }
 
-            public File getCompletionsCacheDir(){
+            public File getCompletionsCacheDir() {
                 throw new RuntimeException("Not implemented");
             }
 
-            public String getDefaultVersion(){
+            public String getDefaultVersion() {
                 throw new RuntimeException("Not implemented");
             }
-            public boolean isOkToUse(){
+
+            public boolean isOkToUse() {
                 throw new RuntimeException("Not implemented");
             }
 
             public IInterpreterInfo getProjectInterpreter() throws MisconfigurationException,
-                    PythonNatureWithoutProjectException{
+                    PythonNatureWithoutProjectException {
                 throw new RuntimeException("Not implemented");
             }
 
-            public IPythonPathNature getPythonPathNature(){
-                return new IPythonPathNature(){
-                
-                    public void setVariableSubstitution(Map<String, String> variableSubstitution) throws CoreException{
-                        throw new RuntimeException("Not implemented");
-                    }
-                
-                    public void setProjectSourcePath(String newSourcePath) throws CoreException{
-                        throw new RuntimeException("Not implemented");
-                    }
-                
-                    public void setProjectExternalSourcePath(String newExternalSourcePath) throws CoreException{
-                        throw new RuntimeException("Not implemented");
-                    }
-                
-                    public void setProject(IProject project, IPythonNature nature){
-                        throw new RuntimeException("Not implemented");
-                    }
-                
-                    public Map<String, String> getVariableSubstitution(){
-                        return variableSubstitution;
-                    }
-                    public Map<String, String> getVariableSubstitution(boolean b){
-                    	return variableSubstitution;
-                    }
-                    
-                    public Set<String> getProjectSourcePathSet(boolean replace) throws CoreException{
-                        throw new RuntimeException("Not implemented");
-                    }
-                
-                    public String getProjectSourcePath(boolean replace) throws CoreException{
-                        throw new RuntimeException("Not implemented");
-                    }
-                
-                    public String getProjectExternalSourcePath(boolean replace) throws CoreException{
-                        throw new RuntimeException("Not implemented");
-                    }
-                    
-                    public List<String> getProjectExternalSourcePathAsList(boolean replaceVariables) throws CoreException {
-                        throw new RuntimeException("Not implemented");
-                    }
-                
-                    public String getOnlyProjectPythonPathStr(boolean b) throws CoreException{
-                        throw new RuntimeException("Not implemented");
-                    }
-                
-                    public List<String> getCompleteProjectPythonPath(IInterpreterInfo interpreter, IInterpreterManager info){
-                        throw new RuntimeException("Not implemented");
-                    }
-                
-                    public void clearCaches(){
+            public IPythonPathNature getPythonPathNature() {
+                return new IPythonPathNature() {
+
+                    public void setVariableSubstitution(Map<String, String> variableSubstitution) throws CoreException {
                         throw new RuntimeException("Not implemented");
                     }
 
-                    public IPythonNature getNature(){
+                    public void setProjectSourcePath(String newSourcePath) throws CoreException {
+                        throw new RuntimeException("Not implemented");
+                    }
+
+                    public void setProjectExternalSourcePath(String newExternalSourcePath) throws CoreException {
+                        throw new RuntimeException("Not implemented");
+                    }
+
+                    public void setProject(IProject project, IPythonNature nature) {
+                        throw new RuntimeException("Not implemented");
+                    }
+
+                    public Map<String, String> getVariableSubstitution() {
+                        return variableSubstitution;
+                    }
+
+                    public Map<String, String> getVariableSubstitution(boolean b) {
+                        return variableSubstitution;
+                    }
+
+                    public Set<String> getProjectSourcePathSet(boolean replace) throws CoreException {
+                        throw new RuntimeException("Not implemented");
+                    }
+
+                    public String getProjectSourcePath(boolean replace) throws CoreException {
+                        throw new RuntimeException("Not implemented");
+                    }
+
+                    public String getProjectExternalSourcePath(boolean replace) throws CoreException {
+                        throw new RuntimeException("Not implemented");
+                    }
+
+                    public List<String> getProjectExternalSourcePathAsList(boolean replaceVariables)
+                            throws CoreException {
+                        throw new RuntimeException("Not implemented");
+                    }
+
+                    public String getOnlyProjectPythonPathStr(boolean b) throws CoreException {
+                        throw new RuntimeException("Not implemented");
+                    }
+
+                    public List<String> getCompleteProjectPythonPath(IInterpreterInfo interpreter,
+                            IInterpreterManager info) {
+                        throw new RuntimeException("Not implemented");
+                    }
+
+                    public void clearCaches() {
+                        throw new RuntimeException("Not implemented");
+                    }
+
+                    public IPythonNature getNature() {
                         throw new RuntimeException("Not implemented");
                     }
 
                 };
             }
 
-            public int getInterpreterType() throws CoreException{
+            public int getInterpreterType() throws CoreException {
                 throw new RuntimeException("Not implemented");
             }
 
-            public IInterpreterManager getRelatedInterpreterManager(){
+            public IInterpreterManager getRelatedInterpreterManager() {
                 throw new RuntimeException("Not implemented");
             }
 
-            public String getVersion() throws CoreException{
+            public String getVersion() throws CoreException {
                 throw new RuntimeException("Not implemented");
             }
 
-            public boolean isJython() throws CoreException{
+            public boolean isJython() throws CoreException {
                 throw new RuntimeException("Not implemented");
             }
 
-            public boolean isPython() throws CoreException{
+            public boolean isPython() throws CoreException {
                 throw new RuntimeException("Not implemented");
             }
 
-            public boolean isResourceInPythonpath(IResource resource) throws MisconfigurationException{
+            public boolean isResourceInPythonpath(IResource resource) throws MisconfigurationException {
                 throw new RuntimeException("Not implemented");
             }
 
-            public boolean isResourceInPythonpath(String resource) throws MisconfigurationException{
-                throw new RuntimeException("Not implemented");
-            }
-            
-            public boolean isResourceInPythonpathProjectSources(IResource resource, boolean addExternal) throws MisconfigurationException{
-            	throw new RuntimeException("Not implemented");
-            }
-            
-            public boolean isResourceInPythonpathProjectSources(String resource, boolean addExternal) throws MisconfigurationException{
-            	throw new RuntimeException("Not implemented");
-            }
-
-            public void rebuildPath(){
+            public boolean isResourceInPythonpath(String resource) throws MisconfigurationException {
                 throw new RuntimeException("Not implemented");
             }
 
-            public String resolveModule(File file) throws MisconfigurationException{
+            public boolean isResourceInPythonpathProjectSources(IResource resource, boolean addExternal)
+                    throws MisconfigurationException {
                 throw new RuntimeException("Not implemented");
             }
 
-            public String resolveModule(String fileAbsolutePath) throws MisconfigurationException{
+            public boolean isResourceInPythonpathProjectSources(String resource, boolean addExternal)
+                    throws MisconfigurationException {
                 throw new RuntimeException("Not implemented");
             }
 
-            public String resolveModule(IResource resource) throws MisconfigurationException{
+            public void rebuildPath() {
                 throw new RuntimeException("Not implemented");
             }
 
-            public void saveAstManager(){
+            public String resolveModule(File file) throws MisconfigurationException {
                 throw new RuntimeException("Not implemented");
             }
 
-            public void clearBuiltinCompletions(){
+            public String resolveModule(String fileAbsolutePath) throws MisconfigurationException {
                 throw new RuntimeException("Not implemented");
             }
 
-            public void clearBuiltinMod(){
+            public String resolveModule(IResource resource) throws MisconfigurationException {
                 throw new RuntimeException("Not implemented");
             }
 
-            public void setVersion(String version, String interpreter) throws CoreException{
+            public void saveAstManager() {
                 throw new RuntimeException("Not implemented");
             }
 
-            public boolean startRequests(){
+            public void clearBuiltinCompletions() {
                 throw new RuntimeException("Not implemented");
             }
 
-            public void configure() throws CoreException{
+            public void clearBuiltinMod() {
                 throw new RuntimeException("Not implemented");
             }
 
-            public void deconfigure() throws CoreException{
+            public void setVersion(String version, String interpreter) throws CoreException {
                 throw new RuntimeException("Not implemented");
             }
 
-            public IProject getProject(){
+            public boolean startRequests() {
                 throw new RuntimeException("Not implemented");
             }
 
-            public void setProject(IProject project){
+            public void configure() throws CoreException {
                 throw new RuntimeException("Not implemented");
             }
 
-            public int getGrammarVersion() throws MisconfigurationException{
+            public void deconfigure() throws CoreException {
                 throw new RuntimeException("Not implemented");
             }
 
-			
-			public String resolveModuleOnlyInProjectSources(String fileAbsolutePath,
-					boolean addExternal) throws CoreException, MisconfigurationException {
-				throw new RuntimeException("Not implemented");
-			}
+            public IProject getProject() {
+                throw new RuntimeException("Not implemented");
+            }
 
-			
-			public String resolveModuleOnlyInProjectSources(IResource fileAbsolutePath,
-					boolean addExternal) throws CoreException, MisconfigurationException {
-				throw new RuntimeException("Not implemented");
-			}});
+            public void setProject(IProject project) {
+                throw new RuntimeException("Not implemented");
+            }
+
+            public int getGrammarVersion() throws MisconfigurationException {
+                throw new RuntimeException("Not implemented");
+            }
+
+            public String resolveModuleOnlyInProjectSources(String fileAbsolutePath, boolean addExternal)
+                    throws CoreException, MisconfigurationException {
+                throw new RuntimeException("Not implemented");
+            }
+
+            public String resolveModuleOnlyInProjectSources(IResource fileAbsolutePath, boolean addExternal)
+                    throws CoreException, MisconfigurationException {
+                throw new RuntimeException("Not implemented");
+            }
+        });
         return s;
     }
 }

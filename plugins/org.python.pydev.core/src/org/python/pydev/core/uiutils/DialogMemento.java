@@ -45,73 +45,72 @@ public class DialogMemento {
     private Point fLocation;
     private Point fSize;
 
-    private static final String DIALOG_SETTINGS= "org.python.pydev.core.uiutils.DialogMemento"; 
-    private static final String WIDTH= "width"; 
-    private static final String HEIGHT= "height"; 
-    
+    private static final String DIALOG_SETTINGS = "org.python.pydev.core.uiutils.DialogMemento";
+    private static final String WIDTH = "width";
+    private static final String HEIGHT = "height";
+
     public DialogMemento(Shell parent) {
         this(parent, DIALOG_SETTINGS);
     }
+
     public DialogMemento(Shell parent, String dialogSettings) {
-        IDialogSettings settings= CorePlugin.getDefault().getDialogSettings();
-        fSettings= settings.getSection(dialogSettings);
+        IDialogSettings settings = CorePlugin.getDefault().getDialogSettings();
+        fSettings = settings.getSection(dialogSettings);
         if (fSettings == null) {
-            fSettings= new DialogSettings(dialogSettings);
+            fSettings = new DialogSettings(dialogSettings);
             settings.addSection(fSettings);
             fSettings.put(WIDTH, 480);
             fSettings.put(HEIGHT, 320);
         }
     }
-    
+
     public Point getInitialSize(Point initialSize, Shell shell) {
         if (fSize != null) {
-            initialSize.x= Math.max(initialSize.x, fSize.x);
-            initialSize.y= Math.max(initialSize.y, fSize.y);
-            Rectangle display= shell.getDisplay().getClientArea();
-            initialSize.x= Math.min(initialSize.x, display.width);
-            initialSize.y= Math.min(initialSize.y, display.height);
+            initialSize.x = Math.max(initialSize.x, fSize.x);
+            initialSize.y = Math.max(initialSize.y, fSize.y);
+            Rectangle display = shell.getDisplay().getClientArea();
+            initialSize.x = Math.min(initialSize.x, display.width);
+            initialSize.y = Math.min(initialSize.y, display.height);
         }
         return initialSize;
     }
-    
+
     public Point getInitialLocation(Point initialSize, Point initialLocation, Shell shell) {
         if (fLocation != null) {
-            initialLocation.x= fLocation.x;
-            initialLocation.y= fLocation.y;
-            Rectangle display= shell.getDisplay().getClientArea();
-            int xe= initialLocation.x + initialSize.x;
+            initialLocation.x = fLocation.x;
+            initialLocation.y = fLocation.y;
+            Rectangle display = shell.getDisplay().getClientArea();
+            int xe = initialLocation.x + initialSize.x;
             if (xe > display.width) {
-                initialLocation.x-= xe - display.width; 
+                initialLocation.x -= xe - display.width;
             }
-            int ye= initialLocation.y + initialSize.y;
+            int ye = initialLocation.y + initialSize.y;
             if (ye > display.height) {
-                initialLocation.y-= ye - display.height; 
+                initialLocation.y -= ye - display.height;
             }
         }
         return initialLocation;
     }
-    
-    
-    
+
     /**
      * Initializes itself from the dialog settings with the same state
      * as at the previous invocation.
      */
     public void readSettings() {
         try {
-            int x= fSettings.getInt("x"); 
-            int y= fSettings.getInt("y"); 
-            fLocation= new Point(x, y);
+            int x = fSettings.getInt("x");
+            int y = fSettings.getInt("y");
+            fLocation = new Point(x, y);
         } catch (NumberFormatException e) {
-            fLocation= null;
+            fLocation = null;
         }
         try {
-            int width= fSettings.getInt("width"); 
-            int height= fSettings.getInt("height"); 
-            fSize= new Point(width, height);
+            int width = fSettings.getInt("width");
+            int height = fSettings.getInt("height");
+            fSize = new Point(width, height);
 
         } catch (NumberFormatException e) {
-            fSize= null;
+            fSize = null;
         }
     }
 
@@ -119,14 +118,12 @@ public class DialogMemento {
      * Stores it current configuration in the dialog store.
      */
     public void writeSettings(Shell shell) {
-        Point location= shell.getLocation();
-        fSettings.put("x", location.x); 
-        fSettings.put("y", location.y); 
+        Point location = shell.getLocation();
+        fSettings.put("x", location.x);
+        fSettings.put("y", location.y);
 
-        Point size= shell.getSize();
-        fSettings.put("width", size.x); 
-        fSettings.put("height", size.y); 
+        Point size = shell.getSize();
+        fSettings.put("width", size.x);
+        fSettings.put("height", size.y);
     }
 }
-
-

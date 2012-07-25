@@ -45,37 +45,34 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
 
     public static final boolean DEFAULT_USE_PYDEV_BUILDERS = true;
     public static final String USE_PYDEV_BUILDERS = "USE_PYDEV_BUILDERS";
-    
+
     public static final boolean DEFAULT_USE_PYDEV_ONLY_ON_DOC_SAVE = false;
     public static final String USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE = PyParserManager.USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE;
-    
+
     public static final int DEFAULT_PYDEV_ELAPSE_BEFORE_ANALYSIS = 3000;
     public static final String PYDEV_ELAPSE_BEFORE_ANALYSIS = PyParserManager.PYDEV_ELAPSE_BEFORE_ANALYSIS;
 
     public static final String ANALYZE_ONLY_ACTIVE_EDITOR = "ANALYZE_ONLY_ACTIVE_EDITOR_2"; //Changed to _2 because we changed this behavior and the default is now true!
     public static final boolean DEFAULT_ANALYZE_ONLY_ACTIVE_EDITOR = true;
-    
+
     public static final String REMOVE_ERRORS_WHEN_EDITOR_IS_CLOSED = "REMOVE_ERRORS_WHEN_EDITOR_IS_CLOSED_2"; //Changed to _2
     public static final boolean DEFAULT_REMOVE_ERRORS_WHEN_EDITOR_IS_CLOSED = true;
     private Button onlyAnalyzeOpenCheckBox;
     private Button removeErrorsCheckBox;
-    
-    
+
     public static final String PYC_DELETE_HANDLING = "PYC_DELETE_HANDLING";
-    
+
     public static final int PYC_ALWAYS_DELETE = 0;
     public static final int PYC_DELETE_WHEN_PY_IS_DELETED = 1;
     public static final int PYC_NEVER_DELETE = 2;
-    
+
     public static final int DEFAULT_PYC_DELETE_HANDLING = PYC_ALWAYS_DELETE;
-    
-    
+
     private static final String[][] ENTRIES_AND_VALUES = new String[][] {
-        {"Delete any orphaned .pyc file.", Integer.toString(PYC_ALWAYS_DELETE)},
-        {"Only delete .pyc when .py delete is detected.", Integer.toString(PYC_DELETE_WHEN_PY_IS_DELETED)},
-        {"Never delete .pyc files.", Integer.toString(PYC_NEVER_DELETE)},
-    };
-    
+            { "Delete any orphaned .pyc file.", Integer.toString(PYC_ALWAYS_DELETE) },
+            { "Only delete .pyc when .py delete is detected.", Integer.toString(PYC_DELETE_WHEN_PY_IS_DELETED) },
+            { "Never delete .pyc files.", Integer.toString(PYC_NEVER_DELETE) }, };
+
     /**
      * @param style
      */
@@ -90,63 +87,58 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
      */
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
-        
+
         String s = "WARNING: \n\n" +
-                "PyDev builders are required for many features \n" +
-                "provided by Pydev such as:\n" +
+                "PyDev builders are required for many features \n"
+                + "provided by Pydev such as:\n" +
                 "\n" +
                 "- Code completion\n" +
                 "- PyLint\n" +
-                "- TODO tasks\n" +
-                "\n" +
-                "So, if you choose to disable it, note that the features \n" +
-                "mentioned above may not work as expected or may even not \n" +
-                "work at all (use at your own risk).\n";
-        
+                "- TODO tasks\n"
+                + "\n" +
+                "So, if you choose to disable it, note that the features \n"
+                + "mentioned above may not work as expected or may even not \n"
+                + "work at all (use at your own risk).\n";
+
         addField(new LabelFieldEditor("LabelFieldEditor", s, p));
         addField(new BooleanFieldEditor(USE_PYDEV_BUILDERS, "Use builders?", p));
-        
-        
+
         //Analysis only on save means that we'll not have parse notifications (so, things will be analyzed only on save)
-        addField(new BooleanFieldEditor(PyParserManager.USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE, "Disable parser notifications?", p));
-        addField(new IntegerFieldEditor(PyParserManager.PYDEV_ELAPSE_BEFORE_ANALYSIS, "Time to elapse before reparsing changed file (millis)", p));
-        
+        addField(new BooleanFieldEditor(PyParserManager.USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE,
+                "Disable parser notifications?", p));
+        addField(new IntegerFieldEditor(PyParserManager.PYDEV_ELAPSE_BEFORE_ANALYSIS,
+                "Time to elapse before reparsing changed file (millis)", p));
+
         s = "If only open editors are analyzed, markers will only be added\n" +
-            "to the opened PyDev editors.\n";
+                "to the opened PyDev editors.\n";
         addField(new LabelFieldEditor("ActiveBufferLabelFieldEditor", s, p));
-        
+
         BooleanFieldEditorWithPublicGetControl onlyAnalyzeOpen = new BooleanFieldEditorWithPublicGetControl(
                 ANALYZE_ONLY_ACTIVE_EDITOR, "Only analyze open editors?", p);
         addField(onlyAnalyzeOpen);
 
-        
         BooleanFieldEditorWithPublicGetControl removeErrors = new BooleanFieldEditorWithPublicGetControl(
                 REMOVE_ERRORS_WHEN_EDITOR_IS_CLOSED, "Remove errors when editor is closed?", p);
         addField(removeErrors);
-        
+
         removeErrorsCheckBox = removeErrors.getChangeControl(p);
-        
+
         onlyAnalyzeOpenCheckBox = onlyAnalyzeOpen.getChangeControl(p);
         onlyAnalyzeOpenCheckBox.addSelectionListener(new SelectionListener() {
-            
+
             public void widgetSelected(SelectionEvent e) {
                 updateCheckEnabledState();
             }
-            
+
             public void widgetDefaultSelected(SelectionEvent e) {
             }
         });
-        
-        addField(new ComboFieldEditor(
-                PYC_DELETE_HANDLING, 
-                "How to handle .pyc/$py.class deletion?", 
-                ENTRIES_AND_VALUES,
-                p
-        ));
 
-        
+        addField(new ComboFieldEditor(PYC_DELETE_HANDLING, "How to handle .pyc/$py.class deletion?",
+                ENTRIES_AND_VALUES, p));
+
     }
-    
+
     /* (non-Javadoc)
      * @see org.eclipse.jface.preference.FieldEditorPreferencePage#dispose()
      */
@@ -154,13 +146,13 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
     public void dispose() {
         super.dispose();
     }
-    
+
     @Override
     protected void initialize() {
         super.initialize();
         updateCheckEnabledState();
     }
-    
+
     @Override
     protected void performDefaults() {
         super.performDefaults();
@@ -174,8 +166,8 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
     }
 
     private void updateCheckEnabledState() {
-        if(removeErrorsCheckBox != null && !removeErrorsCheckBox.isDisposed() && 
-                onlyAnalyzeOpenCheckBox != null && !onlyAnalyzeOpenCheckBox.isDisposed()){
+        if (removeErrorsCheckBox != null && !removeErrorsCheckBox.isDisposed() && onlyAnalyzeOpenCheckBox != null
+                && !onlyAnalyzeOpenCheckBox.isDisposed()) {
             removeErrorsCheckBox.setEnabled(onlyAnalyzeOpenCheckBox.getSelection());
         }
     }
@@ -183,23 +175,23 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
     public static boolean usePydevBuilders() {
         return PydevPrefs.getPreferences().getBoolean(USE_PYDEV_BUILDERS);
     }
-    
+
     public static boolean useAnalysisOnlyOnDocSave() {
         return PyParserManager.getPyParserManager(PydevPrefs.getPreferences()).useAnalysisOnlyOnDocSave();
     }
-    
+
     public static boolean getAnalyzeOnlyActiveEditor() {
         return PydevPrefs.getPreferences().getBoolean(ANALYZE_ONLY_ACTIVE_EDITOR);
     }
-    
+
     public static boolean getRemoveErrorsWhenEditorIsClosed() {
         return PydevPrefs.getPreferences().getBoolean(REMOVE_ERRORS_WHEN_EDITOR_IS_CLOSED);
     }
-    
+
     public static void setAnalyzeOnlyActiveEditor(boolean b) {
         PydevPrefs.getPreferences().setValue(ANALYZE_ONLY_ACTIVE_EDITOR, b);
     }
-    
+
     public static int getElapseMillisBeforeAnalysis() {
         return PyParserManager.getPyParserManager(PydevPrefs.getPreferences()).getElapseMillisBeforeAnalysis();
     }

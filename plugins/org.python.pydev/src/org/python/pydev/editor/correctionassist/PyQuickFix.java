@@ -18,20 +18,20 @@ import org.eclipse.ui.IMarkerResolutionGenerator;
  */
 public class PyQuickFix implements IMarkerResolutionGenerator {
 
-    public static String CONTENT_GENERATOR_MARKER = "org.python.pydev.editor.markers.pycontentgeneratormarker"; 
+    public static String CONTENT_GENERATOR_MARKER = "org.python.pydev.editor.markers.pycontentgeneratormarker";
 
     public IMarkerResolution[] getResolutions(IMarker mk) {
         return new IMarkerResolution[] {};
-//        try {
-//           Object problem = mk.getAttribute("WhatsUp");
-//           return new IMarkerResolution[] {
-//              new MarkerResolution("Fix #1 for "+problem),
-//              new MarkerResolution("Fix #2 for "+problem),
-//           };
-//        }
-//        catch (CoreException e) {
-//           return new IMarkerResolution[0];
-//        }
-     }
+        //        try {
+        //           Object problem = mk.getAttribute("WhatsUp");
+        //           return new IMarkerResolution[] {
+        //              new MarkerResolution("Fix #1 for "+problem),
+        //              new MarkerResolution("Fix #2 for "+problem),
+        //           };
+        //        }
+        //        catch (CoreException e) {
+        //           return new IMarkerResolution[0];
+        //        }
+    }
 
 }

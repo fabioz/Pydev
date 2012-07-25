@@ -19,20 +19,23 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 
 public class PythonFileSearchResult extends AbstractTextSearchResult implements IEditorMatchAdapter, IFileMatchAdapter {
-	
-    private final Match[] EMPTY_ARR= new Match[0];
-    
+
+    private final Match[] EMPTY_ARR = new Match[0];
+
     private AbstractPythonSearchQuery fQuery;
 
     public PythonFileSearchResult(AbstractPythonSearchQuery query) {
-        fQuery= query;
+        fQuery = query;
     }
+
     public ImageDescriptor getImageDescriptor() {
         return SearchPluginImages.DESC_OBJ_TSEARCH_DPDN;
     }
+
     public String getLabel() {
         return fQuery.getResultLabel(getMatchCount());
     }
+
     public String getTooltip() {
         return getLabel();
     }
@@ -43,23 +46,23 @@ public class PythonFileSearchResult extends AbstractTextSearchResult implements 
 
     public IFile getFile(Object element) {
         if (element instanceof IFile)
-            return (IFile)element;
+            return (IFile) element;
         return null;
     }
 
     public boolean isShownInEditor(Match match, IEditorPart editor) {
-        IEditorInput ei= editor.getEditorInput();
+        IEditorInput ei = editor.getEditorInput();
         if (ei instanceof IFileEditorInput) {
-            IFileEditorInput fi= (IFileEditorInput) ei;
+            IFileEditorInput fi = (IFileEditorInput) ei;
             return match.getElement().equals(fi.getFile());
         }
         return false;
     }
-    
+
     public Match[] computeContainedMatches(AbstractTextSearchResult result, IEditorPart editor) {
-        IEditorInput ei= editor.getEditorInput();
+        IEditorInput ei = editor.getEditorInput();
         if (ei instanceof IFileEditorInput) {
-            IFileEditorInput fi= (IFileEditorInput) ei;
+            IFileEditorInput fi = (IFileEditorInput) ei;
             return getMatches(fi.getFile());
         }
         return EMPTY_ARR;
@@ -68,11 +71,11 @@ public class PythonFileSearchResult extends AbstractTextSearchResult implements 
     public ISearchQuery getQuery() {
         return fQuery;
     }
-    
+
     public IFileMatchAdapter getFileMatchAdapter() {
         return this;
     }
-    
+
     public IEditorMatchAdapter getEditorMatchAdapter() {
         return this;
     }

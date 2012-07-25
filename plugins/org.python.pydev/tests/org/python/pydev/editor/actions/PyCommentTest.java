@@ -26,63 +26,57 @@ public class PyCommentTest extends TestCase {
         super.tearDown();
     }
 
-    
     public void testComment() throws Exception {
-        Document doc = new Document(
-                "a\n" +
+        Document doc = new Document("a\n" +
                 "\n" +
                 "\n");
         PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
-        assertEquals(new Tuple<Integer, Integer>(0,5), new PyComment().perform(ps));
-        
+        assertEquals(new Tuple<Integer, Integer>(0, 5), new PyComment().perform(ps));
+
         String expected = "#a\n" +
-                          "#\n" +
-                          "\n";
+                "#\n" +
+                "\n";
         assertEquals(expected, doc.get());
-        
+
     }
-    
-    
+
     public void testComment2() throws Exception {
-        Document doc = new Document(
-                "a\r" +
+        Document doc = new Document("a\r" +
                 "\r" +
                 "\r");
         PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
-        assertEquals(new Tuple<Integer, Integer>(0,5), new PyComment().perform(ps));
-        
-        String expected =   "#a\r" +
-                            "#\r" +
-                            "\r";
+        assertEquals(new Tuple<Integer, Integer>(0, 5), new PyComment().perform(ps));
+
+        String expected = "#a\r" +
+                "#\r" +
+                "\r";
         assertEquals(expected, doc.get());
-        
+
     }
-    
 
     public void testComment3() throws Exception {
-        Document doc = new Document(
-                "a\r\n" +
+        Document doc = new Document("a\r\n" +
                 "\r\n" +
                 "\r\n");
         PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
-        assertEquals(new Tuple<Integer, Integer>(0,7), new PyComment().perform(ps));
-        
-        String expected =   "#a\r\n" +
-                            "#\r\n" +
-                            "\r\n";
+        assertEquals(new Tuple<Integer, Integer>(0, 7), new PyComment().perform(ps));
+
+        String expected = "#a\r\n" +
+                "#\r\n" +
+                "\r\n";
         assertEquals(expected, doc.get());
-        
+
     }
+
     public void testComment4() throws Exception {
-        Document doc = new Document(
-                "a\r\n" +
+        Document doc = new Document("a\r\n" +
                 "b");
         PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
-        assertEquals(new Tuple<Integer, Integer>(0,6),new PyComment().perform(ps));
-        
-        String expected =   "#a\r\n" +
-                            "#b";
+        assertEquals(new Tuple<Integer, Integer>(0, 6), new PyComment().perform(ps));
+
+        String expected = "#a\r\n" +
+                "#b";
         assertEquals(expected, doc.get());
-        
+
     }
 }

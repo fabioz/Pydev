@@ -22,6 +22,7 @@ import org.eclipse.ui.navigator.IExtensionStateModel;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.navigator.elements.IWrappedResource;
+
 /**
  * Based on code from WorkingSetsContentProvider (but as it's internal and dependent on ProjectExplorer, 
  * we MUST create our own)
@@ -30,7 +31,7 @@ import org.python.pydev.navigator.elements.IWrappedResource;
  */
 @SuppressWarnings("restriction")
 public class TopLevelProjectsOrWorkingSetChoice {
-    
+
     /**
      * This is the constant indicating the property we should hear to know what we should show as top-level elements.
      */
@@ -47,28 +48,27 @@ public class TopLevelProjectsOrWorkingSetChoice {
      * @see #getRootMode()
      */
     public static final int PROJECTS = 1;
-    
+
     /**
      * This is the extension where we register to listen to property changes.
      */
     private IExtensionStateModel extensionStateModel;
-    
+
     /**
      * Listens to property changes and updates which should be the top-level elements to be shown.
      */
     private IPropertyChangeListener rootModeListener = new IPropertyChangeListener() {
-        
+
         public void propertyChange(PropertyChangeEvent event) {
-            if(DEBUG){
-                System.out.println("Property change: "+event.getProperty());
+            if (DEBUG) {
+                System.out.println("Property change: " + event.getProperty());
             }
-            if(SHOW_TOP_LEVEL_WORKING_SETS.equals(event.getProperty())) {
+            if (SHOW_TOP_LEVEL_WORKING_SETS.equals(event.getProperty())) {
                 updateRootMode();
             }
-        } 
+        }
 
     };
-    
 
     /**
      * Starts listening to property changes related to which should be the top-level elements to be shown.
@@ -79,7 +79,7 @@ public class TopLevelProjectsOrWorkingSetChoice {
         try {
             extensionStateModel = viewer.getNavigatorContentService().findStateModel(
                     WorkingSetsContentProvider.EXTENSION_ID);
-            
+
             extensionStateModel.addPropertyChangeListener(rootModeListener);
         } catch (Exception e) {
             Log.log(e);
@@ -92,24 +92,23 @@ public class TopLevelProjectsOrWorkingSetChoice {
      * as top level or just the projects.
      */
     private void updateRootMode() {
-        if(extensionStateModel != null){
+        if (extensionStateModel != null) {
             if (extensionStateModel.getBooleanProperty(SHOW_TOP_LEVEL_WORKING_SETS)) {
                 //show working set
                 this.rootMode = WORKING_SETS;
-                if(DEBUG){
+                if (DEBUG) {
                     System.out.println("Show working set as top level");
                 }
             } else {
                 //show projects
                 this.rootMode = PROJECTS;
-                if(DEBUG){
+                if (DEBUG) {
                     System.out.println("Show projects as top level");
                 }
             }
         }
     }
 
-    
     /**
      * Stops listening to property changes.
      */
@@ -123,7 +122,7 @@ public class TopLevelProjectsOrWorkingSetChoice {
             Log.log(e);
         }
     }
-    
+
     protected int rootMode = PROJECTS;
 
     /**
@@ -140,32 +139,32 @@ public class TopLevelProjectsOrWorkingSetChoice {
      * @return null if the parent is not a working set element or the working set that's a parent
      * @note if we're not currently showing working sets as top-level elements, it'll return null. 
      */
-    public Object getWorkingSetParentIfAvailable(Object object, 
+    public Object getWorkingSetParentIfAvailable(Object object,
             ICallback<List<IWorkingSet>, IWorkspaceRoot> getWorkingSetsCallback) {
-        
-        if(rootMode != WORKING_SETS || object == null){
+
+        if (rootMode != WORKING_SETS || object == null) {
             return null;
         }
         //TODO: This could be optimized by creating an auxiliary structure where child->parent working set
         //so that we could get it directly without the need to traverse all the elements.
         //this can be interesting because whenever we try to get a parent this method will be called
         //for all the elements.
-        
+
         //showing as working sets
         List<IWorkingSet> workingSets = getWorkingSetsCallback.call(null);
-        for(IWorkingSet w:workingSets){
+        for (IWorkingSet w : workingSets) {
             IAdaptable[] elements = w.getElements();
-            if(elements != null){
-                for(IAdaptable a:elements){
-                    if(a == null){
+            if (elements != null) {
+                for (IAdaptable a : elements) {
+                    if (a == null) {
                         continue;
                     }
-                    if(object.equals(a)){
+                    if (object.equals(a)) {
                         return w;
                     }
-                    if(object instanceof IWrappedResource){
+                    if (object instanceof IWrappedResource) {
                         IWrappedResource wrappedResource = (IWrappedResource) object;
-                        if(wrappedResource.getActualObject().equals(a)){
+                        if (wrappedResource.getActualObject().equals(a)) {
                             return w;
                         }
                     }
@@ -174,5 +173,5 @@ public class TopLevelProjectsOrWorkingSetChoice {
         }
         return null;
     }
-    
+
 }

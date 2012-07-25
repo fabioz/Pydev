@@ -100,8 +100,7 @@ class MapProxy extends CollectionProxy {
     }
 
     public void __setitem__(PyObject key, PyObject value) {
-        this.proxy.put(Py.tojava(key, Object.class), Py.tojava(value,
-                Object.class));
+        this.proxy.put(Py.tojava(key, Object.class), Py.tojava(value, Object.class));
     }
 
     public void __delitem__(PyObject key) {
@@ -121,8 +120,7 @@ class IteratorProxy extends CollectionProxy {
 
     public PyObject __finditem__(int key) {
         if (key != this.counter) {
-            throw Py
-                    .ValueError("iterator indices must be consecutive ints starting at 0");
+            throw Py.ValueError("iterator indices must be consecutive ints starting at 0");
         }
         this.counter++;
         if (this.proxy.hasNext()) {

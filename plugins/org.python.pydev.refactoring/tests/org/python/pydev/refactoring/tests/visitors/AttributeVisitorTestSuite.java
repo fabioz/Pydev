@@ -14,21 +14,22 @@ import org.python.pydev.refactoring.tests.core.IInputOutputTestCase;
 
 public class AttributeVisitorTestSuite extends AbstractIOTestSuite {
 
-	public AttributeVisitorTestSuite(String name) {
-		super(name);
-	}
+    public AttributeVisitorTestSuite(String name) {
+        super(name);
+    }
 
-	public static Test suite() {
-		String testdir = "tests" + File.separator + "python" + File.separator + "visitor" + File.separator + "attributevisitor";
-		AttributeVisitorTestSuite testSuite = new AttributeVisitorTestSuite("Attribute Visitor");
+    public static Test suite() {
+        String testdir = "tests" + File.separator + "python" + File.separator + "visitor" + File.separator
+                + "attributevisitor";
+        AttributeVisitorTestSuite testSuite = new AttributeVisitorTestSuite("Attribute Visitor");
 
-		testSuite.createTests(testdir);
+        testSuite.createTests(testdir);
 
-		return testSuite;
-	}
+        return testSuite;
+    }
 
-	@Override
-	protected IInputOutputTestCase createTestCase(String testCaseName) {
-		return new AttributeVisitorTestCase(testCaseName);
-	}
+    @Override
+    protected IInputOutputTestCase createTestCase(String testCaseName) {
+        return new AttributeVisitorTestCase(testCaseName);
+    }
 }

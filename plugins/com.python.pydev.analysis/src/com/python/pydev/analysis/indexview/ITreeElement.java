@@ -13,5 +13,5 @@ public interface ITreeElement {
     Object[] getChildren();
 
     ITreeElement getParent();
-    
+
 }

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 
-public class AssignCompletionInfo{
+public class AssignCompletionInfo {
 
     public final ArrayList<IToken> completions;
     public final Definition[] defs;

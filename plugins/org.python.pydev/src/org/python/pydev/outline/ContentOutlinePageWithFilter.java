@@ -22,15 +22,13 @@ import org.python.pydev.utils.PyFilteredTree;
  * 
  * Based on the ContentOutlinePage.
  */
-public abstract class ContentOutlinePageWithFilter extends Page implements
-        IContentOutlinePage, ISelectionChangedListener {
+public abstract class ContentOutlinePageWithFilter extends Page implements IContentOutlinePage,
+        ISelectionChangedListener {
     private ListenerList selectionChangedListeners = new ListenerList();
 
     protected TreeViewer treeViewer;
     protected PatternFilter patternFilter;
     protected FilteredTree filter;
-
-
 
     public void createControl(Composite parent) {
         patternFilter = new PatternFilter();
@@ -38,23 +36,19 @@ public abstract class ContentOutlinePageWithFilter extends Page implements
         treeViewer = filter.getViewer();
         treeViewer.addSelectionChangedListener(this);
     }
-    
 
     public void init(IPageSite pageSite) {
         super.init(pageSite);
         pageSite.setSelectionProvider(this);
     }
 
-    
     // Selection ---------------------------------------------------------------
-    
+
     public void addSelectionChangedListener(ISelectionChangedListener listener) {
         selectionChangedListeners.add(listener);
     }
 
-    
-    public void removeSelectionChangedListener(
-            ISelectionChangedListener listener) {
+    public void removeSelectionChangedListener(ISelectionChangedListener listener) {
         selectionChangedListeners.remove(listener);
     }
 
@@ -62,10 +56,8 @@ public abstract class ContentOutlinePageWithFilter extends Page implements
         fireSelectionChanged(event.getSelection());
     }
 
-
     protected void fireSelectionChanged(ISelection selection) {
-        final SelectionChangedEvent event = new SelectionChangedEvent(this,
-                selection);
+        final SelectionChangedEvent event = new SelectionChangedEvent(this, selection);
 
         Object[] listeners = selectionChangedListeners.getListeners();
         for (int i = 0; i < listeners.length; ++i) {
@@ -77,7 +69,7 @@ public abstract class ContentOutlinePageWithFilter extends Page implements
             });
         }
     }
-    
+
     public ISelection getSelection() {
         if (treeViewer == null) {
             return StructuredSelection.EMPTY;
@@ -87,11 +79,10 @@ public abstract class ContentOutlinePageWithFilter extends Page implements
 
     public Control getControl() {
         if (filter == null) {
-			return null;
-		}
+            return null;
+        }
         return filter;
     }
-
 
     protected TreeViewer getTreeViewer() {
         return treeViewer;
@@ -103,7 +94,7 @@ public abstract class ContentOutlinePageWithFilter extends Page implements
 
     public void setSelection(ISelection selection) {
         if (treeViewer != null) {
-			treeViewer.setSelection(selection);
-		}
+            treeViewer.setSelection(selection);
+        }
     }
 }

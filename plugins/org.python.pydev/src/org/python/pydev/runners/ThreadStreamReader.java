@@ -15,17 +15,17 @@ import java.io.InputStreamReader;
 import org.python.pydev.core.structure.FastStringBuffer;
 
 public final class ThreadStreamReader extends Thread {
-    
+
     /**
      * Input stream read.
      */
     private final InputStream is;
-    
+
     /**
      * Buffer with the contents gotten.
      */
     private final FastStringBuffer contents;
-    
+
     /**
      * Access to the buffer should be synchronized.
      */
@@ -35,32 +35,32 @@ public final class ThreadStreamReader extends Thread {
      * Whether the read should be synchronized.
      */
     private final boolean synchronize;
-    
+
     /**
      * Keeps the next unique identifier.
      */
-    private static int next=0;
-    
+    private static int next = 0;
+
     /**
      * Get a unique identifier for this thread. 
      */
-    private static synchronized int next(){
-        next ++;
+    private static synchronized int next() {
+        next++;
         return next;
     }
-    
+
     private final String encoding;
 
     public ThreadStreamReader(InputStream is) {
         this(is, true); //default is synchronize.
     }
-    
+
     public ThreadStreamReader(InputStream is, boolean synchronize) {
         this(is, synchronize, null);
     }
-    
+
     public ThreadStreamReader(InputStream is, boolean synchronize, String encoding) {
-        this.setName("ThreadStreamReader: "+next());
+        this.setName("ThreadStreamReader: " + next());
         this.setDaemon(true);
         this.encoding = encoding;
         contents = new FastStringBuffer();
@@ -71,25 +71,25 @@ public final class ThreadStreamReader extends Thread {
     public void run() {
         try {
             InputStreamReader in;
-            if(encoding != null){
+            if (encoding != null) {
                 in = new InputStreamReader(is, encoding);
-                
-            }else{
+
+            } else {
                 in = new InputStreamReader(is);
             }
             int c;
-            
+
             //small buffer because we may want to see contents as it's being written.
             //(still better than char by char).
-            char [] buf = new char[80]; 
-            
-            if(synchronize){
+            char[] buf = new char[80];
+
+            if (synchronize) {
                 while ((c = in.read(buf)) != -1) {
-                    synchronized(lock){
+                    synchronized (lock) {
                         contents.append(buf, 0, c);
                     }
                 }
-            }else{
+            } else {
                 while ((c = in.read(buf)) != -1) {
                     contents.append(buf, 0, c);
                 }
@@ -104,7 +104,7 @@ public final class ThreadStreamReader extends Thread {
      * the last call to this method.
      */
     public String getAndClearContents() {
-        synchronized(lock){
+        synchronized (lock) {
             String string = contents.toString();
             contents.clear();
             return string;
@@ -112,7 +112,7 @@ public final class ThreadStreamReader extends Thread {
     }
 
     public String getContents() {
-        synchronized(lock){
+        synchronized (lock) {
             return contents.toString();
         }
     }

@@ -29,13 +29,14 @@ public class ArrayUtils {
     }
 
     public static <T> T[] concatArrays(T[]... arrays) {
-        
+
         int count = 0;
         for (T[] array : arrays) {
             count += array.length;
         }
 
-        final T[] mergedArray = (T[]) java.lang.reflect.Array.newInstance(arrays[0].getClass().getComponentType(), count);
+        final T[] mergedArray = (T[]) java.lang.reflect.Array.newInstance(arrays[0].getClass().getComponentType(),
+                count);
 
         int start = 0;
         for (T[] array : arrays) {

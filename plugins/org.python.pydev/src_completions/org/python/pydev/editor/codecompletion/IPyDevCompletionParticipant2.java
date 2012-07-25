@@ -21,7 +21,7 @@ import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
  * @author Fabio
  */
 public interface IPyDevCompletionParticipant2 {
-    
+
     /**
      * Used for getting the completions to be applied when a completion
      * is requested in the console.
@@ -32,7 +32,7 @@ public interface IPyDevCompletionParticipant2 {
      * @param requestOffset the offset where the request for completions was issued
      * @return a list of completion proposals to be applied in the console
      */
-    Collection<ICompletionProposal> computeConsoleCompletions(ActivationTokenAndQual tokenAndQual, 
+    Collection<ICompletionProposal> computeConsoleCompletions(ActivationTokenAndQual tokenAndQual,
             List<IPythonNature> naturesUsed, IScriptConsoleViewer viewer, int requestOffset);
 
 }

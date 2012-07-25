@@ -24,18 +24,18 @@ import org.python.pydev.runners.ThreadStreamReader;
  *
  * @author Fabio
  */
-public class PydevXmlRpcClient implements IPydevXmlRpcClient{
+public class PydevXmlRpcClient implements IPydevXmlRpcClient {
 
     /**
      * Internal xml-rpc client (responsible for the actual communication with the server)
      */
     private XmlRpcClient impl;
-    
+
     /**
      * The process where the server is being executed.
      */
     private Process process;
-    
+
     /**
      * This is the thread that's reading the error stream from the process.
      */
@@ -45,7 +45,6 @@ public class PydevXmlRpcClient implements IPydevXmlRpcClient{
      * This is the thread that's reading the output stream from the process.
      */
     private ThreadStreamReader stdOutReader;
-
 
     /**
      * Constructor (see fields description)
@@ -63,11 +62,10 @@ public class PydevXmlRpcClient implements IPydevXmlRpcClient{
      */
     public void setPort(int port) throws MalformedURLException {
         XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
-        config.setServerURL(new URL("http://"+LocalHost.getLocalHost()+":"+port));
+        config.setServerURL(new URL("http://" + LocalHost.getLocalHost() + ":" + port));
 
         this.impl.setConfig(config);
     }
-    
 
     /**
      * Executes a command in the server. 
@@ -77,38 +75,36 @@ public class PydevXmlRpcClient implements IPydevXmlRpcClient{
      * 
      * @return the result from executing the given command in the server.
      */
-    public Object execute(String command, Object[] args) throws XmlRpcException{
-        final Object[] result = new Object[]{null};
-        
+    public Object execute(String command, Object[] args) throws XmlRpcException {
+        final Object[] result = new Object[] { null };
+
         //make an async call so that we can keep track of not actually having an answer.
-        this.impl.executeAsync(command, args, new AsyncCallback(){
-            
+        this.impl.executeAsync(command, args, new AsyncCallback() {
 
             public void handleError(XmlRpcRequest request, Throwable error) {
-                result[0] = new Object[]{error.getMessage()};
+                result[0] = new Object[] { error.getMessage() };
             }
-            
+
             public void handleResult(XmlRpcRequest request, Object receivedResult) {
-                result[0] = receivedResult; 
-            }}
-        );
-        
+                result[0] = receivedResult;
+            }
+        });
+
         //busy loop waiting for the answer (or having the console die).
-        while(result[0] == null){
+        while (result[0] == null) {
             try {
-                if(process != null){
+                if (process != null) {
                     final String errStream = stdErrReader.getContents();
-                    if(errStream.indexOf("sys.exit called. Interactive console finishing.") != -1){
-                        result[0] = new Object[]{errStream};
+                    if (errStream.indexOf("sys.exit called. Interactive console finishing.") != -1) {
+                        result[0] = new Object[] { errStream };
                         break;
                     }
-                    
+
                     int exitValue = process.exitValue();
-                    result[0] = new Object[]{
-                            StringUtils.format("Console already exited with value: %s while waiting for an answer.\n" +
-                            		"Error stream: "+errStream+"\n" +
-                    				"Output stream: "+stdOutReader.getContents(), exitValue)};
-                    
+                    result[0] = new Object[] { StringUtils.format(
+                            "Console already exited with value: %s while waiting for an answer.\n" + "Error stream: "
+                                    + errStream + "\n" + "Output stream: " + stdOutReader.getContents(), exitValue) };
+
                     //ok, we have an exit value!
                     break;
                 }
@@ -118,13 +114,12 @@ public class PydevXmlRpcClient implements IPydevXmlRpcClient{
                     try {
                         wait(10);
                     } catch (InterruptedException e1) {
-//                        Log.log(e1);
+                        //                        Log.log(e1);
                     }
                 }
             }
         }
         return result[0];
     }
-        
 
 }

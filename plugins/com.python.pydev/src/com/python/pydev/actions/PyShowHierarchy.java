@@ -36,9 +36,7 @@ import com.python.pydev.ui.hierarchy.PyHierarchyView;
  * @author fabioz
  *
  */
-public class PyShowHierarchy extends PyRefactorAction{
-
-
+public class PyShowHierarchy extends PyRefactorAction {
 
     @Override
     protected String perform(IAction action, IProgressMonitor monitor) throws Exception {
@@ -46,13 +44,15 @@ public class PyShowHierarchy extends PyRefactorAction{
             final PyHierarchyView view;
             IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
             IWorkbenchPage page = workbenchWindow.getActivePage();
-            view = (PyHierarchyView) page.showView("com.python.pydev.ui.hierarchy.PyHierarchyView", null, IWorkbenchPage.VIEW_VISIBLE);
-            
+            view = (PyHierarchyView) page.showView("com.python.pydev.ui.hierarchy.PyHierarchyView", null,
+                    IWorkbenchPage.VIEW_VISIBLE);
+
             ProgressMonitorDialog monitorDialog = new AsynchronousProgressMonitorDialog(PyAction.getShell());
             try {
                 IRunnableWithProgress operation = new IRunnableWithProgress() {
 
-                    public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+                    public void run(final IProgressMonitor monitor) throws InvocationTargetException,
+                            InterruptedException {
                         try {
                             final HierarchyNodeModel model;
 
@@ -63,12 +63,12 @@ public class PyShowHierarchy extends PyRefactorAction{
                                 IPyRefactoring2 r2 = (IPyRefactoring2) pyRefactoring;
                                 model = r2.findClassHierarchy(refactoringRequest, false);
 
-                                if(monitor.isCanceled()){
-                                   return; 
+                                if (monitor.isCanceled()) {
+                                    return;
                                 }
                                 Runnable r = new Runnable() {
                                     public void run() {
-                                        if(!monitor.isCanceled()){
+                                        if (!monitor.isCanceled()) {
                                             view.setHierarchy(model);
                                         }
                                     }

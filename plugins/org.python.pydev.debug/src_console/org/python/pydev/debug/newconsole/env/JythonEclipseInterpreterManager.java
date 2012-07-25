@@ -38,12 +38,13 @@ public class JythonEclipseInterpreterManager implements IInterpreterManager {
         InterpreterInfo interpreterInfo = new InterpreterInfo("2.1", "Jython Eclipse", new ArrayList<String>());
         return new IInterpreterInfo[] { interpreterInfo };
     }
-    
+
     public void setInfos(IInterpreterInfo[] infos, Set<String> interpreterNamesToRestore, IProgressMonitor monitor) {
         //do nothing
     }
 
-    public IInterpreterInfo getInterpreterInfo(String nameOrExecutableOrJar, IProgressMonitor monitor) throws MisconfigurationException {
+    public IInterpreterInfo getInterpreterInfo(String nameOrExecutableOrJar, IProgressMonitor monitor)
+            throws MisconfigurationException {
 
         return null;
     }

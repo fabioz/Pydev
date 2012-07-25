@@ -21,15 +21,14 @@ import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
-public class OutlineCreatorVisitor extends EasyASTIteratorWithChildrenVisitor{
-
+public class OutlineCreatorVisitor extends EasyASTIteratorWithChildrenVisitor {
 
     public static OutlineCreatorVisitor create(SimpleNode ast) {
         OutlineCreatorVisitor visitor = new OutlineCreatorVisitor();
-        if(ast == null){
+        if (ast == null) {
             return visitor;
         }
-            
+
         try {
             ast.accept(visitor);
         } catch (Exception e) {
@@ -39,16 +38,14 @@ public class OutlineCreatorVisitor extends EasyASTIteratorWithChildrenVisitor{
     }
 
     private boolean isInAssign;
-    
 
-    
     @Override
     public void traverse(SimpleNode node) throws Exception {
         checkSpecials(node.specialsBefore);
         super.traverse(node);
         checkSpecials(node.specialsAfter);
     }
-    
+
     @Override
     public void traverse(FunctionDef node) throws Exception {
         checkSpecials(node.specialsBefore);
@@ -75,86 +72,85 @@ public class OutlineCreatorVisitor extends EasyASTIteratorWithChildrenVisitor{
     @Override
     public Object visitAssign(Assign node) throws Exception {
         isInAssign = true;
-        try{
+        try {
             DefinitionsASTIteratorVisitor.visitAssign(this, node, false);
-        }finally{
+        } finally {
             isInAssign = false;
         }
         traverse(node);
-        
+
         return null;
 
     }
-    
+
     @Override
     public Object visitIf(If node) throws Exception {
-        if(NodeUtils.isIfMAinNode(node)){
+        if (NodeUtils.isIfMAinNode(node)) {
             atomic(node);
             return null;
-        }else{
+        } else {
             return super.visitIf(node);
         }
     }
 
-
     @Override
     protected void doAddNode(ASTEntry entry) {
         SimpleNode node = entry.node;
-        
-        if(node instanceof commentType){
+
+        if (node instanceof commentType) {
             commentType type = (commentType) node;
-            if(type.beginColumn == 1){
+            if (type.beginColumn == 1) {
                 entry.parent = null; //top-level
-            }else{
-                
+            } else {
+
                 //try to match it to some other indentation already set.
                 ASTEntryWithChildren lastAdded = null;
-                if(nodes != null && nodes.size() > 0){
-                    lastAdded = (ASTEntryWithChildren) nodes.get(nodes.size()-1);
+                if (nodes != null && nodes.size() > 0) {
+                    lastAdded = (ASTEntryWithChildren) nodes.get(nodes.size() - 1);
                 }
-                
-                while(lastAdded != null){
-                    if(lastAdded.node == null){
+
+                while (lastAdded != null) {
+                    if (lastAdded.node == null) {
                         break;
                     }
-                    
+
                     //if it is equal to the indentation of this node, it's parent is the same, if it is higher
                     //it is a child or a child's child...
-                    if(lastAdded.node.beginColumn == node.beginColumn){
+                    if (lastAdded.node.beginColumn == node.beginColumn) {
                         entry.parent = lastAdded.parent;
                         break;
-                        
-                    }else if(node.beginColumn > lastAdded.node.beginColumn ){
+
+                    } else if (node.beginColumn > lastAdded.node.beginColumn) {
                         //it's higher, so, check the last children of lastAdded for a possible parent...
                         entry.parent = lastAdded;
                         List<ASTEntryWithChildren> children = lastAdded.children;
-                        if(children != null && children.size() > 0){
-                            lastAdded = children.get(children.size()-1);
-                        }else{
+                        if (children != null && children.size() > 0) {
+                            lastAdded = children.get(children.size() - 1);
+                        } else {
                             break;
                         }
-                        
-                    }else{
+
+                    } else {
                         //it's less, so, the parent is already set...
                         break;
                     }
                 }
             }
         }
-        
+
         super.doAddNode(entry);
     }
 
     private void checkSpecials(List<Object> specials) {
-        if(specials == null || isInAssign){
+        if (specials == null || isInAssign) {
             return;
         }
         for (Object object : specials) {
-            if(object instanceof commentType){
+            if (object instanceof commentType) {
                 commentType type = (commentType) object;
                 String trimmed = type.id.trim();
-                
-                if(trimmed.startsWith("#---") || trimmed.endsWith("---")){
+
+                if (trimmed.startsWith("#---") || trimmed.endsWith("---")) {
                     atomic(type);
                 }
             }

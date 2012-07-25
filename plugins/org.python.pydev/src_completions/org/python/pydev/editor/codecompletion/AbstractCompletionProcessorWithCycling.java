@@ -14,7 +14,7 @@ import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
  * @author Fabio
  */
 public abstract class AbstractCompletionProcessorWithCycling implements IContentAssistProcessor {
-    
+
     /**
      * This is the content assistant that is used to start this processor.
      */
@@ -24,31 +24,31 @@ public abstract class AbstractCompletionProcessorWithCycling implements IContent
     public static final int SHOW_ALL = 1;
     public static final int SHOW_ONLY_TEMPLATES = 2;
     protected int whatToShow = SHOW_ALL;
-    
-    public void startCycle(){
+
+    public void startCycle() {
         whatToShow = SHOW_ALL;
     }
-    
+
     protected void doCycle() {
-        if(whatToShow == SHOW_ALL){
+        if (whatToShow == SHOW_ALL) {
             whatToShow = SHOW_ONLY_TEMPLATES;
-        }else{
+        } else {
             whatToShow = SHOW_ALL;
         }
     }
-    
+
     /**
      * Updates the status message.
      */
-    public void updateStatus(){
-        if(whatToShow == SHOW_ALL){
+    public void updateStatus() {
+        if (whatToShow == SHOW_ALL) {
             pyContentAssistant.setIterationStatusMessage("Press %s for templates.");
-        }else{
+        } else {
             pyContentAssistant.setIterationStatusMessage("Press %s for default completions.");
         }
     }
-    //-------- end cycling through regular completions and templates
 
+    //-------- end cycling through regular completions and templates
 
     public AbstractCompletionProcessorWithCycling(PyContentAssistant pyContentAssistant) {
         this.pyContentAssistant = pyContentAssistant;

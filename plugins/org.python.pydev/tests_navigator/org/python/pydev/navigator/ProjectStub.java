@@ -26,7 +26,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.resource_stubs.AbstractIProjectStub;
 
-public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapter{
+public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapter {
 
     private File projectRoot;
 
@@ -39,15 +39,15 @@ public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapt
     private boolean addNullChild;
 
     private List<Object> additionalChildren;
-    
+
     public ProjectStub(File file, IPythonNature nature) {
         this(file, nature, false);
     }
-    
+
     public ProjectStub(File file, IPythonNature nature, boolean addNullChild) {
         this(file, nature, addNullChild, new ArrayList<Object>());
     }
-    
+
     public ProjectStub(File file, IPythonNature nature, boolean addNullChild, List<Object> additionalChildren) {
         Assert.isTrue(file.exists() && file.isDirectory());
         this.projectRoot = file;
@@ -55,111 +55,107 @@ public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapt
         this.addNullChild = addNullChild;
         this.additionalChildren = additionalChildren;
     }
-    
+
     public IResource getResource(File parentFile) {
-        if(parentFile.equals(projectRoot)){
+        if (parentFile.equals(projectRoot)) {
             return this;
         }
-        
+
         IResource r = cache.get(parentFile);
-        if(r == null){
-            if(parentFile.isFile()){
+        if (r == null) {
+            if (parentFile.isFile()) {
                 r = new FileStub(this, parentFile);
-            }else{
+            } else {
                 r = new FolderStub(this, parentFile);
             }
             cache.put(parentFile, r);
         }
         return r;
     }
-    
+
     public IContainer getFolder(File parentFile) {
         return (IContainer) getResource(parentFile);
     }
-    
+
     public void setParent(IContainer parent) {
         this.parent = parent;
     }
+
     public IContainer getParent() {
         return this.parent;
     }
 
     @Override
     public String toString() {
-        return "ProjectStub:"+this.projectRoot;
+        return "ProjectStub:" + this.projectRoot;
     }
 
-    
-
     public IProjectNature getNature(String natureId) throws CoreException {
-        if(nature == null){
+        if (nature == null) {
             throw new RuntimeException("not expected");
         }
         return nature;
     }
 
-
     public boolean isOpen() {
         return true;
-        
+
     }
 
     public void deleteMarkers(String type, boolean includeSubtypes, int depth) throws CoreException {
-        
+
     }
+
     public IPath getFullPath() {
         return Path.fromOSString(REF.getFileAbsolutePath(this.projectRoot));
     }
-
 
     public IPath getLocation() {
         return Path.fromOSString(REF.getFileAbsolutePath(this.projectRoot));
     }
 
-
     public IProject getProject() {
         return this;
-        
+
     }
 
-
     public Object getAdapter(Class adapter) {
-        if (adapter == IWorkbenchAdapter.class){
+        if (adapter == IWorkbenchAdapter.class) {
             return this;
         }
         throw new RuntimeException("Not impl");
-        
+
     }
-    
+
     private HashMap<Object, Object[]> stubsCache = new HashMap<Object, Object[]>();
-    
+
     //workbench adapter
     public Object[] getChildren(Object o) {
         Object[] found = stubsCache.get(o);
-        if(found != null){
+        if (found != null) {
             return found;
         }
-        
-        File folder = null; 
-        if(o instanceof ProjectStub){
+
+        File folder = null;
+        if (o instanceof ProjectStub) {
             ProjectStub projectStub = (ProjectStub) o;
             folder = projectStub.projectRoot;
-        }else{
+        } else {
             throw new RuntimeException("Shouldn't happen");
         }
         ArrayList<Object> ret = new ArrayList<Object>();
-        for(File file:folder.listFiles()){
+        for (File file : folder.listFiles()) {
             String lower = file.getName().toLowerCase();
-            if(lower.equals("cvs") || lower.equals(".svn")){
+            if (lower.equals("cvs") || lower.equals(".svn")) {
                 continue;
             }
-            if(file.isDirectory()){
+            if (file.isDirectory()) {
                 ret.add(new FolderStub(this, file));
-            }else{
+            } else {
                 ret.add(new FileStub(this, file));
             }
         }
-        if(addNullChild){
+        if (addNullChild) {
             ret.add(null);
         }
         ret.addAll(this.additionalChildren);

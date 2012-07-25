@@ -13,44 +13,45 @@ import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.model.remote.EvaluateExpressionCommand;
 
-public class EvaluationConsoleInputListener implements IConsoleInputListener{
+public class EvaluationConsoleInputListener implements IConsoleInputListener {
 
     private static final boolean DEBUG = false;
     private StringBuffer buf = new StringBuffer();
-    
+
     public void newLineReceived(String lineReceived, AbstractDebugTarget target) {
-        boolean evaluateNow = !lineReceived.startsWith(" ") && !lineReceived.startsWith("\t") && !lineReceived.endsWith(":") && !lineReceived.endsWith("\\");
-        
-        if(DEBUG){
-            System.out.println("line: '"+lineReceived+"'");
+        boolean evaluateNow = !lineReceived.startsWith(" ") && !lineReceived.startsWith("\t")
+                && !lineReceived.endsWith(":") && !lineReceived.endsWith("\\");
+
+        if (DEBUG) {
+            System.out.println("line: '" + lineReceived + "'");
         }
         buf.append(lineReceived);
-        if(lineReceived.length() > 0){
+        if (lineReceived.length() > 0) {
             buf.append("@LINE@");
         }
-        
-        if(evaluateNow){
+
+        if (evaluateNow) {
             final String toEval = buf.toString();
-            if(toEval.trim().length() > 0){
+            if (toEval.trim().length() > 0) {
                 IAdaptable context = DebugUITools.getDebugContext();
-                if(DEBUG){
-                    System.out.println("Evaluating:\n"+toEval);
+                if (DEBUG) {
+                    System.out.println("Evaluating:\n" + toEval);
                 }
-                if(context instanceof PyStackFrame){
-                    target.postCommand(new EvaluateExpressionCommand(target, toEval, 
-                            ((PyStackFrame)context).getLocalsLocator().getPyDBLocation(), true));
+                if (context instanceof PyStackFrame) {
+                    target.postCommand(new EvaluateExpressionCommand(target, toEval, ((PyStackFrame) context)
+                            .getLocalsLocator().getPyDBLocation(), true));
                 }
             }
             buf = new StringBuffer();
         }
-        
+
     }
 
     public void pasteReceived(String text, AbstractDebugTarget target) {
-        if(DEBUG){
-            System.out.println("paste: '"+text+"'");
+        if (DEBUG) {
+            System.out.println("paste: '" + text + "'");
         }
-        text = text.replaceAll("\r\n", "@LINE@").replaceAll("\r","@LINE@").replaceAll("\n","@LINE@");
+        text = text.replaceAll("\r\n", "@LINE@").replaceAll("\r", "@LINE@").replaceAll("\n", "@LINE@");
         buf.append(text);
         buf.append("@LINE@");
     }

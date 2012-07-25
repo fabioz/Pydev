@@ -39,7 +39,6 @@ public class EvaluateDebugConsoleExpression implements ICommandResponseListener 
         }
     }
 
-
     /**
      * Execute the line in selected frame context
      * 
@@ -49,13 +48,14 @@ public class EvaluateDebugConsoleExpression implements ICommandResponseListener 
     public void executeCommand(String command) {
         AbstractDebugTarget target = frame.getTarget();
         String locator = getLocator(frame.getThreadId(), frame.getId(), "EVALUATE", command);
-        AbstractDebuggerCommand cmd = new EvaluateConsoleExpressionCommand(target, locator, new ICommandResponseListener() {
+        AbstractDebuggerCommand cmd = new EvaluateConsoleExpressionCommand(target, locator,
+                new ICommandResponseListener() {
 
-            public void commandComplete(AbstractDebuggerCommand cmd) {
-                frame.forceGetNewVariables();
-                EvaluateDebugConsoleExpression.this.commandComplete(cmd);
-            }
-        });
+                    public void commandComplete(AbstractDebuggerCommand cmd) {
+                        frame.forceGetNewVariables();
+                        EvaluateDebugConsoleExpression.this.commandComplete(cmd);
+                    }
+                });
         target.postCommand(cmd);
     }
 
@@ -73,7 +73,6 @@ public class EvaluateDebugConsoleExpression implements ICommandResponseListener 
         target.postCommand(cmd);
         return waitForCommand();
     }
-
 
     /**
      * Keeps in a loop for 3 seconds or until the completions are found. If no

@@ -21,7 +21,7 @@ import org.python.pydev.django_templates.DjPlugin;
  * @author Fabio
  */
 public class TemplateHelper {
-    
+
     /** The template store. */
     private static TemplateStore fStore;
 
@@ -38,7 +38,7 @@ public class TemplateHelper {
      */
     public static TemplateStore getTemplateStore() {
         if (fStore == null) {
-            fStore = new ContributionTemplateStore(TemplateHelper.getContextTypeRegistry(), 
+            fStore = new ContributionTemplateStore(TemplateHelper.getContextTypeRegistry(),
                     getTemplatesPreferenceStore(), CUSTOM_TEMPLATES_DJ_KEY);
             try {
                 fStore.load();
@@ -69,12 +69,12 @@ public class TemplateHelper {
         }
         return fRegistry;
     }
-    
+
     /**
      * Used from jython scripts.
      */
-    public static void clearTemplateRegistryCache(){
-    	fRegistry = null;
+    public static void clearTemplateRegistryCache() {
+        fRegistry = null;
     }
 
 }

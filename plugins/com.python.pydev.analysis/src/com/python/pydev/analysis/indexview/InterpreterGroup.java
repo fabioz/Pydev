@@ -26,14 +26,13 @@ public class InterpreterGroup extends ElementWithChildren {
         return true;
     }
 
-
     @Override
     protected void calculateChildren() {
         Iterator<String> forcedLibsIterator = this.interpreterInfo.forcedLibsIterator();
-        while(forcedLibsIterator.hasNext()){
+        while (forcedLibsIterator.hasNext()) {
             addChild(new ForcedLibGroup(this, this.interpreterInfo, forcedLibsIterator.next()));
         }
-        
+
         ISystemModulesManager modulesManager = this.interpreterInfo.getModulesManager();
         Set<String> allModuleNames = modulesManager.getAllModuleNames(false, "");
         for (String moduleName : allModuleNames) {
@@ -41,11 +40,9 @@ public class InterpreterGroup extends ElementWithChildren {
         }
     }
 
-    
     @Override
     public String toString() {
         return this.interpreterInfo.getNameForUI();
     }
-
 
 }

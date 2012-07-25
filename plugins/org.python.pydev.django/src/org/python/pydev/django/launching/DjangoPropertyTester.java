@@ -18,8 +18,7 @@ import org.python.pydev.customizations.common.CustomizationCommons;
  * 
  * @author Fabio
  */
-public class DjangoPropertyTester extends PropertyTester{
-
+public class DjangoPropertyTester extends PropertyTester {
 
     /**
      * Expected value is ignored.
@@ -29,20 +28,21 @@ public class DjangoPropertyTester extends PropertyTester{
      */
     public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
         IPythonPathNature nature = CustomizationCommons.getPythonPathNatureFromObject(receiver);
-        if(nature == null){
+        if (nature == null) {
             return false;
         }
-        
-        try{
+
+        try {
             Map<String, String> variableSubstitution = nature.getVariableSubstitution();
             //Only consider a django project if a django_manage_variable is defined
-            if(variableSubstitution != null && variableSubstitution.containsKey(DjangoConstants.DJANGO_MANAGE_VARIABLE)){
+            if (variableSubstitution != null
+                    && variableSubstitution.containsKey(DjangoConstants.DJANGO_MANAGE_VARIABLE)) {
                 return true;
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             Log.log(e);
         }
-     
+
         return false;
     }
 

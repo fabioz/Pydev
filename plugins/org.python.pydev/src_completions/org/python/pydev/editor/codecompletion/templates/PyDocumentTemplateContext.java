@@ -28,88 +28,88 @@ import org.python.pydev.editor.codefolding.PySourceViewer;
  * @author Fabio
  */
 public final class PyDocumentTemplateContext extends DocumentTemplateContextWithIndent {
-    
-	public ITextViewer viewer; //May be null
+
+    public ITextViewer viewer; //May be null
 
     /**
      * Note that it's in the default context because it should be used on subclasses.
      */
-    /*default*/ PyDocumentTemplateContext(TemplateContextType type, IDocument document, int offset, int length, String indentTo, IIndentPrefs indentPrefs) {
+    /*default*/PyDocumentTemplateContext(TemplateContextType type, IDocument document, int offset, int length,
+            String indentTo, IIndentPrefs indentPrefs) {
         super(type, document, offset, length, indentTo, indentPrefs);
     }
-    
-    public PyDocumentTemplateContext(TemplateContextType type, IDocument document, int offset, int length, String indentTo, ITextViewer viewer) {
+
+    public PyDocumentTemplateContext(TemplateContextType type, IDocument document, int offset, int length,
+            String indentTo, ITextViewer viewer) {
         this(type, document, offset, length, indentTo, getIndentPrefs(viewer));
         this.viewer = viewer;
     }
-    
-    
-    public boolean isCythonFile(){
-        if(this.viewer instanceof PySourceViewer){
+
+    public boolean isCythonFile() {
+        if (this.viewer instanceof PySourceViewer) {
             return ((PySourceViewer) this.viewer).getEdit().isCythonFile();
         }
         return false;
     }
-    
+
     public File getEditorFile() {
-		if(this.viewer instanceof PySourceViewer){
-			return ((PySourceViewer) this.viewer).getEdit().getEditorFile();
-		}
-		return new File("");
-	}
-    
+        if (this.viewer instanceof PySourceViewer) {
+            return ((PySourceViewer) this.viewer).getEdit().getEditorFile();
+        }
+        return new File("");
+    }
+
     public int getGrammarVersion() {
-    	//Other possibilities
+        //Other possibilities
         //org.eclipse.jface.text.source.SourceViewer (in compare)
 
-    	if(this.viewer instanceof PySourceViewer){
-    		try {
-				IPythonNature nature = ((PySourceViewer) this.viewer).getEdit().getPythonNature();
-				if(nature != null){
-					return nature.getGrammarVersion();
-				}
-			} catch (MisconfigurationException e) {
-			}
-    	}
-    	
-    	if(this.viewer instanceof IScriptConsoleViewer){
-    		//interactive console
-    	    IScriptConsoleViewer v = (IScriptConsoleViewer) this.viewer;
-    		IInterpreterInfo interpreterInfo = v.getInterpreterInfo();
-    		if(interpreterInfo != null){
-    			return interpreterInfo.getGrammarVersion();
-    		}
-    		
-    	}
-    	return IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
-	}
-    
+        if (this.viewer instanceof PySourceViewer) {
+            try {
+                IPythonNature nature = ((PySourceViewer) this.viewer).getEdit().getPythonNature();
+                if (nature != null) {
+                    return nature.getGrammarVersion();
+                }
+            } catch (MisconfigurationException e) {
+            }
+        }
+
+        if (this.viewer instanceof IScriptConsoleViewer) {
+            //interactive console
+            IScriptConsoleViewer v = (IScriptConsoleViewer) this.viewer;
+            IInterpreterInfo interpreterInfo = v.getInterpreterInfo();
+            if (interpreterInfo != null) {
+                return interpreterInfo.getGrammarVersion();
+            }
+
+        }
+        return IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
+    }
+
     public String getModuleName() {
-    	if(this.viewer instanceof PySourceViewer){
-    		try {
-    			PySourceViewer pyViewer = (PySourceViewer) this.viewer;
-				PyEdit edit = pyViewer.getEdit();
-				IPythonNature nature = edit.getPythonNature();
-    			if(nature != null){
-    				return nature.resolveModule(edit.getEditorFile());
-    			}
-    		} catch (MisconfigurationException e) {
-    		}
-    	}
-    	return "";
-	}
+        if (this.viewer instanceof PySourceViewer) {
+            try {
+                PySourceViewer pyViewer = (PySourceViewer) this.viewer;
+                PyEdit edit = pyViewer.getEdit();
+                IPythonNature nature = edit.getPythonNature();
+                if (nature != null) {
+                    return nature.resolveModule(edit.getEditorFile());
+                }
+            } catch (MisconfigurationException e) {
+            }
+        }
+        return "";
+    }
 
     /**
      * @return the indent preferences to be used.
      */
     private static IIndentPrefs getIndentPrefs(ITextViewer viewer) {
-        if(viewer instanceof PySourceViewer){
-        	PySourceViewer pyViewer = (PySourceViewer) viewer;
+        if (viewer instanceof PySourceViewer) {
+            PySourceViewer pyViewer = (PySourceViewer) viewer;
             return pyViewer.getEdit().getIndentPrefs();
-        }else{
+        } else {
             return DefaultIndentPrefs.get();
         }
     }
-    
 
 }

@@ -20,7 +20,7 @@ import com.python.pydev.analysis.additionalinfo.builders.AdditionalInfoModulesOb
 import com.python.pydev.codecompletion.ctxinsensitive.CtxParticipant;
 
 public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
-    
+
     public static void main(String[] args) {
 
         try {
@@ -39,59 +39,56 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
         }
     }
 
-
-
     @Override
     public void setUp() throws Exception {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = true;
 
         participant = new CtxParticipant();
-        
+
         ExtensionHelper.testingParticipants = new HashMap<String, List<Object>>();
-        
+
         ArrayList<Object> participants = new ArrayList<Object>(); /*IPyDevCompletionParticipant*/
         participants.add(participant);
         ExtensionHelper.testingParticipants.put(ExtensionHelper.PYDEV_COMPLETION, participants);
-        
+
         ArrayList<Object> modulesObserver = new ArrayList<Object>(); /*IModulesObserver*/
         modulesObserver.add(new AdditionalInfoModulesObserver());
         ExtensionHelper.testingParticipants.put(ExtensionHelper.PYDEV_MODULES_OBSERVER, modulesObserver);
-        
+
         codeCompletion = new PyCodeCompletion();
         this.restorePythonPath(false);
     }
-    
+
     @Override
     public void tearDown() throws Exception {
         super.tearDown();
         useOriginalRequestCompl = false;
         ExtensionHelper.testingParticipants = null;
     }
-    
-//    public void testCompletionBuiltins() throws Exception {
-////        wx.Frame.CaptureMouse()
-////        wx.Frame.CacheBestSize()
-////        wx.Frame.AcceptsFocus()
-////        wx.Frame.AcceptsFocusFromKeyboard()
-//        useOriginalRequestCompl = true;
-//        String s = "" +
-//                "def m1(a):\n" +
-//                "    a.Accepts";
-//        requestCompl(s, -1, -1, new String[]{"AcceptsFocus()", "AcceptsFocusFromKeyboard()"}); 
-//
-//        
-//    }
-    
+
+    //    public void testCompletionBuiltins() throws Exception {
+    ////        wx.Frame.CaptureMouse()
+    ////        wx.Frame.CacheBestSize()
+    ////        wx.Frame.AcceptsFocus()
+    ////        wx.Frame.AcceptsFocusFromKeyboard()
+    //        useOriginalRequestCompl = true;
+    //        String s = "" +
+    //                "def m1(a):\n" +
+    //                "    a.Accepts";
+    //        requestCompl(s, -1, -1, new String[]{"AcceptsFocus()", "AcceptsFocusFromKeyboard()"}); 
+    //
+    //        
+    //    }
+
     public void testImportCompletion2() throws Exception {
-        if(TestDependent.PYTHON_WXPYTHON_PACKAGES != null){
+        if (TestDependent.PYTHON_WXPYTHON_PACKAGES != null) {
             CompiledModule module = new CompiledModule("wx", this.getManager().getModulesManager());
-            
+
             participant = new CtxParticipant();
-            ICompletionProposal[] proposals = requestCompl("Frame", -1, -1, new String[]{});
+            ICompletionProposal[] proposals = requestCompl("Frame", -1, -1, new String[] {});
             assertContains("Frame - wx", proposals);
         }
     }
 
-    
 }

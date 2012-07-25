@@ -16,11 +16,10 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
 
-
 /**
  * Creates any django-related actions for an editor.
  */
-public class DjangoActionCreatorPyEditListener implements IPyEditListener{
+public class DjangoActionCreatorPyEditListener implements IPyEditListener {
 
     public void onSave(PyEdit edit, IProgressMonitor monitor) {
     }

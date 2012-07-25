@@ -18,20 +18,16 @@ import org.python.pydev.plugin.PydevPlugin;
  * Special launch configuration for Jython
  */
 public class JythonUnittestTabGroup extends AbstractLaunchConfigurationTabGroup {
-    
+
     /*
      * (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTabGroup#createTabs(org.eclipse.debug.ui.ILaunchConfigurationDialog, java.lang.String)
      */
     public void createTabs(ILaunchConfigurationDialog dialog, String mode) {
         MainModuleTab mainModuleTab = new MainModuleTab();
-        ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
-            mainModuleTab,
-            new UnittestArgumentsTab(mainModuleTab),
-            new InterpreterTab(PydevPlugin.getJythonInterpreterManager()),
-            new RefreshTab(),
-            new EnvironmentTab(),
-            new CommonTab() };
+        ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] { mainModuleTab,
+                new UnittestArgumentsTab(mainModuleTab), new InterpreterTab(PydevPlugin.getJythonInterpreterManager()),
+                new RefreshTab(), new EnvironmentTab(), new CommonTab() };
         setTabs(tabs);
     }
 }

@@ -19,7 +19,7 @@ import org.python.pydev.refactoring.core.base.RefactoringInfo;
 /**
  * This class should be used to generate code for creating a new class. 
  */
-public class PyCreateClass extends AbstractPyCreateClassOrMethodOrField{
+public class PyCreateClass extends AbstractPyCreateClassOrMethodOrField {
 
     private final static String baseClassStr = "" +
             "class %s(${object}):\n" +
@@ -27,44 +27,41 @@ public class PyCreateClass extends AbstractPyCreateClassOrMethodOrField{
             "\n" +
             "\n" +
             "";
-    
+
     private final static String baseClassWithInitStr = "" +
             "class %s(${object}):\n" +
-            "    \n" +
+            "    \n"
+            +
             "    def __init__(self, %s):\n" +
             "        ${pass}${cursor}\n" +
             "\n" +
             "\n" +
             "";
-    
-    public String getCreationStr(){
+
+    public String getCreationStr() {
         return "class";
     }
-    
-    
+
     /**
      * Returns a proposal that can be used to generate the code.
      */
-    public ICompletionProposal createProposal(
-            RefactoringInfo refactoringInfo, String actTok, int locationStrategy, List<String> parametersAfterCall) {
+    public ICompletionProposal createProposal(RefactoringInfo refactoringInfo, String actTok, int locationStrategy,
+            List<String> parametersAfterCall) {
         PySelection pySelection = refactoringInfo.getPySelection();
         ModuleAdapter moduleAdapter = refactoringInfo.getModuleAdapter();
 
         String source;
-        if(parametersAfterCall == null || parametersAfterCall.size()== 0){
+        if (parametersAfterCall == null || parametersAfterCall.size() == 0) {
             source = StringUtils.format(baseClassStr, actTok);
-        }else{
+        } else {
             FastStringBuffer params = createParametersList(parametersAfterCall);
             source = StringUtils.format(baseClassWithInitStr, actTok, params);
-            
+
         }
-        
+
         Tuple<Integer, String> offsetAndIndent = getLocationOffset(locationStrategy, pySelection, moduleAdapter);
-        
+
         return createProposal(pySelection, source, offsetAndIndent);
     }
-
-
-
 
 }

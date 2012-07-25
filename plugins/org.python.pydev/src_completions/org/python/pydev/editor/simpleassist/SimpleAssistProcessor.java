@@ -45,7 +45,7 @@ import org.python.pydev.plugin.PydevPlugin;
  * @author Fabio
  */
 public class SimpleAssistProcessor implements IContentAssistProcessor {
-    
+
     private class ContextInformationDelegator implements IContextInformationValidator, IContextInformationPresenter {
         private final IContextInformationValidator defaultContextInformationValidator;
 
@@ -59,45 +59,44 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
         }
 
         public boolean isContextInformationValid(int offset) {
-            if(showDefault()){
+            if (showDefault()) {
                 return defaultContextInformationValidator.isContextInformationValid(offset);
             }
             return true;
         }
 
         public boolean updatePresentation(int offset, TextPresentation presentation) {
-            return ((IContextInformationPresenter)defaultContextInformationValidator).updatePresentation(offset, presentation);
+            return ((IContextInformationPresenter) defaultContextInformationValidator).updatePresentation(offset,
+                    presentation);
         }
     }
 
-    public static final char[] ALL_ASCII_CHARS = new char[]{
-            'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
-            'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
-            '_'
-        };
+    public static final char[] ALL_ASCII_CHARS = new char[] { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
+            'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F',
+            'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '_' };
 
-    
     //-------- cycling through simple completions and default processor
     private static final int SHOW_SIMPLE = 1;
     private static final int SHOW_DEFAULT = 2;
     private int whatToShow = SHOW_SIMPLE;
-    
-    public void startCycle(){
+
+    public void startCycle() {
         whatToShow = SHOW_SIMPLE;
     }
-    
+
     public void doCycle() {
-        if(whatToShow == SHOW_SIMPLE){
+        if (whatToShow == SHOW_SIMPLE) {
             whatToShow = SHOW_DEFAULT;
         }
         //cycles only once here
     }
-    
-    public void updateStatus(){
-        if(whatToShow == SHOW_SIMPLE){
+
+    public void updateStatus() {
+        if (whatToShow == SHOW_SIMPLE) {
             assistant.setIterationStatusMessage("Press %s for default completions.");
         }
     }
+
     //-------- end cycling through regular completions and templates
 
     /**
@@ -119,7 +118,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
      * Participants for a simple completion
      */
     private List<ISimpleAssistParticipant> participants;
-    
+
     /**
      * Whether the last completion was auto-activated or not
      */
@@ -135,29 +134,29 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
      * Cache with the chars that should be used for auto-activation
      * Cleared when the property cache is updated
      */
-    private volatile static char [] autoActivationCharsCache;
-    
+    private volatile static char[] autoActivationCharsCache;
+
     /**
      * The last error that occurred while requesting a completion.
      */
     private String lastError = null;
-    
-    
+
     @SuppressWarnings("unchecked")
-    public SimpleAssistProcessor(IPySyntaxHighlightingAndCodeCompletionEditor edit, PythonCompletionProcessor defaultPythonProcessor, final PyContentAssistant assistant){
+    public SimpleAssistProcessor(IPySyntaxHighlightingAndCodeCompletionEditor edit,
+            PythonCompletionProcessor defaultPythonProcessor, final PyContentAssistant assistant) {
         this.edit = edit;
         this.defaultPythonProcessor = defaultPythonProcessor;
         this.assistant = assistant;
         this.participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_SIMPLE_ASSIST);
 
-        assistant.addCompletionListener(new ICompletionListener(){
+        assistant.addCompletionListener(new ICompletionListener() {
             public void assistSessionEnded(ContentAssistEvent event) {
             }
-            
+
             public void assistSessionStarted(ContentAssistEvent event) {
                 startCycle();
                 lastCompletionAutoActivated = assistant.getLastCompletionAutoActivated();
-                if(!lastCompletionAutoActivated){
+                if (!lastCompletionAutoActivated) {
                     //user request... cycle to the default completions at once
                     doCycle();
                 }
@@ -167,7 +166,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
                 //ignore
             }
         });
-        
+
     }
 
     /**
@@ -177,35 +176,36 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
      */
     public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset) {
         try {
-            if(showDefault()){
+            if (showDefault()) {
                 return defaultPythonProcessor.computeCompletionProposals(viewer, offset);
-                
-            }else{
+
+            } else {
                 updateStatus();
                 IDocument doc = viewer.getDocument();
-                String[] strs = PySelection.getActivationTokenAndQual(doc, offset, false); 
-   
+                String[] strs = PySelection.getActivationTokenAndQual(doc, offset, false);
+
                 String activationToken = strs[0];
                 String qualifier = strs[1];
-   
+
                 PySelection ps = edit.createPySelection();
-                if(ps == null){
+                if (ps == null) {
                     return new ICompletionProposal[0];
                 }
                 List<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
-   
+
                 for (ISimpleAssistParticipant participant : participants) {
                     results.addAll(participant.computeCompletionProposals(activationToken, qualifier, ps, edit, offset));
                 }
-                
+
                 //don't matter the result... next time we won't ask for simple stuff
                 doCycle();
-                if(results.size() == 0){
-                    if(!lastCompletionAutoActivated || defaultAutoActivated(viewer, offset) || useAutocompleteOnAllAsciiCharsCache){
+                if (results.size() == 0) {
+                    if (!lastCompletionAutoActivated || defaultAutoActivated(viewer, offset)
+                            || useAutocompleteOnAllAsciiCharsCache) {
                         return defaultPythonProcessor.computeCompletionProposals(viewer, offset);
                     }
                     return new ICompletionProposal[0];
-                }else{
+                } else {
                     Collections.sort(results, IPyCodeCompletion.PROPOSAL_COMPARATOR);
                     return (ICompletionProposal[]) results.toArray(new ICompletionProposal[0]);
                 }
@@ -215,7 +215,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
             CompletionError completionError = new CompletionError(e);
             this.lastError = completionError.getErrorMessage();
             //Make the error visible to the user!
-            return new ICompletionProposal[]{completionError};
+            return new ICompletionProposal[] { completionError };
         }
     }
 
@@ -227,13 +227,13 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
      */
     private boolean defaultAutoActivated(ITextViewer viewer, int offset) {
         try {
-            char docChar = viewer.getDocument().getChar(offset-1);
-            for(char c: this.defaultPythonProcessor.getCompletionProposalAutoActivationCharacters()){
-                if(c == docChar){
+            char docChar = viewer.getDocument().getChar(offset - 1);
+            for (char c : this.defaultPythonProcessor.getCompletionProposalAutoActivationCharacters()) {
+                if (c == docChar) {
                     return true;
                 }
             }
-            
+
         } catch (BadLocationException e) {
         }
         return false;
@@ -250,33 +250,33 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
      * Compute context information
      */
     public IContextInformation[] computeContextInformation(ITextViewer viewer, int offset) {
-        if(showDefault()){
+        if (showDefault()) {
             return defaultPythonProcessor.computeContextInformation(viewer, offset);
         }
         return null;
     }
-    
+
     /**
      * only very simple proposals should be here, as it is auto-activated for any character
      *  
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getCompletionProposalAutoActivationCharacters()
      */
     public char[] getCompletionProposalAutoActivationCharacters() {
-        return getStaticAutoActivationCharacters(defaultPythonProcessor.getCompletionProposalAutoActivationCharacters(), 
-                this.participants.size());
+        return getStaticAutoActivationCharacters(
+                defaultPythonProcessor.getCompletionProposalAutoActivationCharacters(), this.participants.size());
     }
 
     /**
      * Attribute that determines if the listener that'll clear the auto activation chars is already in place.
      */
     private volatile static boolean listenerToClearAutoActivationAlreadySetup = false;
-    
+
     /**
      * @return the auto-activation chars that should be used.
      */
     public synchronized static char[] getStaticAutoActivationCharacters(char[] defaultChars, int participantsLen) {
-        if(!listenerToClearAutoActivationAlreadySetup){
-            PydevPlugin.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener(){
+        if (!listenerToClearAutoActivationAlreadySetup) {
+            PydevPlugin.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
                 public void propertyChange(PropertyChangeEvent event) {
                     autoActivationCharsCache = null;
                 }
@@ -284,21 +284,21 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
             listenerToClearAutoActivationAlreadySetup = true;
         }
 
-        if(autoActivationCharsCache == null){
+        if (autoActivationCharsCache == null) {
             char[] defaultAutoActivationCharacters = defaultChars;
-            
-            useAutocompleteOnAllAsciiCharsCache = 
-                PyCodeCompletionPreferencesPage.useAutocompleteOnAllAsciiChars() &&
-                PyCodeCompletionPreferencesPage.useAutocomplete();
-            
-            char [] c2;
-            if(participantsLen == 0 && !useAutocompleteOnAllAsciiCharsCache){
+
+            useAutocompleteOnAllAsciiCharsCache = PyCodeCompletionPreferencesPage.useAutocompleteOnAllAsciiChars()
+                    && PyCodeCompletionPreferencesPage.useAutocomplete();
+
+            char[] c2;
+            if (participantsLen == 0 && !useAutocompleteOnAllAsciiCharsCache) {
                 c2 = defaultAutoActivationCharacters;
-            }else{
+            } else {
                 //just use the extension for the simple if we do have it
-                c2 = new char[ALL_ASCII_CHARS.length+defaultAutoActivationCharacters.length];
+                c2 = new char[ALL_ASCII_CHARS.length + defaultAutoActivationCharacters.length];
                 System.arraycopy(ALL_ASCII_CHARS, 0, c2, 0, ALL_ASCII_CHARS.length);
-                System.arraycopy(defaultAutoActivationCharacters, 0, c2, ALL_ASCII_CHARS.length, defaultAutoActivationCharacters.length);
+                System.arraycopy(defaultAutoActivationCharacters, 0, c2, ALL_ASCII_CHARS.length,
+                        defaultAutoActivationCharacters.length);
             }
             autoActivationCharsCache = c2;
         }
@@ -317,7 +317,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
      */
     public String getErrorMessage() {
         String ret = this.lastError;
-        if(ret == null && showDefault()){
+        if (ret == null && showDefault()) {
             ret = defaultPythonProcessor.getErrorMessage();
         }
         this.lastError = null;
@@ -328,7 +328,8 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
      * @return the validator we should use
      */
     public IContextInformationValidator getContextInformationValidator() {
-        final IContextInformationValidator defaultContextInformationValidator = defaultPythonProcessor.getContextInformationValidator();
+        final IContextInformationValidator defaultContextInformationValidator = defaultPythonProcessor
+                .getContextInformationValidator();
         return new ContextInformationDelegator(defaultContextInformationValidator);
     }
 

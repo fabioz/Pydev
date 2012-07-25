@@ -7,15 +7,11 @@ package org.python.core;
  * This is the default for all __dict__ instances.
  */
 
-public class PyStringMap extends PyObject
-{
+public class PyStringMap extends PyObject {
     //Table of primes to cycle through
-    private static final int[] primes = {
-        7, 13, 31, 61, 127, 251, 509, 1021, 2017, 4093,
-        5987, 9551, 15683, 19609, 31397,
-        65521, 131071, 262139, 524287, 1048573, 2097143,
-        4194301, 8388593, 16777213, 33554393, 67108859,
-        134217689, 268435399, 536870909, 1073741789,};
+    private static final int[] primes = { 7, 13, 31, 61, 127, 251, 509, 1021, 2017, 4093, 5987, 9551, 15683, 19609,
+            31397, 65521, 131071, 262139, 524287, 1048573, 2097143, 4194301, 8388593, 16777213, 33554393, 67108859,
+            134217689, 268435399, 536870909, 1073741789, };
 
     private transient String[] keys;
     private transient PyObject[] values;
@@ -25,16 +21,14 @@ public class PyStringMap extends PyObject
     private transient int popfinger;
 
     /* Override serialization behavior */
-    private void writeObject(java.io.ObjectOutputStream out)
-        throws java.io.IOException
-    {
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
         out.defaultWriteObject();
 
         String[] keyTable = keys;
         PyObject[] valueTable = values;
         int n = keyTable.length;
 
-        for (int i=0; i<n; i++) {
+        for (int i = 0; i < n; i++) {
             //String key = keyTable[i];
             PyObject value = valueTable[i];
             if (value == null)
@@ -44,9 +38,7 @@ public class PyStringMap extends PyObject
         }
     }
 
-    private void readObject(java.io.ObjectInputStream in)
-        throws java.io.IOException, ClassNotFoundException
-    {
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
         in.defaultReadObject();
 
         prime = 1;
@@ -56,11 +48,12 @@ public class PyStringMap extends PyObject
 
         resize(n);
 
-        for (int i=0; i<n; i++) {
+        for (int i = 0; i < n; i++) {
             String key = in.readUTF().intern();
-            insertkey(key, (PyObject)in.readObject());
+            insertkey(key, (PyObject) in.readObject());
         }
     }
+
     public PyStringMap(int capacity) {
         prime = 0;
         keys = null;
@@ -74,8 +67,8 @@ public class PyStringMap extends PyObject
 
     public PyStringMap(PyObject elements[]) {
         this(elements.length);
-        for (int i=0; i<elements.length; i+=2) {
-            __setitem__(elements[i], elements[i+1]);
+        for (int i = 0; i < elements.length; i += 2) {
+            __setitem__(elements[i], elements[i + 1]);
         }
     }
 
@@ -110,14 +103,14 @@ public class PyStringMap extends PyObject
                 return values[index];
 
             //collisions++;
-            index = (index+stepsize) % maxindex;
+            index = (index + stepsize) % maxindex;
         }
     }
 
     public PyObject __finditem__(PyObject key) {
         //System.err.println("oops: "+key);
         if (key instanceof PyString) {
-            return __finditem__(((PyString)key).internedString());
+            return __finditem__(((PyString) key).internedString());
         } else {
             return null;
         }
@@ -134,14 +127,14 @@ public class PyStringMap extends PyObject
 
         // Fairly aribtrary choice for stepsize...
         int stepsize = maxindex / 5;
- 
+
         int free_index = -1;
 
         // Cycle through possible positions for the key;
         while (true) {
             String tkey = table[index];
             if (tkey == null) {
-                if (free_index == -1 ) {
+                if (free_index == -1) {
                     filled++;
                     free_index = index;
                 }
@@ -152,22 +145,22 @@ public class PyStringMap extends PyObject
             } else if (tkey == "<deleted key>" && free_index == -1) {
                 free_index = index;
             }
-            index = (index+stepsize) % maxindex;
+            index = (index + stepsize) % maxindex;
         }
         table[free_index] = key;
         values[free_index] = value;
         size++;
-        return;        
+        return;
     }
 
     private synchronized final void resize(int capacity) {
         int p = prime;
-        for (; p<primes.length; p++) {
+        for (; p < primes.length; p++) {
             if (primes[p] >= capacity)
                 break;
         }
         if (primes[p] < capacity) {
-            throw Py.ValueError("can't make hashtable of size: "+capacity);
+            throw Py.ValueError("can't make hashtable of size: " + capacity);
         }
         //System.err.println("resize: "+(keys != null ? keys.length : -1)+
         //                   ", "+primes[p]);
@@ -185,7 +178,7 @@ public class PyStringMap extends PyObject
         if (oldValues != null) {
             int n = oldValues.length;
 
-            for (int i=0; i<n; i++) {
+            for (int i = 0; i < n; i++) {
                 PyObject value = oldValues[i];
                 if (value == null)
                     continue;
@@ -195,14 +188,14 @@ public class PyStringMap extends PyObject
     }
 
     public synchronized void __setitem__(String key, PyObject value) {
-        if (2*filled > keys.length)
-            resize(keys.length+1);
+        if (2 * filled > keys.length)
+            resize(keys.length + 1);
         insertkey(key, value);
     }
 
     public void __setitem__(PyObject key, PyObject value) {
         if (key instanceof PyString) {
-            __setitem__(((PyString)key).internedString(), value);
+            __setitem__(((PyString) key).internedString(), value);
         } else {
             throw Py.TypeError("keys in namespace must be strings");
         }
@@ -228,13 +221,13 @@ public class PyStringMap extends PyObject
                 size--;
                 break;
             }
-            index = (index+stepsize) % maxindex;
+            index = (index + stepsize) % maxindex;
         }
     }
 
     public void __delitem__(PyObject key) {
         if (key instanceof PyString) {
-            __delitem__(((PyString)key).internedString());
+            __delitem__(((PyString) key).internedString());
         } else {
             throw Py.KeyError(key.toString());
         }
@@ -244,13 +237,12 @@ public class PyStringMap extends PyObject
      * Remove all items from the dictionary.
      */
     public synchronized void clear() {
-        for (int i=0; i<keys.length; i++) {
+        for (int i = 0; i < keys.length; i++) {
             keys[i] = null;
             values[i] = null;
         }
         size = 0;
     }
-
 
     public synchronized String toString() {
         ThreadState ts = Py.getThreadState();
@@ -264,7 +256,7 @@ public class PyStringMap extends PyObject
 
         StringBuffer buf = new StringBuffer("{");
 
-        for (int i=0; i<n; i++) {
+        for (int i = 0; i < n; i++) {
             //String key = keyTable[i];
             PyObject value = valueTable[i];
             if (value == null)
@@ -279,35 +271,36 @@ public class PyStringMap extends PyObject
         // A hack to remove the final ", " from the string repr
         int len = buf.length();
         if (len > 4) {
-            buf.setLength(len-2);
+            buf.setLength(len - 2);
         }
 
         buf.append("}");
         ts.exitRepr(this);
         return buf.toString();
     }
-  
+
     public synchronized int __cmp__(PyObject other) {
-        if (!(other instanceof PyStringMap ||
-                  other instanceof PyDictionary)) {
+        if (!(other instanceof PyStringMap || other instanceof PyDictionary)) {
             return -2;
         }
         int an = __len__();
         int bn = other.__len__();
-        if (an < bn) return -1;
-        if (an > bn) return 1;
+        if (an < bn)
+            return -1;
+        if (an > bn)
+            return 1;
 
         PyList akeys = keys();
         PyList bkeys = null;
         if (other instanceof PyStringMap) {
-            bkeys = ((PyStringMap)other).keys();
+            bkeys = ((PyStringMap) other).keys();
         } else {
-            bkeys = ((PyDictionary)other).keys();
+            bkeys = ((PyDictionary) other).keys();
         }
         akeys.sort();
         bkeys.sort();
 
-        for (int i=0; i<bn; i++) {
+        for (int i = 0; i < bn; i++) {
             PyObject akey = akeys.pyget(i);
             PyObject bkey = bkeys.pyget(i);
             int c = akey._cmp(bkey);
@@ -382,10 +375,10 @@ public class PyStringMap extends PyObject
         PyObject[] valueTable = map.values;
         int n = keyTable.length;
 
-        if (2*filled+n > keys.length)
-            resize(2*filled+n);
+        if (2 * filled + n > keys.length)
+            resize(2 * filled + n);
 
-        for (int i=0; i<n; i++) {
+        for (int i = 0; i < n; i++) {
             String key = keyTable[i];
             if (key == null || key == "<deleted key>")
                 continue;
@@ -404,9 +397,8 @@ public class PyStringMap extends PyObject
         java.util.Enumeration ev = table.elements();
         int n = table.size();
 
-        for(int i=0; i<n; i++) {
-            __setitem__((PyObject)ek.nextElement(),
-                        (PyObject)ev.nextElement());
+        for (int i = 0; i < n; i++) {
+            __setitem__((PyObject) ek.nextElement(), (PyObject) ev.nextElement());
         }
     }
 
@@ -455,7 +447,7 @@ public class PyStringMap extends PyObject
                 break;
             index++;
             if (index >= maxindex)
-               index = 0;
+                index = 0;
         }
 
         popfinger = index + 1;
@@ -479,17 +471,14 @@ public class PyStringMap extends PyObject
         int n = keyTable.length;
 
         PyList l = new PyList();
-        for (int i=0; i<n; i++) {
+        for (int i = 0; i < n; i++) {
             String key = keyTable[i];
             if (key == null || key == "<deleted key>" || values[i] == null)
                 continue;
-            l.append(new PyTuple(new PyObject[] {
-                new PyString(key), valueTable[i]
-            }));
+            l.append(new PyTuple(new PyObject[] { new PyString(key), valueTable[i] }));
         }
         return l;
     }
-
 
     synchronized String[] jkeys() {
         String[] keyTable = keys;
@@ -497,9 +486,9 @@ public class PyStringMap extends PyObject
         int n = keyTable.length;
 
         String[] newKeys = new String[size];
-        int j=0;
+        int j = 0;
 
-        for (int i=0; i<n; i++) {
+        for (int i = 0; i < n; i++) {
             String key = keyTable[i];
             if (key == null || key == "<deleted key>")
                 continue;
@@ -507,7 +496,6 @@ public class PyStringMap extends PyObject
         }
         return newKeys;
     }
-
 
     /**
      * Return a copy of the mappings list of keys.
@@ -518,7 +506,7 @@ public class PyStringMap extends PyObject
         int n = keyTable.length;
 
         PyList l = new PyList();
-        for (int i=0; i<n; i++) {
+        for (int i = 0; i < n; i++) {
             String key = keyTable[i];
             if (key == null || key == "<deleted key>" || values[i] == null)
                 continue;
@@ -535,7 +523,7 @@ public class PyStringMap extends PyObject
         int n = valueTable.length;
 
         PyList l = new PyList();
-        for (int i=0; i<n; i++) {
+        for (int i = 0; i < n; i++) {
             PyObject value = valueTable[i];
             if (value == null)
                 continue;
@@ -543,20 +531,21 @@ public class PyStringMap extends PyObject
         }
         return l;
     }
+
     /**
      * return an iterator over (key, value) pairs
      */
     public synchronized PyObject iteritems() {
         return new PyStringMapIter(keys, values, PyStringMapIter.ITEMS);
     }
-    
+
     /**
      * return an iterator over the keys
      */
     public synchronized PyObject iterkeys() {
         return new PyStringMapIter(keys, values, PyStringMapIter.KEYS);
     }
-    
+
     /**
      * return an iterator over the values
      */
@@ -572,9 +561,9 @@ class PyStringMapIter extends PyIterator {
     private int idx;
     private int type;
 
-    public static final int KEYS    = 0;
-    public static final int VALUES  = 1;
-    public static final int ITEMS   = 2;
+    public static final int KEYS = 0;
+    public static final int VALUES = 1;
+    public static final int ITEMS = 2;
 
     public PyStringMapIter(String[] keys, PyObject[] values) {
         this(keys, values, KEYS);
@@ -584,7 +573,7 @@ class PyStringMapIter extends PyIterator {
         this.keyTable = keys;
         this.valTable = values;
         this.idx = 0;
-        this.type=type;
+        this.type = type;
     }
 
     public PyObject __iternext__() {
@@ -597,18 +586,15 @@ class PyStringMapIter extends PyIterator {
                 continue;
             idx++;
 
-            switch(type) {
+            switch (type) {
                 case VALUES:
                     return val;
                 case ITEMS:
-                    return new PyTuple(new PyObject[] { Py.newString(key),
-                        val });
-                default:    // KEYS
+                    return new PyTuple(new PyObject[] { Py.newString(key), val });
+                default: // KEYS
                     return Py.newString(key);
             }
         }
         return null;
     }
 }
-
-

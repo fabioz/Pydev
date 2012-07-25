@@ -29,38 +29,38 @@ import org.python.pydev.editor.hover.PyHoverPreferencesPage;
  * 
  * @author Fabio
  */
-public class PyDebugHover implements IPyHoverParticipant{
+public class PyDebugHover implements IPyHoverParticipant {
 
     /**
      * Gets the value from the debugger for the currently hovered string.
      */
     public String getHoverText(IRegion hoverRegion, PySourceViewer s, PySelection ps, ITextSelection selection) {
-        if(!PyHoverPreferencesPage.getShowValuesWhileDebuggingOnHover()){
+        if (!PyHoverPreferencesPage.getShowValuesWhileDebuggingOnHover()) {
             return null;
         }
-        
+
         IAdaptable object = DebugUITools.getDebugContext();
-        
+
         IDebugElement context = null;
         if (object instanceof IDebugElement) {
             context = (IDebugElement) object;
         } else if (object instanceof ILaunch) {
             context = ((ILaunch) object).getDebugTarget();
         }
-        
-        if(context != null){
+
+        if (context != null) {
             IDebugTarget debugTarget = context.getDebugTarget();
-            if(debugTarget == null || debugTarget.isTerminated()){
+            if (debugTarget == null || debugTarget.isTerminated()) {
                 return null;
             }
             String act = null;
             ITextSelection textSelection = (ITextSelection) selection;
             int mouseOffset = ps.getAbsoluteCursorOffset();
-            
+
             int offset = textSelection.getOffset();
             int len = textSelection.getLength();
             boolean reportSyntaxErrors = false;
-            if(len > 0 && mouseOffset >= offset && offset+len >= mouseOffset){
+            if (len > 0 && mouseOffset >= offset && offset + len >= mouseOffset) {
                 try {
                     act = ps.getDoc().get(offset, len);
                     reportSyntaxErrors = true; //the user has text selected
@@ -69,35 +69,34 @@ public class PyDebugHover implements IPyHoverParticipant{
                     Log.log(e);
                 }
             }
-            if(act == null || act.trim().length() == 0){
+            if (act == null || act.trim().length() == 0) {
                 String[] activationTokenAndQual = ps.getActivationTokenAndQual(true);
-                act = activationTokenAndQual[0]+activationTokenAndQual[1];
+                act = activationTokenAndQual[0] + activationTokenAndQual[1];
             }
-            
-            
+
             //OK, we're in a debug context...
             IWatchExpression watchExpression = EvalExpressionAction.createWatchExpression(act);
             watchExpression.evaluate();
             EvalExpressionAction.waitForExpressionEvaluation(watchExpression);
             IValue value = watchExpression.getValue();
-            if(value != null){
+            if (value != null) {
                 try {
                     String valueString = value.getValueString();
-                    if(valueString != null){
-                        if(!reportSyntaxErrors){
-                            if(valueString.startsWith("SyntaxError") && valueString.indexOf("<string>") != -1){
+                    if (valueString != null) {
+                        if (!reportSyntaxErrors) {
+                            if (valueString.startsWith("SyntaxError") && valueString.indexOf("<string>") != -1) {
                                 //Don't report syntax errors in the hover
                                 return null;
                             }
                         }
-                        return valueString+"\n";
+                        return valueString + "\n";
                     }
                 } catch (DebugException e) {
                     Log.log(e);
                 }
             }
         }
-        
+
         return null;
     }
 

@@ -17,34 +17,33 @@ import org.python.pydev.editor.codecompletion.revisited.modules.IModulesObserver
 public class AdditionalInfoModulesObserver implements IModulesObserver {
 
     public void notifyCompiledModuleCreated(CompiledModule module, IModulesManager manager) {
-//        IPythonNature nature = manager.getNature();
-//        AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
-//        if(info == null){
-//            return;
-//        }
-//        IToken[] globalTokens = module.getGlobalTokens();
-//        for (IToken token : globalTokens) {
-//            switch (token.getType()) {
-//            
-//            case PyCodeCompletion.TYPE_CLASS:
-//                
-//                break;
-//                
-//            case PyCodeCompletion.TYPE_FUNCTION:
-//                
-//                break;
-//                
-//            case PyCodeCompletion.TYPE_ATTR:
-//                
-//                break;
-//
-//            default:
-//                break;
-//            }
-//        }
-//        info.addSourceModuleInfo(m, nature, true);
+        //        IPythonNature nature = manager.getNature();
+        //        AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature.getProject());
+        //        if(info == null){
+        //            return;
+        //        }
+        //        IToken[] globalTokens = module.getGlobalTokens();
+        //        for (IToken token : globalTokens) {
+        //            switch (token.getType()) {
+        //            
+        //            case PyCodeCompletion.TYPE_CLASS:
+        //                
+        //                break;
+        //                
+        //            case PyCodeCompletion.TYPE_FUNCTION:
+        //                
+        //                break;
+        //                
+        //            case PyCodeCompletion.TYPE_ATTR:
+        //                
+        //                break;
+        //
+        //            default:
+        //                break;
+        //            }
+        //        }
+        //        info.addSourceModuleInfo(m, nature, true);
         throw new RuntimeException("Still needs to be better tought.");
-        
 
     }
 

@@ -36,13 +36,10 @@ public class PythonCompletionZipsTest extends CodeCompletionTestsBase {
     public void setUp() throws Exception {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = false;
-        
+
         //add the zip and the egg files here...
-        this.restorePythonPath(
-                TestDependent.GetCompletePythonLib(true)+"|"+
-                TestDependent.TEST_PYSRC_LOC+"myzipmodule.zip"+"|"+
-                TestDependent.TEST_PYSRC_LOC+"myeggmodule.egg", 
-                false);
+        this.restorePythonPath(TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.TEST_PYSRC_LOC
+                + "myzipmodule.zip" + "|" + TestDependent.TEST_PYSRC_LOC + "myeggmodule.egg", false);
         codeCompletion = new PyCodeCompletion();
         PyCodeCompletion.onCompletionRecursionException = new ICallback<Object, CompletionRecursionException>() {
 
@@ -62,23 +59,18 @@ public class PythonCompletionZipsTest extends CodeCompletionTestsBase {
         PyCodeCompletion.onCompletionRecursionException = null;
     }
 
-    
+    public void testZip() throws Exception {
+        String s = "import myzipmodule\n" +
+                "myzipmodule.";
 
-    public void testZip() throws Exception{
-        String s = 
-            "import myzipmodule\n" +
-            "myzipmodule.";
-        
-        requestCompl(s, s.length(), -1, new String[]{"MyZipClass"});
+        requestCompl(s, s.length(), -1, new String[] { "MyZipClass" });
     }
-    
-    
-    public void testEgg() throws Exception{
-        String s = 
-            "import myeggmodule\n" +
-            "myeggmodule.";
-        
-        requestCompl(s, s.length(), -1, new String[]{"MyEggClass"});
+
+    public void testEgg() throws Exception {
+        String s = "import myeggmodule\n" +
+                "myeggmodule.";
+
+        requestCompl(s, s.length(), -1, new String[] { "MyEggClass" });
     }
 
 }

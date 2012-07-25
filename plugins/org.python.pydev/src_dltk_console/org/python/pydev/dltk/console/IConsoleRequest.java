@@ -10,7 +10,7 @@
 package org.python.pydev.dltk.console;
 
 public interface IConsoleRequest {
-    
+
     void setConsoleCommunication(IScriptConsoleCommunication protocol);
-    
+
 }

@@ -31,15 +31,15 @@ public class InterpreterManagerTest extends TestCase {
     private File baseDir;
     private File stateLocation;
     private File additionalPythonpathEntry;
-    
+
     public static void main(String[] args) {
 
         try {
             // DEBUG_TESTS_BASE = true;
             InterpreterManagerTest test2 = new InterpreterManagerTest();
-//            test2.setUp();
-//            test2.testCompletion();
-//            test2.tearDown();
+            //            test2.setUp();
+            //            test2.testCompletion();
+            //            test2.tearDown();
 
             System.out.println("Finished");
 
@@ -48,7 +48,6 @@ public class InterpreterManagerTest extends TestCase {
             e.printStackTrace();
         }
     }
-
 
     @Override
     protected void setUp() throws Exception {
@@ -62,7 +61,7 @@ public class InterpreterManagerTest extends TestCase {
         stateLocation.mkdir();
         additionalPythonpathEntry = new File(baseDir, "additional_pythonpath_entry");
         additionalPythonpathEntry.mkdir();
-        
+
     }
 
     @Override

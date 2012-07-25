@@ -9,25 +9,21 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
-
-
-public final class ClassInfo extends AbstractInfo{
+public final class ClassInfo extends AbstractInfo {
 
     /**
      * Changed for 2.1
      */
     private static final long serialVersionUID = 3L;
 
-
     public ClassInfo(String className, String moduleDeclared, String path) {
         super(className, moduleDeclared, path);
     }
-    
+
     public ClassInfo(String className, String moduleDeclared, String path, boolean doNotInternOnThisContstruct) {
         super(className, moduleDeclared, path, doNotInternOnThisContstruct);
     }
 
-    
     public int getType() {
         return CLASS_WITH_IMPORT_TYPE;
     }

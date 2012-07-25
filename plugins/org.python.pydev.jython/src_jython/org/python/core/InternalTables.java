@@ -57,13 +57,10 @@ public abstract class InternalTables {
     static InternalTables createInternalTables() {
         java.util.Properties registry = PySystemState.registry;
         if (registry == null) {
-            throw new java.lang.IllegalStateException(
-                    "Jython interpreter state not initialized. "
-                            + "You need to call PySystemState.initialize or "
-                            + "PythonInterpreter.initialize.");
+            throw new java.lang.IllegalStateException("Jython interpreter state not initialized. "
+                    + "You need to call PySystemState.initialize or " + "PythonInterpreter.initialize.");
         }
-        String cands = registry
-                .getProperty("python.options.internalTablesImpl");
+        String cands = registry.getProperty("python.options.internalTablesImpl");
         if (cands == null) {
             String version = System.getProperty("java.version");
             if (version.compareTo("1.2") >= 0) {

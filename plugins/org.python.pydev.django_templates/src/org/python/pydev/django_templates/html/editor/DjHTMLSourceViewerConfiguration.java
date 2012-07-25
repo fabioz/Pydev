@@ -43,19 +43,23 @@ public class DjHTMLSourceViewerConfiguration extends CompositeSourceViewerConfig
         IContentTypeTranslator c = CommonEditorPlugin.getDefault().getContentTypeTranslator();
         c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML), new QualifiedContentType(
                 TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE));
-        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML, CompositePartitionScanner.START_SWITCH_TAG),
-                new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE, EMBEDDED_DJANGO_TEMPLATES_TAG_SCOPE));
-        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML, CompositePartitionScanner.END_SWITCH_TAG),
-                new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE, EMBEDDED_DJANGO_TEMPLATES_TAG_SCOPE));
+        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML,
+                CompositePartitionScanner.START_SWITCH_TAG), new QualifiedContentType(
+                TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE, EMBEDDED_DJANGO_TEMPLATES_TAG_SCOPE));
+        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML,
+                CompositePartitionScanner.END_SWITCH_TAG), new QualifiedContentType(
+                TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE, EMBEDDED_DJANGO_TEMPLATES_TAG_SCOPE));
 
-        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML, IHTMLConstants.CONTENT_TYPE_HTML),
-                new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE));
-        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML, ICSSConstants.CONTENT_TYPE_CSS),
+        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML,
+                IHTMLConstants.CONTENT_TYPE_HTML), new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE));
+        c.addTranslation(
+                new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML, ICSSConstants.CONTENT_TYPE_CSS),
                 new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE, EMBEDDED_CSS_SCOPE));
         c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML, IJSConstants.CONTENT_TYPE_JS),
                 new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE, EMBEDDED_JS_SCOPE));
-        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML, IDjConstants.CONTENT_TYPE_DJANGO_HTML),
-                new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE, EMBEDDED_DJANGO_TEMPLATES_HTML_SCOPE));
+        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML,
+                IDjConstants.CONTENT_TYPE_DJANGO_HTML), new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE,
+                EMBEDDED_DJANGO_TEMPLATES_HTML_SCOPE));
     }
 
     private Map<String, DjDoubleClickStrategy> fDoubleClickStrategy = new HashMap<String, DjDoubleClickStrategy>();
@@ -103,16 +107,17 @@ public class DjHTMLSourceViewerConfiguration extends CompositeSourceViewerConfig
 
     @Override
     protected IContentAssistProcessor getContentAssistProcessor(ISourceViewer sourceViewer, String contentType) {
-        if(DjHtmlSourceConfiguration.DEFAULT.equals(contentType)){
+        if (DjHtmlSourceConfiguration.DEFAULT.equals(contentType)) {
             return DjHtmlSourceConfiguration.getDefault().getContentAssistProcessor(getEditor(), contentType);
         }
-        IContentAssistProcessor htmlContentAssistProcessor = HTMLSourceConfiguration.getDefault().getContentAssistProcessor(getEditor(), contentType);
-        if(HTMLSourceConfiguration.DEFAULT.equals(contentType) || IDocument.DEFAULT_CONTENT_TYPE.equals(contentType)){
+        IContentAssistProcessor htmlContentAssistProcessor = HTMLSourceConfiguration.getDefault()
+                .getContentAssistProcessor(getEditor(), contentType);
+        if (HTMLSourceConfiguration.DEFAULT.equals(contentType) || IDocument.DEFAULT_CONTENT_TYPE.equals(contentType)) {
             return new DjContentAssistProcessor(contentType, htmlContentAssistProcessor);
         }
         return htmlContentAssistProcessor;
     }
-    
+
     /*
      * (non-Javadoc)
      * @see com.aptana.editor.common.CommonSourceViewerConfiguration#getAutoEditStrategies(org.eclipse.jface.text.source.ISourceViewer, java.lang.String)
@@ -120,6 +125,7 @@ public class DjHTMLSourceViewerConfiguration extends CompositeSourceViewerConfig
     @Override
     public IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType) {
         //Same as: HTMLSourceViewerConfiguration.getAutoEditStrategies
-        return new IAutoEditStrategy[] { new RubyRegexpAutoIndentStrategy(contentType, this, sourceViewer, HTMLPlugin.getDefault().getPreferenceStore()) };
+        return new IAutoEditStrategy[] { new RubyRegexpAutoIndentStrategy(contentType, this, sourceViewer, HTMLPlugin
+                .getDefault().getPreferenceStore()) };
     }
 }

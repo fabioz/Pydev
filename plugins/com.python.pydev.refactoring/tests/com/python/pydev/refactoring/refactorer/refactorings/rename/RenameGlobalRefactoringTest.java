@@ -28,12 +28,10 @@ public class RenameGlobalRefactoringTest extends RefactoringRenameTestBase {
         }
     }
 
-    
     protected Class getProcessUnderTest() {
         return PyRenameGlobalProcess.class;
     }
 
-    
     public void testRename1() throws Exception {
         Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renameglobal.renglobal", 0, 8);
         assertTrue(references.containsKey(CURRENT_MODULE_IN_REFERENCES)); //the current module must also be there
@@ -47,8 +45,5 @@ public class RenameGlobalRefactoringTest extends RefactoringRenameTestBase {
         assertContains(3, 1, references.get(CURRENT_MODULE_IN_REFERENCES));
         assertContains(6, 1, references.get("reflib.renameglobal2.bar1"));
     }
-    
-    
-    
 
 }

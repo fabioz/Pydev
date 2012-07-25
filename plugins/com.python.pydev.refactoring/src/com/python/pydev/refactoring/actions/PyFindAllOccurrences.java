@@ -18,17 +18,16 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import com.python.pydev.refactoring.IPyRefactoring2;
 import com.python.pydev.refactoring.search.FindOccurrencesSearchQuery;
 
-public class PyFindAllOccurrences extends PyRefactorAction{
-    
+public class PyFindAllOccurrences extends PyRefactorAction {
+
     public static final boolean DEBUG_FIND_REFERENCES = false;
-    
 
     @Override
     protected String perform(IAction action, IProgressMonitor monitor) throws Exception {
         IPyRefactoring2 r = (IPyRefactoring2) AbstractPyRefactoring.getPyRefactoring();
         RefactoringRequest req = getRefactoringRequest(new NullProgressMonitor()); //as we're doing it in the background
         req.fillInitialNameAndOffset();
-        if(req.initialName != null && req.initialName.trim().length() > 0){
+        if (req.initialName != null && req.initialName.trim().length() > 0) {
             NewSearchUI.runQueryInBackground(newQuery(r, req));
         }
         return null;

@@ -18,78 +18,80 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.wizards.project.NewProjectNameAndLocationWizardPage;
 
 public class DjangoNewProjectPage extends NewProjectNameAndLocationWizardPage {
-	/**
-	 * Creates a new project creation wizard page.
-	 * 
-	 * @param pageName
-	 *            the name of this page
-	 */
-	public DjangoNewProjectPage(String pageName) {
-		super(pageName);
-		setTitle("PyDev Django Project");
-		setDescription("Create a new Pydev Django Project.");
-	}
+    /**
+     * Creates a new project creation wizard page.
+     * 
+     * @param pageName
+     *            the name of this page
+     */
+    public DjangoNewProjectPage(String pageName) {
+        super(pageName);
+        setTitle("PyDev Django Project");
+        setDescription("Create a new Pydev Django Project.");
+    }
 
-	/*
-	 * (non-Javadoc) Method declared on IDialogPage.
-	 */
-	public void createControl(Composite parent) {
-		super.createControl(parent);
-	}
-	
-	@Override
-	public IWizardPage getNextPage() {
-	    String projectType = this.getProjectType();
-	    
-	    IInterpreterManager interpreterManager;
-        if(IPythonNature.Versions.ALL_JYTHON_VERSIONS.contains(projectType)){
+    /*
+     * (non-Javadoc) Method declared on IDialogPage.
+     */
+    public void createControl(Composite parent) {
+        super.createControl(parent);
+    }
+
+    @Override
+    public IWizardPage getNextPage() {
+        String projectType = this.getProjectType();
+
+        IInterpreterManager interpreterManager;
+        if (IPythonNature.Versions.ALL_JYTHON_VERSIONS.contains(projectType)) {
             interpreterManager = PydevPlugin.getJythonInterpreterManager();
-            
-        }else if(IPythonNature.Versions.ALL_IRONPYTHON_VERSIONS.contains(projectType)){
+
+        } else if (IPythonNature.Versions.ALL_IRONPYTHON_VERSIONS.contains(projectType)) {
             interpreterManager = PydevPlugin.getIronpythonInterpreterManager();
-            
-        }else{
+
+        } else {
             //if others fail, consider it python
             interpreterManager = PydevPlugin.getPythonInterpreterManager();
         }
-        
+
         try {
             String projectInterpreter = this.getProjectInterpreter();
             IInterpreterInfo interpreterInfo;
-            if(projectInterpreter.toLowerCase().equals("default")){
+            if (projectInterpreter.toLowerCase().equals("default")) {
                 interpreterInfo = interpreterManager.getDefaultInterpreterInfo(false);
-            }else{
+            } else {
                 interpreterInfo = interpreterManager.getInterpreterInfo(projectInterpreter, new NullProgressMonitor());
             }
-            IModule module = interpreterInfo.getModulesManager().getModuleWithoutBuiltins("django.core.__init__", null, false);
-            if(module == null){
-                DjangoNotAvailableWizardPage page = new DjangoNotAvailableWizardPage("Django not available", interpreterInfo);
+            IModule module = interpreterInfo.getModulesManager().getModuleWithoutBuiltins("django.core.__init__", null,
+                    false);
+            if (module == null) {
+                DjangoNotAvailableWizardPage page = new DjangoNotAvailableWizardPage("Django not available",
+                        interpreterInfo);
                 page.setWizard(this.getWizard());
                 return page;
             }
         } catch (MisconfigurationException e) {
-            ErrorWizardPage page = new ErrorWizardPage("Unexpected error.", "An unexpected error happened:\n"+e.getMessage());
+            ErrorWizardPage page = new ErrorWizardPage("Unexpected error.", "An unexpected error happened:\n"
+                    + e.getMessage());
             page.setWizard(this.getWizard());
             return page;
         }
-        
 
-	    return super.getNextPage();
-	}
-	
-	@Override
-	protected boolean validatePage() {
-	    boolean validated = super.validatePage();
-	    if(!validated){
-	        return false; //some error found in the base class
-	    }
-	    
-	    String projectName = getProjectName();
+        return super.getNextPage();
+    }
+
+    @Override
+    protected boolean validatePage() {
+        boolean validated = super.validatePage();
+        if (!validated) {
+            return false; //some error found in the base class
+        }
+
+        String projectName = getProjectName();
         if (projectName.trim().toLowerCase().equals("django")) { //$NON-NLS-1$
             setErrorMessage("When creating a Django project it cannot be named Django because of conflicts with the default Django install.");
             return false;
         }
-	    return true;
-	}
-	
+        return true;
+    }
+
 }

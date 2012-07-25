@@ -43,14 +43,13 @@ import org.python.pydev.core.tooltips.presenter.InformationPresenterHelpers.PyIn
  * 
  * To be used on controls to show tooltips that 'stick' and the user can interact with.
  */
-public final class InformationPresenterControlManager extends AbstractInformationControlManager implements IWidgetTokenKeeper,
-        IWidgetTokenKeeperExtension, IInformationPresenterControlManager {
+public final class InformationPresenterControlManager extends AbstractInformationControlManager implements
+        IWidgetTokenKeeper, IWidgetTokenKeeperExtension, IInformationPresenterControlManager {
 
     /**
      * The string that should be shown below the tooltip (if not given, a default is provided).
      */
     private final String tooltipAffordanceString;
-
 
     /**
      * @param tooltipAffordanceString if null, a default is given.
@@ -64,9 +63,9 @@ public final class InformationPresenterControlManager extends AbstractInformatio
         }
         setCloser(new Closer());
         takesFocusWhenVisible(true);
-        ((InformationPresenterHelpers.TooltipInformationControlCreator) this.fInformationControlCreator).setInformationPresenterControlManager(this);
+        ((InformationPresenterHelpers.TooltipInformationControlCreator) this.fInformationControlCreator)
+                .setInformationPresenterControlManager(this);
     }
-
 
     /**
      * Priority of the info controls managed by this information presenter.
@@ -78,8 +77,8 @@ public final class InformationPresenterControlManager extends AbstractInformatio
      * Internal information control closer. Listens to several events issued by its subject control
      * and closes the information control when necessary.
      */
-    class Closer implements IInformationControlCloser, ControlListener, MouseListener, FocusListener, KeyListener, MouseMoveListener,
-            Listener {
+    class Closer implements IInformationControlCloser, ControlListener, MouseListener, FocusListener, KeyListener,
+            MouseMoveListener, Listener {
 
         /** The subject control. */
         private Control fSubjectControl;
@@ -135,7 +134,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
                     fDisplay.addFilter(SWT.MouseMove, this);
                     fDisplay.addFilter(SWT.MouseEnter, this);
                     fDisplay.addFilter(SWT.MouseExit, this);
-                    
+
                     fDisplay.addFilter(SWT.KeyDown, this);
                 }
             }
@@ -234,7 +233,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
             d.asyncExec(new Runnable() {
                 // Without the asyncExec, mouse clicks to the workbench window are swallowed.
                 public void run() {
-                    if (fInformationControlToClose == null || !fInformationControlToClose.isFocusControl()){
+                    if (fInformationControlToClose == null || !fInformationControlToClose.isFocusControl()) {
                         hideInformationControl();
                     }
                 }
@@ -264,32 +263,33 @@ public final class InformationPresenterControlManager extends AbstractInformatio
 
         public void handleEvent(Event event) {
             switch (event.type) {
-            case SWT.Activate:
-            case SWT.MouseVerticalWheel:
-            case SWT.MouseUp:
-            case SWT.MouseDown:
-            case SWT.FocusOut:
-                IInformationControl iControl = fInformationControl;
-                if (iControl != null && !iControl.isFocusControl()) {
-                    hideInformationControl();
-                }
-                break;
+                case SWT.Activate:
+                case SWT.MouseVerticalWheel:
+                case SWT.MouseUp:
+                case SWT.MouseDown:
+                case SWT.FocusOut:
+                    IInformationControl iControl = fInformationControl;
+                    if (iControl != null && !iControl.isFocusControl()) {
+                        hideInformationControl();
+                    }
+                    break;
 
-            case SWT.MouseMove:
-            case SWT.MouseEnter:
-            case SWT.MouseExit:
-                handleMouseMove(event);
-                break;
-                
-            case SWT.KeyDown:
-                if(event.keyCode == SWT.ESC){
-                    hideInformationControl();
-                    
-                }else if(fActivateEditorBinding != null && KeyBindingHelper.matchesKeybinding(
-                        event.keyCode, event.stateMask, fActivateEditorBinding)){
-                    hideInformationControl(true, true);
-                }
-                break;
+                case SWT.MouseMove:
+                case SWT.MouseEnter:
+                case SWT.MouseExit:
+                    handleMouseMove(event);
+                    break;
+
+                case SWT.KeyDown:
+                    if (event.keyCode == SWT.ESC) {
+                        hideInformationControl();
+
+                    } else if (fActivateEditorBinding != null
+                            && KeyBindingHelper.matchesKeybinding(event.keyCode, event.stateMask,
+                                    fActivateEditorBinding)) {
+                        hideInformationControl(true, true);
+                    }
+                    break;
             }
         }
 
@@ -332,7 +332,6 @@ public final class InformationPresenterControlManager extends AbstractInformatio
     private Shell fInitiallyActiveShell;
     private Control fFocusControl;
     private boolean onHide;
-
 
     public void setInformationProvider(ITooltipInformationProvider provider) {
         this.fProvider = provider;
@@ -389,13 +388,13 @@ public final class InformationPresenterControlManager extends AbstractInformatio
     public void hideInformationControl() {
         hideInformationControl(false, true);
     }
-    
+
     /*
      * @see AbstractInformationControlManager#hideInformationControl()
      */
     public void hideInformationControl(boolean activateEditor, boolean restoreFocus) {
         //When hiding it may call hide again (because as it gets hidden our handlers are still connected).
-        if(this.onHide){
+        if (this.onHide) {
             return;
         }
         this.onHide = true;
@@ -409,23 +408,23 @@ public final class InformationPresenterControlManager extends AbstractInformatio
                 }
             }
             this.disposeInformationControl();
-            
+
             //Restore previous active shell?
-            if(this.fInitiallyActiveShell != null && !this.fInitiallyActiveShell.isDisposed()){
-                if(restoreFocus){
+            if (this.fInitiallyActiveShell != null && !this.fInitiallyActiveShell.isDisposed()) {
+                if (restoreFocus) {
                     this.fInitiallyActiveShell.setActive();
                 }
                 this.fInitiallyActiveShell = null;
             }
-            
-            if(this.fFocusControl != null && !this.fFocusControl.isDisposed()){
-                if(restoreFocus){
+
+            if (this.fFocusControl != null && !this.fFocusControl.isDisposed()) {
+                if (restoreFocus) {
                     this.fFocusControl.setFocus();
                 }
                 this.fFocusControl = null;
             }
 
-            if(activateEditor){
+            if (activateEditor) {
                 KeyBindingHelper.executeCommand("org.eclipse.ui.window.activateEditor");
             }
         } finally {
@@ -484,20 +483,20 @@ public final class InformationPresenterControlManager extends AbstractInformatio
     public void setInitiallyActiveShell(Shell activeShell) {
         this.fInitiallyActiveShell = activeShell;
         this.fFocusControl = null;
-        if(activeShell != null){
+        if (activeShell != null) {
             Display display = activeShell.getDisplay();
-            if(display != null){
+            if (display != null) {
                 this.fFocusControl = display.getFocusControl();
             }
         }
     }
 
     public String getTooltipAffordanceString() {
-        if(tooltipAffordanceString != null){
+        if (tooltipAffordanceString != null) {
             return tooltipAffordanceString;
         }
         String defaultStr = "ESC to close, ENTER activate link.";
-        if(this.fActivateEditorBinding != null){
+        if (this.fActivateEditorBinding != null) {
             return StringUtils.format("%s to activate editor, %s", fActivateEditorBinding.toString(), defaultStr);
         }
         return defaultStr;

@@ -23,74 +23,74 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 
-public abstract class AbstractPyCompletionProposalExtension2 extends PyCompletionProposal implements ICompletionProposalExtension2, ICompletionProposalExtension {
-    
+public abstract class AbstractPyCompletionProposalExtension2 extends PyCompletionProposal implements
+        ICompletionProposalExtension2, ICompletionProposalExtension {
 
     private PyCompletionPresentationUpdater presentationUpdater;
-    
+
     /**
      * Only available when Ctrl is pressed when selecting the completion.
      */
     public int fLen;
-    
+
     public boolean fLastIsPar;
-    
-    public AbstractPyCompletionProposalExtension2(
-            String replacementString, int replacementOffset, int replacementLength, int cursorPosition, int priority) {
+
+    public AbstractPyCompletionProposalExtension2(String replacementString, int replacementOffset,
+            int replacementLength, int cursorPosition, int priority) {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, null, null, null, null, priority);
     }
 
-    public AbstractPyCompletionProposalExtension2(String replacementString, int replacementOffset, int replacementLength,
-            int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
-            String additionalProposalInfo, int priority, int onApplyAction, String args) {
-        
+    public AbstractPyCompletionProposalExtension2(String replacementString, int replacementOffset,
+            int replacementLength, int cursorPosition, Image image, String displayString,
+            IContextInformation contextInformation, String additionalProposalInfo, int priority, int onApplyAction,
+            String args) {
+
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
                 contextInformation, additionalProposalInfo, priority, onApplyAction, args);
     }
-
 
     /**
      * Called when Ctrl is selected during the completions
      * @see org.eclipse.jface.text.contentassist.ICompletionProposalExtension2#selected(org.eclipse.jface.text.ITextViewer, boolean)
      */
     public void selected(ITextViewer viewer, boolean smartToggle) {
-        if(smartToggle){
-            StyledText text= viewer.getTextWidget();
+        if (smartToggle) {
+            StyledText text = viewer.getTextWidget();
             if (text == null || text.isDisposed())
                 return;
 
-            int widgetCaret= text.getCaretOffset();
+            int widgetCaret = text.getCaretOffset();
             IDocument document = viewer.getDocument();
             int finalOffset = widgetCaret;
-            
+
             try {
-                if(finalOffset >= document.getLength()){
+                if (finalOffset >= document.getLength()) {
                     unselected(viewer);
                     return;
                 }
                 char c;
-                do{
+                do {
                     c = document.getChar(finalOffset);
                     finalOffset++;
-                }while(isValidChar(c) && finalOffset < document.getLength());
-                
-                if(c == '('){
+                } while (isValidChar(c) && finalOffset < document.getLength());
+
+                if (c == '(') {
                     fLastIsPar = true;
-                }else{
+                } else {
                     fLastIsPar = false;
                 }
-                
-                if(!isValidChar(c)){
+
+                if (!isValidChar(c)) {
                     finalOffset--;
                 }
-                
-                this.fLen = finalOffset-widgetCaret;
+
+                this.fLen = finalOffset - widgetCaret;
                 this.getPresentationUpdater().updateStyle(viewer, widgetCaret, this.fLen);
             } catch (BadLocationException e) {
                 Log.log(e);
             }
-            
-        }else{
+
+        } else {
             unselected(viewer);
         }
     }
@@ -108,30 +108,28 @@ public abstract class AbstractPyCompletionProposalExtension2 extends PyCompletio
     }
 
     public boolean validate(IDocument document, int offset, DocumentEvent event) {
-        String[] strs = PySelection.getActivationTokenAndQual(document, offset, false); 
+        String[] strs = PySelection.getActivationTokenAndQual(document, offset, false);
         //System.out.println("validating:"+strs[0]+" - "+strs[1]);
         String qualifier = strs[1].toLowerCase();
         //when we end with a '.', we should start a new completion (and not stay in the old one).
-        if(strs[1].length() == 0 && (strs[0].length() == 0 || strs[0].endsWith("."))){
+        if (strs[1].length() == 0 && (strs[0].length() == 0 || strs[0].endsWith("."))) {
             //System.out.println(false);
             return false;
         }
         String displayString = getDisplayString().toLowerCase();
-        if(displayString.startsWith(qualifier)){
+        if (displayString.startsWith(qualifier)) {
             //System.out.println(true);
             return true;
         }
-        
+
         //System.out.println(false);
         return false;
     }
 
-    
-    
-  //-------------------- ICompletionProposalExtension
-    
+    //-------------------- ICompletionProposalExtension
+
     //Note that '.' is always there!!
-    protected final static char[] VAR_TRIGGER= new char[] { '.' };
+    protected final static char[] VAR_TRIGGER = new char[] { '.' };
 
     /**
      * We want to apply it on \n or on '.'
@@ -143,15 +141,15 @@ public abstract class AbstractPyCompletionProposalExtension2 extends PyCompletio
      */
     public char[] getTriggerCharacters() {
         char[] chars = VAR_TRIGGER;
-        if(PyCodeCompletionPreferencesPage.applyCompletionOnLParen()){
+        if (PyCodeCompletionPreferencesPage.applyCompletionOnLParen()) {
             chars = StringUtils.addChar(chars, '(');
         }
-        if(PyCodeCompletionPreferencesPage.applyCompletionOnRParen()){
+        if (PyCodeCompletionPreferencesPage.applyCompletionOnRParen()) {
             chars = StringUtils.addChar(chars, ')');
         }
         return chars;
     }
-    
+
     public void apply(IDocument document, char trigger, int offset) {
         throw new RuntimeException("Not implemented");
     }
@@ -163,8 +161,7 @@ public abstract class AbstractPyCompletionProposalExtension2 extends PyCompletio
     public boolean isValidFor(IDocument document, int offset) {
         return validate(document, offset, null);
     }
-    
-    
+
     /**
      * Checks if the trigger character should actually a
      * @param trigger
@@ -172,8 +169,8 @@ public abstract class AbstractPyCompletionProposalExtension2 extends PyCompletio
      * @param offset
      * @return
      */
-    protected boolean triggerCharAppliesCurrentCompletion(char trigger, IDocument doc, int offset){
-        if(trigger == '.' && !PyCodeCompletionPreferencesPage.applyCompletionOnDot()){
+    protected boolean triggerCharAppliesCurrentCompletion(char trigger, IDocument doc, int offset) {
+        if (trigger == '.' && !PyCodeCompletionPreferencesPage.applyCompletionOnDot()) {
             //do not apply completion when it's triggered by '.', because that's usually not what's wanted
             //e.g.: if the user writes sys and the current completion is SystemError, pressing '.' will apply
             //the completion, but what the user usually wants is just having sys.xxx and not SystemError.xxx
@@ -184,13 +181,12 @@ public abstract class AbstractPyCompletionProposalExtension2 extends PyCompletio
             }
             return false;
         }
-        
+
         return true;
     }
 
-
     protected PyCompletionPresentationUpdater getPresentationUpdater() {
-        if(presentationUpdater == null){
+        if (presentationUpdater == null) {
             presentationUpdater = new PyCompletionPresentationUpdater();
         }
         return presentationUpdater;

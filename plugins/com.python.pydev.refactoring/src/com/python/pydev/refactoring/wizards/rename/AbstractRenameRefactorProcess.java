@@ -50,46 +50,46 @@ import com.python.pydev.refactoring.wizards.IRefactorRenameProcess;
  * 
  * @author Fabio
  */
-public abstract class AbstractRenameRefactorProcess implements IRefactorRenameProcess{
+public abstract class AbstractRenameRefactorProcess implements IRefactorRenameProcess {
 
     /**
      * The request for the refactor
      */
     protected RefactoringRequest request;
-    
+
     /**
      * For a rename, we always need a definition
      */
     protected Definition definition;
-    
+
     /**
      * This is the list that contains only the occurrences for the current document,
      * passed by the request.
      */
     protected HashSet<ASTEntry> docOccurrences = new HashSet<ASTEntry>();
-    
+
     /**
      * This map contains:
      * key: tuple with module name and the IFile representing that module
      * value: list of ast entries to be replaced in a given file
      */
-    protected Map<Tuple<String, File>, HashSet<ASTEntry>> fileOccurrences = new HashMap<Tuple<String,File>, HashSet<ASTEntry>>();
+    protected Map<Tuple<String, File>, HashSet<ASTEntry>> fileOccurrences = new HashMap<Tuple<String, File>, HashSet<ASTEntry>>();
 
     /**
      * May be used by subclasses
      */
-    public AbstractRenameRefactorProcess(){
-        
+    public AbstractRenameRefactorProcess() {
+
     }
-    
+
     /**
      * @param definition the definition on where this rename should be applied (we will find the references based 
      * on this definition).
      */
-    public AbstractRenameRefactorProcess(Definition definition){
+    public AbstractRenameRefactorProcess(Definition definition) {
         this.definition = definition;
     }
-    
+
     /**
      * Adds the occurences to be renamed given the request. If the rename is a local rename, and there is no need
      * of handling multiple files, this should be the preferred way of adding the occurrences.
@@ -111,9 +111,9 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
     protected void addOccurrences(List<ASTEntry> oc, File file, String modName) {
         Tuple<String, File> key = new Tuple<String, File>(modName, file);
         Set<ASTEntry> existent = fileOccurrences.get(key);
-        if(existent == null){
+        if (existent == null) {
             fileOccurrences.put(key, new HashSet<ASTEntry>(oc));
-        }else{
+        } else {
             existent.addAll(oc);
         }
     }
@@ -122,24 +122,24 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
         int beginLine;
         int beginCol;
         SimpleNode node = entry.node;
-        if(node instanceof ClassDef){
+        if (node instanceof ClassDef) {
             ClassDef def = (ClassDef) node;
             node = def.name;
         }
-        if(node instanceof FunctionDef){
+        if (node instanceof FunctionDef) {
             FunctionDef def = (FunctionDef) node;
             node = def.name;
         }
-        if(node instanceof Attribute){
-            exprType value = ((Attribute)node).value;
-            if(value instanceof Call){
+        if (node instanceof Attribute) {
+            exprType value = ((Attribute) node).value;
+            if (value instanceof Call) {
                 Call c = (Call) value;
                 node = c.func;
             }
         }
         beginLine = node.beginLine;
         beginCol = node.beginColumn;
-        int offset = PySelection.getAbsoluteCursorOffset(doc, beginLine-1, beginCol-1);
+        int offset = PySelection.getAbsoluteCursorOffset(doc, beginLine - 1, beginCol - 1);
         return offset;
     }
 
@@ -149,46 +149,47 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
     public static List<ASTEntry> sortOccurrences(List<ASTEntry> occurrences) {
         occurrences = new ArrayList<ASTEntry>(occurrences);
 
-        Collections.sort(occurrences, new Comparator<ASTEntry>(){
+        Collections.sort(occurrences, new Comparator<ASTEntry>() {
 
             public int compare(ASTEntry o1, ASTEntry o2) {
-                int o1Found = (Integer) o1.getAdditionalInfo(AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_LOCATION, 0);  
-                int o2Found = (Integer) o2.getAdditionalInfo(AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_LOCATION, 0);  
-                if(o1Found == o2Found){
+                int o1Found = (Integer) o1
+                        .getAdditionalInfo(AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_LOCATION, 0);
+                int o2Found = (Integer) o2
+                        .getAdditionalInfo(AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_LOCATION, 0);
+                if (o1Found == o2Found) {
                     return 0;
                 }
-                if(o1Found < o2Found){
+                if (o1Found < o2Found) {
                     return -1;
-                }else{
+                } else {
                     return 1;
                 }
-            }});
+            }
+        });
         return occurrences;
     }
 
-
-    
     /**
      * This function is used to redirect where the initial should should target
      * (in the local or workspace scope).
      */
     public void findReferencesToRename(RefactoringRequest request, RefactoringStatus status) {
         this.request = request;
-        
-        if((Boolean)request.getAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false)){
+
+        if ((Boolean) request.getAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE,
+                false)) {
             findReferencesToRenameOnLocalScope(request, status);
-            
-        }else{
+
+        } else {
             findReferencesToRenameOnWorkspace(request, status);
         }
 
-        if(!occurrencesValid(status)){
+        if (!occurrencesValid(status)) {
             return;
         }
-        
+
     }
 
-    
     /**
      * This function should be overridden to find the occurrences in the local scope
      * (and check if they are correct).
@@ -197,7 +198,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * @param request the request used for this check
      */
     protected abstract void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status);
-    
+
     /**
      * This function should be overridden to find the occurrences in the workspace scope
      * (and check if they are correct).
@@ -206,24 +207,21 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * @param request the request used for this check
      */
     protected abstract void findReferencesToRenameOnWorkspace(RefactoringRequest request, RefactoringStatus status);
-    
 
-    
-    
     /**
      * Checks if the occurrences gotten are valid or not.
      * 
      * @param status the errors will be added to the passed status.
      * @return true if all is ok and false otherwise
      */
-    protected boolean occurrencesValid(RefactoringStatus status){
-        if(docOccurrences.size() == 0){
-            status.addFatalError("No occurrences found for:"+request.initialName);
+    protected boolean occurrencesValid(RefactoringStatus status) {
+        if (docOccurrences.size() == 0) {
+            status.addFatalError("No occurrences found for:" + request.initialName);
             return false;
         }
         return true;
     }
-    
+
     /**
      * Implemented from the super interface. Should return the occurrences from the current document
      *  
@@ -242,7 +240,6 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
     public Map<Tuple<String, File>, HashSet<ASTEntry>> getOccurrencesInOtherFiles() {
         return this.fileOccurrences;
     }
-    
 
     /**
      * Searches for a list of entries that are found within a scope.
@@ -251,12 +248,12 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      */
     protected List<ASTEntry> getOccurrencesWithScopeAnalyzer(RefactoringRequest request) {
         List<ASTEntry> entryOccurrences = new ArrayList<ASTEntry>();
-        
+
         IModule module = request.getModule();
         try {
-            ScopeAnalyzerVisitor visitor = new ScopeAnalyzerVisitor(request.nature, request.moduleName, 
-                    module, new NullProgressMonitor(), request.ps);
-            
+            ScopeAnalyzerVisitor visitor = new ScopeAnalyzerVisitor(request.nature, request.moduleName, module,
+                    new NullProgressMonitor(), request.ps);
+
             request.getAST().accept(visitor);
             entryOccurrences = visitor.getEntryOccurrences();
         } catch (BadLocationException e) {
@@ -266,7 +263,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
         }
         return entryOccurrences;
     }
-    
+
     /**
      * This functions tries to find the modules that may have matches for a given request.
      * 
@@ -275,9 +272,9 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      * @param request the rquest for a rename.
      * @return a list with the files that may contain matches for the refactoring.
      */
-    protected ArrayList<Tuple<List<ModulesKey>, IPythonNature>> findFilesWithPossibleReferences(RefactoringRequest request) {
+    protected ArrayList<Tuple<List<ModulesKey>, IPythonNature>> findFilesWithPossibleReferences(
+            RefactoringRequest request) {
         return new RefactorerFindReferences().findPossibleReferences(request);
     }
-
 
 }

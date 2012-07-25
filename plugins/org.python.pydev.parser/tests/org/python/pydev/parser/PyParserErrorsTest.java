@@ -26,7 +26,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
         try {
             PyParserErrorsTest test = new PyParserErrorsTest();
             test.setUp();
-//            test.testErrorHandled16();
+            //            test.testErrorHandled16();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserErrorsTest.class);
@@ -39,19 +39,16 @@ public class PyParserErrorsTest extends PyParserTestBase {
     protected void setUp() throws Exception {
         super.setUp();
     }
-    
 
     public void testSuccessWithError() throws Throwable {
-        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
-            
+        checkWithAllGrammars(new ICallback<Boolean, Integer>() {
+
             public Boolean call(Integer arg) {
-    
-                String s = 
-                    "class A:\n" +
-                    "    def method1(self, *args, **kwargs):\n" +
-                    "        "; 
-        
-                    
+
+                String s = "class A:\n" +
+                        "    def method1(self, *args, **kwargs):\n" +
+                        "        ";
+
                 Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
                 Module m = (Module) tup.o1;
                 ClassDef c = (ClassDef) m.body[0];
@@ -61,45 +58,44 @@ public class PyParserErrorsTest extends PyParserTestBase {
             }
         });
     }
-    
-    
+
     public void testErrorHandled0() throws Throwable {
-        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
-            
+        checkWithAllGrammars(new ICallback<Boolean, Integer>() {
+
             public Boolean call(Integer arg) {
-    
-                String s = 
-                    "a = 10\n" +
-                    "a."; 
-                
-                
+
+                String s = "a = 10\n" +
+                        "a.";
+
                 Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
                 Module m = (Module) tup.o1;
                 Assign assign = (Assign) m.body[0];
                 assertNotNull(assign);
                 Expr expr = (Expr) m.body[1];
-                Attribute attr = (Attribute)expr.value;
+                Attribute attr = (Attribute) expr.value;
                 assertEquals("a.!<MissingName>!", NodeUtils.getFullRepresentationString(attr));
                 return true;
             }
         });
     }
-    
+
     public void testErrorHandled() throws Throwable {
-        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
-            
+        checkWithAllGrammars(new ICallback<Boolean, Integer>() {
+
             public Boolean call(Integer arg) {
-                String s = ""+
-                    "class C:             \n" +  
-                    "                     \n" +    
-                    "    def makeit(self):\n" +     
-                    "        pass         \n" +     
-                    "                     \n" +       
-                    "class D(C.:          \n" +  
-                    "                     \n" +    
-                    "    def a(self):     \n" +   
-                    "        pass         \n";        
-                
+                String s = "" +
+                        "class C:             \n" +
+                        "                     \n" +
+                        "    def makeit(self):\n"
+                        +
+                        "        pass         \n" +
+                        "                     \n" +
+                        "class D(C.:          \n"
+                        +
+                        "                     \n" +
+                        "    def a(self):     \n" +
+                        "        pass         \n";
+
                 Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
                 Module m = (Module) tup.o1;
                 ClassDef d = (ClassDef) m.body[1];
@@ -108,19 +104,19 @@ public class PyParserErrorsTest extends PyParserTestBase {
             }
         });
     }
-    
-    
+
     public void testErrorHandled2() throws Throwable {
-        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
-            
+        checkWithAllGrammars(new ICallback<Boolean, Integer>() {
+
             public Boolean call(Integer arg) {
-        
-                String s = ""+
-                "class Test(unit \n" +
-                "                \n" +
-                "    def meth1():\n" +
-                "        pass    \n";
-                
+
+                String s = "" +
+                        "class Test(unit \n" +
+                        "                \n" +
+                        "    def meth1():\n"
+                        +
+                        "        pass    \n";
+
                 Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
                 Module m = (Module) tup.o1;
                 assertEquals(1, m.body.length);
@@ -132,20 +128,18 @@ public class PyParserErrorsTest extends PyParserTestBase {
             }
         });
     }
-    
-    
+
     public void testErrorHandled3() throws Throwable {
-        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
-            
+        checkWithAllGrammars(new ICallback<Boolean, Integer>() {
+
             public Boolean call(Integer arg) {
-    
-    
-                String s = ""+
-                "class Test(unit \n" +
-                "                \n" +
-                "def meth1():\n" +
-                "    pass    \n";
-                
+
+                String s = "" +
+                        "class Test(unit \n" +
+                        "                \n" +
+                        "def meth1():\n" +
+                        "    pass    \n";
+
                 Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
                 Module m = (Module) tup.o1;
                 assertEquals(2, m.body.length);
@@ -157,18 +151,16 @@ public class PyParserErrorsTest extends PyParserTestBase {
             }
         });
     }
-    
-    
+
     public void testErrorHandled4() throws Throwable {
-        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
-            
+        checkWithAllGrammars(new ICallback<Boolean, Integer>() {
+
             public Boolean call(Integer arg) {
-    
-                String s = 
-                    "class A:\n" +
-                    "    def method1(self, *args, **kwargs):\n" +
-                    "        "; 
-                
+
+                String s = "class A:\n" +
+                        "    def method1(self, *args, **kwargs):\n" +
+                        "        ";
+
                 Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
                 Module m = (Module) tup.o1;
                 assertEquals(1, m.body.length);
@@ -180,18 +172,17 @@ public class PyParserErrorsTest extends PyParserTestBase {
             }
         });
     }
-    
+
     public void testErrorHandled5() throws Throwable {
-        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
-            
+        checkWithAllGrammars(new ICallback<Boolean, Integer>() {
+
             public Boolean call(Integer arg) {
-    
-                String s = 
-                    "import Imp\n" +
-                    "\n" +
-                    "eu s\n" +
-                    ""; 
-                
+
+                String s = "import Imp\n" +
+                        "\n" +
+                        "eu s\n" +
+                        "";
+
                 Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
                 Module m = (Module) tup.o1;
                 assertTrue(m.body.length > 0);
@@ -201,18 +192,17 @@ public class PyParserErrorsTest extends PyParserTestBase {
             }
         });
     }
-    
+
     public void testErrorHandled6() throws Throwable {
-        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
-            
+        checkWithAllGrammars(new ICallback<Boolean, Integer>() {
+
             public Boolean call(Integer arg) {
-    
-                String s = 
-                    "a = [\n" +
-                    "1, 2, \n" +
-                    "\n" +
-                    ""; 
-                
+
+                String s = "a = [\n" +
+                        "1, 2, \n" +
+                        "\n" +
+                        "";
+
                 Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
                 Module m = (Module) tup.o1;
                 assertEquals(1, m.body.length);
@@ -223,19 +213,17 @@ public class PyParserErrorsTest extends PyParserTestBase {
             }
         });
     }
-    
-    
+
     public void testErrorHandled7() throws Throwable {
-        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
-            
+        checkWithAllGrammars(new ICallback<Boolean, Integer>() {
+
             public Boolean call(Integer arg) {
-    
-                String s = 
-                    "a = {\n" +
-                    "1: 2, \n" +
-                    "\n" +
-                    ""; 
-                
+
+                String s = "a = {\n" +
+                        "1: 2, \n" +
+                        "\n" +
+                        "";
+
                 Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
                 Module m = (Module) tup.o1;
                 assertEquals(1, m.body.length);
@@ -246,18 +234,17 @@ public class PyParserErrorsTest extends PyParserTestBase {
             }
         });
     }
-    
+
     public void testErrorHandled8() throws Throwable {
-        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
-            
+        checkWithAllGrammars(new ICallback<Boolean, Integer>() {
+
             public Boolean call(Integer arg) {
-    
-                String s = 
-                    "a = {\n" +
-                    "1: \n" +
-                    "\n" +
-                    ""; 
-                
+
+                String s = "a = {\n" +
+                        "1: \n" +
+                        "\n" +
+                        "";
+
                 Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
                 Module m = (Module) tup.o1;
                 assertEquals(1, m.body.length);
@@ -268,18 +255,17 @@ public class PyParserErrorsTest extends PyParserTestBase {
             }
         });
     }
-    
+
     public void testErrorHandled9() throws Throwable {
-        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
-            
+        checkWithAllGrammars(new ICallback<Boolean, Integer>() {
+
             public Boolean call(Integer arg) {
-    
-                String s = 
-                    "def m1(a b):\n" +
-                    "\n" +
-                    "\n" +
-                    ""; 
-                
+
+                String s = "def m1(a b):\n" +
+                        "\n" +
+                        "\n" +
+                        "";
+
                 Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
                 Module m = (Module) tup.o1;
                 assertEquals(1, m.body.length);
@@ -289,22 +275,22 @@ public class PyParserErrorsTest extends PyParserTestBase {
             }
         });
     }
-    
-    
+
     public void testErrorHandled10() throws Throwable {
-        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
-            
+        checkWithAllGrammars(new ICallback<Boolean, Integer>() {
+
             public Boolean call(Integer arg) {
-    
-                String s = 
-                    "class drDropTarget(bbb uehos):\n" +
-                    "    def __init__(self, window):\n" +
-                    "        a = {ao: window. \n" +
-                    "            window.,\n" +
-                    "            windo\n" +
-                    "            }\n" +
-                    ""; 
-                
+
+                String s = "class drDropTarget(bbb uehos):\n" +
+                        "    def __init__(self, window):\n"
+                        +
+                        "        a = {ao: window. \n" +
+                        "            window.,\n" +
+                        "            windo\n"
+                        +
+                        "            }\n" +
+                        "";
+
                 Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
                 Module m = (Module) tup.o1;
                 assertEquals(1, m.body.length);
@@ -317,31 +303,29 @@ public class PyParserErrorsTest extends PyParserTestBase {
             }
         });
     }
-    
-    
+
     public void testErrorHandled11() throws Throwable {
-        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
-            
+        checkWithAllGrammars(new ICallback<Boolean, Integer>() {
+
             public Boolean call(Integer arg) {
-                String s = 
-                    "class drDropTarget(bbb uehos):\n" +
-                    "    def __init__(self, window):\n" +
-                    "        kk = {ao: window. \n" +
-                    "            window.,\n" +
-                    "            windo\n" +
-                    "            }\n" +
-                    "    def method2(self, window):\n" +
-                    "        kk = {ao: window. \n" +
-                    "            window.,\n" +
-                    "            windo\n" +
-                    "            }\n" +
-                    "    def method3(self, window):\n" +
-                    "        kk = {ao: window. \n" +
-                    "            window.,\n" +
-                    "            windo\n" +
-                    "            }\n" +
-                    ""; 
-                
+                String s = "class drDropTarget(bbb uehos):\n" +
+                        "    def __init__(self, window):\n" +
+                        "        kk = {ao: window. \n" +
+                        "            window.,\n" +
+                        "            windo\n" +
+                        "            }\n" +
+                        "    def method2(self, window):\n" +
+                        "        kk = {ao: window. \n" +
+                        "            window.,\n" +
+                        "            windo\n" +
+                        "            }\n" +
+                        "    def method3(self, window):\n" +
+                        "        kk = {ao: window. \n" +
+                        "            window.,\n" +
+                        "            windo\n" +
+                        "            }\n" +
+                        "";
+
                 Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
                 Module m = (Module) tup.o1;
                 assertEquals(1, m.body.length);
@@ -355,25 +339,27 @@ public class PyParserErrorsTest extends PyParserTestBase {
             }
         });
     }
-    
-    
+
     public void testErrorHandled12() throws Throwable {
-        
-        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
-        
+
+        checkWithAllGrammars(new ICallback<Boolean, Integer>() {
+
             public Boolean call(Integer arg) {
-                String s = 
-                    "class LinkedList:                      \n"+
-                    "    def __init__(self,content='Null'): \n" +
-                    "        if not content:                \n"+
-                    "            self.first=content         \n"+
-                    "            self.last=content          \n"+
-                    "        else:                          \n"+
-                    "            self.first='Null'          \n"+
-                    "            self.last='Null'           \n"+
-                    "        self.content=content           \n"+
-                    "        self.                          \n";
-                
+                String s = "class LinkedList:                      \n" +
+                        "    def __init__(self,content='Null'): \n"
+                        +
+                        "        if not content:                \n" +
+                        "            self.first=content         \n"
+                        +
+                        "            self.last=content          \n" +
+                        "        else:                          \n"
+                        +
+                        "            self.first='Null'          \n" +
+                        "            self.last='Null'           \n"
+                        +
+                        "        self.content=content           \n" +
+                        "        self.                          \n";
+
                 Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
                 Module m = (Module) tup.o1;
                 assertEquals(1, m.body.length);
@@ -384,21 +370,22 @@ public class PyParserErrorsTest extends PyParserTestBase {
                 return true;
             }
         });
-        
+
     }
-    
+
     public void testErrorHandled13() throws Throwable {
-        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
-            
+        checkWithAllGrammars(new ICallback<Boolean, Integer>() {
+
             public Boolean call(Integer arg) {
-                String s = 
-                    "class LinkedList:                      \n" +
-                    "    def m1(self):"+
-                    "        self.content=content           \n"+
-                    "        self thueo ueo                 \n" +
-                    "" +
-                    "class B:\n";
-                
+                String s = "class LinkedList:                      \n" +
+                        "    def m1(self):"
+                        +
+                        "        self.content=content           \n" +
+                        "        self thueo ueo                 \n"
+                        +
+                        "" +
+                        "class B:\n";
+
                 Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
                 Module m = (Module) tup.o1;
                 assertEquals(2, m.body.length);
@@ -410,101 +397,98 @@ public class PyParserErrorsTest extends PyParserTestBase {
                 return true;
             }
         });
-        
+
     }
-    
-    
+
     public void testErrorHandled14() throws Throwable {
-        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
-            
+        checkWithAllGrammars(new ICallback<Boolean, Integer>() {
+
             public Boolean call(Integer arg) {
-                String s = 
-                    "from a import AAA\n"+
-                    "from b import\n"+
-                    "BBB\n"+
-                    "\n"+
-                    "\n";
-                
+                String s = "from a import AAA\n" +
+                        "from b import\n" +
+                        "BBB\n" +
+                        "\n" +
+                        "\n";
+
                 Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
                 Module m = (Module) tup.o1;
-                assertEquals("AAA", NodeUtils.getRepresentationString(((ImportFrom)m.body[0]).names[0]));
+                assertEquals("AAA", NodeUtils.getRepresentationString(((ImportFrom) m.body[0]).names[0]));
                 return true;
             }
         });
-        
+
     }
-    
-    
-    
+
     public void testErrorHandled15() throws Throwable {
-//        PyParser.DEBUG_SHOW_PARSE_ERRORS = true;
-        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
-            
+        //        PyParser.DEBUG_SHOW_PARSE_ERRORS = true;
+        checkWithAllGrammars(new ICallback<Boolean, Integer>() {
+
             public Boolean call(Integer arg) {
-                String s = 
-                    "class Bar(object):\n"+
-                    "    TYPE = 10\n"+
-                    "\n"+
-                    "class Foo:\n"+
-                    "\n"+
-                    "    def Meth0(self):\n"+
-                    "        if xxx.GetType() & Bar.\n"+
-                    "        return 'x' % (1,\n"+
-                    "           2)\n"+
-                    "\n"+
-                    "    def Meth1(self):\n"+
-                    "        if target == 'topology':\n"+
-                    "            if 1:\n"+
-                    "                pass\n"+
-                    "            else:\n"+
-                    "                pass\n"+
-                    "        else:\n"+
-                    "            pass\n"+
-                    "        return ret\n"+
-                    "\n";
-                
+                String s = "class Bar(object):\n" +
+                        "    TYPE = 10\n" +
+                        "\n" +
+                        "class Foo:\n" +
+                        "\n"
+                        +
+                        "    def Meth0(self):\n" +
+                        "        if xxx.GetType() & Bar.\n" +
+                        "        return 'x' % (1,\n"
+                        +
+                        "           2)\n" +
+                        "\n" +
+                        "    def Meth1(self):\n" +
+                        "        if target == 'topology':\n"
+                        +
+                        "            if 1:\n" +
+                        "                pass\n" +
+                        "            else:\n"
+                        +
+                        "                pass\n" +
+                        "        else:\n" +
+                        "            pass\n" +
+                        "        return ret\n"
+                        +
+                        "\n";
+
                 Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
                 Module m = (Module) tup.o1;
-//                assertEquals(2, m.body.length);
+                //                assertEquals(2, m.body.length);
                 assertEquals("Bar", NodeUtils.getRepresentationString(m.body[0]));
                 assertEquals("Foo", NodeUtils.getRepresentationString(m.body[1]));
                 return true;
             }
         });
-        
+
     }
 
-    
-
     public void testErrorHandled16() throws Throwable {
-        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
-            
+        checkWithAllGrammars(new ICallback<Boolean, Integer>() {
+
             public Boolean call(Integer arg) {
-                String s = 
-                    "a = (1e-)\n"+
-                    "\n";
-                
+                String s = "a = (1e-)\n" +
+                        "\n";
+
                 Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
                 Module m = (Module) tup.o1;
                 assertTrue(m.body[0] instanceof Assign);
                 return true;
             }
         });
-        
+
     }
-    
+
     public void testErrorHandled17() throws Throwable {
-        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
-            
+        checkWithAllGrammars(new ICallback<Boolean, Integer>() {
+
             public Boolean call(Integer arg) {
                 String s = "" +
-                "print(('btt'), file=f)\n" +
-                "";
-                
-                if(arg >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0){
+                        "print(('btt'), file=f)\n" +
+                        "";
+
+                if (arg >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0) {
                     parseLegalDocStr(s);
-                    
-                }else{
+
+                } else {
                     Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
                     Module m = (Module) tup.o1;
                     assertNotNull(m);
@@ -512,26 +496,28 @@ public class PyParserErrorsTest extends PyParserTestBase {
                 return true;
             }
         });
-        
+
     }
-    
-    
+
     public void testErrorHandled18() throws Throwable {
-        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
-            
+        checkWithAllGrammars(new ICallback<Boolean, Integer>() {
+
             public Boolean call(Integer arg) {
-                String s = "" +
-                "def m2():\n" +
-                "    ret.SetName('Eval of: %s where: %s' % (expression, '%s=%s' %(key, val.GetName()) for (key, val) in variable_to_gf.iteritems()))\n" +
-                "\n" +
-                "";
-                
-                if(arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5 || 
-                        arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6 ||
-                        arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7){
+                String s = ""
+                        +
+                        "def m2():\n"
+                        +
+                        "    ret.SetName('Eval of: %s where: %s' % (expression, '%s=%s' %(key, val.GetName()) for (key, val) in variable_to_gf.iteritems()))\n"
+                        +
+                        "\n" +
+                        "";
+
+                if (arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5
+                        || arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6
+                        || arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7) {
                     parseLegalDocStr(s);
-                    
-                }else{
+
+                } else {
                     Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
                     Module m = (Module) tup.o1;
                     assertNotNull(m);
@@ -540,9 +526,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
                 return true;
             }
         });
-        
+
     }
-    
-    
 
 }

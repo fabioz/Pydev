@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  * @author Fabio Zadrozny
  */
-public class FolderNode implements ICoverageNode{
+public class FolderNode implements ICoverageNode {
     public Map<Object, ICoverageNode> subFolders = new HashMap<Object, ICoverageNode>();
     public Map<Object, ICoverageLeafNode> files = new HashMap<Object, ICoverageLeafNode>();
     public Object node;

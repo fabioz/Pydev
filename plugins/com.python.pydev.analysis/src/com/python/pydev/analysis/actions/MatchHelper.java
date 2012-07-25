@@ -17,74 +17,73 @@ import com.python.pydev.analysis.additionalinfo.IInfo;
 /**
  * Helper matching scopes vs declaring module names and the actual name of the token.
  */
-public class MatchHelper{
+public class MatchHelper {
 
     /**
      * Matches according to scopes.
      */
-    public static boolean matchItem(SearchPattern patternMatcher, IInfo info){
+    public static boolean matchItem(SearchPattern patternMatcher, IInfo info) {
         //We want to match the package name in the beggining too...
         String pattern = patternMatcher.getPattern();
         List<String> split = StringUtils.splitAndRemoveEmptyTrimmed(pattern, '.');
-        if(split.size() <= 1){
-            if(pattern.endsWith(".")){
+        if (split.size() <= 1) {
+            if (pattern.endsWith(".")) {
                 split.add("");
-            }else{
+            } else {
                 return patternMatcher.matches(info.getName());
             }
         }
-    
+
         //Otherwise, we have more things to match... We could match something like:
         //django.AAA -- which should match all the modules that start with django and the tokens that have AAA.
-        
+
         String declaringModuleName = info.getDeclaringModuleName();
-        if(declaringModuleName == null || declaringModuleName.length() == 0){
+        if (declaringModuleName == null || declaringModuleName.length() == 0) {
             return false;
         }
         List<String> moduleParts = StringUtils.splitAndRemoveEmptyTrimmed(declaringModuleName, '.');
-        
-        while(split.size() > 1){
+
+        while (split.size() > 1) {
             String head = split.remove(0);
             SearchPattern headPattern = new SearchPattern();
             headPattern.setPattern(head);
-            if(moduleParts.size() == 0){
+            if (moduleParts.size() == 0) {
                 return false; //we cannot match it anymore
             }
-            if(!headPattern.matches(moduleParts.remove(0))){
+            if (!headPattern.matches(moduleParts.remove(0))) {
                 return false;
             }
         }
         //if it got here, we've matched the module correctly... let's go on and check the name.
-        
+
         SearchPattern tailPattern = new SearchPattern();
         tailPattern.setPattern(split.get(0));
         return tailPattern.matches(info.getName());
     }
 
-    
     /**
      * Checks if equals considering scopes.
      */
-    public static boolean equalsFilter(String thisPattern, String otherPattern){
-        return checkPatternSubparts(thisPattern, otherPattern, new ICallback2<Boolean, SearchPattern, SearchPattern>(){
+    public static boolean equalsFilter(String thisPattern, String otherPattern) {
+        return checkPatternSubparts(thisPattern, otherPattern, new ICallback2<Boolean, SearchPattern, SearchPattern>() {
 
-            public Boolean call(SearchPattern thisP, SearchPattern otherP){
-                if(!(thisP.equalsPattern(otherP))){
+            public Boolean call(SearchPattern thisP, SearchPattern otherP) {
+                if (!(thisP.equalsPattern(otherP))) {
                     return false;
                 }
                 return true;
             }
         });
     }
-    
+
     /**
      * Checks if it's a sub-filter considering scopes.
      */
-    public static boolean isSubFilter(String thisPattern, String otherPattern){
-        return checkPatternSubparts(thisPattern, otherPattern, new ICallback2<Boolean, SearchPattern, SearchPattern>(){
-            
-            public Boolean call(SearchPattern thisP, SearchPattern otherP){
-                if(!(thisP.isSubPattern(otherP))){
+    public static boolean isSubFilter(String thisPattern, String otherPattern) {
+        return checkPatternSubparts(thisPattern, otherPattern, new ICallback2<Boolean, SearchPattern, SearchPattern>() {
+
+            public Boolean call(SearchPattern thisP, SearchPattern otherP) {
+                if (!(thisP.isSubPattern(otherP))) {
                     return false;
                 }
                 return true;
@@ -92,36 +91,37 @@ public class MatchHelper{
         });
     }
 
-    private static boolean checkPatternSubparts(String thisPattern, String otherPattern, ICallback2<Boolean, SearchPattern, SearchPattern> check){
+    private static boolean checkPatternSubparts(String thisPattern, String otherPattern,
+            ICallback2<Boolean, SearchPattern, SearchPattern> check) {
         boolean thisEndsWithPoint = thisPattern.endsWith(".");
         boolean otherEndsWithPoint = otherPattern.endsWith(".");
-        if(thisEndsWithPoint != otherEndsWithPoint){
+        if (thisEndsWithPoint != otherEndsWithPoint) {
             return false;
         }
-        
+
         List<String> thisSplit = StringUtils.splitAndRemoveEmptyNotTrimmed(thisPattern, '.');
         List<String> otherSplit = StringUtils.splitAndRemoveEmptyNotTrimmed(otherPattern, '.');
-        
-        if(thisEndsWithPoint){
+
+        if (thisEndsWithPoint) {
             thisSplit.add("");
         }
-        if(otherEndsWithPoint){
+        if (otherEndsWithPoint) {
             otherSplit.add("");
         }
-        
-        if(thisSplit.size() != otherSplit.size()){
+
+        if (thisSplit.size() != otherSplit.size()) {
             return false;
         }
-        
-        for(int i=0;i<thisSplit.size();i++){
+
+        for (int i = 0; i < thisSplit.size(); i++) {
             String thisStr = thisSplit.get(i);
             String otherStr = otherSplit.get(i);
             SearchPattern thisP = new SearchPattern();
             thisP.setPattern(thisStr);
-            
+
             SearchPattern otherP = new SearchPattern();
             otherP.setPattern(otherStr);
-            if(!check.call(thisP, otherP)){
+            if (!check.call(thisP, otherP)) {
                 return false;
             }
         }

@@ -20,7 +20,6 @@ import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.Token;
 import org.python.pydev.core.structure.FastStringBuffer;
 
-
 /**
  * This class is a copy of the WordRule, with the exception that when we detected a 'def' or a 'class', the next default token
  * is not the regular, but the token identifying the class name or the function name.
@@ -35,28 +34,27 @@ import org.python.pydev.core.structure.FastStringBuffer;
 public class PyWordRule implements IRule {
 
     /** Internal setting for the un-initialized column constraint */
-    protected static final int UNDEFINED= -1;
+    protected static final int UNDEFINED = -1;
 
     /** The word detector used by this rule */
     protected IWordDetector fDetector;
     /** The default token to be returned on success and if nothing else has been specified. */
     protected IToken fDefaultToken;
     /** The column constraint */
-    protected int fColumn= UNDEFINED;
+    protected int fColumn = UNDEFINED;
     /** The table of predefined words and token for this rule */
-    protected Map fWords= new HashMap();
+    protected Map fWords = new HashMap();
     /** Buffer used for pattern detection */
-    private FastStringBuffer fBuffer= new FastStringBuffer();
+    private FastStringBuffer fBuffer = new FastStringBuffer();
 
     private IToken classNameToken;
 
     private IToken funcNameToken;
-    
+
     private IToken parensToken;
-    
+
     private IToken operatorsToken;
 
-   
     /**
      * Creates a rule which, with the help of a word detector, will return the token
      * associated with the detected word. If no token has been associated, the
@@ -70,14 +68,14 @@ public class PyWordRule implements IRule {
      *
      * @see #addWord(String, IToken)
      */
-    public PyWordRule(
-            IWordDetector detector, IToken defaultToken, IToken classNameToken, IToken funcNameToken, IToken parensToken, IToken operatorsToken) {
+    public PyWordRule(IWordDetector detector, IToken defaultToken, IToken classNameToken, IToken funcNameToken,
+            IToken parensToken, IToken operatorsToken) {
 
         Assert.isNotNull(detector);
         Assert.isNotNull(defaultToken);
 
-        fDetector= detector;
-        fDefaultToken= defaultToken;
+        fDetector = detector;
+        fDefaultToken = defaultToken;
         this.classNameToken = classNameToken;
         this.funcNameToken = funcNameToken;
         this.parensToken = parensToken;
@@ -107,16 +105,17 @@ public class PyWordRule implements IRule {
      */
     public void setColumnConstraint(int column) {
         if (column < 0)
-            column= UNDEFINED;
-        fColumn= column;
+            column = UNDEFINED;
+        fColumn = column;
     }
 
-    private String lastFound="";
+    private String lastFound = "";
+
     public IToken evaluate(ICharacterScanner scanner) {
-        int c= scanner.read();
-        
+        int c = scanner.read();
+
         IToken found = null;
-        switch(c){
+        switch (c) {
             case '(':
             case ')':
             case '[':
@@ -125,7 +124,7 @@ public class PyWordRule implements IRule {
             case '}':
                 found = this.parensToken;
                 break;
-                
+
             case '<':
             case '>':
             case '=':
@@ -143,25 +142,25 @@ public class PyWordRule implements IRule {
                 found = this.operatorsToken;
                 break;
         }
-        
-        if(found != null){
+
+        if (found != null) {
             lastFound = "";
             return found;
         }
-        
+
         if (fDetector.isWordStart((char) c)) {
             if (fColumn == UNDEFINED || (fColumn == scanner.getColumn() - 1)) {
 
                 fBuffer.clear();
                 do {
                     fBuffer.append((char) c);
-                    c= scanner.read();
+                    c = scanner.read();
                 } while (c != ICharacterScanner.EOF && fDetector.isWordPart((char) c));
                 scanner.unread();
 
                 String str = fBuffer.toString();
-                IToken token= (IToken) fWords.get(str);
-                if (token != null){
+                IToken token = (IToken) fWords.get(str);
+                if (token != null) {
                     lastFound = str;
                     return token;
                 }
@@ -169,11 +168,11 @@ public class PyWordRule implements IRule {
                 if (fDefaultToken.isUndefined())
                     unreadBuffer(scanner);
 
-                if(lastFound.equals("def")){
+                if (lastFound.equals("def")) {
                     lastFound = str;
                     return funcNameToken;
                 }
-                if(lastFound.equals("class")){
+                if (lastFound.equals("class")) {
                     lastFound = str;
                     return classNameToken;
                 }
@@ -191,7 +190,7 @@ public class PyWordRule implements IRule {
      * @param scanner the scanner to be used
      */
     protected void unreadBuffer(ICharacterScanner scanner) {
-        for (int i= fBuffer.length() - 1; i >= 0; i--)
+        for (int i = fBuffer.length() - 1; i >= 0; i--)
             scanner.unread();
     }
 }

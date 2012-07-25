@@ -10,6 +10,6 @@ package org.python.pydev.debug.codecoverage;
  * @author fabioz
  *
  */
-public interface ICoverageLeafNode extends ICoverageNode{
+public interface ICoverageLeafNode extends ICoverageNode {
 
 }

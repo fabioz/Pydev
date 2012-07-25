@@ -25,7 +25,7 @@ import org.python.pydev.core.structure.CompletionRecursionException;
  * @author Fabio Zadrozny
  */
 public interface ICodeCompletionASTManager {
-    
+
     /**
      * This method rebuilds the paths that can be used for the code completion.
      * It doesn't load the modules, only the paths. 
@@ -36,7 +36,7 @@ public interface ICodeCompletionASTManager {
      * @param monitor: monitor for progress.
      */
     public abstract void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor);
-    
+
     /**
      * Set the project this ast manager works with.
      * 
@@ -44,8 +44,7 @@ public interface ICodeCompletionASTManager {
      * @param restoreDeltas says whether deltas should be restored (if they are not, they should be discarded)
      */
     public abstract void setProject(IProject project, IPythonNature nature, boolean restoreDeltas);
-    
-    
+
     /**
      * This method provides a way to rebuild a module (new delta).
      * 
@@ -54,7 +53,8 @@ public interface ICodeCompletionASTManager {
      * @param project: this is the project that is associated with this manager.
      * @param monitor: monitor for progress.
      */
-    public abstract void rebuildModule(final File file, final ICallback0<IDocument> doc, final IProject project, IProgressMonitor monitor, IPythonNature nature);
+    public abstract void rebuildModule(final File file, final ICallback0<IDocument> doc, final IProject project,
+            IProgressMonitor monitor, IPythonNature nature);
 
     /**
      * This method provides a way to remove a module (remove delta).
@@ -64,7 +64,7 @@ public interface ICodeCompletionASTManager {
      * @param monitor: monitor for progress.
      */
     public abstract void removeModule(final File file, final IProject project, IProgressMonitor monitor);
-    
+
     /**
      * @return the modules manager associated with this manager.
      */
@@ -75,12 +75,12 @@ public interface ICodeCompletionASTManager {
      */
     public abstract IPythonNature getNature();
 
-    public static class ImportInfo{
+    public static class ImportInfo {
         public String importsTipperStr;
         public final boolean hasImportSubstring;
         public final boolean hasFromSubstring;
-        
-        public ImportInfo(String importsTipperStr, boolean hasImportSubstring, boolean hasFromSubstring){
+
+        public ImportInfo(String importsTipperStr, boolean hasImportSubstring, boolean hasFromSubstring) {
             this.importsTipperStr = importsTipperStr;
             this.hasImportSubstring = hasImportSubstring;
             this.hasFromSubstring = hasFromSubstring;
@@ -97,8 +97,8 @@ public interface ICodeCompletionASTManager {
      * @throws CompletionRecursionException 
      * @throws MisconfigurationException 
      */
-    public abstract IToken[] getCompletionsForImport(ImportInfo original, ICompletionRequest request, boolean onlyGetDirectModules) throws CompletionRecursionException, MisconfigurationException;
-
+    public abstract IToken[] getCompletionsForImport(ImportInfo original, ICompletionRequest request,
+            boolean onlyGetDirectModules) throws CompletionRecursionException, MisconfigurationException;
 
     /**
      * The completion should work in the following way:
@@ -119,21 +119,21 @@ public interface ICodeCompletionASTManager {
      * @throws CompletionRecursionException 
      * @throws MisconfigurationException 
      */
-//    public abstract IToken[] getCompletionsForToken(File file, IDocument doc, ICompletionState state) throws CompletionRecursionException, MisconfigurationException;
-//    Clients must now do the createModule part themselves (and call the getCompletionsForModule)
-//    This is because some places were creating the module more than once from the request, so, now the request 
-//    creates the module and caches it.
-//    IModule module = createModule(file, doc, state, this);
-//    return getCompletionsForModule(module, state, true, true);
+    //    public abstract IToken[] getCompletionsForToken(File file, IDocument doc, ICompletionState state) throws CompletionRecursionException, MisconfigurationException;
+    //    Clients must now do the createModule part themselves (and call the getCompletionsForModule)
+    //    This is because some places were creating the module more than once from the request, so, now the request 
+    //    creates the module and caches it.
+    //    IModule module = createModule(file, doc, state, this);
+    //    return getCompletionsForModule(module, state, true, true);
 
-    
     /**
      * @return the module with the specified name.
      */
-    public abstract IModule getModule(String name, IPythonNature nature, boolean dontSearchInit, boolean lookingForRelative);
+    public abstract IModule getModule(String name, IPythonNature nature, boolean dontSearchInit,
+            boolean lookingForRelative);
+
     public abstract IModule getModule(String name, IPythonNature nature, boolean dontSearchInit);
 
-    
     /**
      * @return tuple with:
      * 0: mod
@@ -141,7 +141,8 @@ public interface ICodeCompletionASTManager {
      * 2: actual tok
      * @throws CompletionRecursionException 
      */
-    public abstract Tuple3<IModule, String, IToken> findOnImportedMods( ICompletionState state, IModule current) throws CompletionRecursionException;
+    public abstract Tuple3<IModule, String, IToken> findOnImportedMods(ICompletionState state, IModule current)
+            throws CompletionRecursionException;
 
     /**
      * This function tries to find some activation token defined in some imported module.  
@@ -160,15 +161,15 @@ public interface ICodeCompletionASTManager {
      * 2: actual tok
      * @throws CompletionRecursionException 
      */
-    public abstract Tuple3<IModule, String, IToken> findOnImportedMods(
-            IToken[] importedModules, ICompletionState state, String currentModuleName, IModule current) throws CompletionRecursionException;
-    
+    public abstract Tuple3<IModule, String, IToken> findOnImportedMods(IToken[] importedModules,
+            ICompletionState state, String currentModuleName, IModule current) throws CompletionRecursionException;
+
     /**
      * Finds the tokens on the given imported modules
      * @throws CompletionRecursionException 
      */
-    public IToken[] findTokensOnImportedMods( IToken[] importedModules, ICompletionState state, IModule current) throws CompletionRecursionException;
-
+    public IToken[] findTokensOnImportedMods(IToken[] importedModules, ICompletionState state, IModule current)
+            throws CompletionRecursionException;
 
     /**
      * 
@@ -179,7 +180,8 @@ public interface ICodeCompletionASTManager {
      * @param qualifier
      * @return
      */
-    public abstract IToken[] getCompletionsForToken(IDocument doc, ICompletionState state) throws CompletionRecursionException;
+    public abstract IToken[] getCompletionsForToken(IDocument doc, ICompletionState state)
+            throws CompletionRecursionException;
 
     /**
      * @param file
@@ -189,8 +191,9 @@ public interface ICodeCompletionASTManager {
      * @param col
      * @param line
      */
-    public abstract IToken[] getCompletionsForModule(IModule module, ICompletionState state) throws CompletionRecursionException;
-    
+    public abstract IToken[] getCompletionsForModule(IModule module, ICompletionState state)
+            throws CompletionRecursionException;
+
     /**
      * @param file
      * @param activationToken
@@ -199,8 +202,11 @@ public interface ICodeCompletionASTManager {
      * @param col
      * @param line
      */
-    public abstract IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods) throws CompletionRecursionException;
-    public abstract IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods, boolean lookForArgumentCompletion) throws CompletionRecursionException;
+    public abstract IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods)
+            throws CompletionRecursionException;
+
+    public abstract IToken[] getCompletionsForModule(IModule module, ICompletionState state,
+            boolean searchSameLevelMods, boolean lookForArgumentCompletion) throws CompletionRecursionException;
 
     /**
      * This method gets the completions for a wild import. 
@@ -213,7 +219,8 @@ public interface ICodeCompletionASTManager {
      * 
      * @return true if it was able to find the module and get its completions and false otherwise
      */
-    public boolean getCompletionsForWildImport(ICompletionState state, IModule current, List<IToken> completions, IToken wildImport);
+    public boolean getCompletionsForWildImport(ICompletionState state, IModule current, List<IToken> completions,
+            IToken wildImport);
 
     /**
      * This method returns the python builtins as completions
@@ -238,8 +245,9 @@ public interface ICodeCompletionASTManager {
      * @param current the current module
      * @return a list of IToken
      */
-    public abstract List<IToken> getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules, ICompletionState state, IModule current);
-    
+    public abstract List<IToken> getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules,
+            IToken[] wildImportedModules, ICompletionState state, IModule current);
+
     /**
      * Fills the HashSet passed with completions for the class passed considering the current local scope. 
      * 
@@ -252,9 +260,8 @@ public interface ICodeCompletionASTManager {
      * @throws CompletionRecursionException
      */
     public void getCompletionsForClassInLocalScope(IModule module, ICompletionState state, boolean searchSameLevelMods,
-            boolean lookForArgumentCompletion, List<String> lookForClass, HashSet<IToken> hashSet) throws CompletionRecursionException;
-
-
+            boolean lookForArgumentCompletion, List<String> lookForClass, HashSet<IToken> hashSet)
+            throws CompletionRecursionException;
 
     /**
      * Get the actual token representing the tokName in the passed module  
@@ -264,8 +271,9 @@ public interface ICodeCompletionASTManager {
      * @return the actual token in the module (or null if it was not possible to find it).
      * @throws CompletionRecursionException 
      */
-    public IToken getRepInModule(IModule module, String tokName, IPythonNature nature) throws CompletionRecursionException;
-    
+    public IToken getRepInModule(IModule module, String tokName, IPythonNature nature)
+            throws CompletionRecursionException;
+
     /**
      * This method gathers an IToken correspondent to the actual token for some import
      * 
@@ -275,7 +283,8 @@ public interface ICodeCompletionASTManager {
      * able to find its actual definition
      * @throws CompletionRecursionException 
      */
-    public ImmutableTuple<IModule, IToken> resolveImport(ICompletionState state, IToken imported, IModule current) throws CompletionRecursionException;
+    public ImmutableTuple<IModule, IToken> resolveImport(ICompletionState state, IToken imported, IModule current)
+            throws CompletionRecursionException;
 
     /**
      * @return object to lock on.
@@ -302,12 +311,12 @@ public interface ICodeCompletionASTManager {
      * @throws CompletionRecursionException 
      * @throws MisconfigurationException 
      */
-    public Tuple<IModule, String> findModule(String fromImportStr, String currentModule, ICompletionState state, IModule current) throws CompletionRecursionException, MisconfigurationException;
+    public Tuple<IModule, String> findModule(String fromImportStr, String currentModule, ICompletionState state,
+            IModule current) throws CompletionRecursionException, MisconfigurationException;
 
     /**
      * @param astOutputFile
      */
     public void saveToFile(File astOutputFile);
 
-    
 }

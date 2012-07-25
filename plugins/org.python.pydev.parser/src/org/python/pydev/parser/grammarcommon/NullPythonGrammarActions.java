@@ -10,107 +10,100 @@ import org.python.pydev.parser.jython.ast.Str;
 
 public final class NullPythonGrammarActions implements IPythonGrammarActions {
 
-	public void markDecoratorWithCall() {
-	}
+    public void markDecoratorWithCall() {
+    }
 
-	public ISpecialStr convertStringToSpecialStr(Object o)
-			throws ParseException {
-		return null;
-	}
+    public ISpecialStr convertStringToSpecialStr(Object o) throws ParseException {
+        return null;
+    }
 
-	public void addToPeekCallFunc(Object t, boolean after) {
+    public void addToPeekCallFunc(Object t, boolean after) {
 
-	}
+    }
 
-	public void addSpecialTokenToLastOpened(Object o) throws ParseException {
+    public void addSpecialTokenToLastOpened(Object o) throws ParseException {
 
-	}
+    }
 
-	@SuppressWarnings("rawtypes")
-	public void addToPeek(SimpleNode peeked, Object t, boolean after,
-			Class class_) throws ParseException {
+    @SuppressWarnings("rawtypes")
+    public void addToPeek(SimpleNode peeked, Object t, boolean after, Class class_) throws ParseException {
 
-	}
+    }
 
-	@SuppressWarnings("rawtypes")
-	public SimpleNode addToPeek(Object t, boolean after, Class class_)
-			throws ParseException {
-		return null;
-	}
+    @SuppressWarnings("rawtypes")
+    public SimpleNode addToPeek(Object t, boolean after, Class class_) throws ParseException {
+        return null;
+    }
 
-	public void jjtreeCloseNodeScope(Node n) throws ParseException {
+    public void jjtreeCloseNodeScope(Node n) throws ParseException {
 
-	}
+    }
 
-	public void addSpecialToken(Object o, int strategy) throws ParseException {
+    public void addSpecialToken(Object o, int strategy) throws ParseException {
 
-	}
+    }
 
-	public void addSpecialToken(Object o) throws ParseException {
+    public void addSpecialToken(Object o) throws ParseException {
 
-	}
+    }
 
-	public void makeFloat(Token t, Num numberToFill) throws ParseException {
+    public void makeFloat(Token t, Num numberToFill) throws ParseException {
 
-	}
+    }
 
-	public void makeLong(Token t, Num numberToFill) throws ParseException {
+    public void makeLong(Token t, Num numberToFill) throws ParseException {
 
-	}
+    }
 
-	public void makeComplex(Token t, Num numberToFill) throws ParseException {
+    public void makeComplex(Token t, Num numberToFill) throws ParseException {
 
-	}
+    }
 
-	public void makeString(Token t, int quotes, Str strToFill) {
+    public void makeString(Token t, int quotes, Str strToFill) {
 
-	}
+    }
 
-	public void findTokenAndAdd(String token) throws ParseException {
+    public void findTokenAndAdd(String token) throws ParseException {
 
-	}
+    }
 
-	public void addSpecialToPrev(Object special, boolean after) {
+    public void addSpecialToPrev(Object special, boolean after) {
 
-	}
+    }
 
-	public ISpecialStr createSpecialStr(String token) throws ParseException {
+    public ISpecialStr createSpecialStr(String token) throws ParseException {
 
-		return null;
-	}
+        return null;
+    }
 
-	public ISpecialStr createSpecialStr(String token, boolean searchOnLast)
-			throws ParseException {
+    public ISpecialStr createSpecialStr(String token, boolean searchOnLast) throws ParseException {
 
-		return null;
-	}
+        return null;
+    }
 
-	public ISpecialStr createSpecialStr(String token, boolean searchOnLast,
-			boolean throwException) throws ParseException {
+    public ISpecialStr createSpecialStr(String token, boolean searchOnLast, boolean throwException)
+            throws ParseException {
 
-		return null;
-	}
+        return null;
+    }
 
-	public void addToPeek(Object t, boolean after) throws ParseException {
+    public void addToPeek(Object t, boolean after) throws ParseException {
 
-	}
+    }
 
-	public void makeInt(Token t, int radix, Token token, Num numberToFill)
-			throws ParseException {
+    public void makeInt(Token t, int radix, Token token, Num numberToFill) throws ParseException {
 
-	}
+    }
 
-	public void makeIntSub2(Token t, int radix, Token token, Num numberToFill)
-			throws ParseException {
+    public void makeIntSub2(Token t, int radix, Token token, Num numberToFill) throws ParseException {
 
-	}
+    }
 
-	public void makeIntSub2CheckingOct(Token t, int radix, Token token,
-			Num numberToFill) throws ParseException {
-	}
+    public void makeIntSub2CheckingOct(Token t, int radix, Token token, Num numberToFill) throws ParseException {
+    }
 
-	public void setImportFromLevel(int level) {
-		
-	}
+    public void setImportFromLevel(int level) {
+
+    }
 
 }

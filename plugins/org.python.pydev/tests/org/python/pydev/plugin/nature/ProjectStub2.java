@@ -20,7 +20,7 @@ public class ProjectStub2 extends AbstractIProjectStub implements IProject {
 
     public FileStub2 fileStub;
     private String name;
-    
+
     public ProjectStub2(String name) {
         this.name = name;
     }
@@ -31,44 +31,39 @@ public class ProjectStub2 extends AbstractIProjectStub implements IProject {
     }
 
     public boolean hasNature(String natureId) throws CoreException {
-        if(PythonNature.PYTHON_NATURE_ID.equals(natureId)){
+        if (PythonNature.PYTHON_NATURE_ID.equals(natureId)) {
             return true;
         }
         throw new RuntimeException("not expected");
     }
 
-
     public boolean isOpen() {
         return true;
     }
-
 
     public String getName() {
         return this.name;
     }
 
-
     public String getPersistentProperty(QualifiedName key) throws CoreException {
-        if(key.getLocalName().equals("PYTHON_PROJECT_VERSION")){
+        if (key.getLocalName().equals("PYTHON_PROJECT_VERSION")) {
             return IPythonNature.PYTHON_VERSION_2_5;//for tests, always the latest version
         }
         //this is just for backward-compatibility
-        if(key.getLocalName().equals("PROJECT_SOURCE_PATH")){
+        if (key.getLocalName().equals("PROJECT_SOURCE_PATH")) {
             return "/test";
         }
-        if(key.getLocalName().equals("PROJECT_EXTERNAL_SOURCE_PATH")){
+        if (key.getLocalName().equals("PROJECT_EXTERNAL_SOURCE_PATH")) {
             return "";
         }
         throw new RuntimeException(key.getLocalName());
     }
 
-
     public void setPersistentProperty(QualifiedName key, String value) throws CoreException {
-        if(value == null){
+        if (value == null) {
             return;
         }
         throw new RuntimeException("not expected");
     }
-
 
 }

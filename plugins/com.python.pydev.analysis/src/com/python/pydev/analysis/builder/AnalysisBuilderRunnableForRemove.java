@@ -18,9 +18,8 @@ import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo
  * 
  * @author Fabio
  */
-public class AnalysisBuilderRunnableForRemove extends AbstractAnalysisBuilderRunnable{
-    
-    
+public class AnalysisBuilderRunnableForRemove extends AbstractAnalysisBuilderRunnable {
+
     /**
      * @param oldAnalysisBuilderThread This is an existing runnable that was already analyzing things... we must wait for it
      * to finish to start it again.
@@ -29,46 +28,45 @@ public class AnalysisBuilderRunnableForRemove extends AbstractAnalysisBuilderRun
      * analysis.
      * The parameter is FULL_MODULE or DEFINITIONS_MODULE
      */
-    /*Default*/ AnalysisBuilderRunnableForRemove(String moduleName, IPythonNature nature, boolean isFullBuild, 
-            IAnalysisBuilderRunnable oldAnalysisBuilderThread, boolean forceAnalysis, int analysisCause, long documentTime,
-            KeyForAnalysisRunnable key, long resourceModificationStamp) {
-        super(isFullBuild, moduleName, forceAnalysis, analysisCause, oldAnalysisBuilderThread, nature, documentTime, key, resourceModificationStamp);
+    /*Default*/AnalysisBuilderRunnableForRemove(String moduleName, IPythonNature nature, boolean isFullBuild,
+            IAnalysisBuilderRunnable oldAnalysisBuilderThread, boolean forceAnalysis, int analysisCause,
+            long documentTime, KeyForAnalysisRunnable key, long resourceModificationStamp) {
+        super(isFullBuild, moduleName, forceAnalysis, analysisCause, oldAnalysisBuilderThread, nature, documentTime,
+                key, resourceModificationStamp);
     }
 
-
-    public void doAnalysis(){
-        if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-            Log.toLogFile(this, "Removing additional info from: "+moduleName);
+    public void doAnalysis() {
+        if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
+            Log.toLogFile(this, "Removing additional info from: " + moduleName);
         }
         removeInfoForModule(moduleName, nature, isFullBuild);
     }
-
 
     /**
      * @param moduleName this is the module name
      * @param nature this is the nature
      */
     public static void removeInfoForModule(String moduleName, IPythonNature nature, boolean isFullBuild) {
-        if(moduleName != null && nature != null){
+        if (moduleName != null && nature != null) {
             AbstractAdditionalDependencyInfo info;
-			try {
-				info = AdditionalProjectInterpreterInfo.
-				    getAdditionalInfoForProject(nature);
-			} catch (MisconfigurationException e) {
-				Log.log(e);
-				return;
-			}
-            
+            try {
+                info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
+            } catch (MisconfigurationException e) {
+                Log.log(e);
+                return;
+            }
+
             boolean generateDelta;
-            if(isFullBuild){
+            if (isFullBuild) {
                 generateDelta = false;
-            }else{
+            } else {
                 generateDelta = true;
             }
             info.removeInfoFromModule(moduleName, generateDelta);
-        }else{
-            if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-                Log.toLogFile("Unable to remove info. name: "+moduleName+" or nature:"+nature+" is null.", AnalysisBuilderRunnableForRemove.class);
+        } else {
+            if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
+                Log.toLogFile("Unable to remove info. name: " + moduleName + " or nature:" + nature + " is null.",
+                        AnalysisBuilderRunnableForRemove.class);
             }
         }
     }

@@ -26,13 +26,12 @@ public class EvaluateExpressionCommand extends AbstractDebuggerCommand {
 
     String locator;
     String expression;
-    
+
     boolean isError = false;
     int responseCode;
     String payload;
     private boolean doExec;
 
-    
     public EvaluateExpressionCommand(AbstractDebugTarget debugger, String expression, String locator, boolean doExec) {
         super(debugger);
         this.doExec = doExec;
@@ -42,7 +41,7 @@ public class EvaluateExpressionCommand extends AbstractDebuggerCommand {
 
     public String getOutgoing() {
         int cmd = CMD_EVALUATE_EXPRESSION;
-        if(doExec){
+        if (doExec) {
             cmd = CMD_EXEC_EXPRESSION;
         }
         return makeCommand(cmd, sequence, locator + "\t" + expression);
@@ -61,21 +60,17 @@ public class EvaluateExpressionCommand extends AbstractDebuggerCommand {
             PydevDebugPlugin.log(IStatus.ERROR, "Unexpected response to EvaluateExpressionCommand", null);
         }
     }
-    
+
     public void processErrorResponse(int cmdCode, String payload) {
         responseCode = cmdCode;
         this.payload = payload;
         isError = true;
     }
-        
+
     public String getResponse() throws CoreException {
-        if (isError) 
-            throw new CoreException(
-                            PydevDebugPlugin.makeStatus(IStatus.ERROR,
-                            "pydevd error:" + payload , 
-                             null));
+        if (isError)
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "pydevd error:" + payload, null));
         else
             return payload;
     }
 }
-

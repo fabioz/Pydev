@@ -18,8 +18,7 @@ import org.eclipse.swt.widgets.Shell;
  * 
  * @since 2.0
  */
-public class HistoryElementListSelectionDialog extends
-        AbstractHistoryElementListSelectionDialog {
+public class HistoryElementListSelectionDialog extends AbstractHistoryElementListSelectionDialog {
 
     private Object[] fElements;
 
@@ -58,8 +57,7 @@ public class HistoryElementListSelectionDialog extends
         createFilterText(contents);
 
         setListElements(fElements);
-        setSelectionIndices(new int[]{fElements.length-1});
-
+        setSelectionIndices(new int[] { fElements.length - 1 });
 
         setSelection(getInitialElementSelections().toArray());
 

@@ -18,13 +18,12 @@ import org.python.pydev.ui.UIConstants;
  * @author Fabio
  */
 public class OutlineHideCommentsAction extends AbstractOutlineFilterAction {
-    
+
     private static final String PREF_HIDE_COMMENTS = "org.python.pydev.OUTLINE_HIDE_COMMENTS";
 
     public OutlineHideCommentsAction(PyOutlinePage page, ImageCache imageCache) {
         super("Hide Comments", page, imageCache, PREF_HIDE_COMMENTS, UIConstants.COMMENT_BLACK);
     }
-
 
     /**
      * @return the filter used to hide comments

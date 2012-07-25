@@ -77,8 +77,7 @@ public class StringMatcher {
      * @param ignoreWildCards if true, wild cards and their escape sequences are ignored
      *           (everything is taken literally).
      */
-    public StringMatcher(String pattern, boolean ignoreCase,
-            boolean ignoreWildCards) {
+    public StringMatcher(String pattern, boolean ignoreCase, boolean ignoreWildCards) {
         if (pattern == null) {
             throw new IllegalArgumentException();
         }
@@ -185,9 +184,7 @@ public class StringMatcher {
         }
 
         if (fIgnoreWildCards) {
-            return (end - start == fLength)
-                    && fPattern.regionMatches(fIgnoreCase, 0, text, start,
-                            fLength);
+            return (end - start == fLength) && fPattern.regionMatches(fIgnoreCase, 0, text, start, fLength);
         }
         int segCount = fSegments.length;
         if (segCount == 0 && (fHasLeadingStar || fHasTrailingStar)) {
@@ -226,8 +223,7 @@ public class StringMatcher {
                 tCurPos = tCurPos + segLength;
             }
         }
-        if ((fSegments.length == 1) && (!fHasLeadingStar)
-                && (!fHasTrailingStar)) {
+        if ((fSegments.length == 1) && (!fHasLeadingStar) && (!fHasTrailingStar)) {
             // only one segment to match, no wildcards specified
             return tCurPos == end;
         }
@@ -291,35 +287,35 @@ public class StringMatcher {
         while (pos < fLength) {
             char c = fPattern.charAt(pos++);
             switch (c) {
-            case '\\':
-                if (pos >= fLength) {
-                    buf.append(c);
-                } else {
-                    char next = fPattern.charAt(pos++);
-                    /* if it's an escape sequence */
-                    if (next == '*' || next == '?' || next == '\\') {
-                        buf.append(next);
-                    } else {
-                        /* not an escape sequence, just insert literally */
+                case '\\':
+                    if (pos >= fLength) {
                         buf.append(c);
-                        buf.append(next);
+                    } else {
+                        char next = fPattern.charAt(pos++);
+                        /* if it's an escape sequence */
+                        if (next == '*' || next == '?' || next == '\\') {
+                            buf.append(next);
+                        } else {
+                            /* not an escape sequence, just insert literally */
+                            buf.append(c);
+                            buf.append(next);
+                        }
                     }
-                }
-                break;
-            case '*':
-                if (buf.length() > 0) {
-                    /* new segment */
-                    temp.addElement(buf.toString());
-                    fBound += buf.length();
-                    buf.setLength(0);
-                }
-                break;
-            case '?':
-                /* append special character representing single match wildcard */
-                buf.append(fSingleWildCard);
-                break;
-            default:
-                buf.append(c);
+                    break;
+                case '*':
+                    if (buf.length() > 0) {
+                        /* new segment */
+                        temp.addElement(buf.toString());
+                        fBound += buf.length();
+                        buf.setLength(0);
+                    }
+                    break;
+                case '?':
+                    /* append special character representing single match wildcard */
+                    buf.append(fSingleWildCard);
+                    break;
+                default:
+                    buf.append(c);
             }
         }
 
@@ -387,8 +383,7 @@ public class StringMatcher {
      * @param pStart
      * @param plen     
      */
-    protected boolean regExpRegionMatches(String text, int tStart, String p,
-            int pStart, int plen) {
+    protected boolean regExpRegionMatches(String text, int tStart, String p, int pStart, int plen) {
         while (plen-- > 0) {
             char tchar = text.charAt(tStart++);
             char pchar = p.charAt(pStart++);
@@ -404,14 +399,12 @@ public class StringMatcher {
                 continue;
             }
             if (fIgnoreCase) {
-                if (Character.toUpperCase(tchar) == Character
-                        .toUpperCase(pchar)) {
+                if (Character.toUpperCase(tchar) == Character.toUpperCase(pchar)) {
                     continue;
                 }
                 // comparing after converting to upper case doesn't handle all cases;
                 // also compare after converting to lower case
-                if (Character.toLowerCase(tchar) == Character
-                        .toLowerCase(pchar)) {
+                if (Character.toLowerCase(tchar) == Character.toLowerCase(pchar)) {
                     continue;
                 }
             }

@@ -12,33 +12,31 @@ import org.python.pydev.plugin.PydevPlugin;
 
 public class LinkWithDebugSelectionAction extends Action {
 
-	private ScriptConsole console;
-	
-	public LinkWithDebugSelectionAction(ScriptConsole console, String text,
-			String tooltip) {
-		super(text, IAction.AS_CHECK_BOX);
-		this.console = console;
-		setToolTipText(tooltip);
-		setImageDescriptor(getImageDescriptor());
-		setDisabledImageDescriptor(getImageDescriptor());
-		setText(text);
-		// set true by default
-		setChecked(true);
-	}
+    private ScriptConsole console;
 
-	public ImageDescriptor getImageDescriptor() {
-		String imagePath = ScriptConsoleUIConstants.ICONS_PATH + File.separator
-				+ ScriptConsoleUIConstants.LINK_WITH_DEBUGGER;
-		return ImageDescriptor.createFromImage(PydevPlugin.getImageCache().get(
-				imagePath));
-	}
+    public LinkWithDebugSelectionAction(ScriptConsole console, String text, String tooltip) {
+        super(text, IAction.AS_CHECK_BOX);
+        this.console = console;
+        setToolTipText(tooltip);
+        setImageDescriptor(getImageDescriptor());
+        setDisabledImageDescriptor(getImageDescriptor());
+        setText(text);
+        // set true by default
+        setChecked(true);
+    }
 
-	public void run() {
-		boolean isChecked = isChecked();
-		ScriptConsoleManager.getInstance().linkWithDebugSelection(console, isChecked);
-	}
+    public ImageDescriptor getImageDescriptor() {
+        String imagePath = ScriptConsoleUIConstants.ICONS_PATH + File.separator
+                + ScriptConsoleUIConstants.LINK_WITH_DEBUGGER;
+        return ImageDescriptor.createFromImage(PydevPlugin.getImageCache().get(imagePath));
+    }
 
-	public void update() {
-		setEnabled(true);
-	}
+    public void run() {
+        boolean isChecked = isChecked();
+        ScriptConsoleManager.getInstance().linkWithDebugSelection(console, isChecked);
+    }
+
+    public void update() {
+        setEnabled(true);
+    }
 }

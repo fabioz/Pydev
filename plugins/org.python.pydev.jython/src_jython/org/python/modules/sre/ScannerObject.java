@@ -37,7 +37,6 @@ public class ScannerObject extends PyObject {
         return match;
     }
 
-
     public MatchObject search() {
         state.state_reset();
         state.ptr = state.start;
@@ -53,7 +52,3 @@ public class ScannerObject extends PyObject {
         return match;
     }
 }
-
-
-
-

@@ -6,47 +6,47 @@ import org.python.pydev.parser.jython.SimpleNode;
 
 public abstract class AbstractJJTPythonGrammarState {
 
-	public ITreeBuilder builder;
+    public ITreeBuilder builder;
 
-	public void openNodeScope(Node jjtn000) {
+    public void openNodeScope(Node jjtn000) {
 
-	}
+    }
 
-	public void clearNodeScope(Node jjtn000) {
+    public void clearNodeScope(Node jjtn000) {
 
-	}
+    }
 
-	public SimpleNode popNode() {
+    public SimpleNode popNode() {
 
-		return null;
-	}
+        return null;
+    }
 
-	public void closeNodeScope(Node jjtn000, boolean b) throws ParseException {
+    public void closeNodeScope(Node jjtn000, boolean b) throws ParseException {
 
-	}
+    }
 
-	public void closeNodeScope(Node jjtn005, int i) throws ParseException {
+    public void closeNodeScope(Node jjtn005, int i) throws ParseException {
 
-	}
+    }
 
-	public int nodeArity() {
+    public int nodeArity() {
 
-		return 0;
-	}
+        return 0;
+    }
 
-	public SimpleNode getLastOpened() {
+    public SimpleNode getLastOpened() {
 
-		return null;
-	}
+        return null;
+    }
 
-	public SimpleNode peekNode(int i) {
+    public SimpleNode peekNode(int i) {
 
-		return null;
-	}
+        return null;
+    }
 
-	public SimpleNode peekNode() {
+    public SimpleNode peekNode() {
 
-		return null;
-	}
+        return null;
+    }
 
 }

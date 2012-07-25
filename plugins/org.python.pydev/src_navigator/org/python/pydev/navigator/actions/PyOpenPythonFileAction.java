@@ -50,10 +50,10 @@ public class PyOpenPythonFileAction extends Action {
     protected final List<PythonNode> nodesSelected = new ArrayList<PythonNode>();
 
     protected final List<Object> containersSelected = new ArrayList<Object>(); // IContainer or IWrappedResource or PythonpathTreeNode(with folder file)
-    
-    protected final List<PythonpathTreeNode> pythonPathFilesSelected = new ArrayList<PythonpathTreeNode>(); 
-    
-    protected final List<PythonpathZipChildTreeNode> pythonPathZipFilesSelected = new ArrayList<PythonpathZipChildTreeNode>(); 
+
+    protected final List<PythonpathTreeNode> pythonPathFilesSelected = new ArrayList<PythonpathTreeNode>();
+
+    protected final List<PythonpathZipChildTreeNode> pythonPathZipFilesSelected = new ArrayList<PythonpathZipChildTreeNode>();
 
     protected final ISelectionProvider provider;
 
@@ -85,46 +85,48 @@ public class PyOpenPythonFileAction extends Action {
             openFiles(filesSelected);
 
         } else if (nodesSelected.size() > 0) {
-		    PythonNode node = nodesSelected.iterator().next();
-		    ParsedItem actualObject = node.getActualObject();
-		    ASTEntryWithChildren astThis = actualObject.getAstThis();
-		    if(astThis != null){
-		        new PyOpenAction().run(new ItemPointer(node.getPythonFile().getActualObject(), NodeUtils.getNameTokFromNode(astThis.node)));
-		    }
-		    
+            PythonNode node = nodesSelected.iterator().next();
+            ParsedItem actualObject = node.getActualObject();
+            ASTEntryWithChildren astThis = actualObject.getAstThis();
+            if (astThis != null) {
+                new PyOpenAction().run(new ItemPointer(node.getPythonFile().getActualObject(), NodeUtils
+                        .getNameTokFromNode(astThis.node)));
+            }
+
         } else if (pythonPathZipFilesSelected.size() > 0) {
-        	openFiles(pythonPathZipFilesSelected.toArray(new PythonpathZipChildTreeNode[pythonPathZipFilesSelected.size()]));
-        	
-		} else if (pythonPathFilesSelected.size() > 0) {
-			openFiles(pythonPathFilesSelected.toArray(new PythonpathTreeNode[pythonPathFilesSelected.size()]));
+            openFiles(pythonPathZipFilesSelected.toArray(new PythonpathZipChildTreeNode[pythonPathZipFilesSelected
+                    .size()]));
 
-		} else if (containersSelected.size() > 0) {
-		    if (this.provider instanceof TreeViewer) {
-		        TreeViewer viewer = (TreeViewer) this.provider;
-		        for (Object container : containersSelected) {
-		            if (viewer.isExpandable(container)) {
-		                viewer.setExpandedState(container, !viewer.getExpandedState(container));
-		            }
-		        }
-		    } else {
-		        Log.log("Expecting the provider to be a TreeViewer -- it is:" + this.provider.getClass());
-		    }
-		}
+        } else if (pythonPathFilesSelected.size() > 0) {
+            openFiles(pythonPathFilesSelected.toArray(new PythonpathTreeNode[pythonPathFilesSelected.size()]));
+
+        } else if (containersSelected.size() > 0) {
+            if (this.provider instanceof TreeViewer) {
+                TreeViewer viewer = (TreeViewer) this.provider;
+                for (Object container : containersSelected) {
+                    if (viewer.isExpandable(container)) {
+                        viewer.setExpandedState(container, !viewer.getExpandedState(container));
+                    }
+                }
+            } else {
+                Log.log("Expecting the provider to be a TreeViewer -- it is:" + this.provider.getClass());
+            }
+        }
     }
-    
+
     protected void openFiles(PythonpathZipChildTreeNode[] pythonPathZipFilesSelected) {
-    	PyOpenAction pyOpenAction = new PyOpenAction();
-    	for(PythonpathZipChildTreeNode n:pythonPathZipFilesSelected){
-    		pyOpenAction.run(new ItemPointer(n.zipStructure.file, new Location(), new Location(), null, n.zipPath));
-    	}
+        PyOpenAction pyOpenAction = new PyOpenAction();
+        for (PythonpathZipChildTreeNode n : pythonPathZipFilesSelected) {
+            pyOpenAction.run(new ItemPointer(n.zipStructure.file, new Location(), new Location(), null, n.zipPath));
+        }
     }
 
-	protected void openFiles(PythonpathTreeNode[] pythonPathFilesSelected) {
-		PyOpenAction pyOpenAction = new PyOpenAction();
-		for(PythonpathTreeNode n:pythonPathFilesSelected){
-			pyOpenAction.run(new ItemPointer(n.file));
-		}
-	}
+    protected void openFiles(PythonpathTreeNode[] pythonPathFilesSelected) {
+        PyOpenAction pyOpenAction = new PyOpenAction();
+        for (PythonpathTreeNode n : pythonPathFilesSelected) {
+            pyOpenAction.run(new ItemPointer(n.file));
+        }
+    }
 
     /**
      * Opens the given files with the Pydev editor. 
@@ -161,22 +163,21 @@ public class PyOpenPythonFileAction extends Action {
                     nodesSelected.add((PythonNode) element);
 
                 } else if (element instanceof PythonpathZipChildTreeNode) {
-					PythonpathZipChildTreeNode node = (PythonpathZipChildTreeNode) element;
-					if(node.isDir){
-						containersSelected.add(node);
-					}else{
-						pythonPathZipFilesSelected.add(node);
-					}
-					
-                	
+                    PythonpathZipChildTreeNode node = (PythonpathZipChildTreeNode) element;
+                    if (node.isDir) {
+                        containersSelected.add(node);
+                    } else {
+                        pythonPathZipFilesSelected.add(node);
+                    }
+
                 } else if (element instanceof PythonpathTreeNode) {
-                	PythonpathTreeNode node = (PythonpathTreeNode) element;
-                	if(node.file.isFile()){
-                		pythonPathFilesSelected.add(node);
-                	}else{
-                		containersSelected.add(node);
-                	}
-                	
+                    PythonpathTreeNode node = (PythonpathTreeNode) element;
+                    if (node.file.isFile()) {
+                        pythonPathFilesSelected.add(node);
+                    } else {
+                        containersSelected.add(node);
+                    }
+
                 } else if (element instanceof IAdaptable) {
                     IAdaptable adaptable = (IAdaptable) element;
                     IFile file = (IFile) adaptable.getAdapter(IFile.class);
@@ -199,17 +200,16 @@ public class PyOpenPythonFileAction extends Action {
      */
     public boolean isEnabledForSelectionWithoutContainers() {
         fillSelections();
-        if(filesSelected.size() > 0){
-            for(IFile f:filesSelected){
+        if (filesSelected.size() > 0) {
+            for (IFile f : filesSelected) {
                 String name = f.getName();
-                if(name.indexOf('.') == -1){
+                if (name.indexOf('.') == -1) {
                     //Always add this menu if there's some file that doesn't have an extension.
                     return true;
                 }
             }
         }
-        if(nodesSelected.size() > 0 
-        		|| pythonPathFilesSelected.size() > 0 || pythonPathZipFilesSelected.size() > 0){
+        if (nodesSelected.size() > 0 || pythonPathFilesSelected.size() > 0 || pythonPathZipFilesSelected.size() > 0) {
             return true;
         }
         return false;

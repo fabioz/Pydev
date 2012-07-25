@@ -32,18 +32,17 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PyAddBlockComment extends AbstractBlockCommentAction {
 
-
     private boolean defaultClassNameBehaviour;
     private boolean defaultFunctionNameBehaviour;
 
-    public PyAddBlockComment(){
+    public PyAddBlockComment() {
         //default
     }
-    
+
     /**
      * For tests: assigns the default values
      */
-    PyAddBlockComment(int defaultCols, boolean alignLeft, boolean classNameBehaviour, boolean functionNameBehaviour){
+    PyAddBlockComment(int defaultCols, boolean alignLeft, boolean classNameBehaviour, boolean functionNameBehaviour) {
         super(defaultCols, alignLeft);
         this.defaultClassNameBehaviour = classNameBehaviour;
         this.defaultFunctionNameBehaviour = functionNameBehaviour;
@@ -54,26 +53,24 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
         getTextEditor().selectAndReveal(ps.getEndLine().getOffset(), 0);
     }
 
-
-    protected boolean getUseClassNameBehaviour(){
-        try{
+    protected boolean getUseClassNameBehaviour() {
+        try {
             Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
             return prefs.getBoolean(CommentBlocksPreferences.MULTI_BLOCK_COMMENT_SHOW_ONLY_CLASS_NAME);
-        }catch(NullPointerException e){ //tests
+        } catch (NullPointerException e) { //tests
             return defaultClassNameBehaviour;
         }
     }
-    
-    
-    protected boolean getUseFunctionNameBehaviour(){
-        try{
+
+    protected boolean getUseFunctionNameBehaviour() {
+        try {
             Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
             return prefs.getBoolean(CommentBlocksPreferences.MULTI_BLOCK_COMMENT_SHOW_ONLY_FUNCTION_NAME);
-        }catch(NullPointerException e){ //tests
+        } catch (NullPointerException e) { //tests
             return defaultFunctionNameBehaviour;
         }
     }
-    
+
     /**
      * Performs the action with a given PySelection
      * 
@@ -91,75 +88,74 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
         try {
             String fullCommentLine;
             String endLineDelim = ps.getEndLineDelim();
-            
+
             int startLineIndex = ps.getStartLineIndex();
             int endLineIndex = ps.getEndLineIndex();
-            
+
             boolean classBehaviour = false;
-            if(startLineIndex == endLineIndex && getUseClassNameBehaviour()){
-                if(ps.isInClassLine()){
+            if (startLineIndex == endLineIndex && getUseClassNameBehaviour()) {
+                if (ps.isInClassLine()) {
                     //just get the class name
                     classBehaviour = true;
                 }
             }
-            
+
             boolean functionBehaviour = false;
-            if(startLineIndex == endLineIndex && getUseFunctionNameBehaviour()){
-                if(ps.isInFunctionLine(false)){
+            if (startLineIndex == endLineIndex && getUseFunctionNameBehaviour()) {
+                if (ps.isInFunctionLine(false)) {
                     //just get the class name
                     functionBehaviour = true;
                 }
             }
-            
+
             // Start of block
 
-            if(classBehaviour || functionBehaviour){
+            if (classBehaviour || functionBehaviour) {
                 String line = ps.getLine(startLineIndex);
-                
+
                 int classIndex;
                 int tokLen;
-                
-                if (classBehaviour){
+
+                if (classBehaviour) {
                     classIndex = line.indexOf("class ");
                     tokLen = 6;
-                }else{
+                } else {
                     classIndex = line.indexOf("def ");
                     tokLen = 4;
                 }
-                
+
                 fullCommentLine = getFullCommentLine(classIndex, tempBuffer);
                 String spacesBefore;
-                if(classIndex > 0){
+                if (classIndex > 0) {
                     spacesBefore = line.substring(0, classIndex);
-                }else{
+                } else {
                     spacesBefore = "";
                 }
-                
-                strbuf.append(spacesBefore+"#").append(fullCommentLine).append(endLineDelim);
+
+                strbuf.append(spacesBefore + "#").append(fullCommentLine).append(endLineDelim);
                 String initialLine = line;
-                line = line.substring(classIndex+tokLen);
+                line = line.substring(classIndex + tokLen);
                 FastStringBuffer className = new FastStringBuffer();
-                for(int i=0;i<line.length();i++){
+                for (int i = 0; i < line.length(); i++) {
                     char cN = line.charAt(i);
-                    if(Character.isJavaIdentifierPart(cN)){
+                    if (Character.isJavaIdentifierPart(cN)) {
                         className.append(cN);
-                    }else{
+                    } else {
                         break;
                     }
                 }
-                
+
                 strbuf.append(spacesBefore);
                 strbuf.append("# ");
                 strbuf.append(className);
                 strbuf.append(endLineDelim);
-                
+
                 strbuf.append(spacesBefore);
                 strbuf.append("#").append(fullCommentLine);
                 strbuf.append(endLineDelim);
                 strbuf.append(initialLine);
-                
-                
-            }else{
+
+            } else {
                 List<String> lines = new ArrayList<String>();
 
                 int minCharsBefore = Integer.MAX_VALUE;
@@ -168,10 +164,10 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
                     minCharsBefore = Math.min(minCharsBefore, PySelection.getFirstCharPosition(line));
                     lines.add(line);
                 }
-                
+
                 String firstLine = lines.get(0);
-                String lastLine = lines.get(lines.size()-1);
-                
+                String lastLine = lines.get(lines.size() - 1);
+
                 String strBefore = firstLine.substring(0, minCharsBefore);
                 fullCommentLine = getFullCommentLine(getLenOfStrConsideringTabEditorLen(strBefore), tempBuffer.clear());
                 strbuf.append(strBefore).append("#").append(fullCommentLine).append(endLineDelim);
@@ -181,7 +177,7 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
                     strbuf.append(line.substring(0, minCharsBefore));
                     strbuf.append("#");
                     line = line.substring(minCharsBefore);
-                    if(!line.startsWith("\t") && !line.startsWith(" ")){
+                    if (!line.startsWith("\t") && !line.startsWith(" ")) {
                         strbuf.append(' ');
                     }
                     strbuf.append(line);
@@ -192,13 +188,13 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
                 fullCommentLine = getFullCommentLine(getLenOfStrConsideringTabEditorLen(strAfter), tempBuffer.clear());
                 strbuf.append(lastLine.substring(0, minCharsBefore)).append("#").append(fullCommentLine);
             }
-            
+
             int startOffset = ps.getStartLine().getOffset();
             String str = strbuf.toString();
             // Replace the text with the modified information
             ps.getDoc().replace(startOffset, ps.getSelLength(), str);
 
-            return startOffset+str.length();
+            return startOffset + str.length();
         } catch (Exception e) {
             beep(e);
         }
@@ -207,24 +203,23 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
         return -1;
     }
 
-
     @Override
     protected String getPreferencesNameForChar() {
         return CommentBlocksPreferences.MULTI_BLOCK_COMMENT_CHAR;
     }
-    
+
     /**
      * Currently returns a string with the comment block.  
      * 
      * @return Comment line string, or a default one if Preferences are null
      */
     protected String getFullCommentLine(int subtract, FastStringBuffer buffer) {
-        Tuple<Integer,Character> colsAndChar = getColsAndChar();
-        int cols = colsAndChar.o1-subtract;
+        Tuple<Integer, Character> colsAndChar = getColsAndChar();
+        int cols = colsAndChar.o1 - subtract;
         char c = colsAndChar.o2;
 
         buffer.clear();
-        for (int i = 0; i < cols-1; i++) {
+        for (int i = 0; i < cols - 1; i++) {
             buffer.append(c);
         }
         return buffer.toString();

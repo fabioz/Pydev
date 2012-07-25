@@ -19,36 +19,37 @@ import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
 
 public class AttributeVisitorTestCase extends AbstractIOTestCase {
 
-	public AttributeVisitorTestCase(String name) {
-		super(name);
-	}
+    public AttributeVisitorTestCase(String name) {
+        super(name);
+    }
 
-	@Override
-	public void runTest() throws Throwable {
-		StringBuffer buffer = new StringBuffer();
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(
-		        null, null, new Document(data.source), new PythonNatureStub(), createVersionProvider());
-		GlobalAttributeVisitor globalVisitor = VisitorFactory.createContextVisitor(GlobalAttributeVisitor.class, module.getASTNode(),
-				module, module);
-		ClassDefVisitor classVisitor = VisitorFactory.createContextVisitor(ClassDefVisitor.class, module.getASTNode(), module, module);
-		assertTrue(classVisitor.getAll().size() > 0);
+    @Override
+    public void runTest() throws Throwable {
+        StringBuffer buffer = new StringBuffer();
+        ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(data.source),
+                new PythonNatureStub(), createVersionProvider());
+        GlobalAttributeVisitor globalVisitor = VisitorFactory.createContextVisitor(GlobalAttributeVisitor.class,
+                module.getASTNode(), module, module);
+        ClassDefVisitor classVisitor = VisitorFactory.createContextVisitor(ClassDefVisitor.class, module.getASTNode(),
+                module, module);
+        assertTrue(classVisitor.getAll().size() > 0);
 
-		ClassDefAdapter classDefAdapter = (ClassDefAdapter) classVisitor.getAll().get(0);
-        LocalAttributeVisitor localVisitor = VisitorFactory.createContextVisitor(LocalAttributeVisitor.class, classDefAdapter
-				.getASTNode(), module, classDefAdapter);
-		printAttributes(buffer, globalVisitor);
-		printAttributes(buffer, localVisitor);
+        ClassDefAdapter classDefAdapter = (ClassDefAdapter) classVisitor.getAll().get(0);
+        LocalAttributeVisitor localVisitor = VisitorFactory.createContextVisitor(LocalAttributeVisitor.class,
+                classDefAdapter.getASTNode(), module, classDefAdapter);
+        printAttributes(buffer, globalVisitor);
+        printAttributes(buffer, localVisitor);
 
-		assertEquals(getExpected(), getGenerated());
-	}
+        assertEquals(getExpected(), getGenerated());
+    }
 
-	private void printAttributes(StringBuffer buffer, GlobalAttributeVisitor globalVisitor) {
-		Iterator<SimpleAdapter> iter = globalVisitor.iterator();
-		buffer.append("# " + globalVisitor.getAll().size() + "\n");
-		while (iter.hasNext()) {
-			SimpleAdapter adapter = iter.next();
-			buffer.append("# " + adapter.getParentName() + " " + adapter.getName() + "\n");
-		}
-		this.setTestGenerated(buffer.toString().trim());
-	}
+    private void printAttributes(StringBuffer buffer, GlobalAttributeVisitor globalVisitor) {
+        Iterator<SimpleAdapter> iter = globalVisitor.iterator();
+        buffer.append("# " + globalVisitor.getAll().size() + "\n");
+        while (iter.hasNext()) {
+            SimpleAdapter adapter = iter.next();
+            buffer.append("# " + adapter.getParentName() + " " + adapter.getName() + "\n");
+        }
+        this.setTestGenerated(buffer.toString().trim());
+    }
 }

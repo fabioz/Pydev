@@ -107,7 +107,7 @@ public class EvalExpressionAction extends AbstractHandler implements IHandler, I
                     IValue value = expression.getValue();
                     String result = null;
                     if (value != null) {
-                        result = expr+"\n"+value.getValueString();
+                        result = expr + "\n" + value.getValueString();
                         DisplayPopup popup = new DisplayPopup(shell, point, result);
                         popup.open();
                     }
@@ -120,7 +120,6 @@ public class EvalExpressionAction extends AbstractHandler implements IHandler, I
             }
         });
     }
-
 
     /**
      * Enters a busy wait until the expression finishes evaluating
@@ -140,8 +139,7 @@ public class EvalExpressionAction extends AbstractHandler implements IHandler, I
         } catch (InterruptedException e) {
         }
     }
-    
-    
+
     /**
      * Creates a watch expression to be evaluated with the current debug context.
      * 
@@ -162,20 +160,19 @@ public class EvalExpressionAction extends AbstractHandler implements IHandler, I
         return expression;
     }
 
-
     /*
      * @see org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands.ExecutionEvent)
      */
     public Object execute(ExecutionEvent event) throws ExecutionException {
         EvaluationContext evalCtx = (org.eclipse.core.expressions.EvaluationContext) event.getApplicationContext();
         Object obj = evalCtx.getDefaultVariable();
-        if(obj instanceof Set){
-            Set set = (Set)obj;
-            if(set.size() > 0){
+        if (obj instanceof Set) {
+            Set set = (Set) obj;
+            if (set.size() > 0) {
                 Object sel = set.iterator().next();
-                if(sel instanceof TextSelection){
-                    String expr = ((TextSelection)sel).getText();
-                    if(expr != null && expr.trim().length() > 0){
+                if (sel instanceof TextSelection) {
+                    String expr = ((TextSelection) sel).getText();
+                    if (expr != null && expr.trim().length() > 0) {
                         eval(expr);
                     }
                 }
@@ -199,23 +196,23 @@ public class EvalExpressionAction extends AbstractHandler implements IHandler, I
         }
 
         protected void persist() {
-//            String displayId = IJavaDebugUIConstants.ID_DISPLAY_VIEW;
-//            IWorkbenchPage page = PydevDebugPlugin.getActiveWorkbenchWindow().getActivePage();
-//            IViewReference viewRef = page.findViewReference(displayId);
-//            IViewPart view = null;
-//            if (viewRef != null) {
-//                view = viewRef.getView(true);
-//            } else {
-//                try {
-//                    view = page.showView(displayId);
-//                } catch (PartInitException e) {
-//                    DebugPlugin.log(e);
-//                    return;
-//                }
-//            }
-//            page.activate(page.getActivePart());
-//            IDataDisplay adapter = (IDataDisplay) view.getAdapter(IDataDisplay.class);
-//            adapter.displayExpression(this.text);
+            //            String displayId = IJavaDebugUIConstants.ID_DISPLAY_VIEW;
+            //            IWorkbenchPage page = PydevDebugPlugin.getActiveWorkbenchWindow().getActivePage();
+            //            IViewReference viewRef = page.findViewReference(displayId);
+            //            IViewPart view = null;
+            //            if (viewRef != null) {
+            //                view = viewRef.getView(true);
+            //            } else {
+            //                try {
+            //                    view = page.showView(displayId);
+            //                } catch (PartInitException e) {
+            //                    DebugPlugin.log(e);
+            //                    return;
+            //                }
+            //            }
+            //            page.activate(page.getActivePart());
+            //            IDataDisplay adapter = (IDataDisplay) view.getAdapter(IDataDisplay.class);
+            //            adapter.displayExpression(this.text);
             super.persist();
         }
 
