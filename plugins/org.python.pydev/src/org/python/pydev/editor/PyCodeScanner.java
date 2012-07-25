@@ -234,7 +234,14 @@ public class PyCodeScanner extends RuleBasedScanner {
         // 2) code
         // 3) regular words?
 
-        rules.add(new WhitespaceRule(new GreatWhite(), defaultToken));
+        WhitespaceRule whitespaceRule;
+        try {
+            whitespaceRule = new WhitespaceRule(new GreatWhite(), defaultToken);
+        } catch (Throwable e) {
+            //Compatibility with Eclipse 3.4 and below.
+            whitespaceRule = new WhitespaceRule(new GreatWhite());
+        }
+        rules.add(whitespaceRule);
 
         Map<String, IToken> defaults = new HashMap<String, IToken>();
         defaults.put("self", selfToken);
