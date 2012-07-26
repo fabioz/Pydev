@@ -18,6 +18,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.core.FontUtils;
+import org.python.pydev.core.IFontUsage;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -85,7 +87,8 @@ public class CommentBlocksPreferences extends FieldEditorPreferencePage implemen
 
     private void setLabelFont(Composite composite, Label label) {
         try {
-            FontData labelFontData = new FontData("Courier New", 10, SWT.BOLD);
+            FontData labelFontData = FontUtils.getFontData(IFontUsage.WIDGET, true);
+            labelFontData.setStyle(SWT.BOLD);
             label.setFont(new Font(composite.getDisplay(), labelFontData));
         } catch (Throwable e) {
             //ignore

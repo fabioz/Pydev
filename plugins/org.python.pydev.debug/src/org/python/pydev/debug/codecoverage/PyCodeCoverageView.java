@@ -76,6 +76,8 @@ import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.FontUtils;
+import org.python.pydev.core.IFontUsage;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallbackListener;
@@ -575,7 +577,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
         text = new StyledText(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
         onControlCreated.call(text);
         try {
-            text.setFont(new Font(null, "Courier new", 9, 0));
+            text.setFont(new Font(null, FontUtils.getFontData(IFontUsage.WIDGET, false)));
         } catch (Exception e) {
             //ok, might mot be available.
         }

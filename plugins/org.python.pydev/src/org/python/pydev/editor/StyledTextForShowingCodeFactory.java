@@ -25,9 +25,10 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
+import org.python.pydev.core.FontUtils;
+import org.python.pydev.core.IFontUsage;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PyPartitionScanner;
@@ -67,9 +68,9 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
         styledText = new StyledText(parent, SWT.BORDER | SWT.READ_ONLY);
         this.backgroundColorCache = new ColorAndStyleCache(new PreferenceStore());
         this.colorCache = new ColorAndStyleCache(null);
+
         try {
-            FontData labelFontData = new FontData("Courier New", 10, SWT.NONE);
-            styledText.setFont(new Font(parent.getDisplay(), labelFontData));
+            styledText.setFont(new Font(parent.getDisplay(), FontUtils.getFontData(IFontUsage.STYLED, true)));
         } catch (Throwable e) {
             //ignore
         }
