@@ -12,6 +12,7 @@ import java.util.Iterator;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.preference.PreferenceStore;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.TextAttribute;
@@ -28,6 +29,8 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
+import org.python.pydev.core.IFontUsage;
+import org.python.pydev.core.FontUtils;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PyPartitionScanner;
@@ -67,8 +70,22 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
         styledText = new StyledText(parent, SWT.BORDER | SWT.READ_ONLY);
         this.backgroundColorCache = new ColorAndStyleCache(new PreferenceStore());
         this.colorCache = new ColorAndStyleCache(null);
+                
+        Tuple<String, Integer> codeFontDetails = FontUtils.getCodeFontNameAndHeight(IFontUsage.STYLED);
+        String fontName = codeFontDetails.o1;
+        int fontHeight = codeFontDetails.o2.intValue();
+        
         try {
-            FontData labelFontData = new FontData("Courier New", 10, SWT.NONE);
+            FontData labelFontData;
+
+            // get TextFont from preferences
+            FontData[] textFontData = JFaceResources.getTextFont().getFontData();
+            if (textFontData.length == 1) {
+                labelFontData = textFontData[0];
+            } else {
+                labelFontData = new FontData(fontName, fontHeight, SWT.NONE);                    	
+            }
+            
             styledText.setFont(new Font(parent.getDisplay(), labelFontData));
         } catch (Throwable e) {
             //ignore

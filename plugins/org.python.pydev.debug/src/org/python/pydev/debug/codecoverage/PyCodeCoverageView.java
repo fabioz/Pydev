@@ -85,6 +85,8 @@ import org.python.pydev.core.tooltips.presenter.StyleRangeWithCustomData;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks.CreatedCommandLineParams;
+import org.python.pydev.core.FontUtils;
+import org.python.pydev.core.IFontUsage;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editorinput.PyOpenEditor;
@@ -575,7 +577,11 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
         text = new StyledText(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
         onControlCreated.call(text);
         try {
-            text.setFont(new Font(null, "Courier new", 9, 0));
+            Tuple<String, Integer> codeFontDetails = FontUtils.getCodeFontNameAndHeight(IFontUsage.WIDGET);
+            String fontName = codeFontDetails.o1;
+            int fheight = codeFontDetails.o2.intValue();
+            
+            text.setFont(new Font(null, fontName, fheight, 0));
         } catch (Exception e) {
             //ok, might mot be available.
         }

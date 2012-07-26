@@ -18,6 +18,7 @@ import java.util.Map;
 
 import org.eclipse.jface.resource.CompositeImageDescriptor;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
@@ -27,6 +28,9 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
+import org.python.pydev.core.FontUtils;
+import org.python.pydev.core.IFontUsage;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.Tuple4;
 import org.python.pydev.core.log.Log;
@@ -209,7 +213,10 @@ public class ImageCache {
                 image = new Image(display, get(key), SWT.IMAGE_COPY);
                 imageHash.put(cacheKey, image); //put it there (even though it'll still be changed).
 
-                int base = 10;
+                Tuple<String, Integer> codeFontDetails = FontUtils.getCodeFontNameAndHeight(IFontUsage.IMAGECACHE);
+                String fontName = codeFontDetails.o1;
+                int base = codeFontDetails.o2.intValue();
+
                 GC gc = new GC(image);
 
                 //		        Color color = new Color(display, 0, 0, 0);
@@ -225,7 +232,18 @@ public class ImageCache {
 
                 Color colorBackground = new Color(display, 255, 255, 255);
                 Color colorForeground = new Color(display, 0, 83, 41);
-                Font font = new Font(display, new FontData("Courier New", base - 1, SWT.BOLD));
+
+                FontData labelFontData;
+
+                // get TextFont from preferences
+                FontData[] textFontData = JFaceResources.getTextFont().getFontData();
+                if (textFontData.length == 1) {
+                    labelFontData = textFontData[0];
+                } else {
+                    labelFontData = new FontData(fontName, base, SWT.BOLD);
+                }
+
+                Font font = new Font(display, labelFontData);
 
                 try {
                     gc.setForeground(colorForeground);

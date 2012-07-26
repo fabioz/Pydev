@@ -31,6 +31,8 @@ import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.console.MessageConsole;
 import org.python.pydev.consoles.MessageConsoles;
+import org.python.pydev.core.FontUtils;
+import org.python.pydev.core.IFontUsage;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
@@ -117,10 +119,17 @@ public class Py2To3 extends PyResourceAction implements IObjectActionDelegate {
             int averageCharWidth;
             int height;
 
-            protected Control createDialogArea(Composite parent) {
+            protected boolean isResizable() {
+                return true;
+            }
 
+            protected Control createDialogArea(Composite parent) {
                 try {
-                    FontData labelFontData = new FontData("Courier New", 8, SWT.NONE);
+                    Tuple<String, Integer> codeFontDetails = FontUtils.getCodeFontNameAndHeight(IFontUsage.DIALOG);
+                    String fontName = codeFontDetails.o1;
+                    int fheight = codeFontDetails.o2.intValue();
+                    FontData labelFontData = new FontData(fontName, fheight, SWT.NONE);
+
                     Display display = parent.getDisplay();
                     Font font = new Font(display, labelFontData);
                     parent.setFont(font);
