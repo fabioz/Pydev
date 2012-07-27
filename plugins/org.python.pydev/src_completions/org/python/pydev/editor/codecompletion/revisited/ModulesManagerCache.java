@@ -7,9 +7,10 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.cache.LRUCache;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
+
+import com.aptana.shared_core.utils.Tuple;
 
 /**
  * This is a 'global' cache implementation, that can have at most n objects in

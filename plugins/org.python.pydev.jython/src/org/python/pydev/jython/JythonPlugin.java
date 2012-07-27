@@ -31,8 +31,6 @@ import org.python.core.PyException;
 import org.python.core.PyJavaClass;
 import org.python.core.PyObject;
 import org.python.core.PySystemState;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.BundleInfo;
 import org.python.pydev.core.bundle.IBundleInfo;
 import org.python.pydev.core.callbacks.ICallback0;
@@ -40,6 +38,9 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.jython.ui.JyScriptingPreferencesPage;
 import org.python.util.PythonInterpreter;
+
+import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.utils.Tuple;
 
 /**
  * The main plugin class to be used in the desktop.

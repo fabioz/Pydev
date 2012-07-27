@@ -40,6 +40,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.utils.ICallback;
 
+
 /**
  * @author Fabio Zadrozny
  */

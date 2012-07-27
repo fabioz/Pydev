@@ -14,7 +14,8 @@ import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
-import org.python.pydev.core.structure.FastStringBuffer;
+
+import com.aptana.shared_core.utils.FastStringBuffer;
 
 public class PyFileLabelProvider implements ILabelProvider {
 

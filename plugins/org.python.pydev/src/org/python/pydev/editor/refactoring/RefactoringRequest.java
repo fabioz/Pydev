@@ -18,7 +18,6 @@ import org.eclipse.jface.text.IDocumentExtension4;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.structure.DecoratableObject;
 import org.python.pydev.editor.PyEdit;
@@ -28,6 +27,8 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
+
+import com.aptana.shared_core.utils.Tuple;
 
 /**
  * This class encapsulates all the info needed in order to do a refactoring

@@ -16,6 +16,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.jython.JythonPlugin;
 
+
 /**
  * Process used so that we can create an interactive console using the eclipse IDE itself.
  * 

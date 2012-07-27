@@ -22,13 +22,15 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.core.FastBufferedReader;
+import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.structure.FastStringBuffer;
+
+import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.utils.Tuple;
 
 /**
  * This is a cache that will put its values in the disk for low-memory consumption, so that its size never passes
@@ -294,7 +296,7 @@ public final class DiskCache implements Serializable {
                 //miss in memory... get from disk
                 File file = getFileForKey(key);
                 if (file.exists()) {
-                    String fileContents = REF.getFileContents(file);
+                    String fileContents = FileUtils.getFileContents(file);
                     v = (CompleteIndexValue) readFromFileMethod.call(fileContents);
                 } else {
                     if (DEBUG) {

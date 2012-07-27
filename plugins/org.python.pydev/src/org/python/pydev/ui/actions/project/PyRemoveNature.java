@@ -17,6 +17,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 
+
 /**
  * Action to remove the pydev nature from a given project.
  * 

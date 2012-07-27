@@ -25,9 +25,10 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.ArrayUtils;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
+
+import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.utils.FastStringBuffer;
 
 /**
  * Helper class to deal with markers.

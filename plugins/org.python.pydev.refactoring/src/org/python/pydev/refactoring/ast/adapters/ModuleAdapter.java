@@ -55,6 +55,7 @@ import org.python.pydev.refactoring.ast.adapters.offsetstrategy.InitOffset;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.ast.visitors.info.ImportVisitor;
 
+
 public class ModuleAdapter extends AbstractScopeNode<Module> {
     private List<FQIdentifier> aliasToFQIdentifier;
     private IDocument doc;

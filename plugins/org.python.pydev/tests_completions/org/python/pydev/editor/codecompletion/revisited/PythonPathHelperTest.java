@@ -15,10 +15,10 @@ import java.io.CharArrayReader;
 import java.io.File;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
@@ -296,76 +296,76 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         String s = "" + "#test.py\n" + "# handles encoding and decoding of xmlBlaster socket protocol \n" + "\n" + "\n"
                 + "";
         CharArrayReader reader = new CharArrayReader(s.toCharArray());
-        String encoding = REF.getPythonFileEncoding(reader, null);
+        String encoding = FileUtils.getPythonFileEncoding(reader, null);
         assertEquals(null, encoding);
     }
 
     public void testGetEncoding3() {
         //silent it in the tests
-        REF.LOG_ENCODING_ERROR = false;
+        FileUtils.LOG_ENCODING_ERROR = false;
         try {
             String s = "" + "#coding: foo_1\n" + //not valid encoding... will show in log but will not throw error
                     "# handles encoding and decoding of xmlBlaster socket protocol \n" + "\n" + "\n" + "";
             CharArrayReader reader = new CharArrayReader(s.toCharArray());
-            String encoding = REF.getPythonFileEncoding(reader, null);
+            String encoding = FileUtils.getPythonFileEncoding(reader, null);
             assertEquals(null, encoding);
         } finally {
-            REF.LOG_ENCODING_ERROR = true;
+            FileUtils.LOG_ENCODING_ERROR = true;
         }
     }
 
     public void testGetEncoding4() {
         String s = "" + "#coding: utf-8\n" + "\n" + "";
         CharArrayReader reader = new CharArrayReader(s.toCharArray());
-        String encoding = REF.getPythonFileEncoding(reader, null);
+        String encoding = FileUtils.getPythonFileEncoding(reader, null);
         assertEquals("utf-8", encoding);
     }
 
     public void testGetEncoding5() {
         String s = "" + "#-*- coding: utf-8; -*-\n" + "\n" + "";
         CharArrayReader reader = new CharArrayReader(s.toCharArray());
-        String encoding = REF.getPythonFileEncoding(reader, null);
+        String encoding = FileUtils.getPythonFileEncoding(reader, null);
         assertEquals("utf-8", encoding);
     }
 
     public void testGetEncoding6() {
         String s = "" + "#coding: utf-8;\n" + "\n" + "";
         CharArrayReader reader = new CharArrayReader(s.toCharArray());
-        String encoding = REF.getPythonFileEncoding(reader, null);
+        String encoding = FileUtils.getPythonFileEncoding(reader, null);
         assertEquals("utf-8", encoding);
     }
 
     public void testGetEncoding7() {
         String s = "" + "#coding: utf8;\n" + "\n" + "";
         CharArrayReader reader = new CharArrayReader(s.toCharArray());
-        String encoding = REF.getPythonFileEncoding(reader, null);
+        String encoding = FileUtils.getPythonFileEncoding(reader, null);
         assertEquals("utf8", encoding);
     }
 
     public void testGetEncoding8() {
         String s = "" + "#coding: iso-latin-1-unix;\n" + "\n" + "";
         CharArrayReader reader = new CharArrayReader(s.toCharArray());
-        String encoding = REF.getPythonFileEncoding(reader, null);
+        String encoding = FileUtils.getPythonFileEncoding(reader, null);
         assertEquals("latin1", encoding);
     }
 
     public void testGetEncoding9() {
         String s = "" + "#coding: latin-1\n" + "\n" + "";
         CharArrayReader reader = new CharArrayReader(s.toCharArray());
-        String encoding = REF.getPythonFileEncoding(reader, null);
+        String encoding = FileUtils.getPythonFileEncoding(reader, null);
         assertEquals("latin1", encoding);
     }
 
     public void testGetEncoding10() {
         String s = "" + "#coding: latin1\n" + "\n" + "";
         CharArrayReader reader = new CharArrayReader(s.toCharArray());
-        String encoding = REF.getPythonFileEncoding(reader, null);
+        String encoding = FileUtils.getPythonFileEncoding(reader, null);
         assertEquals("latin1", encoding);
     }
 
     public void testGetEncoding() {
         String loc = TestDependent.TEST_PYSRC_LOC + "testenc/encutf8.py";
-        String encoding = REF.getPythonFileEncoding(new File(loc));
+        String encoding = FileUtils.getPythonFileEncoding(new File(loc));
         assertEquals("UTF-8", encoding);
     }
 }

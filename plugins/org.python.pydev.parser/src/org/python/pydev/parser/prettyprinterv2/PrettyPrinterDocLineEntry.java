@@ -11,9 +11,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.commentType;
+
+import com.aptana.shared_core.utils.FastStringBuffer;
 
 /**
  * Defines a line in the document. The items are added based on the order in which items are added

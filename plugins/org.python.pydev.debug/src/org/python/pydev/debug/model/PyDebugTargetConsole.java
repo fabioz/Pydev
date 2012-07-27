@@ -13,8 +13,10 @@ import org.python.pydev.debug.model.remote.VersionCommand;
 import org.python.pydev.debug.newconsole.IPydevConsoleDebugTarget;
 import org.python.pydev.debug.newconsole.PydevConsole;
 import org.python.pydev.debug.newconsole.PydevConsoleCommunication;
-import org.python.pydev.dltk.console.ui.ScriptConsole;
-import org.python.pydev.dltk.console.ui.ScriptConsoleManager;
+
+import com.aptana.interactive_console.console.ui.ScriptConsole;
+import com.aptana.interactive_console.console.ui.ScriptConsoleManager;
+
 
 /**
  * This is used so that the interactive console can have a connection to the variables view.

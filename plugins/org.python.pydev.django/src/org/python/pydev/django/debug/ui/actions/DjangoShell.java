@@ -25,6 +25,7 @@ import org.python.pydev.django.launching.DjangoConstants;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.nature.PythonNature;
 
+
 public class DjangoShell extends DjangoAction {
 
     public void run(IAction action) {

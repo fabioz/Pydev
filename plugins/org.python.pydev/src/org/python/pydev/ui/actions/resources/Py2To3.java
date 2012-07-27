@@ -33,7 +33,6 @@ import org.eclipse.ui.console.MessageConsole;
 import org.python.pydev.consoles.MessageConsoles;
 import org.python.pydev.core.FontUtils;
 import org.python.pydev.core.IFontUsage;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
@@ -41,6 +40,8 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.UniversalRunner;
 import org.python.pydev.runners.UniversalRunner.AbstractRunner;
 import org.python.pydev.ui.UIConstants;
+
+import com.aptana.shared_core.utils.Tuple;
 
 /**
  * Applies 2to3.py in the selected folder(s)/file(s)

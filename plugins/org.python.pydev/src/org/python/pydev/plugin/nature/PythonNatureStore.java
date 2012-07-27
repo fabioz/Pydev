@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -43,11 +43,10 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
+import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -56,6 +55,9 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
+
+import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.utils.REF;
 
 /**
  * This class stores PythonNature and PythonPathNature properties inside the project in a file instead of persistent 
@@ -305,7 +307,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                     return true;
                 }
             } else {
-                String fileContents = REF.getFileContents(file);
+                String fileContents = FileUtils.getFileContents(file);
                 if (lastLoadedContents != null && fileContents.equals(lastLoadedContents)) {
                     return false;
                 }

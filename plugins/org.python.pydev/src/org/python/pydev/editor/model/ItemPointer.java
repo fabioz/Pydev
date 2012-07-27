@@ -17,9 +17,10 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.python.pydev.core.PropertiesHelper;
-import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.jython.SimpleNode;
+
+import com.aptana.shared_core.utils.REF;
 
 /**
  * Pointer points to a python resource inside a file system. 

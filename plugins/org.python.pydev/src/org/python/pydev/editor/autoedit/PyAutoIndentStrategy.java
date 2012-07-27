@@ -12,25 +12,29 @@
 package org.python.pydev.editor.autoedit;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextSelection;
 import org.python.pydev.core.IIndentPrefs;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.NoPeerAvailableException;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
+import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
+
+import com.aptana.interactive_console.console.ui.internal.IHandleScriptAutoEditStrategy;
+import com.aptana.shared_core.utils.DocCmd;
+import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.utils.Tuple;
 
 /**
  * Class which implements the following behaviors:
@@ -40,7 +44,7 @@ import org.python.pydev.plugin.PydevPlugin;
  * This class uses the org.python.pydev.core.docutils.DocUtils class extensively
  * for some document-related operations.
  */
-public final class PyAutoIndentStrategy implements IAutoEditStrategy {
+public final class PyAutoIndentStrategy implements IAutoEditStrategy, IHandleScriptAutoEditStrategy {
 
     private IIndentPrefs prefs;
 
@@ -1216,5 +1220,22 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy {
 
     public void setBlockSelection(boolean blockSelection) {
         this.blockSelection = blockSelection;
+    }
+
+    public void customizeParenthesis(IDocument doc, DocumentCommand docCmd) throws BadLocationException {
+        PyAutoIndentStrategy.customizeParenthesis(doc, docCmd, true, this.getIndentPrefs());
+    }
+
+    /**
+     * Empty document (should not be written to).
+     */
+    IDocument EMPTY_DOCUMENT = new Document();
+
+    public String convertTabs(String cmd) {
+        DocCmd newStr = new DocCmd(0, 0, cmd);
+        getIndentPrefs().convertToStd(EMPTY_DOCUMENT, newStr);
+        cmd = newStr.text;
+        return cmd;
+
     }
 }

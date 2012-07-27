@@ -15,26 +15,40 @@ import org.eclipse.debug.core.model.IStreamsProxy;
 import org.eclipse.debug.ui.console.IConsole;
 import org.eclipse.debug.ui.console.IConsoleHyperlink;
 import org.eclipse.debug.ui.console.IConsoleLineTracker;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextHover;
+import org.eclipse.jface.text.contentassist.ContentAssistant;
+import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.quickassist.IQuickAssistProcessor;
+import org.eclipse.jface.text.quickassist.QuickAssistAssistant;
+import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.console.IPatternMatchListener;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.debug.newconsole.actions.LinkWithDebugSelectionAction;
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.debug.ui.PythonConsoleLineTracker;
-import org.python.pydev.dltk.console.ScriptConsolePrompt;
-import org.python.pydev.dltk.console.ui.IConsoleStyleProvider;
-import org.python.pydev.dltk.console.ui.ScriptConsole;
+import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
 import org.python.pydev.plugin.PydevPlugin;
+
+import com.aptana.interactive_console.console.ScriptConsolePrompt;
+import com.aptana.interactive_console.console.ui.IConsoleStyleProvider;
+import com.aptana.interactive_console.console.ui.ScriptConsole;
+import com.aptana.interactive_console.console.ui.ScriptConsoleUIConstants;
+import com.aptana.interactive_console.console.ui.internal.IHandleScriptAutoEditStrategy;
+import com.aptana.interactive_console.console.ui.internal.ScriptConsoleMessages;
+import com.aptana.interactive_console.console.ui.internal.ScriptConsolePage;
+import com.aptana.interactive_console.console.ui.internal.actions.AbstractHandleBackspaceAction;
 
 /**
  * The pydev console creates the basic stuff to work as a script console.
@@ -76,13 +90,35 @@ public class PydevConsole extends ScriptConsole {
      * The completion processor for pydev.
      */
     @Override
-    protected PydevConsoleCompletionProcessor createConsoleCompletionProcessor(PyContentAssistant pyContentAssistant) {
-        return new PydevConsoleCompletionProcessor(interpreter, pyContentAssistant);
+    protected PydevConsoleCompletionProcessor createConsoleCompletionProcessor(ContentAssistant pyContentAssistant) {
+        return new PydevConsoleCompletionProcessor(interpreter, (PyContentAssistant) pyContentAssistant);
     }
 
     @Override
-    protected IQuickAssistProcessor createConsoleQuickAssistProcessor(PyCorrectionAssistant quickAssist) {
-        return new PydevConsoleQuickAssistProcessor(quickAssist);
+    protected IQuickAssistProcessor createConsoleQuickAssistProcessor(QuickAssistAssistant quickAssist) {
+        return new PydevConsoleQuickAssistProcessor((PyCorrectionAssistant) quickAssist);
+    }
+
+    @Override
+    protected SourceViewerConfiguration createSourceViewerConfiguration() {
+        PyContentAssistant contentAssist = new PyContentAssistant();
+        IContentAssistProcessor processor = createConsoleCompletionProcessor(contentAssist);
+        contentAssist.setContentAssistProcessor(processor, ScriptConsoleSourceViewerConfiguration.PARTITION_TYPE);
+
+        contentAssist.enableAutoActivation(true);
+        contentAssist.enableAutoInsert(false);
+        contentAssist.setAutoActivationDelay(PyCodeCompletionPreferencesPage.getAutocompleteDelay());
+
+        PyCorrectionAssistant quickAssist = new PyCorrectionAssistant();
+        // next create a content assistant processor to populate the completions window
+        IQuickAssistProcessor quickAssistProcessor = createConsoleQuickAssistProcessor(quickAssist);
+
+        // Correction assist works on all
+        quickAssist.setQuickAssistProcessor(quickAssistProcessor);
+
+        SourceViewerConfiguration cfg = new ScriptConsoleSourceViewerConfiguration(createHover(), contentAssist,
+                quickAssist);
+        return cfg;
     }
 
     /**
@@ -232,5 +268,27 @@ public class PydevConsole extends ScriptConsole {
      */
     public void setProcess(IProcess process) {
         this.process = process;
+    }
+
+    @Override
+    public AbstractHandleBackspaceAction getBackspaceAction() {
+        return new HandleBackspaceAction();
+    }
+
+    private LinkWithDebugSelectionAction linkWithDebugSelectionAction;
+
+    @Override
+    public void createActions(IToolBarManager toolbarManager) {
+        if (getType().contains(ScriptConsoleUIConstants.DEBUG_CONSOLE_TYPE)) {
+            // initialize LinkWithFrameAction only for Debug Console
+            linkWithDebugSelectionAction = new LinkWithDebugSelectionAction(this,
+                    ScriptConsoleMessages.LinkWithDebugAction, ScriptConsoleMessages.LinkWithDebugToolTip);
+            toolbarManager.appendToGroup(ScriptConsolePage.SCRIPT_GROUP, linkWithDebugSelectionAction);
+        }
+    }
+
+    @Override
+    public IHandleScriptAutoEditStrategy getAutoEditStrategy() {
+        return new PyAutoIndentStrategy();
     }
 }

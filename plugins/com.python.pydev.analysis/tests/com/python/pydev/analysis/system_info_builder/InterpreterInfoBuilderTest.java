@@ -16,19 +16,20 @@ import junit.framework.TestCase;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceStore;
+import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.callbacks.ICallback;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevTestUtils;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
+import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.utils.REF;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
@@ -59,7 +60,7 @@ public class InterpreterInfoBuilderTest extends TestCase {
         REF.writeStrToFile("class Module3:pass", new File(libDir, "module3.py"));
 
         PydevTestUtils.setTestPlatformStateLocation();
-        REF.IN_TESTS = true;
+        FileUtils.IN_TESTS = true;
         ProjectModulesManager.IN_TESTS = true;
     }
 
@@ -67,6 +68,7 @@ public class InterpreterInfoBuilderTest extends TestCase {
     protected void tearDown() throws Exception {
         REF.deleteDirectoryTree(baseDir);
         ProjectModulesManager.IN_TESTS = false;
+        FileUtils.IN_TESTS = false;
     }
 
     public void testInterpreterInfoBuilder() throws Exception {

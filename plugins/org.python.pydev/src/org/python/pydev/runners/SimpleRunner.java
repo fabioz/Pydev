@@ -31,13 +31,14 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringSubstitution;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
+
+import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.utils.Tuple;
 
 public class SimpleRunner {
 
@@ -298,7 +299,7 @@ public class SimpleRunner {
         }
 
         String separator = getPythonPathSeparator();
-        return StringUtils.join(separator, paths);
+        return com.aptana.shared_core.utils.StringUtils.join(separator, paths);
     }
 
     /**

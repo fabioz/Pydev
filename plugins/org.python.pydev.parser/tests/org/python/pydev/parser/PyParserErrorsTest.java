@@ -7,8 +7,6 @@
 package org.python.pydev.parser;
 
 import org.python.pydev.core.IGrammarVersionProvider;
-import org.python.pydev.core.Tuple;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -19,6 +17,9 @@ import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.visitors.NodeUtils;
+
+import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.utils.Tuple;
 
 public class PyParserErrorsTest extends PyParserTestBase {
 

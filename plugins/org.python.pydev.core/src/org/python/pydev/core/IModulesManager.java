@@ -16,6 +16,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import com.aptana.shared_core.utils.Tuple;
+
 public interface IModulesManager {
     /**
      * This is the maximun number of deltas that can be generated before saving everything in a big chunck and 

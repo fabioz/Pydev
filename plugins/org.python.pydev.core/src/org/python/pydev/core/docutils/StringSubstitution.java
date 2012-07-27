@@ -21,6 +21,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
 
+
 /**
  * Implements a part of IStringVariableManager (just the performStringSubstitution methods).
  */

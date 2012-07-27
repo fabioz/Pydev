@@ -22,9 +22,10 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.ui.text.java.CompletionProposalCollector;
 import org.python.pydev.core.FullRepIterable;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModuleForZip;
+
+import com.aptana.shared_core.utils.Tuple;
 
 /**
  * This is the module wrapper around java files or java packages.

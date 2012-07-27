@@ -39,15 +39,16 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.FullRepIterable;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.concurrency.SingleJobRunningPool;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
+
+import com.aptana.shared_core.utils.RunInUiThread;
+import com.aptana.shared_core.utils.Tuple;
 
 /**
  * The whole picture:
@@ -687,7 +688,7 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 
         int endAt = segments.length - 1;
 
-        String modulePart = StringUtils.join(".", segments, startAt, endAt);
+        String modulePart = com.aptana.shared_core.utils.StringUtils.join(".", segments, startAt, endAt);
 
         if (!PyTitlePreferencesPage.getTitleShowExtension()) {
             String initial = name;

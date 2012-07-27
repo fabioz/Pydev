@@ -9,6 +9,7 @@ package org.python.pydev.core.callbacks;
 import org.python.pydev.core.OrderedSet;
 import org.python.pydev.core.log.Log;
 
+
 public class CallbackWithListeners<X> implements ICallbackWithListeners<X> {
 
     private final OrderedSet<ICallbackListener<X>> listeners;

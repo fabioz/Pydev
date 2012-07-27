@@ -12,6 +12,7 @@ import java.util.List;
 import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.core.log.Log;
 
+
 /**
  * Helper class to ensure that only 1 job will be running.
  *

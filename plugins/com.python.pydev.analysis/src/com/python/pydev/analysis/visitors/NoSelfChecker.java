@@ -13,9 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.python.pydev.core.FullRepIterable;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.structure.FastStack;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -27,6 +25,8 @@ import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
+import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.utils.Tuple;
 import com.python.pydev.analysis.IAnalysisPreferences;
 
 public final class NoSelfChecker {

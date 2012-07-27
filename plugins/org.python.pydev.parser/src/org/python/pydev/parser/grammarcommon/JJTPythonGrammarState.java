@@ -10,12 +10,13 @@ import java.lang.reflect.Constructor;
 
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStack;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.Node;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
+
+import com.aptana.shared_core.utils.FastStringBuffer;
 
 public final class JJTPythonGrammarState extends AbstractJJTPythonGrammarState implements IJJTPythonGrammarState {
 

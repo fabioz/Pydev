@@ -16,9 +16,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
+
+
+import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.utils.REF;
 
 /**
  * This class can be used to work on deltas. It is able to save and restore data on a 'delta' fashion.
@@ -337,7 +340,7 @@ public class DeltaSaver<X> {
             if (!astOutputFile.exists()) {
                 return null;
             }
-            String fileContents = REF.getFileContents(astOutputFile);
+            String fileContents = FileUtils.getFileContents(astOutputFile);
             DeltaSaver.DeltaCommand o = null;
             try {
                 if (fileContents.startsWith("UPD")) {

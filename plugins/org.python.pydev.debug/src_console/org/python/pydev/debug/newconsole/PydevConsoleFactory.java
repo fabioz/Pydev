@@ -36,9 +36,11 @@ import org.python.pydev.debug.newconsole.env.IProcessFactory.PydevConsoleLaunchI
 import org.python.pydev.debug.newconsole.env.JythonEclipseProcess;
 import org.python.pydev.debug.newconsole.env.UserCanceledException;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
-import org.python.pydev.dltk.console.ui.ScriptConsoleManager;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+
+import com.aptana.interactive_console.console.ui.ScriptConsoleManager;
+
 
 /**
  * Could ask to configure the interpreter in the preferences

@@ -17,6 +17,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.OfflineActionTarget;
 
+
 /**
  * This is the class that manages the actions that are binded after Ctrl+2
  */

@@ -40,6 +40,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.MainModuleTab;
 
+
 /**
  * A control for setting the working directory associated with a launch
  * configuration.

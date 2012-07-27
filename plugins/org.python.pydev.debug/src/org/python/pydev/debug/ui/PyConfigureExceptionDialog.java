@@ -42,9 +42,10 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.ui.internal.WorkbenchMessages;
-import org.python.pydev.core.StringMatcher;
 import org.python.pydev.debug.model.PyExceptionBreakPointManager;
 import org.python.pydev.debug.ui.actions.PyExceptionListProvider;
+
+import com.aptana.shared_core.utils.StringMatcher;
 
 public class PyConfigureExceptionDialog extends SelectionDialog {
 

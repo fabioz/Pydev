@@ -35,8 +35,9 @@ import org.eclipse.ui.texteditor.ITextEditorExtension;
 import org.eclipse.ui.texteditor.ITextEditorExtension2;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
+
+import com.aptana.shared_core.utils.FastStringBuffer;
 
 /**
  * @author Fabio Zadrozny

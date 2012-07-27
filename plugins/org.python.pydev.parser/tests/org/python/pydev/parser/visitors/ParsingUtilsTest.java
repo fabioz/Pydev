@@ -11,7 +11,8 @@ package org.python.pydev.parser.visitors;
 
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.docutils.ParsingUtils;
-import org.python.pydev.core.structure.FastStringBuffer;
+
+import com.aptana.shared_core.utils.FastStringBuffer;
 
 import junit.framework.TestCase;
 

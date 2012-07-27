@@ -32,12 +32,13 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.dialogs.SelectionDialog;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.dialogs.MapOfStringsInputDialog;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
+
+import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.utils.Tuple;
 
 /**
  * @author Fabio Zadrozny

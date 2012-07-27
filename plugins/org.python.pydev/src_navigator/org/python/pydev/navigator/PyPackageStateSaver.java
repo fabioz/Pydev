@@ -28,6 +28,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.ui.PydevPackageExplorer.PydevCommonViewer;
 
+
 /**
  * This class saves and restores the expanded and selected items in the tree.
  */

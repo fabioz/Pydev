@@ -26,6 +26,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 
+
 /**
  * @author Hussain Bohra
  */

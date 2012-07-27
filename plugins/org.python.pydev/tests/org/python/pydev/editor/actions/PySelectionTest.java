@@ -19,12 +19,13 @@ import junit.framework.TestCase;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.TextSelection;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PyDocIterator;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.docutils.PySelection.TddPossibleMatches;
 import org.python.pydev.core.docutils.StringUtils;
+
+import com.aptana.shared_core.utils.Tuple;
 
 /**
  * @author Fabio Zadrozny

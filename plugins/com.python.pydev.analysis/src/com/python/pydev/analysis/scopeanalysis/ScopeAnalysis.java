@@ -13,7 +13,6 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -30,6 +29,8 @@ import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
+
+import com.aptana.shared_core.utils.Tuple;
 
 public class ScopeAnalysis {
 

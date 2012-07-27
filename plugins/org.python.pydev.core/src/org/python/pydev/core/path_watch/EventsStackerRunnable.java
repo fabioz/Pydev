@@ -17,7 +17,8 @@ import name.pachler.nio.file.WatchKey;
 import org.eclipse.core.runtime.Assert;
 import org.python.pydev.core.ListenerList;
 import org.python.pydev.core.OrderedMap;
-import org.python.pydev.core.structure.FastStringBuffer;
+
+import com.aptana.shared_core.utils.FastStringBuffer;
 
 /**
  * This object will stack many ADD/REMOVE changes into a single change. It also deals with OVERFLOW changes, which

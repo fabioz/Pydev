@@ -42,6 +42,7 @@ import org.python.pydev.django.launching.PythonFileRunner;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.nature.PythonNature;
 
+
 /**
  * Base class for django actions.
  */

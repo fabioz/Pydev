@@ -12,7 +12,8 @@ import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
+
+import com.aptana.shared_core.utils.FastStringBuffer;
 
 /**
  * Class to help iterating through the document's indentation strings.

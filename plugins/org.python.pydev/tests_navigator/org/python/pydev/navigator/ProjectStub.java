@@ -23,8 +23,9 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.resource_stubs.AbstractIProjectStub;
+
+import com.aptana.shared_core.utils.REF;
 
 public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapter {
 

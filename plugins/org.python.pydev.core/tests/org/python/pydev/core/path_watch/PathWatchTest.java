@@ -18,10 +18,11 @@ import name.pachler.nio.file.WatchEvent;
 import name.pachler.nio.file.WatchKey;
 
 import org.python.pydev.core.ListenerList;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
-import org.python.pydev.core.callbacks.ICallback;
-import org.python.pydev.core.structure.FastStringBuffer;
+
+import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.utils.Tuple;
 
 /**
  * @author fabioz

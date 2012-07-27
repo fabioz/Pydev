@@ -16,8 +16,9 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.python.pydev.core.Tuple;
-import org.python.pydev.core.structure.FastStringBuffer;
+
+import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.utils.Tuple;
 
 public class StringUtilsTest extends TestCase {
 
@@ -651,32 +652,32 @@ public class StringUtilsTest extends TestCase {
     }
 
     public void testJoin() throws Exception {
-        assertEquals("", StringUtils.join("", "", ""));
-        assertEquals("null", StringUtils.join("", null, ""));
-        assertEquals("nulla", StringUtils.join("", null, "a"));
+        assertEquals("", com.aptana.shared_core.utils.StringUtils.join("", "", ""));
+        assertEquals("null", com.aptana.shared_core.utils.StringUtils.join("", null, ""));
+        assertEquals("nulla", com.aptana.shared_core.utils.StringUtils.join("", null, "a"));
 
-        assertEquals("rara", StringUtils.join("rara", "", ""));
-        assertEquals("nullrara", StringUtils.join("rara", null, ""));
-        assertEquals("nullwhata", StringUtils.join("what", null, "a"));
+        assertEquals("rara", com.aptana.shared_core.utils.StringUtils.join("rara", "", ""));
+        assertEquals("nullrara", com.aptana.shared_core.utils.StringUtils.join("rara", null, ""));
+        assertEquals("nullwhata", com.aptana.shared_core.utils.StringUtils.join("what", null, "a"));
 
-        assertEquals("ra", StringUtils.join("ra", "", ""));
-        assertEquals("nullra", StringUtils.join("ra", null, ""));
-        assertEquals("nullwha", StringUtils.join("wh", null, "a"));
+        assertEquals("ra", com.aptana.shared_core.utils.StringUtils.join("ra", "", ""));
+        assertEquals("nullra", com.aptana.shared_core.utils.StringUtils.join("ra", null, ""));
+        assertEquals("nullwha", com.aptana.shared_core.utils.StringUtils.join("wh", null, "a"));
 
-        assertEquals(";", StringUtils.join(";", "", ""));
-        assertEquals("null;", StringUtils.join(";", null, ""));
-        assertEquals("null;a", StringUtils.join(";", null, "a"));
-        assertEquals("null", StringUtils.join(";", (Object) null));
-        assertEquals("null", StringUtils.join("", (Object) null));
-        assertEquals("nullnulla", StringUtils.join("", (Object) null, (Object) null, "a"));
+        assertEquals(";", com.aptana.shared_core.utils.StringUtils.join(";", "", ""));
+        assertEquals("null;", com.aptana.shared_core.utils.StringUtils.join(";", null, ""));
+        assertEquals("null;a", com.aptana.shared_core.utils.StringUtils.join(";", null, "a"));
+        assertEquals("null", com.aptana.shared_core.utils.StringUtils.join(";", (Object) null));
+        assertEquals("null", com.aptana.shared_core.utils.StringUtils.join("", (Object) null));
+        assertEquals("nullnulla", com.aptana.shared_core.utils.StringUtils.join("", (Object) null, (Object) null, "a"));
 
-        assertEquals("b", StringUtils.join("/", new String[] { "a", "b", "c" }, 1, 2));
-        assertEquals("b/c", StringUtils.join("/", new String[] { "a", "b", "c" }, 1, 3));
+        assertEquals("b", com.aptana.shared_core.utils.StringUtils.join("/", new String[] { "a", "b", "c" }, 1, 2));
+        assertEquals("b/c", com.aptana.shared_core.utils.StringUtils.join("/", new String[] { "a", "b", "c" }, 1, 3));
 
         List<String> l = new ArrayList<String>();
         l.add("b");
         l.add("c");
-        assertEquals("b/c", StringUtils.join("/", l));
+        assertEquals("b/c", com.aptana.shared_core.utils.StringUtils.join("/", l));
     }
 
     public void testParseInt() throws Exception {

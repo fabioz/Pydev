@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.TextAttribute;
-import org.python.pydev.core.Tuple;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
-import org.python.pydev.dltk.console.ui.IConsoleStyleProvider;
-import org.python.pydev.dltk.console.ui.ScriptStyleRange;
+
+import com.aptana.interactive_console.console.ui.IConsoleStyleProvider;
+import com.aptana.interactive_console.console.ui.ScriptStyleRange;
+import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.utils.Tuple;
 
 /**
  * @author fabioz

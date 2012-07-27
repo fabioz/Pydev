@@ -14,11 +14,12 @@ package org.python.pydev.editor.codecompletion.revisited;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
+
+import com.aptana.shared_core.utils.FastStringBuffer;
 
 /**
  * @author Fabio Zadrozny

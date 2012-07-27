@@ -1,12 +1,13 @@
 package org.python.pydev.refactoring.tests.ast.factory;
 
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.prettyprinter.AbstractPrettyPrinterTestBase;
 import org.python.pydev.parser.prettyprinterv2.MakeAstValidForPrettyPrintingVisitor;
+
+import com.aptana.shared_core.callbacks.ICallback;
 
 public class PyAstFactoryWithPrettyPrinting extends AbstractPrettyPrinterTestBase {
 

@@ -24,6 +24,7 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 
+
 public abstract class AbstractPyCreateAction extends Action implements IEditorActionDelegate {
 
     public static final int LOCATION_STRATEGY_BEFORE_CURRENT = 0; //before the current method (in the same level)

@@ -13,6 +13,7 @@ import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.customizations.common.CustomizationCommons;
 
+
 /**
  * Test to check if a given file is from a django project.
  * 

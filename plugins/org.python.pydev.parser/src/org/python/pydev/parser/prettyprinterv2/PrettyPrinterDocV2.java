@@ -17,11 +17,12 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.eclipse.core.runtime.Assert;
-import org.python.pydev.core.Tuple;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.commentType;
+
+import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.utils.Tuple;
 
 /**
  * This document is the temporary structure we create to put on the tokens and the comments.

@@ -15,7 +15,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
+
+
+import com.aptana.shared_core.utils.FastStringBuffer;
 
 public class ThreadStreamReaderPrinter extends Thread {
     private static final boolean DEBUG = false;

@@ -33,8 +33,10 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.autoedit.DocCmd;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
+
+import com.aptana.shared_core.utils.DocCmd;
+
 
 /**
  * Base class for actions that do a move action (Alt+Up or Alt+Down).

@@ -11,6 +11,8 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
+import com.aptana.shared_core.utils.FastStringBuffer;
+
 /**
  * Note: not thread-safe!
  * 

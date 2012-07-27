@@ -17,9 +17,9 @@ public class EncodingsTest extends TestCase {
     }
 
     public void testRefEncoding() throws Exception {
-        String validEncoding = REF.getValidEncoding("latin-1", null);
+        String validEncoding = FileUtils.getValidEncoding("latin-1", null);
         assertEquals("latin1", validEncoding);
-        assertNull(REF.getValidEncoding("utf-8-*-", null));
+        assertNull(FileUtils.getValidEncoding("utf-8-*-", null));
 
         //supported
         assertTrue(Charset.isSupported("latin1"));

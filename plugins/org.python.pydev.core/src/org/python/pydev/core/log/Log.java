@@ -12,11 +12,9 @@ package org.python.pydev.core.log;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
@@ -24,7 +22,6 @@ import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.console.MessageConsole;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.FullRepIterable;
-import org.python.pydev.core.Tuple;
 
 /**
  * @author Fabio
@@ -32,61 +29,17 @@ import org.python.pydev.core.Tuple;
 public class Log {
 
     /**
-     * Only applicable when plugin == null (i.e.: running tests)
-     */
-    private static final int DEBUG_LEVEL = IStatus.WARNING;
-
-    /**
      * Console used to log contents
      */
     private static MessageConsole fConsole;
     private static IOConsoleOutputStream fOutputStream;
-
-    private static final Map<Tuple<Integer, String>, Long> lastLoggedTime = new HashMap<Tuple<Integer, String>, Long>();
 
     /**
      * @param errorLevel IStatus.[OK|INFO|WARNING|ERROR]
      * @return CoreException that can be thrown for the given log event
      */
     public static CoreException log(int errorLevel, String message, Throwable e) {
-        CorePlugin plugin = CorePlugin.getDefault();
-        String id;
-        if (plugin == null) {
-            id = "CorePlugin";
-        } else {
-            id = plugin.getBundle().getSymbolicName();
-        }
-
-        Status s = new Status(errorLevel, id, errorLevel, message, e);
-        CoreException coreException = new CoreException(s);
-
-        Tuple<Integer, String> key = new Tuple<Integer, String>(errorLevel, message);
-        synchronized (lastLoggedTime) {
-            Long lastLoggedMillis = lastLoggedTime.get(key);
-            long currentTimeMillis = System.currentTimeMillis();
-            if (lastLoggedMillis != null) {
-                if (currentTimeMillis < lastLoggedMillis + (20 * 1000)) {
-                    //System.err.println("Skipped report of:"+message);
-                    return coreException; //Logged in the last 20 seconds, so, just skip it for now
-                }
-            }
-            lastLoggedTime.put(key, currentTimeMillis);
-        }
-        try {
-            if (plugin != null) {
-                plugin.getLog().log(s);
-            } else {
-                if (DEBUG_LEVEL <= errorLevel) {
-                    System.err.println(message);
-                    if (e != null) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        } catch (Exception e1) {
-            //logging should not fail!
-        }
-        return coreException;
+        return com.aptana.shared_core.utils.Log.log(errorLevel, message, e);
     }
 
     public static CoreException log(Throwable e) {

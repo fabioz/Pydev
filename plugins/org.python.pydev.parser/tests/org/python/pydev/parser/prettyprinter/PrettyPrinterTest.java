@@ -12,11 +12,12 @@ package org.python.pydev.parser.prettyprinter;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
+
+import com.aptana.shared_core.callbacks.ICallback;
 
 public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 

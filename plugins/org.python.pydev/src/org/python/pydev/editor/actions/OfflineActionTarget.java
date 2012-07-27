@@ -35,9 +35,10 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.progress.UIJob;
 import org.eclipse.ui.texteditor.IStatusField;
 import org.eclipse.ui.texteditor.IStatusFieldExtension;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.KeyAssistDialog;
 import org.python.pydev.editor.PyEdit;
+
+import com.aptana.shared_core.utils.FastStringBuffer;
 
 /**
  * This action is supposed to be subclassed. It provides means to attach a listener to the editor and grab the input until

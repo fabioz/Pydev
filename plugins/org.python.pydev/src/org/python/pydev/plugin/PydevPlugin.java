@@ -7,7 +7,6 @@
 package org.python.pydev.plugin;
 
 import java.io.File;
-import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
 import java.util.MissingResourceException;
@@ -28,7 +27,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -36,13 +34,10 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.BundleInfo;
 import org.python.pydev.core.bundle.IBundleInfo;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.dltk.console.ui.ScriptConsoleUIConstants;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.logging.ping.AsyncLogPing;
 import org.python.pydev.logging.ping.ILogPing;
@@ -53,6 +48,9 @@ import org.python.pydev.ui.ColorCache;
 import org.python.pydev.ui.interpreters.IronpythonInterpreterManager;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
+
+import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.utils.Tuple;
 
 /**
  * The main plugin class - initialized on startup - has resource bundle for internationalization - has preferences
@@ -412,19 +410,6 @@ public class PydevPlugin extends AbstractUIPlugin {
             imageCache = PydevPlugin.getBundleInfo().getImageCache();
         }
         return imageCache;
-    }
-
-    //Images for the console
-    private static final String[][] IMAGES = new String[][] { { "icons/save.gif", //$NON-NLS-1$
-            ScriptConsoleUIConstants.SAVE_SESSION_ICON }, { "icons/terminate.gif", //$NON-NLS-1$
-            ScriptConsoleUIConstants.TERMINATE_ICON } };
-
-    @Override
-    protected void initializeImageRegistry(ImageRegistry registry) {
-        for (int i = 0; i < IMAGES.length; ++i) {
-            URL url = getDefault().getBundle().getEntry(IMAGES[i][0]);
-            registry.put(IMAGES[i][1], ImageDescriptor.createFromURL(url));
-        }
     }
 
     public ImageDescriptor getImageDescriptor(String key) {

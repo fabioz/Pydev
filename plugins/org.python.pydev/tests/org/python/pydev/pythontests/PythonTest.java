@@ -8,11 +8,12 @@ package org.python.pydev.pythontests;
 
 import java.io.File;
 
-import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.runners.SimplePythonRunner;
+
+import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.utils.Tuple;
 
 public class PythonTest extends AbstractBasicRunTestCase {
 

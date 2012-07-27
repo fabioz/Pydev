@@ -22,18 +22,18 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 
+import com.aptana.shared_core.utils.Tuple;
 import com.python.pydev.analysis.AnalysisPlugin;
 
 public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWithBuild {
@@ -194,7 +194,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
         if (project == null) {
             return null;
         }
-        String name = REF.getValidProjectName(project);
+        String name = FileUtils.getValidProjectName(project);
 
         synchronized (additionalNatureInfoLock) {
             AbstractAdditionalDependencyInfo info = additionalNatureInfo.get(name);
@@ -277,7 +277,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
 
                     if (info != null) {
                         //ok, set it and save it
-                        additionalNatureInfo.put(REF.getValidProjectName(project), info);
+                        additionalNatureInfo.put(FileUtils.getValidProjectName(project), info);
                         info.save();
                     }
                 }

@@ -30,15 +30,16 @@ import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.core.FontUtils;
 import org.python.pydev.core.IFontUsage;
 import org.python.pydev.core.IPythonPartitions;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PyPartitionScanner;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.ColorAndStyleCache;
+
+import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.utils.Tuple;
 
 /**
  * This class can create a styled text and later format a python code string and give style ranges for

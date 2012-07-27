@@ -22,7 +22,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.bundle.ImageCache;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.docutils.PySelection.TddPossibleMatches;
@@ -48,6 +47,7 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.parser.visitors.scope.ReturnVisitor;
 
+import com.aptana.shared_core.callbacks.ICallback;
 import com.python.pydev.analysis.ctrl_1.AbstractAnalysisMarkersParticipants;
 import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
 

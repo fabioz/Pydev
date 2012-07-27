@@ -9,14 +9,15 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.python.pydev.core.Tuple;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.model.XMLUtils;
-import org.python.pydev.dltk.console.IScriptConsoleCommunication;
-import org.python.pydev.dltk.console.InterpreterResponse;
+
+import com.aptana.interactive_console.console.IScriptConsoleCommunication;
+import com.aptana.interactive_console.console.InterpreterResponse;
+import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.utils.Tuple;
 
 /**
  * This class allows console to communicate with python backend by using the existing

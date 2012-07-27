@@ -15,6 +15,7 @@ import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.GetVariableCommand;
 import org.python.pydev.debug.model.remote.ICommandResponseListener;
 
+
 public class DeferredWorkbenchAdapter extends DeferredDebugElementWorkbenchAdapter implements
         IDeferredWorkbenchAdapter, ICommandResponseListener {
 

@@ -13,17 +13,18 @@ import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.parser.PyParser.ParserInfo;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.TokenMgrError;
+
+import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.utils.Tuple;
 
 public class PyParserTestBase extends TestCase {
     protected static PyParser parser;
@@ -225,9 +226,9 @@ public class PyParserTestBase extends TestCase {
                 //					throw new RuntimeException(e);
                 //				}
                 if (generateTree) {
-                    parseLegalDocStr(REF.getFileContents(f), f);
+                    parseLegalDocStr(FileUtils.getFileContents(f), f);
                 } else {
-                    parseLegalDocStrWithoutTree(REF.getFileContents(f), f);
+                    parseLegalDocStrWithoutTree(FileUtils.getFileContents(f), f);
                 }
 
             } else if (recursive && f.isDirectory()) {

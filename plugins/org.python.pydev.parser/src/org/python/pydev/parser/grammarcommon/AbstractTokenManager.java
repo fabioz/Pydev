@@ -11,9 +11,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.python.pydev.core.REF;
 import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.parser.jython.Token;
+
+import com.aptana.shared_core.utils.REF;
 
 /**
  * 

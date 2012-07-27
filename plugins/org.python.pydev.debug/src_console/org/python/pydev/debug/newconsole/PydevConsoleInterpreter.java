@@ -28,16 +28,10 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.Tuple;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
 import org.python.pydev.debug.model.PyStackFrame;
-import org.python.pydev.dltk.console.IScriptConsoleCommunication;
-import org.python.pydev.dltk.console.IScriptConsoleInterpreter;
-import org.python.pydev.dltk.console.InterpreterResponse;
-import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
 import org.python.pydev.editor.codecompletion.AbstractCompletionProcessorWithCycling;
 import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
@@ -46,6 +40,13 @@ import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.codecompletion.PyLinkedModeCompletionProposal;
 import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant2;
+
+import com.aptana.interactive_console.console.IScriptConsoleCommunication;
+import com.aptana.interactive_console.console.IScriptConsoleInterpreter;
+import com.aptana.interactive_console.console.InterpreterResponse;
+import com.aptana.interactive_console.console.ui.IScriptConsoleViewer;
+import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.utils.Tuple;
 
 /**
  * Default implementation for the console interpreter. 
@@ -84,7 +85,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
 
     /*
      * (non-Javadoc)
-     * @see org.python.pydev.dltk.console.IScriptConsoleInterpreter#exec(java.lang.String)
+     * @see com.aptana.interactive_console.console.IScriptConsoleInterpreter#exec(java.lang.String)
      */
     public void exec(String command, final ICallback<Object, InterpreterResponse> onResponseReceived,
             final ICallback<Object, Tuple<String, String>> onContentsReceived) {
@@ -212,7 +213,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
 
     /*
      * (non-Javadoc)
-     * @see org.python.pydev.dltk.console.IScriptConsoleShell#getDescription(org.eclipse.jface.text.IDocument, int)
+     * @see com.aptana.interactive_console.console.IScriptConsoleShell#getDescription(org.eclipse.jface.text.IDocument, int)
      */
     public String getDescription(IDocument doc, int position) throws Exception {
         ActivationTokenAndQual tokenAndQual = PySelection.getActivationTokenAndQual(doc, position, true, false);
@@ -228,7 +229,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
 
     /*
      * (non-Javadoc)
-     * @see org.python.pydev.dltk.console.IScriptConsoleShell#close()
+     * @see com.aptana.interactive_console.console.IScriptConsoleShell#close()
      */
     public void close() {
         if (consoleCommunication != null) {
@@ -250,7 +251,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
 
     /*
      * (non-Javadoc)
-     * @see org.python.pydev.dltk.console.IConsoleRequest#setConsoleCommunication(org.python.pydev.dltk.console.IScriptConsoleCommunication)
+     * @see com.aptana.interactive_console.console.IConsoleRequest#setConsoleCommunication(com.aptana.interactive_console.console.IScriptConsoleCommunication)
      */
     public void setConsoleCommunication(IScriptConsoleCommunication protocol) {
         this.consoleCommunication = protocol;

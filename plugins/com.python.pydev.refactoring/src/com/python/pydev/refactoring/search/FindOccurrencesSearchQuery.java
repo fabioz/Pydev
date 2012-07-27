@@ -21,8 +21,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.search.ui.ISearchResult;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
+import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
@@ -30,6 +29,7 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
+import com.aptana.shared_core.utils.Tuple;
 import com.python.pydev.refactoring.IPyRefactoring2;
 import com.python.pydev.refactoring.actions.PyFindAllOccurrences;
 import com.python.pydev.refactoring.refactorer.search.AbstractPythonSearchQuery;
@@ -101,7 +101,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery {
                         continue;
                     }
 
-                    IDocument doc = REF.getDocFromResource(workspaceFile);
+                    IDocument doc = FileUtils.getDocFromResource(workspaceFile);
                     req.getMonitor().setTaskName("Resolving occurrences... " + workspaceFile);
 
                     for (ASTEntry entry : o.getValue()) {

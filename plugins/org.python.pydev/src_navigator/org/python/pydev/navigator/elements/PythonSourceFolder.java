@@ -24,6 +24,7 @@ import org.eclipse.ui.IActionFilter;
 import org.eclipse.ui.IContributorResourceAdapter;
 import org.python.pydev.core.log.Log;
 
+
 /**
  * This is the the model for a source folder that exists within a project.
  * 

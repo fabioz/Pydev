@@ -34,12 +34,14 @@ import org.python.pydev.debug.newconsole.PydevConsole;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.debug.newconsole.PydevConsoleFactory;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
-import org.python.pydev.dltk.console.codegen.PythonSnippetUtils;
-import org.python.pydev.dltk.console.ui.ScriptConsole;
-import org.python.pydev.dltk.console.ui.internal.ScriptConsoleViewer;
-import org.python.pydev.dltk.console.ui.internal.actions.IInteractiveConsoleConstants;
 import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
+
+import com.aptana.interactive_console.console.codegen.PythonSnippetUtils;
+import com.aptana.interactive_console.console.ui.ScriptConsole;
+import com.aptana.interactive_console.console.ui.internal.ScriptConsoleViewer;
+import com.aptana.interactive_console.console.ui.internal.actions.IInteractiveConsoleConstants;
+
 
 /**
  * This class will setup the editor so that we can create interactive consoles, send code to it or make an execfile.

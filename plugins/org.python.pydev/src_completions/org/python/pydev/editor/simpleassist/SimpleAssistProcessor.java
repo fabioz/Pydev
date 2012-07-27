@@ -38,6 +38,7 @@ import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
 import org.python.pydev.plugin.PydevPlugin;
 
+
 /**
  * This processor controls the completion cycle (and also works as a 'delegator' to the processor that deals
  * with actual python completions -- which may be a bit slower that simple completions).

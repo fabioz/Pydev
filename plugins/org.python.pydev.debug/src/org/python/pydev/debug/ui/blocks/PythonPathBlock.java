@@ -24,6 +24,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.SimpleRunner;
 
+
 /**
  * A control for displaying a list of python paths.
  */

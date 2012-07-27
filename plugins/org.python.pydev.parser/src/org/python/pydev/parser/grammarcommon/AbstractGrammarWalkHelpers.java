@@ -8,9 +8,10 @@ package org.python.pydev.parser.grammarcommon;
 
 import java.io.IOException;
 
-import org.python.pydev.core.REF;
 import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.parser.jython.Token;
+
+import com.aptana.shared_core.utils.REF;
 
 /**
  * Helpers to walk through the grammar.

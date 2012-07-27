@@ -39,6 +39,7 @@ import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.eclipse.ui.model.IWorkbenchAdapter2;
 import org.python.pydev.core.log.Log;
 
+
 /**
  * Provides basic labels for adaptable objects that have the
  * <code>IWorkbenchAdapter</code> adapter associated with them.  All dispensed

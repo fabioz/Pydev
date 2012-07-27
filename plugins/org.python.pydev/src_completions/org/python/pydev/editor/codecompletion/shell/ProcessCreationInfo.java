@@ -50,11 +50,11 @@ public class ProcessCreationInfo {
 
     public String getProcessLog() {
 
-        String joinedParams = StringUtils.join(" ", parameters);
+        String joinedParams = com.aptana.shared_core.utils.StringUtils.join(" ", parameters);
 
         String environment = "EMPTY ENVIRONMENT";
         if (envp != null) {
-            environment = StringUtils.join("\n", envp);
+            environment = com.aptana.shared_core.utils.StringUtils.join("\n", envp);
         }
 
         String workDir = "NULL WORK DIR";
@@ -75,7 +75,7 @@ public class ProcessCreationInfo {
                 environment, "\n\n - Working Dir:\n", workDir, "\n\n - OS:\n", osName, "\n\n - Std output:\n",
                 stdContents, "\n\n - Err output:\n", errContents };
 
-        return StringUtils.join("", splitted);
+        return com.aptana.shared_core.utils.StringUtils.join("", splitted);
     }
 
 }

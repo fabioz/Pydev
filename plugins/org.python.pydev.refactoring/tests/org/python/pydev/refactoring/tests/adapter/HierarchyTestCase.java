@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
-import org.python.pydev.core.REF;
+import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
@@ -64,7 +64,7 @@ public class HierarchyTestCase extends CodeCompletionTestsBase {
     public void testHierarchyWithBuiltins() throws Throwable {
 
         ModuleAdapter module = VisitorFactory.createModuleAdapter(new PythonModuleManager(nature), file, new Document(
-                REF.getFileContents(file)), nature, nature);
+                FileUtils.getFileContents(file)), nature, nature);
 
         List<IClassDefAdapter> classes = module.getClasses();
         assertEquals(1, classes.size());

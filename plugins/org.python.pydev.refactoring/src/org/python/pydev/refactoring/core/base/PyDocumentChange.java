@@ -7,7 +7,9 @@ import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.DocumentChange;
 import org.eclipse.ltk.core.refactoring.TextChange;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.uiutils.RunInUiThread;
+
+import com.aptana.shared_core.utils.RunInUiThread;
+
 
 public class PyDocumentChange extends DocumentChange {
 

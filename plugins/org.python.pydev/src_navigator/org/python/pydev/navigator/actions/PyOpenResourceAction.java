@@ -28,6 +28,7 @@ import org.python.pydev.editorinput.PydevZipFileStorage;
 import org.python.pydev.navigator.PythonpathTreeNode;
 import org.python.pydev.navigator.PythonpathZipChildTreeNode;
 
+
 /**
  * This open action extends the action that tries to open files with the Pydev Editor, just changing the implementation
  * to try to open the files with the 'correct' editor in the ide.

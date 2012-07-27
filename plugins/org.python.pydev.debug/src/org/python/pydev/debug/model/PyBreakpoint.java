@@ -23,11 +23,10 @@ import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.model.LineBreakpoint;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -35,7 +34,8 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.plugin.nature.SystemPythonNature;
+
+import com.aptana.shared_core.utils.Tuple;
 
 /**
  * Represents python breakpoint.
@@ -97,11 +97,11 @@ public class PyBreakpoint extends LineBreakpoint {
         IMarker marker = getMarker();
         IResource r = marker.getResource();
         if (r instanceof IFile) {
-            return REF.getDocFromResource(r);
+            return FileUtils.getDocFromResource(r);
         } else {
             //it's an external file...
             try {
-                return REF
+                return FileUtils
                         .getDocFromFile(new File((String) marker.getAttribute(PyBreakpoint.PY_BREAK_EXTERNAL_PATH_ID)));
             } catch (Exception e) {
                 throw new RuntimeException(e);

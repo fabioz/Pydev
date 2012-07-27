@@ -9,7 +9,8 @@ package org.python.pydev.debug.model;
 import junit.framework.TestCase;
 
 import org.eclipse.core.runtime.CoreException;
-import org.python.pydev.core.Tuple;
+
+import com.aptana.shared_core.utils.Tuple;
 
 public class AbstractDebugTargetTest extends TestCase {
 

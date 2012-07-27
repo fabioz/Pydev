@@ -12,9 +12,11 @@ package org.python.pydev.debug.newconsole;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.dltk.console.IScriptConsoleShell;
-import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
-import org.python.pydev.dltk.console.ui.ScriptConsoleTextHover;
+
+import com.aptana.interactive_console.console.IScriptConsoleShell;
+import com.aptana.interactive_console.console.ui.IScriptConsoleViewer;
+import com.aptana.interactive_console.console.ui.ScriptConsoleTextHover;
+
 
 public class PydevConsoleTextHover extends ScriptConsoleTextHover {
 

@@ -34,14 +34,12 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.parser.ChangedParserInfoForObservers;
 import org.python.pydev.core.parser.ErrorParserInfoForObservers;
@@ -62,6 +60,9 @@ import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.stmtType;
+
+import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.utils.Tuple;
 
 /**
  * PyParser uses org.python.parser to parse the document (lexical analysis) It
@@ -604,10 +605,10 @@ public class PyParser implements IPyParser {
 
         int length = startDoc.length();
         int skipAtStart = 0;
-        if (startDoc.startsWith(REF.BOM_UTF8)) {
-            skipAtStart = REF.BOM_UTF8.length();
-        } else if (startDoc.startsWith(REF.BOM_UNICODE)) {
-            skipAtStart = REF.BOM_UNICODE.length();
+        if (startDoc.startsWith(FileUtils.BOM_UTF8)) {
+            skipAtStart = FileUtils.BOM_UTF8.length();
+        } else if (startDoc.startsWith(FileUtils.BOM_UNICODE)) {
+            skipAtStart = FileUtils.BOM_UNICODE.length();
         }
 
         int addAtEnd = 0;

@@ -15,9 +15,10 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
+
+import com.aptana.shared_core.utils.REF;
 
 public abstract class AbstractPythonNature implements IPythonNature {
 

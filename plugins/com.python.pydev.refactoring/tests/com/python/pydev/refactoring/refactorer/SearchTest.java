@@ -10,13 +10,14 @@ import java.io.File;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.REF;
+import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 
+import com.aptana.shared_core.utils.REF;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
 
 public class SearchTest extends AdditionalInfoTestsBase {
@@ -74,7 +75,8 @@ public class SearchTest extends AdditionalInfoTestsBase {
     }
 
     private RefactoringRequest createRefactoringRequest(String line, final File file) {
-        return new RefactoringRequest(file, new PySelection(new Document(REF.getFileContents(file)), line.length()),
+        return new RefactoringRequest(file, new PySelection(new Document(FileUtils.getFileContents(file)),
+                line.length()),
                 nature);
     }
 

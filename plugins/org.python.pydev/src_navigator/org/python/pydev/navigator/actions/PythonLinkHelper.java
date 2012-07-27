@@ -43,6 +43,7 @@ import org.python.pydev.navigator.InterpreterInfoTreeNodeRoot;
 import org.python.pydev.navigator.PythonpathTreeNode;
 import org.python.pydev.navigator.elements.IWrappedResource;
 
+
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class PythonLinkHelper implements ILinkHelper {
 

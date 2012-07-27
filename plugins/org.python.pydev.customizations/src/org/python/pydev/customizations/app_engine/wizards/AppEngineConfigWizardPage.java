@@ -32,15 +32,16 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.customizations.CustomizationsPlugin;
 import org.python.pydev.customizations.CustomizationsUIConstants;
 import org.python.pydev.customizations.app_engine.launching.AppEngineConstants;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 import org.python.pydev.ui.pythonpathconf.PythonSelectionLibrariesDialog;
+
+import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.utils.RunInUiThread;
 
 /**
  * This wizard page gives the google app engine configuration settings.

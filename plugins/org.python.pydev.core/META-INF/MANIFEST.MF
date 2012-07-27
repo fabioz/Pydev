@@ -17,14 +17,14 @@ Require-Bundle: org.junit;bundle-version="[3.8.0,3.9.9]";resolution:=optional,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.core.filebuffers,
  org.eclipse.ui.console,
- org.eclipse.core.variables
+ org.eclipse.core.variables,
+ com.aptana.shared_core;visibility:=reexport
 Eclipse-LazyStart: true
 Export-Package: org.apache.commons.codec,
  org.apache.commons.codec.binary,
  org.apache.commons.codec.digest,
  org.apache.commons.codec.language,
  org.apache.commons.codec.net,
- org.python.pydev.bindingutils,
  org.python.pydev.core,
  org.python.pydev.core.bundle,
  org.python.pydev.core.cache,

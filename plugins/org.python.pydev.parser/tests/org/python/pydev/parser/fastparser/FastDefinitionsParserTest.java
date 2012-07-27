@@ -10,7 +10,7 @@ import java.io.File;
 
 import junit.framework.TestCase;
 
-import org.python.pydev.core.REF;
+import org.python.pydev.core.FileUtils;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -87,7 +87,7 @@ public class FastDefinitionsParserTest extends TestCase {
     }
 
     private void parseFile(File f) {
-        String fileContents = REF.getFileContents(f);
+        String fileContents = FileUtils.getFileContents(f);
         try {
             //            PyParser parser = new PyParser((IGrammarVersionProvider)null);
             //            parser.setDocument(new Document(fileContents), false, null);

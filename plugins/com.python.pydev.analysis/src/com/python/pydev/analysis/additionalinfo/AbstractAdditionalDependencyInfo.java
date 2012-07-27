@@ -26,26 +26,28 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.FastBufferedReader;
+import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.cache.CompleteIndexKey;
 import org.python.pydev.core.cache.CompleteIndexValue;
 import org.python.pydev.core.cache.DiskCache;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.jython.SimpleNode;
+
+import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.utils.Tuple;
 
 /**
  * Adds dependency information to the interpreter information. This should be used only for
@@ -366,10 +368,10 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             try {
                 if (key instanceof ModulesKeyForZip) {
                     ModulesKeyForZip modulesKeyForZip = (ModulesKeyForZip) key;
-                    buf = (FastStringBuffer) REF.getCustomReturnFromZip(modulesKeyForZip.file,
+                    buf = (FastStringBuffer) FileUtils.getCustomReturnFromZip(modulesKeyForZip.file,
                             modulesKeyForZip.zipModulePath, FastStringBuffer.class);
                 } else {
-                    buf = (FastStringBuffer) REF.getFileContentsCustom(key.file, FastStringBuffer.class);
+                    buf = (FastStringBuffer) FileUtils.getFileContentsCustom(key.file, FastStringBuffer.class);
                 }
             } catch (Exception e) {
                 Log.log(e);

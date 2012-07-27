@@ -13,8 +13,9 @@ package org.python.pydev.editor.actions;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
+
+import com.aptana.shared_core.utils.Tuple;
 
 public class PyUncommentTest extends TestCase {
 

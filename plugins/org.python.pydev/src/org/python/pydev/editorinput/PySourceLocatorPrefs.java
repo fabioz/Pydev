@@ -97,7 +97,7 @@ public class PySourceLocatorPrefs {
         String available = store.getString(PydevEditorPrefs.SOURCE_LOCATION_PATHS);
 
         if (available == null || available.trim().length() == 0) {
-            available = StringUtils.join(",", translation);
+            available = com.aptana.shared_core.utils.StringUtils.join(",", translation);
         } else {
             String pathAsked = translation[0].trim();
 
@@ -109,14 +109,14 @@ public class PySourceLocatorPrefs {
                     String s = splitted.get(i);
                     String initialPart = StringUtils.splitAndRemoveEmptyTrimmed(s, ',').get(0).trim();
                     if (initialPart.equals(pathAsked)) {
-                        splitted.set(i, StringUtils.join(",", translation));
+                        splitted.set(i, com.aptana.shared_core.utils.StringUtils.join(",", translation));
                         break;
                     }
                 }
-                available = StringUtils.join("\n", splitted);
+                available = com.aptana.shared_core.utils.StringUtils.join("\n", splitted);
             } else {
                 available += "\n";
-                available += StringUtils.join(",", translation);
+                available += com.aptana.shared_core.utils.StringUtils.join(",", translation);
             }
         }
         store.putValue(PydevEditorPrefs.SOURCE_LOCATION_PATHS, available);

@@ -13,6 +13,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.ui.actions.project.PyRemoveNature;
 
+
 public class DjangoRemoveNatureAction extends PyRemoveNature {
 
     public void run(IAction action) {

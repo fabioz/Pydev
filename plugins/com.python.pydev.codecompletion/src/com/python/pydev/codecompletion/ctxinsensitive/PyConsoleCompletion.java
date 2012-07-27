@@ -12,8 +12,9 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
 import org.python.pydev.editor.actions.PyAction;
+
+import com.aptana.interactive_console.console.ui.IScriptConsoleViewer;
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 
 /**

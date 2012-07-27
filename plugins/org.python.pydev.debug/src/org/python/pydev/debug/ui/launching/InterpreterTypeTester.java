@@ -12,6 +12,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 
+
 public class InterpreterTypeTester extends PropertyTester {
 
     public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {

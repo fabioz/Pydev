@@ -14,9 +14,9 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.AbstractASTManager;
@@ -80,7 +80,7 @@ public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompleti
         File f = new File(file);
         ICompletionState state = CompletionStateFactory.getEmptyCompletionState("RuntimeError", nature,
                 new CompletionCache());
-        IModule module = AbstractASTManager.createModule(f, new Document(REF.getFileContents(f)), nature);
+        IModule module = AbstractASTManager.createModule(f, new Document(FileUtils.getFileContents(f)), nature);
         try {
             nature.getAstManager().getCompletionsForModule(module, state, true, true);
         } catch (CompletionRecursionException e) {

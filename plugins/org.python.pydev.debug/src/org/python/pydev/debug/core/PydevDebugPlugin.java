@@ -34,6 +34,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
 import org.python.pydev.plugin.PydevPlugin;
 
+
 /**
  * The main plugin for Python Debugger.
  * 

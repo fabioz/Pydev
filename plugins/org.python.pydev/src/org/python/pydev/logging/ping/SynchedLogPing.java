@@ -14,7 +14,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.python.pydev.core.REF;
+import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
@@ -51,7 +51,7 @@ public class SynchedLogPing implements ILogPing {
                 //The file exists. Let's fill our list with its contents
                 String fileContents;
                 try {
-                    fileContents = REF.getFileContents(this.location);
+                    fileContents = FileUtils.getFileContents(this.location);
                 } catch (Exception e) {
                     Log.log(e);
                     fileContents = "";
@@ -146,7 +146,7 @@ public class SynchedLogPing implements ILogPing {
     /*package*/String getContentsToSend() {
         synchronized (lock) {
             if (keyValueContents.size() > 0) {
-                return "id=" + provider.getApplicationId() + "&" + StringUtils.join("&", keyValueContents);
+                return "id=" + provider.getApplicationId() + "&" + com.aptana.shared_core.utils.StringUtils.join("&", keyValueContents);
             }
         }
         return "";

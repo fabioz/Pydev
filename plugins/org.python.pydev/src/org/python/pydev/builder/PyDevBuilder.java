@@ -32,16 +32,17 @@ import org.python.pydev.builder.pylint.PyLintVisitor;
 import org.python.pydev.builder.syntaxchecker.PySyntaxChecker;
 import org.python.pydev.builder.todo.PyTodoVisitor;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.PyCodeCompletionVisitor;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.utils.PyFileListing;
+
+import com.aptana.shared_core.utils.FastStringBuffer;
 
 /**
  * This builder only passes through python files
@@ -295,7 +296,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 HashMap<String, Object> memo = new HashMap<String, Object>();
                 memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, true); //mark it as full build
 
-                ICallback0<IDocument> doc = REF.getDocOnCallbackFromResource(r);
+                ICallback0<IDocument> doc = FileUtils.getDocOnCallbackFromResource(r);
                 memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, System.currentTimeMillis());
 
                 PyDevBuilderVisitor.setModuleNameInCache(memo, r, moduleName);

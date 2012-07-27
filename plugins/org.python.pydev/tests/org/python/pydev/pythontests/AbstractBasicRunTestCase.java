@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.jython.JythonPlugin;
 
+
 public abstract class AbstractBasicRunTestCase extends TestCase {
 
     public void execAllAndCheckErrors(final String startingWith, File[] beneathFolders) throws Exception {

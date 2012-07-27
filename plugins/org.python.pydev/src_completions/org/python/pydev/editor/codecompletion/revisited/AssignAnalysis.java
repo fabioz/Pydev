@@ -34,6 +34,7 @@ import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ReturnVisitor;
 
+
 /**
  * This class is used to analyse the assigns in the code and bring actual completions for them.
  */

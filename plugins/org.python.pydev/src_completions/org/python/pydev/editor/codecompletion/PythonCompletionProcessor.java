@@ -39,6 +39,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.ui.interpreters.ChooseInterpreterManager;
 
+
 /**
  * @author Dmoore
  * @author Fabio Zadrozny

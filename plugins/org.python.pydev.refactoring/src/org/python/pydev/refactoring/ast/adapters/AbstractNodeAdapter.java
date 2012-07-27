@@ -8,7 +8,6 @@
 
 package org.python.pydev.refactoring.ast.adapters;
 
-import org.python.pydev.core.REF;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
@@ -16,6 +15,8 @@ import org.python.pydev.parser.jython.ast.factory.NodeHelper;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.ast.visitors.position.IndentVisitor;
 import org.python.pydev.refactoring.ast.visitors.position.LastLineVisitor;
+
+import com.aptana.shared_core.utils.REF;
 
 public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTNodeAdapter<T> {
     private ModuleAdapter module;

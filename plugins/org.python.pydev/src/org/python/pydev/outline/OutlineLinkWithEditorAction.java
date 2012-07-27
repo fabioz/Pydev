@@ -26,6 +26,7 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.ui.UIConstants;
 
+
 /**
  * This action keeps the outline synched with the text selected in the text
  * editor.

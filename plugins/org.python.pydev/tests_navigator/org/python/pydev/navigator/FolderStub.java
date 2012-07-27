@@ -14,8 +14,9 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.resource_stubs.AbstractIFolderStub;
+
+import com.aptana.shared_core.utils.REF;
 
 public class FolderStub extends AbstractIFolderStub implements IFolder {
 

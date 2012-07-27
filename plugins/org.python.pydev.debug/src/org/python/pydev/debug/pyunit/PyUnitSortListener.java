@@ -19,6 +19,7 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.tooltips.presenter.ToolTipPresenterHandler;
 
+
 /**
  * Listener to do the sorting in the tree.
  */

@@ -18,10 +18,11 @@ import java.util.Map;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.runners.SimpleRunner;
+
+import com.aptana.shared_core.utils.Tuple;
 
 public class JythonInterpreterEditor extends AbstractInterpreterEditor {
 

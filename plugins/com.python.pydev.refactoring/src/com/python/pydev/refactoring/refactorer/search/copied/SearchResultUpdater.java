@@ -21,6 +21,7 @@ import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.Match;
 import org.python.pydev.core.log.Log;
 
+
 public class SearchResultUpdater implements IResourceChangeListener, IQueryListener {
     private AbstractTextSearchResult fResult;
 

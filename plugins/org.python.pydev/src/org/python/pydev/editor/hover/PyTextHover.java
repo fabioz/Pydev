@@ -45,7 +45,6 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.core.structure.FastStack;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PyInformationPresenter;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
@@ -67,6 +66,8 @@ import org.python.pydev.parser.prettyprinterv2.MakeAstValidForPrettyPrintingVisi
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.NodeUtils;
+
+import com.aptana.shared_core.utils.FastStringBuffer;
 
 /**
  * Gets the default hover information and asks for clients to gather more info.

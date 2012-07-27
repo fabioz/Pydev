@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.python.pydev.core.structure.FastStringBuffer;
+import com.aptana.shared_core.utils.FastStringBuffer;
 
 public class StringEscapeUtils {
 

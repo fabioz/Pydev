@@ -25,6 +25,7 @@ import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
+
 public class DjangoProjectProperties extends PropertyPage {
 
     /**

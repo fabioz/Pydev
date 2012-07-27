@@ -29,6 +29,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
@@ -36,11 +37,8 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
 import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap.Entry;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JythonModulesManagerUtils;
@@ -58,6 +56,10 @@ import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
+
+import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.utils.Tuple;
 
 /**
  * This class manages the modules that are available
@@ -266,7 +268,7 @@ public abstract class ModulesManager implements IModulesManager {
             throw new IOException("Expecting: " + pythonpatHelperFile + " to exist (and be a file).");
         }
 
-        String fileContents = REF.getFileContents(modulesKeysFile);
+        String fileContents = FileUtils.getFileContents(modulesKeysFile);
         if (!fileContents.startsWith(MODULES_MANAGER_V2)) {
             throw new RuntimeException("Could not load modules manager from " + modulesKeysFile + " (version changed).");
         }
@@ -839,7 +841,8 @@ public abstract class ModulesManager implements IModulesManager {
                             } else if (PythonPathHelper.isValidSourceFile(emptyModuleForZip.pathInZip)) {
                                 //handle python file from zip... we have to create it getting the contents from the zip file
                                 try {
-                                    IDocument doc = REF.getDocFromZip(emptyModuleForZip.f, emptyModuleForZip.pathInZip);
+                                    IDocument doc = FileUtils.getDocFromZip(emptyModuleForZip.f,
+                                            emptyModuleForZip.pathInZip);
                                     //NOTE: The nature (and so the grammar to be used) must be defined by this modules
                                     //manager (and not by the initial caller)!!
                                     n = AbstractModule.createModuleFromDoc(name, emptyModuleForZip.f, doc,

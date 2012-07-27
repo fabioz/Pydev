@@ -25,25 +25,26 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+
+import com.aptana.shared_core.callbacks.ICallback;
 
 /**
  * This tests the 'whole' code completion, passing through all modules.
@@ -519,14 +520,14 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     public void testInModuleWithoutExtension() throws FileNotFoundException, Exception {
         String file = TestDependent.TEST_PYSRC_LOC +
                 "mod_without_extension";
-        String strDoc = REF.getFileContents(new File(file));
+        String strDoc = FileUtils.getFileContents(new File(file));
         requestCompl(new File(file), strDoc, strDoc.length(), -1, new String[] { "ClassInModWithoutExtension" });
     }
 
     public void testRelativeImportWithSubclass() throws FileNotFoundException, Exception {
         String file = TestDependent.TEST_PYSRC_LOC +
                 "extendable/relative_with_sub/bb.py";
-        String strDoc = REF.getFileContents(new File(file));
+        String strDoc = FileUtils.getFileContents(new File(file));
         requestCompl(new File(file), strDoc, strDoc.length(), -1, new String[] { "yyy()" });
     }
 

@@ -15,7 +15,8 @@ import java.util.Set;
 
 import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.structure.FastStringBuffer;
+
+import com.aptana.shared_core.utils.FastStringBuffer;
 
 /**
  * @author fabioz

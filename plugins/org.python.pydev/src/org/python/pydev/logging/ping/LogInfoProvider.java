@@ -18,6 +18,7 @@ import org.osgi.service.prefs.BackingStoreException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 
+
 public class LogInfoProvider implements ILogPingProvider {
 
     public static final String TESTING_ID = "00000000-0000-0000-0000-000000000000";

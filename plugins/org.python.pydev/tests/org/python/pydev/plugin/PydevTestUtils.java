@@ -9,8 +9,9 @@ package org.python.pydev.plugin;
 import java.io.File;
 import java.io.IOException;
 
-import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
+
+import com.aptana.shared_core.utils.REF;
 
 /**
  * @author fabioz

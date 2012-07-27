@@ -20,8 +20,9 @@ import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
+
+import com.aptana.shared_core.utils.FastStringBuffer;
 
 /**
  * @author Fabio

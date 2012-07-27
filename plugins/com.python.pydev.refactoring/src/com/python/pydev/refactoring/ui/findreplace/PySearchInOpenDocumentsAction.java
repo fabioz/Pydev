@@ -55,7 +55,7 @@ public class PySearchInOpenDocumentsAction extends Action implements IOfflineAct
 
         String searchText = "";
         if (parameters != null) {
-            searchText = StringUtils.join(" ", parameters);
+            searchText = com.aptana.shared_core.utils.StringUtils.join(" ", parameters);
         }
         if (searchText.length() == 0) {
             PySelection ps = new PySelection(edit);

@@ -26,8 +26,9 @@ import org.eclipse.jface.text.rules.WhitespaceRule;
 import org.eclipse.jface.text.rules.WordRule;
 import org.python.pydev.core.ArrayUtils;
 import org.python.pydev.core.callbacks.ICallbackListener;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.ui.ColorAndStyleCache;
+
+import com.aptana.shared_core.utils.FastStringBuffer;
 
 /**
  * PyCodeScanner - A scanner that looks for python keywords and code

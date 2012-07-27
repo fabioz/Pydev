@@ -13,7 +13,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.structure.FastStringBuffer;
+
+import com.aptana.shared_core.utils.FastStringBuffer;
 
 /**
  * iterates through a string so that parts of it are gotten each time in a progressive way based on dots

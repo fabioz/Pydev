@@ -26,10 +26,8 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.TextEditGroup;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
+import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSourceModule;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editorinput.PySourceLocatorBase;
@@ -37,6 +35,8 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.refactoring.core.base.PyDocumentChange;
 import org.python.pydev.refactoring.core.base.PyTextFileChange;
 
+import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.utils.Tuple;
 import com.python.pydev.analysis.scopeanalysis.AstEntryScopeAnalysisConstants;
 import com.python.pydev.refactoring.changes.PyRenameResourceChange;
 import com.python.pydev.refactoring.wizards.IRefactorRenameProcess;
@@ -184,7 +184,7 @@ public class TextEditCreation {
             //check the text changes
             HashSet<ASTEntry> astEntries = filterAstEntries(entry.getValue(), AST_ENTRIES_FILTER_TEXT);
             if (astEntries.size() > 0) {
-                IDocument docFromResource = REF.getDocFromResource(workspaceFile);
+                IDocument docFromResource = FileUtils.getDocFromResource(workspaceFile);
                 TextFileChange fileChange = new PyTextFileChange("RenameChange: " + inputName, workspaceFile);
 
                 MultiTextEdit rootEdit = new MultiTextEdit();

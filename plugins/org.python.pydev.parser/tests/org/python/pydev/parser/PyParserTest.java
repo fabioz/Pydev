@@ -15,12 +15,10 @@ import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.Tuple;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.performanceeval.Timer;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.SpecialStr;
@@ -36,6 +34,9 @@ import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
+
+import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.utils.Tuple;
 
 public class PyParserTest extends PyParserTestBase {
 
@@ -428,12 +429,12 @@ public class PyParserTest extends PyParserTestBase {
     //    public void testOnCsv() throws Throwable {
     //        PyParser.USE_FAST_STREAM = false;
     //        String loc = TestDependent.PYTHON_LIB+"csv.py";
-    //        String s = REF.getFileContents(new File(loc));
+    //        String s = FileUtils.getFileContents(new File(loc));
     //        parseLegalDocStr(s);
     //        
     //        PyParser.USE_FAST_STREAM = true;
     //        loc = TestDependent.PYTHON_LIB+"csv.py";
-    //        s = REF.getFileContents(new File(loc));
+    //        s = FileUtils.getFileContents(new File(loc));
     //        parseLegalDocStr(s);
     //    }
 
@@ -451,7 +452,7 @@ public class PyParserTest extends PyParserTestBase {
     public void testOnCgiMod2() throws Throwable {
         String loc = TestDependent.PYTHON_LIB +
                 "cgi.py";
-        String s = REF.getFileContents(new File(loc));
+        String s = FileUtils.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
 
@@ -469,7 +470,7 @@ public class PyParserTest extends PyParserTestBase {
     public void testOnTestGrammar() throws Throwable {
         String loc = TestDependent.PYTHON_LIB +
                 "test/test_grammar.py";
-        String s = REF.getFileContents(new File(loc));
+        String s = FileUtils.getFileContents(new File(loc));
         parseLegalDocStr(s, "(file: test_grammar.py)");
     }
 
@@ -495,7 +496,7 @@ public class PyParserTest extends PyParserTestBase {
         if (TestDependent.PYTHON_TEST_PACKAGES != null) {
             String loc = TestDependent.PYTHON_TEST_PACKAGES +
                     "test_contextlib.py";
-            String s = REF.getFileContents(new File(loc));
+            String s = FileUtils.getFileContents(new File(loc));
             parseLegalDocStr(s, "(file: test_contextlib.py)");
         }
     }
@@ -503,35 +504,35 @@ public class PyParserTest extends PyParserTestBase {
     public void testOnCalendar() throws Throwable {
         String loc = TestDependent.PYTHON_LIB +
                 "hmac.py";
-        String s = REF.getFileContents(new File(loc));
+        String s = FileUtils.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
 
     public void testOnUnittestMod() throws Throwable {
         String loc = TestDependent.PYTHON_LIB +
                 "unittest.py";
-        String s = REF.getFileContents(new File(loc));
+        String s = FileUtils.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
 
     public void testOnCodecsMod() throws Throwable {
         String loc = TestDependent.PYTHON_LIB +
                 "codecs.py";
-        String s = REF.getFileContents(new File(loc));
+        String s = FileUtils.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
 
     public void testOnDocBaseHTTPServer() throws Throwable {
         String loc = TestDependent.PYTHON_LIB +
                 "BaseHTTPServer.py";
-        String s = REF.getFileContents(new File(loc));
+        String s = FileUtils.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
 
     public void testOnDocXMLRPCServerMod() throws Throwable {
         String loc = TestDependent.PYTHON_LIB +
                 "DocXMLRPCServer.py";
-        String s = REF.getFileContents(new File(loc));
+        String s = FileUtils.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
 
@@ -875,7 +876,7 @@ public class PyParserTest extends PyParserTestBase {
     public void testThreadingInParser() throws Exception {
         String loc = TestDependent.PYTHON_LIB +
                 "unittest.py";
-        String s = REF.getFileContents(new File(loc));
+        String s = FileUtils.getFileContents(new File(loc));
 
         final Integer[] calls = new Integer[] { 0 };
         final Boolean[] failedComparisson = new Boolean[] { false };

@@ -24,10 +24,8 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
+import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.Tuple3;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.editorinput.PyOpenEditor;
@@ -38,6 +36,8 @@ import org.python.pydev.parser.fastparser.FastDefinitionsParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.nature.PythonNature;
 
+import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.utils.Tuple;
 import com.python.pydev.analysis.actions.AnalyzeOnRequestSetter;
 import com.python.pydev.analysis.actions.AnalyzeOnRequestSetter.AnalyzeOnRequestAction;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
@@ -177,18 +177,18 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
         //        goToIdleLoopUntilCondition(get1ResourceAnalyzed(), getResourcesAnalyzed());
         goToIdleLoopUntilCondition(
 
-        new ICallback<Boolean, Object>() {
-            public Boolean call(Object arg) {
-                return new HashSet<String>(Arrays.asList(new String[] { "pack1.pack2.new_mod" })).equals(info
-                        .getAllModulesWithTokens());
-            }
-        },
+                new ICallback<Boolean, Object>() {
+                    public Boolean call(Object arg) {
+                        return new HashSet<String>(Arrays.asList(new String[] { "pack1.pack2.new_mod" })).equals(info
+                                .getAllModulesWithTokens());
+                    }
+                },
 
-        new ICallback<String, Object>() {
-            public String call(Object arg) {
-                return "Was expecting only: 'pack1.pack2.new_mod'. Found: " + info.getAllModulesWithTokens();
-            }
-        });
+                new ICallback<String, Object>() {
+                    public String call(Object arg) {
+                        return "Was expecting only: 'pack1.pack2.new_mod'. Found: " + info.getAllModulesWithTokens();
+                    }
+                });
 
         goToManual(TIME_FOR_ANALYSIS); //in 1 seconds, only 1 parse/analysis should happen
         assertEquals(1, parsesDone.size());
@@ -199,18 +199,18 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
         //        goToIdleLoopUntilCondition(get1ResourceAnalyzed(), getResourcesAnalyzed());
         goToIdleLoopUntilCondition(
 
-        new ICallback<Boolean, Object>() {
-            public Boolean call(Object arg) {
-                return new HashSet<String>(Arrays.asList(new String[] { "pack1.pack2.mod1" })).equals(info
-                        .getAllModulesWithTokens());
-            }
-        },
+                new ICallback<Boolean, Object>() {
+                    public Boolean call(Object arg) {
+                        return new HashSet<String>(Arrays.asList(new String[] { "pack1.pack2.mod1" })).equals(info
+                                .getAllModulesWithTokens());
+                    }
+                },
 
-        new ICallback<String, Object>() {
-            public String call(Object arg) {
-                return "Was expecting only: 'pack1.pack2.mod1'. Found: " + info.getAllModulesWithTokens();
-            }
-        });
+                new ICallback<String, Object>() {
+                    public String call(Object arg) {
+                        return "Was expecting only: 'pack1.pack2.mod1'. Found: " + info.getAllModulesWithTokens();
+                    }
+                });
     }
 
     private void checkSetValidContents(AbstractAdditionalTokensInfo info) throws CoreException {
@@ -419,7 +419,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
                     StringBuffer buf = new StringBuffer();
 
                     buf.append("Contents:");
-                    buf.append(REF.getDocFromResource(mod1).get() + "\n");
+                    buf.append(FileUtils.getDocFromResource(mod1).get() + "\n");
 
                     IMarker[] markers = mod1.findMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
                     for (IMarker marker : markers) {

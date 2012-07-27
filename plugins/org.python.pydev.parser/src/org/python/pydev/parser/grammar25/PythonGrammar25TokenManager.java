@@ -3,7 +3,6 @@ package org.python.pydev.parser.grammar25;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.grammarcommon.AbstractJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
@@ -27,6 +26,8 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
+
+import com.aptana.shared_core.utils.FastStringBuffer;
 
 /** Token Manager. */
 @SuppressWarnings("unused")

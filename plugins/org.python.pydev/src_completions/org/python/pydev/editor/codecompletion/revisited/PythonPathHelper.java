@@ -31,19 +31,21 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ui.ide.IDE;
+import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
 import org.python.pydev.plugin.nature.IPythonPathHelper;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.utils.PyFileListing;
 import org.python.pydev.utils.PyFileListing.PyFileInfo;
+
+import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.utils.REF;
 
 /**
  * This is not a singleton because we may have a different pythonpath for each project (even though
@@ -538,7 +540,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * @throws IOException 
      */
     public void loadFromFile(File pythonpatHelperFile) throws IOException {
-        String fileContents = REF.getFileContents(pythonpatHelperFile);
+        String fileContents = FileUtils.getFileContents(pythonpatHelperFile);
         if (fileContents == null || fileContents.trim().length() == 0) {
             throw new IOException("No loaded contents from: " + pythonpatHelperFile);
         }
@@ -549,7 +551,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * @param pythonpatHelperFile
      */
     public void saveToFile(File pythonpatHelperFile) {
-        REF.writeStrToFile(StringUtils.join("\n", this.pythonpath), pythonpatHelperFile);
+        REF.writeStrToFile(com.aptana.shared_core.utils.StringUtils.join("\n", this.pythonpath), pythonpatHelperFile);
     }
 
     public static boolean canAddAstInfoFor(ModulesKey key) {
@@ -585,7 +587,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
             if (editorID == null) {
                 InputStream contents = file.getContents(true);
                 Reader inputStreamReader = new InputStreamReader(new BufferedInputStream(contents));
-                if (REF.hasPythonShebang(inputStreamReader)) {
+                if (FileUtils.hasPythonShebang(inputStreamReader)) {
                     IDE.setDefaultEditor(file, PyEdit.EDITOR_ID);
                     return true;
                 }

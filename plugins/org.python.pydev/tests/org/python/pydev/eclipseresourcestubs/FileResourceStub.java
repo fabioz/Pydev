@@ -16,8 +16,10 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.python.pydev.core.REF;
+import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.resource_stubs.AbstractIFileStub;
+
+import com.aptana.shared_core.utils.REF;
 
 /**
  * A stub for a file that implements the IFile interface required by Eclipse.
@@ -50,7 +52,7 @@ public class FileResourceStub extends AbstractIFileStub implements IFile {
      */
     public String getFileContents() {
         if (this.fileContents == null) {
-            this.fileContents = REF.getFileContents(actualFile);
+            this.fileContents = FileUtils.getFileContents(actualFile);
         }
         return this.fileContents;
     }

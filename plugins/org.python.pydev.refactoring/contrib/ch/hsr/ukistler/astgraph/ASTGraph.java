@@ -14,9 +14,10 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.jgraph.graph.DefaultGraphCell;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
+
+import com.aptana.shared_core.utils.Tuple;
 
 /**
  * Starts the parser and its visitor (GraphVisitor)

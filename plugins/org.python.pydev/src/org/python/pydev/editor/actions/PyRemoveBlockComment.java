@@ -16,12 +16,13 @@ import java.util.List;
 
 import org.eclipse.jface.action.IAction;
 import org.python.pydev.core.IIndentPrefs;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
+
+import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.utils.Tuple;
 
 /**
  * Removes a comment block. Comment blocks are slightly different than regular

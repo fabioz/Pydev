@@ -12,7 +12,6 @@ import java.util.List;
 
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.edit.CreateLocalVariableEdit;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.edit.ReplaceDuplicateWithVariableEdit;
@@ -22,6 +21,8 @@ import org.python.pydev.refactoring.core.base.AbstractFileChangeProcessor;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 import org.python.pydev.refactoring.messages.Messages;
+
+import com.aptana.shared_core.utils.Tuple;
 
 public class ExtractLocalChangeProcessor extends AbstractFileChangeProcessor<ExtractLocalRequest> {
     public ExtractLocalChangeProcessor(String name, RefactoringInfo info,

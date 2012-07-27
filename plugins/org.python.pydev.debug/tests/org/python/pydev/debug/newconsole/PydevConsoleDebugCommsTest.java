@@ -14,10 +14,7 @@ import junit.framework.TestCase;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.Tuple;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.debug.model.AbstractDebugTargetWithTransmission;
 import org.python.pydev.debug.model.IVariableLocator;
@@ -26,9 +23,13 @@ import org.python.pydev.debug.model.PyVariableCollection;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.GetFrameCommand;
 import org.python.pydev.debug.model.remote.VersionCommand;
-import org.python.pydev.dltk.console.InterpreterResponse;
 import org.python.pydev.plugin.SocketUtil;
 import org.python.pydev.runners.SimpleRunner;
+
+import com.aptana.interactive_console.console.InterpreterResponse;
+import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.utils.Tuple;
 
 /**
  * The purpose of this test is to verify the pydevconsole + pydevd works. This

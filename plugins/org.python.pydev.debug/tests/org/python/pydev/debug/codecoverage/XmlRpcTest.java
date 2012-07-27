@@ -22,13 +22,14 @@ import org.apache.xmlrpc.server.XmlRpcHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcNoSuchHandlerException;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.webserver.WebServer;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.debug.newconsole.IPydevXmlRpcClient;
 import org.python.pydev.debug.newconsole.PydevXmlRpcClient;
 import org.python.pydev.plugin.SocketUtil;
 import org.python.pydev.runners.ThreadStreamReader;
+
+import com.aptana.shared_core.utils.REF;
 
 public class XmlRpcTest extends TestCase {
 

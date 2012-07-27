@@ -12,7 +12,7 @@ package org.python.pydev.runners;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import org.python.pydev.core.structure.FastStringBuffer;
+import com.aptana.shared_core.utils.FastStringBuffer;
 
 public final class ThreadStreamReader extends Thread {
 

@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.core.log.Log;
 
+
 /**
  * This class overrides the ProgressMonitorDialog to limit the
  * number of task name changes in the GUI.

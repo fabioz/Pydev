@@ -16,14 +16,14 @@ import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 
+import com.aptana.shared_core.utils.Tuple;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 
@@ -57,7 +57,7 @@ public class RefactorerFindReferences {
             for (Tuple<List<ModulesKey>, IPythonNature> f : FORCED_RETURN) {
                 //only for testing purposes
                 for (ModulesKey k : f.o1) {
-                    String object = REF.getFileContents(k.file);
+                    String object = FileUtils.getFileContents(k.file);
                     if (object.indexOf(request.initialName) != -1) {
                         ret.add(new Tuple<List<ModulesKey>, IPythonNature>(Arrays.asList(k), f.o2));
                     }

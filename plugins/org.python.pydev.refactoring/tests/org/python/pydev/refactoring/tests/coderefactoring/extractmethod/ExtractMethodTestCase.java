@@ -15,9 +15,9 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.MultiTextEdit;
+import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.REF;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
@@ -42,7 +42,7 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
 
     @Override
     public void runTest() throws Throwable {
-        REF.IN_TESTS = true;
+        FileUtils.IN_TESTS = true;
         MockupExtractMethodConfig config = initConfig();
 
         IDocument doc = new Document(data.source);
@@ -70,7 +70,7 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
 
         this.setTestGenerated(refactoringDoc.get());
         assertContentsEqual(getExpected(), getGenerated());
-        REF.IN_TESTS = false;
+        FileUtils.IN_TESTS = false;
     }
 
     private IDocument applyExtractMethod(RefactoringInfo info, MockupExtractMethodRequestProcessor requestProcessor)

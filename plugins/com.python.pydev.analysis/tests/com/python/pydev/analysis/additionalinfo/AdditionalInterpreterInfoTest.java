@@ -16,12 +16,13 @@ import java.util.List;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.NameTok;
+
+import com.aptana.shared_core.utils.REF;
 
 public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
 

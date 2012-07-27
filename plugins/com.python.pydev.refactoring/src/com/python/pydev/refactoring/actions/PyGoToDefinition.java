@@ -56,6 +56,7 @@ import org.python.pydev.editor.refactoring.TooManyMatchesException;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
 
+
 /**
  * This is a refactoring action, but it does not follow the default cycle -- so, it overrides the run
  * and always uses the same cycle... because in this case, we do not need any additional information

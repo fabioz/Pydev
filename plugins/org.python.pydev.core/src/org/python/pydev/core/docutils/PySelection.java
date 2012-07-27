@@ -33,9 +33,11 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.IPythonPartitions;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
+
+import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.utils.TextSelectionUtils;
+import com.aptana.shared_core.utils.Tuple;
 
 /**
  * Redone the whole class, so that the interface is better defined and no
@@ -46,13 +48,11 @@ import org.python.pydev.core.structure.FastStringBuffer;
  * @author Fabio Zadrozny
  * @author Parhaum Toofanian
  */
-public final class PySelection {
+public final class PySelection extends TextSelectionUtils {
 
-    private IDocument doc;
-    private ITextSelection textSelection;
     public static final String[] DEDENT_TOKENS = new String[] { "return", "break", "continue", "pass", "raise",
-    //        "yield" -- https://sourceforge.net/tracker/index.php?func=detail&aid=1807411&group_id=85796&atid=577329 (doesn't really end scope)
-    //      after seeing the std lib, several cases use yield at the middle of the scope
+            //        "yield" -- https://sourceforge.net/tracker/index.php?func=detail&aid=1807411&group_id=85796&atid=577329 (doesn't really end scope)
+            //      after seeing the std lib, several cases use yield at the middle of the scope
     };
 
     public static final String[] CLASS_AND_FUNC_TOKENS = new String[] { "def", "class", };
@@ -142,8 +142,7 @@ public final class PySelection {
      * @param selection that's the actual selection. It might have an offset and a number of selected chars
      */
     public PySelection(IDocument doc, ITextSelection selection) {
-        this.doc = doc;
-        this.textSelection = selection;
+        super(doc, selection);
     }
 
     /**
@@ -157,8 +156,7 @@ public final class PySelection {
     }
 
     public PySelection(IDocument doc, int line, int col, int len) {
-        this.doc = doc;
-        this.textSelection = new TextSelection(doc, getAbsoluteCursorOffset(line, col), len);
+        super(doc, new TextSelection(doc, getAbsoluteCursorOffset(doc, line, col), len));
     }
 
     public static int getAbsoluteCursorOffset(IDocument doc, int line, int col) {
@@ -184,8 +182,7 @@ public final class PySelection {
      * @param offset the offset where the selection will happen (0 characters will be selected)
      */
     public PySelection(IDocument doc, int offset) {
-        this.doc = doc;
-        this.textSelection = new TextSelection(doc, offset, 0);
+        super(doc, new TextSelection(doc, offset, 0));
     }
 
     /**
@@ -209,8 +206,7 @@ public final class PySelection {
      * Creates a selection based on another selection.
      */
     public PySelection(PySelection base) {
-        this.doc = base.doc;
-        this.textSelection = new TextSelection(doc, base.getAbsoluteCursorOffset(), base.getSelLength());
+        super(base.doc, new TextSelection(base.doc, base.getAbsoluteCursorOffset(), base.getSelLength()));
     }
 
     /**
@@ -527,24 +523,6 @@ public final class PySelection {
     }
 
     /**
-     * @return the offset of the line where the cursor is
-     */
-    public int getLineOffset() {
-        return getLineOffset(getCursorLine());
-    }
-
-    /**
-     * @return the offset of the specified line
-     */
-    public int getLineOffset(int line) {
-        try {
-            return getDoc().getLineInformation(line).getOffset();
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-
-    /**
      * Deletes a line from the document
      * @param i
      */
@@ -746,20 +724,6 @@ public final class PySelection {
     }
 
     /**
-     * @return Returns the endLineIndex.
-     */
-    public int getEndLineIndex() {
-        return this.getTextSelection().getEndLine();
-    }
-
-    /**
-     * @return Returns the doc.
-     */
-    public IDocument getDoc() {
-        return doc;
-    }
-
-    /**
      * @return Returns the selLength.
      */
     public int getSelLength() {
@@ -812,43 +776,6 @@ public final class PySelection {
             Log.log(e);
         }
         return null;
-    }
-
-    /**
-     * @return Returns the endLine.
-     */
-    public IRegion getEndLine() {
-        try {
-            int endLineIndex = getEndLineIndex();
-            if (endLineIndex == -1) {
-                return null;
-            }
-            return getDoc().getLineInformation(endLineIndex);
-        } catch (BadLocationException e) {
-            Log.log(e);
-        }
-        return null;
-    }
-
-    /**
-     * @return Returns the cursorLine.
-     */
-    public int getCursorLine() {
-        return this.getTextSelection().getEndLine();
-    }
-
-    /**
-     * @return Returns the absoluteCursorOffset.
-     */
-    public int getAbsoluteCursorOffset() {
-        return this.getTextSelection().getOffset();
-    }
-
-    /**
-     * @return Returns the textSelection.
-     */
-    public ITextSelection getTextSelection() {
-        return textSelection;
     }
 
     /**
@@ -922,23 +849,6 @@ public final class PySelection {
         }
         String after = buf.toString();
         return new Tuple<String, String>(before, after);
-    }
-
-    /**
-     * @return the offset mapping to the end of the line passed as parameter.
-     * @throws BadLocationException 
-     */
-    public int getEndLineOffset(int line) throws BadLocationException {
-        IRegion lineInformation = doc.getLineInformation(line);
-        return lineInformation.getOffset() + lineInformation.getLength();
-    }
-
-    /**
-     * @return the offset mapping to the end of the current 'end' line.
-     */
-    public int getEndLineOffset() {
-        IRegion endLine = getEndLine();
-        return endLine.getOffset() + endLine.getLength();
     }
 
     /**
@@ -1835,27 +1745,6 @@ public final class PySelection {
 
     public String getIndentationFromLine() {
         return getIndentationFromLine(getCursorLineContents());
-    }
-
-    /**
-     * @param src
-     * @return
-     */
-    public static int getFirstCharPosition(String src) {
-        int i = 0;
-        boolean breaked = false;
-        while (i < src.length()) {
-            if (Character.isWhitespace(src.charAt(i)) == false && src.charAt(i) != '\t') {
-                i++;
-                breaked = true;
-                break;
-            }
-            i++;
-        }
-        if (!breaked) {
-            i++;
-        }
-        return (i - 1);
     }
 
     /**

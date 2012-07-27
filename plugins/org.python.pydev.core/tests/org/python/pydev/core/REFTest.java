@@ -12,6 +12,8 @@ import java.util.HashSet;
 
 import junit.framework.TestCase;
 
+import com.aptana.shared_core.utils.REF;
+
 public class REFTest extends TestCase {
 
     public void testLog() {
@@ -86,7 +88,7 @@ public class REFTest extends TestCase {
                 "\n" +
                 "";
         CharArrayReader reader = new CharArrayReader(s.toCharArray());
-        assertFalse(REF.hasPythonShebang(reader));
+        assertFalse(FileUtils.hasPythonShebang(reader));
     }
 
     public void testHasPythonShebang1() {
@@ -95,7 +97,7 @@ public class REFTest extends TestCase {
                 "\n" +
                 "";
         CharArrayReader reader = new CharArrayReader(s.toCharArray());
-        assertTrue(REF.hasPythonShebang(reader));
+        assertTrue(FileUtils.hasPythonShebang(reader));
     }
 
     public void testHasPythonShebang2() {
@@ -104,7 +106,7 @@ public class REFTest extends TestCase {
                 "\n" +
                 "";
         CharArrayReader reader = new CharArrayReader(s.toCharArray());
-        assertTrue(REF.hasPythonShebang(reader));
+        assertTrue(FileUtils.hasPythonShebang(reader));
     }
 
     public void testHasPythonShebang3() {
@@ -113,7 +115,7 @@ public class REFTest extends TestCase {
                 "\n" +
                 "";
         CharArrayReader reader = new CharArrayReader(s.toCharArray());
-        assertTrue(REF.hasPythonShebang(reader));
+        assertTrue(FileUtils.hasPythonShebang(reader));
     }
 
 }

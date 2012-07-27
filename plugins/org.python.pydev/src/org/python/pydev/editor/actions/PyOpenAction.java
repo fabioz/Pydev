@@ -22,12 +22,13 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.texteditor.ITextEditor;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.Location;
 import org.python.pydev.editorinput.PyOpenEditor;
+
+import com.aptana.shared_core.utils.REF;
 
 /**
  * Opens an editor and selects text in it.

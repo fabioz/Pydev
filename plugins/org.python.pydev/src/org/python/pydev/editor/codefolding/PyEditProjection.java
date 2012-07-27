@@ -36,6 +36,7 @@ import org.python.pydev.overview_ruler.MinimapOverviewRuler;
 import org.python.pydev.overview_ruler.MinimapOverviewRulerPreferencesPage;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 
+
 /**
  * @author Fabio Zadrozny
  * 

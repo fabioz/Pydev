@@ -28,8 +28,9 @@ import org.eclipse.ui.editors.text.ILocationProvider;
 import org.eclipse.ui.editors.text.ILocationProviderExtension;
 import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.model.IWorkbenchAdapter;
-import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
+
+import com.aptana.shared_core.utils.REF;
 
 /**
  * This class is also added to the plugin.xml so that we map the pydev document provider to this class.

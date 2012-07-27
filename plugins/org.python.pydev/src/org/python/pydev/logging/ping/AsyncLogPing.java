@@ -14,8 +14,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
+
+import com.aptana.shared_core.utils.Tuple;
 
 /**
  * This is a log ping that makes the pinging asynchronous.

@@ -12,7 +12,6 @@ import java.util.List;
 
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.core.ILocalScope;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStack;
@@ -28,6 +27,8 @@ import org.python.pydev.parser.visitors.scope.GetNodeForExtractLocalVisitor;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.request.ExtractLocalRequest;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.edit.AbstractInsertEdit;
+
+import com.aptana.shared_core.utils.Tuple;
 
 public class CreateLocalVariableEdit extends AbstractInsertEdit {
 

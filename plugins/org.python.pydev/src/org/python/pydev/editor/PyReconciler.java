@@ -40,6 +40,7 @@ import org.eclipse.ui.texteditor.spelling.SpellingService;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.log.Log;
 
+
 /**
  * Based on SpellingReconcileStrategy.
  * 
