@@ -6,7 +6,7 @@
  */
 package com.python.pydev.debug.model;
 
-import org.python.pydev.core.MyByteArrayOutputStream;
+import com.aptana.shared_core.MyByteArrayOutputStream;
 
 import junit.framework.TestCase;
 

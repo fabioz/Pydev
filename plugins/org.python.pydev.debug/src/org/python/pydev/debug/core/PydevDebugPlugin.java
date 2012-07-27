@@ -7,33 +7,21 @@
 package org.python.pydev.debug.core;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.debug.core.ILaunch;
-import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.python.pydev.core.bundle.ImageCache;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
 import org.python.pydev.plugin.PydevPlugin;
-
 
 /**
  * The main plugin for Python Debugger.
@@ -60,13 +48,6 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
         super.stop(context);
         ColorManager.getDefault().dispose();
         imageCache.dispose();
-        for (ILaunch l : new ArrayList<ILaunch>(consoleLaunches)) {
-            try {
-                this.removeConsoleLaunch(l);
-            } catch (Exception e) {
-                Log.log(e);
-            }
-        }
     }
 
     public static PydevDebugPlugin getDefault() {
@@ -141,41 +122,6 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
      */
     public static File getPySrcPath() throws CoreException {
         return PydevPlugin.getPySrcPath();
-    }
-
-    /**
-     * Holds the console launches that should be terminated.
-     */
-    private List<ILaunch> consoleLaunches = new ArrayList<ILaunch>();
-
-    /**
-     * Adds launch to the list of launches managed by pydev. Added launches will be shutdown
-     * if they are not removed before the plugin shutdown.
-     * 
-     * @param launch launch to be added
-     */
-    public void addConsoleLaunch(ILaunch launch) {
-        consoleLaunches.add(launch);
-    }
-
-    /**
-     * Removes a launch from a pydev console and stops the related process.
-     *  
-     * @param launch the launch to be removed
-     */
-    public void removeConsoleLaunch(ILaunch launch) {
-        if (consoleLaunches.remove(launch)) {
-            IProcess[] processes = launch.getProcesses();
-            if (processes != null) {
-                for (IProcess p : processes) {
-                    try {
-                        p.terminate();
-                    } catch (Exception e) {
-                        Log.log(e);
-                    }
-                }
-            }
-        }
     }
 
 }

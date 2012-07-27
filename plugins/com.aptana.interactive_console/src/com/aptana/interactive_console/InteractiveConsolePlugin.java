@@ -7,15 +7,20 @@
 package com.aptana.interactive_console;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 import com.aptana.interactive_console.console.ui.ScriptConsoleUIConstants;
+import com.aptana.shared_core.utils.Log;
 
 /**
  * The main plugin class to be used in the desktop.
@@ -52,6 +57,13 @@ public class InteractiveConsolePlugin extends AbstractUIPlugin {
      */
     public void stop(BundleContext context) throws Exception {
         super.stop(context);
+        for (ILaunch l : new ArrayList<ILaunch>(consoleLaunches)) {
+            try {
+                this.removeConsoleLaunch(l);
+            } catch (Exception e) {
+                Log.log(e);
+            }
+        }
     }
 
     /**
@@ -98,4 +110,38 @@ public class InteractiveConsolePlugin extends AbstractUIPlugin {
         return getImageRegistry().getDescriptor(key);
     }
 
+    /**
+     * Holds the console launches that should be terminated.
+     */
+    private List<ILaunch> consoleLaunches = new ArrayList<ILaunch>();
+
+    /**
+     * Adds launch to the list of launches managed by pydev. Added launches will be shutdown
+     * if they are not removed before the plugin shutdown.
+     * 
+     * @param launch launch to be added
+     */
+    public void addConsoleLaunch(ILaunch launch) {
+        consoleLaunches.add(launch);
+    }
+
+    /**
+     * Removes a launch from a pydev console and stops the related process.
+     *  
+     * @param launch the launch to be removed
+     */
+    public void removeConsoleLaunch(ILaunch launch) {
+        if (consoleLaunches.remove(launch)) {
+            IProcess[] processes = launch.getProcesses();
+            if (processes != null) {
+                for (IProcess p : processes) {
+                    try {
+                        p.terminate();
+                    } catch (Exception e) {
+                        Log.log(e);
+                    }
+                }
+            }
+        }
+    }
 }

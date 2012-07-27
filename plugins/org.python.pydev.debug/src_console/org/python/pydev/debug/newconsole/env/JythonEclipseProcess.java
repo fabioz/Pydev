@@ -11,10 +11,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 
-import org.python.pydev.core.MyPipedInputStream;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.jython.JythonPlugin;
+
+import com.aptana.shared_core.MyPipedInputStream;
 
 
 /**

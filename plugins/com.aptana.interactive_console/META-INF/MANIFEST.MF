@@ -3,7 +3,12 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Interactive Console Plug-in
 Bundle-SymbolicName: com.aptana.interactive_console; singleton:=true
 Bundle-Version: 0.9.7.1
-Bundle-ClassPath: interactive_console.jar
+Bundle-ClassPath: interactive_console.jar,
+ commons-logging-1.1.jar,
+ ws-commons-util-1.0.2.jar,
+ xmlrpc-client-3.1.jar,
+ xmlrpc-common-3.1.jar,
+ xmlrpc-server-3.1.jar
 Bundle-Activator: com.aptana.interactive_console.InteractiveConsolePlugin
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
@@ -22,5 +27,20 @@ Export-Package: com.aptana.interactive_console,
  com.aptana.interactive_console.console.ui,
  com.aptana.interactive_console.console.ui.internal,
  com.aptana.interactive_console.console.ui.internal.actions,
- com.aptana.interactive_console.console.ui.internal.fromeclipse
+ com.aptana.interactive_console.console.ui.internal.fromeclipse,
+ org.apache.commons.logging,
+ org.apache.commons.logging.impl,
+ org.apache.ws.commons.serialize,
+ org.apache.ws.commons.util,
+ org.apache.xmlrpc,
+ org.apache.xmlrpc.client,
+ org.apache.xmlrpc.client.util,
+ org.apache.xmlrpc.common,
+ org.apache.xmlrpc.jaxb,
+ org.apache.xmlrpc.metadata,
+ org.apache.xmlrpc.parser,
+ org.apache.xmlrpc.serializer,
+ org.apache.xmlrpc.server,
+ org.apache.xmlrpc.util,
+ org.apache.xmlrpc.webserver
 Bundle-Vendor: Appcelerator

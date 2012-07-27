@@ -53,7 +53,7 @@ import com.aptana.shared_core.utils.Tuple;
 /**
  * This class is used to create the given IProcess and get the console that is attached to that process. 
  */
-public class IProcessFactory {
+public class PydevIProcessFactory {
 
     public static final class PydevConsoleLaunchInfo {
         public final Launch launch;

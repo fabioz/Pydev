@@ -19,8 +19,8 @@ import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.newconsole.PydevConsoleFactory;
 import org.python.pydev.debug.newconsole.PydevConsoleInterpreter;
-import org.python.pydev.debug.newconsole.env.IProcessFactory;
-import org.python.pydev.debug.newconsole.env.IProcessFactory.PydevConsoleLaunchInfo;
+import org.python.pydev.debug.newconsole.env.PydevIProcessFactory;
+import org.python.pydev.debug.newconsole.env.PydevIProcessFactory.PydevConsoleLaunchInfo;
 import org.python.pydev.django.launching.DjangoConstants;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -90,7 +90,7 @@ public class DjangoShell extends DjangoAction {
 
             List<IPythonNature> natures = Collections.singletonList((IPythonNature) nature);
             PydevConsoleFactory consoleFactory = new PydevConsoleFactory();
-            PydevConsoleLaunchInfo launchInfo = new IProcessFactory().createLaunch(
+            PydevConsoleLaunchInfo launchInfo = new PydevIProcessFactory().createLaunch(
                     nature.getRelatedInterpreterManager(),
                     nature.getProjectInterpreter(),
                     nature.getPythonPathNature().getCompleteProjectPythonPath(nature.getProjectInterpreter(),

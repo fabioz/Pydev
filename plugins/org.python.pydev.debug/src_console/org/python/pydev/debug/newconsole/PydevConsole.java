@@ -103,7 +103,7 @@ public class PydevConsole extends ScriptConsole {
     protected SourceViewerConfiguration createSourceViewerConfiguration() {
         PyContentAssistant contentAssist = new PyContentAssistant();
         IContentAssistProcessor processor = createConsoleCompletionProcessor(contentAssist);
-        contentAssist.setContentAssistProcessor(processor, ScriptConsoleSourceViewerConfiguration.PARTITION_TYPE);
+        contentAssist.setContentAssistProcessor(processor, PydevScriptConsoleSourceViewerConfiguration.PARTITION_TYPE);
 
         contentAssist.enableAutoActivation(true);
         contentAssist.enableAutoInsert(false);
@@ -116,7 +116,7 @@ public class PydevConsole extends ScriptConsole {
         // Correction assist works on all
         quickAssist.setQuickAssistProcessor(quickAssistProcessor);
 
-        SourceViewerConfiguration cfg = new ScriptConsoleSourceViewerConfiguration(createHover(), contentAssist,
+        SourceViewerConfiguration cfg = new PydevScriptConsoleSourceViewerConfiguration(createHover(), contentAssist,
                 quickAssist);
         return cfg;
     }

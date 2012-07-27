@@ -13,7 +13,7 @@ import org.python.pydev.editor.codecompletion.PyContentAssistant;
 /**
  * Configuration for the source viewer.
  */
-public class ScriptConsoleSourceViewerConfiguration extends SourceViewerConfiguration {
+public class PydevScriptConsoleSourceViewerConfiguration extends SourceViewerConfiguration {
 
     public static final String PARTITION_TYPE = IDocument.DEFAULT_CONTENT_TYPE;
 
@@ -23,7 +23,7 @@ public class ScriptConsoleSourceViewerConfiguration extends SourceViewerConfigur
 
     private IQuickAssistAssistant quickAssist;
 
-    public ScriptConsoleSourceViewerConfiguration(ITextHover hover, PyContentAssistant contentAssist,
+    public PydevScriptConsoleSourceViewerConfiguration(ITextHover hover, PyContentAssistant contentAssist,
             IQuickAssistAssistant quickAssist) {
         this.hover = hover;
         this.contentAssist = contentAssist;
