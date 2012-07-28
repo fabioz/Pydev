@@ -11,7 +11,7 @@ package org.python.pydev.editor.codefolding;
 
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 public class FoldingEntry {
 

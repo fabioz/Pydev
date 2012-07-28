@@ -32,7 +32,7 @@ import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.ColorAndStyleCache;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfiguration {
 

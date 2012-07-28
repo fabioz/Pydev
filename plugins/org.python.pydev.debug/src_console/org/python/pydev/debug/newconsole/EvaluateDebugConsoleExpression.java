@@ -105,7 +105,7 @@ public class EvaluateDebugConsoleExpression implements ICommandResponseListener 
      * @return
      */
     private String getLocator(String... locators) {
-        return com.aptana.shared_core.utils.StringUtils.join("\t", locators);
+        return com.aptana.shared_core.string.StringUtils.join("\t", locators);
     }
 
     /**

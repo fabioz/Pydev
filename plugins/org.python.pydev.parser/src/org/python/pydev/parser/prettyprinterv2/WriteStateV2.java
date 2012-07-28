@@ -14,7 +14,7 @@ import java.io.IOException;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * Helper to write things in the document marking the last thing written, indent, etc.

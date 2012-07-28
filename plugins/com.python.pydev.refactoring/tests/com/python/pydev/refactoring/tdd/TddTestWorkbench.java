@@ -1620,7 +1620,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         if (throwException) {
             throw new AssertionError("Could not find completion: " + expectedCompletion +
                     "\n"
-                    + com.aptana.shared_core.utils.StringUtils.join("\n", buf));
+                    + com.aptana.shared_core.string.StringUtils.join("\n", buf));
         }
         return null;
     }

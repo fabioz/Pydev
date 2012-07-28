@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.debug.newconsole;
+package com.aptana.interactive_console.console;
 
 import java.net.MalformedURLException;
 
@@ -15,7 +15,7 @@ import org.apache.xmlrpc.XmlRpcException;
  *
  * @author Fabio
  */
-public interface IPydevXmlRpcClient {
+public interface IXmlRpcClient {
 
     /**
      * Sets the port which the server is expecting to communicate. 

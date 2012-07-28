@@ -15,7 +15,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.jython.JythonPlugin;
 
-import com.aptana.shared_core.MyPipedInputStream;
+import com.aptana.shared_core.io.PipedInputStream;
 
 
 /**
@@ -25,8 +25,8 @@ import com.aptana.shared_core.MyPipedInputStream;
  */
 public class JythonEclipseProcess extends Process {
 
-    private MyPipedInputStream outputStream;
-    private MyPipedInputStream errorStream;
+    private PipedInputStream outputStream;
+    private PipedInputStream errorStream;
     private Object lock;
     private IPythonInterpreter interpreter;
     private Thread thread;
@@ -35,8 +35,8 @@ public class JythonEclipseProcess extends Process {
         super();
         try {
 
-            outputStream = new MyPipedInputStream();
-            errorStream = new MyPipedInputStream();
+            outputStream = new PipedInputStream();
+            errorStream = new PipedInputStream();
 
             lock = new Object();
 

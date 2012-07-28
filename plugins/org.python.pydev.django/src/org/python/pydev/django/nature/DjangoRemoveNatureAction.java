@@ -24,7 +24,7 @@ public class DjangoRemoveNatureAction extends PyRemoveNature {
         if (!MessageDialog.openConfirm(
                 null,
                 "Confirm Remove Django Nature",
-                StringUtils.format("Are you sure that you want to remove the Django nature from %s?",
+                com.aptana.shared_core.string.StringUtils.format("Are you sure that you want to remove the Django nature from %s?",
                         selectedProject.getName()))) {
             return;
         }

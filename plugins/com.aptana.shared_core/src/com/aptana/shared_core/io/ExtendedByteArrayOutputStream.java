@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.shared_core;
+package com.aptana.shared_core.io;
 
 import java.io.ByteArrayOutputStream;
 
@@ -13,13 +13,13 @@ import java.io.ByteArrayOutputStream;
  * 
  * Note that it's not thread-safe!
  */
-public class MyByteArrayOutputStream extends ByteArrayOutputStream {
+public class ExtendedByteArrayOutputStream extends ByteArrayOutputStream {
 
-    public MyByteArrayOutputStream() {
+    public ExtendedByteArrayOutputStream() {
         super();
     }
 
-    public MyByteArrayOutputStream(int i) {
+    public ExtendedByteArrayOutputStream(int i) {
         super(i);
     }
 
@@ -45,4 +45,9 @@ public class MyByteArrayOutputStream extends ByteArrayOutputStream {
         return len;
     }
 
+    public String readAndDelete() {
+        String ret = new String(this.toByteArray());
+        this.reset();
+        return ret;
+    }
 }

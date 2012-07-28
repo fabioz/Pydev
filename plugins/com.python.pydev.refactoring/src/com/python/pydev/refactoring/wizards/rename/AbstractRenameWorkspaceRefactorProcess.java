@@ -175,7 +175,7 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
                 int i = 0;
                 for (Tuple<List<ModulesKey>, IPythonNature> file : references) {
                     i++;
-                    request.communicateWork(StringUtils.format("Analyzing %s (%s of %s)", file.o2.getProject(), i,
+                    request.communicateWork(com.aptana.shared_core.string.StringUtils.format("Analyzing %s (%s of %s)", file.o2.getProject(), i,
                             total));
                     PythonNature nature = (PythonNature) file.o2;
                     if (nature != null) {

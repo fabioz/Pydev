@@ -263,7 +263,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
             msgsAvailable.append(message.getMessage());
             msgsAvailable.append("\n");
         }
-        fail(StringUtils.format("No message named %s could be found. Available: %s", msg, msgsAvailable));
+        fail(com.aptana.shared_core.string.StringUtils.format("No message named %s could be found. Available: %s", msg, msgsAvailable));
         return null;
     }
 

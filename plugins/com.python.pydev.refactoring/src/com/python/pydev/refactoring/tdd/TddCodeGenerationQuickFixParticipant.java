@@ -350,7 +350,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                     String className = NodeUtils.getRepresentationString(d);
                     pyCreateMethod.setCreateInClass(className);
 
-                    String displayString = StringUtils.format("Create %s %s at %s (%s)", methodToCreate,
+                    String displayString = com.aptana.shared_core.string.StringUtils.format("Create %s %s at %s (%s)", methodToCreate,
                             pyCreateMethod.getCreationStr(), className, definition.module.getName());
 
                     TddRefactorCompletionInModule completion = new TddRefactorCompletionInModule(methodToCreate,
@@ -385,7 +385,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
     private void addCreateMethodOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props,
             String markerContents, List<String> parametersAfterCall, PyCreateMethodOrField pyCreateMethod,
             String classNameInLine) {
-        String displayString = StringUtils.format("Create %s %s at %s", markerContents,
+        String displayString = com.aptana.shared_core.string.StringUtils.format("Create %s %s at %s", markerContents,
                 pyCreateMethod.getCreationStr(), classNameInLine);
         TddRefactorCompletion tddRefactorCompletion = new TddRefactorCompletion(markerContents,
                 tddQuickFixParticipant.imageMethod, displayString, null, null, IPyCompletionProposal.PRIORITY_CREATE,
@@ -409,7 +409,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                     pyCreateMethod.setCreateInClass(className);
 
                     List<String> parametersAfterCall = callPs.getParametersAfterCall(callPs.getAbsoluteCursorOffset());
-                    String displayString = StringUtils.format("Create %s __init__ (%s)", className,
+                    String displayString = com.aptana.shared_core.string.StringUtils.format("Create %s __init__ (%s)", className,
                             definition.module.getName());
                     TddRefactorCompletionInModule completion = new TddRefactorCompletionInModule("__init__",
                             tddQuickFixParticipant.imageMethod, displayString, null, displayString,

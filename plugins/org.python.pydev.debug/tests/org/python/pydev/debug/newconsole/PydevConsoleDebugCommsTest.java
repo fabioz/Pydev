@@ -23,11 +23,11 @@ import org.python.pydev.debug.model.PyVariableCollection;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.GetFrameCommand;
 import org.python.pydev.debug.model.remote.VersionCommand;
-import org.python.pydev.plugin.SocketUtil;
 import org.python.pydev.runners.SimpleRunner;
 
 import com.aptana.interactive_console.console.InterpreterResponse;
 import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.net.SocketUtil;
 import com.aptana.shared_core.utils.REF;
 import com.aptana.shared_core.utils.Tuple;
 

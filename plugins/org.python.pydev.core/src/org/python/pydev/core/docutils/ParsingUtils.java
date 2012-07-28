@@ -17,7 +17,7 @@ import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentPartitionerExtension2;
 import org.python.pydev.core.IPythonPartitions;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * Helper class for parsing python code.

@@ -21,7 +21,7 @@ import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.ast.TryExcept;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.aptana.shared_core.utils.Tuple;
 import com.python.pydev.analysis.scopeanalysis.AbstractScopeAnalyzerVisitor;
 import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;

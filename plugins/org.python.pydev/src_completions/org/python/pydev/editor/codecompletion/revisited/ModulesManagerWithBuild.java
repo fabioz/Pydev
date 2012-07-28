@@ -27,7 +27,7 @@ import org.python.pydev.editor.codecompletion.revisited.javaintegration.ModulesK
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 
 import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.aptana.shared_core.utils.REF;
 
 public abstract class ModulesManagerWithBuild extends ModulesManager implements IDeltaProcessor<ModulesKey> {

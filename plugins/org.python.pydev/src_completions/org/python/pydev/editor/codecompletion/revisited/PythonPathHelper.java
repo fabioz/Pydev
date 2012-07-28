@@ -44,7 +44,7 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.utils.PyFileListing;
 import org.python.pydev.utils.PyFileListing.PyFileInfo;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.aptana.shared_core.utils.REF;
 
 /**
@@ -551,7 +551,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * @param pythonpatHelperFile
      */
     public void saveToFile(File pythonpatHelperFile) {
-        REF.writeStrToFile(com.aptana.shared_core.utils.StringUtils.join("\n", this.pythonpath), pythonpatHelperFile);
+        REF.writeStrToFile(com.aptana.shared_core.string.StringUtils.join("\n", this.pythonpath), pythonpatHelperFile);
     }
 
     public static boolean canAddAstInfoFor(ModulesKey key) {

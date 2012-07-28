@@ -16,7 +16,7 @@ import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 public final class JJTPythonGrammarState extends AbstractJJTPythonGrammarState implements IJJTPythonGrammarState {
 

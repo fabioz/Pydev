@@ -90,11 +90,11 @@ public class JavaModuleInProject extends AbstractJavaClassModule {
         if (filterCompletionName != null) {
             //pre-filter it a bit if we already know the completion name
             contents = "new %s().%s";
-            contents = StringUtils.format(contents, completeClassDesc, completeClassDesc, filterCompletionName);
+            contents = com.aptana.shared_core.string.StringUtils.format(contents, completeClassDesc, completeClassDesc, filterCompletionName);
 
         } else {
             contents = "new %s().";
-            contents = StringUtils.format(contents, completeClassDesc, completeClassDesc);
+            contents = com.aptana.shared_core.string.StringUtils.format(contents, completeClassDesc, completeClassDesc);
         }
 
         List<Tuple<IJavaElement, CompletionProposal>> javaCompletionProposals = getJavaCompletionProposals(contents,
@@ -104,11 +104,11 @@ public class JavaModuleInProject extends AbstractJavaClassModule {
             if (filterCompletionName != null) {
                 //pre-filter it a bit if we already know the completion name
                 contents = "%s.%s";
-                contents = StringUtils.format(contents, completeClassDesc, completeClassDesc, filterCompletionName);
+                contents = com.aptana.shared_core.string.StringUtils.format(contents, completeClassDesc, completeClassDesc, filterCompletionName);
 
             } else {
                 contents = "%s.";
-                contents = StringUtils.format(contents, completeClassDesc, completeClassDesc);
+                contents = com.aptana.shared_core.string.StringUtils.format(contents, completeClassDesc, completeClassDesc);
             }
             javaCompletionProposals = getJavaCompletionProposals(contents, contents.length() - 2, filterCompletionName);
 
@@ -166,7 +166,7 @@ public class JavaModuleInProject extends AbstractJavaClassModule {
             return;
         }
         CompletionProposalCollector collector = createCollector(filterCompletionName, ret, unit);
-        type.codeComplete(StringUtils.format(contents, name).toCharArray(), -1, 0, new char[0][0], new char[0][0],
+        type.codeComplete(com.aptana.shared_core.string.StringUtils.format(contents, name).toCharArray(), -1, 0, new char[0][0], new char[0][0],
                 new int[0], false, collector);
     }
 

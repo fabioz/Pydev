@@ -7,9 +7,9 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.cache.LRUCache;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 
+import com.aptana.shared_core.cache.LRUCache;
 import com.aptana.shared_core.utils.Tuple;
 
 /**

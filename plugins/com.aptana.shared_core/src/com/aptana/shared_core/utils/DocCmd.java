@@ -13,6 +13,8 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
 
+import com.aptana.shared_core.string.FastStringBuffer;
+
 
 public class DocCmd extends DocumentCommand {
 

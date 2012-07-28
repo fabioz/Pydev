@@ -15,7 +15,7 @@ import org.python.parser.Token;
 import org.python.parser.TokenMgrError;
 import org.python.parser.ast.modType;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * Facade for the classes in the org.python.parser package.

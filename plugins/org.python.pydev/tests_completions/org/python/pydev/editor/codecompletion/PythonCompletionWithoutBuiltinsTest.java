@@ -937,7 +937,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 +
                 "Foo(%s)" + //completion inside the empty parenthesis should: add the parameters in link mode (a, b) and let the calltip there.
                 "";
-        s = StringUtils.format(original, "");
+        s = com.aptana.shared_core.string.StringUtils.format(original, "");
 
         ICompletionProposal[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
         assertEquals(1, proposals.length);
@@ -950,7 +950,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
         Document doc = new Document(s);
         prop.apply(doc);
-        String expected = StringUtils.format(original, "a, b");
+        String expected = com.aptana.shared_core.string.StringUtils.format(original, "a, b");
         assertEquals(expected, doc.get());
     }
 
@@ -1022,7 +1022,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "    \n" +
                 "Foo.met%s";
 
-        String s = StringUtils.format(s0, "");
+        String s = com.aptana.shared_core.string.StringUtils.format(s0, "");
         ICompletionProposal[] proposals = requestCompl(s, s.length(), -1, new String[] {});
         assertEquals(1, proposals.length);
         PyCompletionProposal p = (PyCompletionProposal) proposals[0];
@@ -1030,7 +1030,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
         Document document = new Document(s);
         p.apply(document);
-        assertEquals(StringUtils.format(s0, "hod1(a, b)"), document.get());
+        assertEquals(com.aptana.shared_core.string.StringUtils.format(s0, "hod1(a, b)"), document.get());
     }
 
     public void testClassmethod2() throws Exception {
@@ -1039,7 +1039,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "    def method1(cls, a, b):\n" +
                 "        cls.m%s";
 
-        String s = StringUtils.format(s0, "");
+        String s = com.aptana.shared_core.string.StringUtils.format(s0, "");
         ICompletionProposal[] proposals = requestCompl(s, s.length(), -1, new String[] {});
         assertEquals(1, proposals.length);
         PyCompletionProposal p = (PyCompletionProposal) proposals[0];
@@ -1047,7 +1047,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
         Document document = new Document(s);
         p.apply(document);
-        assertEquals(StringUtils.format(s0, "ethod1(a, b)"), document.get());
+        assertEquals(com.aptana.shared_core.string.StringUtils.format(s0, "ethod1(a, b)"), document.get());
     }
 
     public void testClassmethod3() throws Exception {
@@ -1070,7 +1070,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "    def method1(cls, a, b):\n" +
                 "        cls.m%s";
 
-        String s = StringUtils.format(s0, "");
+        String s = com.aptana.shared_core.string.StringUtils.format(s0, "");
         ICompletionProposal[] proposals = requestCompl(s, s.length(), -1, new String[] {});
         assertEquals(5, proposals.length);
         assertContains("method1(a, b)", proposals);
@@ -1084,7 +1084,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         String s0 = "from extendable.classmet.mod1 import Foo\n" +
                 "Foo.Class%s";
 
-        String s = StringUtils.format(s0, "");
+        String s = com.aptana.shared_core.string.StringUtils.format(s0, "");
         ICompletionProposal[] proposals = requestCompl(s, s.length(), -1, new String[] {});
         assertEquals(1, proposals.length);
         PyCompletionProposal p = (PyCompletionProposal) proposals[0];
@@ -1092,7 +1092,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
         Document document = new Document(s);
         p.apply(document);
-        assertEquals(StringUtils.format(s0, "Met()"), document.get());
+        assertEquals(com.aptana.shared_core.string.StringUtils.format(s0, "Met()"), document.get());
     }
 
     public void testRecursion() throws Exception {

@@ -35,7 +35,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.core.ListenerList;
 import org.python.pydev.core.log.Log;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.aptana.shared_core.utils.REF;
 
 /**

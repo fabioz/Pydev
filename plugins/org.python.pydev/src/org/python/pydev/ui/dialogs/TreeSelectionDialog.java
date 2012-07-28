@@ -44,7 +44,7 @@ import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.ui.IViewCreatedObserver;
 import org.python.pydev.ui.IViewWithControls;
 
-import com.aptana.shared_core.utils.StringMatcher;
+import com.aptana.shared_core.string.StringMatcher;
 
 /**
  * This class extends the 'default' element tree selection dialog so that the user is able to filter the matches

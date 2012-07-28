@@ -31,7 +31,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.internal.WorkbenchMessages;
 import org.eclipse.ui.progress.WorkbenchJob;
 
-import com.aptana.shared_core.utils.StringMatcher;
+import com.aptana.shared_core.string.StringMatcher;
 
 /**
  * A composite widget which holds a list of elements for user selection. The

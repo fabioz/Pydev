@@ -34,7 +34,7 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
 import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * @author Fabio Zadrozny

@@ -1,4 +1,4 @@
-package com.aptana.shared_core.utils;
+package com.aptana.shared_core.string;
 
 /*******************************************************************************
  * Copyright (c) 2000, 2006 IBM Corporation and others.
@@ -12,6 +12,7 @@ package com.aptana.shared_core.utils;
  *******************************************************************************/
 
 import java.util.Vector;
+
 
 /**
  * A string pattern matcher suppporting &#39;*&#39; and &#39;&#63;&#39; wildcards.

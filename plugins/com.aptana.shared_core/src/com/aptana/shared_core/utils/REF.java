@@ -42,6 +42,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.osgi.service.environment.Constants;
 
 import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * @author Fabio Zadrozny

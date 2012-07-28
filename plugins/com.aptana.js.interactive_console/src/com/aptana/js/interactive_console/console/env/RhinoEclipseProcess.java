@@ -6,10 +6,12 @@
  */
 package com.aptana.js.interactive_console.console.env;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.aptana.shared_core.MyPipedInputStream;
+import com.aptana.js.interactive_console.rhino.RhinoConsoleMain;
+import com.aptana.shared_core.io.PipedInputStream;
 import com.aptana.shared_core.utils.Log;
 
 /**
@@ -21,8 +23,8 @@ import com.aptana.shared_core.utils.Log;
  */
 public class RhinoEclipseProcess extends Process {
 
-    private MyPipedInputStream outputStream;
-    private MyPipedInputStream errorStream;
+    private PipedInputStream outputStream;
+    private PipedInputStream errorStream;
     private Object lock;
     private Thread thread;
 
@@ -31,33 +33,21 @@ public class RhinoEclipseProcess extends Process {
         super();
         try {
 
-            outputStream = new MyPipedInputStream();
-            errorStream = new MyPipedInputStream();
+            outputStream = new PipedInputStream();
+            errorStream = new PipedInputStream();
 
             lock = new Object();
 
             thread = new Thread() {
                 public void run() {
-                    //					File fileToExec = new File(script);
-                    //					HashMap<String, Object> locals = new HashMap<String, Object>();
-                    //					locals.put("__name__", "__main__");
-                    //
-                    //					// It's important that the interpreter is created in the
-                    //					// Thread and not outside the thread (otherwise
-                    //					// it may be that the output ends up being shared, which is
-                    //					// not what we want.)
-                    //					interpreter = JythonPlugin.newPythonInterpreter(false,
-                    //							false);
-                    //					interpreter.setErr(errorStream.internalOutputStream);
-                    //					interpreter.setOut(outputStream.internalOutputStream);
-                    //					Throwable e = JythonPlugin.exec(locals, interpreter,
-                    //							fileToExec,
-                    //							new File[] { fileToExec.getParentFile() }, // pythonpath
-                    //							"''", "'" + port + "'", "'" + clientPort + "'" // args
-                    //					);
-                    //					if (e != null) {
-                    //						Log.log(e);
-                    //					}
+                    RhinoConsoleMain rhinoConsoleMain = new RhinoConsoleMain();
+                    try {
+                        rhinoConsoleMain.setErr(errorStream.internalOutputStream);
+                        rhinoConsoleMain.setOut(outputStream.internalOutputStream);
+                        rhinoConsoleMain.startXmlRpcServer(port);
+                    } catch (IOException e) {
+                        Log.log(e);
+                    }
                 };
             };
             thread.start();

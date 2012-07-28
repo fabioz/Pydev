@@ -29,7 +29,7 @@ import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.log.Log;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * This class represents a resource that is wrapped for the python model.

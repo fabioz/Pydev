@@ -20,7 +20,7 @@ import name.pachler.nio.file.WatchKey;
 import org.python.pydev.core.ListenerList;
 
 import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.aptana.shared_core.utils.REF;
 import com.aptana.shared_core.utils.Tuple;
 

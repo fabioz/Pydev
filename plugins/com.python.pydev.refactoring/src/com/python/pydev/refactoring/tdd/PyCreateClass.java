@@ -14,7 +14,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.aptana.shared_core.utils.Tuple;
 
 /**
@@ -53,10 +53,10 @@ public class PyCreateClass extends AbstractPyCreateClassOrMethodOrField {
 
         String source;
         if (parametersAfterCall == null || parametersAfterCall.size() == 0) {
-            source = StringUtils.format(baseClassStr, actTok);
+            source = com.aptana.shared_core.string.StringUtils.format(baseClassStr, actTok);
         } else {
             FastStringBuffer params = createParametersList(parametersAfterCall);
-            source = StringUtils.format(baseClassWithInitStr, actTok, params);
+            source = com.aptana.shared_core.string.StringUtils.format(baseClassWithInitStr, actTok, params);
 
         }
 

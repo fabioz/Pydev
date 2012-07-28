@@ -688,7 +688,7 @@ import com.aptana.shared_core.utils.Tuple;
 
         int endAt = segments.length - 1;
 
-        String modulePart = com.aptana.shared_core.utils.StringUtils.join(".", segments, startAt, endAt);
+        String modulePart = com.aptana.shared_core.string.StringUtils.join(".", segments, startAt, endAt);
 
         if (!PyTitlePreferencesPage.getTitleShowExtension()) {
             String initial = name;

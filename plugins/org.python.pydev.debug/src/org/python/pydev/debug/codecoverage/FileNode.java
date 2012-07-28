@@ -18,7 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.aptana.shared_core.utils.Tuple;
 
 /**

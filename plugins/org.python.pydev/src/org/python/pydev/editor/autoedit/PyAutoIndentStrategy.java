@@ -32,8 +32,8 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
 
 import com.aptana.interactive_console.console.ui.internal.IHandleScriptAutoEditStrategy;
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.aptana.shared_core.utils.DocCmd;
-import com.aptana.shared_core.utils.FastStringBuffer;
 import com.aptana.shared_core.utils.Tuple;
 
 /**

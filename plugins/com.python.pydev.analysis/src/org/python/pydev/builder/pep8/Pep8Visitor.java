@@ -24,7 +24,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.jython.JythonPlugin;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.messages.IMessage;
 import com.python.pydev.analysis.messages.Message;
@@ -123,7 +123,7 @@ public class Pep8Visitor {
                 interpreter.set("pep8", Py.None);
             }
 
-            String formatted = StringUtils.format(EXECUTE_PEP8, file, args.toString(),
+            String formatted = com.aptana.shared_core.string.StringUtils.format(EXECUTE_PEP8, file, args.toString(),
                     StringUtils.replaceAllSlashes(pep8Loc.getParentFile().getAbsolutePath()), //put the parent dir of pep8.py in the pythonpath.
                     file);
             interpreter.exec(formatted);

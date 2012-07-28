@@ -232,7 +232,7 @@ public class AppEngineConfigWizardPage extends WizardPage {
 
         for (String precondition : preconditions) {
             if (!map.containsKey(precondition)) {
-                setErrorMessage(StringUtils.format("Invalid Google App Engine directory. Did not find: %s in %s",
+                setErrorMessage(com.aptana.shared_core.string.StringUtils.format("Invalid Google App Engine directory. Did not find: %s in %s",
                         precondition, locationFieldContents));
 
                 return false;
@@ -241,11 +241,11 @@ public class AppEngineConfigWizardPage extends WizardPage {
 
         File libDir = new File(loc, "lib");
         if (!libDir.exists()) {
-            setErrorMessage(StringUtils.format("Invalid Google App Engine directory. Did not find 'lib' dir at: %s",
+            setErrorMessage(com.aptana.shared_core.string.StringUtils.format("Invalid Google App Engine directory. Did not find 'lib' dir at: %s",
                     libDir.getAbsolutePath()));
         }
         if (!libDir.isDirectory()) {
-            setErrorMessage(StringUtils.format(
+            setErrorMessage(com.aptana.shared_core.string.StringUtils.format(
                     "Invalid Google App Engine directory. Expected 'lib' to be a directory at: %s",
                     libDir.getAbsolutePath()));
         }

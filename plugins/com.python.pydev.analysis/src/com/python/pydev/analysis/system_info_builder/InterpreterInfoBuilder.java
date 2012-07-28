@@ -66,7 +66,7 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
                         modulesFound);
 
                 if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
-                    Log.toLogFile(this, StringUtils.format("Found: %s modules", keysFound.size()));
+                    Log.toLogFile(this, com.aptana.shared_core.string.StringUtils.format("Found: %s modules", keysFound.size()));
                 }
                 ret = checkEarlyReturn(monitor, builder);
                 if (ret != null) {
@@ -75,7 +75,7 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
                 Tuple<List<ModulesKey>, List<ModulesKey>> diffModules = modulesManager.diffModules(keysFound);
                 if (diffModules.o1.size() > 0 || diffModules.o2.size() > 0) {
                     if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
-                        Log.toLogFile(this, StringUtils.format("Diff modules. Added: %s Removed: %s", diffModules.o1,
+                        Log.toLogFile(this, com.aptana.shared_core.string.StringUtils.format("Diff modules. Added: %s Removed: %s", diffModules.o1,
                                 diffModules.o2));
                     }
 

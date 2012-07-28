@@ -8,7 +8,7 @@
  * Author: atotic
  * Created on Mar 22, 2004
  */
-package org.python.pydev.plugin;
+package com.aptana.shared_core.net;
 
 import java.io.IOException;
 import java.net.ServerSocket;

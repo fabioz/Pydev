@@ -35,7 +35,7 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.refactoring.core.base.PyDocumentChange;
 import org.python.pydev.refactoring.core.base.PyTextFileChange;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.aptana.shared_core.utils.Tuple;
 import com.python.pydev.analysis.scopeanalysis.AstEntryScopeAnalysisConstants;
 import com.python.pydev.refactoring.changes.PyRenameResourceChange;
@@ -167,7 +167,7 @@ public class TextEditCreation {
             try {
                 workspaceFile = new PySourceLocatorBase().getWorkspaceFile(tup.o2);
                 if (workspaceFile == null) {
-                    status.addWarning(StringUtils.format("Error. Unable to resolve the file:\n" + "%s\n"
+                    status.addWarning(com.aptana.shared_core.string.StringUtils.format("Error. Unable to resolve the file:\n" + "%s\n"
                             + "to a file in the Eclipse workspace.", tup.o2));
                     continue;
                 }
@@ -208,14 +208,14 @@ public class TextEditCreation {
                     newName = inputName;
 
                     if (!resourceToRename.getName().equals(initialName)) {
-                        status.addFatalError(StringUtils
+                        status.addFatalError(com.aptana.shared_core.string.StringUtils
                                 .format("Error. The package that was found (%s) for renaming does not match the initial token found (%s)",
                                         resourceToRename.getName(), initialName));
                         return;
                     }
                 }
 
-                fChange.add(new PyRenameResourceChange(resourceToRename, newName, StringUtils.format(
+                fChange.add(new PyRenameResourceChange(resourceToRename, newName, com.aptana.shared_core.string.StringUtils.format(
                         "Renaming %s to %s", resourceToRename.getName(), inputName)));
             }
         }

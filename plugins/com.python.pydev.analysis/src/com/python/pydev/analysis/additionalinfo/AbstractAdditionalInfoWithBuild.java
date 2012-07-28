@@ -26,7 +26,7 @@ import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 
 import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.aptana.shared_core.utils.Tuple;
 
 /**
@@ -252,7 +252,7 @@ public abstract class AbstractAdditionalInfoWithBuild extends AbstractAdditional
                     if (info.addAstInfo(key, false) == null) {
                         String str = "Unable to generate ast -- using %s.\nError:%s";
                         ErrorDescription errorDesc = null;
-                        throw new RuntimeException(StringUtils.format(str, PyParser
+                        throw new RuntimeException(com.aptana.shared_core.string.StringUtils.format(str, PyParser
                                 .getGrammarVersionStr(grammarVersion),
                                 (errorDesc != null && errorDesc.message != null) ? errorDesc.message
                                         : "unable to determine"));

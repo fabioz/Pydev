@@ -6,7 +6,7 @@
  */
 package org.python.pydev.core.structure;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 import junit.framework.TestCase;
 

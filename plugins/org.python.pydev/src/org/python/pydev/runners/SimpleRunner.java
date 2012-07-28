@@ -36,7 +36,8 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.io.ThreadStreamReader;
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.aptana.shared_core.utils.REF;
 import com.aptana.shared_core.utils.Tuple;
 
@@ -299,7 +300,7 @@ public class SimpleRunner {
         }
 
         String separator = getPythonPathSeparator();
-        return com.aptana.shared_core.utils.StringUtils.join(separator, paths);
+        return com.aptana.shared_core.string.StringUtils.join(separator, paths);
     }
 
     /**
@@ -352,7 +353,7 @@ public class SimpleRunner {
             monitor.setTaskName("Making exec..." + executionString);
             if (workingDir != null) {
                 if (!workingDir.isDirectory()) {
-                    throw new RuntimeException(StringUtils.format(
+                    throw new RuntimeException(com.aptana.shared_core.string.StringUtils.format(
                             "Working dir must be an existing directory (received: %s)", workingDir));
                 }
             }

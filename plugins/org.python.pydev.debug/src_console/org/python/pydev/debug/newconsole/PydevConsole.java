@@ -42,6 +42,7 @@ import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
 import org.python.pydev.plugin.PydevPlugin;
 
 import com.aptana.interactive_console.console.ScriptConsolePrompt;
+import com.aptana.interactive_console.console.ui.DefaultScriptConsoleTextHover;
 import com.aptana.interactive_console.console.ui.IConsoleStyleProvider;
 import com.aptana.interactive_console.console.ui.ScriptConsole;
 import com.aptana.interactive_console.console.ui.ScriptConsoleUIConstants;
@@ -126,7 +127,7 @@ public class PydevConsole extends ScriptConsole {
      */
     @Override
     protected ITextHover createHover() {
-        return new PydevConsoleTextHover(this.interpreter);
+        return new DefaultScriptConsoleTextHover(this.interpreter);
     }
 
     /**

@@ -59,7 +59,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.aptana.shared_core.utils.REF;
 import com.aptana.shared_core.utils.RunInUiThread;
 import com.aptana.shared_core.utils.Tuple;

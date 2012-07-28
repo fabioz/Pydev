@@ -14,7 +14,7 @@ import java.util.List;
 
 import org.python.pydev.core.docutils.StringUtils;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * iterates through a string so that parts of it are gotten each time in a progressive way based on dots

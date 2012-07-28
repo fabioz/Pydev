@@ -1,10 +1,10 @@
 /**
- * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.js.interactive_console.console;
+package com.aptana.interactive_console.console;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -14,9 +14,10 @@ import org.apache.xmlrpc.XmlRpcRequest;
 import org.apache.xmlrpc.client.AsyncCallback;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
-import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.net.LocalHost;
-import org.python.pydev.runners.ThreadStreamReader;
+
+import com.aptana.shared_core.io.ThreadStreamReader;
+import com.aptana.shared_core.net.LocalHost;
+import com.aptana.shared_core.string.StringUtils;
 
 /**
  * Subclass of XmlRpcClient that will monitor the process so that if the process is destroyed, we stop waiting 
@@ -24,7 +25,7 @@ import org.python.pydev.runners.ThreadStreamReader;
  *
  * @author Fabio
  */
-public class JSXmlRpcClient implements IJSXmlRpcClient {
+public class ScriptXmlRpcClient implements IXmlRpcClient {
 
     /**
      * Internal xml-rpc client (responsible for the actual communication with the server)
@@ -49,7 +50,7 @@ public class JSXmlRpcClient implements IJSXmlRpcClient {
     /**
      * Constructor (see fields description)
      */
-    public JSXmlRpcClient(Process process, ThreadStreamReader stdErrReader, ThreadStreamReader stdOutReader) {
+    public ScriptXmlRpcClient(Process process, ThreadStreamReader stdErrReader, ThreadStreamReader stdOutReader) {
         this.impl = new XmlRpcClient();
         this.process = process;
         this.stdErrReader = stdErrReader;

@@ -41,7 +41,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.aptana.shared_core.utils.Tuple;
 
 /**
@@ -156,7 +156,7 @@ public class PyOrganizeImports extends PyAction {
         for (Iterator<Tuple3<Integer, String, ImportHandle>> iter = list.iterator(); iter.hasNext();) {
             Tuple3<Integer, String, ImportHandle> element = iter.next();
             String s = element.o2;
-            int i = StringUtils.countLineBreaks(s);
+            int i = com.aptana.shared_core.string.StringUtils.countLineBreaks(s);
             while (i >= 0) {
                 PySelection.deleteLine(doc, (element.o1).intValue());
                 i--;

@@ -35,13 +35,13 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.net.LocalHost;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.SocketUtil;
 
+import com.aptana.shared_core.net.LocalHost;
+import com.aptana.shared_core.net.SocketUtil;
 import com.aptana.shared_core.utils.Tuple;
 
 /**

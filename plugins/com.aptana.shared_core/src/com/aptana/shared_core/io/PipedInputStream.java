@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.aptana.shared_core;
+package com.aptana.shared_core.io;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,30 +15,30 @@ import java.io.OutputStream;
  * 
  * This class should be thread safe.
  */
-public class MyPipedInputStream extends InputStream {
+public class PipedInputStream extends InputStream {
 
     private boolean closed = false;
-    private MyByteArrayOutputStream buf;
+    private ExtendedByteArrayOutputStream buf;
     private Object readLock = new Object();
     private Object writeLock = new Object();
 
     public final OutputStream internalOutputStream = new OutputStream() {
 
         public void write(int b) throws IOException {
-            MyPipedInputStream.this.write(b);
+            PipedInputStream.this.write(b);
         };
 
         public void write(byte[] b) throws IOException {
-            MyPipedInputStream.this.write(b);
+            PipedInputStream.this.write(b);
         }
 
         public void close() throws IOException {
-            MyPipedInputStream.this.close();
+            PipedInputStream.this.close();
         };
     };
 
-    public MyPipedInputStream() {
-        buf = new MyByteArrayOutputStream();
+    public PipedInputStream() {
+        buf = new ExtendedByteArrayOutputStream();
     }
 
     @Override

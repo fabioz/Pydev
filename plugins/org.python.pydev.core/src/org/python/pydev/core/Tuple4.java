@@ -11,7 +11,7 @@ package org.python.pydev.core;
 
 import java.io.Serializable;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * Defines a tuple of some object, adding equals and hashCode operations

@@ -14,9 +14,7 @@ import java.io.ObjectOutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
 import java.net.URLEncoder;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -35,11 +33,11 @@ import javax.swing.text.html.HTMLEditorKit;
 import org.apache.commons.codec.binary.Base64;
 import org.eclipse.core.runtime.Assert;
 import org.python.pydev.core.ObjectsPool;
-import org.python.pydev.core.cache.Cache;
-import org.python.pydev.core.cache.LRUCache;
 import org.python.pydev.core.log.Log;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.cache.Cache;
+import com.aptana.shared_core.cache.LRUCache;
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.aptana.shared_core.utils.Tuple;
 
 public final class StringUtils {
@@ -338,56 +336,6 @@ public final class StringUtils {
         FastStringBuffer buffer = new FastStringBuffer();
         for (int i = 0; i < times; i++) {
             buffer.append(s);
-        }
-        return buffer.toString();
-    }
-
-    /**
-     * Formats a string, replacing %s with the arguments passed.
-     * 
-     * %% is also changed to %.
-     * 
-     * If % is followed by any other char, the % and the next char are ignored. 
-     * 
-     * @param str string to be formatted
-     * @param args arguments passed
-     * @return a string with the %s replaced by the arguments passed
-     */
-    public static String format(final String str, Object... args) {
-        final int length = str.length();
-        FastStringBuffer buffer = new FastStringBuffer(length + (16 * args.length));
-        int j = 0;
-        int i = 0;
-
-        int start = 0;
-
-        for (; i < length; i++) {
-            char c = str.charAt(i);
-            if (c == '%') {
-                if (i + 1 < length) {
-                    if (i > start) {
-                        buffer.append(str.substring(start, i));
-                    }
-                    char nextC = str.charAt(i + 1);
-
-                    switch (nextC) {
-                        case 's':
-                            buffer.appendObject(args[j]);
-                            j++;
-                            break;
-                        case '%':
-                            buffer.append('%');
-                            j++;
-                            break;
-                    }
-                    i++;
-                    start = i + 1;
-                }
-            }
-        }
-
-        if (i > start) {
-            buffer.append(str.substring(start, i));
         }
         return buffer.toString();
     }
@@ -1476,111 +1424,8 @@ public final class StringUtils {
         return buf.toString();
     }
 
-    private static final Object md5CacheLock = new Object();
-    private static final LRUCache<String, String> md5Cache = new LRUCache<String, String>(1000);
-
-    public static String md5(String str) {
-        synchronized (md5CacheLock) {
-            String obj = md5Cache.getObj(str);
-            if (obj != null) {
-                return obj;
-            }
-            try {
-                byte[] bytes = str.getBytes("UTF-8");
-                MessageDigest md = MessageDigest.getInstance("MD5");
-                //MAX_RADIX because we'll generate the shorted string possible... (while still
-                //using only numbers 0-9 and letters a-z)
-                String ret = new BigInteger(1, md.digest(bytes)).toString(Character.MAX_RADIX).toLowerCase();
-                md5Cache.add(str, ret);
-                return ret;
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
     public static String getExeAsFileSystemValidPath(String executableOrJar) {
-        return "v1_" + StringUtils.md5(executableOrJar);
-    }
-
-    /**
-     * @return the number of line breaks in the passed string.
-     */
-    public static int countLineBreaks(final String replacementString) {
-        int lineBreaks = 0;
-        int ignoreNextNAt = -1;
-
-        //we may have line breaks with \r\n, or only \n or \r
-        final int len = replacementString.length();
-        for (int i = 0; i < len; i++) {
-            char c = replacementString.charAt(i);
-            if (c == '\r') {
-                lineBreaks++;
-                ignoreNextNAt = i + 1;
-
-            } else if (c == '\n') {
-                if (ignoreNextNAt != i) {
-                    lineBreaks++;
-                }
-            }
-        }
-        return lineBreaks;
-    }
-
-    /**
-     * A faster alternative for parsing positive ints (without exponential notation and only on decimal notation).
-     * Attempting to parse an ints that's negative or has exponential notation will throw a NumberFormatException.
-     * 
-     * Note that it doesn't check for ints overflow (so, values higher than MAX_INT will overflow silently).
-     */
-    public static int parsePositiveInt(FastStringBuffer buf) {
-        char[] array = buf.getInternalCharsArray();
-        int len = buf.length();
-        if (len == 0) {
-            throw new NumberFormatException("Empty string received");
-        }
-
-        int result = 0;
-        int zeroAsInt = (int) '0';
-
-        for (int i = 0; i < len; i++) {
-            result *= 10;
-            int c = array[i] - zeroAsInt;
-            if (c < 0 || c > 9) {
-                throw new NumberFormatException("Error getting positive int from: " + buf);
-            }
-            result += c;
-
-        }
-        return result;
-    }
-
-    /**
-     * A faster alternative for parsing positive longs (without exponential notation and only on decimal notation).
-     * Attempting to parse an longs that's negative or has exponential notation will throw a NumberFormatException.
-     * 
-     * Note that it doesn't check for longs overflow (so, values higher than MAX_LONG will overflow silently).
-     */
-    public static long parsePositiveLong(FastStringBuffer buf) {
-        char[] array = buf.getInternalCharsArray();
-        int len = buf.length();
-        if (len == 0) {
-            throw new NumberFormatException("Empty string received");
-        }
-
-        long result = 0;
-        int zeroAsInt = (int) '0';
-
-        for (int i = 0; i < len; i++) {
-            result *= 10;
-            int c = array[i] - zeroAsInt;
-            if (c < 0 || c > 9) {
-                throw new NumberFormatException("Error getting positive int from: " + buf);
-            }
-            result += c;
-
-        }
-        return result;
+        return "v1_" + com.aptana.shared_core.string.StringUtils.md5(executableOrJar);
     }
 
     /**

@@ -134,7 +134,7 @@ public class PySourceFormatAction extends PyContainerAction {
     protected void afterRun(int formatted) {
         openFiles = null;
         formatter = null;
-        MessageDialog.openInformation(null, "Files formatted", StringUtils.format("Formatted %s files.", formatted));
+        MessageDialog.openInformation(null, "Files formatted", com.aptana.shared_core.string.StringUtils.format("Formatted %s files.", formatted));
     }
 
     @Override

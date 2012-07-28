@@ -24,11 +24,11 @@ import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.webserver.WebServer;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.debug.newconsole.IPydevXmlRpcClient;
-import org.python.pydev.debug.newconsole.PydevXmlRpcClient;
-import org.python.pydev.plugin.SocketUtil;
-import org.python.pydev.runners.ThreadStreamReader;
 
+import com.aptana.interactive_console.console.IXmlRpcClient;
+import com.aptana.interactive_console.console.ScriptXmlRpcClient;
+import com.aptana.shared_core.io.ThreadStreamReader;
+import com.aptana.shared_core.net.SocketUtil;
 import com.aptana.shared_core.utils.REF;
 
 public class XmlRpcTest extends TestCase {
@@ -140,7 +140,7 @@ public class XmlRpcTest extends TestCase {
         }
 
         try {
-            IPydevXmlRpcClient client = new PydevXmlRpcClient(process, err, out);
+            IXmlRpcClient client = new ScriptXmlRpcClient(process, err, out);
             client.setPort(port);
 
             printArr(client.execute("addExec", new Object[] { "abc = 10" }));
@@ -230,7 +230,7 @@ public class XmlRpcTest extends TestCase {
                             return;
                         }
                     }
-                    String errorMessage = StringUtils.format("Expected: >>%s<< and not: >>%s<< (position:%s)",
+                    String errorMessage = com.aptana.shared_core.string.StringUtils.format("Expected: >>%s<< and not: >>%s<< (position:%s)",
                             expected, found, next);
                     assertEquals(errorMessage, expected, found);
                 }

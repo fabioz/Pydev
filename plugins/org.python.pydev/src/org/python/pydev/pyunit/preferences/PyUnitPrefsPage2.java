@@ -33,7 +33,7 @@ import org.python.pydev.utils.LabelFieldEditor;
 import org.python.pydev.utils.LinkFieldEditor;
 import org.python.pydev.utils.MultiStringFieldEditor;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 

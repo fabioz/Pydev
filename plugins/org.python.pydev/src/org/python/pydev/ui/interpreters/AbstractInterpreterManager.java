@@ -60,7 +60,7 @@ import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterPreferencesPage;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.aptana.shared_core.utils.Tuple;
 
 /**
@@ -442,7 +442,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
             }
         }
 
-        throw new MisconfigurationException(StringUtils.format("Interpreter: %s not found", nameOrExecutableOrJar));
+        throw new MisconfigurationException(com.aptana.shared_core.string.StringUtils.format("Interpreter: %s not found", nameOrExecutableOrJar));
     }
 
     private Object lock = new Object();

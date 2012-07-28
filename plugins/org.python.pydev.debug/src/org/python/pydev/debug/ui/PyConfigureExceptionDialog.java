@@ -45,7 +45,7 @@ import org.eclipse.ui.internal.WorkbenchMessages;
 import org.python.pydev.debug.model.PyExceptionBreakPointManager;
 import org.python.pydev.debug.ui.actions.PyExceptionListProvider;
 
-import com.aptana.shared_core.utils.StringMatcher;
+import com.aptana.shared_core.string.StringMatcher;
 
 public class PyConfigureExceptionDialog extends SelectionDialog {
 

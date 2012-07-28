@@ -7,17 +7,15 @@
 /*
  * Created on 03/08/2005
  */
-package org.python.pydev.runners;
+package com.aptana.shared_core.io;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import org.python.pydev.core.log.Log;
-
-
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.utils.Log;
 
 public class ThreadStreamReaderPrinter extends Thread {
     private static final boolean DEBUG = false;

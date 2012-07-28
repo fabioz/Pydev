@@ -20,7 +20,7 @@ import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.PydevPlugin;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.python.pydev.ui.hierarchy.TreeNode;
 
 public final class ShowOutlineLabelProvider extends LabelProvider implements IStyledLabelProvider {

@@ -95,7 +95,7 @@ public class PyContentAssistant extends ContentAssistant {
     }
 
     public void setIterationStatusMessage(String string) {
-        setStatusMessage(StringUtils.format(string, getIterationGesture()));
+        setStatusMessage(com.aptana.shared_core.string.StringUtils.format(string, getIterationGesture()));
     }
 
     private String getIterationGesture() {

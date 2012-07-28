@@ -33,13 +33,15 @@ import org.python.pydev.editor.codecompletion.PyCalltipsContextInformation;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.codecompletion.PyLinkedModeCompletionProposal;
-import org.python.pydev.runners.ThreadStreamReader;
 
 import com.aptana.interactive_console.console.IScriptConsoleCommunication;
+import com.aptana.interactive_console.console.IXmlRpcClient;
 import com.aptana.interactive_console.console.InterpreterResponse;
+import com.aptana.interactive_console.console.ScriptXmlRpcClient;
 import com.aptana.js.interactive_console.console.env.UserCanceledException;
 import com.aptana.js.interactive_console.console.prefs.InteractiveConsolePrefs;
 import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.io.ThreadStreamReader;
 import com.aptana.shared_core.utils.Tuple;
 
 /**
@@ -52,7 +54,7 @@ public class JSConsoleCommunication implements IScriptConsoleCommunication, XmlR
     /**
      * XML-RPC client for sending messages to the server.
      */
-    private IJSXmlRpcClient client;
+    private IXmlRpcClient client;
 
     /**
      * Responsible for getting the stdout of the process.
@@ -95,7 +97,7 @@ public class JSConsoleCommunication implements IScriptConsoleCommunication, XmlR
 
         this.webServer.start();
 
-        IJSXmlRpcClient client = new JSXmlRpcClient(process, stdErrReader, stdOutReader);
+        IXmlRpcClient client = new ScriptXmlRpcClient(process, stdErrReader, stdOutReader);
         client.setPort(port);
 
         this.client = client;
@@ -222,9 +224,13 @@ public class JSConsoleCommunication implements IScriptConsoleCommunication, XmlR
                                 "JSConsoleCommunication.client is null (cannot communicate with server).", false);
                     }
 
-                    Object[] execute = (Object[]) client.execute("addExec", new Object[] { command });
+                    Object execute = client.execute("addExec", new Object[] { command });
+                    Object object = execute;
+                    if (execute instanceof Object[]) {
+                        Object[] objects = (Object[]) execute;
+                        object = objects[0];
+                    }
 
-                    Object object = execute[0];
                     boolean more;
 
                     String errorContents = null;
@@ -510,9 +516,12 @@ public class JSConsoleCommunication implements IScriptConsoleCommunication, XmlR
                 if (monitor.isCanceled())
                     throw new UserCanceledException("Canceled before hello was successful");
                 try {
-                    Object[] resulta;
-                    resulta = (Object[]) client.execute("hello", new Object[] { "Hello jsconsole" });
-                    result = resulta[0].toString();
+                    Object execute = client.execute("hello", new Object[] { "Hello jsconsole" });
+                    if (execute instanceof Object[]) {
+                        Object[] resulta = (Object[]) execute;
+                        execute = resulta[0];
+                    }
+                    result = execute.toString();
                 } catch (XmlRpcException e) {
                     // We'll retry in a moment
                 }

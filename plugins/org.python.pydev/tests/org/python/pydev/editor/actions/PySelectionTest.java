@@ -629,7 +629,7 @@ public class PySelectionTest extends TestCase {
     private void compare(Integer[] is, List<Integer> offsets) {
         for (int i = 0; i < is.length; i++) {
             if (!is[i].equals(offsets.get(i))) {
-                fail(StringUtils.format("%s != %s (%s)", is[i], offsets.get(i), Arrays.deepToString(is)
+                fail(com.aptana.shared_core.string.StringUtils.format("%s != %s (%s)", is[i], offsets.get(i), Arrays.deepToString(is)
                         +
                         " differs from " + offsets));
             }

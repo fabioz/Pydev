@@ -27,7 +27,7 @@ import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 public final class PythonGrammar30 extends AbstractPythonGrammar implements /*@bgen(jjtree)*/IGrammar,
         PythonGrammar30Constants {/*@bgen(jjtree)*/

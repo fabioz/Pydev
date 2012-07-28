@@ -35,7 +35,7 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.log.Log;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.aptana.shared_core.utils.REF;
 
 public class FileUtils {

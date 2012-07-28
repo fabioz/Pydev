@@ -28,7 +28,7 @@ import org.python.pydev.core.ArrayUtils;
 import org.python.pydev.core.callbacks.ICallbackListener;
 import org.python.pydev.ui.ColorAndStyleCache;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * PyCodeScanner - A scanner that looks for python keywords and code

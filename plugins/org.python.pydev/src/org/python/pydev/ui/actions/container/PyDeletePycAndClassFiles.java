@@ -63,7 +63,7 @@ public class PyDeletePycAndClassFiles extends PyContainerAction {
 
     @Override
     protected void afterRun(int deleted) {
-        MessageDialog.openInformation(null, "Files deleted", StringUtils.format("Deleted %s files.", deleted));
+        MessageDialog.openInformation(null, "Files deleted", com.aptana.shared_core.string.StringUtils.format("Deleted %s files.", deleted));
     }
 
     @Override

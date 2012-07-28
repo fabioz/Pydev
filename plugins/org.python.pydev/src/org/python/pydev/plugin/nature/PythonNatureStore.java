@@ -56,7 +56,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.aptana.shared_core.utils.REF;
 
 /**
@@ -160,7 +160,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      */
     private synchronized void checkLoad(String function) {
         if (!loaded) {
-            Throwable e = new RuntimeException(StringUtils.format("%s still not loaded and '%s' already called.",
+            Throwable e = new RuntimeException(com.aptana.shared_core.string.StringUtils.format("%s still not loaded and '%s' already called.",
                     xmlFile, function));
             Log.log(e);
         }
@@ -419,7 +419,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         if (ret != null) {
             return ret;
         }
-        throw new RuntimeException(StringUtils.format("Error. Unable to get the %s tag by its name. Project: %s",
+        throw new RuntimeException(com.aptana.shared_core.string.StringUtils.format("Error. Unable to get the %s tag by its name. Project: %s",
                 "pydev_project", project));
     }
 
@@ -617,7 +617,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      * @see org.python.pydev.plugin.nature.IPythonNatureStore#setPropertyToXml(org.eclipse.core.runtime.QualifiedName, java.lang.String, boolean)
      */
     public synchronized void setPropertyToXml(QualifiedName key, String value, boolean store) throws CoreException {
-        traceFunc(StringUtils.format("setPropertyToXml key:%s value:%s store:%s", key, value, store));
+        traceFunc(com.aptana.shared_core.string.StringUtils.format("setPropertyToXml key:%s value:%s store:%s", key, value, store));
         synchronized (this) {
             if (store) {
                 checkLoad("setPropertyToXml");

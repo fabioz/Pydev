@@ -14,7 +14,7 @@ import java.util.List;
 
 import org.python.pydev.core.IToken;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 public final class GenAndTok {
 

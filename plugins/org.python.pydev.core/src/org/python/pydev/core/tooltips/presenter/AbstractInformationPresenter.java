@@ -12,7 +12,7 @@ import org.eclipse.swt.graphics.Drawable;
 import org.eclipse.swt.widgets.Display;
 import org.python.pydev.core.docutils.StringUtils;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * Base implementation for an information presenter.

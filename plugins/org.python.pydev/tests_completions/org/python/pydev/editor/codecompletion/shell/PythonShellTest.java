@@ -130,7 +130,7 @@ public class PythonShellTest extends CodeCompletionTestsBase {
                 return;
             }
         }
-        fail(StringUtils.format("The string %s was not found in the returned completions", expected));
+        fail(com.aptana.shared_core.string.StringUtils.format("The string %s was not found in the returned completions", expected));
     }
 
 }

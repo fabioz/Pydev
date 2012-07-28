@@ -7,12 +7,12 @@
 /*
  * Created on 03/08/2005
  */
-package org.python.pydev.runners;
+package com.aptana.shared_core.io;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 public final class ThreadStreamReader extends Thread {
 

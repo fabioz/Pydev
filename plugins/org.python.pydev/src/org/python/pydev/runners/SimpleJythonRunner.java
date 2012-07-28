@@ -29,7 +29,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.aptana.shared_core.utils.Tuple;
 
 public class SimpleJythonRunner extends SimpleRunner {
@@ -128,7 +128,7 @@ public class SimpleJythonRunner extends SimpleRunner {
         }
 
         if (!new File(jythonJar).exists()) {
-            throw new RuntimeException(StringUtils.format(
+            throw new RuntimeException(com.aptana.shared_core.string.StringUtils.format(
                     "Error. The default configured interpreter: %s does not exist!", jythonJar));
         }
         InterpreterInfo info = (InterpreterInfo) interpreterManager.getInterpreterInfo(jythonJar,

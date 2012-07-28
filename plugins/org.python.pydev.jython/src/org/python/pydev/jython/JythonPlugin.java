@@ -477,9 +477,9 @@ public class JythonPlugin extends AbstractUIPlugin {
                         addToSysPath.append("\n");
                     }
 
-                    String toExec = StringUtils.format(LOAD_FILE_SCRIPT, path, path, addToSysPath.toString());
+                    String toExec = com.aptana.shared_core.string.StringUtils.format(LOAD_FILE_SCRIPT, path, path, addToSysPath.toString());
                     interpreter.exec(toExec);
-                    String exec = StringUtils.format("%s = compile(toExec, r'%s', 'exec')", codeObjName, path);
+                    String exec = com.aptana.shared_core.string.StringUtils.format("%s = compile(toExec, r'%s', 'exec')", codeObjName, path);
                     interpreter.exec(exec);
                     //set its timestamp
                     interpreter.set(codeObjTimestampName, lastModified);
@@ -489,7 +489,7 @@ public class JythonPlugin extends AbstractUIPlugin {
                 }
             }
 
-            interpreter.exec(StringUtils.format("exec(%s)", codeObjName));
+            interpreter.exec(com.aptana.shared_core.string.StringUtils.format("exec(%s)", codeObjName));
         } catch (Throwable e) {
             if (!IN_TESTS && JythonPlugin.getDefault() == null) {
                 //it is already disposed

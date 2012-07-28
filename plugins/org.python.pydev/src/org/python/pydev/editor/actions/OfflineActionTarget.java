@@ -38,7 +38,7 @@ import org.eclipse.ui.texteditor.IStatusFieldExtension;
 import org.python.pydev.editor.KeyAssistDialog;
 import org.python.pydev.editor.PyEdit;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * This action is supposed to be subclassed. It provides means to attach a listener to the editor and grab the input until

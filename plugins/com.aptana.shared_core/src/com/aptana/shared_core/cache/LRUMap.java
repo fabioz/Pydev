@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.core.cache;
+package com.aptana.shared_core.cache;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

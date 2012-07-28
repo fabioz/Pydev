@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.eclipse.ui.ide.ResourceUtil;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * A collection of utilities to help create snippets of Python Code

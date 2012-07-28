@@ -498,7 +498,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
         }
         String defaultStr = "ESC to close, ENTER activate link.";
         if (this.fActivateEditorBinding != null) {
-            return StringUtils.format("%s to activate editor, %s", fActivateEditorBinding.toString(), defaultStr);
+            return com.aptana.shared_core.string.StringUtils.format("%s to activate editor, %s", fActivateEditorBinding.toString(), defaultStr);
         }
         return defaultStr;
     }

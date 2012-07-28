@@ -13,7 +13,7 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 public class ReaderCharStreamTest extends TestCase {
 

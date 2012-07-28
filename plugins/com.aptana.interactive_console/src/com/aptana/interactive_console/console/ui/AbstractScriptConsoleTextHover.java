@@ -14,7 +14,7 @@ import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
 
-public abstract class ScriptConsoleTextHover implements ITextHover {
+public abstract class AbstractScriptConsoleTextHover implements ITextHover {
 
     protected abstract String getHoverInfoImpl(IScriptConsoleViewer viewer, IRegion hoverRegion);
 

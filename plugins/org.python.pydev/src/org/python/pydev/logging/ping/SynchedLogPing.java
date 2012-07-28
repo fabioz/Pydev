@@ -146,7 +146,7 @@ public class SynchedLogPing implements ILogPing {
     /*package*/String getContentsToSend() {
         synchronized (lock) {
             if (keyValueContents.size() > 0) {
-                return "id=" + provider.getApplicationId() + "&" + com.aptana.shared_core.utils.StringUtils.join("&", keyValueContents);
+                return "id=" + provider.getApplicationId() + "&" + com.aptana.shared_core.string.StringUtils.join("&", keyValueContents);
             }
         }
         return "";

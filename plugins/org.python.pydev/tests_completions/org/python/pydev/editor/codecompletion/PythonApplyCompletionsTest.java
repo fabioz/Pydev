@@ -67,7 +67,7 @@ public class PythonApplyCompletionsTest extends CodeCompletionTestsBase {
         String s0 = "from extendable.nested2 import mod2, mod3\n" +
                 "mod%s";
 
-        String s = StringUtils.format(s0, "2");
+        String s = com.aptana.shared_core.string.StringUtils.format(s0, "2");
 
         int offset = s.length() - 1;
         ICompletionProposal[] proposals = requestCompl(s, offset, -1, new String[] {});
@@ -76,7 +76,7 @@ public class PythonApplyCompletionsTest extends CodeCompletionTestsBase {
         Document d = new Document(s);
         p.fLen = 1;
         p.applyOnDoc(offset, true, d, 3, '\n');
-        assertEquals(StringUtils.format(s0, "3"), d.get());
+        assertEquals(com.aptana.shared_core.string.StringUtils.format(s0, "3"), d.get());
     }
 
     public void testApply2() throws Exception {

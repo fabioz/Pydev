@@ -45,7 +45,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.PyFileListing;
 import org.python.pydev.utils.PyFileListing.PyFileInfo;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.aptana.shared_core.utils.Tuple;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
@@ -136,7 +136,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
             assertEquals(1, processes.size());
 
             for (IRefactorRenameProcess p : processes) {
-                assertTrue(StringUtils.format("Expected %s. Received:%s", getProcessUnderTest(), p.getClass()),
+                assertTrue(com.aptana.shared_core.string.StringUtils.format("Expected %s. Received:%s", getProcessUnderTest(), p.getClass()),
                         getProcessUnderTest().isInstance(p)); //we should only activate the rename class process in this test case
             }
         }
@@ -310,7 +310,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
                 return;
             }
         }
-        fail(StringUtils.format("Unable to find line:%s col:%s in %s", line, col, names));
+        fail(com.aptana.shared_core.string.StringUtils.format("Unable to find line:%s col:%s in %s", line, col, names));
 
     }
 

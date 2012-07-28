@@ -46,7 +46,7 @@ import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.PrintProgressMonitor;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * @author Fabio Zadrozny
@@ -610,7 +610,7 @@ public class CodeCompletionTestsBase extends TestCase {
             available.append(o.toString());
             available.append('\n');
         }
-        fail(StringUtils.format("Object: %s not found. Available:\n%s", toFind, available));
+        fail(com.aptana.shared_core.string.StringUtils.format("Object: %s not found. Available:\n%s", toFind, available));
     }
 
 }

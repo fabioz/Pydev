@@ -22,7 +22,7 @@ import org.python.pydev.core.FontUtils;
 import org.python.pydev.core.IFontUsage;
 import org.python.pydev.plugin.PydevPlugin;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 public class CommentBlocksPreferences extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 

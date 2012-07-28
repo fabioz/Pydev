@@ -87,7 +87,7 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField 
                         String indent = targetClass.getNodeBodyIndent();
                         Pass replacePassStatement = getLastPassFromNode(targetClass.getASTNode());
 
-                        String constant = StringUtils.format("\n%s = ${None}${cursor}\n", actTok);
+                        String constant = com.aptana.shared_core.string.StringUtils.format("\n%s = ${None}${cursor}\n", actTok);
                         Tuple<Integer, String> offsetAndIndent;
                         offsetAndIndent = getLocationOffset(AbstractPyCreateAction.LOCATION_STRATEGY_FIRST_METHOD,
                                 pySelection, moduleAdapter, targetClass);
@@ -108,7 +108,7 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField 
                             String pattern;
 
                             if (replacePassStatement == null) {
-                                pattern = StringUtils.format("\nself.%s = ${None}${cursor}", actTok);
+                                pattern = com.aptana.shared_core.string.StringUtils.format("\nself.%s = ${None}${cursor}", actTok);
                                 try {
                                     IRegion region = pySelection.getDoc().getLineInformation(nodeLastLine);
                                     int offset = region.getOffset() + region.getLength();
@@ -119,14 +119,14 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField 
                                 }
 
                             } else {
-                                pattern = StringUtils.format("self.%s = ${None}${cursor}", actTok);
+                                pattern = com.aptana.shared_core.string.StringUtils.format("self.%s = ${None}${cursor}", actTok);
                                 offsetAndIndent = new Tuple<Integer, String>(-1, ""); //offset will be from the pass stmt
                             }
                             return createProposal(pySelection, pattern, offsetAndIndent, false, replacePassStatement);
 
                         } else {
                             //Create the __init__ with the field declaration!
-                            body = StringUtils.format("self.%s = ${None}${cursor}", actTok);
+                            body = com.aptana.shared_core.string.StringUtils.format("self.%s = ${None}${cursor}", actTok);
                             actTok = "__init__";
                             locationStrategy = AbstractPyCreateAction.LOCATION_STRATEGY_FIRST_METHOD;
                         }
@@ -155,7 +155,7 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField 
             offsetAndIndent = getLocationOffset(locationStrategy, pySelection, moduleAdapter);
         }
 
-        source = StringUtils.format("" +
+        source = com.aptana.shared_core.string.StringUtils.format("" +
                 "%sdef %s(%s):\n" +
                 "%s%s${cursor}\n" +
                 "\n" +

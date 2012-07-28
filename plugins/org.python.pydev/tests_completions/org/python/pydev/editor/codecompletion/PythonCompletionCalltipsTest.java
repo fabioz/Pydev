@@ -14,7 +14,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
 
@@ -187,7 +187,7 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
                 +
                 "TestCase(%s)";
 
-        String s = StringUtils.format(s0, "");
+        String s = com.aptana.shared_core.string.StringUtils.format(s0, "");
         ICompletionProposal[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
         assertEquals(1, proposals.length);
         PyCompletionProposal p = (PyCompletionProposal) proposals[0];
@@ -195,7 +195,7 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
 
         Document document = new Document(s);
         p.apply(document);
-        assertEquals(StringUtils.format(s0, "a, b"), document.get());
+        assertEquals(com.aptana.shared_core.string.StringUtils.format(s0, "a, b"), document.get());
     }
 
     public void testCalltips6() throws Exception {
@@ -213,7 +213,7 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
                 "    \n" +
                 "TestCase(para%s)";
 
-        String s = StringUtils.format(s0, "");
+        String s = com.aptana.shared_core.string.StringUtils.format(s0, "");
         ICompletionProposal[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
         assertEquals(2, proposals.length);
         PyCompletionProposal param1Proposal = (PyCompletionProposal) assertContains("param1=", proposals);
@@ -221,7 +221,7 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
 
         Document document = new Document(s);
         param1Proposal.apply(document);
-        assertEquals(StringUtils.format(s0, "m1="), document.get());
+        assertEquals(com.aptana.shared_core.string.StringUtils.format(s0, "m1="), document.get());
     }
 
     public void testCalltips8() throws Exception {
@@ -232,7 +232,7 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
                 "    \n" +
                 "TestCase(param1=10, para%s)";
 
-        String s = StringUtils.format(s0, "");
+        String s = com.aptana.shared_core.string.StringUtils.format(s0, "");
         ICompletionProposal[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
         assertEquals(2, proposals.length);
         PyCompletionProposal paramProposal = (PyCompletionProposal) assertContains("param1=", proposals);
@@ -240,7 +240,7 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
 
         Document document = new Document(s);
         paramProposal.apply(document);
-        assertEquals(StringUtils.format(s0, "m2="), document.get());
+        assertEquals(com.aptana.shared_core.string.StringUtils.format(s0, "m2="), document.get());
     }
 
     public void testCalltips8a() throws Exception {
@@ -250,7 +250,7 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
                 +
                 "    \n" +
                 "TestCase(param1=10, para%s=20)";
-        String s = StringUtils.format(s0, "m3");
+        String s = com.aptana.shared_core.string.StringUtils.format(s0, "m3");
         ICompletionProposal[] proposals = requestCompl(s, s.length() - 7, -1, new String[] {});
         assertEquals(2, proposals.length);
         PyLinkedModeCompletionProposal paramProposal = (PyLinkedModeCompletionProposal) assertContains("param1=",
@@ -260,7 +260,7 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
         Document document = new Document(s);
         paramProposal.setLen(2); //only the 'm3'
         paramProposal.applyOnDoc(paramProposal.getReplacementOffset() + 4, true, document, 4, '\0');
-        assertEquals(StringUtils.format(s0, "m2"), document.get());
+        assertEquals(com.aptana.shared_core.string.StringUtils.format(s0, "m2"), document.get());
     }
 
     public void testCalltips9() throws Exception {
@@ -271,7 +271,7 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
                 "    \n" +
                 "TestCase(%s)";
 
-        String s = StringUtils.format(s0, "");
+        String s = com.aptana.shared_core.string.StringUtils.format(s0, "");
         ICompletionProposal[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
         assertEquals(1, proposals.length);
         IPyCalltipsContextInformation contextInformation = (IPyCalltipsContextInformation) proposals[0]
@@ -281,7 +281,7 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
 
         Document document = new Document(s);
         proposals[0].apply(document);
-        assertEquals(StringUtils.format(s0, "param1, param2"), document.get());
+        assertEquals(com.aptana.shared_core.string.StringUtils.format(s0, "param1, param2"), document.get());
     }
 
     public void testCalltips10() throws Exception {
@@ -292,7 +292,7 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
                 "    \n" +
                 "TestCase(param1=10, p)";
 
-        String s = StringUtils.format(s0, "");
+        String s = com.aptana.shared_core.string.StringUtils.format(s0, "");
         ICompletionProposal[] proposals = requestCompl(s, s.length() - 2, -1, new String[] {});
         assertEquals(1, proposals.length);
         IPyCalltipsContextInformation contextInformation = (IPyCalltipsContextInformation) proposals[0]
@@ -302,7 +302,7 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
 
         Document document = new Document(s);
         proposals[0].apply(document);
-        assertEquals(StringUtils.format(s0, "param1, param2"), document.get());
+        assertEquals(com.aptana.shared_core.string.StringUtils.format(s0, "param1, param2"), document.get());
     }
 
     public void testCalltips11() throws Exception {
@@ -315,13 +315,13 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
                 "    def __init__(self):\n" +
                 "        self.M1(k%s)";
 
-        String s = StringUtils.format(s0, "");
+        String s = com.aptana.shared_core.string.StringUtils.format(s0, "");
         ICompletionProposal[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
         assertEquals(1, proposals.length);
 
         Document document = new Document(s);
         proposals[0].apply(document);
-        assertEquals(StringUtils.format(s0, "kk="), document.get());
+        assertEquals(com.aptana.shared_core.string.StringUtils.format(s0, "kk="), document.get());
     }
 
     public void testMakeArgsForDocumentReplacement() throws Exception {

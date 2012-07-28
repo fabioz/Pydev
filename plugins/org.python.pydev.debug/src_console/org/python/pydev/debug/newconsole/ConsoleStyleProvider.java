@@ -8,7 +8,7 @@ import org.python.pydev.debug.newconsole.prefs.ColorManager;
 
 import com.aptana.interactive_console.console.ui.IConsoleStyleProvider;
 import com.aptana.interactive_console.console.ui.ScriptStyleRange;
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.aptana.shared_core.utils.Tuple;
 
 /**

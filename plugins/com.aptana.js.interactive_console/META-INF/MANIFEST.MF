@@ -5,7 +5,8 @@ Bundle-SymbolicName: com.aptana.js.interactive_console;singleton:=true
 Bundle-Version: 0.9.7.1
 Bundle-Activator: com.aptana.js.interactive_console.JsInteractiveConsolePlugin
 Bundle-Vendor: Appcelerator
-Require-Bundle: org.eclipse.ui,
+Require-Bundle: org.junit;bundle-version="[3.8.0,3.9.9]";resolution:=optional,
+ org.eclipse.ui,
  org.eclipse.core.runtime,
  com.aptana.interactive_console,
  com.aptana.shared_core,

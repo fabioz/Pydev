@@ -20,7 +20,8 @@ import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
-import org.python.pydev.plugin.SocketUtil;
+
+import com.aptana.shared_core.net.SocketUtil;
 
 /**
  * This class is used to create the given IProcess and get the console that is

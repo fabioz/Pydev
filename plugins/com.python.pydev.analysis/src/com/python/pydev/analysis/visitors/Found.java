@@ -16,7 +16,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.callbacks.ICallbackListener;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
 
 public final class Found {

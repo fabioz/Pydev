@@ -19,7 +19,7 @@ import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * Converts tab-width spacing to tab characters in selection or entire document,

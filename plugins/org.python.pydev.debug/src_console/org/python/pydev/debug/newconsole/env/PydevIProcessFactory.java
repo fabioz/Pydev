@@ -41,13 +41,13 @@ import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.SocketUtil;
 import org.python.pydev.runners.SimpleIronpythonRunner;
 import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterPreferencesPage;
 
+import com.aptana.shared_core.net.SocketUtil;
 import com.aptana.shared_core.utils.Tuple;
 
 /**

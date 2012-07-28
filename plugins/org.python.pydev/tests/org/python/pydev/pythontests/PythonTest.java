@@ -22,11 +22,11 @@ public class PythonTest extends AbstractBasicRunTestCase {
     }
 
     protected Throwable exec(File f) {
-        System.out.println(StringUtils.format("Running: %s", f));
+        System.out.println(com.aptana.shared_core.string.StringUtils.format("Running: %s", f));
         Tuple<String, String> output = new SimplePythonRunner().runAndGetOutput(new String[] {
                 TestDependent.PYTHON_EXE, "-u", REF.getFileAbsolutePath(f) }, f.getParentFile(), null, null, "utf-8");
 
-        System.out.println(StringUtils.format("stdout:%s\nstderr:%s", output.o1, output.o2));
+        System.out.println(com.aptana.shared_core.string.StringUtils.format("stdout:%s\nstderr:%s", output.o1, output.o2));
 
         if (output.o2.toLowerCase().indexOf("failed") != -1 || output.o2.toLowerCase().indexOf("traceback") != -1) {
             throw new AssertionError(output.toString());

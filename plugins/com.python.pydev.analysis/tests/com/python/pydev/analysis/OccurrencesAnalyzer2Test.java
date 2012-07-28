@@ -711,7 +711,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
     private void unregisterFindDefinitionListener(String... expected) {
         SourceModule.onFindDefinition = null;
         if (expected.length != findDefinitionDone.size()) {
-            fail(StringUtils.format("Expected: %s (%s) find definition call(s). Found: %s (%s)", expected.length,
+            fail(com.aptana.shared_core.string.StringUtils.format("Expected: %s (%s) find definition call(s). Found: %s (%s)", expected.length,
                     Arrays.asList(expected), findDefinitionDone.size(), findDefinitionDone));
         }
     }

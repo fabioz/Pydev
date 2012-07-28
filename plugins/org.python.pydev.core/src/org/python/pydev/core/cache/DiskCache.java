@@ -27,8 +27,9 @@ import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
 import org.python.pydev.core.docutils.StringUtils;
 
+import com.aptana.shared_core.cache.Cache;
 import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.aptana.shared_core.utils.REF;
 import com.aptana.shared_core.utils.Tuple;
 
@@ -193,7 +194,7 @@ public final class DiskCache implements Serializable {
                                 key = new CompleteIndexKey(ObjectsPool.internLocal(objectsPoolMap, buf.toString()));
                                 break;
                             case 1:
-                                key.lastModified = StringUtils.parsePositiveLong(buf);
+                                key.lastModified = com.aptana.shared_core.string.StringUtils.parsePositiveLong(buf);
                                 break;
                             default:
                                 throw new RuntimeException("Unexpected part in line: " + line);
@@ -208,7 +209,7 @@ public final class DiskCache implements Serializable {
                 if (buf.length() > 0) {
                     switch (part) {
                         case 1:
-                            key.lastModified = StringUtils.parsePositiveLong(buf);
+                            key.lastModified = com.aptana.shared_core.string.StringUtils.parsePositiveLong(buf);
                             break;
                         case 2:
                             //File also written.
@@ -318,7 +319,7 @@ public final class DiskCache implements Serializable {
     private File getFileForKey(CompleteIndexKey o) {
         synchronized (lock) {
             String name = o.key.name;
-            String md5 = StringUtils.md5(name);
+            String md5 = com.aptana.shared_core.string.StringUtils.md5(name);
             name += "_" + md5.substring(0, 4); //Just add 4 chars to it...
             return new File(folderToPersist, name + suffix);
         }

@@ -86,7 +86,7 @@ public class DjangoProjectProperties extends PropertyPage {
 
                             IFile file = project.getFile(new Path(path));
                             if (!file.exists()) {
-                                labelErrorManage.setText(StringUtils.format("File: %s could not be found.", path));
+                                labelErrorManage.setText(com.aptana.shared_core.string.StringUtils.format("File: %s could not be found.", path));
                             } else {
                                 labelErrorManage.setText("");
                             }
@@ -133,7 +133,7 @@ public class DjangoProjectProperties extends PropertyPage {
                             IModule moduleInDirectManager = modulesManager.getModuleInDirectManager(moduleName, nature,
                                     true);
                             if (moduleInDirectManager == null) {
-                                labelErrorSettings.setText(StringUtils.format("Module: %s could not be found.",
+                                labelErrorSettings.setText(com.aptana.shared_core.string.StringUtils.format("Module: %s could not be found.",
                                         moduleName));
                             } else {
                                 labelErrorSettings.setText("");

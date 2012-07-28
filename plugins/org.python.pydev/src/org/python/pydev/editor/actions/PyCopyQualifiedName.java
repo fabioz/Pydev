@@ -25,7 +25,7 @@ import org.python.pydev.parser.fastparser.FastParser;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 public class PyCopyQualifiedName extends PyAction {
 

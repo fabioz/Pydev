@@ -6,14 +6,14 @@
  */
 package com.python.pydev.debug.model;
 
-import com.aptana.shared_core.MyByteArrayOutputStream;
+import com.aptana.shared_core.io.ExtendedByteArrayOutputStream;
 
 import junit.framework.TestCase;
 
 public class MyByteArrayOutputStreamTest extends TestCase {
 
     public void testIt() throws Exception {
-        MyByteArrayOutputStream myByteArrayOutputStream = new MyByteArrayOutputStream();
+        ExtendedByteArrayOutputStream myByteArrayOutputStream = new ExtendedByteArrayOutputStream();
         myByteArrayOutputStream.write(new byte[] { 4, 10 });
         assertEquals(2, myByteArrayOutputStream.size());
         assertEquals(4, myByteArrayOutputStream.deleteFirst());
@@ -48,7 +48,7 @@ public class MyByteArrayOutputStreamTest extends TestCase {
         myByteArrayOutputStream.write(new byte[] { 1, 2 });
         assertEquals(2, myByteArrayOutputStream.delete(b, 0, 1024));
 
-        myByteArrayOutputStream = new MyByteArrayOutputStream(5);
+        myByteArrayOutputStream = new ExtendedByteArrayOutputStream(5);
         myByteArrayOutputStream.write(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
         assertEquals(10, myByteArrayOutputStream.delete(b, 512, 1024));
     }

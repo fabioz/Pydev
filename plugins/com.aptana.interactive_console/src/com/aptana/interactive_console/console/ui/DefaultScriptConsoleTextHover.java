@@ -7,21 +7,19 @@
  *
  
  *******************************************************************************/
-package com.aptana.js.interactive_console.console;
+package com.aptana.interactive_console.console.ui;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 
 import com.aptana.interactive_console.console.IScriptConsoleShell;
-import com.aptana.interactive_console.console.ui.IScriptConsoleViewer;
-import com.aptana.interactive_console.console.ui.ScriptConsoleTextHover;
 import com.aptana.shared_core.utils.Log;
 
-public class JSConsoleTextHover extends ScriptConsoleTextHover {
+public class DefaultScriptConsoleTextHover extends AbstractScriptConsoleTextHover {
 
     private IScriptConsoleShell interpreterShell;
 
-    public JSConsoleTextHover(IScriptConsoleShell interpreterShell) {
+    public DefaultScriptConsoleTextHover(IScriptConsoleShell interpreterShell) {
         this.interpreterShell = interpreterShell;
     }
 

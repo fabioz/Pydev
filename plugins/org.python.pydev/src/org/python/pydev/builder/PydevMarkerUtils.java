@@ -28,7 +28,7 @@ import org.python.pydev.core.ArrayUtils;
 import org.python.pydev.core.log.Log;
 
 import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.utils.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * Helper class to deal with markers.
