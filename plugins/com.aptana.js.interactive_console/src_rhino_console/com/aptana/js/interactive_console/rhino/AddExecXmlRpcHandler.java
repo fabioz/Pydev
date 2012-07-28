@@ -45,7 +45,7 @@ public class AddExecXmlRpcHandler extends AbstractRhinoXmlRpcHandler {
             history.clear();
             more = false;
             PrintStream err = rhinoConsoleMain.getInterpreter().getErr();
-            e.printStackTrace(err);
+            err.println(e.getMessage());
         }
         return more;
     }

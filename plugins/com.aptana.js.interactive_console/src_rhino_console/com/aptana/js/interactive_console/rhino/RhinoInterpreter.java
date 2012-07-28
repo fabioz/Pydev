@@ -2,11 +2,17 @@ package com.aptana.js.interactive_console.rhino;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.Function;
+import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.tools.shell.Global;
 import org.python.pydev.core.log.Log;
 
@@ -135,17 +141,25 @@ public class RhinoInterpreter {
             this.line = line;
         }
 
+        /**
+         * Returns undefined or a string-representation of the evaluation.
+         */
         protected Object onEvaluate() {
+            Object eval;
             if (DEBUG) {
                 try {
-                    return cx.evaluateString(global, source, "eval", line, null);
+                    eval = cx.evaluateString(global, source, "eval", line, null);
                 } catch (RuntimeException e) {
                     e.printStackTrace();
                     throw e;
                 }
             } else {
-                return cx.evaluateString(global, source, "eval", line, null);
+                eval = cx.evaluateString(global, source, "eval", line, null);
             }
+            if (!(eval instanceof Undefined)) {
+                return Context.toString(eval);
+            }
+            return eval; //return undefined
         }
 
         @Override
@@ -227,6 +241,64 @@ public class RhinoInterpreter {
 
         public Object getErr() {
             return global.getErr();
+        }
+
+        /**
+         * Array with tuples with name, doc, args, type
+         */
+        public List<Object[]> getCompletions(String text, String actTok) {
+            ArrayList<Object[]> ret = new ArrayList<Object[]>();
+
+            Scriptable obj;
+            int index = actTok.lastIndexOf('.');
+            if (index != -1) {
+                String var = actTok.substring(0, index);
+                actTok = actTok.substring(index + 1);
+                try {
+                    Object eval = cx.evaluateString(global, var, "<eval>", 0, null);
+                    if (eval instanceof Scriptable) {
+                        obj = (Scriptable) eval;
+                    } else {
+                        return ret; //not something we can complete on.
+                    }
+                } catch (Exception e) {
+                    return ret; //unable to get variable.
+                }
+
+            } else {
+                obj = global;
+            }
+
+            Object val = obj.get(actTok, global);
+            if (val instanceof Scriptable) {
+                obj = (Scriptable) val;
+            }
+
+            Object[] ids;
+            if (obj instanceof ScriptableObject) {
+                ids = ((ScriptableObject) obj).getAllIds();
+            } else {
+                ids = obj.getIds();
+            }
+            //types: 
+            // function: 2
+            // local: 9
+            // see: IToken.TYPE_
+            String lastPart = actTok.toLowerCase();
+            for (int i = 0; i < ids.length; i++) {
+                if (!(ids[i] instanceof String)) {
+                    continue;
+                }
+                String id = (String) ids[i];
+                if (id.toLowerCase().startsWith(lastPart)) {
+                    if (obj.get(id, obj) instanceof Function) {
+                        ret.add(new Object[] { id, "", "()", 2 });
+                    } else {
+                        ret.add(new Object[] { id, "", "", 9 });
+                    }
+                }
+            }
+            return ret;
         }
     }
 
@@ -353,6 +425,28 @@ public class RhinoInterpreter {
         };
         addCommand(cmd);
         return cmd.getResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Object[]> getCompletions(final String text, final String actTok) {
+        AbstractResultCommand cmd = new AbstractResultCommand() {
+
+            @Override
+            protected Object onEvaluate() {
+                return rhinoThread.getCompletions(text, actTok);
+            }
+
+            @Override
+            public String toString() {
+                return "AbstractResultCommand:getCompletions()";
+            }
+        };
+        addCommand(cmd);
+        try {
+            return (List<Object[]>) cmd.getResult();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
