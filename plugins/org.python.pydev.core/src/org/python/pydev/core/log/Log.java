@@ -178,14 +178,4 @@ public class Log {
         }
     }
 
-    /**
-     * @deprecated use one of the other log methods
-     * XXX: At time of deprecation, none of the PyDev bundles
-     * call this method.
-     */
-    @Deprecated
-    public static void log(IStatus status) {
-        CorePlugin.getDefault().getLog().log(status);
-    }
-
 }

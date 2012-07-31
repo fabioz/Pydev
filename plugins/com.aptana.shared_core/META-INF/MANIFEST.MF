@@ -8,7 +8,6 @@ Bundle-Activator: com.aptana.shared_core.SharedCorePlugin
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.eclipse.ui.console,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.jface.text
 Eclipse-LazyStart: true
