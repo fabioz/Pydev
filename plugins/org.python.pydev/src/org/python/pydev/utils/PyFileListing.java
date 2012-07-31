@@ -117,7 +117,7 @@ public class PyFileListing {
                     Log.log(e);
                 }
 
-                File[] files = null;
+                File[] files;
 
                 if (filter != null) {
                     files = file.listFiles(filter);
@@ -129,47 +129,50 @@ public class PyFileListing {
 
                 List<File> foldersLater = new LinkedList<File>();
 
-                for (File file2 : files) {
-
-                    if (monitor.isCanceled()) {
-                        break;
-                    }
-
-                    if (file2.isFile()) {
-                        result.addPyFileInfo(new PyFileInfo(file2, currModuleRep));
-
-                        monitor.worked(1);
-                        monitor.setTaskName("Found:" + file2.toString());
-
-                        if (checkHasInit && hasInit == false) {
-                            //only check if it has __init__ if really needed
-                            if (PythonPathHelper.isValidInitFile(file2.getName())) {
-                                hasInit = true;
-                            }
-                        }
-
-                    } else {
-                        foldersLater.add(file2);
-                    }
-                }
-
-                if (!checkHasInit || hasInit || level == 0) {
-                    result.foldersFound.add(file);
-
-                    for (File folder : foldersLater) {
+                if (files != null) {
+                    for (File file2 : files) {
 
                         if (monitor.isCanceled()) {
                             break;
                         }
 
-                        if (folder.isDirectory() && addSubFolders) {
-
-                            getPyFilesBelow(result, folder, filter, monitor, addSubFolders, level + 1, checkHasInit,
-                                    currModuleRep, canonicalFolders);
+                        if (file2.isFile()) {
+                            result.addPyFileInfo(new PyFileInfo(file2, currModuleRep));
 
                             monitor.worked(1);
+                            monitor.setTaskName("Found:" + file2.toString());
+
+                            if (checkHasInit && hasInit == false) {
+                                //only check if it has __init__ if really needed
+                                if (PythonPathHelper.isValidInitFile(file2.getName())) {
+                                    hasInit = true;
+                                }
+                            }
+
+                        } else {
+                            foldersLater.add(file2);
                         }
                     }
+                    if (!checkHasInit || hasInit || level == 0) {
+                        result.foldersFound.add(file);
+
+                        for (File folder : foldersLater) {
+
+                            if (monitor.isCanceled()) {
+                                break;
+                            }
+
+                            if (folder.isDirectory() && addSubFolders) {
+
+                                getPyFilesBelow(result, folder, filter, monitor, addSubFolders, level + 1,
+                                        checkHasInit,
+                                        currModuleRep, canonicalFolders);
+
+                                monitor.worked(1);
+                            }
+                        }
+                    }
+
                 }
 
             } else if (file.isFile()) {

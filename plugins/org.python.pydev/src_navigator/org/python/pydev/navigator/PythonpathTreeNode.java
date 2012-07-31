@@ -28,6 +28,8 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
  */
 public class PythonpathTreeNode extends TreeNode<LabelAndImage> implements ISortedElement {
 
+    private static final File[] EMPTY_FILES = new File[0];
+
     /**
      * The file/folder we're wrapping here.
      */
@@ -67,6 +69,9 @@ public class PythonpathTreeNode extends TreeNode<LabelAndImage> implements ISort
             this.isDir = file.isDirectory();
             if (isDir) {
                 dirFiles = file.listFiles();
+                if (dirFiles == null) {
+                    dirFiles = EMPTY_FILES;
+                }
                 //This one can only be a package if its parent is a root or if it's also a package.
                 if (isPythonpathRoot) {
                     isPackage = true;

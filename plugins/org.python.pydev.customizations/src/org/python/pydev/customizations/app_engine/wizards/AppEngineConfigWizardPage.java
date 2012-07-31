@@ -223,8 +223,10 @@ public class AppEngineConfigWizardPage extends WizardPage {
 
         File[] files = loc.listFiles();
         HashMap<String, File> map = new HashMap<String, File>();
-        for (File f : files) {
-            map.put(f.getName(), f);
+        if (files != null) {
+            for (File f : files) {
+                map.put(f.getName(), f);
+            }
         }
         String[] preconditions = new String[] { "appcfg.py", "bulkload_client.py", "bulkloader.py", "dev_appserver.py",
                 "VERSION", "lib", };
@@ -306,12 +308,15 @@ public class AppEngineConfigWizardPage extends WizardPage {
      */
     private List<String> gatherLibFoldersForPythonpath(File libDir, String currentPath) {
         ArrayList<String> ret = new ArrayList<String>();
-        for (File f : libDir.listFiles()) {
-            if (f.isDirectory()) {
-                if (checkDirHasFolderWithInitInside(f)) {
-                    ret.add(currentPath + f.getName());
-                } else {
-                    ret.addAll(gatherLibFoldersForPythonpath(f, currentPath + f.getName() + "/"));
+        File[] listFiles = libDir.listFiles();
+        if (listFiles != null) {
+            for (File f : listFiles) {
+                if (f.isDirectory()) {
+                    if (checkDirHasFolderWithInitInside(f)) {
+                        ret.add(currentPath + f.getName());
+                    } else {
+                        ret.addAll(gatherLibFoldersForPythonpath(f, currentPath + f.getName() + "/"));
+                    }
                 }
             }
         }
@@ -320,10 +325,12 @@ public class AppEngineConfigWizardPage extends WizardPage {
 
     private boolean checkDirHasFolderWithInitInside(File f) {
         File[] listFiles = f.listFiles();
-        for (File file : listFiles) {
-            if (file.isDirectory()) {
-                if (new File(file, "__init__.py").exists() || new File(file, "__init__.pyc").exists()) {
-                    return true;
+        if (listFiles != null) {
+            for (File file : listFiles) {
+                if (file.isDirectory()) {
+                    if (new File(file, "__init__.py").exists() || new File(file, "__init__.pyc").exists()) {
+                        return true;
+                    }
                 }
             }
         }

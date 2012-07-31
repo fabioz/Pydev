@@ -171,15 +171,20 @@ public class AppEngineTemplatePage extends WizardPage {
         File relativePath = CustomizationsPlugin.getBundleInfo().getRelativePath(
                 new Path("templates/google_app_engine"));
         File[] files = relativePath.listFiles();
-        for (File dir : files) {
-            if (dir.isDirectory()) {
-                File[] secondLevelFiles = dir.listFiles();
-                for (File file2 : secondLevelFiles) {
-                    if (file2.getName().equals("description.txt")) {
-                        String fileContents = REF.getFileContents(file2).trim();
-                        Tuple<String, String> nameAndDesc = StringUtils.splitOnFirst(fileContents, ':');
-                        templateNamesAndDescriptions.put(nameAndDesc.o1, new Tuple<String, File>(nameAndDesc.o2, dir));
-                        break;
+        if (files != null) {
+            for (File dir : files) {
+                if (dir.isDirectory()) {
+                    File[] secondLevelFiles = dir.listFiles();
+                    if (secondLevelFiles != null) {
+                        for (File file2 : secondLevelFiles) {
+                            if (file2.getName().equals("description.txt")) {
+                                String fileContents = REF.getFileContents(file2).trim();
+                                Tuple<String, String> nameAndDesc = StringUtils.splitOnFirst(fileContents, ':');
+                                templateNamesAndDescriptions.put(nameAndDesc.o1, new Tuple<String, File>(
+                                        nameAndDesc.o2, dir));
+                                break;
+                            }
+                        }
                     }
                 }
             }
@@ -232,9 +237,7 @@ public class AppEngineTemplatePage extends WizardPage {
                             }
                             return false;
                         }
-                    },
-
-                    new ICallback<String, String>() {
+                    }, new ICallback<String, String>() {
 
                         public String call(String contents) {
                             //We want to change any references to ${app_id} for the app id entered by the user
