@@ -19,7 +19,7 @@ import org.python.pydev.core.log.Log;
 /**
  * This is the basic implementation for the interpreter. Note that it's much more complicated than
  * it appears it should be because rhino commands must all be evaluated at the same thread, so,
- * it creates an internal thread for that purpose and uses a queue to synchronize things with it.
+ * it creates an internal thread for that purpose and uses a queue to communicate with it.
  * 
  * Note that this also means that the interpreter must be properly disposed.
  * 
