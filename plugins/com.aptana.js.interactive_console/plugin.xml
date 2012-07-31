@@ -12,33 +12,25 @@
    </extension>
    
    
-<!-- console stuff -->
   <extension point="org.eclipse.ui.console.consoleFactories">
     <consoleFactory
       class="com.aptana.js.interactive_console.console.JSConsoleFactory"
       icon="icons/js_console_16x16.png"
       label="JS Console" />
   </extension>
+  
   <extension point="org.eclipse.core.runtime.preferences">
      <initializer class="com.aptana.js.interactive_console.console.JSConsolePreferencesInitializer"/>
   </extension>
   
-  <!--
   <extension point="org.eclipse.ui.preferencePages">
      <page
         name="Interactive Console"
-        category="org.python.pydev.prefs"
-        class="org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs"
-        id="org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs">
+        category="com.aptana.editor.js.preferences.JSPreferencePage"
+        class="com.aptana.js.interactive_console.console.prefs.InteractiveConsolePrefs"
+        id="com.aptana.js.interactive_console.console.prefs.InteractiveConsolePrefs">
      </page>
   </extension>
-  <extension
-        point="org.python.pydev.pydev_hover">
-     <hover_participant
-           class="org.python.pydev.debug.ui.hover.PyDebugHover">
-     </hover_participant>
-  </extension>
- end console stuff -->
 
 
 </plugin>

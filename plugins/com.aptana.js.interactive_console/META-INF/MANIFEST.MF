@@ -16,7 +16,8 @@ Require-Bundle: org.junit;bundle-version="[3.8.0,3.9.9]";resolution:=optional,
  org.eclipse.ui.console,
  org.mozilla.rhino,
  org.python.pydev.core,
- org.python.pydev
+ org.python.pydev,
+ com.aptana.editor.js
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: js_interactive_console.jar

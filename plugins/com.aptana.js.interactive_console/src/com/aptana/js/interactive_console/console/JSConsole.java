@@ -207,13 +207,11 @@ public class JSConsole extends ScriptConsole {
      */
     @Override
     public String getInitialCommands() {
-        return "";
-        //        String str = PydevDebugPlugin.getDefault().getPreferenceStore()
-        //                .getString(PydevConsoleConstants.INITIAL_INTERPRETER_CMDS);
-        //        if (additionalInitialComands != null) {
-        //            str += additionalInitialComands;
-        //        }
-        //        return str;
+        String str = InteractiveConsolePrefs.getInitialInterpreterCmds();
+        if (additionalInitialComands != null) {
+            str += additionalInitialComands;
+        }
+        return str;
     }
 
     @Override

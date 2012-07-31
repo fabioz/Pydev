@@ -51,7 +51,7 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
                 "Initial\ninterpreter\ncommands:\n", p));
 
         addField(new StringFieldEditor(JSConsoleConstants.INTERACTIVE_CONSOLE_VM_ARGS,
-                "Vm Args for jython\n(used only on external\nprocess option):", p));
+                "Vm Args for Rhino\n(used only on external\nprocess option):", p));
 
         addField(new IntegerFieldEditor(JSConsoleConstants.INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS,
                 "Maximum connection attempts\nfor initial communication:", p));
@@ -68,14 +68,21 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
                 "Focus console when an evaluate\ncommand is sent from the editor?", BooleanFieldEditor.SEPARATE_LABEL,
                 p));
 
-        addField(new BooleanFieldEditor(JSConsoleConstants.INTERACTIVE_CONSOLE_CONNECT_VARIABLE_VIEW,
-                "Connect console to Variables Debug View?", BooleanFieldEditor.SEPARATE_LABEL, p));
-
     }
 
     public void init(IWorkbench workbench) {
         setDescription("JS interactive console preferences.");
         setPreferenceStore(JsInteractiveConsolePlugin.getDefault().getPreferenceStore());
+    }
+
+    public static String getInitialInterpreterCmds() {
+        JsInteractiveConsolePlugin plugin = JsInteractiveConsolePlugin.getDefault();
+        if (plugin != null) {
+            return plugin.getPreferenceStore().getString(
+                    JSConsoleConstants.INITIAL_INTERPRETER_CMDS);
+        } else {
+            return "";
+        }
     }
 
     public static int getMaximumAttempts() {
@@ -105,16 +112,6 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
                     JSConsoleConstants.INTERACTIVE_CONSOLE_FOCUS_ON_SEND_COMMAND);
         } else {
             return JSConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_FOCUS_ON_SEND_COMMAND;
-        }
-    }
-
-    public static boolean getConsoleConnectVariableView() {
-        JsInteractiveConsolePlugin plugin = JsInteractiveConsolePlugin.getDefault();
-        if (plugin != null) {
-            return plugin.getPreferenceStore().getBoolean(
-                    JSConsoleConstants.INTERACTIVE_CONSOLE_CONNECT_VARIABLE_VIEW);
-        } else {
-            return JSConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_CONNECT_VARIABLE_VIEW;
         }
     }
 

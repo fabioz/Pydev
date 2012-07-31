@@ -55,9 +55,6 @@ public class JSConsolePreferencesInitializer extends AbstractPreferenceInitializ
         node.putBoolean(JSConsoleConstants.INTERACTIVE_CONSOLE_FOCUS_ON_SEND_COMMAND,
                 JSConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_FOCUS_ON_SEND_COMMAND);
 
-        node.putBoolean(JSConsoleConstants.INTERACTIVE_CONSOLE_CONNECT_VARIABLE_VIEW,
-                JSConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_CONNECT_VARIABLE_VIEW);
-
         node.putBoolean(JSConsoleConstants.INTERACTIVE_CONSOLE_SEND_INITIAL_COMMAND_WHEN_CREATED_FROM_EDITOR,
                 JSConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_SEND_INITIAL_COMMAND_WHEN_CREATED_FROM_EDITOR);
     }
