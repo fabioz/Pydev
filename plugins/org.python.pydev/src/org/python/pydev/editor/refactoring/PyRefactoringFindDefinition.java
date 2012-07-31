@@ -34,8 +34,8 @@ import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 
-import com.aptana.shared_core.utils.REF;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * @note This class was refactored and moved from the Pydev Extensions version to be able to provide a context-sensitive
@@ -267,7 +267,7 @@ public class PyRefactoringFindDefinition {
         if (file == null) {
             return null;
         }
-        return new Tuple3<String, Integer, Integer>(REF.getFileAbsolutePath(file), d.line, d.col);
+        return new Tuple3<String, Integer, Integer>(FileUtils.getFileAbsolutePath(file), d.line, d.col);
     }
 
     /**

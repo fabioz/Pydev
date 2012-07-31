@@ -18,7 +18,7 @@ import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 public class ExtractLocalRequest implements IRefactoringRequest {
 

@@ -29,7 +29,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.FileUtils;
+import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
@@ -57,9 +57,9 @@ import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
+import com.aptana.shared_core.io.FileUtils;
 import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.REF;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * This class manages the modules that are available
@@ -185,7 +185,7 @@ public abstract class ModulesManager implements IModulesManager {
     public void saveToFile(File workspaceMetadataFile) {
         if (workspaceMetadataFile.exists() && !workspaceMetadataFile.isDirectory()) {
             try {
-                REF.deleteFile(workspaceMetadataFile);
+                FileUtils.deleteFile(workspaceMetadataFile);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -245,7 +245,7 @@ public abstract class ModulesManager implements IModulesManager {
             header.append(buf);
             buf = header;
         }
-        REF.writeStrToFile(buf.toString(), modulesKeysFile);
+        FileUtils.writeStrToFile(buf.toString(), modulesKeysFile);
 
         this.pythonPathHelper.saveToFile(pythonpatHelperFile);
     }
@@ -841,7 +841,7 @@ public abstract class ModulesManager implements IModulesManager {
                             } else if (PythonPathHelper.isValidSourceFile(emptyModuleForZip.pathInZip)) {
                                 //handle python file from zip... we have to create it getting the contents from the zip file
                                 try {
-                                    IDocument doc = FileUtils.getDocFromZip(emptyModuleForZip.f,
+                                    IDocument doc = FileUtilsFileBuffer.getDocFromZip(emptyModuleForZip.f,
                                             emptyModuleForZip.pathInZip);
                                     //NOTE: The nature (and so the grammar to be used) must be defined by this modules
                                     //manager (and not by the initial caller)!!
@@ -996,7 +996,7 @@ public abstract class ModulesManager implements IModulesManager {
      */
     public String resolveModule(IResource member, IProject container) {
         File inOs = member.getRawLocation().toFile();
-        return resolveModule(REF.getFileAbsolutePath(inOs));
+        return resolveModule(FileUtils.getFileAbsolutePath(inOs));
     }
 
     protected String getResolveModuleErr(IResource member) {

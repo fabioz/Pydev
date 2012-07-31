@@ -12,8 +12,8 @@ import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.runners.SimplePythonRunner;
 
-import com.aptana.shared_core.utils.REF;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 
 public class PythonTest extends AbstractBasicRunTestCase {
 
@@ -24,7 +24,7 @@ public class PythonTest extends AbstractBasicRunTestCase {
     protected Throwable exec(File f) {
         System.out.println(com.aptana.shared_core.string.StringUtils.format("Running: %s", f));
         Tuple<String, String> output = new SimplePythonRunner().runAndGetOutput(new String[] {
-                TestDependent.PYTHON_EXE, "-u", REF.getFileAbsolutePath(f) }, f.getParentFile(), null, null, "utf-8");
+                TestDependent.PYTHON_EXE, "-u", FileUtils.getFileAbsolutePath(f) }, f.getParentFile(), null, null, "utf-8");
 
         System.out.println(com.aptana.shared_core.string.StringUtils.format("stdout:%s\nstderr:%s", output.o1, output.o2));
 

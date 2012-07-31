@@ -17,7 +17,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IInterpreterManager;
@@ -38,7 +37,7 @@ import org.python.pydev.editor.codecompletion.shell.PythonShell;
 import org.python.pydev.editor.codecompletion.shell.PythonShellTest;
 import org.python.pydev.plugin.nature.PythonNature;
 
-import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.io.FileUtils;
 
 public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
 
@@ -93,7 +92,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         ADD_MX_TO_FORCED_BUILTINS = false;
         if (shell == null && TestDependent.PYTHON_NUMPY_PACKAGES != null) {
             try {
-                REF.copyFile(TestDependent.PYTHON_NUMPY_PACKAGES +
+                FileUtils.copyFile(TestDependent.PYTHON_NUMPY_PACKAGES +
                         "numpy/core/umath.pyd", TestDependent.TEST_PYSRC_LOC
                         +
                         "extendable/bootstrap_dll/umath.pyd");

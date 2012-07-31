@@ -32,7 +32,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;

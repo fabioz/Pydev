@@ -16,9 +16,10 @@ import java.util.List;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
-import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
+
+import com.aptana.shared_core.io.FileUtils;
 
 /**
  * This file contains utility methods for File read / write / append

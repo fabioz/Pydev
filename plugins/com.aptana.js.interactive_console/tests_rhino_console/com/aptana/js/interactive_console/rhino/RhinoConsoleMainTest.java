@@ -10,9 +10,9 @@ import com.aptana.interactive_console.console.InterpreterResponse;
 import com.aptana.js.interactive_console.console.JSConsoleCommunication;
 import com.aptana.js.interactive_console.console.env.RhinoEclipseProcess;
 import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.log.Log;
 import com.aptana.shared_core.net.SocketUtil;
-import com.aptana.shared_core.utils.Log;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 public class RhinoConsoleMainTest extends TestCase {
 

@@ -11,7 +11,7 @@ import java.io.IOException;
 import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.parser.jython.Token;
 
-import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.utils.Reflection;
 
 /**
  * Helpers to walk through the grammar.
@@ -32,7 +32,7 @@ public abstract class AbstractGrammarWalkHelpers {
      */
     protected final AbstractTokenManager getTokenManager() {
         if (this.tokenManager == null) {
-            this.tokenManager = (AbstractTokenManager) REF.getAttrObj(this, "token_source", true);
+            this.tokenManager = (AbstractTokenManager) Reflection.getAttrObj(this, "token_source", true);
         }
         return this.tokenManager;
     }

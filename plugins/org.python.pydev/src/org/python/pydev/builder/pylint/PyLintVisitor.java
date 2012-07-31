@@ -46,8 +46,8 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.ui.UIConstants;
 
-import com.aptana.shared_core.utils.REF;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * 
@@ -193,11 +193,11 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             while (tokenizer2.hasMoreTokens()) {
                 list.add(tokenizer2.nextToken());
             }
-            list.add(REF.getFileAbsolutePath(arg));
+            list.add(FileUtils.getFileAbsolutePath(arg));
 
             IProject project = resource.getProject();
 
-            String scriptToExe = REF.getFileAbsolutePath(script);
+            String scriptToExe = FileUtils.getFileAbsolutePath(script);
             String[] paramsToExe = list.toArray(new String[0]);
             write("PyLint: Executing command line:'", out, scriptToExe, paramsToExe, "'");
 

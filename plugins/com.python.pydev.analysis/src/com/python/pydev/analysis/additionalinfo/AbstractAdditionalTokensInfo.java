@@ -30,7 +30,7 @@ import java.util.SortedMap;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.FileUtils;
+import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
@@ -52,7 +52,7 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.DefinitionsASTIteratorVisitor;
 
 import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * This class contains additional information on an interpreter, so that we are able to make code-completion in
@@ -275,10 +275,10 @@ public abstract class AbstractAdditionalTokensInfo {
 
         Object doc;
         if (isZipModule) {
-            doc = FileUtils.getCustomReturnFromZip(modulesKeyForZip.file, modulesKeyForZip.zipModulePath, null);
+            doc = FileUtilsFileBuffer.getCustomReturnFromZip(modulesKeyForZip.file, modulesKeyForZip.zipModulePath, null);
 
         } else {
-            doc = FileUtils.getCustomReturnFromFile(key.file, true, null);
+            doc = FileUtilsFileBuffer.getCustomReturnFromFile(key.file, true, null);
         }
 
         char[] charArray;

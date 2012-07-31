@@ -21,8 +21,8 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 
+import com.aptana.shared_core.structure.Tuple;
 import com.aptana.shared_core.utils.DocCmd;
-import com.aptana.shared_core.utils.Tuple;
 import com.python.pydev.codecompletion.ui.CodeCompletionPreferencesPage;
 
 /**

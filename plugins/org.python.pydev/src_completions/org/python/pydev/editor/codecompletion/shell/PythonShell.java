@@ -22,7 +22,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.runners.SimpleRunner;
 
-import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.io.FileUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -51,7 +51,7 @@ public class PythonShell extends AbstractShell {
         }
 
         String[] parameters = SimplePythonRunner.preparePythonCallParameters(interpreter.getExecutableOrJar(),
-                REF.getFileAbsolutePath(serverFile), new String[] { "" + pWrite, "" + pRead });
+                FileUtils.getFileAbsolutePath(serverFile), new String[] { "" + pWrite, "" + pRead });
 
         IInterpreterManager manager = PydevPlugin.getPythonInterpreterManager();
 

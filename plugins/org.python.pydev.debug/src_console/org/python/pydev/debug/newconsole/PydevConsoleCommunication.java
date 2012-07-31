@@ -46,7 +46,7 @@ import com.aptana.interactive_console.console.InterpreterResponse;
 import com.aptana.interactive_console.console.ScriptXmlRpcClient;
 import com.aptana.shared_core.callbacks.ICallback;
 import com.aptana.shared_core.io.ThreadStreamReader;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * Communication with Xml-rpc with the client.

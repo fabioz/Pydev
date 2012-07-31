@@ -16,7 +16,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 
-import com.aptana.shared_core.utils.Log;
+import com.aptana.shared_core.log.Log;
 
 /**
  * Handles the history so that the user can do Ctrl+up / Ctrl+down

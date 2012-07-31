@@ -67,7 +67,7 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 import com.aptana.shared_core.cache.Cache;
 import com.aptana.shared_core.cache.LRUCache;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * The module should have all the information we need for code completion, find definition, and refactoring on a module.

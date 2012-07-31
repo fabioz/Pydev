@@ -19,7 +19,6 @@ import java.util.List;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
-import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -31,6 +30,7 @@ import org.python.pydev.editor.autoedit.TestIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 
+import com.aptana.shared_core.io.FileUtils;
 import com.python.pydev.analysis.messages.IMessage;
 
 public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {

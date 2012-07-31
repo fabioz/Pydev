@@ -9,7 +9,6 @@ package org.python.pydev.parser.prettyprinter;
 import java.io.File;
 import java.io.IOException;
 
-import org.python.pydev.core.FileUtils;
 import org.python.pydev.parser.PyParserTestBase;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.prettyprinterv2.IPrettyPrinterPrefs;
@@ -18,6 +17,8 @@ import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.comparator.DifferException;
 import org.python.pydev.parser.visitors.comparator.SimpleNodeComparator;
+
+import com.aptana.shared_core.io.FileUtils;
 
 public class AbstractPrettyPrinterTestBase extends PyParserTestBase {
 

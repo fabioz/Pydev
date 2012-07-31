@@ -28,7 +28,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.wizard.IWizardPage;
-import org.python.pydev.core.FileUtils;
+import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.log.Log;
@@ -46,9 +46,9 @@ import org.python.pydev.ui.wizards.project.IWizardNewProjectNameAndLocationPage;
 import org.python.pydev.ui.wizards.project.PythonProjectWizard;
 
 import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 import com.aptana.shared_core.utils.RunInUiThread;
-import com.aptana.shared_core.utils.Tuple;
 
 /**
  * Creation of a Django project
@@ -232,15 +232,15 @@ public class DjangoProjectWizard extends PythonProjectWizard {
                 for (File f : copyFrom.listFiles()) {
                     if (f.isFile()) {
                         try {
-                            REF.copyFile(f, new File(copyTo, f.getName()));
-                            REF.deleteFile(f);
+                            FileUtils.copyFile(f, new File(copyTo, f.getName()));
+                            FileUtils.deleteFile(f);
                         } catch (Exception e) {
                             Log.log(e);
                         }
                     } else {
                         try {
-                            REF.copyDirectory(f, new File(copyTo, f.getName()), null, null);
-                            REF.deleteDirectoryTree(f);
+                            FileUtils.copyDirectory(f, new File(copyTo, f.getName()), null, null);
+                            FileUtils.deleteDirectoryTree(f);
                         } catch (Exception e) {
                             Log.log(e);
                         }
@@ -252,7 +252,7 @@ public class DjangoProjectWizard extends PythonProjectWizard {
             settingsFile = projectContainer.getFile(new Path(projectName + "/settings.py"));
 
             settingsFile.refreshLocal(IResource.DEPTH_ZERO, null);
-            docFromResource = FileUtils.getDocFromResource(settingsFile);
+            docFromResource = FileUtilsFileBuffer.getDocFromResource(settingsFile);
             if (docFromResource == null) {
                 throw new RuntimeException("Error creating Django project.\n" + "settings.py file not created.\n"
                         + "Stdout: " + output.o1 + "\n" + "Stderr: " + output.o2);

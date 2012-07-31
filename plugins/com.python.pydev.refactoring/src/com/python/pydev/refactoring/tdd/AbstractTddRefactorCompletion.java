@@ -13,7 +13,7 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.parser.PyParser;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.builder.AnalysisParserObserver;
 
 /**

@@ -14,10 +14,11 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
+
+import com.aptana.shared_core.io.FileUtils;
 
 /**
  * Used for usage statistics.

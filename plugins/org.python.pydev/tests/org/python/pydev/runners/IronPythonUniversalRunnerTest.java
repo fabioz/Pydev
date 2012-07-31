@@ -12,7 +12,7 @@ import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.IronPythonCodeCompletionTestsBase;
 import org.python.pydev.runners.UniversalRunner.AbstractRunner;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 public class IronPythonUniversalRunnerTest extends IronPythonCodeCompletionTestsBase {
 

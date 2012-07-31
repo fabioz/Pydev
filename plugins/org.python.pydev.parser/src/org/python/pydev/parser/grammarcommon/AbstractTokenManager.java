@@ -14,7 +14,7 @@ import java.util.Map;
 import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.parser.jython.Token;
 
-import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.utils.Reflection;
 
 /**
  * 
@@ -66,14 +66,14 @@ public abstract class AbstractTokenManager extends AbstractTokenManagerWithConst
 
     public final FastCharStream getInputStream() {
         if (this.inputStream == null) {
-            this.inputStream = (FastCharStream) REF.getAttrObj(this, "input_stream", true);
+            this.inputStream = (FastCharStream) Reflection.getAttrObj(this, "input_stream", true);
         }
         return inputStream;
     }
 
     //must be calculated
     protected final int getCurLexState() {
-        return (Integer) REF.getAttrObj(this, "curLexState", true);
+        return (Integer) Reflection.getAttrObj(this, "curLexState", true);
     }
 
     /**

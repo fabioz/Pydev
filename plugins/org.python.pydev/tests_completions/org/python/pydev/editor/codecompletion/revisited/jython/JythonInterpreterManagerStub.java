@@ -19,7 +19,7 @@ import org.python.pydev.editor.codecompletion.revisited.PythonInterpreterManager
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 public class JythonInterpreterManagerStub extends PythonInterpreterManagerStub {
 

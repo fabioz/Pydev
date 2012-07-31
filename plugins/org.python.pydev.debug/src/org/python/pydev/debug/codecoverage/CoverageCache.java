@@ -28,7 +28,7 @@ import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.tooltips.presenter.StyleRangeWithCustomData;
 
 import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * 

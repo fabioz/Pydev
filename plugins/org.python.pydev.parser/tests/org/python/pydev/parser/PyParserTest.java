@@ -15,7 +15,6 @@ import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
-import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.TestDependent;
@@ -36,7 +35,8 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 
 import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 
 public class PyParserTest extends PyParserTestBase {
 

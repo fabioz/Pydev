@@ -61,7 +61,7 @@ import org.python.pydev.ui.pythonpathconf.AbstractInterpreterPreferencesPage;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * Does not write directly in INTERPRETER_PATH, just loads from it and works with it.

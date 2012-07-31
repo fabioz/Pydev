@@ -27,7 +27,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 
 import com.aptana.shared_core.callbacks.ICallback;
 import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * @author fabioz

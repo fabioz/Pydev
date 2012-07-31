@@ -18,7 +18,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 public class CodeFoldingSetterTest extends TestCase {
 

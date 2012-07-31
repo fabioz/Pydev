@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 import org.eclipse.jface.text.IDocument;
 
 import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * Class that represents an import found in a document.

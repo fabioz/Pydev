@@ -35,8 +35,8 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.core.ListenerList;
 import org.python.pydev.core.log.Log;
 
+import com.aptana.shared_core.io.FileUtils;
 import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.REF;
 
 /**
  * @author fabioz
@@ -330,7 +330,7 @@ public class PathWatch {
         Assert.isNotNull(path);
         Assert.isNotNull(listener);
 
-        Path watchedPath = Paths.get(REF.getFileAbsolutePath(path));
+        Path watchedPath = Paths.get(FileUtils.getFileAbsolutePath(path));
 
         if (log != null) {
             log.append("STOP Track: ").appendObject(path).append("Listener: ").appendObject(listener).append('\n');
@@ -365,7 +365,7 @@ public class PathWatch {
         Assert.isNotNull(path);
         Assert.isNotNull(listener);
 
-        Path watchedPath = Paths.get(REF.getFileAbsolutePath(path));
+        Path watchedPath = Paths.get(FileUtils.getFileAbsolutePath(path));
 
         synchronized (lock) {
             EventsStackerRunnable stacker = pathToStacker.get(watchedPath);

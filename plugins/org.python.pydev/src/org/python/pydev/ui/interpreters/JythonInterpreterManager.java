@@ -23,8 +23,8 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
-import com.aptana.shared_core.utils.REF;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 
 public class JythonInterpreterManager extends AbstractInterpreterManager {
 
@@ -73,7 +73,7 @@ public class JythonInterpreterManager extends AbstractInterpreterManager {
         File script = getInterpreterInfoPy();
 
         //gets the info for the python side
-        Tuple<String, String> outTup = new SimpleJythonRunner().runAndGetOutputWithJar(REF.getFileAbsolutePath(script),
+        Tuple<String, String> outTup = new SimpleJythonRunner().runAndGetOutputWithJar(FileUtils.getFileAbsolutePath(script),
                 executable, null, null, null, monitor, "utf-8");
 
         String output = outTup.o1;
@@ -89,7 +89,7 @@ public class JythonInterpreterManager extends AbstractInterpreterManager {
         //we have to find the jars before we restore the compiled libs 
         List<File> jars = JavaVmLocationFinder.findDefaultJavaJars();
         for (File jar : jars) {
-            info.libs.add(REF.getFileAbsolutePath(jar));
+            info.libs.add(FileUtils.getFileAbsolutePath(jar));
         }
 
         //java, java.lang, etc should be found now

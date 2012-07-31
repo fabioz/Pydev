@@ -4,7 +4,7 @@ import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.XmlRpcRequest;
 import org.apache.xmlrpc.webserver.WebServer;
 
-import com.aptana.shared_core.utils.Log;
+import com.aptana.shared_core.log.Log;
 
 /**
  * Stops the xml-rpc server.

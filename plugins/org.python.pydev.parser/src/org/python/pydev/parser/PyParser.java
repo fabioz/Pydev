@@ -34,7 +34,6 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
@@ -62,7 +61,8 @@ import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.stmtType;
 
 import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * PyParser uses org.python.parser to parse the document (lexical analysis) It

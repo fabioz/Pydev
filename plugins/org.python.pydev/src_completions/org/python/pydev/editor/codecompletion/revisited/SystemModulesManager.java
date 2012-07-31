@@ -21,7 +21,7 @@ import java.util.SortedMap;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.DeltaSaver;
-import org.python.pydev.core.FileUtils;
+import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -46,7 +46,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 import com.aptana.shared_core.cache.LRUCache;
 import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * @author Fabio Zadrozny
@@ -230,7 +230,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
             if (tryToParse) {
                 IDocument doc;
                 try {
-                    doc = FileUtils.getDocFromFile(predefinedModule);
+                    doc = FileUtilsFileBuffer.getDocFromFile(predefinedModule);
                     IGrammarVersionProvider provider = new IGrammarVersionProvider() {
 
                         public int getGrammarVersion() throws MisconfigurationException {

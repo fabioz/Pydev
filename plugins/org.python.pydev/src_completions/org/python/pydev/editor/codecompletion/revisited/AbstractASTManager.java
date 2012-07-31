@@ -55,8 +55,8 @@ import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
-import com.aptana.shared_core.utils.REF;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 
 public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
@@ -138,7 +138,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         String relative = null;
         String moduleName = null;
         if (request.getEditorFile() != null) {
-            moduleName = modulesManager.resolveModule(REF.getFileAbsolutePath(request.getEditorFile()));
+            moduleName = modulesManager.resolveModule(FileUtils.getFileAbsolutePath(request.getEditorFile()));
             if (moduleName != null) {
 
                 if (level > 0) {

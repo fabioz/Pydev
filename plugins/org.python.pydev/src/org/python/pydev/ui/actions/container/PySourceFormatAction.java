@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.FileUtils;
+import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
@@ -90,7 +90,7 @@ public class PySourceFormatAction extends PyContainerAction {
                         monitor.setTaskName("Formatting: " + name);
                         if (PythonPathHelper.isValidSourceFile(name)) {
                             IFile file = (IFile) c;
-                            final IDocument doc = FileUtils.getDocFromResource(c);
+                            final IDocument doc = FileUtilsFileBuffer.getDocFromResource(c);
 
                             final boolean isOpenedFile = openFiles.contains(file);
                             try {

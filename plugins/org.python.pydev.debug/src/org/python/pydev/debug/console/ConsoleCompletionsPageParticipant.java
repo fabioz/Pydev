@@ -48,7 +48,7 @@ import com.aptana.interactive_console.console.IScriptConsoleCommunication;
 import com.aptana.interactive_console.console.InterpreterResponse;
 import com.aptana.shared_core.bindings.KeyBindingHelper;
 import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * Will provide code-completion in debug sessions.

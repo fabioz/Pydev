@@ -42,7 +42,7 @@ import org.python.pydev.plugin.PydevPlugin;
 
 import com.aptana.shared_core.net.LocalHost;
 import com.aptana.shared_core.net.SocketUtil;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * This is the shell that 'talks' to the python / jython process (it is intended to be subclassed so that

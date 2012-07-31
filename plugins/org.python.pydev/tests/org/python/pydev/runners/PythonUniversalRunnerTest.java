@@ -13,7 +13,7 @@ import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.runners.UniversalRunner.AbstractRunner;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 public class PythonUniversalRunnerTest extends CodeCompletionTestsBase {
 

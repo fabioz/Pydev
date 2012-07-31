@@ -24,7 +24,7 @@ import com.aptana.interactive_console.console.IScriptConsoleInterpreter;
 import com.aptana.interactive_console.console.InterpreterResponse;
 import com.aptana.interactive_console.console.ui.IScriptConsoleViewer;
 import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * Default implementation for the console interpreter. 

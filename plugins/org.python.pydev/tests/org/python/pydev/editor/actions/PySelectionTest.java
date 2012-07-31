@@ -25,7 +25,7 @@ import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.docutils.PySelection.TddPossibleMatches;
 import org.python.pydev.core.docutils.StringUtils;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * @author Fabio Zadrozny

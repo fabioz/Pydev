@@ -19,7 +19,7 @@ import org.eclipse.ui.PlatformUI;
 import com.aptana.interactive_console.InteractiveConsolePlugin;
 import com.aptana.interactive_console.console.ui.ScriptConsole;
 import com.aptana.interactive_console.console.ui.ScriptConsoleUIConstants;
-import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.io.FileUtils;
 
 /**
  * This action will save the console session to a file chosen by the user.
@@ -44,7 +44,7 @@ public class SaveConsoleSessionAction extends Action {
         String file = dialog.open();
 
         if (file != null) {
-            REF.writeStrToFile(console.getSession().toString(), file);
+            FileUtils.writeStrToFile(console.getSession().toString(), file);
         }
     }
 

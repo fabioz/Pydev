@@ -33,7 +33,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.io.FileUtils;
 
 /**
  * Translate XML protocol responses into Py structures.
@@ -171,7 +171,7 @@ public class XMLUtils {
                     file = URLDecoder.decode(file, "UTF-8");
                     File tempFile = new File(file);
                     if (tempFile.exists()) {
-                        file = REF.getFileAbsolutePath(tempFile);
+                        file = FileUtils.getFileAbsolutePath(tempFile);
                     }
                 }
             } catch (Exception e) {

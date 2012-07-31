@@ -12,7 +12,7 @@ package com.aptana.interactive_console.console;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 
 import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * Interface for the console communication.

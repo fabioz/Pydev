@@ -22,7 +22,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.runners.SimpleRunner;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 public class JythonInterpreterEditor extends AbstractInterpreterEditor {
 

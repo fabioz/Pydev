@@ -15,7 +15,10 @@ import org.eclipse.jface.text.IDocument;
 
 import com.aptana.shared_core.string.FastStringBuffer;
 
-
+/**
+ * Mostly a DocumentCommand, but with a custom customizable constructor, a proper toString method
+ * and a way to pass an IDocument and have it applied.
+ */
 public class DocCmd extends DocumentCommand {
 
     public DocCmd(int offset, int length, String text) {

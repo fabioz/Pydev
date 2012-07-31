@@ -23,7 +23,7 @@ import org.python.pydev.core.TestDependent;
 import org.python.pydev.ui.interpreters.IronpythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 public class IronpythonInterpreterManagerStub extends PythonInterpreterManagerStub {
 

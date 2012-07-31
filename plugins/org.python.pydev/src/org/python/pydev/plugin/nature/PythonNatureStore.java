@@ -43,7 +43,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
-import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
@@ -56,8 +55,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 
+import com.aptana.shared_core.io.FileUtils;
 import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.REF;
 
 /**
  * This class stores PythonNature and PythonPathNature properties inside the project in a file instead of persistent 
@@ -334,7 +333,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
     private void handleProblemInXmlDocument(DocumentBuilder parser, File file, Exception e) throws CoreException {
         Log.log("Error loading contents from .pydevproject: " + file, e);
         try {
-            REF.createBackupFile(file);
+            FileUtils.createBackupFile(file);
         } catch (Exception e1) {
             Log.log("Error creating backup for: " + file, e);
         }
@@ -922,7 +921,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                 if (TRACE_PYTHON_NATURE_STORE) {
                     System.out.println("Writing to file: " + file + " " + str);
                 }
-                REF.writeStrToFile(str, file);
+                FileUtils.writeStrToFile(str, file);
             } catch (Exception e) {
                 Log.log("Unable to write contents of file: " + file, e);
             }

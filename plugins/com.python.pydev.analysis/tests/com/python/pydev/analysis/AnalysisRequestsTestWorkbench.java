@@ -24,7 +24,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
-import org.python.pydev.core.FileUtils;
+import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
@@ -37,7 +37,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.nature.PythonNature;
 
 import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.actions.AnalyzeOnRequestSetter;
 import com.python.pydev.analysis.actions.AnalyzeOnRequestSetter.AnalyzeOnRequestAction;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
@@ -419,7 +419,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase {
                     StringBuffer buf = new StringBuffer();
 
                     buf.append("Contents:");
-                    buf.append(FileUtils.getDocFromResource(mod1).get() + "\n");
+                    buf.append(FileUtilsFileBuffer.getDocFromResource(mod1).get() + "\n");
 
                     IMarker[] markers = mod1.findMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
                     for (IMarker marker : markers) {

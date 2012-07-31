@@ -28,7 +28,7 @@ import org.python.pydev.jython.JythonPlugin;
 import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.runners.SimpleRunner;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 public class JythonTest extends TestCase {
 

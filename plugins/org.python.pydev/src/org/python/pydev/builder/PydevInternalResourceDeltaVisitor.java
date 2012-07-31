@@ -18,7 +18,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.pycremover.PycHandlerBuilderVisitor;
-import org.python.pydev.core.FileUtils;
+import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
@@ -159,13 +159,13 @@ public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisi
     protected boolean chooseVisit(IResourceDelta delta, IResource resource, boolean isAddOrChange) {
         switch (delta.getKind()) {
             case IResourceDelta.ADDED:
-                ICallback0<IDocument> doc = FileUtils.getDocOnCallbackFromResource(resource);
+                ICallback0<IDocument> doc = FileUtilsFileBuffer.getDocOnCallbackFromResource(resource);
                 memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, System.currentTimeMillis());
                 visitAddedResource(resource, doc, monitor);
                 isAddOrChange = true;
                 break;
             case IResourceDelta.CHANGED:
-                doc = FileUtils.getDocOnCallbackFromResource(resource);
+                doc = FileUtilsFileBuffer.getDocOnCallbackFromResource(resource);
                 memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, System.currentTimeMillis());
                 visitChangedResource(resource, doc, monitor);
                 isAddOrChange = true;

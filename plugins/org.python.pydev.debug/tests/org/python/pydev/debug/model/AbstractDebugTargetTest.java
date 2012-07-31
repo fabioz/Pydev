@@ -10,7 +10,7 @@ import junit.framework.TestCase;
 
 import org.eclipse.core.runtime.CoreException;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 public class AbstractDebugTargetTest extends TestCase {
 

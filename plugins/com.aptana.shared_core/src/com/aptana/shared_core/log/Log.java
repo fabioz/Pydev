@@ -1,4 +1,4 @@
-package com.aptana.shared_core.utils;
+package com.aptana.shared_core.log;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,6 +8,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 import com.aptana.shared_core.SharedCorePlugin;
+import com.aptana.shared_core.structure.Tuple;
 
 public class Log {
 

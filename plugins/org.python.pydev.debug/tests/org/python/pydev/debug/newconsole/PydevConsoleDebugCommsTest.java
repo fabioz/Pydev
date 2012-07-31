@@ -27,9 +27,9 @@ import org.python.pydev.runners.SimpleRunner;
 
 import com.aptana.interactive_console.console.InterpreterResponse;
 import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.io.FileUtils;
 import com.aptana.shared_core.net.SocketUtil;
-import com.aptana.shared_core.utils.REF;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * The purpose of this test is to verify the pydevconsole + pydevd works. This
@@ -49,16 +49,16 @@ public class PydevConsoleDebugCommsTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        String consoleFile = REF.createFileFromParts(TestDependent.TEST_PYDEV_PLUGIN_LOC, "pysrc", "pydevconsole.py")
+        String consoleFile = FileUtils.createFileFromParts(TestDependent.TEST_PYDEV_PLUGIN_LOC, "pysrc", "pydevconsole.py")
                 .getAbsolutePath();
         String pydevdDir = new File(TestDependent.TEST_PYDEV_DEBUG_PLUGIN_LOC, "pysrc").getAbsolutePath();
         Integer[] ports = SocketUtil.findUnusedLocalPorts(2);
         int port = ports[0];
         int clientPort = ports[1];
 
-        homeDir = REF.getTempFileAt(new File("."), "fake_homedir");
+        homeDir = FileUtils.getTempFileAt(new File("."), "fake_homedir");
         if (homeDir.exists()) {
-            REF.deleteDirectoryTree(homeDir);
+            FileUtils.deleteDirectoryTree(homeDir);
         }
         homeDir = homeDir.getAbsoluteFile();
         homeDir.mkdir();
@@ -98,7 +98,7 @@ public class PydevConsoleDebugCommsTest extends TestCase {
     @Override
     protected void tearDown() throws Exception {
         if (homeDir.exists()) {
-            REF.deleteDirectoryTree(homeDir);
+            FileUtils.deleteDirectoryTree(homeDir);
         }
         process.destroy();
         pydevConsoleCommunication.close();

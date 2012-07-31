@@ -39,8 +39,8 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.jython.ui.JyScriptingPreferencesPage;
 import org.python.util.PythonInterpreter;
 
-import com.aptana.shared_core.utils.REF;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * The main plugin class to be used in the desktop.
@@ -211,8 +211,8 @@ public class JythonPlugin extends AbstractUIPlugin {
         super.start(context);
         //initialize the Jython runtime
         Properties prop2 = new Properties();
-        prop2.put("python.home", REF.getFileAbsolutePath(getPluginRootDir()));
-        prop2.put("python.path", REF.getFileAbsolutePath(getJySrcDirFile()));
+        prop2.put("python.home", FileUtils.getFileAbsolutePath(getPluginRootDir()));
+        prop2.put("python.path", FileUtils.getFileAbsolutePath(getJySrcDirFile()));
         prop2.put("python.security.respectJavaAccessibility", "false"); //don't respect java accessibility, so that we can access protected members on subclasses
 
         try {
@@ -439,14 +439,14 @@ public class JythonPlugin extends AbstractUIPlugin {
                     if (DEBUG) {
                         System.out.println("Regenerating: " + codeObjName);
                     }
-                    String path = REF.getFileAbsolutePath(fileToExec);
+                    String path = FileUtils.getFileAbsolutePath(fileToExec);
 
                     StringBuffer strPythonPathFolders = new StringBuffer();
                     strPythonPathFolders.append("[");
                     for (File file : pythonpathFolders) {
                         if (file != null) {
                             strPythonPathFolders.append("r'");
-                            strPythonPathFolders.append(REF.getFileAbsolutePath(file));
+                            strPythonPathFolders.append(FileUtils.getFileAbsolutePath(file));
                             strPythonPathFolders.append("',");
                         }
                     }

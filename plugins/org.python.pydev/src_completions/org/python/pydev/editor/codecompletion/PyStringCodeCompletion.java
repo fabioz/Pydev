@@ -29,7 +29,7 @@ import org.python.pydev.core.docutils.PySelection.DocIterator;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * The code-completion engine that should be used inside strings

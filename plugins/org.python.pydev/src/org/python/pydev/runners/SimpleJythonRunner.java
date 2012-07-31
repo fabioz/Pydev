@@ -30,7 +30,7 @@ import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 public class SimpleJythonRunner extends SimpleRunner {
 

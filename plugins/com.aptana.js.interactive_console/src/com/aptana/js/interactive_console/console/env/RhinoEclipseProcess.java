@@ -12,7 +12,7 @@ import java.io.OutputStream;
 
 import com.aptana.js.interactive_console.rhino.RhinoConsoleMain;
 import com.aptana.shared_core.io.PipedInputStream;
-import com.aptana.shared_core.utils.Log;
+import com.aptana.shared_core.log.Log;
 
 /**
  * Process used so that we can create an interactive console using the eclipse

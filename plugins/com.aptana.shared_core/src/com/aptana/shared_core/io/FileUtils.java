@@ -9,10 +9,11 @@
  *
  * @author Fabio Zadrozny
  */
-package com.aptana.shared_core.utils;
+package com.aptana.shared_core.io;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,99 +27,32 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.osgi.service.environment.Constants;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
 
 import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.log.Log;
 import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.utils.PlatformUtils;
 
 /**
  * @author Fabio Zadrozny
  */
-public class REF {
-
-    /**
-     * @return true if the passed object has a field with the name passed.
-     */
-    public static boolean hasAttr(Object o, String attr) {
-        try {
-            o.getClass().getDeclaredField(attr);
-        } catch (SecurityException e) {
-            return false;
-        } catch (NoSuchFieldException e) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * @return the field from a class that matches the passed attr name (or null if it couldn't be found)
-     */
-    public static Field getAttrFromClass(Class<? extends Object> c, String attr) {
-        try {
-            return c.getDeclaredField(attr);
-        } catch (SecurityException e) {
-        } catch (NoSuchFieldException e) {
-        }
-        return null;
-    }
-
-    /**
-     * @return the field from a class that matches the passed attr name (or null if it couldn't be found)
-     * @see #getAttrObj(Object, String) to get the actual value of the field.
-     */
-    public static Field getAttr(Object o, String attr) {
-        try {
-            return o.getClass().getDeclaredField(attr);
-        } catch (SecurityException e) {
-        } catch (NoSuchFieldException e) {
-        }
-        return null;
-    }
-
-    public static Object getAttrObj(Object o, String attr) {
-        return getAttrObj(o, attr, false);
-    }
-
-    public static Object getAttrObj(Object o, String attr, boolean raiseExceptionIfNotAvailable) {
-        return getAttrObj(o.getClass(), o, attr, raiseExceptionIfNotAvailable);
-    }
-
-    /**
-     * @return the value of some attribute in the given object
-     */
-    public static Object getAttrObj(Class<? extends Object> c, Object o, String attr,
-            boolean raiseExceptionIfNotAvailable) {
-        try {
-            Field field = REF.getAttrFromClass(c, attr);
-            if (field != null) {
-                //get it even if it's not public!
-                if ((field.getModifiers() & Modifier.PUBLIC) == 0) {
-                    field.setAccessible(true);
-                }
-                Object obj = field.get(o);
-                return obj;
-            }
-        } catch (Exception e) {
-            //ignore
-            if (raiseExceptionIfNotAvailable) {
-                throw new RuntimeException(e);
-            }
-        }
-        return null;
-    }
+public class FileUtils {
 
     /**
      * This method loads the contents of an object that was serialized.
@@ -288,124 +222,6 @@ public class REF {
         }
     }
 
-    /**
-     * Calls a method for an object
-     * 
-     * @param obj the object with the method we want to call
-     * @param name the method name
-     * @param args the arguments received for the call
-     * @return the return of the method
-     * 
-     * @throws RuntimeException if the object could not be invoked
-     */
-    public static Object invoke(Object obj, String name, Object... args) {
-        //the args are not checked for the class because if a subclass is passed, the method is not correctly gotten
-        //another method might do it...
-        Method m = findMethod(obj, name, args);
-        return invoke(obj, m, args);
-    }
-
-    /**
-     * @see #invoke(Object, String, Object...)
-     */
-    public static Object invoke(Object obj, Method m, Object... args) {
-        try {
-            return m.invoke(obj, args);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * @return a method that has the given name and arguments
-     * @throws RuntimeException if the method could not be found
-     */
-    public static Method findMethod(Object obj, String name, Object... args) {
-        return findMethod(obj.getClass(), name, args);
-    }
-
-    /**
-     * @return a method that has the given name and arguments
-     * @throws RuntimeException if the method could not be found
-     */
-    public static Method findMethod(Class<? extends Object> class_, String name, Object... args) {
-        try {
-            Method[] methods = class_.getMethods();
-            for (Method method : methods) {
-
-                Class<? extends Object>[] parameterTypes = method.getParameterTypes();
-                if (method.getName().equals(name) && parameterTypes.length == args.length) {
-                    //check the parameters
-                    int i = 0;
-                    for (Class<? extends Object> param : parameterTypes) {
-                        if (!param.isInstance(args[i])) {
-                            continue;
-                        }
-                        i++;
-                    }
-                    //invoke it
-                    return method;
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        throw new RuntimeException("The method with name: " + name
-                + " was not found (or maybe it was found but the parameters didn't match).");
-    }
-
-    /**
-     * Start null... filled on 1st request.
-     * 
-     * Currently we only care for: windows, mac os or linux (if we need some other special support,
-     * this could be improved).
-     */
-    public static Integer platform;
-    public static int WINDOWS = 1;
-    public static int MACOS = 2;
-    public static int LINUX = 3;
-
-    /**
-     * @return whether we are in windows or not
-     */
-    public static boolean isWindowsPlatform() {
-        discoverPlatform();
-        return platform == WINDOWS;
-    }
-
-    /**
-     * @return whether we are in MacOs or not
-     */
-    public static boolean isMacOsPlatform() {
-        discoverPlatform();
-        return platform == MACOS;
-    }
-
-    private static void discoverPlatform() {
-        if (platform == null) {
-            try {
-                String os = Platform.getOS();
-                if (os.equals(Constants.OS_WIN32)) {
-                    platform = WINDOWS;
-                } else if (os.equals(Constants.OS_MACOSX)) {
-                    platform = MACOS;
-                } else {
-                    platform = LINUX;
-                }
-
-            } catch (NullPointerException e) {
-                String env = System.getProperty("os.name").toLowerCase();
-                if (env.indexOf("win") != -1) {
-                    platform = WINDOWS;
-                } else if (env.startsWith("mac os")) {
-                    platform = MACOS;
-                } else {
-                    platform = LINUX;
-                }
-            }
-        }
-    }
-
     public static void copyFile(String srcFilename, String dstFilename) {
         copyFile(new File(srcFilename), new File(dstFilename));
     }
@@ -496,28 +312,6 @@ public class REF {
         }
     }
 
-    /**
-     * @param file the file we want to read
-     * @return the contents of the file as a string
-     */
-    private static String getFileContents(File file) {
-        FileInputStream stream = null;
-        try {
-            stream = new FileInputStream(file);
-            FastStringBuffer buf = fillBufferWithStream(stream, null, null);
-            return buf.toString();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        } finally {
-            try {
-                if (stream != null)
-                    stream.close();
-            } catch (Exception e) {
-                Log.log(e);
-            }
-        }
-    }
-
     public static FastStringBuffer fillBufferWithStream(InputStream contentStream, String encoding,
             IProgressMonitor monitor) throws IOException {
         FastStringBuffer buffer;
@@ -596,13 +390,6 @@ public class REF {
             }
         }
         return false;
-    }
-
-    /**
-     * Log with base is missing in java!
-     */
-    public static double log(double a, double base) {
-        return Math.log(a) / Math.log(base);
     }
 
     private static final Map<File, Set<String>> alreadyReturned = new HashMap<File, Set<String>>();
@@ -742,13 +529,13 @@ public class REF {
 
     private static String getOpenDirectoryExecutable() {
         if (openDirExecutable == null) {
-            if (REF.isWindowsPlatform()) {
+            if (PlatformUtils.isWindowsPlatform()) {
                 openDirExecutable = "explorer";
                 return openDirExecutable;
 
             }
 
-            if (REF.isMacOsPlatform()) {
+            if (PlatformUtils.isMacOsPlatform()) {
                 openDirExecutable = "open";
                 return openDirExecutable;
             }
@@ -799,5 +586,279 @@ public class REF {
             f = new File(f, part);
         }
         return f;
+    }
+
+    /**
+     * Get the contents from a given stream.
+     * @param returnType the class that specifies the return type of this method. 
+     * If null, it'll return in the fastest possible way available (i.e.: FastStringBuffer).
+     * 
+     * Valid options are:
+     *      String.class
+     *      IDocument.class
+     *      FastStringBuffer.class
+     *      
+     */
+    public static Object getStreamContents(InputStream contentStream, String encoding, IProgressMonitor monitor,
+            Class<? extends Object> returnType) throws IOException {
+
+        FastStringBuffer buffer = fillBufferWithStream(contentStream, encoding, monitor);
+        if (buffer == null) {
+            return null;
+        }
+
+        //return it in the way specified by the user
+        if (returnType == null || returnType == FastStringBuffer.class) {
+            return buffer;
+
+        } else if (returnType == IDocument.class) {
+            Document doc = new Document(buffer.toString());
+            return doc;
+
+        } else if (returnType == String.class) {
+            return buffer.toString();
+
+        } else {
+            throw new RuntimeException("Don't know how to handle return type: " + returnType);
+        }
+    }
+
+    /**
+     * Gets the contents from the stream and closes it!
+     */
+    public static String getStreamContents(InputStream stream, String encoding, IProgressMonitor monitor) {
+        try {
+            return (String) getStreamContents(stream, encoding, monitor, String.class);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (stream != null)
+                    stream.close();
+            } catch (Exception e) {
+                Log.log(e);
+            }
+        }
+    }
+
+    /**
+     * @param file the file we want to read
+     * @return the contents of the file as a string
+     */
+    public static Object getFileContentsCustom(File file, String encoding, Class<? extends Object> returnType) {
+        FileInputStream stream = null;
+        try {
+            stream = new FileInputStream(file);
+            return getStreamContents(stream, null, null, returnType);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (stream != null) {
+                    stream.close();
+                }
+            } catch (Exception e) {
+                Log.log(e);
+            }
+        }
+    }
+
+    public static Object getFileContentsCustom(File file, Class<? extends Object> returnType) {
+        return getFileContentsCustom(file, null, returnType);
+    }
+
+    /**
+     * @param file the file we want to read
+     * @return the contents of the file as a string
+     */
+    public static String getFileContents(File file) {
+        return (String) getFileContentsCustom(file, null, String.class);
+    }
+
+    /**
+     * To get file contents for a python file, the encoding is required!
+     */
+    public static String getPyFileContents(File file) {
+        return (String) getFileContentsCustom(file, getPythonFileEncoding(file), String.class);
+    }
+
+    /**
+     * The encoding declared in the reader is returned (according to the PEP: http://www.python.org/doc/peps/pep-0263/)
+     * -- may return null
+     * 
+     * Will close the reader.
+     * @param fileLocation the file we want to get the encoding from (just passed for giving a better message 
+     * if it fails -- may be null).
+     */
+    public static String getPythonFileEncoding(Reader inputStreamReader, String fileLocation)
+            throws IllegalCharsetNameException {
+
+        String ret = null;
+        BufferedReader reader = new BufferedReader(inputStreamReader);
+        try {
+            String lEnc = null;
+
+            //pep defines that coding must be at 1st or second line: http://www.python.org/doc/peps/pep-0263/
+            String l1 = reader.readLine();
+            if (l1 != null) {
+                //Special case -- determined from the python docs:
+                //http://docs.python.org/reference/lexical_analysis.html#encoding-declarations
+                //We can return promptly in this case as utf-8 should be always valid.
+                if (l1.startsWith(BOM_UTF8)) {
+                    return "utf-8";
+                }
+
+                if (l1.indexOf("coding") != -1) {
+                    lEnc = l1;
+                }
+            }
+
+            if (lEnc == null) {
+                String l2 = reader.readLine();
+
+                //encoding must be specified in first or second line...
+                if (l2 != null && l2.indexOf("coding") != -1) {
+                    lEnc = l2;
+                } else {
+                    ret = null;
+                }
+            }
+
+            if (lEnc != null) {
+                lEnc = lEnc.trim();
+                if (lEnc.length() == 0) {
+                    ret = null;
+
+                } else if (lEnc.charAt(0) == '#') { //it must be a comment line
+
+                    Matcher matcher = ENCODING_PATTERN.matcher(lEnc);
+                    if (matcher.find()) {
+                        ret = matcher.group(1).trim();
+                    }
+                }
+            }
+        } catch (IOException e) {
+            Log.log(e);
+        } finally {
+            try {
+                reader.close();
+            } catch (IOException e1) {
+            }
+        }
+        ret = getValidEncoding(ret, fileLocation);
+        return ret;
+    }
+
+    /**
+     * This is usually what's on disk
+     */
+    public static String BOM_UTF8 = new String(new char[] { 0xEF, 0xBB, 0xBF });
+    /**
+     * When we convert a string from the disk to a java string, if it had an UTF-8 BOM, it'll have that BOM converted
+     * to this BOM. See: org.python.pydev.parser.PyParser27Test.testBom()
+     */
+    public static String BOM_UNICODE = new String(new char[] { 0xFEFF });
+
+    /**
+     * @param fileLocation may be null
+     */
+    /*package*/public static String getValidEncoding(String ret, String fileLocation) {
+        if (ret == null) {
+            return ret;
+        }
+        final String lower = ret.trim().toLowerCase();
+        if (lower.startsWith("latin")) {
+            if (lower.indexOf("1") != -1) {
+                return "latin1"; //latin1
+            }
+        }
+        if (lower.equals("iso-latin-1-unix")) {
+            return "latin1"; //handle case from python libraries
+        }
+        try {
+            if (!Charset.isSupported(ret)) {
+                if (LOG_ENCODING_ERROR) {
+                    if (fileLocation != null) {
+                        if ("uft-8".equals(ret) && fileLocation.endsWith("bad_coding.py")) {
+                            return null; //this is an expected error in the python library.
+                        }
+                    }
+                    String msg = "The encoding found: >>" + ret + "<< on " + fileLocation + " is not a valid encoding.";
+                    Log.log(IStatus.ERROR, msg, new UnsupportedEncodingException(msg));
+                }
+                return null; //ok, we've been unable to make it supported (better return null than an unsupported encoding).
+            }
+            return ret;
+        } catch (IllegalCharsetNameException ex) {
+            if (LOG_ENCODING_ERROR) {
+                String msg = "The encoding found: >>" + ret + "<< on " + fileLocation + " is not a valid encoding.";
+                Log.log(IStatus.ERROR, msg, ex);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Useful to silent it on tests
+     */
+    public static boolean LOG_ENCODING_ERROR = true;
+    /**
+     * Regular expression for finding the encoding in a python file.
+     */
+    public static final Pattern ENCODING_PATTERN = Pattern.compile("coding[:=][\\s]*([-\\w.]+)");
+
+    /**
+     * The encoding declared in the file is returned (according to the PEP: http://www.python.org/doc/peps/pep-0263/)
+     */
+    public static String getPythonFileEncoding(File f) throws IllegalCharsetNameException {
+        try {
+            final FileInputStream fileInputStream = new FileInputStream(f);
+            try {
+                Reader inputStreamReader = new InputStreamReader(new BufferedInputStream(fileInputStream));
+                String pythonFileEncoding = getPythonFileEncoding(inputStreamReader, f.getAbsolutePath());
+                return pythonFileEncoding;
+            } finally {
+                //NOTE: the reader will be closed at 'getPythonFileEncoding'. 
+                try {
+                    fileInputStream.close();
+                } catch (Exception e) {
+                    Log.log(e);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Returns if the given file has a python shebang (i.e.: starts with #!... python)
+     * 
+     * Will close the reader.
+     */
+    public static boolean hasPythonShebang(Reader inputStreamReader) throws IllegalCharsetNameException {
+
+        BufferedReader reader = new BufferedReader(inputStreamReader);
+        try {
+            String l1 = reader.readLine();
+            if (l1 != null) {
+                //Special case to skip bom.
+                if (l1.startsWith(BOM_UTF8)) {
+                    l1 = l1.substring(BOM_UTF8.length());
+                }
+
+                if (l1.startsWith("#!") && l1.indexOf("python") != -1) {
+                    return true;
+                }
+            }
+
+        } catch (IOException e) {
+            Log.log(e);
+        } finally {
+            try {
+                reader.close();
+            } catch (IOException e1) {
+            }
+        }
+        return false;
     }
 }

@@ -21,7 +21,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.plugin.PydevPlugin;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * This class defines a module that represents a given java class or package within a java project 

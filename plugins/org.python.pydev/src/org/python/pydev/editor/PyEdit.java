@@ -85,7 +85,7 @@ import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
 import org.python.pydev.changed_lines.ChangedLinesComputer;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.FileUtils;
+import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IGrammarVersionProvider;
@@ -154,8 +154,8 @@ import org.python.pydev.ui.ColorAndStyleCache;
 import org.python.pydev.ui.UIConstants;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
-import com.aptana.shared_core.utils.REF;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
+import com.aptana.shared_core.utils.Reflection;
 
 /**
  * The TextWidget.
@@ -994,7 +994,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         if (input instanceof FileEditorInput) {
             final IFile file = (IFile) ((FileEditorInput) input).getAdapter(IFile.class);
             try {
-                final String encoding = FileUtils.getPythonFileEncoding(document, file.getFullPath().toOSString());
+                final String encoding = FileUtilsFileBuffer.getPythonFileEncoding(document, file.getFullPath().toOSString());
                 if (encoding != null) {
                     try {
                         if (encoding.equals(file.getCharset()) == false) {
@@ -1074,7 +1074,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             }
 
             try {
-                IPath path = (IPath) REF.invoke(editorInput, "getPath", new Object[0]);
+                IPath path = (IPath) Reflection.invoke(editorInput, "getPath", new Object[0]);
                 f = path.toFile();
             } catch (Throwable e) {
                 //ok, it has no getPath

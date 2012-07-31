@@ -99,9 +99,9 @@ import org.python.pydev.utils.ProgressAction;
 import org.python.pydev.utils.ProgressOperation;
 import org.python.pydev.utils.PyFilteredTree;
 
-import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 import com.aptana.shared_core.utils.RunInUiThread;
-import com.aptana.shared_core.utils.Tuple;
 
 /**
  * This sample class demonstrates how to plug-in a new workbench view. The view shows data obtained from the model. The sample creates a
@@ -196,7 +196,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
 
         public void run() {
             try {
-                REF.openDirectory(PyCoverage.getCoverageDirLocation());
+                FileUtils.openDirectory(PyCoverage.getCoverageDirLocation());
             } catch (Exception e) {
                 Log.log(e);
             }
@@ -817,7 +817,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
         menuManager.add(selectColumnsAction);
         //menuManager.add(clearAction);
         //menuManager.add(refreshAction);
-        if (REF.getSupportsOpenDirectory()) {
+        if (FileUtils.getSupportsOpenDirectory()) {
             menuManager.add(openCoverageFolderAction);
         }
 

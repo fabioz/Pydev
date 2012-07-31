@@ -7,7 +7,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 import junit.framework.TestCase;
 

@@ -38,7 +38,7 @@ import org.python.pydev.debug.model.PyBreakpoint;
 import org.python.pydev.debug.model.PyDebugModelPresentation;
 import org.python.pydev.editorinput.PydevFileEditorInput;
 
-import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.io.FileUtils;
 
 /**
  * Setting/removing breakpoints in the ruler
@@ -126,7 +126,7 @@ public class PyBreakpointRulerAction extends AbstractBreakpointRulerAction {
             if (externalFileEditorInput != null) {
                 File file = PydevFileEditorInput.getFile(externalFileEditorInput);
                 if (file != null) {
-                    map.put(PyBreakpoint.PY_BREAK_EXTERNAL_PATH_ID, REF.getFileAbsolutePath(file));
+                    map.put(PyBreakpoint.PY_BREAK_EXTERNAL_PATH_ID, FileUtils.getFileAbsolutePath(file));
                 }
             }
 

@@ -36,7 +36,7 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.utils.PyFileListing.PyFileInfo;
 
-import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.io.FileUtils;
 import com.python.pydev.util.UIUtils;
 
 /**
@@ -99,7 +99,7 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
                         .getFoundPyFileInfos();
                 for (PyFileInfo fileInfo : modulesBelow) {
                     File moduleFile = fileInfo.getFile();
-                    String modName = pythonPathHelper.resolveModule(REF.getFileAbsolutePath(moduleFile), true);
+                    String modName = pythonPathHelper.resolveModule(FileUtils.getFileAbsolutePath(moduleFile), true);
                     if (modName != null) {
                         expectedModuleNames.add(new ModulesKey(modName, moduleFile));
                         buffer.append(com.aptana.shared_core.string.StringUtils.format("Found module: %s - %s\n", modName, moduleFile));

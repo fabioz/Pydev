@@ -23,8 +23,8 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 
+import com.aptana.shared_core.io.FileUtils;
 import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.REF;
 
 /**
  * A utility class that creates new {@link ILaunchConfiguration}s.
@@ -58,7 +58,7 @@ public abstract class LaunchConfigurationCreator {
                     loc = r.resource.getLocation().toOSString();
                 }
             } else {
-                loc = REF.getFileAbsolutePath(r.file.getAbsolutePath());
+                loc = FileUtils.getFileAbsolutePath(r.file.getAbsolutePath());
             }
             buffer.append(loc);
         }
@@ -122,10 +122,10 @@ public abstract class LaunchConfigurationCreator {
                 moduleFile = makeFileRelativeToWorkspace(resource, varManager);
                 resourceType = resource[0].resource.getType();
             } else {
-                baseDirectory = REF.getFileAbsolutePath(resource[0].file.getParentFile());
+                baseDirectory = FileUtils.getFileAbsolutePath(resource[0].file.getParentFile());
 
                 // Build the location to a path relative to the workspace_loc
-                moduleFile = REF.getFileAbsolutePath(resource[0].file);
+                moduleFile = FileUtils.getFileAbsolutePath(resource[0].file);
                 resourceType = IResource.FILE;
             }
         } else {
@@ -169,7 +169,7 @@ public abstract class LaunchConfigurationCreator {
             if (r.resource != null) {
                 moduleFile.append(makeFileRelativeToWorkspace(r.resource, varManager));
             } else {
-                moduleFile.append(REF.getFileAbsolutePath(r.file));
+                moduleFile.append(FileUtils.getFileAbsolutePath(r.file));
             }
         }
         return moduleFile.toString();

@@ -24,7 +24,7 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 
-import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.io.FileUtils;
 
 /**
  * Class that provides different ways to open an editor.
@@ -78,7 +78,7 @@ public class PyOpenEditor {
     }
 
     public static IEditorPart doOpenEditor(File file) {
-        String absPath = REF.getFileAbsolutePath((File) file);
+        String absPath = FileUtils.getFileAbsolutePath((File) file);
         IPath path = Path.fromOSString(absPath);
         return PyOpenEditor.doOpenEditor(path);
     }

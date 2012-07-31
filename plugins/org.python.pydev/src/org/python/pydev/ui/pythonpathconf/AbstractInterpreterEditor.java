@@ -82,8 +82,8 @@ import org.python.pydev.ui.dialogs.InterpreterInputDialog;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
-import com.aptana.shared_core.utils.REF;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * Field editor for a list of python interpreter with executable verifier.
@@ -1217,7 +1217,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                         for (String jar : available) {
                             if (jar.toLowerCase().equals(expectedFilename)) {
                                 return new Tuple<String, String>(getUniqueInterpreterName(nameForUser),
-                                        REF.getFileAbsolutePath(new File(file, jar)));
+                                        FileUtils.getFileAbsolutePath(new File(file, jar)));
                             }
                         }
                     }

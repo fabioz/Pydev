@@ -18,7 +18,7 @@ import java.io.InputStreamReader;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.FileUtils;
+import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 
@@ -45,7 +45,7 @@ public class PythonModuleManager {
 
         IDocument doc = null;
         try {
-            doc = FileUtils.getDocFromFile(file, loadIfNotInWorkspace);
+            doc = FileUtilsFileBuffer.getDocFromFile(file, loadIfNotInWorkspace);
         } catch (IOException e1) {
             //ignore (will remain null)
         }

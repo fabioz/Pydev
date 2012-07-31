@@ -12,7 +12,7 @@ import org.eclipse.osgi.service.environment.Constants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontData;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * <p><tt>FontUtils</tt> provides helper methods dealing with

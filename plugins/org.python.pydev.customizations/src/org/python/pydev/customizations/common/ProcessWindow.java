@@ -43,7 +43,7 @@ import org.python.pydev.runners.UniversalRunner.AbstractRunner;
 
 import com.aptana.shared_core.io.ThreadStreamReader;
 import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * This is the window used to handle a process. Currently specific to google app engine (could be more customizable

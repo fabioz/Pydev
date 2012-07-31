@@ -8,7 +8,7 @@ package com.aptana.interactive_console.console.ui;
 
 import java.util.List;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * Interface that will create the style range for the contents entered in the console.

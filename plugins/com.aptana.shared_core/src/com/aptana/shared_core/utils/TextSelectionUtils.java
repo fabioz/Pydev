@@ -12,6 +12,8 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
 
+import com.aptana.shared_core.log.Log;
+
 public class TextSelectionUtils {
 
     protected IDocument doc;

@@ -28,7 +28,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.python.pydev.core.FileUtils;
+import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
@@ -46,6 +46,7 @@ import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.PrintProgressMonitor;
 
+import com.aptana.shared_core.io.FileUtils;
 import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
@@ -116,7 +117,7 @@ public class CodeCompletionTestsBase extends TestCase {
         super.setUp();
         PydevPlugin.setBundleInfo(new BundleInfoStub());
         ProjectModulesManager.IN_TESTS = true;
-        FileUtils.IN_TESTS = true;
+        FileUtilsFileBuffer.IN_TESTS = true;
         PydevTestUtils.setTestPlatformStateLocation();
     }
 
@@ -127,7 +128,7 @@ public class CodeCompletionTestsBase extends TestCase {
         super.tearDown();
         PydevPlugin.setBundleInfo(null);
         ProjectModulesManager.IN_TESTS = false;
-        FileUtils.IN_TESTS = false;
+        FileUtilsFileBuffer.IN_TESTS = false;
     }
 
     /**

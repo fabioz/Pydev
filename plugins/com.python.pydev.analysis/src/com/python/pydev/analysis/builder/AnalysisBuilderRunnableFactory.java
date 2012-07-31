@@ -21,7 +21,7 @@ import org.python.pydev.logging.DebugSettings;
 
 import com.aptana.shared_core.cache.LRUCache;
 import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 public class AnalysisBuilderRunnableFactory {
 

@@ -26,7 +26,7 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.fastparser.ScopesParser;
 import org.python.pydev.parser.fastparser.ScopesParser.Scopes;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * @author fabioz

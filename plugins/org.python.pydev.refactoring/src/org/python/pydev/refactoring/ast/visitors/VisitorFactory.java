@@ -37,8 +37,8 @@ import org.python.pydev.refactoring.ast.visitors.selection.SelectionExtenderVisi
 import org.python.pydev.refactoring.ast.visitors.selection.SelectionValidationVisitor;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
-import com.aptana.shared_core.utils.REF;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 
 public final class VisitorFactory {
     private VisitorFactory() {
@@ -112,7 +112,7 @@ public final class VisitorFactory {
             if (pythonModuleManager != null) {
                 IModulesManager modulesManager = pythonModuleManager.getIModuleManager();
                 if (modulesManager != null) {
-                    String modName = modulesManager.resolveModule(REF.getFileAbsolutePath(file));
+                    String modName = modulesManager.resolveModule(FileUtils.getFileAbsolutePath(file));
                     if (modName != null) {
                         IModule module = modulesManager.getModule(modName, nature, true);
                         if (module instanceof ISourceModule) {

@@ -48,7 +48,7 @@ import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterPreferencesPage;
 
 import com.aptana.shared_core.net.SocketUtil;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * This class is used to create the given IProcess and get the console that is attached to that process. 

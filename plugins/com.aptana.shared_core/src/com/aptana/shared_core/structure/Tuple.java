@@ -7,7 +7,7 @@
 /*
  * Created on 24/09/2005
  */
-package com.aptana.shared_core.utils;
+package com.aptana.shared_core.structure;
 
 import java.io.Serializable;
 
@@ -30,6 +30,7 @@ public final class Tuple<X, Y> implements Serializable {
         this.o2 = o2;
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof Tuple)) {

@@ -25,7 +25,7 @@ import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.resource_stubs.AbstractIProjectStub;
 
-import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.io.FileUtils;
 
 public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapter {
 
@@ -108,11 +108,11 @@ public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapt
     }
 
     public IPath getFullPath() {
-        return Path.fromOSString(REF.getFileAbsolutePath(this.projectRoot));
+        return Path.fromOSString(FileUtils.getFileAbsolutePath(this.projectRoot));
     }
 
     public IPath getLocation() {
-        return Path.fromOSString(REF.getFileAbsolutePath(this.projectRoot));
+        return Path.fromOSString(FileUtils.getFileAbsolutePath(this.projectRoot));
     }
 
     public IProject getProject() {

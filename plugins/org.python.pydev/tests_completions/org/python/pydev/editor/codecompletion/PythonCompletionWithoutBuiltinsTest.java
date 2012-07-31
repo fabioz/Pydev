@@ -25,7 +25,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
@@ -45,6 +44,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 
 import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.io.FileUtils;
 
 /**
  * This tests the 'whole' code completion, passing through all modules.

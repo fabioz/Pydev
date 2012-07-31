@@ -15,13 +15,14 @@ import java.io.CharArrayReader;
 import java.io.File;
 
 import org.eclipse.jface.text.Document;
-import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
+
+import com.aptana.shared_core.io.FileUtils;
 
 /**
  * @author Fabio Zadrozny

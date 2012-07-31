@@ -20,7 +20,7 @@ import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.stmtType;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * @author fabioz

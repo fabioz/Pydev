@@ -25,7 +25,7 @@ import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModuleForZip;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * This is the module wrapper around java files or java packages.

@@ -57,7 +57,7 @@ import org.python.pydev.parser.visitors.scope.CodeFoldingVisitor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * @author Fabio Zadrozny

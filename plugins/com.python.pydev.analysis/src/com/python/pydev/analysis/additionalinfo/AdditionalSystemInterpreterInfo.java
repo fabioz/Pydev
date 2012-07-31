@@ -27,7 +27,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.AnalysisPlugin;
 
 public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithBuild {

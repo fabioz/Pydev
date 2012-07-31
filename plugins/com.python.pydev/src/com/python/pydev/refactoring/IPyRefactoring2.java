@@ -17,7 +17,7 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinitio
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
 
 /**

@@ -15,7 +15,7 @@ import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.PyParser;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.builder.AnalysisParserObserver;
 
 public class AnalyzeOnRequestSetter implements IPyEditListener {

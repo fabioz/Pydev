@@ -47,8 +47,8 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 
+import com.aptana.shared_core.structure.Tuple;
 import com.aptana.shared_core.utils.RunInUiThread;
-import com.aptana.shared_core.utils.Tuple;
 
 /**
  * The whole picture:

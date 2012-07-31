@@ -22,7 +22,7 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.NameTok;
 
-import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.io.FileUtils;
 
 public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
 
@@ -58,9 +58,9 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
 
         };
 
-        baseDir = REF.getTempFileAt(new File("."), "data_temp_additional_info_test");
+        baseDir = FileUtils.getTempFileAt(new File("."), "data_temp_additional_info_test");
         if (baseDir.exists()) {
-            REF.deleteDirectoryTree(baseDir);
+            FileUtils.deleteDirectoryTree(baseDir);
         }
         baseDir.mkdir();
     }
@@ -68,7 +68,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
     @Override
     public void tearDown() throws Exception {
         if (baseDir.exists()) {
-            REF.deleteDirectoryTree(baseDir);
+            FileUtils.deleteDirectoryTree(baseDir);
         }
         super.tearDown();
     }
@@ -264,8 +264,8 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
                 "            a = mmm1\n"
                 +
                 "            print mmm1";
-        File tempFileAt = REF.getTempFileAt(baseDir, "data_temporary_file_on_additional_interpreter_info_test", ".py");
-        REF.writeStrToFile(doc, tempFileAt);
+        File tempFileAt = FileUtils.getTempFileAt(baseDir, "data_temporary_file_on_additional_interpreter_info_test", ".py");
+        FileUtils.writeStrToFile(doc, tempFileAt);
         try {
             SourceModule module = (SourceModule) AbstractModule.createModuleFromDoc("test", tempFileAt, new Document(
                     doc), nature, true);
@@ -287,7 +287,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
             }
 
             doc = "new contents";
-            REF.writeStrToFile(doc, tempFileAt);
+            FileUtils.writeStrToFile(doc, tempFileAt);
             modulesWithTokensStartingWith = info.getModulesWithToken("mmm", null);
             assertEquals(0, modulesWithTokensStartingWith.size());
 

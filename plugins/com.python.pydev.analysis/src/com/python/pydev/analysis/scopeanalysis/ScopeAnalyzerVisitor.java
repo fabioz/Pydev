@@ -35,7 +35,7 @@ import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.visitors.Found;
 import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
 

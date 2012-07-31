@@ -20,7 +20,7 @@ import org.python.pydev.core.PropertiesHelper;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.jython.SimpleNode;
 
-import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.io.FileUtils;
 
 /**
  * Pointer points to a python resource inside a file system. 
@@ -146,7 +146,7 @@ public class ItemPointer {
             path = (IPath) file;
 
         } else if (file instanceof File) {
-            String absPath = REF.getFileAbsolutePath((File) file);
+            String absPath = FileUtils.getFileAbsolutePath((File) file);
             path = Path.fromOSString(absPath);
 
         } else if (file instanceof String) {

@@ -10,14 +10,14 @@ import java.io.File;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 
-import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.utils.PlatformUtils;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
 
 public class SearchTest extends AdditionalInfoTestsBase {
@@ -408,7 +408,7 @@ public class SearchTest extends AdditionalInfoTestsBase {
         File windowsFile = new File(TestDependent.PYTHON_LIB + "ntpath.py");
 
         File expectedFile;
-        if (REF.isWindowsPlatform()) {
+        if (PlatformUtils.isWindowsPlatform()) {
             expectedFile = windowsFile;
             assertTrue("Expecting to find it at line > 300, found it at:" + pointers[0].start.line,
                     pointers[0].start.line > 300); //depends on python version

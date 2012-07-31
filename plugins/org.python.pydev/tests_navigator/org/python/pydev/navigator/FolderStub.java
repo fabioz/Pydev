@@ -16,7 +16,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.python.pydev.core.resource_stubs.AbstractIFolderStub;
 
-import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.io.FileUtils;
 
 public class FolderStub extends AbstractIFolderStub implements IFolder {
 
@@ -73,11 +73,11 @@ public class FolderStub extends AbstractIFolderStub implements IFolder {
     }
 
     public IPath getFullPath() {
-        return Path.fromOSString(REF.getFileAbsolutePath(this.folder));
+        return Path.fromOSString(FileUtils.getFileAbsolutePath(this.folder));
     }
 
     public IPath getLocation() {
-        return Path.fromOSString(REF.getFileAbsolutePath(this.folder));
+        return Path.fromOSString(FileUtils.getFileAbsolutePath(this.folder));
     }
 
     public IProject getProject() {

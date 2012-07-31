@@ -41,7 +41,7 @@ import org.python.pydev.runners.UniversalRunner;
 import org.python.pydev.runners.UniversalRunner.AbstractRunner;
 import org.python.pydev.ui.UIConstants;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * Applies 2to3.py in the selected folder(s)/file(s)

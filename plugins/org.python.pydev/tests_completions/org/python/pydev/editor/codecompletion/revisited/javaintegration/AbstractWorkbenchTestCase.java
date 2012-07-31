@@ -61,8 +61,8 @@ import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.utils.REF;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * This is a base class for doing test cases that require the workbench to be 'alive' and that want to test the integration
@@ -548,7 +548,7 @@ public class AbstractWorkbenchTestCase extends TestCase {
                 "/junit.jar";
         File junitJarFile = new File(junitJarLocatioon);
         if (!junitJarFile.exists()) {
-            REF.copyFile(TestDependent.TEST_PYDEV_PLUGIN_LOC
+            FileUtils.copyFile(TestDependent.TEST_PYDEV_PLUGIN_LOC
                     +
                     "tests_completions/org/python/pydev/editor/codecompletion/revisited/javaintegration/junit.jar",
                     junitJarLocatioon);
@@ -564,7 +564,7 @@ public class AbstractWorkbenchTestCase extends TestCase {
                 "/grinder.jar";
         File grinderJarFile = new File(grinderJarLocatioon);
         if (!grinderJarFile.exists()) {
-            REF.copyFile(TestDependent.TEST_PYDEV_PLUGIN_LOC
+            FileUtils.copyFile(TestDependent.TEST_PYDEV_PLUGIN_LOC
                     +
                     "tests_completions/org/python/pydev/editor/codecompletion/revisited/javaintegration/grinder.jar",
                     grinderJarLocatioon);

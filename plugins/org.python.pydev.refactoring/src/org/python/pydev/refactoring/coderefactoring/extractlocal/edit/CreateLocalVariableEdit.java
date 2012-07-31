@@ -28,7 +28,7 @@ import org.python.pydev.refactoring.coderefactoring.extractlocal.request.Extract
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.edit.AbstractInsertEdit;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 public class CreateLocalVariableEdit extends AbstractInsertEdit {
 

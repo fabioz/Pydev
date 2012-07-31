@@ -12,7 +12,7 @@ package com.aptana.interactive_console.console.ui.internal;
 
 import com.aptana.interactive_console.console.InterpreterResponse;
 import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 public interface ICommandHandler {
 

@@ -20,8 +20,8 @@ import org.python.pydev.core.log.Log;
 
 
 import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.io.FileUtils;
 import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.REF;
 
 /**
  * This class can be used to work on deltas. It is able to save and restore data on a 'delta' fashion.
@@ -326,7 +326,7 @@ public class DeltaSaver<X> {
         try {
             FastStringBuffer buf = new FastStringBuffer(command.getCommandFileDesc(), data.length());
             buf.append(data);
-            REF.writeStrToFile(buf.toString(), file);
+            FileUtils.writeStrToFile(buf.toString(), file);
         } catch (Exception e) {
             Log.log(e);
         }

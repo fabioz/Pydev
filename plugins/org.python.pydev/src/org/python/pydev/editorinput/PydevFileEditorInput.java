@@ -30,7 +30,7 @@ import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.python.pydev.plugin.PydevPlugin;
 
-import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.io.FileUtils;
 
 /**
  * This class is also added to the plugin.xml so that we map the pydev document provider to this class.
@@ -94,7 +94,7 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
      * (i.e.: FileEditorInput, FileStoreEditorInput, PydevFileEditorInput, ...)
      */
     public static IEditorInput create(File file, boolean forceExternalFile) {
-        IPath path = Path.fromOSString(REF.getFileAbsolutePath(file));
+        IPath path = Path.fromOSString(FileUtils.getFileAbsolutePath(file));
 
         if (!forceExternalFile) {
             //May call again to this method (but with forceExternalFile = true)

@@ -31,14 +31,13 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.customizations.CustomizationsPlugin;
 
 import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.utils.REF;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * This page is used to configure templates for google app engine.
@@ -224,7 +223,7 @@ public class AppEngineTemplatePage extends WizardPage {
             if (tuple != null && tuple.o2.isDirectory()) {
                 try {
                     //copy all but the description.txt file.
-                    REF.copyDirectory(tuple.o2, sourceFolder.getLocation().toFile(), new ICallback<Boolean, File>() {
+                    FileUtils.copyDirectory(tuple.o2, sourceFolder.getLocation().toFile(), new ICallback<Boolean, File>() {
 
                         public Boolean call(File arg) {
                             //we don't want to copy description.txt

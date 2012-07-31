@@ -20,8 +20,9 @@ import java.util.Properties;
 
 import junit.framework.TestCase;
 
-import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.TestDependent;
+
+import com.aptana.shared_core.io.FileUtils;
 
 /**
  * @author Fabio Zadrozny

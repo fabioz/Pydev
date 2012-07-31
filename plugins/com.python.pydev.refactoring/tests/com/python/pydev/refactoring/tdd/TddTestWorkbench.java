@@ -36,7 +36,7 @@ import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
 
 import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.AnalysisRequestsTestWorkbench;
 import com.python.pydev.analysis.builder.AnalysisParserObserver;
 import com.python.pydev.analysis.builder.AnalysisRunner;

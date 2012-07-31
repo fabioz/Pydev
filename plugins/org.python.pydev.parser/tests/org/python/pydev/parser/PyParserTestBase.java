@@ -13,7 +13,6 @@ import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -24,7 +23,8 @@ import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.TokenMgrError;
 
 import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 
 public class PyParserTestBase extends TestCase {
     protected static PyParser parser;

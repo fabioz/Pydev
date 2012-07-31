@@ -32,8 +32,8 @@ import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 
 import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.Tuple;
 import com.aptana.shared_core.utils.DocCmd;
-import com.aptana.shared_core.utils.Tuple;
 
 /**
  * Something similar org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor.BracketInserter (but not too similar). 

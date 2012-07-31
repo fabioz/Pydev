@@ -8,6 +8,8 @@ package org.python.pydev.core;
 
 import java.nio.charset.Charset;
 
+import com.aptana.shared_core.io.FileUtils;
+
 import junit.framework.TestCase;
 
 public class EncodingsTest extends TestCase {

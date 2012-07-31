@@ -10,7 +10,7 @@
 package com.aptana.interactive_console.console;
 
 import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 public interface IScriptConsoleInterpreter extends IScriptConsoleShell, IConsoleRequest {
 

@@ -26,7 +26,7 @@ import com.aptana.interactive_console.console.ui.internal.ICommandHandler;
 import com.aptana.interactive_console.console.ui.internal.IScriptConsoleViewer2ForDocumentListener;
 import com.aptana.interactive_console.console.ui.internal.ScriptConsoleDocumentListener;
 import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 public class ScriptConsoleDocumentListenerTest extends TestCase {
 

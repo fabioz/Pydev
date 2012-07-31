@@ -17,7 +17,7 @@ import org.python.pydev.debug.model.XMLUtils;
 import com.aptana.interactive_console.console.IScriptConsoleCommunication;
 import com.aptana.interactive_console.console.InterpreterResponse;
 import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * This class allows console to communicate with python backend by using the existing

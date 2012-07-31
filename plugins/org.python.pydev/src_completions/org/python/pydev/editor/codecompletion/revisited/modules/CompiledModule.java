@@ -24,7 +24,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionCache;
@@ -39,7 +38,8 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 
 import com.aptana.shared_core.cache.LRUCache;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * @author Fabio Zadrozny
@@ -463,7 +463,7 @@ public class CompiledModule extends AbstractModule {
                 //TODO: The nature (and so the grammar to be used) must be defined by the file we'll parse
                 //(so, we need to know the system modules manager that actually created it to know the actual nature)
                 IModule sourceMod = AbstractModule.createModuleFromDoc(mod.getName(), f,
-                        new Document(FileUtils.getFileContents(f)), nature, true);
+                        new Document(FileUtils.getPyFileContents(f)), nature, true);
                 if (sourceMod instanceof SourceModule) {
                     Definition[] definitions = (Definition[]) sourceMod.findDefinition(
                             state.getCopyWithActTok(foundAs), -1, -1, nature);

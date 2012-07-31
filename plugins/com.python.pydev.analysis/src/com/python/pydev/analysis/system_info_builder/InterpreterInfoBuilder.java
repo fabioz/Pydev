@@ -20,7 +20,7 @@ import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.ui.pythonpathconf.IInterpreterInfoBuilder;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
 

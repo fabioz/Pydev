@@ -22,7 +22,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.python.pydev.builder.PyDevBuilderVisitor;
-import org.python.pydev.core.FileUtils;
+import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
@@ -98,7 +98,7 @@ public class ForceCodeAnalysisOnTree extends PyResourceAction implements IObject
             }
             filesVisited.add(f);
             monitor.setTaskName(buf.clear().append("Scheduling: ").append(f.getName()).toString());
-            IDocument doc = FileUtils.getDocFromResource(f);
+            IDocument doc = FileUtilsFileBuffer.getDocFromResource(f);
             visitor.memo = new HashMap<String, Object>();
             visitor.memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, false);
             long documentTime = f.getModificationStamp();

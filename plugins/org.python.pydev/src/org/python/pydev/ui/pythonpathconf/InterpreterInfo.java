@@ -60,9 +60,9 @@ import org.w3c.dom.NodeList;
 
 import com.aptana.shared_core.callbacks.ICallback;
 import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.structure.Tuple;
+import com.aptana.shared_core.utils.PlatformUtils;
 import com.aptana.shared_core.utils.RunInUiThread;
-import com.aptana.shared_core.utils.Tuple;
 
 public class InterpreterInfo implements IInterpreterInfo {
 
@@ -1586,7 +1586,7 @@ public class InterpreterInfo implements IInterpreterInfo {
      */
     public static boolean checkIfPythonPathEnvVarAndWarnIfIs(String key) {
         boolean isPythonPath = false;
-        boolean win32 = REF.isWindowsPlatform();
+        boolean win32 = PlatformUtils.isWindowsPlatform();
         if (win32) {
             key = key.toUpperCase();
         }
@@ -1648,7 +1648,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                 return true;
             }
         }
-        if (REF.isWindowsPlatform()) {
+        if (PlatformUtils.isWindowsPlatform()) {
             return interpreter.equalsIgnoreCase(executableOrJar);
         }
         return interpreter.equals(executableOrJar);

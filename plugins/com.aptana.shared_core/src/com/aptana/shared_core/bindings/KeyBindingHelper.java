@@ -21,8 +21,8 @@ import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.keys.IBindingService;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
-import com.aptana.shared_core.utils.Log;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.log.Log;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * Helper for knowing about keybindings and related actions

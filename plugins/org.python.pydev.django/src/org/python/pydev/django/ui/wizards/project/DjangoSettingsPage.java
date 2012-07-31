@@ -38,7 +38,7 @@ import org.python.pydev.runners.UniversalRunner;
 import org.python.pydev.runners.UniversalRunner.AbstractRunner;
 import org.python.pydev.ui.wizards.project.IWizardNewProjectNameAndLocationPage;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 @SuppressWarnings("serial")
 public class DjangoSettingsPage extends WizardPage {

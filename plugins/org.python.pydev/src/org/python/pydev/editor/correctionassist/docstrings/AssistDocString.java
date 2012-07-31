@@ -31,7 +31,7 @@ import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
 import org.python.pydev.ui.UIConstants;
 
 import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 public class AssistDocString implements IAssistProps {
 

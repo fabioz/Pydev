@@ -26,7 +26,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.FastBufferedReader;
-import org.python.pydev.core.FileUtils;
+import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
@@ -45,9 +45,9 @@ import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.jython.SimpleNode;
 
 import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.io.FileUtils;
 import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.REF;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * Adds dependency information to the interpreter information. This should be used only for
@@ -368,7 +368,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             try {
                 if (key instanceof ModulesKeyForZip) {
                     ModulesKeyForZip modulesKeyForZip = (ModulesKeyForZip) key;
-                    buf = (FastStringBuffer) FileUtils.getCustomReturnFromZip(modulesKeyForZip.file,
+                    buf = (FastStringBuffer) FileUtilsFileBuffer.getCustomReturnFromZip(modulesKeyForZip.file,
                             modulesKeyForZip.zipModulePath, FastStringBuffer.class);
                 } else {
                     buf = (FastStringBuffer) FileUtils.getFileContentsCustom(key.file, FastStringBuffer.class);
@@ -477,7 +477,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             completeIndex.readFromFileMethod = readFromFileMethod;
             completeIndex.toFileMethod = toFileMethod;
 
-            String shouldBeOn = REF.getFileAbsolutePath(getCompleteIndexPersistingFolder());
+            String shouldBeOn = FileUtils.getFileAbsolutePath(getCompleteIndexPersistingFolder());
             if (!completeIndex.getFolderToPersist().equals(shouldBeOn)) {
                 //this can happen if the user moves its .metadata folder (so, we have to validate it).
                 completeIndex.setFolderToPersist(shouldBeOn);

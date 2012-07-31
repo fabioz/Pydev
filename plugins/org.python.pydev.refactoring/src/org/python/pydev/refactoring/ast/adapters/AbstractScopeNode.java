@@ -21,7 +21,7 @@ import org.python.pydev.refactoring.ast.visitors.context.LocalFunctionDefVisitor
 import org.python.pydev.refactoring.ast.visitors.context.ScopeAssignedVisitor;
 import org.python.pydev.refactoring.ast.visitors.context.ScopeVariablesVisitor;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 public abstract class AbstractScopeNode<T extends SimpleNode> extends AbstractNodeAdapter<T> {
     private List<SimpleAdapter> usedVariables;

@@ -38,8 +38,8 @@ import com.aptana.interactive_console.console.ui.internal.ScriptConsoleSession;
 import com.aptana.interactive_console.console.ui.internal.ScriptConsoleViewer;
 import com.aptana.interactive_console.console.ui.internal.actions.AbstractHandleBackspaceAction;
 import com.aptana.shared_core.callbacks.ICallback;
-import com.aptana.shared_core.utils.REF;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
+import com.aptana.shared_core.utils.Reflection;
 
 public abstract class ScriptConsole extends TextConsole implements ICommandHandler {
 
@@ -223,7 +223,7 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
      */
     public Color getPydevConsoleBackground() {
         try {
-            Color ret = (Color) REF.invoke(this, "getBackground");
+            Color ret = (Color) Reflection.invoke(this, "getBackground");
             return ret;
         } catch (Throwable e) {
             //not available in eclipse 3.2
@@ -236,7 +236,7 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
      */
     public void setPydevConsoleBackground(Color color) {
         try {
-            REF.invoke(this, "setBackground", color);
+            Reflection.invoke(this, "setBackground", color);
         } catch (Throwable e) {
             //not available in eclipse 3.2
             fPydevConsoleBackground = color;

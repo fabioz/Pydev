@@ -27,9 +27,9 @@ import org.python.pydev.core.docutils.StringUtils;
 
 import com.aptana.interactive_console.console.IXmlRpcClient;
 import com.aptana.interactive_console.console.ScriptXmlRpcClient;
+import com.aptana.shared_core.io.FileUtils;
 import com.aptana.shared_core.io.ThreadStreamReader;
 import com.aptana.shared_core.net.SocketUtil;
-import com.aptana.shared_core.utils.REF;
 
 public class XmlRpcTest extends TestCase {
 
@@ -72,11 +72,11 @@ public class XmlRpcTest extends TestCase {
 
         String[] cmdLine;
         if (python) {
-            cmdLine = new String[] { TestDependent.PYTHON_EXE, "-u", REF.getFileAbsolutePath(f), "" + port,
+            cmdLine = new String[] { TestDependent.PYTHON_EXE, "-u", FileUtils.getFileAbsolutePath(f), "" + port,
                     "" + client_port };
         } else {
             cmdLine = new String[] { TestDependent.JAVA_LOCATION, "-classpath", TestDependent.JYTHON_JAR_LOCATION,
-                    "org.python.util.jython", REF.getFileAbsolutePath(f), "" + port, "" + client_port };
+                    "org.python.util.jython", FileUtils.getFileAbsolutePath(f), "" + port, "" + client_port };
         }
 
         Process process = Runtime.getRuntime().exec(cmdLine);

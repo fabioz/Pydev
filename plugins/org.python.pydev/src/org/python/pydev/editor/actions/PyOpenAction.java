@@ -28,7 +28,7 @@ import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.Location;
 import org.python.pydev.editorinput.PyOpenEditor;
 
-import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.io.FileUtils;
 
 /**
  * Opens an editor and selects text in it.
@@ -79,7 +79,7 @@ public class PyOpenAction extends Action {
             editor = PyOpenEditor.doOpenEditor(path);
 
         } else if (file instanceof File) {
-            String absPath = REF.getFileAbsolutePath((File) file);
+            String absPath = FileUtils.getFileAbsolutePath((File) file);
             IPath path = Path.fromOSString(absPath);
             editor = PyOpenEditor.doOpenEditor(path);
         }

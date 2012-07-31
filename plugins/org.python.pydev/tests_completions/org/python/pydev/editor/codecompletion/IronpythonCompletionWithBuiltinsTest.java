@@ -14,7 +14,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.TestDependent;
@@ -28,6 +27,8 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codecompletion.shell.IronpythonShell;
 import org.python.pydev.editor.codecompletion.shell.PythonShellTest;
+
+import com.aptana.shared_core.io.FileUtils;
 
 public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompletionTestsBase {
 

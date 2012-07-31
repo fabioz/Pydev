@@ -64,7 +64,7 @@ import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorWithLoop;
 
 import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.utils.Reflection;
 
 public class NodeUtils {
 
@@ -342,9 +342,9 @@ public class NodeUtils {
         if (node instanceof Call) {
             Call c = (Call) node;
             node = c.func;
-            if (REF.hasAttr(node, "value") && REF.hasAttr(node, "attr")) {
-                return getFullRepresentationString((SimpleNode) REF.getAttrObj(node, "value")) + "."
-                        + discoverRep(REF.getAttrObj(node, "attr"));
+            if (Reflection.hasAttr(node, "value") && Reflection.hasAttr(node, "attr")) {
+                return getFullRepresentationString((SimpleNode) Reflection.getAttrObj(node, "value")) + "."
+                        + discoverRep(Reflection.getAttrObj(node, "attr"));
             }
         }
 

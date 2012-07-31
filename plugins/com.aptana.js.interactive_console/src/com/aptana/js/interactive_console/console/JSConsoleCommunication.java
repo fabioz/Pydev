@@ -42,7 +42,7 @@ import com.aptana.js.interactive_console.console.env.UserCanceledException;
 import com.aptana.js.interactive_console.console.prefs.InteractiveConsolePrefs;
 import com.aptana.shared_core.callbacks.ICallback;
 import com.aptana.shared_core.io.ThreadStreamReader;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * Communication with Xml-rpc with the client.

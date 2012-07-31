@@ -9,38 +9,31 @@
  */
 package com.aptana.shared_core.io;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 
-import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.Log;
+import com.aptana.shared_core.log.Log;
 
+/**
+ * A class mostly for debugging purposes. Prints whatever comes out of the passed input stream.
+ * 
+ * @note: things are printed char-by-char and totally unbuffered (so, things may become slower,
+ * but should not be a problem only for debugging purposes)
+ */
 public class ThreadStreamReaderPrinter extends Thread {
-    private static final boolean DEBUG = false;
-    InputStream is;
-    FastStringBuffer contents;
+
+    private InputStream is;
 
     public ThreadStreamReaderPrinter(InputStream is) {
-        contents = new FastStringBuffer();
         setName("ThreadStreamReaderPrinter");
         this.is = is;
     }
 
     public void run() {
         try {
-            InputStreamReader isr = new InputStreamReader(is);
-            BufferedReader in = new BufferedReader(isr);
             int c;
-            while ((c = in.read()) != -1) {
-                if (DEBUG) {
-                    contents.append((char) c);
-                }
-            }
-            if (DEBUG) {
-                System.out.print(contents);
-                contents = new FastStringBuffer();
+            while ((c = is.read()) != -1) {
+                System.out.print((char) c);
             }
         } catch (IOException ioe) {
             Log.log(ioe);

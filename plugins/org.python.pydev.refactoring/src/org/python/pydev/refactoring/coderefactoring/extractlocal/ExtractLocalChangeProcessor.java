@@ -22,7 +22,7 @@ import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 import org.python.pydev.refactoring.messages.Messages;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 public class ExtractLocalChangeProcessor extends AbstractFileChangeProcessor<ExtractLocalRequest> {
     public ExtractLocalChangeProcessor(String name, RefactoringInfo info,

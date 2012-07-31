@@ -20,7 +20,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 import com.aptana.interactive_console.console.ui.ScriptConsoleUIConstants;
-import com.aptana.shared_core.utils.Log;
+import com.aptana.shared_core.log.Log;
 
 /**
  * The main plugin class to be used in the desktop.

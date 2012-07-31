@@ -63,8 +63,8 @@ import com.aptana.interactive_console.console.ui.internal.actions.AbstractHandle
 import com.aptana.interactive_console.console.ui.internal.actions.HandleDeletePreviousWord;
 import com.aptana.interactive_console.console.ui.internal.actions.HandleLineStartAction;
 import com.aptana.shared_core.bindings.KeyBindingHelper;
+import com.aptana.shared_core.log.Log;
 import com.aptana.shared_core.string.StringUtils;
-import com.aptana.shared_core.utils.Log;
 
 /**
  * This is the viewer for the console. It's responsible for making sure that the actions the 

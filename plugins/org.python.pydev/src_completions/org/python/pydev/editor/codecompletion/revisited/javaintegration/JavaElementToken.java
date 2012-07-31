@@ -26,7 +26,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
 
 import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.utils.Reflection;
 
 /**
  * This is the token that encapsulates a java element.
@@ -56,7 +56,7 @@ public class JavaElementToken extends CompiledToken {
     static boolean HAS_ADDITIONAL_FLAGS = true;
     static {
         try {
-            Method m = REF.findMethod(CompletionProposal.class, "getAdditionalFlags");
+            Method m = Reflection.findMethod(CompletionProposal.class, "getAdditionalFlags");
             if (m == null) {
                 HAS_ADDITIONAL_FLAGS = false;
             }

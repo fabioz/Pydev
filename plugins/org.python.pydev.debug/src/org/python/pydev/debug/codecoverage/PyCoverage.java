@@ -31,10 +31,10 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.utils.PyFileListing;
 import org.python.pydev.utils.PyFileListing.PyFileInfo;
 
+import com.aptana.shared_core.io.FileUtils;
 import com.aptana.shared_core.io.ThreadStreamReader;
 import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.REF;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * This class is used to make the code coverage.
@@ -340,7 +340,7 @@ public class PyCoverage {
         File dir = getCoverageDirLocation();
         try {
             //Clear the files we created when running the coverages.
-            REF.clearTempFilesAt(dir, ".coverage.");
+            FileUtils.clearTempFilesAt(dir, ".coverage.");
         } catch (Exception e) {
             Log.log(e);
         }
@@ -368,7 +368,7 @@ public class PyCoverage {
     public static File getCoverageDirLocation() {
         IPath stateLocation = PydevDebugPlugin.getDefault().getStateLocation();
         stateLocation = stateLocation.append("coverage");
-        String loc = REF.getFileAbsolutePath(stateLocation.toFile());
+        String loc = FileUtils.getFileAbsolutePath(stateLocation.toFile());
         File dir = new File(loc);
         try {
             dir.mkdirs();
@@ -388,7 +388,7 @@ public class PyCoverage {
      * @return
      */
     public static File getCoverageFileLocation() {
-        return REF.getTempFileAt(getCoverageDirLocation(), ".coverage.");
+        return FileUtils.getTempFileAt(getCoverageDirLocation(), ".coverage.");
     }
 
 }

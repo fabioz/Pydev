@@ -16,7 +16,7 @@ import java.util.List;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * Extends CodeCompletionTestsBase so that we have the bundle set for getting the environment.

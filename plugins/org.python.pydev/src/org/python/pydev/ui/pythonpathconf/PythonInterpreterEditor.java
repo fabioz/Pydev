@@ -24,8 +24,8 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
-import com.aptana.shared_core.utils.REF;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
+import com.aptana.shared_core.utils.PlatformUtils;
 
 import at.jta.Key;
 import at.jta.Regor;
@@ -38,7 +38,7 @@ public class PythonInterpreterEditor extends AbstractInterpreterEditor {
 
     @Override
     public String[] getInterpreterFilterExtensions() {
-        if (REF.isWindowsPlatform()) {
+        if (PlatformUtils.isWindowsPlatform()) {
             return new String[] { "*.exe", "*.*" };
         }
         return null;
@@ -47,7 +47,7 @@ public class PythonInterpreterEditor extends AbstractInterpreterEditor {
     @Override
     protected Tuple<String, String> getAutoNewInput() throws CancelException {
         List<String> pathsToSearch = new ArrayList<String>();
-        if (!REF.isWindowsPlatform()) {
+        if (!PlatformUtils.isWindowsPlatform()) {
             pathsToSearch.add("/usr/bin");
             pathsToSearch.add("/usr/local/bin");
             Tuple<String, String> ret = super.getAutoNewInputFromPaths(pathsToSearch, "python", "python");

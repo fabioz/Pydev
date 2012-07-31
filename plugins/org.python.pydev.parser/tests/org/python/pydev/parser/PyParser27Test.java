@@ -11,7 +11,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -24,6 +23,8 @@ import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Set;
 import org.python.pydev.parser.jython.ast.SetComp;
 import org.python.pydev.parser.visitors.NodeUtils;
+
+import com.aptana.shared_core.io.FileUtils;
 
 /**
  * References:

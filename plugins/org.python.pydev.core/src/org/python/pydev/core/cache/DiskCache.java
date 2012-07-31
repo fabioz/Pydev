@@ -22,16 +22,15 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.core.FastBufferedReader;
-import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
 import org.python.pydev.core.docutils.StringUtils;
 
 import com.aptana.shared_core.cache.Cache;
 import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.io.FileUtils;
 import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.REF;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * This is a cache that will put its values in the disk for low-memory consumption, so that its size never passes
@@ -254,7 +253,7 @@ public final class DiskCache implements Serializable {
     public DiskCache(File folderToPersist, String suffix, ICallback<CompleteIndexValue, String> readFromFileMethod,
             ICallback<String, CompleteIndexValue> toFileMethod) {
         this();
-        this.folderToPersist = REF.getFileAbsolutePath(folderToPersist);
+        this.folderToPersist = FileUtils.getFileAbsolutePath(folderToPersist);
         this.suffix = suffix;
         this.readFromFileMethod = readFromFileMethod;
         this.toFileMethod = toFileMethod;
@@ -353,7 +352,7 @@ public final class DiskCache implements Serializable {
                 if (DEBUG) {
                     System.out.println("Disk cache - Adding: " + key + " file: " + fileForKey);
                 }
-                REF.writeStrToFile(toFileMethod.call(n), fileForKey);
+                FileUtils.writeStrToFile(toFileMethod.call(n), fileForKey);
             } else {
                 if (DEBUG) {
                     System.out.println("Disk cache - Adding: " + key + " with empty value (computed on demand).");

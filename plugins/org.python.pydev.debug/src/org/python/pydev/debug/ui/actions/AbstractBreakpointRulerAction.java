@@ -41,8 +41,8 @@ import org.python.pydev.debug.model.PyBreakpoint;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editorinput.PydevFileEditorInput;
 
-import com.aptana.shared_core.utils.REF;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * Some things similar to: org.eclipse.ui.texteditor.MarkerRulerAction
@@ -180,7 +180,7 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
             if (file == null) {
                 return false;
             }
-            if (attribute.equals(REF.getFileAbsolutePath(file))) {
+            if (attribute.equals(FileUtils.getFileAbsolutePath(file))) {
                 return true;
             }
         }

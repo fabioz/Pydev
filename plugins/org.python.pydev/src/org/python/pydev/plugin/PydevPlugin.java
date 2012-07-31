@@ -49,8 +49,8 @@ import org.python.pydev.ui.interpreters.IronpythonInterpreterManager;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 
-import com.aptana.shared_core.utils.REF;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * The main plugin class - initialized on startup - has resource bundle for internationalization - has preferences
@@ -252,7 +252,7 @@ public class PydevPlugin extends AbstractUIPlugin {
             }
             File file = new File(base, "ping.log");
 
-            asyncLogPing = new AsyncLogPing(REF.getFileAbsolutePath(file));
+            asyncLogPing = new AsyncLogPing(FileUtils.getFileAbsolutePath(file));
         } catch (Exception e) {
             Log.log(e);
 
@@ -296,7 +296,7 @@ public class PydevPlugin extends AbstractUIPlugin {
         erasePrefixes.add(prefix);
         IPath stateLocation = getStateLocation();
         File file = stateLocation.toFile();
-        File tempFileAt = REF.getTempFileAt(file, prefix);
+        File tempFileAt = FileUtils.getTempFileAt(file, prefix);
         return tempFileAt;
     }
 
@@ -309,7 +309,7 @@ public class PydevPlugin extends AbstractUIPlugin {
         IPath stateLocation = getStateLocation();
         File file = stateLocation.toFile();
         for (String prefix : erasePrefixes) {
-            REF.clearTempFilesAt(file, prefix);
+            FileUtils.clearTempFilesAt(file, prefix);
         }
         try {
             asyncLogPing.stop();
@@ -453,7 +453,7 @@ public class PydevPlugin extends AbstractUIPlugin {
             try {
                 //Note: only resolve in the project sources, as we've already checked the system and we'll be 
                 //checking all projects anyways.
-                String modName = nature.resolveModuleOnlyInProjectSources(REF.getFileAbsolutePath(file), true);
+                String modName = nature.resolveModuleOnlyInProjectSources(FileUtils.getFileAbsolutePath(file), true);
                 if (modName != null) {
                     return new Tuple<IPythonNature, String>(nature, modName);
                 }
@@ -549,14 +549,14 @@ public class PydevPlugin extends AbstractUIPlugin {
         //now, we have to make sure it is canonical...
         File file = new File(fullPath);
         if (file.exists()) {
-            return REF.getFileAbsolutePath(file);
+            return FileUtils.getFileAbsolutePath(file);
         } else {
             //it does not exist, so, we have to check its project to validate the part that we can
             IProject project = f.getProject();
             IPath location = project.getLocation();
             File projectFile = location.toFile();
             if (projectFile.exists()) {
-                String projectFilePath = REF.getFileAbsolutePath(projectFile);
+                String projectFilePath = FileUtils.getFileAbsolutePath(projectFile);
 
                 if (fullPath.startsWith(projectFilePath)) {
                     //the case is all ok

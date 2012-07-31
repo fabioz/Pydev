@@ -15,7 +15,7 @@ import junit.framework.TestCase;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.docutils.PySelection;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 public class PyUncommentTest extends TestCase {
 

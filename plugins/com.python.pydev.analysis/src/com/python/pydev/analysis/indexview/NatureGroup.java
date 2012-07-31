@@ -32,8 +32,8 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.utils.PyFileListing.PyFileInfo;
 
-import com.aptana.shared_core.utils.REF;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
@@ -93,7 +93,7 @@ public class NatureGroup extends ElementWithChildren {
                         .getFoundPyFileInfos();
                 for (PyFileInfo fileInfo : modulesBelow) {
                     File moduleFile = fileInfo.getFile();
-                    String modName = pythonPathHelper.resolveModule(REF.getFileAbsolutePath(moduleFile), true);
+                    String modName = pythonPathHelper.resolveModule(FileUtils.getFileAbsolutePath(moduleFile), true);
                     if (modName != null) {
                         expectedModuleNames.add(new ModulesKey(modName, moduleFile));
                     } else {

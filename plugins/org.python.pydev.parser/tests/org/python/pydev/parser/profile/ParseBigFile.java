@@ -8,13 +8,14 @@ package org.python.pydev.parser.profile;
 
 import java.io.File;
 
-import org.python.pydev.core.FileUtils;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.parser.PyParserTestBase;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
+
+import com.aptana.shared_core.io.FileUtils;
 
 public class ParseBigFile extends PyParserTestBase {
 

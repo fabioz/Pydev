@@ -28,7 +28,7 @@ import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.nature.PythonNature;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
 import com.python.pydev.refactoring.wizards.rename.visitors.FindCallVisitor;
 

@@ -32,7 +32,7 @@ import org.python.pydev.builder.pylint.PyLintVisitor;
 import org.python.pydev.builder.syntaxchecker.PySyntaxChecker;
 import org.python.pydev.builder.todo.PyTodoVisitor;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.FileUtils;
+import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.callbacks.ICallback0;
@@ -296,7 +296,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 HashMap<String, Object> memo = new HashMap<String, Object>();
                 memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, true); //mark it as full build
 
-                ICallback0<IDocument> doc = FileUtils.getDocOnCallbackFromResource(r);
+                ICallback0<IDocument> doc = FileUtilsFileBuffer.getDocOnCallbackFromResource(r);
                 memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, System.currentTimeMillis());
 
                 PyDevBuilderVisitor.setModuleNameInCache(memo, r, moduleName);

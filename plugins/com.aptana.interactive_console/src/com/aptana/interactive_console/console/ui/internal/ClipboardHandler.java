@@ -17,7 +17,7 @@ import org.eclipse.swt.widgets.Display;
 
 import com.aptana.interactive_console.console.ui.ScriptConsolePartitioner;
 import com.aptana.interactive_console.console.ui.ScriptStyleRange;
-import com.aptana.shared_core.utils.Log;
+import com.aptana.shared_core.log.Log;
 
 /**
  * Helper to add text to the clipboard.

@@ -14,7 +14,7 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.python.pydev.core.FileUtils;
+import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.refactoring.coderefactoring.inlinelocal.InlineLocalRefactoring;
@@ -29,7 +29,7 @@ public class InlineLocalTestCase extends AbstractIOTestCase {
 
     @Override
     public void runTest() throws Throwable {
-        FileUtils.IN_TESTS = true;
+        FileUtilsFileBuffer.IN_TESTS = true;
 
         IDocument document = new Document(data.source);
         ITextSelection selection = new TextSelection(document, data.sourceSelection.getOffset(),
@@ -53,6 +53,6 @@ public class InlineLocalTestCase extends AbstractIOTestCase {
 
         assertEquals(data.result, document.get());
 
-        FileUtils.IN_TESTS = false;
+        FileUtilsFileBuffer.IN_TESTS = false;
     }
 }

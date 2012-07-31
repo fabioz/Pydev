@@ -20,7 +20,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleIronpythonRunner;
 import org.python.pydev.runners.SimpleRunner;
 
-import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.io.FileUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -49,7 +49,7 @@ public class IronpythonShell extends AbstractShell {
         }
 
         String[] parameters = SimpleIronpythonRunner.preparePythonCallParameters(interpreter.getExecutableOrJar(),
-                REF.getFileAbsolutePath(serverFile), new String[] { String.valueOf(pWrite), String.valueOf(pRead) },
+                FileUtils.getFileAbsolutePath(serverFile), new String[] { String.valueOf(pWrite), String.valueOf(pRead) },
                 true);
 
         IInterpreterManager manager = PydevPlugin.getIronpythonInterpreterManager();

@@ -22,7 +22,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.python.pydev.core.FileUtils;
+import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -33,7 +33,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.AnalysisPlugin;
 
 public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWithBuild {
@@ -194,7 +194,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
         if (project == null) {
             return null;
         }
-        String name = FileUtils.getValidProjectName(project);
+        String name = FileUtilsFileBuffer.getValidProjectName(project);
 
         synchronized (additionalNatureInfoLock) {
             AbstractAdditionalDependencyInfo info = additionalNatureInfo.get(name);
@@ -277,7 +277,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
 
                     if (info != null) {
                         //ok, set it and save it
-                        additionalNatureInfo.put(FileUtils.getValidProjectName(project), info);
+                        additionalNatureInfo.put(FileUtilsFileBuffer.getValidProjectName(project), info);
                         info.save();
                     }
                 }

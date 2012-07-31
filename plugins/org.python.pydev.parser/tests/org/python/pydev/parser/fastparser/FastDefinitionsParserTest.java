@@ -10,7 +10,6 @@ import java.io.File;
 
 import junit.framework.TestCase;
 
-import org.python.pydev.core.FileUtils;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -19,6 +18,8 @@ import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
+
+import com.aptana.shared_core.io.FileUtils;
 
 public class FastDefinitionsParserTest extends TestCase {
 

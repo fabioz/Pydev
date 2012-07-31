@@ -25,7 +25,7 @@ import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.jython.ast.stmtType;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * Utilities for pretty printing.

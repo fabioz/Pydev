@@ -10,7 +10,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.core.docutils.PySelection;
 
 import com.aptana.shared_core.string.FastStringBuffer;
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * Same toggle comment action as we are used to it in the java perspective

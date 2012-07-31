@@ -12,7 +12,7 @@ import java.util.NoSuchElementException;
 
 import org.python.pydev.parser.jython.Token;
 
-import com.aptana.shared_core.utils.Tuple;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * A helper iterator class that can look ahead x tokens breaking when some new 

@@ -29,12 +29,12 @@ import com.aptana.interactive_console.console.ui.IConsoleStyleProvider;
 import com.aptana.interactive_console.console.ui.ScriptConsolePartitioner;
 import com.aptana.interactive_console.console.ui.ScriptStyleRange;
 import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.log.Log;
 import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.Tuple;
 import com.aptana.shared_core.utils.DocCmd;
-import com.aptana.shared_core.utils.Log;
 import com.aptana.shared_core.utils.RunInUiThread;
 import com.aptana.shared_core.utils.TextSelectionUtils;
-import com.aptana.shared_core.utils.Tuple;
 
 /**
  * This class will listen to the document and will:

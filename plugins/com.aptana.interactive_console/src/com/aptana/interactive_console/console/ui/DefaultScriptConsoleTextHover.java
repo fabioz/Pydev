@@ -13,7 +13,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 
 import com.aptana.interactive_console.console.IScriptConsoleShell;
-import com.aptana.shared_core.utils.Log;
+import com.aptana.shared_core.log.Log;
 
 public class DefaultScriptConsoleTextHover extends AbstractScriptConsoleTextHover {
 

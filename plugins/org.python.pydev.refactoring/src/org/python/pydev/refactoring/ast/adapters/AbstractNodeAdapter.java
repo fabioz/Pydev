@@ -16,7 +16,7 @@ import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.ast.visitors.position.IndentVisitor;
 import org.python.pydev.refactoring.ast.visitors.position.LastLineVisitor;
 
-import com.aptana.shared_core.utils.REF;
+import com.aptana.shared_core.utils.Reflection;
 
 public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTNodeAdapter<T> {
     private ModuleAdapter module;
@@ -93,7 +93,7 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
         SimpleNode astNode = getASTNode();
         int last = astNode.beginLine;
 
-        stmtType[] body = (stmtType[]) REF.getAttrObj(astNode, "body");
+        stmtType[] body = (stmtType[]) Reflection.getAttrObj(astNode, "body");
         if (body != null) {
             for (int i = 0; i < body.length; i++) {
                 SimpleNode node = body[i];

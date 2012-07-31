@@ -18,6 +18,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
+import com.aptana.shared_core.io.FileUtils;
+
 public class TestDependent {
 
     //Use defaults and override later as needed.
