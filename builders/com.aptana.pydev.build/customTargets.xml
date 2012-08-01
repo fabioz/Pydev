@@ -6,6 +6,24 @@
 		</classpath>
 	</taskdef>
 
+    <!-- ===================================================================== -->
+    <!-- Steps to do before generating the build scripts. -->
+    <!-- ===================================================================== -->
+    <target name="preGenerate">
+        <echo message="Replacing feature and plugin versions to be: ${version.full}" />
+        <!--FIXME Handle when old version number is not 0.9.7.1! -->
+        <replaceregexp match="Bundle-Version:(.*)" replace="Bundle-Version: ${version.full}" byline="true">
+            <fileset dir="${buildDirectory}" includes="plugins/**/META-INF/MANIFEST.MF" />
+        </replaceregexp>
+        
+        <replaceregexp match='org.python.pydev;bundle-version="(.*)"' replace='org.python.pydev;bundle-version="${version.full}"' byline="true">
+            <fileset dir="${buildDirectory}" includes="plugins/**/META-INF/MANIFEST.MF" />
+        </replaceregexp>
+
+        <replaceregexp file="${buildDirectory}/plugins/org.python.pydev/src/org/python/pydev/plugin/PydevPlugin.java" match='public static final String version =(.*)"' replace='public static final String version ="${version.full}"' byline="true" />
+        <replaceregexp file="${buildDirectory}/plugins/com.python.pydev/src/com/python/pydev/PydevPlugin.java" match='public static final String version =(.*)"' replace='public static final String version ="${version.full}"' byline="true" />
+    </target>
+
 	<!-- ===================================================================== -->
 	<!-- Steps to do before the repositories are being processed -->
 	<!-- ===================================================================== -->
