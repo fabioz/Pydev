@@ -72,14 +72,21 @@
 	<!-- - - - - - - - - - - - - - - - - - 
           target: get.revision                      
          - - - - - - - - - - - - - - - - - -->
-	<target name="get.revision">
-		<!-- Force to use the timestamp, so we always get a new qualifier! -->
-		<tstamp>
-	      	<format property="build.timestamp" pattern="yyyyMMddkkmm"/>
-		</tstamp>
-		<property name="build.revision" value="${build.timestamp}" />
-		<echo message="Revision timestamp: ${build.revision}" level="info" />
-	</target>
+    <target name="get.revision" unless="build.revision">
+	   	<echo message="Retrieving Git timestamp for latest revision" level="info" />
+	    	<exec executable="${git.executable}" dir="${basedir}" outputproperty="git.revision.max">
+		    	<arg value="log" />
+		    	<arg value="--max-count=1" />
+		    	<arg value="--pretty=format:'%ct'" />
+	    	</exec>
+	    	<exec executable="python" dir="${basedir}" outputproperty="python.timestamp">
+		    	<arg value="-c" />
+		    	<arg value="import time;t=time.gmtime(float(${git.revision.max}));print '\'%d%02d%02d%02d\'' % (t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour)" />
+	    	</exec>
+    	<property name="build.revision" value="${python.timestamp}" />
+        <echo message="Git ct : ${git.revision.max} - Target: ${basedir}" level="info" />
+        <echo message="Date ct: ${build.revision} - Target: ${basedir}" level="info" />
+    </target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
           target: generate.base                      
