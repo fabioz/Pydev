@@ -2,105 +2,37 @@
 <!-- ====================================================================== 
      Dec 8, 2008 2:05:07 PM                                                        
 
-     PyDev 
-     Builds the PyDev feature for Studio
+     Aptana Pydev  
+     Builds the Aptana Pydev feature
                    
      cwilliams                                                                
      ====================================================================== -->
-<project name="PyDev" default="build">
+<project name="AptanaPydev" default="build">
 	<description>
-            Builds the PyDev feature for Studio
+            Builds the Aptana Pydev feature
     </description>
-	
-	
-	
-	<macrodef name = "git">
-	    <attribute name = "command" />
-	    <attribute name = "dir" default = "" />
-	    <element name = "args" optional = "true" />
-	    <sequential>
-	        <echo message = "git @{command}" />
-	        <exec executable = "${git.executable}" dir = "@{dir}">
-	            <arg value = "@{command}" />
-	            <args/>
-	        </exec>
-	    </sequential>
-	</macrodef>
 
-	<macrodef name = "git-clone-pull">
-	    <attribute name = "repository" />
-	    <attribute name = "dest" />
-	    <sequential>
-	        <git command = "clone">
-	            <args>
-	                <arg value = "@{repository}" />
-	                <arg value = "@{dest}" />
-	            </args>
-	        </git>
-	        <git command = "pull" dir = "@{dest}" />
-	    </sequential>
-	</macrodef>
-	
 	<property environment="env" />
 	<property file="build_local.properties" />
 	<!-- Set is.windows property IF the OS is from the Windows family -->
 	<condition property="is.windows" value="true">
 		<os family="windows" />
 	</condition>
-	<!-- Set is.local_build property IF the local_build property is any true value -->
-	<condition property="is.local_build" value="true">
-		<istrue value="${local_build}"/>
-	</condition>
-	<!-- sign_jars can be optionally set, but otherwise defaults to local_build
-	     Set is.sign_jars property IF the sign_jars property is any true value
-	     OR (the sign_jars property is unset AND the local_build property is any true value) -->
-	<condition property="is.sign_jars" value="true">
-		<and>
-			<isset property="sign_jars"/>
-			<istrue value="${sign_jars}"/>
-		</and>
-	</condition>
-	<condition property="is.sign_jars" value="true">
-		<and>
-			<not>
-				<isset property="sign_jars"/>
-			</not>
-			<istrue value="${local_build}"/>
-		</and>
-	</condition>
 
-    <taskdef resource="net/sf/antcontrib/antcontrib.properties">
-        <classpath>
-            <pathelement location="ant-contrib/ant-contrib.jar" />
-        </classpath>
-    </taskdef>
-
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
+		<classpath>
+			<pathelement location="ant-contrib/ant-contrib.jar" />
+		</classpath>
+	</taskdef>
 
 	<!-- ================================= 
           target: build              
          ================================= -->
-	<target name="doit" description="Builds the PyDev feature" depends="generate.build.properties,get.revision,generate.base">
+	<target name="build" description="Builds the Aptana Pydev feature" depends="generate.build.properties,get.revision,replace.versions,generate.base">
 		<java jar="${baseLocation}/plugins/${launcher.plugin}.jar" fork="true" failonerror="yes">
-			<jvmarg value="-Xmx512m" />
-			<jvmarg value="-XX:MaxPermSize=256m" />
-			<arg line="-nosplash -application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/${builder.plugin}/scripts/build.xml -Dbuilder=${basedir} -Dbuild.revision=${build.revision}" />
+			<arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/${builder.plugin}/scripts/build.xml -Dbuilder=${basedir} -Dbuild.revision=${build.revision} -nosplash" />
 		</java>
-		<antcall target="categorize" />
 	</target>
-	
-	<!-- ================================= 
-          target: categorize              
-          
-          Note: in http://wiki.eclipse.org/Equinox_p2_Metadata_Generator
-          there are newer instructions (so, if at sometime this is not ok, it might be worth
-          revisiting that site to update the command line - again).
-         ================================= -->
-    <target name="categorize" description="categorize the update site">
-    	<java jar="${baseLocation}/plugins/${launcher.plugin}.jar" fork="true" failonerror="yes">
-    		<!-- regenerates the content.jar with proper categories -->
-            <arg line="-application org.eclipse.equinox.p2.publisher.EclipseGenerator -nosplash -consoleLog -updateSite ${deploy.dir} -site file:${deploy.dir}/site.xml -metadataRepository file:${deploy.dir} -metadataRepositoryName &quot;Pydev Update Site&quot; -artifactRepository file:${deploy.dir} -artifactRepositoryName &quot;Pydev Artifacts&quot; -publishArtifacts -publishArtifactRepository -compress -reusePack200Files -noDefaultIUs -vmargs -Xmx256m" />
-    	</java>
-    </target>
 
 	<!-- ================================= 
           target: generate.build.properties              
@@ -116,159 +48,112 @@
 			</propertyset>
 		</echoproperties>
 	</target>
-	
-	
-    <!-- - - - - - - - - - - - - - - - - - 
-          target: clean
-         - - - - - - - - - - - - - - - - - -->
-    <target name="clean" depends="generate.build.properties" description="Clean up temp and build files">
-        <delete failonerror="false">
-            <fileset dir="${buildDirectory}" defaultexcludes="true">
-                <include name="assemble.*" />
-                <include name="finalFeaturesVersions.*" />
-                <include name="finalPluginsVersions.*" />
-                <include name="package.*" />
-            </fileset>
-        </delete>
-        <delete dir="${buildDirectory}/${buildLabel}" failonerror="false" />
-        <java jar="${baseLocation}/plugins/${launcher.plugin}.jar" fork="true" failonerror="false">
-            <arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/${builder.plugin}/scripts/build.xml -Dbuilder=${basedir} -nosplash clean" />
-        </java>
-        <delete dir="${baseLocation}" />
-        <delete dir="${buildDirectory}/features/org.eclipse.pde.build.container.feature" failonerror="false" />
-        <delete dir="${p2.repo.dir}" failonerror="false" />
-        <!-- Do an git checkout of the build directory -->
-        <exec executable="/bin/bash" dir="${buildDirectory}" failifexecutionfails="false">
-            <arg value="-c" />
-            <arg value="${git.executable} checkout -f" />
-        </exec>
-    </target>
-    
 
-	<!-- - - - - - - - - - - - - - - - - - 
-          target: clean.after                      
-         - - - - - - - - - - - - - - - - - -->
-	<target name="build" depends="doit" if="cleanAfter.set">
-		<antcall target="clean" />
+	<!-- ================================= 
+          target: clean              
+         ================================= -->
+	<target name="clean" depends="generate.build.properties" description="Clean up temp and build files">
+		<delete failonerror="false">
+			<fileset dir="${buildDirectory}" defaultexcludes="true">
+				<include name="assemble.*" />
+				<include name="finalFeaturesVersions.*" />
+				<include name="finalPluginsVersions.*" />
+				<include name="package.*" />
+			</fileset>
+		</delete>
+		<delete dir="${buildDirectory}/${buildLabel}" failonerror="false" />
+		<java jar="${baseLocation}/plugins/${launcher.plugin}.jar" fork="true" failonerror="false">
+			<arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/${builder.plugin}/scripts/build.xml -Dbuilder=${basedir} -nosplash clean" />
+		</java>
+		<delete dir="${baseLocation}" />
+		<delete dir="${buildDirectory}/features/org.eclipse.pde.build.container.feature" failonerror="false" />
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
           target: get.revision                      
          - - - - - - - - - - - - - - - - - -->
-    <target name="get.revision" unless="build.revision">
-	   	<echo message="Retrieving Git timestamp for latest revision" level="info" />
-	    	<exec executable="${git.executable}" dir="${basedir}" outputproperty="git.revision.max">
-		    	<arg value="log" />
-		    	<arg value="--max-count=1" />
-		    	<arg value="--pretty=format:'%ct'" />
-	    	</exec>
-	    	<exec executable="python" dir="${basedir}" outputproperty="python.timestamp">
-		    	<arg value="-c" />
-		    	<arg value="import time;t=time.gmtime(float(${git.revision.max}));print '\'%d%02d%02d%02d\'' % (t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour)" />
-	    	</exec>
-    	<property name="build.revision" value="${python.timestamp}" />
-        <echo message="Git ct : ${git.revision.max} - Target: ${basedir}" level="info" />
-        <echo message="Date ct: ${build.revision} - Target: ${basedir}" level="info" />
-    </target>
+	<target name="get.revision">
+		<!-- Force to use the timestamp, so we always get a new qualifier! -->
+		<tstamp>
+	      	<format property="build.timestamp" pattern="yyyyMMddkkmm"/>
+		</tstamp>
+		<property name="build.revision" value="${build.timestamp}" />
+		<echo message="Revision timestamp: ${build.revision}" level="info" />
+	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
           target: generate.base                      
          - - - - - - - - - - - - - - - - - -->
-    <target name="generate.base" depends="copy.base.windows,copy.base" unless="is.local_build">
-        <!-- Workaround for https://bugs.eclipse.org/241430 shouldn't be necessary when we move to 3.5 -->
-        <delete failonerror="false">
-            <fileset dir="${baseLocation}/configuration/.settings">
-                <include name="org.eclipse.equinox.p2.*.repository.prefs" />
-            </fileset>
-        </delete>
-        <!-- Copy the features and plugins over into a dropins folder. Installing makes it so that non-linux plugins/features won't be there! -->
-        <mkdir dir="${baseLocation}/dropins/eclipse" />
-        <copy todir="${baseLocation}/dropins/eclipse">
-            <fileset dir="${studio3.p2.repo}" defaultexcludes="true">
-                <include name="features/*" />
-                <include name="plugins/*" />
-            </fileset>
-        </copy>
-
-        <!-- Unjar the features -->
-        <for param="file">
-            <path>
-                <fileset dir="${baseLocation}/dropins/eclipse/features" defaultexcludes="true">
-                    <include name="*.jar" />
-                </fileset>
-            </path>
-            <sequential>
-                <echo message="Unzipping JAR @{file}" />
-                <basename file="@{file}" property="@{file}.name" suffix="jar" />
-                <mkdir dir="${baseLocation}/dropins/eclipse/features/${@{file}.name}" />
-                <unjar dest="${baseLocation}/dropins/eclipse/features/${@{file}.name}" src="@{file}" />
-                <delete file="@{file}" />
-                <echo message="Replacing the update site domain names." />
-                <!-- The following will replace update.aptana.org update/... sites with download.aptana.com/... update sites -->
-                <replaceregexp file="${baseLocation}/dropins/eclipse/features/${@{file}.name}/feature.xml" match="http://update.aptana.com/update/" replace="http://download.aptana.com/tools/studio/plugin/" byline="true" />
-                <!-- The following will replace aptana.org update sites with aptana.com update sites -->
-                <replaceregexp file="${baseLocation}/dropins/eclipse/features/${@{file}.name}/feature.xml" match="http://download.aptana.org/tools/studio/plugin/" replace="http://download.aptana.com/tools/studio/plugin/" byline="true" />
-            </sequential>
-        </for>
-        <!-- UnJAR the handful of plugins that we need to... -->
-        <for param="file">
-            <path>
-                <fileset dir="${baseLocation}/dropins/eclipse/plugins" defaultexcludes="true">
-                    <include name="com.aptana.terminal_*.jar" />
-                    <include name="com.aptana.libraries_*.jar" />
-                    <include name="org.jruby_*.jar" />
-                    <include name="com.aptana.branding_*.jar" />
-                    <include name="com.aptana.ide.libraries.subscription_*.jar" />
-                    <include name="com.aptana.parsing_*.jar" />
-                    <include name="com.aptana.portablegit.win32_*.jar" />
-                </fileset>
-            </path>
-            <sequential>
-                <echo message="Unzipping JAR @{file}" />
-                <basename file="@{file}" property="@{file}.name" suffix="jar" />
-                <mkdir dir="${baseLocation}/dropins/eclipse/plugins/${@{file}.name}" />
-                <unjar dest="${baseLocation}/dropins/eclipse/plugins/${@{file}.name}" src="@{file}" />
-                <delete file="@{file}" />
-            </sequential>
-        </for>
-    </target>
+	<target name="generate.base" depends="copy.base.windows,copy.base" />
 
 	<!-- - - - - - - - - - - - - - - - - - 
-          target: copy.base                      
-         - - - - - - - - - - - - - - - - - -->
+	          target: copy.base                      
+	         - - - - - - - - - - - - - - - - - -->
 	<target name="copy.base" unless="is.windows">
 		<!-- Copy over the original base eclipse to a new location.
-			Have to use exec cp to retain permissions on *nix, Mac -->
+						Have to use exec cp to retain permissions on *nix, Mac -->
 		<exec executable="cp">
 			<arg line="-R ${vanilla.eclipse} ${baseLocation}" />
 		</exec>
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
-          target: copy.base.windows with default ant                   
+          target: copy.base.windows                      
          - - - - - - - - - - - - - - - - - -->
-	<!--
 	<target name="copy.base.windows" if="is.windows">
 		<copy todir="${baseLocation}">
 			<fileset dir="${vanilla.eclipse}" includes="**/*" defaultexcludes="false" />
 		</copy>
 	</target>
-	-->
-	
-	<!-- - - - - - - - - - - - - - - - - - 
-          target: copy.base.windows with fast copy (note that fastcopy must be available for it to work).
-          If this doesn't properly work, the command above should be used.
-         - - - - - - - - - - - - - - - - - -->
-	<target name="copy.base.windows" if="is.windows">
-		<exec executable="FastCopy">
-			<arg line="/to=${baseLocation} /cmd=sync /auto_close ${vanilla.eclipse}" />
-		</exec>
+
+	<!-- - - - - - - - - - - - - - - - - -
+	      target: replace.versions
+	     - - - - - - - - - - - - - - - - - -->
+	<target name="replace.versions" description="Replaces all the qualifiers for plugins/features with the last changed rev for that plugin/feature.">
+		<!-- Iterate through every plugin and feature directory and replace qualifier in
+		        build.properties with qualifier for just that plugin/feature! -->
+		<!-- TODO Handle if build.properties has no qualifier entry! -->
+		<for param="file">
+			<path>
+				<dirset dir="${buildDirectory}" defaultexcludes="true">
+					<include name="plugins/*" />
+					<include name="features/*" />
+					<exclude name="${topLevelElementType}s/${topLevelElementId}" />
+				</dirset>
+			</path>
+			<sequential>
+				<exec executable="/bin/bash" dir="@{file}" outputproperty="@{file}.committed.max">
+					<arg value="-c" />
+					<arg value="${git.executable} log --max-count=1 --pretty=format:'%ct' ." />
+				</exec>
+				<echo message="Replacing qualifier for @{file} with ${@{file}.committed.max}" />
+				<exec executable="grep" dir="@{file}" outputproperty="@{file}.hasQualifierLine" logerror="false" failifexecutionfails="false" failonerror="false">
+					<arg line="qualifier ./build.properties" />
+				</exec>
+				<if>
+					<equals arg1="${@{file}.hasQualifierLine}" arg2="" />
+					<then>
+						<echo message="no qualifier property, adding one" />
+						<concat append="true" destfile="@{file}/build.properties">qualifier = ${@{file}.committed.max}</concat>
+					</then>
+					<else>
+						<echo message="replacing qualifier value" />
+						<replaceregexp file="@{file}/build.properties" match="qualifier\s*=\s*context" replace="qualifier = ${@{file}.committed.max}" byline="true" />
+					</else>
+				</if>
+			</sequential>
+		</for>
 	</target>
 
-    <target name="create-artifact-symlink">
-        <exec executable="unlink">
-            <arg value="${env.WORKSPACE}/build-artifacts" />
-        </exec>
-        <symlink link="${env.WORKSPACE}/build-artifacts" resource="${deploy.dir}" failonerror="false" />
-     </target>
+	<target name="create-artifact-symlink" depends="unlink-symlink">
+		<symlink link="${env.WORKSPACE}/build-artifacts" resource="${deploy.dir}" failonerror="false" />
+	</target>
+	<target name="unlink-symlink" depends="link.check" if="link.exists">
+		<exec executable="unlink">
+			<arg value="${env.WORKSPACE}/build-artifacts" />
+		</exec>
+	</target>
+	<target name="link.check">
+		<available file="${env.WORKSPACE}/build-artifacts"  property="link.exists"/>
+	</target>
 </project>
