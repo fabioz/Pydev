@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site pack200="true"> 
+    <description url="http://pydev.org/">
+    	Aptana Pydev Update Central. Version {version.full}
+    </description> 
+	<feature url="features/com.aptana.pydev_{version.full}.jar" id="com.aptana.pydev" version="{version.full}">
+		<category name="Aptana Pydev"/>
+	</feature>				
+    <category-def name="Aptana Pydev" label="Aptana Pydev">
+        <description>
+        	Add Python support to Aptana Studio
+        </description>
+    </category-def>
+</site>
