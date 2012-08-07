@@ -80,6 +80,8 @@ public abstract class ModulesManager implements IModulesManager {
     public ModulesManager() {
     }
 
+    private final static double ONE_MINUTE_IN_MILLIS = 60.0 * 1000.0;
+
     /**
      * This class is a cache to help in getting the managers that are referenced or referred.
      * 
@@ -95,12 +97,12 @@ public abstract class ModulesManager implements IModulesManager {
 
         public IModulesManager[] getManagers(boolean referenced) {
             calls += 1;
-            if (calls % 20 == 0) {
+            if (calls % 30 == 0) {
                 long diff = System.currentTimeMillis() - creationTime;
-                if (diff > 0) {
+                if (diff > ONE_MINUTE_IN_MILLIS) {
                     String msg = String.format(
                             "Warning: the cache related to project dependencies is the same for %.2f minutes.",
-                            (diff / (60.0 * 1000.0)));
+                            (diff / ONE_MINUTE_IN_MILLIS));
                     Log.logInfo(msg);
                 }
             }
