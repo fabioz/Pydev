@@ -174,8 +174,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                     if (isCaretInEditableRange()) {
                         if (!inCompletion && event.keyCode == SWT.PAGE_UP) {
                             event.doit = false;
-                            List<String> commands = history.getAsList();
-                            List<String> commandsToExecute = ScriptConsoleHistorySelector.select(commands);
+                            List<String> commandsToExecute = ScriptConsoleHistorySelector.select(history);
                             if (commandsToExecute != null) {
                                 //remove the current command (substituted by the one gotten from page up)
                                 listener.setCommandLine("");
@@ -323,8 +322,9 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                         Point newSelection = getSelection();
                         int length = selection.y - selection.x;
                         int delta = 0;
-                        if (newSelection.x < selection.x)
+                        if (newSelection.x < selection.x) {
                             delta = length;
+                        }
                         replaceTextRange(selection.x + delta, length, "");
                     }
                 } finally {
@@ -443,6 +443,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         /**
          * Execute some action.
          */
+        @Override
         public void invokeAction(int action) {
             //some actions have a different scope (not in selected range / out of selected range)
             switch (action) {

@@ -10,12 +10,17 @@
 package org.python.pydev.shared_interactive_console.console;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_interactive_console.InteractiveConsolePlugin;
+import org.python.pydev.shared_interactive_console.console.ui.ScriptConsoleUIConstants;
 
 /**
  * Handles the history so that the user can do Ctrl+up / Ctrl+down
@@ -26,6 +31,11 @@ public class ScriptConsoleHistory {
      * Holds the history in an easy way to handle it.
      */
     private final List<String> lines;
+
+    /**
+     * Index of the starting point of local history
+     */
+    private int localHistoryStart;
 
     /**
      * Holds the position of the current line in the history.
@@ -42,11 +52,29 @@ public class ScriptConsoleHistory {
      */
     private String matchStart = "";
 
+    /**
+     * Set to true once history has been closed
+     */
+    private volatile boolean closed = false;
+
     public ScriptConsoleHistory() {
-        this.lines = new ArrayList<String>();
-        this.lines.add(""); //$NON-NLS-1$
-        this.currLine = 0;
-        this.historyAsDoc = new Document();
+        final String globalHistory;
+        InteractiveConsolePlugin plugin = InteractiveConsolePlugin.getDefault();
+        if (plugin != null) {
+            IPreferenceStore store = plugin.getPreferenceStore();
+            globalHistory = store.getString(ScriptConsoleUIConstants.INTERACTIVE_CONSOLE_PERSISTENT_HISTORY);
+        } else {
+            globalHistory = "";
+        }
+        String[] globalHistoryLines = globalHistory.split("\n");
+        this.lines = new ArrayList<String>(Arrays.asList(globalHistoryLines));
+        if (this.lines.size() == 0 || this.lines.get(this.lines.size() - 1).length() != 0) {
+            this.lines.add(""); //$NON-NLS-1$
+        }
+        localHistoryStart = this.lines.size() - 1;
+
+        this.currLine = this.lines.size() - 1;
+        this.historyAsDoc = new Document(globalHistory);
     }
 
     /**
@@ -141,7 +169,7 @@ public class ScriptConsoleHistory {
             return "";
         }
 
-        return (String) lines.get(currLine);
+        return lines.get(currLine);
     }
 
     /**
@@ -157,5 +185,64 @@ public class ScriptConsoleHistory {
 
     public void setMatchStart(String string) {
         this.matchStart = string;
+    }
+
+    /**
+     * Close the current history, appending to the global history any new commands
+     */
+    public synchronized void close() {
+        // synchronized because we can be closed twice from different threads, so we
+        // have protection around the read/update/write of INTERACTIVE_CONSOLE_PERSISTENT_HISTORY
+        if (closed) {
+            return;
+        }
+        closed = true;
+        final int historyMaxEntries;
+        final StringBuffer globalHistory;
+        InteractiveConsolePlugin plugin = InteractiveConsolePlugin.getDefault();
+        if (plugin != null) {
+            IPreferenceStore store = plugin.getPreferenceStore();
+            historyMaxEntries = store
+                    .getInt(ScriptConsoleUIConstants.INTERACTIVE_CONSOLE_PERSISTENT_HISTORY_MAXIMUM_ENTRIES);
+            globalHistory = new StringBuffer(
+                    store.getString(ScriptConsoleUIConstants.INTERACTIVE_CONSOLE_PERSISTENT_HISTORY));
+        } else {
+            historyMaxEntries = ScriptConsoleUIConstants.DEFAULT_INTERACTIVE_CONSOLE_PERSISTENT_HISTORY_MAXIMUM_ENTRIES;
+            globalHistory = new StringBuffer("");
+        }
+
+        for (int i = localHistoryStart; i < currLine; i++) {
+            globalHistory.append(lines.get(i));
+            globalHistory.append('\n');
+        }
+
+        String globalHistoryString = globalHistory.toString();
+        int count = StringUtils.count(globalHistoryString, '\n');
+        if (historyMaxEntries > 0 && count > historyMaxEntries) {
+            int nthIndexOf = StringUtils.nthIndexOf(globalHistoryString, '\n', count - historyMaxEntries);
+            globalHistoryString = globalHistoryString.substring(nthIndexOf + 1);
+        }
+
+        if (plugin != null) {
+            IPreferenceStore store = plugin.getPreferenceStore();
+            store.setValue(ScriptConsoleUIConstants.INTERACTIVE_CONSOLE_PERSISTENT_HISTORY, globalHistoryString);
+        }
+    }
+
+    /**
+     * Delete the local and current global history.
+     */
+    public void clear() {
+        InteractiveConsolePlugin plugin = InteractiveConsolePlugin.getDefault();
+        if (plugin != null) {
+            IPreferenceStore store = plugin.getPreferenceStore();
+            store.setValue(ScriptConsoleUIConstants.INTERACTIVE_CONSOLE_PERSISTENT_HISTORY, "");
+        }
+
+        lines.clear();
+        lines.add("");
+        localHistoryStart = 0;
+        historyAsDoc.set("");
+        currLine = 0;
     }
 }
