@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="com.aptana.pydev.feature"
+      label="%featureName"
+      version="2.7.0.qualifier"
+      provider-name="%providerName"
+      plugin="org.python.pydev">
+
+   <description url="http://www.aptana.com">
+      %description
+   </description>
+
+   <copyright url="http://www.aptana.com">
+      %copyright
+   </copyright>
+
+   <url>
+      <update label="%updateSiteName" url="http://pydev.org/updates"/>
+   </url>
+
+   <requires>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.jface.text"/>
+      <import plugin="org.eclipse.ui.editors"/>
+      <import plugin="org.eclipse.ui.workbench.texteditor"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.core.variables"/>
+      <import plugin="org.eclipse.debug.core"/>
+      <import plugin="org.eclipse.debug.ui"/>
+      <import plugin="org.eclipse.ui.console"/>
+      <import plugin="org.eclipse.search"/>
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.ltk.core.refactoring"/>
+      <import plugin="org.eclipse.ltk.ui.refactoring"/>
+      <import plugin="org.eclipse.ui.views"/>
+      <import plugin="org.eclipse.ui.navigator"/>
+      <import plugin="org.eclipse.ui.navigator.resources"/>
+      <import plugin="org.eclipse.core.filesystem"/>
+      <import plugin="org.eclipse.core.expressions"/>
+      <import plugin="org.eclipse.compare"/>
+      <import plugin="org.eclipse.core.filebuffers"/>
+      <import plugin="com.aptana.editor.common"/>
+      <import plugin="com.aptana.editor.xml"/>
+      <import plugin="com.aptana.editor.html"/>
+      <import plugin="com.aptana.editor.css" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="com.aptana.editor.js" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="com.aptana.parsing"/>
+      <import plugin="beaver"/>
+      <import plugin="com.aptana.theme" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="com.aptana.editor.html.formatter"/>
+      <import plugin="com.aptana.formatter.epl"/>
+      <import plugin="com.aptana.formatter.ui.epl"/>
+   </requires>
+
+   <plugin
+         id="com.python.pydev"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.python.pydev.analysis"
+         download-size="0"
+         install-size="240"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.python.pydev.codecompletion"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.python.pydev.debug"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.python.pydev.fastparser"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.python.pydev.refactoring"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.python.pydev"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.python.pydev.ast"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.python.pydev.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.python.pydev.customizations"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.python.pydev.debug"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.python.pydev.django"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.python.pydev.help"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.python.pydev.jython"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.python.pydev.parser"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.python.pydev.red_core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.python.pydev.refactoring"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.python.pydev.django_templates"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+</feature>

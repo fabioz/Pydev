@@ -235,7 +235,11 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
                 if (lineLength <= 0) {
                     return "";
                 }
-                return testOutputText.getText(lineOffset, lineOffset + lineLength);
+                try {
+                    return testOutputText.getText(lineOffset, lineOffset + lineLength);
+                } catch (IllegalArgumentException e) {
+                    return ""; //thrown on invalid range.
+                }
             }
         });
     }

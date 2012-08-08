@@ -68,3 +68,14 @@ data_temporary_for_testing
 plugins/jdt_plugins/
 *v1_projectinfodelta
 plugins/com.python.pydev.runalltests/New_configuration1.launch
+
+# Mac OS X stuff
+Desktop DF
+Desktop DB
+.Spotlight-V100
+.DS_Store
+.Trashes
+.com.apple.timemachine.supported
+.fseventsd
+.syncinfo
+.TemporaryItems

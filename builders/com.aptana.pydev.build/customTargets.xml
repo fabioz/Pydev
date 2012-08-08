@@ -1,0 +1,59 @@
+<project name="customTargets overrides" default="noDefault">
+	<import file="${eclipse.pdebuild.templates}/headless-build/customTargets.xml" />
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
+		<classpath>
+			<pathelement location="${builder}/ant-contrib/ant-contrib.jar" />
+		</classpath>
+	</taskdef>
+
+    <!-- ===================================================================== -->
+    <!-- Steps to do before generating the build scripts. -->
+    <!-- ===================================================================== -->
+    <target name="preGenerate">
+        <echo message="Replacing feature and plugin versions to be: ${version.full}" />
+        <!--FIXME Handle when old version number is not 0.9.7.1! -->
+        <replaceregexp match="Bundle-Version:(.*)" replace="Bundle-Version: ${version.full}" byline="true">
+            <fileset dir="${buildDirectory}" includes="plugins/**/META-INF/MANIFEST.MF" />
+        </replaceregexp>
+        
+        <replaceregexp match='org.python.pydev;bundle-version="(.*)"' replace='org.python.pydev;bundle-version="${version.full}"' byline="true">
+            <fileset dir="${buildDirectory}" includes="plugins/**/META-INF/MANIFEST.MF" />
+        </replaceregexp>
+
+        <replaceregexp file="${buildDirectory}/plugins/org.python.pydev/src/org/python/pydev/plugin/PydevPlugin.java" match='public static final String version =(.*)"' replace='public static final String version ="${version.full}"' byline="true" />
+        <replaceregexp file="${buildDirectory}/plugins/com.python.pydev/src/com/python/pydev/PydevPlugin.java" match='public static final String version =(.*)"' replace='public static final String version ="${version.full}"' byline="true" />
+    </target>
+
+	<!-- ===================================================================== -->
+	<!-- Steps to do before the repositories are being processed -->
+	<!-- ===================================================================== -->
+	<target name="preProcessRepos">
+		<p2.mirror destination="file:${repoBaseLocation}/mirrored">
+			<source location="${studio3.p2.repo}" />
+			<iu id="com.aptana.feature.feature.group" />
+		</p2.mirror>
+	</target>
+
+	<!-- ===================================================================== -->
+	<!-- Steps to do after the build is done. -->
+	<!-- ===================================================================== -->
+	<target name="postBuild">
+		<antcall target="gatherLogs" />
+		<antcall target="publish" />
+	</target>
+
+	<!-- ===================================================================== -->
+	<!-- Steps to do to publish the build results -->
+	<!-- ===================================================================== -->
+	<target name="publish" unless="dont.deploy">
+		<delete dir="${deploy.dir}" failonerror="false" />
+		<mkdir dir="${deploy.dir}" />
+		<!-- grab final version -->
+		<property file="${buildDirectory}/finalFeaturesVersions.properties" />
+		<propertycopy name="finalVersion" from="${topLevelElementId}" />
+		<!-- copy over result zipfile -->
+		<move file="${buildDirectory}/${buildType}.${build.revision}/${topLevelElementId}-${build.revision}-group.group.group.zip" tofile="${deploy.dir}/${topLevelElementId}-${finalVersion}.zip" />
+		<!-- Extract zipped p2 repo too -->
+		<unzip src="${deploy.dir}/${topLevelElementId}-${finalVersion}.zip" dest="${deploy.dir}" />
+	</target>
+</project>

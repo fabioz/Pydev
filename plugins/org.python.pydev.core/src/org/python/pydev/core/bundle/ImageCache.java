@@ -27,6 +27,8 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
+import org.python.pydev.core.FontUtils;
+import org.python.pydev.core.IFontUsage;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.Tuple4;
 import org.python.pydev.core.log.Log;
@@ -209,7 +211,6 @@ public class ImageCache {
                 image = new Image(display, get(key), SWT.IMAGE_COPY);
                 imageHash.put(cacheKey, image); //put it there (even though it'll still be changed).
 
-                int base = 10;
                 GC gc = new GC(image);
 
                 //		        Color color = new Color(display, 0, 0, 0);
@@ -225,7 +226,11 @@ public class ImageCache {
 
                 Color colorBackground = new Color(display, 255, 255, 255);
                 Color colorForeground = new Color(display, 0, 83, 41);
-                Font font = new Font(display, new FontData("Courier New", base - 1, SWT.BOLD));
+
+                // get TextFont from preferences
+                FontData fontData = FontUtils.getFontData(IFontUsage.IMAGECACHE, true);
+                fontData.setStyle(SWT.BOLD);
+                Font font = new Font(display, fontData);
 
                 try {
                     gc.setForeground(colorForeground);

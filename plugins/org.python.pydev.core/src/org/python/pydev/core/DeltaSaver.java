@@ -206,9 +206,11 @@ public class DeltaSaver<X> {
     private ArrayList<File> findDeltas() {
         ArrayList<File> deltasFound = new ArrayList<File>();
         File[] files = this.dirToSaveDeltas.listFiles();
-        for (File file : files) {
-            if (file.exists() && file.isFile() && file.getName().endsWith(suffix)) {
-                deltasFound.add(file);
+        if (files != null) {
+            for (File file : files) {
+                if (file.exists() && file.isFile() && file.getName().endsWith(suffix)) {
+                    deltasFound.add(file);
+                }
             }
         }
         //also, sort by the name (which must be an integer)
