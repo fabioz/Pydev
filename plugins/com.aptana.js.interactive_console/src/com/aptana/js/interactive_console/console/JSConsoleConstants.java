@@ -43,7 +43,7 @@ public final class JSConsoleConstants {
     public static final String DEFAULT_INTERACTIVE_CONSOLE_VM_ARGS = "-Xmx64m";
 
     public static final String INITIAL_INTERPRETER_CMDS = "INITIAL_INTERPRETER_CMDS";
-    public static final String DEFAULT_INITIAL_INTERPRETER_CMDS = "print(\"Console initialized\")\n";
+    public static final String DEFAULT_INITIAL_INTERPRETER_CMDS = "print(\"JS Console\")\n";
 
     public static final String INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS = "INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS";
     public static final int DEFAULT_INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS = 50;
