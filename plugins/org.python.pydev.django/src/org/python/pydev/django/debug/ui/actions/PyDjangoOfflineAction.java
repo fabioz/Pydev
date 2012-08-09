@@ -52,7 +52,7 @@ public class PyDjangoOfflineAction extends Action implements IOfflineActionWithP
                 djangoAction = new DjangoAction() {
 
                     public void run(IAction action) {
-                        launchDjangoCommand(StringUtils.join(" ", parameters), true);
+                        launchDjangoCommand(com.aptana.shared_core.string.StringUtils.join(" ", parameters), true);
                     }
                 };
             }

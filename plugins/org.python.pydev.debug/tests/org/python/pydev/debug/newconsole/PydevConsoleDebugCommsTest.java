@@ -14,10 +14,7 @@ import junit.framework.TestCase;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.Tuple;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.debug.model.AbstractDebugTargetWithTransmission;
 import org.python.pydev.debug.model.IVariableLocator;
@@ -26,9 +23,13 @@ import org.python.pydev.debug.model.PyVariableCollection;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.GetFrameCommand;
 import org.python.pydev.debug.model.remote.VersionCommand;
-import org.python.pydev.dltk.console.InterpreterResponse;
-import org.python.pydev.plugin.SocketUtil;
 import org.python.pydev.runners.SimpleRunner;
+
+import com.aptana.interactive_console.console.InterpreterResponse;
+import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.net.SocketUtil;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * The purpose of this test is to verify the pydevconsole + pydevd works. This
@@ -48,16 +49,16 @@ public class PydevConsoleDebugCommsTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        String consoleFile = REF.createFileFromParts(TestDependent.TEST_PYDEV_PLUGIN_LOC, "pysrc", "pydevconsole.py")
+        String consoleFile = FileUtils.createFileFromParts(TestDependent.TEST_PYDEV_PLUGIN_LOC, "pysrc", "pydevconsole.py")
                 .getAbsolutePath();
         String pydevdDir = new File(TestDependent.TEST_PYDEV_DEBUG_PLUGIN_LOC, "pysrc").getAbsolutePath();
         Integer[] ports = SocketUtil.findUnusedLocalPorts(2);
         int port = ports[0];
         int clientPort = ports[1];
 
-        homeDir = REF.getTempFileAt(new File("."), "fake_homedir");
+        homeDir = FileUtils.getTempFileAt(new File("."), "fake_homedir");
         if (homeDir.exists()) {
-            REF.deleteDirectoryTree(homeDir);
+            FileUtils.deleteDirectoryTree(homeDir);
         }
         homeDir = homeDir.getAbsoluteFile();
         homeDir.mkdir();
@@ -97,7 +98,7 @@ public class PydevConsoleDebugCommsTest extends TestCase {
     @Override
     protected void tearDown() throws Exception {
         if (homeDir.exists()) {
-            REF.deleteDirectoryTree(homeDir);
+            FileUtils.deleteDirectoryTree(homeDir);
         }
         process.destroy();
         pydevConsoleCommunication.close();

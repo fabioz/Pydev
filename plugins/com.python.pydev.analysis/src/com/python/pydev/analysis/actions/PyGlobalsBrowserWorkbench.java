@@ -17,8 +17,9 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.PySelection;
+
+import com.aptana.shared_core.utils.Reflection;
 
 public class PyGlobalsBrowserWorkbench implements IWorkbenchWindowActionDelegate {
 
@@ -39,7 +40,7 @@ public class PyGlobalsBrowserWorkbench implements IWorkbenchWindowActionDelegate
             if (text == null || text.length() == 0) {
                 //No selection... let's see if we can get a word there... 
                 //(note: not using getDocument because only 3.5 has it)
-                Object document = REF.getAttrObj(textSelection, "fDocument");
+                Object document = Reflection.getAttrObj(textSelection, "fDocument");
                 //returns null if we couldn't get it.
                 if (document instanceof IDocument) { // document != null
                     PySelection ps = new PySelection((IDocument) document, textSelection);

@@ -25,8 +25,6 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.ImportHandle;
 import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
@@ -51,6 +49,8 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.builder.AnalysisRunner;
 import com.python.pydev.analysis.ctrl_1.IAnalysisMarkersParticipant;
@@ -271,7 +271,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
                     String onlyProjectPythonPathStr = nature.getPythonPathNature().getOnlyProjectPythonPathStr(false);
                     List<String> split = StringUtils.splitAndRemoveEmptyTrimmed(onlyProjectPythonPathStr, '|');
                     for (int i = 0; i < split.size(); i++) {
-                        String fullPath = REF.getFileAbsolutePath(split.get(i));
+                        String fullPath = FileUtils.getFileAbsolutePath(split.get(i));
                         fullPath = PythonPathHelper.getDefaultPathStr(fullPath);
                         split.set(i, fullPath);
                     }
@@ -279,7 +279,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
                     if (projectSourcePath.size() == 0) {
                         return; //No source folder for editor... this shouldn't happen (code analysis wouldn't even run on it).
                     }
-                    String fullPath = REF.getFileAbsolutePath(editorFile);
+                    String fullPath = FileUtils.getFileAbsolutePath(editorFile);
                     fullPath = PythonPathHelper.getDefaultPathStr(fullPath);
                     String foundSourceFolderFullPath = null;
                     if (projectSourcePath.size() == 1) {

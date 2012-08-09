@@ -13,6 +13,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.log.Log;
 
+
 /**
  * Creator for modules manager.
  * 

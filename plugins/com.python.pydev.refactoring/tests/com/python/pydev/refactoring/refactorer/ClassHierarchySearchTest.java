@@ -14,9 +14,7 @@ import java.util.List;
 
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -24,6 +22,8 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.nature.PythonNature;
 
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
 import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
 
@@ -50,9 +50,9 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase {
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         this.restorePythonPath(false);
         refactorer = new Refactorer();
-        baseDir = REF.getTempFileAt(new File("."), "data_temp_class_hierarchy_search_test");
+        baseDir = FileUtils.getTempFileAt(new File("."), "data_temp_class_hierarchy_search_test");
         if (baseDir.exists()) {
-            REF.deleteDirectoryTree(baseDir);
+            FileUtils.deleteDirectoryTree(baseDir);
         }
         baseDir.mkdir();
         SourceModule.TESTING = true;
@@ -72,7 +72,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase {
         projectModulesManager.doRemoveSingleModule(new ModulesKey("fooIn20", null));
 
         if (baseDir.exists()) {
-            REF.deleteDirectoryTree(baseDir);
+            FileUtils.deleteDirectoryTree(baseDir);
         }
         super.tearDown();
     }
@@ -309,7 +309,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase {
         request.moduleName = modName;
         final SimpleNode ast = request.getAST();
 
-        REF.writeStrToFile(str, f);
+        FileUtils.writeStrToFile(str, f);
 
         addModuleToNature(ast, modName, natureToAdd, f);
         return request;

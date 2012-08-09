@@ -11,9 +11,10 @@
 package org.python.pydev.debug.model.remote;
 
 import org.eclipse.core.runtime.IStatus;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.AbstractDebugTarget;
+
+import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * Superclass of all debugger commands.

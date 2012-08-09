@@ -27,11 +27,12 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
+
+import com.aptana.shared_core.string.FastStringBuffer;
 
 public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor {
 

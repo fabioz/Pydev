@@ -11,13 +11,14 @@ package org.python.pydev.refactoring.coderefactoring.extractlocal.request;
 import java.util.List;
 
 import org.eclipse.jface.text.ITextSelection;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
+
+import com.aptana.shared_core.structure.Tuple;
 
 public class ExtractLocalRequest implements IRefactoringRequest {
 

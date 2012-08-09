@@ -33,6 +33,7 @@ import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
+
 /**
  * This is the proposal that goes outside. It only creates the proposal that'll actually do something later, as
  * creating that proposal may be slower.

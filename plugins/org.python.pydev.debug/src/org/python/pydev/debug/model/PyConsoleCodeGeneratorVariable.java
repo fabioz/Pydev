@@ -1,6 +1,6 @@
 package org.python.pydev.debug.model;
 
-import org.python.pydev.dltk.console.codegen.IScriptConsoleCodeGenerator;
+import com.aptana.interactive_console.console.codegen.IScriptConsoleCodeGenerator;
 
 public class PyConsoleCodeGeneratorVariable implements IScriptConsoleCodeGenerator {
 

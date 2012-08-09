@@ -26,6 +26,7 @@ import org.eclipse.swt.widgets.Text;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 
+
 /**
  * A control for setting the working directory associated with a launch
  * configuration.

@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.TokenMgrError;
@@ -33,6 +32,8 @@ import org.python.pydev.refactoring.core.change.IChangeProcessor;
 import org.python.pydev.refactoring.core.validator.NameValidator;
 import org.python.pydev.refactoring.messages.Messages;
 import org.python.pydev.refactoring.utils.ListUtils;
+
+import com.aptana.shared_core.structure.Tuple;
 
 public class ExtractLocalRefactoring extends AbstractPythonRefactoring {
     private ExtractLocalRequestProcessor requestProcessor;

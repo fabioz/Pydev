@@ -30,6 +30,7 @@ import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.logging.DebugSettings;
 
+
 /**
  * @author Fabio Zadrozny
  */

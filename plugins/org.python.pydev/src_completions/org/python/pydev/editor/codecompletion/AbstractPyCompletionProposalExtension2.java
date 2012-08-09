@@ -23,6 +23,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 
+
 public abstract class AbstractPyCompletionProposalExtension2 extends PyCompletionProposal implements
         ICompletionProposalExtension2, ICompletionProposalExtension {
 

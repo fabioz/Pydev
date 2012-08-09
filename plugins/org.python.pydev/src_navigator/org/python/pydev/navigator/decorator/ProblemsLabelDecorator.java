@@ -21,6 +21,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
+
 /**
  * Decorates problems.
  * 

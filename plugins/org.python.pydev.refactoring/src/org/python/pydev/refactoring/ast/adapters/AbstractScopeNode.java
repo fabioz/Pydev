@@ -11,7 +11,6 @@ package org.python.pydev.refactoring.ast.adapters;
 import java.util.List;
 
 import org.eclipse.jface.text.ITextSelection;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
@@ -21,6 +20,8 @@ import org.python.pydev.refactoring.ast.visitors.context.ClassDefVisitor;
 import org.python.pydev.refactoring.ast.visitors.context.LocalFunctionDefVisitor;
 import org.python.pydev.refactoring.ast.visitors.context.ScopeAssignedVisitor;
 import org.python.pydev.refactoring.ast.visitors.context.ScopeVariablesVisitor;
+
+import com.aptana.shared_core.structure.Tuple;
 
 public abstract class AbstractScopeNode<T extends SimpleNode> extends AbstractNodeAdapter<T> {
     private List<SimpleAdapter> usedVariables;

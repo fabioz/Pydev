@@ -433,7 +433,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
      * Check if we have some occurrence at the line/col specified
      */
     private void assertContains(int line, int col, List<IToken> tokenOccurrences) {
-        StringBuffer buf = new StringBuffer(StringUtils.format("Not Found at L:%s C:%s", line, col));
+        StringBuffer buf = new StringBuffer(com.aptana.shared_core.string.StringUtils.format("Not Found at L:%s C:%s", line, col));
         for (IToken token : tokenOccurrences) {
             if (token.getLineDefinition() - 1 == line && token.getColDefinition() - 1 == col) {
                 return;

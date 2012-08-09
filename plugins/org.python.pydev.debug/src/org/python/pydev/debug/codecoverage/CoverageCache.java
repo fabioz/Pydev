@@ -23,11 +23,12 @@ import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.callbacks.ICallbackWithListeners;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.core.tooltips.presenter.StyleRangeWithCustomData;
+
+import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * 

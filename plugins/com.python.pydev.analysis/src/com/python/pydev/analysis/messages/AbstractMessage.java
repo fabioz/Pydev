@@ -21,7 +21,6 @@ import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -30,6 +29,7 @@ import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
 
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.python.pydev.analysis.IAnalysisPreferences;
 
 public abstract class AbstractMessage implements IMessage {
@@ -415,7 +415,7 @@ public abstract class AbstractMessage implements IMessage {
             //if we have the same number of %s as objects in the array, make the format
             int countPercS = StringUtils.countPercS(typeStr);
             if (countPercS == o.length) {
-                return StringUtils.format(typeStr, o);
+                return com.aptana.shared_core.string.StringUtils.format(typeStr, o);
 
             } else if (countPercS == 1) {
                 //if we have only 1, all parameters should be concatenated in a single string
@@ -432,7 +432,7 @@ public abstract class AbstractMessage implements IMessage {
                 throw new AssertionError("The number of %s is not the number of passed parameters nor 1");
             }
         }
-        message = StringUtils.format(typeStr, shortMessage);
+        message = com.aptana.shared_core.string.StringUtils.format(typeStr, shortMessage);
         return message;
     }
 

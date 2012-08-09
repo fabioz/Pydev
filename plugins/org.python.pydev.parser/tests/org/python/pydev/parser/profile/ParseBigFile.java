@@ -8,14 +8,14 @@ package org.python.pydev.parser.profile;
 
 import java.io.File;
 
-import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.PyParserTestBase;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
+
+import com.aptana.shared_core.io.FileUtils;
 
 public class ParseBigFile extends PyParserTestBase {
 
@@ -59,7 +59,7 @@ public class ParseBigFile extends PyParserTestBase {
      */
     public void testBigFileParsing() throws Exception {
         String loc = TestDependent.TEST_PYDEV_PARSER_PLUGIN_LOC + "/tests/pysrc/data_string.py";
-        String s = REF.getFileContents(new File(loc));
+        String s = FileUtils.getFileContents(new File(loc));
         for (int i = 0; i < 5; i++) {
             @SuppressWarnings("unused")
             long curr = System.currentTimeMillis();

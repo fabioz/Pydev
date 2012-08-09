@@ -20,10 +20,12 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.viewers.ISelection;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.dltk.console.ui.internal.ScriptConsoleViewer;
 import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
 import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
 import org.python.pydev.plugin.PydevPlugin;
+
+import com.aptana.interactive_console.console.ui.internal.ScriptConsoleViewer;
+
 
 /**
  * Shows quick assists for the console

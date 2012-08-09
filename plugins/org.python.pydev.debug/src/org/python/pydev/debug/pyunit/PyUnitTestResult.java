@@ -16,9 +16,7 @@ import org.eclipse.core.resources.IProject;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
@@ -30,6 +28,9 @@ import org.python.pydev.parser.fastparser.FastDefinitionsParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.nature.PythonNature;
+
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 public class PyUnitTestResult {
 
@@ -87,7 +88,7 @@ public class PyUnitTestResult {
         File file = new File(this.location);
         if (file.exists()) {
             PyOpenAction openAction = new PyOpenAction();
-            String fileContents = REF.getFileContents(file);
+            String fileContents = FileUtils.getFileContents(file);
             ItemPointer itemPointer = getItemPointer(file, fileContents, this.test);
             openAction.run(itemPointer);
         }

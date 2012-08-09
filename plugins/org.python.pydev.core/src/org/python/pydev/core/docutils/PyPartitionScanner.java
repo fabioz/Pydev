@@ -29,6 +29,7 @@ import org.eclipse.jface.text.rules.Token;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.log.Log;
 
+
 /**
  * Rule-based partition scanner
  * 

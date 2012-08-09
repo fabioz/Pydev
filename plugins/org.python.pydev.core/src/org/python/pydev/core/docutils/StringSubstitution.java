@@ -21,6 +21,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
 
+
 /**
  * Implements a part of IStringVariableManager (just the performStringSubstitution methods).
  */
@@ -172,7 +173,7 @@ public class StringSubstitution {
                         }
                         problemVariableList.setLength(problemVariableList.length() - 2); //truncate the last ", "
                         throw new CoreException(new Status(IStatus.ERROR, VariablesPlugin.getUniqueIdentifier(),
-                                VariablesPlugin.REFERENCE_CYCLE_ERROR, StringUtils.format("Cycle error on:",
+                                VariablesPlugin.REFERENCE_CYCLE_ERROR, com.aptana.shared_core.string.StringUtils.format("Cycle error on:",
                                         problemVariableList.toString()), null));
                     }
                 }

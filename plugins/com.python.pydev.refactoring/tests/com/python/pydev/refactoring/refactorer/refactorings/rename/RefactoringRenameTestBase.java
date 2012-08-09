@@ -27,12 +27,9 @@ import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.ProjectStub;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -47,6 +44,9 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.PyFileListing;
 import org.python.pydev.utils.PyFileListing.PyFileInfo;
 
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
@@ -136,7 +136,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
             assertEquals(1, processes.size());
 
             for (IRefactorRenameProcess p : processes) {
-                assertTrue(StringUtils.format("Expected %s. Received:%s", getProcessUnderTest(), p.getClass()),
+                assertTrue(com.aptana.shared_core.string.StringUtils.format("Expected %s. Received:%s", getProcessUnderTest(), p.getClass()),
                         getProcessUnderTest().isInstance(p)); //we should only activate the rename class process in this test case
             }
         }
@@ -267,7 +267,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
             if (module == null) {
                 throw new RuntimeException("Unable to get source module for module:" + moduleName);
             }
-            String strDoc = REF.getFileContents(module.getFile());
+            String strDoc = FileUtils.getFileContents(module.getFile());
 
             Document doc = new Document(strDoc);
             PySelection ps = new PySelection(doc, line, col);
@@ -310,7 +310,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
                 return;
             }
         }
-        fail(StringUtils.format("Unable to find line:%s col:%s in %s", line, col, names));
+        fail(com.aptana.shared_core.string.StringUtils.format("Unable to find line:%s col:%s in %s", line, col, names));
 
     }
 

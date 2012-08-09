@@ -18,6 +18,7 @@ import java.util.zip.GZIPOutputStream;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 
+
 public class LogPingSender implements ILogPingSender {
 
     private static final String UPDATE_URL = "https://ping.aptana.com/ping.php"; //$NON-NLS-1$

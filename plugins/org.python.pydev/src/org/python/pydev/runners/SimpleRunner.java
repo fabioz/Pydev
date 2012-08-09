@@ -31,13 +31,16 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringSubstitution;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
+
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.io.ThreadStreamReader;
+import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.Tuple;
+import com.aptana.shared_core.utils.PlatformUtils;
 
 public class SimpleRunner {
 
@@ -168,7 +171,7 @@ public class SimpleRunner {
             env.putAll(launchManager.getNativeEnvironment());
 
             // Add variables from config
-            boolean win32 = REF.isWindowsPlatform();
+            boolean win32 = PlatformUtils.isWindowsPlatform();
             for (Iterator iter = env.entrySet().iterator(); iter.hasNext();) {
                 Map.Entry entry = (Map.Entry) iter.next();
                 String key = (String) entry.getKey();
@@ -292,13 +295,13 @@ public class SimpleRunner {
             //the default encoding (for the console) can be set.
             //see: http://sourceforge.net/tracker/index.php?func=detail&aid=1580766&group_id=85796&atid=577329
 
-            paths.add(0, REF.getFileAbsolutePath(PydevPlugin.getScriptWithinPySrc("pydev_sitecustomize")));
+            paths.add(0, FileUtils.getFileAbsolutePath(PydevPlugin.getScriptWithinPySrc("pydev_sitecustomize")));
         } catch (CoreException e) {
             Log.log(e);
         }
 
         String separator = getPythonPathSeparator();
-        return StringUtils.join(separator, paths);
+        return com.aptana.shared_core.string.StringUtils.join(separator, paths);
     }
 
     /**
@@ -351,7 +354,7 @@ public class SimpleRunner {
             monitor.setTaskName("Making exec..." + executionString);
             if (workingDir != null) {
                 if (!workingDir.isDirectory()) {
-                    throw new RuntimeException(StringUtils.format(
+                    throw new RuntimeException(com.aptana.shared_core.string.StringUtils.format(
                             "Working dir must be an existing directory (received: %s)", workingDir));
                 }
             }

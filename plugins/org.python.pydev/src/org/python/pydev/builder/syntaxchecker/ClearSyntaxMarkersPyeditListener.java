@@ -21,6 +21,7 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.PyParser;
 
+
 /**
  * When the editor is disposed, if needed this class will remove the markers from the related
  * file (if no other editor is still editing the same file).

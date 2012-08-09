@@ -22,7 +22,8 @@ import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 import org.python.pydev.debug.model.remote.ChangeVariableCommand;
-import org.python.pydev.dltk.console.codegen.IScriptConsoleCodeGenerator;
+
+import com.aptana.interactive_console.console.codegen.IScriptConsoleCodeGenerator;
 
 /**
  * Represents a python variable.

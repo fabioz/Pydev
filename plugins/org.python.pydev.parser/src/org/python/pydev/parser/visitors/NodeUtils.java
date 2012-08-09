@@ -19,11 +19,9 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -64,6 +62,9 @@ import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorWithLoop;
+
+import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.utils.Reflection;
 
 public class NodeUtils {
 
@@ -341,9 +342,9 @@ public class NodeUtils {
         if (node instanceof Call) {
             Call c = (Call) node;
             node = c.func;
-            if (REF.hasAttr(node, "value") && REF.hasAttr(node, "attr")) {
-                return getFullRepresentationString((SimpleNode) REF.getAttrObj(node, "value")) + "."
-                        + discoverRep(REF.getAttrObj(node, "attr"));
+            if (Reflection.hasAttr(node, "value") && Reflection.hasAttr(node, "attr")) {
+                return getFullRepresentationString((SimpleNode) Reflection.getAttrObj(node, "value")) + "."
+                        + discoverRep(Reflection.getAttrObj(node, "attr"));
             }
         }
 

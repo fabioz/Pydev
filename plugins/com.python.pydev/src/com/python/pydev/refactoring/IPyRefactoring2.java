@@ -13,11 +13,11 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
+import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
 
 /**

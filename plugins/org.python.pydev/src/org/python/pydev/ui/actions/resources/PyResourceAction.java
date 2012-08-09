@@ -24,6 +24,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
 import org.python.pydev.editor.actions.PyAction;
 
+
 /**
  * Abstract class for actions that'll act upon the selected resources.
  * 

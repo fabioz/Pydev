@@ -19,9 +19,10 @@ import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.widgets.Shell;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
-import org.python.pydev.bindingutils.KeyBindingHelper;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyInformationPresenter;
+
+import com.aptana.shared_core.bindings.KeyBindingHelper;
 
 /**
  * @author Fabio Zadrozny
@@ -94,7 +95,7 @@ public class PyContentAssistant extends ContentAssistant {
     }
 
     public void setIterationStatusMessage(String string) {
-        setStatusMessage(StringUtils.format(string, getIterationGesture()));
+        setStatusMessage(com.aptana.shared_core.string.StringUtils.format(string, getIterationGesture()));
     }
 
     private String getIterationGesture() {

@@ -6,6 +6,8 @@
  */
 package org.python.pydev.dltk.console;
 
+import com.aptana.interactive_console.console.ScriptConsoleHistory;
+
 import junit.framework.TestCase;
 
 public class ScriptConsoleHistoryTest extends TestCase {

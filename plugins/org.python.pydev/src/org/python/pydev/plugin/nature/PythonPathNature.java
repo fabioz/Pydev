@@ -39,13 +39,14 @@ import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PropertiesHelper;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringSubstitution;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
+
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * @author Fabio Zadrozny
@@ -257,7 +258,7 @@ public class PythonPathNature implements IPythonPathNature {
 
                 if (r instanceof IContainer) {
                     container = (IContainer) r;
-                    buf.append(REF.getFileAbsolutePath(container.getLocation().toFile()));
+                    buf.append(FileUtils.getFileAbsolutePath(container.getLocation().toFile()));
                     buf.append("|");
 
                 } else if (r instanceof IFile) { //zip/jar/egg file
@@ -266,7 +267,7 @@ public class PythonPathNature implements IPythonPathNature {
                         Log.log("Error: the path " + currentPath + " is a file but is not a recognized zip file.");
 
                     } else {
-                        buf.append(REF.getFileAbsolutePath(r.getLocation().toFile()));
+                        buf.append(FileUtils.getFileAbsolutePath(r.getLocation().toFile()));
                         buf.append("|");
                     }
 
@@ -291,7 +292,7 @@ public class PythonPathNature implements IPythonPathNature {
                             r = project.getFolder(path);
                         }
                         if (r != null) {
-                            buf.append(REF.getFileAbsolutePath(r.getLocation().toFile()));
+                            buf.append(FileUtils.getFileAbsolutePath(r.getLocation().toFile()));
                             buf.append("|");
                             continue; //Don't go on to append it relative to the workspace root.
                         }
@@ -301,7 +302,7 @@ public class PythonPathNature implements IPythonPathNature {
                     IPath rootLocation = root.getRawLocation();
 
                     //Note that this'll be cached for later use.
-                    buf.append(REF.getFileAbsolutePath(rootLocation.append(currentPath.trim()).toFile()));
+                    buf.append(FileUtils.getFileAbsolutePath(rootLocation.append(currentPath.trim()).toFile()));
                     buf.append("|");
                 }
             }

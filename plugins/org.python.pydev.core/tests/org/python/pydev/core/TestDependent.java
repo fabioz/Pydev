@@ -18,6 +18,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
+import com.aptana.shared_core.io.FileUtils;
+
 public class TestDependent {
 
     //Use defaults and override later as needed.
@@ -122,7 +124,7 @@ public class TestDependent {
                 InputStream stream = TestDependent.class.getClassLoader().getResourceAsStream(propertiesFile);
                 if (stream != null) {
                     //Initialize the static contents of the class.
-                    String streamContents = REF.getStreamContents(stream, null, null);
+                    String streamContents = FileUtils.getStreamContents(stream, null, null);
                     Properties props = PropertiesHelper.createPropertiesFromString(streamContents);
                     Map<String, String> map = PropertiesHelper.createMapFromProperties(props);
                     Set<Entry<String, String>> entrySet = map.entrySet();

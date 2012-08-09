@@ -9,9 +9,10 @@ package org.python.pydev.debug.ui.actions;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.action.IAction;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.debug.ui.launching.AbstractLaunchShortcut;
 import org.python.pydev.editor.PyEdit;
+
+import com.aptana.shared_core.structure.Tuple;
 
 public class RunEditorBasedOnNatureTypeAction extends AbstractRunEditorAction {
 

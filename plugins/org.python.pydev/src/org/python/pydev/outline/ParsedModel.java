@@ -24,6 +24,7 @@ import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.parser.visitors.scope.OutlineCreatorVisitor;
 
+
 /**
  * ParsedModel represents a python file, parsed for OutlineView display
  * It takes PyParser, and converts it into a tree of ParsedItems

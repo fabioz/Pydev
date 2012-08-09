@@ -31,6 +31,7 @@ import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 
+
 public abstract class AbstractPythonWizard extends Wizard implements INewWizard {
 
     public static void startWizard(AbstractPythonWizard wizard, String title) {

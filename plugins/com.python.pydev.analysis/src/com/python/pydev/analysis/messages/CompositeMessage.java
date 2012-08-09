@@ -15,8 +15,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.structure.FastStringBuffer;
 
+import com.aptana.shared_core.string.FastStringBuffer;
 import com.python.pydev.analysis.IAnalysisPreferences;
 
 /**

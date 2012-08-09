@@ -54,26 +54,26 @@ public abstract class PyChange extends Change {
                 if (fKind == DOCUMENT && fTextFileBuffer != null && stampToMatch == fModificationStamp) {
                     fTextFileBuffer.commit(pm, false);
                 } else {
-                    status.addFatalError(StringUtils.format("Resource %s is unsaved", fResource.getFullPath()));
+                    status.addFatalError(com.aptana.shared_core.string.StringUtils.format("Resource %s is unsaved", fResource.getFullPath()));
                 }
             }
         }
 
         public void checkDirty(RefactoringStatus status) {
             if (fDirty) {
-                status.addFatalError(StringUtils.format("Resource %s is unsaved", fResource.getFullPath()));
+                status.addFatalError(com.aptana.shared_core.string.StringUtils.format("Resource %s is unsaved", fResource.getFullPath()));
             }
         }
 
         public void checkReadOnly(RefactoringStatus status) {
             if (fReadOnly) {
-                status.addFatalError(StringUtils.format("Resource %s is read-only", fResource.getFullPath()));
+                status.addFatalError(com.aptana.shared_core.string.StringUtils.format("Resource %s is read-only", fResource.getFullPath()));
             }
         }
 
         public void checkSameReadOnly(RefactoringStatus status, boolean valueToMatch) {
             if (fReadOnly != valueToMatch) {
-                status.addFatalError(StringUtils.format("Resource %s (Change_same_read_only)", fResource.getFullPath()));
+                status.addFatalError(com.aptana.shared_core.string.StringUtils.format("Resource %s (Change_same_read_only)", fResource.getFullPath()));
             }
         }
 
@@ -81,11 +81,11 @@ public abstract class PyChange extends Change {
             if (fKind == DOCUMENT) {
                 if (stampToMatch != IDocumentExtension4.UNKNOWN_MODIFICATION_STAMP
                         && fModificationStamp != stampToMatch) {
-                    status.addFatalError(StringUtils.format("Resource %s has modifications", fResource.getFullPath()));
+                    status.addFatalError(com.aptana.shared_core.string.StringUtils.format("Resource %s has modifications", fResource.getFullPath()));
                 }
             } else {
                 if (stampToMatch != IResource.NULL_STAMP && fModificationStamp != stampToMatch) {
-                    status.addFatalError(StringUtils.format("Resource %s has modifications", fResource.getFullPath()));
+                    status.addFatalError(com.aptana.shared_core.string.StringUtils.format("Resource %s has modifications", fResource.getFullPath()));
 
                 }
             }
@@ -213,7 +213,7 @@ public abstract class PyChange extends Change {
             status.addFatalError("Workspace Changed");
 
         } else if (element instanceof IResource && !((IResource) element).exists()) {
-            status.addFatalError(StringUtils.format("Resource %s does not exist", ((IResource) element).getFullPath()
+            status.addFatalError(com.aptana.shared_core.string.StringUtils.format("Resource %s does not exist", ((IResource) element).getFullPath()
                     .toString()));
         }
     }

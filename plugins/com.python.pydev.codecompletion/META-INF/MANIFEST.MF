@@ -18,7 +18,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.resources,
  com.python.pydev.analysis,
  org.eclipse.ui.editors,
- com.python.pydev.refactoring
+ com.python.pydev.refactoring,
+ com.aptana.interactive_console
 Eclipse-LazyStart: true
 Bundle-ClassPath: codecompletion.jar
 Export-Package: com.python.pydev.codecompletion

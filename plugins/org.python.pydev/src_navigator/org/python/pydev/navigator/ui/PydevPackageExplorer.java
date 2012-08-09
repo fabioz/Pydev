@@ -57,6 +57,7 @@ import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.ui.IViewCreatedObserver;
 import org.python.pydev.ui.IViewWithControls;
 
+
 /**
  * This class is the package explorer for pydev. It uses the CNF (Common Navigator Framework) to show
  * the resources as python elements.

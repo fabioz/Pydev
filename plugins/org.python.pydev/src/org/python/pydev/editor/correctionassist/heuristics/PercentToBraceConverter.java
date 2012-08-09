@@ -249,7 +249,7 @@ public final class PercentToBraceConverter {
             convertedString = results.get(0);
         } else if (results.size() > 1) {
             // multiple lines
-            convertedString = StringUtils.join(sep, results.toArray());
+            convertedString = com.aptana.shared_core.string.StringUtils.join(sep, results.toArray());
         } else {
             // this should never happen
             Assert.isTrue(false, "E: there must always be one result even if "+

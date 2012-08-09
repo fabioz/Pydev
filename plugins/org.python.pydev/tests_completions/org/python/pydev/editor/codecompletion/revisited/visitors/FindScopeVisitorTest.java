@@ -17,6 +17,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.PyParserTestBase;
 import org.python.pydev.parser.jython.SimpleNode;
 
+
 public class FindScopeVisitorTest extends PyParserTestBase {
 
     public static void main(String[] args) {

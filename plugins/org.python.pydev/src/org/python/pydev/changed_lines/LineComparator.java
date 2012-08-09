@@ -15,6 +15,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.log.Log;
 
+
 /**
  * Copy of org.eclipse.jdt.internal.ui.text.LineComparator.
  * 

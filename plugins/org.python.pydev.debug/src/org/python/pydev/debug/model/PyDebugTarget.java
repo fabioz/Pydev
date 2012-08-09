@@ -21,6 +21,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.console.ConsoleCompletionsPageParticipant;
 import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
 
+
 /**
  * Debugger class that represents a single python process.
  * 

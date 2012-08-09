@@ -15,6 +15,7 @@ import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 
+
 /**
  * Helper for getting the template store and registry.
  * 

@@ -11,6 +11,7 @@ import java.io.IOException;
 import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
 import org.python.pydev.core.log.Log;
 
+
 /**
  * An implementation of interface CharStream, where the data is read from a Reader. Completely recreated so that we can read data directly from a String, as the
  * initial implementation was highly inefficient when working only with a string (actually, if it was small, there would be no noticeable

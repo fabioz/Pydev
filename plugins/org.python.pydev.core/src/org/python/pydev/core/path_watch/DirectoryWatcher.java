@@ -19,6 +19,7 @@ import java.util.Set;
 import org.python.pydev.core.ListenerList;
 import org.python.pydev.core.log.Log;
 
+
 class DirectoryWatcher {
 
     private class WatcherThread extends Thread {

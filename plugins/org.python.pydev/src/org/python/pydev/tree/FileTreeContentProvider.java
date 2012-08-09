@@ -12,6 +12,7 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.python.pydev.core.log.Log;
 
+
 public class FileTreeContentProvider implements ITreeContentProvider {
     public Object[] getChildren(Object element) {
         Object[] kids = ((File) element).listFiles();

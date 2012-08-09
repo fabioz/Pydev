@@ -41,14 +41,9 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringSubstitution;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.net.LocalHost;
-import org.python.pydev.core.structure.FastStringBuffer;
-import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.debug.codecoverage.PyCodeCoverageView;
 import org.python.pydev.debug.codecoverage.PyCoverage;
 import org.python.pydev.debug.codecoverage.PyCoveragePreferences;
@@ -65,6 +60,13 @@ import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
 import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
+
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.net.LocalHost;
+import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.Tuple;
+import com.aptana.shared_core.utils.PlatformUtils;
+import com.aptana.shared_core.utils.RunInUiThread;
 
 /**
  * Holds configuration for PythonRunner.
@@ -420,7 +422,7 @@ public class PythonRunnerConfig {
             manager = PydevPlugin.getPythonInterpreterManager();
         }
 
-        boolean win32 = REF.isWindowsPlatform();
+        boolean win32 = PlatformUtils.isWindowsPlatform();
 
         if (envp == null) {
             //ok, the user has done nothing to the environment, just get all the default environment which has the pythonpath in it
@@ -593,7 +595,7 @@ public class PythonRunnerConfig {
      * @throws CoreException
      */
     public static String getCoverageScript() throws CoreException {
-        return REF.getFileAbsolutePath(PydevDebugPlugin.getScriptWithinPySrc("pydev_coverage.py"));
+        return FileUtils.getFileAbsolutePath(PydevDebugPlugin.getScriptWithinPySrc("pydev_coverage.py"));
     }
 
     /** 
@@ -601,11 +603,11 @@ public class PythonRunnerConfig {
      * @note: Used on scripting (variables related to debugger location). 
      */
     public static String getDebugScript() throws CoreException {
-        return REF.getFileAbsolutePath(PydevDebugPlugin.getScriptWithinPySrc("pydevd.py"));
+        return FileUtils.getFileAbsolutePath(PydevDebugPlugin.getScriptWithinPySrc("pydevd.py"));
     }
 
     public static String getRunFilesScript() throws CoreException {
-        return REF.getFileAbsolutePath(PydevDebugPlugin.getScriptWithinPySrc("runfiles.py"));
+        return FileUtils.getFileAbsolutePath(PydevDebugPlugin.getScriptWithinPySrc("runfiles.py"));
     }
 
     /**

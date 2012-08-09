@@ -31,6 +31,7 @@ import org.python.pydev.refactoring.core.base.AbstractPythonRefactoring;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.ui.core.PythonRefactoringWizard;
 
+
 public abstract class AbstractRefactoringAction extends Action implements IEditorActionDelegate {
     protected AbstractPythonRefactoring refactoring;
     protected PyEdit targetEditor;

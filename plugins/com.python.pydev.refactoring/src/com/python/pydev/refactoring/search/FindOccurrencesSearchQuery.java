@@ -21,8 +21,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.search.ui.ISearchResult;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
+import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
@@ -30,6 +29,7 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
+import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.refactoring.IPyRefactoring2;
 import com.python.pydev.refactoring.actions.PyFindAllOccurrences;
 import com.python.pydev.refactoring.refactorer.search.AbstractPythonSearchQuery;
@@ -87,7 +87,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery {
                     try {
                         workspaceFile = new PySourceLocatorBase().getWorkspaceFile(o.getKey().o2);
                         if (workspaceFile == null) {
-                            Log.logInfo(StringUtils.format("Ignoring: %s. "
+                            Log.logInfo(com.aptana.shared_core.string.StringUtils.format("Ignoring: %s. "
                                     + "Unable to resolve to a file in the Eclipse workspace.", o.getKey().o2));
                             continue;
                         }
@@ -101,7 +101,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery {
                         continue;
                     }
 
-                    IDocument doc = REF.getDocFromResource(workspaceFile);
+                    IDocument doc = FileUtilsFileBuffer.getDocFromResource(workspaceFile);
                     req.getMonitor().setTaskName("Resolving occurrences... " + workspaceFile);
 
                     for (ASTEntry entry : o.getValue()) {
@@ -140,16 +140,16 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery {
             if (isScopeAllFileTypes()) {
                 // search all file extensions
                 if (nMatches == 1) {
-                    return StringUtils.format("%s - 1 match in %s", searchString, getDescription());
+                    return com.aptana.shared_core.string.StringUtils.format("%s - 1 match in %s", searchString, getDescription());
                 }
-                return StringUtils.format("%s - %s matches in %s", searchString, new Integer(nMatches),
+                return com.aptana.shared_core.string.StringUtils.format("%s - %s matches in %s", searchString, new Integer(nMatches),
                         getDescription());
             }
             // search selected file extensions
             if (nMatches == 1) {
-                return StringUtils.format("%s - 1 match in %s", searchString, getDescription());
+                return com.aptana.shared_core.string.StringUtils.format("%s - 1 match in %s", searchString, getDescription());
             }
-            return StringUtils.format("%s - %s matches in %s", searchString, new Integer(nMatches), getDescription());
+            return com.aptana.shared_core.string.StringUtils.format("%s - %s matches in %s", searchString, new Integer(nMatches), getDescription());
         }
         throw new RuntimeException("Unexpected condition when finding: " + searchString);
     }

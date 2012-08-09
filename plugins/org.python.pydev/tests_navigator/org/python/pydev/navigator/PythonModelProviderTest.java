@@ -23,12 +23,13 @@ import org.eclipse.ui.navigator.PipelinedShapeModification;
 import org.eclipse.ui.navigator.PipelinedViewerUpdate;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.elements.PythonFolder;
 import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
 import org.python.pydev.plugin.nature.PythonNature;
+
+import com.aptana.shared_core.callbacks.ICallback;
 
 @SuppressWarnings("unchecked")
 public class PythonModelProviderTest extends TestCase {

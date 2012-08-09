@@ -22,13 +22,14 @@ import org.apache.xmlrpc.server.XmlRpcHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcNoSuchHandlerException;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.webserver.WebServer;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.debug.newconsole.IPydevXmlRpcClient;
-import org.python.pydev.debug.newconsole.PydevXmlRpcClient;
-import org.python.pydev.plugin.SocketUtil;
-import org.python.pydev.runners.ThreadStreamReader;
+
+import com.aptana.interactive_console.console.IXmlRpcClient;
+import com.aptana.interactive_console.console.ScriptXmlRpcClient;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.io.ThreadStreamReader;
+import com.aptana.shared_core.net.SocketUtil;
 
 public class XmlRpcTest extends TestCase {
 
@@ -71,11 +72,11 @@ public class XmlRpcTest extends TestCase {
 
         String[] cmdLine;
         if (python) {
-            cmdLine = new String[] { TestDependent.PYTHON_EXE, "-u", REF.getFileAbsolutePath(f), "" + port,
+            cmdLine = new String[] { TestDependent.PYTHON_EXE, "-u", FileUtils.getFileAbsolutePath(f), "" + port,
                     "" + client_port };
         } else {
             cmdLine = new String[] { TestDependent.JAVA_LOCATION, "-classpath", TestDependent.JYTHON_JAR_LOCATION,
-                    "org.python.util.jython", REF.getFileAbsolutePath(f), "" + port, "" + client_port };
+                    "org.python.util.jython", FileUtils.getFileAbsolutePath(f), "" + port, "" + client_port };
         }
 
         Process process = Runtime.getRuntime().exec(cmdLine);
@@ -139,7 +140,7 @@ public class XmlRpcTest extends TestCase {
         }
 
         try {
-            IPydevXmlRpcClient client = new PydevXmlRpcClient(process, err, out);
+            IXmlRpcClient client = new ScriptXmlRpcClient(process, err, out);
             client.setPort(port);
 
             printArr(client.execute("addExec", new Object[] { "abc = 10" }));
@@ -229,7 +230,7 @@ public class XmlRpcTest extends TestCase {
                             return;
                         }
                     }
-                    String errorMessage = StringUtils.format("Expected: >>%s<< and not: >>%s<< (position:%s)",
+                    String errorMessage = com.aptana.shared_core.string.StringUtils.format("Expected: >>%s<< and not: >>%s<< (position:%s)",
                             expected, found, next);
                     assertEquals(errorMessage, expected, found);
                 }

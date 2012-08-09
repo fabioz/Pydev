@@ -33,9 +33,10 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-import org.python.pydev.bindingutils.KeyBindingHelper;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.tooltips.presenter.InformationPresenterHelpers.PyInformationControl;
+
+import com.aptana.shared_core.bindings.KeyBindingHelper;
 
 /**
  * Based on org.eclipse.jface.text.information.InformationPresenter (but without the references to 
@@ -497,7 +498,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
         }
         String defaultStr = "ESC to close, ENTER activate link.";
         if (this.fActivateEditorBinding != null) {
-            return StringUtils.format("%s to activate editor, %s", fActivateEditorBinding.toString(), defaultStr);
+            return com.aptana.shared_core.string.StringUtils.format("%s to activate editor, %s", fActivateEditorBinding.toString(), defaultStr);
         }
         return defaultStr;
     }

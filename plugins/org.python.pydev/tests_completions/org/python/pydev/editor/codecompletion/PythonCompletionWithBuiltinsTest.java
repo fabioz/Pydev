@@ -23,7 +23,6 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.AbstractASTManager;
@@ -37,6 +36,8 @@ import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codecompletion.shell.PythonShell;
 import org.python.pydev.editor.codecompletion.shell.PythonShellTest;
 import org.python.pydev.plugin.nature.PythonNature;
+
+import com.aptana.shared_core.io.FileUtils;
 
 public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
 
@@ -91,7 +92,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         ADD_MX_TO_FORCED_BUILTINS = false;
         if (shell == null && TestDependent.PYTHON_NUMPY_PACKAGES != null) {
             try {
-                REF.copyFile(TestDependent.PYTHON_NUMPY_PACKAGES +
+                FileUtils.copyFile(TestDependent.PYTHON_NUMPY_PACKAGES +
                         "numpy/core/umath.pyd", TestDependent.TEST_PYSRC_LOC
                         +
                         "extendable/bootstrap_dll/umath.pyd");
@@ -140,7 +141,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
             ICodeCompletionASTManager astManager = nature.getAstManager();
             ICompletionState state = CompletionStateFactory.getEmptyCompletionState("RuntimeError", nature,
                     new CompletionCache());
-            IModule module = AbstractASTManager.createModule(f, new Document(REF.getFileContents(f)), nature);
+            IModule module = AbstractASTManager.createModule(f, new Document(FileUtils.getFileContents(f)), nature);
             astManager.getCompletionsForModule(module, state, true, true);
         } catch (CompletionRecursionException e) {
             //that's ok... we're asking for it here...

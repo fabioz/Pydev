@@ -18,10 +18,11 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
+
+import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.io.FileUtils;
 
 public class ProjectImportedHasAstManagerTestWorkbench extends AbstractWorkbenchTestCase {
 
@@ -76,7 +77,7 @@ public class ProjectImportedHasAstManagerTestWorkbench extends AbstractWorkbench
         PythonPathHelper pythonPathHelper = (PythonPathHelper) nature.getAstManager().getModulesManager()
                 .getPythonPathHelper();
         List<String> lst = new ArrayList<String>();
-        lst.add(REF.getFileAbsolutePath(srcLocFile));
+        lst.add(FileUtils.getFileAbsolutePath(srcLocFile));
         assertEquals(lst, pythonPathHelper.getPythonpath());
 
     }
@@ -98,7 +99,7 @@ public class ProjectImportedHasAstManagerTestWorkbench extends AbstractWorkbench
                 "</pydev_project>\n" +
                 "";
 
-        REF.writeStrToFile(str, path.toFile());
+        FileUtils.writeStrToFile(str, path.toFile());
     }
 
     private void writeProjectFile(IPath path) {
@@ -129,7 +130,7 @@ public class ProjectImportedHasAstManagerTestWorkbench extends AbstractWorkbench
                 "</projectDescription>\n" +
                 "";
 
-        REF.writeStrToFile(str, path.toFile());
+        FileUtils.writeStrToFile(str, path.toFile());
     }
 
 }

@@ -8,7 +8,7 @@ package org.python.pydev.parser.prettyprinterv2;
 
 import java.io.IOException;
 
-import org.python.pydev.core.structure.FastStringBuffer;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 public interface IWriterEraser {
 

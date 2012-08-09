@@ -7,6 +7,10 @@ import org.eclipse.core.runtime.IAdapterFactory;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.StructuredSelection;
 
+import com.aptana.interactive_console.console.codegen.IScriptConsoleCodeGenerator;
+import com.aptana.interactive_console.console.codegen.PythonSnippetUtils;
+import com.aptana.interactive_console.console.codegen.StructuredSelectionScriptConsoleCodeGenerator;
+
 @SuppressWarnings("rawtypes")
 public class GetGeneratorTestWorkbench extends TestCase {
 

@@ -51,6 +51,7 @@ import org.python.pydev.parser.jython.ast.sliceType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
 
+
 public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBuilder, ITreeConstants {
 
     public TreeBuilder30(JJTPythonGrammarState stack) {

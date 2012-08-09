@@ -31,14 +31,16 @@ import org.python.pydev.debug.model.PyDebugTargetConsole;
 import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.model.remote.ListenConnector;
 import org.python.pydev.debug.model.remote.RemoteDebuggerConsole;
-import org.python.pydev.debug.newconsole.env.IProcessFactory;
-import org.python.pydev.debug.newconsole.env.IProcessFactory.PydevConsoleLaunchInfo;
+import org.python.pydev.debug.newconsole.env.PydevIProcessFactory;
+import org.python.pydev.debug.newconsole.env.PydevIProcessFactory.PydevConsoleLaunchInfo;
 import org.python.pydev.debug.newconsole.env.JythonEclipseProcess;
 import org.python.pydev.debug.newconsole.env.UserCanceledException;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
-import org.python.pydev.dltk.console.ui.ScriptConsoleManager;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+
+import com.aptana.interactive_console.InteractiveConsolePlugin;
+import com.aptana.interactive_console.console.ui.ScriptConsoleManager;
 
 /**
  * Could ask to configure the interpreter in the preferences
@@ -251,7 +253,7 @@ public class PydevConsoleFactory implements IConsoleFactory {
         //
         //            print >> sys.stderr, 'Ok, all set up... Enjoy'
 
-        IProcessFactory iprocessFactory = new IProcessFactory();
+        PydevIProcessFactory iprocessFactory = new PydevIProcessFactory();
 
         PydevConsoleLaunchInfo launchAndProcess = iprocessFactory.createInteractiveLaunch();
         if (launchAndProcess == null) {
@@ -277,18 +279,18 @@ public class PydevConsoleFactory implements IConsoleFactory {
         }
 
         PydevConsoleInterpreter consoleInterpreter = new PydevConsoleInterpreter();
-        int port = Integer.parseInt(launch.getAttribute(IProcessFactory.INTERACTIVE_LAUNCH_PORT));
+        int port = Integer.parseInt(launch.getAttribute(PydevIProcessFactory.INTERACTIVE_LAUNCH_PORT));
         consoleInterpreter.setConsoleCommunication(new PydevConsoleCommunication(port, process, clientPort));
         consoleInterpreter.setNaturesUsed(natures);
         consoleInterpreter.setInterpreterInfo(interpreterInfo);
         consoleInterpreter.setLaunch(launch);
         consoleInterpreter.setProcess(process);
 
-        PydevDebugPlugin.getDefault().addConsoleLaunch(launch);
+        InteractiveConsolePlugin.getDefault().addConsoleLaunch(launch);
 
         consoleInterpreter.addCloseOperation(new Runnable() {
             public void run() {
-                PydevDebugPlugin.getDefault().removeConsoleLaunch(launch);
+                InteractiveConsolePlugin.getDefault().removeConsoleLaunch(launch);
             }
         });
         return consoleInterpreter;

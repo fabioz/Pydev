@@ -5,7 +5,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.uiutils.RunInUiThread;
+
+import com.aptana.shared_core.utils.RunInUiThread;
+
 
 public class PyTextFileChange extends TextFileChange {
 

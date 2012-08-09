@@ -27,6 +27,7 @@ import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.IASTManagerObserver;
 
+
 /**
  * This structure should be in memory, so that it acts very quickly.
  * 

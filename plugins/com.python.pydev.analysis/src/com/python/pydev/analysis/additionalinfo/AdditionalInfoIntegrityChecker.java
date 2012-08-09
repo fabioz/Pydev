@@ -26,7 +26,6 @@ import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
@@ -37,6 +36,7 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.utils.PyFileListing.PyFileInfo;
 
+import com.aptana.shared_core.io.FileUtils;
 import com.python.pydev.util.UIUtils;
 
 /**
@@ -75,14 +75,14 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
         info.additionalProjectInfo = (AdditionalProjectInterpreterInfo) AdditionalProjectInterpreterInfo
                 .getAdditionalInfoForProject(nature);
         if (info.additionalProjectInfo == null) {
-            buffer.append(StringUtils.format("Unable to get additional project info for: %s (gotten null)",
+            buffer.append(com.aptana.shared_core.string.StringUtils.format("Unable to get additional project info for: %s (gotten null)",
                     nature.getProject()));
             info.allOk = false;
         }
 
         PythonPathHelper pythonPathHelper = (PythonPathHelper) info.modulesManager.getPythonPathHelper();
         List<String> pythonpath = pythonPathHelper.getPythonpath();
-        buffer.append(StringUtils
+        buffer.append(com.aptana.shared_core.string.StringUtils
                 .format("Checking the integrity of the project: %s\n\n", nature.getProject().getName()));
         buffer.append("Pythonpath:\n");
         for (String string : pythonpath) {
@@ -99,21 +99,21 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
                         .getFoundPyFileInfos();
                 for (PyFileInfo fileInfo : modulesBelow) {
                     File moduleFile = fileInfo.getFile();
-                    String modName = pythonPathHelper.resolveModule(REF.getFileAbsolutePath(moduleFile), true);
+                    String modName = pythonPathHelper.resolveModule(FileUtils.getFileAbsolutePath(moduleFile), true);
                     if (modName != null) {
                         expectedModuleNames.add(new ModulesKey(modName, moduleFile));
-                        buffer.append(StringUtils.format("Found module: %s - %s\n", modName, moduleFile));
+                        buffer.append(com.aptana.shared_core.string.StringUtils.format("Found module: %s - %s\n", modName, moduleFile));
                     } else {
                         if (PythonPathHelper.isValidModuleLastPart(StringUtils.stripExtension((moduleFile.getName())))) {
                             info.allOk = false;
-                            buffer.append(StringUtils.format(
+                            buffer.append(com.aptana.shared_core.string.StringUtils.format(
                                     "Unable to resolve module: %s (gotten null module name)\n", moduleFile));
                         }
                     }
                 }
             } else {
                 info.allOk = false;
-                buffer.append(StringUtils.format("File %s is referenced in the pythonpath but does not exist.", file));
+                buffer.append(com.aptana.shared_core.string.StringUtils.format("File %s is referenced in the pythonpath but does not exist.", file));
             }
         }
 
@@ -136,7 +136,7 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
             if (!expectedModuleNames.contains(key)) {
                 info.allOk = false;
                 info.modulesNotInDisk.add(key);
-                buffer.append(StringUtils.format("ModulesKey %s exists in memory but not in the disk.\n", key));
+                buffer.append(com.aptana.shared_core.string.StringUtils.format("ModulesKey %s exists in memory but not in the disk.\n", key));
             }
         }
 
@@ -144,7 +144,7 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
             if (!expectedModuleNames.contains(new ModulesKey(s, null))) {
                 info.allOk = false;
                 info.additionalModulesNotInDisk.add(s);
-                buffer.append(StringUtils.format(
+                buffer.append(com.aptana.shared_core.string.StringUtils.format(
                         "The module %s exists in the additional info memory but not in the disk.\n", s));
             }
         }
@@ -153,7 +153,7 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
             if (!inModulesManager.contains(key)) {
                 info.allOk = false;
                 info.modulesNotInMemory.add(key);
-                buffer.append(StringUtils.format("ModulesKey %s exists in the disk but not in memory.\n", key));
+                buffer.append(com.aptana.shared_core.string.StringUtils.format("ModulesKey %s exists in the disk but not in memory.\n", key));
             }
             if (!allAdditionalInfoTrackedModules.contains(key.name)) {
                 try {
@@ -163,7 +163,7 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
                     }
                     SourceModule module = (SourceModule) mod;
                     if (module == null || module.getAst() == null) {
-                        buffer.append(StringUtils.format(
+                        buffer.append(com.aptana.shared_core.string.StringUtils.format(
                                 "Warning: cannot parse: %s - %s (so, it's ok not having additional info on it)\n",
                                 key.name, key.file));
                     } else {
@@ -173,17 +173,17 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
                             if (innerEntriesForAST.hasNext()) {
                                 info.allOk = false;
                                 info.moduleNotInAdditionalInfo.add(module);
-                                buffer.append(StringUtils.format(
+                                buffer.append(com.aptana.shared_core.string.StringUtils.format(
                                         "The additional info index of the module: %s is not updated.\n", key.name));
                             }
                         } catch (Exception e) {
-                            buffer.append(StringUtils.format("Unexpected error happened on: %s - %s: %s\n", key.name,
+                            buffer.append(com.aptana.shared_core.string.StringUtils.format("Unexpected error happened on: %s - %s: %s\n", key.name,
                                     key.file, e.getMessage()));
                         }
                     }
                 } catch (IOException e) {
                     //OK, it cannot be parsed, so, we cannot generate its info
-                    buffer.append(StringUtils.format(
+                    buffer.append(com.aptana.shared_core.string.StringUtils.format(
                             "Warning: cannot parse: %s - %s (so, it's ok not having additional info on it)\n",
                             key.name, key.file));
                 }
@@ -196,23 +196,23 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
             if (fix) {
                 buffer.append("Fixing:\n");
                 //modules manager
-                buffer.append(StringUtils.format("Removing modules from memory: %s\n", info.modulesNotInDisk));
+                buffer.append(com.aptana.shared_core.string.StringUtils.format("Removing modules from memory: %s\n", info.modulesNotInDisk));
                 info.modulesManager.removeModules(info.modulesNotInDisk);
 
-                buffer.append(StringUtils.format("Adding to memory modules: %s\n", info.modulesNotInMemory));
+                buffer.append(com.aptana.shared_core.string.StringUtils.format("Adding to memory modules: %s\n", info.modulesNotInMemory));
                 for (ModulesKey key : info.modulesNotInMemory) {
                     buffer.append("Adding modules ...\n");
                     info.modulesManager.addModule(key);
                 }
 
                 //additional info
-                buffer.append(StringUtils
+                buffer.append(com.aptana.shared_core.string.StringUtils
                         .format("Removing from additional info: %s\n", info.additionalModulesNotInDisk));
                 for (String s : info.additionalModulesNotInDisk) {
                     info.additionalProjectInfo.removeInfoFromModule(s, true);
                 }
 
-                buffer.append(StringUtils.format("Adding to additional info modules found in disk: %s\n",
+                buffer.append(com.aptana.shared_core.string.StringUtils.format("Adding to additional info modules found in disk: %s\n",
                         info.moduleNotInAdditionalInfo));
                 for (SourceModule mod : info.moduleNotInAdditionalInfo) {
                     info.additionalProjectInfo.addAstInfo(mod.getAst(), mod.getModulesKey(), true);

@@ -27,6 +27,7 @@ import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editor.refactoring.TooManyMatchesException;
+
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
@@ -85,7 +86,7 @@ public class RefactorerFindDefinition {
                         throw new TooManyMatchesException("Too Many matches (" + tokensEqualTo.size()
                                 + ") were found for the requested token:" + lookForInterface, tokensEqualTo.size());
                     }
-                    request.communicateWork(StringUtils.format("Found: %s possible matches.", tokensEqualTo.size()));
+                    request.communicateWork(com.aptana.shared_core.string.StringUtils.format("Found: %s possible matches.", tokensEqualTo.size()));
                     IPythonNature nature = request.nature;
                     for (IInfo info : tokensEqualTo) {
                         AnalysisPlugin.getDefinitionFromIInfo(pointers, manager, nature, info, completionCache);
@@ -97,7 +98,7 @@ public class RefactorerFindDefinition {
                 }
 
             }
-            request.communicateWork(StringUtils.format("Found: %s matches.", pointers.size()));
+            request.communicateWork(com.aptana.shared_core.string.StringUtils.format("Found: %s matches.", pointers.size()));
 
             return pointers.toArray(new ItemPointer[0]);
         } catch (OperationCanceledException e) {

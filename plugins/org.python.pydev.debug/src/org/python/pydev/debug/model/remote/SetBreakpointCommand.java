@@ -11,8 +11,9 @@
 package org.python.pydev.debug.model.remote;
 
 import org.python.pydev.core.FullRepIterable;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.model.AbstractDebugTarget;
+
+import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * Set breakpoint command.

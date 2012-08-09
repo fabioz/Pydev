@@ -12,8 +12,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
+
+
+import com.aptana.shared_core.structure.Tuple;
 
 public class PyUnitTestRun {
 

@@ -18,9 +18,10 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.ui.text.java.CompletionProposalCollector;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.plugin.PydevPlugin;
+
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * This class defines a module that represents a given java class or package within a java project 
@@ -89,11 +90,11 @@ public class JavaModuleInProject extends AbstractJavaClassModule {
         if (filterCompletionName != null) {
             //pre-filter it a bit if we already know the completion name
             contents = "new %s().%s";
-            contents = StringUtils.format(contents, completeClassDesc, completeClassDesc, filterCompletionName);
+            contents = com.aptana.shared_core.string.StringUtils.format(contents, completeClassDesc, completeClassDesc, filterCompletionName);
 
         } else {
             contents = "new %s().";
-            contents = StringUtils.format(contents, completeClassDesc, completeClassDesc);
+            contents = com.aptana.shared_core.string.StringUtils.format(contents, completeClassDesc, completeClassDesc);
         }
 
         List<Tuple<IJavaElement, CompletionProposal>> javaCompletionProposals = getJavaCompletionProposals(contents,
@@ -103,11 +104,11 @@ public class JavaModuleInProject extends AbstractJavaClassModule {
             if (filterCompletionName != null) {
                 //pre-filter it a bit if we already know the completion name
                 contents = "%s.%s";
-                contents = StringUtils.format(contents, completeClassDesc, completeClassDesc, filterCompletionName);
+                contents = com.aptana.shared_core.string.StringUtils.format(contents, completeClassDesc, completeClassDesc, filterCompletionName);
 
             } else {
                 contents = "%s.";
-                contents = StringUtils.format(contents, completeClassDesc, completeClassDesc);
+                contents = com.aptana.shared_core.string.StringUtils.format(contents, completeClassDesc, completeClassDesc);
             }
             javaCompletionProposals = getJavaCompletionProposals(contents, contents.length() - 2, filterCompletionName);
 
@@ -165,7 +166,7 @@ public class JavaModuleInProject extends AbstractJavaClassModule {
             return;
         }
         CompletionProposalCollector collector = createCollector(filterCompletionName, ret, unit);
-        type.codeComplete(StringUtils.format(contents, name).toCharArray(), -1, 0, new char[0][0], new char[0][0],
+        type.codeComplete(com.aptana.shared_core.string.StringUtils.format(contents, name).toCharArray(), -1, 0, new char[0][0], new char[0][0],
                 new int[0], false, collector);
     }
 

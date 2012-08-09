@@ -24,8 +24,6 @@ import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -34,6 +32,8 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.utils.PyFileListing.PyFileInfo;
 
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
@@ -93,21 +93,21 @@ public class NatureGroup extends ElementWithChildren {
                         .getFoundPyFileInfos();
                 for (PyFileInfo fileInfo : modulesBelow) {
                     File moduleFile = fileInfo.getFile();
-                    String modName = pythonPathHelper.resolveModule(REF.getFileAbsolutePath(moduleFile), true);
+                    String modName = pythonPathHelper.resolveModule(FileUtils.getFileAbsolutePath(moduleFile), true);
                     if (modName != null) {
                         expectedModuleNames.add(new ModulesKey(modName, moduleFile));
                     } else {
                         if (PythonPathHelper.isValidModuleLastPart(StringUtils.stripExtension((moduleFile.getName())))) {
-                            addLeaf(StringUtils.format("Unable to resolve module: %s (gotten null module name)",
+                            addLeaf(com.aptana.shared_core.string.StringUtils.format("Unable to resolve module: %s (gotten null module name)",
                                     moduleFile));
                         }
                     }
                 }
             } else {
                 if (!file.exists()) {
-                    addLeaf(StringUtils.format("File %s is referenced in the pythonpath but does not exist.", file));
+                    addLeaf(com.aptana.shared_core.string.StringUtils.format("File %s is referenced in the pythonpath but does not exist.", file));
                 } else {
-                    addLeaf(StringUtils
+                    addLeaf(com.aptana.shared_core.string.StringUtils
                             .format("File %s not handled (TODO: Fix zip files support in the viewer).", file));
                 }
             }
@@ -129,7 +129,7 @@ public class NatureGroup extends ElementWithChildren {
 
         } else {
             if (additionalInfoAndNature.size() > 1) {
-                addChild(new LeafElement(this, StringUtils.format(
+                addChild(new LeafElement(this, com.aptana.shared_core.string.StringUtils.format(
                         "%s additional infos found (only 1 expected) -- continuing checks but analysis may be wrong.",
                         additionalInfoAndNature.size())));
             }
@@ -140,7 +140,7 @@ public class NatureGroup extends ElementWithChildren {
         for (ModulesKey key : inModulesManager) {
             if (!expectedModuleNames.contains(key)) {
                 info.modulesNotInDisk.add(key);
-                addChild(new LeafElement(this, StringUtils.format("%s exists in memory but not in the disk.", key)));
+                addChild(new LeafElement(this, com.aptana.shared_core.string.StringUtils.format("%s exists in memory but not in the disk.", key)));
             }
         }
 
@@ -149,7 +149,7 @@ public class NatureGroup extends ElementWithChildren {
             tempKey.name = s;
             if (!expectedModuleNames.contains(tempKey)) {
                 info.additionalModulesNotInDisk.add(s);
-                addChild(new LeafElement(this, StringUtils.format(
+                addChild(new LeafElement(this, com.aptana.shared_core.string.StringUtils.format(
                         "%s exists in the additional info but not in the disk.", s)));
             }
         }
@@ -158,7 +158,7 @@ public class NatureGroup extends ElementWithChildren {
             boolean isInModulesManager = inModulesManager.contains(key);
             if (!isInModulesManager) {
                 info.modulesNotInMemory.add(key);
-                addChild(new LeafElement(this, StringUtils.format("%s exists in the disk but not in memory.", key)));
+                addChild(new LeafElement(this, com.aptana.shared_core.string.StringUtils.format("%s exists in the disk but not in memory.", key)));
             }
             if (!allAdditionalInfoModuleNames.contains(key.name)) {
                 try {
@@ -168,7 +168,7 @@ public class NatureGroup extends ElementWithChildren {
                     }
                     SourceModule module = (SourceModule) mod;
                     if (module == null || module.getAst() == null) {
-                        addChild(new LeafElement(this, StringUtils.format(
+                        addChild(new LeafElement(this, com.aptana.shared_core.string.StringUtils.format(
                                 "Warning: cannot parse: %s - %s (so, it's ok not having additional info on it)",
                                 key.name, key.file)));
                     } else {
@@ -177,17 +177,17 @@ public class NatureGroup extends ElementWithChildren {
                                     .getInnerEntriesForAST(module.getAst()).o2;
                             if (innerEntriesForAST.hasNext()) {
                                 info.moduleNotInAdditionalInfo.add(module);
-                                addChild(new LeafElement(this, StringUtils.format(
+                                addChild(new LeafElement(this, com.aptana.shared_core.string.StringUtils.format(
                                         "The additional info index of the module: %s is not updated.", key.name)));
                             }
                         } catch (Exception e) {
-                            addChild(new LeafElement(this, StringUtils.format(
+                            addChild(new LeafElement(this, com.aptana.shared_core.string.StringUtils.format(
                                     "Unexpected error happened on: %s - %s: %s", key.name, key.file, e.getMessage())));
                         }
                     }
                 } catch (IOException e) {
                     //OK, it cannot be parsed, so, we cannot generate its info
-                    addChild(new LeafElement(this, StringUtils.format(
+                    addChild(new LeafElement(this, com.aptana.shared_core.string.StringUtils.format(
                             "Warning: cannot parse: %s - %s (so, it's ok not having additional info on it)", key.name,
                             key.file)));
                 }
@@ -197,7 +197,7 @@ public class NatureGroup extends ElementWithChildren {
         //modules manager
         if (info.modulesNotInDisk.size() > 0) {
             for (ModulesKey m : info.modulesNotInDisk) {
-                addChild(new LeafElement(this, StringUtils.format("FIX: Removing from modules manager: %s", m)));
+                addChild(new LeafElement(this, com.aptana.shared_core.string.StringUtils.format("FIX: Removing from modules manager: %s", m)));
             }
             projectModulesManager.removeModules(info.modulesNotInDisk);
         }
@@ -209,12 +209,12 @@ public class NatureGroup extends ElementWithChildren {
 
         //additional info
         for (String s : info.additionalModulesNotInDisk) {
-            addChild(new LeafElement(this, StringUtils.format("FIX: Removing from additional info: %s", s)));
+            addChild(new LeafElement(this, com.aptana.shared_core.string.StringUtils.format("FIX: Removing from additional info: %s", s)));
             additionalProjectInfo.removeInfoFromModule(s, true);
         }
 
         for (SourceModule mod : info.moduleNotInAdditionalInfo) {
-            addChild(new LeafElement(this, StringUtils.format("FIX: Adding to additional info: %s", mod.getName())));
+            addChild(new LeafElement(this, com.aptana.shared_core.string.StringUtils.format("FIX: Adding to additional info: %s", mod.getName())));
             additionalProjectInfo.addAstInfo(mod.getAst(), mod.getModulesKey(), true);
         }
 

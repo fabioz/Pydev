@@ -34,6 +34,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.UIConstants;
 
+
 /**
  * Dialog to select some source folder (in the workspace)
  */

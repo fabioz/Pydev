@@ -19,6 +19,7 @@ import org.eclipse.core.resources.IProject;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
 
+
 /**
  * This class is used to pass notifications about the python nature around for 
  * those interested.

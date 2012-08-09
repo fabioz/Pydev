@@ -46,13 +46,8 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.PropertiesHelper;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
-import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
@@ -62,6 +57,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.Tuple;
+import com.aptana.shared_core.utils.PlatformUtils;
+import com.aptana.shared_core.utils.RunInUiThread;
 
 public class InterpreterInfo implements IInterpreterInfo {
 
@@ -1299,7 +1300,7 @@ public class InterpreterInfo implements IInterpreterInfo {
     //  Initially I thought werkzeug would need to add all the contents, so, this was a prototype to
     //  analyze it and add what's needed (but it turns out that just adding werkzeug is ok.
     //	protected void handleWerkzeug(File initWerkzeug) {
-    //		String fileContents = REF.getFileContents(initWerkzeug);
+    //		String fileContents = FileUtils.getFileContents(initWerkzeug);
     //		Tuple<SimpleNode, Throwable> parse = PyParser.reparseDocument(
     //				new PyParser.ParserInfo(new Document(fileContents), false, this.getGrammarVersion()));
     //		Module o1 = (Module) parse.o1;
@@ -1585,7 +1586,7 @@ public class InterpreterInfo implements IInterpreterInfo {
      */
     public static boolean checkIfPythonPathEnvVarAndWarnIfIs(String key) {
         boolean isPythonPath = false;
-        boolean win32 = REF.isWindowsPlatform();
+        boolean win32 = PlatformUtils.isWindowsPlatform();
         if (win32) {
             key = key.toUpperCase();
         }
@@ -1647,7 +1648,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                 return true;
             }
         }
-        if (REF.isWindowsPlatform()) {
+        if (PlatformUtils.isWindowsPlatform()) {
             return interpreter.equalsIgnoreCase(executableOrJar);
         }
         return interpreter.equals(executableOrJar);

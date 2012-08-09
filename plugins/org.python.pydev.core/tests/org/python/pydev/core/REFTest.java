@@ -12,6 +12,9 @@ import java.util.HashSet;
 
 import junit.framework.TestCase;
 
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.utils.MathUtils;
+
 public class REFTest extends TestCase {
 
     public void testLog() {
@@ -23,15 +26,15 @@ public class REFTest extends TestCase {
         for (int i = 1; i < 20; i++) {
             //            System.out.println(i+": "+(i+Math.round(REF.log(i, 1.4))));
             assertTrue("" + expected[i - 1] +
-                    " !=" + REF.log(i, 1.5) +
+                    " !=" + MathUtils.log(i, 1.5) +
                     "for log " + i,
-                    Math.abs(expected[i - 1] - REF.log(i, 1.5)) < 0.01);
+                    Math.abs(expected[i - 1] - MathUtils.log(i, 1.5)) < 0.01);
         }
 
     }
 
     public void testGetTempFile() throws Exception {
-        REF.clearTempFilesAt(new File("."), "ref_test_case");
+        FileUtils.clearTempFilesAt(new File("."), "ref_test_case");
         File parentDir = new File(".");
         try {
             assertEquals("ref_test_case0", writeAt(parentDir).getName());
@@ -43,23 +46,23 @@ public class REFTest extends TestCase {
                 expected.add("ref_test_case0");
                 expected.add("ref_test_case1");
                 expected.add("ref_test_case2");
-                assertEquals(expected, REF.getFilesStartingWith(parentDir, "ref_test_case"));
+                assertEquals(expected, FileUtils.getFilesStartingWith(parentDir, "ref_test_case"));
 
-                assertEquals("ref_test_case3", REF.getTempFileAt(parentDir, "ref_test_case").getName());
-                assertEquals("ref_test_case4", REF.getTempFileAt(parentDir, "ref_test_case").getName());
-                REF.clearTempFilesAt(parentDir, "ref_test_case");
-                assertEquals("ref_test_case0", REF.getTempFileAt(parentDir, "ref_test_case").getName());
+                assertEquals("ref_test_case3", FileUtils.getTempFileAt(parentDir, "ref_test_case").getName());
+                assertEquals("ref_test_case4", FileUtils.getTempFileAt(parentDir, "ref_test_case").getName());
+                FileUtils.clearTempFilesAt(parentDir, "ref_test_case");
+                assertEquals("ref_test_case0", FileUtils.getTempFileAt(parentDir, "ref_test_case").getName());
 
             } finally {
-                REF.clearTempFilesAt(parentDir, "ref_test_case");
+                FileUtils.clearTempFilesAt(parentDir, "ref_test_case");
             }
         }
 
     }
 
     public File writeAt(File parentDir) {
-        File tempFileAt = REF.getTempFileAt(parentDir, "ref_test_case");
-        REF.writeStrToFile("foo", tempFileAt);
+        File tempFileAt = FileUtils.getTempFileAt(parentDir, "ref_test_case");
+        FileUtils.writeStrToFile("foo", tempFileAt);
         return tempFileAt;
     }
 
@@ -71,11 +74,11 @@ public class REFTest extends TestCase {
             File dir2 = new File(currentDir, "test_start_dir/dir1/dir2");
             File file1 = new File(currentDir, "test_start_dir/dir1/dir2/file1.txt");
             dir2.mkdirs();
-            REF.writeStrToFile("something", file1);
+            FileUtils.writeStrToFile("something", file1);
 
             assertTrue(dir2.exists());
         } finally {
-            REF.deleteDirectoryTree(start_dir);
+            FileUtils.deleteDirectoryTree(start_dir);
         }
         assertTrue(!start_dir.exists());
     }
@@ -86,7 +89,7 @@ public class REFTest extends TestCase {
                 "\n" +
                 "";
         CharArrayReader reader = new CharArrayReader(s.toCharArray());
-        assertFalse(REF.hasPythonShebang(reader));
+        assertFalse(FileUtils.hasPythonShebang(reader));
     }
 
     public void testHasPythonShebang1() {
@@ -95,7 +98,7 @@ public class REFTest extends TestCase {
                 "\n" +
                 "";
         CharArrayReader reader = new CharArrayReader(s.toCharArray());
-        assertTrue(REF.hasPythonShebang(reader));
+        assertTrue(FileUtils.hasPythonShebang(reader));
     }
 
     public void testHasPythonShebang2() {
@@ -104,7 +107,7 @@ public class REFTest extends TestCase {
                 "\n" +
                 "";
         CharArrayReader reader = new CharArrayReader(s.toCharArray());
-        assertTrue(REF.hasPythonShebang(reader));
+        assertTrue(FileUtils.hasPythonShebang(reader));
     }
 
     public void testHasPythonShebang3() {
@@ -113,7 +116,7 @@ public class REFTest extends TestCase {
                 "\n" +
                 "";
         CharArrayReader reader = new CharArrayReader(s.toCharArray());
-        assertTrue(REF.hasPythonShebang(reader));
+        assertTrue(FileUtils.hasPythonShebang(reader));
     }
 
 }

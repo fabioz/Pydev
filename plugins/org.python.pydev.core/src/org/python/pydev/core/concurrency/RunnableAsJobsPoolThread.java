@@ -14,9 +14,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.core.CorePlugin;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
+
+import com.aptana.shared_core.structure.Tuple;
+import com.aptana.shared_core.utils.MathUtils;
 
 /**
  * This is a pool where we can register runnables to run -- and it'll let only X runnables run at the same time.
@@ -172,7 +173,7 @@ public class RunnableAsJobsPoolThread extends Thread {
                     //17: 25
                     //18: 27
                     //19: 28
-                    maxSize = (int) (availableProcessors + Math.round(REF.log(availableProcessors, 1.4)));
+                    maxSize = (int) (availableProcessors + Math.round(MathUtils.log(availableProcessors, 1.4)));
                 }
             } catch (Throwable e) {
             }

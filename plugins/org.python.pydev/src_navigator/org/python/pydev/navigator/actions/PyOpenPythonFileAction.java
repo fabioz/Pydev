@@ -38,6 +38,7 @@ import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
+
 /**
  * This action will try to open a given file or node in the pydev editor (if a file or node is selected).
  * 

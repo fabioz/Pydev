@@ -11,6 +11,7 @@ import org.eclipse.jface.action.IAction;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 
+
 /**
  * Adds a nature to the given selected project.
  * 

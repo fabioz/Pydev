@@ -9,7 +9,6 @@ package org.python.pydev.parser;
 import java.io.File;
 
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -28,6 +27,8 @@ import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.visitors.NodeUtils;
+
+import com.aptana.shared_core.io.FileUtils;
 
 public class PyParser30Test extends PyParserTestBase {
 
@@ -518,7 +519,7 @@ public class PyParser30Test extends PyParserTestBase {
     }
 
     public void testUnicodeIdentifiers2() {
-        String contents = REF.getFileContents(new File(TestDependent.TEST_PYDEV_PARSER_PLUGIN_LOC
+        String contents = FileUtils.getFileContents(new File(TestDependent.TEST_PYDEV_PARSER_PLUGIN_LOC
                 +
                 "/tests/org/python/pydev/parser/pep3131test.py"));
 

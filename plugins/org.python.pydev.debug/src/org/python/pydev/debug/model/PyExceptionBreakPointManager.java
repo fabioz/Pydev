@@ -72,7 +72,7 @@ public class PyExceptionBreakPointManager {
 
         ConfigureExceptionsFileUtils.writeToFile(BREAK_ON_UNCAUGHT_EXCEPTION, Boolean.toString(breakOnUncaught), false);
 
-        String pyExceptionsStr = StringUtils.join(ConfigureExceptionsFileUtils.DELIMITER, exceptionArray);
+        String pyExceptionsStr = com.aptana.shared_core.string.StringUtils.join(ConfigureExceptionsFileUtils.DELIMITER, exceptionArray);
 
         ConfigureExceptionsFileUtils.writeToFile(EXCEPTION_FILE_NAME, pyExceptionsStr, false);
 
