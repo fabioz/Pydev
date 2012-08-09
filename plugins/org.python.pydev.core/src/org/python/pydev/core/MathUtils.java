@@ -1,4 +1,4 @@
-package com.aptana.shared_core.utils;
+package org.python.pydev.core;
 
 public class MathUtils {
 

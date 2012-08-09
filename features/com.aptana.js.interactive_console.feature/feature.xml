@@ -115,16 +115,25 @@ This Agreement is governed by the laws of the State of New York and the intellec
       <import plugin="org.eclipse.core.resources"/>
       <import plugin="org.eclipse.ui.workbench.texteditor"/>
       <import plugin="org.eclipse.core.filebuffers"/>
+      <import plugin="org.eclipse.ui.console"/>
+      <import plugin="org.eclipse.core.variables"/>
       <import plugin="org.eclipse.ui.ide"/>
       <import plugin="org.eclipse.ui.editors"/>
-      <import plugin="org.eclipse.ui.console"/>
       <import plugin="org.eclipse.ui.views"/>
       <import plugin="org.eclipse.debug.core"/>
-      <import plugin="org.eclipse.core.variables"/>
+      <import plugin="org.python.pydev.ast"/>
+      <import plugin="org.python.pydev.parser"/>
       <import plugin="org.eclipse.search"/>
       <import plugin="org.eclipse.debug.ui"/>
+      <import plugin="org.python.pydev.jython"/>
       <import plugin="org.eclipse.ltk.core.refactoring"/>
       <import plugin="org.eclipse.ltk.ui.refactoring"/>
+      <import plugin="org.eclipse.ui.navigator"/>
+      <import plugin="org.eclipse.ui.navigator.resources"/>
+      <import plugin="org.eclipse.core.filesystem"/>
+      <import plugin="org.eclipse.core.expressions"/>
+      <import plugin="org.eclipse.compare"/>
+      <import plugin="org.mozilla.rhino"/>
    </requires>
 
    <plugin
@@ -132,7 +141,7 @@ This Agreement is governed by the laws of the State of New York and the intellec
          download-size="188"
          install-size="188"
          version="0.9.7.1"/>
-         
+
    <plugin
          id="org.python.pydev"
          download-size="2440"
@@ -144,11 +153,13 @@ This Agreement is governed by the laws of the State of New York and the intellec
          download-size="160"
          install-size="160"
          version="0.9.7.1"/>
+
    <plugin
          id="com.aptana.shared_core"
          download-size="160"
          install-size="160"
          version="0.9.7.1"/>
+
    <plugin
          id="com.aptana.js.interactive_console"
          download-size="160"

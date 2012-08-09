@@ -14,10 +14,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.core.CorePlugin;
+import org.python.pydev.core.MathUtils;
 import org.python.pydev.core.log.Log;
 
 import com.aptana.shared_core.structure.Tuple;
-import com.aptana.shared_core.utils.MathUtils;
 
 /**
  * This is a pool where we can register runnables to run -- and it'll let only X runnables run at the same time.

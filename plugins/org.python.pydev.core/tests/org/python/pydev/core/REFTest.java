@@ -13,7 +13,6 @@ import java.util.HashSet;
 import junit.framework.TestCase;
 
 import com.aptana.shared_core.io.FileUtils;
-import com.aptana.shared_core.utils.MathUtils;
 
 public class REFTest extends TestCase {
 
