@@ -17,11 +17,12 @@ import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.runners.SimpleRunner;
+
+import com.aptana.shared_core.io.FileUtils;
 
 public class JythonShell extends AbstractShell {
 
@@ -36,7 +37,7 @@ public class JythonShell extends AbstractShell {
     @Override
     protected synchronized ProcessCreationInfo createServerProcess(IInterpreterInfo jythonJar, int pWrite, int pRead)
             throws IOException, JDTNotAvailableException, MisconfigurationException {
-        String script = REF.getFileAbsolutePath(serverFile);
+        String script = FileUtils.getFileAbsolutePath(serverFile);
         String[] executableStr = SimpleJythonRunner.makeExecutableCommandStr(jythonJar.getExecutableOrJar(), script,
                 "", String.valueOf(pWrite), String.valueOf(pRead));
 

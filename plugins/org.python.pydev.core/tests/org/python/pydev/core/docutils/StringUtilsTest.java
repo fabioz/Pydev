@@ -16,8 +16,9 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.python.pydev.core.Tuple;
-import org.python.pydev.core.structure.FastStringBuffer;
+
+import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.Tuple;
 
 public class StringUtilsTest extends TestCase {
 
@@ -292,19 +293,19 @@ public class StringUtilsTest extends TestCase {
     }
 
     public void testFormat() {
-        assertEquals("teste", StringUtils.format("%s", new Object[] { "teste" }));
-        assertEquals("teste 1", StringUtils.format("%s 1", new Object[] { "teste" }));
-        assertEquals("teste 1 2 3 teste", StringUtils.format("teste %s %s 3 %s", new Object[] { "1", "2", "teste" }));
-        assertEquals("teste 1 2 %s", StringUtils.format("teste 1 2 %%s", new Object[] {}));
-        assertEquals("teste 1 2 3", StringUtils.format("teste 1 2 %s", new Object[] { "3" }));
-        assertEquals("teste 1 2 3", StringUtils.format("%s 1 2 3", new Object[] { "teste" }));
-        assertEquals("teste 1 2 3", StringUtils.format("%s 1 2 %s", new Object[] { "teste", 3 }));
-        assertEquals("null 1 2 null", StringUtils.format("%s 1 2 %s", new Object[] { null, null }));
-        assertEquals("", StringUtils.format("%s", new Object[] { "" }));
-        assertEquals("%", StringUtils.format("%", new Object[] {}));
+        assertEquals("teste", com.aptana.shared_core.string.StringUtils.format("%s", new Object[] { "teste" }));
+        assertEquals("teste 1", com.aptana.shared_core.string.StringUtils.format("%s 1", new Object[] { "teste" }));
+        assertEquals("teste 1 2 3 teste", com.aptana.shared_core.string.StringUtils.format("teste %s %s 3 %s", new Object[] { "1", "2", "teste" }));
+        assertEquals("teste 1 2 %s", com.aptana.shared_core.string.StringUtils.format("teste 1 2 %%s", new Object[] {}));
+        assertEquals("teste 1 2 3", com.aptana.shared_core.string.StringUtils.format("teste 1 2 %s", new Object[] { "3" }));
+        assertEquals("teste 1 2 3", com.aptana.shared_core.string.StringUtils.format("%s 1 2 3", new Object[] { "teste" }));
+        assertEquals("teste 1 2 3", com.aptana.shared_core.string.StringUtils.format("%s 1 2 %s", new Object[] { "teste", 3 }));
+        assertEquals("null 1 2 null", com.aptana.shared_core.string.StringUtils.format("%s 1 2 %s", new Object[] { null, null }));
+        assertEquals("", com.aptana.shared_core.string.StringUtils.format("%s", new Object[] { "" }));
+        assertEquals("%", com.aptana.shared_core.string.StringUtils.format("%", new Object[] {}));
 
-        assertEquals("", StringUtils.format("%1", new Object[] {}));
-        assertEquals("", StringUtils.format("% ", new Object[] {}));
+        assertEquals("", com.aptana.shared_core.string.StringUtils.format("%1", new Object[] {}));
+        assertEquals("", com.aptana.shared_core.string.StringUtils.format("% ", new Object[] {}));
     }
 
     public void testStripExt() {
@@ -645,72 +646,72 @@ public class StringUtilsTest extends TestCase {
     }
 
     public void testMd5() throws Exception {
-        assertEquals("ck2u8j60r58fu0sgyxrigm3cu", StringUtils.md5(""));
+        assertEquals("ck2u8j60r58fu0sgyxrigm3cu", com.aptana.shared_core.string.StringUtils.md5(""));
         assertEquals("4l3c9nzlvo3spzkuri5l3r4si",
-                StringUtils.md5("c:\\my_really\\big\\python\\path\\executable\\is_\\very_very_very\\long\\python.exe"));
+                com.aptana.shared_core.string.StringUtils.md5("c:\\my_really\\big\\python\\path\\executable\\is_\\very_very_very\\long\\python.exe"));
     }
 
     public void testJoin() throws Exception {
-        assertEquals("", StringUtils.join("", "", ""));
-        assertEquals("null", StringUtils.join("", null, ""));
-        assertEquals("nulla", StringUtils.join("", null, "a"));
+        assertEquals("", com.aptana.shared_core.string.StringUtils.join("", "", ""));
+        assertEquals("null", com.aptana.shared_core.string.StringUtils.join("", null, ""));
+        assertEquals("nulla", com.aptana.shared_core.string.StringUtils.join("", null, "a"));
 
-        assertEquals("rara", StringUtils.join("rara", "", ""));
-        assertEquals("nullrara", StringUtils.join("rara", null, ""));
-        assertEquals("nullwhata", StringUtils.join("what", null, "a"));
+        assertEquals("rara", com.aptana.shared_core.string.StringUtils.join("rara", "", ""));
+        assertEquals("nullrara", com.aptana.shared_core.string.StringUtils.join("rara", null, ""));
+        assertEquals("nullwhata", com.aptana.shared_core.string.StringUtils.join("what", null, "a"));
 
-        assertEquals("ra", StringUtils.join("ra", "", ""));
-        assertEquals("nullra", StringUtils.join("ra", null, ""));
-        assertEquals("nullwha", StringUtils.join("wh", null, "a"));
+        assertEquals("ra", com.aptana.shared_core.string.StringUtils.join("ra", "", ""));
+        assertEquals("nullra", com.aptana.shared_core.string.StringUtils.join("ra", null, ""));
+        assertEquals("nullwha", com.aptana.shared_core.string.StringUtils.join("wh", null, "a"));
 
-        assertEquals(";", StringUtils.join(";", "", ""));
-        assertEquals("null;", StringUtils.join(";", null, ""));
-        assertEquals("null;a", StringUtils.join(";", null, "a"));
-        assertEquals("null", StringUtils.join(";", (Object) null));
-        assertEquals("null", StringUtils.join("", (Object) null));
-        assertEquals("nullnulla", StringUtils.join("", (Object) null, (Object) null, "a"));
+        assertEquals(";", com.aptana.shared_core.string.StringUtils.join(";", "", ""));
+        assertEquals("null;", com.aptana.shared_core.string.StringUtils.join(";", null, ""));
+        assertEquals("null;a", com.aptana.shared_core.string.StringUtils.join(";", null, "a"));
+        assertEquals("null", com.aptana.shared_core.string.StringUtils.join(";", (Object) null));
+        assertEquals("null", com.aptana.shared_core.string.StringUtils.join("", (Object) null));
+        assertEquals("nullnulla", com.aptana.shared_core.string.StringUtils.join("", (Object) null, (Object) null, "a"));
 
-        assertEquals("b", StringUtils.join("/", new String[] { "a", "b", "c" }, 1, 2));
-        assertEquals("b/c", StringUtils.join("/", new String[] { "a", "b", "c" }, 1, 3));
+        assertEquals("b", com.aptana.shared_core.string.StringUtils.join("/", new String[] { "a", "b", "c" }, 1, 2));
+        assertEquals("b/c", com.aptana.shared_core.string.StringUtils.join("/", new String[] { "a", "b", "c" }, 1, 3));
 
         List<String> l = new ArrayList<String>();
         l.add("b");
         l.add("c");
-        assertEquals("b/c", StringUtils.join("/", l));
+        assertEquals("b/c", com.aptana.shared_core.string.StringUtils.join("/", l));
     }
 
     public void testParseInt() throws Exception {
         FastStringBuffer buf = new FastStringBuffer();
         try {
-            StringUtils.parsePositiveLong(buf);
+            com.aptana.shared_core.string.StringUtils.parsePositiveLong(buf);
             fail("Expecting exception");
         } catch (NumberFormatException e) {
             //empty
         }
 
         buf.append("0");
-        assertEquals(0, StringUtils.parsePositiveLong(buf));
+        assertEquals(0, com.aptana.shared_core.string.StringUtils.parsePositiveLong(buf));
 
         buf.append("10");
-        assertEquals(10, StringUtils.parsePositiveLong(buf));
+        assertEquals(10, com.aptana.shared_core.string.StringUtils.parsePositiveLong(buf));
 
         buf.append("1");
-        assertEquals(101, StringUtils.parsePositiveLong(buf));
+        assertEquals(101, com.aptana.shared_core.string.StringUtils.parsePositiveLong(buf));
 
         buf.append("a");
         try {
-            StringUtils.parsePositiveLong(buf);
+            com.aptana.shared_core.string.StringUtils.parsePositiveLong(buf);
             fail("Expecting exception");
         } catch (NumberFormatException e) {
             //empty
         }
         buf.deleteLast();
-        assertEquals(101, StringUtils.parsePositiveLong(buf));
+        assertEquals(101, com.aptana.shared_core.string.StringUtils.parsePositiveLong(buf));
 
         buf.append("4");
-        assertEquals(1014, StringUtils.parsePositiveLong(buf));
+        assertEquals(1014, com.aptana.shared_core.string.StringUtils.parsePositiveLong(buf));
 
         buf.append("9");
-        assertEquals(10149, StringUtils.parsePositiveLong(buf));
+        assertEquals(10149, com.aptana.shared_core.string.StringUtils.parsePositiveLong(buf));
     }
 }

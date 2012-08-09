@@ -31,6 +31,7 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editorinput.PydevFileEditorInput;
 
+
 /**
  * Provides decoration for model elements in the debugger interface.
  */

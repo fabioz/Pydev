@@ -20,6 +20,7 @@ import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.nature.PythonNature;
 
+
 /**
  * Whenever a given resource is changed, a syntax check is done, updating errors related to the syntax.
  * 

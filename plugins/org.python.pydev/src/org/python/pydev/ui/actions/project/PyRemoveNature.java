@@ -17,6 +17,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 
+
 /**
  * Action to remove the pydev nature from a given project.
  * 
@@ -44,7 +45,7 @@ public class PyRemoveNature implements IObjectActionDelegate {
         if (!MessageDialog.openConfirm(
                 null,
                 "Confirm Remove Pydev Nature",
-                StringUtils.format("Are you sure that you want to remove the Pydev nature from %s?",
+                com.aptana.shared_core.string.StringUtils.format("Are you sure that you want to remove the Pydev nature from %s?",
                         selectedProject.getName()))) {
             return;
         }

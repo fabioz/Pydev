@@ -38,6 +38,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
 
+
 /**
  * @author Fabio Zadrozny
  */

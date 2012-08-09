@@ -25,6 +25,6 @@ public class SendPyExceptionCommand extends AbstractDebuggerCommand {
         String breakOnCaught = instance.getBreakOnCaughtExceptions().trim();
 
         return makeCommand(AbstractDebuggerCommand.CMD_SET_PY_EXCEPTION, sequence,
-                StringUtils.join(ConfigureExceptionsFileUtils.DELIMITER, breakOnUncaught, breakOnCaught, pyExceptions));
+                com.aptana.shared_core.string.StringUtils.join(ConfigureExceptionsFileUtils.DELIMITER, breakOnUncaught, breakOnCaught, pyExceptions));
     }
 }

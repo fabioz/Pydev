@@ -28,6 +28,7 @@ import org.eclipse.ui.part.MultiPageEditorPart;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
 
+
 /**
  * Helper to make a search in the currently opened documents.
  */

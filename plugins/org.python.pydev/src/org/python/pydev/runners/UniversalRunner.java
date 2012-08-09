@@ -15,7 +15,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.Tuple;
+
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * This class provides a factory for creating a suitable runner for any project and running

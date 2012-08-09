@@ -15,11 +15,13 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.bindings.keys.KeySequence;
 import org.eclipse.ui.texteditor.IUpdate;
-import org.python.pydev.bindingutils.KeyBindingHelper;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
+
+import com.aptana.shared_core.bindings.KeyBindingHelper;
+
 
 public class TerminateAllLaunchesAction extends PyAction implements IUpdate {
 

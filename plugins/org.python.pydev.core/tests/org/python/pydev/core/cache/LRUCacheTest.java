@@ -6,6 +6,8 @@
  */
 package org.python.pydev.core.cache;
 
+import com.aptana.shared_core.cache.LRUCache;
+
 import junit.framework.TestCase;
 
 public class LRUCacheTest extends TestCase {

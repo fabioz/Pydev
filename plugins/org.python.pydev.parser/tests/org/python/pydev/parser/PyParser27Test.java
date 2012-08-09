@@ -12,7 +12,6 @@ import java.io.IOException;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -24,6 +23,8 @@ import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Set;
 import org.python.pydev.parser.jython.ast.SetComp;
 import org.python.pydev.parser.visitors.NodeUtils;
+
+import com.aptana.shared_core.io.FileUtils;
 
 /**
  * References:
@@ -198,25 +199,25 @@ public class PyParser27Test extends PyParserTestBase {
 
     public void testBom() throws BadLocationException, IOException {
         String base = "#comment\npass\n";
-        String s = REF.BOM_UTF8 + base;
+        String s = FileUtils.BOM_UTF8 + base;
         File file = new File(TestDependent.TEST_PYDEV_PARSER_PLUGIN_LOC
                 +
                 "/tests/org/python/pydev/parser/generated_data_test_utf8_with_bom.py");
         FileOutputStream out = new FileOutputStream(file);
-        out.write(new String(REF.BOM_UTF8).getBytes());
+        out.write(new String(FileUtils.BOM_UTF8).getBytes());
         out.write(base.getBytes());
         out.close();
 
-        s = REF.getFileContents(file);
+        s = FileUtils.getFileContents(file);
         assertTrue(s.endsWith(base));
-        assertTrue(s.startsWith(REF.BOM_UTF8));
+        assertTrue(s.startsWith(FileUtils.BOM_UTF8));
 
-        assertEquals("utf-8", REF.getPythonFileEncoding(file));
+        assertEquals("utf-8", FileUtils.getPythonFileEncoding(file));
         SimpleNode ast = parseLegalDocStr(s);
         Module m = (Module) ast;
         Pass p = (Pass) m.body[0];
 
-        assertTrue(s.startsWith(REF.BOM_UTF8));
+        assertTrue(s.startsWith(FileUtils.BOM_UTF8));
 
         ast = parseLegalDocStr(s);
         m = (Module) ast;

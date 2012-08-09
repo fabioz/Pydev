@@ -31,12 +31,13 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.customizations.CustomizationsPlugin;
+
+import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * This page is used to configure templates for google app engine.
@@ -178,7 +179,7 @@ public class AppEngineTemplatePage extends WizardPage {
                     if (secondLevelFiles != null) {
                         for (File file2 : secondLevelFiles) {
                             if (file2.getName().equals("description.txt")) {
-                                String fileContents = REF.getFileContents(file2).trim();
+                                String fileContents = FileUtils.getFileContents(file2).trim();
                                 Tuple<String, String> nameAndDesc = StringUtils.splitOnFirst(fileContents, ':');
                                 templateNamesAndDescriptions.put(nameAndDesc.o1, new Tuple<String, File>(
                                         nameAndDesc.o2, dir));
@@ -227,23 +228,25 @@ public class AppEngineTemplatePage extends WizardPage {
             if (tuple != null && tuple.o2.isDirectory()) {
                 try {
                     //copy all but the description.txt file.
-                    REF.copyDirectory(tuple.o2, sourceFolder.getLocation().toFile(), new ICallback<Boolean, File>() {
+                    FileUtils.copyDirectory(tuple.o2, sourceFolder.getLocation().toFile(),
+                            new ICallback<Boolean, File>() {
 
-                        public Boolean call(File arg) {
-                            //we don't want to copy description.txt
-                            String filename = arg.getName().toLowerCase();
-                            if (filename.equals("description.txt") || filename.equals(".svn") || filename.equals("cvs")) {
-                                return true;
-                            }
-                            return false;
-                        }
-                    }, new ICallback<String, String>() {
+                                public Boolean call(File arg) {
+                                    //we don't want to copy description.txt
+                                    String filename = arg.getName().toLowerCase();
+                                    if (filename.equals("description.txt") || filename.equals(".svn")
+                                            || filename.equals("cvs")) {
+                                        return true;
+                                    }
+                                    return false;
+                                }
+                            }, new ICallback<String, String>() {
 
-                        public String call(String contents) {
-                            //We want to change any references to ${app_id} for the app id entered by the user
-                            return StringUtils.replaceAll(contents, "${app_id}", lastAppIdText);
-                        }
-                    });
+                                public String call(String contents) {
+                                    //We want to change any references to ${app_id} for the app id entered by the user
+                                    return StringUtils.replaceAll(contents, "${app_id}", lastAppIdText);
+                                }
+                            });
                 } catch (IOException e) {
                     Log.log(e);
                 }

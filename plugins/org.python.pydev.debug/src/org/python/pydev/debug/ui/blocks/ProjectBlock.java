@@ -39,6 +39,7 @@ import org.python.pydev.navigator.PythonLabelProvider;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
+
 /**
  * A control for selecting a python project.
  */

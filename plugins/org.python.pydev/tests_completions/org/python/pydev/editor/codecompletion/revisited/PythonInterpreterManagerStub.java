@@ -20,10 +20,11 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
+
+import com.aptana.shared_core.structure.Tuple;
 
 public class PythonInterpreterManagerStub extends AbstractInterpreterManager implements IInterpreterManager {
 

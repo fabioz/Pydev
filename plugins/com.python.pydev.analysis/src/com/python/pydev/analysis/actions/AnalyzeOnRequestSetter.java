@@ -11,11 +11,11 @@ import java.util.ListResourceBundle;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.PyParser;
 
+import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.builder.AnalysisParserObserver;
 
 public class AnalyzeOnRequestSetter implements IPyEditListener {

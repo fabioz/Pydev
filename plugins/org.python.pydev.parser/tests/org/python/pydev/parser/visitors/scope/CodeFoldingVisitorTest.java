@@ -13,9 +13,10 @@ import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
+
+import com.aptana.shared_core.structure.Tuple;
 
 public class CodeFoldingVisitorTest extends TestCase {
 

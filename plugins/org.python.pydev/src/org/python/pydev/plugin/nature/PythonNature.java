@@ -57,7 +57,6 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ProjectMisconfiguredException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
@@ -68,6 +67,8 @@ import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.interpreters.IInterpreterObserver;
 import org.python.pydev.utils.JobProgressComunicator;
+
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * PythonNature is currently used as a marker class.

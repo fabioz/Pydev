@@ -23,13 +23,14 @@ import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.ArrayUtils;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
+
+import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.Tuple;
 
 public class SimpleJythonRunner extends SimpleRunner {
 
@@ -127,7 +128,7 @@ public class SimpleJythonRunner extends SimpleRunner {
         }
 
         if (!new File(jythonJar).exists()) {
-            throw new RuntimeException(StringUtils.format(
+            throw new RuntimeException(com.aptana.shared_core.string.StringUtils.format(
                     "Error. The default configured interpreter: %s does not exist!", jythonJar));
         }
         InterpreterInfo info = (InterpreterInfo) interpreterManager.getInterpreterInfo(jythonJar,

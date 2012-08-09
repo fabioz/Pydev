@@ -25,11 +25,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.customizations.app_engine.launching.AppEngineConstants;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.wizards.project.NewProjectNameAndLocationWizardPage;
+
+import com.aptana.shared_core.callbacks.ICallback;
 
 public class AppEngineConfigWizardPageTestWorkbench extends AbstractWorkbenchTestCase {
 

@@ -16,11 +16,12 @@ import java.util.Map.Entry;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.commentType;
+
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * The initial pretty printer approach consisted of going to a scope and then printing things

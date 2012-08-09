@@ -7,7 +7,6 @@
 package org.python.pydev.ui.actions.container;
 
 import java.io.ByteArrayInputStream;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
@@ -18,20 +17,16 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IEditorReference;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PlatformUI;
-import org.python.pydev.core.REF;
+import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.uiutils.RunInUiThread;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
+
+import com.aptana.shared_core.utils.RunInUiThread;
 
 /**
  * Action used to apply source code formatting to all the available python files.
@@ -95,7 +90,7 @@ public class PySourceFormatAction extends PyContainerAction {
                         monitor.setTaskName("Formatting: " + name);
                         if (PythonPathHelper.isValidSourceFile(name)) {
                             IFile file = (IFile) c;
-                            final IDocument doc = REF.getDocFromResource(c);
+                            final IDocument doc = FileUtilsFileBuffer.getDocFromResource(c);
 
                             final boolean isOpenedFile = openFiles.contains(file);
                             try {
@@ -139,7 +134,7 @@ public class PySourceFormatAction extends PyContainerAction {
     protected void afterRun(int formatted) {
         openFiles = null;
         formatter = null;
-        MessageDialog.openInformation(null, "Files formatted", StringUtils.format("Formatted %s files.", formatted));
+        MessageDialog.openInformation(null, "Files formatted", com.aptana.shared_core.string.StringUtils.format("Formatted %s files.", formatted));
     }
 
     @Override

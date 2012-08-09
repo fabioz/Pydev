@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 
+
 public class DjangoNature implements IProjectNature {
 
     public static final String DJANGO_NATURE_ID = PythonNature.DJANGO_NATURE_ID;

@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.log.Log;
 
+
 /**
  * Used to receive output from processes.
  * 

@@ -32,15 +32,16 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.customizations.CustomizationsPlugin;
 import org.python.pydev.customizations.CustomizationsUIConstants;
 import org.python.pydev.customizations.app_engine.launching.AppEngineConstants;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 import org.python.pydev.ui.pythonpathconf.PythonSelectionLibrariesDialog;
+
+import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.utils.RunInUiThread;
 
 /**
  * This wizard page gives the google app engine configuration settings.
@@ -233,7 +234,7 @@ public class AppEngineConfigWizardPage extends WizardPage {
 
         for (String precondition : preconditions) {
             if (!map.containsKey(precondition)) {
-                setErrorMessage(StringUtils.format("Invalid Google App Engine directory. Did not find: %s in %s",
+                setErrorMessage(com.aptana.shared_core.string.StringUtils.format("Invalid Google App Engine directory. Did not find: %s in %s",
                         precondition, locationFieldContents));
 
                 return false;
@@ -242,11 +243,11 @@ public class AppEngineConfigWizardPage extends WizardPage {
 
         File libDir = new File(loc, "lib");
         if (!libDir.exists()) {
-            setErrorMessage(StringUtils.format("Invalid Google App Engine directory. Did not find 'lib' dir at: %s",
+            setErrorMessage(com.aptana.shared_core.string.StringUtils.format("Invalid Google App Engine directory. Did not find 'lib' dir at: %s",
                     libDir.getAbsolutePath()));
         }
         if (!libDir.isDirectory()) {
-            setErrorMessage(StringUtils.format(
+            setErrorMessage(com.aptana.shared_core.string.StringUtils.format(
                     "Invalid Google App Engine directory. Expected 'lib' to be a directory at: %s",
                     libDir.getAbsolutePath()));
         }

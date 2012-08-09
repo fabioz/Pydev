@@ -28,6 +28,7 @@ import org.eclipse.ui.progress.UIJob;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.uiutils.UIUtils;
 
+
 /**
  * Listens to resource deltas and filters for marker changes of type IMarker.PROBLEM
  * Viewers showing error ticks should register as listener to

@@ -16,7 +16,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.AbstractASTManager;
@@ -28,6 +27,8 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codecompletion.shell.IronpythonShell;
 import org.python.pydev.editor.codecompletion.shell.PythonShellTest;
+
+import com.aptana.shared_core.io.FileUtils;
 
 public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompletionTestsBase {
 
@@ -80,7 +81,7 @@ public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompleti
         File f = new File(file);
         ICompletionState state = CompletionStateFactory.getEmptyCompletionState("RuntimeError", nature,
                 new CompletionCache());
-        IModule module = AbstractASTManager.createModule(f, new Document(REF.getFileContents(f)), nature);
+        IModule module = AbstractASTManager.createModule(f, new Document(FileUtils.getFileContents(f)), nature);
         try {
             nature.getAstManager().getCompletionsForModule(module, state, true, true);
         } catch (CompletionRecursionException e) {

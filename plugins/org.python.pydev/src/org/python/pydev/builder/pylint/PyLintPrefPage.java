@@ -35,6 +35,7 @@ import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.utils.CustomizableFieldEditor;
 import org.python.pydev.utils.LabelFieldEditor;
 
+
 /**
  * @author Fabio Zadrozny
  */

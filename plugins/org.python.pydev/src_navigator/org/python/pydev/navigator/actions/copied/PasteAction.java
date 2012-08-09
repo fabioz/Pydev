@@ -41,6 +41,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
 
+
 /**
  * Copied to extend.
  * 
@@ -215,9 +216,9 @@ public abstract class PasteAction extends SelectionListenerAction {
         for (int i = 0; i < 1000; i++) {
             String newCheck;
             if (i == 0) {
-                newCheck = StringUtils.format(base, "");
+                newCheck = com.aptana.shared_core.string.StringUtils.format(base, "");
             } else {
-                newCheck = StringUtils.format(base, i);
+                newCheck = com.aptana.shared_core.string.StringUtils.format(base, i);
 
             }
             if (validator.isValid(newCheck) == null) {

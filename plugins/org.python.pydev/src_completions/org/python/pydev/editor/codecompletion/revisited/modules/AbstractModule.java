@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionCache;
@@ -30,8 +31,6 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.TupleN;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
@@ -39,6 +38,9 @@ import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
+
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * @author Fabio Zadrozny
@@ -268,7 +270,7 @@ public abstract class AbstractModule implements IModule {
             throws IOException, MisconfigurationException {
         if (PythonPathHelper.isValidFileMod(f.getName())) {
             if (PythonPathHelper.isValidSourceFile(f.getName())) {
-                return createModuleFromDoc(name, f, REF.getDocFromFile(f), nature, checkForPath);
+                return createModuleFromDoc(name, f, FileUtilsFileBuffer.getDocFromFile(f), nature, checkForPath);
 
             } else { //this should be a compiled extension... we have to get completions from the python shell.
                 return new CompiledModule(name, nature.getAstManager().getModulesManager());
@@ -309,7 +311,7 @@ public abstract class AbstractModule implements IModule {
         IModulesManager projModulesManager = pythonNature.getAstManager().getModulesManager();
         String moduleName = null;
         if (file != null) {
-            moduleName = projModulesManager.resolveModule(REF.getFileAbsolutePath(file));
+            moduleName = projModulesManager.resolveModule(FileUtils.getFileAbsolutePath(file));
         }
         if (moduleName == null) {
             moduleName = MODULE_NAME_WHEN_FILE_IS_UNDEFINED;

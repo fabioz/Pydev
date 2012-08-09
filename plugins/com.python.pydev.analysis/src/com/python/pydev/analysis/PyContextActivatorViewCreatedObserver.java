@@ -19,6 +19,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.ui.IViewCreatedObserver;
 import org.python.pydev.ui.IViewWithControls;
 
+
 /**
  * @author fabioz
  */

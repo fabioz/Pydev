@@ -12,8 +12,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.Tuple;
-import org.python.pydev.core.structure.FastStringBuffer;
+
+import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * Class that represents an import found in a document.
@@ -307,7 +308,7 @@ public class ImportHandle {
 
             } else if (c == ';') {
                 String impStr = imp.toString();
-                int endLine = line + StringUtils.countLineBreaks(impStr);
+                int endLine = line + com.aptana.shared_core.string.StringUtils.countLineBreaks(impStr);
                 found = new ImportHandleInfo(impStr, line, endLine, startedInMiddle);
                 this.importInfo.add(found);
                 line = endLine;
@@ -322,7 +323,7 @@ public class ImportHandle {
 
         }
         String impStr = imp.toString();
-        this.importInfo.add(new ImportHandleInfo(impStr, line, line + StringUtils.countLineBreaks(impStr),
+        this.importInfo.add(new ImportHandleInfo(impStr, line, line + com.aptana.shared_core.string.StringUtils.countLineBreaks(impStr),
                 startedInMiddle));
 
     }

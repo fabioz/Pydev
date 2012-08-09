@@ -9,11 +9,11 @@ package com.python.pydev.refactoring.tdd;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.parser.PyParser;
 
+import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.builder.AnalysisParserObserver;
 
 /**

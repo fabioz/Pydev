@@ -9,10 +9,10 @@ package com.python.pydev.debug.model;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.python.pydev.core.MyPipedInputStream;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 
+import com.aptana.shared_core.io.PipedInputStream;
 import com.python.pydev.debug.DebugPluginPrefsInitializer;
 import com.python.pydev.debug.remote.RemoteDebuggerServer;
 
@@ -25,8 +25,8 @@ import com.python.pydev.debug.remote.RemoteDebuggerServer;
  */
 public class ProcessServer extends Process {
 
-    private MyPipedInputStream inputStream;
-    private MyPipedInputStream errorStream;
+    private PipedInputStream inputStream;
+    private PipedInputStream errorStream;
     private OutputStream outputStream;
     private Object lock;
 
@@ -34,10 +34,10 @@ public class ProcessServer extends Process {
         super();
         try {
 
-            inputStream = new MyPipedInputStream();
-            inputStream.write(StringUtils.format("Debug Server at port: %s\r\n",
+            inputStream = new PipedInputStream();
+            inputStream.write(com.aptana.shared_core.string.StringUtils.format("Debug Server at port: %s\r\n",
                     DebugPluginPrefsInitializer.getRemoteDebuggerPort()).getBytes());
-            errorStream = new MyPipedInputStream();
+            errorStream = new PipedInputStream();
             outputStream = new ProcessServerOutputStream();
 
             lock = new Object();
@@ -118,7 +118,7 @@ public class ProcessServer extends Process {
      */
     public void writeToStdOut(String str) {
         try {
-            MyPipedInputStream p = inputStream;
+            PipedInputStream p = inputStream;
             if (p != null) {
                 p.write(str.getBytes());
             }
@@ -132,7 +132,7 @@ public class ProcessServer extends Process {
      */
     public void writeToStdErr(String str) {
         try {
-            MyPipedInputStream p = errorStream;
+            PipedInputStream p = errorStream;
             if (p != null) {
                 p.write(str.getBytes());
             }

@@ -28,11 +28,11 @@ public class PyActionTest extends TestCase {
     }
 
     public void testCountLineBreaks() {
-        assertEquals(0, StringUtils.countLineBreaks("aaa"));
-        assertEquals(1, StringUtils.countLineBreaks("aaa\n"));
-        assertEquals(2, StringUtils.countLineBreaks("aaa\n\r"));
-        assertEquals(1, StringUtils.countLineBreaks("aaa\r\n"));
-        assertEquals(3, StringUtils.countLineBreaks("aaa\nooo\nooo\n"));
-        assertEquals(2, StringUtils.countLineBreaks("aaa\r\nbb\r\n"));
+        assertEquals(0, com.aptana.shared_core.string.StringUtils.countLineBreaks("aaa"));
+        assertEquals(1, com.aptana.shared_core.string.StringUtils.countLineBreaks("aaa\n"));
+        assertEquals(2, com.aptana.shared_core.string.StringUtils.countLineBreaks("aaa\n\r"));
+        assertEquals(1, com.aptana.shared_core.string.StringUtils.countLineBreaks("aaa\r\n"));
+        assertEquals(3, com.aptana.shared_core.string.StringUtils.countLineBreaks("aaa\nooo\nooo\n"));
+        assertEquals(2, com.aptana.shared_core.string.StringUtils.countLineBreaks("aaa\r\nbb\r\n"));
     }
 }

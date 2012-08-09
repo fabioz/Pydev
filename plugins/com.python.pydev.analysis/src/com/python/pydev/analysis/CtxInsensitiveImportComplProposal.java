@@ -40,6 +40,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
+
 /**
  * This is the proposal that should be used to do a completion that can have a related import. 
  * 

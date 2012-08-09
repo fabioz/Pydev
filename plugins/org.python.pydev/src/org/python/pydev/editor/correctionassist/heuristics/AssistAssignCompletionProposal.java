@@ -18,9 +18,11 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.plugin.PydevPlugin;
+
+import com.aptana.shared_core.utils.RunInUiThread;
+
 
 /**
  * Proposal for making an assign to a variable or to a field when some method call is found in the current line.

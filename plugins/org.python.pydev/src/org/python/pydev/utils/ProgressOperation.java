@@ -22,6 +22,7 @@ import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
 
+
 /**
  * Helper class for executing an action and showing its progress.
  * 

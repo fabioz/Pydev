@@ -39,6 +39,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.dialogs.ProjectFolderSelectionDialog;
 import org.python.pydev.ui.editors.TreeWithAddRemove;
 
+
 /**
  * This page is specified to appear in the plugin.xml
  */

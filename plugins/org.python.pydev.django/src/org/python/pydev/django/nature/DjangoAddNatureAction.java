@@ -11,6 +11,7 @@ import org.eclipse.jface.action.IAction;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.ui.actions.project.PyAddNature;
 
+
 public class DjangoAddNatureAction extends PyAddNature {
 
     public void run(IAction action) {

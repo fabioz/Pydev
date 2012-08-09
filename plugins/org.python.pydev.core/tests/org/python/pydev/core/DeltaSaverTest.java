@@ -15,7 +15,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.python.pydev.core.callbacks.ICallback;
+import com.aptana.shared_core.callbacks.ICallback;
 
 public class DeltaSaverTest extends TestCase {
 

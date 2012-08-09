@@ -35,7 +35,6 @@ import org.eclipse.ui.progress.UIJob;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.uiutils.DialogMemento;
@@ -55,6 +54,7 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.DefinitionsASTIteratorVisitor;
 import org.python.pydev.ui.dialogs.TreeSelectionDialog;
 
+import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.refactoring.IPyRefactoring2;
 import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
 import com.python.pydev.ui.hierarchy.TreeNode;

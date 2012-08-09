@@ -41,6 +41,7 @@ import org.python.pydev.navigator.elements.PythonResource;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
 import org.python.pydev.plugin.nature.PythonNature;
 
+
 /**
  * This is the Model provider for python elements.
  * 

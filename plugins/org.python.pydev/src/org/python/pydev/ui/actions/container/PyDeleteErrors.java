@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.python.pydev.core.log.Log;
 
+
 /**
  * Action used to delete the error markers
  *  

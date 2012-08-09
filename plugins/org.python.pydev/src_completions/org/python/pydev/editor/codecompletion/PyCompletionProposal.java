@@ -16,6 +16,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.python.pydev.core.log.Log;
 
+
 /**
  * The standard implementation of the <code>ICompletionProposal</code> interface.
  */

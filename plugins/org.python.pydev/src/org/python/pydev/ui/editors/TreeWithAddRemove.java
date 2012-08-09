@@ -32,12 +32,13 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.dialogs.SelectionDialog;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.dialogs.MapOfStringsInputDialog;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
+
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * @author Fabio Zadrozny
@@ -252,7 +253,7 @@ public abstract class TreeWithAddRemove extends Composite {
         String parent = dialog.getFilterPath();
         if (fileNames != null && fileNames.length > 0) {
             for (String s : fileNames) {
-                addTreeItem(REF.getFileAbsolutePath(new File(parent, s)));
+                addTreeItem(FileUtils.getFileAbsolutePath(new File(parent, s)));
             }
         }
     }

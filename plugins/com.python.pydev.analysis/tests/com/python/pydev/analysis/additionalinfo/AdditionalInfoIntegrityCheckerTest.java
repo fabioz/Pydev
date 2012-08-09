@@ -13,11 +13,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.stmtType;
 
+import com.aptana.shared_core.io.FileUtils;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoIntegrityChecker.IntegrityInfo;
 
 /**
@@ -51,9 +51,9 @@ public class AdditionalInfoIntegrityCheckerTest extends AdditionalInfoTestsBase 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        baseDir = REF.getTempFileAt(new File("."), "data_temp_additional_info_integrity_test");
+        baseDir = FileUtils.getTempFileAt(new File("."), "data_temp_additional_info_integrity_test");
         if (baseDir.exists()) {
-            REF.deleteDirectoryTree(baseDir);
+            FileUtils.deleteDirectoryTree(baseDir);
         }
         baseDir.mkdir();
     }
@@ -61,7 +61,7 @@ public class AdditionalInfoIntegrityCheckerTest extends AdditionalInfoTestsBase 
     @Override
     public void tearDown() throws Exception {
         if (baseDir.exists()) {
-            REF.deleteDirectoryTree(baseDir);
+            FileUtils.deleteDirectoryTree(baseDir);
         }
         super.tearDown();
     }
@@ -70,8 +70,8 @@ public class AdditionalInfoIntegrityCheckerTest extends AdditionalInfoTestsBase 
         IntegrityInfo info = AdditionalInfoIntegrityChecker.checkIntegrity(nature, monitor, false);
         assertTrue(info.desc.toString(), info.allOk);
 
-        File f = REF.getTempFileAt(baseDir, "integrity_no_file", ".py");
-        REF.writeStrToFile("", f);
+        File f = FileUtils.getTempFileAt(baseDir, "integrity_no_file", ".py");
+        FileUtils.writeStrToFile("", f);
         addFooModule(new Module(new stmtType[0]), f);
         info = AdditionalInfoIntegrityChecker.checkIntegrity(nature, monitor, false);
         assertFalse(info.allOk);

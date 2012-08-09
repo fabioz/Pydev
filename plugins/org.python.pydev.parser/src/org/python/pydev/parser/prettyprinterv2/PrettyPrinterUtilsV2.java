@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Stack;
 
-import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -25,6 +24,8 @@ import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.jython.ast.stmtType;
+
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * Utilities for pretty printing.

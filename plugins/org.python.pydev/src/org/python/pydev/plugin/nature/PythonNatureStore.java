@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -44,10 +44,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -56,6 +54,9 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
+
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * This class stores PythonNature and PythonPathNature properties inside the project in a file instead of persistent 
@@ -158,7 +159,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      */
     private synchronized void checkLoad(String function) {
         if (!loaded) {
-            Throwable e = new RuntimeException(StringUtils.format("%s still not loaded and '%s' already called.",
+            Throwable e = new RuntimeException(com.aptana.shared_core.string.StringUtils.format("%s still not loaded and '%s' already called.",
                     xmlFile, function));
             Log.log(e);
         }
@@ -305,7 +306,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                     return true;
                 }
             } else {
-                String fileContents = REF.getFileContents(file);
+                String fileContents = FileUtils.getFileContents(file);
                 if (lastLoadedContents != null && fileContents.equals(lastLoadedContents)) {
                     return false;
                 }
@@ -332,7 +333,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
     private void handleProblemInXmlDocument(DocumentBuilder parser, File file, Exception e) throws CoreException {
         Log.log("Error loading contents from .pydevproject: " + file, e);
         try {
-            REF.createBackupFile(file);
+            FileUtils.createBackupFile(file);
         } catch (Exception e1) {
             Log.log("Error creating backup for: " + file, e);
         }
@@ -417,7 +418,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         if (ret != null) {
             return ret;
         }
-        throw new RuntimeException(StringUtils.format("Error. Unable to get the %s tag by its name. Project: %s",
+        throw new RuntimeException(com.aptana.shared_core.string.StringUtils.format("Error. Unable to get the %s tag by its name. Project: %s",
                 "pydev_project", project));
     }
 
@@ -615,7 +616,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      * @see org.python.pydev.plugin.nature.IPythonNatureStore#setPropertyToXml(org.eclipse.core.runtime.QualifiedName, java.lang.String, boolean)
      */
     public synchronized void setPropertyToXml(QualifiedName key, String value, boolean store) throws CoreException {
-        traceFunc(StringUtils.format("setPropertyToXml key:%s value:%s store:%s", key, value, store));
+        traceFunc(com.aptana.shared_core.string.StringUtils.format("setPropertyToXml key:%s value:%s store:%s", key, value, store));
         synchronized (this) {
             if (store) {
                 checkLoad("setPropertyToXml");
@@ -920,7 +921,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                 if (TRACE_PYTHON_NATURE_STORE) {
                     System.out.println("Writing to file: " + file + " " + str);
                 }
-                REF.writeStrToFile(str, file);
+                FileUtils.writeStrToFile(str, file);
             } catch (Exception e) {
                 Log.log("Unable to write contents of file: " + file, e);
             }

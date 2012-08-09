@@ -25,6 +25,7 @@ import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProc
 import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
+
 /**
  * Python module creation wizard
  * 

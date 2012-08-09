@@ -23,6 +23,7 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 import org.python.pydev.core.log.Log;
 
+
 /**
  * ColorCache gets colors by RGB, or name
  * Named colors are retrieved from preferences

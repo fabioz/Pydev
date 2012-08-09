@@ -32,13 +32,14 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
-import org.python.pydev.core.cache.LRUCache;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
+
+import com.aptana.shared_core.cache.LRUCache;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * @author Fabio Zadrozny
@@ -462,7 +463,7 @@ public class CompiledModule extends AbstractModule {
                 //TODO: The nature (and so the grammar to be used) must be defined by the file we'll parse
                 //(so, we need to know the system modules manager that actually created it to know the actual nature)
                 IModule sourceMod = AbstractModule.createModuleFromDoc(mod.getName(), f,
-                        new Document(REF.getFileContents(f)), nature, true);
+                        new Document(FileUtils.getPyFileContents(f)), nature, true);
                 if (sourceMod instanceof SourceModule) {
                     Definition[] definitions = (Definition[]) sourceMod.findDefinition(
                             state.getCopyWithActTok(foundAs), -1, -1, nature);

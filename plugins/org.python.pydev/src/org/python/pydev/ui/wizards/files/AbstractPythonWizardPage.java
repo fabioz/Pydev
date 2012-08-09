@@ -59,6 +59,7 @@ import org.python.pydev.ui.UIConstants;
 import org.python.pydev.ui.dialogs.PythonPackageSelectionDialog;
 import org.python.pydev.ui.dialogs.SourceFolder;
 
+
 /**
  * The default creation page may be found at org.eclipse.ui.dialogs.WizardNewFileCreationPage
  */

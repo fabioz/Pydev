@@ -9,8 +9,9 @@ package org.python.pydev.plugin;
 import java.io.File;
 import java.io.IOException;
 
-import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
+
+import com.aptana.shared_core.io.FileUtils;
 
 /**
  * @author fabioz
@@ -24,7 +25,7 @@ public class PydevTestUtils {
         }
         File baseDir = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC, "data_temporary_for_testing");
         try {
-            REF.deleteDirectoryTree(baseDir);
+            FileUtils.deleteDirectoryTree(baseDir);
         } catch (IOException e) {
             e.printStackTrace();
         }

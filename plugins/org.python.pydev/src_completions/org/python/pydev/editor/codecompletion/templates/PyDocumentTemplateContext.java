@@ -16,10 +16,11 @@ import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codefolding.PySourceViewer;
+
+import com.aptana.interactive_console.console.ui.IScriptConsoleViewer;
 
 /**
  * Makes a custom evaluation of the template buffer to be created (to put it in the correct indentation and 
@@ -76,7 +77,7 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
         if (this.viewer instanceof IScriptConsoleViewer) {
             //interactive console
             IScriptConsoleViewer v = (IScriptConsoleViewer) this.viewer;
-            IInterpreterInfo interpreterInfo = v.getInterpreterInfo();
+            IInterpreterInfo interpreterInfo = (IInterpreterInfo) v.getInterpreterInfo();
             if (interpreterInfo != null) {
                 return interpreterInfo.getGrammarVersion();
             }

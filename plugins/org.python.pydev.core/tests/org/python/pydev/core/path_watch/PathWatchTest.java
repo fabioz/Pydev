@@ -18,10 +18,11 @@ import name.pachler.nio.file.WatchEvent;
 import name.pachler.nio.file.WatchKey;
 
 import org.python.pydev.core.ListenerList;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
-import org.python.pydev.core.callbacks.ICallback;
-import org.python.pydev.core.structure.FastStringBuffer;
+
+import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * @author fabioz
@@ -34,9 +35,9 @@ public class PathWatchTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         PathWatch.log = new FastStringBuffer(1000);
-        baseDir = new File(REF.getFileAbsolutePath(new File("pathwatchtest.temporary_dir")));
+        baseDir = new File(FileUtils.getFileAbsolutePath(new File("pathwatchtest.temporary_dir")));
         try {
-            REF.deleteDirectoryTree(baseDir);
+            FileUtils.deleteDirectoryTree(baseDir);
         } catch (Exception e) {
             //ignore
         }
@@ -46,7 +47,7 @@ public class PathWatchTest extends TestCase {
     protected void tearDown() throws Exception {
         System.out.println(PathWatch.log);
         PathWatch.log = null;
-        REF.deleteDirectoryTree(baseDir);
+        FileUtils.deleteDirectoryTree(baseDir);
     }
 
     public void testEventsStackerRunnable() throws Exception {
@@ -84,7 +85,7 @@ public class PathWatchTest extends TestCase {
             }
         });
 
-        EventsStackerRunnable stack = new EventsStackerRunnable(key, Paths.get(REF.getFileAbsolutePath(baseDir)), list);
+        EventsStackerRunnable stack = new EventsStackerRunnable(key, Paths.get(FileUtils.getFileAbsolutePath(baseDir)), list);
 
         stack.run();
         assertEquals(0, changes.size());
@@ -163,7 +164,7 @@ public class PathWatchTest extends TestCase {
         pathWatch.track(baseDir, listener);
 
         for (int i = 0; i < 5; i++) {
-            REF.writeStrToFile("FILE1", new File(baseDir, "f" + i + ".txt"));
+            FileUtils.writeStrToFile("FILE1", new File(baseDir, "f" + i + ".txt"));
         }
 
         waitUntilCondition(new ICallback<String, Object>() {

@@ -16,6 +16,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.PyEdit;
 
+
 /**
  * Deselects the scope based on a previous scope selection.
  * 

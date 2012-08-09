@@ -10,7 +10,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure;
@@ -21,6 +20,7 @@ import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.ui.pythonpathconf.IInterpreterInfoBuilder;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
+import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
 
@@ -66,7 +66,7 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
                         modulesFound);
 
                 if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
-                    Log.toLogFile(this, StringUtils.format("Found: %s modules", keysFound.size()));
+                    Log.toLogFile(this, com.aptana.shared_core.string.StringUtils.format("Found: %s modules", keysFound.size()));
                 }
                 ret = checkEarlyReturn(monitor, builder);
                 if (ret != null) {
@@ -75,7 +75,7 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
                 Tuple<List<ModulesKey>, List<ModulesKey>> diffModules = modulesManager.diffModules(keysFound);
                 if (diffModules.o1.size() > 0 || diffModules.o2.size() > 0) {
                     if (DebugSettings.DEBUG_INTERPRETER_AUTO_UPDATE) {
-                        Log.toLogFile(this, StringUtils.format("Diff modules. Added: %s Removed: %s", diffModules.o1,
+                        Log.toLogFile(this, com.aptana.shared_core.string.StringUtils.format("Diff modules. Added: %s Removed: %s", diffModules.o1,
                                 diffModules.o2));
                     }
 

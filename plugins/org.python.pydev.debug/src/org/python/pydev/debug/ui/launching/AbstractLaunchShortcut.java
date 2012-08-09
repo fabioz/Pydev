@@ -43,7 +43,6 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.editor.PyEdit;
@@ -52,6 +51,9 @@ import org.python.pydev.plugin.StatusInfo;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.dialogs.ProjectSelectionDialog;
 import org.python.pydev.ui.dialogs.PythonModulePickerDialog;
+
+import com.aptana.shared_core.utils.RunInUiThread;
+
 
 /**
  * Called when "Run Script..." popup menu item is selected.

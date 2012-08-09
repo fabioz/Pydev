@@ -113,6 +113,7 @@
 
         <replaceregexp file="${buildDirectory}/features/org.python.pydev.feature/feature.xml" match='version="(.*)"' replace='version="${version.full}"' byline="true" />
         <replaceregexp file="${buildDirectory}/features/org.python.pydev.django_templates.feature/feature.xml" match='version="(.*)"' replace='version="${version.full}"' byline="true" />
+        <replaceregexp file="${buildDirectory}/features/com.aptana.js.interactive_console.feature/feature.xml" match='version="(.*)"' replace='version="${version.full}"' byline="true" />
             
         <replaceregexp file="${buildDirectory}/plugins/org.python.pydev/src/org/python/pydev/plugin/PydevPlugin.java" match='public static final String version =(.*)"' replace='public static final String version ="${version.full}"' byline="true" />
         <replaceregexp file="${buildDirectory}/plugins/com.python.pydev/src/com/python/pydev/PydevPlugin.java" match='public static final String version =(.*)"' replace='public static final String version ="${version.full}"' byline="true" />
@@ -368,10 +369,16 @@
         </zip>
     	
     	
+        <zip destfile="${p2.repo.dir}/com.aptana.js.interactive_console.feature-${version.full}.zip">
+            <fileset dir="${p2.repo.dir}" defaultexcludes="false" includes="**/**com.aptana.js.interactive_console**"/>
+        </zip>
+    	
+    	
     	
         <copy file="${builder}/index.html" tofile="${p2.repo.dir}/index.html" />
         <replace token="ZIP_FILE_PYDEV" value="org.python.pydev.feature-${version.full}.zip" file="${p2.repo.dir}/index.html" />
         <replace token="ZIP_FILE_DJANGO_TEMPLATES" value="org.python.pydev.django_templates.feature-${version.full}.zip" file="${p2.repo.dir}/index.html" />
+        <replace token="ZIP_FILE_JS_INTERACTIVE_CONSOLE" value="com.aptana.js.interactive_console.feature-${version.full}.zip" file="${p2.repo.dir}/index.html" />
         
 
     </target>

@@ -23,6 +23,7 @@ import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 
+
 /**
  * Based on JavaParameterListValidator
  * 

@@ -32,14 +32,15 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.core.IPyStackFrame;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
+
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * Refactored from the PydevPlugin: helpers to find some IFile / IEditorInput 
@@ -178,7 +179,7 @@ public class PySourceLocatorBase {
                         File file = PydevFileEditorInput.getFile(pydevFileEditorInput);
                         if (file != null) {
                             PySourceLocatorPrefs.addPathTranslation(path,
-                                    Path.fromOSString(REF.getFileAbsolutePath(file)));
+                                    Path.fromOSString(FileUtils.getFileAbsolutePath(file)));
                             return input;
                         }
                     }
@@ -211,7 +212,7 @@ public class PySourceLocatorBase {
                             }
                         } catch (Exception e) {
                         }
-                        REF.writeStrToFile(fileContents, file);
+                        FileUtils.writeStrToFile(fileContents, file);
                         try {
                             file.setReadOnly();
                         } catch (Exception e) {
@@ -320,7 +321,7 @@ public class PySourceLocatorBase {
             r.run();
         }
         if (l.size() > 0) {
-            String fileAbsolutePath = REF.getFileAbsolutePath(l.get(0));
+            String fileAbsolutePath = FileUtils.getFileAbsolutePath(l.get(0));
             return PydevFileEditorInput.create(new File(fileAbsolutePath), true);
         }
         return null;

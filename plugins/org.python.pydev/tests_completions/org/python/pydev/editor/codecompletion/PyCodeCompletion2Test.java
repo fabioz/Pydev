@@ -18,7 +18,6 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
@@ -26,6 +25,8 @@ import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.plugin.nature.SystemPythonNature;
+
+import com.aptana.shared_core.callbacks.ICallback;
 
 /**
  * @author Fabio Zadrozny

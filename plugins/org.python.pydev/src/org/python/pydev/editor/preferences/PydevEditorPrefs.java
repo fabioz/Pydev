@@ -32,9 +32,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.StyledTextForShowingCodeFactory;
 import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
@@ -45,6 +43,9 @@ import org.python.pydev.plugin.preferences.IPydevPreferencesProvider;
 import org.python.pydev.plugin.preferences.IPydevPreferencesProvider2;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.utils.LinkFieldEditor;
+
+import com.aptana.shared_core.structure.Tuple;
+import com.aptana.shared_core.utils.RunInUiThread;
 
 /**
  * The preference page for setting the editor options.

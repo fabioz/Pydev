@@ -56,10 +56,8 @@ import org.eclipse.ui.console.IHyperlink;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.core.tooltips.presenter.StyleRangeWithCustomData;
 import org.python.pydev.core.tooltips.presenter.ToolTipPresenterHandler;
-import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
 import org.python.pydev.debug.ui.ILinkContainer;
@@ -70,6 +68,9 @@ import org.python.pydev.ui.ColorAndStyleCache;
 import org.python.pydev.ui.IViewCreatedObserver;
 import org.python.pydev.ui.IViewWithControls;
 import org.python.pydev.ui.ViewPartWithOrientation;
+
+import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.utils.RunInUiThread;
 
 /**
  * ViewPart that'll listen to the PyUnitServer and show what's happening (with a green/red bar).

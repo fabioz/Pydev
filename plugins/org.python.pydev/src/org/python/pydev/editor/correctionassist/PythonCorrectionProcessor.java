@@ -46,6 +46,7 @@ import org.python.pydev.editor.correctionassist.heuristics.AssistSurroundWith;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
 import org.python.pydev.plugin.PydevPlugin;
 
+
 /**
  * This class should be used to give context help
  * 

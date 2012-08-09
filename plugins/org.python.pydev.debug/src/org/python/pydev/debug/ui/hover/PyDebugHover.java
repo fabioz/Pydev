@@ -24,6 +24,7 @@ import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.editor.hover.IPyHoverParticipant;
 import org.python.pydev.editor.hover.PyHoverPreferencesPage;
 
+
 /**
  * Gathers hover info during a debug session.
  * 

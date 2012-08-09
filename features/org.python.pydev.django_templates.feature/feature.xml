@@ -108,22 +108,25 @@ This Agreement is governed by the laws of the State of New York and the intellec
    </license>
 
    <requires>
-      <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="org.eclipse.jface.text"/>
-      <import plugin="org.eclipse.core.resources"/>
-      <import plugin="org.eclipse.ui.workbench.texteditor"/>
-      <import plugin="org.eclipse.core.filebuffers"/>
-      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.ui.editors"/>
-      <import plugin="org.eclipse.ui.console"/>
       <import plugin="org.eclipse.ui.views"/>
-      <import plugin="org.eclipse.debug.core"/>
-      <import plugin="org.eclipse.core.variables"/>
-      <import plugin="org.eclipse.search"/>
-      <import plugin="org.eclipse.debug.ui"/>
-      <import plugin="org.eclipse.ltk.core.refactoring"/>
-      <import plugin="org.eclipse.ltk.ui.refactoring"/>
+      <import plugin="org.eclipse.ui.workbench.texteditor"/>
+      <import plugin="com.aptana.editor.common"/>
+      <import plugin="com.aptana.editor.xml"/>
+      <import plugin="com.aptana.editor.html"/>
+      <import plugin="com.aptana.editor.css"/>
+      <import plugin="com.aptana.editor.js" />
+      <import plugin="com.aptana.parsing"/>
+      <import plugin="beaver"/>
+      <import plugin="com.aptana.theme"/>
+      <import plugin="org.python.pydev.core"/>
+      <import plugin="org.python.pydev" />
+      <import plugin="com.aptana.editor.html.formatter"/>
+      <import plugin="com.aptana.formatter.epl"/>
+      <import plugin="com.aptana.formatter.ui.epl"/>
    </requires>
 
    <plugin

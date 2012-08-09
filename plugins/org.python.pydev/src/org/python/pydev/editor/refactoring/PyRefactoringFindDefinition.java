@@ -20,8 +20,6 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
@@ -35,6 +33,9 @@ import org.python.pydev.editor.model.Location;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.SystemPythonNature;
+
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * @note This class was refactored and moved from the Pydev Extensions version to be able to provide a context-sensitive
@@ -266,7 +267,7 @@ public class PyRefactoringFindDefinition {
         if (file == null) {
             return null;
         }
-        return new Tuple3<String, Integer, Integer>(REF.getFileAbsolutePath(file), d.line, d.col);
+        return new Tuple3<String, Integer, Integer>(FileUtils.getFileAbsolutePath(file), d.line, d.col);
     }
 
     /**

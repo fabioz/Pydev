@@ -42,6 +42,7 @@ import org.python.pydev.django.launching.PythonFileRunner;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.nature.PythonNature;
 
+
 /**
  * Base class for django actions.
  */
@@ -105,7 +106,7 @@ public abstract class DjangoAction implements IObjectActionDelegate {
             throw new RuntimeException(e1);
         }
         if (manageVarible == null) {
-            manageVarible = askNewManageSubstitution(pythonPathNature, variableSubstitution, StringUtils.format(
+            manageVarible = askNewManageSubstitution(pythonPathNature, variableSubstitution, com.aptana.shared_core.string.StringUtils.format(
                     "Unable to perform action because the %s \n" + "substitution variable is not set.\n\n"
                             + "Please select the manage.py to be used to run the action.",
                     DjangoConstants.DJANGO_MANAGE_VARIABLE));
@@ -115,7 +116,7 @@ public abstract class DjangoAction implements IObjectActionDelegate {
         }
         IFile manageDotPy = selectedProject.getFile(manageVarible);
         if (manageDotPy == null || !manageDotPy.exists()) {
-            manageVarible = askNewManageSubstitution(pythonPathNature, variableSubstitution, StringUtils.format(
+            manageVarible = askNewManageSubstitution(pythonPathNature, variableSubstitution, com.aptana.shared_core.string.StringUtils.format(
                     "Unable to perform action because the %s \n"
                             + "substitution variable is set to a non existing file.\n\n"
                             + "Please select the manage.py to be used to run the action.",
@@ -158,7 +159,7 @@ public abstract class DjangoAction implements IObjectActionDelegate {
 
                         }
                         try {
-                            outputStream.write(StringUtils.format("Finished \""
+                            outputStream.write(com.aptana.shared_core.string.StringUtils.format("Finished \""
                                     + finalManageDotPy.getLocation().toOSString() + " " + command + "\" execution."));
                         } catch (IOException e1) {
                             Log.log(e1);

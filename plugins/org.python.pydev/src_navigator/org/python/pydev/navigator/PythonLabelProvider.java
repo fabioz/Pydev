@@ -36,6 +36,7 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 import org.python.pydev.ui.UIConstants;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
+
 /**
  * Provides the labels for the pydev package explorer.
  * 

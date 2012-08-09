@@ -23,6 +23,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.log.Log;
 
+
 /**
  * Based on org.eclipse.jdt.internal.ui.javaeditor.EditorUtility.calculateChangedLineRegions
  */

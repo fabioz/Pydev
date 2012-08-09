@@ -16,11 +16,12 @@ import org.eclipse.jface.preference.PreferenceStore;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.plugin.PydevTestUtils;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
+
+import com.aptana.shared_core.io.FileUtils;
 
 /**
  * @author fabioz
@@ -54,7 +55,7 @@ public class InterpreterManagerTest extends TestCase {
         ProjectModulesManager.IN_TESTS = true;
         baseDir = PydevTestUtils.setTestPlatformStateLocation();
         baseDir = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC, "data_temporary_for_testing");
-        REF.deleteDirectoryTree(baseDir);
+        FileUtils.deleteDirectoryTree(baseDir);
 
         baseDir.mkdirs();
         stateLocation = new File(baseDir, "pydev_plugin_state_location");
@@ -67,7 +68,7 @@ public class InterpreterManagerTest extends TestCase {
     @Override
     protected void tearDown() throws Exception {
         ProjectModulesManager.IN_TESTS = false;
-        REF.deleteDirectoryTree(baseDir);
+        FileUtils.deleteDirectoryTree(baseDir);
     }
 
     public void testInterpreterManager() throws Exception {

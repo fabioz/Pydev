@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.python.pydev.core.log.Log;
 
+
 public class ExtensionHelper {
 
     /**

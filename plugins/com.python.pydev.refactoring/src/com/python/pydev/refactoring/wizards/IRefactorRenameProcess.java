@@ -14,9 +14,10 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+
+import com.aptana.shared_core.structure.Tuple;
 
 public interface IRefactorRenameProcess {
 

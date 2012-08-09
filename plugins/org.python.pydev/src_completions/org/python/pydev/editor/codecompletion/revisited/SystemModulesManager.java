@@ -21,6 +21,7 @@ import java.util.SortedMap;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.DeltaSaver;
+import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -31,11 +32,7 @@ import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
-import org.python.pydev.core.cache.LRUCache;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
@@ -46,6 +43,10 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
+
+import com.aptana.shared_core.cache.LRUCache;
+import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * @author Fabio Zadrozny
@@ -229,7 +230,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
             if (tryToParse) {
                 IDocument doc;
                 try {
-                    doc = REF.getDocFromFile(predefinedModule);
+                    doc = FileUtilsFileBuffer.getDocFromFile(predefinedModule);
                     IGrammarVersionProvider provider = new IGrammarVersionProvider() {
 
                         public int getGrammarVersion() throws MisconfigurationException {

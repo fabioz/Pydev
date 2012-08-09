@@ -20,20 +20,21 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.runners.ThreadStreamReader;
 import org.python.pydev.runners.UniversalRunner;
 import org.python.pydev.runners.UniversalRunner.AbstractRunner;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.utils.PyFileListing;
 import org.python.pydev.utils.PyFileListing.PyFileInfo;
+
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.io.ThreadStreamReader;
+import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * This class is used to make the code coverage.
@@ -339,7 +340,7 @@ public class PyCoverage {
         File dir = getCoverageDirLocation();
         try {
             //Clear the files we created when running the coverages.
-            REF.clearTempFilesAt(dir, ".coverage.");
+            FileUtils.clearTempFilesAt(dir, ".coverage.");
         } catch (Exception e) {
             Log.log(e);
         }
@@ -367,7 +368,7 @@ public class PyCoverage {
     public static File getCoverageDirLocation() {
         IPath stateLocation = PydevDebugPlugin.getDefault().getStateLocation();
         stateLocation = stateLocation.append("coverage");
-        String loc = REF.getFileAbsolutePath(stateLocation.toFile());
+        String loc = FileUtils.getFileAbsolutePath(stateLocation.toFile());
         File dir = new File(loc);
         try {
             dir.mkdirs();
@@ -387,7 +388,7 @@ public class PyCoverage {
      * @return
      */
     public static File getCoverageFileLocation() {
-        return REF.getTempFileAt(getCoverageDirLocation(), ".coverage.");
+        return FileUtils.getTempFileAt(getCoverageDirLocation(), ".coverage.");
     }
 
 }

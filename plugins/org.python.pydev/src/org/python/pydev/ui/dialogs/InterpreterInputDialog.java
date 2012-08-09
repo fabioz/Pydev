@@ -16,9 +16,10 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterEditor;
+
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * @author raul
@@ -90,7 +91,7 @@ public class InterpreterInputDialog extends AbstractKeyValueDialog {
     public Tuple<String, String> getKeyAndValueEntered() {
         Tuple<String, String> keyAndValueEntered = super.getKeyAndValueEntered();
         if (keyAndValueEntered != null) {
-            keyAndValueEntered.o2 = REF.getFileAbsolutePath(finalValueValue);
+            keyAndValueEntered.o2 = FileUtils.getFileAbsolutePath(finalValueValue);
         }
         return keyAndValueEntered;
     }

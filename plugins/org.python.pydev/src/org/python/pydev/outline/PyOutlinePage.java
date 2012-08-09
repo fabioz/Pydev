@@ -56,6 +56,7 @@ import org.python.pydev.ui.IViewCreatedObserver;
 import org.python.pydev.ui.IViewWithControls;
 import org.python.pydev.ui.UIConstants;
 
+
 /**
  * Outline page, displays the structure of the document in the editor window. 
  *

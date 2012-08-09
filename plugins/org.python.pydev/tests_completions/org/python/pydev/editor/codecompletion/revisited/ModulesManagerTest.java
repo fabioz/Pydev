@@ -17,11 +17,12 @@ import java.util.Set;
 
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
-import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
+
+import com.aptana.shared_core.io.FileUtils;
 
 public class ModulesManagerTest extends CodeCompletionTestsBase {
 
@@ -72,7 +73,7 @@ public class ModulesManagerTest extends CodeCompletionTestsBase {
 
         File f = new File("modules_manager_testing.temporary_dir");
         try {
-            REF.deleteDirectoryTree(f);
+            FileUtils.deleteDirectoryTree(f);
         } catch (Exception e1) {
             //ignore
         }
@@ -103,7 +104,7 @@ public class ModulesManagerTest extends CodeCompletionTestsBase {
             assertEquals(set, loaded.getAllModuleNames(true, ""));
             assertEquals(Arrays.asList("rara", "boo"), loaded.getPythonPathHelper().getPythonpath());
         } finally {
-            REF.deleteDirectoryTree(f);
+            FileUtils.deleteDirectoryTree(f);
         }
 
     }

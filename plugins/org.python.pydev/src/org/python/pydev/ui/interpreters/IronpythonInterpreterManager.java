@@ -15,10 +15,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.runners.SimpleIronpythonRunner;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
+
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.structure.Tuple;
 
 public class IronpythonInterpreterManager extends AbstractInterpreterManager {
 
@@ -64,7 +65,7 @@ public class IronpythonInterpreterManager extends AbstractInterpreterManager {
         File script = getInterpreterInfoPy();
 
         Tuple<String, String> outTup = new SimpleIronpythonRunner().runAndGetOutputWithInterpreter(executable,
-                REF.getFileAbsolutePath(script), null, null, null, monitor, "utf-8");
+                FileUtils.getFileAbsolutePath(script), null, null, null, monitor, "utf-8");
 
         InterpreterInfo info = createInfoFromOutput(monitor, outTup, askUser);
 

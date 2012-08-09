@@ -10,6 +10,9 @@ import junit.framework.TestCase;
 
 import org.eclipse.swt.custom.StyleRange;
 
+import com.aptana.interactive_console.console.ui.ScriptConsolePartitioner;
+import com.aptana.interactive_console.console.ui.ScriptStyleRange;
+
 public class ScriptConsolePartitionerTest extends TestCase {
 
     protected void setUp() throws Exception {

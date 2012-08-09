@@ -21,13 +21,14 @@ import org.python.pydev.core.IDeltaProcessor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.ModulesKeyForJava;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
+
+import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 public abstract class ModulesManagerWithBuild extends ModulesManager implements IDeltaProcessor<ModulesKey> {
 
@@ -177,13 +178,13 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
             return;
         }
 
-        String absolutePath = REF.getFileAbsolutePath(file);
+        String absolutePath = FileUtils.getFileAbsolutePath(file);
         List<ModulesKey> toRem = new ArrayList<ModulesKey>();
 
         synchronized (modulesKeysLock) {
 
             for (ModulesKey key : modulesKeys.keySet()) {
-                if (key.file != null && REF.getFileAbsolutePath(key.file).startsWith(absolutePath)) {
+                if (key.file != null && FileUtils.getFileAbsolutePath(key.file).startsWith(absolutePath)) {
                     toRem.add(key);
                 }
             }
@@ -196,7 +197,7 @@ public abstract class ModulesManagerWithBuild extends ModulesManager implements 
 
     public void rebuildModule(File f, ICallback0<IDocument> doc, final IProject project, IProgressMonitor monitor,
             IPythonNature nature) {
-        final String m = pythonPathHelper.resolveModule(REF.getFileAbsolutePath(f));
+        final String m = pythonPathHelper.resolveModule(FileUtils.getFileAbsolutePath(f));
         if (m != null) {
             addModule(new ModulesKey(m, f));
 

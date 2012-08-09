@@ -35,14 +35,15 @@ import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.python.pydev.core.IPythonPathNature;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
-import org.python.pydev.runners.ThreadStreamReader;
 import org.python.pydev.runners.UniversalRunner;
 import org.python.pydev.runners.UniversalRunner.AbstractRunner;
+
+import com.aptana.shared_core.io.ThreadStreamReader;
+import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * This is the window used to handle a process. Currently specific to google app engine (could be more customizable

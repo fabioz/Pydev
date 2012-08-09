@@ -39,11 +39,12 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.dialogs.ElementTreeSelectionDialog;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.StringMatcher;
 import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.ui.IViewCreatedObserver;
 import org.python.pydev.ui.IViewWithControls;
+
+import com.aptana.shared_core.string.StringMatcher;
 
 /**
  * This class extends the 'default' element tree selection dialog so that the user is able to filter the matches

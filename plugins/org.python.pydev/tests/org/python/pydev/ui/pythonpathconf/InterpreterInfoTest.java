@@ -20,8 +20,9 @@ import java.util.Properties;
 
 import junit.framework.TestCase;
 
-import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
+
+import com.aptana.shared_core.io.FileUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -264,7 +265,7 @@ public class InterpreterInfoTest extends TestCase {
         //cd W:/pydev/plugins/org.python.pydev/tests/org/python/pydev/ui/pythonpathconf
         //"d:\instaçao âo\Python27\python.exe"  W:\pydev\plugins\org.python.pydev\pysrc\interpreterInfo.py > InterpreterInfoOutput.txt
 
-        String contents = (String) REF.getFileContentsCustom(new File(TestDependent.TEST_PYDEV_PLUGIN_LOC
+        String contents = (String) FileUtils.getFileContentsCustom(new File(TestDependent.TEST_PYDEV_PLUGIN_LOC
                 + "tests/org/python/pydev/ui/pythonpathconf/InterpreterInfoOutput.txt"), "utf-8", String.class);
         InterpreterInfo i1 = InterpreterInfo.fromString(contents, false);
         InterpreterInfo i2 = i1.makeCopy();

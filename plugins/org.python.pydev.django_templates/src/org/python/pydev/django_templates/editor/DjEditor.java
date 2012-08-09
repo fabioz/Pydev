@@ -18,6 +18,7 @@ import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.ColorAndStyleCache;
 import org.python.pydev.utils.ICallback;
 
+
 public class DjEditor {
 
     private IPropertyChangeListener prefChangeListener;

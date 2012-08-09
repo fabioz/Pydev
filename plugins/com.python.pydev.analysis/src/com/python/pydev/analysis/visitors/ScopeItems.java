@@ -16,12 +16,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.structure.FastStack;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.visitors.NodeUtils;
+
+import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.Tuple;
 
 public final class ScopeItems {
 

@@ -14,15 +14,19 @@ import junit.framework.TestCase;
 import org.eclipse.debug.ui.console.IConsoleLineTracker;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.Tuple;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.dltk.console.InterpreterResponse;
-import org.python.pydev.dltk.console.ScriptConsoleHistory;
-import org.python.pydev.dltk.console.ScriptConsolePrompt;
-import org.python.pydev.dltk.console.ui.IConsoleStyleProvider;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.autoedit.TestIndentPrefs;
+
+import com.aptana.interactive_console.console.InterpreterResponse;
+import com.aptana.interactive_console.console.ScriptConsoleHistory;
+import com.aptana.interactive_console.console.ScriptConsolePrompt;
+import com.aptana.interactive_console.console.ui.IConsoleStyleProvider;
+import com.aptana.interactive_console.console.ui.internal.ICommandHandler;
+import com.aptana.interactive_console.console.ui.internal.IScriptConsoleViewer2ForDocumentListener;
+import com.aptana.interactive_console.console.ui.internal.ScriptConsoleDocumentListener;
+import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.structure.Tuple;
 
 public class ScriptConsoleDocumentListenerTest extends TestCase {
 
@@ -69,9 +73,10 @@ public class ScriptConsoleDocumentListenerTest extends TestCase {
                     }
                 },
 
-                prompt, new ScriptConsoleHistory(), new ArrayList<IConsoleLineTracker>(), "");
+                prompt, new ScriptConsoleHistory(), new ArrayList<IConsoleLineTracker>(), "",
+                new PyAutoIndentStrategy());
 
-        PyAutoIndentStrategy strategy = listener.getIndentStrategy();
+        PyAutoIndentStrategy strategy = (PyAutoIndentStrategy) listener.getIndentStrategy();
         strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
         listener.setDocument(doc);
 
@@ -80,17 +85,17 @@ public class ScriptConsoleDocumentListenerTest extends TestCase {
         //Things happen in a thread now, so, we have to wait for it to happen...
         for (int i = 0; i < 50; i++) {
             //if we get at the expected condition, break our for.
-            if (StringUtils.format(">>> class A:%s>>>     ", listener.getDelimeter()).equals(doc.get())) {
+            if (com.aptana.shared_core.string.StringUtils.format(">>> class A:%s>>>     ", listener.getDelimeter()).equals(doc.get())) {
                 break;
             }
             synchronized (this) {
                 wait(250);
             }
         }
-        assertEquals(StringUtils.format(">>> class A:%s>>>     ", listener.getDelimeter()), doc.get());
+        assertEquals(com.aptana.shared_core.string.StringUtils.format(">>> class A:%s>>>     ", listener.getDelimeter()), doc.get());
         doc.replace(doc.getLength(), 0, "def m1");
         doc.replace(doc.getLength(), 0, "(");
-        assertEquals(StringUtils.format(">>> class A:%s>>>     def m1(self):", listener.getDelimeter()), doc.get());
+        assertEquals(com.aptana.shared_core.string.StringUtils.format(">>> class A:%s>>>     def m1(self):", listener.getDelimeter()), doc.get());
 
         listener.clear(false);
         assertEquals(">>> ", doc.get());

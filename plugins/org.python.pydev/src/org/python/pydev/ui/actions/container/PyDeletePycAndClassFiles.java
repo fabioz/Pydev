@@ -15,6 +15,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 
+
 /**
  * Action used to delete the .pyc and $py.class files (generated from the python or jython interpreter).
  *  
@@ -62,7 +63,7 @@ public class PyDeletePycAndClassFiles extends PyContainerAction {
 
     @Override
     protected void afterRun(int deleted) {
-        MessageDialog.openInformation(null, "Files deleted", StringUtils.format("Deleted %s files.", deleted));
+        MessageDialog.openInformation(null, "Files deleted", com.aptana.shared_core.string.StringUtils.format("Deleted %s files.", deleted));
     }
 
     @Override

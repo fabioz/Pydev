@@ -19,7 +19,6 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallbackListener;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStack;
@@ -48,6 +47,7 @@ import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 
+import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.messages.IMessage;
 import com.python.pydev.analysis.scopeanalysis.AbstractScopeAnalyzerVisitor;

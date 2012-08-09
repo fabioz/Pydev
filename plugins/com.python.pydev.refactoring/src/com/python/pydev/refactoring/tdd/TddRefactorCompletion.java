@@ -21,6 +21,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 
+
 /**
  * This is the proposal that goes outside. It only creates the proposal that'll actually do something later, as
  * creating that proposal may be slower.

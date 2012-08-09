@@ -22,7 +22,6 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.callbacks.ICallbackListener;
@@ -31,6 +30,7 @@ import org.python.pydev.editor.autoedit.TestIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 
+import com.aptana.shared_core.io.FileUtils;
 import com.python.pydev.analysis.messages.IMessage;
 
 public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
@@ -178,7 +178,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_LOC +
                 "extendable/with_path.py");
-        Document doc = new Document(REF.getFileContents(file));
+        Document doc = new Document(FileUtils.getFileContents(file));
         msgs = analyzer.analyzeDocument(nature,
                 (SourceModule) AbstractModule.createModule("extendable.with_path", file, nature, true), prefs, doc,
                 new NullProgressMonitor(), new TestIndentPrefs(true, 4));
@@ -191,7 +191,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_LOC +
                 "extendable/__init__.py");
-        Document doc = new Document(REF.getFileContents(file));
+        Document doc = new Document(FileUtils.getFileContents(file));
         msgs = analyzer.analyzeDocument(nature,
                 (SourceModule) AbstractModule.createModule("extendable.__init__", file, nature, true), prefs, doc,
                 new NullProgressMonitor(), new TestIndentPrefs(true, 4));
@@ -711,7 +711,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
     private void unregisterFindDefinitionListener(String... expected) {
         SourceModule.onFindDefinition = null;
         if (expected.length != findDefinitionDone.size()) {
-            fail(StringUtils.format("Expected: %s (%s) find definition call(s). Found: %s (%s)", expected.length,
+            fail(com.aptana.shared_core.string.StringUtils.format("Expected: %s (%s) find definition call(s). Found: %s (%s)", expected.length,
                     Arrays.asList(expected), findDefinitionDone.size(), findDefinitionDone));
         }
     }

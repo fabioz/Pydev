@@ -23,10 +23,11 @@ import org.eclipse.swt.graphics.Drawable;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.core.tooltips.presenter.AbstractInformationPresenter;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
+
+import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * Based on HTMLTextPresenter
