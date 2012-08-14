@@ -79,6 +79,7 @@ def getfilesystemencoding():
         ret = sys.getfilesystemencoding()
         if not ret:
             raise RuntimeError('Unable to get encoding.')
+        return ret
     except:
         #Only available from 2.3 onwards.
         if sys.platform == 'win32':
