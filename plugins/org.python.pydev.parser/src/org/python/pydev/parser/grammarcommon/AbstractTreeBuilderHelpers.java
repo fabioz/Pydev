@@ -16,12 +16,15 @@ import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Comprehension;
 import org.python.pydev.parser.jython.ast.Dict;
+import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.ListComp;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Tuple;
+import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
@@ -45,12 +48,33 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
         this.ctx = new CtxVisitor();
     }
 
-    protected final stmtType[] makeStmts(int l) {
+    protected final stmtType[] makeStmts(int l) throws ParseException {
         stmtType[] stmts = new stmtType[l];
         for (int i = l - 1; i >= 0; i--) {
-            stmts[i] = (stmtType) stack.popNode();
+            SimpleNode node = stack.popNode();
+            try {
+                stmts[i] = (stmtType) node;
+            } catch (ClassCastException e) {
+                if (node instanceof Yield) {
+                    stmts[i] = new Expr((Yield) node); //recover from it with a valid node!
+                    String msg = "Error. Found yield out of scope.";
+                    final ParseException e2 = new ParseException(msg, node);
+                    this.stack.getGrammar().addAndReport(e2, msg);
+                } else {
+                    recoverFromClassCastException(node, e);
+                    stmts[i] = new Pass(); //recover from it with a valid node!
+                }
+            }
         }
         return stmts;
+    }
+
+    protected final void recoverFromClassCastException(SimpleNode node, ClassCastException e) throws ParseException {
+        //something invalid happened (but let's keep it alive, just adding it as a parse error!
+        String msg = "ClassCastException: was: " + e.getMessage() + " (" + node
+                + "). Expected: stmtType";
+        final ParseException e2 = new ParseException(msg, node);
+        this.stack.getGrammar().addAndReport(e2, msg);
     }
 
     protected final stmtType[] popSuite() {

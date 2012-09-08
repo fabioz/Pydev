@@ -339,11 +339,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
                         try {
                             stmts[i] = (stmtType) yield_or_stmt;
                         } catch (ClassCastException e) {
-                            //something invalid happened (but let's keep it alive, just adding it as a parse error!
-                            String msg = "ClassCastException: was: " + e.getMessage() + " (" + yield_or_stmt
-                                    + "). Expected: stmtType";
-                            final ParseException e2 = new ParseException(msg, yield_or_stmt);
-                            this.stack.getGrammar().addAndReport(e2, msg);
+                            recoverFromClassCastException(yield_or_stmt, e);
                             stmts[i] = new Pass(); //recover from it with a valid node!
                         }
                     }
