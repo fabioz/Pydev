@@ -130,4 +130,11 @@ public class PyParser26Test extends PyParserTestBase {
         parseLegalDocStr(s);
     }
 
+    @Override
+    public void testEmpty() throws Throwable {
+        String s = "";
+
+        parseLegalDocStr(s);
+    }
+
 }

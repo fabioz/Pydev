@@ -10,6 +10,9 @@ import java.io.File;
 
 import junit.framework.TestCase;
 
+import org.eclipse.jface.text.Document;
+import org.python.pydev.core.IGrammarVersionProvider;
+import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -20,6 +23,7 @@ import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 public class FastDefinitionsParserTest extends TestCase {
 
@@ -31,29 +35,50 @@ public class FastDefinitionsParserTest extends TestCase {
         super.tearDown();
     }
 
+    private static int parseGeneration = 0;
+    private static final int PARSE_GENERATION_DEFAULT = 0;
+    private static final int PARSE_GENERATION_ONLY_LOAD = 1;
+    private static final int PARSE_GENERATION_FULL_PARSE = 2;
+    private static final int PARSE_GENERATION_SYNTAX_PARSE = 3;
+
     public static void main(String[] args) {
         try {
             FastDefinitionsParserTest test = new FastDefinitionsParserTest();
             test.setUp();
-            test.testDefinitionsParser14();
-            //            test.NotestGlobalAttributesWX();
 
-            //only loading files
-            //java6: time elapsed: 0.593
-            //java5: time elapsed: 0.984
+            // Parse results from code below (java 6 on a big library):
+            // Only load
+            // Time Elapsed (secs):2.757
+            // Fast parse
+            // Time Elapsed (secs):3.609
+            // Syntax parse
+            // Time Elapsed (secs):11.787
+            // Full parse
+            // Time Elapsed (secs):19.161
 
-            //fast parser
-            //java6: time elapsed: 0.844
-            //java5: time elapsed: 1.375
-
-            //regular parser
-            //java6: time elapsed: 9.25
-            //java5: time elapsed: 6.89
-
-            //            Timer timer = new Timer();
-            //            test.parseFilesInDir(new File("D:/bin/python265/Lib"), true);
-            //            test.parseFilesInDir(new File("D:/bin/Python251/Lib/"), false);
-            //            timer.printDiff();
+            // Timer timer = new Timer();
+            // parseGeneration = PARSE_GENERATION_ONLY_LOAD;
+            // System.out.println("Only load");
+            // test.parseFilesInDir(new File("D:/bin/python265/Lib"), true);
+            // timer.printDiff();
+            //
+            // timer = new Timer();
+            // parseGeneration = PARSE_GENERATION_DEFAULT;
+            // System.out.println("Fast parse");
+            // test.parseFilesInDir(new File("D:/bin/python265/Lib"), true);
+            // timer.printDiff();
+            //
+            // timer = new Timer();
+            // parseGeneration = PARSE_GENERATION_SYNTAX_PARSE;
+            // System.out.println("Syntax parse");
+            // test.parseFilesInDir(new File("D:/bin/python265/Lib"), true);
+            // timer.printDiff();
+            //
+            // timer = new Timer();
+            // parseGeneration = PARSE_GENERATION_FULL_PARSE;
+            // System.out.println("Full parse");
+            // test.parseFilesInDir(new File("D:/bin/python265/Lib"), true);
+            // timer.printDiff();
 
             test.tearDown();
 
@@ -90,11 +115,23 @@ public class FastDefinitionsParserTest extends TestCase {
     private void parseFile(File f) {
         String fileContents = FileUtils.getFileContents(f);
         try {
-            //            PyParser parser = new PyParser((IGrammarVersionProvider)null);
-            //            parser.setDocument(new Document(fileContents), false, null);
-            //            parser.reparseDocument();
+            switch (parseGeneration) {
+                case PARSE_GENERATION_DEFAULT:
+                    FastDefinitionsParser.parse(fileContents);
+                    break;
+                case PARSE_GENERATION_FULL_PARSE:
+                    PyParser.reparseDocumentInternal(new Document(fileContents), true,
+                            IGrammarVersionProvider.LATEST_GRAMMAR_VERSION);
+                    break;
+                case PARSE_GENERATION_SYNTAX_PARSE:
+                    PyParser.reparseDocumentInternal(new Document(fileContents), false,
+                            IGrammarVersionProvider.LATEST_GRAMMAR_VERSION);
+                    break;
+                case PARSE_GENERATION_ONLY_LOAD:
+                    //do nothing!
+                    break;
+            }
 
-            FastDefinitionsParser.parse(fileContents);
         } catch (Exception e) {
             System.out.println("Error parsing:" + f);
             e.printStackTrace();
@@ -859,14 +896,14 @@ public class FastDefinitionsParserTest extends TestCase {
     }
 
     public void testDefinitionsParser7() {
-        Module m = (Module) FastDefinitionsParser.parse("class Bar(object):\n" +
-                "    class Zoo(object):\n"
-                +
-                "        class PPP(self):pass\n" +
+        Module m = (Module) FastDefinitionsParser.parse(
+                "class Bar(object):\n" +
+                        "    class Zoo(object):\n" +
+                        "        class PPP(self):pass\n" +
 
-                "class Bar2(object):\n" +
-                "    class Zoo2(object):\n" +
-                "        class PPP2(self):pass\n");
+                        "class Bar2(object):\n" +
+                        "    class Zoo2(object):\n" +
+                        "        class PPP2(self):pass\n");
         assertEquals(2, m.body.length);
 
         ClassDef classDefBar = (ClassDef) m.body[0];
@@ -884,6 +921,51 @@ public class FastDefinitionsParserTest extends TestCase {
         classDefZoo = (ClassDef) classDefBar.body[0];
         assertEquals("Zoo2", ((NameTok) classDefZoo.name).id);
         assertEquals("PPP2", ((NameTok) ((ClassDef) classDefZoo.body[0]).name).id);
+    }
+
+    public void testDefinitionsParser7a() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "class Bar(object):\n" +
+                        "    class Zoo(object):\n" +
+                        "        pass\n" +
+
+                        "class Bar2(object):\n" +
+                        "    class Zoo2(object):\n" +
+                        "        pass\n");
+        assertEquals(2, m.body.length);
+
+        ClassDef classDefBar = (ClassDef) m.body[0];
+        assertEquals(1, classDefBar.beginColumn);
+        assertEquals(1, classDefBar.beginLine);
+
+        assertEquals("Bar", ((NameTok) classDefBar.name).id);
+        ClassDef classDefZoo = (ClassDef) classDefBar.body[0];
+        assertEquals("Zoo", ((NameTok) classDefZoo.name).id);
+
+        //check the 2nd leaf
+        classDefBar = (ClassDef) m.body[1];
+        assertEquals("Bar2", ((NameTok) classDefBar.name).id);
+        classDefZoo = (ClassDef) classDefBar.body[0];
+        assertEquals("Zoo2", ((NameTok) classDefZoo.name).id);
+    }
+
+    public void testDefinitionsParser7b() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "class Bar(object):\n" +
+                        "    pass\n" +
+                        "class Bar2(object):\n" +
+                        "    pass\n");
+        assertEquals(2, m.body.length);
+
+        ClassDef classDefBar = (ClassDef) m.body[0];
+        assertEquals(1, classDefBar.beginColumn);
+        assertEquals(1, classDefBar.beginLine);
+
+        assertEquals("Bar", ((NameTok) classDefBar.name).id);
+
+        //check the 2nd leaf
+        classDefBar = (ClassDef) m.body[1];
+        assertEquals("Bar2", ((NameTok) classDefBar.name).id);
     }
 
     public void testDefinitionsParser8() {
@@ -1335,6 +1417,14 @@ public class FastDefinitionsParserTest extends TestCase {
         d = (FunctionDef) m.body[2];
         assertEquals("another", NodeUtils.getRepresentationString(d.name));
 
+    }
+
+    public void testDefinitionsParser15() {
+        FastStringBuffer buf = new FastStringBuffer();
+        for (int i = 0; i < 2000; i++) {
+            buf.append("class Spam(object): pass\n");
+        }
+        Module m = (Module) FastDefinitionsParser.parse(buf.toString());
     }
 
     public void testEmpty() {
