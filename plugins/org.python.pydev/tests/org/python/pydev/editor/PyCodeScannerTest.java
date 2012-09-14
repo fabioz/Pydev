@@ -18,7 +18,6 @@ import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.rules.IToken;
-import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.graphics.RGB;
 import org.python.pydev.editor.PyCodeScanner.NumberDetector;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
@@ -160,9 +159,12 @@ public class PyCodeScannerTest extends TestCase {
         scanner.setRange(new Document(str), 0, str.length());
         assertToken(scanner, 0, 1, colorCache.getCodeTextAttribute());//a
         assertToken(scanner, 1, 1, colorCache.getOperatorsTextAttribute()); //=
-        assertToken(scanner, 2, 1, colorCache.getNumberTextAttribute()); //''
-        assertToken(scanner, 4, 1, colorCache.getOperatorsTextAttribute()); //;
-        assertToken(scanner, 5, 1, colorCache.getNumberTextAttribute()); //b
+        assertToken(scanner, 2, 1, colorCache.getCodeTextAttribute()); //'
+        assertToken(scanner, 3, 1, colorCache.getCodeTextAttribute()); //'
+        assertToken(scanner, 4, 1, colorCache.getCodeTextAttribute()); //;
+        assertToken(scanner, 5, 1, colorCache.getCodeTextAttribute()); // 
+        assertToken(scanner, 6, 1, colorCache.getCodeTextAttribute()); //b
+        assertToken(scanner, 7, 0, colorCache.getCodeTextAttribute()); //EOF
     }
 
     private void assertToken(PyCodeScanner scanner, int offset, int len, TextAttribute data) {
@@ -170,6 +172,8 @@ public class PyCodeScannerTest extends TestCase {
         assertEquals(offset, scanner.getTokenOffset());
         assertEquals(len, scanner.getTokenLength());
         TextAttribute tokenData = (TextAttribute) token.getData();
-        assertEquals(data.getForeground(), tokenData.getForeground());
+        if (len > 0) {
+            assertEquals(data.getForeground(), tokenData.getForeground());
+        }
     }
 }

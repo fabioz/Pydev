@@ -83,7 +83,7 @@ public final class FastDefinitionsParser {
     /**
      * Holds things added to the 'global' module
      */
-    private final ArrayList<stmtType> body = new ArrayList<stmtType>();
+    private final ArrayList<stmtType> body = new ArrayList<stmtType>(16);
 
     /**
      * Holds a stack of classes so that we create a new one in each new scope to be filled and when the scope is ended,
@@ -219,7 +219,7 @@ public final class FastDefinitionsParser {
 
                         final List<String> splitted = StringUtils.split(equalsLine, '=');
                         final int splittedLen = splitted.size();
-                        ArrayList<exprType> targets = new ArrayList<exprType>();
+                        ArrayList<exprType> targets = new ArrayList<exprType>(2);
 
                         for (int j = 0; j < splittedLen - 1 || (splittedLen == 1 && j == 0); j++) { //we don't want to get the last one.
                             String lineContents = splitted.get(j).trim();
@@ -264,9 +264,7 @@ public final class FastDefinitionsParser {
             lineBuffer.append(c);
         }
 
-        while (stack.size() > 0) {
-            endScope();
-        }
+        endScopesInStack();
     }
 
     public void updateCountRow(int initialIndex, int currIndex) {
@@ -451,6 +449,9 @@ public final class FastDefinitionsParser {
      * @param startMethodCol the column where the scope should start
      */
     private void startMethod(String name, int startMethodRow, int startMethodCol) {
+        if (startMethodCol == 1) {
+            endScopesInStack();
+        }
         NameTok nameTok = new NameTok(name, NameTok.ClassName);
         FunctionDef functionDef = new FunctionDef(nameTok, null, null, null, null);
         functionDef.beginLine = startMethodRow;
@@ -468,6 +469,9 @@ public final class FastDefinitionsParser {
      * @param startClassCol the column where the scope should start
      */
     private void startClass(String name, int startClassRow, int startClassCol) {
+        if (startClassCol == 1) {
+            endScopesInStack();
+        }
         NameTok nameTok = new NameTok(name, NameTok.ClassName);
         ClassDef classDef = new ClassDef(nameTok, null, null, null, null, null, null);
 
@@ -475,7 +479,13 @@ public final class FastDefinitionsParser {
         classDef.beginColumn = startClassCol;
 
         stack.push(classDef);
-        stackBody.push(new ArrayList<stmtType>());
+        stackBody.push(new ArrayList<stmtType>(10));
+    }
+
+    private void endScopesInStack() {
+        while (stack.size() > 0) {
+            endScope();
+        }
     }
 
     /**
@@ -567,7 +577,7 @@ public final class FastDefinitionsParser {
         //if it's an attribute at this point, it'll always start with self!
         if (functionDef.body == null) {
             if (functionDef.specialsAfter == null) {
-                functionDef.specialsAfter = new ArrayList<Object>();
+                functionDef.specialsAfter = new ArrayList<Object>(3);
             }
             functionDef.body = new stmtType[10];
             functionDef.body[0] = assign;

@@ -586,23 +586,9 @@ public class PyParser implements IPyParser {
     public final static List<ICallback<Object, Tuple3<SimpleNode, Throwable, ParserInfo>>> successfulParseListeners = new ArrayList<ICallback<Object, Tuple3<SimpleNode, Throwable, ParserInfo>>>();
 
     /**
-     * @return a tuple with the SimpleNode root(if parsed) and the error (if any).
-     *         if we are able to recover from a reparse, we have both, the root and the error.
+     * Create the char array to parse based on the initial document and our parser limitations.
      */
-    public static Tuple<SimpleNode, Throwable> reparseDocument(ParserInfo info) {
-        if (info.grammarVersion == IPythonNature.GRAMMAR_PYTHON_VERSION_CYTHON) {
-            IDocument doc = info.document;
-            return createCythonAst(doc);
-        }
-
-        // create a stream with document's data
-        String startDoc = info.document.get();
-
-        if (startDoc.trim().length() == 0) {
-            //If empty, don't bother to parse!
-            return new Tuple<SimpleNode, Throwable>(new Module(new stmtType[0]), null);
-        }
-
+    private static char[] createCharArrayToParse(String startDoc) {
         int length = startDoc.length();
         int skipAtStart = 0;
         if (startDoc.startsWith(FileUtils.BOM_UTF8)) {
@@ -621,39 +607,79 @@ public class PyParser implements IPyParser {
         if (addAtEnd > 0) {
             charArray[charArray.length - 1] = '\n';
         }
+        return charArray;
+    }
 
+    /**
+     * Actually creates the grammar.
+     * @param generateTree whether we should generate the AST or not.
+     */
+    private static IGrammar createGrammar(boolean generateTree, int grammarVersion, char[] charArray) {
+        IGrammar grammar;
         FastCharStream in = new FastCharStream(charArray);
+        switch (grammarVersion) {
+            case IPythonNature.GRAMMAR_PYTHON_VERSION_2_4:
+                grammar = new PythonGrammar24(generateTree, in);
+                break;
+            case IPythonNature.GRAMMAR_PYTHON_VERSION_2_5:
+                grammar = new PythonGrammar25(generateTree, in);
+                break;
+            case IPythonNature.GRAMMAR_PYTHON_VERSION_2_6:
+                grammar = new PythonGrammar26(generateTree, in);
+                break;
+            case IPythonNature.GRAMMAR_PYTHON_VERSION_2_7:
+                grammar = new PythonGrammar27(generateTree, in);
+                break;
+            case IPythonNature.GRAMMAR_PYTHON_VERSION_3_0:
+                grammar = new PythonGrammar30(generateTree, in);
+                break;
+            //case CYTHON: not treated here (only in reparseDocument).
+            default:
+                throw new RuntimeException("The grammar specified for parsing is not valid: " + grammarVersion);
+        }
+
+        if (ENABLE_TRACING) {
+            //grammar has to be generated with debugging info for this to make a difference
+            grammar.enable_tracing();
+        }
+        return grammar;
+    }
+
+    /**
+     * Note: this method should generally not be needed. Use reparseDocument on most situation (this
+     * is mostly for tests or profilings).
+     */
+    public static Tuple<SimpleNode, IGrammar> reparseDocumentInternal(IDocument doc, boolean generateTree,
+            int grammarVersion)
+            throws ParseException {
+        char[] charArray = createCharArrayToParse(doc.get());
+        IGrammar grammar = createGrammar(generateTree, grammarVersion, charArray);
+        return new Tuple<SimpleNode, IGrammar>(grammar.file_input(), grammar); // parses the file
+    }
+
+    /**
+     * @return a tuple with the SimpleNode root(if parsed) and the error (if any).
+     *         if we are able to recover from a reparse, we have both, the root and the error.
+     */
+    public static Tuple<SimpleNode, Throwable> reparseDocument(ParserInfo info) {
+        if (info.grammarVersion == IPythonNature.GRAMMAR_PYTHON_VERSION_CYTHON) {
+            IDocument doc = info.document;
+            return createCythonAst(doc);
+        }
+
+        // create a stream with document's data
+        String startDoc = info.document.get();
+        if (startDoc.trim().length() == 0) {
+            //If empty, don't bother to parse!
+            return new Tuple<SimpleNode, Throwable>(new Module(new stmtType[0]), null);
+        }
+        char[] charArray = createCharArrayToParse(startDoc);
         startDoc = null; //it can be garbage-collected now.
 
         Tuple<SimpleNode, Throwable> returnVar = new Tuple<SimpleNode, Throwable>(null, null);
         IGrammar grammar = null;
         try {
-            boolean generateTree = info.generateTree;
-            switch (info.grammarVersion) {
-                case IPythonNature.GRAMMAR_PYTHON_VERSION_2_4:
-                    grammar = new PythonGrammar24(generateTree, in);
-                    break;
-                case IPythonNature.GRAMMAR_PYTHON_VERSION_2_5:
-                    grammar = new PythonGrammar25(generateTree, in);
-                    break;
-                case IPythonNature.GRAMMAR_PYTHON_VERSION_2_6:
-                    grammar = new PythonGrammar26(generateTree, in);
-                    break;
-                case IPythonNature.GRAMMAR_PYTHON_VERSION_2_7:
-                    grammar = new PythonGrammar27(generateTree, in);
-                    break;
-                case IPythonNature.GRAMMAR_PYTHON_VERSION_3_0:
-                    grammar = new PythonGrammar30(generateTree, in);
-                    break;
-                //case CYTHON: already treated in the beginning of this method.
-                default:
-                    throw new RuntimeException("The grammar specified for parsing is not valid: " + info.grammarVersion);
-            }
-
-            if (ENABLE_TRACING) {
-                //grammar has to be generated with debugging info for this to make a difference
-                grammar.enable_tracing();
-            }
+            grammar = createGrammar(info.generateTree, info.grammarVersion, charArray);
             SimpleNode newRoot = grammar.file_input(); // parses the file
             returnVar.o1 = newRoot;
 
@@ -690,8 +716,6 @@ public class PyParser implements IPyParser {
                 e.printStackTrace();
             }
 
-            startDoc = null;
-            in = null;
             grammar = null;
 
             if (e instanceof ParseException || e instanceof TokenMgrError) {

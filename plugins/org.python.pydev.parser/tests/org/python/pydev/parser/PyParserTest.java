@@ -828,6 +828,19 @@ public class PyParserTest extends PyParserTestBase {
         });
     }
 
+    public void testParser17() throws Throwable {
+        final String s = "" +
+                "yield 1\n";
+
+        checkWithAllGrammars(new ICallback<Boolean, Integer>() {
+
+            public Boolean call(Integer grammar) {
+                parseILegalDocSuccessfully(s);
+                return true;
+            }
+        });
+    }
+
     public void testParserAs1() throws Throwable {
         final String s = "" +
                 "as = 1\n" +
