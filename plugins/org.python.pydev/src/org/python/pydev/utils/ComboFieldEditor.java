@@ -143,6 +143,10 @@ public class ComboFieldEditor extends FieldEditor {
         getPreferenceStore().setValue(getPreferenceName(), fValue);
     }
 
+    public String getComboValue() {
+        return getValueForName(fCombo.getText());
+    }
+
     /* (non-Javadoc)
      * @see org.eclipse.jface.preference.FieldEditor#getNumberOfControls()
      */

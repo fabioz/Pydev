@@ -75,6 +75,16 @@ public class PyFormatStd extends PyAction implements IFormatter {
         public boolean trimLines;
 
         public boolean trimMultilineLiterals;
+
+        public static final int DONT_HANDLE_SPACES_BEFORE_COMMENT = -1;
+        /**
+         * -1 = don't handle
+         * 0 = 0 space
+         * 1 = 1 space 
+         * 2 = 2 spaces
+         * ... 
+         */
+        public int spacesBeforeComment = DONT_HANDLE_SPACES_BEFORE_COMMENT;
     }
 
     /**
@@ -320,6 +330,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         formatStd.addNewLineAtEndOfFile = PyCodeFormatterPage.getAddNewLineAtEndOfFile();
         formatStd.trimLines = PyCodeFormatterPage.getTrimLines();
         formatStd.trimMultilineLiterals = PyCodeFormatterPage.getTrimMultilineLiterals();
+        formatStd.spacesBeforeComment = PyCodeFormatterPage.getSpacesBeforeComment();
         return formatStd;
     }
 
@@ -362,6 +373,21 @@ public class PyFormatStd extends PyAction implements IFormatter {
                     break;
 
                 case '#':
+                    if (std.spacesBeforeComment != FormatStd.DONT_HANDLE_SPACES_BEFORE_COMMENT) {
+                        for (int j = i - 1; j >= 0; j--) {
+                            char cj = cs[j];
+                            if (cj == '\t' || cj == ' ') {
+                                continue;
+                            }
+                            //Ok, found a non-whitespace -- if it's not a new line, we're after some
+                            //code, in which case we have to put the configured amount of spaces.
+                            if (cj != '\r' && cj != '\n') {
+                                buf.rightTrim();
+                                buf.appendN(' ', std.spacesBeforeComment);
+                            }
+                            break;
+                        }
+                    }
                     i = parsingUtils.eatComments(buf, i);
                     if (std.trimLines) {
                         String endLine = "";
@@ -836,6 +862,8 @@ public class PyFormatStd extends PyAction implements IFormatter {
         return locBuf;
     }
 
+    private final FastStringBuffer formatForCommaTempBuf = new FastStringBuffer();
+
     /**
      * When a comma is found, it's formatted accordingly (spaces added after it).
      * 
@@ -846,14 +874,28 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @return the new index on the original doc.
      */
     private int formatForComma(FormatStd std, char[] cs, FastStringBuffer buf, int i) {
-        while (i < cs.length - 1 && (cs[i + 1]) == ' ') {
+        formatForCommaTempBuf.clear();
+        char c = '\0';
+        while (i < cs.length - 1 && (c = cs[i + 1]) == ' ') {
+            formatForCommaTempBuf.append(c);
             i++;
         }
 
-        if (std.spaceAfterComma) {
-            buf.append(", ");
-        } else {
+        if (c == '#') {
+            //Ok, we have a comment after a comma, let's handle it according to preferences.
             buf.append(',');
+            if (std.spacesBeforeComment == FormatStd.DONT_HANDLE_SPACES_BEFORE_COMMENT) {
+                //Note: other cases we won't handle here as it should be handled when the start of 
+                //a comment is found.
+                buf.append(formatForCommaTempBuf);
+            }
+        } else {
+            //Default: handle it as usual.
+            if (std.spaceAfterComma) {
+                buf.append(", ");
+            } else {
+                buf.append(',');
+            }
         }
         return i;
     }

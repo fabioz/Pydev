@@ -171,6 +171,8 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putBoolean(PyCodeFormatterPage.TRIM_LINES, PyCodeFormatterPage.DEFAULT_TRIM_LINES);
         node.putBoolean(PyCodeFormatterPage.USE_SPACE_FOR_PARENTESIS,
                 PyCodeFormatterPage.DEFAULT_USE_SPACE_FOR_PARENTESIS);
+        node.putInt(PyCodeFormatterPage.SPACES_BEFORE_COMMENT,
+                PyCodeFormatterPage.DEFAULT_SPACES_BEFORE_COMMENT);
 
         //initialize pyunit prefs
         node.putInt(PyUnitPrefsPage2.TEST_RUNNER, PyUnitPrefsPage2.DEFAULT_TEST_RUNNER);
