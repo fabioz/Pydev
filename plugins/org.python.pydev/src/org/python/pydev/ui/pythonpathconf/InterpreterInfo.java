@@ -1693,10 +1693,12 @@ public class InterpreterInfo implements IInterpreterInfo {
                         }
                     });
 
-                    for (File file : predefs) {
-                        String n = file.getName();
-                        String modName = n.substring(0, n.length() - (".pypredef".length()));
-                        this.predefinedBuiltinsCache.put(modName, file);
+                    if (predefs != null) {
+                        for (File file : predefs) {
+                            String n = file.getName();
+                            String modName = n.substring(0, n.length() - (".pypredef".length()));
+                            this.predefinedBuiltinsCache.put(modName, file);
+                        }
                     }
                 }
             }

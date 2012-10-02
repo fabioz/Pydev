@@ -229,24 +229,26 @@ public class DjangoProjectWizard extends PythonProjectWizard {
                 //and removing the root projectName altoghether.
                 File copyTo = projectContainer.getLocation().toFile();
                 File copyFrom = new File(copyTo, projectName);
-                for (File f : copyFrom.listFiles()) {
-                    if (f.isFile()) {
-                        try {
-                            FileUtils.copyFile(f, new File(copyTo, f.getName()));
-                            FileUtils.deleteFile(f);
-                        } catch (Exception e) {
-                            Log.log(e);
-                        }
-                    } else {
-                        try {
-                            FileUtils.copyDirectory(f, new File(copyTo, f.getName()), null, null);
-                            FileUtils.deleteDirectoryTree(f);
-                        } catch (Exception e) {
-                            Log.log(e);
+                File[] files = copyFrom.listFiles();
+                if (files != null) {
+                    for (File f : files) {
+                        if (f.isFile()) {
+                            try {
+                                FileUtils.copyFile(f, new File(copyTo, f.getName()));
+                                FileUtils.deleteFile(f);
+                            } catch (Exception e) {
+                                Log.log(e);
+                            }
+                        } else {
+                            try {
+                                FileUtils.copyDirectory(f, new File(copyTo, f.getName()), null, null);
+                                FileUtils.deleteDirectoryTree(f);
+                            } catch (Exception e) {
+                                Log.log(e);
+                            }
                         }
                     }
                 }
-
             }
             //Before 1.4
             settingsFile = projectContainer.getFile(new Path(projectName + "/settings.py"));

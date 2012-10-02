@@ -47,6 +47,7 @@ import com.aptana.shared_core.structure.Tuple;
  */
 public class JythonPlugin extends AbstractUIPlugin {
 
+    private static final File[] EMPTY_FILES = new File[0];
     private static final boolean DEBUG = false;
     public static boolean DEBUG_RELOAD = true;
 
@@ -344,12 +345,10 @@ public class JythonPlugin extends AbstractUIPlugin {
                     errors.add(new RuntimeException(msg));
                 }
                 File[] files = getFilesBeneathFolder(startingWith, file);
-                if (files != null) {
-                    for (File f : files) {
-                        Throwable throwable = exec(locals, interpreter, f, pythonpathFolders);
-                        if (throwable != null) {
-                            errors.add(throwable);
-                        }
+                for (File f : files) {
+                    Throwable throwable = exec(locals, interpreter, f, pythonpathFolders);
+                    if (throwable != null) {
+                        errors.add(throwable);
                     }
                 }
             }
@@ -358,7 +357,7 @@ public class JythonPlugin extends AbstractUIPlugin {
     }
 
     /**
-     * List all the 'target' scripts available beneath some folder.
+     * List all the 'target' scripts available beneath some folder. A non-null array is always returned.
      */
     public static File[] getFilesBeneathFolder(final String startingWith, File jySrc) {
         File[] files = jySrc.listFiles(new FileFilter() {
@@ -372,6 +371,9 @@ public class JythonPlugin extends AbstractUIPlugin {
             }
 
         });
+        if (files == null) {
+            files = EMPTY_FILES;
+        }
         return files;
     }
 
@@ -477,9 +479,11 @@ public class JythonPlugin extends AbstractUIPlugin {
                         addToSysPath.append("\n");
                     }
 
-                    String toExec = com.aptana.shared_core.string.StringUtils.format(LOAD_FILE_SCRIPT, path, path, addToSysPath.toString());
+                    String toExec = com.aptana.shared_core.string.StringUtils.format(LOAD_FILE_SCRIPT, path, path,
+                            addToSysPath.toString());
                     interpreter.exec(toExec);
-                    String exec = com.aptana.shared_core.string.StringUtils.format("%s = compile(toExec, r'%s', 'exec')", codeObjName, path);
+                    String exec = com.aptana.shared_core.string.StringUtils.format(
+                            "%s = compile(toExec, r'%s', 'exec')", codeObjName, path);
                     interpreter.exec(exec);
                     //set its timestamp
                     interpreter.set(codeObjTimestampName, lastModified);

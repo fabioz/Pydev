@@ -21,7 +21,6 @@ import junit.framework.TestCase;
 
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.jython.JythonPlugin;
@@ -139,12 +138,10 @@ public class JythonTest extends TestCase {
                     errors.add(new RuntimeException(msg));
                 }
                 File[] files = JythonPlugin.getFilesBeneathFolder(startingWith, file);
-                if (files != null) {
-                    for (File f : files) {
-                        Throwable throwable = exec(f);
-                        if (throwable != null) {
-                            errors.add(throwable);
-                        }
+                for (File f : files) {
+                    Throwable throwable = exec(f);
+                    if (throwable != null) {
+                        errors.add(throwable);
                     }
                 }
             }
@@ -165,7 +162,8 @@ public class JythonTest extends TestCase {
                 TestDependent.JAVA_LOCATION), f.toString(), TestDependent.JYTHON_JAR_LOCATION, null, f.getParentFile(),
                 null, null, pythonpath, "utf-8");
 
-        System.out.println(com.aptana.shared_core.string.StringUtils.format("stdout:%s\nstderr:%s", output.o1, output.o2));
+        System.out.println(com.aptana.shared_core.string.StringUtils.format("stdout:%s\nstderr:%s", output.o1,
+                output.o2));
 
         if (output.o2.toLowerCase().indexOf("failed") != -1 || output.o2.toLowerCase().indexOf("traceback") != -1) {
             throw new AssertionError(output.toString());
