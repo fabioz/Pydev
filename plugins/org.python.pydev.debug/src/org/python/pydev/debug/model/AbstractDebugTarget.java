@@ -282,10 +282,13 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             if (breakpoint instanceof PyBreakpoint) {
                 PyBreakpoint b = (PyBreakpoint) breakpoint;
                 if (b.isEnabled() && !shouldSkipBreakpoints()) {
-                    String condition = b.getCondition();
-                    if (condition != null) {
-                        condition = StringUtils.replaceAll(condition, "\n", "@_@NEW_LINE_CHAR@_@");
-                        condition = StringUtils.replaceAll(condition, "\t", "@_@TAB_CHAR@_@");
+                    String condition = null;
+                    if (b.isConditionEnabled()) {
+                        condition = b.getCondition();
+                        if (condition != null) {
+                            condition = StringUtils.replaceAll(condition, "\n", "@_@NEW_LINE_CHAR@_@");
+                            condition = StringUtils.replaceAll(condition, "\t", "@_@TAB_CHAR@_@");
+                        }
                     }
                     SetBreakpointCommand cmd = new SetBreakpointCommand(this, b.getFile(), b.getLine(), condition,
                             b.getFunctionName());
