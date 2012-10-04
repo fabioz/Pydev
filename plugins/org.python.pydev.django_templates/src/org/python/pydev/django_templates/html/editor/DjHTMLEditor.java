@@ -24,69 +24,59 @@ import com.aptana.editor.html.IHTMLConstants;
 /**
  * @author Fabio Zadrozny
  */
-public class DjHTMLEditor extends HTMLEditor
-{
+public class DjHTMLEditor extends HTMLEditor {
 
-	private DjEditor djEditor;
+    private DjEditor djEditor;
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.aptana.editor.common.AbstractThemeableEditor#initializeEditor()
-	 */
-	@Override
-	protected void initializeEditor()
-	{
-		super.initializeEditor();
-		djEditor = new DjEditor();
-		this.djEditor.registerPrefChangeListener(new ICallback()
-		{
+    /*
+     * (non-Javadoc)
+     * @see com.aptana.editor.common.AbstractThemeableEditor#initializeEditor()
+     */
+    @Override
+    protected void initializeEditor() {
+        super.initializeEditor();
+        djEditor = new DjEditor();
+        this.djEditor.registerPrefChangeListener(new ICallback() {
 
-			public Object call(Object args) throws Exception
-			{
-				return getISourceViewer();
-			}
-		});
+            public Object call(Object args) throws Exception {
+                return getISourceViewer();
+            }
+        });
 
-		setSourceViewerConfiguration(new DjHTMLSourceViewerConfiguration(this.djEditor.getChainedPrefStore(), this));
-		setDocumentProvider(DjPlugin.getDefault().getDjHTMLDocumentProvider());
-	}
+        setSourceViewerConfiguration(new DjHTMLSourceViewerConfiguration(this.djEditor.getChainedPrefStore(), this));
+        setDocumentProvider(DjPlugin.getDefault().getDjHTMLDocumentProvider());
+    }
 
-	@Override
-	protected ISourceViewer createSourceViewer(Composite parent, IVerticalRuler ruler, int styles)
-	{
-		ISourceViewer viewer = super.createSourceViewer(parent, ruler, styles);
-		djEditor.onCreateSourceViewer(viewer);
-		return viewer;
-	}
+    @Override
+    protected ISourceViewer createSourceViewer(Composite parent, IVerticalRuler ruler, int styles) {
+        ISourceViewer viewer = super.createSourceViewer(parent, ruler, styles);
+        djEditor.onCreateSourceViewer(viewer);
+        return viewer;
+    }
 
-	@Override
-	public void dispose()
-	{
-		super.dispose();
-		djEditor.dispose();
-	}
-	
-	@Override
-	public String getContentType()
-	{
-		return IHTMLConstants.CONTENT_TYPE_HTML;
-	}
+    @Override
+    public void dispose() {
+        super.dispose();
+        djEditor.dispose();
+    }
 
-	@Override
-	public ITreeContentProvider getOutlineContentProvider()
-	{
-		return new DjHTMLOutlineContentProvider(this);
-	}
+    @Override
+    public String getContentType() {
+        return IHTMLConstants.CONTENT_TYPE_HTML;
+    }
 
-	@Override
-	public ILabelProvider getOutlineLabelProvider()
-	{
-		return new DjHTMLOutlineLabelProvider(getDocument());
-	}
+    @Override
+    public ITreeContentProvider getOutlineContentProvider() {
+        return new DjHTMLOutlineContentProvider(this);
+    }
 
-	@Override
-	public char[] getPairMatchingCharacters()
-	{
-		return this.djEditor.getPairMatchingCharacters(super.getPairMatchingCharacters());
-	}
+    @Override
+    public ILabelProvider getOutlineLabelProvider() {
+        return new DjHTMLOutlineLabelProvider(getDocument());
+    }
+
+    @Override
+    public char[] getPairMatchingCharacters() {
+        return this.djEditor.getPairMatchingCharacters(super.getPairMatchingCharacters());
+    }
 }

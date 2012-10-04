@@ -37,20 +37,21 @@ public class PythonBreakpointPropertiesRulerAction extends AbstractBreakpointRul
     public void run() {
         IBreakpoint breakPoint = getBreakpoint();
         if (breakPoint != null) {
-            PropertyDialogAction action = new PropertyDialogAction(getTextEditor().getEditorSite(), new ISelectionProvider() {
-                public void addSelectionChangedListener(ISelectionChangedListener listener) {
-                }
+            PropertyDialogAction action = new PropertyDialogAction(getTextEditor().getEditorSite(),
+                    new ISelectionProvider() {
+                        public void addSelectionChangedListener(ISelectionChangedListener listener) {
+                        }
 
-                public ISelection getSelection() {
-                    return new StructuredSelection(getBreakpoint());
-                }
+                        public ISelection getSelection() {
+                            return new StructuredSelection(getBreakpoint());
+                        }
 
-                public void removeSelectionChangedListener(ISelectionChangedListener listener) {
-                }
+                        public void removeSelectionChangedListener(ISelectionChangedListener listener) {
+                        }
 
-                public void setSelection(ISelection selection) {
-                }
-            });
+                        public void setSelection(ISelection selection) {
+                        }
+                    });
             action.run();
         }
     }
@@ -60,7 +61,7 @@ public class PythonBreakpointPropertiesRulerAction extends AbstractBreakpointRul
         if (breakpoint == null || !(breakpoint instanceof PyBreakpoint)) {
             setBreakpoint(null);
             setEnabled(false);
-        }else{
+        } else {
             setBreakpoint(breakpoint);
             setEnabled(true);
         }

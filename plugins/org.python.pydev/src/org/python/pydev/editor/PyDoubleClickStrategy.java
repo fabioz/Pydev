@@ -24,13 +24,13 @@ import org.python.pydev.core.docutils.StringUtils;
 public class PyDoubleClickStrategy implements ITextDoubleClickStrategy {
 
     protected PythonPairMatcher fPairMatcher = new PythonPairMatcher(StringUtils.BRACKETS);
-	private String contentType;
+    private String contentType;
 
     public PyDoubleClickStrategy(String contentType) {
-		this.contentType = contentType;
-	}
+        this.contentType = contentType;
+    }
 
-	/**
+    /**
      * @see ITextDoubleClickStrategy#doubleClicked
      */
     public void doubleClicked(ITextViewer textViewer) {
@@ -43,9 +43,9 @@ public class PyDoubleClickStrategy implements ITextDoubleClickStrategy {
         IDocument document = textViewer.getDocument();
 
         IRegion region = fPairMatcher.match(document, offset);
-        if (region != null && region.getLength() >= 2){
+        if (region != null && region.getLength() >= 2) {
             textViewer.setSelectedRange(region.getOffset() + 1, region.getLength() - 2);
-        }else{
+        } else {
             selectWord(textViewer, document, offset);
         }
     }
@@ -59,10 +59,10 @@ public class PyDoubleClickStrategy implements ITextDoubleClickStrategy {
 
             while (offset >= 0) {
                 c = document.getChar(offset);
-                if (!Character.isJavaIdentifierPart(c)){
+                if (!Character.isJavaIdentifierPart(c)) {
                     break;
                 }
-                    
+
                 --offset;
             }
 
@@ -73,7 +73,7 @@ public class PyDoubleClickStrategy implements ITextDoubleClickStrategy {
 
             while (offset < length) {
                 c = document.getChar(offset);
-                if (!Character.isJavaIdentifierPart(c)){
+                if (!Character.isJavaIdentifierPart(c)) {
                     break;
                 }
                 ++offset;
@@ -81,9 +81,9 @@ public class PyDoubleClickStrategy implements ITextDoubleClickStrategy {
 
             int end = offset;
 
-            if (start == end){
+            if (start == end) {
                 textViewer.setSelectedRange(start, 0);
-            }else{
+            } else {
                 textViewer.setSelectedRange(start + 1, end - start - 1);
             }
 

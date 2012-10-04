@@ -16,10 +16,11 @@ import java.util.List;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.ITextSelection;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.structure.FastStringBuffer;
+
+import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * Creates a bulk comment. Comments all selected lines
@@ -28,15 +29,15 @@ import org.python.pydev.core.structure.FastStringBuffer;
  * @author Parhaum Toofanian
  */
 public class PyComment extends PyAction {
-    
+
     /**
      * Grabs the selection information and performs the action.
      */
     public void run(IAction action) {
         try {
-        	if(!canModifyEditor()){
-        		return;
-        	}
+            if (!canModifyEditor()) {
+                return;
+            }
 
             // Select from text editor
             PySelection ps = new PySelection(getTextEditor());
@@ -65,16 +66,16 @@ public class PyComment extends PyAction {
 
         String selectedText = ps.getSelectedText();
         List<String> ret = StringUtils.splitInLines(selectedText);
-        
-        FastStringBuffer strbuf = new FastStringBuffer(selectedText.length()+ret.size()+2);
-        for(String line: ret){
+
+        FastStringBuffer strbuf = new FastStringBuffer(selectedText.length() + ret.size() + 2);
+        for (String line : ret) {
             strbuf.append('#').append(line);
         }
-        
+
         ITextSelection txtSel = ps.getTextSelection();
         int start = txtSel.getOffset();
         int len = txtSel.getLength();
-        
+
         String replacement = strbuf.toString();
         // Replace the text with the modified information
         ps.getDoc().replace(start, len, replacement);

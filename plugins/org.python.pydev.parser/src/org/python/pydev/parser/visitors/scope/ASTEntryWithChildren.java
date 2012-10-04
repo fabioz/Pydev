@@ -14,11 +14,11 @@ import java.util.List;
 
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class ASTEntryWithChildren extends ASTEntry{
+public class ASTEntryWithChildren extends ASTEntry {
 
     public List<ASTEntryWithChildren> children;
-    
-    public ASTEntryWithChildren(ASTEntryWithChildren parent){
+
+    public ASTEntryWithChildren(ASTEntryWithChildren parent) {
         super(parent);
     }
 
@@ -27,7 +27,7 @@ public class ASTEntryWithChildren extends ASTEntry{
     }
 
     public ASTEntryWithChildren[] getChildren() {
-        if(children == null){
+        if (children == null) {
             return null;
         }
         return children.toArray(new ASTEntryWithChildren[children.size()]);

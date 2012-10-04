@@ -36,7 +36,8 @@ public class FunctionSignatureListener implements Listener {
 
     private IValidationPage page;
 
-    public FunctionSignatureListener(IValidationPage page, Label signature, LabeledEdit functionNameEdit, Table argumentTable) {
+    public FunctionSignatureListener(IValidationPage page, Label signature, LabeledEdit functionNameEdit,
+            Table argumentTable) {
         this.page = page;
         this.signatureLabel = signature;
         this.functionNameEdit = functionNameEdit;
@@ -44,7 +45,7 @@ public class FunctionSignatureListener implements Listener {
     }
 
     private void updateSignature() {
-        if(functionNameEdit.getEdit().getText().length() == 0){
+        if (functionNameEdit.getEdit().getText().length() == 0) {
             return;
         }
 
@@ -61,14 +62,14 @@ public class FunctionSignatureListener implements Listener {
     }
 
     private void initArguments(StringBuilder signature) {
-        if(this.argumentTable != null){
+        if (this.argumentTable != null) {
             List<TableItem> items = Arrays.asList(argumentTable.getItems());
             Iterator<TableItem> iter = items.iterator();
-            while(iter.hasNext()){
+            while (iter.hasNext()) {
                 TableItem item = iter.next();
-                if(item instanceof SimpleTableItem){
+                if (item instanceof SimpleTableItem) {
                     signature.append(item.getText());
-                    if(iter.hasNext()){
+                    if (iter.hasNext()) {
                         signature.append(", ");
                     }
                 }
@@ -77,7 +78,7 @@ public class FunctionSignatureListener implements Listener {
     }
 
     public void handleEvent(Event event) {
-        if(page.isPageComplete()){
+        if (page.isPageComplete()) {
             updateSignature();
         }
     }

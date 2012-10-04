@@ -16,18 +16,19 @@ import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.plugin.PydevPlugin;
 
-public class SWTTest extends TestCase{
+public class SWTTest extends TestCase {
 
     protected Shell shell;
     protected Display display;
+
     private void createSShell() {
         shell = new org.eclipse.swt.widgets.Shell();
     }
 
-    public void testIt() throws Exception{
-        
+    public void testIt() throws Exception {
+
     }
-    
+
     /*
      * @see TestCase#setUp()
      */
@@ -35,7 +36,7 @@ public class SWTTest extends TestCase{
         super.setUp();
         PydevPlugin.setBundleInfo(new BundleInfoStub());
         try {
-            if(TestDependent.HAS_SWT_ON_PATH){
+            if (TestDependent.HAS_SWT_ON_PATH) {
                 display = createDisplay();
                 createSShell();
             }

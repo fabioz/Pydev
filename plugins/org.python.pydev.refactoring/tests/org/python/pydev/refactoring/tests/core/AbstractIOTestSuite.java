@@ -14,57 +14,55 @@ import junit.framework.TestSuite;
  * @author Dennis Hunziker, Ueli Kistler
  */
 public abstract class AbstractIOTestSuite extends TestSuite {
-	private static final int EXTENSION = 3;
-	protected static final String I = File.separator;
+    private static final int EXTENSION = 3;
+    protected static final String I = File.separator;
 
-	// can be used to choose which test we want to run
-	public static String FILE_FILTER = "^test.+\\.py$";
-	static{
-//	    FILE_FILTER = "^testExtractMethodImport3.py$";
-	}
+    // can be used to choose which test we want to run
+    public static String FILE_FILTER = "^test.+\\.py$";
+    static {
+        //	    FILE_FILTER = "^testExtractMethodImport3.py$";
+    }
 
-	
-	public AbstractIOTestSuite(String name) {
-		super(name);
-	}
-	
-	protected void createTests(String testdir) {
-		for (File testFile : getTestFiles(testdir)) {
-			this.addTest(createTest(testFile));
-		}
-	}
+    public AbstractIOTestSuite(String name) {
+        super(name);
+    }
 
-	private IInputOutputTestCase createTest(File file) {
-		String filename = file.getName();
-		String testCaseName = filename.substring(0, filename.length() - EXTENSION);
+    protected void createTests(String testdir) {
+        for (File testFile : getTestFiles(testdir)) {
+            this.addTest(createTest(testFile));
+        }
+    }
 
-		TestData data = new TestData(file);
-		IInputOutputTestCase testCase = createTestCase(testCaseName);
-		testCase.setData(data);
-		
-		
-		return testCase;
-	}
+    private IInputOutputTestCase createTest(File file) {
+        String filename = file.getName();
+        String testCaseName = filename.substring(0, filename.length() - EXTENSION);
 
-	private File[] getTestFiles(String path) {
-		File dir = new File(path);
-		if(!dir.exists()){
-		    throw new RuntimeException("No such directory: " + dir.getAbsolutePath());
-		}
-		File[] testFiles = dir.listFiles(new TestFilenameFilter());
-		
-		if (testFiles == null) {
-			throw new RuntimeException("No such directory or IO error while looking for files in " + path);
-		}
+        TestData data = new TestData(file);
+        IInputOutputTestCase testCase = createTestCase(testCaseName);
+        testCase.setData(data);
 
-		return testFiles;
-	}
+        return testCase;
+    }
 
-	private final class TestFilenameFilter implements FilenameFilter {
-		public boolean accept(File dir, String name) {
-			return name.matches(System.getProperty("filter", FILE_FILTER));
-		}
-	}
-	
-	protected abstract IInputOutputTestCase createTestCase(String testCaseName);
+    private File[] getTestFiles(String path) {
+        File dir = new File(path);
+        if (!dir.exists()) {
+            throw new RuntimeException("No such directory: " + dir.getAbsolutePath());
+        }
+        File[] testFiles = dir.listFiles(new TestFilenameFilter());
+
+        if (testFiles == null) {
+            throw new RuntimeException("No such directory or IO error while looking for files in " + path);
+        }
+
+        return testFiles;
+    }
+
+    private final class TestFilenameFilter implements FilenameFilter {
+        public boolean accept(File dir, String name) {
+            return name.matches(System.getProperty("filter", FILE_FILTER));
+        }
+    }
+
+    protected abstract IInputOutputTestCase createTestCase(String testCaseName);
 }

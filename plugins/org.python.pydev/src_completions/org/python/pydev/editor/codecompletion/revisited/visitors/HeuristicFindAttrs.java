@@ -46,47 +46,47 @@ public class HeuristicFindAttrs extends AbstractVisitor {
      * Whether we should add the attributes that are added as 'self.xxx = 10'
      */
     private boolean discoverSelfAttrs = true;
-    
+
     private final Map<String, SourceToken> repToTokenWithArgs;
-    
+
     /**
      * @param where
      * @param how
      * @param methodCall
      * @param state 
      */
-    public HeuristicFindAttrs(int where, int how, String methodCall, String moduleName, ICompletionState state, Map<String, SourceToken> repToTokenWithArgs) {
+    public HeuristicFindAttrs(int where, int how, String methodCall, String moduleName, ICompletionState state,
+            Map<String, SourceToken> repToTokenWithArgs) {
         this.where = where;
         this.how = how;
         this.methodCall = methodCall;
         this.moduleName = moduleName;
         this.repToTokenWithArgs = repToTokenWithArgs;
-        if(state != null){
-            if(state.getLookingFor() == ICompletionState.LOOKING_FOR_CLASSMETHOD_VARIABLE){
+        if (state != null) {
+            if (state.getLookingFor() == ICompletionState.LOOKING_FOR_CLASSMETHOD_VARIABLE) {
                 this.discoverSelfAttrs = false;
             }
         }
     }
-    
+
     public Stack<SimpleNode> stack = new Stack<SimpleNode>();
-    
+
     public static final int WHITIN_METHOD_CALL = 0;
     public static final int WHITIN_INIT = 1;
     public static final int WHITIN_ANY = 2;
-    
+
     public int where = -1;
-    
-    
+
     public static final int IN_ASSIGN = 0;
     public static final int IN_KEYWORDS = 1;
 
     public int how = -1;
-    
+
     private boolean entryPointCorrect = false;
-    
+
     private boolean inAssing = false;
     private boolean inFuncDef = false;
-    
+
     /**
      * This is the method that can be used to declare them (e.g. properties.create)
      * It's only used it it is a method call.
@@ -105,44 +105,41 @@ public class HeuristicFindAttrs extends AbstractVisitor {
      */
     public void traverse(SimpleNode node) throws Exception {
     }
-    
-    
+
     @Override
     protected SourceToken addToken(SimpleNode node) {
         SourceToken tok = super.addToken(node);
-        if(tok.getArgs().length() > 0){
+        if (tok.getArgs().length() > 0) {
             this.repToTokenWithArgs.put(tok.getRepresentation(), tok);
         }
         return tok;
     }
-    
+
     //ENTRY POINTS
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitCall(org.python.pydev.parser.jython.ast.Call)
      */
     public Object visitCall(Call node) throws Exception {
-        if(entryPointCorrect == false && methodCall.length() > 0){
+        if (entryPointCorrect == false && methodCall.length() > 0) {
             entryPointCorrect = true;
-            
-            
-            
-            if (node.func instanceof Attribute){
+
+            if (node.func instanceof Attribute) {
                 List<String> c = StringUtils.dotSplit(methodCall);
-                
-                Attribute func = (Attribute)node.func;
-                if(((NameTok)func.attr).id.equals(c.get(1))){
-                
-                    if(func.value instanceof Name){
+
+                Attribute func = (Attribute) node.func;
+                if (((NameTok) func.attr).id.equals(c.get(1))) {
+
+                    if (func.value instanceof Name) {
                         Name name = (Name) func.value;
-                        if(name.id.equals(c.get(0))){
-                            for (int i=0; i<node.keywords.length; i++){
+                        if (name.id.equals(c.get(0))) {
+                            for (int i = 0; i < node.keywords.length; i++) {
                                 addToken(node.keywords[i]);
                             }
                         }
                     }
                 }
             }
-            
+
             entryPointCorrect = false;
         }
         return null;
@@ -153,25 +150,26 @@ public class HeuristicFindAttrs extends AbstractVisitor {
      */
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         stack.push(node);
-        if(entryPointCorrect == false){
+        if (entryPointCorrect == false) {
             entryPointCorrect = true;
             inFuncDef = true;
-            
-            if(where == WHITIN_ANY){
+
+            if (where == WHITIN_ANY) {
                 node.traverse(this);
-            
-            } else if(where == WHITIN_INIT && node.name != null && ((NameTok)node.name).id.equals("__init__")){
+
+            } else if (where == WHITIN_INIT && node.name != null && ((NameTok) node.name).id.equals("__init__")) {
                 node.traverse(this);
             }
             entryPointCorrect = false;
             inFuncDef = false;
-        } 
+        }
         stack.pop();
-        
+
         return null;
     }
+
     //END ENTRY POINTS
-    
+
     @Override
     public Object visitClassDef(ClassDef node) throws Exception {
         stack.push(node);
@@ -179,22 +177,20 @@ public class HeuristicFindAttrs extends AbstractVisitor {
         stack.pop();
         return r;
     }
-    
-    
-    
+
     /**
      * Name should be within assign.
      * 
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
     public Object visitAssign(Assign node) throws Exception {
-        if(how == IN_ASSIGN){
+        if (how == IN_ASSIGN) {
             inAssing = true;
-            
+
             exprType value = node.value;
             String rep = NodeUtils.getRepresentationString(value);
             SourceToken methodTok = null;
-            if(rep != null){
+            if (rep != null) {
                 methodTok = repToTokenWithArgs.get(rep);
                 //The use case is the following: we have a method and an assign to it:
                 //def method(a, b):
@@ -205,53 +201,53 @@ public class HeuristicFindAttrs extends AbstractVisitor {
             }
 
             for (int i = 0; i < node.targets.length; i++) {
-                if(node.targets[i] instanceof Attribute){
-                    visitAttribute((Attribute)node.targets[i]);
-                    
-                }else if(node.targets[i] instanceof Name && inFuncDef == false){
-                    String id = ((Name)node.targets[i]).id;
-                    if(id != null){
+                if (node.targets[i] instanceof Attribute) {
+                    visitAttribute((Attribute) node.targets[i]);
+
+                } else if (node.targets[i] instanceof Name && inFuncDef == false) {
+                    String id = ((Name) node.targets[i]).id;
+                    if (id != null) {
                         SourceToken added = addToken(node.targets[i]);
-                        if(methodTok != null){
+                        if (methodTok != null) {
                             added.updateAliasToken(methodTok);
                         }
                     }
-                    
-                }else if(node.targets[i] instanceof Tuple && inFuncDef == false){
+
+                } else if (node.targets[i] instanceof Tuple && inFuncDef == false) {
                     //that's for finding the definition: a,b,c = range(3) inside a class definition
                     Tuple tuple = (Tuple) node.targets[i];
-                    for(exprType t :tuple.elts){
-                        if(t instanceof Name){
-                            String id = ((Name)t).id;
-                            if(id != null){
+                    for (exprType t : tuple.elts) {
+                        if (t instanceof Name) {
+                            String id = ((Name) t).id;
+                            if (id != null) {
                                 addToken(t);
                             }
                         }
                     }
-                    
+
                 }
             }
-            
+
             inAssing = false;
         }
         return null;
     }
-    
+
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitAttribute(org.python.pydev.parser.jython.ast.Attribute)
      */
     public Object visitAttribute(Attribute node) throws Exception {
-        if(how == IN_ASSIGN && inAssing){
-            if(node.value instanceof Name){
-                String id = ((Name)node.value).id;
-                if(id != null){
-                    if(this.discoverSelfAttrs){
-                        if(id.equals("self")){
+        if (how == IN_ASSIGN && inAssing) {
+            if (node.value instanceof Name) {
+                String id = ((Name) node.value).id;
+                if (id != null) {
+                    if (this.discoverSelfAttrs) {
+                        if (id.equals("self")) {
                             addToken(node);
-                           
+
                         }
-                    }else{
-                        if (id.equals("cls")){
+                    } else {
+                        if (id.equals("cls")) {
                             addToken(node);
                         }
                     }
@@ -260,7 +256,6 @@ public class HeuristicFindAttrs extends AbstractVisitor {
         }
         return null;
     }
-    
 
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitIf(org.python.pydev.parser.jython.ast.If)
@@ -269,7 +264,5 @@ public class HeuristicFindAttrs extends AbstractVisitor {
         node.traverse(this);
         return null;
     }
-
-
 
 }

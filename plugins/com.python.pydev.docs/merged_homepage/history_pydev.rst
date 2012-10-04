@@ -1,6 +1,42 @@
 History For PyDev
 ~~~~~~~~~~~~~~~~~
 
+Release 2.5.0
+===============
+
+
+* **Django**: 
+
+ * Project wizard now properly supports Django 1.4.
+
+* **Django with auto-reload**:
+ 
+ * pydevd.patch_django_autoreload() now properly patches Django 1.4 for the remote debugger.
+ * pydevd.patch_django_autoreload() now patches the Django reload to show a console out of Eclipse so that Ctrl+C can be used.
+ * Created code template to pydevd.patch_django_autoreload().
+ 
+* **Interactive Console**:
+
+ * The interactive console may be attached to the variables view (patch from Jonah Graham).
+   See: `Interactive console`_ for details.
+ * Drag and Drop may be used to drag code from the editor to the interactive console (patch from Jonah Graham).
+ * When starting an interactive console, a link to configure the preferences is shown in the dialog.
+
+* **Code formatter**:
+ 
+ * Multi-lines may be right-trimmed (patch from Haw-Bin Chai) -- option must be enabled in the code-formatting settings.
+ * Fixed issue where the auto code-formatting would end up formatting strings as regular code when the "format only changed lines" setting was on.
+   
+* **Others**:
+
+ * pydevd.settrace() template now adds the debugger to the PYTHONPATH before actually doing the settrace().
+ * ${pydevd_file_location} and ${pydevd_dir_location} variables were added to the templates.
+ * The style of generated docstrings (EpyDoc or Sphinx) may be chosen in the preferences (patch from Paul Collins).
+ * Some performance improvements were done on the parser.
+
+Aside from the features above, **lots** of bugs were fixed in this release (including a deadlock in a race condition).
+
+
 
 Release 2.4.0
 ===============

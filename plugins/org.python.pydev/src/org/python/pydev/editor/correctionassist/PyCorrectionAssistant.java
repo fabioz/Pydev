@@ -20,6 +20,6 @@ import org.eclipse.jface.text.quickassist.QuickAssistAssistant;
  * 
  * @author Fabio Zadrozny
  */
-public class PyCorrectionAssistant extends QuickAssistAssistant{
+public class PyCorrectionAssistant extends QuickAssistAssistant {
 
 }

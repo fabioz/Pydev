@@ -23,12 +23,12 @@ import org.eclipse.core.runtime.Assert;
  * a message describes the problem.
  */
 public class StatusInfo implements IStatus {
-    
-    public static final IStatus OK_STATUS= new StatusInfo();
-    
+
+    public static final IStatus OK_STATUS = new StatusInfo();
+
     private String fStatusMessage;
     private int fSeverity;
-    
+
     /**
      * Creates a status set to OK (no message)
      */
@@ -41,12 +41,12 @@ public class StatusInfo implements IStatus {
      * @param severity The status severity: ERROR, WARNING, INFO and OK.
      * @param message The message of the status. Applies only for ERROR,
      * WARNING and INFO.
-     */    
+     */
     public StatusInfo(int severity, String message) {
-        fStatusMessage= message;
-        fSeverity= severity;
-    }        
-    
+        fStatusMessage = message;
+        fSeverity = severity;
+    }
+
     /**
      *  Returns if the status' severity is OK.
      */
@@ -56,70 +56,70 @@ public class StatusInfo implements IStatus {
 
     /**
      *  Returns if the status' severity is WARNING.
-     */    
+     */
     public boolean isWarning() {
         return fSeverity == IStatus.WARNING;
     }
 
     /**
      *  Returns if the status' severity is INFO.
-     */    
+     */
     public boolean isInfo() {
         return fSeverity == IStatus.INFO;
-    }    
+    }
 
     /**
      *  Returns if the status' severity is ERROR.
-     */    
+     */
     public boolean isError() {
         return fSeverity == IStatus.ERROR;
     }
-    
+
     /**
      * @see IStatus#getMessage
      */
     public String getMessage() {
         return fStatusMessage;
     }
-    
+
     /**
      * Sets the status to ERROR.
      * @param errorMessage The error message (can be empty, but not null)
-     */    
+     */
     public void setError(String errorMessage) {
         Assert.isNotNull(errorMessage);
-        fStatusMessage= errorMessage;
-        fSeverity= IStatus.ERROR;
+        fStatusMessage = errorMessage;
+        fSeverity = IStatus.ERROR;
     }
 
     /**
      * Sets the status to WARNING.
      * @param warningMessage The warning message (can be empty, but not null)
-     */        
+     */
     public void setWarning(String warningMessage) {
         Assert.isNotNull(warningMessage);
-        fStatusMessage= warningMessage;
-        fSeverity= IStatus.WARNING;
+        fStatusMessage = warningMessage;
+        fSeverity = IStatus.WARNING;
     }
 
     /**
      * Sets the status to INFO.
      * @param infoMessage The info message (can be empty, but not null)
-     */        
+     */
     public void setInfo(String infoMessage) {
         Assert.isNotNull(infoMessage);
-        fStatusMessage= infoMessage;
-        fSeverity= IStatus.INFO;
-    }    
+        fStatusMessage = infoMessage;
+        fSeverity = IStatus.INFO;
+    }
 
     /**
      * Sets the status to OK.
-     */        
+     */
     public void setOK() {
-        fStatusMessage= null;
-        fSeverity= IStatus.OK;
+        fStatusMessage = null;
+        fSeverity = IStatus.OK;
     }
-    
+
     /*
      * @see IStatus#matches(int)
      */
@@ -171,6 +171,6 @@ public class StatusInfo implements IStatus {
      */
     public IStatus[] getChildren() {
         return new IStatus[0];
-    }    
+    }
 
 }

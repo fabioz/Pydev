@@ -22,7 +22,7 @@ import com.python.pydev.debug.model.ProcessServer;
 import com.python.pydev.debug.remote.RemoteDebuggerServer;
 
 public class PydevdServerLaunchConfigurationDelegate extends AbstractLaunchConfigurationDelegate {
-    
+
     /**
      * Launches the python process.
      * 
@@ -30,28 +30,29 @@ public class PydevdServerLaunchConfigurationDelegate extends AbstractLaunchConfi
      * see WorkbenchLaunchConfigurationDelegate::launch
      */
     @SuppressWarnings("unchecked")
-    public void launch(ILaunchConfiguration conf, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {        
-        if (monitor == null){
+    public void launch(ILaunchConfiguration conf, String mode, ILaunch launch, IProgressMonitor monitor)
+            throws CoreException {
+        if (monitor == null) {
             monitor = new NullProgressMonitor();
         }
-        
-        monitor.beginTask("Preparing configuration", 1);        
+
+        monitor.beginTask("Preparing configuration", 1);
         monitor.worked(1);
-        
+
         ProcessServer p = new ProcessServer();
         String label = "Debug Server";
         HashMap processAttributes = new HashMap();
         processAttributes.put(IProcess.ATTR_PROCESS_TYPE, Constants.PROCESS_TYPE);
         processAttributes.put(IProcess.ATTR_PROCESS_LABEL, label);
         processAttributes.put(DebugPlugin.ATTR_CAPTURE_OUTPUT, "true");
-                
-        IProcess pro = DebugPlugin.newProcess( launch, p, label, processAttributes );
-        
+
+        IProcess pro = DebugPlugin.newProcess(launch, p, label, processAttributes);
+
         RemoteDebuggerServer.getInstance().setLaunch(launch, p, pro);
     }
-        
+
     @Override
-    protected String getRunnerConfigRun(ILaunchConfiguration conf, String mode, ILaunch launch) {    
+    protected String getRunnerConfigRun(ILaunchConfiguration conf, String mode, ILaunch launch) {
         return "RUN_SERVER";
-    }    
+    }
 }

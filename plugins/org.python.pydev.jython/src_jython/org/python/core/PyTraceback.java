@@ -5,8 +5,7 @@ package org.python.core;
  * A python traceback object.
  */
 
-public class PyTraceback extends PyObject
-{
+public class PyTraceback extends PyObject {
     public PyObject tb_next;
     public PyFrame tb_frame;
     public int tb_lineno;
@@ -30,18 +29,17 @@ public class PyTraceback extends PyObject
     // "  File \"%.900s\", line %d, in %s\n"
     private String line() {
         if (tb_frame == null || tb_frame.f_code == null)
-            return "  (no code object) at line "+tb_lineno+"\n";
-        return "  File \""+tb_frame.f_code.co_filename+
-            "\", line "+tb_lineno+
-            ", in "+tb_frame.f_code.co_name+"\n";
+            return "  (no code object) at line " + tb_lineno + "\n";
+        return "  File \"" + tb_frame.f_code.co_filename + "\", line " + tb_lineno + ", in " + tb_frame.f_code.co_name
+                + "\n";
     }
 
     public void dumpStack(StringBuffer buf) {
         buf.append(line());
         if (tb_next != Py.None && tb_next != this)
-            ((PyTraceback)tb_next).dumpStack(buf);
+            ((PyTraceback) tb_next).dumpStack(buf);
         else if (tb_next == this) {
-            buf.append("circularity detected!"+this+tb_next);
+            buf.append("circularity detected!" + this + tb_next);
         }
     }
 
@@ -55,6 +53,6 @@ public class PyTraceback extends PyObject
     }
 
     public String toString() {
-        return "<traceback object at " + " "+Py.idstr(this) + ">";
+        return "<traceback object at " + " " + Py.idstr(this) + ">";
     }
 }

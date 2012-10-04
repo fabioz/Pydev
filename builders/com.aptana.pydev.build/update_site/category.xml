@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/com.aptana.pydev_{version.full}.jar" id="com.aptana.pydev" version="{version.full}">
+      <category name="com.aptana.pydev.category"/>
+   </feature>
+   <category-def name="com.aptana.pydev.category" label="Aptana Pydev"/>
+</site>

@@ -11,17 +11,17 @@ import java.util.List;
 
 import org.python.pydev.core.MisconfigurationException;
 
-public abstract class ElementWithChildren extends ElementWithParent{
+public abstract class ElementWithChildren extends ElementWithParent {
 
     public ElementWithChildren(ITreeElement parent) {
         super(parent);
     }
-    
+
     private List<Object> calculatingChildren;
     private Object[] calculatedChildren;
-    
+
     public Object[] getChildren() {
-        if(calculatedChildren == null){
+        if (calculatedChildren == null) {
             calculatingChildren = new ArrayList<Object>();
             try {
                 this.calculateChildren();
@@ -35,7 +35,7 @@ public abstract class ElementWithChildren extends ElementWithParent{
     }
 
     protected abstract void calculateChildren() throws MisconfigurationException;
-    
+
     protected void addChild(ITreeElement child) {
         this.calculatingChildren.add(child);
     }

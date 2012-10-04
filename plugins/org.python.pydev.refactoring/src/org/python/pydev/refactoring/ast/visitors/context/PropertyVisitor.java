@@ -31,7 +31,7 @@ public class PropertyVisitor extends AbstractContextVisitor<PropertyAdapter> {
 
     @Override
     public Object visitCall(Call node) throws Exception {
-        if(nodeHelper.isAssign(stack.peek())){
+        if (nodeHelper.isAssign(stack.peek())) {
             registerInContext(stack.peek());
         }
         return null;
@@ -39,7 +39,7 @@ public class PropertyVisitor extends AbstractContextVisitor<PropertyAdapter> {
 
     @Override
     public Object visitAssign(Assign node) throws Exception {
-        if(nodeHelper.isPropertyAssign(node)){
+        if (nodeHelper.isPropertyAssign(node)) {
             stack.push(node);
             visit(node.value);
             stack.pop();

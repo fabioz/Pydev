@@ -19,7 +19,7 @@ package org.python.pydev.editor.codecompletion.revisited;
  * 
  * @author Fabio Zadrozny
  */
-public final class ConcreteToken extends AbstractToken{
+public final class ConcreteToken extends AbstractToken {
 
     private static final long serialVersionUID = 1L;
 
@@ -32,5 +32,5 @@ public final class ConcreteToken extends AbstractToken{
     public ConcreteToken(String rep, String doc, String args, String parentPackage, int type) {
         super(rep, doc, args, parentPackage, type);
     }
-    
+
 }

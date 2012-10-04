@@ -9,7 +9,6 @@ package org.python.pydev.parser.prettyprinter;
 import java.io.File;
 import java.io.IOException;
 
-import org.python.pydev.core.REF;
 import org.python.pydev.parser.PyParserTestBase;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.prettyprinterv2.IPrettyPrinterPrefs;
@@ -19,12 +18,14 @@ import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.comparator.DifferException;
 import org.python.pydev.parser.visitors.comparator.SimpleNodeComparator;
 
-public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
-    
+import com.aptana.shared_core.io.FileUtils;
+
+public class AbstractPrettyPrinterTestBase extends PyParserTestBase {
+
     public static boolean DEBUG = false;
 
     protected IPrettyPrinterPrefs prefs;
-    
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
@@ -32,57 +33,47 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
     }
 
     public SimpleNode checkPrettyPrintEqual(String s, String expected) throws Error {
-        return checkPrettyPrintEqual(s, prefs, expected);
+        return checkPrettyPrintEqual(s, prefs, expected, expected, expected);
     }
-    
+
     public SimpleNode checkPrettyPrintEqual(String s, String expected, String v2) throws Error {
-        return checkPrettyPrintEqual(s, prefs, expected, v2);
+        return checkPrettyPrintEqual(s, prefs, expected, v2, v2);
     }
-    
-    
+
     public SimpleNode checkPrettyPrintEqual(String s, String expected, String v2, String v3) throws Error {
         return checkPrettyPrintEqual(s, prefs, expected, v2, v3);
     }
-    
+
     public SimpleNode checkPrettyPrintEqual(String s) throws Error {
         return checkPrettyPrintEqual(s, s);
     }
-    
+
     /**
      * @param s
      * @return 
      * @throws Exception
      * @throws IOException
      */
-    public static SimpleNode checkPrettyPrintEqual(String s, IPrettyPrinterPrefs prefs, String expected, String ... v2) throws Error {
+    public static SimpleNode checkPrettyPrintEqual(String s, IPrettyPrinterPrefs prefs, String withLinesAndCols,
+            String withoutSpecials, String scrambledLines) throws Error {
         SimpleNode node = parseLegalDocStr(s);
 
-        String checkV2 = expected;
-        if(v2.length > 0){
-            checkV2 = v2[0];
-        }
-        String checkV3 = checkV2;
-        if(v2.length > 1){
-            checkV3 = v2[1];
-        }
-        
-        
         //Scramble the lines/columns
         SimpleNode copy = node.createCopy();
         MessLinesAndColumnsVisitor messLinesAndColumnsVisitor = new MessLinesAndColumnsVisitor();
-        try{
+        try {
             copy.accept(messLinesAndColumnsVisitor);
             MakeAstValidForPrettyPrintingVisitor.makeValid(copy);
-        }catch(Exception e){
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        assertEquals(checkV3, makePrint(prefs, copy));
-        
+        assertEquals(scrambledLines, makePrint(prefs, copy));
+
         //Without specials: When creating a copy, the specials won't go along.
-        assertEquals(checkV2, makePrint(prefs, node.createCopy()));
-        
+        assertEquals(withoutSpecials, makePrint(prefs, node.createCopy()));
+
         //Regular
-        assertEquals(expected, makePrint(prefs, node));
+        assertEquals(withLinesAndCols, makePrint(prefs, node));
         return node;
     }
 
@@ -100,22 +91,20 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        if(DEBUG){
+        if (DEBUG) {
             System.out.println("\n\nResult:\n");
-            System.out.println("'"+result+"'");
-//            System.out.println("'"+result.replace(' ', '.').replace('\t', '^')+"'");
+            System.out.println("'" + result + "'");
+            //            System.out.println("'"+result.replace(' ', '.').replace('\t', '^')+"'");
         }
         return result;
     }
-
-    
 
     /**
      * @param file
      * @throws Exception 
      */
     protected void parseAndReparsePrettyPrintedFilesInDir(File file) throws Exception {
-        assertTrue("Dir does not exist: "+file, file.exists());
+        assertTrue("Dir does not exist: " + file, file.exists());
         assertTrue(file.isDirectory());
         File[] files = file.listFiles();
         for (int i = 0; i < files.length; i++) {
@@ -126,10 +115,10 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
 
     protected void parseAndPrettyPrintFile(File f) throws Error, Exception {
         String lowerCase = f.getAbsolutePath().toLowerCase();
-        if(lowerCase.endsWith(".py")){
-            SimpleNode original = parseLegalDocStr(REF.getFileContents(f), f);
-            if(original == null){
-                fail("Error\nUnable to generate the AST for the file:"+f);
+        if (lowerCase.endsWith(".py")) {
+            SimpleNode original = parseLegalDocStr(FileUtils.getFileContents(f), f);
+            if (original == null) {
+                fail("Error\nUnable to generate the AST for the file:" + f);
             }
             String result = null;
             SimpleNode node = null;
@@ -140,7 +129,7 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
                 printErrorAndFail(f, original, result, e);
             }
             makeCompare(f, original, node);
-            
+
             String result2 = null;
             SimpleNode nodePrintingWithoutSpecials = null;
             try {
@@ -152,8 +141,7 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
                 printErrorAndFail(f, original, result2, e);
             }
             makeCompare(f, original, nodePrintingWithoutSpecials);
-            
-            
+
         }
     }
 
@@ -162,7 +150,7 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
         try {
             comparator.compare(original, node);
         } catch (DifferException e) {
-            System.out.println("Compare did not suceed:"+f);
+            System.out.println("Compare did not suceed:" + f);
         }
     }
 
@@ -172,10 +160,10 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
         System.out.println("\n\n--------------Pretty-printed contents:------------------\n");
         System.out.println(result2);
         System.out.println("\n\n\n");
-        System.out.println("File: "+f);
+        System.out.println("File: " + f);
         e.printStackTrace();
-        
-        fail("Error\nUnable to pretty-print regenerated file:"+f);
+
+        fail("Error\nUnable to pretty-print regenerated file:" + f);
     }
 
 }

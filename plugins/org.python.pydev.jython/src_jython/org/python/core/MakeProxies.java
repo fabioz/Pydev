@@ -9,8 +9,7 @@ import org.python.compiler.AdapterMaker;
 import org.python.compiler.JavaMaker;
 
 class MakeProxies {
-    private static Class makeClass(Class referent, Vector secondary,
-            String name, ByteArrayOutputStream bytes) {
+    private static Class makeClass(Class referent, Vector secondary, String name, ByteArrayOutputStream bytes) {
         Vector referents = null;
 
         if (secondary != null) {
@@ -47,9 +46,8 @@ class MakeProxies {
 
     private static int proxyNumber = 0;
 
-    public static synchronized Class makeProxy(Class superclass,
-            Vector vinterfaces, String className, String proxyName,
-            PyObject dict) {
+    public static synchronized Class makeProxy(Class superclass, Vector vinterfaces, String className,
+            String proxyName, PyObject dict) {
         Class[] interfaces = new Class[vinterfaces.size()];
 
         for (int i = 0; i < vinterfaces.size(); i++) {
@@ -63,8 +61,7 @@ class MakeProxies {
         } else {
             pythonModuleName = (String) mn.__tojava__(String.class);
         }
-        JavaMaker jm = new JavaMaker(superclass, interfaces, className,
-                pythonModuleName, fullProxyName, dict);
+        JavaMaker jm = new JavaMaker(superclass, interfaces, className, pythonModuleName, fullProxyName, dict);
         try {
             jm.build();
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();

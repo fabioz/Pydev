@@ -16,7 +16,8 @@ import java.io.Serializable;
 
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.StringUtils.ICallbackOnSplit;
-import org.python.pydev.core.structure.FastStringBuffer;
+
+import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * This class defines the key to use for some module. All its operations are based on its name.
@@ -24,25 +25,24 @@ import org.python.pydev.core.structure.FastStringBuffer;
  * 
  * @author Fabio Zadrozny
  */
-public class ModulesKey implements Comparable<ModulesKey>, Serializable{
+public class ModulesKey implements Comparable<ModulesKey>, Serializable {
 
     /**
      * 1L = just name and file
      * 2L = + zipModulePath
      */
     private static final long serialVersionUID = 2L;
-    
+
     /**
      * The name is always needed!
      */
     public String name;
-    
+
     /**
      * Builtins may not have the file (null)
      */
     public File file;
 
-    
     /**
      * Builtins may not have the file
      */
@@ -50,7 +50,6 @@ public class ModulesKey implements Comparable<ModulesKey>, Serializable{
         this.name = name;
         this.file = f;
     }
-    
 
     /**
      * @see java.lang.Comparable#compareTo(java.lang.Object)
@@ -63,29 +62,29 @@ public class ModulesKey implements Comparable<ModulesKey>, Serializable{
      * @see java.lang.Object#equals(java.lang.Object)
      */
     public boolean equals(Object o) {
-        if (!(o instanceof ModulesKey )){
+        if (!(o instanceof ModulesKey)) {
             return false;
         }
-        
-        ModulesKey m = (ModulesKey)o;
-        if(!(name.equals(m.name))){
+
+        ModulesKey m = (ModulesKey) o;
+        if (!(name.equals(m.name))) {
             return false;
         }
-        
+
         //consider only the name
         return true;
     }
-    
+
     /**
      * @see java.lang.Object#hashCode()
      */
     public int hashCode() {
         return this.name.hashCode();
     }
-    
+
     @Override
     public String toString() {
-        if(file != null){
+        if (file != null) {
             FastStringBuffer ret = new FastStringBuffer(name, 40);
             ret.append(" - ");
             ret.appendObject(file);
@@ -93,8 +92,6 @@ public class ModulesKey implements Comparable<ModulesKey>, Serializable{
         }
         return name;
     }
-
-    
 
     private static final class ProcessCheckIfStartingWithPart implements ICallbackOnSplit {
         private final String startingWithLowerCase;
@@ -104,16 +101,15 @@ public class ModulesKey implements Comparable<ModulesKey>, Serializable{
         }
 
         public boolean call(String mod) {
-            if(mod.length() == 0){
+            if (mod.length() == 0) {
                 return true; //keep on going
             }
-            if(mod.startsWith(startingWithLowerCase)){
+            if (mod.startsWith(startingWithLowerCase)) {
                 return false; //Ok, a part starts with
             }
             return true; //keep on going
         }
     }
-
 
     /**
      * @return true if any of the parts in this modules key start with the passed string (considering the internal
@@ -122,9 +118,7 @@ public class ModulesKey implements Comparable<ModulesKey>, Serializable{
     public boolean hasPartStartingWith(final String startingWithLowerCase) {
         ICallbackOnSplit onSplit = new ProcessCheckIfStartingWithPart(startingWithLowerCase);
         //Return negated: if false was returned it means it returned early or found a part.
-        return !StringUtils.split(this.name.toLowerCase(), '.', onSplit); 
+        return !StringUtils.split(this.name.toLowerCase(), '.', onSplit);
     }
-    
-    
-    
+
 }

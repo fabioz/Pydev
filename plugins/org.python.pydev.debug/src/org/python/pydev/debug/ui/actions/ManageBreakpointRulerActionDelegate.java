@@ -18,8 +18,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 /**
  * Breakpoints delegate
  */
-public class ManageBreakpointRulerActionDelegate
-    extends AbstractRulerActionDelegate {
+public class ManageBreakpointRulerActionDelegate extends AbstractRulerActionDelegate {
 
     protected IAction createAction(ITextEditor editor, IVerticalRulerInfo rulerInfo) {
         return new PyBreakpointRulerAction(editor, rulerInfo);

@@ -7,8 +7,9 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import org.python.pydev.core.ICompletionCache;
-import org.python.pydev.core.cache.CacheMapWrapper;
-import org.python.pydev.core.cache.LRUMap;
+
+import com.aptana.shared_core.cache.CacheMapWrapper;
+import com.aptana.shared_core.cache.LRUMap;
 
 /**
  * Default completion cache implementation

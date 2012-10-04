@@ -21,44 +21,38 @@ public class PyCoveragePreferences {
     private static IContainer lastChosenDir;
     private static int DEFAULT_NUMBER_OF_COLUMNS_FOR_NAME = 40;
 
-
-
     public static boolean getAllRunsDoCoverage() {
         return getInternalAllRunsDoCoverage() && lastChosenDir != null && lastChosenDir.exists();
     }
 
-    /*default*/ static boolean getInternalAllRunsDoCoverage() {
+    /*default*/static boolean getInternalAllRunsDoCoverage() {
         return internalAllRunsDoCoverage;
     }
-    /*default*/ static void setInternalAllRunsDoCoverage(boolean selection) {
+
+    /*default*/static void setInternalAllRunsDoCoverage(boolean selection) {
         internalAllRunsDoCoverage = selection;
     }
 
-    
-    
-    /*default*/ static void setRefreshAfterNextLaunch(boolean selection) {
+    /*default*/static void setRefreshAfterNextLaunch(boolean selection) {
         refreshAfterNextLaunch = selection;
     }
-    
+
     public static boolean getRefreshAfterNextLaunch() {
         return refreshAfterNextLaunch;
     }
-    
-    
-    /*default*/ static void setClearCoverageInfoOnNextLaunch(boolean selection) {
+
+    /*default*/static void setClearCoverageInfoOnNextLaunch(boolean selection) {
         clearCoverageInfoOnNextLaunch = selection;
     }
-    
+
     public static boolean getClearCoverageInfoOnNextLaunch() {
         return clearCoverageInfoOnNextLaunch;
     }
-    
-    
-    
 
-    /*default*/ static void setLastChosenDir(IContainer container) {
+    /*default*/static void setLastChosenDir(IContainer container) {
         lastChosenDir = container;
     }
+
     public static IContainer getLastChosenDir() {
         return lastChosenDir;
     }
@@ -70,19 +64,18 @@ public class PyCoveragePreferences {
 
     public static int getNameNumberOfColumns() {
         PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
-        if(plugin == null){
+        if (plugin == null) {
             return DEFAULT_NUMBER_OF_COLUMNS_FOR_NAME;
         }
         IPreferenceStore preferenceStore = plugin.getPreferenceStore();
         int i = preferenceStore.getInt("PY_COVERAGE_NAME_COLUMNS_TO_USE");
-        if(i <= 5){
+        if (i <= 5) {
             return DEFAULT_NUMBER_OF_COLUMNS_FOR_NAME;
         }
-        if(i > 256){
+        if (i > 256) {
             i = 256;
         }
         return i;
     }
-    
 
 }

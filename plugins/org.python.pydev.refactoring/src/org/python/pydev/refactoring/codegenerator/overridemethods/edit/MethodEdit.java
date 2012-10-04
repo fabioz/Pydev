@@ -57,7 +57,7 @@ public class MethodEdit extends AbstractInsertEdit {
         exprType starargs = null;
         exprType kwargs = null;
 
-        if(origin.args != null){
+        if (origin.args != null) {
             args = extractArgs(origin.args);
             starargs = extractStarargs(origin.args);
             kwargs = extractKwargs(origin.args);
@@ -70,32 +70,33 @@ public class MethodEdit extends AbstractInsertEdit {
 
     private exprType extractKwargs(argumentsType argType) {
         NameTok kwarg = (NameTok) argType.kwarg;
-        if(kwarg != null){
+        if (kwarg != null) {
             return new Name(kwarg.id, Name.Load, false);
-        }else{
+        } else {
             return null;
         }
     }
 
     private exprType extractStarargs(argumentsType argType) {
         NameTok vararg = (NameTok) argType.vararg;
-        if(vararg != null){
+        if (vararg != null) {
             return new Name(vararg.id, Name.Load, false);
-        }else{
+        } else {
             return null;
         }
     }
 
     private exprType[] extractArgs(argumentsType argType) {
         exprType[] ret = new exprType[argType.args.length];
-        for(int i=0;i<ret.length;i++){
+        for (int i = 0; i < ret.length; i++) {
             ret[i] = (exprType) argType.args[i].createCopy();
         }
         return ret;
     }
 
     private Attribute createAttribute() {
-        return new Attribute(new Name(baseClassName, Name.Load, false), new NameTok(method.getName(), NameTok.Attrib), Attribute.Load);
+        return new Attribute(new Name(baseClassName, Name.Load, false), new NameTok(method.getName(), NameTok.Attrib),
+                Attribute.Load);
     }
 
     @Override

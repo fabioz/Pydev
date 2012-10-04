@@ -18,7 +18,8 @@ import java.util.TreeSet;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.structure.FastStringBuffer;
+
+import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * This class contains all the information we need from the folders beneath the pythonpath.
@@ -28,7 +29,7 @@ import org.python.pydev.core.structure.FastStringBuffer;
 public class ModulesFoundStructure {
 
     public static final boolean DEBUG_ZIP = false;
-    
+
     /**
      * Inner class to contain what we found within a zip file.
      * 
@@ -71,7 +72,7 @@ public class ModulesFoundStructure {
          * Does not support mixing both
          */
         public Set<String> foundFileZipPaths = new HashSet<String>();
-        
+
         /**
          * These are the paths for the folders for the files found to be in the pythonpath.
          */
@@ -90,12 +91,12 @@ public class ModulesFoundStructure {
          * Given the temporary info found, goes on to fill the actual found modules.
          */
         public void consolidatePythonpathInfo(IProgressMonitor monitor) {
-            int i=0;
+            int i = 0;
             FastStringBuffer buffer = new FastStringBuffer();
             for (Map.Entry<String, String> entry : pyFilesLowerToRegular.entrySet()) {
-                if(i % 15==0){
-                    
-                    if(monitor.isCanceled()){
+                if (i % 15 == 0) {
+
+                    if (monitor.isCanceled()) {
                         break;
                     }
                     monitor.setTaskName("Updating zips info...");
@@ -105,11 +106,11 @@ public class ModulesFoundStructure {
                 String key = entry.getKey();
                 int index = StringUtils.rFind(key, '/');
                 boolean add = true;
-                if(index != -1){
+                if (index != -1) {
                     //If it's in the root, we don't need to check for __init__
                     buffer.clear();
                     buffer.append(key.substring(0, index));
-                    if(zipContentsType == ZIP_CONTENTS_TYPE_PY_ZIP){
+                    if (zipContentsType == ZIP_CONTENTS_TYPE_PY_ZIP) {
                         //we don't need to check for __init__ if we have a jar
                         if (buffer.length() > 0) {
                             buffer.append("/");
@@ -118,11 +119,11 @@ public class ModulesFoundStructure {
                         }
                     }
                 }
-                
+
                 if (add) {
                     String filePath = entry.getValue();
-                    if(DEBUG_ZIP){
-                        System.out.println("Zip: Found in pythonpath:"+filePath);
+                    if (DEBUG_ZIP) {
+                        System.out.println("Zip: Found in pythonpath:" + filePath);
                     }
                     foundFileZipPaths.add(filePath);
                     foundFolderZipPaths.add(StringUtils.stripFromLastSlash(filePath));

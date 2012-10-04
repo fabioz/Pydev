@@ -13,11 +13,7 @@ public class PyFieldDescr extends PyDescriptor {
         this(name, c, field_name, false);
     }
 
-    public PyFieldDescr(
-        String name,
-        Class c,
-        String field_name,
-        boolean readonly) {
+    public PyFieldDescr(String name, Class c, String field_name, boolean readonly) {
         this.name = name;
         this.dtype = PyType.fromClass(c);
         try {
@@ -35,7 +31,7 @@ public class PyFieldDescr extends PyDescriptor {
     }
 
     public String toString() {
-        return "<member '" + name + "' of '"+dtype.fastGetName()+"' objects>";
+        return "<member '" + name + "' of '" + dtype.fastGetName() + "' objects>";
     }
 
     /**

@@ -23,28 +23,30 @@ public class CorePlugin extends AbstractUIPlugin {
     private static CorePlugin plugin;
     //Resource bundle.
     private ResourceBundle resourceBundle;
-    
+
     // ----------------- BUNDLE INFO -----------------------------
     public static IBundleInfo info;
-    public static IBundleInfo getBundleInfo(){
-        if(CorePlugin.info == null){
+
+    public static IBundleInfo getBundleInfo() {
+        if (CorePlugin.info == null) {
             CorePlugin.info = new BundleInfo(CorePlugin.getDefault().getBundle());
         }
         return CorePlugin.info;
     }
-    public static void setBundleInfo(IBundleInfo b){
+
+    public static void setBundleInfo(IBundleInfo b) {
         CorePlugin.info = b;
     }
+
     // ----------------- END BUNDLE INFO -------------------------
-    
+
     /**
      * @return the cache that should be used to access images within the core plugin.
      */
-    public static ImageCache getImageCache(){
+    public static ImageCache getImageCache() {
         return CorePlugin.getBundleInfo().getImageCache();
     }
 
-    
     /**
      * The constructor.
      */
@@ -61,7 +63,7 @@ public class CorePlugin extends AbstractUIPlugin {
     public static String getPluginID() {
         return getDefault().getBundle().getSymbolicName();
     }
-    
+
     /**
      * This method is called upon plug-in activation
      */

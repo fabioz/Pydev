@@ -16,7 +16,6 @@ import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 
 public class PyAstFactoryTest extends PyParserTestBase {
 
-    
     public static void main(String[] args) {
         try {
             PyAstFactoryTest test = new PyAstFactoryTest();
@@ -29,187 +28,163 @@ public class PyAstFactoryTest extends PyParserTestBase {
             e.printStackTrace();
         }
     }
-    
+
     PyAstFactory astFactory;
-    
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        astFactory = new PyAstFactory(
-                new AdapterPrefs("\n", new IGrammarVersionProvider() {
-                    
-                    public int getGrammarVersion() throws MisconfigurationException {
-                        return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
-                    }
-                }));
+        astFactory = new PyAstFactory(new AdapterPrefs("\n", new IGrammarVersionProvider() {
+
+            public int getGrammarVersion() throws MisconfigurationException {
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+            }
+        }));
     }
-    
+
     public void testPyAstFactory() throws Exception {
         FunctionDef functionDef = astFactory.createFunctionDef("MyMethod");
-        
-        
+
         String expected = "" +
-        		"def MyMethod():\n" +
-        		"    pass\n" +
-        		"";
+                "def MyMethod():\n" +
+                "    pass\n" +
+                "";
         checkExpected(functionDef, expected);
     }
 
     public void testCreateSetter() throws Exception {
         String expected = "" +
-        "def setFoo(self,value):\n" +
-        "    self.__foo = value\n" +
-        "";
+                "def setFoo(self,value):\n" +
+                "    self.__foo = value\n" +
+                "";
         checkExpected(astFactory.createSetterFunctionDef("setFoo", "foo"), expected);
     }
-    
-    
+
     public void testCreateAttribute() throws Exception {
 
         Attribute attribute = astFactory.createAttribute("a.b.c.d.e");
         checkExpected(attribute, "a.b.c.d.e\n");
     }
-    
+
     public void testCreateConstructor() throws Exception {
         String expected = "" +
-        		"def __init__(self,arg,attribute):\n" +
-        		"    A.__init__(self,arg)\n" +
-        		"    self.attribute = attribute\n" +
-        		"";
-        
+                "def __init__(self,arg,attribute):\n" +
+                "    A.__init__(self,arg)\n"
+                +
+                "    self.attribute = attribute\n" +
+                "";
+
         FunctionDef functionDef = astFactory.createFunctionDef("__init__");
         functionDef.args = astFactory.createArguments(true, "arg", "attribute");
-        astFactory.setBody(
-                functionDef, 
-                astFactory.createCall("A.__init__", "self", "arg"),
-                astFactory.createAssign(astFactory.createAttribute("self.attribute"), new Name("attribute", Name.Load, false))
-                );
+        astFactory.setBody(functionDef, astFactory.createCall("A.__init__", "self", "arg"), astFactory.createAssign(
+                astFactory.createAttribute("self.attribute"), new Name("attribute", Name.Load, false)));
         checkExpected(functionDef, expected);
     }
-    
+
     public void testCreateOverrideBody() throws Exception {
         String expected = "" +
-        "def test(self,arg,attribute):\n"+
-        "    Parent.test(self,arg,attribute)\n" +
-        "";
-        
+                "def test(self,arg,attribute):\n" +
+                "    Parent.test(self,arg,attribute)\n" +
+                "";
+
         FunctionDef functionDef = astFactory.createFunctionDef("test");
         functionDef.args = astFactory.createArguments(true, "arg", "attribute");
-        astFactory.setBody(
-                functionDef, 
-                astFactory.createOverrideBody(functionDef, "Parent", "Current")
-        );
+        astFactory.setBody(functionDef, astFactory.createOverrideBody(functionDef, "Parent", "Current"));
         checkExpected(functionDef, expected);
     }
-    
-    
+
     public void testCreateOverrideBody2() throws Exception {
         String expected = "" +
-        "def test(arg,attribute,*args,**kwargs):\n"+
-        "    return Parent.test(arg,attribute,*args,**kwargs)\n" +
-        "";
-        
+                "def test(arg,attribute,*args,**kwargs):\n"
+                +
+                "    return Parent.test(arg,attribute,*args,**kwargs)\n" +
+                "";
+
         Module module = (Module) parseLegalDocStr(expected);
         FunctionDef functionDef = (FunctionDef) module.body[0];
         FunctionDef createdFunctionDef = astFactory.createFunctionDef("test");
         createdFunctionDef.args = functionDef.args.createCopy();
-        astFactory.setBody(
-                createdFunctionDef, 
-                astFactory.createOverrideBody(functionDef, "Parent", "Current")
-        );
+        astFactory.setBody(createdFunctionDef, astFactory.createOverrideBody(functionDef, "Parent", "Current"));
         checkExpected(createdFunctionDef, expected);
     }
-    
+
     public void testCreateOverrideBody3() throws Exception {
         String base = "" +
-        "def test(arg,attribute,a=10,b=20,*args,**kwargs):\n"+
-        "    pass\n" +
-        "";
-        
+                "def test(arg,attribute,a=10,b=20,*args,**kwargs):\n" +
+                "    pass\n" +
+                "";
+
         String expected = "" +
-        "def test(arg,attribute,a=10,b=20,*args,**kwargs):\n"+
-        "    Parent.test(arg,attribute,a=a,b=b,*args,**kwargs)\n" +
-        "";
-        
+                "def test(arg,attribute,a=10,b=20,*args,**kwargs):\n"
+                +
+                "    Parent.test(arg,attribute,a=a,b=b,*args,**kwargs)\n" +
+                "";
+
         Module module = (Module) parseLegalDocStr(base);
         FunctionDef functionDef = (FunctionDef) module.body[0];
         FunctionDef createdFunctionDef = astFactory.createFunctionDef("test");
         createdFunctionDef.args = functionDef.args.createCopy();
-        astFactory.setBody(
-                createdFunctionDef, 
-                astFactory.createOverrideBody(functionDef, "Parent", "Current")
-        );
+        astFactory.setBody(createdFunctionDef, astFactory.createOverrideBody(functionDef, "Parent", "Current"));
         checkExpected(createdFunctionDef, expected);
     }
-    
+
     public void testCreateOverrideBody4() throws Exception {
         String base = "" +
-        "@classmethod\n" +
-        "def test(cls):\n"+
-        "    pass\n" +
-        "";
-        
+                "@classmethod\n" +
+                "def test(cls):\n" +
+                "    pass\n" +
+                "";
+
         String expected = "" +
-        "@classmethod\n" +
-        "def test(cls):\n"+
-        "    super(Current,cls).test()\n" +
-        "";
-//        Module m = (Module) parseLegalDocStr(expected);
-//        FunctionDef func = (FunctionDef) m.body[0];
-//        System.out.println(func.body[0]);
-        
+                "@classmethod\n" +
+                "def test(cls):\n" +
+                "    super(Current,cls).test()\n" +
+                "";
+        //        Module m = (Module) parseLegalDocStr(expected);
+        //        FunctionDef func = (FunctionDef) m.body[0];
+        //        System.out.println(func.body[0]);
+
         Module module = (Module) parseLegalDocStr(base);
         FunctionDef functionDef = (FunctionDef) module.body[0];
         FunctionDef createdFunctionDef = functionDef.createCopy();
-        astFactory.setBody(
-                createdFunctionDef, 
-                astFactory.createOverrideBody(functionDef, "Parent", "Current")
-        );
+        astFactory.setBody(createdFunctionDef, astFactory.createOverrideBody(functionDef, "Parent", "Current"));
         checkExpected(createdFunctionDef, expected);
     }
-    
-    
+
     public void testCreateOverrideBody5() throws Exception {
         String base = "" +
-        "@classmethod\n" +
-        "def test(cls):\n"+
-        "    #comment\n" +
-        "    pass\n" +
-        "";
-        
+                "@classmethod\n" +
+                "def test(cls):\n" +
+                "    #comment\n" +
+                "    pass\n" +
+                "";
+
         String expected = "" +
-        "@classmethod\n" +
-        "def test(cls):\n"+
-        "    super(Current,cls).test()\n" +
-        "";
-        
+                "@classmethod\n" +
+                "def test(cls):\n" +
+                "    super(Current,cls).test()\n" +
+                "";
+
         Module module = (Module) parseLegalDocStr(base);
         FunctionDef functionDef = (FunctionDef) module.body[0];
         FunctionDef createdFunctionDef = functionDef.createCopy(false);
-        astFactory.setBody(
-                createdFunctionDef, 
-                astFactory.createOverrideBody(functionDef, "Parent", "Current")
-        );
+        astFactory.setBody(createdFunctionDef, astFactory.createOverrideBody(functionDef, "Parent", "Current"));
         checkExpected(createdFunctionDef, expected);
     }
-    
-    
+
     private void checkExpected(SimpleNode functionDef, String expected) throws Exception {
         MakeAstValidForPrettyPrintingVisitor.makeValid(functionDef);
-        PrettyPrinterV2 printer = new PrettyPrinterV2(
-                new PrettyPrinterPrefsV2("\n", "    ", new IGrammarVersionProvider() {
-                    
+        PrettyPrinterV2 printer = new PrettyPrinterV2(new PrettyPrinterPrefsV2("\n", "    ",
+                new IGrammarVersionProvider() {
+
                     public int getGrammarVersion() throws MisconfigurationException {
                         return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
                     }
                 }));
         String result = printer.print(functionDef);
-        System.out.println("Result: >>"+result+"<<");
+        System.out.println("Result: >>" + result +
+                "<<");
         assertEquals(expected, result);
     }
-    
-    
 
-    
-    
 }

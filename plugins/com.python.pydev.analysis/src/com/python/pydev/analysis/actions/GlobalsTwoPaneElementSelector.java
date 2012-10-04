@@ -13,7 +13,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.TwoPaneElementSelector;
 import org.python.pydev.core.uiutils.DialogMemento;
 
-
 /**
  * This is the class that shows the globals browser.
  * 
@@ -21,10 +20,10 @@ import org.python.pydev.core.uiutils.DialogMemento;
  *
  * @author Fabio
  */
-public class GlobalsTwoPaneElementSelector extends TwoPaneElementSelector{
+public class GlobalsTwoPaneElementSelector extends TwoPaneElementSelector {
 
     private DialogMemento memento;
-    
+
     /**
      * Constructor
      */
@@ -34,22 +33,22 @@ public class GlobalsTwoPaneElementSelector extends TwoPaneElementSelector{
         memento = new DialogMemento(getShell(), "com.python.pydev.analysis.actions.GlobalsTwoPaneElementSelector");
     }
 
-     public boolean close() {
-         memento.writeSettings(getShell());
-         return super.close();
-     }
- 
-     public Control createDialogArea(Composite parent) {
-         memento.readSettings();
-         return super.createDialogArea(parent);
-     }
- 
+    public boolean close() {
+        memento.writeSettings(getShell());
+        return super.close();
+    }
+
+    public Control createDialogArea(Composite parent) {
+        memento.readSettings();
+        return super.createDialogArea(parent);
+    }
+
     protected Point getInitialSize() {
         return memento.getInitialSize(super.getInitialSize(), getShell());
     }
- 
-     protected Point getInitialLocation(Point initialSize) {
-         return memento.getInitialLocation(initialSize, super.getInitialLocation(initialSize), getShell());
+
+    protected Point getInitialLocation(Point initialSize) {
+        return memento.getInitialLocation(initialSize, super.getInitialLocation(initialSize), getShell());
     }
 
 }

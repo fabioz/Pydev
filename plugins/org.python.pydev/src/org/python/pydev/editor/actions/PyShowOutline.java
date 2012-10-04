@@ -20,41 +20,40 @@ import org.python.pydev.core.ExtensionHelper;
 /**
  * @author Fabio Zadrozny
  */
-public class PyShowOutline extends PyAction{
+public class PyShowOutline extends PyAction {
 
     protected IEditorActionDelegate registered;
-    
+
     /* (non-Javadoc)
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
      */
     public void run(IAction action) {
         IEditorActionDelegate participant = getParticipant();
-        if(participant != null){
+        if (participant != null) {
             participant.run(action);
         }
     }
-    
-    public void setActiveEditor(IAction action, IEditorPart targetEditor){
+
+    public void setActiveEditor(IAction action, IEditorPart targetEditor) {
         IEditorActionDelegate participant = getParticipant();
-        if(participant != null){
+        if (participant != null) {
             participant.setActiveEditor(action, targetEditor);
         }
     }
-    
+
     @Override
     public void selectionChanged(IAction action, ISelection selection) {
         IEditorActionDelegate participant = getParticipant();
-        if(participant != null){
+        if (participant != null) {
             participant.selectionChanged(action, selection);
         }
     }
 
-
     protected IEditorActionDelegate getParticipant() {
-        if(registered != null){
+        if (registered != null) {
             return registered;
         }
-        
+
         registered = (IEditorActionDelegate) ExtensionHelper.getParticipant(getExtensionName(), false);
         return registered;
     }

@@ -1,9 +1,9 @@
-
 package org.python.core;
 
 public class CompilerFlags {
-    
-    public CompilerFlags(){}
+
+    public CompilerFlags() {
+    }
 
     public CompilerFlags(int co_flags) {
         if ((co_flags & org.python.core.PyTableCode.CO_NESTED) != 0) {
@@ -16,13 +16,11 @@ public class CompilerFlags {
             this.generator_allowed = true;
         }
     }
-    
+
     public String toString() {
         return "CompilerFlags[division=" + division + " nested_scopes=" + nested_scopes + " generators="
                 + generator_allowed + "]";
     }
-    
-    
 
     public boolean nested_scopes = true;
     public boolean division;

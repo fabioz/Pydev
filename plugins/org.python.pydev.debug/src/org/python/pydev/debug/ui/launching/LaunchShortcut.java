@@ -15,22 +15,19 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.plugin.PydevPlugin;
 
-
 public class LaunchShortcut extends AbstractLaunchShortcut {
 
     protected String getLaunchConfigurationType() {
         return Constants.ID_PYTHON_REGULAR_LAUNCH_CONFIGURATION_TYPE;
     }
-    
-    
+
     @Override
-    protected boolean getRequireFile(){
+    protected boolean getRequireFile() {
         return true;
     }
 
-    
     @Override
-    protected IInterpreterManager getInterpreterManager(IProject project){
+    protected IInterpreterManager getInterpreterManager(IProject project) {
         return PydevPlugin.getPythonInterpreterManager();
     }
 }

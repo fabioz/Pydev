@@ -9,14 +9,15 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.python.pydev.core.Tuple;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.model.XMLUtils;
-import org.python.pydev.dltk.console.IScriptConsoleCommunication;
-import org.python.pydev.dltk.console.InterpreterResponse;
+
+import com.aptana.interactive_console.console.IScriptConsoleCommunication;
+import com.aptana.interactive_console.console.InterpreterResponse;
+import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * This class allows console to communicate with python backend by using the existing
@@ -57,10 +58,8 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
         consoleFrame = new PydevDebugConsoleFrame();
     }
 
-    public void execInterpreter(
-        final String command,
-        final ICallback<Object, InterpreterResponse> onResponseReceived,
-        final ICallback<Object, Tuple<String, String>> onContentsReceived) {
+    public void execInterpreter(final String command, final ICallback<Object, InterpreterResponse> onResponseReceived,
+            final ICallback<Object, Tuple<String, String>> onContentsReceived) {
 
         nextResponse = null;
         if (waitingForInput) {
@@ -75,14 +74,12 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
                 protected IStatus run(IProgressMonitor monitor) {
                     PyStackFrame frame = consoleFrame.getLastSelectedFrame();
                     if (frame == null) {
-                        nextResponse = new InterpreterResponse(
-                            EMPTY,
-                            "[Invalid Frame]: Please select frame to connect the console." + "\n",
-                            false,
-                            false);
+                        nextResponse = new InterpreterResponse(EMPTY,
+                                "[Invalid Frame]: Please select frame to connect the console." + "\n", false, false);
                         return Status.CANCEL_STATUS;
                     }
-                    final EvaluateDebugConsoleExpression evaluateDebugConsoleExpression = new EvaluateDebugConsoleExpression(frame);
+                    final EvaluateDebugConsoleExpression evaluateDebugConsoleExpression = new EvaluateDebugConsoleExpression(
+                            frame);
                     evaluateDebugConsoleExpression.executeCommand(command);
                     String result = evaluateDebugConsoleExpression.waitForCommand();
                     try {
@@ -92,10 +89,10 @@ public class PydevDebugConsoleCommunication implements IScriptConsoleCommunicati
                             return Status.CANCEL_STATUS;
 
                         } else {
-                            EvaluateDebugConsoleExpression.PydevDebugConsoleMessage consoleMessage = XMLUtils.getConsoleMessage(result);
-                            nextResponse = new InterpreterResponse(consoleMessage.getOutputMessage().toString(), consoleMessage
-                                .getErrorMessage()
-                                .toString(), consoleMessage.isMore(), false);
+                            EvaluateDebugConsoleExpression.PydevDebugConsoleMessage consoleMessage = XMLUtils
+                                    .getConsoleMessage(result);
+                            nextResponse = new InterpreterResponse(consoleMessage.getOutputMessage().toString(),
+                                    consoleMessage.getErrorMessage().toString(), consoleMessage.isMore(), false);
                         }
                     } catch (CoreException e) {
                         Log.log(e);

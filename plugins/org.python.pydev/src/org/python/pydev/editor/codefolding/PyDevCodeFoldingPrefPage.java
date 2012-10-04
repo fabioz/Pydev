@@ -129,16 +129,17 @@ public class PyDevCodeFoldingPrefPage extends PreferencePage implements IWorkben
         Button master = addCheckBox(top, "Use Code Folding?  -  Will apply to new editors", USE_CODE_FOLDING, 0);
 
         Label listLabel = new Label(top, SWT.NONE);
-        listLabel.setText("\nSelect the elements you would like PyDev \nto fold on.\n\nWill be applied when the document is saved");
+        listLabel
+                .setText("\nSelect the elements you would like PyDev \nto fold on.\n\nWill be applied when the document is saved");
 
         Button slaveImport = addCheckBox(top, "Fold Imports?", FOLD_IMPORTS, 0);
-        
+
         Button slaveClass = addCheckBox(top, "Fold Class Definitions?", FOLD_CLASSDEF, 0);
 
         Button slaveFunc = addCheckBox(top, "Fold Function Definitions?", FOLD_FUNCTIONDEF, 0);
-        
+
         Button slaveString = addCheckBox(top, "Fold Multi-line Strings?", FOLD_STRINGS, 0);
-        
+
         Button slaveComment = addCheckBox(top, "Fold Comments?", FOLD_COMMENTS, 0);
 
         Button slaveFor = addCheckBox(top, "Fold FOR statments?", FOLD_FOR, 0);

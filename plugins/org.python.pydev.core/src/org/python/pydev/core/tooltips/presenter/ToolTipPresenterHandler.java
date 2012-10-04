@@ -23,8 +23,9 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.Widget;
-import org.python.pydev.bindingutils.KeyBindingHelper;
 import org.python.pydev.core.uiutils.UIUtils;
+
+import com.aptana.shared_core.bindings.KeyBindingHelper;
 
 /**
  * Shows tooltips as an information presenter, so, links can be added and the user can interact with it.
@@ -54,7 +55,7 @@ public class ToolTipPresenterHandler {
     public ToolTipPresenterHandler(Shell parent, IInformationPresenter presenter) {
         this(parent, presenter, null);
     }
-    
+
     /**
      * Creates a new tooltip handler
      *
@@ -118,10 +119,10 @@ public class ToolTipPresenterHandler {
                     disposeOfCurrentTipShell();
                     return;
                 }
-                if (widget == tipWidget){
+                if (widget == tipWidget) {
                     return;
                 }
-                
+
                 tipWidget = widget;
                 Object data = widget.getData(TIP_DATA);
                 if (data == null) {
@@ -139,11 +140,12 @@ public class ToolTipPresenterHandler {
 
                 //It must be set before showing the tooltip, as we'll loose the focus to the tooltip and the
                 //currently active bindings will become inactive.
-                KeySequence activateEditorBinding = KeyBindingHelper.getCommandKeyBinding("org.eclipse.ui.window.activateEditor");
+                KeySequence activateEditorBinding = KeyBindingHelper
+                        .getCommandKeyBinding("org.eclipse.ui.window.activateEditor");
                 informationPresenterManager.setActivateEditorBinding(activateEditorBinding);
                 Shell activeShell = UIUtils.getActiveShell();
                 informationPresenterManager.setInitiallyActiveShell(activeShell);
-                
+
                 createControls();
 
                 final Point pos = new Point(pt.x + 10, pt.y);
@@ -170,7 +172,6 @@ public class ToolTipPresenterHandler {
 
     }
 
-    
     private void createControls() {
         Display display = UIUtils.getDisplay();
 

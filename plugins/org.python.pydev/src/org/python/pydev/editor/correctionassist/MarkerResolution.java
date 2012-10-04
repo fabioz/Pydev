@@ -26,7 +26,7 @@ public class MarkerResolution implements IMarkerResolution {
      * @param string
      */
     public MarkerResolution(String string) {
-        
+
         this.label = string;
     }
 
@@ -38,7 +38,6 @@ public class MarkerResolution implements IMarkerResolution {
     }
 
     public void run(IMarker marker) {
-        MessageDialog.openInformation(null, "QuickFix Demo",
-           "This quick-fix is not yet implemented");
-     }
+        MessageDialog.openInformation(null, "QuickFix Demo", "This quick-fix is not yet implemented");
+    }
 }

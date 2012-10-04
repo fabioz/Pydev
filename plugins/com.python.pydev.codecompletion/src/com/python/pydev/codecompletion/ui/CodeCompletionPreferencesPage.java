@@ -34,7 +34,7 @@ public class CodeCompletionPreferencesPage extends FieldEditorPreferencePage imp
         setDescription("PyDev Code Completion");
         setPreferenceStore(null);
     }
-    
+
     @Override
     protected IPreferenceStore doGetPreferenceStore() {
         return CodecompletionPlugin.getDefault().getPreferenceStore();
@@ -44,116 +44,116 @@ public class CodeCompletionPreferencesPage extends FieldEditorPreferencePage imp
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
 
-        addField(new IntegerFieldEditor(CodeCompletionPreferencesInitializer.CHARS_FOR_CTX_INSENSITIVE_MODULES_COMPLETION, 
+        addField(new IntegerFieldEditor(
+                CodeCompletionPreferencesInitializer.CHARS_FOR_CTX_INSENSITIVE_MODULES_COMPLETION,
                 "Number of chars for showing modules in context-insensitive completions?", p));
-        
-        addField(new IntegerFieldEditor(CodeCompletionPreferencesInitializer.CHARS_FOR_CTX_INSENSITIVE_TOKENS_COMPLETION, 
+
+        addField(new IntegerFieldEditor(
+                CodeCompletionPreferencesInitializer.CHARS_FOR_CTX_INSENSITIVE_TOKENS_COMPLETION,
                 "Number of chars for showing global tokens in context-insensitive completions?", p));
-        
-        addField(new BooleanFieldEditor(CodeCompletionPreferencesInitializer.USE_KEYWORDS_CODE_COMPLETION, 
+
+        addField(new BooleanFieldEditor(CodeCompletionPreferencesInitializer.USE_KEYWORDS_CODE_COMPLETION,
                 "Use common tokens auto code completion?", p));
-        addField(new LabelFieldEditor("LabelFieldEditor", "", p)); 
+        addField(new LabelFieldEditor("LabelFieldEditor", "", p));
 
-        
-        addField(new BooleanFieldEditor(CodeCompletionPreferencesInitializer.ADD_SPACE_WHEN_NEEDED, 
-        		"Add <SPACE> for common cases (e.g.: \"and \", \"assert \", etc.)?", p));
-        addField(new LabelFieldEditor("LabelFieldEditor", "", p)); 
-        
-        
-        addField(new BooleanFieldEditor(CodeCompletionPreferencesInitializer.ADD_SPACE_AND_COLON_WHEN_NEEDED, 
-        		"Add <SPACE><COLON> for common cases (e.g.: \"class :\", \"if :\", etc.)?", p));
-        addField(new LabelFieldEditor("LabelFieldEditor", "", p)); 
+        addField(new BooleanFieldEditor(CodeCompletionPreferencesInitializer.ADD_SPACE_WHEN_NEEDED,
+                "Add <SPACE> for common cases (e.g.: \"and \", \"assert \", etc.)?", p));
+        addField(new LabelFieldEditor("LabelFieldEditor", "", p));
 
-        
-        addField(new BooleanFieldEditor(CodeCompletionPreferencesInitializer.FORCE_PY3K_PRINT_ON_PY2, 
-        		"Force print() function on Python 2.x projects?", p));
-        addField(new LabelFieldEditor("LabelFieldEditor", "", p)); 
-        
-        
-        addField(new ListEditor(CodeCompletionPreferencesInitializer.KEYWORDS_CODE_COMPLETION, "Tokens to use:", p){
+        addField(new BooleanFieldEditor(CodeCompletionPreferencesInitializer.ADD_SPACE_AND_COLON_WHEN_NEEDED,
+                "Add <SPACE><COLON> for common cases (e.g.: \"class :\", \"if :\", etc.)?", p));
+        addField(new LabelFieldEditor("LabelFieldEditor", "", p));
 
-                @Override
-                protected String createList(String[] items) {
-                    return KeywordsSimpleAssist.wordsAsString(items);
-                }
-    
-                @Override
-                protected String getNewInputObject() {
-                    InputDialog d = new InputDialog(getShell(), "New word", "Add the word you wish.", "", new IInputValidator(){
-    
-                        public String isValid(String newText) {
-                            if(newText.indexOf(' ') != -1){
-                                return "The input cannot have spaces";
+        addField(new BooleanFieldEditor(CodeCompletionPreferencesInitializer.FORCE_PY3K_PRINT_ON_PY2,
+                "Force print() function on Python 2.x projects?", p));
+        addField(new LabelFieldEditor("LabelFieldEditor", "", p));
+
+        addField(new ListEditor(CodeCompletionPreferencesInitializer.KEYWORDS_CODE_COMPLETION, "Tokens to use:", p) {
+
+            @Override
+            protected String createList(String[] items) {
+                return KeywordsSimpleAssist.wordsAsString(items);
+            }
+
+            @Override
+            protected String getNewInputObject() {
+                InputDialog d = new InputDialog(getShell(), "New word", "Add the word you wish.", "",
+                        new IInputValidator() {
+
+                            public String isValid(String newText) {
+                                if (newText.indexOf(' ') != -1) {
+                                    return "The input cannot have spaces";
+                                }
+                                return null;
                             }
-                            return null;
-                        }});
-    
-                    int retCode = d.open();
-                    if (retCode == InputDialog.OK) {
-                        return d.getValue();
-                    }
-                    return null;
+                        });
+
+                int retCode = d.open();
+                if (retCode == InputDialog.OK) {
+                    return d.getValue();
                 }
-    
-                @Override
-                protected String[] parseString(String stringList) {
-                    return KeywordsSimpleAssist.stringAsWords(stringList);
-                }
-                
-                @Override
-                protected void doFillIntoGrid(Composite parent, int numColumns) {
-                    super.doFillIntoGrid(parent, numColumns);
-                    List listControl = getListControl(parent);
-                    GridData layoutData = (GridData) listControl.getLayoutData();
-                    layoutData.heightHint = 300;
-                }
-            });
+                return null;
+            }
+
+            @Override
+            protected String[] parseString(String stringList) {
+                return KeywordsSimpleAssist.stringAsWords(stringList);
+            }
+
+            @Override
+            protected void doFillIntoGrid(Composite parent, int numColumns) {
+                super.doFillIntoGrid(parent, numColumns);
+                List listControl = getListControl(parent);
+                GridData layoutData = (GridData) listControl.getLayoutData();
+                layoutData.heightHint = 300;
+            }
+        });
     }
 
     public void init(IWorkbench workbench) {
     }
 
-    public static int getCharsForContextInsensitiveModulesCompletion(){
+    public static int getCharsForContextInsensitiveModulesCompletion() {
         String prefName = CodeCompletionPreferencesInitializer.CHARS_FOR_CTX_INSENSITIVE_MODULES_COMPLETION;
         return getIntFromPrefs(prefName);
     }
 
-    private static int getIntFromPrefs(String prefName){
+    private static int getIntFromPrefs(String prefName) {
         CodecompletionPlugin plugin = CodecompletionPlugin.getDefault();
-        if(plugin == null){
+        if (plugin == null) {
             return 1;
         }
         return plugin.getPreferenceStore().getInt(prefName);
     }
-    
-    public static int getCharsForContextInsensitiveGlobalTokensCompletion(){
+
+    public static int getCharsForContextInsensitiveGlobalTokensCompletion() {
         String prefName = CodeCompletionPreferencesInitializer.CHARS_FOR_CTX_INSENSITIVE_TOKENS_COMPLETION;
         return getIntFromPrefs(prefName);
     }
-    
-    public static boolean useKeywordsCodeCompletion(){
-        return CodecompletionPlugin.getDefault().getPreferenceStore().getBoolean(
-                CodeCompletionPreferencesInitializer.USE_KEYWORDS_CODE_COMPLETION);
+
+    public static boolean useKeywordsCodeCompletion() {
+        return CodecompletionPlugin.getDefault().getPreferenceStore()
+                .getBoolean(CodeCompletionPreferencesInitializer.USE_KEYWORDS_CODE_COMPLETION);
     }
-    
-    public static boolean addSpaceWhenNeeded(){
-    	return CodecompletionPlugin.getDefault().getPreferenceStore().getBoolean(
-    			CodeCompletionPreferencesInitializer.ADD_SPACE_WHEN_NEEDED);
+
+    public static boolean addSpaceWhenNeeded() {
+        return CodecompletionPlugin.getDefault().getPreferenceStore()
+                .getBoolean(CodeCompletionPreferencesInitializer.ADD_SPACE_WHEN_NEEDED);
     }
-    
-    public static boolean addSpaceAndColonWhenNeeded(){
-    	return CodecompletionPlugin.getDefault().getPreferenceStore().getBoolean(
-    			CodeCompletionPreferencesInitializer.ADD_SPACE_AND_COLON_WHEN_NEEDED);
+
+    public static boolean addSpaceAndColonWhenNeeded() {
+        return CodecompletionPlugin.getDefault().getPreferenceStore()
+                .getBoolean(CodeCompletionPreferencesInitializer.ADD_SPACE_AND_COLON_WHEN_NEEDED);
     }
-    
-    public static boolean forcePy3kPrintOnPy2(){
-    	return CodecompletionPlugin.getDefault().getPreferenceStore().getBoolean(
-    			CodeCompletionPreferencesInitializer.FORCE_PY3K_PRINT_ON_PY2);
+
+    public static boolean forcePy3kPrintOnPy2() {
+        return CodecompletionPlugin.getDefault().getPreferenceStore()
+                .getBoolean(CodeCompletionPreferencesInitializer.FORCE_PY3K_PRINT_ON_PY2);
     }
 
     public static String[] getKeywords() {
-        String keywords= CodecompletionPlugin.getDefault().getPreferenceStore().getString(
-                CodeCompletionPreferencesInitializer.KEYWORDS_CODE_COMPLETION);
+        String keywords = CodecompletionPlugin.getDefault().getPreferenceStore()
+                .getString(CodeCompletionPreferencesInitializer.KEYWORDS_CODE_COMPLETION);
         return KeywordsSimpleAssist.stringAsWords(keywords);
     }
 

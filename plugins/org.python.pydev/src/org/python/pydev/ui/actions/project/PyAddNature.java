@@ -11,18 +11,19 @@ import org.eclipse.jface.action.IAction;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 
+
 /**
  * Adds a nature to the given selected project.
  * 
  * @author Fabio
  */
-public class PyAddNature extends PyRemoveNature{
+public class PyAddNature extends PyRemoveNature {
 
     public void run(IAction action) {
-        if(selectedProject == null){
+        if (selectedProject == null) {
             return;
         }
-        
+
         try {
             PythonNature.addNature(selectedProject, null, null, null, null, null, null);
         } catch (CoreException e) {

@@ -17,23 +17,23 @@ import junit.framework.Test;
  */
 public class RewriterTestSuite extends AbstractIOTestSuite {
 
-	public RewriterTestSuite(String name) {
-		super(name);
-	}
+    public RewriterTestSuite(String name) {
+        super(name);
+    }
 
-	public static Test suite() {
-		String testdir = "tests" + File.separator + "python" + File.separator + "rewriter";
-		
-		RewriterTestSuite testSuite = new RewriterTestSuite("Rewriter");
-		testSuite.createTests(testdir);
+    public static Test suite() {
+        String testdir = "tests" + File.separator + "python" + File.separator + "rewriter";
 
-		return testSuite;
+        RewriterTestSuite testSuite = new RewriterTestSuite("Rewriter");
+        testSuite.createTests(testdir);
 
-	}
+        return testSuite;
 
-	@Override
-	protected IInputOutputTestCase createTestCase(String testCaseName) {
-		return new RewriterTestCase(testCaseName);
-	}
+    }
+
+    @Override
+    protected IInputOutputTestCase createTestCase(String testCaseName) {
+        return new RewriterTestCase(testCaseName);
+    }
 
 }

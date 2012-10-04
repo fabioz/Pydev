@@ -19,25 +19,24 @@ import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
  * 
  * It'll guide the user to configure the initial interpreter and create an initial project.
  */
-public class PythonGettingStartedWizard extends AbstractNewProjectWizard  implements IExecutableExtension{
+public class PythonGettingStartedWizard extends AbstractNewProjectWizard implements IExecutableExtension {
 
     private IConfigurationElement fConfigElement;
 
-
     public void init(IWorkbench workbench, IStructuredSelection selection) {
     }
-    
+
     public void addPages() {
         addGettingStartedPage();
         addProjectReferencePage();
     }
-    
+
     protected GettingStartedPage gettingStartedPage;
 
     /**
      * Adds the general info page to the wizard.
      */
-    protected void addGettingStartedPage(){
+    protected void addGettingStartedPage() {
         // only add page if there are already projects in the workspace
         if (ResourcesPlugin.getWorkspace().getRoot().getProjects().length > 0) {
             gettingStartedPage = new GettingStartedPage("Getting Started");
@@ -45,21 +44,19 @@ public class PythonGettingStartedWizard extends AbstractNewProjectWizard  implem
             gettingStartedPage.setDescription("Basic Getting Started on Configuring Pydev");
             this.addPage(gettingStartedPage);
         }
-    }    
-    
-    
+    }
+
     @Override
     public boolean performFinish() {
-        
+
         // Switch to default 'Pydev' perspective (asks before changing)
         BasicNewProjectResourceWizard.updatePerspective(fConfigElement);
         return true;
     }
-    
 
-	public void setInitializationData(IConfigurationElement config, String propertyName, Object data)
-	throws CoreException {
-		this.fConfigElement = config;
-	}
-    
+    public void setInitializationData(IConfigurationElement config, String propertyName, Object data)
+            throws CoreException {
+        this.fConfigElement = config;
+    }
+
 }

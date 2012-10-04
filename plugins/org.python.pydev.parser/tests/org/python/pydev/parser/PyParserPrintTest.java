@@ -9,8 +9,7 @@
  */
 package org.python.pydev.parser;
 
-
-public class PyParserPrintTest extends PyParserTestBase{
+public class PyParserPrintTest extends PyParserTestBase {
 
     /**
      * @param args
@@ -19,7 +18,7 @@ public class PyParserPrintTest extends PyParserTestBase{
         try {
             PyParserPrintTest test = new PyParserPrintTest();
             test.setUp();
-//            test.testParser10();
+            //            test.testParser10();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserPrintTest.class);
@@ -31,12 +30,13 @@ public class PyParserPrintTest extends PyParserTestBase{
 
     public void testComments1() {
         String s = "" +
-        "#comment00\n" +
-        "class Class1: #comment0        \n" +
-        "    #comment1                  \n" +
-        "    def met1(self, a):#comment2\n" +
-        "        pass                   \n" +
-        "#comment3";
+                "#comment00\n" +
+                "class Class1: #comment0        \n" +
+                "    #comment1                  \n"
+                +
+                "    def met1(self, a):#comment2\n" +
+                "        pass                   \n" +
+                "#comment3";
         parseLegalDocStr(s);
 
     }

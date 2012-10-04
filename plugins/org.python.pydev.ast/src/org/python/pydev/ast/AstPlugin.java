@@ -18,7 +18,7 @@ public class AstPlugin extends AbstractUIPlugin {
     private static AstPlugin plugin;
     //Resource bundle.
     private ResourceBundle resourceBundle;
-    
+
     /**
      * The constructor.
      */

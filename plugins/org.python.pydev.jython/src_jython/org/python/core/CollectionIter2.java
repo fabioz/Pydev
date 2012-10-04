@@ -27,8 +27,7 @@ class CollectionIter2 extends CollectionIter {
             // for the Iterable interface
             Method m = object.getClass().getMethod("iterator", new Class[0]);
             if (Iterator.class.isAssignableFrom(m.getReturnType())) {
-                return new IteratorIter((Iterator) m.invoke(object,
-                        new Object[0]));
+                return new IteratorIter((Iterator) m.invoke(object, new Object[0]));
             }
         } catch (Exception e) {
             // Looks like one of the many reflection based exceptions ocurred so

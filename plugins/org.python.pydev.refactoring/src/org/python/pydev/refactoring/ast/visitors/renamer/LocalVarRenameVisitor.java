@@ -33,11 +33,11 @@ public class LocalVarRenameVisitor extends VisitorBase {
     }
 
     public void visit(SimpleNode node) throws Exception {
-        if(node == null){
+        if (node == null) {
             return;
         }
 
-        if(nodeHelper.isFunctionOrClassDef(node)){
+        if (nodeHelper.isFunctionOrClassDef(node)) {
             return;
         }
 
@@ -46,14 +46,14 @@ public class LocalVarRenameVisitor extends VisitorBase {
 
     @Override
     public void traverse(SimpleNode node) throws Exception {
-        if(node != null){
+        if (node != null) {
             node.traverse(this);
         }
     }
 
     @Override
     public Object visitName(Name node) throws Exception {
-        if(renameMap.containsKey(node.id)){
+        if (renameMap.containsKey(node.id)) {
             node.id = renameMap.get(node.id);
         }
         return null;
@@ -61,7 +61,7 @@ public class LocalVarRenameVisitor extends VisitorBase {
 
     @Override
     public Object visitNameTok(NameTok node) throws Exception {
-        if(renameMap.containsKey(node.id)){
+        if (renameMap.containsKey(node.id)) {
             node.id = renameMap.get(node.id);
         }
         return null;
@@ -88,7 +88,7 @@ public class LocalVarRenameVisitor extends VisitorBase {
     }
 
     private void visit(SimpleNode[] nodes) throws Exception {
-        for(SimpleNode node:nodes){
+        for (SimpleNode node : nodes) {
             visit(node);
         }
     }

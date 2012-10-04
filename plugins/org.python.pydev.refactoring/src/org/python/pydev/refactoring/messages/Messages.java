@@ -106,7 +106,7 @@ public final class Messages {
     public static String validationNameIsEmpty;
     public static String validationNoNameSelected;
 
-    static{
+    static {
         NLS.initializeMessages(BUNDLE_NAME, Messages.class);
     }
 

@@ -16,10 +16,10 @@ import com.aptana.editor.html.parsing.HTMLTokenScanner;
 public class DjHTMLTokenScanner extends HTMLTokenScanner {
 
     DjTokenScanner tokenScanner = new DjTokenScanner();
-    
+
     public DjHTMLTokenScanner() {
         List<IRule> rules = tokenScanner.getDjRules();
-        
+
         //Re-add existing rules
         for (IRule rule : fRules) {
             rules.add(rule);
@@ -27,6 +27,5 @@ public class DjHTMLTokenScanner extends HTMLTokenScanner {
 
         setRules(rules.toArray(new IRule[rules.size()]));
     }
-
 
 }

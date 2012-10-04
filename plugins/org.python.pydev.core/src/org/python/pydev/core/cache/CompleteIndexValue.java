@@ -18,6 +18,6 @@ public class CompleteIndexValue {
 
     @Override
     public String toString() {
-        return entries!=null?entries.toString():"null";
+        return entries != null ? entries.toString() : "null";
     }
 }

@@ -7,14 +7,14 @@ public abstract class PyBuiltinMethodNarrow extends PyBuiltinMethod {
     }
 
     public PyObject __call__(PyObject[] args, String[] keywords) {
-        if(keywords.length != 0) {
+        if (keywords.length != 0) {
             throw info.unexpectedCall(args.length, true);
         }
         return __call__(args);
     }
 
     public PyObject __call__(PyObject[] args) {
-        switch(args.length){
+        switch (args.length) {
             case 0:
                 return __call__();
             case 1:
@@ -46,10 +46,7 @@ public abstract class PyBuiltinMethodNarrow extends PyBuiltinMethod {
         throw info.unexpectedCall(3, false);
     }
 
-    public PyObject __call__(PyObject arg0,
-                             PyObject arg1,
-                             PyObject arg2,
-                             PyObject arg3) {
+    public PyObject __call__(PyObject arg0, PyObject arg1, PyObject arg2, PyObject arg3) {
         throw info.unexpectedCall(4, false);
     }
 }

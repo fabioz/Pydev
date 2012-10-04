@@ -33,27 +33,29 @@ import org.python.pydev.parser.jython.ast.stmtType;
  * 
  * @author Fabio
  */
-public class DefinitionsASTIteratorVisitor extends EasyASTIteratorVisitor{
-    
+public class DefinitionsASTIteratorVisitor extends EasyASTIteratorVisitor {
+
     @Override
     public Object visitAssign(Assign node) throws Exception {
         return visitAssign(this, node);
     }
-    
+
     public static Object visitAssign(EasyAstIteratorBase visitor, Assign node) throws Exception {
         return visitAssign(visitor, node, true);
     }
+
     /** 
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitAssign(org.python.pydev.parser.jython.ast.Assign)
      */
-    public static Object visitAssign(EasyAstIteratorBase visitor, Assign node, boolean visitUnhandledAndTraverse) throws Exception {
+    public static Object visitAssign(EasyAstIteratorBase visitor, Assign node, boolean visitUnhandledAndTraverse)
+            throws Exception {
         visitTargetsInAssign(visitor, node.targets);
-        
-        if(visitUnhandledAndTraverse){
+
+        if (visitUnhandledAndTraverse) {
             Object ret = visitor.unhandled_node(node);
             visitor.traverse(node);
             return ret;
-        }else {
+        } else {
             return null;
         }
 
@@ -66,12 +68,12 @@ public class DefinitionsASTIteratorVisitor extends EasyASTIteratorVisitor{
      * @param targets the expressions in the target
      */
     private static void visitTargetsInAssign(EasyAstIteratorBase visitor, exprType[] targets) {
-        if(targets == null){
+        if (targets == null) {
             return;
         }
         for (int i = 0; i < targets.length; i++) {
             exprType t = targets[i];
-            if(t instanceof Tuple){
+            if (t instanceof Tuple) {
                 Tuple tuple = (Tuple) t;
                 visitTargetsInAssign(visitor, tuple.elts);
             }
@@ -85,28 +87,28 @@ public class DefinitionsASTIteratorVisitor extends EasyASTIteratorVisitor{
      * @param t the expression to visit
      */
     private static void visitTargetInAssign(EasyAstIteratorBase visitor, exprType t) {
-        if(t instanceof Name){
+        if (t instanceof Name) {
             //we are in the class declaration
-            if(visitor.isInClassDecl() || visitor.isInGlobal()){
+            if (visitor.isInClassDecl() || visitor.isInGlobal()) {
                 //add the attribute for the class
                 visitor.atomic(t);
             }
-            
-        }else if(t instanceof Attribute){
-            
+
+        } else if (t instanceof Attribute) {
+
             //we are in a method from the class
-            if(visitor.isInClassMethodDecl()){
+            if (visitor.isInClassMethodDecl()) {
                 Attribute a = (Attribute) t;
-                if(a.value instanceof Name){
-                    
+                if (a.value instanceof Name) {
+
                     //it is an instance variable attribute
                     Name n = (Name) a.value;
-                    if (n.id.equals("self")){
+                    if (n.id.equals("self")) {
                         visitor.atomic(t);
                     }
                 }
-                
-            }else if(visitor.isInClassDecl() || visitor.isInGlobal()){
+
+            } else if (visitor.isInClassDecl() || visitor.isInGlobal()) {
                 //add the attribute for the class 
                 visitor.atomic(t);
             }
@@ -116,8 +118,8 @@ public class DefinitionsASTIteratorVisitor extends EasyASTIteratorVisitor{
     /**
      * Creates the iterator and traverses the passed root so that the results can be gotten.
      */
-    public static DefinitionsASTIteratorVisitor create(SimpleNode root){
-        if(root == null){
+    public static DefinitionsASTIteratorVisitor create(SimpleNode root) {
+        if (root == null) {
             return null;
         }
         DefinitionsASTIteratorVisitor visitor = new DefinitionsASTIteratorVisitor();
@@ -128,12 +130,12 @@ public class DefinitionsASTIteratorVisitor extends EasyASTIteratorVisitor{
         }
         return visitor;
     }
-    
+
     /**
      * Creates the iterator and traverses the passed root so that the results can be gotten.
      */
-    public static DefinitionsASTIteratorVisitor createForChildren(ClassDef root){
-        if(root == null){
+    public static DefinitionsASTIteratorVisitor createForChildren(ClassDef root) {
+        if (root == null) {
             return null;
         }
         DefinitionsASTIteratorVisitor visitor = new DefinitionsASTIteratorVisitor();
@@ -141,7 +143,7 @@ public class DefinitionsASTIteratorVisitor extends EasyASTIteratorVisitor{
             stmtType[] body = root.body;
             if (body != null) {
                 for (int i = 0; i < body.length; i++) {
-                    if (body[i] != null){
+                    if (body[i] != null) {
                         body[i].accept(visitor);
                     }
                 }
@@ -151,6 +153,5 @@ public class DefinitionsASTIteratorVisitor extends EasyASTIteratorVisitor{
         }
         return visitor;
     }
-
 
 }

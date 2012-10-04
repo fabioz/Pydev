@@ -21,7 +21,8 @@ public class InlineLocalAction extends AbstractRefactoringAction {
 
     @Override
     protected int getWizardFlags() {
-        return RefactoringWizard.DIALOG_BASED_USER_INTERFACE | RefactoringWizard.PREVIEW_EXPAND_FIRST_NODE | RefactoringWizard.NO_BACK_BUTTON_ON_STATUS_DIALOG;
+        return RefactoringWizard.DIALOG_BASED_USER_INTERFACE | RefactoringWizard.PREVIEW_EXPAND_FIRST_NODE
+                | RefactoringWizard.NO_BACK_BUTTON_ON_STATUS_DIALOG;
     }
 
     @Override

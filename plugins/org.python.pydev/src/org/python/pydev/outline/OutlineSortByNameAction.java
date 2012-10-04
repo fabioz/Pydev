@@ -27,7 +27,7 @@ public class OutlineSortByNameAction extends Action {
     ViewerSorter sortByNameSorter;
 
     private WeakReference<PyOutlinePage> page;
-    
+
     public OutlineSortByNameAction(PyOutlinePage page, ImageCache imageCache) {
         super("Sort by name", IAction.AS_CHECK_BOX);
         this.page = new WeakReference<PyOutlinePage>(page);

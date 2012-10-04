@@ -16,7 +16,6 @@ import java.util.List;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
@@ -28,6 +27,8 @@ import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
+
+import com.aptana.shared_core.structure.Tuple;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.builder.AnalysisRunner;
 
@@ -36,18 +37,17 @@ import com.python.pydev.analysis.builder.AnalysisRunner;
  *
  * @author Fabio
  */
-public class OrganizeImportsFixesUnused implements IOrganizeImports{
+public class OrganizeImportsFixesUnused implements IOrganizeImports {
 
-    
     public boolean beforePerformArrangeImports(PySelection ps, PyEdit edit) {
-        if(true){
+        if (true) {
             throw new RuntimeException("This class is not working!!!");
         }
         SimpleNode ast = edit.getAST();
-        if(ast == null){
+        if (ast == null) {
             return true; //we need it to be correctly parsed with an ast to be able to do it...
         }
-        
+
         EasyASTIteratorVisitor visitor = new EasyASTIteratorVisitor();
         try {
             ast.accept(visitor);
@@ -55,36 +55,38 @@ public class OrganizeImportsFixesUnused implements IOrganizeImports{
             Log.log(e1);
             return true; //just go on
         }
-        List<ASTEntry> availableImports = visitor.getAsList(new Class[]{ImportFrom.class, Import.class});
-        
-        
-        
+        List<ASTEntry> availableImports = visitor.getAsList(new Class[] { ImportFrom.class, Import.class });
+
         PySourceViewer s = edit.getPySourceViewer();
-        
+
         ArrayList<Tuple<MarkerAnnotationAndPosition, ASTEntry>> unusedImportsMarkers = new ArrayList<Tuple<MarkerAnnotationAndPosition, ASTEntry>>();
-        ArrayList<Tuple<MarkerAnnotationAndPosition, ASTEntry>> unusedWildImportsMarkers =  new ArrayList<Tuple<MarkerAnnotationAndPosition, ASTEntry>>();
-        ArrayList<Tuple<MarkerAnnotationAndPosition, ASTEntry>> unresolvedImportsMarkers =  new ArrayList<Tuple<MarkerAnnotationAndPosition, ASTEntry>>();
+        ArrayList<Tuple<MarkerAnnotationAndPosition, ASTEntry>> unusedWildImportsMarkers = new ArrayList<Tuple<MarkerAnnotationAndPosition, ASTEntry>>();
+        ArrayList<Tuple<MarkerAnnotationAndPosition, ASTEntry>> unresolvedImportsMarkers = new ArrayList<Tuple<MarkerAnnotationAndPosition, ASTEntry>>();
 
         ArrayList<MarkerAnnotationAndPosition> undefinedVariablesMarkers = new ArrayList<MarkerAnnotationAndPosition>();
-        
+
         //get the markers we are interested in and the related ast elements
-        for(Iterator<MarkerAnnotationAndPosition> it=s.getMarkerIterator();it.hasNext();){
+        for (Iterator<MarkerAnnotationAndPosition> it = s.getMarkerIterator(); it.hasNext();) {
             MarkerAnnotationAndPosition marker = it.next();
             try {
                 String type = marker.markerAnnotation.getMarker().getType();
-                if(type != null && type.equals(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER)){
-                    Integer attribute = marker.markerAnnotation.getMarker().getAttribute(AnalysisRunner.PYDEV_ANALYSIS_TYPE, -1 );
-                    if (attribute != null){
-                        if(attribute.equals(IAnalysisPreferences.TYPE_UNUSED_IMPORT)){
-                            unusedImportsMarkers.add(new Tuple<MarkerAnnotationAndPosition, ASTEntry>(marker, getImportEntry(marker, availableImports)));
-                            
-                        }else if(attribute.equals(IAnalysisPreferences.TYPE_UNUSED_WILD_IMPORT)){
-                            unusedWildImportsMarkers.add(new Tuple<MarkerAnnotationAndPosition, ASTEntry>(marker, getImportEntry(marker, availableImports)));
-                            
-                        }else if(attribute.equals(IAnalysisPreferences.TYPE_UNRESOLVED_IMPORT)){
-                            unresolvedImportsMarkers.add(new Tuple<MarkerAnnotationAndPosition, ASTEntry>(marker, getImportEntry(marker, availableImports)));
-                            
-                        }else if(attribute.equals(IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE)){
+                if (type != null && type.equals(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER)) {
+                    Integer attribute = marker.markerAnnotation.getMarker().getAttribute(
+                            AnalysisRunner.PYDEV_ANALYSIS_TYPE, -1);
+                    if (attribute != null) {
+                        if (attribute.equals(IAnalysisPreferences.TYPE_UNUSED_IMPORT)) {
+                            unusedImportsMarkers.add(new Tuple<MarkerAnnotationAndPosition, ASTEntry>(marker,
+                                    getImportEntry(marker, availableImports)));
+
+                        } else if (attribute.equals(IAnalysisPreferences.TYPE_UNUSED_WILD_IMPORT)) {
+                            unusedWildImportsMarkers.add(new Tuple<MarkerAnnotationAndPosition, ASTEntry>(marker,
+                                    getImportEntry(marker, availableImports)));
+
+                        } else if (attribute.equals(IAnalysisPreferences.TYPE_UNRESOLVED_IMPORT)) {
+                            unresolvedImportsMarkers.add(new Tuple<MarkerAnnotationAndPosition, ASTEntry>(marker,
+                                    getImportEntry(marker, availableImports)));
+
+                        } else if (attribute.equals(IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE)) {
                             undefinedVariablesMarkers.add(marker);
                         }
                     }
@@ -130,17 +132,18 @@ public class OrganizeImportsFixesUnused implements IOrganizeImports{
      * the action that jdt uses for this is org.eclipse.jdt.ui.actions.OrganizeImportsAction
      * 
      */
-    public void performArrangeImports(PySelection ps, MarkerAnnotationAndPosition markerInfo, PyEdit edit) throws BadLocationException, CoreException {
+    public void performArrangeImports(PySelection ps, MarkerAnnotationAndPosition markerInfo, PyEdit edit)
+            throws BadLocationException, CoreException {
         SimpleNode ast = edit.getAST();
-        if(ast == null){
+        if (ast == null) {
             //we need the ast to look for the imports... (the generated markers will be matched against them)
             return;
         }
         IMarker marker = markerInfo.markerAnnotation.getMarker();
-        
-        Integer attribute = marker.getAttribute(AnalysisRunner.PYDEV_ANALYSIS_TYPE, -1 );
-//        IDocument doc = ps.getDoc();
-        if (attribute != null && attribute.equals(IAnalysisPreferences.TYPE_UNUSED_IMPORT)){
+
+        Integer attribute = marker.getAttribute(AnalysisRunner.PYDEV_ANALYSIS_TYPE, -1);
+        //        IDocument doc = ps.getDoc();
+        if (attribute != null && attribute.equals(IAnalysisPreferences.TYPE_UNUSED_IMPORT)) {
             Integer start = (Integer) marker.getAttribute(IMarker.CHAR_START);
             Integer end = (Integer) marker.getAttribute(IMarker.CHAR_END);
             ps.setSelection(start, end);
@@ -151,6 +154,5 @@ public class OrganizeImportsFixesUnused implements IOrganizeImports{
     public void afterPerformArrangeImports(PySelection ps, PyEdit pyEdit) {
         //do nothing
     }
-
 
 }

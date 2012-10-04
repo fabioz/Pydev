@@ -15,7 +15,8 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.structure.FastStringBuffer;
+
+import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * Converts tab-width spacing to tab characters in selection or entire document, if nothing
@@ -32,9 +33,9 @@ public class PyConvertTabToSpace extends PyConvertSpaceToTab {
      */
     public void run(IAction action) {
         try {
-        	if(!canModifyEditor()){
-        		return;
-        	}
+            if (!canModifyEditor()) {
+                return;
+            }
 
             // Select from text editor
             ps = new PySelection(getTextEditor());

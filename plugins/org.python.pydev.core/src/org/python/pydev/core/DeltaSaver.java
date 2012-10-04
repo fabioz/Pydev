@@ -16,9 +16,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
+
+
+import com.aptana.shared_core.callbacks.ICallback;
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * This class can be used to work on deltas. It is able to save and restore data on a 'delta' fashion.
@@ -35,13 +38,13 @@ import org.python.pydev.core.structure.FastStringBuffer;
  * @author Fabio
  */
 public class DeltaSaver<X> {
-    
+
     /**
      * Superclass of all commands
      * 
      * @author Fabio
      */
-    public abstract class DeltaCommand{
+    public abstract class DeltaCommand {
 
         public final X data;
 
@@ -49,10 +52,7 @@ public class DeltaSaver<X> {
             this.data = o;
         }
 
-        
         public abstract void processWith(IDeltaProcessor<X> deltaProcessor);
-        
-
 
         /**
          * @return String with 3 letters describing the command (written to disk and used to restore it later on).
@@ -72,7 +72,7 @@ public class DeltaSaver<X> {
             super(o);
         }
 
-        public void processWith(IDeltaProcessor<X> deltaProcessor){
+        public void processWith(IDeltaProcessor<X> deltaProcessor) {
             deltaProcessor.processDelete(data);
         }
 
@@ -82,43 +82,41 @@ public class DeltaSaver<X> {
 
     }
 
-    
     /**
      * Insert command
      * 
      * @author Fabio
      */
-    public class DeltaInsertCommand extends DeltaCommand{
+    public class DeltaInsertCommand extends DeltaCommand {
 
         public DeltaInsertCommand(X o) {
             super(o);
         }
-        
-        public void processWith(IDeltaProcessor<X> deltaProcessor){
+
+        public void processWith(IDeltaProcessor<X> deltaProcessor) {
             deltaProcessor.processInsert(data);
         }
-        
+
         public String getCommandFileDesc() {
             return "INS";
         }
     }
-    
-    
+
     /**
      * Update command
      * 
      * @author Fabio
      */
-    public class DeltaUpdateCommand extends DeltaCommand{
-        
+    public class DeltaUpdateCommand extends DeltaCommand {
+
         public DeltaUpdateCommand(X o) {
             super(o);
         }
-        
-        public void processWith(IDeltaProcessor<X> deltaProcessor){
+
+        public void processWith(IDeltaProcessor<X> deltaProcessor) {
             deltaProcessor.processUpdate(data);
         }
-        
+
         public String getCommandFileDesc() {
             return "UPD";
         }
@@ -128,7 +126,7 @@ public class DeltaSaver<X> {
      * Directory where the deltas should be saved / restored.
      */
     private File dirToSaveDeltas;
-    
+
     /**
      * This is equal to '.'+extension
      */
@@ -138,7 +136,7 @@ public class DeltaSaver<X> {
      * List of commands
      */
     private List<DeltaCommand> commands;
-    
+
     /**
      * Used to keep track of a number to use to save the command
      */
@@ -154,14 +152,15 @@ public class DeltaSaver<X> {
      * data passed here later on... if it cannot be read, null should be returned).
      */
     private ICallback<String, X> toFileMethod;
-    
+
     /**
      * @param dirToSaveDeltas this is the directory where the deltas should be saved
      * @param extension this is the extension that should be given to the deltas
      */
-    public DeltaSaver(File dirToSaveDeltas, String extension, ICallback<X, String> readFromFileMethod, ICallback<String, X> toFileMethod) {
+    public DeltaSaver(File dirToSaveDeltas, String extension, ICallback<X, String> readFromFileMethod,
+            ICallback<String, X> toFileMethod) {
         this.dirToSaveDeltas = dirToSaveDeltas;
-        this.suffix = "."+extension;
+        this.suffix = "." + extension;
         this.commands = Collections.synchronizedList(new ArrayList<DeltaCommand>());
         this.readFromFileMethod = readFromFileMethod;
         this.toFileMethod = toFileMethod;
@@ -169,16 +168,17 @@ public class DeltaSaver<X> {
         loadDeltas();
     }
 
-
     /**
      * Checks if the dir is correct
      */
     private void validateDir() {
-        if(this.dirToSaveDeltas.exists() == false){
-            throw new RuntimeException("The path passed to save / restore deltas does not exist ("+dirToSaveDeltas+")");
+        if (this.dirToSaveDeltas.exists() == false) {
+            throw new RuntimeException("The path passed to save / restore deltas does not exist (" + dirToSaveDeltas
+                    + ")");
         }
-        if(this.dirToSaveDeltas.isDirectory() == false){
-            throw new RuntimeException("The path passed to save / restore deltas is not actually a directory ("+dirToSaveDeltas+")");
+        if (this.dirToSaveDeltas.isDirectory() == false) {
+            throw new RuntimeException("The path passed to save / restore deltas is not actually a directory ("
+                    + dirToSaveDeltas + ")");
         }
     }
 
@@ -186,13 +186,13 @@ public class DeltaSaver<X> {
      * Gets existing deltas in the disk
      */
     private void loadDeltas() {
-        synchronized(this.commands){
+        synchronized (this.commands) {
             ArrayList<File> deltasFound = findDeltas();
             for (File file : deltasFound) {
                 try {
                     @SuppressWarnings("unchecked")
                     DeltaCommand cmd = (DeltaCommand) readFromFile(file, this.readFromFileMethod);
-                    if(cmd != null && cmd.data != null){
+                    if (cmd != null && cmd.data != null) {
                         addRestoredCommand(cmd);
                     }
                 } catch (Exception e) {
@@ -200,7 +200,7 @@ public class DeltaSaver<X> {
                 }
             }
         }
-        
+
     }
 
     /**
@@ -209,20 +209,22 @@ public class DeltaSaver<X> {
     private ArrayList<File> findDeltas() {
         ArrayList<File> deltasFound = new ArrayList<File>();
         File[] files = this.dirToSaveDeltas.listFiles();
-        for (File file : files) {
-            if(file.exists() && file.isFile() && file.getName().endsWith(suffix)){
-                deltasFound.add(file);
+        if (files != null) {
+            for (File file : files) {
+                if (file.exists() && file.isFile() && file.getName().endsWith(suffix)) {
+                    deltasFound.add(file);
+                }
             }
         }
         //also, sort by the name (which must be an integer)
-        Collections.sort(deltasFound, new Comparator<File>(){
+        Collections.sort(deltasFound, new Comparator<File>() {
 
             public int compare(File o1, File o2) {
                 String i = FullRepIterable.headAndTail(o1.getName())[0];
                 String j = FullRepIterable.headAndTail(o2.getName())[0];
                 return new Integer(i).compareTo(new Integer(j));
-            }}
-        );
+            }
+        });
         return deltasFound;
     }
 
@@ -232,19 +234,19 @@ public class DeltaSaver<X> {
      * @param command the command found in the disk
      */
     private void addRestoredCommand(DeltaCommand command) {
-        synchronized(this.commands){
+        synchronized (this.commands) {
             this.commands.add(command);
         }
     }
-    
+
     /**
      * Adds some command (adds to list and to the disk)
      * 
      * @param command the command to be added
      */
     public void addCommand(DeltaCommand command) {
-        synchronized(this.commands){
-            File file = new File(this.dirToSaveDeltas, nCommands+suffix);
+        synchronized (this.commands) {
+            File file = new File(this.dirToSaveDeltas, nCommands + suffix);
             nCommands++;
             try {
                 file.createNewFile();
@@ -252,10 +254,10 @@ public class DeltaSaver<X> {
                 throw new RuntimeException(e);
             }
             //always write the command and its data separately
-            String write = toFileMethod.call((X)command.data);
-            if(write == null){
-                Log.log("Null returned to write from data: "+command.data);
-            }else{
+            String write = toFileMethod.call((X) command.data);
+            if (write == null) {
+                Log.log("Null returned to write from data: " + command.data);
+            } else {
                 writeToFile(command, write, file);
                 this.commands.add(command);
             }
@@ -266,7 +268,7 @@ public class DeltaSaver<X> {
      * @return the number of available deltas
      */
     public int availableDeltas() {
-        synchronized(this.commands){
+        synchronized (this.commands) {
             return this.commands.size();
         }
     }
@@ -275,10 +277,10 @@ public class DeltaSaver<X> {
      * Clears all deltas in the disk (and in memory... also restarts numbering the deltas)
      */
     public void clearAll() {
-        synchronized(this.commands){
+        synchronized (this.commands) {
             ArrayList<File> deltas = findDeltas();
             for (File file : deltas) {
-                if(file.exists()){
+                if (file.exists()) {
                     file.delete();
                 }
             }
@@ -303,7 +305,7 @@ public class DeltaSaver<X> {
      * Passes the current deltas to the delta processor.
      */
     public synchronized void processDeltas(IDeltaProcessor<X> deltaProcessor) {
-        synchronized(this.commands){
+        synchronized (this.commands) {
             ArrayList<DeltaCommand> commandsToProcess = new ArrayList<DeltaCommand>(this.commands);
             boolean processed = false;
             for (DeltaCommand cmd : commandsToProcess) {
@@ -314,7 +316,7 @@ public class DeltaSaver<X> {
                     Log.log(e);
                 }
             }
-            if(processed){
+            if (processed) {
                 //if nothing happened, we don't end the processing (no need to do it)
                 deltaProcessor.endProcessing();
             }
@@ -322,56 +324,52 @@ public class DeltaSaver<X> {
         }
     }
 
-    
     public void writeToFile(DeltaCommand command, String data, File file) {
         try {
             FastStringBuffer buf = new FastStringBuffer(command.getCommandFileDesc(), data.length());
             buf.append(data);
-            REF.writeStrToFile(buf.toString(), file);
+            FileUtils.writeStrToFile(buf.toString(), file);
         } catch (Exception e) {
             Log.log(e);
         }
     }
-
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public DeltaSaver.DeltaCommand readFromFile(File astOutputFile, ICallback<X, String> readFromFileMethod) {
         try {
             boolean deletFile = false;
             //the file is not even there
-            if(!astOutputFile.exists()){
+            if (!astOutputFile.exists()) {
                 return null;
             }
-            String fileContents = REF.getFileContents(astOutputFile);
+            String fileContents = FileUtils.getFileContents(astOutputFile);
             DeltaSaver.DeltaCommand o = null;
             try {
-                if(fileContents.startsWith("UPD")){
+                if (fileContents.startsWith("UPD")) {
                     o = new DeltaSaver.DeltaUpdateCommand(readFromFileMethod.call(fileContents.substring(3)));
-                    
-                }else if(fileContents.startsWith("DEL")){
+
+                } else if (fileContents.startsWith("DEL")) {
                     o = new DeltaSaver.DeltaDeleteCommand(readFromFileMethod.call(fileContents.substring(3)));
-                    
-                }else if(fileContents.startsWith("INS")){
+
+                } else if (fileContents.startsWith("INS")) {
                     o = new DeltaSaver.DeltaInsertCommand(readFromFileMethod.call(fileContents.substring(3)));
-                    
+
                 }
             } catch (Exception e) {
                 //the format has changed (no real problem here... just erase the file)
                 deletFile = true;
                 o = null;
             }
-            if(deletFile){
-                if(astOutputFile.exists()){
+            if (deletFile) {
+                if (astOutputFile.exists()) {
                     astOutputFile.delete();
                 }
             }
             return o;
         } catch (Exception e) {
-            Log.log(e); 
+            Log.log(e);
             return null;
         }
     }
 
 }
-
-

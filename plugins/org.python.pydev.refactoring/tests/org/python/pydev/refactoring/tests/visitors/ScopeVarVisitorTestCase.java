@@ -19,41 +19,42 @@ import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
 
 public class ScopeVarVisitorTestCase extends AbstractIOTestCase {
 
-	public ScopeVarVisitorTestCase(String name) {
-		super(name);
-	}
+    public ScopeVarVisitorTestCase(String name) {
+        super(name);
+    }
 
-	@Override
-	public void runTest() throws Throwable {
-		StringBuffer buffer = new StringBuffer();
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(
-		        null, null, new Document(data.source), new PythonNatureStub(), createVersionProvider());
+    @Override
+    public void runTest() throws Throwable {
+        StringBuffer buffer = new StringBuffer();
+        ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(data.source),
+                new PythonNatureStub(), createVersionProvider());
 
-		for (FunctionDefAdapter func : module.getFunctions()) {
+        for (FunctionDefAdapter func : module.getFunctions()) {
 
-			ScopeVariablesVisitor visitor = VisitorFactory.createContextVisitor(ScopeVariablesVisitor.class, func.getASTNode(), module,
-					func);
+            ScopeVariablesVisitor visitor = VisitorFactory.createContextVisitor(ScopeVariablesVisitor.class,
+                    func.getASTNode(), module, func);
 
-			printAttributes(buffer, visitor, func.getName());
-		}
-		for (IClassDefAdapter clazz : module.getClasses()) {
-		    ClassDefAdapter c = (ClassDefAdapter) clazz;
-			ScopeVariablesVisitor visitor = VisitorFactory.createContextVisitor(ScopeVariablesVisitor.class, c.getASTNode(), module, c);
+            printAttributes(buffer, visitor, func.getName());
+        }
+        for (IClassDefAdapter clazz : module.getClasses()) {
+            ClassDefAdapter c = (ClassDefAdapter) clazz;
+            ScopeVariablesVisitor visitor = VisitorFactory.createContextVisitor(ScopeVariablesVisitor.class,
+                    c.getASTNode(), module, c);
 
-			printAttributes(buffer, visitor, clazz.getName());
-		}
+            printAttributes(buffer, visitor, clazz.getName());
+        }
 
-		this.setTestGenerated(buffer.toString().trim());
+        this.setTestGenerated(buffer.toString().trim());
 
-		assertEquals(getExpected(), getGenerated());
-	}
+        assertEquals(getExpected(), getGenerated());
+    }
 
-	private void printAttributes(StringBuffer buffer, ScopeVariablesVisitor scopeVisitor, String scopeName) {
-		Iterator<SimpleAdapter> iter = scopeVisitor.iterator();
-		buffer.append("\n# " + scopeName + " " + scopeVisitor.getAll().size() + "\n");
-		while (iter.hasNext()) {
-			SimpleAdapter adapter = iter.next();
-			buffer.append("## " + adapter.getName() + "\n");
-		}
-	}
+    private void printAttributes(StringBuffer buffer, ScopeVariablesVisitor scopeVisitor, String scopeName) {
+        Iterator<SimpleAdapter> iter = scopeVisitor.iterator();
+        buffer.append("\n# " + scopeName + " " + scopeVisitor.getAll().size() + "\n");
+        while (iter.hasNext()) {
+            SimpleAdapter adapter = iter.next();
+            buffer.append("## " + adapter.getName() + "\n");
+        }
+    }
 }

@@ -21,25 +21,20 @@ import org.eclipse.core.resources.FileInfoMatcherDescription;
 
 //End Only for 3.6
 
+public class AbstractIContainerStub extends AbstractIResourceStub implements IContainer {
 
-public class AbstractIContainerStub extends AbstractIResourceStub implements IContainer{
-
-    
-    
     //Only for 3.6 -- comment if you want to compile on earlier eclipse version
-	public IResourceFilterDescription createFilter(int type,
-			FileInfoMatcherDescription matcherDescription, int updateFlags, IProgressMonitor monitor)
-	throws CoreException {
-		throw new RuntimeException("Not implemented");
-	}
-	
-	public IResourceFilterDescription[] getFilters() throws CoreException {
-		throw new RuntimeException("Not implemented");
-	}
+    public IResourceFilterDescription createFilter(int type, FileInfoMatcherDescription matcherDescription,
+            int updateFlags, IProgressMonitor monitor) throws CoreException {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public IResourceFilterDescription[] getFilters() throws CoreException {
+        throw new RuntimeException("Not implemented");
+    }
 
     //End Only for 3.6
-    
-    
+
     public boolean exists(IPath path) {
         throw new RuntimeException("Not implemented");
     }
@@ -99,9 +94,5 @@ public class AbstractIContainerStub extends AbstractIResourceStub implements ICo
     public void setDefaultCharset(String charset, IProgressMonitor monitor) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
-
-
-
-    
 
 }

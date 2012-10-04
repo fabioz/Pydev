@@ -18,8 +18,7 @@ class ReflectedArgs {
 
     public static final int PyArgsKeywordsCall = 2;
 
-    public ReflectedArgs(Object data, Class[] args, Class declaringClass,
-            boolean isStatic) {
+    public ReflectedArgs(Object data, Class[] args, Class declaringClass, boolean isStatic) {
         this.data = data;
         this.args = args;
         this.declaringClass = declaringClass;
@@ -27,16 +26,14 @@ class ReflectedArgs {
 
         if (args.length == 1 && args[0] == PyObject[].class) {
             this.flags = PyArgsCall;
-        } else if (args.length == 2 && args[0] == PyObject[].class
-                && args[1] == String[].class) {
+        } else if (args.length == 2 && args[0] == PyObject[].class && args[1] == String[].class) {
             this.flags = PyArgsKeywordsCall;
         } else {
             this.flags = StandardCall;
         }
     }
 
-    public boolean matches(PyObject self, PyObject[] pyArgs, String[] keywords,
-            ReflectedCallData callData) {
+    public boolean matches(PyObject self, PyObject[] pyArgs, String[] keywords, ReflectedCallData callData) {
         if (this.flags != PyArgsKeywordsCall) {
             if (keywords != null && keywords.length != 0) {
                 return false;
@@ -199,7 +196,7 @@ class ReflectedArgs {
                     return cmp > 0 ? +1 : -1;
                 }
             }
-        } 
+        }
         return p1 > p2 ? +2 : (p1 == p2 ? 0 : -2);
     }
 
@@ -258,8 +255,7 @@ class ReflectedArgs {
     }
 
     public String toString() {
-        String s = "" + this.declaringClass + ", " + this.isStatic + ", " + this.flags + ", "
-                + this.data + "\n";
+        String s = "" + this.declaringClass + ", " + this.isStatic + ", " + this.flags + ", " + this.data + "\n";
         s = s + "\t(";
         for (int j = 0; j < this.args.length; j++) {
             s += this.args[j].getName() + ", ";

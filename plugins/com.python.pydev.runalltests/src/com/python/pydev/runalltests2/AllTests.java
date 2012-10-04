@@ -5,6 +5,7 @@
  * Any modifications to this file must keep this entire header intact.
  */
 package com.python.pydev.runalltests2;
+
 //reference: http://www.eclipsezone.com/eclipse/forums/t65337.html
 import java.lang.reflect.Modifier;
 import java.util.Enumeration;
@@ -15,15 +16,14 @@ import junit.framework.TestSuite;
 import junit.runner.ClassPathTestCollector;
 import junit.runner.TestCollector;
 
-
 public class AllTests {
-    
+
     private static class ClassFileDetector extends ClassPathTestCollector {
         protected boolean isTestClass(String classFileName) {
             return classFileName.endsWith(SUFFIX + ".class") && isValidTest(classNameFromFile(classFileName));
         }
     }
-    
+
     public static final String SUFFIX = "Test";
 
     private static void addTestsToSuite(TestCollector collector, TestSuite suite) {

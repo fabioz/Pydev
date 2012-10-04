@@ -16,8 +16,9 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.resource_stubs.AbstractIFileStub;
+
+import com.aptana.shared_core.io.FileUtils;
 
 /**
  * A stub for a file that implements the IFile interface required by Eclipse.
@@ -34,27 +35,27 @@ public class FileResourceStub extends AbstractIFileStub implements IFile {
         this.actualFile = file;
         this.project = project;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof FileResourceStub)){
+        if (!(obj instanceof FileResourceStub)) {
             return false;
         }
         FileResourceStub o = (FileResourceStub) obj;
         return this.actualFile.equals(o.actualFile);
     }
-    
+
     /**
      * For testing purposes
      * @return
      */
-    public String getFileContents(){
-        if(this.fileContents == null){
-            this.fileContents = REF.getFileContents(actualFile);
+    public String getFileContents() {
+        if (this.fileContents == null) {
+            this.fileContents = FileUtils.getFileContents(actualFile);
         }
         return this.fileContents;
     }
-    
+
     @Override
     public int hashCode() {
         return actualFile.hashCode();
@@ -68,14 +69,12 @@ public class FileResourceStub extends AbstractIFileStub implements IFile {
         return actualFile.exists();
     }
 
-
     public IProject getProject() {
         return project;
     }
 
     public IPath getRawLocation() {
-        return Path.fromOSString(REF.getFileAbsolutePath(actualFile));
+        return Path.fromOSString(FileUtils.getFileAbsolutePath(actualFile));
     }
-
 
 }

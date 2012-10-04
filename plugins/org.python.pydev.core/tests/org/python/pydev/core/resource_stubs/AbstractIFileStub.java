@@ -18,9 +18,10 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.content.IContentDescription;
 
-public class AbstractIFileStub extends AbstractIResourceStub implements IFile{
+public class AbstractIFileStub extends AbstractIResourceStub implements IFile {
 
-    public void appendContents(InputStream source, boolean force, boolean keepHistory, IProgressMonitor monitor) throws CoreException {
+    public void appendContents(InputStream source, boolean force, boolean keepHistory, IProgressMonitor monitor)
+            throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
@@ -80,7 +81,8 @@ public class AbstractIFileStub extends AbstractIResourceStub implements IFile{
         throw new RuntimeException("Not implemented");
     }
 
-    public void move(IPath destination, boolean force, boolean keepHistory, IProgressMonitor monitor) throws CoreException {
+    public void move(IPath destination, boolean force, boolean keepHistory, IProgressMonitor monitor)
+            throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
@@ -92,11 +94,13 @@ public class AbstractIFileStub extends AbstractIResourceStub implements IFile{
         throw new RuntimeException("Not implemented");
     }
 
-    public void setContents(InputStream source, boolean force, boolean keepHistory, IProgressMonitor monitor) throws CoreException {
+    public void setContents(InputStream source, boolean force, boolean keepHistory, IProgressMonitor monitor)
+            throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
-    public void setContents(IFileState source, boolean force, boolean keepHistory, IProgressMonitor monitor) throws CoreException {
+    public void setContents(IFileState source, boolean force, boolean keepHistory, IProgressMonitor monitor)
+            throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
@@ -108,9 +112,8 @@ public class AbstractIFileStub extends AbstractIResourceStub implements IFile{
         throw new RuntimeException("Not implemented");
     }
 
-    
     @Override
     public int getType() {
-    	return IResource.FILE;
+        return IResource.FILE;
     }
 }

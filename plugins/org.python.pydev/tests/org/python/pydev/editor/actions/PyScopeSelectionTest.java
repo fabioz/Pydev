@@ -22,35 +22,38 @@ public class PyScopeSelectionTest extends TestCase {
         try {
             PyScopeSelectionTest test = new PyScopeSelectionTest();
             test.setUp();
-//            test.testWithParseError();
+            //            test.testWithParseError();
             test.tearDown();
-            
+
             junit.textui.TestRunner.run(PyScopeSelectionTest.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void check(String string, int initialOffset, int initialLenOffset, int finalOffset, int finalLenOffset){
+    public void check(String string, int initialOffset, int initialLenOffset, int finalOffset, int finalLenOffset) {
         PyScopeSelection scopeSelection = new PyScopeSelection();
         Document doc = new Document(string);
         ITextSelection selection = new TextSelection(doc, initialOffset, initialLenOffset);
-        
+
         ITextSelection newSelection = scopeSelection.getNewSelection(doc, selection);
-        assertEquals("Expected offset to be: "+finalOffset+" actual offset: "+newSelection.getOffset()+" -- ", finalOffset, newSelection.getOffset());
+        assertEquals("Expected offset to be: " + finalOffset +
+                " actual offset: " + newSelection.getOffset() +
+                " -- ",
+                finalOffset, newSelection.getOffset());
         assertEquals(finalLenOffset, newSelection.getLength());
     }
-    
+
     public void testSimple() {
         check("a.b", 0, 0, 0, 1);
         check("a.b", 1, 0, 0, 1);
         check("a.b", 2, 0, 2, 1);
         check("a.b", 3, 0, 2, 1);
-        
+
         check("a.b()", 3, 0, 2, 1);
         check("a.b()", 4, 0, 3, 2);
     }
-    
+
     public void testWithSelection() {
         check("aa.b", 0, 1, 0, 2);
         check("a.b", 0, 1, 0, 3);
@@ -63,42 +66,40 @@ public class PyScopeSelectionTest extends TestCase {
         check("a(call()).o", 2, 4, 2, 6);
         check("a(call()).o", 2, 6, 0, 11);
     }
-    
+
     public void testWithStructures() {
         String doc = "" +
-              "def m1():\n" +
-        	  "  if True:\n" + //True starts at 15
-        	  "    pass";
-        
+                "def m1():\n" +
+                "  if True:\n" + //True starts at 15
+                "    pass";
+
         check(doc, 15, 0, 15, 4);
         check(doc, 15, 4, 12, 17);
         check(doc, 12, 17, 0, doc.length());
     }
-    
+
     public void testWithDictInParens() {
-        String doc = 
-            "(1,\n" +
-            " {a\n" +
-            ":b})\n" +
-            "\n" +
-            "class Bar(object):\n" +
-            "    call" +
-            "";
-        
-        check(doc, doc.length()-1, 0, doc.length()-4, 4);
-        check(doc, doc.length()-4, 4, 14, 27);
+        String doc = "(1,\n" +
+                " {a\n" +
+                ":b})\n" +
+                "\n" +
+                "class Bar(object):\n" +
+                "    call" +
+                "";
+
+        check(doc, doc.length() - 1, 0, doc.length() - 4, 4);
+        check(doc, doc.length() - 4, 4, 14, 27);
     }
-    
+
     public void testWithParseError() {
-        String doc = 
-            "(1\n" +
-            "\n" +
-            "class Bar(object):\n" +
-            "    call" +
-            "";
-        
-        check(doc, doc.length()-1, 0, doc.length()-4, 4);
-        check(doc, doc.length()-4, 4, 4, 27);
+        String doc = "(1\n" +
+                "\n" +
+                "class Bar(object):\n" +
+                "    call" +
+                "";
+
+        check(doc, doc.length() - 1, 0, doc.length() - 4, 4);
+        check(doc, doc.length() - 4, 4, 4, 27);
     }
-    
+
 }

@@ -26,7 +26,7 @@ public class DjHTMLOutlineLabelProvider extends HTMLOutlineLabelProvider {
     @Override
     public Image getImage(Object element) {
         Image image = labelProvider.getImage(element);
-        if(image != null){
+        if (image != null) {
             return image;
         }
         return super.getImage(element);
@@ -35,7 +35,7 @@ public class DjHTMLOutlineLabelProvider extends HTMLOutlineLabelProvider {
     @Override
     public String getText(Object element) {
         String text = labelProvider.getText(element);
-        if(text != null){
+        if (text != null) {
             return text;
         }
         return super.getText(element);

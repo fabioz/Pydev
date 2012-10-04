@@ -11,16 +11,16 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.Viewer;
 import org.python.pydev.plugin.nature.PythonNature;
 
-public class PydevProjectsFilter extends AbstractFilter{
+public class PydevProjectsFilter extends AbstractFilter {
 
     @Override
     public boolean select(Viewer viewer, Object parentElement, Object element) {
-        if(element instanceof IAdaptable){
+        if (element instanceof IAdaptable) {
             IAdaptable adaptable = (IAdaptable) element;
             Object adapted = adaptable.getAdapter(IProject.class);
-            if(adapted instanceof IProject){
+            if (adapted instanceof IProject) {
                 IProject project = (IProject) adapted;
-                if(!project.isOpen()){
+                if (!project.isOpen()) {
                     return true; //As we don't know about the nature of closed projects, don't filter it out.
                 }
                 return PythonNature.getPythonNature(project) != null;

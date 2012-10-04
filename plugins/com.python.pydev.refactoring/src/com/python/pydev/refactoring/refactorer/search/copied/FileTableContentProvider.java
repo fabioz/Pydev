@@ -15,56 +15,56 @@ import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import com.python.pydev.refactoring.refactorer.search.PythonFileSearchResult;
 
 public class FileTableContentProvider implements IStructuredContentProvider, IFileSearchContentProvider {
-	
-	private final Object[] EMPTY_ARR= new Object[0];
-	
-	private FileSearchPage fPage;
-	private AbstractTextSearchResult fResult;
 
-	public FileTableContentProvider(FileSearchPage page) {
-		fPage= page;
-	}
-	
-	public void dispose() {
-		// nothing to do
-	}
-	
-	public Object[] getElements(Object inputElement) {
-		if (inputElement instanceof PythonFileSearchResult) {
-			int elementLimit= getElementLimit();
-			Object[] elements= ((PythonFileSearchResult)inputElement).getElements();
-			if (elementLimit != -1 && elements.length > elementLimit) {
-				Object[] shownElements= new Object[elementLimit];
-				System.arraycopy(elements, 0, shownElements, 0, elementLimit);
-				return shownElements;
-			}
-			return elements;
-		}
-		return EMPTY_ARR;
-	}
-	
-	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-		if (newInput instanceof PythonFileSearchResult) {
-			fResult= (PythonFileSearchResult) newInput;
-		}
-	}
-	
-	public void elementsChanged(Object[] updatedElements) {
-		TableViewer viewer= getViewer();
-		int elementLimit= getElementLimit();
-		boolean tableLimited= elementLimit != -1;
-		for (int i= 0; i < updatedElements.length; i++) {
-			if (fResult.getMatchCount(updatedElements[i]) > 0) {
-				if (viewer.testFindItem(updatedElements[i]) != null)
-					viewer.update(updatedElements[i], null);
-				else {
-					if (!tableLimited || viewer.getTable().getItemCount() < elementLimit)
-						viewer.add(updatedElements[i]);
-				}
-			} else
-				viewer.remove(updatedElements[i]);
-		}
-	}
+    private final Object[] EMPTY_ARR = new Object[0];
+
+    private FileSearchPage fPage;
+    private AbstractTextSearchResult fResult;
+
+    public FileTableContentProvider(FileSearchPage page) {
+        fPage = page;
+    }
+
+    public void dispose() {
+        // nothing to do
+    }
+
+    public Object[] getElements(Object inputElement) {
+        if (inputElement instanceof PythonFileSearchResult) {
+            int elementLimit = getElementLimit();
+            Object[] elements = ((PythonFileSearchResult) inputElement).getElements();
+            if (elementLimit != -1 && elements.length > elementLimit) {
+                Object[] shownElements = new Object[elementLimit];
+                System.arraycopy(elements, 0, shownElements, 0, elementLimit);
+                return shownElements;
+            }
+            return elements;
+        }
+        return EMPTY_ARR;
+    }
+
+    public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+        if (newInput instanceof PythonFileSearchResult) {
+            fResult = (PythonFileSearchResult) newInput;
+        }
+    }
+
+    public void elementsChanged(Object[] updatedElements) {
+        TableViewer viewer = getViewer();
+        int elementLimit = getElementLimit();
+        boolean tableLimited = elementLimit != -1;
+        for (int i = 0; i < updatedElements.length; i++) {
+            if (fResult.getMatchCount(updatedElements[i]) > 0) {
+                if (viewer.testFindItem(updatedElements[i]) != null)
+                    viewer.update(updatedElements[i], null);
+                else {
+                    if (!tableLimited || viewer.getTable().getItemCount() < elementLimit)
+                        viewer.add(updatedElements[i]);
+                }
+            } else
+                viewer.remove(updatedElements[i]);
+        }
+    }
 
     private int getElementLimit() {
         try {
@@ -75,11 +75,11 @@ public class FileTableContentProvider implements IStructuredContentProvider, IFi
         }
     }
 
-	private TableViewer getViewer() {
-		return (TableViewer) fPage.getViewer();
-	}
-	
-	public void clear() {
-		getViewer().refresh();
-	}
+    private TableViewer getViewer() {
+        return (TableViewer) fPage.getViewer();
+    }
+
+    public void clear() {
+        getViewer().refresh();
+    }
 }

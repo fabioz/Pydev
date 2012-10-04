@@ -21,14 +21,14 @@ import com.thoughtworks.xstream.XStream;
 
 public class OverrideMethodsTestCase extends AbstractIOTestCase {
 
-	public OverrideMethodsTestCase(String name) {
-		super(name);
-	}
+    public OverrideMethodsTestCase(String name) {
+        super(name);
+    }
 
-	@Override
-	public void runTest() throws Throwable {
-	    CompiledModule.COMPILED_MODULES_ENABLED = true;
-		try{
+    @Override
+    public void runTest() throws Throwable {
+        CompiledModule.COMPILED_MODULES_ENABLED = true;
+        try {
             MockupOverrideMethodsConfig config = initConfig();
 
             MockupOverrideMethodsRequestProcessor requestProcessor = setupRequestProcessor(config);
@@ -37,38 +37,41 @@ public class OverrideMethodsTestCase extends AbstractIOTestCase {
 
             this.setTestGenerated(refactoringDoc.get());
             assertContentsEqual(getExpected(), getGenerated());
-        }finally{
+        } finally {
             CompiledModule.COMPILED_MODULES_ENABLED = false;
         }
-	}
+    }
 
-	private IDocument applyOverrideMethod(MockupOverrideMethodsRequestProcessor requestProcessor) throws BadLocationException, MalformedTreeException, MisconfigurationException {
-		MethodEdit methodEdit = new MethodEdit(requestProcessor.getRefactoringRequests().get(0));
+    private IDocument applyOverrideMethod(MockupOverrideMethodsRequestProcessor requestProcessor)
+            throws BadLocationException, MalformedTreeException, MisconfigurationException {
+        MethodEdit methodEdit = new MethodEdit(requestProcessor.getRefactoringRequests().get(0));
 
-		IDocument refactoringDoc = new Document(data.source);
-		methodEdit.getEdit().apply(refactoringDoc);
-		return refactoringDoc;
-	}
+        IDocument refactoringDoc = new Document(data.source);
+        methodEdit.getEdit().apply(refactoringDoc);
+        return refactoringDoc;
+    }
 
-	private MockupOverrideMethodsRequestProcessor setupRequestProcessor(MockupOverrideMethodsConfig config) throws Throwable {
-		ModuleAdapter module = super.createModuleAdapterFromDataSource();
-		List<IClassDefAdapter> classes = module.getClasses();
-		assertTrue(classes.size() > 0);
+    private MockupOverrideMethodsRequestProcessor setupRequestProcessor(MockupOverrideMethodsConfig config)
+            throws Throwable {
+        ModuleAdapter module = super.createModuleAdapterFromDataSource();
+        List<IClassDefAdapter> classes = module.getClasses();
+        assertTrue(classes.size() > 0);
 
-		MockupOverrideMethodsRequestProcessor requestProcessor = new MockupOverrideMethodsRequestProcessor(module, config);
-		return requestProcessor;
-	}
+        MockupOverrideMethodsRequestProcessor requestProcessor = new MockupOverrideMethodsRequestProcessor(module,
+                config);
+        return requestProcessor;
+    }
 
-	private MockupOverrideMethodsConfig initConfig() {
-		MockupOverrideMethodsConfig config = null;
-		XStream xstream = new XStream();
-		xstream.alias("config", MockupOverrideMethodsConfig.class);
+    private MockupOverrideMethodsConfig initConfig() {
+        MockupOverrideMethodsConfig config = null;
+        XStream xstream = new XStream();
+        xstream.alias("config", MockupOverrideMethodsConfig.class);
 
-		if (data.config.length() > 0) {
-			config = (MockupOverrideMethodsConfig) xstream.fromXML(data.getConfigContents());
-		} else {
-			fail("Could not unserialize configuration");
-		}
-		return config;
-	}
+        if (data.config.length() > 0) {
+            config = (MockupOverrideMethodsConfig) xstream.fromXML(data.getConfigContents());
+        } else {
+            fail("Could not unserialize configuration");
+        }
+        return config;
+    }
 }

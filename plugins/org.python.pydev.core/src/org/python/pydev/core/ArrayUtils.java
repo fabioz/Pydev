@@ -9,7 +9,7 @@ package org.python.pydev.core;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.python.pydev.core.callbacks.ICallback;
+import com.aptana.shared_core.callbacks.ICallback;
 
 public class ArrayUtils {
 
@@ -29,13 +29,14 @@ public class ArrayUtils {
     }
 
     public static <T> T[] concatArrays(T[]... arrays) {
-        
+
         int count = 0;
         for (T[] array : arrays) {
             count += array.length;
         }
 
-        final T[] mergedArray = (T[]) java.lang.reflect.Array.newInstance(arrays[0].getClass().getComponentType(), count);
+        final T[] mergedArray = (T[]) java.lang.reflect.Array.newInstance(arrays[0].getClass().getComponentType(),
+                count);
 
         int start = 0;
         for (T[] array : arrays) {

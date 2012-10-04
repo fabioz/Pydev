@@ -9,8 +9,8 @@ package org.python.pydev.navigator;
 import org.python.pydev.core.structure.TreeNode;
 import org.python.pydev.navigator.elements.ISortedElement;
 
-public class InterpreterInfoTreeNode<X> extends TreeNode<X> implements ISortedElement{
-    
+public class InterpreterInfoTreeNode<X> extends TreeNode<X> implements ISortedElement {
+
     public InterpreterInfoTreeNode(Object parent, X data) {
         super(parent, data);
     }

@@ -20,10 +20,8 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
@@ -32,18 +30,21 @@ import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
 import org.python.pydev.ui.UIConstants;
 
+import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.Tuple;
+
 public class AssistDocString implements IAssistProps {
-    
+
     private final String docStringStyle;
 
-    public AssistDocString(){
+    public AssistDocString() {
         this(null);
     }
-    
+
     /**
      * @param docStringStyle the doc string prefix to be used (i.e.: '@' or ':'). If null, it's gotten from the preferences.
      */
-    public AssistDocString(String docStringStyle){
+    public AssistDocString(String docStringStyle) {
         this.docStringStyle = docStringStyle;
     }
 
@@ -51,15 +52,15 @@ public class AssistDocString implements IAssistProps {
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection,
      *      org.python.pydev.core.bundle.ImageCache)
      */
-    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature, PyEdit edit, int offset)
-            throws BadLocationException {
+    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature,
+            PyEdit edit, int offset) throws BadLocationException {
         ArrayList<ICompletionProposal> l = new ArrayList<ICompletionProposal>();
 
         Tuple<List<String>, Integer> tuple = ps.getInsideParentesisToks(false);
         if (tuple == null) {
-            if(ps.isInClassLine()){
+            if (ps.isInClassLine()) {
                 tuple = new Tuple<List<String>, Integer>(new ArrayList<String>(), offset);
-            }else{
+            } else {
                 return l;
             }
         }
@@ -68,7 +69,8 @@ public class AssistDocString implements IAssistProps {
 
         String initial = PySelection.getIndentationFromLine(ps.getCursorLineContents());
         String delimiter = PyAction.getDelimiter(ps.getDoc());
-        String indentation = edit!=null?edit.getIndentPrefs().getIndentationString():DefaultIndentPrefs.get().getIndentationString();
+        String indentation = edit != null ? edit.getIndentPrefs().getIndentationString() : DefaultIndentPrefs.get()
+                .getIndentationString();
         String inAndIndent = delimiter + initial + indentation;
 
         FastStringBuffer buf = new FastStringBuffer();
@@ -79,16 +81,17 @@ public class AssistDocString implements IAssistProps {
         int newOffset = buf.length();
         if (ps.isInFunctionLine(true)) {
             String preferredDocstringStyle = this.docStringStyle;
-            if(preferredDocstringStyle == null){
+            if (preferredDocstringStyle == null) {
                 preferredDocstringStyle = DocstringsPrefPage.getPreferredDocstringStyle();
             }
             for (String paramName : params) {
-                if(!PySelection.isIdentifier(paramName)){
+                if (!PySelection.isIdentifier(paramName)) {
                     continue;
                 }
                 buf.append(inAndIndent).append(preferredDocstringStyle).append("param ").append(paramName).append(":");
                 if (DocstringsPrefPage.getTypeTagShouldBeGenerated(paramName)) {
-                    buf.append(inAndIndent).append(preferredDocstringStyle).append("type ").append(paramName).append(":");
+                    buf.append(inAndIndent).append(preferredDocstringStyle).append("type ").append(paramName)
+                            .append(":");
                 }
             }
         } else {
@@ -100,17 +103,17 @@ public class AssistDocString implements IAssistProps {
         int offsetPosToAdd = ps.getEndLineOffset(lineOfOffset);
 
         Image image = null; //may be null (testing)
-        if(imageCache != null){
+        if (imageCache != null) {
             image = imageCache.get(UIConstants.ASSIST_DOCSTRING);
         }
-        l.add(new PyCompletionProposal(comp, offsetPosToAdd, 0, newOffset, image, "Make docstring",
-                null, null, IPyCompletionProposal.PRIORITY_DEFAULT){
+        l.add(new PyCompletionProposal(comp, offsetPosToAdd, 0, newOffset, image, "Make docstring", null, null,
+                IPyCompletionProposal.PRIORITY_DEFAULT) {
             public void apply(IDocument document) {
                 //remove the next line if it is a pass...
                 PySelection ps = new PySelection(document, fReplacementOffset);
-                int iNextLine = ps.getCursorLine()+1;
+                int iNextLine = ps.getCursorLine() + 1;
                 String nextLine = ps.getLine(iNextLine);
-                if(nextLine.trim().equals("pass")){
+                if (nextLine.trim().equals("pass")) {
                     ps.deleteLine(iNextLine);
                 }
                 super.apply(document);
@@ -126,5 +129,5 @@ public class AssistDocString implements IAssistProps {
     public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
         return ps.isInFunctionLine(true) || ps.isInClassLine();
     }
-    
+
 }

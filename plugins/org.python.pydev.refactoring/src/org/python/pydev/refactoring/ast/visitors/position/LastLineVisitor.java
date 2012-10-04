@@ -29,7 +29,7 @@ public class LastLineVisitor extends VisitorBase {
 
     @Override
     public void traverse(SimpleNode node) throws Exception {
-        if(node != null){
+        if (node != null) {
             node.traverse(this);
         }
     }
@@ -37,7 +37,7 @@ public class LastLineVisitor extends VisitorBase {
     @Override
     protected Object unhandled_node(SimpleNode node) throws Exception {
         int lineEnd = NodeUtils.getLineEnd(node);
-        if(lineEnd > lastLine){
+        if (lineEnd > lastLine) {
             lastLine = lineEnd;
         }
         return null;

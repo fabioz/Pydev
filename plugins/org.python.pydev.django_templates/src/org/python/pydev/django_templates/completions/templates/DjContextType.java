@@ -23,14 +23,13 @@ public class DjContextType extends TemplateContextType {
     public static final String DJ_COMPLETIONS_CONTEXT_TYPE = "org.python.pydev.django_templates.templatesContext";
     public static final String DJ_TAGS_COMPLETIONS_CONTEXT_TYPE = "org.python.pydev.django_templates.tagsTemplatesContext";
     public static final String DJ_FILTERS_COMPLETIONS_CONTEXT_TYPE = "org.python.pydev.django_templates.filtersTemplatesContext";
-    
-    
+
     /**
      * Creates a new XML context type. 
      */
     public DjContextType() {
         addGlobalResolvers();
-        
+
     }
 
     private void addGlobalResolvers() {
@@ -42,10 +41,7 @@ public class DjContextType extends TemplateContextType {
         addResolver(new GlobalTemplateVariables.Year());
         addResolver(new GlobalTemplateVariables.Time());
         addResolver(new GlobalTemplateVariables.User());
-        addResolver(new DjTemplateVariableResolver("on_or_off", "Choose on or off", new String[]{"on", "off"}));
+        addResolver(new DjTemplateVariableResolver("on_or_off", "Choose on or off", new String[] { "on", "off" }));
     }
-    
-
-
 
 }

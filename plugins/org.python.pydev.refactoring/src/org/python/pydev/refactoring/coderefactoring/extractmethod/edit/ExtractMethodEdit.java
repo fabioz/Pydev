@@ -77,24 +77,26 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
     }
 
     private FunctionDef initExtractedMethod(List<stmtType> body, List<exprType> argsList) {
-        argumentsType args = new argumentsType(argsList.toArray(new exprType[0]), null, null, null, null, null, null, null, null, null);
+        argumentsType args = new argumentsType(argsList.toArray(new exprType[0]), null, null, null, null, null, null,
+                null, null, null);
 
-        FunctionDef extractedMethod = new FunctionDef(new NameTok(methodName, NameTok.FunctionName), args, body.toArray(new stmtType[0]), null, null);
+        FunctionDef extractedMethod = new FunctionDef(new NameTok(methodName, NameTok.FunctionName), args,
+                body.toArray(new stmtType[0]), null, null);
         return extractedMethod;
     }
 
     private List<exprType> initExtractedMethodArguments() {
         List<exprType> argsList = new ArrayList<exprType>();
-        if(this.scopeAdapter instanceof FunctionDefAdapter){
+        if (this.scopeAdapter instanceof FunctionDefAdapter) {
             IASTNodeAdapter<? extends SimpleNode> parentScopeAdapter = scopeAdapter.getParent();
-            while(parentScopeAdapter instanceof FunctionDefAdapter){
+            while (parentScopeAdapter instanceof FunctionDefAdapter) {
                 parentScopeAdapter = parentScopeAdapter.getParent();
             }
-            if(parentScopeAdapter instanceof IClassDefAdapter){
+            if (parentScopeAdapter instanceof IClassDefAdapter) {
                 argsList.add(new Name("self", Name.Load, false));
             }
         }
-        for(String variable:this.parameters){
+        for (String variable : this.parameters) {
             argsList.add(new Name(variable, Name.Param, false));
         }
         return argsList;
@@ -103,7 +105,7 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
     private List<stmtType> initExtractedBody() {
         stmtType[] extractBody = parsedSelection.getASTNode().body;
         List<stmtType> body = new ArrayList<stmtType>();
-        for(stmtType stmt:extractBody){
+        for (stmtType stmt : extractBody) {
             body.add((stmtType) stmt.createCopy());
         }
         return body;
@@ -111,12 +113,12 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
 
     private void applyRenamedVariables(FunctionDef extractedMethod) {
 
-        if(renamedVariables.size() > 0){
+        if (renamedVariables.size() > 0) {
             LocalVarRenameVisitor renameVisitor = new LocalVarRenameVisitor(this.adapterPrefs);
             renameVisitor.setRenameMap(renamedVariables);
-            try{
+            try {
                 extractedMethod.accept(renameVisitor);
-            }catch(Exception e){
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
@@ -124,27 +126,27 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
 
     private void addReturnValue(List<stmtType> body) {
         List<exprType> returnList = new ArrayList<exprType>();
-        for(String variable:this.returnVariables){
+        for (String variable : this.returnVariables) {
             returnList.add(new Name(variable, Name.Load, false));
         }
 
         exprType returnValue = null;
-        if(returnList.size() == 1){
+        if (returnList.size() == 1) {
             returnValue = returnList.get(0);
-            
-        }else if(returnList.size() > 1){
+
+        } else if (returnList.size() > 1) {
             returnValue = new Tuple(returnList.toArray(new exprType[0]), Tuple.Load, false);
-            
-        }else if(body.size() == 1){
+
+        } else if (body.size() == 1) {
             // return expression as-is (note: body must be cleared)
-            if(body.get(0) instanceof Expr){
+            if (body.get(0) instanceof Expr) {
                 Expr expression = (Expr) body.get(0);
                 returnValue = expression.value;
                 body.clear();
             }
         }
 
-        if(returnValue != null){
+        if (returnValue != null) {
             body.add(new Return(returnValue));
         }
     }
@@ -157,7 +159,7 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
     @Override
     public int getOffset() {
         int superOffset = super.getOffset();
-        if(superOffset > this.selectionOffset && superOffset < this.selectionOffset+this.selectionLen){
+        if (superOffset > this.selectionOffset && superOffset < this.selectionOffset + this.selectionLen) {
             try {
                 return this.moduleAdapter.getStartLineBefore(this.selectionOffset);
             } catch (Exception e) {

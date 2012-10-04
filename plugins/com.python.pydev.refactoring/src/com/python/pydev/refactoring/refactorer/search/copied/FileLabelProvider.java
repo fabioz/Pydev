@@ -25,258 +25,258 @@ import com.python.pydev.ui.search.FileMatch;
 import com.python.pydev.ui.search.LineElement;
 import com.python.pydev.ui.search.SearchMessages;
 
-public class FileLabelProvider extends LabelProvider  {
-	
-	public static final int SHOW_LABEL= 1;
-	public static final int SHOW_LABEL_PATH= 2;
-	public static final int SHOW_PATH_LABEL= 3;
-	
-	private static final String fgSeparatorFormat= "{0} - {1}"; //$NON-NLS-1$
-	
-	private static final String fgEllipses= " ... "; //$NON-NLS-1$
-	
-	private final WorkbenchLabelProvider fLabelProvider;
-	private final AbstractTextSearchViewPage fPage;
-	private final Comparator fMatchComparator;
-	
-	private final Image fLineMatchImage;
-		
-	private int fOrder;
+public class FileLabelProvider extends LabelProvider {
 
-	public FileLabelProvider(AbstractTextSearchViewPage page, int orderFlag) {
-		fLabelProvider= new WorkbenchLabelProvider();
-		fOrder= orderFlag;
-		fPage= page;
-		fLineMatchImage= SearchPluginImages.get(SearchPluginImages.IMG_OBJ_TEXT_SEARCH_LINE);
-		fMatchComparator= new Comparator() {
-			public int compare(Object o1, Object o2) {
-				return ((FileMatch) o1).getOriginalOffset() - ((FileMatch) o2).getOriginalOffset();
-			}
-		};
-	}
+    public static final int SHOW_LABEL = 1;
+    public static final int SHOW_LABEL_PATH = 2;
+    public static final int SHOW_PATH_LABEL = 3;
 
-	public void setOrder(int orderFlag) {
-		fOrder= orderFlag;
-	}
-	
-	public int getOrder() {
-		return fOrder;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.LabelProvider#getText(java.lang.Object)
-	 */
-	public String getText(Object object) {
-		return getStyledText(object);
-	}
-	
-	public String getStyledText(Object element) {
-		if (element instanceof LineElement)
-			return getLineElementLabel((LineElement) element);
-		
-		if (!(element instanceof IResource))
-			return new String();
+    private static final String fgSeparatorFormat = "{0} - {1}"; //$NON-NLS-1$
 
-		IResource resource= (IResource) element;
-		if (!resource.exists())
-			new String(SearchMessages.FileLabelProvider_removed_resource_label);
-		
-		String name= BasicElementLabels.getResourceName(resource);
-		if (fOrder == SHOW_LABEL) {
-			return getColoredLabelWithCounts(resource, new String(name));
-		}
-		
-		String pathString= BasicElementLabels.getPathLabel(resource.getParent().getFullPath(), false);
-		if (fOrder == SHOW_LABEL_PATH) {
-			String str= new String(name);
-			String decorated= Messages.format(fgSeparatorFormat, new String[] { str, pathString });
+    private static final String fgEllipses = " ... "; //$NON-NLS-1$
 
-//			decorateColoredString(str, decorated, String.QUALIFIER_STYLER);
-			return getColoredLabelWithCounts(resource, str);
-		}
+    private final WorkbenchLabelProvider fLabelProvider;
+    private final AbstractTextSearchViewPage fPage;
+    private final Comparator fMatchComparator;
 
-		String str= new String(Messages.format(fgSeparatorFormat, new String[] { pathString, name }));
-		return getColoredLabelWithCounts(resource, str);
-	}
+    private final Image fLineMatchImage;
 
-	private String getLineElementLabel(LineElement lineElement) {
-		int lineNumber= lineElement.getLine();
-		String lineNumberString= Messages.format(SearchMessages.FileLabelProvider_line_number, new Integer(lineNumber));
+    private int fOrder;
 
-		String str= new String(lineNumberString);
-		
-		Match[] matches= lineElement.getMatches(fPage.getInput());
-		Arrays.sort(matches, fMatchComparator);
-		
-		String content= lineElement.getContents();
-		
-		int pos= evaluateLineStart(matches, content, lineElement.getOffset());
+    public FileLabelProvider(AbstractTextSearchViewPage page, int orderFlag) {
+        fLabelProvider = new WorkbenchLabelProvider();
+        fOrder = orderFlag;
+        fPage = page;
+        fLineMatchImage = SearchPluginImages.get(SearchPluginImages.IMG_OBJ_TEXT_SEARCH_LINE);
+        fMatchComparator = new Comparator() {
+            public int compare(Object o1, Object o2) {
+                return ((FileMatch) o1).getOriginalOffset() - ((FileMatch) o2).getOriginalOffset();
+            }
+        };
+    }
 
-		int length= content.length();
+    public void setOrder(int orderFlag) {
+        fOrder = orderFlag;
+    }
 
-		int charsToCut= getCharsToCut(length, matches); // number of characters to leave away if the line is too long
-		for (int i= 0; i < matches.length; i++) {
-			FileMatch match= (FileMatch) matches[i];
-			int start= Math.max(match.getOriginalOffset() - lineElement.getOffset(), 0);
-			// append gap between last match and the new one
-			if (pos < start) {
-				if (charsToCut > 0) {
-					charsToCut= appendShortenedGap(content, pos, start, charsToCut, i == 0, str);
-				} else {
-					str += content.substring(pos, start);
-				}
-			}
-			// append match
-			int end= Math.min(match.getOriginalOffset() + match.getOriginalLength() - lineElement.getOffset(), lineElement.getLength());
-			str += content.substring(start, end);
-			pos= end;
-		}
-		// append rest of the line
-		if (charsToCut > 0) {
-			appendShortenedGap(content, pos, length, charsToCut, false, str);
-		} else {
-			str += content.substring(pos);
-		}
-		return str;
-	}
+    public int getOrder() {
+        return fOrder;
+    }
 
-	private static final int MIN_MATCH_CONTEXT= 10; // minimal number of characters shown after and before a match
+    /* (non-Javadoc)
+     * @see org.eclipse.jface.viewers.LabelProvider#getText(java.lang.Object)
+     */
+    public String getText(Object object) {
+        return getStyledText(object);
+    }
 
-	private int appendShortenedGap(String content, int start, int end, int charsToCut, boolean isFirst, String str) {
-		int gapLength= end - start;
-		if (!isFirst) {
-			gapLength-= MIN_MATCH_CONTEXT;
-		}
-		if (end < content.length()) {
-			gapLength-= MIN_MATCH_CONTEXT;
-		}
-		if (gapLength < MIN_MATCH_CONTEXT) { // don't cut, gap is too small
-			str += content.substring(start, end);
-			return charsToCut;
-		}
-		
-		int context= MIN_MATCH_CONTEXT;
-		if (gapLength > charsToCut) {
-			context+= gapLength - charsToCut;
-		}
+    public String getStyledText(Object element) {
+        if (element instanceof LineElement)
+            return getLineElementLabel((LineElement) element);
 
-		if (!isFirst) {
-			str += content.substring(start, start + context); // give all extra context to the right side of a match
-			context= MIN_MATCH_CONTEXT;
-		}
+        if (!(element instanceof IResource))
+            return new String();
 
-		str += fgEllipses;
+        IResource resource = (IResource) element;
+        if (!resource.exists())
+            new String(SearchMessages.FileLabelProvider_removed_resource_label);
 
-		if (end < content.length()) {
-			str += content.substring(end - context, end);
-		}
-		return charsToCut - gapLength + fgEllipses.length();
-	}
-	
+        String name = BasicElementLabels.getResourceName(resource);
+        if (fOrder == SHOW_LABEL) {
+            return getColoredLabelWithCounts(resource, new String(name));
+        }
 
-	private int getCharsToCut(int contentLength, Match[] matches) {
-		if (contentLength <= 256 || !"win32".equals(SWT.getPlatform()) || matches.length == 0) { //$NON-NLS-1$
-			return 0; // no shortening required
-		}
-		// XXX: workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=38519
-		return contentLength - 256 + Math.max(matches.length * fgEllipses.length(), 100);
-	}
+        String pathString = BasicElementLabels.getPathLabel(resource.getParent().getFullPath(), false);
+        if (fOrder == SHOW_LABEL_PATH) {
+            String str = new String(name);
+            String decorated = Messages.format(fgSeparatorFormat, new String[] { str, pathString });
 
-	private int evaluateLineStart(Match[] matches, String lineContent, int lineOffset) {
-		int max= lineContent.length();
-		if (matches.length > 0) {
-			FileMatch match= (FileMatch) matches[0];
-			max= match.getOriginalOffset() - lineOffset;
-			if (max < 0) {
-				return 0;
-			}
-		}
-		for (int i= 0; i < max; i++) {
-			char ch= lineContent.charAt(i);
-			if (!Character.isWhitespace(ch) || ch == '\n' || ch == '\r') {
-				return i;
-			}
-		}
-		return max;
-	}
-	
-	private String getColoredLabelWithCounts(Object element, String coloredName) {
-		AbstractTextSearchResult result= fPage.getInput();
-		if (result == null)
-			return coloredName;
-			
-		int matchCount= result.getMatchCount(element);
-		if (matchCount <= 1)
-			return coloredName;
-		
-		String countInfo= Messages.format(SearchMessages.FileLabelProvider_count_format, new Integer(matchCount));
-		coloredName += " ";
-		coloredName += countInfo;
-		return coloredName;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.LabelProvider#getImage(java.lang.Object)
-	 */
-	public Image getImage(Object element) {
-		if (element instanceof LineElement) {
-			return fLineMatchImage;
-		}
-		if (!(element instanceof IResource))
-			return null;
+            //			decorateColoredString(str, decorated, String.QUALIFIER_STYLER);
+            return getColoredLabelWithCounts(resource, str);
+        }
 
-		IResource resource= (IResource)element;
-		Image image= fLabelProvider.getImage(resource);
-		return image;
-	}
+        String str = new String(Messages.format(fgSeparatorFormat, new String[] { pathString, name }));
+        return getColoredLabelWithCounts(resource, str);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.BaseLabelProvider#dispose()
-	 */
-	public void dispose() {
-		super.dispose();
-		fLabelProvider.dispose();
-	}
+    private String getLineElementLabel(LineElement lineElement) {
+        int lineNumber = lineElement.getLine();
+        String lineNumberString = Messages
+                .format(SearchMessages.FileLabelProvider_line_number, new Integer(lineNumber));
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.BaseLabelProvider#isLabelProperty(java.lang.Object, java.lang.String)
-	 */
-	public boolean isLabelProperty(Object element, String property) {
-		return fLabelProvider.isLabelProperty(element, property);
-	}
+        String str = new String(lineNumberString);
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.BaseLabelProvider#removeListener(org.eclipse.jface.viewers.ILabelProviderListener)
-	 */
-	public void removeListener(ILabelProviderListener listener) {
-		super.removeListener(listener);
-		fLabelProvider.removeListener(listener);
-	}
+        Match[] matches = lineElement.getMatches(fPage.getInput());
+        Arrays.sort(matches, fMatchComparator);
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.BaseLabelProvider#addListener(org.eclipse.jface.viewers.ILabelProviderListener)
-	 */
-	public void addListener(ILabelProviderListener listener) {
-		super.addListener(listener);
-		fLabelProvider.addListener(listener);
-	}
+        String content = lineElement.getContents();
 
-	
-//	private static String decorateColoredString(String string, String decorated, Styler color) {
-//		String label= string.toString();
-//		int originalStart= decorated.indexOf(label);
-//		if (originalStart == -1) {
-//			return new String(decorated); // the decorator did something wild
-//		}
-//		if (originalStart > 0) {
-//			String newString= new String(decorated.substring(0, originalStart), color);
-//			newString += string;
-//			string= newString;
-//		}
-//		if (decorated.length() > originalStart + label.length()) { // decorator appended something
-//			return string.append(decorated.substring(originalStart + label.length()), color);
-//		}
-//		return string; // no change
-//	}
-	
+        int pos = evaluateLineStart(matches, content, lineElement.getOffset());
+
+        int length = content.length();
+
+        int charsToCut = getCharsToCut(length, matches); // number of characters to leave away if the line is too long
+        for (int i = 0; i < matches.length; i++) {
+            FileMatch match = (FileMatch) matches[i];
+            int start = Math.max(match.getOriginalOffset() - lineElement.getOffset(), 0);
+            // append gap between last match and the new one
+            if (pos < start) {
+                if (charsToCut > 0) {
+                    charsToCut = appendShortenedGap(content, pos, start, charsToCut, i == 0, str);
+                } else {
+                    str += content.substring(pos, start);
+                }
+            }
+            // append match
+            int end = Math.min(match.getOriginalOffset() + match.getOriginalLength() - lineElement.getOffset(),
+                    lineElement.getLength());
+            str += content.substring(start, end);
+            pos = end;
+        }
+        // append rest of the line
+        if (charsToCut > 0) {
+            appendShortenedGap(content, pos, length, charsToCut, false, str);
+        } else {
+            str += content.substring(pos);
+        }
+        return str;
+    }
+
+    private static final int MIN_MATCH_CONTEXT = 10; // minimal number of characters shown after and before a match
+
+    private int appendShortenedGap(String content, int start, int end, int charsToCut, boolean isFirst, String str) {
+        int gapLength = end - start;
+        if (!isFirst) {
+            gapLength -= MIN_MATCH_CONTEXT;
+        }
+        if (end < content.length()) {
+            gapLength -= MIN_MATCH_CONTEXT;
+        }
+        if (gapLength < MIN_MATCH_CONTEXT) { // don't cut, gap is too small
+            str += content.substring(start, end);
+            return charsToCut;
+        }
+
+        int context = MIN_MATCH_CONTEXT;
+        if (gapLength > charsToCut) {
+            context += gapLength - charsToCut;
+        }
+
+        if (!isFirst) {
+            str += content.substring(start, start + context); // give all extra context to the right side of a match
+            context = MIN_MATCH_CONTEXT;
+        }
+
+        str += fgEllipses;
+
+        if (end < content.length()) {
+            str += content.substring(end - context, end);
+        }
+        return charsToCut - gapLength + fgEllipses.length();
+    }
+
+    private int getCharsToCut(int contentLength, Match[] matches) {
+        if (contentLength <= 256 || !"win32".equals(SWT.getPlatform()) || matches.length == 0) { //$NON-NLS-1$
+            return 0; // no shortening required
+        }
+        // XXX: workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=38519
+        return contentLength - 256 + Math.max(matches.length * fgEllipses.length(), 100);
+    }
+
+    private int evaluateLineStart(Match[] matches, String lineContent, int lineOffset) {
+        int max = lineContent.length();
+        if (matches.length > 0) {
+            FileMatch match = (FileMatch) matches[0];
+            max = match.getOriginalOffset() - lineOffset;
+            if (max < 0) {
+                return 0;
+            }
+        }
+        for (int i = 0; i < max; i++) {
+            char ch = lineContent.charAt(i);
+            if (!Character.isWhitespace(ch) || ch == '\n' || ch == '\r') {
+                return i;
+            }
+        }
+        return max;
+    }
+
+    private String getColoredLabelWithCounts(Object element, String coloredName) {
+        AbstractTextSearchResult result = fPage.getInput();
+        if (result == null)
+            return coloredName;
+
+        int matchCount = result.getMatchCount(element);
+        if (matchCount <= 1)
+            return coloredName;
+
+        String countInfo = Messages.format(SearchMessages.FileLabelProvider_count_format, new Integer(matchCount));
+        coloredName += " ";
+        coloredName += countInfo;
+        return coloredName;
+    }
+
+    /* (non-Javadoc)
+     * @see org.eclipse.jface.viewers.LabelProvider#getImage(java.lang.Object)
+     */
+    public Image getImage(Object element) {
+        if (element instanceof LineElement) {
+            return fLineMatchImage;
+        }
+        if (!(element instanceof IResource))
+            return null;
+
+        IResource resource = (IResource) element;
+        Image image = fLabelProvider.getImage(resource);
+        return image;
+    }
+
+    /* (non-Javadoc)
+     * @see org.eclipse.jface.viewers.BaseLabelProvider#dispose()
+     */
+    public void dispose() {
+        super.dispose();
+        fLabelProvider.dispose();
+    }
+
+    /* (non-Javadoc)
+     * @see org.eclipse.jface.viewers.BaseLabelProvider#isLabelProperty(java.lang.Object, java.lang.String)
+     */
+    public boolean isLabelProperty(Object element, String property) {
+        return fLabelProvider.isLabelProperty(element, property);
+    }
+
+    /* (non-Javadoc)
+     * @see org.eclipse.jface.viewers.BaseLabelProvider#removeListener(org.eclipse.jface.viewers.ILabelProviderListener)
+     */
+    public void removeListener(ILabelProviderListener listener) {
+        super.removeListener(listener);
+        fLabelProvider.removeListener(listener);
+    }
+
+    /* (non-Javadoc)
+     * @see org.eclipse.jface.viewers.BaseLabelProvider#addListener(org.eclipse.jface.viewers.ILabelProviderListener)
+     */
+    public void addListener(ILabelProviderListener listener) {
+        super.addListener(listener);
+        fLabelProvider.addListener(listener);
+    }
+
+    //	private static String decorateColoredString(String string, String decorated, Styler color) {
+    //		String label= string.toString();
+    //		int originalStart= decorated.indexOf(label);
+    //		if (originalStart == -1) {
+    //			return new String(decorated); // the decorator did something wild
+    //		}
+    //		if (originalStart > 0) {
+    //			String newString= new String(decorated.substring(0, originalStart), color);
+    //			newString += string;
+    //			string= newString;
+    //		}
+    //		if (decorated.length() > originalStart + label.length()) { // decorator appended something
+    //			return string.append(decorated.substring(originalStart + label.length()), color);
+    //		}
+    //		return string; // no change
+    //	}
+
 }

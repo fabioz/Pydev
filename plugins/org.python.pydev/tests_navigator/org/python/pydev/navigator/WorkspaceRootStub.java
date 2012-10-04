@@ -15,19 +15,19 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.python.pydev.core.resource_stubs.AbstractIWorkspaceRootStub;
 
-public class WorkspaceRootStub extends AbstractIWorkspaceRootStub implements IWorkbenchAdapter{
+public class WorkspaceRootStub extends AbstractIWorkspaceRootStub implements IWorkbenchAdapter {
 
-    
     public Object getAdapter(Class adapter) {
-        if(adapter == IWorkbenchAdapter.class){
+        if (adapter == IWorkbenchAdapter.class) {
             return this;
         }
-        throw new RuntimeException("Not implemented for: "+adapter);
+        throw new RuntimeException("Not implemented for: " + adapter);
     }
-    
+
     //IWorkbenchAdapter
     List<Object> children = new ArrayList<Object>();
-    public void addChild(Object child){
+
+    public void addChild(Object child) {
         children.add(child);
     }
 
@@ -46,11 +46,11 @@ public class WorkspaceRootStub extends AbstractIWorkspaceRootStub implements IWo
     public Object getParent(Object o) {
         throw new RuntimeException("Not implemented");
     }
-    
+
     public IProject getProject() {
         return null;
     }
-    
+
     public IContainer getParent() {
         return null;
     }

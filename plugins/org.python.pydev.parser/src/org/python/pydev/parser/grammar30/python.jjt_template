@@ -45,7 +45,7 @@ $COMMOM_METHODS
             }else{
                 jfpdef.nameNode.getSpecialsAfter().add(token.asSpecialStr());
             }
-        }else{
+        }else if (peeked != null){
             peeked.getSpecialsAfter().add(token.asSpecialStr());
         }
         
@@ -397,7 +397,7 @@ $FILE_INPUT
 //funcdef: 'def' NAME parameters ['->' test] ':' suite
 void funcdef(): {}
 { 
-    $DEF_START parameters() [{this.addSpecialToken("->", STRATEGY_BEFORE_NEXT);}<MINUS_GREATER> test()#funcdef_return_annottation] $COLON 
+    $DEF_START parameters() [{grammarActions.addSpecialToken("->", STRATEGY_BEFORE_NEXT);}<MINUS_GREATER> test()#funcdef_return_annottation] $COLON 
         suite() 
 }
 
@@ -407,7 +407,7 @@ void funcdef(): {}
 //decorator: '@' dotted_name [ '(' [arglist] ')' ] NEWLINE
 void decorators(): {}
 {
-    (begin_decorator() [{this.markDecoratorWithCall();} <LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} [arglist()] $RPAREN ] $NEWLINE )+ 
+    (begin_decorator() [{grammarActions.markDecoratorWithCall();} <LPAREN>  {grammarActions.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} [arglist()] $RPAREN ] $NEWLINE )+ 
 }
 
 
@@ -441,12 +441,12 @@ void typedargslist() #void: {}
 
 void ExtraArgList2(): {}
 {
-	<MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} [tfpdef()]
+	<MULTIPLY> {grammarActions.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} [tfpdef()]
 }
 
 void ExtraKeywordList2(): {}
 {
-	<POWER> {this.addSpecialToken("**", STRATEGY_BEFORE_NEXT);} tfpdef()
+	<POWER> {grammarActions.addSpecialToken("**", STRATEGY_BEFORE_NEXT);} tfpdef()
 }
 
 void defaultarg2(): {}
@@ -460,7 +460,7 @@ void onlykeywordarg2(): {}
 //tfpdef: NAME [':' test]
 void tfpdef(): {}
 { 
-	Name() [LOOKAHEAD(2)<COLON> {this.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} test()]
+	Name() [LOOKAHEAD(2)<COLON> {grammarActions.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} test()]
 }
 
 
@@ -475,10 +475,10 @@ void varargslist() #void: {}
 }
 
 void ExtraArgList(): {}
-{ <MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} [Name()] }
+{ <MULTIPLY> {grammarActions.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} [Name()] }
 
 void ExtraKeywordList(): {}
-{ (<POWER>{this.addSpecialToken("**", STRATEGY_BEFORE_NEXT);}|<MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);}{this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} <MULTIPLY>) Name() }
+{ (<POWER>{grammarActions.addSpecialToken("**", STRATEGY_BEFORE_NEXT);}|<MULTIPLY> {grammarActions.addSpecialToken("*", STRATEGY_BEFORE_NEXT);}{grammarActions.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} <MULTIPLY>) Name() }
 
 void onlykeywordarg(): {}
 { fpdef() [temporaryToken=<EQUAL> {this.addSpecialToArgDef(temporaryToken);}  test()] }
@@ -506,7 +506,7 @@ void small_stmt() #void: {SimpleNode simpleNode;Token spStr;}
 {
     expr_stmt()
 |   del_stmt()
-|   spStr = pass_stmt() {addToPeek(spStr, false); }
+|   spStr = pass_stmt() {grammarActions.addToPeek(spStr, false); }
 |   flow_stmt()
 |   import_stmt()
 |   global_stmt()
@@ -545,8 +545,8 @@ $PASS_STMT
 //flow_stmt: break_stmt | continue_stmt | return_stmt | yield_stmt | raise_stmt
 void flow_stmt() #void: {}
 {
-    <BREAK> {addToPeek("break",true);} #break_stmt(0)
-|   <CONTINUE>  {addToPeek("continue",true);} #continue_stmt(0)
+    <BREAK> {grammarActions.addToPeek("break",true);} #break_stmt(0)
+|   <CONTINUE>  {grammarActions.addToPeek("continue",true);} #continue_stmt(0)
 |   return_stmt()
 |   yield_stmt()
 |   raise_stmt()
@@ -557,7 +557,7 @@ void return_stmt(): {}
 { begin_return_stmt() [SmartTestList()] }
 
 void begin_return_stmt(): {}
-{ <RETURN> {this.addToPeek("return ",false);}
+{ <RETURN> {this.grammarActions.addToPeek("return ",false);}
 }
 
 
@@ -565,11 +565,36 @@ void begin_return_stmt(): {}
 void yield_stmt(): {}
 { yield_expr() }
 
-$YIELD
+
+//Change in Python 3.3: yield from 'xxx'
+//yield_expr: 'yield' [yield_arg]
+void yield_expr(): {Token spStr; boolean isYieldFrom=false;}
+{ spStr=<YIELD> [isYieldFrom=yield_arg()] 
+    {
+        Yield yield = (Yield)this.grammarActions.addToPeek(spStr, false, Yield.class);
+        if(yield != null){
+            yield.yield_from = isYieldFrom;
+        }
+    }
+}
+
+
+//yield_arg: 'from' test | testlist
+boolean yield_arg() #void: {}
+{ {boolean isYieldFrom;}
+  ( 
+  (<FROM> {grammarActions.addSpecialToken(" from ");isYieldFrom=true;} test()) 
+  | 
+  SmartTestList(){isYieldFrom=false;}
+  ) 
+  {return isYieldFrom;}
+}
+
+
 
 //raise_stmt: 'raise' [test ['from' test]]
 void raise_stmt(): {}
-{ $RAISE [test() [{this.addSpecialToken(" from ");} <FROM> test()]] }
+{ $RAISE [test() [{grammarActions.addSpecialToken(" from ");} <FROM> test()]] }
 
 
 $IMPORT_STMT
@@ -591,7 +616,7 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
     
     (
         //from xxx import *
-        <MULTIPLY> {this.addSpecialToken("*",STRATEGY_ADD_AFTER_PREV);}//from xx import *
+        <MULTIPLY> {grammarActions.addSpecialToken("*",STRATEGY_ADD_AFTER_PREV);}//from xx import *
         
         //from xxx import a,b,c
         | (importName=import_as_name() {if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);} 
@@ -613,7 +638,7 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
           )
     )
     //now, let's set the correct level for the module
-    {((ImportFrom)jjtree.peekNode()).level = level;}
+    {grammarActions.setImportFromLevel(level);}
 }
 
 //dotted_as_name: dotted_name [NAME NAME]
@@ -633,7 +658,7 @@ void global_stmt(): {}
 
 //nonlocal_stmt: 'nonlocal' NAME (',' NAME)* [','] ['=' testlist]
 void nonlocal_stmt(): {}
-{ <NONLOCAL> {this.addSpecialToken("nonlocal ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2)$COMMA Name())* [$COMMA] [$EQUAL2 testlist()]}
+{ <NONLOCAL> {grammarActions.addSpecialToken("nonlocal ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2)$COMMA Name())* [$COMMA] [$EQUAL2 testlist()]}
 
 
 $ASSERT
@@ -650,7 +675,7 @@ $IF
 
 
 void begin_elif_stmt(): {}
-{ <ELIF> {this.addToPeek("elif",false);}
+{ <ELIF> {this.grammarActions.addToPeek("elif",false);}
 }
 
 $WHILE
@@ -660,14 +685,14 @@ $BEGIN_ELSE
 
 //for_stmt: 'for' exprlist 'in' testlist ':' suite ['else' ':' suite]
 void for_stmt(): {}
-{   <FOR> {this.markLastAsSuiteStart();} {this.addSpecialTokenToLastOpened("for ");} exprlist() $IN SmartTestList() $COLON suite()
+{   <FOR> {this.markLastAsSuiteStart();} {grammarActions.addSpecialTokenToLastOpened("for ");} exprlist() $IN SmartTestList() $COLON suite()
     [begin_for_else_stmt() suite()]
     
 } 
 
 
 void begin_for_else_stmt(): {}
-{ <ELSE> {this.addSpecialToken("else",STRATEGY_BEFORE_NEXT);} {this.addSpecialToken(":",STRATEGY_BEFORE_NEXT);} <COLON>  
+{ <ELSE> {grammarActions.addSpecialToken("else",STRATEGY_BEFORE_NEXT);} {grammarActions.addSpecialToken(":",STRATEGY_BEFORE_NEXT);} <COLON>  
 }
 //try_stmt: ('try' ':' suite (except_clause ':' suite)+ #diagram:break
 //           ['else' ':' suite] | 'try' ':' suite 'finally' ':' suite)
@@ -691,19 +716,19 @@ void try_stmt() #void: {SimpleNode tryNode;int i=0;}
 
 //this is the 'try' ':'  it is needed because we need that scope closing for getting the specials.
 void begin_try_stmt(): {}
-{ <TRY> {this.markLastAsSuiteStart();} {this.addSpecialToken("try", STRATEGY_BEFORE_NEXT);} {this.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} <COLON> 
+{ <TRY> {this.markLastAsSuiteStart();} {grammarActions.addSpecialToken("try", STRATEGY_BEFORE_NEXT);} {grammarActions.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} <COLON> 
 }
 void begin_try_else_stmt(): {}
-{ <ELSE> {this.addSpecialToken("else", STRATEGY_BEFORE_NEXT);}{this.addSpecialToken(":", STRATEGY_BEFORE_NEXT);}<COLON>
+{ <ELSE> {grammarActions.addSpecialToken("else", STRATEGY_BEFORE_NEXT);}{grammarActions.addSpecialToken(":", STRATEGY_BEFORE_NEXT);}<COLON>
 }
 
 void begin_finally_stmt(): {}
-{ <FINALLY> {this.addSpecialToken("finally", STRATEGY_BEFORE_NEXT);} {this.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} <COLON> 
+{ <FINALLY> {grammarActions.addSpecialToken("finally", STRATEGY_BEFORE_NEXT);} {grammarActions.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} <COLON> 
 }
 
 //except_clause: 'except' [test [as test]]
 void except_clause(SimpleNode tryNode): {}
-{ begin_except_clause() {this.addToPeek("except",false);} [test() [$AS test()]] $COLON suite() }
+{ begin_except_clause() {this.grammarActions.addToPeek("except",false);} [test() [$AS test()]] $COLON suite() }
 
 void begin_except_clause(): {}
 { <EXCEPT> }
@@ -810,16 +835,16 @@ void power() #void: {}
 void trailer() #void: {Object spStr;Object spStr2;}
 {
  
-    ({spStr  = createSpecialStr("(", false);} <LPAREN>  
+    ({spStr  = grammarActions.createSpecialStr("(", false);} <LPAREN>  
     [arglist()] 
-    <RPAREN> {spStr2 = createSpecialStr(")", false);}  
-    )#Call_Op(jjtree.nodeArity()+1) {addToPeekCallFunc(spStr, true); addToPeek(spStr2, true);}
+    <RPAREN> {spStr2 = grammarActions.createSpecialStr(")", false);}  
+    )#Call_Op(jjtree.nodeArity()+1) {grammarActions.addToPeekCallFunc(spStr, true); grammarActions.addToPeek(spStr2, true);}
 
 
-|   ({spStr = createSpecialStr("[", false);} <LBRACKET> 
+|   ({spStr = grammarActions.createSpecialStr("[", false);} <LBRACKET> 
     subscriptlist()
-    <RBRACKET> {spStr2 = createSpecialStr("]", false);}   
-    )#Index_Op(2) {addToPeek(spStr, false); addToPeek(spStr2, true);}
+    <RBRACKET> {spStr2 = grammarActions.createSpecialStr("]", false);}   
+    )#Index_Op(2) {grammarActions.addToPeek(spStr, false); grammarActions.addToPeek(spStr2, true);}
 
 |   <DOT> Name() #Dot_Op(2) 
 }
@@ -833,27 +858,27 @@ void trailer() #void: {Object spStr;Object spStr2;}
 void atom() #void: {Object spStr;Object spStr2;}
 {
     LOOKAHEAD(2) (  
-      {spStr  = createSpecialStr("(", false);} <LPAREN>  
-      {spStr2 = createSpecialStr(")", false);} <RPAREN> 
-    ) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
+      {spStr  = grammarActions.createSpecialStr("(", false);} <LPAREN>  
+      {spStr2 = grammarActions.createSpecialStr(")", false);} <RPAREN> 
+    ) #tuple {grammarActions.addToPeek(spStr, false); grammarActions.addToPeek(spStr2, true);}
 
 |   LOOKAHEAD(2) (  
-      {spStr  = createSpecialStr("(", false);} <LPAREN>  
+      {spStr  = grammarActions.createSpecialStr("(", false);} <LPAREN>  
       (yield_expr() | testlist_comp())
-      {spStr2 = createSpecialStr(")", false);} <RPAREN> 
-    ) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
+      {spStr2 = grammarActions.createSpecialStr(")", false);} <RPAREN> 
+    ) #tuple {grammarActions.addToPeek(spStr, false); grammarActions.addToPeek(spStr2, true);}
 
 
-|   ( {spStr = createSpecialStr("[", false);} <LBRACKET> 
+|   ( {spStr = grammarActions.createSpecialStr("[", false);} <LBRACKET> 
       [testlist_comp()] 
-      {spStr2 = createSpecialStr("]", false);} <RBRACKET>  
-    ) #list {addToPeek(spStr, false); addToPeek(spStr2, true);}
+      {spStr2 = grammarActions.createSpecialStr("]", false);} <RBRACKET>  
+    ) #list {grammarActions.addToPeek(spStr, false); grammarActions.addToPeek(spStr2, true);}
       
       
-|   ( {spStr  = createSpecialStr("{", false);}<LBRACE> 
+|   ( {spStr  = grammarActions.createSpecialStr("{", false);}<LBRACE> 
       [dictorsetmaker()] 
-      {spStr2  = createSpecialStr("}", false);} <RBRACE> 
-    ) #dictionary {addToPeek(spStr, false); addToPeek(spStr2, true);}
+      {spStr2  = grammarActions.createSpecialStr("}", false);} <RBRACE> 
+    ) #dictionary {grammarActions.addToPeek(spStr, false); grammarActions.addToPeek(spStr2, true);}
     
 |   (<FALSE>)#False
 |   (<TRUE>)#True
@@ -890,7 +915,7 @@ void subscript() #void: {}
 $SLICE
 
 
-void Colon(): {} {{this.addSpecialToken(createSpecialStr(":", false), STRATEGY_BEFORE_NEXT);} <COLON> }
+void Colon(): {} {{grammarActions.addSpecialToken(grammarActions.createSpecialStr(":", false), STRATEGY_BEFORE_NEXT);} <COLON> }
 void Comma(): {} {<COMMA>}
 
 //exprlist: expr (',' expr)* [',']
@@ -910,7 +935,7 @@ void testlist_star_expr() #void: {}
 { ( (test()|star_expr()) (LOOKAHEAD(2) $COMMA  (test()|star_expr()))* [Comma()]) #tuple(>1) }
 
 void star_expr(): {}
-{<MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} expr()}
+{<MULTIPLY> {grammarActions.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} expr()}
 
 
 $DICTORSETMAKER
@@ -959,10 +984,10 @@ void arglist() #void: {}
 
 
 void ExtraArgValueList(): {}
-{ {this.addSpecialToken(createSpecialStr("*", false));} <MULTIPLY> test() }
+{ {grammarActions.addSpecialToken(grammarActions.createSpecialStr("*", false));} <MULTIPLY> test() }
 
 void ExtraKeywordValueList(): {}
-{ {this.addSpecialToken(createSpecialStr("**", false));} <POWER> test() }
+{ {grammarActions.addSpecialToken(grammarActions.createSpecialStr("**", false));} <POWER> test() }
 
 
 //argument: test [comp_for] | test '=' test  # Really [keyword '='] test
@@ -983,30 +1008,27 @@ void Number() #Num :
 {
     (
         t=<HEXNUMBER> {
-            String s = t.image.substring(2, t.image.length());
-            makeInt(s, 16, t, (Num)jjtThis);
+            grammarActions.makeIntSub2(t, 16, t, (Num)jjtThis);
         } {}
     )
 |    (
         t=<BINNUMBER> {
-            s = t.image.substring(2, t.image.length());
-            makeInt(s, 2, t, (Num)jjtThis);
+            grammarActions.makeIntSub2(t, 2, t, (Num)jjtThis);
         } {}
     )
 |   (
         t=<OCTNUMBER> {
-            s = t.image.substring(2, t.image.length());
-            makeInt(s, 8, t, (Num) jjtThis); 
+            grammarActions.makeIntSub2(t, 8, t, (Num) jjtThis); 
         } {}
     )
 |   (
-        t=<DECNUMBER> { makeInt(t.image, 10, t, (Num)jjtThis); } {}
+        t=<DECNUMBER> { grammarActions.makeInt(t, 10, t, (Num)jjtThis); } {}
     )
 |   (
-        t=<FLOAT> { makeFloat(t, (Num)jjtThis); } {}
+        t=<FLOAT> { grammarActions.makeFloat(t, (Num)jjtThis); } {}
     )
 |   (
-        t=<COMPLEX> { makeComplex(t, (Num)jjtThis); } {}
+        t=<COMPLEX> { grammarActions.makeComplex(t, (Num)jjtThis); } {}
     )
 }
 
@@ -1023,13 +1045,13 @@ void String() #void :
     Token t;
 }
 {
-    ( t=<SINGLE_STRING> { makeString(t.image, 1, (Str)jjtThis); } {} )#String
-|   ( t=<SINGLE_STRING2> { makeString(t.image, 1, (Str)jjtThis); } {} )#String
-|   ( t=<TRIPLE_STRING> { makeString(t.image, 3, (Str)jjtThis); } {} )#String
-|   ( t=<TRIPLE_STRING2> { makeString(t.image, 3, (Str)jjtThis); } {} )#String
-|   ( t=<SINGLE_BSTRING> { makeString(t.image, 1, (Str)jjtThis); } {} )#Binary
-|   ( t=<SINGLE_BSTRING2> { makeString(t.image, 1, (Str)jjtThis); } {} )#Binary
-|   ( t=<TRIPLE_BSTRING> { makeString(t.image, 3, (Str)jjtThis); } {} )#Binary
-|   ( t=<TRIPLE_BSTRING2> { makeString(t.image, 3, (Str)jjtThis); } {} )#Binary
+    ( t=<SINGLE_STRING> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#String
+|   ( t=<SINGLE_STRING2> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#String
+|   ( t=<TRIPLE_STRING> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#String
+|   ( t=<TRIPLE_STRING2> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#String
+|   ( t=<SINGLE_BSTRING> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#Binary
+|   ( t=<SINGLE_BSTRING2> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#Binary
+|   ( t=<TRIPLE_BSTRING> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#Binary
+|   ( t=<TRIPLE_BSTRING2> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#Binary
 }
 

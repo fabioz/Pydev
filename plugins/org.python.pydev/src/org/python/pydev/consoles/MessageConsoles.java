@@ -19,17 +19,17 @@ import org.python.pydev.plugin.PydevPlugin;
  * Helper for classes that want to create a message console for writing to it in a stream later on.
  */
 public class MessageConsoles {
-    
-    private static Map<String, MessageConsole> consoles = new HashMap<String, MessageConsole>(); 
-    private static Map<String, IOConsoleOutputStream> consoleOutputs = new HashMap<String, IOConsoleOutputStream>(); 
+
+    private static Map<String, MessageConsole> consoles = new HashMap<String, MessageConsole>();
+    private static Map<String, IOConsoleOutputStream> consoleOutputs = new HashMap<String, IOConsoleOutputStream>();
     private static Object lock = new Object();
-    
+
     public static IOConsoleOutputStream getConsoleOutputStream(String name, String iconPath) {
         synchronized (lock) {
             IOConsoleOutputStream outputStream = consoleOutputs.get(name);
-            if (outputStream == null){
+            if (outputStream == null) {
                 MessageConsole console = getConsole(name, iconPath);
-                
+
                 HashMap<IOConsoleOutputStream, String> themeConsoleStreamToColor = new HashMap<IOConsoleOutputStream, String>();
                 outputStream = console.newOutputStream();
                 themeConsoleStreamToColor.put(outputStream, "console.output");
@@ -44,9 +44,9 @@ public class MessageConsoles {
     public static MessageConsole getConsole(String name, String iconPath) {
         synchronized (lock) {
             MessageConsole console = consoles.get(name);
-            if (console == null){
+            if (console == null) {
                 console = new MessageConsole(name, PydevPlugin.getImageCache().getDescriptor(iconPath));
-                ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[]{console});
+                ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[] { console });
                 consoles.put(name, console);
             }
             return console;

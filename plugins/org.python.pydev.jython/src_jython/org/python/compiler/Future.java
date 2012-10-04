@@ -18,8 +18,7 @@ public class Future extends Object implements PythonGrammarTreeConstants {
             return false;
         int n = cand.names.length;
         if (n == 0) {
-            throw new ParseException(
-                    "future statement does not support import *",cand);
+            throw new ParseException("future statement does not support import *", cand);
         }
         for (int i = 0; i < n; i++) {
             String feature = cand.names[i].name;
@@ -35,16 +34,12 @@ public class Future extends Object implements PythonGrammarTreeConstants {
                 generators = true;
                 continue;
             }
-            throw new ParseException("future feature "+feature+
-                                     " is not defined",cand);
+            throw new ParseException("future feature " + feature + " is not defined", cand);
         }
         return true;
     }
 
-    public void preprocessFutures(modType node,
-                                  org.python.core.CompilerFlags cflags)
-        throws Exception
-    {
+    public void preprocessFutures(modType node, org.python.core.CompilerFlags cflags) throws Exception {
         if (cflags != null) {
             division = cflags.division;
         }
@@ -52,8 +47,7 @@ public class Future extends Object implements PythonGrammarTreeConstants {
         stmtType[] suite = null;
         if (node instanceof Module) {
             suite = ((Module) node).body;
-            if (suite.length > 0 && suite[0] instanceof Expr &&
-                            ((Expr) suite[0]).value instanceof Str) {
+            if (suite.length > 0 && suite[0] instanceof Expr && ((Expr) suite[0]).value instanceof Str) {
                 beg++;
             }
         } else if (node instanceof Interactive) {
@@ -72,20 +66,18 @@ public class Future extends Object implements PythonGrammarTreeConstants {
         }
 
         if (cflags != null) {
-            cflags.division      = cflags.division      ||  division;
+            cflags.division = cflags.division || division;
         }
         if (cflags != null) {
             cflags.generator_allowed = cflags.generator_allowed || generators;
         }
     }
 
-
     public static void checkFromFuture(ImportFrom node) throws Exception {
         if (node.from_future_checked)
             return;
         if (node.module.equals(FUTURE)) {
-            throw new ParseException("from __future__ imports must occur " +
-                                     "at the beginning of the file",node);
+            throw new ParseException("from __future__ imports must occur " + "at the beginning of the file", node);
         }
         node.from_future_checked = true;
     }

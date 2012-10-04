@@ -16,22 +16,23 @@ import org.python.pydev.refactoring.tests.core.IInputOutputTestCase;
 
 public class InlineLocalTestSuite extends AbstractIOTestSuite {
 
-	public InlineLocalTestSuite(String name) {
-		super(name);
-	}
+    public InlineLocalTestSuite(String name) {
+        super(name);
+    }
 
-	public static Test suite() {
-		String testdir = "tests" + File.separator + "python" + File.separator + "coderefactoring" + File.separator + "inlinelocal";
+    public static Test suite() {
+        String testdir = "tests" + File.separator + "python" + File.separator + "coderefactoring" + File.separator
+                + "inlinelocal";
 
-		InlineLocalTestSuite testSuite = new InlineLocalTestSuite("Inline Local");
-		
-		testSuite.createTests(testdir);
-		
-		return testSuite;
-	}
-	
-	@Override
-	protected IInputOutputTestCase createTestCase(String testCaseName) {
-		return new InlineLocalTestCase(testCaseName);
-	}
+        InlineLocalTestSuite testSuite = new InlineLocalTestSuite("Inline Local");
+
+        testSuite.createTests(testdir);
+
+        return testSuite;
+    }
+
+    @Override
+    protected IInputOutputTestCase createTestCase(String testCaseName) {
+        return new InlineLocalTestCase(testCaseName);
+    }
 }

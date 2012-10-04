@@ -20,22 +20,21 @@ public class AbstractDebugTargetWithTransmission extends PlatformObject {
      * connection socket
      */
     protected Socket socket;
-    
+
     /**
      * reading thread
      */
     protected DebuggerReader reader;
-    
+
     /**
      * writing thread
      */
     protected DebuggerWriter writer;
-    
+
     /**
      * sequence seed for command numbers
      */
-    protected int sequence = -1;        
-    
+    protected int sequence = -1;
 
     /**
      * @return next available debugger command sequence number
@@ -44,29 +43,28 @@ public class AbstractDebugTargetWithTransmission extends PlatformObject {
         sequence += 2;
         return sequence;
     }
-    
+
     public void addToResponseQueue(AbstractDebuggerCommand cmd) {
-        if(reader != null){
+        if (reader != null) {
             reader.addToResponseQueue(cmd);
         }
     }
-    
-    public void postCommand(AbstractDebuggerCommand cmd) {        
-        if( writer!=null ) {
+
+    public void postCommand(AbstractDebuggerCommand cmd) {
+        if (writer != null) {
             writer.postCommand(cmd);
         }
     }
-    
+
     public void startTransmission(Socket socket2) throws IOException {
         this.socket = socket2;
         //socket = connector.getSocket();
-        this.reader = new DebuggerReader( socket, this );        
+        this.reader = new DebuggerReader(socket, this);
         this.writer = new DebuggerWriter(socket);
         Thread t = new Thread(reader, "pydevd.reader");
         t.start();
         t = new Thread(writer, "pydevd.writer");
         t.start();
     }
-    
-    
+
 }

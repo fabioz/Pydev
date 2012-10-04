@@ -7,11 +7,9 @@ import java.util.Enumeration;
 import java.lang.reflect.Method;
 import java.io.*;
 
-
-public class AdapterMaker extends ProxyMaker
-{
+public class AdapterMaker extends ProxyMaker {
     public AdapterMaker(Class interfac) {
-        super(interfac.getName()+"$Adapter", interfac);
+        super(interfac.getName() + "$Adapter", interfac);
     }
 
     public void build() throws Exception {
@@ -28,10 +26,7 @@ public class AdapterMaker extends ProxyMaker
         doConstants();
     }
 
-
-    public static String makeAdapter(Class interfac, OutputStream ostream)
-        throws Exception
-    {
+    public static String makeAdapter(Class interfac, OutputStream ostream) throws Exception {
         AdapterMaker pm = new AdapterMaker(interfac);
         pm.build();
         pm.classfile.write(ostream);
@@ -39,10 +34,9 @@ public class AdapterMaker extends ProxyMaker
     }
 
     public void doConstants() throws Exception {
-        for (Enumeration e=names.keys(); e.hasMoreElements();)  {
-            String name = (String)e.nextElement();
-            classfile.addField(name, "Lorg/python/core/PyObject;",
-                               ClassFile.PUBLIC);
+        for (Enumeration e = names.keys(); e.hasMoreElements();) {
+            String name = (String) e.nextElement();
+            classfile.addField(name, "Lorg/python/core/PyObject;", ClassFile.PUBLIC);
         }
     }
 
@@ -58,8 +52,7 @@ public class AdapterMaker extends ProxyMaker
         Code code = classfile.addMethod(name, sig, ClassFile.PUBLIC);
 
         code.aload(0);
-        int pyfunc = code.pool.Fieldref(classfile.name, name,
-                                        "Lorg/python/core/PyObject;");
+        int pyfunc = code.pool.Fieldref(classfile.name, name, "Lorg/python/core/PyObject;");
         code.getfield(pyfunc);
         code.dup();
         Label returnNull = code.getLabel();

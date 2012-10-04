@@ -46,7 +46,7 @@ class JJTPythonGrammarState {
     /* Returns the root node of the AST.  It only makes sense to call
        this after a successful parse. */
     Node rootNode() {
-        return (Node)nodes.elementAt(0);
+        return (Node) nodes.elementAt(0);
     }
 
     /* Pushes a node on to the stack. */
@@ -61,12 +61,12 @@ class JJTPythonGrammarState {
         if (--sp < mk) {
             mk = marks.pop();
         }
-        return (Node)nodes.pop();
+        return (Node) nodes.pop();
     }
 
     /* Returns the node currently on the top of the stack. */
     Node peekNode() {
-        return (Node)nodes.peek();
+        return (Node) nodes.peek();
     }
 
     /* Returns the number of children on the stack in the current node
@@ -86,7 +86,6 @@ class JJTPythonGrammarState {
         n.beginColumn = columns.pop();
     }
 
-
     void clearNodeScope(Node n) {
         while (sp > mk) {
             popNode();
@@ -94,12 +93,10 @@ class JJTPythonGrammarState {
         mk = marks.pop();
     }
 
-
     void openNodeScope(Node n) {
         marks.push(mk);
         mk = sp;
     }
-
 
     /* A definite node is constructed from a specified number of
        children.  That number of nodes are popped from the stack and
@@ -123,7 +120,6 @@ class JJTPythonGrammarState {
         pushNode(newNode);
         node_created = true;
     }
-
 
     /* A conditional node is constructed if its condition is true.  All
        the nodes that have been pushed since the node was opened are
@@ -159,7 +155,7 @@ class JJTPythonGrammarState {
         System.out.println("dumpTop:" + reason);
         System.out.println("arity:" + a);
         for (int i = 0; i < a; i++) {
-            Node n = (Node) nodes.elementAt(nodes.size() - i-1);
+            Node n = (Node) nodes.elementAt(nodes.size() - i - 1);
             System.out.println("   " + n);
         }
     }
@@ -182,7 +178,6 @@ class JJTPythonGrammarState {
     }
 }
 
-
 class IntStack {
     int[] stack;
     int sp = 0;
@@ -190,7 +185,6 @@ class IntStack {
     public IntStack() {
         stack = new int[50];
     }
-
 
     public void removeAllElements() {
         sp = 0;
@@ -206,7 +200,7 @@ class IntStack {
 
     public void push(int val) {
         if (sp >= stack.length) {
-            int[] newstack = new int[sp*2];
+            int[] newstack = new int[sp * 2];
             System.arraycopy(stack, 0, newstack, 0, sp);
             stack = newstack;
         }

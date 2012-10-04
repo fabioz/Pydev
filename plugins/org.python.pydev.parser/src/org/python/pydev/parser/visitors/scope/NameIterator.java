@@ -29,9 +29,9 @@ public class NameIterator implements Iterator<ASTEntry> {
     }
 
     private void setNext() {
-        while(nodesIt.hasNext()){
+        while (nodesIt.hasNext()) {
             ASTEntry entry = nodesIt.next();
-            if(entry.node instanceof Name || entry.node instanceof NameTok){
+            if (entry.node instanceof Name || entry.node instanceof NameTok) {
                 next = entry;
                 return;
             }

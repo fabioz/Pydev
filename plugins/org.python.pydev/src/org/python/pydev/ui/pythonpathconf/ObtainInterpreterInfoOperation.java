@@ -17,11 +17,9 @@ import org.python.pydev.core.IInterpreterManager;
 /**
  * Creates the interpreter info in a separate operation.
  */
-public class ObtainInterpreterInfoOperation implements IRunnableWithProgress{
+public class ObtainInterpreterInfoOperation implements IRunnableWithProgress {
 
-    
-
-    static class OperationMonitor extends ProgressMonitorWrapper{
+    static class OperationMonitor extends ProgressMonitorWrapper {
 
         private PrintWriter logger;
 
@@ -29,7 +27,7 @@ public class ObtainInterpreterInfoOperation implements IRunnableWithProgress{
             super(monitor);
             this.logger = logger;
         }
-        
+
         @Override
         public void beginTask(String name, int totalWork) {
             super.beginTask(name, totalWork);
@@ -38,14 +36,14 @@ public class ObtainInterpreterInfoOperation implements IRunnableWithProgress{
             logger.print(" totalWork:");
             logger.println(totalWork);
         }
-        
+
         @Override
         public void setTaskName(String name) {
             super.setTaskName(name);
             logger.print("- Setting task name:");
             logger.println(name);
         }
-        
+
         @Override
         public void subTask(String name) {
             super.subTask(name);
@@ -53,14 +51,13 @@ public class ObtainInterpreterInfoOperation implements IRunnableWithProgress{
             logger.println(name);
         }
     }
-    
-    
+
     public InterpreterInfo result;
     public String file;
     public Exception e;
     private PrintWriter logger;
     private IInterpreterManager interpreterManager;
-    
+
     /**
      * @param file2
      * @param logger 
@@ -78,15 +75,16 @@ public class ObtainInterpreterInfoOperation implements IRunnableWithProgress{
         monitor = new OperationMonitor(monitor, logger);
         monitor.beginTask("Getting libs", 100);
         try {
-            InterpreterInfo interpreterInfo = (InterpreterInfo) interpreterManager.createInterpreterInfo(file, monitor, true);
-            if(interpreterInfo != null){
+            InterpreterInfo interpreterInfo = (InterpreterInfo) interpreterManager.createInterpreterInfo(file, monitor,
+                    true);
+            if (interpreterInfo != null) {
                 result = interpreterInfo;
             }
         } catch (Exception e) {
-            logger.println("Exception detected: "+e.getMessage());
+            logger.println("Exception detected: " + e.getMessage());
             this.e = e;
         }
         monitor.done();
     }
-    
+
 }

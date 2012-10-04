@@ -24,16 +24,14 @@ public class SelectionKeeper {
     private final int startCol;
     private final int endCol;
 
-    
     public SelectionKeeper(PySelection ps) {
         ITextSelection selection = ps.getTextSelection();
         startLine = selection.getStartLine();
         endLine = selection.getEndLine();
-        startCol = selection.getOffset()-ps.getLineOffset(startLine);
-        endCol = (selection.getOffset()+selection.getLength())-ps.getLineOffset(endLine);
+        startCol = selection.getOffset() - ps.getLineOffset(startLine);
+        endCol = (selection.getOffset() + selection.getLength()) - ps.getLineOffset(endLine);
     }
-    
-    
+
     /**
      * Restores the selection previously gotten.
      */
@@ -43,27 +41,27 @@ public class SelectionKeeper {
         int numberOfLines = doc.getNumberOfLines();
         int startLine = fixBasedOnNumberOfLines(this.startLine, numberOfLines);
         int endLine = fixBasedOnNumberOfLines(this.endLine, numberOfLines);
-        
+
         final int startLineOffset = getOffset(doc, startLine);
         final int startLineLen = getLineLength(doc, startLine);
         final int startLineDelimiterLen = getLineDelimiterLen(doc, startLine);
-        
-        int startOffset = fixOffset(startLineOffset+startCol, startLineOffset, startLineOffset+startLineLen-startLineDelimiterLen);
-        
+
+        int startOffset = fixOffset(startLineOffset + startCol, startLineOffset, startLineOffset + startLineLen
+                - startLineDelimiterLen);
+
         final int endLineOffset = getOffset(doc, endLine);
         final int endLineLen = getLineLength(doc, endLine);
         final int endLineDelimiterLen = getLineDelimiterLen(doc, endLine);
-        int endOffset = fixOffset(endLineOffset+endCol, endLineOffset, endLineOffset+endLineLen-endLineDelimiterLen);
-        
-        
-        selectionProvider.setSelection(new TextSelection(startOffset, endOffset-startOffset));    
+        int endOffset = fixOffset(endLineOffset + endCol, endLineOffset, endLineOffset + endLineLen
+                - endLineDelimiterLen);
+
+        selectionProvider.setSelection(new TextSelection(startOffset, endOffset - startOffset));
     }
 
-    
     private int getLineDelimiterLen(IDocument doc, int line) {
         try {
             String lineDelimiter = doc.getLineDelimiter(line);
-            if(lineDelimiter == null){
+            if (lineDelimiter == null) {
                 return 0;
             }
             return lineDelimiter.length();
@@ -71,7 +69,6 @@ public class SelectionKeeper {
             return 0;
         }
     }
-
 
     private int getLineLength(IDocument doc, int line) {
         try {
@@ -81,19 +78,17 @@ public class SelectionKeeper {
         }
     }
 
-
     private int fixOffset(int offset, int minOffset, int maxOffset) {
-        if(offset > maxOffset){
+        if (offset > maxOffset) {
             offset = maxOffset;
         }
-        if(offset < minOffset){
+        if (offset < minOffset) {
             offset = minOffset;
         }
         return offset;
     }
-    
 
-    private int getOffset(IDocument doc, int startLine){
+    private int getOffset(IDocument doc, int startLine) {
         try {
             return doc.getLineOffset(startLine);
         } catch (BadLocationException e) {
@@ -101,12 +96,11 @@ public class SelectionKeeper {
         }
     }
 
-    
     private int fixBasedOnNumberOfLines(int line, int numberOfLines) {
-        if(line > numberOfLines-1){
-            line = numberOfLines-1;
+        if (line > numberOfLines - 1) {
+            line = numberOfLines - 1;
         }
-        if(line < 0){
+        if (line < 0) {
             line = 0;
         }
         return line;

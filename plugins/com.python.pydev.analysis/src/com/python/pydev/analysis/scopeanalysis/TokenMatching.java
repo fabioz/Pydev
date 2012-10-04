@@ -19,27 +19,27 @@ import org.eclipse.search.core.text.TextSearchRequestor;
 public class TokenMatching {
 
     public static class ReusableMatchAccess extends TextSearchMatchAccess {
-        
+
         private int fOffset;
         private int fLength;
         private IFile fFile;
         private CharSequence fContent;
-        
+
         public void initialize(IFile file, int offset, int length, CharSequence content) {
-            fFile= file;
-            fOffset= offset;
-            fLength= length;
-            fContent= content;
+            fFile = file;
+            fOffset = offset;
+            fLength = length;
+            fContent = content;
         }
-                
+
         public IFile getFile() {
             return fFile;
         }
-        
+
         public int getMatchOffset() {
             return fOffset;
         }
-        
+
         public int getMatchLength() {
             return fLength;
         }
@@ -55,23 +55,25 @@ public class TokenMatching {
         public String getFileContent(int offset, int length) {
             return fContent.subSequence(offset, offset + length).toString(); // must pass a copy!
         }
-    }    
+    }
+
     private final ReusableMatchAccess fMatchAccess;
     private final TextSearchRequestor fCollector;
     private final CharSequence fSearchText;
 
-    public TokenMatching(TextSearchRequestor collector, ReusableMatchAccess matchAccess, CharSequence searchText){
+    public TokenMatching(TextSearchRequestor collector, ReusableMatchAccess matchAccess, CharSequence searchText) {
         this.fCollector = collector;
         this.fMatchAccess = matchAccess;
         this.fSearchText = searchText;
     }
-    
+
     public TokenMatching(TextSearchRequestor collector, CharSequence searchText) {
         this(collector, new ReusableMatchAccess(), searchText);
     }
-    
+
     public TokenMatching(CharSequence searchText) {
-        this(new TextSearchRequestor(){}, new ReusableMatchAccess(), searchText);
+        this(new TextSearchRequestor() {
+        }, new ReusableMatchAccess(), searchText);
     }
 
     /**
@@ -80,14 +82,14 @@ public class TokenMatching {
     public boolean hasMatch(CharSequence searchInput) throws CoreException {
         return hasMatch(null, searchInput, new NullProgressMonitor());
     }
-    
+
     /**
      * @return whether we have some match (will collect the first match and return)
      */
     public boolean hasMatch(IFile file, CharSequence searchInput, IProgressMonitor monitor) throws CoreException {
         return collectMatches(null, searchInput, new NullProgressMonitor(), true);
     }
-    
+
     /**
      * This method will return true if there is any match in the given searchInput regarding the
      * fSearchText.
@@ -101,59 +103,60 @@ public class TokenMatching {
      * @return true if it did collect something and false otherwise
      * @throws CoreException
      */
-    public boolean collectMatches(IFile file, CharSequence searchInput, IProgressMonitor monitor, boolean onlyFirstMatch) throws CoreException {
-        boolean foundMatch=false;
+    public boolean collectMatches(IFile file, CharSequence searchInput, IProgressMonitor monitor, boolean onlyFirstMatch)
+            throws CoreException {
+        boolean foundMatch = false;
         try {
-            int k= 0;
+            int k = 0;
             int total = 0;
-            char prev = (char)-1;
+            char prev = (char) -1;
             int len = fSearchText.length();
-            
-            try{
-                for(int i=0;;i++){
-                    total+=1;
+
+            try {
+                for (int i = 0;; i++) {
+                    total += 1;
                     char c = searchInput.charAt(i);
-                    if(c == fSearchText.charAt(k) && (k>0 || !Character.isJavaIdentifierPart(prev))){
-                        k+=1;
-                        if(k == len){
-                            k=0;
-                            
+                    if (c == fSearchText.charAt(k) && (k > 0 || !Character.isJavaIdentifierPart(prev))) {
+                        k += 1;
+                        if (k == len) {
+                            k = 0;
+
                             //now, we have to see if is really an 'exact' match (so, either we're in the last
                             //char or the next char is not actually a word)
                             boolean ok = false;
-                            try{
-                                c = searchInput.charAt(i+1);
-                                if(!Character.isJavaIdentifierPart(c)){
+                            try {
+                                c = searchInput.charAt(i + 1);
+                                if (!Character.isJavaIdentifierPart(c)) {
                                     ok = true;
                                 }
-                            }catch(IndexOutOfBoundsException e){
+                            } catch (IndexOutOfBoundsException e) {
                                 ok = true;
                             }
-                            if(ok){
-                                fMatchAccess.initialize(file, i-len+1, len, searchInput);
+                            if (ok) {
+                                fMatchAccess.initialize(file, i - len + 1, len, searchInput);
                                 fCollector.acceptPatternMatch(fMatchAccess);
                                 foundMatch = true;
-                                if(onlyFirstMatch){
+                                if (onlyFirstMatch) {
                                     return foundMatch; //return on first match
                                 }
                             }
                         }
-                    }else{
-                        k=0;
+                    } else {
+                        k = 0;
                     }
                     prev = c;
-                    
+
                     if (total++ == 20) {
                         if (monitor.isCanceled()) {
                             throw new OperationCanceledException("Operation Canceled");
                         }
-                        total= 0;
+                        total = 0;
                     }
                 }
-            }catch(IndexOutOfBoundsException e){
+            } catch (IndexOutOfBoundsException e) {
                 //that's because we don'th check for the len of searchInput.len because it may be slow
             }
-            
+
         } finally {
             fMatchAccess.initialize(null, 0, 0, ""); // clear references
         }
@@ -167,7 +170,7 @@ public class TokenMatching {
      */
     public static ArrayList<Integer> getMatchOffsets(String match, String fullString) throws CoreException {
         final ArrayList<Integer> offsets = new ArrayList<Integer>();
-        TextSearchRequestor textSearchRequestor = new TextSearchRequestor(){
+        TextSearchRequestor textSearchRequestor = new TextSearchRequestor() {
             @Override
             public boolean acceptPatternMatch(TextSearchMatchAccess matchAccess) throws CoreException {
                 offsets.add(matchAccess.getMatchOffset());
@@ -175,7 +178,7 @@ public class TokenMatching {
             }
         };
         TokenMatching matching = new TokenMatching(textSearchRequestor, match);
-        matching.collectMatches(null,fullString, new NullProgressMonitor(), false);
+        matching.collectMatches(null, fullString, new NullProgressMonitor(), false);
 
         return offsets;
     }

@@ -20,7 +20,7 @@ import org.eclipse.jface.text.IDocument;
  * parserError is generated when parsing fails
  */
 public interface IParserObserver {
-    
+
     /**
      * Every time document gets parsed, it generates a new parse tree.
      * 
@@ -36,7 +36,7 @@ public interface IParserObserver {
      * 
      */
     void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc);
-    
+
     /**
      * if parse generates an error, you'll get this event
      * the exception class will be ParseException, or TokenMgrError

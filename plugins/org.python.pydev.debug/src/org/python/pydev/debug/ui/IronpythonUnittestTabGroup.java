@@ -21,13 +21,10 @@ public class IronpythonUnittestTabGroup extends AbstractLaunchConfigurationTabGr
 
     public void createTabs(ILaunchConfigurationDialog arg0, String arg1) {
         MainModuleTab mainModuleTab = new MainModuleTab();
-        ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
-                mainModuleTab, 
+        ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] { mainModuleTab,
                 new UnittestArgumentsTab(mainModuleTab),
-                new InterpreterTab(PydevPlugin.getIronpythonInterpreterManager()),
-                new RefreshTab(), 
-                new EnvironmentTab(), 
-                new CommonTab() };
+                new InterpreterTab(PydevPlugin.getIronpythonInterpreterManager()), new RefreshTab(),
+                new EnvironmentTab(), new CommonTab() };
         setTabs(tabs);
     }
 }

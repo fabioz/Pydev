@@ -12,9 +12,6 @@ package org.python.pydev.core;
 import java.io.File;
 import java.io.IOException;
 
-
-
-
 public interface ISystemModulesManager extends IModulesManager {
 
     /**
@@ -41,7 +38,7 @@ public interface ISystemModulesManager extends IModulesManager {
      * Saves the system information to the disk.
      */
     public abstract void save();
-    
+
     public File getIoDirectory();
 
     public abstract IInterpreterManager getInterpreterManager();

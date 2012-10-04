@@ -51,7 +51,7 @@ public interface ITreeConstants {
     public static final int JJTDOTTED_AS_NAME = 542;
     public static final int JJTDOTTED_NAME = 543;
     public static final int JJTDOT_OP = 544;
-//    public static final int JJTELLIPSES = 545;
+    //    public static final int JJTELLIPSES = 545;
     public static final int JJTEQUAL_CMP = 546;
     public static final int JJTEXCEPT_CLAUSE = 547;
     public static final int JJTEXEC_STMT = 548;

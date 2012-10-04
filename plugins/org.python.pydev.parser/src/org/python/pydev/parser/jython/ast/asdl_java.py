@@ -38,7 +38,7 @@ def reflow_lines(s, depth):
                 j += 2 # account for the brace and the space after it
                 size -= j
                 padding = " " * j
-        cur = cur[i+1:]
+        cur = cur[i + 1:]
     else:
         lines.append(padding + cur)
     return lines
@@ -60,7 +60,7 @@ class EmitVisitor(asdl.VisitorBase):
 #            print >> self.file, 'import java.io.DataOutputStream;'
 #            print >> self.file, 'import java.io.IOException;'
         self.file.write('\n')
-    
+
     def close(self):
         self.file.close()
 
@@ -140,28 +140,28 @@ class JavaVisitor(EmitVisitor):
         self.emit("public interface %(name)sType {" % locals(), depth)
         for i in range(len(sum.types)):
             type = sum.types[i]
-            self.emit("public static final int %s = %d;" % (type.name, i+1),
+            self.emit("public static final int %s = %d;" % (type.name, i + 1),
                                                     depth + 1)
         self.emit("", 0)
-        self.emit("public static final String[] %sTypeNames = new String[] {" % 
-                    name, depth+1)
-        self.emit('"<undef>",', depth+2)
+        self.emit("public static final String[] %sTypeNames = new String[] {" %
+                    name, depth + 1)
+        self.emit('"<undef>",', depth + 2)
         for type in sum.types:
-            self.emit('"%s",' % type.name, depth+2)
-        self.emit("};", depth+1)
+            self.emit('"%s",' % type.name, depth + 2)
+        self.emit("};", depth + 1)
         self.emit("}", depth)
         self.close()
-   
+
     def sum_with_constructor(self, sum, name, depth):
         self.open("%sType" % name)
         self.emit("public abstract class %(name)sType extends SimpleNode {" %
                     locals(), depth)
-        
+
         #fabioz: HACK WARNING: Moved the suite body to suiteType!
         if str(name) == 'suite':
-            self.emit("public stmtType[] body;", depth+1)
+            self.emit("public stmtType[] body;", depth + 1)
         #HACK WARNING: Moved the suite body to suiteType!
-            
+
         self.emit("}", depth)
         self.close()
         for t in sum.types:
@@ -175,7 +175,7 @@ class JavaVisitor(EmitVisitor):
         self.emit("", depth)
 
         self.javaMethods(product, name, "%sType" % name, product.fields,
-                         depth+1)
+                         depth + 1)
 
         self.emit("}", depth)
         self.close()
@@ -192,16 +192,16 @@ class JavaVisitor(EmitVisitor):
             s = ""
         self.emit("public final class %s extends %sType %s{" %
                     (cons.name, name, s), depth)
-        
+
         #fabioz: HACK WARNING: Moved the suite body to suiteType!
         if str(name) != 'suite':
             for f in cons.fields:
                 self.visit(f, depth + 1)
         #HACK WARNING: Moved the suite body to suiteType!
-        
+
         self.emit("", depth)
 
-        self.javaMethods(cons, cons.name, cons.name, cons.fields, depth+1)
+        self.javaMethods(cons, cons.name, cons.name, cons.fields, depth + 1)
 
         self.emit("}", depth)
         self.close()
@@ -211,22 +211,22 @@ class JavaVisitor(EmitVisitor):
         fpargs = ", ".join([self.fieldDef(f) for f in fields])
 
         self.emit("public %s(%s) {" % (ctorname, fpargs), depth)
-        
+
         for f in fields:
-            self.emit("this.%s = %s;" % (f.name, f.name), depth+1)
-                
+            self.emit("this.%s = %s;" % (f.name, f.name), depth + 1)
+
         if str(ctorname) == 'Suite':
-            self.emit("if(body != null && body.length > 0){", depth+1)
-            self.emit("beginColumn = body[0].beginColumn;", depth+2)
-            self.emit("beginLine = body[0].beginLine;", depth+2)
-            self.emit("}", depth+1)
-            
+            self.emit("if(body != null && body.length > 0){", depth + 1)
+            self.emit("beginColumn = body[0].beginColumn;", depth + 2)
+            self.emit("beginLine = body[0].beginLine;", depth + 2)
+            self.emit("}", depth + 1)
+
         self.emit("}", depth)
         self.emit("", 0)
 
         if fpargs:
             fpargs += ", "
-            
+
 
 #fabioz: Removed the consructor with the parent that set the beginLine/Col, as this wasn't used and added some
 #confusion because the parent wasn't properly set -- if a parent is actually set, it's set later in the parsing (because
@@ -246,52 +246,52 @@ class JavaVisitor(EmitVisitor):
 #        self.emit("this.beginColumn = parent.beginColumn;", depth+1);
 #        self.emit("}", depth)
         self.emit("", 0)
-        
-     
+
+
         self.emit("public int hashCode() {", depth)
-        self.emit("final int prime = 31;", depth+1)
-        self.emit("int result = 1;", depth+1)
+        self.emit("final int prime = 31;", depth + 1)
+        self.emit("int result = 1;", depth + 1)
         for f in fields:
             jType = self.jType(f)
             if f.seq:
-                self.emit("result = prime * result + Arrays.hashCode(%s);" % (f.name,), depth+1)
+                self.emit("result = prime * result + Arrays.hashCode(%s);" % (f.name,), depth + 1)
             elif jType == 'int':
-                self.emit("result = prime * result + %s;" % (f.name,), depth+1)
+                self.emit("result = prime * result + %s;" % (f.name,), depth + 1)
             elif jType == 'boolean':
-                self.emit("result = prime * result + (%s ? 17 : 137);" % (f.name,), depth+1)
+                self.emit("result = prime * result + (%s ? 17 : 137);" % (f.name,), depth + 1)
             else:
-                self.emit("result = prime * result + ((%s == null) ? 0 : %s.hashCode());" % (f.name, f.name), depth+1)
+                self.emit("result = prime * result + ((%s == null) ? 0 : %s.hashCode());" % (f.name, f.name), depth + 1)
         self.emit("return result;", depth)
         self.emit("}", depth)
-        
+
         #equals()
         self.emit("public boolean equals(Object obj) {", depth)
-        self.emit("if (this == obj) return true;", depth+1)
-        self.emit("if (obj == null) return false;", depth+1)
-        self.emit("if (getClass() != obj.getClass()) return false;", depth+1)
-        self.emit("%s other = (%s) obj;" % (ctorname, ctorname,), depth+1)
+        self.emit("if (this == obj) return true;", depth + 1)
+        self.emit("if (obj == null) return false;", depth + 1)
+        self.emit("if (getClass() != obj.getClass()) return false;", depth + 1)
+        self.emit("%s other = (%s) obj;" % (ctorname, ctorname,), depth + 1)
         for f in fields:
             jType = self.jType(f)
             if f.seq:
-                self.emit('if (!Arrays.equals(%s, other.%s)) return false;' % (f.name, f.name,), depth+1) 
-                
+                self.emit('if (!Arrays.equals(%s, other.%s)) return false;' % (f.name, f.name,), depth + 1)
+
             elif jType in ('int', 'boolean'):
-                self.emit('if(this.%s != other.%s) return false;' % (f.name, f.name,), depth+1) 
-                
+                self.emit('if(this.%s != other.%s) return false;' % (f.name, f.name,), depth + 1)
+
             else:
-                self.emit('if (%s == null) { if (other.%s != null) return false;}' % (f.name, f.name,), depth+1) 
-                self.emit('else if (!%s.equals(other.%s)) return false;' % (f.name, f.name,), depth+1) 
-                
-        self.emit("return true;", depth+1)
-                
+                self.emit('if (%s == null) { if (other.%s != null) return false;}' % (f.name, f.name,), depth + 1)
+                self.emit('else if (!%s.equals(other.%s)) return false;' % (f.name, f.name,), depth + 1)
+
+        self.emit("return true;", depth + 1)
+
         self.emit("}", depth)
-        
-        
+
+
         #createCopy()
         self.emit("public %s createCopy() {" % (ctorname,), depth)
-        self.emit("return createCopy(true);", depth+1)
+        self.emit("return createCopy(true);", depth + 1)
         self.emit("}", depth)
-        
+
         self.emit("public %s createCopy(boolean copyComments) {" % (ctorname,), depth)
         params = []
         copy_i = 0
@@ -299,19 +299,19 @@ class JavaVisitor(EmitVisitor):
             jType = self.jType(f)
             if jType in ('int', 'boolean', 'String', 'Object'):
                 if f.seq:
-                    self.emit('%s[] new%s;' % (jType,copy_i), depth+1) 
-                    self.emit('if(this.%s != null){' % (f.name,), depth+1) 
-                        
+                    self.emit('%s[] new%s;' % (jType, copy_i), depth + 1)
+                    self.emit('if(this.%s != null){' % (f.name,), depth + 1)
+
                     #int[] new0 = new int[this.ops.length];
                     #System.arraycopy(this.ops, 0, new0, 0, this.ops.length);
-                    self.emit('new%s = new %s[this.%s.length];' % (copy_i, jType, f.name), depth+2) 
-                    self.emit('System.arraycopy(this.%s, 0, new%s, 0, this.%s.length);' % (f.name, copy_i, f.name), depth+2) 
-                    
-                    self.emit('}else{', depth+1)
-                    self.emit('new%s = this.%s;'%(copy_i, f.name), depth+2)
-                    self.emit('}', depth+1)
-                         
-                    
+                    self.emit('new%s = new %s[this.%s.length];' % (copy_i, jType, f.name), depth + 2)
+                    self.emit('System.arraycopy(this.%s, 0, new%s, 0, this.%s.length);' % (f.name, copy_i, f.name), depth + 2)
+
+                    self.emit('}else{', depth + 1)
+                    self.emit('new%s = this.%s;' % (copy_i, f.name), depth + 2)
+                    self.emit('}', depth + 1)
+
+
                     params.append('new%s' % (copy_i,))
                     copy_i += 1
                 else:
@@ -322,64 +322,64 @@ class JavaVisitor(EmitVisitor):
                     #for(int i=0;i<this.generators.length;i++){
                     #    new0[i] = (comprehensionType) this.generators[i] != null?this.generators[i].createCopy():null;
                     #}
-                    self.emit('%s[] new%s;' % (jType,copy_i), depth+1) 
-                    self.emit('if(this.%s != null){' % (f.name,), depth+1) 
-                    self.emit('new%s = new %s[this.%s.length];' % (copy_i, jType, f.name), depth+1) 
-                    self.emit('for(int i=0;i<this.%s.length;i++){' % (f.name), depth+1)
-                    self.emit('new%s[i] = (%s) (this.%s[i] != null? this.%s[i].createCopy(copyComments):null);' % (copy_i, jType, f.name, f.name), depth+2) 
-                    self.emit('}', depth+1)
-                    self.emit('}else{', depth+1)
-                    self.emit('new%s = this.%s;'%(copy_i, f.name), depth+2)
-                    self.emit('}', depth+1)
-                    
+                    self.emit('%s[] new%s;' % (jType, copy_i), depth + 1)
+                    self.emit('if(this.%s != null){' % (f.name,), depth + 1)
+                    self.emit('new%s = new %s[this.%s.length];' % (copy_i, jType, f.name), depth + 1)
+                    self.emit('for(int i=0;i<this.%s.length;i++){' % (f.name), depth + 1)
+                    self.emit('new%s[i] = (%s) (this.%s[i] != null? this.%s[i].createCopy(copyComments):null);' % (copy_i, jType, f.name, f.name), depth + 2)
+                    self.emit('}', depth + 1)
+                    self.emit('}else{', depth + 1)
+                    self.emit('new%s = this.%s;' % (copy_i, f.name), depth + 2)
+                    self.emit('}', depth + 1)
+
                     params.append('new%s' % (copy_i,))
                     copy_i += 1
-                else:  
+                else:
                     params.append('%s!=null?(%s)%s.createCopy(copyComments):null' % (f.name, jType, f.name))
-            
+
         params = ", ".join(params)
-        
+
         self.emit("%s temp = new %s(%s);" %
-                    (ctorname, ctorname, params), depth+1)
-        
-        self.emit("temp.beginLine = this.beginLine;", depth+1);
-        self.emit("temp.beginColumn = this.beginColumn;", depth+1);
-        
+                    (ctorname, ctorname, params), depth + 1)
+
+        self.emit("temp.beginLine = this.beginLine;", depth + 1);
+        self.emit("temp.beginColumn = this.beginColumn;", depth + 1);
+
         def EmitSpecials(s):
-            self.emit('if(this.specials%s != null && copyComments){' % s, depth+1)
-            self.emit('    for(Object o:this.specials%s){' % s, depth+1)
-            self.emit('        if(o instanceof commentType){', depth+1)
-            self.emit('            commentType commentType = (commentType) o;', depth+1)
-            self.emit('            temp.getSpecials%s().add(commentType.createCopy(copyComments));' %s, depth+1)
-            self.emit('        }', depth+1)
-            self.emit('    }', depth+1)
-            self.emit('}', depth+1)
-        
+            self.emit('if(this.specials%s != null && copyComments){' % s, depth + 1)
+            self.emit('    for(Object o:this.specials%s){' % s, depth + 1)
+            self.emit('        if(o instanceof commentType){', depth + 1)
+            self.emit('            commentType commentType = (commentType) o;', depth + 1)
+            self.emit('            temp.getSpecials%s().add(commentType.createCopy(copyComments));' % s, depth + 1)
+            self.emit('        }', depth + 1)
+            self.emit('    }', depth + 1)
+            self.emit('}', depth + 1)
+
         EmitSpecials('Before')
         EmitSpecials('After')
-        
-        self.emit("return temp;", depth+1);
+
+        self.emit("return temp;", depth + 1);
         self.emit("}", depth)
         self.emit("", 0)
-        
-        
-        
+
+
+
 
         # The toString() method
         self.emit("public String toString() {", depth)
         self.emit('StringBuffer sb = new StringBuffer("%s[");' % clsname,
-                    depth+1)
+                    depth + 1)
         for f in fields:
-            self.emit('sb.append("%s=");' % f.name, depth+1)
+            self.emit('sb.append("%s=");' % f.name, depth + 1)
             if not self.bltinnames.has_key(str(f.type)) and f.typedef.simple:
                 self.emit("sb.append(dumpThis(this.%s, %sType.%sTypeNames));" %
-                        (f.name, f.type, f.type), depth+1)
+                        (f.name, f.type, f.type), depth + 1)
             else:
-                self.emit("sb.append(dumpThis(this.%s));" % f.name, depth+1)
+                self.emit("sb.append(dumpThis(this.%s));" % f.name, depth + 1)
             if f != fields[-1]:
-                self.emit('sb.append(", ");', depth+1)
-        self.emit('sb.append("]");', depth+1)
-        self.emit("return sb.toString();", depth+1)
+                self.emit('sb.append(", ");', depth + 1)
+        self.emit('sb.append("]");', depth + 1)
+        self.emit("return sb.toString();", depth + 1)
         self.emit("}", depth)
         self.emit("", 0)
 
@@ -394,10 +394,10 @@ class JavaVisitor(EmitVisitor):
         # The accept() method
         self.emit("public Object accept(VisitorIF visitor) throws Exception {", depth)
         if clsname == ctorname:
-            self.emit('return visitor.visit%s(this);' % clsname, depth+1)
+            self.emit('return visitor.visit%s(this);' % clsname, depth + 1)
         else:
-            self.emit('traverse(visitor);' % clsname, depth+1)
-            self.emit('return null;' % clsname, depth+1)
+            self.emit('traverse(visitor);' % clsname, depth + 1)
+            self.emit('return null;' % clsname, depth + 1)
         self.emit("}", depth)
         self.emit("", 0)
 
@@ -409,18 +409,18 @@ class JavaVisitor(EmitVisitor):
             if f.typedef.simple:
                 continue
             if f.seq:
-                self.emit('if (%s != null) {' % f.name, depth+1)
+                self.emit('if (%s != null) {' % f.name, depth + 1)
                 self.emit('for (int i = 0; i < %s.length; i++) {' % f.name,
-                        depth+2)
-                self.emit('if (%s[i] != null){' % f.name, depth+3)
-                self.emit('%s[i].accept(visitor);' % f.name, depth+4)
-                self.emit('}' % f.name, depth+3)
-                self.emit('}', depth+2)
-                self.emit('}', depth+1)
+                        depth + 2)
+                self.emit('if (%s[i] != null){' % f.name, depth + 3)
+                self.emit('%s[i].accept(visitor);' % f.name, depth + 4)
+                self.emit('}' % f.name, depth + 3)
+                self.emit('}', depth + 2)
+                self.emit('}', depth + 1)
             else:
-                self.emit('if (%s != null){' % f.name, depth+1)
-                self.emit('%s.accept(visitor);' % f.name, depth+2)
-                self.emit('}' % f.name, depth+1)
+                self.emit('if (%s != null){' % f.name, depth + 1)
+                self.emit('%s.accept(visitor);' % f.name, depth + 2)
+                self.emit('}' % f.name, depth + 1)
         self.emit('}', depth)
         self.emit("", 0)
 
@@ -434,7 +434,7 @@ class JavaVisitor(EmitVisitor):
         'string' : 'String',
         'object' : 'Object', # was PyObject
     }
-    
+
     def jType(self, field):
         jtype = str(field.type)
         if field.typedef and field.typedef.simple:
@@ -454,7 +454,7 @@ class VisitorVisitor(EmitVisitor):
     def __init__(self):
         EmitVisitor.__init__(self)
         self.ctors = []
-        
+
 
     def visitModule(self, mod):
         for dfn in mod.dfns:
@@ -462,7 +462,7 @@ class VisitorVisitor(EmitVisitor):
         self.open("VisitorIF", refersToSimpleNode=0)
         self.emit('public interface VisitorIF {', 0)
         for ctor in self.ctors:
-            self.emit("public Object visit%s(%s node) throws Exception;" % 
+            self.emit("public Object visit%s(%s node) throws Exception;" %
                     (ctor, ctor), 1)
         self.emit('}', 0)
         self.close()
@@ -470,7 +470,7 @@ class VisitorVisitor(EmitVisitor):
         self.open("ISimpleNodeSwitch", refersToSimpleNode=0)
         self.emit('public interface ISimpleNodeSwitch {', 0)
         for ctor in self.ctors:
-            self.emit("public void visit(%s node);" % 
+            self.emit("public void visit(%s node);" %
                     (ctor,), 1)
         self.emit('}', 0)
         self.close()
@@ -478,7 +478,7 @@ class VisitorVisitor(EmitVisitor):
         self.open("VisitorBase")
         self.emit('public abstract class VisitorBase implements VisitorIF {', 0)
         for ctor in self.ctors:
-            self.emit("public Object visit%s(%s node) throws Exception {" % 
+            self.emit("public Object visit%s(%s node) throws Exception {" %
                     (ctor, ctor), 1)
             self.emit("Object ret = unhandled_node(node);", 2)
             self.emit("traverse(node);", 2)
@@ -516,6 +516,8 @@ class ChainOfVisitors:
             v.visit(object)
 
 if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        sys.argv.append('Python.asdl')
     mod = asdl.parse(sys.argv[1])
     if not asdl.check(mod):
         sys.exit(1)

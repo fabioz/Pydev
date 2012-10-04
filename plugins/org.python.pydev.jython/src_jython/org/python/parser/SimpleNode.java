@@ -10,7 +10,8 @@ public class SimpleNode implements Node {
 
     public boolean from_future_checked = false; // from __future__ support
 
-    public SimpleNode() { }
+    public SimpleNode() {
+    }
 
     public static Node jjtCreate(PythonGrammar p, int id) {
         return p.jjtree.openNode(id);
@@ -34,16 +35,19 @@ public class SimpleNode implements Node {
        you need to do. */
 
     public String toString() {
-        return super.toString() + " at line "+beginLine;
+        return super.toString() + " at line " + beginLine;
     }
-    public String toString(String prefix) { return prefix + toString(); }
+
+    public String toString(String prefix) {
+        return prefix + toString();
+    }
 
     public Object accept(VisitorIF visitor) throws Exception {
-        throw new ParseException("Unexpected node: "+this);
+        throw new ParseException("Unexpected node: " + this);
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        throw new ParseException("Unexpected node: "+this);
+        throw new ParseException("Unexpected node: " + this);
     }
 
     /* Override this method if you want to customize how the node dumps
@@ -70,7 +74,7 @@ public class SimpleNode implements Node {
             }
             sb.append("]");
         }
-        
+
         return sb.toString();
     }
 
@@ -104,14 +108,11 @@ public class SimpleNode implements Node {
         return String.valueOf(b);
     }
 
-
     public void pickle(DataOutputStream ostream) throws IOException {
         throw new IOException("Pickling not implemented");
     }
 
-    protected void pickleThis(String s, DataOutputStream ostream)
-        throws IOException
-    {
+    protected void pickleThis(String s, DataOutputStream ostream) throws IOException {
         if (s == null) {
             ostream.writeInt(-1);
         } else {
@@ -120,9 +121,7 @@ public class SimpleNode implements Node {
         }
     }
 
-    protected void pickleThis(String[] s, DataOutputStream ostream)
-        throws IOException
-    {
+    protected void pickleThis(String[] s, DataOutputStream ostream) throws IOException {
         if (s == null) {
             ostream.writeInt(-1);
         } else {
@@ -133,9 +132,7 @@ public class SimpleNode implements Node {
         }
     }
 
-    protected void pickleThis(SimpleNode o, DataOutputStream ostream)
-        throws IOException
-    {
+    protected void pickleThis(SimpleNode o, DataOutputStream ostream) throws IOException {
         if (o == null) {
             ostream.writeInt(-1);
         } else {
@@ -143,9 +140,7 @@ public class SimpleNode implements Node {
         }
     }
 
-    protected void pickleThis(SimpleNode[] s, DataOutputStream ostream)
-        throws IOException
-    {
+    protected void pickleThis(SimpleNode[] s, DataOutputStream ostream) throws IOException {
         if (s == null) {
             ostream.writeInt(-1);
         } else {
@@ -156,15 +151,11 @@ public class SimpleNode implements Node {
         }
     }
 
-    protected void pickleThis(int i, DataOutputStream ostream)
-        throws IOException
-    {
+    protected void pickleThis(int i, DataOutputStream ostream) throws IOException {
         ostream.writeInt(i);
     }
 
-    protected void pickleThis(int[] arr, DataOutputStream ostream)
-        throws IOException
-    {
+    protected void pickleThis(int[] arr, DataOutputStream ostream) throws IOException {
         if (arr == null) {
             ostream.writeInt(-1);
         } else {
@@ -175,15 +166,11 @@ public class SimpleNode implements Node {
         }
     }
 
-    protected void pickleThis(boolean b, DataOutputStream ostream)
-        throws IOException
-    {
+    protected void pickleThis(boolean b, DataOutputStream ostream) throws IOException {
         ostream.writeBoolean(b);
     }
 
-    protected void pickleThis(Object n, DataOutputStream ostream)
-        throws IOException
-    {
+    protected void pickleThis(Object n, DataOutputStream ostream) throws IOException {
         String s = n.toString();
         ostream.writeInt(s.length());
         ostream.writeBytes(s);

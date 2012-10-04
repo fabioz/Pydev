@@ -18,14 +18,12 @@ public class DjContentAssistProcessorTest extends TestCase {
                 IDjConstants.CONTENT_TYPE_DJANGO_HTML, null);
         Document doc = new Document();
         assertEquals(djContentAssistProcessor.extractPrefix(doc, 1), "");
-        
-        doc = new Document("" +
-        		"test" +
-        		"");
+
+        doc = new Document("" + "test" + "");
         assertEquals(djContentAssistProcessor.extractPrefix(doc, 1), "t");
         assertEquals(djContentAssistProcessor.extractPrefix(doc, 2), "te");
         assertEquals(djContentAssistProcessor.extractPrefix(doc, 5), "");
-        
+
     }
 
 }

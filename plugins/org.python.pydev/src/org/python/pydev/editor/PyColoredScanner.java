@@ -25,33 +25,31 @@ import org.python.pydev.ui.ColorAndStyleCache;
  */
 public class PyColoredScanner extends RuleBasedScanner {
     private ColorAndStyleCache colorCache;
-	private String name;
+    private String name;
 
-    
     public PyColoredScanner(ColorAndStyleCache colorCache, String name) {
         super();
         Assert.isNotNull(colorCache);
         this.colorCache = colorCache;
         this.name = name;
-        updateColorAndStyle();        
+        updateColorAndStyle();
     }
-    
+
     public void updateColorAndStyle() {
-    	TextAttribute attr;
-    	if(PydevEditorPrefs.COMMENT_COLOR.equals(name)){
-    		attr = colorCache.getCommentTextAttribute();
-    		
-    	}else if(PydevEditorPrefs.BACKQUOTES_COLOR.equals(name)){
-    		attr = colorCache.getBackquotesTextAttribute();
-    		
-    	}else if(PydevEditorPrefs.STRING_COLOR.equals(name)){
-    		attr = colorCache.getStringTextAttribute();
-    		
-    	}else{
-    		throw new RuntimeException("Unexpected: "+name);
-    	}
+        TextAttribute attr;
+        if (PydevEditorPrefs.COMMENT_COLOR.equals(name)) {
+            attr = colorCache.getCommentTextAttribute();
+
+        } else if (PydevEditorPrefs.BACKQUOTES_COLOR.equals(name)) {
+            attr = colorCache.getBackquotesTextAttribute();
+
+        } else if (PydevEditorPrefs.STRING_COLOR.equals(name)) {
+            attr = colorCache.getStringTextAttribute();
+
+        } else {
+            throw new RuntimeException("Unexpected: " + name);
+        }
         setDefaultReturnToken(new Token(attr));
     }
-    
-    
+
 }

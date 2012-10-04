@@ -29,7 +29,6 @@ public class IdentityNode extends SimpleNode {
     }
 
     public String toString() {
-        return "IdNode[" + id + ", " +
-                image + "]";
+        return "IdNode[" + id + ", " + image + "]";
     }
 }

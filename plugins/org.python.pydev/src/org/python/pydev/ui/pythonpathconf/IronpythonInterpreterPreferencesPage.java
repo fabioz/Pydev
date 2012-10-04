@@ -15,7 +15,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.plugin.PydevPlugin;
 
-public class IronpythonInterpreterPreferencesPage extends AbstractInterpreterPreferencesPage{
+public class IronpythonInterpreterPreferencesPage extends AbstractInterpreterPreferencesPage {
 
     public String getTitle() {
         return "Iron Python Interpreters";
@@ -33,12 +33,14 @@ public class IronpythonInterpreterPreferencesPage extends AbstractInterpreterPre
      * @return an interpreter editor (used to add/edit/remove the information on an editor)
      */
     protected AbstractInterpreterEditor getInterpreterEditor(Composite p) {
-        return new IronpythonInterpreterEditor (getInterpretersTitle(), p, PydevPlugin.getIronpythonInterpreterManager(true));
+        return new IronpythonInterpreterEditor(getInterpretersTitle(), p,
+                PydevPlugin.getIronpythonInterpreterManager(true));
     }
-    
+
     protected void createFieldEditors() {
         super.createFieldEditors();
-        addField(new StringFieldEditor(IInterpreterManager.IRONPYTHON_INTERNAL_SHELL_VM_ARGS, "Vm arguments for internal shell", getFieldEditorParent()){
+        addField(new StringFieldEditor(IInterpreterManager.IRONPYTHON_INTERNAL_SHELL_VM_ARGS,
+                "Vm arguments for internal shell", getFieldEditorParent()) {
             @Override
             protected void adjustForNumColumns(int numColumns) {
                 GridData gd = (GridData) getTextControl().getLayoutData();
@@ -48,7 +50,7 @@ public class IronpythonInterpreterPreferencesPage extends AbstractInterpreterPre
             }
         });
     }
-    
+
     @Override
     protected IInterpreterManager getInterpreterManager() {
         return PydevPlugin.getIronpythonInterpreterManager(true);

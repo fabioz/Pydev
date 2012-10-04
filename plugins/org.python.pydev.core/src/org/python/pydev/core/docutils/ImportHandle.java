@@ -12,8 +12,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.Tuple;
-import org.python.pydev.core.structure.FastStringBuffer;
+
+import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * Class that represents an import found in a document.
@@ -21,19 +22,19 @@ import org.python.pydev.core.structure.FastStringBuffer;
  * @author Fabio
  */
 public class ImportHandle {
-    
 
     /**
      * Class representing some import information
      *
      * @author Fabio
      */
-    public static class ImportHandleInfo{
-        
+    public static class ImportHandleInfo {
+
         //spaces* 'from' space+ module space+ import (mod as y)
-        private static final Pattern FromImportPattern = Pattern.compile("(from\\s+)(\\.|\\w)+((\\\\|\\s)+import(\\\\|\\s)+)");
+        private static final Pattern FromImportPattern = Pattern
+                .compile("(from\\s+)(\\.|\\w)+((\\\\|\\s)+import(\\\\|\\s)+)");
         private static final Pattern ImportPattern = Pattern.compile("(import\\s+)");
-        
+
         /**
          * Holds the 'KKK' if the import is from KKK import YYY
          * If it's not a From Import, it should be null.
@@ -45,23 +46,23 @@ public class ImportHandle {
          * with YYY and ZZZ
          */
         private List<String> importedStr;
-        
+
         /**
          * Comments (one for each imported string) E.g.: in from KKK import (YYY, #comment\n ZZZ), this is a list
          * with #comment and an empty string.
          */
         private List<String> importedStrComments;
-        
+
         /**
          * Starting line for this import.
          */
         private int startLine;
-        
+
         /**
          * Ending line for this import.
          */
         private int endLine;
-        
+
         /**
          * Holds whether the import started in the middle of the line (after a ';')
          */
@@ -73,7 +74,7 @@ public class ImportHandle {
         public ImportHandleInfo(String importFound) throws ImportNotRecognizedException {
             this(importFound, -1, -1, false);
         }
-        
+
         /**
          * Constructor.
          * 
@@ -82,52 +83,48 @@ public class ImportHandle {
          * @param importFound
          * @throws ImportNotRecognizedException 
          */
-        public ImportHandleInfo(String importFound, int lineStart, int lineEnd, boolean startedInMiddleOfLine) throws ImportNotRecognizedException {
+        public ImportHandleInfo(String importFound, int lineStart, int lineEnd, boolean startedInMiddleOfLine)
+                throws ImportNotRecognizedException {
             this.startLine = lineStart;
             this.endLine = lineEnd;
             this.startedInMiddleOfLine = startedInMiddleOfLine;
-            
-            importFound=importFound.trim();
-            if(importFound.length() == 0){
+
+            importFound = importFound.trim();
+            if (importFound.length() == 0) {
                 throw new ImportNotRecognizedException("Could not recognize empty string as import");
             }
             char firstChar = importFound.charAt(0);
-            
-            
+
             if (firstChar == 'f') {
                 //from import
                 Matcher matcher = FromImportPattern.matcher(importFound);
-                if(matcher.find()){
-                    this.fromStr = importFound.substring(matcher.end(1), 
-                            matcher.end(2)).trim(); 
-                    
-                    //we have to do that because the last group will only have the last match in the string
-                    String importedStr = importFound.substring(matcher.end(3), 
-                            importFound.length()).trim();
-                    
-                    buildImportedList(importedStr);
-                    
-                }else{
-                    throw new ImportNotRecognizedException("Could not recognize import: "+importFound);
-                }
-                
+                if (matcher.find()) {
+                    this.fromStr = importFound.substring(matcher.end(1), matcher.end(2)).trim();
 
-            }else if(firstChar == 'i'){
+                    //we have to do that because the last group will only have the last match in the string
+                    String importedStr = importFound.substring(matcher.end(3), importFound.length()).trim();
+
+                    buildImportedList(importedStr);
+
+                } else {
+                    throw new ImportNotRecognizedException("Could not recognize import: " + importFound);
+                }
+
+            } else if (firstChar == 'i') {
                 //regular import
                 Matcher matcher = ImportPattern.matcher(importFound);
-                if(matcher.find()){
+                if (matcher.find()) {
                     //we have to do that because the last group will only have the last match in the string
-                    String importedStr = importFound.substring(matcher.end(1), 
-                            importFound.length()).trim();
-                    
+                    String importedStr = importFound.substring(matcher.end(1), importFound.length()).trim();
+
                     buildImportedList(importedStr);
-                    
-                }else{
-                    throw new ImportNotRecognizedException("Could not recognize import: "+importFound);
+
+                } else {
+                    throw new ImportNotRecognizedException("Could not recognize import: " + importFound);
                 }
-                
-            }else{
-                throw new ImportNotRecognizedException("Could not recognize import: "+importFound);
+
+            } else {
+                throw new ImportNotRecognizedException("Could not recognize import: " + importFound);
             }
         }
 
@@ -139,44 +136,43 @@ public class ImportHandle {
         private void buildImportedList(String importedStr) {
             ArrayList<String> lst = new ArrayList<String>();
             ArrayList<String> importComments = new ArrayList<String>();
-            
+
             FastStringBuffer alias = new FastStringBuffer();
             FastStringBuffer comments = new FastStringBuffer();
-            for(int i=0;i<importedStr.length();i++){
+            for (int i = 0; i < importedStr.length(); i++) {
                 char c = importedStr.charAt(i);
-                if(c == '#'){
+                if (c == '#') {
                     comments = comments.clear();
                     i = ParsingUtils.create(importedStr).eatComments(comments, i);
                     addImportAlias(lst, importComments, alias, comments.toString());
                     alias = alias.clear();
-                    
-                }else if(c == ',' || c == '\r' || c == '\n'){
+
+                } else if (c == ',' || c == '\r' || c == '\n') {
                     addImportAlias(lst, importComments, alias, "");
                     alias = alias.clear();
-                    
-                }else if(c == '(' || c == ')' || c == '\\'){
+
+                } else if (c == '(' || c == ')' || c == '\\') {
                     //do nothing
-                    
-                    
-// commented out: we'll get the xxx as yyy all in the alias. Clients may treat it separately if needed.
-//                }else if(c == ' ' || c == '\t'){
-//                    
-//                    String curr = alias.toString();
-//                    if(curr.endsWith(" as") | curr.endsWith("\tas")){
-//                        alias = new StringBuffer();
-//                    }
-//                    alias.append(c);
-                    
-                }else{
+
+                    // commented out: we'll get the xxx as yyy all in the alias. Clients may treat it separately if needed.
+                    //                }else if(c == ' ' || c == '\t'){
+                    //                    
+                    //                    String curr = alias.toString();
+                    //                    if(curr.endsWith(" as") | curr.endsWith("\tas")){
+                    //                        alias = new StringBuffer();
+                    //                    }
+                    //                    alias.append(c);
+
+                } else {
                     alias.append(c);
                 }
             }
-            
-            if(alias.length() > 0){
+
+            if (alias.length() > 0) {
                 addImportAlias(lst, importComments, alias, "");
-                
+
             }
-            
+
             this.importedStrComments = importComments;
             this.importedStr = lst;
         }
@@ -190,17 +186,17 @@ public class ImportHandle {
          * @param alias the name of the import to be added
          * @param importComment the comment related to the import
          */
-        private void addImportAlias(ArrayList<String> lst, ArrayList<String> importComments, FastStringBuffer alias, 
+        private void addImportAlias(ArrayList<String> lst, ArrayList<String> importComments, FastStringBuffer alias,
                 String importComment) {
-            
+
             String aliasStr = alias.toString().trim();
             importComment = importComment.trim();
-            
-            if(aliasStr.length() > 0){
+
+            if (aliasStr.length() > 0) {
                 lst.add(aliasStr);
                 importComments.add(importComment);
-            }else if(importComment.length() > 0 && importComments.size() > 0){
-                importComments.set(importComments.size()-1, importComment);
+            } else if (importComment.length() > 0 && importComments.size() > 0) {
+                importComments.set(importComments.size() - 1, importComment);
             }
         }
 
@@ -245,41 +241,40 @@ public class ImportHandle {
         public boolean getStartedInMiddleOfLine() {
             return this.startedInMiddleOfLine;
         }
-        
+
         /**
          * @return a list of tuples with the iported string and the comment that's attached to it.
          */
         public List<Tuple<String, String>> getImportedStrAndComments() {
-            ArrayList<Tuple<String,String>> lst = new ArrayList<Tuple<String,String>>();
-            for(int i=0;i<this.importedStr.size();i++){
+            ArrayList<Tuple<String, String>> lst = new ArrayList<Tuple<String, String>>();
+            for (int i = 0; i < this.importedStr.size(); i++) {
                 lst.add(new Tuple<String, String>(this.importedStr.get(i), this.importedStrComments.get(i)));
             }
             return lst;
         }
-        
+
     }
 
-    
     /**
      * Document where the import was found
      */
     public IDocument doc;
-    
+
     /**
      * The import string found. Note: it may contain comments and multi-lines.
      */
     public String importFound;
-    
+
     /**
      * The initial line where the import was found
      */
     public int startFoundLine;
-    
+
     /**
      * The final line where the import was found
      */
     public int endFoundLine;
-    
+
     /**
      * Import information for the import found and handled in this class (only created on request)
      */
@@ -291,51 +286,45 @@ public class ImportHandle {
      * Assigns parameters to fields.
      * @throws ImportNotRecognizedException 
      */
-    public ImportHandle(IDocument doc, String importFound, int startFoundLine, int endFoundLine) throws ImportNotRecognizedException {
+    public ImportHandle(IDocument doc, String importFound, int startFoundLine, int endFoundLine)
+            throws ImportNotRecognizedException {
         this.doc = doc;
         this.importFound = importFound;
         this.startFoundLine = startFoundLine;
         this.endFoundLine = endFoundLine;
-        
+
         this.importInfo = new ArrayList<ImportHandleInfo>();
-        
+
         int line = startFoundLine;
         boolean startedInMiddle = false;
-        
+
         FastStringBuffer imp = new FastStringBuffer();
         ImportHandleInfo found = null;
-        for(int i=0;i<importFound.length();i++){
+        for (int i = 0; i < importFound.length(); i++) {
             char c = importFound.charAt(i);
-            
-            if(c == '#'){
+
+            if (c == '#') {
                 i = ParsingUtils.create(importFound).eatComments(imp, i);
-                
-            }else if(c == ';'){
+
+            } else if (c == ';') {
                 String impStr = imp.toString();
-                int endLine = line+StringUtils.countLineBreaks(impStr);
-                try {
-                    found = new ImportHandleInfo(impStr, line, endLine, startedInMiddle);
-                    this.importInfo.add(found);
-                } catch (ImportNotRecognizedException e) {
-                    //ignore
-                }
+                int endLine = line + com.aptana.shared_core.string.StringUtils.countLineBreaks(impStr);
+                found = new ImportHandleInfo(impStr, line, endLine, startedInMiddle);
+                this.importInfo.add(found);
                 line = endLine;
                 imp = imp.clear();
                 startedInMiddle = true;
-            }else{
-                if(c == '\r' || c == '\n'){
+            } else {
+                if (c == '\r' || c == '\n') {
                     startedInMiddle = false;
                 }
                 imp.append(c);
             }
-            
+
         }
         String impStr = imp.toString();
-        try {
-            this.importInfo.add(new ImportHandleInfo(impStr, line, line+StringUtils.countLineBreaks(impStr), startedInMiddle));
-        } catch (ImportNotRecognizedException e) {
-            //ignore
-        }
+        this.importInfo.add(new ImportHandleInfo(impStr, line, line + com.aptana.shared_core.string.StringUtils.countLineBreaks(impStr),
+                startedInMiddle));
 
     }
 
@@ -348,31 +337,29 @@ public class ImportHandle {
      */
     public boolean contains(ImportHandleInfo otherImportInfo) throws ImportNotRecognizedException {
         List<ImportHandleInfo> importHandleInfo = this.getImportInfo();
-        
-        for(ImportHandleInfo info : importHandleInfo) {
-            if(info.fromStr != otherImportInfo.fromStr){
-                if(otherImportInfo.fromStr == null || info.fromStr == null){
+
+        for (ImportHandleInfo info : importHandleInfo) {
+            if (info.fromStr != otherImportInfo.fromStr) {
+                if (otherImportInfo.fromStr == null || info.fromStr == null) {
                     continue; //keep on to the next possible match
                 }
-                if(!otherImportInfo.fromStr.equals(info.fromStr)){
+                if (!otherImportInfo.fromStr.equals(info.fromStr)) {
                     continue; //keep on to the next possible match
                 }
             }
-            
-            if(otherImportInfo.importedStr.size() != 1){
+
+            if (otherImportInfo.importedStr.size() != 1) {
                 continue;
             }
-            
-            if(info.importedStr.contains(otherImportInfo.importedStr.get(0))){
+
+            if (info.importedStr.contains(otherImportInfo.importedStr.get(0))) {
                 return true;
             }
-            
+
         }
-        
-        
+
         return false;
     }
-
 
     /**
      * @return a list with the import information generated from the import this handle is wrapping.

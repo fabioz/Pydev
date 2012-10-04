@@ -14,9 +14,10 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.jgraph.graph.DefaultGraphCell;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
+
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * Starts the parser and its visitor (GraphVisitor)
@@ -38,8 +39,8 @@ public class ASTGraph {
         }
 
         IDocument doc = new Document(source.toString());
-        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(
-                new PyParser.ParserInfo(doc, IPythonNature.LATEST_GRAMMAR_VERSION));
+        Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc,
+                IPythonNature.LATEST_GRAMMAR_VERSION));
         if (objects.o2 != null)
             throw objects.o2;
         return objects;

@@ -16,7 +16,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-public class AbstractIWorkspaceRootStub extends AbstractIContainerStub implements IWorkspaceRoot{
+public class AbstractIWorkspaceRootStub extends AbstractIContainerStub implements IWorkspaceRoot {
 
     public void delete(boolean deleteContent, boolean force, IProgressMonitor monitor) throws CoreException {
         throw new RuntimeException("Not implemented");

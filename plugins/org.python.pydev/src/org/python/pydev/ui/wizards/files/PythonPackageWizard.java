@@ -20,8 +20,7 @@ import org.eclipse.core.runtime.Path;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
-
-public class PythonPackageWizard  extends AbstractPythonWizard {
+public class PythonPackageWizard extends AbstractPythonWizard {
 
     public PythonPackageWizard() {
         super("Create a new Python package");
@@ -31,13 +30,13 @@ public class PythonPackageWizard  extends AbstractPythonWizard {
 
     @Override
     protected AbstractPythonWizardPage createPathPage() {
-        return new AbstractPythonWizardPage(this.description, selection){
+        return new AbstractPythonWizardPage(this.description, selection) {
 
             @Override
             protected boolean shouldCreatePackageSelect() {
                 return false;
             }
-            
+
         };
     }
 
@@ -50,33 +49,32 @@ public class PythonPackageWizard  extends AbstractPythonWizard {
         return createPackage(monitor, filePage.getValidatedSourceFolder(), filePage.getValidatedName());
     }
 
-    
     /**
      * Creates the complete package path given by the user (all filled with __init__) 
      * and returns the last __init__ module created.
      */
-    public static IFile createPackage(
-            IProgressMonitor monitor, IContainer validatedSourceFolder, String packageName) throws CoreException {
+    public static IFile createPackage(IProgressMonitor monitor, IContainer validatedSourceFolder, String packageName)
+            throws CoreException {
         IFile lastFile = null;
-        if(validatedSourceFolder == null){
+        if (validatedSourceFolder == null) {
             return null;
         }
         IContainer parent = validatedSourceFolder;
         for (String packagePart : StringUtils.dotSplit(packageName)) {
             IFolder folder = parent.getFolder(new Path(packagePart));
-            if(!folder.exists()){
+            if (!folder.exists()) {
                 folder.create(true, true, monitor);
             }
             parent = folder;
-            IFile file = parent.getFile(new Path("__init__"+FileTypesPreferencesPage.getDefaultDottedPythonExtension()));
-            if(!file.exists()){
+            IFile file = parent.getFile(new Path("__init__"
+                    + FileTypesPreferencesPage.getDefaultDottedPythonExtension()));
+            if (!file.exists()) {
                 file.create(new ByteArrayInputStream(new byte[0]), true, monitor);
             }
             lastFile = file;
         }
-        
+
         return lastFile;
     }
-
 
 }

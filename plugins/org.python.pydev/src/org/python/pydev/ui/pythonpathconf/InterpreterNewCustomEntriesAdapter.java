@@ -13,20 +13,20 @@ import java.util.Map;
  */
 public class InterpreterNewCustomEntriesAdapter implements IInterpreterNewCustomEntries {
 
-	public Collection<String> getAdditionalLibraries() {
-		return Collections.emptyList();
-	}
+    public Collection<String> getAdditionalLibraries() {
+        return Collections.emptyList();
+    }
 
-	public Collection<String> getAdditionalEnvVariables() {
-		return Collections.emptyList();
-	}
+    public Collection<String> getAdditionalEnvVariables() {
+        return Collections.emptyList();
+    }
 
-	public Collection<String> getAdditionalBuiltins() {
-		return Collections.emptyList();
-	}
+    public Collection<String> getAdditionalBuiltins() {
+        return Collections.emptyList();
+    }
 
-	public Map<String, String> getAdditionalStringSubstitutionVariables() {
-		return Collections.emptyMap();
-	}
+    public Map<String, String> getAdditionalStringSubstitutionVariables() {
+        return Collections.emptyMap();
+    }
 
 }

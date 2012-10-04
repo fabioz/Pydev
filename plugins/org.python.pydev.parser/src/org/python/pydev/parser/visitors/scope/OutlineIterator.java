@@ -20,7 +20,6 @@ import org.python.pydev.parser.jython.ast.Name;
 
 public class OutlineIterator implements Iterator<ASTEntry> {
 
-
     private ASTEntry next = null;
     private Iterator<ASTEntry> nodesIt;
 
@@ -30,12 +29,12 @@ public class OutlineIterator implements Iterator<ASTEntry> {
     }
 
     private void setNext() {
-        while(nodesIt.hasNext()){
+        while (nodesIt.hasNext()) {
             ASTEntry entry = nodesIt.next();
-            
-            if(entry.node instanceof ClassDef || entry.node instanceof FunctionDef || 
-                    entry.node instanceof Attribute || entry.node instanceof Name ){
-                
+
+            if (entry.node instanceof ClassDef || entry.node instanceof FunctionDef || entry.node instanceof Attribute
+                    || entry.node instanceof Name) {
+
                 next = entry;
                 return;
             }

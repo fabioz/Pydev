@@ -122,28 +122,22 @@ public class Options {
      */
     public static void setFromRegistry() {
         // Set the more unusual options
-        Options.showJavaExceptions = getBooleanOption(
-                "options.showJavaExceptions", Options.showJavaExceptions);
+        Options.showJavaExceptions = getBooleanOption("options.showJavaExceptions", Options.showJavaExceptions);
 
-        Options.showPythonProxyExceptions = getBooleanOption(
-                "options.showPythonProxyExceptions",
+        Options.showPythonProxyExceptions = getBooleanOption("options.showPythonProxyExceptions",
                 Options.showPythonProxyExceptions);
 
-        Options.skipCompile = getBooleanOption("options.skipCompile",
-                Options.skipCompile);
+        Options.skipCompile = getBooleanOption("options.skipCompile", Options.skipCompile);
 
-        Options.deprecatedKeywordMangling = getBooleanOption(
-                "deprecated.keywordMangling", Options.deprecatedKeywordMangling);
+        Options.deprecatedKeywordMangling = getBooleanOption("deprecated.keywordMangling",
+                Options.deprecatedKeywordMangling);
 
-        Options.pollStandardIn = getBooleanOption("console.poll",
-                Options.pollStandardIn);
+        Options.pollStandardIn = getBooleanOption("console.poll", Options.pollStandardIn);
 
-        Options.respectJavaAccessibility = getBooleanOption(
-                "security.respectJavaAccessibility",
+        Options.respectJavaAccessibility = getBooleanOption("security.respectJavaAccessibility",
                 Options.respectJavaAccessibility);
 
-        Options.proxyDebugDirectory = getStringOption(
-                "options.proxyDebugDirectory", Options.proxyDebugDirectory);
+        Options.proxyDebugDirectory = getStringOption("options.proxyDebugDirectory", Options.proxyDebugDirectory);
 
         // verbosity is more complicated:
         String prop = PySystemState.registry.getProperty("python.verbose");
@@ -159,8 +153,7 @@ public class Options {
             } else if (prop.equalsIgnoreCase("debug")) {
                 Options.verbose = Py.DEBUG;
             } else {
-                throw Py.ValueError("Illegal verbose option setting: '" + prop
-                        + "'");
+                throw Py.ValueError("Illegal verbose option setting: '" + prop + "'");
             }
         }
 
@@ -177,8 +170,7 @@ public class Options {
             } else if (prop.equalsIgnoreCase("warnall")) {
                 Options.divisionWarning = 2;
             } else {
-                throw Py.ValueError("Illegal divisionWarning option "
-                        + "setting: '" + prop + "'");
+                throw Py.ValueError("Illegal divisionWarning option " + "setting: '" + prop + "'");
             }
         }
         // additional initializations which must happen after the registry

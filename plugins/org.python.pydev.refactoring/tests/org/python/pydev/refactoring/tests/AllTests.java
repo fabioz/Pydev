@@ -9,22 +9,22 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 public final class AllTests {
-	private AllTests() { }
-	
-	public static Test suite() {
-		TestSuite suite = new TestSuite("PEPTIC Unit tests");
+    private AllTests() {
+    }
 
-		
-		// $JUnit-BEGIN$
-		suite.addTest(org.python.pydev.refactoring.tests.adapter.AllTests.suite());
-		suite.addTest(org.python.pydev.refactoring.tests.ast.AllTests.suite());
-		suite.addTest(org.python.pydev.refactoring.tests.codegenerator.AllTests.suite());
-		suite.addTest(org.python.pydev.refactoring.tests.coderefactoring.AllTests.suite());
-		suite.addTest(org.python.pydev.refactoring.tests.rewriter.AllTests.suite());
-		suite.addTest(org.python.pydev.refactoring.tests.utils.AllTests.suite());
-		suite.addTest(org.python.pydev.refactoring.tests.visitors.AllTests.suite());
-		// $JUnit-END$
-		return suite;
-	}
+    public static Test suite() {
+        TestSuite suite = new TestSuite("PEPTIC Unit tests");
+
+        // $JUnit-BEGIN$
+        suite.addTest(org.python.pydev.refactoring.tests.adapter.AllTests.suite());
+        suite.addTest(org.python.pydev.refactoring.tests.ast.AllTests.suite());
+        suite.addTest(org.python.pydev.refactoring.tests.codegenerator.AllTests.suite());
+        suite.addTest(org.python.pydev.refactoring.tests.coderefactoring.AllTests.suite());
+        suite.addTest(org.python.pydev.refactoring.tests.rewriter.AllTests.suite());
+        suite.addTest(org.python.pydev.refactoring.tests.utils.AllTests.suite());
+        suite.addTest(org.python.pydev.refactoring.tests.visitors.AllTests.suite());
+        // $JUnit-END$
+        return suite;
+    }
 
 }

@@ -19,7 +19,7 @@ public class StepCommand extends AbstractDebuggerCommand {
 
     int commandId;
     String threadId;
-    
+
     /**
      * 
      * @param commandId CMD_STEP_INTO CMD_STEP_OVER CMD_STEP_RETURN

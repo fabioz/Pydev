@@ -43,7 +43,7 @@ public interface IAssistProps {
      * @throws BadLocationException
      * @throws MisconfigurationException 
      */
-    List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature, 
+    List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature,
             PyEdit edit, int offset) throws BadLocationException, MisconfigurationException;
 
     /**

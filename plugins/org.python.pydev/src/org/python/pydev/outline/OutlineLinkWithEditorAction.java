@@ -26,6 +26,7 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.ui.UIConstants;
 
+
 /**
  * This action keeps the outline synched with the text selected in the text
  * editor.
@@ -38,7 +39,8 @@ import org.python.pydev.ui.UIConstants;
  * 
  * @author Fabio
  */
-public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction implements IPyEditListener, IPyEditListener2 {
+public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction implements IPyEditListener,
+        IPyEditListener2 {
 
     private static final String PREF_LINK_WITH_EDITOR = "org.python.pydev.PREF_LINK_WITH_EDITOR";
 
@@ -50,23 +52,23 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
         pyEdit = new WeakReference<PyEdit>(page.editorView);
         relink();
     }
-    
+
     /**
      * When called, it STOPS hearing notifications to update the outline when the cursor changes positions.
      */
     public void unlink() {
         PyEdit edit = pyEdit.get();
-        if(edit != null){
+        if (edit != null) {
             edit.removePyeditListener(this);
         }
     }
-    
+
     /**
      * When called, it STARTS hearing notifications to update the outline when the cursor changes positions.
      */
     public void relink() {
         PyEdit edit = pyEdit.get();
-        if(edit != null){
+        if (edit != null) {
             edit.addPyeditListener(this);
         }
     }
@@ -77,7 +79,8 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
 
     @Override
     protected ViewerFilter createFilter() {
-        throw new RuntimeException("Not implemented: as setActionEnabled is overriden, this action is not needed (as this is not a filter action).");
+        throw new RuntimeException(
+                "Not implemented: as setActionEnabled is overriden, this action is not needed (as this is not a filter action).");
     }
 
     /**
@@ -90,7 +93,7 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
             p.getStore().setValue(PREF_LINK_WITH_EDITOR, enableAction);
             if (enableAction && pyEdit != null) {
                 PyEdit edit = pyEdit.get();
-                if(edit != null){
+                if (edit != null) {
                     handleCursorPositionChanged(edit, new PySelection(edit));
                 }
             }
@@ -131,14 +134,14 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
     protected void doLinkOutlinePosition(PyEdit edit, PyOutlinePage p, PySelection ps) {
         ITextSelection t = ps.getTextSelection();
         IOutlineModel outlineModel = p.model;
-        if(outlineModel != null){
+        if (outlineModel != null) {
             StructuredSelection sel = getSelectionPosition(outlineModel.getRoot(), t);
             if (sel != null) {
                 // we don't want to hear our own selections
                 p.unlinkAll();
-                try{
+                try {
                     p.setSelection(sel);
-                }finally{
+                } finally {
                     p.relinkAll();
                 }
             }
@@ -151,7 +154,7 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
     private StructuredSelection getSelectionPosition(ParsedItem r, ITextSelection t) {
         try {
             ArrayList<ParsedItem> sel = new ArrayList<ParsedItem>();
-    
+
             if (r != null) {
                 do {
                     ParsedItem item = findSel(r, t.getStartLine() + 1);
@@ -170,11 +173,10 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
             }
         } catch (Exception e) {
             Log.log(e);
-        }            
+        }
         return null;
     }
 
-    
     /**
      * @return The parsed item that should be selected given the startLine passed.
      */
@@ -199,7 +201,5 @@ public class OutlineLinkWithEditorAction extends AbstractOutlineFilterAction imp
         }
         return prev;
     }
-
-
 
 }

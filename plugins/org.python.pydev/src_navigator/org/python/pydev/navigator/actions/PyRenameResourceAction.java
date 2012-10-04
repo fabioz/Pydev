@@ -29,8 +29,8 @@ import org.eclipse.ui.actions.RenameResourceAction;
 import org.eclipse.ui.internal.ide.IDEWorkbenchMessages;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 
-public class PyRenameResourceAction extends RenameResourceAction{
-    
+public class PyRenameResourceAction extends RenameResourceAction {
+
     private ISelectionProvider provider;
 
     private ArrayList<IResource> selected;
@@ -42,7 +42,6 @@ public class PyRenameResourceAction extends RenameResourceAction{
         this.shell = shell;
         this.provider = selectionProvider;
     }
-    
 
     /**
      * Return the new name to be given to the target resource.
@@ -61,8 +60,7 @@ public class PyRenameResourceAction extends RenameResourceAction{
                 if (resource.getName().equals(string)) {
                     return IDEWorkbenchMessages.RenameResourceAction_nameMustBeDifferent;
                 }
-                IStatus status = workspace.validateName(string, resource
-                        .getType());
+                IStatus status = workspace.validateName(string, resource.getType());
                 if (!status.isOK()) {
                     return status.getMessage();
                 }
@@ -74,12 +72,11 @@ public class PyRenameResourceAction extends RenameResourceAction{
         };
 
         InputDialog dialog = new InputDialog(shell, IDEWorkbenchMessages.RenameResourceAction_inputDialogTitle,
-                IDEWorkbenchMessages.RenameResourceAction_inputDialogMessage,
-                resource.getName(), validator);
+                IDEWorkbenchMessages.RenameResourceAction_inputDialogMessage, resource.getName(), validator);
         dialog.setBlockOnOpen(true);
-        if(dialog.open() == dialog.OK){
+        if (dialog.open() == dialog.OK) {
             return dialog.getValue();
-        }else{
+        } else {
             return null;
         }
     }
@@ -115,34 +112,34 @@ public class PyRenameResourceAction extends RenameResourceAction{
         }
         return true;
     }
-    
+
     @Override
     protected List getSelectedResources() {
         return selected;
     }
-    
+
     @Override
     public IStructuredSelection getStructuredSelection() {
         return new StructuredSelection(selected);
     }
-    
+
     /*
      * (non-Javadoc) Method declared on IAction.
      */
     public void run() {
-        if(!isEnabled()){ //will also update the list of resources (main change from the DeleteResourceAction)
+        if (!isEnabled()) { //will also update the list of resources (main change from the DeleteResourceAction)
             return;
         }
         IEditorPart[] dirtyEditors = Helpers.checkValidateState();
         List resources = getSelectedResources();
         if (resources.size() == 1) {
             IResource r = (IResource) resources.get(0);
-            if(r instanceof IFile){
+            if (r instanceof IFile) {
                 IFile iFile = (IFile) r;
                 for (IEditorPart iEditorPart : dirtyEditors) {
                     IEditorInput editorInput = iEditorPart.getEditorInput();
                     Object input = editorInput.getAdapter(IResource.class);
-                    if(r.equals(input)){
+                    if (r.equals(input)) {
                         iEditorPart.doSave(null);
                     }
                 }
@@ -151,6 +148,5 @@ public class PyRenameResourceAction extends RenameResourceAction{
 
         super.run();
     }
-
 
 }

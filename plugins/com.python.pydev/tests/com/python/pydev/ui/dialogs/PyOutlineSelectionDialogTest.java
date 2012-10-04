@@ -39,53 +39,53 @@ public class PyOutlineSelectionDialogTest extends SWTTest {
         super.tearDown();
     }
 
-
-    public void testIt() throws Exception{
-        if(display != null){
+    public void testIt() throws Exception {
+        if (display != null) {
             String barDoc = "\n" +
-            		"class Bar:\n" +
-            		"    def barMethod(self):\n" +
-            		"        pass\n" +
-            		"\n" +
-            		"";
-            
-            String testDoc = 
-            "GLOBAL_ATTR = 1\n" +
-            "GLOBAL2.IGNORE_THIS = 2\n" +
-            "" +
-            "class Test(Bar):\n" +
-            "    test_attr = 1\n" +
-            "    test_attr.ignore = 2\n" +
-            "    test_attr2.ignore_this = 3\n" +
-            "" +
-            "    class Test2:\n" +
-            "        def mmm(self):\n" +
-            "            self.attr1 = 10";
-                    
-            
-            IGrammarVersionProvider grammarVersionProvider = new IGrammarVersionProvider(){
+                    "class Bar:\n" +
+                    "    def barMethod(self):\n" +
+                    "        pass\n" +
+                    "\n" +
+                    "";
+
+            String testDoc = "GLOBAL_ATTR = 1\n" +
+                    "GLOBAL2.IGNORE_THIS = 2\n" +
+                    "" +
+                    "class Test(Bar):\n"
+                    +
+                    "    test_attr = 1\n" +
+                    "    test_attr.ignore = 2\n" +
+                    "    test_attr2.ignore_this = 3\n" +
+                    ""
+                    +
+                    "    class Test2:\n" +
+                    "        def mmm(self):\n" +
+                    "            self.attr1 = 10";
+
+            IGrammarVersionProvider grammarVersionProvider = new IGrammarVersionProvider() {
 
                 public int getGrammarVersion() throws MisconfigurationException {
                     return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
                 }
             };
-            
-            SourceModule moduleTest = (SourceModule) AbstractModule.createModuleFromDoc("test", null, new Document(testDoc), grammarVersionProvider, true);
-            SourceModule moduleBar = (SourceModule) AbstractModule.createModuleFromDoc("bar", null, new Document(barDoc), grammarVersionProvider, true);
-            
-            
+
+            SourceModule moduleTest = (SourceModule) AbstractModule.createModuleFromDoc("test", null, new Document(
+                    testDoc), grammarVersionProvider, true);
+            SourceModule moduleBar = (SourceModule) AbstractModule.createModuleFromDoc("bar", null,
+                    new Document(barDoc), grammarVersionProvider, true);
+
             Module astTest = (Module) moduleTest.getAst();
             Module astBar = (Module) moduleBar.getAst();
-            
-            HierarchyNodeModel testModel = new HierarchyNodeModel("test", (ClassDef)astTest.body[2]);
-            HierarchyNodeModel barModel = new HierarchyNodeModel("bar", (ClassDef)astBar.body[0]);
+
+            HierarchyNodeModel testModel = new HierarchyNodeModel("test", (ClassDef) astTest.body[2]);
+            HierarchyNodeModel barModel = new HierarchyNodeModel("bar", (ClassDef) astBar.body[0]);
             testModel.parents.add(barModel);
-            
+
             HashMap<SimpleNode, HierarchyNodeModel> nodeToModel = new HashMap<SimpleNode, HierarchyNodeModel>();
-            nodeToModel.put((ClassDef)astTest.body[2], testModel);
-            
+            nodeToModel.put((ClassDef) astTest.body[2], testModel);
+
             PyOutlineSelectionDialog dialog = new PyOutlineSelectionDialog(new Shell(display), astTest, nodeToModel);
-            
+
             dialog.open();
             //goToManual(display);
         }

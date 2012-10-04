@@ -32,8 +32,7 @@ import org.python.pydev.utils.ComboFieldEditor;
  * path asked, new path -- means that a request for the "path asked" should return the "new path"
  * path asked, DONTASK -- means that if some request for that file was asked it should silently ignore it
  */
-public class SourceLocatorPrefsPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage{
-
+public class SourceLocatorPrefsPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
     /**
      * Initializer sets the preference store
@@ -45,33 +44,25 @@ public class SourceLocatorPrefsPage extends FieldEditorPreferencePage implements
 
     public void init(IWorkbench workbench) {
     }
-    
+
     private static final String[][] ENTRIES_AND_VALUES = new String[][] {
-        {"Ask for local file.", Integer.toString(PySourceLocatorPrefs.ASK_FOR_FILE)},
-        {"Ask for local file/Get from server (read only).", Integer.toString(PySourceLocatorPrefs.ASK_FOR_FILE_GET_FROM_SERVER)},
-        {"Get from server (read only).", Integer.toString(PySourceLocatorPrefs.GET_FROM_SERVER)},
-    };
-    
-    
+            { "Ask for local file.", Integer.toString(PySourceLocatorPrefs.ASK_FOR_FILE) },
+            { "Ask for local file/Get from server (read only).",
+                    Integer.toString(PySourceLocatorPrefs.ASK_FOR_FILE_GET_FROM_SERVER) },
+            { "Get from server (read only).", Integer.toString(PySourceLocatorPrefs.GET_FROM_SERVER) }, };
+
     /**
      * Creates the editors
      */
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
-        addField(new ComboFieldEditor(
-                PySourceLocatorPrefs.ON_SOURCE_NOT_FOUND, 
-                "Action when source is not directly found:", 
-                ENTRIES_AND_VALUES,
-                p
-        ));
-        
-        addField(new IntegerFieldEditor(
-                PySourceLocatorPrefs.FILE_CONTENTS_TIMEOUT, 
-                "Timeout to get file contents (millis):", 
-                p
-        ));
-        
-        addField(new TableEditor(PydevEditorPrefs.SOURCE_LOCATION_PATHS, "Translation paths to use:", p){
+        addField(new ComboFieldEditor(PySourceLocatorPrefs.ON_SOURCE_NOT_FOUND,
+                "Action when source is not directly found:", ENTRIES_AND_VALUES, p));
+
+        addField(new IntegerFieldEditor(PySourceLocatorPrefs.FILE_CONTENTS_TIMEOUT,
+                "Timeout to get file contents (millis):", p));
+
+        addField(new TableEditor(PydevEditorPrefs.SOURCE_LOCATION_PATHS, "Translation paths to use:", p) {
 
             @Override
             protected String createTable(List<String[]> items) {
@@ -80,18 +71,18 @@ public class SourceLocatorPrefsPage extends FieldEditorPreferencePage implements
 
             @Override
             protected String[] getNewInputObject() {
-                InputDialog d = new InputDialog(getShell(), "New entry", 
-                    "Add the entry in the format path_to_replace,new_path or path,DONTASK.", "", 
-                    new IInputValidator(){
-                        public String isValid(String newText) {
-                            String[] splitted = StringUtils.splitAndRemoveEmptyTrimmed(newText, ',').toArray(new String[0]);
-                            if(splitted.length != 2){
-                                return "Input must have 2 paths separated by a comma.";
+                InputDialog d = new InputDialog(getShell(), "New entry",
+                        "Add the entry in the format path_to_replace,new_path or path,DONTASK.", "",
+                        new IInputValidator() {
+                            public String isValid(String newText) {
+                                String[] splitted = StringUtils.splitAndRemoveEmptyTrimmed(newText, ',').toArray(
+                                        new String[0]);
+                                if (splitted.length != 2) {
+                                    return "Input must have 2 paths separated by a comma.";
+                                }
+                                return PySourceLocatorPrefs.isValid(splitted);
                             }
-                            return PySourceLocatorPrefs.isValid(splitted);
-                        }
-                    }
-                );
+                        });
 
                 int retCode = d.open();
                 if (retCode == InputDialog.OK) {
@@ -104,7 +95,7 @@ public class SourceLocatorPrefsPage extends FieldEditorPreferencePage implements
             protected List<String[]> parseString(String stringList) {
                 return PySourceLocatorPrefs.stringAsWords(stringList);
             }
-            
+
             @Override
             protected void doFillIntoGrid(Composite parent, int numColumns) {
                 super.doFillIntoGrid(parent, numColumns);
@@ -115,14 +106,10 @@ public class SourceLocatorPrefsPage extends FieldEditorPreferencePage implements
         });
     }
 
-    
-
     /**
      * Sets default preference values
      */
     protected void initializeDefaultPreferences(Preferences prefs) {
     }
-    
 
 }
-

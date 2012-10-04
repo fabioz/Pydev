@@ -43,7 +43,6 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.editor.PyEdit;
@@ -52,6 +51,9 @@ import org.python.pydev.plugin.StatusInfo;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.dialogs.ProjectSelectionDialog;
 import org.python.pydev.ui.dialogs.PythonModulePickerDialog;
+
+import com.aptana.shared_core.utils.RunInUiThread;
+
 
 /**
  * Called when "Run Script..." popup menu item is selected.
@@ -71,7 +73,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
         boolean requireFile = getRequireFile();
         if (selection instanceof IStructuredSelection) {
             IStructuredSelection structuredSelection = (IStructuredSelection) selection;
-            
+
             //single selection
             if (structuredSelection.size() == 1) {
                 Object object = structuredSelection.getFirstElement();
@@ -85,40 +87,39 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
 
                     IContainer folder = (IContainer) ((IAdaptable) object).getAdapter(IContainer.class);
                     if (folder != null) {
-                        
-                        if(requireFile){
-                            if(folder instanceof IProject){
+
+                        if (requireFile) {
+                            if (folder instanceof IProject) {
                                 Shell parent = PyAction.getShell();
-                                PythonModulePickerDialog dialog = new PythonModulePickerDialog(
-                                        parent, "Select python file", "Select the python file to be launched.", (IProject) folder);
+                                PythonModulePickerDialog dialog = new PythonModulePickerDialog(parent,
+                                        "Select python file", "Select the python file to be launched.",
+                                        (IProject) folder);
                                 int result = dialog.open();
                                 if (result == PythonModulePickerDialog.OK) {
                                     Object results[] = dialog.getResult();
-                                    if (   (results != null) 
-                                        && (results.length > 0)
-                                        && (results[0] instanceof IFile)) {
+                                    if ((results != null) && (results.length > 0) && (results[0] instanceof IFile)) {
                                         resource = (IResource) results[0];
                                     }
                                 }
                             }
-                            
-                        }else{
+
+                        } else {
                             resource = folder;
                         }
-                        
-                        if(resource != null){
+
+                        if (resource != null) {
                             launch(new FileOrResource(resource), mode);
                         }
                         return;
                     }
                 }
 
-            //multiple selection
+                //multiple selection
             } else if (structuredSelection.size() > 1) {
-                
+
                 //for multiple selection, we must accept folders or files!
                 Assert.isTrue(!requireFile);
-                
+
                 List<IResource> sel = new ArrayList<IResource>();
                 for (Iterator<Object> it = structuredSelection.iterator(); it.hasNext();) {
                     Object object = it.next();
@@ -126,9 +127,9 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
                         IContainer folder = (IContainer) ((IAdaptable) object).getAdapter(IContainer.class);
                         if (folder != null) {
                             sel.add(folder);
-                        }else{
+                        } else {
                             IFile file = (IFile) ((IAdaptable) object).getAdapter(IFile.class);
-                            if(file != null){
+                            if (file != null) {
                                 sel.add(file);
                             }
                         }
@@ -143,12 +144,12 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
             for (Iterator<Object> it = structuredSelection.iterator(); it.hasNext();) {
                 buf.append(it.next());
             }
-            reportError("Unable to discover launch config for: "+buf, null);
+            reportError("Unable to discover launch config for: " + buf, null);
             return;
-        }else{
-            Log.log("Expecting instance of IStructuredSelection. Received: "+selection.getClass().getName());
+        } else {
+            Log.log("Expecting instance of IStructuredSelection. Received: " + selection.getClass().getName());
         }
-        
+
     }
 
     /**
@@ -157,7 +158,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
      * 
      * @return true if the launch configuration requires files (and does not work with containers) and false otherwise.
      */
-    protected boolean getRequireFile(){
+    protected boolean getRequireFile() {
         return false;
     }
 
@@ -173,10 +174,10 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
             return;
         }
 
-        if(editor instanceof PyEdit){
+        if (editor instanceof PyEdit) {
             PyEdit pyEdit = (PyEdit) editor;
             File editorFile = pyEdit.getEditorFile();
-            if(editorFile != null){
+            if (editorFile != null) {
                 launch(new FileOrResource(editorFile), mode);
                 return;
             }
@@ -189,11 +190,10 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
     //=============================================================================================
 
     public void fileNotFound() {
-        String msg = "Unable to launch the file. " + 
-                "Possible reasons may include:\n" +
-                "    - the launch was cancelled;\n" + 
-                "    - the file (editor) being launched is not under a project in the workspace;\n" + 
-                "    - the file was deleted.";
+        String msg = "Unable to launch the file. " + "Possible reasons may include:\n"
+                + "    - the launch was cancelled;\n"
+                + "    - the file (editor) being launched is not under a project in the workspace;\n"
+                + "    - the file was deleted.";
         reportError(msg, null);
     }
 
@@ -201,18 +201,18 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
      * Report some error to the user.
      */
     protected static void reportError(String message, Throwable throwable) {
-        if (message == null){
+        if (message == null) {
             message = "Unexpected error";
         }
-        
+
         IStatus status = null;
         if (throwable instanceof CoreException) {
             status = ((CoreException) throwable).getStatus();
         } else {
             status = new Status(IStatus.ERROR, "org.python.pydev.debug", 0, message, throwable);
         }
-        ErrorDialog.openError(PydevDebugPlugin.getActiveWorkbenchWindow().getShell(), "Python pydev.debug error", "Python launch failed",
-                status);
+        ErrorDialog.openError(PydevDebugPlugin.getActiveWorkbenchWindow().getShell(), "Python pydev.debug error",
+                "Python launch failed", status);
     }
 
     /**
@@ -229,11 +229,11 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
 
         try {
             ILaunchConfiguration[] configs = manager.getLaunchConfigurations(type);
-            
+
             //let's see if we can find it with a location relative or not.
             String defaultLocation = LaunchConfigurationCreator.getDefaultLocation(file, true);
             String defaultLocation2 = LaunchConfigurationCreator.getDefaultLocation(file, false);
-            
+
             for (int i = 0; i < configs.length; i++) {
                 String configPath = configs[i].getAttribute(Constants.ATTR_LOCATION, "");
                 if (defaultLocation.equals(configPath) || defaultLocation2.equals(configPath)) {
@@ -254,7 +254,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
     public ILaunchConfiguration createDefaultLaunchConfiguration(FileOrResource[] resource) {
         try {
             ILaunchConfigurationWorkingCopy createdConfiguration = createDefaultLaunchConfigurationWithoutSaving(resource);
-            if(createdConfiguration == null){
+            if (createdConfiguration == null) {
                 return null;
             }
             return createdConfiguration.doSave();
@@ -265,44 +265,45 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
     }
 
     public ILaunchConfigurationWorkingCopy createDefaultLaunchConfigurationWithoutSaving(FileOrResource[] resource)
-            throws CoreException{
+            throws CoreException {
         IProject project;
-        if(resource[0].resource != null){
+        if (resource[0].resource != null) {
             project = resource[0].resource.getProject();
-        }else{
-            final Object[] found = new Object[1]; 
+        } else {
+            final Object[] found = new Object[1];
             RunInUiThread.sync(new Runnable() {
-                
+
                 public void run() {
-                    ProjectSelectionDialog dialog = new ProjectSelectionDialog(PyAction.getShell(), PythonNature.PYTHON_NATURE_ID);
-                    dialog.setMessage(
-                            "Choose the project that'll provide the interpreter and\n" +
-                            "PYTHONPATH to be used in the launch of the file.");
-                    if(dialog.open() == Window.OK){
+                    ProjectSelectionDialog dialog = new ProjectSelectionDialog(PyAction.getShell(),
+                            PythonNature.PYTHON_NATURE_ID);
+                    dialog.setMessage("Choose the project that'll provide the interpreter and\n"
+                            + "PYTHONPATH to be used in the launch of the file.");
+                    if (dialog.open() == Window.OK) {
                         Object firstResult = dialog.getFirstResult();
-                        if(firstResult instanceof IProject){
+                        if (firstResult instanceof IProject) {
                             found[0] = firstResult;
-                        }else{
-                            found[0] = new CoreException(new StatusInfo(IStatus.ERROR, "Expected project to be selected."));
+                        } else {
+                            found[0] = new CoreException(new StatusInfo(IStatus.ERROR,
+                                    "Expected project to be selected."));
                         }
                     }
                 }
             });
-            if(found[0] == null){
+            if (found[0] == null) {
                 return null;
             }
-            if(found[0] instanceof IProject){
+            if (found[0] instanceof IProject) {
                 project = (IProject) found[0];
-            }else{
-                if(found[0] instanceof CoreException){
-                    throw (CoreException)found[0];
-                }else{
-                    throw new CoreException(new StatusInfo(IStatus.ERROR, "Expected project, found: "+found[0]));
+            } else {
+                if (found[0] instanceof CoreException) {
+                    throw (CoreException) found[0];
+                } else {
+                    throw new CoreException(new StatusInfo(IStatus.ERROR, "Expected project, found: " + found[0]));
                 }
             }
         }
         IInterpreterManager pythonInterpreterManager = getInterpreterManager(project);
-		String projName = project.getName();
+        String projName = project.getName();
         ILaunchConfigurationWorkingCopy createdConfiguration = LaunchConfigurationCreator
                 .createDefaultLaunchConfiguration(resource, getLaunchConfigurationType(),
                         LaunchConfigurationCreator.getDefaultLocation(resource, false), //it'll be made relative later on
@@ -329,7 +330,8 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
             return null;
         }
         ILabelProvider labelProvider = DebugUITools.newDebugModelPresentation();
-        ElementListSelectionDialog dialog = new ElementListSelectionDialog(Display.getDefault().getActiveShell(), labelProvider);
+        ElementListSelectionDialog dialog = new ElementListSelectionDialog(Display.getDefault().getActiveShell(),
+                labelProvider);
         dialog.setElements(configs.toArray(new ILaunchConfiguration[configs.size()]));
         dialog.setTitle("Pick a Python configuration");
         dialog.setMessage("Choose a python configuration to run");
@@ -363,7 +365,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
                 conf = configurations.get(0);
             } else {
                 conf = chooseConfig(configurations);
-                if (conf == null){
+                if (conf == null) {
                     // User canceled selection
                     return;
                 }

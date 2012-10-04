@@ -28,17 +28,17 @@ public final class FileUtils {
     public static String read(File file) throws IOException {
         BufferedReader reader = null;
 
-        try{
+        try {
             reader = new BufferedReader(new FileReader(file));
             StringBuilder builder = new StringBuilder();
             char[] buffer = new char[BUFFER_SIZE];
             int len;
-            while((len = reader.read(buffer, 0, BUFFER_SIZE)) != -1){
+            while ((len = reader.read(buffer, 0, BUFFER_SIZE)) != -1) {
                 builder.append(buffer, 0, len);
             }
             return builder.toString();
-        }finally{
-            if(reader != null){
+        } finally {
+            if (reader != null) {
                 reader.close();
             }
         }

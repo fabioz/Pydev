@@ -23,16 +23,17 @@ import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
 import org.python.pydev.core.IIndentPrefs;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
-import org.python.pydev.editor.autoedit.DocCmd;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
+
+import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.Tuple;
+import com.aptana.shared_core.utils.DocCmd;
 
 /**
  * Something similar org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor.BracketInserter (but not too similar). 
@@ -64,14 +65,14 @@ public class PyPeerLinker {
                     return;
                 }
                 switch (event.character) {
-                case '\'':
-                case '\"':
-                case '[':
-                case '{':
-                case '(':
-                    break;
-                default:
-                    return;
+                    case '\'':
+                    case '\"':
+                    case '[':
+                    case '{':
+                    case '(':
+                        break;
+                    default:
+                        return;
                 }
                 if (viewer != null && viewer.isEditable()) {
                     boolean blockSelection = false;
@@ -107,25 +108,25 @@ public class PyPeerLinker {
         linkExitPos = -1;
         linkLen = 0;
 
-        boolean literal=true;
+        boolean literal = true;
         switch (c) {
-        case '\'':
-        case '\"':
-            break;
-        case '[':
-        case '{':
-        case '(':
-            literal=false;
-            break;
-        default:
-            return false;
+            case '\'':
+            case '\"':
+                break;
+            case '[':
+            case '{':
+            case '(':
+                literal = false;
+                break;
+            default:
+                return false;
         }
-        
-        if(literal){
+
+        if (literal) {
             if (!prefs.getAutoLiterals()) {
                 return false;
             }
-        }else{
+        } else {
             if (!prefs.getAutoParentesis()) {
                 return false;
             }
@@ -140,12 +141,12 @@ public class PyPeerLinker {
                 return false;
             }
             DocCmd docCmd = new DocCmd(ps.getAbsoluteCursorOffset(), ps.getSelLength(), "" + c);
-            if(literal){
+            if (literal) {
                 if (!handleLiteral(doc, docCmd, ps, isDefaultContext, prefs)) {
                     return false; //not handled
                 }
-            }else{
-                if(!handleBrackets(ps, c, doc, docCmd, viewer)){
+            } else {
+                if (!handleBrackets(ps, c, doc, docCmd, viewer)) {
                     return false; //not handled
                 }
             }
@@ -153,22 +154,22 @@ public class PyPeerLinker {
                 return true; //it was handled (without the link)
             }
 
-            if(prefs.getAutoLink()){
+            if (prefs.getAutoLink()) {
                 LinkedPositionGroup group = new LinkedPositionGroup();
                 group.addPosition(new LinkedPosition(doc, linkOffset, linkLen, LinkedPositionGroup.NO_STOP));
-    
+
                 LinkedModeModel model = new LinkedModeModel();
                 model.addGroup(group);
                 model.forceInstall();
-    
+
                 if (viewer == null) {
                     return true; //don't actually do the link.
                 }
-    
+
                 LinkedModeUI ui = new EditorLinkedModeUI(model, viewer);
                 ui.setSimpleMode(true);
                 IExitPolicy policy = new IExitPolicy() {
-    
+
                     public ExitFlags doExit(LinkedModeModel model, VerifyEvent event, int offset, int length) {
                         //Yes, no special exit, if ' is entered again, let's do the needed treatment again instead of going 
                         //to the end (only <return> goes to the end).
@@ -184,10 +185,9 @@ public class PyPeerLinker {
                 ui.enter();
                 IRegion newSelection = ui.getSelectedRegion();
                 viewer.setSelectedRange(newSelection.getOffset(), newSelection.getLength());
-            }else{
+            } else {
                 viewer.setSelectedRange(linkOffset, linkLen);
             }
-
 
         } catch (Exception e) {
             Log.log(e);
@@ -195,27 +195,28 @@ public class PyPeerLinker {
         return true;
     }
 
-    private boolean handleBrackets(PySelection ps, final char c, IDocument doc, DocCmd docCmd, TextViewer viewer) throws BadLocationException {
-        if(c == '('){
-            
+    private boolean handleBrackets(PySelection ps, final char c, IDocument doc, DocCmd docCmd, TextViewer viewer)
+            throws BadLocationException {
+        if (c == '(') {
+
             PyAutoIndentStrategy.handleParens(doc, docCmd, prefs);
-            
+
             docCmd.doExecute(doc);
-            
+
             //Note that this is done with knowledge on how the handleParens deals with the doc command (not meant as a
             //general thing to apply a doc command).
-            if(docCmd.shiftsCaret){
+            if (docCmd.shiftsCaret) {
                 //Regular stuff: just shift it and don't link
-                if(viewer != null){
-                    viewer.setSelectedRange(docCmd.offset+docCmd.text.length(), 0);
+                if (viewer != null) {
+                    viewer.setSelectedRange(docCmd.offset + docCmd.text.length(), 0);
                 }
-            }else{
+            } else {
                 linkOffset = docCmd.caretOffset;
                 linkLen = 0;
                 linkExitPos = docCmd.offset + docCmd.text.length();
             }
-            
-        }else{ //  [ or {
+
+        } else { //  [ or {
             char peer = StringUtils.getPeer(c);
             if (PyAutoIndentStrategy.shouldClose(ps, c, peer)) {
                 int offset = ps.getAbsoluteCursorOffset();
@@ -223,15 +224,15 @@ public class PyPeerLinker {
                 linkOffset = offset + 1;
                 linkLen = 0;
                 linkExitPos = linkOffset + linkLen + 1;
-            }else{
+            } else {
                 //No link, just add the char and set the new selected range (if possible)
                 docCmd.doExecute(doc);
-                if(viewer != null){
-                    viewer.setSelectedRange(docCmd.offset+docCmd.text.length(), 0);
+                if (viewer != null) {
+                    viewer.setSelectedRange(docCmd.offset + docCmd.text.length(), 0);
                 }
             }
         }
-        
+
         //Yes, in this situation, all cases are handled.
         return true;
     }
@@ -241,8 +242,8 @@ public class PyPeerLinker {
      * 
      * @return false if we should leave the handling to the auto-indent and true if it handled things properly here.
      */
-    private boolean handleLiteral(IDocument document, DocumentCommand command, PySelection ps, boolean isDefaultContext, IIndentPrefs prefs)
-            throws BadLocationException {
+    private boolean handleLiteral(IDocument document, DocumentCommand command, PySelection ps,
+            boolean isDefaultContext, IIndentPrefs prefs) throws BadLocationException {
         int offset = ps.getAbsoluteCursorOffset();
 
         if (command.length > 0) {
@@ -346,7 +347,6 @@ public class PyPeerLinker {
         }
         return balanced;
     }
-
 
     /**
      * In default namespace (used for testing)

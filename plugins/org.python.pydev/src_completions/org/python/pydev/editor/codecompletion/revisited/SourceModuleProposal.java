@@ -80,7 +80,7 @@
 //                    edit = (PyEdit) part;
 //                    doc = edit.getDocumentProvider().getDocument(edit.getEditorInput());
 //                }else{
-//                    String contents = REF.getFileContents(module.getFile());
+//                    String contents = FileUtils.getFileContents(module.getFile());
 //                    doc = new Document(contents);
 //                }
 //            }        

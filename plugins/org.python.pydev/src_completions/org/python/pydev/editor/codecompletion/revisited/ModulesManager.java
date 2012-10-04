@@ -29,6 +29,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
@@ -36,11 +37,8 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
 import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap.Entry;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JythonModulesManagerUtils;
@@ -59,6 +57,10 @@ import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
+import com.aptana.shared_core.io.FileUtils;
+import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.Tuple;
+
 /**
  * This class manages the modules that are available
  * 
@@ -72,13 +74,15 @@ public abstract class ModulesManager implements IModulesManager {
     private static final String MODULES_MANAGER_V2 = "MODULES_MANAGER_V2\n";
 
     private final static boolean DEBUG_BUILD = false;
-    
+
     private final static boolean DEBUG_TEMPORARY_MODULES = false;
 
     private final static boolean DEBUG_ZIP = false;
 
     public ModulesManager() {
     }
+
+    private final static double ONE_MINUTE_IN_MILLIS = 60.0 * 1000.0;
 
     /**
      * This class is a cache to help in getting the managers that are referenced or referred.
@@ -90,7 +94,20 @@ public abstract class ModulesManager implements IModulesManager {
 
         public IModulesManager[] referredManagers;
 
+        private long creationTime;
+        private int calls = 0;
+
         public IModulesManager[] getManagers(boolean referenced) {
+            calls += 1;
+            if (calls % 30 == 0) {
+                long diff = System.currentTimeMillis() - creationTime;
+                if (diff > ONE_MINUTE_IN_MILLIS) {
+                    String msg = String.format(
+                            "Warning: the cache related to project dependencies is the same for %.2f minutes.",
+                            (diff / ONE_MINUTE_IN_MILLIS));
+                    Log.logInfo(msg);
+                }
+            }
             if (referenced) {
                 return this.referencedManagers;
             } else {
@@ -99,6 +116,9 @@ public abstract class ModulesManager implements IModulesManager {
         }
 
         public void setManagers(IModulesManager[] ret, boolean referenced) {
+            if (this.creationTime == 0) {
+                this.creationTime = System.currentTimeMillis();
+            }
             if (referenced) {
                 this.referencedManagers = ret;
             } else {
@@ -120,7 +140,7 @@ public abstract class ModulesManager implements IModulesManager {
      * (so, some info may not need to be re-asked over and over for requests) 
      */
     public boolean startCompletionCache() {
-        synchronized(lockCompletionCache){
+        synchronized (lockCompletionCache) {
             if (completionCache == null) {
                 completionCache = new CompletionCache();
             }
@@ -130,7 +150,7 @@ public abstract class ModulesManager implements IModulesManager {
     }
 
     public void endCompletionCache() {
-        synchronized(lockCompletionCache){
+        synchronized (lockCompletionCache) {
             completionCacheI -= 1;
             if (completionCacheI == 0) {
                 completionCache = null;
@@ -163,62 +183,61 @@ public abstract class ModulesManager implements IModulesManager {
     public PythonPathHelper getPythonPathHelper() {
         return pythonPathHelper;
     }
-    
 
     public void saveToFile(File workspaceMetadataFile) {
-        if(workspaceMetadataFile.exists() && !workspaceMetadataFile.isDirectory()){
+        if (workspaceMetadataFile.exists() && !workspaceMetadataFile.isDirectory()) {
             try {
-                REF.deleteFile(workspaceMetadataFile);
+                FileUtils.deleteFile(workspaceMetadataFile);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
-        if(!workspaceMetadataFile.exists()){
+        if (!workspaceMetadataFile.exists()) {
             workspaceMetadataFile.mkdirs();
         }
-            
+
         File modulesKeysFile = new File(workspaceMetadataFile, "modulesKeys");
         File pythonpatHelperFile = new File(workspaceMetadataFile, "pythonpath");
         FastStringBuffer buf;
-        HashMap<String, Integer> commonTokens = new HashMap<String, Integer>(); 
-        
+        HashMap<String, Integer> commonTokens = new HashMap<String, Integer>();
+
         synchronized (modulesKeysLock) {
-            buf = new FastStringBuffer(this.modulesKeys.size()*50);
+            buf = new FastStringBuffer(this.modulesKeys.size() * 50);
             buf.append(MODULES_MANAGER_V2);
-            
+
             for (Iterator<ModulesKey> iter = this.modulesKeys.keySet().iterator(); iter.hasNext();) {
                 ModulesKey next = iter.next();
                 buf.append(next.name);
-                if(next.file != null){
+                if (next.file != null) {
                     buf.append("|");
-                    if(next instanceof ModulesKeyForZip){
+                    if (next instanceof ModulesKeyForZip) {
                         ModulesKeyForZip modulesKeyForZip = (ModulesKeyForZip) next;
-                        if(modulesKeyForZip.zipModulePath != null){
+                        if (modulesKeyForZip.zipModulePath != null) {
                             String fileStr = next.file.toString();
                             Integer t = commonTokens.get(fileStr);
-                            if(t == null){
+                            if (t == null) {
                                 t = commonTokens.size();
                                 commonTokens.put(fileStr, t);
                             }
                             buf.append(t);
                             buf.append("|");
-                            
+
                             buf.append(modulesKeyForZip.zipModulePath);
                             buf.append("|");
-                            buf.append(modulesKeyForZip.isFile?'1':'0');
+                            buf.append(modulesKeyForZip.isFile ? '1' : '0');
                         }
-                    }else{
+                    } else {
                         buf.append(next.file.toString());
                     }
                 }
                 buf.append('\n');
             }
         }
-        if(commonTokens.size() > 0){
-            FastStringBuffer header = new FastStringBuffer(buf.length()+(commonTokens.size()*50));
+        if (commonTokens.size() > 0) {
+            FastStringBuffer header = new FastStringBuffer(buf.length() + (commonTokens.size() * 50));
             header.append(MODULES_MANAGER_V2);
             header.append("--COMMON--\n");
-            for(Map.Entry<String, Integer> entries:commonTokens.entrySet()){
+            for (Map.Entry<String, Integer> entries : commonTokens.entrySet()) {
                 header.append(entries.getValue());
                 header.append('=');
                 header.append(entries.getKey());
@@ -228,45 +247,46 @@ public abstract class ModulesManager implements IModulesManager {
             header.append(buf);
             buf = header;
         }
-        REF.writeStrToFile(buf.toString(), modulesKeysFile);
-        
+        FileUtils.writeStrToFile(buf.toString(), modulesKeysFile);
+
         this.pythonPathHelper.saveToFile(pythonpatHelperFile);
     }
-    
+
     /**
      * @param systemModulesManager
      * @param workspaceMetadataFile
      * @throws IOException 
      */
     public static void loadFromFile(ModulesManager modulesManager, File workspaceMetadataFile) throws IOException {
-        if(workspaceMetadataFile.exists() && !workspaceMetadataFile.isDirectory()){
-            throw new IOException("Expecting: "+workspaceMetadataFile+" to be a directory.");
+        if (workspaceMetadataFile.exists() && !workspaceMetadataFile.isDirectory()) {
+            throw new IOException("Expecting: " + workspaceMetadataFile + " to be a directory.");
         }
         File modulesKeysFile = new File(workspaceMetadataFile, "modulesKeys");
         File pythonpatHelperFile = new File(workspaceMetadataFile, "pythonpath");
-        if(!modulesKeysFile.isFile()){
-            throw new IOException("Expecting: "+modulesKeysFile+" to exist (and be a file).");
+        if (!modulesKeysFile.isFile()) {
+            throw new IOException("Expecting: " + modulesKeysFile + " to exist (and be a file).");
         }
-        if(!pythonpatHelperFile.isFile()){
-            throw new IOException("Expecting: "+pythonpatHelperFile+" to exist (and be a file).");
+        if (!pythonpatHelperFile.isFile()) {
+            throw new IOException("Expecting: " + pythonpatHelperFile + " to exist (and be a file).");
         }
-        
-        String fileContents = REF.getFileContents(modulesKeysFile);
-        if(!fileContents.startsWith(MODULES_MANAGER_V2)){
-            throw new RuntimeException("Could not load modules manager from "+modulesKeysFile+" (version changed).");
+
+        String fileContents = FileUtils.getFileContents(modulesKeysFile);
+        if (!fileContents.startsWith(MODULES_MANAGER_V2)) {
+            throw new RuntimeException("Could not load modules manager from " + modulesKeysFile + " (version changed).");
         }
-        
+
         HashMap<Integer, String> intToString = new HashMap<Integer, String>();
         fileContents = fileContents.substring(MODULES_MANAGER_V2.length());
-        if(fileContents.startsWith("--COMMON--\n")){
+        if (fileContents.startsWith("--COMMON--\n")) {
             String header = fileContents.substring("--COMMON--\n".length());
             header = header.substring(0, header.indexOf("--END-COMMON--\n"));
-            fileContents = fileContents.substring(fileContents.indexOf("--END-COMMON--\n")+"--END-COMMON--\n".length());
-            
-            for(String line:StringUtils.iterLines(header)){
+            fileContents = fileContents.substring(fileContents.indexOf("--END-COMMON--\n")
+                    + "--END-COMMON--\n".length());
+
+            for (String line : StringUtils.iterLines(header)) {
                 line = line.trim();
                 List<String> split = StringUtils.split(line, '=');
-                if(split.size() == 2){
+                if (split.size() == 2) {
                     try {
                         int i = Integer.parseInt(split.get(0));
                         intToString.put(i, split.get(1));
@@ -274,38 +294,40 @@ public abstract class ModulesManager implements IModulesManager {
                         Log.log(e);
                     }
                 }
-                
+
             }
-            if(fileContents.startsWith(MODULES_MANAGER_V2)){
+            if (fileContents.startsWith(MODULES_MANAGER_V2)) {
                 fileContents = fileContents.substring(MODULES_MANAGER_V2.length());
             }
         }
-        
+
         handleFileContents(modulesManager, fileContents, intToString);
-        
-        if(modulesManager.pythonPathHelper == null){
-            throw new IOException("Pythonpath helper not properly restored. "+modulesManager.getClass().getName()+" dir:"+workspaceMetadataFile);
+
+        if (modulesManager.pythonPathHelper == null) {
+            throw new IOException("Pythonpath helper not properly restored. " + modulesManager.getClass().getName()
+                    + " dir:" + workspaceMetadataFile);
         }
         modulesManager.pythonPathHelper.loadFromFile(pythonpatHelperFile);
-        
-        
-        if(modulesManager.pythonPathHelper.getPythonpath() == null){
-            throw new IOException("Pythonpath helper pythonpath not properly restored. "+modulesManager.getClass().getName()+" dir:"+workspaceMetadataFile);
+
+        if (modulesManager.pythonPathHelper.getPythonpath() == null) {
+            throw new IOException("Pythonpath helper pythonpath not properly restored. "
+                    + modulesManager.getClass().getName() + " dir:" + workspaceMetadataFile);
         }
-        
-        if(modulesManager.pythonPathHelper.getPythonpath().size() == 0){
-            throw new IOException("Pythonpath helper pythonpath restored with no contents. "+modulesManager.getClass().getName()+" dir:"+workspaceMetadataFile);
+
+        if (modulesManager.pythonPathHelper.getPythonpath().size() == 0) {
+            throw new IOException("Pythonpath helper pythonpath restored with no contents. "
+                    + modulesManager.getClass().getName() + " dir:" + workspaceMetadataFile);
         }
-        
-        if(modulesManager.modulesKeys.size() < 2){ //if we have few modules, that may indicate a problem... 
+
+        if (modulesManager.modulesKeys.size() < 2) { //if we have few modules, that may indicate a problem... 
             //if the project is really small, modulesManager will be fast, otherwise, it'll fix the problem.
             //Note: changed to a really low value because we now make a check after it's restored anyways.
-            throw new IOException("Only "+modulesManager.modulesKeys.size()+" modules restored in I/O. "+modulesManager.getClass().getName()+" dir:"+workspaceMetadataFile);
+            throw new IOException("Only " + modulesManager.modulesKeys.size() + " modules restored in I/O. "
+                    + modulesManager.getClass().getName() + " dir:" + workspaceMetadataFile);
         }
-        
+
     }
 
-    
     /**
      * This method was simply: 
      * 
@@ -317,18 +339,19 @@ public abstract class ModulesManager implements IModulesManager {
      *  
      *  and was changed to be faster (as this was one of the slow things in startup).
      */
-    /*default*/ @SuppressWarnings("rawtypes")
-    static void handleFileContents(ModulesManager modulesManager, String fileContents, HashMap<Integer, String> intToString) {
+    /*default*/@SuppressWarnings("rawtypes")
+    static void handleFileContents(ModulesManager modulesManager, String fileContents,
+            HashMap<Integer, String> intToString) {
         String string = fileContents;
         int len = string.length();
 
         final ArrayList<ModulesKey> lst = new ArrayList<ModulesKey>();
-        
+
         char c;
         int start = 0;
         int i = 0;
-        
-        String [] parts = new String[4];
+
+        String[] parts = new String[4];
         int partsFound = 0;
 
         for (; i < len; i++) {
@@ -336,48 +359,48 @@ public abstract class ModulesManager implements IModulesManager {
 
             if (c == '\r') {
                 String trimmed = string.substring(start, i).trim();
-                if(trimmed.length() > 0){
-                    parts [partsFound] = trimmed;
+                if (trimmed.length() > 0) {
+                    parts[partsFound] = trimmed;
                     partsFound++;
                 }
                 handleLineParts(modulesManager, intToString, parts, partsFound, lst);
                 partsFound = 0;
-                
-                if (i < len - 1 && string.charAt(i+1) == '\n') {
+
+                if (i < len - 1 && string.charAt(i + 1) == '\n') {
                     i++;
                 }
-                start = i+1;
-                
-            }else if (c == '\n') {
+                start = i + 1;
+
+            } else if (c == '\n') {
                 String trimmed = string.substring(start, i).trim();
-                if(trimmed.length() > 0){
-                    parts [partsFound] = trimmed;
+                if (trimmed.length() > 0) {
+                    parts[partsFound] = trimmed;
                     partsFound++;
                 }
                 handleLineParts(modulesManager, intToString, parts, partsFound, lst);
                 partsFound = 0;
-                
-                start = i+1;
-                
-            }else if(c == '|'){
+
+                start = i + 1;
+
+            } else if (c == '|') {
                 String trimmed = string.substring(start, i).trim();
-                if(trimmed.length() > 0){
-                    parts [partsFound] = trimmed;
+                if (trimmed.length() > 0) {
+                    parts[partsFound] = trimmed;
                     partsFound++;
                 }
-                start = i+1;
+                start = i + 1;
             }
         }
-        
+
         if (start < len && start != i) {
             String trimmed = string.substring(start, i).trim();
-            if(trimmed.length() > 0){
-                parts [partsFound] = trimmed;
+            if (trimmed.length() > 0) {
+                parts[partsFound] = trimmed;
                 partsFound++;
             }
             handleLineParts(modulesManager, intToString, parts, partsFound, lst);
         }
-        
+
         try {
             final int size = lst.size();
             //As we saved in sorted order, we can build in sorted order too (which is MUCH faster than adding items one
@@ -385,7 +408,7 @@ public abstract class ModulesManager implements IModulesManager {
             modulesManager.modulesKeys.buildFromSorted(size, new Iterator() {
 
                 private int i = 0;
-                
+
                 public boolean hasNext() {
                     return i < size;
                 }
@@ -418,24 +441,23 @@ public abstract class ModulesManager implements IModulesManager {
         }
     }
 
-    
-    private static void handleLineParts(ModulesManager modulesManager, HashMap<Integer, String> intToString, String[] split, int size, ArrayList<ModulesKey> lst) {
-        if(size > 0 && split[0].length() > 0){ //Just making sure we have something there.
+    private static void handleLineParts(ModulesManager modulesManager, HashMap<Integer, String> intToString,
+            String[] split, int size, ArrayList<ModulesKey> lst) {
+        if (size > 0 && split[0].length() > 0) { //Just making sure we have something there.
             ModulesKey key;
-            if(size == 1){
+            if (size == 1) {
                 key = new ModulesKey(split[0], null);
                 //restore with empty modules.
                 lst.add(key);
-                
-            }else if(size == 2){
+
+            } else if (size == 2) {
                 key = new ModulesKey(split[0], new File(split[1]));
                 //restore with empty modules.
                 lst.add(key);
-                
-            }else if(size == 4){
+
+            } else if (size == 4) {
                 try {
-                    key = new ModulesKeyForZip(
-                            split[0], //module name
+                    key = new ModulesKeyForZip(split[0], //module name
                             new File(intToString.get(Integer.parseInt(split[1]))), //zip file (usually repeated over and over again) 
                             split[2], //path in zip
                             split[3].equals("1")); //is file (false = folder)
@@ -448,14 +470,12 @@ public abstract class ModulesManager implements IModulesManager {
         }
     }
 
-
     /**
      * @return Returns the modules.
      */
     protected Map<ModulesKey, AbstractModule> getModules() {
         throw new RuntimeException("Deprecated");
     }
-
 
     /**
      * Change the pythonpath (used for both: system and project)
@@ -464,7 +484,7 @@ public abstract class ModulesManager implements IModulesManager {
      * @param defaultSelectedInterpreter: may be null
      */
     public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor) {
-        if(monitor == null){
+        if (monitor == null) {
             monitor = new NullProgressMonitor();
         }
 
@@ -480,8 +500,7 @@ public abstract class ModulesManager implements IModulesManager {
         }
 
     }
-    
-    
+
     /**
      * @return a tuple with the new keys to be added to the modules manager (i.e.: found in keysFound but not in the 
      * modules manager) and the keys to be removed from the modules manager (i.e.: found in the modules manager but
@@ -491,17 +510,17 @@ public abstract class ModulesManager implements IModulesManager {
         ArrayList<ModulesKey> newKeys = new ArrayList<ModulesKey>();
         ArrayList<ModulesKey> removedKeys = new ArrayList<ModulesKey>();
         Iterator<ModulesKey> it = keysFound.keySet().iterator();
-        
+
         synchronized (modulesKeysLock) {
             while (it.hasNext()) {
                 ModulesKey next = it.next();
                 ModulesKey modulesKey = modulesKeys.get(next);
-                if(modulesKey == null || modulesKey.getClass() != next.getClass()){
+                if (modulesKey == null || modulesKey.getClass() != next.getClass()) {
                     //Check the class because ModulesKey and ModulesKeyForZip are equal considering only the name.
                     newKeys.add(next);
                 }
             }
-            
+
             it = modulesKeys.keySet().iterator();
             while (it.hasNext()) {
                 ModulesKey next = it.next();
@@ -511,20 +530,20 @@ public abstract class ModulesManager implements IModulesManager {
                 }
             }
         }
-        
+
         return new Tuple<List<ModulesKey>, List<ModulesKey>>(newKeys, removedKeys);
     }
 
-
-    public PyPublicTreeMap<ModulesKey, ModulesKey> buildKeysFromModulesFound(IProgressMonitor monitor, ModulesFoundStructure modulesFound) {
+    public PyPublicTreeMap<ModulesKey, ModulesKey> buildKeysFromModulesFound(IProgressMonitor monitor,
+            ModulesFoundStructure modulesFound) {
         //now, on to actually filling the module keys
         PyPublicTreeMap<ModulesKey, ModulesKey> keys = new PyPublicTreeMap<ModulesKey, ModulesKey>();
         int j = 0;
 
         FastStringBuffer buffer = new FastStringBuffer();
         //now, create in memory modules for all the loaded files (empty modules).
-        for (Iterator<Map.Entry<File, String>> iterator = modulesFound.regularModules.entrySet().iterator(); iterator.hasNext()
-                && monitor.isCanceled() == false; j++) {
+        for (Iterator<Map.Entry<File, String>> iterator = modulesFound.regularModules.entrySet().iterator(); iterator
+                .hasNext() && monitor.isCanceled() == false; j++) {
             Map.Entry<File, String> entry = iterator.next();
             File f = entry.getKey();
             String m = entry.getValue();
@@ -553,22 +572,22 @@ public abstract class ModulesManager implements IModulesManager {
                 }
             }
         }
-        
+
         for (ZipContents zipContents : modulesFound.zipContents) {
             if (monitor.isCanceled()) {
                 break;
             }
             for (String filePathInZip : zipContents.foundFileZipPaths) {
                 String modName = StringUtils.stripExtension(filePathInZip).replace('/', '.');
-                if(DEBUG_ZIP){
-                    System.out.println("Found in zip:"+modName);
+                if (DEBUG_ZIP) {
+                    System.out.println("Found in zip:" + modName);
                 }
                 ModulesKey k = new ModulesKeyForZip(modName, zipContents.zipFile, filePathInZip, true);
                 keys.put(k, k);
-                
-                if(zipContents.zipContentsType == ZipContents.ZIP_CONTENTS_TYPE_JAR){
+
+                if (zipContents.zipContentsType == ZipContents.ZIP_CONTENTS_TYPE_JAR) {
                     //folder modules are only created for jars (because for python files, the __init__.py is required).
-                    for(String s:new FullRepIterable(FullRepIterable.getWithoutLastPart(modName))){ //the one without the last part was already added
+                    for (String s : new FullRepIterable(FullRepIterable.getWithoutLastPart(modName))) { //the one without the last part was already added
                         k = new ModulesKeyForZip(s, zipContents.zipFile, s.replace('.', '/'), false);
                         keys.put(k, k);
                     }
@@ -651,7 +670,7 @@ public abstract class ModulesManager implements IModulesManager {
         Set<String> s = new HashSet<String>();
         synchronized (modulesKeysLock) {
             for (ModulesKey key : this.modulesKeys.keySet()) {
-                if(key.hasPartStartingWith(partStartingWithLowerCase)){
+                if (key.hasPartStartingWith(partStartingWithLowerCase)) {
                     s.add(key.name);
                 }
             }
@@ -698,48 +717,48 @@ public abstract class ModulesManager implements IModulesManager {
     public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit) {
         return getModule(true, name, nature, dontSearchInit);
     }
-    
+
     /**
      * Note that the access must be synched.
      */
     public final Map<String, SortedMap<Integer, IModule>> temporaryModules = new HashMap<String, SortedMap<Integer, IModule>>();
     private final Object lockTemporaryModules = new Object();
     private int nextHandle = 0;
-    
+
     /**
      * Returns the handle to be used to remove the module added later on!
      */
     public int pushTemporaryModule(String moduleName, IModule module) {
-    	synchronized (lockTemporaryModules) {
-    		SortedMap<Integer, IModule> map = temporaryModules.get(moduleName);
-    		if(map == null){
-    			map = new TreeMap<Integer, IModule>(); //small initial size!
-    			temporaryModules.put(moduleName, map);
-    		}
-    		if(module instanceof AbstractModule){
-    		    module = decorateModule((AbstractModule) module, null);
-    		}
-    		nextHandle += 1; //Note: don't care about stack overflow!
-    		map.put(nextHandle, module);
-    		return nextHandle;
-		}
-    	
+        synchronized (lockTemporaryModules) {
+            SortedMap<Integer, IModule> map = temporaryModules.get(moduleName);
+            if (map == null) {
+                map = new TreeMap<Integer, IModule>(); //small initial size!
+                temporaryModules.put(moduleName, map);
+            }
+            if (module instanceof AbstractModule) {
+                module = decorateModule((AbstractModule) module, null);
+            }
+            nextHandle += 1; //Note: don't care about stack overflow!
+            map.put(nextHandle, module);
+            return nextHandle;
+        }
+
     }
-    
+
     public void popTemporaryModule(String moduleName, int handle) {
-    	synchronized (lockTemporaryModules) {
-    		SortedMap<Integer, IModule> stack = temporaryModules.get(moduleName);
-    		try {
-    		    if(stack != null){
-    				stack.remove(handle);
-    				if(stack.size() == 0){
-    					temporaryModules.remove(moduleName);
-    				}
-    		    }
-			} catch (Throwable e) {
-				Log.log(e);
-			}
-    	}
+        synchronized (lockTemporaryModules) {
+            SortedMap<Integer, IModule> stack = temporaryModules.get(moduleName);
+            try {
+                if (stack != null) {
+                    stack.remove(handle);
+                    if (stack.size() == 0) {
+                        temporaryModules.remove(moduleName);
+                    }
+                }
+            } catch (Throwable e) {
+                Log.log(e);
+            }
+        }
     }
 
     /**
@@ -753,15 +772,15 @@ public abstract class ModulesManager implements IModulesManager {
      * @return the module represented by this name
      */
     protected IModule getModule(boolean acceptCompiledModule, String name, IPythonNature nature, boolean dontSearchInit) {
-		synchronized (lockTemporaryModules) {
-		    SortedMap<Integer, IModule> map = temporaryModules.get(name);
-			if(map != null && map.size() > 0){
-				if(DEBUG_TEMPORARY_MODULES){
-					System.out.println("Returning temporary module: "+name);
-				}
-				return map.get(map.lastKey());
-			}
-		}
+        synchronized (lockTemporaryModules) {
+            SortedMap<Integer, IModule> map = temporaryModules.get(name);
+            if (map != null && map.size() > 0) {
+                if (DEBUG_TEMPORARY_MODULES) {
+                    System.out.println("Returning temporary module: " + name);
+                }
+                return map.get(map.lastKey());
+            }
+        }
         AbstractModule n = null;
         ModulesKey keyForCacheAccess = new ModulesKey(null, null);
 
@@ -794,42 +813,42 @@ public abstract class ModulesManager implements IModulesManager {
             boolean found = false;
 
             if (!found && e.f != null) {
-                
+
                 if (!e.f.exists()) {
                     //if the file does not exist anymore, just remove it.
                     keyForCacheAccess.name = name;
                     keyForCacheAccess.file = e.f;
                     doRemoveSingleModule(keyForCacheAccess);
                     n = null;
-                    
-                    
+
                 } else {
                     //file exists
                     n = checkOverride(name, nature, n);
-                    
-                    
-                    if(n instanceof EmptyModule){
+
+                    if (n instanceof EmptyModule) {
                         //ok, handle case where the file is actually from a zip file...
                         if (e instanceof EmptyModuleForZip) {
                             EmptyModuleForZip emptyModuleForZip = (EmptyModuleForZip) e;
-                            
-                            if(emptyModuleForZip.pathInZip.endsWith(".class") || !emptyModuleForZip.isFile){
+
+                            if (emptyModuleForZip.pathInZip.endsWith(".class") || !emptyModuleForZip.isFile) {
                                 //handle java class... (if it's a class or a folder in a jar)
                                 n = JythonModulesManagerUtils.createModuleFromJar(emptyModuleForZip);
                                 n = decorateModule(n, nature);
-                                
-                            }else if(FileTypesPreferencesPage.isValidDll(emptyModuleForZip.pathInZip)){
+
+                            } else if (FileTypesPreferencesPage.isValidDll(emptyModuleForZip.pathInZip)) {
                                 //.pyd
                                 n = new CompiledModule(name, this);
                                 n = decorateModule(n, nature);
-                                
-                            }else if(PythonPathHelper.isValidSourceFile(emptyModuleForZip.pathInZip)){
+
+                            } else if (PythonPathHelper.isValidSourceFile(emptyModuleForZip.pathInZip)) {
                                 //handle python file from zip... we have to create it getting the contents from the zip file
                                 try {
-                                    IDocument doc = REF.getDocFromZip(emptyModuleForZip.f, emptyModuleForZip.pathInZip);
+                                    IDocument doc = FileUtilsFileBuffer.getDocFromZip(emptyModuleForZip.f,
+                                            emptyModuleForZip.pathInZip);
                                     //NOTE: The nature (and so the grammar to be used) must be defined by this modules
                                     //manager (and not by the initial caller)!!
-                                    n = AbstractModule.createModuleFromDoc(name, emptyModuleForZip.f, doc, this.getNature(), false);
+                                    n = AbstractModule.createModuleFromDoc(name, emptyModuleForZip.f, doc,
+                                            this.getNature(), false);
                                     SourceModule zipModule = (SourceModule) n;
                                     zipModule.zipFilePath = emptyModuleForZip.pathInZip;
                                     n = decorateModule(n, nature);
@@ -838,8 +857,7 @@ public abstract class ModulesManager implements IModulesManager {
                                     n = null;
                                 }
                             }
-                            
-                            
+
                         } else {
                             //regular case... just go on and create it.
                             try {
@@ -854,16 +872,16 @@ public abstract class ModulesManager implements IModulesManager {
                                 n = null;
                             } catch (MisconfigurationException exc) {
                                 Log.log(exc);
-                                n=null;
+                                n = null;
                             }
                         }
                     }
-                    
+
                 }
 
             } else { //ok, it does not have a file associated, so, we treat it as a builtin (this can happen in java jars)
                 n = checkOverride(name, nature, n);
-                if(n instanceof EmptyModule){
+                if (n instanceof EmptyModule) {
                     if (acceptCompiledModule) {
                         n = new CompiledModule(name, this);
                         n = decorateModule(n, nature);
@@ -881,21 +899,21 @@ public abstract class ModulesManager implements IModulesManager {
         }
 
         if (n instanceof EmptyModule) {
-            throw new RuntimeException("Should not be an empty module anymore: "+n);
+            throw new RuntimeException("Should not be an empty module anymore: " + n);
         }
-        if(n instanceof SourceModule){
+        if (n instanceof SourceModule) {
             SourceModule sourceModule = (SourceModule) n;
             //now, here's a catch... it may be a bootstrap module...
-            if(sourceModule.isBootstrapModule()){
+            if (sourceModule.isBootstrapModule()) {
                 //if it's a bootstrap module, we must replace it for the related compiled module.
                 n = new CompiledModule(name, this);
                 n = decorateModule(n, nature);
             }
         }
-        
+
         return n;
     }
-    
+
     /**
      * Called after the creation of any module. Used as a workaround for filling tokens that are in no way
      * available in the code-completion through the regular inspection.
@@ -905,43 +923,34 @@ public abstract class ModulesManager implements IModulesManager {
      * real generic way of discovering it (actually, even by looking at the class definition this is very obscure),
      * so, the solution found is creating the objects by decorating the module with that info.
      */
-    private AbstractModule decorateModule(AbstractModule n, IPythonNature nature){
-        if(n instanceof SourceModule && "django.db.models.base".equals(n.getName())){
+    private AbstractModule decorateModule(AbstractModule n, IPythonNature nature) {
+        if (n instanceof SourceModule && "django.db.models.base".equals(n.getName())) {
             SourceModule sourceModule = (SourceModule) n;
             SimpleNode ast = sourceModule.getAst();
-            for(SimpleNode node:((Module)ast).body){
-                if(node instanceof ClassDef && "Model".equals(NodeUtils.getRepresentationString(node))){
-                    Object[][] metaclassAttrs = new Object[][]{
-                            {"objects", NodeUtils.makeAttribute("django.db.models.manager.Manager()")},
-                            {"DoesNotExist",new Name("Exception", Name.Load, false)},
-                            {"MultipleObjectsReturned",new Name("Exception", Name.Load, false)},
-                    };
-                    
+            for (SimpleNode node : ((Module) ast).body) {
+                if (node instanceof ClassDef && "Model".equals(NodeUtils.getRepresentationString(node))) {
+                    Object[][] metaclassAttrs = new Object[][] {
+                            { "objects", NodeUtils.makeAttribute("django.db.models.manager.Manager()") },
+                            { "DoesNotExist", new Name("Exception", Name.Load, false) },
+                            { "MultipleObjectsReturned", new Name("Exception", Name.Load, false) }, };
+
                     ClassDef classDef = (ClassDef) node;
-                    stmtType[] newBody = new stmtType[classDef.body.length+metaclassAttrs.length];
+                    stmtType[] newBody = new stmtType[classDef.body.length + metaclassAttrs.length];
                     System.arraycopy(classDef.body, 0, newBody, metaclassAttrs.length, classDef.body.length);
 
-                    int i=0;
-                    for(Object[] objAndType:metaclassAttrs){
+                    int i = 0;
+                    for (Object[] objAndType : metaclassAttrs) {
                         //Note that the line/col is important so that we correctly acknowledge it inside the "class Model" scope. 
-                        Name name = new Name((String)objAndType[0], Name.Store, false);
-                        name.beginColumn = classDef.beginColumn+4;
-                        name.beginLine = classDef.beginLine+1;
-                        newBody[i] = new Assign(
-                                new exprType[]{name}, 
-                                (exprType) objAndType[1]
-                        );
-                        newBody[i].beginColumn = classDef.beginColumn+4;
-                        newBody[i].beginLine = classDef.beginLine+1;
-                        
-                        i+= 1;
+                        Name name = new Name((String) objAndType[0], Name.Store, false);
+                        name.beginColumn = classDef.beginColumn + 4;
+                        name.beginLine = classDef.beginLine + 1;
+                        newBody[i] = new Assign(new exprType[] { name }, (exprType) objAndType[1]);
+                        newBody[i].beginColumn = classDef.beginColumn + 4;
+                        newBody[i].beginLine = classDef.beginLine + 1;
+
+                        i += 1;
                     }
-                    
-                    
-                    
-                    
-                    
-                    
+
                     classDef.body = newBody;
                     break;
                 }
@@ -950,27 +959,24 @@ public abstract class ModulesManager implements IModulesManager {
         return n;
     }
 
-    
     /**
      * Hook called to give clients a chance to override the module created (still experimenting, so, it's not public).
      */
-    private AbstractModule checkOverride(String name, IPythonNature nature, AbstractModule emptyModule){
+    private AbstractModule checkOverride(String name, IPythonNature nature, AbstractModule emptyModule) {
         return emptyModule;
     }
-    
 
     private ModulesKey createModulesKey(String name, File f) {
         ModulesKey newEntry = new ModulesKey(name, f);
         synchronized (modulesKeysLock) {
             Entry<ModulesKey, ModulesKey> oldEntry = this.modulesKeys.getEntry(newEntry);
-            if(oldEntry != null){
+            if (oldEntry != null) {
                 return oldEntry.getKey();
-            }else{
+            } else {
                 return newEntry;
             }
         }
     }
-
 
     /**
      * Passes through all the compiled modules in memory and clears its tokens (so that
@@ -992,12 +998,12 @@ public abstract class ModulesManager implements IModulesManager {
      */
     public String resolveModule(IResource member, IProject container) {
         File inOs = member.getRawLocation().toFile();
-        return resolveModule(REF.getFileAbsolutePath(inOs));
+        return resolveModule(FileUtils.getFileAbsolutePath(inOs));
     }
 
     protected String getResolveModuleErr(IResource member) {
-        return "Unable to find the path " + member + " in the project were it\n" + 
-            "is added as a source folder for pydev." + this.getClass();
+        return "Unable to find the path " + member + " in the project were it\n"
+                + "is added as a source folder for pydev." + this.getClass();
     }
 
     /**

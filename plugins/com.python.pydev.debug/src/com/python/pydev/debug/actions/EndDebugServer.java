@@ -13,9 +13,8 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
 import com.python.pydev.debug.remote.client_api.PydevRemoteDebuggerServer;
 
-
 public class EndDebugServer implements IWorkbenchWindowActionDelegate {
-    
+
     public EndDebugServer() {
     }
 

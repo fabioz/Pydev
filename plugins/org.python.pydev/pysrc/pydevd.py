@@ -177,8 +177,13 @@ def set_pm_excepthook(handle_exceptions=None):
     '''
     This function is now deprecated (PyDev provides an UI to handle that now).
     '''
+
     raise DeprecationWarning(
-        'This function is now replaced by GetGlobalDebugger().setExceptHook and is now controlled by the PyDev UI.')
+'''This function is now controlled directly in the PyDev UI.
+I.e.: Go to the debug perspective and choose the menu:  PyDev > Manage exception breakpoints and
+check "Suspend on uncaught exceptions".
+Programmatically, it was replaced by: GetGlobalDebugger().setExceptHook
+''')
 
 
 try:
@@ -213,7 +218,7 @@ class ClassWithPydevStartNewThread:
         it and not through the threading module are properly traced.
         '''
         return _original_start_new_thread(NewThreadStartup(function), args, kwargs)
-    
+
 #This is a hack for the situation where the thread.start_new_thread is declared inside a class, such as the one below
 #class F(object):
 #    start_new_thread = thread.start_new_thread

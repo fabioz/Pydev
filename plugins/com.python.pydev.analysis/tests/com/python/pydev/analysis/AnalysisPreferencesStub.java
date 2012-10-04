@@ -31,7 +31,7 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
     public int severityForAssignmentToBuiltInSymbol;
     public int severityForArgumentsMismatch;
 
-    public AnalysisPreferencesStub(){
+    public AnalysisPreferencesStub() {
         severityForUnusedImport = IMarker.SEVERITY_WARNING;
         severityForUnusedVariable = IMarker.SEVERITY_WARNING;
         severityForUndefinedVariable = IMarker.SEVERITY_ERROR;
@@ -48,55 +48,55 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
         severityForAssignmentToBuiltInSymbol = IMarker.SEVERITY_WARNING;
         severityForArgumentsMismatch = IMarker.SEVERITY_INFO;
     }
-    
+
     public int getSeverityForType(int type) {
         switch (type) {
             case TYPE_UNUSED_IMPORT:
                 return severityForUnusedImport;
-            
+
             case TYPE_UNUSED_VARIABLE:
                 return severityForUnusedVariable;
-            
+
             case TYPE_UNDEFINED_VARIABLE:
                 return severityForUndefinedVariable;
-            
+
             case TYPE_DUPLICATED_SIGNATURE:
                 return severityForDuplicatedSignature;
-            
+
             case TYPE_REIMPORT:
                 return severityForReimport;
-            
+
             case TYPE_UNRESOLVED_IMPORT:
                 return severityForUnresolvedImport;
-            
+
             case TYPE_NO_SELF:
                 return severityForNoSelf;
-            
+
             case TYPE_UNUSED_WILD_IMPORT:
                 return severityForUnusedWildImport;
-            
+
             case TYPE_UNDEFINED_IMPORT_VARIABLE:
                 return severityForUndefinedImportVariable;
-            
+
             case TYPE_UNUSED_PARAMETER:
                 return severityForUnusedParameter;
-            
+
             case TYPE_NO_EFFECT_STMT:
                 return severityForNoEffectStmt;
-            
+
             case TYPE_PEP8:
                 return IMarker.SEVERITY_INFO;
-                
+
             case TYPE_ARGUMENTS_MISATCH:
                 return severityForArgumentsMismatch;
-                
+
             case TYPE_INDENTATION_PROBLEM:
                 return severityForIndentationProblem;
 
             case TYPE_ASSIGNMENT_TO_BUILT_IN_SYMBOL:
                 return severityForAssignmentToBuiltInSymbol;
         }
-        throw new RuntimeException("unable to get severity for type "+type);
+        throw new RuntimeException("unable to get severity for type " + type);
     }
 
     public boolean makeCodeAnalysis() {
@@ -111,7 +111,7 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
         names.add("dummy");
         return names;
     }
-    
+
     public Set<String> getModuleNamePatternsToBeIgnored() {
         Set<String> names = new HashSet<String>();
         names.add("__init__");
@@ -123,7 +123,7 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
         names.add("considerGlobal");
         return names;
     }
-    
+
     public void clearCaches() {
         //no caches here
     }

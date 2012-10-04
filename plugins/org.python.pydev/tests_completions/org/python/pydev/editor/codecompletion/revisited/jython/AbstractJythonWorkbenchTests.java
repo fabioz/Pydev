@@ -14,16 +14,16 @@ import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
  *
  * @author Fabio
  */
-public abstract class AbstractJythonWorkbenchTests extends JythonCodeCompletionTestsBase{
+public abstract class AbstractJythonWorkbenchTests extends JythonCodeCompletionTestsBase {
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        
+
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         this.restorePythonPath(false);
         codeCompletion = new PyCodeCompletion();
 
     }
-    
+
 }

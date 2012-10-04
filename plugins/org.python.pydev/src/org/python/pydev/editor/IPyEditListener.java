@@ -11,7 +11,6 @@ import java.util.ListResourceBundle;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 
-
 public interface IPyEditListener {
 
     /**

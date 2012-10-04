@@ -90,8 +90,7 @@ public class ByteSwapper {
             b6 = (tmp >> 40) & 0xff;
             b7 = (tmp >> 48) & 0xff;
             b8 = (tmp >> 56) & 0xff;
-            tmp = b1 << 56 | b2 << 48 | b3 << 40 | b4 << 32 | b5 << 24
-                    | b6 << 16 | b7 << 8 | b8 << 0;
+            tmp = b1 << 56 | b2 << 48 | b3 << 40 | b4 << 32 | b5 << 24 | b6 << 16 | b7 << 8 | b8 << 0;
 
             dtmp = Double.longBitsToDouble(tmp);
             Array.setDouble(array, i, dtmp);
@@ -168,8 +167,7 @@ public class ByteSwapper {
             b6 = (tmp >> 40) & 0xff;
             b7 = (tmp >> 48) & 0xff;
             b8 = (tmp >> 56) & 0xff;
-            tmp = b1 << 56 | b2 << 48 | b3 << 40 | b4 << 32 | b5 << 24
-                    | b6 << 16 | b7 << 8 | b8 << 0;
+            tmp = b1 << 56 | b2 << 48 | b3 << 40 | b4 << 32 | b5 << 24 | b6 << 16 | b7 << 8 | b8 << 0;
 
             Array.setLong(array, i, tmp);
         }

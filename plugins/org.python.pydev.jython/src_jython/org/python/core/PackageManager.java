@@ -44,8 +44,7 @@ public abstract class PackageManager extends Object {
      * @param instantiate if true then instatiate reported names in package dict
      * @param exclpkgs exclude packages (just when instantiate is false)
      */
-    public abstract PyList doDir(PyJavaPackage jpkg, boolean instantiate,
-            boolean exclpkgs);
+    public abstract PyList doDir(PyJavaPackage jpkg, boolean instantiate, boolean exclpkgs);
 
     /**
      * Append a directory to the list of directories searched for java packages
@@ -75,8 +74,7 @@ public abstract class PackageManager extends Object {
      * Basic helper implementation of {@link #doDir}. It merges information
      * from jpkg {@link PyJavaPackage#clsSet} and {@link PyJavaPackage#__dict__}.
      */
-    protected PyList basicDoDir(PyJavaPackage jpkg, boolean instantiate,
-            boolean exclpkgs) {
+    protected PyList basicDoDir(PyJavaPackage jpkg, boolean instantiate, boolean exclpkgs) {
         PyStringMap dict = jpkg.__dict__;
         PyStringMap cls = jpkg.clsSet;
 
@@ -150,8 +148,7 @@ public abstract class PackageManager extends Object {
      * @param jarfile involved jarfile; can be null
      * @return created/updated package
      */
-    public PyJavaPackage makeJavaPackage(String name, String classes,
-            String jarfile) {
+    public PyJavaPackage makeJavaPackage(String name, String classes, String jarfile) {
         PyJavaPackage p = this.topLevelPackage;
         if (name.length() != 0)
             p = p.addPackage(name, jarfile);
@@ -166,8 +163,7 @@ public abstract class PackageManager extends Object {
      * Check that a given stream is a valid Java .class file. And return its
      * access permissions as an int.
      */
-    static protected int checkAccess(java.io.InputStream cstream)
-            throws java.io.IOException {
+    static protected int checkAccess(java.io.InputStream cstream) throws java.io.IOException {
         java.io.DataInputStream istream = new java.io.DataInputStream(cstream);
 
         try {
@@ -183,7 +179,7 @@ public abstract class PackageManager extends Object {
         istream.readShort();
         //int major =
         istream.readShort();
-        
+
         // Check versions???
         // System.out.println("magic: "+magic+", "+major+", "+minor);
         int nconstants = istream.readShort();
@@ -191,41 +187,41 @@ public abstract class PackageManager extends Object {
             int cid = istream.readByte();
             // System.out.println(""+i+" : "+cid);
             switch (cid) {
-            case 7:
-                istream.skipBytes(2);
-                break;
-            case 9:
-            case 10:
-            case 11:
-                istream.skipBytes(4);
-                break;
-            case 8:
-                istream.skipBytes(2);
-                break;
-            case 3:
-            case 4:
-                istream.skipBytes(4);
-                break;
-            case 5:
-            case 6:
-                istream.skipBytes(8);
-                i++;
-                break;
-            case 12:
-                istream.skipBytes(4);
-                break;
-            case 1:
-                // System.out.println("utf: "+istream.readUTF()+";");
-                int slength = istream.readUnsignedShort();
-                istream.skipBytes(slength);
-                break;
-            default:
-                // System.err.println("unexpected cid: "+cid+", "+i+", "+
-                // nconstants);
-                // for (int j=0; j<10; j++)
-                // System.err.print(", "+istream.readByte());
-                // System.err.println();
-                return -1;
+                case 7:
+                    istream.skipBytes(2);
+                    break;
+                case 9:
+                case 10:
+                case 11:
+                    istream.skipBytes(4);
+                    break;
+                case 8:
+                    istream.skipBytes(2);
+                    break;
+                case 3:
+                case 4:
+                    istream.skipBytes(4);
+                    break;
+                case 5:
+                case 6:
+                    istream.skipBytes(8);
+                    i++;
+                    break;
+                case 12:
+                    istream.skipBytes(4);
+                    break;
+                case 1:
+                    // System.out.println("utf: "+istream.readUTF()+";");
+                    int slength = istream.readUnsignedShort();
+                    istream.skipBytes(slength);
+                    break;
+                default:
+                    // System.err.println("unexpected cid: "+cid+", "+i+", "+
+                    // nconstants);
+                    // for (int j=0; j<10; j++)
+                    // System.err.print(", "+istream.readByte());
+                    // System.err.println();
+                    return -1;
             }
         }
         return istream.readShort();

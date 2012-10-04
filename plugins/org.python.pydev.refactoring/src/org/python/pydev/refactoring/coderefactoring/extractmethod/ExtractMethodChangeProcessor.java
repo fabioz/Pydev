@@ -18,13 +18,14 @@ import org.python.pydev.refactoring.core.request.IRequestProcessor;
 import org.python.pydev.refactoring.messages.Messages;
 
 public class ExtractMethodChangeProcessor extends AbstractFileChangeProcessor<ExtractMethodRequest> {
-    public ExtractMethodChangeProcessor(String name, RefactoringInfo info, IRequestProcessor<ExtractMethodRequest> requestProcessor) {
+    public ExtractMethodChangeProcessor(String name, RefactoringInfo info,
+            IRequestProcessor<ExtractMethodRequest> requestProcessor) {
         super(name, info, requestProcessor);
     }
 
     @Override
     protected void processEdit() throws MisconfigurationException {
-        for(ExtractMethodRequest req:requestProcessor.getRefactoringRequests()){
+        for (ExtractMethodRequest req : requestProcessor.getRefactoringRequests()) {
             processExtraction(req);
         }
     }

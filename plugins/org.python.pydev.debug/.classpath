@@ -2,11 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="tests"/>
-	<classpathentry exported="true" kind="lib" path="commons-logging-1.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="ws-commons-util-1.0.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="xmlrpc-client-3.1.jar" sourcepath="X:/temp/xmlrpc-3.1-bin.tar/xmlrpc-3.1/lib/xmlrpc-client-3.1-sources.jar"/>
-	<classpathentry exported="true" kind="lib" path="xmlrpc-common-3.1.jar" sourcepath="X:/temp/xmlrpc-3.1-bin.tar/xmlrpc-3.1/lib/xmlrpc-common-3.1-sources.jar"/>
-	<classpathentry exported="true" kind="lib" path="xmlrpc-server-3.1.jar" sourcepath="X:/temp/xmlrpc-3.1-bin.tar/xmlrpc-3.1/lib/xmlrpc-server-3.1-sources.jar"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="src_console"/>

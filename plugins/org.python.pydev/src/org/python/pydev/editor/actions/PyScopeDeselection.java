@@ -16,6 +16,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.PyEdit;
 
+
 /**
  * Deselects the scope based on a previous scope selection.
  * 
@@ -27,16 +28,16 @@ public class PyScopeDeselection extends PyAction {
         try {
             PyEdit pyEdit = getPyEdit();
             FastStack<IRegion> stack = PyScopeSelection.getCache(pyEdit);
-            
+
             ITextSelection selection = (ITextSelection) pyEdit.getSelectionProvider().getSelection();
             Region region = new Region(selection.getOffset(), selection.getLength());
             Iterator<IRegion> it = stack.topDownIterator();
-            while(it.hasNext()){
+            while (it.hasNext()) {
                 IRegion iRegion = it.next();
                 stack.pop(); //After getting the latest, pop it.
-                
-                if(iRegion.equals(region)){
-                    if(stack.size() > 0){
+
+                if (iRegion.equals(region)) {
+                    if (stack.size() > 0) {
                         IRegion peek = stack.peek();
                         pyEdit.setSelection(peek.getOffset(), peek.getLength());
                     }
@@ -48,6 +49,5 @@ public class PyScopeDeselection extends PyAction {
             Log.log(e);
         }
     }
-
 
 }

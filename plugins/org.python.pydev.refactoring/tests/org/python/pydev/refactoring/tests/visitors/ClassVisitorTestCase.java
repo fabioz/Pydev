@@ -19,26 +19,27 @@ import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
  */
 public class ClassVisitorTestCase extends AbstractIOTestCase {
 
-	public ClassVisitorTestCase(String name) {
-		super(name);
-	}
+    public ClassVisitorTestCase(String name) {
+        super(name);
+    }
 
-	@Override
-	public void runTest() throws Throwable {
-		StringBuffer buffer = new StringBuffer();
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(
-		        null, null, new Document(data.source), new PythonNatureStub(), createVersionProvider());
-		ClassDefVisitor visitor = VisitorFactory.createContextVisitor(ClassDefVisitor.class, module.getASTNode(), module, module);
-		Iterator<IClassDefAdapter> iter = visitor.iterator();
+    @Override
+    public void runTest() throws Throwable {
+        StringBuffer buffer = new StringBuffer();
+        ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(data.source),
+                new PythonNatureStub(), createVersionProvider());
+        ClassDefVisitor visitor = VisitorFactory.createContextVisitor(ClassDefVisitor.class, module.getASTNode(),
+                module, module);
+        Iterator<IClassDefAdapter> iter = visitor.iterator();
 
-		buffer.append("# " + visitor.getAll().size() + "\n");
-		while (iter.hasNext()) {
-			IClassDefAdapter adapter = iter.next();
-			buffer.append("# " + adapter.getName() + " " + adapter.isNested() + "\n");
-		}
-		this.setTestGenerated(buffer.toString().trim());
+        buffer.append("# " + visitor.getAll().size() + "\n");
+        while (iter.hasNext()) {
+            IClassDefAdapter adapter = iter.next();
+            buffer.append("# " + adapter.getName() + " " + adapter.isNested() + "\n");
+        }
+        this.setTestGenerated(buffer.toString().trim());
 
-		assertEquals(3, visitor.getAll().size());
-		assertEquals(getExpected(), getGenerated());
-	}
+        assertEquals(3, visitor.getAll().size());
+        assertEquals(getExpected(), getGenerated());
+    }
 }

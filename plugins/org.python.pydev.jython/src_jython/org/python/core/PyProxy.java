@@ -20,8 +20,7 @@ package org.python.core;
 
 // This interface should be applicable to ANY class
 // Choose names that are extremely unlikely to have conflicts
-public interface PyProxy
-{
+public interface PyProxy {
     /**
      * Associate an PyInstance with this proxy instance.
      * This is done during construction and initialization

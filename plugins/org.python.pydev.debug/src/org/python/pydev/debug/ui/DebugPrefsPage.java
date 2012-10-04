@@ -28,9 +28,7 @@ import org.python.pydev.plugin.PydevPlugin;
  * <p>Simple 1 page debug preferences page.
  * <p>Prefeernce constants are defined in Constants.java
  */
-public class DebugPrefsPage extends FieldEditorPreferencePage 
-    implements IWorkbenchPreferencePage{
-
+public class DebugPrefsPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
     /**
      * Initializer sets the preference store
@@ -42,7 +40,7 @@ public class DebugPrefsPage extends FieldEditorPreferencePage
 
     public void init(IWorkbench workbench) {
     }
-    
+
     /**
      * Creates the editors
      */
@@ -50,7 +48,8 @@ public class DebugPrefsPage extends FieldEditorPreferencePage
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
         addField(new IntegerFieldEditor(PydevEditorPrefs.CONNECT_TIMEOUT, "Connect timeout for debugger (ms)", p, 10));
-        List<IDebugPreferencesPageParticipant> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_DEBUG_PREFERENCES_PAGE);
+        List<IDebugPreferencesPageParticipant> participants = ExtensionHelper
+                .getParticipants(ExtensionHelper.PYDEV_DEBUG_PREFERENCES_PAGE);
         for (IDebugPreferencesPageParticipant participant : participants) {
             participant.createFieldEditors(this, p);
         }
@@ -63,6 +62,5 @@ public class DebugPrefsPage extends FieldEditorPreferencePage
     public void addField(FieldEditor editor) {
         super.addField(editor);
     }
-    
 
 }

@@ -377,7 +377,7 @@ void funcdef(): {}
 //@ call, name, attr ... <nl>
 void decorators(): {}
 {
-    (begin_decorator() [{this.markDecoratorWithCall();} $LPAREN1 insidetuporcall() $RPAREN ] $NEWLINE )* 
+    (begin_decorator() [{grammarActions.markDecoratorWithCall();} $LPAREN1 insidetuporcall() $RPAREN ] $NEWLINE )* 
 }
 void begin_decorator(): {}
 { $AT dotted_name()
@@ -403,13 +403,13 @@ void varargslist() #void: {}
 }
 
 void ExtraArgList(): {}
-{ temporaryToken=<MULTIPLY> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} Name() }
+{ temporaryToken=<MULTIPLY> {grammarActions.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} Name() }
 
 void ExtraKeywordList(): {}
-{ (temporaryToken=<POWER>{this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}|temporaryToken=<MULTIPLY> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}{this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} <MULTIPLY>) Name() }
+{ (temporaryToken=<POWER>{grammarActions.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}|temporaryToken=<MULTIPLY> {grammarActions.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}{grammarActions.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} <MULTIPLY>) Name() }
 
 void defaultarg(): {}
-{ fpdef() [temporaryToken=<EQUAL> {this.prev.addSpecial(temporaryToken, true);} test()] }
+{ fpdef() [temporaryToken=<EQUAL> {grammarActions.addSpecialToPrev(temporaryToken, true);} test()] }
 
 //fpdef: NAME | '(' fplist ')'
 void fpdef() #void: {}
@@ -432,7 +432,7 @@ void small_stmt() #void: {SimpleNode simpleNode;Token spStr;}
     expr_stmt()
 |   print_stmt()
 |   del_stmt()
-|   spStr = pass_stmt() {addToPeek(spStr, false); }
+|   spStr = pass_stmt() {grammarActions.addToPeek(spStr, false); }
 |   flow_stmt()
 |   import_stmt()
 |   global_stmt()
@@ -482,8 +482,8 @@ $PASS_STMT
 //flow_stmt: break_stmt | continue_stmt | return_stmt | yield_stmt | raise_stmt
 void flow_stmt() #void: {}
 {
-    <BREAK> {addToPeek("break",true);} #break_stmt(0)
-|   <CONTINUE>  {addToPeek("continue",true);} #continue_stmt(0)
+    <BREAK> {grammarActions.addToPeek("break",true);} #break_stmt(0)
+|   <CONTINUE>  {grammarActions.addToPeek("continue",true);} #continue_stmt(0)
 |   return_stmt()
 |   yield_stmt()
 |   raise_stmt()
@@ -494,13 +494,13 @@ void return_stmt(): {}
 { begin_return_stmt() [SmartTestList()] }
 
 void begin_return_stmt(): {}
-{ <RETURN> {this.addToPeek("return ",false);}
+{ <RETURN> {this.grammarActions.addToPeek("return ",false);}
 }
 
 
 //yield_stmt: 'yield' testlist
 void yield_stmt(): {Token spStr;}
-{ spStr = <YIELD> SmartTestList() {this.addToPeek(spStr, false, Yield.class);}}
+{ spStr = <YIELD> SmartTestList() {this.grammarActions.addToPeek(spStr, false, Yield.class);}}
 
 
 
@@ -523,7 +523,7 @@ void ImportFrom(): { String mod; String name;int state=0; }
     mod=dotted_name() $IMPORT
     (
         //from xxx import *
-        temporaryToken=<MULTIPLY> {this.addSpecialToken(temporaryToken,STRATEGY_ADD_AFTER_PREV);}//from xx import *
+        temporaryToken=<MULTIPLY> {grammarActions.addSpecialToken(temporaryToken,STRATEGY_ADD_AFTER_PREV);}//from xx import *
         
         //from xxx import a,b,c
         | (name=import_as_name() ($COMMA import_as_name())*) 
@@ -549,7 +549,7 @@ void ImportFrom(): { String mod; String name;int state=0; }
 void dotted_as_name(): {}
 { dotted_name() [$AS Name()] }
 
-$DOTTED_NAME
+$DOTTED_NAME_ACCEPTING_PRINT
 
 //import_as_name: NAME [NAME NAME]
 String import_as_name(): { Token t; }
@@ -575,7 +575,7 @@ $IF
 
 
 void begin_elif_stmt(): {}
-{ <ELIF> {this.addToPeek("elif",false);}
+{ <ELIF> {this.grammarActions.addToPeek("elif",false);}
 }
 
 
@@ -587,14 +587,14 @@ $BEGIN_ELSE
 
 //for_stmt: 'for' exprlist 'in' testlist ':' suite ['else' ':' suite]
 void for_stmt(): {}
-{   temporaryToken=<FOR> {this.markLastAsSuiteStart();} {this.addSpecialTokenToLastOpened(temporaryToken);} exprlist() temporaryToken=<IN> {this.addSpecialToken(temporaryToken);} SmartTestList() $COLON suite()
+{   temporaryToken=<FOR> {this.markLastAsSuiteStart();} {grammarActions.addSpecialTokenToLastOpened(temporaryToken);} exprlist() temporaryToken=<IN> {grammarActions.addSpecialToken(temporaryToken);} SmartTestList() $COLON suite()
     [begin_for_else_stmt() suite()]
     
 } 
 
 
 void begin_for_else_stmt(): {}
-{ temporaryToken=<ELSE> {this.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);} temporaryToken=<COLON> {this.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);}  
+{ temporaryToken=<ELSE> {grammarActions.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);} temporaryToken=<COLON> {grammarActions.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);}  
 }
 //try_stmt: ('try' ':' suite (except_clause ':' suite)+ #diagram:break
 //           ['else' ':' suite] | 'try' ':' suite 'finally' ':' suite)
@@ -612,19 +612,19 @@ void try_stmt() #void: {SimpleNode tryNode;}
 
 //this is the 'try' ':'  it is needed because we need that scope closing for getting the specials.
 void begin_try_stmt(): {}
-{ <TRY> {this.markLastAsSuiteStart();} {this.addSpecialToken("try", STRATEGY_BEFORE_NEXT);} {this.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} <COLON> 
+{ <TRY> {this.markLastAsSuiteStart();} {grammarActions.addSpecialToken("try", STRATEGY_BEFORE_NEXT);} {grammarActions.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} <COLON> 
 }
 void begin_try_else_stmt(): {}
-{ <ELSE> {this.addSpecialToken("else", STRATEGY_BEFORE_NEXT);}{this.addSpecialToken(":", STRATEGY_BEFORE_NEXT);}<COLON>
+{ <ELSE> {grammarActions.addSpecialToken("else", STRATEGY_BEFORE_NEXT);}{grammarActions.addSpecialToken(":", STRATEGY_BEFORE_NEXT);}<COLON>
 }
 
 void begin_finally_stmt(): {}
-{ <FINALLY> {this.addSpecialToken("finally", STRATEGY_BEFORE_NEXT);} {this.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} <COLON> 
+{ <FINALLY> {grammarActions.addSpecialToken("finally", STRATEGY_BEFORE_NEXT);} {grammarActions.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} <COLON> 
 }
 
 //except_clause: 'except' [test [',' test]]
 void except_clause(SimpleNode tryNode): {}
-{ begin_except_clause() {this.addToPeek("except",false);} [test() [$COMMA test()]] $COLON suite() }
+{ begin_except_clause() {this.grammarActions.addToPeek("except",false);} [test() [$COMMA test()]] $COLON suite() }
 
 void begin_except_clause(): {}
 { <EXCEPT> }
@@ -719,23 +719,23 @@ void atomtrailer() #void: {Object spStr;Object spStr2;}
 atom() 
 (
     LOOKAHEAD(2) (  
-    {spStr  = createSpecialStr("(", false);} <LPAREN>  
-    {spStr2 = createSpecialStr(")", false);} <RPAREN> 
-    )#Call_Op(1) {addToPeekCallFunc(spStr, true); addToPeek(spStr2, true);}
+    {spStr  = grammarActions.createSpecialStr("(", false);} <LPAREN>  
+    {spStr2 = grammarActions.createSpecialStr(")", false);} <RPAREN> 
+    )#Call_Op(1) {grammarActions.addToPeekCallFunc(spStr, true); grammarActions.addToPeek(spStr2, true);}
 
 |   LOOKAHEAD(2) (  
-    {spStr  = createSpecialStr("(", false);} <LPAREN>  
+    {spStr  = grammarActions.createSpecialStr("(", false);} <LPAREN>  
     insidetuporcall() 
-    {spStr2 = createSpecialStr(")", false);} <RPAREN> 
-    ) #Call_Op(jjtree.nodeArity()+1) {addToPeekCallFunc(spStr, true); addToPeek(spStr2, true);}
+    {spStr2 = grammarActions.createSpecialStr(")", false);} <RPAREN> 
+    ) #Call_Op(jjtree.nodeArity()+1) {grammarActions.addToPeekCallFunc(spStr, true); grammarActions.addToPeek(spStr2, true);}
 
 
-|   {spStr = createSpecialStr("[", false);} <LBRACKET> 
+|   {spStr = grammarActions.createSpecialStr("[", false);} <LBRACKET> 
     subscriptlist()
-    {spStr2 = createSpecialStr("]", false);} <RBRACKET>  
-    #Index_Op(2) {addToPeek(spStr, false); addToPeek(spStr2, true);}
+    {spStr2 = grammarActions.createSpecialStr("]", false);} <RBRACKET>  
+    #Index_Op(2) {grammarActions.addToPeek(spStr, false); grammarActions.addToPeek(spStr2, true);}
 
-|   <DOT> Name() #Dot_Op(2) 
+|   <DOT> Name2() #Dot_Op(2) 
 )*
 }
 
@@ -744,29 +744,29 @@ atom()
 void atom() #void: {Object spStr;Object spStr2;}
 {
     LOOKAHEAD(2) (  
-      {spStr  = createSpecialStr("(", false);} <LPAREN>  
-      {spStr2 = createSpecialStr(")", false);} <RPAREN> 
-    ) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
+      {spStr  = grammarActions.createSpecialStr("(", false);} <LPAREN>  
+      {spStr2 = grammarActions.createSpecialStr(")", false);} <RPAREN> 
+    ) #tuple {grammarActions.addToPeek(spStr, false); grammarActions.addToPeek(spStr2, true);}
 
 |   LOOKAHEAD(2) (  
-      {spStr  = createSpecialStr("(", false);} <LPAREN>  
+      {spStr  = grammarActions.createSpecialStr("(", false);} <LPAREN>  
       insidetuporcall() 
-      {spStr2 = createSpecialStr(")", false);} <RPAREN> 
-    ) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
+      {spStr2 = grammarActions.createSpecialStr(")", false);} <RPAREN> 
+    ) #tuple {grammarActions.addToPeek(spStr, false); grammarActions.addToPeek(spStr2, true);}
 
 
-|   ( <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [SmartTestList()] $RPAREN )
+|   ( <LPAREN>  {grammarActions.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [SmartTestList()] $RPAREN )
 
-|   ( {spStr = createSpecialStr("[", false);} <LBRACKET> 
+|   ( {spStr = grammarActions.createSpecialStr("[", false);} <LBRACKET> 
       [listmaker()] 
-      {spStr2 = createSpecialStr("]", false);} <RBRACKET>  
-    ) #list {addToPeek(spStr, false); addToPeek(spStr2, true);}
+      {spStr2 = grammarActions.createSpecialStr("]", false);} <RBRACKET>  
+    ) #list {grammarActions.addToPeek(spStr, false); grammarActions.addToPeek(spStr2, true);}
       
       
-|   ( {spStr  = createSpecialStr("{", false);}<LBRACE> 
+|   ( {spStr  = grammarActions.createSpecialStr("{", false);}<LBRACE> 
       [dictmaker()] 
-      {spStr2  = createSpecialStr("}", false);} <RBRACE> 
-    ) #dictionary {addToPeek(spStr, false); addToPeek(spStr2, true);}
+      {spStr2  = grammarActions.createSpecialStr("}", false);} <RBRACE> 
+    ) #dictionary {grammarActions.addToPeek(spStr, false); grammarActions.addToPeek(spStr2, true);}
     
 |   $BACKQUOTE
 |   Name() 
@@ -801,7 +801,7 @@ void subscript() #void: {}
 $SLICE
 
 
-void Colon(): {} {{this.addSpecialToken(createSpecialStr(":", false), STRATEGY_BEFORE_NEXT);} <COLON> }
+void Colon(): {} {{grammarActions.addSpecialToken(grammarActions.createSpecialStr(":", false), STRATEGY_BEFORE_NEXT);} <COLON> }
 void Comma(): {} {<COMMA>}
 
 //exprlist: expr (',' expr)* [',']
@@ -857,11 +857,11 @@ void normalargs() #void: {}
 { argument() (LOOKAHEAD(2) $COMMA argument())* }
 
 void ExtraArgValueList(): {}
-{ {this.addSpecialToken(createSpecialStr("*", false));} <MULTIPLY> test() }
+{ {grammarActions.addSpecialToken(grammarActions.createSpecialStr("*", false));} <MULTIPLY> test() }
 
 void ExtraKeywordValueList(): {}
-{ ({this.addSpecialToken(createSpecialStr("**", false));} <POWER>
-  |{this.addSpecialToken(createSpecialStr("**", false));} <MULTIPLY> <MULTIPLY>)
+{ ({grammarActions.addSpecialToken(grammarActions.createSpecialStr("**", false));} <POWER>
+  |{grammarActions.addSpecialToken(grammarActions.createSpecialStr("**", false));} <MULTIPLY> <MULTIPLY>)
   test() }
 
 
@@ -877,23 +877,22 @@ void Number() #Num :
 {
     (
         t=<HEXNUMBER> {
-            String s = t.image.substring(2, t.image.length());
-            makeInt(s, 16, t, (Num)jjtThis);
+            grammarActions.makeIntSub2(t, 16, t, (Num)jjtThis);
         } {}
     )
 |   (
         t=<OCTNUMBER> {
-            makeInt(t.image, 8, t, (Num) jjtThis); 
+            grammarActions.makeInt(t, 8, t, (Num) jjtThis); 
         } {}
     )
 |   (
-        t=<DECNUMBER> { makeInt(t.image, 10, t, (Num)jjtThis); } {}
+        t=<DECNUMBER> { grammarActions.makeInt(t, 10, t, (Num)jjtThis); } {}
     )
 |   (
-        t=<FLOAT> { makeFloat(t, (Num)jjtThis); } {}
+        t=<FLOAT> { grammarActions.makeFloat(t, (Num)jjtThis); } {}
     )
 |   (
-        t=<COMPLEX> { makeComplex(t, (Num)jjtThis); } {}
+        t=<COMPLEX> { grammarActions.makeComplex(t, (Num)jjtThis); } {}
     )
 }
 
@@ -910,13 +909,13 @@ void String() #void :
     Token t;
 }
 {
-    ( t=<SINGLE_STRING> { makeString(t.image, 1, (Str)jjtThis); } {} )#String
-|   ( t=<SINGLE_STRING2> { makeString(t.image, 1, (Str)jjtThis); } {} )#String
-|   ( t=<TRIPLE_STRING> { makeString(t.image, 3, (Str)jjtThis); } {} )#String
-|   ( t=<TRIPLE_STRING2> { makeString(t.image, 3, (Str)jjtThis); } {} )#String
-|   ( t=<SINGLE_USTRING> { makeString(t.image, 1, (Str)jjtThis); } {} )#Unicode
-|   ( t=<SINGLE_USTRING2> { makeString(t.image, 1, (Str)jjtThis); } {} )#Unicode
-|   ( t=<TRIPLE_USTRING> { makeString(t.image, 3, (Str)jjtThis); } {} )#Unicode
-|   ( t=<TRIPLE_USTRING2> { makeString(t.image, 3, (Str)jjtThis); } {} )#Unicode
+    ( t=<SINGLE_STRING> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#String
+|   ( t=<SINGLE_STRING2> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#String
+|   ( t=<TRIPLE_STRING> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#String
+|   ( t=<TRIPLE_STRING2> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#String
+|   ( t=<SINGLE_USTRING> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#Unicode
+|   ( t=<SINGLE_USTRING2> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#Unicode
+|   ( t=<TRIPLE_USTRING> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#Unicode
+|   ( t=<TRIPLE_USTRING2> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#Unicode
 }
 

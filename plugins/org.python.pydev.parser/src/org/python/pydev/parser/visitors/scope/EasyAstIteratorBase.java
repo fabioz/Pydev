@@ -28,41 +28,41 @@ import org.python.pydev.parser.visitors.NodeUtils;
  * 
  * @author fabioz
  */
-public abstract class EasyAstIteratorBase  extends VisitorBase{
+public abstract class EasyAstIteratorBase extends VisitorBase {
 
     protected List<ASTEntry> nodes = new ArrayList<ASTEntry>();
 
     protected final FastStack<SimpleNode> stack = new FastStack<SimpleNode>(20);
     protected final FastStack<ASTEntry> parents = new FastStack<ASTEntry>(10);
-    
+
     protected SimpleNode lastVisited;
     protected ASTEntry lastDefVisited; //ClassDef or FunctionDef
-    
+
     private int higherLine = -1;
-    
+
     /** 
      * @see org.python.pydev.parser.jython.ast.VisitorBase#unhandled_node(org.python.pydev.parser.jython.SimpleNode)
      */
     protected Object unhandled_node(SimpleNode node) throws Exception {
         this.lastVisited = node;
         int l = NodeUtils.getLineEnd(this.lastVisited);
-        if (l > higherLine){
+        if (l > higherLine) {
             higherLine = l;
         }
-        if(node.specialsAfter != null){
-            for(Object o : node.specialsAfter){
-                if(o instanceof ISpecialStr){
+        if (node.specialsAfter != null) {
+            for (Object o : node.specialsAfter) {
+                if (o instanceof ISpecialStr) {
                     ISpecialStr str = (ISpecialStr) o;
-                    if (str.getBeginLine() > higherLine){
+                    if (str.getBeginLine() > higherLine) {
                         higherLine = str.getBeginLine();
                     }
                 }
             }
         }
-        
+
         //the lastDefVisited is only kept if it's really the last definition visited (if there's a node
         //visited after the last def, it's not kept).
-        if(this.lastDefVisited != null){
+        if (this.lastDefVisited != null) {
             this.lastDefVisited = null;
         }
         return null;
@@ -72,14 +72,13 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
      * @see org.python.pydev.parser.jython.ast.VisitorBase#traverse(org.python.pydev.parser.jython.SimpleNode)
      */
     public void traverse(SimpleNode node) throws Exception {
-        if(node instanceof FunctionDef){
-            traverse((FunctionDef)node); //the order we traverse it is different
-        }else{
+        if (node instanceof FunctionDef) {
+            traverse((FunctionDef) node); //the order we traverse it is different
+        } else {
             node.traverse(this);
         }
     }
 
-    
     /**
      * @param node
      * @return
@@ -87,7 +86,7 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
     protected ASTEntry before(SimpleNode node) {
         ASTEntry entry;
         entry = createEntry();
-        
+
         entry.node = node;
 
         doAddNode(entry);
@@ -103,29 +102,28 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
         nodes.add(entry);
     }
 
-
     /**
      * @param entry
      */
     protected void after(ASTEntry entry) {
         stack.pop();
-        
+
         //only set the end line if it was still not set
-        if(entry.endLine == 0){
+        if (entry.endLine == 0) {
             int lineEnd = NodeUtils.getLineEnd(lastVisited);
-            if(lineEnd > higherLine){
+            if (lineEnd > higherLine) {
                 entry.endLine = lineEnd;
-            }else{
+            } else {
                 entry.endLine = higherLine;
             }
-            
+
             //also make comments found after the node a part of its context.
             List<Object> s = entry.node.specialsAfter;
-            if(s != null){
-                for(Object o:s){
-                    if(o instanceof commentType){
+            if (s != null) {
+                for (Object o : s) {
+                    if (o instanceof commentType) {
                         commentType comment = (commentType) o;
-                        if(comment.beginLine > entry.endLine){
+                        if (comment.beginLine > entry.endLine) {
                             entry.endLine = comment.beginLine;
                         }
                     }
@@ -135,36 +133,35 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
         this.lastDefVisited = entry;
     }
 
-
     @Override
     public Object visitModule(Module node) throws Exception {
         Object ret = super.visitModule(node);
-        
+
         //after visiting the module, let's put the comments to the scope of the last definition found
         //if there were no other statements out of the class scope.
         int size = this.nodes.size();
-        if(size > 0){
+        if (size > 0) {
             int i = -1;
-            if(node.specialsAfter != null){
+            if (node.specialsAfter != null) {
                 for (Object o : node.specialsAfter) {
-                    if(o instanceof commentType){
+                    if (o instanceof commentType) {
                         commentType type = (commentType) o;
-                        if(type.beginLine > i){
+                        if (type.beginLine > i) {
                             i = type.beginLine;
                         }
                     }
                 }
             }
-            if(i != -1 && this.lastDefVisited != null){
-                if(lastDefVisited.endLine < i){
+            if (i != -1 && this.lastDefVisited != null) {
+                if (lastDefVisited.endLine < i) {
                     lastDefVisited.endLine = i;
                 }
             }
-            
+
         }
         return ret;
     }
-    
+
     /**
      * @param node the node we're adding in an 'atomic' way
      * @return the ast entry that was created in this 'atomic' add
@@ -183,14 +180,14 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
      */
     protected ASTEntry createEntry() {
         ASTEntry entry;
-        if(parents.size() > 0){
+        if (parents.size() > 0) {
             entry = new ASTEntry(parents.peek());
-        }else{
+        } else {
             entry = new ASTEntry(null);
         }
         return entry;
     }
-    
+
     /** 
      * @see org.python.pydev.parser.jython.ast.VisitorBase#visitClassDef(org.python.pydev.parser.jython.ast.ClassDef)
      */
@@ -202,33 +199,33 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
         parents.pop();
         return null;
     }
-    
+
     protected boolean isInGlobal() {
         Iterator<SimpleNode> iterator = stack.iterator();
-        while(iterator.hasNext()){
+        while (iterator.hasNext()) {
             SimpleNode node = (SimpleNode) iterator.next();
-            if(node instanceof ClassDef || node instanceof FunctionDef){
+            if (node instanceof ClassDef || node instanceof FunctionDef) {
                 return false;
             }
         }
         return true;
-        
+
     }
-    
+
     /**
      * @return whether we are in a class or method definition scope
      */
     protected boolean isInClassMethodDecl() {
         Iterator<SimpleNode> iterator = stack.iterator();
-        while(iterator.hasNext()){
+        while (iterator.hasNext()) {
             SimpleNode node = (SimpleNode) iterator.next();
-            if(node instanceof ClassDef){
+            if (node instanceof ClassDef) {
                 break;
             }
         }
-        while(iterator.hasNext()){
+        while (iterator.hasNext()) {
             SimpleNode node = (SimpleNode) iterator.next();
-            if(node instanceof FunctionDef){
+            if (node instanceof FunctionDef) {
                 return true;
             }
         }
@@ -239,12 +236,12 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
      * @return whether we are in a class definition scope
      */
     protected boolean isInClassDecl() {
-        if(stack.size() == 0){
+        if (stack.size() == 0) {
             return false;
         }
-        
+
         SimpleNode last = (SimpleNode) stack.peek();
-        if(last instanceof ClassDef){
+        if (last instanceof ClassDef) {
             return true;
         }
         return false;
@@ -259,7 +256,7 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
         traverse(node);
         parents.pop();
         after(entry);
-        
+
         return null;
     }
 
@@ -269,7 +266,7 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
                 if (node.decs[i] != null)
                     node.decs[i].accept(this);
             }
-        }        
+        }
 
         if (node.name != null)
             node.name.accept(this);
@@ -282,13 +279,14 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
             }
         }
     }
+
     /**
      * @return and iterator that passes through all the nodes
      */
     public Iterator<ASTEntry> getIterator() {
         return nodes.iterator();
     }
-    
+
     /**
      * @return an iterator for all the classes definitions
      */
@@ -300,9 +298,9 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
      * @return a list with all the class and method definitions
      */
     public List<ASTEntry> getClassesAndMethodsList() {
-        return getAsList(new Class[]{ClassDef.class, FunctionDef.class});
+        return getAsList(new Class[] { ClassDef.class, FunctionDef.class });
     }
-    
+
     /**
      * @param iter this is the iterator we want to get as a list
      * @return a list with the elements of the iterator
@@ -319,69 +317,68 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
      * @return an iterator for class and method definitions
      */
     public Iterator<ASTEntry> getClassesAndMethodsIterator() {
-        return getIterator(new Class[]{ClassDef.class, FunctionDef.class});
+        return getIterator(new Class[] { ClassDef.class, FunctionDef.class });
     }
-    
+
     /**
      * @return an iterator for method definitions
      */
     public Iterator<ASTEntry> getMethodsIterator() {
-        return getIterator(new Class[]{FunctionDef.class});
+        return getIterator(new Class[] { FunctionDef.class });
     }
 
     /**
      * @see EasyASTIteratorVisitor#getIterator(Class[])
      */
     public Iterator<ASTEntry> getIterator(Class class_) {
-        return getIterator(new Class[]{class_});
+        return getIterator(new Class[] { class_ });
     }
 
-    public List<ASTEntry> getAsList(Class ... classes) {
+    public List<ASTEntry> getAsList(Class... classes) {
         List<ASTEntry> newList = new ArrayList<ASTEntry>();
         for (Iterator<ASTEntry> iter = nodes.iterator(); iter.hasNext();) {
             ASTEntry entry = (ASTEntry) iter.next();
-            if(isFromClass(entry.node, classes)){
+            if (isFromClass(entry.node, classes)) {
                 newList.add(entry);
             }
         }
         return newList;
     }
-    
+
     public List<ASTEntry> getAsList(Class class_) {
-        return getAsList(new Class[]{class_});
+        return getAsList(new Class[] { class_ });
     }
-    
+
     /**
      * @param classes the classes we are searching for
      * @return an iterator with nodes found from the passed classes
      */
-    public Iterator<ASTEntry> getIterator(Class ... classes) {
+    public Iterator<ASTEntry> getIterator(Class... classes) {
         return getAsList(classes).iterator();
     }
 
     /**
      * @return an iterator that will pass through Name and NameTok tokens
      */
-    public Iterator<ASTEntry> getNamesIterator(){
+    public Iterator<ASTEntry> getNamesIterator() {
         return new NameIterator(nodes);
     }
-    
+
     public Iterator<ASTEntry> getOutline() {
         return new OutlineIterator(nodes);
     }
-    
-    public List<ASTEntry> getAll(){
+
+    public List<ASTEntry> getAll() {
         return nodes;
     }
-    
+
     /**
      * @return an iterator that will pass all the nodes that were added in this visitor
      */
-    public Iterator<ASTEntry> getAllIterator(){
+    public Iterator<ASTEntry> getAllIterator() {
         return nodes.iterator();
     }
 
-    
     /**
      * @param node this is the node we are analyzing
      * @param classes this are the classes we are looking for
@@ -391,12 +388,11 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
     protected boolean isFromClass(SimpleNode node, Class[] classes) {
         Class class1 = node.getClass();
         for (int i = 0; i < classes.length; i++) {
-            if(class1.isAssignableFrom(classes[i])){
+            if (class1.isAssignableFrom(classes[i])) {
                 return true;
             }
         }
         return false;
     }
-    
 
 }

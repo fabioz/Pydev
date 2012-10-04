@@ -17,6 +17,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.visitors.PythonLanguageUtils;
 
+
 /**
  * Based on JavaElementHyperlinkDetector (which uses the hyperlink mechanism added at eclipse 3.3)
  *
@@ -39,7 +40,7 @@ public class PythonElementHyperlinkDetector extends AbstractHyperlinkDetector {
 
         try {
             IDocument document = textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput());
-            
+
             //see if we can find a word there
             IRegion wordRegion = PythonWordFinder.findWord(document, offset);
             if (wordRegion == null) {
@@ -50,7 +51,7 @@ public class PythonElementHyperlinkDetector extends AbstractHyperlinkDetector {
             try {
                 IDocument doc = editor.getDocument();
                 String selectedWord = doc.get(wordRegion.getOffset(), wordRegion.getLength());
-                if(PythonLanguageUtils.isKeyword(selectedWord)){
+                if (PythonLanguageUtils.isKeyword(selectedWord)) {
                     return null;
                 }
             } catch (BadLocationException e) {

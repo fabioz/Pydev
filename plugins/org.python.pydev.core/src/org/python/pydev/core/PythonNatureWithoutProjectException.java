@@ -6,7 +6,7 @@
  */
 package org.python.pydev.core;
 
-public class PythonNatureWithoutProjectException extends Exception{
+public class PythonNatureWithoutProjectException extends Exception {
 
     public PythonNatureWithoutProjectException(String msg) {
         super(msg);

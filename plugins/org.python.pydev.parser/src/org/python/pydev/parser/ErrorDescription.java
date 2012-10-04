@@ -7,11 +7,11 @@
 package org.python.pydev.parser;
 
 public class ErrorDescription {
-    public String message; 
+    public String message;
     public int errorLine;
-    public int errorStart; 
+    public int errorStart;
     public int errorEnd;
-    
+
     public ErrorDescription(String message, int errorLine, int errorStart, int errorEnd) {
         super();
         this.message = message;
@@ -20,4 +20,3 @@ public class ErrorDescription {
         this.errorEnd = errorEnd;
     }
 }
-

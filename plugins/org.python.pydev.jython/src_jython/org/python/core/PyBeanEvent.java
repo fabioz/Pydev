@@ -1,5 +1,6 @@
 // Copyright (c) Corporation for National Research Initiatives
 package org.python.core;
+
 import java.lang.reflect.*;
 
 public class PyBeanEvent extends PyObject {
@@ -26,7 +27,7 @@ public class PyBeanEvent extends PyObject {
         Object jvalue = Py.tojava(value, eventClass);
 
         try {
-            addMethod.invoke(jself, new Object[] {jvalue});
+            addMethod.invoke(jself, new Object[] { jvalue });
         } catch (Exception e) {
             throw Py.JavaError(e);
         }
@@ -34,7 +35,6 @@ public class PyBeanEvent extends PyObject {
     }
 
     public String toString() {
-        return "<beanEvent "+__name__+" for event "+
-            eventClass.toString()+" "+Py.idstr(this)+">";
+        return "<beanEvent " + __name__ + " for event " + eventClass.toString() + " " + Py.idstr(this) + ">";
     }
 }

@@ -25,8 +25,8 @@ import org.eclipse.ui.navigator.ICommonMenuConstants;
 import org.eclipse.ui.navigator.ICommonViewerSite;
 import org.eclipse.ui.navigator.ICommonViewerWorkbenchSite;
 
-public class PythonActionProvider extends CommonActionProvider{
-    
+public class PythonActionProvider extends CommonActionProvider {
+
     private PyOpenPythonFileAction openPythonAction;
     private PyOpenResourceAction openResourceAction;
     private PyOpenExternalAction openExternalAction;
@@ -40,80 +40,81 @@ public class PythonActionProvider extends CommonActionProvider{
     @Override
     public void init(ICommonActionExtensionSite aSite) {
         ICommonViewerSite viewSite = aSite.getViewSite();
-        if(viewSite instanceof ICommonViewerWorkbenchSite){
+        if (viewSite instanceof ICommonViewerWorkbenchSite) {
             ICommonViewerWorkbenchSite site = (ICommonViewerWorkbenchSite) viewSite;
             Shell shell = site.getShell();
-            
+
             ISharedImages images = PlatformUI.getWorkbench().getSharedImages();
             clipboard = new Clipboard(shell.getDisplay());
             selectionProvider = site.getSelectionProvider();
             openPythonAction = new PyOpenPythonFileAction(site.getPage(), selectionProvider);
             openResourceAction = new PyOpenResourceAction(site.getPage(), selectionProvider);
             openExternalAction = new PyOpenExternalAction(site.getPage(), selectionProvider);
-            
+
             deleteResourceAction = new PyDeleteResourceAction(shell, selectionProvider);
             copyResourceAction = new PyCopyResourceAction(shell, selectionProvider, clipboard);
             pasteAction = new PyPasteAction(shell, selectionProvider, clipboard);
             moveResourceAction = new PyMoveResourceAction(shell, selectionProvider);
-            
-            copyResourceAction.setDisabledImageDescriptor(images.getImageDescriptor(ISharedImages.IMG_TOOL_COPY_DISABLED));
+
+            copyResourceAction.setDisabledImageDescriptor(images
+                    .getImageDescriptor(ISharedImages.IMG_TOOL_COPY_DISABLED));
             copyResourceAction.setImageDescriptor(images.getImageDescriptor(ISharedImages.IMG_TOOL_COPY));
-            
+
             pasteAction.setDisabledImageDescriptor(images.getImageDescriptor(ISharedImages.IMG_TOOL_PASTE_DISABLED));
             pasteAction.setImageDescriptor(images.getImageDescriptor(ISharedImages.IMG_TOOL_PASTE));
-            
-            deleteResourceAction.setDisabledImageDescriptor(images.getImageDescriptor(ISharedImages.IMG_TOOL_DELETE_DISABLED));
+
+            deleteResourceAction.setDisabledImageDescriptor(images
+                    .getImageDescriptor(ISharedImages.IMG_TOOL_DELETE_DISABLED));
             deleteResourceAction.setImageDescriptor(images.getImageDescriptor(ISharedImages.IMG_TOOL_DELETE));
 
         }
     }
-    
-    
+
     /* (non-Javadoc)
      * @see org.eclipse.ui.actions.ActionGroup#fillActionBars(org.eclipse.ui.IActionBars)
      */
-    public void fillActionBars(IActionBars actionBars) { 
-        if(openResourceAction.isEnabled()){
+    public void fillActionBars(IActionBars actionBars) {
+        if (openResourceAction.isEnabled()) {
             actionBars.setGlobalActionHandler(ICommonActionConstants.OPEN, openResourceAction);
         }
-        if(copyResourceAction.isEnabled()){
+        if (copyResourceAction.isEnabled()) {
             actionBars.setGlobalActionHandler(ActionFactory.COPY.getId(), copyResourceAction);
         }
-        if(pasteAction.isEnabled()){
+        if (pasteAction.isEnabled()) {
             actionBars.setGlobalActionHandler(ActionFactory.PASTE.getId(), pasteAction);
         }
-        if(deleteResourceAction.isEnabled()){
+        if (deleteResourceAction.isEnabled()) {
             actionBars.setGlobalActionHandler(ActionFactory.DELETE.getId(), deleteResourceAction);
         }
-        if(moveResourceAction.isEnabled()){
+        if (moveResourceAction.isEnabled()) {
             actionBars.setGlobalActionHandler(ActionFactory.MOVE.getId(), moveResourceAction);
         }
     }
-    
+
     /* (non-Javadoc)
      * @see org.eclipse.ui.actions.ActionGroup#fillContextMenu(org.eclipse.jface.action.IMenuManager)
      */
     public void fillContextMenu(IMenuManager menu) {
-        if(openResourceAction.isEnabledForSelectionWithoutContainers()){
-            menu.appendToGroup(ICommonMenuConstants.GROUP_OPEN, openResourceAction);        
+        if (openResourceAction.isEnabledForSelectionWithoutContainers()) {
+            menu.appendToGroup(ICommonMenuConstants.GROUP_OPEN, openResourceAction);
         }
-        if(openPythonAction.isEnabledForSelectionWithoutContainers()){
-        	menu.appendToGroup(ICommonMenuConstants.GROUP_OPEN, openPythonAction);        
+        if (openPythonAction.isEnabledForSelectionWithoutContainers()) {
+            menu.appendToGroup(ICommonMenuConstants.GROUP_OPEN, openPythonAction);
         }
-        if(openExternalAction.isEnabledForSelectionWithoutContainers()){
-        	menu.appendToGroup(ICommonMenuConstants.GROUP_OPEN, openExternalAction);        
+        if (openExternalAction.isEnabledForSelectionWithoutContainers()) {
+            menu.appendToGroup(ICommonMenuConstants.GROUP_OPEN, openExternalAction);
         }
-        if(copyResourceAction.isEnabled()){
-            menu.appendToGroup(ICommonMenuConstants.GROUP_EDIT, copyResourceAction);        
+        if (copyResourceAction.isEnabled()) {
+            menu.appendToGroup(ICommonMenuConstants.GROUP_EDIT, copyResourceAction);
         }
-        if(pasteAction.isEnabled()){
-            menu.appendToGroup(ICommonMenuConstants.GROUP_EDIT, pasteAction);        
+        if (pasteAction.isEnabled()) {
+            menu.appendToGroup(ICommonMenuConstants.GROUP_EDIT, pasteAction);
         }
-        if(deleteResourceAction.isEnabled()){
-            menu.appendToGroup(ICommonMenuConstants.GROUP_EDIT, deleteResourceAction);        
+        if (deleteResourceAction.isEnabled()) {
+            menu.appendToGroup(ICommonMenuConstants.GROUP_EDIT, deleteResourceAction);
         }
-        if(moveResourceAction.isEnabled()){
-            menu.appendToGroup(ICommonMenuConstants.GROUP_EDIT, moveResourceAction);        
+        if (moveResourceAction.isEnabled()) {
+            menu.appendToGroup(ICommonMenuConstants.GROUP_EDIT, moveResourceAction);
         }
     }
 

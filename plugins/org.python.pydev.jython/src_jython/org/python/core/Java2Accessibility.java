@@ -18,8 +18,7 @@ class Java2Accessibility extends JavaAccessibility {
         method.setAccessible(flag);
     }
 
-    void setAccess(Constructor constructor, boolean flag)
-            throws SecurityException {
+    void setAccess(Constructor constructor, boolean flag) throws SecurityException {
         constructor.setAccessible(flag);
     }
 }

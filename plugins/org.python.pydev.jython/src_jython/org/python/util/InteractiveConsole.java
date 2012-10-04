@@ -35,7 +35,7 @@ public class InteractiveConsole extends InteractiveInterpreter {
     public InteractiveConsole(PyObject locals, String filename, boolean replaceRawInput) {
         super(locals);
         this.filename = filename;
-        if(replaceRawInput) {
+        if (replaceRawInput) {
             PyObject newRawInput = new PyBuiltinFunctionSet("raw_input", 0, 0, 1) {
 
                 public PyObject __call__() {
@@ -65,7 +65,7 @@ public class InteractiveConsole extends InteractiveInterpreter {
     }
 
     public void interact(String banner) {
-        if(banner != null) {
+        if (banner != null) {
             write(banner);
             write("\n");
         }
@@ -73,13 +73,13 @@ public class InteractiveConsole extends InteractiveInterpreter {
         exec("2");
         // System.err.println("interp2");
         boolean more = false;
-        while(true) {
+        while (true) {
             PyObject prompt = more ? systemState.ps2 : systemState.ps1;
             String line;
             try {
                 line = raw_input(prompt);
-            } catch(PyException exc) {
-                if(!Py.matchException(exc, Py.EOFError))
+            } catch (PyException exc) {
+                if (!Py.matchException(exc, Py.EOFError))
                     throw exc;
                 write("\n");
                 break;
@@ -101,11 +101,11 @@ public class InteractiveConsole extends InteractiveInterpreter {
      * the same as runsource()).
      */
     public boolean push(String line) {
-        if(buffer.length() > 0)
+        if (buffer.length() > 0)
             buffer.append("\n");
         buffer.append(line);
         boolean more = runsource(buffer.toString(), filename);
-        if(!more)
+        if (!more)
             resetbuffer();
         return more;
     }

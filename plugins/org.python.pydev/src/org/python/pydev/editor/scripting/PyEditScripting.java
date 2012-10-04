@@ -31,10 +31,9 @@ public class PyEditScripting implements IPyEditListener {
 
     private IPythonInterpreter interpreter;
 
-    public PyEditScripting(){
+    public PyEditScripting() {
         interpreter = JythonPlugin.newPythonInterpreter();
     }
-    
 
     private void doExec(HashMap<String, Object> locals) {
         JythonPlugin.execAll(locals, "pyedit", interpreter); //execute all the files that start with 'pyedit' that are located beneath
@@ -45,7 +44,7 @@ public class PyEditScripting implements IPyEditListener {
         HashMap<String, Object> locals = new HashMap<String, Object>();
         locals.put("cmd", "onSave");
         locals.put("editor", edit);
-        doExec(locals); 
+        doExec(locals);
     }
 
     public void onCreateActions(ListResourceBundle resources, PyEdit edit, IProgressMonitor monitor) {
@@ -60,7 +59,7 @@ public class PyEditScripting implements IPyEditListener {
         locals.put("cmd", "onDispose");
         locals.put("editor", edit);
         doExec(locals);
-        
+
         interpreter.cleanup();
         interpreter = null;
     }

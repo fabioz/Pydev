@@ -17,10 +17,10 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.visitors.NodeUtils;
 
-class FlatVisitor extends VisitorBase{
+class FlatVisitor extends VisitorBase {
 
     List<SimpleNode> visited = new ArrayList<SimpleNode>();
-    
+
     @Override
     protected Object unhandled_node(SimpleNode node) throws Exception {
         visited.add(node);
@@ -32,7 +32,7 @@ class FlatVisitor extends VisitorBase{
     public void traverse(SimpleNode node) throws Exception {
         node.traverse(this);
     }
-    
+
 }
 
 public class SimpleNodeComparator {
@@ -43,26 +43,27 @@ public class SimpleNodeComparator {
 
         FlatVisitor flatVisitor = new FlatVisitor();
         flatVisitor.traverse(original);
-        
+
         Iterator<SimpleNode> it = flatVisitorOriginal.visited.iterator();
         Iterator<SimpleNode> it2 = flatVisitor.visited.iterator();
-        
-        while(it.hasNext() && it2.hasNext()){
+
+        while (it.hasNext() && it2.hasNext()) {
             SimpleNode node = it.next();
             SimpleNode node2 = it2.next();
-            if(node.getClass() != node2.getClass()){
-                throw new DifferException("Nodes differ. "+node.getClass().getName()+" != "+ node2.getClass().getName());
+            if (node.getClass() != node2.getClass()) {
+                throw new DifferException("Nodes differ. " + node.getClass().getName() + " != "
+                        + node2.getClass().getName());
             }
             String s1 = NodeUtils.getFullRepresentationString(node);
             String s2 = NodeUtils.getFullRepresentationString(node2);
-            if((s1 == null && s2 != null) || (s1 != null && s2 == null)){
+            if ((s1 == null && s2 != null) || (s1 != null && s2 == null)) {
                 throw new DifferException("Nodes differ. (s1 == null && s2 != null) || (s1 != null && s2 == null)");
             }
-            if(s1 == s2){ //null
+            if (s1 == s2) { //null
                 continue;
             }
-            if(s1.equals(s2.replaceAll("\r", "")) == false){
-                throw new DifferException("Nodes differ. s1 != s2 \n-->"+ s1 +"<--\n!=\n-->"+ s2 +"<--");
+            if (s1.equals(s2.replaceAll("\r", "")) == false) {
+                throw new DifferException("Nodes differ. s1 != s2 \n-->" + s1 + "<--\n!=\n-->" + s2 + "<--");
             }
         }
     }

@@ -13,7 +13,7 @@ import org.eclipse.core.resources.IProject;
  * 
  * @author Fabio
  */
-public class PythonProjectSourceFolder extends PythonSourceFolder{
+public class PythonProjectSourceFolder extends PythonSourceFolder {
 
     public PythonProjectSourceFolder(Object parentElement, IProject project) {
         super(parentElement, project);

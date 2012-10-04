@@ -42,11 +42,13 @@ public class ExtractMethodRequestProcessor implements IRequestProcessor<ExtractM
 
     private AdapterPrefs adapterPrefs;
 
-    public ExtractMethodRequestProcessor(AbstractScopeNode<?> scopeAdapter, ModuleAdapter parsedSelection, ModuleAdapter module, ITextSelection selection) {
+    public ExtractMethodRequestProcessor(AbstractScopeNode<?> scopeAdapter, ModuleAdapter parsedSelection,
+            ModuleAdapter module, ITextSelection selection) {
         initProcessor(scopeAdapter, parsedSelection, module, selection);
     }
 
-    public void initProcessor(AbstractScopeNode<?> scopeAdapter, ModuleAdapter parsedSelection, ModuleAdapter module, ITextSelection selection) {
+    public void initProcessor(AbstractScopeNode<?> scopeAdapter, ModuleAdapter parsedSelection, ModuleAdapter module,
+            ITextSelection selection) {
         this.methodName = "pepticMethod";
         this.scopeAdapter = scopeAdapter;
         this.selection = selection;
@@ -62,7 +64,7 @@ public class ExtractMethodRequestProcessor implements IRequestProcessor<ExtractM
     }
 
     private void initRenamedMap() {
-        for(String variable:deducer.getParameters()){
+        for (String variable : deducer.getParameters()) {
             this.renameMap.put(variable, variable);
         }
 
@@ -90,16 +92,8 @@ public class ExtractMethodRequestProcessor implements IRequestProcessor<ExtractM
 
     public List<ExtractMethodRequest> getRefactoringRequests() {
         List<ExtractMethodRequest> requests = new ArrayList<ExtractMethodRequest>();
-        requests.add(new ExtractMethodRequest(
-                this.methodName, 
-                this.selection, 
-                this.scopeAdapter, 
-                this.parsedSelection, 
-                parameterOrder, 
-                deducer.getReturns(), 
-                this.renameMap, 
-                this.offsetStrategy,
-                this.adapterPrefs));
+        requests.add(new ExtractMethodRequest(this.methodName, this.selection, this.scopeAdapter, this.parsedSelection,
+                parameterOrder, deducer.getReturns(), this.renameMap, this.offsetStrategy, this.adapterPrefs));
         return requests;
     }
 

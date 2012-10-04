@@ -47,7 +47,7 @@ public class OutlineHideMagicObjectsAction extends AbstractOutlineFilterAction {
                     ParsedItem item = (ParsedItem) element;
 
                     ASTEntryWithChildren astThis = item.getAstThis();
-                    if(astThis == null){
+                    if (astThis == null) {
                         return true;
                     }
                     SimpleNode token = astThis.node;
@@ -56,24 +56,20 @@ public class OutlineHideMagicObjectsAction extends AbstractOutlineFilterAction {
                     if (token instanceof ClassDef) {
                         ClassDef classDefToken = (ClassDef) token;
                         name = NodeUtils.getNameFromNameTok((NameTok) (classDefToken).name);
-                    }
-                    else if (token instanceof FunctionDef) {
+                    } else if (token instanceof FunctionDef) {
                         FunctionDef functionDefToken = (FunctionDef) token;
                         name = NodeUtils.getNameFromNameTok((NameTok) (functionDefToken).name);
-                    }
-                    else if (token instanceof Attribute) {
+                    } else if (token instanceof Attribute) {
                         Attribute attributeToken = (Attribute) token;
                         name = NodeUtils.getNameFromNameTok((NameTok) (attributeToken).attr);
-                    }
-                    else if (token instanceof Name) {
+                    } else if (token instanceof Name) {
                         Name nameToken = (Name) token;
                         name = nameToken.id;
-                    }
-                    else if (token instanceof NameTok) {
+                    } else if (token instanceof NameTok) {
                         NameTok nameTokToken = (NameTok) token;
                         name = NodeUtils.getNameFromNameTok(nameTokToken);
                     }
-                    
+
                     if (name != null) {
                         return !(name.startsWith("__") && (name.endsWith("__")));
                     }

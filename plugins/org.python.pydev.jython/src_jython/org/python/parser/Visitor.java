@@ -12,7 +12,6 @@ public class Visitor extends VisitorBase {
         node.traverse(this);
     }
 
-
     public void visit(SimpleNode[] nodes) throws Exception {
         for (int i = 0; i < nodes.length; i++) {
             visit(nodes[i]);
@@ -28,7 +27,6 @@ public class Visitor extends VisitorBase {
         close_level(node);
         return ret;
     }
-
 
     protected Object unhandled_node(SimpleNode node) throws Exception {
         return this;

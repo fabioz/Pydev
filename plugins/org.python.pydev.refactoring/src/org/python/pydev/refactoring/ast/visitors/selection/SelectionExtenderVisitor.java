@@ -54,7 +54,7 @@ public class SelectionExtenderVisitor extends VisitorBase {
 
     @Override
     public void traverse(SimpleNode node) throws Exception {
-        if(node != null){
+        if (node != null) {
             updateSelection(node);
             node.traverse(this);
         }
@@ -67,42 +67,42 @@ public class SelectionExtenderVisitor extends VisitorBase {
 
     private void updateSelection(SimpleNode node) {
         extendSelection(node);
-        if(node.beginLine <= selection.getEndLine() + 1){
+        if (node.beginLine <= selection.getEndLine() + 1) {
             updateStack(node);
             checkAndExtend(node, node);
-        }else if(node.beginLine >= selection.getEndLine() + 1){
-            if(!stmtExprStack.isEmpty()){
+        } else if (node.beginLine >= selection.getEndLine() + 1) {
+            if (!stmtExprStack.isEmpty()) {
                 this.extendNodeInSelection = stmtExprStack.peek();
             }
         }
     }
 
     protected SimpleNode visit(SimpleNode node) throws Exception {
-        if(node == null){
+        if (node == null) {
             return null;
         }
 
-        if(!(node instanceof suiteType)){
+        if (!(node instanceof suiteType)) {
             updateSelection(node);
         }
 
-        if(node instanceof suiteType){
+        if (node instanceof suiteType) {
             visitSuiteType((suiteType) node);
-        }else if(node instanceof excepthandlerType){
+        } else if (node instanceof excepthandlerType) {
             visitExceptionHandler((excepthandlerType) node);
-        }else if(node instanceof decoratorsType){
+        } else if (node instanceof decoratorsType) {
             visitDecoratorsType((decoratorsType) node);
-        }else if(node instanceof keywordType){
+        } else if (node instanceof keywordType) {
             visitKeywordType((keywordType) node);
-        }else if(node instanceof argumentsType){
+        } else if (node instanceof argumentsType) {
             visitArgumentsType((argumentsType) node);
-        }else if(node instanceof aliasType){
+        } else if (node instanceof aliasType) {
             visitAliasType((aliasType) node);
-        }else{
+        } else {
             node.accept(this);
         }
 
-        if(isAnyInSelection(node.getSpecialsBefore()) || isAnyInSelection(node.getSpecialsAfter())){
+        if (isAnyInSelection(node.getSpecialsBefore()) || isAnyInSelection(node.getSpecialsAfter())) {
             this.extendNodeInSelection = node;
         }
 
@@ -110,10 +110,10 @@ public class SelectionExtenderVisitor extends VisitorBase {
     }
 
     private boolean isAnyInSelection(List<Object> specials) {
-        for(Object o:specials){
+        for (Object o : specials) {
             Str strNode = convertSpecialToStr(o);
-            if(strNode != null){
-                if(module.isNodeInSelection(selection, strNode)){
+            if (strNode != null) {
+                if (module.isNodeInSelection(selection, strNode)) {
                     return true;
                 }
             }
@@ -124,7 +124,7 @@ public class SelectionExtenderVisitor extends VisitorBase {
 
     private Str convertSpecialToStr(Object o) {
         Str stringNode = null;
-        if(o instanceof ISpecialStr){
+        if (o instanceof ISpecialStr) {
             ISpecialStr special = (ISpecialStr) o;
             stringNode = new Str(special.toString(), Str.SingleDouble, false, false, false);
             stringNode.beginLine = special.getBeginLine();
@@ -134,7 +134,7 @@ public class SelectionExtenderVisitor extends VisitorBase {
     }
 
     private void extendSelection(SimpleNode node) {
-        if(extendNodeInSelection != null && isExtendable(node) && node != extendNodeInSelection){
+        if (extendNodeInSelection != null && isExtendable(node) && node != extendNodeInSelection) {
 
             node = resolveExtendNode(node);
 
@@ -145,15 +145,15 @@ public class SelectionExtenderVisitor extends VisitorBase {
     }
 
     private boolean isExtendable(SimpleNode node) {
-        return(node instanceof stmtType || node instanceof excepthandlerType || node instanceof suiteType);
+        return (node instanceof stmtType || node instanceof excepthandlerType || node instanceof suiteType);
     }
 
     private SimpleNode resolveExtendNode(SimpleNode node) {
-        if(extendNodeInSelection instanceof exprType){
-            while(!(stmtExprStack.isEmpty()) && !(isExtendable(stmtExprStack.peek()))){
+        if (extendNodeInSelection instanceof exprType) {
+            while (!(stmtExprStack.isEmpty()) && !(isExtendable(stmtExprStack.peek()))) {
                 stmtExprStack.pop();
             }
-            if(!(stmtExprStack.isEmpty())){
+            if (!(stmtExprStack.isEmpty())) {
                 SimpleNode stmtBefore = stmtExprStack.peek();
                 node = checkSpecials(stmtBefore, stmtBefore.getSpecialsAfter());
             }
@@ -164,11 +164,11 @@ public class SelectionExtenderVisitor extends VisitorBase {
     }
 
     private SimpleNode checkSpecials(SimpleNode node, List<Object> specials) {
-        if(specials.size() > 0){
-            for(Object o:specials){
-                if(o instanceof ISpecialStr){
+        if (specials.size() > 0) {
+            for (Object o : specials) {
+                if (o instanceof ISpecialStr) {
                     ISpecialStr str = (ISpecialStr) o;
-                    if(str.getBeginLine() >= extendNodeInSelection.beginLine){
+                    if (str.getBeginLine() >= extendNodeInSelection.beginLine) {
                         return convertSpecialToStr(o);
                     }
                 }
@@ -178,7 +178,7 @@ public class SelectionExtenderVisitor extends VisitorBase {
     }
 
     private void checkAndExtend(SimpleNode extendNode, SimpleNode checkNode) {
-        if(module.isNodeInSelection(selection, checkNode)){
+        if (module.isNodeInSelection(selection, checkNode)) {
             extendNodeInSelection = extendNode;
         }
     }
@@ -221,8 +221,8 @@ public class SelectionExtenderVisitor extends VisitorBase {
     public Object visitIf(If node) throws Exception {
         visit(node.test);
         visit(node.body);
-        if(node.orelse != null){
-            if(this.extendNodeInSelection instanceof exprType){
+        if (node.orelse != null) {
+            if (this.extendNodeInSelection instanceof exprType) {
                 extendSelection(node);
             }
             visit(node.orelse);
@@ -236,8 +236,8 @@ public class SelectionExtenderVisitor extends VisitorBase {
         visit(node.body);
         visit(node.handlers);
         visit(node.orelse);
-        if(node.orelse != null){
-            if(this.extendNodeInSelection instanceof exprType){
+        if (node.orelse != null) {
+            if (this.extendNodeInSelection instanceof exprType) {
                 extendSelection(node);
             }
             visit(node.orelse);
@@ -315,27 +315,27 @@ public class SelectionExtenderVisitor extends VisitorBase {
     }
 
     private void extendLast(SimpleNode node) {
-        if(extendNodeInSelection != null){
+        if (extendNodeInSelection != null) {
             selection = module.extendSelectionToEnd(selection, node);
         }
-        if(!stmtExprStack.isEmpty()){
+        if (!stmtExprStack.isEmpty()) {
             selection = module.extendSelection(selection, stmtExprStack.peek());
         }
     }
 
     private void visit(SimpleNode[] body) throws Exception {
-        for(SimpleNode node:body){
+        for (SimpleNode node : body) {
             visit(node);
         }
     }
 
     private void updateStack(SimpleNode node) {
-        if(!stmtExprStack.isEmpty()){
-            if(node == stmtExprStack.peek()){
+        if (!stmtExprStack.isEmpty()) {
+            if (node == stmtExprStack.peek()) {
                 return;
             }
         }
-        if(node instanceof stmtType || node instanceof exprType){
+        if (node instanceof stmtType || node instanceof exprType) {
             stmtExprStack.push(node);
         }
     }

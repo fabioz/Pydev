@@ -8,10 +8,11 @@ package org.python.pydev.debug.newconsole;
 
 import java.util.List;
 
-import org.python.pydev.core.Tuple;
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
-import org.python.pydev.dltk.console.ui.IConsoleStyleProvider;
-import org.python.pydev.dltk.console.ui.ScriptStyleRange;
+
+import com.aptana.interactive_console.console.ui.IConsoleStyleProvider;
+import com.aptana.interactive_console.console.ui.ScriptStyleRange;
+import com.aptana.shared_core.structure.Tuple;
 
 import junit.framework.TestCase;
 
@@ -23,9 +24,10 @@ public class PydevConsoleTest extends TestCase {
 
     public void testPydevConsoleColors() throws Exception {
         IConsoleStyleProvider provider = new ConsoleStyleProvider();
-        
+
         //foo start yellow bar endyellow xxx
-        Tuple<List<ScriptStyleRange>, String> tup = provider.createInterpreterErrorStyle("foo\u001B[0;33mbar\u001B[0mxxx", 0);
+        Tuple<List<ScriptStyleRange>, String> tup = provider.createInterpreterErrorStyle(
+                "foo\u001B[0;33mbar\u001B[0mxxx", 0);
         List<ScriptStyleRange> ranges = tup.o1;
         assertEquals(3, ranges.size());
         assertEquals(null, ranges.get(0).foreground);

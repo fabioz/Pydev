@@ -9,7 +9,6 @@ package org.python.pydev.core.parser;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IEditorInput;
 
-
 /**
  * The interface for an IParser
  * 
@@ -36,7 +35,7 @@ public interface IPyParser {
      * Disposes this parser (it may no longer be used after this method is called)
      */
     void dispose();
-    
+
     /**
      * Sets the parameters on the heuristics for doing reparses
      */
@@ -50,10 +49,10 @@ public interface IPyParser {
      * @param input this is the input from the editor. Used to get the file for creating markers if needed.
      */
     void setDocument(IDocument document, IEditorInput input);
-    
+
     /**
      * Schedules a reparse in the parser.
      * @return 
      */
-    boolean forceReparse(Object ... argsToReparse);
+    boolean forceReparse(Object... argsToReparse);
 }

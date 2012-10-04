@@ -20,11 +20,11 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
  * 
  * @author Fabio Zadrozny
  */
-public class PyProjectionAnnotation extends ProjectionAnnotation{
+public class PyProjectionAnnotation extends ProjectionAnnotation {
 
     public ASTEntry node;
 
-    public PyProjectionAnnotation(ASTEntry node){
+    public PyProjectionAnnotation(ASTEntry node) {
         this.node = node;
     }
 
@@ -34,13 +34,13 @@ public class PyProjectionAnnotation extends ProjectionAnnotation{
      * @return
      */
     public boolean appearsSame(ASTEntry node2) {
-        
-        if(node2.getClass().equals(node.getClass()) == false)
+
+        if (node2.getClass().equals(node.getClass()) == false)
             return false;
 
-        if(getCompleteName(node2).equals(getCompleteName(node)) == false)
+        if (getCompleteName(node2).equals(getCompleteName(node)) == false)
             return false;
-        
+
         return true;
     }
 
@@ -48,14 +48,14 @@ public class PyProjectionAnnotation extends ProjectionAnnotation{
      * @param node2
      */
     private String getCompleteName(ASTEntry node2) {
-        
+
         String ret = node2.getName();
-        
-        while(node2.parent != null){
-            ret = node2.parent.getName() + "."+ ret;
+
+        while (node2.parent != null) {
+            ret = node2.parent.getName() + "." + ret;
             node2 = node2.parent;
         }
-        
+
         return ret;
     }
 

@@ -21,7 +21,7 @@ public class ClassFieldTreeProvider implements ITreeContentProvider {
     }
 
     public Object[] getChildren(Object parentElement) {
-        if(parentElement instanceof ITreeNode){
+        if (parentElement instanceof ITreeNode) {
             return ((ITreeNode) parentElement).getChildren();
         }
         return null;
@@ -32,7 +32,7 @@ public class ClassFieldTreeProvider implements ITreeContentProvider {
     }
 
     public boolean hasChildren(Object element) {
-        if(element instanceof ITreeNode){
+        if (element instanceof ITreeNode) {
             ITreeNode node = (ITreeNode) element;
             return node.hasChildren();
         }

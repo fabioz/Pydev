@@ -15,8 +15,7 @@ class ThreadStateMapping {
             String version = System.getProperty("java.version");
             if (version.compareTo("1.2") >= 0) {
                 try {
-                    Class c = Class
-                            .forName("org.python.core.ThreadStateMapping2");
+                    Class c = Class.forName("org.python.core.ThreadStateMapping2");
                     return (ThreadStateMapping) c.newInstance();
                 } catch (Throwable t) {
                 }
@@ -52,7 +51,7 @@ class ThreadStateMapping {
         if (threads == null) {
             threads = new java.util.Hashtable();
         }
-        
+
         ts = (ThreadState) threads.get(t);
         if (ts == null) {
             if (newSystemState == null) {
@@ -86,9 +85,7 @@ class ThreadStateMapping {
             try {
                 Object key = e.nextElement();
                 ThreadState tempThreadState = (ThreadState) threads.get(key);
-                if ((tempThreadState != null)
-                        && (tempThreadState.thread != null)
-                        && !tempThreadState.thread.isAlive()) {
+                if ((tempThreadState != null) && (tempThreadState.thread != null) && !tempThreadState.thread.isAlive()) {
                     threads.remove(key);
                 }
             } catch (ClassCastException exc) {

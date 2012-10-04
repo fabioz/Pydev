@@ -18,12 +18,12 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-public abstract class TextInputWizardPage extends UserInputWizardPage{
+public abstract class TextInputWizardPage extends UserInputWizardPage {
 
     private String fInitialValue;
-    private Text fTextField;    
-    
-    public static final String PAGE_NAME= "TextInputPage";//$NON-NLS-1$
+    private Text fTextField;
+
+    public static final String PAGE_NAME = "TextInputPage";//$NON-NLS-1$
 
     /**
      * Creates a new text input page.
@@ -33,7 +33,7 @@ public abstract class TextInputWizardPage extends UserInputWizardPage{
     public TextInputWizardPage(String description, boolean isLastUserPage) {
         this(description, isLastUserPage, ""); //$NON-NLS-1$
     }
-    
+
     /**
      * Creates a new text input page.
      * @param isLastUserPage <code>true</code> if this page is the wizard's last
@@ -44,29 +44,29 @@ public abstract class TextInputWizardPage extends UserInputWizardPage{
         super(PAGE_NAME);
         Assert.isNotNull(initialValue);
         setDescription(description);
-        fInitialValue= initialValue;
+        fInitialValue = initialValue;
     }
-    
+
     /**
      * Returns whether the initial input is valid. Typically it is not, because the 
      * user is required to provide some information e.g. a new type name etc.
      * 
      * @return <code>true</code> iff the input provided at initialization is valid
      */
-    protected boolean isInitialInputValid(){
+    protected boolean isInitialInputValid() {
         return false;
     }
-    
+
     /**
      * Returns whether an empty string is a valid input. Typically it is not, because 
      * the user is required to provide some information e.g. a new type name etc.
      * 
      * @return <code>true</code> iff an empty string is valid
      */
-    protected boolean isEmptyInputValid(){
+    protected boolean isEmptyInputValid() {
         return false;
     }
-    
+
     /**
      * Returns the content of the text input field.
      * 
@@ -76,9 +76,9 @@ public abstract class TextInputWizardPage extends UserInputWizardPage{
     protected String getText() {
         if (fTextField == null)
             return null;
-        return fTextField.getText();    
+        return fTextField.getText();
     }
-    
+
     /**
      * Sets the new text for the text field. Does nothing if the text field has not been created.
      * @param text the new value
@@ -88,22 +88,22 @@ public abstract class TextInputWizardPage extends UserInputWizardPage{
             return;
         fTextField.setText(text);
     }
-    
+
     /**
      * Performs input validation. Returns a <code>RefactoringStatus</code> which
      * describes the result of input validation. <code>Null<code> is interpreted
      * as no error.
      */
-    protected RefactoringStatus validateTextField(String text){
+    protected RefactoringStatus validateTextField(String text) {
         return null;
     }
-    
+
     protected Text createTextInputField(Composite parent) {
         return createTextInputField(parent, SWT.BORDER);
     }
-    
+
     protected Text createTextInputField(Composite parent, int style) {
-        fTextField= new Text(parent, style);
+        fTextField = new Text(parent, style);
         fTextField.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
                 textModified(getText());
@@ -112,44 +112,44 @@ public abstract class TextInputWizardPage extends UserInputWizardPage{
         fTextField.setText(fInitialValue);
         return fTextField;
     }
-    
+
     /**
      * Checks the page's state and issues a corresponding error message. The page validation
      * is computed by calling <code>validatePage</code>.
      */
-    protected void textModified(String text) {  
-        if (! isEmptyInputValid() && text.equals("")){ //$NON-NLS-1$
+    protected void textModified(String text) {
+        if (!isEmptyInputValid() && text.equals("")) { //$NON-NLS-1$
             setPageComplete(false);
             setErrorMessage(null);
             restoreMessage();
             return;
         }
-        if ((! isInitialInputValid()) && text.equals(fInitialValue)){
+        if ((!isInitialInputValid()) && text.equals(fInitialValue)) {
             setPageComplete(false);
             setErrorMessage(null);
             restoreMessage();
             return;
         }
-        
+
         setPageComplete(validateTextField(text));
     }
-    
+
     /**
      * Subclasses can override if they want to restore the message differently.
      * This implementation calls <code>setMessage(null)</code>, which clears the message 
      * thus exposing the description.
      */
-    protected void restoreMessage(){
+    protected void restoreMessage() {
         setMessage(null);
     }
-    
+
     /* (non-Javadoc)
      * Method declared in IDialogPage
      */
     public void dispose() {
-        fTextField= null;   
+        fTextField = null;
     }
-    
+
     /* (non-Javadoc)
      * Method declared in WizardPage
      */
@@ -163,4 +163,3 @@ public abstract class TextInputWizardPage extends UserInputWizardPage{
         }
     }
 }
-

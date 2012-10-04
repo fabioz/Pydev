@@ -14,8 +14,8 @@ import org.eclipse.swt.graphics.Image;
 public final class LabelProviderWithDecoration extends DecoratingStyledCellLabelProvider implements ILabelProvider {
     private ILabelProvider labelProvider;
 
-    public LabelProviderWithDecoration(
-            IStyledLabelProvider labelProvider, ILabelDecorator decorator, IDecorationContext decorationContext) {
+    public LabelProviderWithDecoration(IStyledLabelProvider labelProvider, ILabelDecorator decorator,
+            IDecorationContext decorationContext) {
         super(labelProvider, decorator, decorationContext);
         this.labelProvider = (ILabelProvider) labelProvider;
     }
@@ -23,7 +23,7 @@ public final class LabelProviderWithDecoration extends DecoratingStyledCellLabel
     public String getText(Object element) {
         return labelProvider.getText(element);
     }
-    
+
     @Override
     public Image getImage(Object element) {
         return labelProvider.getImage(element);

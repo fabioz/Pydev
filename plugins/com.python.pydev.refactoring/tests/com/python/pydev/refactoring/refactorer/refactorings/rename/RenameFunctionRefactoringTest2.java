@@ -32,33 +32,32 @@ public class RenameFunctionRefactoringTest2 extends RefactoringRenameTestBase {
         }
     }
 
-
     public void testRename5() throws Exception {
         List<IInfo> toks = AdditionalProjectInterpreterInfo.getTokensEqualTo("RenameFunc2", natureRefactoring,
                 AbstractAdditionalTokensInfo.TOP_LEVEL | AbstractAdditionalTokensInfo.INNER);
         assertEquals(4, toks.size());
-                
-        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamefunction2.renamefunc2", 3, 19);
-        assertEquals(3, references.size()); 
+
+        Map<String, HashSet<ASTEntry>> references = getReferencesForRenameSimple("reflib.renamefunction2.renamefunc2",
+                3, 19);
+        assertEquals(3, references.size());
         assertEquals(2, references.get("reflib.renamefunction2.dontrenamefunc2").size());
         assertEquals(6, references.get("reflib.renamefunction2.renamefunc3").size());
         assertEquals(5, references.get(CURRENT_MODULE_IN_REFERENCES).size());
         checkProcessors();
     }
 
-
     @Override
     protected void checkProcessors() {
-        if(lastProcessorUsed != null){
+        if (lastProcessorUsed != null) {
             List<IRefactorRenameProcess> processes = lastProcessorUsed.process;
             assertEquals(4, processes.size());
-            
-//            for (IRefactorRenameProcess process : processes) {
-//                System.out.println(process);
-//            }
+
+            //            for (IRefactorRenameProcess process : processes) {
+            //                System.out.println(process);
+            //            }
         }
     }
-    
+
     @Override
     protected Class getProcessUnderTest() {
         throw new RuntimeException("Not used in this test!");

@@ -18,21 +18,22 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import com.aptana.shared_core.structure.Tuple;
+
 public class XMLMessage extends DefaultHandler {
-    
+
     //------------------------- static stuff
     private static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
 
     private static SAXParser getSAXParser() throws CoreException {
         SAXParser parser = null;
         try {
-            synchronized(parserFactory) {
+            synchronized (parserFactory) {
                 parser = parserFactory.newSAXParser();
             }
         } catch (ParserConfigurationException e) {
@@ -42,7 +43,7 @@ public class XMLMessage extends DefaultHandler {
         }
         return parser;
     }
-    
+
     public static Tuple<String, Integer> getMessage(String payload) {
         XMLMessage m = new XMLMessage();
         try {
@@ -51,12 +52,13 @@ public class XMLMessage extends DefaultHandler {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return m.info; 
+        return m.info;
     }
+
     //------------------------- end static stuff
 
-    Tuple<String, Integer> info = new Tuple<String, Integer>("",0);
-    
+    Tuple<String, Integer> info = new Tuple<String, Integer>("", 0);
+
     //message == <xml><io s="%s" ctx="%s"/></xml>
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         try {

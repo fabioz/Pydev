@@ -12,13 +12,13 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.dialogs.WizardNewProjectReferencePage;
 
 public abstract class AbstractNewProjectWizard extends Wizard implements INewWizard {
-    
+
     protected WizardNewProjectReferencePage referencePage;
 
     /**
      * Adds the project references page to the wizard.
      */
-    protected void addProjectReferencePage(){
+    protected void addProjectReferencePage() {
         // only add page if there are already projects in the workspace
         if (ResourcesPlugin.getWorkspace().getRoot().getProjects().length > 0) {
             referencePage = new WizardNewProjectReferencePage("Reference Page");

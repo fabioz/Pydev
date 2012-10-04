@@ -57,7 +57,8 @@ import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.TextConsoleViewer;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
+
+import com.aptana.interactive_console.console.ui.IScriptConsoleViewer;
 
 public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleViewer {
 
@@ -238,7 +239,8 @@ public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleVi
         viewer.setDocument(document, annotationModel);
     }
 
-    public void setDocument(IDocument document, IAnnotationModel annotationModel, int modelRangeOffset, int modelRangeLength) {
+    public void setDocument(IDocument document, IAnnotationModel annotationModel, int modelRangeOffset,
+            int modelRangeLength) {
         viewer.setDocument(document, annotationModel, modelRangeOffset, modelRangeLength);
     }
 
@@ -649,6 +651,5 @@ public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleVi
     public void setTabsToSpacesConverter(IAutoEditStrategy converter) {
         viewer.setTabsToSpacesConverter(converter);
     }
-
 
 }

@@ -17,18 +17,18 @@ import org.python.pydev.editor.PyEdit;
  */
 public class PyEditSetNextAdapterFactory implements IAdapterFactory {
 
-	private static PySetNextTarget pySetNextTarget = new PySetNextTarget();
+    private static PySetNextTarget pySetNextTarget = new PySetNextTarget();
 
-	public Object getAdapter(Object adaptableObject, Class adapterType) {
-        if(adaptableObject instanceof PyEdit && adapterType == ISetNextTarget.class){
+    public Object getAdapter(Object adaptableObject, Class adapterType) {
+        if (adaptableObject instanceof PyEdit && adapterType == ISetNextTarget.class) {
             return pySetNextTarget;
-            
+
         }
-        return null;	
+        return null;
     }
 
-	public Class[] getAdapterList() {
-		return new Class[]{IRunToLineTarget.class};
-	}
+    public Class[] getAdapterList() {
+        return new Class[] { IRunToLineTarget.class };
+    }
 
 }

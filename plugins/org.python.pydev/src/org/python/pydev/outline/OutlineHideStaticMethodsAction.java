@@ -44,7 +44,7 @@ public class OutlineHideStaticMethodsAction extends AbstractOutlineFilterAction 
                     ParsedItem item = (ParsedItem) element;
 
                     ASTEntryWithChildren astThis = item.getAstThis();
-                    if(astThis == null){
+                    if (astThis == null) {
                         return true;
                     }
                     SimpleNode token = astThis.node;
@@ -52,7 +52,7 @@ public class OutlineHideStaticMethodsAction extends AbstractOutlineFilterAction 
                     //String name = null;
                     if (token instanceof FunctionDef) {
                         FunctionDef functionDefToken = (FunctionDef) token;
-                        if(functionDefToken.decs != null){
+                        if (functionDefToken.decs != null) {
                             for (decoratorsType decorator : functionDefToken.decs) {
                                 if (decorator.func instanceof Name) {
                                     Name decoratorFuncName = (Name) decorator.func;

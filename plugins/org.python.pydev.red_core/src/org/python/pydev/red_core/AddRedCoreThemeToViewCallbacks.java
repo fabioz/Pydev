@@ -21,55 +21,57 @@ import com.aptana.theme.ThemePlugin;
 public class AddRedCoreThemeToViewCallbacks {
 
     public final ICallbackListener onControlDisposed;
-	public final ICallbackListener onControlCreated;
-	
+    public final ICallbackListener onControlCreated;
+
     public AddRedCoreThemeToViewCallbacks() {
-		onControlDisposed = new ICallbackListener() {
-			
-			public Object call(Object obj) {
-				try {
-				    if(obj instanceof Viewer){
-				        ThemePlugin.getDefault().getControlThemerFactory().dispose((Viewer)obj);
-				        
-    				}else if(obj instanceof Control){
-    				    ThemePlugin.getDefault().getControlThemerFactory().dispose((Control)obj);
-    				    
-    				}else{
-    				    Log.log("Cannot handle: "+obj);
-    				}
-                } catch (Throwable e) {
-                    Log.log(IStatus.ERROR, "Unable to dispose properly. Probably using incompatible version of Aptana Studio", e);
-                }
-				return null;
-			}
-		};
-		
-		onControlCreated = new ICallbackListener() {
+        onControlDisposed = new ICallbackListener() {
 
             public Object call(Object obj) {
-                if(obj instanceof Viewer){
+                try {
+                    if (obj instanceof Viewer) {
+                        ThemePlugin.getDefault().getControlThemerFactory().dispose((Viewer) obj);
+
+                    } else if (obj instanceof Control) {
+                        ThemePlugin.getDefault().getControlThemerFactory().dispose((Control) obj);
+
+                    } else {
+                        Log.log("Cannot handle: " + obj);
+                    }
+                } catch (Throwable e) {
+                    Log.log(IStatus.ERROR,
+                            "Unable to dispose properly. Probably using incompatible version of Aptana Studio", e);
+                }
+                return null;
+            }
+        };
+
+        onControlCreated = new ICallbackListener() {
+
+            public Object call(Object obj) {
+                if (obj instanceof Viewer) {
                     Viewer viewer = (Viewer) obj;
                     try {
                         ThemePlugin.getDefault().getControlThemerFactory().apply(viewer);
                     } catch (Throwable e) {
-                        Log.log(IStatus.ERROR, "Unable to apply theme. Probably using incompatible version of Aptana Studio", e);
+                        Log.log(IStatus.ERROR,
+                                "Unable to apply theme. Probably using incompatible version of Aptana Studio", e);
                     }
-                    
-                }else if(obj instanceof Control){
+
+                } else if (obj instanceof Control) {
                     Control control = (Control) obj;
                     try {
                         ThemePlugin.getDefault().getControlThemerFactory().apply(control);
                     } catch (Throwable e) {
-                        Log.log(IStatus.ERROR, "Unable to apply theme. Probably using incompatible version of Aptana Studio", e);
+                        Log.log(IStatus.ERROR,
+                                "Unable to apply theme. Probably using incompatible version of Aptana Studio", e);
                     }
-                    
-                    
-                }else{
-                    Log.log("Cannot handle: "+obj);
+
+                } else {
+                    Log.log("Cannot handle: " + obj);
                 }
-                    
+
                 return null;
-			}
-		};
-	}
+            }
+        };
+    }
 }

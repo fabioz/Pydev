@@ -36,8 +36,9 @@ public interface IPyCodeCompletion {
      * @throws IOException 
      * @throws PythonNatureWithoutProjectException 
      */
-    public abstract List<Object> getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException,
-            BadLocationException, IOException, MisconfigurationException, PythonNatureWithoutProjectException;
+    public abstract List<Object> getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request)
+            throws CoreException, BadLocationException, IOException, MisconfigurationException,
+            PythonNatureWithoutProjectException;
 
     /**
      * Returns non empty string if we are in imports section 

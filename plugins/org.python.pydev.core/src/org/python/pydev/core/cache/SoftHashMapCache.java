@@ -8,21 +8,23 @@ package org.python.pydev.core.cache;
 
 import java.io.Serializable;
 
+import com.aptana.shared_core.cache.CacheMapWrapper;
+
 /**
  * @author fabioz
  *
  */
-public final class SoftHashMapCache<Key, Val> extends CacheMapWrapper<Key, Val> implements Serializable{
+public final class SoftHashMapCache<Key, Val> extends CacheMapWrapper<Key, Val> implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
-    public SoftHashMapCache(){
+
+    public SoftHashMapCache() {
         super(new SoftHashMap<Key, Val>());
     }
 
     @SuppressWarnings("rawtypes")
     @Override
     public void removeStaleEntries() {
-        ((SoftHashMap)cache).removeStaleEntries();
+        ((SoftHashMap) cache).removeStaleEntries();
     }
 }

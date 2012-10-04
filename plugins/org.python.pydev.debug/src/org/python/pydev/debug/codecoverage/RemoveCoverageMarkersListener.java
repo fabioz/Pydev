@@ -21,18 +21,17 @@ import org.python.pydev.editor.PyEdit;
  * @author fabioz
  *
  */
-public class RemoveCoverageMarkersListener implements IDocumentListener, IPyEditListener{
+public class RemoveCoverageMarkersListener implements IDocumentListener, IPyEditListener {
 
     private IDocument doc;
     private PyEdit edit;
     private IFile file;
 
-
     public RemoveCoverageMarkersListener(IDocument document, PyEdit edit, IFile file) {
         this.doc = document;
         this.edit = edit;
         this.file = file;
-        
+
         document.addDocumentListener(this);
         edit.addPyeditListener(this);
     }
@@ -58,7 +57,7 @@ public class RemoveCoverageMarkersListener implements IDocumentListener, IPyEdit
     public void documentChanged(DocumentEvent event) {
         removeMarkersAndStopListening();
     }
-    
+
     /**
      * 
      */

@@ -28,9 +28,9 @@ public class GeneratePropertiesRefactoring extends AbstractPythonRefactoring {
 
     public GeneratePropertiesRefactoring(RefactoringInfo req) {
         super(req);
-        try{
+        try {
             initWizard();
-        }catch(Throwable e){
+        } catch (Throwable e) {
             status.addInfo(Messages.infoFixCode);
         }
     }
@@ -51,8 +51,8 @@ public class GeneratePropertiesRefactoring extends AbstractPythonRefactoring {
     public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException {
         List<IClassDefAdapter> classes = this.info.getClasses();
 
-        for(IClassDefAdapter adapter:classes){
-            if(!adapter.getAttributes().isEmpty()){
+        for (IClassDefAdapter adapter : classes) {
+            if (!adapter.getAttributes().isEmpty()) {
                 return super.checkInitialConditions(pm);
             }
         }

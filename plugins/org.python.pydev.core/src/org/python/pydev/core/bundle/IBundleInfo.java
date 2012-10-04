@@ -20,7 +20,7 @@ import org.eclipse.core.runtime.IPath;
  * @author Fabio Zadrozny
  */
 public interface IBundleInfo {
-    
+
     /**
      * Should return a file from a relative path.
      * 
@@ -29,9 +29,9 @@ public interface IBundleInfo {
      * @throws CoreException
      */
     File getRelativePath(IPath relative) throws CoreException;
-    
+
     String getPluginID();
-    
+
     ImageCache getImageCache();
 
 }

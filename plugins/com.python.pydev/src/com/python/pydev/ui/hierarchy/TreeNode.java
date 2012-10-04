@@ -17,11 +17,11 @@ public class TreeNode<X> {
     public final X data;
     public final List<TreeNode<X>> children = new ArrayList<TreeNode<X>>();
     public final TreeNode<X> parent;
-    
+
     public TreeNode(TreeNode<X> parent, X data, Image image) {
         this.parent = parent;
         this.data = data;
-        if(parent != null){
+        if (parent != null) {
             parent.children.add(this);
         }
         this.image = image;
@@ -32,13 +32,12 @@ public class TreeNode<X> {
      */
     public TreeNode<X> createCopy(TreeNode<X> parent) {
         TreeNode<X> newRoot = new TreeNode<X>(parent, this.data, this.image);
-        for(TreeNode<X> child:children){
+        for (TreeNode<X> child : children) {
             child.createCopy(newRoot);
         }
-        
+
         return newRoot;
     }
-    
 
     @Override
     public int hashCode() {

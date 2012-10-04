@@ -16,46 +16,44 @@ import org.python.pydev.parser.prettyprinterv2.PrettyPrinterUtilsV2;
 /**
  * This visitor will try to get the node where the extracted local should actually be added.
  */
-public class GetNodeForExtractLocalVisitor extends VisitorBase{
+public class GetNodeForExtractLocalVisitor extends VisitorBase {
 
     protected final FastStack<FastStack<SimpleNode>> contextStack = new FastStack<FastStack<SimpleNode>>(10);
     private int initialExtractLocalLine;
     private boolean keepGoing = true;
     private stmtType lastStmt;
-    
-    
-    public GetNodeForExtractLocalVisitor(int initialExtractLocalLine){
+
+    public GetNodeForExtractLocalVisitor(int initialExtractLocalLine) {
         this.initialExtractLocalLine = initialExtractLocalLine;
         contextStack.push(new FastStack<SimpleNode>(10)); //start with a stack.
     }
-    
+
     @Override
     public void traverse(SimpleNode node) throws Exception {
-        if(!keepGoing){
+        if (!keepGoing) {
             return;
         }
         boolean multiLineStmt = false;
-        
-        
-        if(node instanceof stmtType){
+
+        if (node instanceof stmtType) {
             multiLineStmt = PrettyPrinterUtilsV2.isMultiLineStmt((stmtType) node);
-            if(multiLineStmt){
+            if (multiLineStmt) {
                 contextStack.push(new FastStack<SimpleNode>(10));
             }
             lastStmt = (stmtType) node;
             node.traverse(this);
-            if(multiLineStmt && keepGoing){
+            if (multiLineStmt && keepGoing) {
                 contextStack.pop();
             }
-            
-        }else{
+
+        } else {
             FastStack<SimpleNode> peek = contextStack.peek();
             boolean inExpr = peek.size() != 0;
-            if(!inExpr && node instanceof exprType){
+            if (!inExpr && node instanceof exprType) {
                 peek.push(node);
             }
             node.traverse(this);
-            if(!inExpr && node instanceof exprType && keepGoing){
+            if (!inExpr && node instanceof exprType && keepGoing) {
                 peek.pop();
             }
         }
@@ -63,10 +61,10 @@ public class GetNodeForExtractLocalVisitor extends VisitorBase{
 
     @Override
     protected Object unhandled_node(SimpleNode node) throws Exception {
-        if(node instanceof stmtType){
+        if (node instanceof stmtType) {
             return null;
         }
-        if(node.beginLine >= initialExtractLocalLine){
+        if (node.beginLine >= initialExtractLocalLine) {
             keepGoing = false;
         }
         return null;
@@ -74,19 +72,18 @@ public class GetNodeForExtractLocalVisitor extends VisitorBase{
 
     public SimpleNode getLastInContextBeforePassedLine() {
         FastStack<SimpleNode> peeked = contextStack.peek();
-        if(peeked.size() > 0){
+        if (peeked.size() > 0) {
             SimpleNode expr = peeked.peek();
-            if(lastStmt != null){
-                if(expr.beginLine<lastStmt.beginLine){
+            if (lastStmt != null) {
+                if (expr.beginLine < lastStmt.beginLine) {
                     return expr;
-                }else{
+                } else {
                     return lastStmt;
                 }
             }
-            
+
         }
         return lastStmt;
     }
-    
 
 }

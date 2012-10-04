@@ -26,6 +26,7 @@ import org.eclipse.swt.widgets.Text;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 
+
 /**
  * A control for setting the working directory associated with a launch
  * configuration.
@@ -101,8 +102,7 @@ public class ProgramArgumentsBlock extends AbstractLaunchConfigurationTab {
             String text = configuration.getAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, "");
             fPrgmArgumentsText.setText(text);
         } catch (CoreException e) {
-            setErrorMessage("Exception occurred reading configuration"
-                    + e.getStatus().getMessage());
+            setErrorMessage("Exception occurred reading configuration" + e.getStatus().getMessage());
             Log.log(e);
         }
     }
@@ -112,8 +112,7 @@ public class ProgramArgumentsBlock extends AbstractLaunchConfigurationTab {
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#performApply(org.eclipse.debug.core.ILaunchConfigurationWorkingCopy)
      */
     public void performApply(ILaunchConfigurationWorkingCopy configuration) {
-        configuration.setAttribute(Constants.ATTR_PROGRAM_ARGUMENTS,
-                fPrgmArgumentsText.getText().trim());
+        configuration.setAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, fPrgmArgumentsText.getText().trim());
     }
 
     /*

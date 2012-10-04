@@ -2,7 +2,7 @@
 <feature
       id="org.python.pydev.mylyn.feature"
       label="Pydev Mylyn Integration"
-      version="0.3.0"
+      version="0.4.0"
       provider-name="Fabio Zadrozny">
 
    <description>
@@ -18,14 +18,13 @@
    </license>
 
    <requires>
-      <import plugin="org.python.pydev" version="1.3.7" match="greaterOrEqual"/>
+      <import plugin="org.python.pydev"/>
       <import plugin="org.eclipse.ui.ide"/>
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.core.resources"/>
       <import plugin="org.eclipse.ui.navigator"/>
       <import plugin="org.eclipse.ui.views"/>
-      <import plugin="org.eclipse.mylyn" version="2.0.0.v20070627-1400" match="greaterOrEqual"/>
       <import plugin="org.eclipse.mylyn.context.core"/>
       <import plugin="org.eclipse.mylyn.context.ui"/>
       <import plugin="org.eclipse.mylyn.ide.ui"/>
@@ -36,7 +35,7 @@
          id="org.python.pydev.mylyn"
          download-size="0"
          install-size="0"
-         version="0.3.0"
+         version="0.4.0"
          unpack="false"/>
 
 </feature>

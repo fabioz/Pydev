@@ -40,8 +40,8 @@ public abstract class AbstractTextEdit {
     public AbstractTextEdit(IRefactoringRequest req) {
         this.moduleAdapter = req.getOffsetNode().getModule();
         this.offsetAdapter = req.getOffsetNode();
-        if(req instanceof IExtractMethodRefactoringRequest){
-            this.scopeAdapter = ((IExtractMethodRefactoringRequest)req).getScopeAdapter();
+        if (req instanceof IExtractMethodRefactoringRequest) {
+            this.scopeAdapter = ((IExtractMethodRefactoringRequest) req).getScopeAdapter();
         }
         this.nodeHelper = new NodeHelper(req.getAdapterPrefs());
         this.adapterPrefs = req.getAdapterPrefs();
@@ -54,9 +54,9 @@ public abstract class AbstractTextEdit {
 
     protected String getFormattedNode() throws MisconfigurationException {
         SimpleNode node = getEditNode().createCopy();
-        try{
+        try {
             MakeAstValidForPrettyPrintingVisitor.makeValid(node);
-        }catch(Exception e){
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
@@ -67,7 +67,7 @@ public abstract class AbstractTextEdit {
     private String getIndentedSource(SimpleNode node, String source, String indentation) {
         StringBuilder indented = new StringBuilder();
 
-        if(nodeHelper.isFunctionDef(node)){
+        if (nodeHelper.isFunctionDef(node)) {
             indented.append(this.adapterPrefs.endLineDelim);
         }
 
@@ -77,13 +77,12 @@ public abstract class AbstractTextEdit {
         indented.append(source);
         indented.append(this.adapterPrefs.endLineDelim);
 
-        if(nodeHelper.isFunctionDef(node)){
+        if (nodeHelper.isFunctionDef(node)) {
             indented.append(this.adapterPrefs.endLineDelim);
         }
 
         return indented.toString();
     }
-
 
     public abstract int getOffsetStrategy();
 

@@ -25,30 +25,32 @@ public class DjPlugin extends AbstractUIPlugin {
 
     // The shared instance
     private static DjPlugin plugin;
-    
+
     private IDocumentProvider djcssDocumentProvider;
     private IDocumentProvider djhtmlDocumentProvider;
 
-    
     // ----------------- SINGLETON THINGS -----------------------------
     public static IBundleInfo info;
-    public static IBundleInfo getBundleInfo(){
-        if(DjPlugin.info == null){
+
+    public static IBundleInfo getBundleInfo() {
+        if (DjPlugin.info == null) {
             DjPlugin.info = new BundleInfo(DjPlugin.getDefault().getBundle());
         }
         return DjPlugin.info;
     }
-    public static void setBundleInfo(IBundleInfo b){
+
+    public static void setBundleInfo(IBundleInfo b) {
         DjPlugin.info = b;
     }
+
     /**
      * @return the cache that should be used to access images within the pydev plugin.
      */
-    public static ImageCache getImageCache(){
+    public static ImageCache getImageCache() {
         return DjPlugin.getBundleInfo().getImageCache();
     }
+
     // ----------------- END BUNDLE INFO THINGS --------------------------
-    
 
     /**
      * The constructor
@@ -94,10 +96,10 @@ public class DjPlugin extends AbstractUIPlugin {
      * @return
      */
     public synchronized IDocumentProvider getDjCSSDocumentProvider() {
-    	if (djcssDocumentProvider == null) {
-    		djcssDocumentProvider = new DjCssDocumentProvider();
-    	}
-    	return djcssDocumentProvider;
+        if (djcssDocumentProvider == null) {
+            djcssDocumentProvider = new DjCssDocumentProvider();
+        }
+        return djcssDocumentProvider;
     }
 
     /**
@@ -105,10 +107,10 @@ public class DjPlugin extends AbstractUIPlugin {
      * @return
      */
     public synchronized IDocumentProvider getDjHTMLDocumentProvider() {
-    	if (djhtmlDocumentProvider == null) {
-    		djhtmlDocumentProvider = new DjHTMLDocumentProvider();
-    	}
-    	return djhtmlDocumentProvider;
+        if (djhtmlDocumentProvider == null) {
+            djhtmlDocumentProvider = new DjHTMLDocumentProvider();
+        }
+        return djhtmlDocumentProvider;
     }
 
 }

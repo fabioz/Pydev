@@ -14,7 +14,7 @@ import java.util.HashSet;
  */
 public class CollectionFactory {
 
-    public static HashSet<Object> createHashSet(Object ... objects) {
+    public static HashSet<Object> createHashSet(Object... objects) {
         HashSet<Object> hashSet = new HashSet<Object>();
         for (Object object : objects) {
             hashSet.add(object);

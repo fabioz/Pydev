@@ -5,8 +5,7 @@ package org.python.core;
  * A python function.
  */
 
-final public class PyFunction extends PyObject
-{
+final public class PyFunction extends PyObject {
     public String __name__;
     public PyObject __doc__;
     public PyObject func_globals;
@@ -15,9 +14,7 @@ final public class PyFunction extends PyObject
     public PyObject __dict__;
     public PyObject func_closure; // nested scopes: closure
 
-    public PyFunction(PyObject globals, PyObject[] defaults, PyCode code,
-                      PyObject doc,PyObject[] closure_cells)
-    {
+    public PyFunction(PyObject globals, PyObject[] defaults, PyCode code, PyObject doc, PyObject[] closure_cells) {
         func_globals = globals;
         __name__ = code.co_name;
         if (doc == null)
@@ -33,28 +30,20 @@ final public class PyFunction extends PyObject
         }
     }
 
-    public PyFunction(PyObject globals, PyObject[] defaults, PyCode code,
-                      PyObject doc) {
-        this(globals,defaults,code,doc,null);
+    public PyFunction(PyObject globals, PyObject[] defaults, PyCode code, PyObject doc) {
+        this(globals, defaults, code, doc, null);
     }
 
     public PyFunction(PyObject globals, PyObject[] defaults, PyCode code) {
-        this(globals, defaults, code, null,null);
+        this(globals, defaults, code, null, null);
     }
 
-    public PyFunction(PyObject globals, PyObject[] defaults, PyCode code,
-                      PyObject[] closure_cells)
-    {
-        this(globals, defaults, code, null,closure_cells);
+    public PyFunction(PyObject globals, PyObject[] defaults, PyCode code, PyObject[] closure_cells) {
+        this(globals, defaults, code, null, closure_cells);
     }
 
-
-    private static final String[] __members__ = {
-        "__doc__", "func_doc",
-        "__name__", "func_name", "__dict__",
-        "func_globals", "func_defaults", "func_code",
-        "func_closure"
-    };
+    private static final String[] __members__ = { "__doc__", "func_doc", "__name__", "func_name", "__dict__",
+            "func_globals", "func_defaults", "func_code", "func_closure" };
 
     public PyObject __dir__() {
         PyString members[] = new PyString[__members__.length];
@@ -95,16 +84,15 @@ final public class PyFunction extends PyObject
         else if (name == "func_globals")
             throwReadonly(name);
         else if (name == "func_code") {
-             if (value instanceof PyCode)
-                 func_code = (PyCode) value;
-             else
-                 throw Py.TypeError("func_code must be set to a code object"); 
+            if (value instanceof PyCode)
+                func_code = (PyCode) value;
+            else
+                throw Py.TypeError("func_code must be set to a code object");
         } else if (name == "__dict__" || name == "func_dict") {
             if (value instanceof PyDictionary || value instanceof PyStringMap)
                 __dict__ = value;
             else
-                throw Py.TypeError("setting function's dictionary " + 
-                                   "to a non-dict");
+                throw Py.TypeError("setting function's dictionary " + "to a non-dict");
         } else {
             if (__dict__ == null)
                 __dict__ = new PyStringMap();
@@ -127,9 +115,17 @@ final public class PyFunction extends PyObject
         __dict__.__delitem__(name);
     }
 
-    public boolean isMappingType() { return false; }
-    public boolean isNumberType() { return false; }
-    public boolean isSequenceType() { return false; }
+    public boolean isMappingType() {
+        return false;
+    }
+
+    public boolean isNumberType() {
+        return false;
+    }
+
+    public boolean isSequenceType() {
+        return false;
+    }
 
     public PyObject __findattr__(String name) {
         // these are special, everything else is findable by reflection
@@ -138,7 +134,8 @@ final public class PyFunction extends PyObject
         if (name == "func_name")
             return new PyString(__name__);
         if (name == "func_closure") {
-            if (func_closure != null) return func_closure;
+            if (func_closure != null)
+                return func_closure;
             return Py.None;
         }
         if (name == "func_defaults") {
@@ -173,29 +170,28 @@ final public class PyFunction extends PyObject
     public PyObject __call__() {
         return func_code.call(func_globals, func_defaults, func_closure);
     }
+
     public PyObject __call__(PyObject arg) {
         return func_code.call(arg, func_globals, func_defaults, func_closure);
     }
+
     public PyObject __call__(PyObject arg1, PyObject arg2) {
-        return func_code.call(arg1, arg2, func_globals, func_defaults,
-                              func_closure);
+        return func_code.call(arg1, arg2, func_globals, func_defaults, func_closure);
     }
+
     public PyObject __call__(PyObject arg1, PyObject arg2, PyObject arg3) {
-        return func_code.call(arg1, arg2, arg3, func_globals, func_defaults,
-                              func_closure);
+        return func_code.call(arg1, arg2, arg3, func_globals, func_defaults, func_closure);
     }
 
     public PyObject __call__(PyObject[] args, String[] keywords) {
-        return func_code.call(args, keywords, func_globals, func_defaults,
-                              func_closure);
+        return func_code.call(args, keywords, func_globals, func_defaults, func_closure);
     }
-    public PyObject __call__(PyObject arg1, PyObject[] args,
-                             String[] keywords)
-    {
-        return func_code.call(arg1, args, keywords, func_globals,
-                              func_defaults,  func_closure);
+
+    public PyObject __call__(PyObject arg1, PyObject[] args, String[] keywords) {
+        return func_code.call(arg1, args, keywords, func_globals, func_defaults, func_closure);
     }
+
     public String toString() {
-        return "<function "+__name__+" "+Py.idstr(this)+">";
+        return "<function " + __name__ + " " + Py.idstr(this) + ">";
     }
 }

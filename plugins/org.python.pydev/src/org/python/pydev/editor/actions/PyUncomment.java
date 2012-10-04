@@ -12,9 +12,10 @@
 package org.python.pydev.editor.actions;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.structure.FastStringBuffer;
+
+import com.aptana.shared_core.string.FastStringBuffer;
+import com.aptana.shared_core.structure.Tuple;
 
 /**
  * @author fabioz
@@ -33,9 +34,9 @@ public class PyUncomment extends PyComment {
 
         // If they selected a partial line, count it as a full one
         ps.selectCompleteLine();
-        
+
         // What we'll be replacing the selected text with
-        FastStringBuffer strbuf = new FastStringBuffer(ps.getSelLength()+1); //no, it won't be more that the current sel
+        FastStringBuffer strbuf = new FastStringBuffer(ps.getSelLength() + 1); //no, it won't be more that the current sel
 
         // For each line, uncomment it
         int endLineIndex = ps.getEndLineIndex();

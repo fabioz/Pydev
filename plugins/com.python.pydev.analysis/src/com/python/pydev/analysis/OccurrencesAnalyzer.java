@@ -34,41 +34,41 @@ import com.python.pydev.analysis.visitors.OccurrencesVisitor;
  */
 public class OccurrencesAnalyzer {
 
-    
-    public IMessage[] analyzeDocument(IPythonNature nature, SourceModule module, IAnalysisPreferences prefs, IDocument document, 
-            IProgressMonitor monitor, IIndentPrefs indentPrefs) {
-        
+    public IMessage[] analyzeDocument(IPythonNature nature, SourceModule module, IAnalysisPreferences prefs,
+            IDocument document, IProgressMonitor monitor, IIndentPrefs indentPrefs) {
+
         OccurrencesVisitor visitor = new OccurrencesVisitor(nature, module.getName(), module, prefs, document, monitor);
         try {
             SimpleNode ast = module.getAst();
-            if(ast != null){
-            	nature.startRequests();
-            	try{
-            		ast.accept(visitor);
-            	}finally{
-            		nature.endRequests();
-            	}
+            if (ast != null) {
+                if (nature.startRequests()) {
+                    try {
+                        ast.accept(visitor);
+                    } finally {
+                        nature.endRequests();
+                    }
+                }
             }
         } catch (OperationCanceledException e) {
             throw e;
         } catch (Exception e) {
-            Log.log(IStatus.ERROR, ("Error while visiting "+module.getName()+" ("+module.getFile()+")"), e);
+            Log.log(IStatus.ERROR, ("Error while visiting " + module.getName() + " (" + module.getFile() + ")"), e);
         }
-        
+
         List<IMessage> messages = new ArrayList<IMessage>();
-        if(!monitor.isCanceled()){
+        if (!monitor.isCanceled()) {
             messages = visitor.getMessages();
-            try{
+            try {
                 messages.addAll(TabNanny.analyzeDoc(document, prefs, module.getName(), indentPrefs, monitor));
-            }catch(Exception e){
+            } catch (Exception e) {
                 Log.log(e); //just to be safe... (could happen if the document changes during the process).
             }
         }
-        
-        if(!monitor.isCanceled()){
+
+        if (!monitor.isCanceled()) {
             messages.addAll(new Pep8Visitor().getMessages(module, document, monitor, prefs));
         }
-        
+
         return messages.toArray(new IMessage[messages.size()]);
     }
 

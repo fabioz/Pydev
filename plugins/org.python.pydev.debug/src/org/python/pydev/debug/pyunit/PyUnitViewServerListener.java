@@ -17,19 +17,20 @@ import org.eclipse.ui.progress.UIJob;
 import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.log.Log;
 
+
 /**
  * Used to properly pass notifications in the UI thread to the PyUnitView.
  * 
  * @author fabioz
  */
 final class PyUnitViewServerListener implements IPyUnitServerListener {
-    
+
     private PyUnitView view;
     private Object lockView = new Object();
 
     private LinkedList<ICallback0<Object>> notifications = new LinkedList<ICallback0<Object>>();
-    
-    private Job updateJob = new UIJob("Update unittest view"){
+
+    private Job updateJob = new UIJob("Update unittest view") {
 
         @Override
         public IStatus runInUIThread(IProgressMonitor monitor) {
@@ -50,8 +51,7 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
     };
 
     private final PyUnitTestRun testRun;
-    
-    
+
     public PyUnitViewServerListener(IPyUnitServer pyUnitServer, IPyUnitLaunch pyUnitLaunch) {
         this.testRun = new PyUnitTestRun(pyUnitLaunch);
         pyUnitServer.registerOnNotifyTest(this);
@@ -62,24 +62,18 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
     public static int TIMEOUT = 25;
     public static int JOBS_PRIORITY = Job.SHORT;
     private boolean finishedNotified = false;
-    
-    public void notifyTest(
-            final String status, 
-            final String location,
-            final String test, 
-            final String capturedOutput, 
-            final String errorContents,
-            final String time
-            ) {
+
+    public void notifyTest(final String status, final String location, final String test, final String capturedOutput,
+            final String errorContents, final String time) {
         synchronized (notifications) {
             notifications.add(new ICallback0<Object>() {
 
                 public Object call() {
-                    PyUnitTestResult result = new PyUnitTestResult(
-                            testRun, status, location, test, capturedOutput, errorContents, time);
+                    PyUnitTestResult result = new PyUnitTestResult(testRun, status, location, test, capturedOutput,
+                            errorContents, time);
                     testRun.addResult(result);
                     synchronized (lockView) {
-                        if(view != null){
+                        if (view != null) {
                             view.notifyTest(result);
                         }
                     }
@@ -89,21 +83,16 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
         }
         updateJob.schedule(TIMEOUT);
     }
-    
-    
-    public void notifyStartTest(
-            final String location,
-            final String test 
-    ) {
+
+    public void notifyStartTest(final String location, final String test) {
         synchronized (notifications) {
             notifications.add(new ICallback0<Object>() {
-                
+
                 public Object call() {
-                    PyUnitTestStarted result = new PyUnitTestStarted(
-                            testRun, location, test);
+                    PyUnitTestStarted result = new PyUnitTestStarted(testRun, location, test);
                     testRun.addStartTest(result);
                     synchronized (lockView) {
-                        if(view != null){
+                        if (view != null) {
                             view.notifyTestStarted(result);
                         }
                     }
@@ -113,21 +102,20 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
         }
         updateJob.schedule(TIMEOUT);
     }
-    
-    
+
     public void notifyFinished(final String totalTime) {
         synchronized (notifications) {
-            if(!finishedNotified){
+            if (!finishedNotified) {
                 finishedNotified = true;
                 notifications.add(new ICallback0<Object>() {
-                    
+
                     public Object call() {
                         testRun.setFinished(true);
-                        if(totalTime != null){
+                        if (totalTime != null) {
                             testRun.setTotalTime(totalTime);
                         }
                         synchronized (lockView) {
-                            if(view != null){
+                            if (view != null) {
                                 view.notifyFinished(testRun);
                             }
                         }
@@ -148,7 +136,7 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
             this.view = view;
         }
     }
-    
+
     public PyUnitView getView() {
         synchronized (lockView) {
             return view;
@@ -162,7 +150,7 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
     public void notifyTestsCollected(String totalTestsCount) {
         testRun.setTotalNumberOfRuns(totalTestsCount);
         synchronized (lockView) {
-            if(view != null){
+            if (view != null) {
                 view.notifyTestsCollected(testRun);
             }
         }

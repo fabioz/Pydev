@@ -31,8 +31,8 @@ public class PyUnCollapse extends PyAction {
     public void run(IAction action) {
         PySelection ps = new PySelection(getTextEditor());
 
-        ProjectionAnnotationModel model = (ProjectionAnnotationModel) getTextEditor()
-                .getAdapter(ProjectionAnnotationModel.class);
+        ProjectionAnnotationModel model = (ProjectionAnnotationModel) getTextEditor().getAdapter(
+                ProjectionAnnotationModel.class);
 
         if (model != null) {
             model.expandAll(ps.getAbsoluteCursorOffset(), ps.getSelLength());

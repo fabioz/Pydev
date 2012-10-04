@@ -20,7 +20,7 @@ public class LocalFunctionDefVisitor extends GlobalFunctionDefVisitor {
 
     @Override
     public void visit(SimpleNode node) throws Exception {
-        if(nodeHelper.isClassDef(node)){
+        if (nodeHelper.isClassDef(node)) {
             return;
         }
         super.visit(node);

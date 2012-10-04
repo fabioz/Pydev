@@ -19,13 +19,13 @@ public class ParsingThread extends Thread {
 
     private final ParserScheduler parser;
     private final Object[] argsToReparse;
-    
+
     /**
      * Identifies whether this parsing thread is disposed.
      */
     private volatile boolean disposed;
 
-    ParsingThread(ParserScheduler parser, Object ... argsToReparse) {
+    ParsingThread(ParserScheduler parser, Object... argsToReparse) {
         super();
         this.parser = parser;
         this.argsToReparse = argsToReparse;
@@ -33,18 +33,18 @@ public class ParsingThread extends Thread {
 
     public void run() {
         try {
-            if(force == false){
-                makeOkAndSleepUntilIdleTimeElapses();
-            }
-            
-            while(!okToGo && force == false && !disposed){
+            if (force == false) {
                 makeOkAndSleepUntilIdleTimeElapses();
             }
 
-            if(disposed){
+            while (!okToGo && force == false && !disposed) {
+                makeOkAndSleepUntilIdleTimeElapses();
+            }
+
+            if (disposed) {
                 return;
             }
-            
+
             //ok, now we parse it... if we have not been requested to stop it
             try {
                 parser.state = ParserScheduler.STATE_DOING_PARSE;
@@ -56,8 +56,8 @@ public class ParsingThread extends Thread {
             force = false;
             //reset the state
             parser.state = ParserScheduler.STATE_WAITING;
-            
-        } finally{
+
+        } finally {
             parser.parsingThread = null;
         }
     }
@@ -65,7 +65,7 @@ public class ParsingThread extends Thread {
     private void makeOkAndSleepUntilIdleTimeElapses() {
         try {
             okToGo = true;
-            sleep(PyParserManager.getPyParserManager(null).getElapseMillisBeforeAnalysis()); 
+            sleep(PyParserManager.getPyParserManager(null).getElapseMillisBeforeAnalysis());
         } catch (Exception e) {
         }
     }

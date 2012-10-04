@@ -50,13 +50,13 @@ public class ImportVisitor extends VisitorBase {
     }
 
     private void visitImportModules(aliasType[] names) {
-        for(aliasType alias:names){
+        for (aliasType alias : names) {
             NameTok name = (NameTok) alias.name;
             NameTok asName = (NameTok) alias.asname;
 
             String realName = name.id;
             String aliasName = name.id;
-            if(asName != null){
+            if (asName != null) {
                 aliasName = asName.id;
             }
 
@@ -74,28 +74,28 @@ public class ImportVisitor extends VisitorBase {
     }
 
     private void visitAlias(String prefix, aliasType[] names) {
-        if(names != null && names.length > 0){
-            for(aliasType alias:names){
+        if (names != null && names.length > 0) {
+            for (aliasType alias : names) {
                 NameTok name = (NameTok) alias.name;
                 NameTok asName = (NameTok) alias.asname;
 
                 String realName = name.id;
                 String aliasName = name.id;
-                if(asName != null){
+                if (asName != null) {
                     aliasName = asName.id;
                 }
 
                 aliasToFQIdentifier.add(new FQIdentifier(prefix, realName, aliasName));
 
             }
-        }else{
+        } else {
             // from <smthing> import *
             importedModules.put(prefix, prefix);
         }
     }
 
     private void addModuleImport(String moduleAlias, String realName) {
-        if(!(importedModules.containsKey(moduleAlias))){
+        if (!(importedModules.containsKey(moduleAlias))) {
             importedModules.put(moduleAlias, realName);
         }
     }

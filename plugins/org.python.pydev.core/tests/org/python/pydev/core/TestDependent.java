@@ -18,6 +18,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
+import com.aptana.shared_core.io.FileUtils;
+
 public class TestDependent {
 
     //Use defaults and override later as needed.
@@ -25,14 +27,13 @@ public class TestDependent {
     //Python (required)
     public static String PYTHON_INSTALL = null;
     public static String TEST_PYDEV_BASE_LOC = null;
-    
+
     //Python (implicitly resolved based on the Python variables above if not specified).
     public static String PYTHON_LIB = null;
     public static String PYTHON_DLLS = null;
     public static String PYTHON_EXE = null;
     public static String PYTHON_SITE_PACKAGES = null;
     public static String PYTHON_TEST_PACKAGES = null;
-    
 
     //Python (optional): related tests won't be run if not available
     public static String PYTHON_WXPYTHON_PACKAGES = null;
@@ -45,7 +46,6 @@ public class TestDependent {
 
     //python 3.0
     public static String PYTHON_30_LIB = null;
-
 
     public static String TEST_PYSRC_LOC = null;
     public static String TEST_PYSRC_NAVIGATOR_LOC = null;
@@ -79,15 +79,14 @@ public class TestDependent {
     public static String CYGWIN_UNIX_CYGPATH_LOCATION = null;
     public static String GOOGLE_APP_ENGINE_LOCATION = null;
 
-
     public static String GetCompletePythonLib(boolean addSitePackages) {
         if (!addSitePackages) {
-            return PYTHON_LIB+"|"+PYTHON_DLLS;
+            return PYTHON_LIB + "|" + PYTHON_DLLS;
         } else {
-            return PYTHON_LIB + "|" + PYTHON_SITE_PACKAGES+"|"+PYTHON_DLLS;
+            return PYTHON_LIB + "|" + PYTHON_SITE_PACKAGES + "|" + PYTHON_DLLS;
         }
     }
-    
+
     public static boolean isWindows() {
         String os = System.getProperty("os.name").toLowerCase();
         return (os.indexOf("win") >= 0);
@@ -125,7 +124,7 @@ public class TestDependent {
                 InputStream stream = TestDependent.class.getClassLoader().getResourceAsStream(propertiesFile);
                 if (stream != null) {
                     //Initialize the static contents of the class.
-                    String streamContents = REF.getStreamContents(stream, null, null);
+                    String streamContents = FileUtils.getStreamContents(stream, null, null);
                     Properties props = PropertiesHelper.createPropertiesFromString(streamContents);
                     Map<String, String> map = PropertiesHelper.createMapFromProperties(props);
                     Set<Entry<String, String>> entrySet = map.entrySet();
@@ -135,7 +134,7 @@ public class TestDependent {
                             Field field = TestDependent.class.getField(key);
                             if (field != null) {
                                 String value = entry.getValue();
-                                if(!value.equals("null")){
+                                if (!value.equals("null")) {
                                     field.set(null, value);
                                 }
                             }
@@ -145,25 +144,25 @@ public class TestDependent {
 
                     }
                 } else {
-                    System.err.println("Could not get stream to: " + propertiesFile + " to initialize TestDependent.java values.");
+                    System.err.println("Could not get stream to: " + propertiesFile
+                            + " to initialize TestDependent.java values.");
                 }
             }
 
             //Checking and setting variables that do not exist (if possible).
             if (PYTHON_INSTALL == null) {
                 System.err.println("PYTHON_INSTALL variable MUST be set in " + propertiesFile + " to run tests.");
-            }else if(!new File(PYTHON_INSTALL).exists()){
-                System.err.println("PYTHON_INSTALL variable points to path that does NOT exist: "+PYTHON_INSTALL);
-            }
-            
-            
-            if (TEST_PYDEV_BASE_LOC == null) {
-                System.err.println("TEST_PYDEV_BASE_LOC variable MUST be set in " + propertiesFile + " to run tests.");
-            }else if(!new File(TEST_PYDEV_BASE_LOC).exists()){
-                System.err.println("TEST_PYDEV_BASE_LOC variable points to path that does NOT exist: "+TEST_PYDEV_BASE_LOC);
+            } else if (!new File(PYTHON_INSTALL).exists()) {
+                System.err.println("PYTHON_INSTALL variable points to path that does NOT exist: " + PYTHON_INSTALL);
             }
 
-            
+            if (TEST_PYDEV_BASE_LOC == null) {
+                System.err.println("TEST_PYDEV_BASE_LOC variable MUST be set in " + propertiesFile + " to run tests.");
+            } else if (!new File(TEST_PYDEV_BASE_LOC).exists()) {
+                System.err.println("TEST_PYDEV_BASE_LOC variable points to path that does NOT exist: "
+                        + TEST_PYDEV_BASE_LOC);
+            }
+
             if (PYTHON_EXE == null) {
                 if (isWindows()) {
                     PYTHON_EXE = PYTHON_INSTALL + "python.exe";
@@ -171,11 +170,9 @@ public class TestDependent {
                     PYTHON_EXE = PYTHON_INSTALL + "python";
                 }
             }
-            if(!new File(PYTHON_EXE).exists()){
-                System.err.println("PYTHON_EXE variable points to path that does NOT exist: "+PYTHON_EXE);
+            if (!new File(PYTHON_EXE).exists()) {
+                System.err.println("PYTHON_EXE variable points to path that does NOT exist: " + PYTHON_EXE);
             }
-            
-            
 
             if (PYTHON_LIB == null) {
                 PYTHON_LIB = PYTHON_INSTALL + "Lib/";
@@ -187,7 +184,7 @@ public class TestDependent {
                 PYTHON_SITE_PACKAGES = PYTHON_LIB + "site-packages/";
             }
             if (PYTHON_TEST_PACKAGES == null) {
-                if(new File(TestDependent.PYTHON_LIB + "test/").exists()){
+                if (new File(TestDependent.PYTHON_LIB + "test/").exists()) {
                     PYTHON_TEST_PACKAGES = TestDependent.PYTHON_LIB + "test/";
                 }
             }
@@ -195,37 +192,65 @@ public class TestDependent {
             if (TEST_PYSRC_LOC == null) {
                 TEST_PYSRC_LOC = TEST_PYDEV_BASE_LOC + "org.python.pydev/tests/pysrc/";
             }
+            if (!TEST_PYSRC_LOC.endsWith("/")) {
+                throw new RuntimeException("Expecting TEST_PYSRC_LOC to end with '/'");
+            }
 
             if (TEST_PYSRC_NAVIGATOR_LOC == null) {
                 TEST_PYSRC_NAVIGATOR_LOC = TEST_PYDEV_BASE_LOC + "org.python.pydev/tests_navigator/pysrc/";
+            }
+            if (!TEST_PYSRC_NAVIGATOR_LOC.endsWith("/")) {
+                throw new RuntimeException("Expecting TEST_PYSRC_NAVIGATOR_LOC to end with '/'");
             }
 
             if (TEST_PYSRC_LOC2 == null) {
                 TEST_PYSRC_LOC2 = TEST_PYDEV_BASE_LOC + "org.python.pydev/tests/pysrc2/";
             }
+            if (!TEST_PYSRC_LOC2.endsWith("/")) {
+                throw new RuntimeException("Expecting TEST_PYSRC_LOC2 to end with '/'");
+            }
 
             if (TEST_PYDEV_PLUGIN_LOC == null) {
                 TEST_PYDEV_PLUGIN_LOC = TEST_PYDEV_BASE_LOC + "org.python.pydev/";
+            }
+            if (!TEST_PYDEV_PLUGIN_LOC.endsWith("/")) {
+                throw new RuntimeException("Expecting TEST_PYDEV_PLUGIN_LOC to end with '/'");
             }
 
             if (TEST_PYDEV_DEBUG_PLUGIN_LOC == null) {
                 TEST_PYDEV_DEBUG_PLUGIN_LOC = TEST_PYDEV_BASE_LOC + "org.python.pydev.debug/";
             }
+            if (!TEST_PYDEV_DEBUG_PLUGIN_LOC.endsWith("/")) {
+                throw new RuntimeException("Expecting TEST_PYDEV_DEBUG_PLUGIN_LOC to end with '/'");
+            }
 
             if (TEST_PYDEV_JYTHON_PLUGIN_LOC == null) {
                 TEST_PYDEV_JYTHON_PLUGIN_LOC = TEST_PYDEV_BASE_LOC + "org.python.pydev.jython/";
+            }
+            if (!TEST_PYDEV_JYTHON_PLUGIN_LOC.endsWith("/")) {
+                throw new RuntimeException("Expecting TEST_PYDEV_JYTHON_PLUGIN_LOC to end with '/'");
             }
 
             if (TEST_PYDEV_PARSER_PLUGIN_LOC == null) {
                 TEST_PYDEV_PARSER_PLUGIN_LOC = TEST_PYDEV_BASE_LOC + "org.python.pydev.parser/";
             }
+            if (!TEST_PYDEV_PARSER_PLUGIN_LOC.endsWith("/")) {
+                throw new RuntimeException("Expecting TEST_PYDEV_PARSER_PLUGIN_LOC to end with '/'");
+            }
 
             if (TEST_PYDEV_REFACTORING_PLUGIN_LOC == null) {
                 TEST_PYDEV_REFACTORING_PLUGIN_LOC = TEST_PYDEV_BASE_LOC + "org.python.pydev.refactoring/";
             }
+            if (!TEST_PYDEV_REFACTORING_PLUGIN_LOC.endsWith("/")) {
+                throw new RuntimeException("Expecting TEST_PYDEV_REFACTORING_PLUGIN_LOC to end with '/'");
+            }
 
             if (TEST_COM_REFACTORING_PYSRC_LOC == null) {
-                TEST_COM_REFACTORING_PYSRC_LOC = TEST_PYDEV_BASE_LOC + "com.python.pydev.refactoring/tests/pysrcrefactoring/";
+                TEST_COM_REFACTORING_PYSRC_LOC = TEST_PYDEV_BASE_LOC
+                        + "com.python.pydev.refactoring/tests/pysrcrefactoring/";
+            }
+            if (!TEST_COM_REFACTORING_PYSRC_LOC.endsWith("/")) {
+                throw new RuntimeException("Expecting TEST_COM_REFACTORING_PYSRC_LOC to end with '/'");
             }
 
         } catch (Exception e) {

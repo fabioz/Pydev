@@ -13,8 +13,6 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.dltk.console.IScriptConsoleShell;
-import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
 import org.python.pydev.editor.codecompletion.AbstractCompletionProcessorWithCycling;
 import org.python.pydev.editor.codecompletion.CompletionError;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
@@ -23,23 +21,27 @@ import org.python.pydev.editor.codecompletion.PyContextInformationValidator;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
 import org.python.pydev.editor.simpleassist.SimpleAssistProcessor;
 
+import com.aptana.interactive_console.console.IScriptConsoleShell;
+import com.aptana.interactive_console.console.ui.IScriptConsoleViewer;
+
+
 /**
  * Gathers completions for the pydev console.
  * 
  * @author fabioz
  */
-public class PydevConsoleCompletionProcessor extends AbstractCompletionProcessorWithCycling implements ICompletionListener {
-
+public class PydevConsoleCompletionProcessor extends AbstractCompletionProcessorWithCycling implements
+        ICompletionListener {
 
     /**
      * This is the class that manages the context information (validates it and
      * changes its presentation).
      */
     private PyContextInformationValidator contextInformationValidator;
-    
+
     private IScriptConsoleShell interpreterShell;
     private String errorMessage = null;
-    private int lastActivationCount=-1;
+    private int lastActivationCount = -1;
 
     public PydevConsoleCompletionProcessor(IScriptConsoleShell interpreterShell, PyContentAssistant pyContentAssistant) {
         super(pyContentAssistant);
@@ -47,7 +49,7 @@ public class PydevConsoleCompletionProcessor extends AbstractCompletionProcessor
         this.interpreterShell = interpreterShell;
 
     }
-    
+
     public char[] getContextInformationAutoActivationCharacters() {
         return null;
     }
@@ -64,18 +66,18 @@ public class PydevConsoleCompletionProcessor extends AbstractCompletionProcessor
         //cycle if we're in a new activation for requests (a second ctrl+space or
         //a new request)
         boolean cycleRequest;
-        
-        if(lastActivationCount == -1){
+
+        if (lastActivationCount == -1) {
             //new request: don't cycle
             lastActivationCount = this.pyContentAssistant.lastActivationCount;
             cycleRequest = false;
             updateStatus();
-        }else{
+        } else {
             //we already had a request (so, we may cycle or not depending on the activation count)
             cycleRequest = this.pyContentAssistant.lastActivationCount != lastActivationCount;
         }
-        
-        if(cycleRequest){
+
+        if (cycleRequest) {
             lastActivationCount = this.pyContentAssistant.lastActivationCount;
             doCycle();
             updateStatus();
@@ -84,7 +86,7 @@ public class PydevConsoleCompletionProcessor extends AbstractCompletionProcessor
         IScriptConsoleViewer viewer = (IScriptConsoleViewer) v;
 
         try {
-            if(!PyCodeCompletionPreferencesPage.useCodeCompletion()){
+            if (!PyCodeCompletionPreferencesPage.useCodeCompletion()) {
                 return new ICompletionProposal[0];
             }
             String commandLine = viewer.getCommandLine();
@@ -96,7 +98,7 @@ public class PydevConsoleCompletionProcessor extends AbstractCompletionProcessor
             CompletionError completionError = new CompletionError(e);
             this.errorMessage = completionError.getErrorMessage();
             //Make the error visible to the user!
-            return new ICompletionProposal[]{completionError};
+            return new ICompletionProposal[] { completionError };
         }
     }
 
@@ -111,7 +113,7 @@ public class PydevConsoleCompletionProcessor extends AbstractCompletionProcessor
 
         return contextInformationValidator;
     }
-    
+
     /**
      * @return an error message that happened while getting the completions
      */

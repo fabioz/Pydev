@@ -18,98 +18,98 @@ import com.aptana.editor.common.extensions.FindBarEditorExtension;
 import com.aptana.editor.common.extensions.ThemeableEditorExtension;
 
 public class AddRedCoreThemeImpl {
-	
-	private FindBarEditorExtension themeableEditorFindBarExtension;
-	private ThemeableEditorExtension themeableEditorColorsExtension;
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+    private FindBarEditorExtension themeableEditorFindBarExtension;
+    private ThemeableEditorExtension themeableEditorColorsExtension;
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public void installRedCoreTheme(final PyEdit edit) {
-		final PyEditThemeAdaptable adaptable = new PyEditThemeAdaptable(edit);
-		themeableEditorFindBarExtension = new FindBarEditorExtension(adaptable);
-		
-		if(PydevRedCorePreferencesInitializer.getUseAptanaThemes()){
-		    //may be null!
-		    themeableEditorColorsExtension = new ThemeableEditorExtension(adaptable);
-		}
-		
-		edit.onCreatePartControl.registerListener(new ICallbackListener() {
-			
-			public Object call(Object obj) {
-				Composite parent = (Composite) obj;
-				if(themeableEditorColorsExtension != null){
-				    themeableEditorColorsExtension.setParent(parent);
-				}
-				Composite newParent = themeableEditorFindBarExtension.createFindBarComposite(parent);
-				return newParent;
-			}
-		});
-		
-		edit.onAfterCreatePartControl.registerListener(new ICallbackListener() {
-			
-			public Object call(Object obj) {
-				themeableEditorFindBarExtension.createFindBar(adaptable.getISourceViewer());
-				if(themeableEditorColorsExtension != null){
-				    themeableEditorColorsExtension.overrideThemeColors();
-				}
-				return null;
-			}
-		});
-		
-		edit.onInitializeLineNumberRulerColumn.registerListener(new ICallbackListener() {
-			
-			public Object call(Object obj) {
-			    if(themeableEditorColorsExtension != null){
-			        themeableEditorColorsExtension.initializeLineNumberRulerColumn((LineNumberRulerColumn) obj);
-			    }
-				return null;
-			}
-		});
-		
-		edit.onDispose.registerListener(new ICallbackListener() {
-			
-			public Object call(Object obj) {
-			    themeableEditorFindBarExtension.dispose();
-			    if(themeableEditorColorsExtension != null){
-			        themeableEditorColorsExtension.dispose();
-			    }
-				return null;
-			}
-		});
-		
-		edit.onHandlePreferenceStoreChanged.registerListener(new ICallbackListener() {
-			
-			public Object call(Object event) {
-			    if(themeableEditorColorsExtension != null){
-			        themeableEditorColorsExtension.handlePreferenceStoreChanged((PropertyChangeEvent) event);
-			    }
-				return null;
-			}
-		});
-		
-		edit.onCreateSourceViewer.registerListener(new ICallbackListener() {
-			
-			public Object call(Object viewer) {
-			    if(themeableEditorColorsExtension != null){
-			        themeableEditorColorsExtension.createBackgroundPainter((ISourceViewer) viewer);
-			    }
-				return null;
-			}
-		});
+        final PyEditThemeAdaptable adaptable = new PyEditThemeAdaptable(edit);
+        themeableEditorFindBarExtension = new FindBarEditorExtension(adaptable);
 
-		edit.onCreateActions.registerListener(new ICallbackListener() {
-			
-			public Object call(Object obj) {
-		        themeableEditorFindBarExtension.createFindBarActions();
-				return null;
-			}
-		});
-		
-		edit.onGetAdapter.registerListener(new ICallbackListener() {
-			
-			public Object call(Object adaptable) {
-				return themeableEditorFindBarExtension.getFindBarDecoratorAdapter((Class) adaptable);
-			}
-		});
-	}
+        if (PydevRedCorePreferencesInitializer.getUseAptanaThemes()) {
+            //may be null!
+            themeableEditorColorsExtension = new ThemeableEditorExtension(adaptable);
+        }
+
+        edit.onCreatePartControl.registerListener(new ICallbackListener() {
+
+            public Object call(Object obj) {
+                Composite parent = (Composite) obj;
+                if (themeableEditorColorsExtension != null) {
+                    themeableEditorColorsExtension.setParent(parent);
+                }
+                Composite newParent = themeableEditorFindBarExtension.createFindBarComposite(parent);
+                return newParent;
+            }
+        });
+
+        edit.onAfterCreatePartControl.registerListener(new ICallbackListener() {
+
+            public Object call(Object obj) {
+                themeableEditorFindBarExtension.createFindBar(adaptable.getISourceViewer());
+                if (themeableEditorColorsExtension != null) {
+                    themeableEditorColorsExtension.overrideThemeColors();
+                }
+                return null;
+            }
+        });
+
+        edit.onInitializeLineNumberRulerColumn.registerListener(new ICallbackListener() {
+
+            public Object call(Object obj) {
+                if (themeableEditorColorsExtension != null) {
+                    themeableEditorColorsExtension.initializeLineNumberRulerColumn((LineNumberRulerColumn) obj);
+                }
+                return null;
+            }
+        });
+
+        edit.onDispose.registerListener(new ICallbackListener() {
+
+            public Object call(Object obj) {
+                themeableEditorFindBarExtension.dispose();
+                if (themeableEditorColorsExtension != null) {
+                    themeableEditorColorsExtension.dispose();
+                }
+                return null;
+            }
+        });
+
+        edit.onHandlePreferenceStoreChanged.registerListener(new ICallbackListener() {
+
+            public Object call(Object event) {
+                if (themeableEditorColorsExtension != null) {
+                    themeableEditorColorsExtension.handlePreferenceStoreChanged((PropertyChangeEvent) event);
+                }
+                return null;
+            }
+        });
+
+        edit.onCreateSourceViewer.registerListener(new ICallbackListener() {
+
+            public Object call(Object viewer) {
+                if (themeableEditorColorsExtension != null) {
+                    themeableEditorColorsExtension.createBackgroundPainter((ISourceViewer) viewer);
+                }
+                return null;
+            }
+        });
+
+        edit.onCreateActions.registerListener(new ICallbackListener() {
+
+            public Object call(Object obj) {
+                themeableEditorFindBarExtension.createFindBarActions();
+                return null;
+            }
+        });
+
+        edit.onGetAdapter.registerListener(new ICallbackListener() {
+
+            public Object call(Object adaptable) {
+                return themeableEditorFindBarExtension.getFindBarDecoratorAdapter((Class) adaptable);
+            }
+        });
+    }
 
 }

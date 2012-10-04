@@ -27,8 +27,7 @@ public abstract class PathPackageManager extends CachedJarsPackageManager {
      * Scans for package pkg.name the directories in path.
      */
     protected boolean packageExists(PyList path, String pkg, String name) {
-        String child = pkg.replace('.', File.separatorChar) + File.separator
-                + name;
+        String child = pkg.replace('.', File.separatorChar) + File.separator + name;
 
         for (int i = 0; i < path.__len__(); i++) {
             String dir = imp.defaultEmptyPathDirectory(path.pyget(i).__str__().toString());
@@ -44,8 +43,7 @@ public abstract class PathPackageManager extends CachedJarsPackageManager {
                 f.listFiles(m);
                 boolean exists = m.packageExists();
                 if (exists) {
-                    Py.writeComment("import", "java package as '"
-                            + f.getAbsolutePath() + "'");
+                    Py.writeComment("import", "java package as '" + f.getAbsolutePath() + "'");
                 }
                 return exists;
             }
@@ -59,9 +57,9 @@ public abstract class PathPackageManager extends CachedJarsPackageManager {
         private boolean python;
 
         public boolean accept(File dir, String name) {
-            if(name.endsWith(".py") || name.endsWith("$py.class") || name.endsWith("$_PyInner.class")) {
+            if (name.endsWith(".py") || name.endsWith("$py.class") || name.endsWith("$_PyInner.class")) {
                 python = true;
-            }else if (name.endsWith(".class")) {
+            } else if (name.endsWith(".class")) {
                 java = true;
             }
             return false;
@@ -80,8 +78,7 @@ public abstract class PathPackageManager extends CachedJarsPackageManager {
      * package jpkg content over the directories in path. Add to ret the founded
      * classes/pkgs. Filter out classes using {@link #filterByName},{@link #filterByAccess}.
      */
-    protected void doDir(PyList path, PyList ret, PyJavaPackage jpkg,
-            boolean instantiate, boolean exclpkgs) {
+    protected void doDir(PyList path, PyList ret, PyJavaPackage jpkg, boolean instantiate, boolean exclpkgs) {
         String child = jpkg.__name__.replace('.', File.separatorChar);
 
         for (int i = 0; i < path.__len__(); i++) {
@@ -126,8 +123,7 @@ public abstract class PathPackageManager extends CachedJarsPackageManager {
                 }
 
                 // for opt maybe we should some hash-set for ret
-                if (jpkg.__dict__.has_key(name) || jpkg.clsSet.has_key(name)
-                        || ret.__contains__(name)) {
+                if (jpkg.__dict__.has_key(name) || jpkg.clsSet.has_key(name) || ret.__contains__(name)) {
                     continue;
                 }
 
@@ -143,8 +139,7 @@ public abstract class PathPackageManager extends CachedJarsPackageManager {
 
                 if (!pkgCand) {
                     try {
-                        int acc = checkAccess(new BufferedInputStream(
-                                new FileInputStream(cand)));
+                        int acc = checkAccess(new BufferedInputStream(new FileInputStream(cand)));
                         if ((acc == -1) || filterByAccess(jname, acc)) {
                             continue;
                         }
@@ -213,8 +208,7 @@ public abstract class PathPackageManager extends CachedJarsPackageManager {
         }
     }
 
-    public PyList doDir(PyJavaPackage jpkg, boolean instantiate,
-            boolean exclpkgs) {
+    public PyList doDir(PyJavaPackage jpkg, boolean instantiate, boolean exclpkgs) {
         PyList basic = basicDoDir(jpkg, instantiate, exclpkgs);
         PyList ret = new PyList();
 

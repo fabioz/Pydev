@@ -19,77 +19,75 @@ import org.python.pydev.debug.pyunit.HistoryAction.HistoryMenuCreator;
 import org.python.pydev.debug.pyunit.HistoryAction.IActionsMenu;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 
-public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
+public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase {
 
     public static Test suite() {
         TestSuite suite = new TestSuite(PyUnitViewTestTestWorkbench.class.getName());
-        
-        suite.addTestSuite(PyUnitViewTestTestWorkbench.class); 
-        
+
+        suite.addTestSuite(PyUnitViewTestTestWorkbench.class);
+
         if (suite.countTestCases() == 0) {
             throw new Error("There are no test cases to run");
         } else {
             return suite;
         }
     }
-    
+
     protected void setUp() throws Exception {
         //no need for default setup
         closeWelcomeView();
     }
-    
+
     IPyUnitServerListener pyUnitViewServerListener;
     protected boolean terminated1 = false;
     protected boolean terminated2 = false;
     protected boolean relaunched1 = false;
     protected boolean relaunched2 = false;
-    
+
     public void testPyUnitView() throws Exception {
         PyUnitViewServerListener.TIMEOUT = 0;
         PyUnitViewServerListener.JOBS_PRIORITY = Job.INTERACTIVE;
-        
-        
+
         IPyUnitServer pyUnitServer = new IPyUnitServer() {
-            
+
             public void registerOnNotifyTest(IPyUnitServerListener pyUnitViewServerListener) {
                 PyUnitViewTestTestWorkbench.this.pyUnitViewServerListener = pyUnitViewServerListener;
             }
 
             public IPyUnitLaunch getPyUnitLaunch() {
                 return new IPyUnitLaunch() {
-                    
+
                     public void stop() {
                         terminated1 = true;
                     }
-                    
+
                     public void relaunch() {
                         relaunched1 = true;
                     }
-                    
+
                     public void relaunchTestResults(List<PyUnitTestResult> arrayList) {
                     }
 
                     public void relaunchTestResults(List<PyUnitTestResult> arrayList, String mode) {
                     }
-                    
+
                 };
             }
         };
-        
+
         IPyUnitServer pyUnitServer2 = new IPyUnitServer() {
-            
+
             public void registerOnNotifyTest(IPyUnitServerListener pyUnitViewServerListener) {
                 PyUnitViewTestTestWorkbench.this.pyUnitViewServerListener = pyUnitViewServerListener;
             }
 
-            
             public IPyUnitLaunch getPyUnitLaunch() {
                 return new IPyUnitLaunch() {
-                    
+
                     public void stop() {
                         terminated2 = true;
                     }
-                    
+
                     public void relaunch() {
                         relaunched2 = true;
                     }
@@ -102,7 +100,7 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
                 };
             }
         };
-        
+
         PyUnitViewServerListener serverListener1 = PyUnitView.registerPyUnitServer(pyUnitServer, false);
         PyUnitView view = PyUnitView.getView();
         assertSame(pyUnitViewServerListener, serverListener1);
@@ -111,7 +109,7 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
 
         notifyTestsCollected(9);
         assertEquals("0 / 9", counterPanel.fNumberOfRuns.getText());
-        
+
         notifyTest("ok", "d:/temp/a.py", "TestCase.testMet1", "", "", "0.1");
         assertSame(view.getCurrentTestRun(), serverListener1.getTestRun());
         assertEquals(1, serverListener1.getTestRun().getSharedResultsList().size());
@@ -119,55 +117,54 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
         assertEquals("0", counterPanel.fNumberOfErrors.getText());
         assertEquals("0", counterPanel.fNumberOfFailures.getText());
         assertEquals(false, progressBar.getHasErrors());
-        
+
         notifyTest("fail", "d:/temp/a.py", "TestCase.testMet2", "", "", "0.3");
         assertEquals("2 / 9", counterPanel.fNumberOfRuns.getText());
         assertEquals("0", counterPanel.fNumberOfErrors.getText());
         assertEquals("1", counterPanel.fNumberOfFailures.getText());
         assertEquals(true, progressBar.getHasErrors());
-        
+
         notifyTest("error", "d:/temp/a.py", "TestCase.testMet2", "", "", "0.5");
         assertEquals("3 / 9", counterPanel.fNumberOfRuns.getText());
         assertEquals("1", counterPanel.fNumberOfErrors.getText());
         assertEquals("1", counterPanel.fNumberOfFailures.getText());
         assertEquals(true, progressBar.getHasErrors());
-        
+
         notifyFinished();
-        
+
         ShowOnlyFailuresAction action = (ShowOnlyFailuresAction) getPyUnitViewAction(view, ShowOnlyFailuresAction.class);
         action.setChecked(false);//clicking it should do this.
         action.run();
         assertTrue(!action.isChecked()); //showing all methods (not only failures/errors)
 
         checkRun1Active(view, serverListener1);
-        
-        
+
         PyUnitViewServerListener serverListener2 = PyUnitView.registerPyUnitServer(pyUnitServer2, false);
         assertSame(pyUnitViewServerListener, serverListener2);
         assertNotSame(pyUnitViewServerListener, serverListener1);
-        
+
         checkRun2Active(view, serverListener2);
-        
+
         view.setCurrentRun(serverListener1.getTestRun());
         assertEquals(true, progressBar.getHasErrors());
-        
+
         view.setCurrentRun(serverListener2.getTestRun());
         assertEquals(false, progressBar.getHasErrors());
 
         executePyUnitViewAction(view, StopAction.class);
         assertTrue(terminated2);
         assertFalse(terminated1);
-        
+
         HistoryAction historyAction = (HistoryAction) getPyUnitViewAction(view, HistoryAction.class);
         HistoryAction.HistoryMenuCreator menuCreator = (HistoryMenuCreator) historyAction.getMenuCreator();
         final List<SetCurrentRunAction> actions = new ArrayList<SetCurrentRunAction>();
         final List<ClearTerminatedAction> terminatedActions = new ArrayList<ClearTerminatedAction>();
         IActionsMenu actionsMenu = new IActionsMenu() {
-            
+
             public void add(IAction action) {
-                if(action instanceof SetCurrentRunAction){
+                if (action instanceof SetCurrentRunAction) {
                     actions.add((SetCurrentRunAction) action);
-                }else if(action instanceof ClearTerminatedAction){
+                } else if (action instanceof ClearTerminatedAction) {
                     terminatedActions.add((ClearTerminatedAction) action);
                 }
             }
@@ -180,9 +177,9 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
         checkRun2Active(view, serverListener2);
         actions.get(0).run();
         checkRun1Active(view, serverListener1);
-        
+
         assertEquals(terminatedActions.size(), 1);
-        
+
         action = (ShowOnlyFailuresAction) getPyUnitViewAction(view, ShowOnlyFailuresAction.class);
         assertFalse(action.isChecked());
         action.setChecked(true);//clicking it should do this.
@@ -193,24 +190,22 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
         actions.clear();
         terminatedActions.get(0).run();
         terminatedActions.clear();
-        
+
         menuCreator.fillMenuManager(actionsMenu);
         assertEquals(1, actions.size()); //the other was terminated
         assertEquals(1, terminatedActions.size());
-        
-        
+
         executePyUnitViewAction(view, RelaunchAction.class);
         assertTrue(relaunched2);
-        
-//        goToManual();
-          
+
+        //        goToManual();
+
     }
 
     private void checkRun1Active(PyUnitView view, PyUnitViewServerListener serverListener1) {
         checkRun1Active(view, serverListener1, false);
     }
-    
-    
+
     private void checkRun1Active(PyUnitView view, PyUnitViewServerListener serverListener1, boolean onlyFailuresInTree) {
         assertSame(view.getCurrentTestRun(), serverListener1.getTestRun());
         assertEquals(3, serverListener1.getTestRun().getSharedResultsList().size());
@@ -221,9 +216,9 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
         assertEquals("1", counterPanel.fNumberOfFailures.getText());
         assertEquals(true, progressBar.getHasErrors());
         Tree tree = view.getTree();
-        if(onlyFailuresInTree){
+        if (onlyFailuresInTree) {
             assertEquals(2, tree.getItemCount());
-        }else{
+        } else {
             assertEquals(3, tree.getItemCount());
         }
 
@@ -242,19 +237,18 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
         assertEquals(0, tree.getItemCount());
     }
 
-
-
     private void notifyFinished() {
         pyUnitViewServerListener.notifyFinished(null);
         goToManual(100); //should be enough for it to execute
     }
-    
+
     private void notifyTestsCollected(int totalTestsCount) {
-        pyUnitViewServerListener.notifyTestsCollected(""+totalTestsCount);
+        pyUnitViewServerListener.notifyTestsCollected("" + totalTestsCount);
         goToManual(100); //should be enough for it to execute
     }
 
-    private void notifyTest(String status, String location, String test, String capturedOutput, String errorContents, String time) {
+    private void notifyTest(String status, String location, String test, String capturedOutput, String errorContents,
+            String time) {
         pyUnitViewServerListener.notifyTest(status, location, test, capturedOutput, errorContents, time);
         goToManual(100); //should be enough for it to execute
     }

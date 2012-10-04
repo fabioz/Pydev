@@ -14,38 +14,38 @@ import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
 
 public class FunctionDefAdapterTestCase extends AbstractIOTestCase {
-	private static final String DOUBLETAB = " ";
-	
-	public FunctionDefAdapterTestCase(String name) {
-		super(name);
-	}
+    private static final String DOUBLETAB = " ";
 
-	@Override
-	public void runTest() throws Throwable {
-		StringBuffer buffer = new StringBuffer();
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(
-		        null, null, new Document(data.source), new PythonNatureStub(), createVersionProvider());
-		List<IClassDefAdapter> classes = module.getClasses();
-		assertTrue(classes.size() > 0);
+    public FunctionDefAdapterTestCase(String name) {
+        super(name);
+    }
 
-		buffer.append("# ClassName FunctionName hasArg hasVarArg hasKwArg ArgumentsOnly\n");
-		for (IClassDefAdapter adapter : module.getClasses()) {
-			printFunction(buffer, adapter);
-		}
+    @Override
+    public void runTest() throws Throwable {
+        StringBuffer buffer = new StringBuffer();
+        ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(data.source),
+                new PythonNatureStub(), createVersionProvider());
+        List<IClassDefAdapter> classes = module.getClasses();
+        assertTrue(classes.size() > 0);
 
-		this.setTestGenerated(buffer.toString().trim());
-		assertEquals(getExpected(), getGenerated());
-	}
+        buffer.append("# ClassName FunctionName hasArg hasVarArg hasKwArg ArgumentsOnly\n");
+        for (IClassDefAdapter adapter : module.getClasses()) {
+            printFunction(buffer, adapter);
+        }
 
-	private void printFunction(StringBuffer buffer, IClassDefAdapter adapter) {
-		buffer.append("# " + adapter.getName() + "\n");
-		for (FunctionDefAdapter function : adapter.getFunctions()) {
-			buffer.append("# ");
-			buffer.append(function.getName() + DOUBLETAB + function.getArguments().hasArg() + DOUBLETAB
-					+ function.getArguments().hasVarArg() + DOUBLETAB + function.getArguments().hasKwArg() + DOUBLETAB
-					+ function.getArguments().getArgOnly());
-			buffer.append("\n");
-		}
-		buffer.append("\n");
-	}
+        this.setTestGenerated(buffer.toString().trim());
+        assertEquals(getExpected(), getGenerated());
+    }
+
+    private void printFunction(StringBuffer buffer, IClassDefAdapter adapter) {
+        buffer.append("# " + adapter.getName() + "\n");
+        for (FunctionDefAdapter function : adapter.getFunctions()) {
+            buffer.append("# ");
+            buffer.append(function.getName() + DOUBLETAB + function.getArguments().hasArg() + DOUBLETAB
+                    + function.getArguments().hasVarArg() + DOUBLETAB + function.getArguments().hasKwArg() + DOUBLETAB
+                    + function.getArguments().getArgOnly());
+            buffer.append("\n");
+        }
+        buffer.append("\n");
+    }
 }

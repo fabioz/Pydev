@@ -11,13 +11,14 @@ package org.python.pydev.refactoring.coderefactoring.extractlocal;
 import java.util.List;
 
 import org.eclipse.jface.text.ITextSelection;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.request.ExtractLocalRequest;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 import org.python.pydev.refactoring.utils.ListUtils;
+
+import com.aptana.shared_core.structure.Tuple;
 
 public class ExtractLocalRequestProcessor implements IRequestProcessor<ExtractLocalRequest> {
 
@@ -33,7 +34,8 @@ public class ExtractLocalRequestProcessor implements IRequestProcessor<ExtractLo
     }
 
     public List<ExtractLocalRequest> getRefactoringRequests() {
-        return ListUtils.wrap(new ExtractLocalRequest(info, selection, expression, variableName, duplicates, replaceDuplicates));
+        return ListUtils.wrap(new ExtractLocalRequest(info, selection, expression, variableName, duplicates,
+                replaceDuplicates));
     }
 
     public void setSelection(ITextSelection selection) {
@@ -47,9 +49,9 @@ public class ExtractLocalRequestProcessor implements IRequestProcessor<ExtractLo
     public void setVariableName(String variableName) {
         this.variableName = variableName;
     }
-    
-    public int getDuplicatesSize(){
-        if(duplicates == null){
+
+    public int getDuplicatesSize() {
+        if (duplicates == null) {
             return 0;
         }
         return duplicates.size();

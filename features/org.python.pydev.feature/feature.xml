@@ -228,5 +228,15 @@ This Agreement is governed by the laws of the State of New York and the intellec
          download-size="160"
          install-size="160"
          version="0.9.7.1"/>
+   <plugin
+         id="com.aptana.interactive_console"
+         download-size="160"
+         install-size="160"
+         version="0.9.7.1"/>
+   <plugin
+         id="com.aptana.shared_core"
+         download-size="160"
+         install-size="160"
+         version="0.9.7.1"/>
 
 </feature>

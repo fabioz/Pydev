@@ -38,27 +38,27 @@ public class RefactorProcessFactory {
      * @param request 
      */
     public static IRefactorRenameProcess getProcess(Definition definition, RefactoringRequest request) {
-        if(definition instanceof AssignDefinition){
+        if (definition instanceof AssignDefinition) {
             AssignDefinition d = (AssignDefinition) definition;
-            if(d.target.indexOf('.') != -1){
-                if(d.target.startsWith("self.")){
+            if (d.target.indexOf('.') != -1) {
+                if (d.target.startsWith("self.")) {
                     //ok, it is a member and not a local
                     return new PyRenameSelfAttributeProcess(definition, d.target);
-                }else{
+                } else {
                     return new PyRenameAttributeProcess(definition, d.target);
                 }
-                
-            }else{
-                if(definition.scope != null){
+
+            } else {
+                if (definition.scope != null) {
                     //classvar
-                    if(definition.scope.isLastClassDef()){
+                    if (definition.scope.isLastClassDef()) {
                         return new PyRenameAttributeProcess(definition, d.target);
                     }
                     FastStack scopeStack = definition.scope.getScopeStack();
-                    if(request.moduleName.equals(definition.module.getName())){
-                        if(!scopeStack.empty()){
+                    if (request.moduleName.equals(definition.module.getName())) {
+                        if (!scopeStack.empty()) {
                             Object peek = scopeStack.peek();
-                            if(peek instanceof FunctionDef){
+                            if (peek instanceof FunctionDef) {
                                 return new PyRenameLocalProcess(definition);
                             }
                         }
@@ -67,47 +67,47 @@ public class RefactorProcessFactory {
                 return new PyRenameGlobalProcess(definition);
             }
         }
-        if(definition.ast != null){
-            if(definition.ast instanceof ClassDef){
+        if (definition.ast != null) {
+            if (definition.ast instanceof ClassDef) {
                 return new PyRenameClassProcess(definition);
             }
-            
-            if(definition.ast instanceof Name){
+
+            if (definition.ast instanceof Name) {
                 Name n = (Name) definition.ast;
-                if(n.ctx == Name.Param || n.ctx == Attribute.KwOnlyParam){
+                if (n.ctx == Name.Param || n.ctx == Attribute.KwOnlyParam) {
                     return new PyRenameParameterProcess(definition);
                 }
             }
-            
-            if(definition instanceof KeywordParameterDefinition){
-                return new PyRenameParameterProcess((KeywordParameterDefinition)definition, request.nature);
+
+            if (definition instanceof KeywordParameterDefinition) {
+                return new PyRenameParameterProcess((KeywordParameterDefinition) definition, request.nature);
             }
-            
-            if(definition.ast instanceof FunctionDef){
+
+            if (definition.ast instanceof FunctionDef) {
                 return new PyRenameFunctionProcess(definition);
             }
-            if(NodeUtils.isImport(definition.ast)){
+            if (NodeUtils.isImport(definition.ast)) {
                 //this means that we found an import and we cannot actually map that import to a definition
                 //(so, it is an unresolved import)
                 return new PyRenameImportProcess(definition);
             }
-        }else{
+        } else {
             //the definition ast is null. This should mean that it was actually an import
             //and pointed to some module
             return new PyRenameImportProcess(definition);
-            
+
         }
-        if(definition.scope != null){
+        if (definition.scope != null) {
             //classvar
-            if(definition.scope.isLastClassDef()){
+            if (definition.scope.isLastClassDef()) {
                 return new PyRenameAttributeProcess(definition, definition.value);
             }
-            
+
             FastStack scopeStack = definition.scope.getScopeStack();
-            if(request.moduleName.equals(definition.module.getName())){
-                if(!scopeStack.empty()){
+            if (request.moduleName.equals(definition.module.getName())) {
+                if (!scopeStack.empty()) {
                     Object peek = scopeStack.peek();
-                    if(peek instanceof FunctionDef){
+                    if (peek instanceof FunctionDef) {
                         return new PyRenameLocalProcess(definition);
                     }
                 }

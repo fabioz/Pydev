@@ -8,55 +8,52 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
-public class FolderMock extends AbstractIFolderStub{
+public class FolderMock extends AbstractIFolderStub {
 
-	private String name;
-	private final List<IResource> members = new ArrayList<IResource>();
-	private IContainer parent;
+    private String name;
+    private final List<IResource> members = new ArrayList<IResource>();
+    private IContainer parent;
 
-	public FolderMock(String name) {
-		this.name = name;
-	}
+    public FolderMock(String name) {
+        this.name = name;
+    }
 
-	
-	@Override
-	public String getName() {
-		return name;
-	}
-	
-	public void addMember(FolderMock resource) {
-		this.members.add(resource);
-		resource.setParent(this);
-	}
-	
-	private void setParent(FolderMock folderMock) {
-		this.parent = folderMock;
-	}
+    @Override
+    public String getName() {
+        return name;
+    }
 
-	public void setParent(ProjectMock projectMock) {
-		this.parent = projectMock;
-	}
+    public void addMember(FolderMock resource) {
+        this.members.add(resource);
+        resource.setParent(this);
+    }
 
-	public void addMember(FileMock resource) {
-		this.members.add(resource);
-		resource.setParent(this);
-	}
-	
-	@Override
-	public IResource[] members() throws CoreException {
-		return members.toArray(new IResource[members.size()]);
-	}
-	
-	@Override
-	public IContainer getParent() {
-		return this.parent;
-	}
+    private void setParent(FolderMock folderMock) {
+        this.parent = folderMock;
+    }
 
-	@Override
-	public IProject getProject() {
-		return this.parent.getProject();
-	}
+    public void setParent(ProjectMock projectMock) {
+        this.parent = projectMock;
+    }
 
+    public void addMember(FileMock resource) {
+        this.members.add(resource);
+        resource.setParent(this);
+    }
 
+    @Override
+    public IResource[] members() throws CoreException {
+        return members.toArray(new IResource[members.size()]);
+    }
+
+    @Override
+    public IContainer getParent() {
+        return this.parent;
+    }
+
+    @Override
+    public IProject getProject() {
+        return this.parent.getProject();
+    }
 
 }

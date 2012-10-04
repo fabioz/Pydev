@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
+import com.aptana.shared_core.string.FastStringBuffer;
 
 /**
  * Note: not thread-safe!
@@ -27,7 +28,6 @@ public final class FastStack<E> implements Iterable<E> {
     private E[] elementData;
 
     private int size; // = 0
-
 
     /**
      * Creates an empty Stack.
@@ -122,9 +122,9 @@ public final class FastStack<E> implements Iterable<E> {
     public ListIterator<E> iterator() {
         return new ListItr(0);
     }
-    
+
     public E get(int i) {
-        if(i >= size){
+        if (i >= size) {
             throw new ArrayIndexOutOfBoundsException();
         }
         return elementData[i];
@@ -155,7 +155,7 @@ public final class FastStack<E> implements Iterable<E> {
     }
 
     public FastStack<E> createCopy() {
-        FastStack<E> ret = new FastStack<E>(size+15);
+        FastStack<E> ret = new FastStack<E>(size + 15);
         System.arraycopy(this.elementData, 0, ret.elementData, 0, size);
         ret.size = size;
         return ret;
@@ -242,8 +242,8 @@ public final class FastStack<E> implements Iterable<E> {
 
     @Override
     public String toString() {
-        FastStringBuffer buf = new FastStringBuffer("FastStack [\n", 25*this.size);
-        for (E element: this) {
+        FastStringBuffer buf = new FastStringBuffer("FastStack [\n", 25 * this.size);
+        for (E element : this) {
             buf.append("    ");
             buf.append(element.toString());
             buf.append("\n");
@@ -251,7 +251,7 @@ public final class FastStack<E> implements Iterable<E> {
         buf.append("]");
         return buf.toString();
     }
-    
+
     public int hashCode() {
         throw new RuntimeException("Not hashable");
     }
@@ -269,7 +269,7 @@ public final class FastStack<E> implements Iterable<E> {
      * @return the peeked element
      */
     public E peek(int i) {
-        return this.elementData[size - 1 -i];
+        return this.elementData[size - 1 - i];
     }
 
 }

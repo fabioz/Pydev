@@ -10,7 +10,7 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.plugin.PydevPlugin;
 
-public class InterpretersGroup extends ElementWithChildren{
+public class InterpretersGroup extends ElementWithChildren {
 
     public InterpretersGroup(ITreeElement parent) {
         super(parent);
@@ -25,7 +25,7 @@ public class InterpretersGroup extends ElementWithChildren{
         IInterpreterManager[] allInterpreterManagers = PydevPlugin.getAllInterpreterManagers();
         for (IInterpreterManager iInterpreterManager : allInterpreterManagers) {
             IInterpreterInfo[] interpreterInfos = iInterpreterManager.getInterpreterInfos();
-            if(interpreterInfos != null && interpreterInfos.length > 0){
+            if (interpreterInfos != null && interpreterInfos.length > 0) {
                 for (IInterpreterInfo iInterpreterInfo : interpreterInfos) {
                     addChild(new InterpreterGroup(this, iInterpreterInfo));
                 }

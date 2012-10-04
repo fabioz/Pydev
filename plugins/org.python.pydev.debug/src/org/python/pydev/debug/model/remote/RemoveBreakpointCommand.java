@@ -19,7 +19,7 @@ public class RemoveBreakpointCommand extends AbstractDebuggerCommand {
 
     public String file;
     public Object line;
-    
+
     public RemoveBreakpointCommand(AbstractDebugTarget debugger, String file, Object line) {
         super(debugger);
         this.file = file;
