@@ -69,6 +69,10 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
     public static final String SPACES_BEFORE_COMMENT = "SPACES_BEFORE_COMMENT";
     public static final int DEFAULT_SPACES_BEFORE_COMMENT = 2; //pep-8 says 2 spaces before inline comment.
 
+    //Spaces after '#'.
+    public static final String SPACES_IN_START_COMMENT = "SPACES_IN_START_COMMENT";
+    public static final int DEFAULT_SPACES_IN_START_COMMENT = 1; //pep-8 says 1 space after '#'
+
     private StyledText labelExample;
     private BooleanFieldEditor spaceAfterComma;
     private BooleanFieldEditor onlyChangedLines;
@@ -80,19 +84,28 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
     private BooleanFieldEditor addNewLineAtEndOfFile;
     private StyledTextForShowingCodeFactory formatAndStyleRangeHelper;
     private ComboFieldEditor spacesBeforeComment;
+    private ComboFieldEditor spacesInStartComment;
 
     public PyCodeFormatterPage() {
         super(GRID);
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
     }
 
-    private static final String[][] ENTRIES_AND_VALUES_FOR_SPACES_BEFORE_COMMENT = new String[][] {
-            { "Don't change manual formatting.", Integer.toString(FormatStd.DONT_HANDLE_SPACES_BEFORE_COMMENT) },
-            { "No spaces before comment.", "0" },
-            { "1 space before comment.", "1" },
-            { "2 spaces before comment.", "2" },
-            { "3 spaces before comment.", "3" },
-            { "4 spaces before comment.", "4" },
+    private static final String[][] ENTRIES_AND_VALUES_FOR_SPACES = new String[][] {
+            { "Don't change manual formatting", Integer.toString(FormatStd.DONT_HANDLE_SPACES) },
+            { "No spaces", "0" },
+            { "1 space", "1" },
+            { "2 spaces", "2" },
+            { "3 spaces", "3" },
+            { "4 spaces", "4" },
+    };
+
+    private static final String[][] ENTRIES_AND_VALUES_FOR_SPACES2 = new String[][] {
+            { "Don't change manual formatting", Integer.toString(FormatStd.DONT_HANDLE_SPACES) }, //0 and -1 means the same thing here.
+            { "At least 1 space", "1" },
+            { "At least 2 spaces", "2" },
+            { "At least 3 spaces", "3" },
+            { "At least 4 spaces", "4" },
     };
 
     /**
@@ -132,9 +145,13 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
         addNewLineAtEndOfFile = createBooleanFieldEditor(ADD_NEW_LINE_AT_END_OF_FILE, "Add new line at end of file?", p);
         addField(addNewLineAtEndOfFile);
 
-        spacesBeforeComment = new ComboFieldEditor(SPACES_BEFORE_COMMENT, "Spaces before a comment: ",
-                ENTRIES_AND_VALUES_FOR_SPACES_BEFORE_COMMENT, p);
+        spacesBeforeComment = new ComboFieldEditor(SPACES_BEFORE_COMMENT, "Spaces before a comment?",
+                ENTRIES_AND_VALUES_FOR_SPACES, p);
         addField(spacesBeforeComment);
+
+        spacesInStartComment = new ComboFieldEditor(SPACES_IN_START_COMMENT, "Spaces in comment start?",
+                ENTRIES_AND_VALUES_FOR_SPACES2, p);
+        addField(spacesInStartComment);
 
         formatAndStyleRangeHelper = new StyledTextForShowingCodeFactory();
         labelExample = formatAndStyleRangeHelper.createStyledTextForCodePresentation(p);
@@ -177,6 +194,7 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
         formatStd.trimLines = rightTrimLines.getBooleanValue();
         formatStd.trimMultilineLiterals = rightTrimMultilineLiterals.getBooleanValue();
         formatStd.spacesBeforeComment = Integer.parseInt(spacesBeforeComment.getComboValue());
+        formatStd.spacesInStartComment = Integer.parseInt(spacesInStartComment.getComboValue());
         updateLabelExample(formatStd);
     }
 
@@ -224,8 +242,16 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
 
     public static int getSpacesBeforeComment() {
         int spaces = PydevPrefs.getPreferences().getInt(SPACES_BEFORE_COMMENT);
-        if (spaces < FormatStd.DONT_HANDLE_SPACES_BEFORE_COMMENT) {
-            spaces = FormatStd.DONT_HANDLE_SPACES_BEFORE_COMMENT;
+        if (spaces < FormatStd.DONT_HANDLE_SPACES) {
+            spaces = FormatStd.DONT_HANDLE_SPACES;
+        }
+        return spaces;
+    }
+
+    public static int getSpacesInStartComment() {
+        int spaces = PydevPrefs.getPreferences().getInt(SPACES_IN_START_COMMENT);
+        if (spaces < FormatStd.DONT_HANDLE_SPACES) {
+            spaces = FormatStd.DONT_HANDLE_SPACES;
         }
         return spaces;
     }

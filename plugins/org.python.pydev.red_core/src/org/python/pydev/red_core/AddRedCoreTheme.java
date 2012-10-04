@@ -15,7 +15,6 @@ import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.IPyEditListener4;
 import org.python.pydev.editor.PyEdit;
 
-
 /**
  * Adds the features related to Aptana red core, such as the find bar and theming.
  */

@@ -33,7 +33,7 @@ public class PyFormatStdTest extends TestCase {
             PyFormatStdTest n = new PyFormatStdTest();
             n.setUp();
             //            DEBUG = true;
-            n.testWhitespacesBeforeCommentsUnchanged3();
+            n.testWhitespacesInComment();
             n.tearDown();
 
             junit.textui.TestRunner.run(PyFormatStdTest.class);
@@ -1243,14 +1243,14 @@ public class PyFormatStdTest extends TestCase {
     }
 
     public void testWhitespacesBeforeCommentsUnchanged() throws Exception {
-        std.spacesBeforeComment = FormatStd.DONT_HANDLE_SPACES_BEFORE_COMMENT;
+        std.spacesBeforeComment = FormatStd.DONT_HANDLE_SPACES;
         String input = "a = 10#comment";
         String expected = "a = 10#comment";
         checkFormatResults(input, expected);
     }
 
     public void testWhitespacesBeforeCommentsUnchanged2() throws Exception {
-        std.spacesBeforeComment = FormatStd.DONT_HANDLE_SPACES_BEFORE_COMMENT;
+        std.spacesBeforeComment = FormatStd.DONT_HANDLE_SPACES;
         String input = "a = 10,  #comment";
         String expected = "a = 10,  #comment";
         checkFormatResults(input, expected);
@@ -1279,6 +1279,13 @@ public class PyFormatStdTest extends TestCase {
         std.spacesBeforeComment = 2;
         String input = "a = 10, #comment";
         String expected = "a = 10,  #comment";
+        checkFormatResults(input, expected);
+    }
+
+    public void testWhitespacesInComment() throws Exception {
+        std.spacesInStartComment = 1;
+        String input = "a = 10, #comment";
+        String expected = "a = 10, # comment";
         checkFormatResults(input, expected);
     }
 

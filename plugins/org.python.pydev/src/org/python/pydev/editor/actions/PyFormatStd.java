@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
@@ -76,7 +77,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
 
         public boolean trimMultilineLiterals;
 
-        public static final int DONT_HANDLE_SPACES_BEFORE_COMMENT = -1;
+        public static final int DONT_HANDLE_SPACES = -1;
         /**
          * -1 = don't handle
          * 0 = 0 space
@@ -84,7 +85,12 @@ public class PyFormatStd extends PyAction implements IFormatter {
          * 2 = 2 spaces
          * ... 
          */
-        public int spacesBeforeComment = DONT_HANDLE_SPACES_BEFORE_COMMENT;
+        public int spacesBeforeComment = DONT_HANDLE_SPACES;
+
+        /**
+         * Spaces after the '#' in a comment. -1 = don't handle.
+         */
+        public int spacesInStartComment = DONT_HANDLE_SPACES;
     }
 
     /**
@@ -331,6 +337,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         formatStd.trimLines = PyCodeFormatterPage.getTrimLines();
         formatStd.trimMultilineLiterals = PyCodeFormatterPage.getTrimMultilineLiterals();
         formatStd.spacesBeforeComment = PyCodeFormatterPage.getSpacesBeforeComment();
+        formatStd.spacesInStartComment = PyCodeFormatterPage.getSpacesInStartComment();
         return formatStd;
     }
 
@@ -360,6 +367,10 @@ public class PyFormatStd extends PyAction implements IFormatter {
             throws SyntaxErrorException {
         char[] cs = str.toCharArray();
         FastStringBuffer buf = new FastStringBuffer();
+
+        //Temporary buffer for some operations. Must always be cleared before it's used.
+        FastStringBuffer tempBuf = new FastStringBuffer();
+
         ParsingUtils parsingUtils = ParsingUtils.create(cs, throwSyntaxError);
         char lastChar = '\0';
         for (int i = 0; i < cs.length; i++) {
@@ -373,38 +384,11 @@ public class PyFormatStd extends PyAction implements IFormatter {
                     break;
 
                 case '#':
-                    if (std.spacesBeforeComment != FormatStd.DONT_HANDLE_SPACES_BEFORE_COMMENT) {
-                        for (int j = i - 1; j >= 0; j--) {
-                            char cj = cs[j];
-                            if (cj == '\t' || cj == ' ') {
-                                continue;
-                            }
-                            //Ok, found a non-whitespace -- if it's not a new line, we're after some
-                            //code, in which case we have to put the configured amount of spaces.
-                            if (cj != '\r' && cj != '\n') {
-                                buf.rightTrim();
-                                buf.appendN(' ', std.spacesBeforeComment);
-                            }
-                            break;
-                        }
-                    }
-                    i = parsingUtils.eatComments(buf, i);
-                    if (std.trimLines) {
-                        String endLine = "";
-                        if (buf.endsWith("\r\n")) {
-                            endLine = "\r\n";
-                            buf.deleteLastChars(2);
-                        } else if (buf.endsWith('\r') || buf.endsWith('\n')) {
-                            endLine += buf.lastChar();
-                            buf.deleteLast();
-                        }
-                        buf.rightTrim();
-                        buf.append(endLine);
-                    }
+                    i = handleComment(std, cs, buf, tempBuf, parsingUtils, i);
                     break;
 
                 case ',':
-                    i = formatForComma(std, cs, buf, i);
+                    i = formatForComma(std, cs, buf, i, tempBuf);
                     break;
 
                 case '(':
@@ -430,16 +414,16 @@ public class PyFormatStd extends PyAction implements IFormatter {
                         if (Character.isJavaIdentifierPart(localC)) {
                             //ok, there's a chance that it can be an operator, but we still have to check
                             //the chance that it's a wild import
-                            FastStringBuffer localBufToCheckWildImport = new FastStringBuffer();
+                            tempBuf.clear();
                             while (Character.isJavaIdentifierPart(localC)) {
-                                localBufToCheckWildImport.append(localC);
+                                tempBuf.append(localC);
                                 j--;
                                 if (j < 0) {
                                     break; //break while
                                 }
                                 localC = buf.charAt(j);
                             }
-                            String reversed = localBufToCheckWildImport.reverse().toString();
+                            String reversed = tempBuf.reverse().toString();
                             if (!reversed.equals("import") && !reversed.equals("lambda")) {
                                 isOperator = true;
                             }
@@ -463,7 +447,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                     if (c == '-' || c == '+') { // could also be *
 
                         //handle exponentials correctly: e.g.: 1e-6 cannot have a space
-                        FastStringBuffer localBufToCheckNumber = new FastStringBuffer();
+                        tempBuf.clear();
                         boolean started = false;
 
                         for (int j = buf.length() - 1;; j--) {
@@ -480,13 +464,13 @@ public class PyFormatStd extends PyAction implements IFormatter {
                             }
                             started = true;
                             if (Character.isJavaIdentifierPart(localC) || localC == '.') {
-                                localBufToCheckNumber.append(localC);
+                                tempBuf.append(localC);
                             } else {
                                 break;//break for
                             }
                         }
                         boolean isExponential = true;
-                        String partialNumber = localBufToCheckNumber.reverse().toString();
+                        String partialNumber = tempBuf.reverse().toString();
                         int partialLen = partialNumber.length();
                         if (partialLen < 2 || !Character.isDigit(partialNumber.charAt(0))) {
                             //at least 2 chars: the number and the 'e'
@@ -581,6 +565,70 @@ public class PyFormatStd extends PyAction implements IFormatter {
             buf.rightTrim();
         }
         return buf.toString();
+    }
+
+    /**
+     * Handles the case where we found a '#' in the code.
+     */
+    private int handleComment(FormatStd std, char[] cs, FastStringBuffer buf, FastStringBuffer tempBuf,
+            ParsingUtils parsingUtils, int i) {
+        if (std.spacesBeforeComment != FormatStd.DONT_HANDLE_SPACES) {
+            for (int j = i - 1; j >= 0; j--) {
+                char cj = cs[j];
+                if (cj == '\t' || cj == ' ') {
+                    continue;
+                }
+                //Ok, found a non-whitespace -- if it's not a new line, we're after some
+                //code, in which case we have to put the configured amount of spaces.
+                if (cj != '\r' && cj != '\n') {
+                    buf.rightTrim();
+                    buf.appendN(' ', std.spacesBeforeComment);
+                }
+                break;
+            }
+        }
+
+        tempBuf.clear();
+        i = parsingUtils.eatComments(tempBuf, i);
+        if (std.trimLines) {
+            String endLine = "";
+            if (tempBuf.endsWith("\r\n")) {
+                endLine = "\r\n";
+                tempBuf.deleteLastChars(2);
+            } else if (tempBuf.endsWith('\r') || tempBuf.endsWith('\n')) {
+                endLine += tempBuf.lastChar();
+                tempBuf.deleteLast();
+            }
+            tempBuf.rightTrim();
+            tempBuf.append(endLine);
+        }
+
+        formatComment(std, tempBuf);
+
+        buf.append(tempBuf);
+        return i;
+    }
+
+    /**
+     * Adds spaces after the '#' according to the configured settings. The first char of the
+     * buffer passed (which is also the output) should always start with a '#'.
+     */
+    public static void formatComment(FormatStd std, FastStringBuffer bufWithComment) {
+        if (std.spacesInStartComment > 0) {
+            Assert.isTrue(bufWithComment.charAt(0) == '#');
+            int len = bufWithComment.length();
+            int spacesFound = 0;
+            for (int j = 1; j < len; j++) { //start at 1 because 0 should always be '#'
+                if (bufWithComment.charAt(j) != ' ') {
+                    break;
+                }
+                spacesFound += 1;
+            }
+            int diff = std.spacesInStartComment - spacesFound;
+            if (diff > 0) {
+                bufWithComment.insertN(1, ' ', diff);
+            }
+        }
     }
 
     /**
@@ -862,8 +910,6 @@ public class PyFormatStd extends PyAction implements IFormatter {
         return locBuf;
     }
 
-    private final FastStringBuffer formatForCommaTempBuf = new FastStringBuffer();
-
     /**
      * When a comma is found, it's formatted accordingly (spaces added after it).
      * 
@@ -873,7 +919,8 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @param i the current index
      * @return the new index on the original doc.
      */
-    private int formatForComma(FormatStd std, char[] cs, FastStringBuffer buf, int i) {
+    private int formatForComma(FormatStd std, char[] cs, FastStringBuffer buf, int i,
+            FastStringBuffer formatForCommaTempBuf) {
         formatForCommaTempBuf.clear();
         char c = '\0';
         while (i < cs.length - 1 && (c = cs[i + 1]) == ' ') {
@@ -884,7 +931,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         if (c == '#') {
             //Ok, we have a comment after a comma, let's handle it according to preferences.
             buf.append(',');
-            if (std.spacesBeforeComment == FormatStd.DONT_HANDLE_SPACES_BEFORE_COMMENT) {
+            if (std.spacesBeforeComment == FormatStd.DONT_HANDLE_SPACES) {
                 //Note: other cases we won't handle here as it should be handled when the start of 
                 //a comment is found.
                 buf.append(formatForCommaTempBuf);

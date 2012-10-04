@@ -106,16 +106,16 @@ public class IgnoreErrorParticipant implements IAnalysisMarkersParticipant {
                     }
 
                 } else {
-                    FormatStd format = IgnoreErrorParticipant.this.format;
-                    if (format == null) {
-                        format = PyFormatStd.getFormat();
+                    FormatStd formatStd = IgnoreErrorParticipant.this.format;
+                    if (formatStd == null) {
+                        formatStd = PyFormatStd.getFormat();
                     }
 
                     strToAdd.insert(0, '#');
 
                     //Just add spaces before the '#' if there's actually some content in the line.
                     if (c != '\r' && c != '\n' && c != '\0' && c != ' ') {
-                        int spacesBeforeComment = format.spacesBeforeComment;
+                        int spacesBeforeComment = formatStd.spacesBeforeComment;
                         if (spacesBeforeComment < 0) {
                             spacesBeforeComment = 1; //If 'manual', add a single space.
                         }
@@ -124,6 +124,7 @@ public class IgnoreErrorParticipant implements IAnalysisMarkersParticipant {
                             strToAdd.insertN(0, ' ', spacesBeforeComment);
                         }
                     }
+                    PyFormatStd.formatComment(formatStd, strToAdd);
                 }
 
                 fReplacementString = strToAdd.toString();
