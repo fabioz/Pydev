@@ -37,11 +37,19 @@ public class DontAnalyzeFileMarkerParticipant implements IAssistProps {
             PyEdit edit, int offset) throws BadLocationException {
         List<ICompletionProposal> props = new ArrayList<ICompletionProposal>();
         if (ps.getCursorLine() == 0) {
-            IgnoreCompletionProposal proposal = new IgnoreCompletionProposal(AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE
-                    + ps.getEndLineDelim(), 0, 0, AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE.length()
-                    + ps.getEndLineDelim().length(), annotationImage,
-                    AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE.substring(1), null, null,
-                    PyCompletionProposal.PRIORITY_DEFAULT, edit);
+            String replacementString = '#' + AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE + ps.getEndLineDelim();
+
+            IgnoreCompletionProposal proposal = new IgnoreCompletionProposal(
+                    replacementString,
+                    0,
+                    0,
+                    offset + replacementString.length(),
+                    annotationImage,
+                    AnalysisRunner.PYDEV_CODE_ANALYSIS_IGNORE,
+                    null,
+                    null,
+                    PyCompletionProposal.PRIORITY_DEFAULT,
+                    edit);
             props.add(proposal);
 
         }

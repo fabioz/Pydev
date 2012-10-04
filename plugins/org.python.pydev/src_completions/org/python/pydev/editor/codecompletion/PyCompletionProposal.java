@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -15,7 +15,6 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.python.pydev.core.log.Log;
-
 
 /**
  * The standard implementation of the <code>ICompletionProposal</code> interface.
@@ -124,31 +123,34 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
      * @see ICompletionProposal#apply(IDocument)
      */
     public void apply(IDocument document) {
-        if (onApplyAction == ON_APPLY_JUST_SHOW_CTX_INFO) {
-            return;
-        }
-        if (onApplyAction == ON_APPLY_DEFAULT) {
-            try {
-                document.replace(fReplacementOffset, fReplacementLength, fReplacementString);
-            } catch (BadLocationException x) {
-                // ignore
-            }
-            return;
-        }
-        if (onApplyAction == ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS) {
-            try {
-                String args;
-                if (fArgs.length() > 0) {
-                    args = fArgs.substring(1, fArgs.length() - 1); //remove the parenthesis
-                    document.replace(fReplacementOffset + fReplacementLength, 0, args);
+        switch (onApplyAction) {
+            case ON_APPLY_JUST_SHOW_CTX_INFO:
+                break;
+
+            case ON_APPLY_DEFAULT:
+                try {
+                    document.replace(fReplacementOffset, fReplacementLength, fReplacementString);
+                } catch (BadLocationException x) {
+                    // ignore
                 }
-            } catch (BadLocationException x) {
-                // ignore
-                Log.log(x);
-            }
-            return;
+                break;
+
+            case ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS:
+                try {
+                    String args;
+                    if (fArgs.length() > 0) {
+                        args = fArgs.substring(1, fArgs.length() - 1); //remove the parenthesis
+                        document.replace(fReplacementOffset + fReplacementLength, 0, args);
+                    }
+                } catch (BadLocationException x) {
+                    // ignore
+                    Log.log(x);
+                }
+                break;
+
+            default:
+                throw new RuntimeException("Unexpected apply mode:" + onApplyAction);
         }
-        throw new RuntimeException("Unexpected apply mode:" + onApplyAction);
     }
 
     public int getReplacementOffset() {

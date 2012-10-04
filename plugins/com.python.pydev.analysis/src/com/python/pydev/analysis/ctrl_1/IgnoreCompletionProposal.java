@@ -18,7 +18,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 
-
 public class IgnoreCompletionProposal extends PyCompletionProposal {
 
     private PyEdit edit;
@@ -29,7 +28,6 @@ public class IgnoreCompletionProposal extends PyCompletionProposal {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
                 contextInformation, additionalProposalInfo, priority);
         this.edit = edit;
-
     }
 
     @Override
@@ -39,7 +37,9 @@ public class IgnoreCompletionProposal extends PyCompletionProposal {
             document.replace(fReplacementOffset, fReplacementLength, fReplacementString);
 
             //ok, after doing it, let's call for a reparse
-            edit.getParser().forceReparse();
+            if (edit != null) {
+                edit.getParser().forceReparse();
+            }
         } catch (BadLocationException x) {
             Log.log(x);
         }

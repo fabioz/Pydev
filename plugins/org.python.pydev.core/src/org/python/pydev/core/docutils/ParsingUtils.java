@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
@@ -969,6 +969,11 @@ public abstract class ParsingUtils implements IPythonPartitions {
                 || IPythonPartitions.PY_MULTILINE_STRING2.equals(contentType)
                 || IPythonPartitions.PY_SINGLELINE_STRING1.equals(contentType)
                 || IPythonPartitions.PY_SINGLELINE_STRING2.equals(contentType);
+    }
+
+    public static boolean isCommentPartition(IDocument document, int offset) {
+        String contentType = getContentType(document, offset);
+        return IPythonPartitions.PY_COMMENT.equals(contentType);
     }
 
     /**
