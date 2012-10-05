@@ -81,11 +81,11 @@ d:\bin\Python265\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy
 		** Update homepage: 
 
 
-W:\pydev\plugins\com.python.pydev.docs\merged_homepage\final to 173.45.225.54 (/var/www)
+x:\pydev\plugins\com.python.pydev.docs\merged_homepage\final to 173.45.225.54 (/var/www)
 
 
 		** Tag repository: 
-		  git tag pydev_2_5_0 -a
+		  git tag pydev_2_7_0 -a
 		  git push --tags
 		
 		** Add news in forum (same as e-mail)
